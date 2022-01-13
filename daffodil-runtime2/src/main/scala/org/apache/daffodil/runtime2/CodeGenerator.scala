@@ -29,8 +29,6 @@ import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.xml.QName
-import org.apache.daffodil.xml.RefQName
 
 import scala.util.Properties.isWin
 
@@ -57,7 +55,7 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
    * Removes the "c" subdirectory if it existed before.  Returns the newly created
    * "c" subdirectory.
    */
-  override def generateCode(rootNS: Option[RefQName], outputDirArg: String): os.Path = {
+  override def generateCode(outputDirArg: String): os.Path = {
     // Get the paths of the C resources, the output directory, and its code subdirectory
     val resources = "/org/apache/daffodil/runtime2/c"
     val outputDir = os.Path(Paths.get(outputDirArg).toAbsolutePath)
@@ -86,13 +84,12 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     }
 
     // Generate C code from the DFDL schema, appending any warnings to our diagnostics
-    val rootElementName = rootNS.getOrElse(root.refQName).local
-    val codeGeneratorState = new CodeGeneratorState()
+    val codeGeneratorState = new CodeGeneratorState(root)
     Runtime2CodeGenerator.generateCode(root.document, codeGeneratorState)
     diagnostics = diagnostics ++ root.warnings
     val versionHeaderText = codeGeneratorState.generateVersionHeader
     val codeHeaderText = codeGeneratorState.generateCodeHeader
-    val codeFileText = codeGeneratorState.generateCodeFile(rootElementName)
+    val codeFileText = codeGeneratorState.generateCodeFile
 
     // Write the generated C code into our code subdirectory
     val generatedVersionHeader = codeDir/"libcli"/"daffodil_version.h"
@@ -213,9 +210,8 @@ object CodeGenerator {
     val pf = Compiler().compileFile(schemaFile.toIO, rootName)
     assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
     val cg = pf.forLanguage("c")
-    val rootNS = QName.refQNameFromExtendedSyntax(rootName.getOrElse("")).toOption
     val tempDir = os.temp.dir(dir = null, prefix = "daffodil-runtime2-")
-    val codeDir = cg.generateCode(rootNS, tempDir.toString)
+    val codeDir = cg.generateCode(tempDir.toString)
     assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
 
     // Replace the example generated files with the newly generated files
@@ -236,8 +232,8 @@ object CodeGenerator {
   def main(args: Array[String]): Unit = {
     // We expect one mandatory parameter, the examples directory's absolute location.
     if (args.length != 1) {
-      System.err.println(s"Usage: ${CodeGenerator} <examples directory location>")
-      System.exit(1);
+      System.err.println(s"Usage: $CodeGenerator <examples directory location>")
+      System.exit(1)
     }
 
     // Get paths to our example schemas and example generated code files

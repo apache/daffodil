@@ -11,21 +11,21 @@
 
 // Declare prototypes for easier compilation
 
-static void array_initSelf(array *instance);
-static void array_parseSelf(array *instance, PState *pstate);
-static void array_unparseSelf(const array *instance, UState *ustate);
-static void bigEndian_initSelf(bigEndian *instance);
-static void bigEndian_parseSelf(bigEndian *instance, PState *pstate);
-static void bigEndian_unparseSelf(const bigEndian *instance, UState *ustate);
-static void littleEndian_initSelf(littleEndian *instance);
-static void littleEndian_parseSelf(littleEndian *instance, PState *pstate);
-static void littleEndian_unparseSelf(const littleEndian *instance, UState *ustate);
-static void fixed_initSelf(fixed *instance);
-static void fixed_parseSelf(fixed *instance, PState *pstate);
-static void fixed_unparseSelf(const fixed *instance, UState *ustate);
-static void ex_nums_initSelf(ex_nums *instance);
-static void ex_nums_parseSelf(ex_nums *instance, PState *pstate);
-static void ex_nums_unparseSelf(const ex_nums *instance, UState *ustate);
+static void array_ex_nums__initSelf(array_ex_nums_ *instance);
+static void array_ex_nums__parseSelf(array_ex_nums_ *instance, PState *pstate);
+static void array_ex_nums__unparseSelf(const array_ex_nums_ *instance, UState *ustate);
+static void bigEndian_ex_nums__initSelf(bigEndian_ex_nums_ *instance);
+static void bigEndian_ex_nums__parseSelf(bigEndian_ex_nums_ *instance, PState *pstate);
+static void bigEndian_ex_nums__unparseSelf(const bigEndian_ex_nums_ *instance, UState *ustate);
+static void littleEndian_ex_nums__initSelf(littleEndian_ex_nums_ *instance);
+static void littleEndian_ex_nums__parseSelf(littleEndian_ex_nums_ *instance, PState *pstate);
+static void littleEndian_ex_nums__unparseSelf(const littleEndian_ex_nums_ *instance, UState *ustate);
+static void fixed_ex_nums__initSelf(fixed_ex_nums_ *instance);
+static void fixed_ex_nums__parseSelf(fixed_ex_nums_ *instance, PState *pstate);
+static void fixed_ex_nums__unparseSelf(const fixed_ex_nums_ *instance, UState *ustate);
+static void ex_nums__initSelf(ex_nums_ *instance);
+static void ex_nums__parseSelf(ex_nums_ *instance, PState *pstate);
+static void ex_nums__unparseSelf(const ex_nums_ *instance, UState *ustate);
 
 // Define metadata for the infoset
 
@@ -79,26 +79,26 @@ static const ERD hexBinaryPrefixed_array_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-static const array array_compute_offsets;
+static const array_ex_nums_ array_ex_nums__compute_offsets;
 
-static const size_t array_offsets[14] = {
-    (const char *)&array_compute_offsets.be_bool16[0] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.be_bool16[1] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.be_float[0] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.be_float[1] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.be_float[2] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.be_int16[0] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.be_int16[1] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.be_int16[2] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.hexBinary2[0] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.hexBinary2[1] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.hexBinary2[2] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.hexBinaryPrefixed[0] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.hexBinaryPrefixed[1] - (const char *)&array_compute_offsets,
-    (const char *)&array_compute_offsets.hexBinaryPrefixed[2] - (const char *)&array_compute_offsets
+static const size_t array_ex_nums__offsets[14] = {
+    (const char *)&array_ex_nums__compute_offsets.be_bool16[0] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.be_bool16[1] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.be_float[0] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.be_float[1] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.be_float[2] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.be_int16[0] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.be_int16[1] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.be_int16[2] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.hexBinary2[0] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.hexBinary2[1] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.hexBinary2[2] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.hexBinaryPrefixed[0] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.hexBinaryPrefixed[1] - (const char *)&array_ex_nums__compute_offsets,
+    (const char *)&array_ex_nums__compute_offsets.hexBinaryPrefixed[2] - (const char *)&array_ex_nums__compute_offsets
 };
 
-static const ERD *array_childrenERDs[14] = {
+static const ERD *array_ex_nums__childrenERDs[14] = {
     &be_bool16_array_ex_nums_ERD,
     &be_bool16_array_ex_nums_ERD,
     &be_float_array_ex_nums_ERD,
@@ -123,11 +123,11 @@ static const ERD array_ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     14, // numChildren
-    array_offsets, // offsets
-    array_childrenERDs, // childrenERDs
-    (ERDInitSelf)&array_initSelf, // initSelf
-    (ERDParseSelf)&array_parseSelf, // parseSelf
-    (ERDUnparseSelf)&array_unparseSelf, // unparseSelf
+    array_ex_nums__offsets, // offsets
+    array_ex_nums__childrenERDs, // childrenERDs
+    (ERDInitSelf)&array_ex_nums__initSelf, // initSelf
+    (ERDParseSelf)&array_ex_nums__parseSelf, // parseSelf
+    (ERDUnparseSelf)&array_ex_nums__unparseSelf, // unparseSelf
     NULL // initChoice
 };
 
@@ -311,30 +311,30 @@ static const ERD hexBinaryPrefixed_bigEndian_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-static const bigEndian bigEndian_compute_offsets;
+static const bigEndian_ex_nums_ bigEndian_ex_nums__compute_offsets;
 
-static const size_t bigEndian_offsets[18] = {
-    (const char *)&bigEndian_compute_offsets.be_bool16 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_bool32 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_bool8 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_boolean - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_double - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_float - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_int16 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_int32 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_int64 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_int8 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_integer16 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_uint16 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_uint32 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_uint64 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_uint8 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.be_nonNegativeInteger32 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.hexBinary4 - (const char *)&bigEndian_compute_offsets,
-    (const char *)&bigEndian_compute_offsets.hexBinaryPrefixed - (const char *)&bigEndian_compute_offsets
+static const size_t bigEndian_ex_nums__offsets[18] = {
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_bool16 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_bool32 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_bool8 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_boolean - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_double - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_float - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_int16 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_int32 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_int64 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_int8 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_integer16 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_uint16 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_uint32 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_uint64 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_uint8 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_nonNegativeInteger32 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.hexBinary4 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.hexBinaryPrefixed - (const char *)&bigEndian_ex_nums__compute_offsets
 };
 
-static const ERD *bigEndian_childrenERDs[18] = {
+static const ERD *bigEndian_ex_nums__childrenERDs[18] = {
     &be_bool16_bigEndian_ex_nums_ERD,
     &be_bool32_bigEndian_ex_nums_ERD,
     &be_bool8_bigEndian_ex_nums_ERD,
@@ -363,11 +363,11 @@ static const ERD bigEndian_ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     18, // numChildren
-    bigEndian_offsets, // offsets
-    bigEndian_childrenERDs, // childrenERDs
-    (ERDInitSelf)&bigEndian_initSelf, // initSelf
-    (ERDParseSelf)&bigEndian_parseSelf, // parseSelf
-    (ERDUnparseSelf)&bigEndian_unparseSelf, // unparseSelf
+    bigEndian_ex_nums__offsets, // offsets
+    bigEndian_ex_nums__childrenERDs, // childrenERDs
+    (ERDInitSelf)&bigEndian_ex_nums__initSelf, // initSelf
+    (ERDParseSelf)&bigEndian_ex_nums__parseSelf, // parseSelf
+    (ERDUnparseSelf)&bigEndian_ex_nums__unparseSelf, // unparseSelf
     NULL // initChoice
 };
 
@@ -551,30 +551,30 @@ static const ERD hexBinaryPrefixed_littleEndian_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-static const littleEndian littleEndian_compute_offsets;
+static const littleEndian_ex_nums_ littleEndian_ex_nums__compute_offsets;
 
-static const size_t littleEndian_offsets[18] = {
-    (const char *)&littleEndian_compute_offsets.le_bool16 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_bool32 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_bool8 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_boolean - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_double - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_float - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_int16 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_int32 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_int64 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_int8 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_integer64 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_uint16 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_uint32 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_uint64 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_uint8 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.le_nonNegativeInteger8 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.hexBinary0 - (const char *)&littleEndian_compute_offsets,
-    (const char *)&littleEndian_compute_offsets.hexBinaryPrefixed - (const char *)&littleEndian_compute_offsets
+static const size_t littleEndian_ex_nums__offsets[18] = {
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_bool16 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_bool32 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_bool8 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_boolean - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_double - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_float - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_int16 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_int32 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_int64 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_int8 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_integer64 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_uint16 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_uint32 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_uint64 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_uint8 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_nonNegativeInteger8 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.hexBinary0 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.hexBinaryPrefixed - (const char *)&littleEndian_ex_nums__compute_offsets
 };
 
-static const ERD *littleEndian_childrenERDs[18] = {
+static const ERD *littleEndian_ex_nums__childrenERDs[18] = {
     &le_bool16_littleEndian_ex_nums_ERD,
     &le_bool32_littleEndian_ex_nums_ERD,
     &le_bool8_littleEndian_ex_nums_ERD,
@@ -603,11 +603,11 @@ static const ERD littleEndian_ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     18, // numChildren
-    littleEndian_offsets, // offsets
-    littleEndian_childrenERDs, // childrenERDs
-    (ERDInitSelf)&littleEndian_initSelf, // initSelf
-    (ERDParseSelf)&littleEndian_parseSelf, // parseSelf
-    (ERDUnparseSelf)&littleEndian_unparseSelf, // unparseSelf
+    littleEndian_ex_nums__offsets, // offsets
+    littleEndian_ex_nums__childrenERDs, // childrenERDs
+    (ERDInitSelf)&littleEndian_ex_nums__initSelf, // initSelf
+    (ERDParseSelf)&littleEndian_ex_nums__parseSelf, // parseSelf
+    (ERDUnparseSelf)&littleEndian_ex_nums__unparseSelf, // unparseSelf
     NULL // initChoice
 };
 
@@ -681,19 +681,19 @@ static const ERD hexBinaryPrefixed_ab_fixed_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, NULL, NULL
 };
 
-static const fixed fixed_compute_offsets;
+static const fixed_ex_nums_ fixed_ex_nums__compute_offsets;
 
-static const size_t fixed_offsets[7] = {
-    (const char *)&fixed_compute_offsets.boolean_false - (const char *)&fixed_compute_offsets,
-    (const char *)&fixed_compute_offsets.boolean_true - (const char *)&fixed_compute_offsets,
-    (const char *)&fixed_compute_offsets.float_1_5 - (const char *)&fixed_compute_offsets,
-    (const char *)&fixed_compute_offsets.int_32 - (const char *)&fixed_compute_offsets,
-    (const char *)&fixed_compute_offsets.hexBinary_deadbeef - (const char *)&fixed_compute_offsets,
-    (const char *)&fixed_compute_offsets.hexBinary0 - (const char *)&fixed_compute_offsets,
-    (const char *)&fixed_compute_offsets.hexBinaryPrefixed_ab - (const char *)&fixed_compute_offsets
+static const size_t fixed_ex_nums__offsets[7] = {
+    (const char *)&fixed_ex_nums__compute_offsets.boolean_false - (const char *)&fixed_ex_nums__compute_offsets,
+    (const char *)&fixed_ex_nums__compute_offsets.boolean_true - (const char *)&fixed_ex_nums__compute_offsets,
+    (const char *)&fixed_ex_nums__compute_offsets.float_1_5 - (const char *)&fixed_ex_nums__compute_offsets,
+    (const char *)&fixed_ex_nums__compute_offsets.int_32 - (const char *)&fixed_ex_nums__compute_offsets,
+    (const char *)&fixed_ex_nums__compute_offsets.hexBinary_deadbeef - (const char *)&fixed_ex_nums__compute_offsets,
+    (const char *)&fixed_ex_nums__compute_offsets.hexBinary0 - (const char *)&fixed_ex_nums__compute_offsets,
+    (const char *)&fixed_ex_nums__compute_offsets.hexBinaryPrefixed_ab - (const char *)&fixed_ex_nums__compute_offsets
 };
 
-static const ERD *fixed_childrenERDs[7] = {
+static const ERD *fixed_ex_nums__childrenERDs[7] = {
     &boolean_false_fixed_ex_nums_ERD,
     &boolean_true_fixed_ex_nums_ERD,
     &float_1_5_fixed_ex_nums_ERD,
@@ -711,24 +711,24 @@ static const ERD fixed_ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     7, // numChildren
-    fixed_offsets, // offsets
-    fixed_childrenERDs, // childrenERDs
-    (ERDInitSelf)&fixed_initSelf, // initSelf
-    (ERDParseSelf)&fixed_parseSelf, // parseSelf
-    (ERDUnparseSelf)&fixed_unparseSelf, // unparseSelf
+    fixed_ex_nums__offsets, // offsets
+    fixed_ex_nums__childrenERDs, // childrenERDs
+    (ERDInitSelf)&fixed_ex_nums__initSelf, // initSelf
+    (ERDParseSelf)&fixed_ex_nums__parseSelf, // parseSelf
+    (ERDUnparseSelf)&fixed_ex_nums__unparseSelf, // unparseSelf
     NULL // initChoice
 };
 
-static const ex_nums ex_nums_compute_offsets;
+static const ex_nums_ ex_nums__compute_offsets;
 
-static const size_t ex_nums_offsets[4] = {
-    (const char *)&ex_nums_compute_offsets.array - (const char *)&ex_nums_compute_offsets,
-    (const char *)&ex_nums_compute_offsets.bigEndian - (const char *)&ex_nums_compute_offsets,
-    (const char *)&ex_nums_compute_offsets.littleEndian - (const char *)&ex_nums_compute_offsets,
-    (const char *)&ex_nums_compute_offsets.fixed - (const char *)&ex_nums_compute_offsets
+static const size_t ex_nums__offsets[4] = {
+    (const char *)&ex_nums__compute_offsets.array - (const char *)&ex_nums__compute_offsets,
+    (const char *)&ex_nums__compute_offsets.bigEndian - (const char *)&ex_nums__compute_offsets,
+    (const char *)&ex_nums__compute_offsets.littleEndian - (const char *)&ex_nums__compute_offsets,
+    (const char *)&ex_nums__compute_offsets.fixed - (const char *)&ex_nums__compute_offsets
 };
 
-static const ERD *ex_nums_childrenERDs[4] = {
+static const ERD *ex_nums__childrenERDs[4] = {
     &array_ex_nums_ERD,
     &bigEndian_ex_nums_ERD,
     &littleEndian_ex_nums_ERD,
@@ -743,11 +743,11 @@ static const ERD ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     4, // numChildren
-    ex_nums_offsets, // offsets
-    ex_nums_childrenERDs, // childrenERDs
-    (ERDInitSelf)&ex_nums_initSelf, // initSelf
-    (ERDParseSelf)&ex_nums_parseSelf, // parseSelf
-    (ERDUnparseSelf)&ex_nums_unparseSelf, // unparseSelf
+    ex_nums__offsets, // offsets
+    ex_nums__childrenERDs, // childrenERDs
+    (ERDInitSelf)&ex_nums__initSelf, // initSelf
+    (ERDParseSelf)&ex_nums__parseSelf, // parseSelf
+    (ERDUnparseSelf)&ex_nums__unparseSelf, // unparseSelf
     NULL // initChoice
 };
 
@@ -757,10 +757,10 @@ InfosetBase *
 rootElement(void)
 {
     static bool initialized;
-    static ex_nums root;
+    static ex_nums_ root;
     if (!initialized)
     {
-        ex_nums_initSelf(&root);
+        ex_nums__initSelf(&root);
         initialized = true;
     }
     return &root._base;
@@ -769,7 +769,7 @@ rootElement(void)
 // Initialize, parse, and unparse nodes of the infoset
 
 static void
-array_initSelf(array *instance)
+array_ex_nums__initSelf(array_ex_nums_ *instance)
 {
     instance->_base.erd = &array_ex_nums_ERD;
     instance->be_bool16[0] = true;
@@ -804,7 +804,7 @@ array_initSelf(array *instance)
 }
 
 static void
-array_parseSelf(array *instance, PState *pstate)
+array_ex_nums__parseSelf(array_ex_nums_ *instance, PState *pstate)
 {
     parse_be_bool16(&instance->be_bool16[0], -1, 0, pstate);
     if (pstate->error) return;
@@ -852,7 +852,7 @@ array_parseSelf(array *instance, PState *pstate)
 }
 
 static void
-array_unparseSelf(const array *instance, UState *ustate)
+array_ex_nums__unparseSelf(const array_ex_nums_ *instance, UState *ustate)
 {
     unparse_be_bool16(instance->be_bool16[0], ~0, 0, ustate);
     if (ustate->error) return;
@@ -891,7 +891,7 @@ array_unparseSelf(const array *instance, UState *ustate)
 }
 
 static void
-bigEndian_initSelf(bigEndian *instance)
+bigEndian_ex_nums__initSelf(bigEndian_ex_nums_ *instance)
 {
     instance->_base.erd = &bigEndian_ex_nums_ERD;
     instance->be_bool16 = true;
@@ -920,7 +920,7 @@ bigEndian_initSelf(bigEndian *instance)
 }
 
 static void
-bigEndian_parseSelf(bigEndian *instance, PState *pstate)
+bigEndian_ex_nums__parseSelf(bigEndian_ex_nums_ *instance, PState *pstate)
 {
     parse_be_bool16(&instance->be_bool16, 1, 0, pstate);
     if (pstate->error) return;
@@ -966,7 +966,7 @@ bigEndian_parseSelf(bigEndian *instance, PState *pstate)
 }
 
 static void
-bigEndian_unparseSelf(const bigEndian *instance, UState *ustate)
+bigEndian_ex_nums__unparseSelf(const bigEndian_ex_nums_ *instance, UState *ustate)
 {
     unparse_be_bool16(instance->be_bool16, 1, 0, ustate);
     if (ustate->error) return;
@@ -1009,7 +1009,7 @@ bigEndian_unparseSelf(const bigEndian *instance, UState *ustate)
 }
 
 static void
-littleEndian_initSelf(littleEndian *instance)
+littleEndian_ex_nums__initSelf(littleEndian_ex_nums_ *instance)
 {
     instance->_base.erd = &littleEndian_ex_nums_ERD;
     instance->le_bool16 = true;
@@ -1037,7 +1037,7 @@ littleEndian_initSelf(littleEndian *instance)
 }
 
 static void
-littleEndian_parseSelf(littleEndian *instance, PState *pstate)
+littleEndian_ex_nums__parseSelf(littleEndian_ex_nums_ *instance, PState *pstate)
 {
     parse_le_bool16(&instance->le_bool16, 1, 0, pstate);
     if (pstate->error) return;
@@ -1083,7 +1083,7 @@ littleEndian_parseSelf(littleEndian *instance, PState *pstate)
 }
 
 static void
-littleEndian_unparseSelf(const littleEndian *instance, UState *ustate)
+littleEndian_ex_nums__unparseSelf(const littleEndian_ex_nums_ *instance, UState *ustate)
 {
     unparse_le_bool16(instance->le_bool16, 1, 0, ustate);
     if (ustate->error) return;
@@ -1126,7 +1126,7 @@ littleEndian_unparseSelf(const littleEndian *instance, UState *ustate)
 }
 
 static void
-fixed_initSelf(fixed *instance)
+fixed_ex_nums__initSelf(fixed_ex_nums_ *instance)
 {
     instance->_base.erd = &fixed_ex_nums_ERD;
     instance->boolean_false = true;
@@ -1146,7 +1146,7 @@ fixed_initSelf(fixed *instance)
 }
 
 static void
-fixed_parseSelf(fixed *instance, PState *pstate)
+fixed_ex_nums__parseSelf(fixed_ex_nums_ *instance, PState *pstate)
 {
     parse_be_bool32(&instance->boolean_false, -1, 0, pstate);
     if (pstate->error) return;
@@ -1184,7 +1184,7 @@ fixed_parseSelf(fixed *instance, PState *pstate)
 }
 
 static void
-fixed_unparseSelf(const fixed *instance, UState *ustate)
+fixed_ex_nums__unparseSelf(const fixed_ex_nums_ *instance, UState *ustate)
 {
     unparse_be_bool32(instance->boolean_false, ~0, 0, ustate);
     if (ustate->error) return;
@@ -1219,38 +1219,38 @@ fixed_unparseSelf(const fixed *instance, UState *ustate)
 }
 
 static void
-ex_nums_initSelf(ex_nums *instance)
+ex_nums__initSelf(ex_nums_ *instance)
 {
     instance->_base.erd = &ex_nums_ERD;
-    array_initSelf(&instance->array);
-    bigEndian_initSelf(&instance->bigEndian);
-    littleEndian_initSelf(&instance->littleEndian);
-    fixed_initSelf(&instance->fixed);
+    array_ex_nums__initSelf(&instance->array);
+    bigEndian_ex_nums__initSelf(&instance->bigEndian);
+    littleEndian_ex_nums__initSelf(&instance->littleEndian);
+    fixed_ex_nums__initSelf(&instance->fixed);
 }
 
 static void
-ex_nums_parseSelf(ex_nums *instance, PState *pstate)
+ex_nums__parseSelf(ex_nums_ *instance, PState *pstate)
 {
-    array_parseSelf(&instance->array, pstate);
+    array_ex_nums__parseSelf(&instance->array, pstate);
     if (pstate->error) return;
-    bigEndian_parseSelf(&instance->bigEndian, pstate);
+    bigEndian_ex_nums__parseSelf(&instance->bigEndian, pstate);
     if (pstate->error) return;
-    littleEndian_parseSelf(&instance->littleEndian, pstate);
+    littleEndian_ex_nums__parseSelf(&instance->littleEndian, pstate);
     if (pstate->error) return;
-    fixed_parseSelf(&instance->fixed, pstate);
+    fixed_ex_nums__parseSelf(&instance->fixed, pstate);
     if (pstate->error) return;
 }
 
 static void
-ex_nums_unparseSelf(const ex_nums *instance, UState *ustate)
+ex_nums__unparseSelf(const ex_nums_ *instance, UState *ustate)
 {
-    array_unparseSelf(&instance->array, ustate);
+    array_ex_nums__unparseSelf(&instance->array, ustate);
     if (ustate->error) return;
-    bigEndian_unparseSelf(&instance->bigEndian, ustate);
+    bigEndian_ex_nums__unparseSelf(&instance->bigEndian, ustate);
     if (ustate->error) return;
-    littleEndian_unparseSelf(&instance->littleEndian, ustate);
+    littleEndian_ex_nums__unparseSelf(&instance->littleEndian, ustate);
     if (ustate->error) return;
-    fixed_unparseSelf(&instance->fixed, ustate);
+    fixed_ex_nums__unparseSelf(&instance->fixed, ustate);
     if (ustate->error) return;
 }
 

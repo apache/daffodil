@@ -25,7 +25,6 @@ import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.runtime2.ParseResult
 import org.apache.daffodil.runtime2.Runtime2DataProcessor
 import org.apache.daffodil.runtime2.UnparseResult
-import org.apache.daffodil.xml.QName
 
 import scala.xml.Node
 
@@ -108,9 +107,8 @@ final class Runtime2TDMLDFDLProcessorFactory private(
       val generator = pf.forLanguage("c")
 
       // Generate the C source code in a temporary unique directory
-      val rootNS = QName.refQNameFromExtendedSyntax(optRootName.getOrElse("")).toOption
       val tempDir = os.temp.dir(dir = null, prefix = "daffodil-runtime2-")
-      val codeDir = generator.generateCode(rootNS, tempDir.toString)
+      val codeDir = generator.generateCode(tempDir.toString)
 
       // Compile the generated code into an executable
       val executable = generator.compileCode(codeDir)

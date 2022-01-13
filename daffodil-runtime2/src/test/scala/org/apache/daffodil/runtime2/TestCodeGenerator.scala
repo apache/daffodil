@@ -84,7 +84,7 @@ class TestCodeGenerator {
     val cg = pf.forLanguage("c")
 
     // Generate code from the test schema successfully
-    val codeDir = cg.generateCode(None, tempDir.toString)
+    val codeDir = cg.generateCode(tempDir.toString)
     val daffodilMain = codeDir/"libcli"/"daffodil_main.c"
     val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
     val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
@@ -99,7 +99,7 @@ class TestCodeGenerator {
     // Create a CodeGenerator and generate code from the test schema
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val codeDir = cg.generateCode(None, tempDir.toString)
+    val codeDir = cg.generateCode(tempDir.toString)
 
     // Compile the generated code into an executable successfully
     val executable = cg.compileCode(codeDir)
@@ -111,7 +111,7 @@ class TestCodeGenerator {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val codeDir = cg.generateCode(None, tempDir.toString)
+    val codeDir = cg.generateCode(tempDir.toString)
     val executable = cg.compileCode(codeDir)
 
     // Create a Runtime2DataProcessor and parse a binary int32 number successfully
@@ -128,7 +128,7 @@ class TestCodeGenerator {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val codeDir = cg.generateCode(None, tempDir.toString)
+    val codeDir = cg.generateCode(tempDir.toString)
     val executable = cg.compileCode(codeDir)
 
     // Create a Runtime2DataProcessor and parse an empty file unsuccessfully
@@ -144,7 +144,7 @@ class TestCodeGenerator {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val codeDir = cg.generateCode(None, tempDir.toString)
+    val codeDir = cg.generateCode(tempDir.toString)
     val executable = cg.compileCode(codeDir)
 
     // Create a Runtime2DataProcessor and unparse a binary int32 number successfully
@@ -161,7 +161,7 @@ class TestCodeGenerator {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
-    val codeDir = cg.generateCode(None, tempDir.toString)
+    val codeDir = cg.generateCode(tempDir.toString)
     val executable = cg.compileCode(codeDir)
 
     // Create a Runtime2DataProcessor and unparse a binary int32 number unsuccessfully

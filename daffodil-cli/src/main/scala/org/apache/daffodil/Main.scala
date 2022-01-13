@@ -1440,11 +1440,10 @@ object Main {
               tunables, generateOpts.language)
 
             // Ask the CodeGenerator to generate source code from the DFDL schema
-            val rootNS = generateOpts.rootNS.toOption
             val outputDir = generateOpts.outdir.toOption.getOrElse(".")
             val rc = generator match {
               case Some(generator) => {
-                Timer.getResult("generating", generator.generateCode(rootNS, outputDir))
+                Timer.getResult("generating", generator.generateCode(outputDir))
                 displayDiagnostics(generator)
                 if (generator.isError) ExitCode.GenerateCodeError else ExitCode.Success
               }

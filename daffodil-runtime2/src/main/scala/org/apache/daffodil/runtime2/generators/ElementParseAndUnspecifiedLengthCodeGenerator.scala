@@ -36,7 +36,8 @@ trait ElementParseAndUnspecifiedLengthCodeGenerator {
     context.schemaDefinitionUnless(g.repTypeElementGram.isEmpty, "dfdlx:repType is not supported.")
 
     if (context.isSimpleType) {
-      cgState.addSimpleTypeERD(context) // ERD static initializer
+      if (cgState.elementNotSeenYet(context)) cgState.addSimpleTypeERD(context) // ERD static initializer
+      cgState.addComputations(context) // offset, ERD computations
       Runtime2CodeGenerator.generateCode(elementContentGram, cgState) // initSelf, parseSelf, unparseSelf
     } else if (cgState.elementNotSeenYet(context)) {
       cgState.pushComplexElement(context)

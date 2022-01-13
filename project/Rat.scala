@@ -134,6 +134,7 @@ object Rat {
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_green_to_orange_60004.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_orange_to_green_60006.0.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_orange_to_green_60006.1.dat"),
+    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/collisions.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.11.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.12.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.13.dat"),
