@@ -10,7 +10,7 @@
 
 // Define infoset structures
 
-typedef struct array
+typedef struct array_ex_nums_
 {
     InfosetBase _base;
     bool        be_bool16[2];
@@ -19,9 +19,9 @@ typedef struct array
     HexBinary   hexBinary2[3];
     uint8_t     _a_hexBinary2[3][2];
     HexBinary   hexBinaryPrefixed[3];
-} array;
+} array_ex_nums_;
 
-typedef struct bigEndian
+typedef struct bigEndian_ex_nums_
 {
     InfosetBase _base;
     bool        be_bool16;
@@ -43,9 +43,9 @@ typedef struct bigEndian
     HexBinary   hexBinary4;
     uint8_t     _a_hexBinary4[4];
     HexBinary   hexBinaryPrefixed;
-} bigEndian;
+} bigEndian_ex_nums_;
 
-typedef struct littleEndian
+typedef struct littleEndian_ex_nums_
 {
     InfosetBase _base;
     bool        le_bool16;
@@ -66,9 +66,9 @@ typedef struct littleEndian
     uint8_t     le_nonNegativeInteger8;
     HexBinary   hexBinary0;
     HexBinary   hexBinaryPrefixed;
-} littleEndian;
+} littleEndian_ex_nums_;
 
-typedef struct fixed
+typedef struct fixed_ex_nums_
 {
     InfosetBase _base;
     bool        boolean_false;
@@ -79,15 +79,15 @@ typedef struct fixed
     uint8_t     _a_hexBinary_deadbeef[4];
     HexBinary   hexBinary0;
     HexBinary   hexBinaryPrefixed_ab;
-} fixed;
+} fixed_ex_nums_;
 
-typedef struct ex_nums
+typedef struct ex_nums_
 {
     InfosetBase _base;
-    array array;
-    bigEndian bigEndian;
-    littleEndian littleEndian;
-    fixed fixed;
-} ex_nums;
+    array_ex_nums_ array;
+    bigEndian_ex_nums_ bigEndian;
+    littleEndian_ex_nums_ littleEndian;
+    fixed_ex_nums_ fixed;
+} ex_nums_;
 
 #endif // GENERATED_CODE_H

@@ -33,7 +33,6 @@ import org.apache.daffodil.util.MainCoroutine
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.xml.sax.SAXException
-import org.apache.daffodil.xml.RefQName
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -170,11 +169,10 @@ object DFDL {
   trait CodeGenerator extends WithDiagnostics {
     /**
      * Generates language-specific code from a DFDL schema to parse or unparse data
-     * @param rootNS one of the top-level elements of the DFDL schema (if not supplied, uses first top-level element)
      * @param outputDir output directory in which to create code directory (codeDir)
      * @return path of newly created directory (codeDir) containing generated code
      */
-    def generateCode(rootNS: Option[RefQName], outputDir: String): os.Path
+    def generateCode(outputDir: String): os.Path
 
     /**
      * Compiles the generated code in order to run it in a TDML test

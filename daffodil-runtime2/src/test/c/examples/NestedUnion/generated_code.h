@@ -10,38 +10,38 @@
 
 // Define infoset structures
 
-typedef struct foo
+typedef struct foo_data_NestedUnionType_
 {
     InfosetBase _base;
     int32_t     a;
     int32_t     b;
     int32_t     c;
-} foo;
+} foo_data_NestedUnionType_;
 
-typedef struct bar
+typedef struct bar_data_NestedUnionType_
 {
     InfosetBase _base;
     double      x;
     double      y;
     double      z;
-} bar;
+} bar_data_NestedUnionType_;
 
-typedef struct data
+typedef struct data_NestedUnionType_
 {
     InfosetBase _base;
     size_t      _choice; // choice of which union field to use
     union
     {
-        foo foo;
-        bar bar;
+        foo_data_NestedUnionType_ foo;
+        bar_data_NestedUnionType_ bar;
     };
-} data;
+} data_NestedUnionType_;
 
-typedef struct NestedUnion
+typedef struct NestedUnion_
 {
     InfosetBase _base;
     int32_t     tag;
-    data data;
-} NestedUnion;
+    data_NestedUnionType_ data;
+} NestedUnion_;
 
 #endif // GENERATED_CODE_H

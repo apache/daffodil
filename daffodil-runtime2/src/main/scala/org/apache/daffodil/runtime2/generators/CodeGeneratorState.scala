@@ -36,7 +36,7 @@ import scala.collection.mutable
 /**
  * Builds up the state of generated code.
  */
-class CodeGeneratorState {
+class CodeGeneratorState(private val root: ElementBase) {
   private val elementsAlreadySeen = mutable.Map[String, ElementBase]()
   private val structs = mutable.Stack[ComplexCGState]()
   private val prototypes = mutable.ArrayBuffer[String]()
@@ -44,50 +44,46 @@ class CodeGeneratorState {
   private val finalStructs = mutable.ArrayBuffer[String]()
   private val finalImplementation = mutable.ArrayBuffer[String]()
 
-  // Returns true if the global element has not been seen before (checking
-  // if a map already contains the element, otherwise adding it to the map)
+  // Recursively builds a hopefully unique name using the given StringBuilder
+  private def buildName(sc: SchemaComponent, sb: StringBuilder): StringBuilder = {
+    sc match {
+      case eb: ElementBase => sb ++= eb.namedQName.local += '_'
+      case gd: GlobalElementDecl => sb ++= gd.namedQName.local += '_'
+      case ct: GlobalComplexTypeDef => sb ++= ct.namedQName.local += '_'
+      case _ => // don't include other schema components in qualified name
+    }
+    sc.optLexicalParent.foreach {
+      buildName(_, sb)
+    }
+    sb
+  }
+
+  // Returns a name for the given element's C struct identifier
+  private def cStructName(context: ElementBase): String = {
+    val sb = buildName(context, new StringBuilder)
+    val name = sb.toString
+    name
+  }
+
+  // Returns a name for the given element's element resource descriptor
+  private def erdName(context: ElementBase): String = {
+    val sb = buildName(context, new StringBuilder) ++= "ERD"
+    val name = sb.toString
+    name
+  }
+
+  // Returns true if the element has not been seen before (checking if a
+  // map already contains the element, otherwise adding it to the map)
   def elementNotSeenYet(context: ElementBase): Boolean = {
-    val key = context.namedQName.toString
+    val key = cStructName(context)
     val alreadySeen = elementsAlreadySeen.contains(key)
-    if (!alreadySeen) elementsAlreadySeen += (key -> context)
+    if (!alreadySeen)
+      elementsAlreadySeen += (key -> context)
     !alreadySeen
   }
 
-  // Specially handles an element reference by returning only the first
-  // element reference seen in order to build the correct ERD name
-  private def firstElementSeen(context: ElementBase): ElementBase = {
-    if (context.isSimpleType) {
-      context
-    } else {
-      val aContext = elementsAlreadySeen.getOrElse(context.namedQName.toString, context)
-      aContext
-    }
-  }
-
-  // Builds an ERD name for the given element that needs to be unique in C file scope
-  private def erdName(context: ElementBase): String = {
-    def buildName(sc: SchemaComponent, sb: StringBuilder): StringBuilder = {
-      sc match {
-        case eb: ElementBase => sb ++= eb.namedQName.local += '_'
-        case gd: GlobalElementDecl => sb ++= gd.namedQName.local += '_'
-        case ct: GlobalComplexTypeDef => sb ++= ct.namedQName.local += '_'
-        case _ => // don't include other schema components in qualified name
-      }
-      sc.optLexicalParent.foreach {
-        buildName(_, sb)
-      }
-      sb
-    }
-    val aContext = firstElementSeen(context)
-    val sb = buildName(aContext, new StringBuilder) ++= "ERD"
-    sb.toString
-  }
-
-  // Returns the given element's local name (doesn't have to be unique)
-  private def localName(context: ElementBase): String = context.namedQName.local
-
   def addImplementation(context: ElementBase): Unit = {
-    val C = localName(context)
+    val C = cStructName(context)
     val initStatements = structs.top.initStatements.mkString("\n")
     val initChoiceStatements = structs.top.initChoiceStatements.mkString("\n")
     val parserStatements = if (structs.top.parserStatements.nonEmpty)
@@ -103,15 +99,15 @@ class CodeGeneratorState {
          |    UNUSED(instance);
          |    UNUSED(ustate);""".stripMargin
     val hasChoice = structs.top.initChoiceStatements.nonEmpty
-    val root = structs.elems.last.C
+    val rootName = cStructName(root)
     val prototypeInitChoice = if (hasChoice)
-      s"\nstatic const Error *${C}_initChoice($C *instance, const $root *rootElement);"
+      s"\nstatic const Error *${C}_initChoice($C *instance, const $rootName *rootElement);"
     else
       ""
     val implementInitChoice = if (hasChoice)
       s"""
          |static const Error *
-         |${C}_initChoice($C *instance, const $root *rootElement)
+         |${C}_initChoice($C *instance, const $rootName *rootElement)
          |{
          |$initChoiceStatements
          |}
@@ -148,18 +144,18 @@ class CodeGeneratorState {
 
   private def defineQNameInit(context: ElementBase): String = {
     val prefix = context.namedQName.prefix.map(p => s""""$p"""").getOrElse("NULL")
-    val local = localName(context)
+    val local = context.namedQName.local
     val nsUri = context.namedQName.namespace.toStringOrNullIfNoNS
     // Optimize away ns declaration if possible, although this approach may not be entirely correct
     val parentNsUri = context.enclosingElements.headOption.map(_.namedQName.namespace.toStringOrNullIfNoNS).getOrElse("no-ns")
     val ns = if (nsUri == null || nsUri == parentNsUri) "NULL" else s""""$nsUri""""
-    val qnameInit =
+    val qNameInit =
       s"""    {
          |        $prefix, // namedQName.prefix
          |        "$local", // namedQName.local
          |        $ns, // namedQName.ns
          |    },""".stripMargin
-    qnameInit
+    qNameInit
   }
 
   /**
@@ -235,7 +231,7 @@ class CodeGeneratorState {
 
     val dispatchField = choiceDispatchField(context)
     if (dispatchField.nonEmpty) {
-      val C = localName(context)
+      val C = cStructName(context)
       val declaration =
         s"""    size_t      _choice; // choice of which union field to use
            |    union
@@ -344,12 +340,12 @@ class CodeGeneratorState {
   }
 
   def addComplexTypeERD(context: ElementBase): Unit = {
-    val C = localName(context)
+    val C = cStructName(context)
     val erd = erdName(context)
     val count = structs.top.offsetComputations.length
     val offsetComputations = structs.top.offsetComputations.mkString(",\n")
     val erdComputations = structs.top.erdComputations.mkString(",\n")
-    val qnameInit = defineQNameInit(context)
+    val qNameInit = defineQNameInit(context)
     val hasChoice = structs.top.initChoiceStatements.nonEmpty
     val numChildren = if (hasChoice) 2 else count
     val initChoice = if (hasChoice) s"(InitChoiceRD)&${C}_initChoice" else "NULL"
@@ -365,7 +361,7 @@ class CodeGeneratorState {
          |};
          |
          |static const ERD $erd = {
-         |$qnameInit
+         |$qNameInit
          |    COMPLEX, // typeCode
          |    $numChildren, // numChildren
          |    ${C}_offsets, // offsets
@@ -378,7 +374,7 @@ class CodeGeneratorState {
          |""".stripMargin
     else
       s"""static const ERD $erd = {
-         |$qnameInit
+         |$qNameInit
          |    COMPLEX, // typeCode
          |    $numChildren, // numChildren
          |    NULL, // offsets
@@ -394,7 +390,7 @@ class CodeGeneratorState {
   }
 
   def addStruct(context: ElementBase): Unit = {
-    val C = localName(context)
+    val C = cStructName(context)
     val declarations = structs.top.declarations.mkString("\n")
     val struct =
       s"""typedef struct $C
@@ -414,7 +410,7 @@ class CodeGeneratorState {
   }
 
   def addComplexTypeStatements(child: ElementBase): Unit = {
-    val C = localName(child)
+    val C = cStructName(child)
     val e = child.name
     val hasChoice = structs.top.initChoiceStatements.nonEmpty
     val arraySize = if (child.occursCountKind == OccursCountKind.Fixed) child.maxOccurs else 0
@@ -464,7 +460,7 @@ class CodeGeneratorState {
   }
 
   def pushComplexElement(context: ElementBase): Unit = {
-    val C = localName(context)
+    val C = cStructName(context)
     structs.push(new ComplexCGState(C))
   }
 
@@ -527,7 +523,7 @@ class CodeGeneratorState {
 
   def addSimpleTypeERD(context: ElementBase): Unit = {
     val erd = erdName(context)
-    val qnameInit = defineQNameInit(context)
+    val qNameInit = defineQNameInit(context)
     val typeCode = getPrimType(context) match {
       case PrimType.Boolean => "PRIMITIVE_BOOLEAN"
       case PrimType.Double => "PRIMITIVE_DOUBLE"
@@ -545,18 +541,17 @@ class CodeGeneratorState {
     }
     val erdDef =
       s"""static const ERD $erd = {
-         |$qnameInit
+         |$qNameInit
          |    $typeCode, // typeCode
          |    0, NULL, NULL, NULL, NULL, NULL, NULL
          |};
          |""".stripMargin
     erds += erdDef
-    addComputations(context)
   }
 
   def addComputations(child: ElementBase): Unit = {
     val C = structs.top.C
-    val e = localName(child)
+    val e = child.name
     val erd = erdName(child)
     val arraySize = if (child.occursCountKind == OccursCountKind.Fixed) child.maxOccurs else 0
     def addComputation(deref: String): Unit = {
@@ -590,7 +585,7 @@ class CodeGeneratorState {
         case p => child.SDE("PrimType %s is not supported: ", p.toString)
       }
     } else {
-      localName(child)
+      cStructName(child)
     }
     val e = child.name
     val arrayDef = if (child.occursCountKind == OccursCountKind.Fixed) s"[${child.maxOccurs}]" else ""
@@ -643,7 +638,8 @@ class CodeGeneratorState {
     header.replace("\r\n", "\n").replace("\n", System.lineSeparator)
   }
 
-  def generateCodeFile(rootElementName: String): String = {
+  def generateCodeFile: String = {
+    val rootName = cStructName(root)
     val prototypes = this.prototypes.mkString("\n")
     val erds = this.erds.mkString("\n")
     val finalImplementation = this.finalImplementation.mkString("\n")
@@ -672,10 +668,10 @@ class CodeGeneratorState {
          |rootElement(void)
          |{
          |    static bool initialized;
-         |    static $rootElementName root;
+         |    static $rootName root;
          |    if (!initialized)
          |    {
-         |        ${rootElementName}_initSelf(&root);
+         |        ${rootName}_initSelf(&root);
          |        initialized = true;
          |    }
          |    return &root._base;
