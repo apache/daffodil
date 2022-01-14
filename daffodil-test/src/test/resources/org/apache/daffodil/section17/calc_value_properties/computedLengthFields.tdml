@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<testSuite suiteName="Computing Length Fields"
+           xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+           xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ex="http://example.com">
+
+  <tdml:defineSchema name="s" useDefaultNamespace="false" elementFormDefault="unqualified"
+                     xmlns="http://www.w3.org/2001/XMLSchema">
+
+    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="ex:GeneralFormat"
+                 bitOrder='mostSignificantBitFirst'
+                 byteOrder='bigEndian'
+                 representation="binary"
+                 lengthUnits="bytes"
+                 lengthKind='implicit'
+                 alignmentUnits='bytes' alignment='1'
+                 binaryNumberRep='binary'/>
+
+    <!-- The prefix length field is this 2-byte unsigned integer -->
+    <simpleType name="strLen">
+      <restriction base="xs:unsignedShort"/>
+    </simpleType>
+
+    <simpleType name="pString" dfdl:lengthKind="prefixed" dfdl:prefixLengthType="ex:strLen"
+                dfdl:prefixIncludesPrefixLength="no">
+      <restriction base="xs:string"/>
+    </simpleType>
+
+    <element name="message" type="ex:messageWithPrefixedStringsInPayloadType"/>
+
+    <complexType name="messageWithPrefixedStringsInPayloadType">
+      <sequence>
+        <!--
+        messageLength stores the total length of the message, including the length of the header.
+
+        The header is 8 bytes long.
+        -->
+        <element name="messageLength" type="unsignedInt"
+                 dfdl:outputValueCalc="{
+                     dfdl:valueLength( ../payload/payloadContents, 'bytes') + 8
+                   }"/>
+        <element name="num" type="xs:unsignedInt"/>
+        <!--
+        The payload is a variable-length part of the message. The length is determined using
+        the messageLength.
+
+        In DFDL v1.0, the messageLength is used to determine the messageLength both at parse, and
+        at unparse time.
+
+        This creates a problem, as when unparsing, the length is computed using the messageLength
+        element, but the messageLength element is computed based on the length of the payload.
+
+        To avoid this circular definition, we compute the messageLength (unparsing) from
+        the payloadContents element. This is an artificial tier of element that must exist simply
+        to eliminate this circularity.
+        -->
+        <element name="payload" dfdl:lengthKind="explicit" dfdl:length="{ ../messageLength - 8 }">
+          <complexType>
+            <sequence>
+              <element name="payloadContents">
+                <complexType>
+                  <sequence>
+                    <!--
+                    The contents of the message payload go here, inside the payloadContents element.
+                    -->
+                    <element name="name" type="ex:pString"/>
+                    <element name="address" type="ex:pString"/>
+                  </sequence>
+                </complexType>
+              </element>
+            </sequence>
+          </complexType>
+        </element>
+      </sequence>
+    </complexType>
+
+    <!-- As a "control" for this experiment. Let's create a fixed-length string -->
+    <simpleType name="fString" dfdl:lengthKind="explicit">
+      <restriction base="xs:string"/>
+    </simpleType>
+
+    <element name="message2" type="ex:messageWithFixedLengthStringsInPayloadType"/>
+
+    <complexType name="messageWithFixedLengthStringsInPayloadType">
+      <sequence>
+        <element name="messageLength" type="unsignedInt"
+                 dfdl:outputValueCalc="{
+                     dfdl:valueLength( ../payload/payloadContents, 'bytes') + 8
+                   }"/>
+        <element name="num" type="xs:unsignedInt"/>
+        <element name="payload" dfdl:lengthKind="explicit" dfdl:length="{ ../messageLength - 8 }">
+          <complexType>
+            <sequence>
+              <element name="payloadContents">
+                <complexType>
+                  <sequence>
+                    <element name="name" type="ex:fString" dfdl:length="5"/>
+                    <element name="address" type="ex:fString" dfdl:length="6"/>
+                  </sequence>
+                </complexType>
+              </element>
+            </sequence>
+          </complexType>
+        </element>
+      </sequence>
+    </complexType>
+
+
+  </tdml:defineSchema>
+
+  <parserTestCase name="computedLengthAroundPrefixedLengths1p" model="s"
+                  roundTrip="none"
+                  description="Shows that we can parse data with an overall message length,
+    and payload containing two prefixed-length strings.">
+    <document>
+      <documentPart type="byte"><![CDATA[
+      0000 0017
+      0000 1ABF
+      0005 46 6F 6F 62 79
+      0006 4E 6F 6F 62 79 4E
+    ]]></documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:message xmlns="">
+          <messageLength>23</messageLength>
+          <num>6847</num>
+          <payload>
+            <payloadContents>
+              <name>Fooby</name>
+              <address>NoobyN</address>
+            </payloadContents>
+          </payload>
+        </ex:message>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <unparserTestCase name="computedLengthAroundPrefixedLengths1u" model="s"
+                    roundTrip="none"
+                    description="Same test, but unparse direction. DAFFODIL-2626 is the bug showing this deadlocks in Daffocil 3.2.1">
+    <document>
+      <documentPart type="byte"><![CDATA[
+      0000 0017
+      0000 1ABF
+      0005 46 6F 6F 62 79
+      0006 4E 6F 6F 62 79 4E
+    ]]></documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:message xmlns="">
+          <messageLength>23</messageLength>
+          <num>6847</num>
+          <payload>
+            <payloadContents>
+              <name>Fooby</name>
+              <address>NoobyN</address>
+            </payloadContents>
+          </payload>
+        </ex:message>
+      </dfdlInfoset>
+    </infoset>
+  </unparserTestCase>
+
+
+  <unparserTestCase name="computedLengthAroundFixedLengths1" model="s" roundTrip="none"
+                    description="Control test showing the same thing but without the prefixed-length strings, works fine.">
+    <document>
+      <documentPart type="byte"><![CDATA[
+      0000 0013
+      0000 1ABF
+      46 6F 6F 62 79
+      4E 6F 6F 62 79 4E
+    ]]></documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:message2 xmlns="">
+          <messageLength>19</messageLength>
+          <num>6847</num>
+          <payload>
+            <payloadContents>
+              <name>Fooby</name>
+              <address>NoobyN</address>
+            </payloadContents>
+          </payload>
+        </ex:message2>
+      </dfdlInfoset>
+    </infoset>
+  </unparserTestCase>
+
+</testSuite>
