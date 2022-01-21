@@ -113,6 +113,11 @@ final class Runtime2TDMLDFDLProcessorFactory private(
       // Compile the generated code into an executable
       val executable = generator.compileCode(codeDir)
 
+      // There is is no way to clean up TDMLDFDLProcessors, they are just garbage
+      // collected when no longer needed. So recursively mark all generated
+      // files as deleteOnExit so we at least clean them up when the JVM exits
+      os.walk.stream(tempDir).foreach { _.toIO.deleteOnExit() }
+
       // Summarize the result of compiling the schema for the test
       val compileResult = if (generator.isError) {
         Left(generator.getDiagnostics) // C code compilation diagnostics
@@ -193,11 +198,6 @@ class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path)
   def unparse(parseResult: TDMLParseResult, outStream: java.io.OutputStream): TDMLUnparseResult = {
     unparse(parseResult.getResult, outStream)
   }
-
-  /**
-   * Remove the generated executable
-   */
-  override def cleanUp(): Unit = os.remove.all(tempDir)
 }
 
 final class Runtime2TDMLParseResult(pr: ParseResult) extends TDMLParseResult {
