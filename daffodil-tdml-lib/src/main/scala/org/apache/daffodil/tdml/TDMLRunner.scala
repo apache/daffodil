@@ -461,63 +461,43 @@ class DFDLTestSuite private[tdml] (
   }
 
   /**
-   * The CompileResult cache is stored in the DFDLTestSuite instance. This
-   * means any tests run from the same instance can share the same compiled
-   * processor. Once the DFDLTestSuite goes out of scope and is garbage
-   * collected, so too will be the compiled processors. Running the tests again
-   * will require creating a new DFDLTestSuite instance, and thus will
-   * recompile the schema.
+   * Get the CompileResult from from the TDMLCompileResultCache.
    */
-  private val tdmlCompileResultCache = mutable.HashMap[TDMLCompileResultCacheKey, TDML.CompileResult]()
-
-  case class TDMLCompileResultCacheKey (
-    impl: String,
-    suppliedSchema: DaffodilSchemaSource,
-    useSerializedProcessor: Boolean,
-    optRootName: Option[String],
-    optRootNamespace: Option[String],
-    tunables: Map[String, String],
-  )
-
-  // Multiple test cases could use the same schema, and because they can be
-  // executed in parallel, could request the same CompileResult from different
-  // threads. To ensure we only compile these schemas once, we cache the
-  // compile results inside this DFDLTestSuite. So any tests run from the same
-  // test suite can share compile results. To deal with potential thread races
-  // and two threads trying to compile the same schema in parallel, we
-  // synchronize this function on this DFDLTestSuite.
   def getCompileResult(
     impl: AbstractTDMLDFDLProcessorFactory,
     suppliedSchema: DaffodilSchemaSource,
     useSerializedProcessor: Boolean,
     optRootName: Option[String],
     optRootNamespace: Option[String],
-    tunables: Map[String, String]): TDML.CompileResult = this.synchronized {
+    tunables: Map[String, String]): TDML.CompileResult = {
 
-    val key = TDMLCompileResultCacheKey(
-      impl.implementationName,
+    // The TDMLCompileResultCache will return two things: 1) the CompileResult
+    // and 2) the cache key associated with the CompileResult. If we do not
+    // maintain a strong reference to the returned cache key, then the
+    // CompileResult could be evicted from the cache when the garbage collector
+    // runs. This means subsequent tests in this same DFDLTestSuite may need to
+    // recompile the same DaffodilSchemaSource. To avoid this, we add the cache
+    // key to a member list in this class. This way, as long as this
+    // DFDLTestSuite exists, compiled results from it will also exist and can
+    // be shared in different tests in this suite. And even once this
+    // DFDLTestSuite goes out of scope and is garbage collected, if the weak
+    // references in the cache aren't garbage collected, other DFDLTestSuites
+    // will also be able to use the CompileResult and minimize compilation.
+    val (key, result) = TDMLCompileResultCache.getCompileResult(
+      impl,
       suppliedSchema,
       useSerializedProcessor,
       optRootName,
       optRootNamespace,
       tunables)
-    val compileResult: TDML.CompileResult = {
-      tdmlCompileResultCache.getOrElseUpdate(key, {
-        impl.getProcessor(
-          suppliedSchema,
-          useSerializedProcessor,
-          optRootName,
-          optRootNamespace,
-          tunables)
-      })
-    }
-    compileResult
+    tdmlCompileResultCacheKeys += key
+    result
   }
 
+  private val tdmlCompileResultCacheKeys = mutable.Set[TDMLCompileResultCache.Key]()
+
   def cleanUp(): Unit = {
-    tdmlCompileResultCache.values.foreach { compileRes =>
-      compileRes.map { _._2.cleanUp() }
-    }
+    tdmlCompileResultCacheKeys.clear()
   }
 
 }
@@ -2601,6 +2581,68 @@ object UTF8Encoder {
       case _ => Assert.invariantFailed("char code out of range.")
     }
     res
+  }
+
+}
+
+object TDMLCompileResultCache {
+
+  case class Key (
+    impl: String,
+    suppliedSchema: DaffodilSchemaSource,
+    useSerializedProcessor: Boolean,
+    optRootName: Option[String],
+    optRootNamespace: Option[String],
+    tunables: Map[String, String],
+  )
+
+  private val cache = new mutable.WeakHashMap[Key, TDML.CompileResult]()
+
+  /**
+   * Get a compile result. This might come from a cache of compiled results, or
+   * it might compile a new processor if it hasn't been cached or has been
+   * removed from the cache.
+   *
+   * The CompileResult is guaranteed to not be evicted from cache as long as
+   * there exists a strong reference to the returned key. For this reason, it
+   * is important that callers must maintain a strong reference to the key as
+   * long as they want the CompileResult to stay in the cache.
+   */
+  def getCompileResult(
+    impl: AbstractTDMLDFDLProcessorFactory,
+    suppliedSchema: DaffodilSchemaSource,
+    useSerializedProcessor: Boolean,
+    optRootName: Option[String],
+    optRootNamespace: Option[String],
+    tunables: Map[String, String]): (Key, TDML.CompileResult) = this.synchronized {
+
+    val tmpKey = Key(
+      impl.implementationName,
+      suppliedSchema,
+      useSerializedProcessor,
+      optRootName,
+      optRootNamespace,
+      tunables)
+
+    val maybeKeyVal = cache.find { case (k, v) => k == tmpKey }
+    if (maybeKeyVal.isDefined) {
+      // the key is already in the cache, throw away our temp key and return
+      // the actual key and value that is in the WeakHashMap
+      maybeKeyVal.get
+    } else {
+      // the key either was never added to the cache, or it was garbage
+      // collected from the WeakHashMap. Get the processor, add it to the
+      // cache, and return the key/value
+      val processor = impl.getProcessor(
+        suppliedSchema,
+        useSerializedProcessor,
+        optRootName,
+        optRootNamespace,
+        tunables)
+      val kv = (tmpKey, processor)
+      cache += kv
+      kv
+    }
   }
 
 }
