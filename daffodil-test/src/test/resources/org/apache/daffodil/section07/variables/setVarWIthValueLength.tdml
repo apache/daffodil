@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<testSuite
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:f="http://example.com"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  defaultRoundTrip="onePass"
+  defaultValidation="on">
+
+  <tdml:defineSchema name="s1" elementFormDefault="unqualified" useDefaultNamespace="false"
+                     xmlns="http://www.w3.org/2001/XMLSchema">
+
+
+    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="f:GeneralFormat"
+                 representation="binary"/>
+
+    <dfdl:defineVariable name="someVar" type="xs:int"/>
+
+
+    <element name="root">
+      <complexType>
+        <sequence>
+          <element name="someElement" type="xs:int"/>
+          <!--
+          DAFFODIL-2629 This setVariable calling dfdl:valueLength on the prior element. Causes Runtime SDE."
+          -->
+          <sequence>
+            <annotation>
+              <appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:setVariable ref="f:someVar">{ dfdl:valueLength(someElement, "bytes") }</dfdl:setVariable>
+              </appinfo>
+            </annotation>
+          </sequence>
+          <group ref="f:checkVar"/>
+        </sequence>
+      </complexType>
+    </element>
+
+    <element name="root2">
+      <complexType>
+        <sequence>
+          <element name="someElement" type="xs:int"/>
+          <!--
+          DAFFODIL-2629 This setVariable calling dfdl:valueLength on the prior element. Causes Runtime SDE."
+          -->
+          <sequence>
+            <annotation>
+              <appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:setVariable ref="f:someVar" value='{ dfdl:valueLength(someElement, "bytes") }'/> }
+              </appinfo>
+            </annotation>
+          </sequence>
+          <group ref="f:checkVar"/>
+        </sequence>
+      </complexType>
+    </element>
+
+    <group name="checkVar">
+      <sequence>
+        <annotation>
+          <appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:assert>{ $f:someVar eq 4 }</dfdl:assert>
+          </appinfo>
+        </annotation>
+      </sequence>
+    </group>
+  </tdml:defineSchema>
+
+  <parserTestCase name="setVarWithValueLength1"
+                  model="s1"
+                  roundTrip="none">
+    <document>
+      <documentPart type="byte"><![CDATA[00000000]]></documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <f:root>
+          <message>0</message>
+        </f:root>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="setVarWithValueLength2"
+                  model="s1"
+                  roundTrip="none">
+    <document>
+      <documentPart type="byte"><![CDATA[00000000]]></documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <f:root2>
+          <message>0</message>
+        </f:root2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+</testSuite>
