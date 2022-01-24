@@ -52,11 +52,8 @@ trait ResolvesDFDLStatementMixin
     f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]) = {
     s match {
       case sv: DFDLSetVariable => {
-        val mdv = sv.defv.maybeDefaultValueExpr
-        if (mdv.isDefined)
-          f(mdv.get)
-        else
-          ReferencedElementInfos.None
+        val v = sv.gram(self).expr
+        f(v)
       }
       case nv: DFDLNewVariableInstance => {
         val mdv = nv.maybeDefaultValueExpr

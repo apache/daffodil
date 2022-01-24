@@ -34,11 +34,10 @@ object TestSetVarWithValueLength {
 class TestSetVarWithValueLength {
 
   import TestSetVarWithValueLength._
-  @Test def dummyTest(): Unit = { val r = runner ; () } // prevents tools from auto-removing the imports
 
   // DAFFODIL-2629 Runtime SDE
-  // @Test def testSetVarWithValueLength1() = { runner.runOneTest("setVarWithValueLength1") }
-  // @Test def testSetVarWithValueLength2() = { runner.runOneTest("setVarWithValueLength2") }
+  @Test def testSetVarWithValueLength1() = { runner.runOneTest("setVarWithValueLength1") }
+  @Test def testSetVarWithValueLength2() = { runner.runOneTest("setVarWithValueLength2") }
 
 
 }

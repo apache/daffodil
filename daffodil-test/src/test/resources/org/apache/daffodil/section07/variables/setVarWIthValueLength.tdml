@@ -96,7 +96,7 @@
     <infoset>
       <dfdlInfoset>
         <f:root>
-          <message>0</message>
+          <someElement>0</someElement>
         </f:root>
       </dfdlInfoset>
     </infoset>
@@ -111,7 +111,7 @@
     <infoset>
       <dfdlInfoset>
         <f:root2>
-          <message>0</message>
+          <someElement>0</someElement>
         </f:root2>
       </dfdlInfoset>
     </infoset>
