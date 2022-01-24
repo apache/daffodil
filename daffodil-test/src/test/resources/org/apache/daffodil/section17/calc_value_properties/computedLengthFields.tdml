@@ -211,4 +211,70 @@
     </infoset>
   </unparserTestCase>
 
+  <tdml:defineSchema
+    name="modelPrefixed"
+    elementFormDefault="unqualified"
+    useDefaultNamespace="false"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+  >
+    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      encoding="iso-8859-1"
+      lengthUnits="bytes"
+      alignmentUnits="bits"
+      fillByte="%#xFF;"
+      alignment="1"
+      representation="binary"
+    />
+
+    <element
+      name="prefixed"
+      dfdl:lengthKind="prefixed"
+      dfdl:prefixIncludesPrefixLength="no"
+      dfdl:prefixLengthType="ex:prefixLengthType">
+      <complexType>
+        <sequence>
+          <element name="s1" type="xs:string"
+                      dfdl:lengthKind="delimited"
+                      dfdl:terminator=";"
+                      dfdl:alignment="8"/>
+        </sequence>
+      </complexType>
+    </element>
+
+    <simpleType name="prefixLengthType" dfdl:lengthKind="explicit" dfdl:length="1">
+      <restriction base="xs:byte" />
+    </simpleType>
+
+  </tdml:defineSchema>
+
+  <!--
+  Shows computing a prefixed length around content containing the need
+  for a mandatory alignment for text, even when we *should* be able
+  to recognize that no such alignment is needed.
+
+  If the alignment region does not optimize out, then computing the prefix
+  length will have to wait for the alignment to be resolved. The alignment
+  being resolved depends on determining that the length of the prefix is a constant
+  and propagating that so that the alignment can be determined.
+
+  DAFFODIL-2626 - one aspect of it is that the above isn't happening so a
+  circular deadlock occurs on unparsing.
+  -->
+  <unparserTestCase name="prefixedAroundDelimitedString1" model="modelPrefixed"
+                         roundTrip="none">
+    <document>
+      <documentPart type="byte">02 01</documentPart>
+      <documentPart type="text" encoding="iso-8859-1">A;</documentPart>
+    </document>
+    <infoset>
+      <tdml:dfdlInfoset xmlns="">
+        <ex:prefixed>
+          <s1>A</s1>
+        </ex:prefixed>
+      </tdml:dfdlInfoset>
+    </infoset>
+  </unparserTestCase>
+
 </testSuite>

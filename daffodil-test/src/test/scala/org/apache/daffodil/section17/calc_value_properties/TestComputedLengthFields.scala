@@ -43,4 +43,9 @@ class TestComputedLengthFields {
 
   @Test def test_computedLengthAroundFixedLengths1(): Unit = { runner.runOneTest("computedLengthAroundFixedLengths1") }
 
+  // DAFFODIL-2626 circular deadlock
+  // Reproduces one of the circular issues - with prefixed length for the root element surrounding
+  // text, where the alignment region isn't optimized out. 
+  // @Test def test_prefixedAroundDelimitedString1(): Unit = { runner.runOneTest("prefixedAroundDelimitedString1") }
+
 }
