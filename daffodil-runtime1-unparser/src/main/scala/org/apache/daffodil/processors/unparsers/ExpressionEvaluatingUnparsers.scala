@@ -156,6 +156,13 @@ class TypeValueCalcUnparser(typeCalculator: TypeCalculator, repTypeUnparser: Unp
     if (ustate.withinHiddenNest)
       tmpInfosetElement.setHidden()
 
+    // Although quasi elements aren't really part of the infoset, we still
+    // require that certain invariants hold. One of which is that all elements
+    // have a parent. This is necessary for things like running the
+    // InfosetWalker in the interactive debugger. To ensure this invariant
+    // holds, we set the parent of this quasi element to the same as that of
+    // the current infoset node.
+    tmpInfosetElement.setParent(currentSimple.parent)
 
     if (ustate.processorStatus == Success) {
 
