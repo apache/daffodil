@@ -170,6 +170,54 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e9">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="pad" type="xs:int" />
+          <xs:element name="hex" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1" />
+          <xs:element name="vl" type="xs:int" dfdl:inputValueCalc="{ dfdl:valueLength(../hex, 'bytes') } "/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="cl2" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="GeneralFormat" representation="binary" />
+
+    <dfdl:defineVariable name="headerSize" type="xs:unsignedInt" external="false" defaultValue="4" />
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="header">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="message_size" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="4"
+                  dfdl:outputValueCalc="{ dfdl:valueLength(../../message/content, 'bytes') + $headerSize }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="message" dfdl:lengthKind="explicit" dfdl:length="{ ../header/message_size - $headerSize}">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="content" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1" />
+                <xs:sequence>
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:assert test="{ dfdl:valueLength(content, 'bytes') eq (../header/message_size - $headerSize) }" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:sequence>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:unparserTestCase name="valueLengthPair1" root="e1"
@@ -319,6 +367,78 @@
         </ex:e8>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueLengthDelimitedHexBinary1" root="e9"
+    model="cl1" description="dfdl:valueLength of delimied hex binary">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 01 AA BB CC DD</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e9>
+          <ex:pad>1</ex:pad>
+          <ex:hex>AABBCCDD</ex:hex>
+          <ex:vl>4</ex:vl>
+        </ex:e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueLengthDelimitedHexBinary2" root="root1"
+    model="cl2" description="dfdl:valueLength of delimied hex binary">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        00 00 00 07
+        62 01 00
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <header>
+            <message_size>7</message_size>
+          </header>
+          <message>
+             <content>620100</content>
+          </message>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueLengthDelimitedHexBinary3" root="root1"
+    model="cl2" description="dfdl:valueLength of delimied hex binary">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        00 00 00 04
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <header>
+            <message_size>4</message_size>
+          </header>
+          <message>
+             <content></content>
+          </message>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueLengthDelimitedHexBinary4" root="root1"
+    model="cl2" description="dfdl:valueLength of delimied hex binary">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        00 00 00 04
+        62 01 00
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

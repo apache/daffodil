@@ -79,18 +79,23 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
         setElems.contains(this.dpathElementCompileInfo)
       }
 
-    // For simple elements with text representation, valueLength is captured in
-    // individual parsers since they handle removing delimiters and padding.
+    // For simple elements with text representation, value length is captured
+    // directly by the value parsers, since those parsers also handle removing
+    // delimiters and padding (which must be excluded from value length).
+    // Related, simple types that aren't text (e.g. hex binary, packed decimal)
+    // but are delimited also use the same simple text value parsers that
+    // capture value length.
     //
-    // For complex elements with specified length, valueLength is captured in
+    // For complex elements with specified length, value length is captured in
     // the specified length parsers, since they handle skipping unused
     // element regions. For complex elements, this means lengthKind is not
     // implicit or delimited.
     //
-    // So for these cases we do not want to capture value length, since
-    // they are handled by the parsers as necessary
+    // So for these cases we do not want to capture value length with the
+    // Capture{Start,End}OfValueLengthParsers, since those lengths are captured
+    // by the value parsers
     val capturedByParsers =
-      (isSimpleType && impliedRepresentation == Representation.Text) ||
+      (isSimpleType && (impliedRepresentation == Representation.Text || lengthKind == LengthKind.Delimited)) ||
         (isComplexType && (lengthKind != LengthKind.Implicit && lengthKind != LengthKind.Delimited))
 
     !capturedByParsers && isReferenced
