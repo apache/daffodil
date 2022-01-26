@@ -68,6 +68,12 @@ class TestDFDLExpressions2 {
   @Test def test_valueLengthDfdlOccursCount(): Unit = { runner6.runOneTest("valueLengthDfdlOccursCount") }
   @Test def test_valueLengthDfdlEncoding(): Unit = { runner6.runOneTest("valueLengthDfdlEncoding") }
 
+  // DAFFODIL-2635
+  @Test def test_valueLengthDelimitedHexBinary1(): Unit = { runner6.runOneTest("valueLengthDelimitedHexBinary1") }
+  @Test def test_valueLengthDelimitedHexBinary2(): Unit = { runner6.runOneTest("valueLengthDelimitedHexBinary2") }
+  @Test def test_valueLengthDelimitedHexBinary3(): Unit = { runner6.runOneTest("valueLengthDelimitedHexBinary3") }
+  @Test def test_valueLengthDelimitedHexBinary4(): Unit = { runner6.runOneTest("valueLengthDelimitedHexBinary4") }
+
   //DFDL-1691
   @Test def test_div01(): Unit = { runner.runOneTest("div01") }
   @Test def test_div02(): Unit = { runner.runOneTest("div02") }
