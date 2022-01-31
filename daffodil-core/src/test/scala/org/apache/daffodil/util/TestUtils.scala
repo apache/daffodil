@@ -23,12 +23,9 @@ import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import scala.util.Try
-import scala.xml._
 import org.apache.commons.io.output.NullOutputStream
 import org.junit.Assert.assertEquals
 import org.apache.daffodil.Implicits._
-
-import java.io.InputStream
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
@@ -39,12 +36,20 @@ import org.apache.daffodil.grammar.VariableMapFactory
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
-import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml._
+
+import java.io.ByteArrayInputStream
+import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
+import org.apache.daffodil.io.InputSourceDataInputStream
+
+import java.io.InputStream
+import scala.collection.mutable.ArrayBuffer
+import scala.xml._
+
+
 
 object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -370,4 +375,92 @@ class Fakes private () {
   }
   lazy val fakeDP = new FakeDataProcessor
 
+}
+
+/**
+ * Testing class for streaming message parse behavior
+ */
+object StreamParser {
+  case class CompileFailure (diags: Seq[Diagnostic]) extends Exception("DFDL Schema Compile Failure"){
+    override def getMessage() = diags.map{ _.toString }.mkString(",\n")
+  }
+
+  /**
+   * Result object for parse calls. Just a tuple.
+   */
+  case class Result (message: Node, // document that is the current parse result, or null
+    diags: Seq[Diagnostic],  // diagnostics.
+    isProcessingError: Boolean,
+    isValidationError: Boolean,
+    bitPos1b: Long) {
+
+    def toXML: Node = {
+      <Result>
+        { message }
+        { if (!diags.isEmpty) {
+        <diagnostics>
+          { diags map { diag => <diagnostic>{ diag.toString} </diagnostic> } }
+        </diagnostics>
+        }
+      else Null
+      }
+      </Result> %
+        (if (isProcessingError) new UnprefixedAttribute("isProcessingError",isProcessingError.toString, Null) else Null) %
+        (if (isValidationError) new UnprefixedAttribute("isValidationError", isValidationError.toString, Null) else Null) %
+        new UnprefixedAttribute("bitPos1b", bitPos1b.toString, Null)
+    }
+  }
+
+
+  def doStreamTest(schema: Node, data: String): Seq[Result] = {
+    val mp = new StreamParser(schema)
+    val is: InputStream = new ByteArrayInputStream(data.getBytes("ascii"))
+    mp.setInputStream(is)
+    var r: StreamParser.Result = null
+    val results = new ArrayBuffer[Result]
+    val resStream = Stream.continually( mp.parse ).takeWhile( r => !r.isProcessingError)
+    resStream.toSeq
+  }
+}
+
+class StreamParser(val schema: Node) {
+
+  val outputter = new ScalaXMLInfosetOutputter()
+  var dis: InputSourceDataInputStream = _
+  var dp: DFDL.DataProcessor = _
+  //
+  // First compile the DFDL Schema
+  val c = Compiler()
+  val pf = c.compileNode(schema)
+  val pfDiags = pf.getDiagnostics
+  if (pf.isError) throw new StreamParser.CompileFailure(pfDiags)
+  dp = pf.onPath("/")
+    .withValidationMode(ValidationMode.Full)
+  // .withDebuggerRunner(new TraceDebuggerRunner()) // DAFFODIL-2624 - cannot trace in streaming SAPI
+  // .withDebugging(true)
+  val dpDiags = dp.getDiagnostics
+  if (dp.isError) throw new StreamParser.CompileFailure(dpDiags)
+  val compilationWarnings = if (!pfDiags.isEmpty) pfDiags else dpDiags // dpDiags might be empty. That's ok.
+
+  def setInputStream(inputStream: InputStream): Unit = {
+    dis = InputSourceDataInputStream(inputStream)
+  }
+
+  /**
+   * Called to pull messages from the data stream.
+   *
+   * @return a Result object containing the results of the parse including diagnostic information.
+   */
+  def parse = {
+    if (dis == null) throw new IllegalStateException("Input stream must be provided by setInputStream() call.")
+    val res: DFDL.ParseResult = dp.parse(dis, outputter)
+    val procErr = res.isProcessingError
+    val validationErr = res.isValidationError
+    val diags = res.getDiagnostics
+    val doc = if (!procErr) outputter.getResult else null
+    val bitPos1b = res.resultState.currentLocation.bitPos1b
+    val r = new StreamParser.Result(doc, diags, procErr, validationErr, bitPos1b)
+    outputter.reset()
+    r
+  }
 }
