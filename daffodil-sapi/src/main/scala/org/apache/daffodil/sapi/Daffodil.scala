@@ -361,7 +361,7 @@ abstract class WithDiagnostics private[sapi] (wd: SWithDiagnostics)
   /**
    * Determine if any errors occurred in the creation of the parent object.
    *
-   * @return true if no errors occurred, false otherwise
+   * @return true if it represents an error, false otherwise
    */
   def isError() = wd.isError
 
@@ -814,7 +814,7 @@ class ParseResult private[sapi] (pr: SParseResult, deprecatedOutput: Maybe[Scala
    * Determine if any processing errors occurred. isError() will always return
    * true if this returns true.
    *
-   * @return true if any processing errors occured, false otherwise.
+   * @return true if any processing errors occurred, false otherwise.
    */
   def isProcessingError(): Boolean = pr.isProcessingError
 
