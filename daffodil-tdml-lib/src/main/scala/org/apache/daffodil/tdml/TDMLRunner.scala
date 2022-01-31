@@ -461,7 +461,20 @@ class DFDLTestSuite private[tdml] (
   }
 
   /**
-   * Get the CompileResult from from the TDMLCompileResultCache.
+   * Get the CompileResult from a TDMLCompileResultCache.
+   *
+   * This uses one of two different caches to look for compile results:
+   *
+   * Embedded schemas cannot be shared among different DFDL Test Suites, so
+   * they are stored in a cache local to this test suite. This avoids having to
+   * run the expiration logic for such compile results, and the compile results
+   * will be garbage collected when this DFDL Test Suite is garbage collected.
+   *
+   * Non-embedded schemas may need to be shared between different test suites
+   * if different Runners/.tdml files reference the same schema with same
+   * compile options. So they are stored in a global cache, with care used to
+   * ensure we mark them as finished so they can expire and be removed when not
+   * used.
    */
   def getCompileResult(
     impl: AbstractTDMLDFDLProcessorFactory,
@@ -471,33 +484,48 @@ class DFDLTestSuite private[tdml] (
     optRootNamespace: Option[String],
     tunables: Map[String, String]): TDML.CompileResult = {
 
-    // The TDMLCompileResultCache will return two things: 1) the CompileResult
-    // and 2) the cache key associated with the CompileResult. If we do not
-    // maintain a strong reference to the returned cache key, then the
-    // CompileResult could be evicted from the cache when the garbage collector
-    // runs. This means subsequent tests in this same DFDLTestSuite may need to
-    // recompile the same DaffodilSchemaSource. To avoid this, we add the cache
-    // key to a member list in this class. This way, as long as this
-    // DFDLTestSuite exists, compiled results from it will also exist and can
-    // be shared in different tests in this suite. And even once this
-    // DFDLTestSuite goes out of scope and is garbage collected, if the weak
-    // references in the cache aren't garbage collected, other DFDLTestSuites
-    // will also be able to use the CompileResult and minimize compilation.
-    val (key, result) = TDMLCompileResultCache.getCompileResult(
-      impl,
+    val key = TDMLCompileResultCacheKey(
+      impl.implementationName,
       suppliedSchema,
       useSerializedProcessor,
       optRootName,
       optRootNamespace,
       tunables)
-    tdmlCompileResultCacheKeys += key
-    result
+
+    val isEmbedded = suppliedSchema.isInstanceOf[EmbeddedSchemaSource]
+    val cache =
+      if (isEmbedded) {
+        embeddedCompileResultCache
+      } else {
+        // we are using the global tdml compile result cache--we must store the
+        // key associated with this compile result so that when cleanUp is
+        // called for this DFDLTestSuite we can notify the global tdml compile
+        // result cache that we are finished with this key and it can be expired
+        globalTDMLCompileResultCacheKeys += key
+        GlobalTDMLCompileResultCache.cache
+      }
+
+    val compileResult = cache.getCompileResult(impl, key)
+    compileResult
   }
 
-  private val tdmlCompileResultCacheKeys = mutable.Set[TDMLCompileResultCache.Key]()
+  // Embedded schemas cannot be shared between different DFDLTestSuites. So
+  // there is no need to store them in the global cache. Embedded compile
+  // results are instead store in this cache that lives on the DFDLTestSuite.
+  // When this DFDLTestSuite is garbage collected, so too are the embedded
+  // schema compile results. There is no expire time needed, since these
+  // results will only live for the duration of the DFDLTestSuite
+  private val embeddedCompileResultCache = TDMLCompileResultCache(None)
+
+  // Used to keep track of which keys this DFDLTestSuite stored in the global
+  // TDML compile result cache. When the cleanUp function is called, we can
+  // mark all these keys as finished so that they can expire. Note that this
+  // means if a Runner does not call reset and this cleanUp function is not
+  // called, the associated compile results will not expire
+  private val globalTDMLCompileResultCacheKeys = mutable.Set[TDMLCompileResultCacheKey]()
 
   def cleanUp(): Unit = {
-    tdmlCompileResultCacheKeys.clear()
+    GlobalTDMLCompileResultCache.cache.setEntriesFinished(globalTDMLCompileResultCacheKeys)
   }
 
 }
@@ -2585,64 +2613,107 @@ object UTF8Encoder {
 
 }
 
-object TDMLCompileResultCache {
+case class TDMLCompileResultCacheKey(
+  impl: String,
+  suppliedSchema: DaffodilSchemaSource,
+  useSerializedProcessor: Boolean,
+  optRootName: Option[String],
+  optRootNamespace: Option[String],
+  tunables: Map[String, String],
+)
 
-  case class Key (
-    impl: String,
-    suppliedSchema: DaffodilSchemaSource,
-    useSerializedProcessor: Boolean,
-    optRootName: Option[String],
-    optRootNamespace: Option[String],
-    tunables: Map[String, String],
-  )
+/**
+ * Stores the compile result as well as the time when this compile result
+ * should be removed from the cache.
+ *
+ * If optExpireTimeMillis is set to None, it means a DFDLTestSuite exists that
+ * is using this compile result, and so it will not expire.
+ *
+ * If optExpireTimeMillis is set to Some, it means no DFDLTestSuite currently
+ * uses the compile result, and it can be expired once the current time reaches
+ * the Some value time
+ */
+case class TDMLCompileResultCacheValue(
+  compileResult: TDML.CompileResult,
+  var optExpireTimeMillis: Option[Long] = None,
+)
 
-  private val cache = new mutable.WeakHashMap[Key, TDML.CompileResult]()
+/**
+ * A cache for TDML Compile Results.
+ *
+ * If entryExpireDurationSeconds is None, entries in this cache will never expire.
+ *
+ * If entryExpireDurationSeconds is Some, entries in this cache will expire.
+ * When a DFDLTestSuite is finished, we set the optExpireTimeMillis field in
+ * the associated entries to to the current time + the value. The entries will
+ * be removed from the cache when we reach that time. This means that compile
+ * results are guaranteed to exist for entryExpireDurationSeconds after a
+ * DFDLTestSuite is done with it. This should hopefully allow enough time for
+ * other DFDLTestSuites that use the schema to start and run tests using these
+ * schema. If another DFDLTestSuite does so (i.e. we have a cache hit) we reset
+ * the entries optExpireTimeMillis back to None, causing it to not expire until
+ * the new DFDLTestSuite finishes and sets the optExpireTimeMillis back to
+ * Some.
+ */
+case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
 
-  /**
-   * Get a compile result. This might come from a cache of compiled results, or
-   * it might compile a new processor if it hasn't been cached or has been
-   * removed from the cache.
-   *
-   * The CompileResult is guaranteed to not be evicted from cache as long as
-   * there exists a strong reference to the returned key. For this reason, it
-   * is important that callers must maintain a strong reference to the key as
-   * long as they want the CompileResult to stay in the cache.
-   */
-  def getCompileResult(
-    impl: AbstractTDMLDFDLProcessorFactory,
-    suppliedSchema: DaffodilSchemaSource,
-    useSerializedProcessor: Boolean,
-    optRootName: Option[String],
-    optRootNamespace: Option[String],
-    tunables: Map[String, String]): (Key, TDML.CompileResult) = this.synchronized {
+  private val cache = new mutable.HashMap[TDMLCompileResultCacheKey, TDMLCompileResultCacheValue]()
 
-    val tmpKey = Key(
-      impl.implementationName,
-      suppliedSchema,
-      useSerializedProcessor,
-      optRootName,
-      optRootNamespace,
-      tunables)
-
-    val maybeKeyVal = cache.find { case (k, v) => k == tmpKey }
-    if (maybeKeyVal.isDefined) {
-      // the key is already in the cache, throw away our temp key and return
-      // the actual key and value that is in the WeakHashMap
-      maybeKeyVal.get
-    } else {
-      // the key either was never added to the cache, or it was garbage
-      // collected from the WeakHashMap. Get the processor, add it to the
-      // cache, and return the key/value
-      val processor = impl.getProcessor(
-        suppliedSchema,
-        useSerializedProcessor,
-        optRootName,
-        optRootNamespace,
-        tunables)
-      val kv = (tmpKey, processor)
-      cache += kv
-      kv
+  private def removeExpiredEntries(): Unit = {
+    val now = System.currentTimeMillis()
+    cache.retain { case (_, v) =>
+      val retainEntry = v.optExpireTimeMillis.map { now < _ }.getOrElse(true)
+      retainEntry
     }
   }
 
+  def setEntriesFinished(keys: mutable.Set[TDMLCompileResultCacheKey]): Unit = this.synchronized {
+    val now = System.currentTimeMillis()
+    val expireTime = Some(now + (entryExpireDurationSeconds.get * 1000))
+    keys.foreach { key =>
+      val optVal = cache.get(key)
+      if (optVal.isDefined) {
+        optVal.get.optExpireTimeMillis = expireTime
+      }
+    }
+  }
+
+  def getCompileResult(
+    impl: AbstractTDMLDFDLProcessorFactory,
+    key: TDMLCompileResultCacheKey): TDML.CompileResult = this.synchronized {
+
+    if (entryExpireDurationSeconds.isDefined) {
+      removeExpiredEntries()
+    }
+
+    val optVal = cache.get(key)
+    if (optVal.isDefined) {
+      val v = optVal.get
+      // If some other DFDL Test Suite set an expire time for this compile
+      // result it may be scheduled to be expired. But this cache hit means
+      // that some other DFDLTestSuite started and is running a test with the
+      // same compile result. By setting the expire time of this entry to None,
+      // we essentially reset this expire time, ensuring that this entry exists
+      // for expire duration after the DFDLTestSuite finishes.
+      v.optExpireTimeMillis = None
+      v.compileResult
+    } else {
+      val compileResult = impl.getProcessor(
+        key.suppliedSchema,
+        key.useSerializedProcessor,
+        key.optRootName,
+        key.optRootNamespace,
+        key.tunables)
+      cache += (key -> TDMLCompileResultCacheValue(compileResult, None))
+      compileResult
+    }
+  }
+
+}
+
+object GlobalTDMLCompileResultCache {
+  val expireTimeSeconds = 30
+  val cache = {
+    new TDMLCompileResultCache(Some(expireTimeSeconds))
+  }
 }
