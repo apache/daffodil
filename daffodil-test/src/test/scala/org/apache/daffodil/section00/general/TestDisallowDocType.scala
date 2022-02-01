@@ -56,19 +56,21 @@ class TestDisallowDocType {
   import TestDisallowDocType._
 
   @Test def test_TDMLFileMustNotHaveDocType(): Unit = {
-    val e = intercept[org.xml.sax.SAXParseException] {
+    val e = intercept[TDMLException] {
       runner1.runOneTest("ignored")
     }
-    assertTrue(e.getMessage().contains("DOCTYPE is disallowed"))
-    assertTrue(e.getSystemId().contains("hasDocType.tdml"))
+    val msg = e.getMessage()
+    assertTrue(msg.contains("DOCTYPE is disallowed"))
+    assertTrue(msg.contains("hasDocType.tdml"))
   }
 
   @Test def test_configMustNotHaveDocType(): Unit = {
-    val e = intercept[org.xml.sax.SAXParseException] {
+    val e = intercept[TDMLException] {
       runner2.runOneTest("configMustNotHaveDocType")
     }
-    assertTrue(e.getMessage().contains("DOCTYPE is disallowed"))
-    assertTrue(e.getSystemId().contains("hasDocType.cfg"))
+    val msg = e.getMessage()
+    assertTrue(msg.contains("DOCTYPE is disallowed"))
+    assertTrue(msg.contains("hasDocType.cfg"))
   }
 
   @Test def test_dfdlSchemaMustNotHaveDocType(): Unit = {

@@ -215,18 +215,37 @@ class DFDLCatalogResolver private ()
 
     val result = (resolvedId, systemId) match {
       case (null, null) => {
-        // This happens now in some unit tests.
-        // Assert.invariantFailed("resolvedId and systemId were null.")
-        Logger.log.debug(s"Unable to resolve.")
+        // This happens in numerous unit tests.
+        //
+        // It seems that in some situations the resolver is called
+        // to attempt to resolve things certain ways. Such as
+        // providing just the namespace URI, without the systemId.
+        //
+        // So the inability to resolve, in this case anyway, is not an error.
+        //
         None
       }
       case (null, sysId) =>
         {
+          // We did not get a catalog resolution of the nsURI, nor
+          // a straight file resolution of the systemId, so we
+          // use the systemId (which comes from the schemaLocation attribute)
+          // and the classpath.
           val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
           val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
           optURI match {
             case Some(uri) => Logger.log.debug(s"Found on classpath: ${uri}.")
-            case None => Logger.log.info(s"Unable to resolve ${sysId} in ${baseURI}")
+            case None => {
+              //
+              // We have to explicitly throw this, because returning with
+              // a no-resolve does not cause Xerces to report an error.
+              // Instead you just get later errors about symbols that can't
+              // be resolved, but it never mentions that an include/import didn't
+              // work.
+              val e = new SAXParseException(
+                s"""DaffodilXMLLoader: Unable to resolve schemaLocation='$systemId'.""", null)
+              throw e
+            }
           }
           optURI
         }
@@ -639,7 +658,14 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       val parser = parserFromURI(optSchemaURI)
       val xrdr = parser.getXMLReader()
       val saxSource = scala.xml.Source.fromSysId(source.uriForLoading.toString)
-      xrdr.parse(saxSource)
+      try {
+        xrdr.parse(saxSource)
+      } catch {
+        // can be thrown by the resolver if a schemaLocation of
+        // an import/include cannot be resolved.
+        // Regular Xerces doesn't report that as an error.
+        case spe: SAXParseException => errorHandler.error(spe)
+      }
       // no result, as the errors are reported separately
     }
     //
