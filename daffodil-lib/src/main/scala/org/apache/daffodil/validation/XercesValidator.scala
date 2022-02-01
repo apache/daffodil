@@ -100,7 +100,14 @@ class XercesValidator(schemaSources: Seq[javax.xml.transform.Source])
     xv.setErrorHandler(eh)
 
     // validate the document
-    xv.validate(documentSource)
+    try {
+      xv.validate(documentSource)
+    } catch {
+      // can be thrown by the resolver if it cannot
+      // resolve the schemaLocation of an include/import.
+      // Regular Xerces doesn't report this as an error.
+      case spe: SAXParseException => eh.error(spe)
+    }
 
     eh match {
       case xeh: XercesErrorHandler => ValidationResult(xeh.warnings, xeh.errors)

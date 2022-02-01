@@ -643,13 +643,13 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       val schemaSource = getSuppliedSchema()
 
       val schemaNode = try{
-        parent.loader.load(schemaSource, Some(XMLUtils.schemaForDFDLSchemas),
+        val node = parent.loader.load(schemaSource, Some(XMLUtils.schemaForDFDLSchemas),
           addPositionAttributes = true) // want line numbers for schemas
+        if (node ne null) node else <dummy/>
       } catch {
         // any exception while loading then we just use a dummy node.
         case e:SAXParseException => <dummy/>
       }
-
       val tns = (schemaNode \ "@targetNamespace").text
       val nsURIString = {
         if (tns != "") tns
@@ -762,6 +762,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       case (name, None, Some(uri)) if name != "" => {
         // Read file, convert to definedConfig
         val node = parent.loader.load(URISchemaSource(uri), Some(XMLUtils.dafextURI))
+        if (node eq null)
+          throw TDMLException(parent.loadingExceptions.toSeq, None)
         val definedConfig = DefinedConfig(node, parent)
         Some(definedConfig)
       }

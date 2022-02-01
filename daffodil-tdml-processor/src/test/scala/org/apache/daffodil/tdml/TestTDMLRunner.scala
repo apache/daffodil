@@ -589,7 +589,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     // val msgs = out.toString
     // println(msgs)
     assertTrue(msgs.contains("incorrect/path/on/purpose/tdml.xsd"))
-    assertTrue(msgs.contains("Cannot find the declaration of element 'testSuite'"))
+    assertTrue(msgs.contains("Unable to resolve"))
   }
 
 
