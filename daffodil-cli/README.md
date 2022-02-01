@@ -81,6 +81,6 @@ users@daffodil.apache.org mailing lists. Bugs can be reported via the
 
 Daffodil is licensed under the [Apache License, v2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-This product includes The Saxon XSLT and XQuery Processor from
-Saxonica Limited (<http://www.saxonica.com/>), which is licensed under
+This product includes [The Saxon XSLT and XQuery Processor from
+Saxonica Limited](https://www.saxonica.com/), which is licensed under
 the Mozilla Public License version 2.0.
