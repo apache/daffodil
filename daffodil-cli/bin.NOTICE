@@ -150,3 +150,12 @@ Scala XML (lib/org.scala-lang.modules.scala-xml_<VERSION>.jar)
   scala-xml includes software developed at
   LAMP/EPFL (https://lamp.epfl.ch/) and
   Lightbend, Inc. (https://www.lightbend.com/).
+
+XML Resolver (lib/org.xmlresolver.xmlresolver-<VERSION>-data.jar, lib/org.xmlresolver.xmlresolver-<VERSION>.jar)
+  xmlresolver
+  Copyright 2015 Norman Walsh and contributors.
+  <http://nwalsh.com/>
+
+  xmlresolver includes software developed by the
+  XML Resolver Project (https://github.com/xmlresolver
+  and https://xmlresolver.org/).
