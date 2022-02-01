@@ -172,7 +172,7 @@ lazy val commonSettings = Seq(
       connection = "scm:git:https://github.com/apache/daffodil"
     )
   ),
-  licenses := Seq("Apache License, Version 2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+  licenses := Seq(License.Apache2),
   homepage := Some(url("https://daffodil.apache.org")),
   unmanagedBase := baseDirectory.value / "lib" / "jars",
   sourceManaged := baseDirectory.value / "src_managed",
