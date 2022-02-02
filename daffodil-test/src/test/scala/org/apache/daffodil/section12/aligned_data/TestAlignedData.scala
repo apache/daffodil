@@ -196,4 +196,6 @@ class TestAlignedData {
   @Test def test_alignmentFillByteDefined() = { runner1.runOneTest("alignmentFillByteDefined") }
 
   @Test def test_separatorMTA_01() = { runner1.runOneTest("separatorMTA_01") }
+
+  @Test def test_globalDeclAlignment_01() = { runner1.runOneTest("globalDeclAlignment_01") }
 }

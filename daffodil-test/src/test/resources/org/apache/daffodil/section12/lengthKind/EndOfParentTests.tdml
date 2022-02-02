@@ -77,8 +77,6 @@
 			<tdml:error>not</tdml:error>
 			<tdml:error>implemented</tdml:error>
 			<tdml:error>endOfParent</tdml:error>
-			<tdml:error>complex</tdml:error>
-			<tdml:error>type</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
@@ -90,8 +88,6 @@
 			<tdml:error>not</tdml:error>
 			<tdml:error>implemented</tdml:error>
 			<tdml:error>endOfParent</tdml:error>
-			<tdml:error>simple</tdml:error>
-			<tdml:error>type</tdml:error>
 		</tdml:errors>
 	</tdml:parserTestCase>
 
