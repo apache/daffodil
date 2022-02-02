@@ -72,7 +72,7 @@ public class TestCustomDebuggerAPI {
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
         ParseResult res = dp.parse(dis, new NullInfosetOutputter());
 
-        assertEquals(6, dbg.nodes);
+        assertEquals(8, dbg.nodes);
         assertTrue(dbg.inited);
         assertTrue(dbg.finished);
     }

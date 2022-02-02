@@ -149,7 +149,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    * of the former starting bit pos so as to be able to
    * convert relative positions to absolute positions correctly.
    */
-  protected final def maybeAbsStartingBitPos0b = {
+  final def maybeAbsStartingBitPos0b = {
     if (this.maybeAbsolutizedRelativeStartingBitPosInBits_.isDefined)
       maybeAbsolutizedRelativeStartingBitPosInBits_
     else

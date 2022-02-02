@@ -177,20 +177,21 @@ class SimpleTypeRetryUnparserSuspendableOperation(
   extends SuspendableOperation {
 
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = {
-    // Note that we cannot use a targetLengthInBitsEv to determine the
-    // knownLengthInBits. This is because even if an OVC/Simple element has fixed
-    // length, the result of the OVC might not actually write that many bits,
-    // relying on padding and/or right fill to fill in the remaining bits
-    //
-    // TODO: The above is too pessimistic. Many formats have no notion of
-    // padding nor filling, so the length could be computed from the targetLengthInBitsEv
-    // just fine
-    //
-    // We could make it the responsibility of the caller of this to supply or not
-    // the maybeUnparserTargetLengthInBitsEv depending on whether it can be
-    // depended upon or not.
-    //
-    MaybeULong.Nope
+    if (maybeUnparserTargetLengthInBitsEv.isDefined) {
+      // maybeUnparserTargetLengthInBitsEv should only be provided to this
+      // class if we know at schema compile time that it will evaluate to a
+      // value, and that value will match the actual unparsed length (e.g.
+      // there will not be any padding/fill). Here we assert that if a target
+      // length evaluatable was passed into this class, then it must evaluate
+      // to a value. When we deliver buffered content, we will also assert that
+      // the starting bit position of the buffered DOS that results from this
+      // suspension matches the direct DOS (i.e. this length is used correctly)
+      val maybeLen = maybeUnparserTargetLengthInBitsEv.get.evaluate(ustate)
+      Assert.invariant(maybeLen.isDefined)
+      maybeLen.toMaybeULong
+    } else {
+      MaybeULong.Nope
+    }
   }
 
   protected def test(state: UState) = {

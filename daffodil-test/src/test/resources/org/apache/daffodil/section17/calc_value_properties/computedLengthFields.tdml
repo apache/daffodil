@@ -265,7 +265,7 @@
   <unparserTestCase name="prefixedAroundDelimitedString1" model="modelPrefixed"
                          roundTrip="none">
     <document>
-      <documentPart type="byte">02 01</documentPart>
+      <documentPart type="byte">02</documentPart>
       <documentPart type="text" encoding="iso-8859-1">A;</documentPart>
     </document>
     <infoset>

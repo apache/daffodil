@@ -142,6 +142,17 @@ trait SchemaComponent
   }
 
   /**
+   * The lexically enclosing term, if one exists
+   */
+  final lazy val optEnclosingLexicalTerm: Option[Term] = {
+    optLexicalParent match {
+      case Some(t: Term) => Some(t)
+      case Some(sc: SchemaComponent) => sc.optEnclosingLexicalTerm
+      case _ => None
+    }
+  }
+
+  /**
    * path is used in diagnostic messages and code debug
    * messages; hence, it is very important that it be
    * very dependable.
