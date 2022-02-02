@@ -29,7 +29,7 @@ object Dependencies {
     "xerces" % "xercesImpl" % "2.12.2",
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.11.0",
-    "com.typesafe" % "config" % "1.4.1",
+    "com.typesafe" % "config" % "1.4.2",
     "org.apache.logging.log4j" %% "log4j-api-scala" % "12.0",
     "org.apache.logging.log4j" % "log4j-api" % "2.17.1",
     "org.apache.logging.log4j" % "log4j-core" % "2.17.1" % "it,test",
