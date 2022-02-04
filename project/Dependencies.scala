@@ -56,8 +56,6 @@ object Dependencies {
   )
 
   lazy val schematron = Seq(
-    "net.sf.saxon" % "Saxon-HE" % "11.1",
-    "org.xmlresolver" % "xmlresolver" % "4.1.2" classifier "data",
-    "org.xmlresolver" % "xmlresolver" % "4.1.2",
+    "net.sf.saxon" % "Saxon-HE" % "11.1.1",
   )
 }
