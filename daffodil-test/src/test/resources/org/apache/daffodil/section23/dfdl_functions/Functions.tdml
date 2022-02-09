@@ -4748,6 +4748,17 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="exists09">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="int" type="xs:int" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="term" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="0"
+            dfdl:terminator="{ if (fn:exists(../ex:int)) then 'x' else 'y' }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="exactly-one01">
       <xs:complexType>
         <xs:sequence dfdl:separator="|">
@@ -4922,6 +4933,17 @@
             </xs:complexType>
           </xs:element>
           <xs:element name="numints" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:count05b/ex:ints/ex:int, /ex:count05b/ex:ints/ex:int) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="count06">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="int" type="xs:int" minOccurs="0" maxOccurs="2" dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="term" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="0"
+            dfdl:terminator="{ if (fn:count(../ex:int) gt 1) then 'x' else 'y' }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -10531,6 +10553,51 @@
   </tdml:parserTestCase>
 
 <!--
+    Test Name: exists_13
+       Schema: XPathFunctions
+         Root: exists09
+         Purpose: This test demonstrates the exists() function works as expected
+                  when unparsing in something other than an output value calc expression
+-->
+
+  <tdml:unparserTestCase name="exists_13" root="exists09"
+    model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+    <tdml:document>
+      <tdml:documentPart type="text">1x</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists09 xmlns="http://example.com">
+          <int>1</int>
+          <term></term>
+        </exists09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+<!--
+    Test Name: exists_14
+       Schema: XPathFunctions
+         Root: exists09
+         Purpose: This test demonstrates the exists() function works as expected
+                  when unparsing in something other than an output value calc expression
+-->
+
+  <tdml:unparserTestCase name="exists_14" root="exists09"
+    model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+    <tdml:document>
+      <tdml:documentPart type="text">y</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists09 xmlns="http://example.com">
+          <term></term>
+        </exists09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+<!--
     Test Name: exactly_one_01
        Schema: XPathFunctions
          Root: exactly-one01
@@ -11047,6 +11114,75 @@
       <tdml:error>argument</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+    Test Name: count_09
+       Schema: XPathFunctions
+         Root: count06
+         Purpose: This test demonstrates the count() function works as expected
+                  when unparsing in something other than an output value calc expression
+-->
+
+  <tdml:unparserTestCase name="count_09" root="count06"
+    model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-122R">
+    <tdml:document>
+      <tdml:documentPart type="text">y</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <count06 xmlns="http://example.com">
+          <term></term>
+        </count06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+<!--
+    Test Name: count_10
+       Schema: XPathFunctions
+         Root: count06
+         Purpose: This test demonstrates the count() function works as expected
+                  when unparsing in something other than an output value calc expression
+-->
+
+  <tdml:unparserTestCase name="count_10" root="count06"
+    model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-122R">
+    <tdml:document>
+      <tdml:documentPart type="text">1y</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <count06 xmlns="http://example.com">
+          <int>1</int>
+          <term></term>
+        </count06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+<!--
+    Test Name: count_11
+       Schema: XPathFunctions
+         Root: count06
+         Purpose: This test demonstrates the count() function works as expected
+                  when unparsing in something other than an output value calc expression
+-->
+
+  <tdml:unparserTestCase name="count_11" root="count06"
+    model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-122R">
+    <tdml:document>
+      <tdml:documentPart type="text">12x</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <count06 xmlns="http://example.com">
+          <int>1</int>
+          <int>2</int>
+          <term></term>
+        </count06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
 
 <!--
     Test Name: local_name_01
