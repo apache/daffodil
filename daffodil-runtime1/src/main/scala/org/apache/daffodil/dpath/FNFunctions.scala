@@ -553,16 +553,20 @@ trait ExistsKind {
     Assert.invariant(dstate.currentNode ne null)
     val res = dstate.mode match {
       case UnparserNonBlocking => {
-        // we are evaluating the expression, and hoping it will evaluate
-        // completely just to avoid the overhead of creating a suspension
-        //
-        // we will always re-throw in this case so that fn:exists doesn't
-        // return false, resulting in the expression getting a value that
-        // might, later, have returned true.
-        //
-        throw th
+        // we are evaluating an expresion while unparsing in non blocking mode.
+        // This means this throwable must have come from an evaluatable using
+        // only backwards references. Backwards references are known to be
+        // final (even if isFinal isn't set yet), so because an exception was
+        // thrown, this element must not exist.
+        false
       }
       case UnparserBlocking => {
+        // we are evaluating an expression while unparsing in blocking mode.
+        // This means we don't know if this exception means the element does
+        // not exist or just hasn't been created in the infoset yet. If the
+        // current node is final, then we are sure it doesn't exist. Otherwise
+        // we throw the exception which triggers suspension logic to retry
+        // later
         dstate.currentNode match {
           case c: DINode if (c.isFinal) => false
           case _ => throw th
@@ -582,7 +586,8 @@ trait ExistsKind {
     // have blocked but didn't.
     //
     dstate.mode match {
-      case UnparserBlocking | UnparserNonBlocking => {
+      case UnparserNonBlocking => // ok, fall through
+      case UnparserBlocking => {
         th match {
           case u: UnsuppressableException => throw u
           case r: RetryableException => // ok fall through

@@ -478,11 +478,11 @@ class TestDFDLExpressions {
   @Test def test_exists_05(): Unit = { runner2.runOneTest("exists_05") }
   @Test def test_exists_08(): Unit = { runner2.runOneTest("exists_08") }
   @Test def test_exists_09(): Unit = { runner2.runOneTest("exists_09") }
-
   @Test def test_exists_10(): Unit = { runner2.runOneTest("exists_10") }
-
   @Test def test_exists_11(): Unit = { runner2.runOneTest("exists_11") }
   @Test def test_exists_12(): Unit = { runner2.runOneTest("exists_12") }
+  @Test def test_exists_13(): Unit = { runner2.runOneTest("exists_13") }
+  @Test def test_exists_14(): Unit = { runner2.runOneTest("exists_14") }
 
   //DFDL-1189
   //@Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
@@ -497,14 +497,16 @@ class TestDFDLExpressions {
   @Test def test_count_03(): Unit = { runner2.runOneTest("count_03") }
   @Test def test_count_03b(): Unit = { runner2.runOneTest("count_03b") }
   @Test def test_count_04(): Unit = { runner2.runOneTest("count_04") }
+  @Test def test_count_05(): Unit = { runner2.runOneTest("count_05") }
   @Test def test_count_05c(): Unit = { runner2.runOneTest("count_05c") }
+  @Test def test_count_06(): Unit = { runner2.runOneTest("count_06") }
   @Test def test_count_06b(): Unit = { runner2.runOneTest("count_06b") }
   @Test def test_count_07(): Unit = { runner2.runOneTest("count_07") }
-  @Test def test_count_08b(): Unit = { runner2.runOneTest("count_08b") }
-
-  @Test def test_count_05(): Unit = { runner2.runOneTest("count_05") }
-  @Test def test_count_06(): Unit = { runner2.runOneTest("count_06") }
   @Test def test_count_08(): Unit = { runner2.runOneTest("count_08") }
+  @Test def test_count_08b(): Unit = { runner2.runOneTest("count_08b") }
+  @Test def test_count_09(): Unit = { runner2.runOneTest("count_09") }
+  @Test def test_count_10(): Unit = { runner2.runOneTest("count_10") }
+  @Test def test_count_11(): Unit = { runner2.runOneTest("count_11") }
 
   @Test def test_local_name_01(): Unit = { runner2.runOneTest("local_name_01") }
   @Test def test_local_name_02(): Unit = { runner2.runOneTest("local_name_02") }
