@@ -48,8 +48,29 @@ USAGE
 
 DRY_RUN=false
 
+echo "Which project to release?"
+select PROJECT_REPO in daffodil daffodil-vscode
+do
+  case $PROJECT_REPO in
+    "daffodil")
+      PROJECT_DIST_DIR=""
+      PROJECT_NAME="Daffodil"
+      break
+      ;;
+    "daffodil-vscode")
+      PROJECT_DIST_DIR="$PROJECT_REPO"
+      PROJECT_NAME="Daffodil VS Code Extension"
+      break
+      ;;
+    *)
+      echo "unknown project: $REPLY" >&2
+      exit 1
+      ;;
+    esac
+done
+
 DAFFODIL_CODE_USER="apache"
-DAFFODIL_CODE_REPO="daffodil"
+DAFFODIL_CODE_REPO="$PROJECT_REPO"
 DAFFODIL_CODE_BRANCH="main"
 
 DAFFODIL_SITE_REPO="daffodil-site"
@@ -91,7 +112,7 @@ if [ $? -ne 0 ]; then
 fi
 
 export GPG_TTY=$(tty)
-export WIX=/root/wix311/
+export WIX=/opt/wix311/
 export LANG=en_US.UTF-8
 export CC=clang
 export AR=llvm-ar
@@ -161,14 +182,22 @@ echo
 echo git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
 git clone ssh://git@github.com/apache/$DAFFODIL_SITE_REPO.git
 
-echo svn checkout https://dist.apache.org/repos/dist/dev/daffodil $DAFFODIL_DIST
-svn checkout https://dist.apache.org/repos/dist/dev/daffodil $DAFFODIL_DIST
+echo svn checkout https://dist.apache.org/repos/dist/dev/daffodil/$PROJECT_DIST_DIR $DAFFODIL_DIST
+svn checkout https://dist.apache.org/repos/dist/dev/daffodil/$PROJECT_DIST_DIR $DAFFODIL_DIST
 
 pushd $REPO_ROOT/$DAFFODIL_CODE_REPO &> /dev/null
 
-VERSION=$(grep 'version :=' build.sbt | cut -d\" -f2)
+case $PROJECT_REPO in
+  "daffodil")
+    VERSION=$(grep 'version :=' build.sbt | cut -d\" -f2)
+    ;;
+  "daffodil-vscode")
+    VERSION=$(grep '"version"' package.json | cut -d\" -f4)
+    ;;
+esac
+
 if [[ $VERSION == *SNAPSHOT* ]]; then
-  echo -e "\n!!! Daffodil version ($VERSION) should not contain SNAPSHOT for a release !!!\n";
+  echo -e "\n!!! $PROJECT_NAME version ($VERSION) should not contain SNAPSHOT for a release !!!\n";
   if [ "$DRY_RUN" = true ]; then
     echo -e "!!! Ignoring because this is a dry run !!!\n";
   else
@@ -183,7 +212,7 @@ DAFFODIL_TUTORIALS_DIR=$DAFFODIL_SITE_DIR/site/tutorials
 DAFFODIL_DIST_DIR=$REPO_ROOT/$DAFFODIL_DIST
 DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_DIR/$VERSION-$PRE_RELEASE
 
-if [ -d "$DAFFODIL_RELEASE_DIR" ]; then echo -e "\n!!! Daffodil release directory already exists: $DAFFODIL_RELEASE_DIR !!! "; exit; fi
+if [ -d "$DAFFODIL_RELEASE_DIR" ]; then echo -e "\n!!! $PROJECT_NAME release directory already exists: $DAFFODIL_RELEASE_DIR !!! "; exit; fi
 
 git -C $DAFFODIL_CODE_DIR config --local user.name  "$GIT_COMMIT_NAME"
 git -C $DAFFODIL_CODE_DIR config --local user.email "$GIT_COMMIT_EMAIL"
@@ -191,44 +220,73 @@ git -C $DAFFODIL_SITE_DIR config --local user.name  "$GIT_COMMIT_NAME"
 git -C $DAFFODIL_SITE_DIR config --local user.email "$GIT_COMMIT_EMAIL"
 
 echo
-echo "!!! Making release $VERSION-$PRE_RELEASE in $DAFFODIL_RELEASE_DIR !!!"
+echo "!!! Creating $PROJECT_NAME $VERSION-$PRE_RELEASE in $DAFFODIL_RELEASE_DIR !!!"
 echo
-
-if [ "$DRY_RUN" = true ]; then
-  SBT_PUBLISH="publishLocalSigned"
-else
-  SBT_PUBLISH="publishSigned"
-fi
-
-echo "Building Convenience Binaries and Publishing to Apache Repository..."
-sbt \
-  "set ThisBuild/updateOptions := updateOptions.value.withGigahorse(false)" \
-  "set ThisBuild/credentials += Credentials(\"Sonatype Nexus Repository Manager\", \"repository.apache.org\", \"$APACHE_USERNAME\", \"$APACHE_PASSWD\")" \
-  "set ThisBuild/publishTo := Some(\"Apache Staging Distribution Repository\" at \"https://repository.apache.org/service/local/staging/deploy/maven2\")" \
-  "set pgpSigningKey := Some(\"$PGP_SIGNING_KEY_ID\")" \
-  "+compile" \
-  "+$SBT_PUBLISH" \
-  "daffodil-cli/Rpm/packageBin" \
-  "daffodil-cli/Windows/packageBin" \
-  "daffodil-cli/Universal/packageBin" \
-  "daffodil-cli/Universal/packageZipTarball" \
-  "unidoc" \
 
 echo "Removing old release candidates..."
 find $DAFFODIL_DIST_DIR -maxdepth 1 -name $VERSION-\* -exec svn delete --force {} \;
 
-echo "Installing Source and Convenience Binaries..."
-mkdir -p $DAFFODIL_RELEASE_DIR/{src,bin}/
-git archive --format=zip --prefix=apache-daffodil-$VERSION-src/ HEAD > $DAFFODIL_RELEASE_DIR/src/apache-daffodil-$VERSION-src.zip
-cp daffodil-cli/target/universal/apache-daffodil-*.tgz $DAFFODIL_RELEASE_DIR/bin/
-cp daffodil-cli/target/universal/apache-daffodil-*.zip $DAFFODIL_RELEASE_DIR/bin/
-cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $DAFFODIL_RELEASE_DIR/bin/
-MSI_NAME=$(basename $DAFFODIL_RELEASE_DIR/bin/*.zip .zip).msi
-cp daffodil-cli/target/windows/Daffodil.msi $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
-chmod -x $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
+echo "Installing Source..."
+mkdir -p $DAFFODIL_RELEASE_DIR/src/
+git archive --format=zip --prefix=apache-$PROJECT_REPO-$VERSION-src/ HEAD > $DAFFODIL_RELEASE_DIR/src/apache-$PROJECT_REPO-$VERSION-src.zip
 
-echo "Embedding RPM Signature..."
-rpmsign --define "_gpg_name $PGP_SIGNING_KEY_ID" --define "_binary_filedigest_algorithm 10" --addsign $DAFFODIL_RELEASE_DIR/bin/*.rpm
+case $PROJECT_REPO in
+  "daffodil")
+    if [ "$DRY_RUN" = true ]; then
+      SBT_PUBLISH="publishLocalSigned"
+    else
+      SBT_PUBLISH="publishSigned"
+    fi
+
+    echo "Building Convenience Binaries and Publishing to Apache Repository..."
+    sbt \
+      "set ThisBuild/updateOptions := updateOptions.value.withGigahorse(false)" \
+      "set ThisBuild/credentials += Credentials(\"Sonatype Nexus Repository Manager\", \"repository.apache.org\", \"$APACHE_USERNAME\", \"$APACHE_PASSWD\")" \
+      "set ThisBuild/publishTo := Some(\"Apache Staging Distribution Repository\" at \"https://repository.apache.org/service/local/staging/deploy/maven2\")" \
+      "set pgpSigningKey := Some(\"$PGP_SIGNING_KEY_ID\")" \
+      "+compile" \
+      "+$SBT_PUBLISH" \
+      "daffodil-cli/Rpm/packageBin" \
+      "daffodil-cli/Windows/packageBin" \
+      "daffodil-cli/Universal/packageBin" \
+      "daffodil-cli/Universal/packageZipTarball" \
+      "unidoc" \
+
+    echo "Installing Convenience Binaries..."
+    mkdir -p $DAFFODIL_RELEASE_DIR/bin/
+    cp daffodil-cli/target/universal/apache-daffodil-*.tgz $DAFFODIL_RELEASE_DIR/bin/
+    cp daffodil-cli/target/universal/apache-daffodil-*.zip $DAFFODIL_RELEASE_DIR/bin/
+    cp daffodil-cli/target/rpm/RPMS/noarch/apache-daffodil-*.rpm $DAFFODIL_RELEASE_DIR/bin/
+    MSI_NAME=$(basename $DAFFODIL_RELEASE_DIR/bin/*.zip .zip).msi
+    cp daffodil-cli/target/windows/Daffodil.msi $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
+    chmod -x $DAFFODIL_RELEASE_DIR/bin/$MSI_NAME
+
+    echo "Embedding RPM Signature..."
+    rpmsign --define "_gpg_name $PGP_SIGNING_KEY_ID" --define "_binary_filedigest_algorithm 10" --addsign $DAFFODIL_RELEASE_DIR/bin/*.rpm
+
+    echo "Installing Site Docs..."
+    rm -rf $DAFFODIL_DOCS_DIR
+    mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
+    cp -R target/javaunidoc/* $DAFFODIL_DOCS_DIR/javadoc/
+    cp -R target/scala-2.12/unidoc/* $DAFFODIL_DOCS_DIR/scaladoc/
+
+    echo "Installing Site Tutorials..."
+    rm -rf $DAFFODIL_TUTORIALS_DIR
+    mkdir -p $DAFFODIL_TUTORIALS_DIR
+    cp -R tutorials/src/main/resources/* $DAFFODIL_TUTORIALS_DIR
+
+    ;;
+
+  "daffodil-vscode")
+
+    echo "Building Convenience Binaries..."
+    mkdir -p $DAFFODIL_RELEASE_DIR/bin/
+    yarn build
+    cp *.vsix $DAFFODIL_RELEASE_DIR/bin/
+
+    ;;
+
+esac
 
 echo "Calculating Checksums..."
 for i in src/ bin/
@@ -241,17 +299,6 @@ do
     done
     popd &> /dev/null
 done
-
-echo "Installing Site Docs..."
-rm -rf $DAFFODIL_DOCS_DIR
-mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
-cp -R target/javaunidoc/* $DAFFODIL_DOCS_DIR/javadoc/
-cp -R target/scala-2.12/unidoc/* $DAFFODIL_DOCS_DIR/scaladoc/
-
-echo "Installing Site Tutorials..."
-rm -rf $DAFFODIL_TUTORIALS_DIR
-mkdir -p $DAFFODIL_TUTORIALS_DIR
-cp -R tutorials/src/main/resources/* $DAFFODIL_TUTORIALS_DIR
 
 echo "Creating Git Tag..."
 git tag -as -u $PGP_SIGNING_KEY_ID -m "Release v$VERSION-$PRE_RELEASE" v$VERSION-$PRE_RELEASE
@@ -271,14 +318,14 @@ echo
 echo
 echo
 echo
-echo "!!! Success: $VERSION-$PRE_RELEASE output to $DAFFODIL_RELEASE_DIR !!!"
+echo "!!! Success: $PROJECT_NAME $VERSION-$PRE_RELEASE output to $DAFFODIL_RELEASE_DIR !!!"
 echo
 echo "Things to verify: "
 echo
 echo "- Files in $DAFFODIL_DIST_DIR"
 echo "- Files in $DAFFODIL_DOCS_DIR"
 echo "- Files in $DAFFODIL_TUTORIALS_DIR"
-echo "- Git tag created in $DAFFODIL_CODE_DIR for v$VERSION-$PRE_RELEASE"
+echo "- Git tag created in $DAFFODIL_CODE_DIR for $PROJECT_REPO v$VERSION-$PRE_RELEASE"
 echo "- Staged published files at https://repository.apache.org/"
 echo
 
@@ -291,7 +338,7 @@ else
   cat << EOF > /root/complete-release
 #!/bin/bash
 set -x
-cd $DAFFODIL_DIST_DIR && svn ci --username $APACHE_USERNAME -m 'Staging Apache Daffodil $VERSION-$PRE_RELEASE'
+cd $DAFFODIL_DIST_DIR && svn ci --username $APACHE_USERNAME -m 'Staging Apache $PROJECT_NAME $VERSION-$PRE_RELEASE'
 cd $DAFFODIL_CODE_DIR && git push origin v$VERSION-$PRE_RELEASE
 cd $DAFFODIL_SITE_DIR && git push origin main
 EOF
