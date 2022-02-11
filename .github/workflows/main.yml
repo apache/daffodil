@@ -182,7 +182,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Check Single Commit
-        uses: actions/github-script@v5.1.0
+        uses: actions/github-script@v6.0.0
         with:
           script: |
             const commits = await github.rest.pulls.listCommits({
