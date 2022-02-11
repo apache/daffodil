@@ -38,6 +38,7 @@ microdnf -y install \
   java-1.8.0-devel \
   llvm \
   mxml-devel \
+  npm \
   pinentry \
   rpm-build \
   rpm-sign \
@@ -50,10 +51,13 @@ microdnf -y install \
 
 # install wix
 curl -L https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip -o wix311-binaries.zip
-mkdir wix311
-unzip wix311-binaries.zip -d wix311/
+mkdir /opt/wix311
+unzip wix311-binaries.zip -d /opt/wix311/
 rm wix311-binaries.zip
 
 # enable sbt pgp
 mkdir -p /root/.sbt/1.0/plugins/
 sh -c "echo 'addSbtPlugin(\"com.jsuereth\" % \"sbt-pgp\" % \"2.0.1\")' >> /root/.sbt/1.0/plugins/pgp.sbt"
+
+# install yarn for vscode
+npm install --global yarn
