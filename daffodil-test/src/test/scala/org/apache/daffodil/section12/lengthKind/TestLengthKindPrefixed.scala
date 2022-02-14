@@ -150,4 +150,21 @@ class TestLengthKindPrefixed {
   @Test def test_pl_lengthunits_err() = { runner.runOneTest("pl_lengthunits_err") }
   @Test def test_pl_nest_err() = { runner.runOneTest("pl_nest_err") }
   @Test def test_pl_decimal_err() = { runner.runOneTest("pl_decimal_err") }
+
+  // DAFFODIL-2657
+  @Test def test_pl_implicit_1() = { runner.runOneTest("pl_implicit_1")}
+
+  // DAFFODIL-2656
+  @Test def test_pl_complexContentLengthBytes_1() = { runner.runOneTest("pl_complexContentLengthBytes_1")}
+  @Test def test_pl_complexValueLengthBytes_1() = { runner.runOneTest("pl_complexValueLengthBytes_1")}
+  @Test def test_pl_complexContentLengthBits_1() = { runner.runOneTest("pl_complexContentLengthBits_1")}
+  @Test def test_pl_complexValueLengthBits_1() = { runner.runOneTest("pl_complexValueLengthBits_1")}
+  @Test def test_pl_simpleContentLengthBytes_1() = { runner.runOneTest("pl_simpleContentLengthBytes_1")}
+
+  // DAFFODIL-2658
+  // @Test def test_pl_simpleValueLengthBytes_1() = { runner.runOneTest("pl_simpleValueLengthBytes_1")}
+
+  @Test def test_pl_simpleContentLengthCharacters_1() = { runner.runOneTest("pl_simpleContentLengthCharacters_1")}
+  @Test def test_pl_complexContentLengthCharacters_1() = { runner.runOneTest("pl_complexContentLengthCharacters_1")}
+  @Test def test_pl_complexContentLengthCharacters_utf8_1() = { runner.runOneTest("pl_complexContentLengthCharacters_utf8_1")}
 }

@@ -827,6 +827,6 @@ class PrefixLengthSuspendableOperation(
 
   override def continuation(state: UState): Unit = {
     val len = elem.valueLength.maybeLengthInBits.isDefined
-    assignPrefixLength(elem, plElem)
+    assignPrefixLength(state, elem, plElem)
   }
 }

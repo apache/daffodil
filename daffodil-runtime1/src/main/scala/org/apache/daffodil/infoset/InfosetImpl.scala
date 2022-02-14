@@ -383,14 +383,14 @@ sealed abstract class LengthState(ie: DIElement) {
   var maybeStartPos0bInBits: MaybeULong = MaybeULong.Nope
   var maybeEndDataOutputStream: Maybe[DataOutputStream] = Nope
   var maybeEndPos0bInBits: MaybeULong = MaybeULong.Nope
-  var maybeComputedLength: MaybeULong = MaybeULong.Nope
+  var maybeComputedLengthInBits: MaybeULong = MaybeULong.Nope
 
   def copyFrom(other: LengthState): Unit = {
     this.maybeStartDataOutputStream = other.maybeStartDataOutputStream
     this.maybeStartPos0bInBits = other.maybeStartPos0bInBits
     this.maybeEndDataOutputStream = other.maybeEndDataOutputStream
     this.maybeEndPos0bInBits = other.maybeEndPos0bInBits
-    this.maybeComputedLength = other.maybeComputedLength
+    this.maybeComputedLengthInBits = other.maybeComputedLengthInBits
   }
 
   def clear(): Unit = {
@@ -398,7 +398,7 @@ sealed abstract class LengthState(ie: DIElement) {
     maybeStartPos0bInBits = MaybeULong.Nope
     maybeEndDataOutputStream = Nope
     maybeEndPos0bInBits = MaybeULong.Nope
-    maybeComputedLength = MaybeULong.Nope
+    maybeComputedLengthInBits = MaybeULong.Nope
   }
 
   protected def throwUnknown: Nothing
@@ -488,10 +488,10 @@ sealed abstract class LengthState(ie: DIElement) {
   def maybeLengthInBits(): MaybeULong = {
     recheckStreams()
     val computed: MaybeULong = {
-      if (maybeComputedLength.isDefined) {
-        val len = maybeComputedLength.get
+      if (maybeComputedLengthInBits.isDefined) {
+        val len = maybeComputedLengthInBits.get
         Logger.log.debug(s"${flavor}gth of ${ie.name} is ${len}, (was already computed)")
-        return maybeComputedLength
+        return maybeComputedLengthInBits
       } else if (isStartUndef || isEndUndef) {
         Logger.log.debug(s"${flavor}gth of ${ie.name} cannot be computed yet. ${toString}")
         MaybeULong.Nope
@@ -545,7 +545,7 @@ sealed abstract class LengthState(ie: DIElement) {
         MaybeULong.Nope
       }
     }
-    maybeComputedLength = computed
+    maybeComputedLengthInBits = computed
     computed
   }
 

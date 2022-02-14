@@ -36,6 +36,7 @@ import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeJULong
+import passera.unsigned.ULong
 
 /**
  * Restricts the bits available for unparsing to just those within
@@ -361,11 +362,26 @@ trait CalculatedPrefixedLengthUnparserMixin {
    * @param plElem The element to store the length
    * @param lengthUnits The length units (bytes or bits)
    */
-  def assignPrefixLength(elem: DIElement, plElem: DISimple): Unit = {
+  def assignPrefixLength(state: UState, elem: DIElement, plElem: DISimple): Unit = {
     val lenInUnits = lengthUnits match {
       case LengthUnits.Bits => elem.valueLength.lengthInBits
       case LengthUnits.Bytes => elem.valueLength.lengthInBytes
-      case LengthUnits.Characters => ???
+      case LengthUnits.Characters => {
+        val maybeFixedWidth = elem.erd.encInfo.getEncoderInfo(state).coder.bitsCharset.maybeFixedWidth
+        val lengthInChars =
+          if (maybeFixedWidth.isDefined) {
+            val fixedWidth = maybeFixedWidth.get
+            Assert.invariant((elem.valueLength.lengthInBits % fixedWidth) == 0) // divisible
+            elem.valueLength.lengthInBits / fixedWidth
+          } else {
+            // This is checked for statically, so should not get here.
+            // $COVERAGE-OFF$
+            Assert.invariantFailed(
+              "Not supported: prefixed length with variable-width or non-constant encoding.")
+            // $COVERAGE-ON$
+          }
+        ULong(lengthInChars)
+      }
     }
     val adjustedLenInUnits = lenInUnits + prefixedLengthAdjustmentInUnits
     plElem.setDataValue(java.lang.Integer.valueOf(adjustedLenInUnits.toInt))
@@ -414,7 +430,7 @@ class SpecifiedLengthPrefixedUnparser(
       // then just set it as the value of the detached element created above so
       // that when the prefixedLengthUnparser suspension resumes it can unparse
       // the value
-      assignPrefixLength(elem, plElem)
+      assignPrefixLength(state, elem, plElem)
     } else {
       // The length was not able to be calculated, likely because there was a
       // suspension when unparsing the eUnparser. So let's create a new

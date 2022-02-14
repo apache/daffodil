@@ -198,7 +198,7 @@ trait ElementBaseGrammarMixin
         case LengthKind.Explicit => pl.lengthEv.optConstant.get // already in lengthUnits when explicit
         case LengthKind.Implicit =>
           Assert.invariant(impliedRepresentation == Representation.Binary)
-          val len = pl.lengthEv.optConstant.get // always in bits when implicit
+          val len = pl.implicitBinaryLengthInBits
           pl.lengthUnits match {
             case LengthUnits.Bits => len
             case LengthUnits.Bytes => len / 8
@@ -1071,7 +1071,7 @@ trait ElementBaseGrammarMixin
         Assert.invariant(lengthUnits eq LengthUnits.Characters)
         new SpecifiedLengthExplicitCharacters(this, body)
       }
-      case LengthKind.Prefixed if bitsMultiplier != 0 =>
+      case LengthKind.Prefixed if (bitsMultiplier != 0) =>
         new SpecifiedLengthPrefixed(this, body, bitsMultiplier)
       case LengthKind.Prefixed => {
         Assert.invariant(!knownEncodingIsFixedWidth)
