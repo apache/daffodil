@@ -327,8 +327,6 @@ abstract class UState(
     }
     if (isSplitNeeded) {
       Assert.invariant(dos.isBuffering) // Direct DOS always has absolute position, so has to be buffering.
-      val newDOS = dos.addBuffered
-      dataOutputStream = newDOS
       //
       // Just splitting to start a new bitOrder on a byte boundary in a new
       // buffered DOS
@@ -344,7 +342,24 @@ abstract class UState(
       // Finished means you won't add data to the end of it any more.
       // It does NOT prevent information like the absoluteBitPos to
       // propagate.
-      dos.setFinished(this)
+      //
+      // When setFinished is called the DOS is going to store the state that we
+      // pass into it in finishedFormatInfo. Eventually this DOS will become a
+      // direct DOS that may be delivered to a following buffered DOS. When that
+      // happens this saved finishedFormatInfo will be used. However, this
+      // requires that the UState does not change while we are waiting for this
+      // DOS to become direct. If the state does change, it will become
+      // incorrect and can lead to undefined behavior. To prevent this, we must
+      // clone the UState so it can no longer change, and pass that clone into
+      // setFinished.
+      val finfo = this match {
+        case m: UStateMain => m.cloneForSuspension(dos)
+        case _ => Assert.invariantFailed("State must be a UStateMain when splitting for bit order change")
+      }
+
+      val newDOS = dos.addBuffered
+      dataOutputStream = newDOS
+      dos.setFinished(finfo)
     }
   }
 
