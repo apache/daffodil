@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.processors.parsers
 
-import java.lang.{ Long => JLong }
-
+import java.lang.{Long => JLong}
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.Infoset
 import org.apache.daffodil.processors.ElementRuntimeData
@@ -27,6 +27,7 @@ import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Numbers
 
 trait HasKnownLengthInBits {
@@ -108,15 +109,30 @@ trait PrefixedLengthParserMixin {
    */
   def getPrefixedLengthInBits(state: PState): Long = {
     val lenInUnits = getPrefixedLengthInUnits(state)
-    lengthUnits match {
+    val lenInBits = lengthUnits match {
       case LengthUnits.Bits => lenInUnits
       case LengthUnits.Bytes => lenInUnits * 8
       case LengthUnits.Characters => {
         val mfw = state.encoder.bitsCharset.maybeFixedWidth
-        if (mfw.isDefined) mfw.get
-        else
-          Assert.invariantFailed("Prefixed length for text data in non-fixed width encoding.")
+        Assert.invariant(mfw.isDefined, "Prefixed length for text data in non-fixed width encoding.")
+        lenInUnits * mfw.get
       }
     }
+    // Now we save the contentLength that we obtained from the prefix
+    // so that the dfdl:contentLength function can be called on the prefixed length element
+    // at parse time.
+    val mLenInBits = MaybeULong(lenInBits)
+    state.infoset match {
+      case ci: DIComplex => {
+        ci.contentLength.maybeComputedLengthInBits = mLenInBits
+        ci.valueLength.maybeComputedLengthInBits = mLenInBits
+      }
+      case si: DISimple => {
+        si.contentLength.maybeComputedLengthInBits = mLenInBits
+        // Note value length for simple types is handled elsewhere as we don't
+        // have any information about padding/trimming here.
+      }
+    }
+    lenInBits
   }
 }

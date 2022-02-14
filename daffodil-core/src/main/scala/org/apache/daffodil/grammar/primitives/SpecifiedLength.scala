@@ -29,6 +29,7 @@ import org.apache.daffodil.processors.parsers.SpecifiedLengthExplicitParser
 import org.apache.daffodil.processors.parsers.SpecifiedLengthImplicitParser
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.processors.parsers.Parser
+import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
   extends Terminal(e, true) {
@@ -163,13 +164,20 @@ class SpecifiedLengthPrefixed(e: ElementBase, eGram: => Gram, bitsMultiplier: In
     e.lengthUnits,
     pladj)
 
-  lazy val unparser: Unparser = new SpecifiedLengthPrefixedUnparser(
-    eUnparser,
-    erd,
-    e.prefixedLengthBody.unparser,
-    plerd,
-    e.lengthUnits,
-    pladj)
+  lazy val unparser: Unparser = {
+    if (e.lengthUnits == LengthUnits.Characters &&
+        e.isComplexType &&
+        !e.encodingInfo.knownEncodingIsFixedWidth)
+      e.subsetError(
+        "Unparsing with dfdl:lengthUnits 'characters' for complex types requires a fixed-width known (constant) encoding.")
+    new SpecifiedLengthPrefixedUnparser(
+      eUnparser,
+      erd,
+      e.prefixedLengthBody.unparser,
+      plerd,
+      e.lengthUnits,
+      pladj)
+  }
 }
 
 class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
@@ -208,5 +216,8 @@ class SpecifiedLengthPrefixedCharacters(e: ElementBase, eGram: => Gram)
     e.prefixedLengthElementDecl.elementRuntimeData,
     e.prefixedLengthAdjustmentInUnits)
 
-  lazy val unparser: Unparser = Assert.nyi("unparsing with dfdl:lengthKind=\"prefixed\" and dfdl:lengthUnits=\"characters\"")
+  lazy val unparser: Unparser =
+    e.subsetError(
+      """Unparsing with dfdl:lengthKind='prefixed' and dfdl:lengthUnits='characters' and
+        |a non-constant or variable-width encoding is not supported.""".stripMargin)
 }

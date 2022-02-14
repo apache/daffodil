@@ -2168,4 +2168,389 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="lengthKindPrefixed-2"
+                     useDefaultNamespace="false"
+                     elementFormDefault="unqualified">
+
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+  <dfdl:format ref="ex:GeneralFormat"
+               representation="binary"
+               lengthKind="implicit"
+               prefixIncludesPrefixLength="yes" />
+
+    <xs:simpleType name="prefixType1" dfdl:lengthKind="implicit">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+  <xs:element name="root1" dfdl:lengthKind="prefixed"
+    dfdl:prefixLengthType="ex:prefixType1">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="f" type="xs:string" dfdl:lengthKind="delimited"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+    <xs:simpleType name="prefixType2" dfdl:lengthKind="explicit" dfdl:length="4">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root2" dfdl:lengthKind="prefixed"
+                dfdl:prefixLengthType="ex:prefixType2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e" dfdl:inputValueCalc='{ dfdl:contentLength(.., "bytes") }'>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ dfdl:checkConstraints(.) }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:minInclusive value="1"/>
+                <xs:maxInclusive value="6"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="f" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root3" dfdl:lengthKind="prefixed"
+                dfdl:prefixLengthType="ex:prefixType2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e" dfdl:inputValueCalc='{ dfdl:valueLength(.., "bytes") }'>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ dfdl:checkConstraints(.) }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:minInclusive value="1"/>
+                <xs:maxInclusive value="6"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="f" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="prefixType3" dfdl:lengthKind="explicit" dfdl:length="32"
+      dfdl:lengthUnits="bits">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root4" dfdl:lengthKind="prefixed"
+                dfdl:prefixLengthType="ex:prefixType3"
+                dfdl:lengthUnits="bits">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e" dfdl:inputValueCalc='{ dfdl:contentLength(.., "bits") }'>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ dfdl:checkConstraints(.) }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:minInclusive value="8"/>
+                <xs:maxInclusive value="48"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="f" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root5" dfdl:lengthKind="prefixed"
+                dfdl:prefixLengthType="ex:prefixType3"
+                dfdl:lengthUnits="bits">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e" dfdl:inputValueCalc='{ dfdl:valueLength(.., "bits") }'>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ dfdl:checkConstraints(.) }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:minInclusive value="8"/>
+                <xs:maxInclusive value="48"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="f" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" type="xs:string" dfdl:lengthKind="prefixed"
+                      dfdl:prefixLengthType="ex:prefixType2"/>
+          <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:contentLength(../s, "bytes") }'>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root7">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" type="xs:string" dfdl:lengthKind="prefixed"
+                      dfdl:prefixLengthType="ex:prefixType2"
+                      dfdl:textTrimKind="padChar"
+                      dfdl:textPadKind="none"
+                      dfdl:textStringPadCharacter="%SP;"
+                      dfdl:textStringJustification="center"/>
+          <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:valueLength(../s, "bytes") }'>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="pl_implicit_1"
+                       model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 07</tdml:documentPart>
+      <tdml:documentPart type="text">ABC</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root1>
+          <f>ABC</f>
+        </ex:root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complexContentLengthBytes_1"
+                       model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 07</tdml:documentPart>
+      <tdml:documentPart type="text">ABC</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root2>
+          <e>3</e>
+          <f>ABC</f>
+        </ex:root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complexValueLengthBytes_1"
+                       model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 07</tdml:documentPart>
+      <tdml:documentPart type="text">ABC</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root3>
+          <e>3</e>
+          <f>ABC</f>
+        </ex:root3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complexContentLengthBits_1"
+                       model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 38</tdml:documentPart>
+      <tdml:documentPart type="text">ABC</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root4>
+          <e>24</e>
+          <f>ABC</f>
+        </ex:root4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complexValueLengthBits_1"
+                       model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 38</tdml:documentPart>
+      <tdml:documentPart type="text">ABC</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root5>
+          <e>24</e>
+          <f>ABC</f>
+        </ex:root5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_simpleContentLengthBytes_1"
+                       model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 07</tdml:documentPart>
+      <tdml:documentPart type="text">ABC</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root6>
+          <s>ABC</s>
+          <e>3</e>
+        </ex:root6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_simpleValueLengthBytes_1"
+                       model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 0B</tdml:documentPart>
+      <tdml:documentPart type="text">  ABC  </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root7>
+          <s>ABC</s>
+          <e>3</e>
+        </ex:root7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="lengthKindPrefixed-3"
+                     useDefaultNamespace="false"
+                     elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat"
+                 representation="binary"
+                 lengthKind="implicit"
+                 prefixIncludesPrefixLength="no"/>
+
+    <xs:simpleType name="prefixType"
+                   dfdl:lengthUnits="bytes"
+                   dfdl:lengthKind="explicit"
+                   dfdl:length="4">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" type="xs:string"
+                      dfdl:lengthKind="prefixed"
+                      dfdl:prefixLengthType="ex:prefixType"
+                      dfdl:lengthUnits="characters"
+                      dfdl:encoding="utf-16be"/>
+          <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:contentLength(../s, "bytes") }'>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root9" dfdl:lengthKind="prefixed"
+                dfdl:prefixLengthType="ex:prefixType"
+                dfdl:lengthUnits="characters"
+                dfdl:encoding="utf-16be">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" type="xs:string"
+                      dfdl:lengthKind="delimited"
+                      dfdl:lengthUnits="characters"
+                      dfdl:encoding="utf-16be"/>
+          <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:contentLength(.., "bytes") }'>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root10" dfdl:lengthKind="prefixed"
+                dfdl:prefixLengthType="ex:prefixType"
+                dfdl:lengthUnits="characters"
+                dfdl:encoding="utf-8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" type="xs:string"
+                      dfdl:lengthKind="delimited"
+                      dfdl:lengthUnits="characters"
+                      dfdl:encoding="utf-8"/>
+          <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:contentLength(.., "bytes") }'>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="pl_simpleContentLengthCharacters_1"
+                       model="lengthKindPrefixed-3">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 03</tdml:documentPart>
+      <tdml:documentPart type="text" encoding="utf-16be">ABC</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root8>
+          <s>ABC</s>
+          <e>6</e>
+        </ex:root8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complexContentLengthCharacters_1"
+                       model="lengthKindPrefixed-3">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 03</tdml:documentPart>
+      <tdml:documentPart type="text" encoding="utf-16be">ABC</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root9>
+          <s>ABC</s>
+          <e>6</e>
+        </ex:root9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_complexContentLengthCharacters_utf8_1"
+                       model="lengthKindPrefixed-3"
+                       root="root10">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 03</tdml:documentPart>
+      <tdml:documentPart type="text" encoding="utf-8">ABC</tdml:documentPart>
+    </tdml:document>
+    <!--
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root10>
+          <s>ABC</s>
+          <e>3</e>
+        </ex:root10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset> -->
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unparsing</tdml:error>
+      <tdml:error>dfdl:lengthKind='prefixed'</tdml:error>
+      <tdml:error>dfdl:lengthUnits='characters'</tdml:error>
+      <tdml:error>variable-width encoding</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
