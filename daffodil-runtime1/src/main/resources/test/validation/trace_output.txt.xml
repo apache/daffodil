@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ex:output xmlns:ex="http://example.com">
+  <message>hello</message>
+</ex:output>
