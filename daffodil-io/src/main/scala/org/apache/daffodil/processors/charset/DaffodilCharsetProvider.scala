@@ -51,7 +51,8 @@ object DaffodilCharsetProvider {
     BitsCharsetUTF16LE,
     BitsCharsetUTF32BE,
     BitsCharsetUTF32LE,
-    BitsCharsetUTF8)
+    BitsCharsetUTF8,
+    BitsCharset6BitICAOAircraftID)
 
   private lazy val charsetMap = {
     val nameCharsetPairs = charsets.flatMap { cs =>

@@ -1102,6 +1102,12 @@
     <xs:element name="e6" type="xs:string" dfdl:lengthKind="delimited"
       dfdl:terminator="" dfdl:alignmentUnits="bits" dfdl:alignment="4" />
 
+    <xs:element name="e2a" type="xs:string" dfdl:lengthKind="explicit"
+                dfdl:length="8" dfdl:encoding="X-DFDL-6-BIT-ICAO-Aircraft-ID"/>
+
+    <xs:element name="e2b" type="xs:string" dfdl:lengthKind="explicit"
+                dfdl:length="8" dfdl:encoding="X-DFDL-US-ASCII-6-BIT-PACKED-MSB-FIRST"/>
+
   </tdml:defineSchema>
 
   <!--
@@ -1241,6 +1247,55 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e2>12345</e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="packed6BitICAO" root="e2a"
+                       model="packed6BitASCII" roundTrip="true">
+    <tdml:document >
+      <!-- DAFFODIL-2661 means we can't encode these using text -->
+      <!--
+      <tdml:documentPart type="text"
+                         encoding="X-DFDL-6-BIT-ICAO-Aircraft-ID"
+                          ><![CDATA[12345ABC]]></tdml:documentPart>
+      -->
+      <!-- but we can do it the hard way using bits -->
+      <tdml:documentPart type="bits"><![CDATA[
+      110001 110010 110011 110100 110101 000001 000010 000011
+]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2a>12345ABC</e2a>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="packed6BitMSBF" root="e2b"
+                       model="packed6BitASCII" roundTrip="true">
+    <tdml:document >
+      <tdml:documentPart type="text"
+                         encoding="X-DFDL-US-ASCII-6-BIT-PACKED-MSB-FIRST"
+      ><![CDATA[12345ABC]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2b>12345ABC</e2b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="packed6BitMSBF2" root="e2b"
+                       model="packed6BitASCII" roundTrip="true">
+    <tdml:document >
+      <tdml:documentPart type="bits"><![CDATA[
+      110001 110010 110011 110100 110101 000001 000010 000011
+]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2b>12345ABC</e2b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
