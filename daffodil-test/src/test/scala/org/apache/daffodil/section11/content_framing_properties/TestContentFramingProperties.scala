@@ -96,6 +96,11 @@ class TestContentFramingProperties {
   @Test def test_packed6BitASCII3(): Unit = { runner2.runOneTest("packed6BitASCII3") }
   @Test def test_packed6BitASCII4(): Unit = { runner2.runOneTest("packed6BitASCII4") }
   @Test def test_packed6BitASCII5(): Unit = { runner2.runOneTest("packed6BitASCII5") }
+  // DAFFODIL-2659
+  @Test def test_packed6BitICAO(): Unit = { runner2.runOneTest("packed6BitICAO") }
+  // DAFFODIL-2661
+  // @Test def test_packed6BitMSBF(): Unit = { runner2.runOneTest("packed6BitMSBF") }
+  @Test def test_packed6BitMSBF2(): Unit = { runner2.runOneTest("packed6BitMSBF2") }
   @Test def test_packed5Bit1(): Unit = { runner2.runOneTest("packed5Bit1") }
   @Test def test_packed5Bit2(): Unit = { runner2.runOneTest("packed5Bit2") }
   @Test def test_packed5Bit3(): Unit = { runner2.runOneTest("packed5Bit3") }
