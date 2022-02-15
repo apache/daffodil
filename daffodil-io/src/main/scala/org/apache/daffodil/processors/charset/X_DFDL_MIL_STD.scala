@@ -40,13 +40,22 @@ object BitsCharset6BitDFI264DUI001 extends {
   override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 } with BitsCharsetNonByteSize
 
-object BitsCharset6BitDFI311DUI002 extends {
-  override val name = "X-DFDL-6-BIT-DFI-311-DUI-002"
+sealed abstract class BitsCharset6BitDFI311DUI002Base extends {
   override val bitWidthOfACodeUnit = 6
   override val decodeString = """\u00A0ABCDEFGHIJKLMNOPQRSTUVWXYZ\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD \uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD0123456789\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD\uFFFD"""
   override val replacementCharCode = 0x0
-  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 } with BitsCharsetNonByteSize
+
+object BitsCharset6BitDFI311DUI002 extends BitsCharset6BitDFI311DUI002Base {
+  override val name = "X-DFDL-6-BIT-DFI-311-DUI-002"
+  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+}
+
+object BitsCharset6BitICAOAircraftID extends BitsCharset6BitDFI311DUI002Base {
+  override val name = "X-DFDL-6-BIT-ICAO-Aircraft-ID"
+  override val aliases = Seq("X-DFDL-6-BIT-ICAO-AIRCRAFT-ID")
+  override val requiredBitOrder = BitOrder.MostSignificantBitFirst
+}
 
 object BitsCharset3BitDFI336DUI001 extends {
   override val name = "X-DFDL-3-BIT-DFI-336-DUI-001"
