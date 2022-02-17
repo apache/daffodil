@@ -57,12 +57,13 @@ abstract class SequenceParserBase(
 
   final protected def checkForwardProgress(
     pstate: PState,
+    parser: RepeatingChildParser,
     currentPos: Long,
     priorPos: Long,
     ais: ArrayIndexStatus): ArrayIndexStatus = {
     Assert.invariant(currentPos >= priorPos)
     if (currentPos == priorPos && pstate.groupPos > 1) {
-      PE(pstate, "No forward progress.")
+      parser.PE(pstate, "Array element parsed succesfully, but consumed no data and is stuck in an infinite loop as it is unbounded.")
       Done
     } else {
       ais
@@ -173,7 +174,7 @@ abstract class SequenceParserBase(
                 // result of try could also be absent if we just ended a group
                 // by not finding a separator
                 //
-                ais = checkForwardProgress(pstate, currentPos, priorPos, ais)
+                ais = checkForwardProgress(pstate, parser, currentPos, priorPos, ais)
               }
               //
               // advance array position.
