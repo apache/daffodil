@@ -34,7 +34,9 @@
       <tdml:documentPart type="file">org1/test-outer-data1.txt</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>No forward progress</tdml:error>
+      <tdml:error>consumed no data</tdml:error>
+      <tdml:error>infinite loop</tdml:error>
+      <tdml:error>inner:Inner</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
