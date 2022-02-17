@@ -197,7 +197,7 @@ abstract class SequenceChildParser(
   val childParser: Parser,
   val srd: SequenceRuntimeData,
   val trd: TermRuntimeData)
-  extends CombinatorParser(srd) {
+  extends CombinatorParser(trd) {
 
   override def childProcessors: Vector[Processor] = Vector(childParser)
 
