@@ -172,7 +172,7 @@ case class DFDLXBitXor(recipes: List[CompiledDPath], argType: NodeInfo.Kind) ext
   }
 
 case class DFDLXTrace(recipe: CompiledDPath, msg: String)
-  extends RecipeOpWithSubRecipes(recipe) {
+  extends RecipeOpWithSubRecipes(recipe){
 
   override def run(dstate: DState): Unit = {
     recipe.run(dstate)
@@ -186,7 +186,7 @@ case class DFDLXTrace(recipe: CompiledDPath, msg: String)
       }
       case other: DINode => other.namedQName.toString
     }
-    Logger.log.debug(s"trace ${msg} : ${nodeString}")
+    Logger.log.trace(s"dfdlx:trace ${msg} : ${nodeString}")
   }
 
   // This is toXML for the case class object, not the infoset node it is

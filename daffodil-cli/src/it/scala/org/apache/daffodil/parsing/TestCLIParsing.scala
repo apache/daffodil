@@ -1319,4 +1319,34 @@ class TestCLIparsing {
 
   }
 
+  @Test def test_2575_DFDLX_Trace_output(): Unit = {
+    
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/trace_input.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/trace_input.txt")
+    val log4jConfig = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/conf/log4j2_traceOutput.xml")
+    val (testSchemaFile, testInputFile, testLog4jConfig) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile), Util.cmdConvert(log4jConfig)) else (schemaFile, inputFile, log4jConfig)
+
+    val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> ("-Dlog4j.configurationFile=" + testLog4jConfig + " -Xms256m -Xmx2048m -Dfile.encoding=UTF-8"))
+
+    val shell = Util.start("", envp = DAFFODIL_JAVA_OPTS)
+
+    try{
+      
+      val cmd = String.format("%s -vvvv parse -r output -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+
+      shell.sendLine(cmd)
+
+      //show stderr has no output
+      shell.expectIn(1,contains(""))
+
+      //show the log is happening
+      shell.expect(contains("dfdlx:trace"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
+
+    } finally {
+      shell.close()
+    }
+  }
+
 }

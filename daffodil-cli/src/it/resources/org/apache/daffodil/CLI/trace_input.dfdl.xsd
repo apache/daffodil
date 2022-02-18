@@ -23,6 +23,7 @@
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:ex="http://example.com"
   xmlns="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
   elementFormDefault="unqualified"> 
 
   <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -36,8 +37,20 @@
 	<xs:element name="output">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="message" type="xs:string" dfdl:inputValueCalc="{dfdlx:trace('hello', 'input')}" />
+				<xs:sequence dfdl:hiddenGroupRef="hidden_message" />
+				<xs:element name="message" type="xs:string" dfdl:inputValueCalc="{
+					if (dfdlx:trace(../Hidden_Value eq '0', 'value')) then 'hello'
+					else fn:error('Unrecognized value')}" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+	
+	<xs:group name="hidden_message"> 
+		<xs:sequence>
+			<xs:element name="Hidden_Value" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:outputValueCalc="{
+				if (dfdlx:trace(../message eq 'hello', 'value')) then '0'
+				else fn:error('Unrecognized value')}" dfdl:terminator="%NL;"
+			/>
+		</xs:sequence>
+	</xs:group>
 </xs:schema>
