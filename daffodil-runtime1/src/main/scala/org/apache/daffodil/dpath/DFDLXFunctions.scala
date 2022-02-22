@@ -33,6 +33,7 @@ import org.apache.daffodil.util.Maybe.One
 import passera.unsigned.{UByte, UInt, ULong, UShort}
 import org.apache.daffodil.infoset.DataValue.DataValueLong
 import org.apache.daffodil.infoset.DataValue.DataValueDouble
+import org.apache.daffodil.util.Logger
 
 /**
  * This is the "logical" shift left.
@@ -185,7 +186,7 @@ case class DFDLXTrace(recipe: CompiledDPath, msg: String)
       }
       case other: DINode => other.namedQName.toString
     }
-    System.err.println("trace " + msg + ":" + nodeString)
+    Logger.log.info(s"dfdlx:trace ${msg} : ${nodeString}")
   }
 
   // This is toXML for the case class object, not the infoset node it is
