@@ -1319,4 +1319,27 @@ class TestCLIparsing {
 
   }
 
+  @Test def test_2575_DFDLX_Trace_output(): Unit = {  
+    
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/trace_input.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+
+    val shell = Util.start("")
+
+    try{
+      
+      val cmd = String.format(Util.echoN("0") + "| %s -v parse -r output -s %s ", Util.binPath, testSchemaFile)
+
+      shell.sendLine(cmd)
+
+      //show the log is happening
+      shell.expectIn(1,contains("dfdlx:trace"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
+
+    } finally {
+      shell.close()
+    }
+  }
+
 }
