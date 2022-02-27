@@ -31,8 +31,8 @@ object Dependencies {
     "commons-io" % "commons-io" % "2.11.0",
     "com.typesafe" % "config" % "1.4.2",
     "org.apache.logging.log4j" %% "log4j-api-scala" % "12.0",
-    "org.apache.logging.log4j" % "log4j-api" % "2.17.1",
-    "org.apache.logging.log4j" % "log4j-core" % "2.17.1" % "it,test",
+    "org.apache.logging.log4j" % "log4j-api" % "2.17.2",
+    "org.apache.logging.log4j" % "log4j-core" % "2.17.2" % "it,test",
   )
 
   lazy val infoset = Seq(
@@ -46,7 +46,7 @@ object Dependencies {
     "org.jline" % "jline" % "3.21.0",
     "org.rogach" %% "scallop" % "4.1.0",
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test",
-    "org.apache.logging.log4j" % "log4j-core" % "2.17.1",
+    "org.apache.logging.log4j" % "log4j-core" % "2.17.2",
   )
 
   lazy val test = Seq(
