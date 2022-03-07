@@ -55,3 +55,5 @@ class BitsCharsetDecoderUTF16LE
   }
 }
 
+final class BitsCharsetUTF16LEDefinition
+  extends BitsCharsetDefinition(BitsCharsetUTF16LE)

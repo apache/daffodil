@@ -14,30 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.util.MaybeInt
-
 /**
- * X-DFDL-5-BIT-PACKED-LSBF occupies only 5 bits with each
- * code unit.
+ * These are the classes which must be dynamically loaded in order to add a charset implementation
+ * to Daffodil. All charsets must implement this class and be added to the 
+ * org.apache.daffodil.processors.charset.BitsCharsetDefinition file in 
+ * daffodil-io/src/main/resources/META-INF/services. name() must return a fully capitalized string
  */
-object BitsCharset5BitPackedLSBF extends {
-  override val name = "X-DFDL-5-BIT-PACKED-LSBF"
-  override val bitWidthOfACodeUnit = 5
-  override val decodeString = """01234567ABCDEFGHJKLMNPQRSTUVWXYZ"""
-  override val replacementCharCode = 0x1D
-  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-} with BitsCharsetNonByteSize {
-
-  override def charToCode(char: Char) = {
-    if (char == 'I') MaybeInt(1)
-    else if (char == 'O') MaybeInt(0)
-    else super.charToCode(char)
-  }
+abstract class BitsCharsetDefinition(charset: BitsCharset, alias: Option[String] = None) {
+  final def name(): String = alias.getOrElse(charset.name).toUpperCase()
+  
+  final def charset(): BitsCharset = charset
 }
-
-final class BitsCharset5BitPackedLSBFDefinition
-  extends BitsCharsetDefinition(BitsCharset5BitPackedLSBF)

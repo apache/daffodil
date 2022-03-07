@@ -119,3 +119,6 @@ class BitsCharsetDecoderUTF8
     if ((byte1 & mask1) == 0 && (byte2 & mask2) == 0) throw new BitsCharsetDecoderMalformedException(bitsConsumedSoFar)
   }
 }
+
+final class BitsCharsetUTF8Definition
+  extends BitsCharsetDefinition(BitsCharsetUTF8)

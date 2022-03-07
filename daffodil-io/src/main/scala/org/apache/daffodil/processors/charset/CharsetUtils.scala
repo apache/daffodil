@@ -30,14 +30,17 @@ object CharsetUtils {
 
   /**
    * Call instead of Charset.forName to obtain Daffodil's less-than-byte-sized
-   * encodings as well as the standard ones.
+   * encodings as well as the standard ones. This will return the charset if it exists or null
    */
   def getCharset(name: String): BitsCharset = {
-    val cs = DaffodilCharsetProvider.charsetForName(name)
-    cs
+    val cs = BitsCharsetDefinitionRegistry.find(name.toUpperCase).getOrElse(null)
+    if (cs == null)
+      null
+    else
+      cs.charset 
   }
   
-  def supportedEncodingsString = DaffodilCharsetProvider.charsets.map { _.name }.mkString(", ")
+  def supportedEncodingsString = BitsCharsetDefinitionRegistry.supportedEncodingsString
 
   /**
    * Subtle bug in decoders in Java 7 when there is room for only 1

@@ -22,7 +22,6 @@ import org.apache.daffodil.io.FormatInfo
 
 object BitsCharsetUTF16BE extends {
   override val name = "UTF-16BE"
-  override val aliases = Seq("UTF-16")
 } with BitsCharsetJava {
 
   override def newDecoder() = new BitsCharsetDecoderUTF16BE()
@@ -54,3 +53,9 @@ class BitsCharsetDecoderUTF16BE
     high.toChar
   }
 }
+
+final class BitsCharsetUTF16BEDefinition
+  extends BitsCharsetDefinition(BitsCharsetUTF16BE)
+
+final class BitsCharsetUTF16Definition
+  extends BitsCharsetDefinition(BitsCharsetUTF16BE, Some("UTF-16"))

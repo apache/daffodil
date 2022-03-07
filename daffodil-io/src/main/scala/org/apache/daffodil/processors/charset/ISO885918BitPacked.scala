@@ -31,6 +31,9 @@ object BitsCharsetISO885918BitPackedLSBF extends {
   override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 } with BitsCharsetNonByteSize
 
+final class BitsCharsetISO885918BitPackedLSBFDefinition
+  extends BitsCharsetDefinition(BitsCharsetISO885918BitPackedLSBF)
+
 /**
  * X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST occupies only 8 bits with each
  * code unit.
@@ -42,3 +45,6 @@ object BitsCharsetISO885918BitPackedMSBF extends {
   override val replacementCharCode = 0x3F
   override val requiredBitOrder = BitOrder.MostSignificantBitFirst
 } with BitsCharsetNonByteSize
+
+final class BitsCharsetISO885918BitPackedMSBFDefinition
+  extends BitsCharsetDefinition(BitsCharsetISO885918BitPackedMSBF)

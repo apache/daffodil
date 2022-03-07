@@ -22,7 +22,6 @@ import org.apache.daffodil.io.FormatInfo
 
 object BitsCharsetIBM037 extends {
   override val name = "IBM037"
-  override val aliases = Seq("EBCDIC-CP-US")
 } with BitsCharsetJava {
 
   val decodeStringTable =
@@ -51,7 +50,13 @@ class BitsCharsetDecoderIBM037
 
   protected override def decodeOneChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
     val byte = getByte(dis, 0)
-    val dec = BitsCharsetIBM037.decodeStringTable(byte)
-    dec
+    BitsCharsetIBM037.decodeStringTable(byte)
   }
 }
+
+final class BitsCharsetIBM037Definition
+  extends BitsCharsetDefinition(BitsCharsetIBM037)
+
+final class BitsCharsetEBCDIC_CP_USDefinition
+  extends BitsCharsetDefinition(BitsCharsetIBM037, Some("EBCDIC-CP-US"))
+  

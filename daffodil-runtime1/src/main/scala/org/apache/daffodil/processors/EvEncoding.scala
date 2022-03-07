@@ -21,11 +21,12 @@ import org.apache.daffodil.dsom._
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.processors.charset.BitsCharsetJava
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
-import org.apache.daffodil.processors.charset.CharsetUtils
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.cookers.FillByteCooker
 import org.apache.daffodil.cookers.EncodingCooker
+import org.apache.daffodil.processors.charset.BitsCharsetDefinitionRegistry
+import org.apache.daffodil.processors.charset.CharsetUtils
 
 /*
  * The way encoding works, is if a EncodingChangeParser or Unparser is
@@ -93,12 +94,12 @@ abstract class CharsetEvBase(encodingEv: EncodingEvBase, tci: DPathCompileInfo)
 
   override def compute(state: ParseOrUnparseState) = {
     val encString = encodingEv.evaluate(state)
-    val cs = CharsetUtils.getCharset(encString)
-    if (cs == null) {
-      tci.schemaDefinitionError("Unsupported encoding: %s. Supported encodings: %s", encString, CharsetUtils.supportedEncodingsString)
+    val bc = CharsetUtils.getCharset(encString)
+    if (bc == null) {
+      tci.schemaDefinitionError("Unsupported encoding: %s. Supported encodings: %s", encString, BitsCharsetDefinitionRegistry.supportedEncodingsString)
     }
-    if (!encodingEv.isConstant) checkCharset(state, cs)
-    cs
+    if (!encodingEv.isConstant) checkCharset(state, bc)
+    bc
   }
 }
 

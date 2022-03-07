@@ -14,30 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.util.MaybeInt
+import org.apache.daffodil.util.SimpleNamedServiceLoader
 
-/**
- * X-DFDL-5-BIT-PACKED-LSBF occupies only 5 bits with each
- * code unit.
+/*
+ * Finds all pluggable BitCharsets and makes them available to Daffodil after they have been
+ * setup as described in BitsCharsetDefinition.scala
  */
-object BitsCharset5BitPackedLSBF extends {
-  override val name = "X-DFDL-5-BIT-PACKED-LSBF"
-  override val bitWidthOfACodeUnit = 5
-  override val decodeString = """01234567ABCDEFGHJKLMNPQRSTUVWXYZ"""
-  override val replacementCharCode = 0x1D
-  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-} with BitsCharsetNonByteSize {
+object BitsCharsetDefinitionRegistry {
 
-  override def charToCode(char: Char) = {
-    if (char == 'I') MaybeInt(1)
-    else if (char == 'O') MaybeInt(0)
-    else super.charToCode(char)
-  }
+  private lazy val bitsCharsetDefinitionMap: Map[String, BitsCharsetDefinition] =
+    SimpleNamedServiceLoader.loadClass[BitsCharsetDefinition](classOf[BitsCharsetDefinition])
+
+  /**
+   * Given name, finds the BitsCharsetDefinition or null if not found
+   */
+  def find(name: String): Option[BitsCharsetDefinition] = bitsCharsetDefinitionMap.get(name)
+
+  def supportedEncodingsString = bitsCharsetDefinitionMap.keySet.mkString(", ")
 }
-
-final class BitsCharset5BitPackedLSBFDefinition
-  extends BitsCharsetDefinition(BitsCharset5BitPackedLSBF)

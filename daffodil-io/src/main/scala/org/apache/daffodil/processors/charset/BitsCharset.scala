@@ -52,7 +52,6 @@ trait BitsCharset extends Serializable {
     case _ => false
   }
   def name: String
-  def aliases: Seq[String] = Nil
   def bitWidthOfACodeUnit: Int // in units of bits
   def requiredBitOrder: BitOrder
   def mandatoryBitAlignment: Int // ignored when dfdlx:alignmentKind is 'manual'
