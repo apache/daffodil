@@ -48,3 +48,6 @@ class BitsCharsetDecoderUTF32LE
     }
   }
 }
+
+final class BitsCharsetUTF32LEDefinition
+  extends BitsCharsetDefinition(BitsCharsetUTF32LE)

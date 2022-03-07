@@ -30,3 +30,6 @@ object BitsCharsetUSASCII7BitPacked extends {
   override val replacementCharCode = 0x3F
   override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 } with BitsCharsetNonByteSize
+
+final class BitsCharsetUSASCII7BitPackedDefinition
+  extends BitsCharsetDefinition(BitsCharsetUSASCII7BitPacked)

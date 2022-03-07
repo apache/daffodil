@@ -31,6 +31,9 @@ object BitsCharsetHexLSBF extends {
   override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 } with BitsCharsetNonByteSize
 
+final class BitsCharsetHexLSBFDefinition
+  extends BitsCharsetDefinition(BitsCharsetHexLSBF)
+
 /**
  * X-DFDL-HEX-MSBF occupies only 4 bits with each
  * code unit.
@@ -42,3 +45,6 @@ object BitsCharsetHexMSBF extends {
   override val replacementCharCode = 0x00
   override val requiredBitOrder = BitOrder.MostSignificantBitFirst
 } with BitsCharsetNonByteSize
+
+final class BitsCharsetHexMSBFDefinition
+  extends BitsCharsetDefinition(BitsCharsetHexMSBF)

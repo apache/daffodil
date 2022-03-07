@@ -44,3 +44,6 @@ object BitsCharsetAISPayloadArmoring extends {
   override val replacementCharCode = 0x30
   override val requiredBitOrder = BitOrder.MostSignificantBitFirst
 } with BitsCharsetNonByteSize
+
+final class BitsCharsetAISPayloadArmoringDefinition
+  extends BitsCharsetDefinition(BitsCharsetAISPayloadArmoring)

@@ -31,6 +31,9 @@ object BitsCharsetOctalLSBF extends {
   override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
 } with BitsCharsetNonByteSize
 
+final class BitsCharsetOctalLSBFDefinition
+  extends BitsCharsetDefinition(BitsCharsetOctalLSBF)
+
 /**
  * X-DFDL-OCTAL-MSBF occupies only 3 bits with each
  * code unit.
@@ -42,3 +45,6 @@ object BitsCharsetOctalMSBF extends {
   override val replacementCharCode = 0x0
   override val requiredBitOrder = BitOrder.MostSignificantBitFirst
 } with BitsCharsetNonByteSize 
+
+final class BitsCharsetOctalMSBFDefinition
+  extends BitsCharsetDefinition(BitsCharsetOctalMSBF)

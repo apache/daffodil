@@ -37,3 +37,5 @@ class BitsCharsetDecoderISO88591
   }
 }
 
+final class BitsCharsetISO88591Definition
+  extends BitsCharsetDefinition(BitsCharsetISO88591)

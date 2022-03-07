@@ -1,3 +1,4 @@
+
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -15,32 +16,37 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.processors.charset
+package org.apache.daffodil.charsets
 
+import org.apache.daffodil.processors.charset.BitsCharsetJava
+import org.apache.daffodil.processors.charset.BitsCharsetDecoderByteSize
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.processors.charset.BitsCharsetDefinition
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
 
-object BitsCharsetUSASCII extends {
-  override val name = "US-ASCII"
+object BitsCharsetTest_ISO_8859_13 extends {
+  override val name = "ISO-8859-13"
 } with BitsCharsetJava {
 
-  override def newDecoder() = new BitsCharsetDecoderUSASCII()
+  override def newDecoder() = new BitsCharsetTest_Decoder_ISO_8859_13()
+
 }
 
-class BitsCharsetDecoderUSASCII
+class BitsCharsetTest_Decoder_ISO_8859_13
   extends BitsCharsetDecoderByteSize {
 
-  override def decodeOneChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
+  val decodeString = {
+    val bytes = ByteBuffer.wrap((0 to 255).map{ _.toByte }.toArray)
+    Charset.forName("ISO-8859-13").newDecoder().decode(bytes).toString
+  }
+
+  protected override def decodeOneChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
     val byte = getByte(dis, 0)
-    if (byte >= 128) {
-      throw new BitsCharsetDecoderMalformedException(8)
-    } 
-    byte.toChar
+    decodeString(byte)
   }
 }
 
-final class BitsCharsetASCIIDefinition
-  extends BitsCharsetDefinition(BitsCharsetUSASCII, Some("ASCII"))
-
-final class BitsCharsetUSASCIIDefinition
-  extends BitsCharsetDefinition(BitsCharsetUSASCII)
+final class BitsCharsetTest_ISO_8859_13_Definition
+  extends BitsCharsetDefinition(BitsCharsetTest_ISO_8859_13)
