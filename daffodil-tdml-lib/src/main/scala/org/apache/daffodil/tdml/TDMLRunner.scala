@@ -177,7 +177,8 @@ class DFDLTestSuite private[tdml] (
   val defaultValidationDefault: String,
   val defaultImplementationsDefault: Seq[String],
   val shouldDoErrorComparisonOnCrossTests: Boolean,
-  val shouldDoWarningComparisonOnCrossTests: Boolean)
+  val shouldDoWarningComparisonOnCrossTests: Boolean,
+  val shouldDoLogComparisonOnCrossTests: Boolean)
   extends HasSetDebugger {
 
   // Uncomment to force conversion of all test suites to use Runner(...) instead.
@@ -599,6 +600,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   lazy val optExpectedOrInputInfoset = (testCaseXML \ "infoset").headOption.map { node => new Infoset(node, this) }
   lazy val optExpectedErrors: Option[ExpectedErrors] = (testCaseXML \ "errors").headOption.map { node => ExpectedErrors(node, this) }
   lazy val optExpectedWarnings: Option[ExpectedWarnings] = (testCaseXML \ "warnings").headOption.map { node => ExpectedWarnings(node, this) }
+  lazy val optExpectedLogs: Option[ExpectedLogs] = (testCaseXML \ "loggers").headOption.map { node => ExpectedLogs(node, this) }
   lazy val optExpectedValidationErrors: Option[ExpectedValidationErrors] = (testCaseXML \ "validationErrors").headOption.map { node => ExpectedValidationErrors(node, this) }
 
   val tcName = (testCaseXML \ "@name").text
@@ -689,6 +691,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     nBits: Option[Long],
     errors: Option[ExpectedErrors],
     warnings: Option[ExpectedWarnings],
+    loggers: Option[ExpectedLogs],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
@@ -864,6 +867,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         nBits,
         optExpectedErrors,
         optExpectedWarnings,
+        optExpectedLogs,
         optExpectedValidationErrors,
         validationMode,
         roundTrip,
@@ -876,10 +880,11 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     diagnostics: Seq[Throwable],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
+    optLogs: Option[ExpectedLogs],
     implString: Option[String]): Unit = {
     Assert.usage(this.isNegativeTest)
 
-    // check for any test-specified errors or warnings
+    // check for any test-specified errors, warnings, or logs
     if (!isCrossTest(implString.get) ||
       parent.shouldDoErrorComparisonOnCrossTests)
       VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors), implString)
@@ -887,6 +892,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     if (!isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests)
       VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings, implString)
+
+    if (!isCrossTest(implString.get) ||
+      parent.shouldDoLogComparisonOnCrossTests)
+      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optLogs, implString)
   }
 }
 
@@ -901,6 +910,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optLengthLimitInBits: Option[Long],
     optExpectedErrors: Option[ExpectedErrors],
     optExpectedWarnings: Option[ExpectedWarnings],
+    optExpectedLogs: Option[ExpectedLogs],
     optExpectedValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
@@ -917,7 +927,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult.right.foreach {
           case (_, proc) => {
             processor = proc
-            runParseExpectSuccess(dataToParse, nBits, optExpectedWarnings, optExpectedValidationErrors, validationMode, roundTrip, implString)
+            runParseExpectSuccess(dataToParse, nBits, optExpectedWarnings, optExpectedLogs, optExpectedValidationErrors, validationMode, roundTrip, implString)
           }
         }
       }
@@ -931,6 +941,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             processor = proc
             runParseExpectErrors(dataToParse, nBits, optExpectedErrors.get,
               optExpectedWarnings,
+              optExpectedLogs,
               optExpectedValidationErrors,
               validationMode,
               implString)
@@ -947,6 +958,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     lengthLimitInBits: Long,
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
+    optLogs: Option[ExpectedLogs],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     implString: Option[String]): Unit = {
@@ -1003,7 +1015,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         implString)
     }
 
-    checkDiagnosticMessages(diagnostics, errors, optWarnings, implString)
+    checkDiagnosticMessages(diagnostics, errors, optWarnings, optLogs, implString)
   }
 
   /**
@@ -1149,6 +1161,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     dataToParse: InputStream,
     lengthLimitInBits: Long,
     warnings: Option[ExpectedWarnings],
+    loggers: Option[ExpectedLogs],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTripArg: RoundTrip,
@@ -1336,6 +1349,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optNBits: Option[Long],
     optErrors: Option[ExpectedErrors],
     optWarnings: Option[ExpectedWarnings],
+    optLogs: Option[ExpectedLogs],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
@@ -1347,14 +1361,14 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult.right.foreach {
           case (warnings, proc) => {
             processor = proc
-            runUnparserExpectSuccess(expectedData, optWarnings, roundTrip, implString)
+            runUnparserExpectSuccess(expectedData, optWarnings, optLogs, roundTrip, implString)
           }
         }
       }
 
       case (_, Some(errors)) => {
         compileResult.left.foreach { diags =>
-          checkDiagnosticMessages(diags, errors, optWarnings, implString)
+          checkDiagnosticMessages(diags, errors, optWarnings, optLogs, implString)
         }
         compileResult.right.foreach {
           case (_, proc) => {
@@ -1371,6 +1385,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   def runUnparserExpectSuccess(
     expectedData: InputStream,
     optWarnings: Option[ExpectedWarnings],
+    optLogs: Option[ExpectedLogs],
     roundTrip: RoundTrip,
     implString: Option[String]): Unit = {
 
@@ -1484,6 +1499,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optExpectedData: Option[InputStream],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
+    optLogs: Option[ExpectedLogs],
     implString: Option[String]): Unit = {
 
     try {
@@ -1544,7 +1560,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     if (diagnostics.isEmpty)
       throw TDMLException("Unparser test expected error. Didn't get one.", implString)
-    checkDiagnosticMessages(diagnostics, errors, optWarnings, implString)
+    checkDiagnosticMessages(diagnostics, errors, optWarnings, optLogs, implString)
   }
 }
 
@@ -2451,6 +2467,13 @@ case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "warning"
+
+}
+
+case class ExpectedLogs(node: NodeSeq, parent: TestCase)
+  extends ErrorWarningBase(node, parent) {
+
+  val diagnosticNodes = node \\ "log"
 
 }
 

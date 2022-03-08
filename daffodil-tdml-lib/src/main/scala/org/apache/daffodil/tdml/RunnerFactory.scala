@@ -181,7 +181,8 @@ class Runner private (
         defaultValidationDefault,
         defaultImplementationsDefault,
         Runner.defaultShouldDoErrorComparisonOnCrossTests,
-        Runner.defaultShouldDoWarningComparisonOnCrossTests)
+        Runner.defaultShouldDoWarningComparisonOnCrossTests,
+        Runner.defaultShouldDoLogComparisonCrossTests)
     }
     ts
   }

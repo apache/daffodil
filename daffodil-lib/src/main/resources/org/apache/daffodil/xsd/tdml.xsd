@@ -232,6 +232,7 @@
   <element name="infoset" type="tns:infosetType"/>
   <element name="errors" type="tns:errorsType"/>
   <element name="warnings" type="tns:warningsType"/>
+  <element name="logs" type="tns:logsType"/>
   <element name="validationErrors" type="tns:validationErrorsType"/>
 
   <complexType name="documentType" mixed="true">
@@ -332,6 +333,14 @@
     <attributeGroup ref="tns:errorWarnAttribs"/>
   </complexType>
 
+  <complexType name="logsType">
+    <sequence>
+      <element ref="tns:log" maxOccurs="unbounded" minOccurs="0"/>
+                        <!-- use <warnings/> to indicate no warnings should occur. -->
+    </sequence>
+    <attributeGroup ref="tns:errorWarnAttribs"/>
+  </complexType>
+
   <complexType name="validationErrorsType">
     <sequence>
       <element ref="tns:error" maxOccurs="unbounded" minOccurs="0"/>
@@ -342,6 +351,7 @@
 
   <element name="error" type="xs:string"/>
   <element name="warning" type="xs:string"/>
+  <element name="log" type="xs:string"/>
 
   <xs:attributeGroup name="errorWarnAttribs">
     <xs:attribute name="match" use="optional" default="all">
