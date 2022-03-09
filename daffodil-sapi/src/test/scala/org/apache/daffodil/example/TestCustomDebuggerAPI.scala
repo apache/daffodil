@@ -55,7 +55,7 @@ class TestCustomDebuggerAPI {
     val input = new InputSourceDataInputStream(fis)
     dp.parse(input, new NullInfosetOutputter())
 
-    assertEquals(8, dbg.nodes)
+    assertEquals(6, dbg.nodes)
     assertTrue(dbg.inited)
     assertTrue(dbg.finished)
   }

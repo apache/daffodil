@@ -202,15 +202,9 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       val parentAlignmentApprox =
         if (priorSibs.isEmpty || isEverInUnorderedSequence) {
           // we only care about the parent alignment if we are the first child
-          // in a model group, if we are in an unordered sequence and we could
-          // be first when parsing, or if we are a model group of a complex
-          // type. Note that in the last case, the model group has no siblings
-          // and so will fall into this block. This alignment algorithm only
-          // looks at the lexical scope, so if this parent is a global decl
-          // (which isn't a term), there might not actually be an enclosing
-          // term, and we won't have any information about the approximate
-          // alignment of the parent
-          optEnclosingLexicalTerm.map { p =>
+          // in a model group, or if we are in an unordered sequence and we
+          // could be first when parsing
+          immediatelyEnclosingModelGroup.map { p =>
             val csa = p.contentStartAlignment
             csa
           }.toSeq
@@ -220,14 +214,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
 
       val priorAlignmentsApprox = priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment ++ unorderedSequenceSelfAlignment
       if (priorAlignmentsApprox.isEmpty)
-        // we have no information about our prior alignment. The most likely
-        // reason for this is that we are asking about the prior alignment of a
-        // model group in a global declaration. In this case, the prior
-        // alignment comes from where the global element decl is referenced.
-        // But we don't know where the global element decl is referenced from
-        // or what its alignment is. In cases like this we must assume no
-        // aligment information.
-        AlignmentMultipleOf(1)
+        alignmentApprox // it will be the containing context's responsibility to insure this IS where we start.
       else
         priorAlignmentsApprox.reduce(_ * _)
     }
@@ -325,18 +312,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           }
           case LengthKind.Delimited => encodingLengthApprox
           case LengthKind.Pattern => encodingLengthApprox
-          case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent'")
-          case LengthKind.Prefixed => {
-            // Prefix length elements are calculated at runtime, so we cannot
-            // know the exact length. However the element and the prefix length
-            // type must have the same length units, so the length of the two
-            // combined fields must be a multiple of those units.
-            eb.lengthUnits match {
-              case LengthUnits.Bits => LengthMultipleOf(1)
-              case LengthUnits.Bytes => LengthMultipleOf(8)
-              case LengthUnits.Characters => encodingLengthApprox
-            }
-          }
+          case LengthKind.EndOfParent => LengthMultipleOf(1) // NYI
+          case LengthKind.Prefixed => LengthMultipleOf(1) // NYI
         }
       }
       case mg: ModelGroup => Assert.usageError("Only for elements")

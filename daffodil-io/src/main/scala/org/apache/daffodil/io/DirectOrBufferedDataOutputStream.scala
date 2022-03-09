@@ -966,12 +966,6 @@ object DirectOrBufferedDataOutputStream {
     Assert.invariant(bufDOS.isBuffering)
     Assert.invariant(!directDOS.isBuffering)
 
-    // ensure that if we know the absoluste starting position of the buffered
-    // DOS that it matches the ending bit position of the direct DOS we are
-    // about to deliver it to
-    val maybeBufStartPos = bufDOS.maybeAbsStartingBitPos0b
-    Assert.invariant(maybeBufStartPos.isEmpty || maybeBufStartPos.get == directDOS.maybeAbsBitPos0b.get)
-
     val finfoBitOrder = finfo.bitOrder // bit order we are supposed to write with
     val priorBitOrder = directDOS.cst.priorBitOrder // bit order that the directDOS had at last successful unparse. (prior is set after each unparser)
     if (finfoBitOrder ne priorBitOrder) {
