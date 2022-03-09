@@ -41,10 +41,10 @@ class TestDataOutputStream4 {
 
     val out = direct.addBuffered
     if (setAbs)
-      out.setAbsStartingBitPos0b(ULong(19))
+      out.setAbsStartingBitPos0b(ULong(20))
     val out2 = out.addBuffered
     if (setAbs)
-      out2.setAbsStartingBitPos0b(ULong(38))
+      out2.setAbsStartingBitPos0b(ULong(39))
 
     out.putLong(0x5a5a5, 19, finfo)
     // 101 1010 0101 1010 0101

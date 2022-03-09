@@ -39,13 +39,13 @@ class TestComputedLengthFields {
   @Test def test_computedLengthAroundPrefixedLengths1p(): Unit = { runner.runOneTest("computedLengthAroundPrefixedLengths1p") }
 
   // DAFFODIL-2626 - deadlock interaction between computed length and prefixed-length strings.
-  @Test def test_computedLengthAroundPrefixedLengths1u(): Unit = { runner.runOneTest("computedLengthAroundPrefixedLengths1u") }
+  // @Test def test_computedLengthAroundPrefixedLengths1u(): Unit = { runner.runOneTest("computedLengthAroundPrefixedLengths1u") }
 
   @Test def test_computedLengthAroundFixedLengths1(): Unit = { runner.runOneTest("computedLengthAroundFixedLengths1") }
 
   // DAFFODIL-2626 circular deadlock
   // Reproduces one of the circular issues - with prefixed length for the root element surrounding
   // text, where the alignment region isn't optimized out. 
-  @Test def test_prefixedAroundDelimitedString1(): Unit = { runner.runOneTest("prefixedAroundDelimitedString1") }
+  // @Test def test_prefixedAroundDelimitedString1(): Unit = { runner.runOneTest("prefixedAroundDelimitedString1") }
 
 }
