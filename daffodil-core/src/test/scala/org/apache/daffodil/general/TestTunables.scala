@@ -18,7 +18,6 @@
 package org.apache.daffodil.general
 
 import org.junit.Test
-
 import org.apache.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.apache.daffodil.compiler.Compiler; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -96,5 +95,4 @@ class TestTunables {
     assertEquals(true, w3.contains("escapeSchemeRefUndefined"))
     assertEquals(true, w4.contains("escapeSchemeRefUndefined"))
   }
-
 }
