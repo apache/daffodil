@@ -22,6 +22,7 @@ import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.processors.KnownEncodingMixin
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.schema.annotation.props.gen.AlignmentKind
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.util.Maybe
 
@@ -86,7 +87,8 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * alignment required. This is always 1 or 8.
    */
   override final lazy val knownEncodingAlignmentInBits = {
-    if (isKnownEncoding) {
+    if (alignmentKindDefaulted == AlignmentKind.Manual) 1 // disables any encoding alignment
+    else if (isKnownEncoding) {
       schemaDefinitionWarningWhen(
         WarnID.DeprecatedEncodingNameUSASCII7BitPacked,
         knownEncodingName == "US-ASCII-7-BIT-PACKED",

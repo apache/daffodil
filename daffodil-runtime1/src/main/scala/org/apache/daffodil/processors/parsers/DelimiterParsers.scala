@@ -81,7 +81,7 @@ class DelimiterTextParser(
 
     val foundDelimiter =
       if (maybeDelimIter.isDefined) {
-        textParser.parse(start, start.dataInputStream, maybeDelimIter.get, true)
+        textParser.parse(start, start.dataInputStream, maybeDelimIter.get)
       } else {
         start.delimitedParseResult
       }

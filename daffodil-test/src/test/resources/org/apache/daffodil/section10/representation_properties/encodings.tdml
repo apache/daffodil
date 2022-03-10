@@ -16,10 +16,15 @@
   limitations under the License.
 -->
 
-<tdml:testSuite suiteName="More Encoding Tests" description="Section 10 - Core Representation Properties"
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+<tdml:testSuite
+  suiteName="More Encoding Tests"
+  description="Section 10 - Core Representation Properties"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
   xmlns:tns="http://example.com"
   defaultRoundTrip="true">
   
@@ -256,7 +261,106 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
-  
-  
+
+
+  <tdml:defineSchema
+    name="unalignedText"
+    elementFormDefault="unqualified"
+    useDefaultNamespace="false">
+
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+  <dfdl:format ref="tns:GeneralFormat"
+               lengthKind="explicit"
+               representation="binary"
+               lengthUnits="bits"
+               alignmentUnits="bits"
+               dfdlx:alignmentKind="manual"/>
+
+    <xs:element name="r" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="fourBits" type="xs:unsignedInt" dfdl:lengthUnits="bits" dfdl:length="4"/>
+          <!--
+          This next element is a string, ASCII, which requires 8-bit mandatory alignment,
+          but the dfdlx:alignmentKind 'manual' turns off automatic alignment.
+          So this parse will try to start not at a byte boundary.
+
+          The decode will then fail with a parse error.
+          -->
+          <xs:element name="str" type="xs:string" dfdl:lengthUnits="bytes" dfdl:length="3"
+            dfdl:alignment="8"/><!-- alignment will be ignored -->
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase
+    name="unalignedCharsetWithMandatory8BitAlignment"
+    model="unalignedText"
+    root="r"
+    description="Not aligned when we start parsing a charset where the decoder requires 8-bit alignment">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        F3 34 35 36
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>charset not byte aligned</tdml:error>
+      <tdml:error>5</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema
+    name="alignedText"
+    elementFormDefault="unqualified"
+    useDefaultNamespace="false">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="tns:GeneralFormat"
+                 lengthKind="explicit"
+                 representation="binary"
+                 lengthUnits="bits"
+                 alignmentUnits="bits"
+                 dfdlx:alignmentKind="automatic"
+                 fillByte="%#r33;"/>
+
+    <xs:element name="r" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="fourBits" type="xs:unsignedInt" dfdl:lengthUnits="bits" dfdl:length="4"/>
+          <!--
+          This next element is a string, ASCII, which requires 8-bit mandatory alignment,
+          -->
+          <xs:element name="str" type="xs:string" dfdl:lengthUnits="bytes" dfdl:length="3"
+            dfdl:alignment="8"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase
+    name="automaticAlignedCharsetWithMandatory8BitAlignment"
+    model="alignedText"
+    root="r"
+    description="Automatically aligned when we start parsing a charset where the decoder requires 8-bit alignment">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        F3 34 35 36
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r>
+          <fourBits>15</fourBits>
+          <str>456</str>
+        </ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

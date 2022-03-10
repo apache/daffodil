@@ -52,4 +52,12 @@ class TestRepProps2 {
 
   @Test def test_iso88591msbbitsmisaligned() = { runner.runOneTest("iso88591msbbitsmisaligned") }  
   @Test def test_iso88591lsbbitsmisaligned() = { runner.runOneTest("iso88591lsbbitsmisaligned") }
+
+  @Test def test_unalignedCharsetWithMandatory8BitAlignment() = {
+    runner.runOneTest("unalignedCharsetWithMandatory8BitAlignment")
+  }
+
+  @Test def test_automaticAlignedCharsetWithMandatory8BitAlignment() = {
+    runner.runOneTest("automaticAlignedCharsetWithMandatory8BitAlignment")
+  }
 }

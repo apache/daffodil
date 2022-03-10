@@ -62,7 +62,6 @@ final class StringDataInputStreamForUnparse
   override def resetPos(m: MarkPos) = dis.resetPos(m)
   override def skipChars(nChars: Long, finfo: FormatInfo): Boolean = dis.skipChars(nChars, finfo)
   override def getSomeString(nChars: Long,finfo: FormatInfo): Maybe[String] = dis.getSomeString(nChars, finfo)
-  override def getString(nChars: Long,finfo: FormatInfo): Maybe[String] = dis.getString(nChars, finfo)
 
   // $COVERAGE-OFF$ Nothing should be calling these.
   private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))

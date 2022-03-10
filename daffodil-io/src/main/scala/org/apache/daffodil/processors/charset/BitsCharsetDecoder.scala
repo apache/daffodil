@@ -19,7 +19,6 @@ package org.apache.daffodil.processors.charset
 
 import java.nio.CharBuffer
 import java.nio.LongBuffer
-
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -31,6 +30,16 @@ import org.apache.daffodil.util.MaybeChar
 
 class BitsCharsetDecoderMalformedException(val malformedBits: Int)
   extends ThinException
+
+class BitsCharsetDecoderUnalignedCharDecodeException(val bitPos1b: Long)
+  extends ThinException {
+  def bitAlignment1b = bitPos1b % 8
+  def bytePos1b = ((bitPos1b - 1) / 8) + 1
+
+  override def getMessage(): String = {
+    s"Charset not byte aligned. bitAlignment1b=${bitAlignment1b}, bitPos1b=${bitPos1b}, bytePos1b=${bytePos1b}."
+  }
+}
 
 trait BitsCharsetDecoderState
 
@@ -130,7 +139,10 @@ abstract class BitsCharsetDecoderByteSize
   @inline protected final def getByte(dis: InputSourceDataInputStream, bitsConsumedSoFar: Int): Int = {
     if (!dis.isDefinedForLength(8)) {
       throw new BitsCharsetDecoderMalformedException(bitsConsumedSoFar)
-    } else {
+    }
+    if (!dis.isAligned(8)) {
+      throw new BitsCharsetDecoderUnalignedCharDecodeException(dis.bitPos1b)
+    }
       // read directly from the input source. This should be faster, but makes
       // assumptions that data is aligned. This should always succeed due to
       // the above check
@@ -139,7 +151,6 @@ abstract class BitsCharsetDecoderByteSize
       // position
       dis.setBitPos0b(dis.bitPos0b + 8)
       byte
-    }
   }
 
   override def reset(): Unit = {

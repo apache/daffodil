@@ -23,6 +23,7 @@ import org.apache.daffodil.util.MaybeChar
 import org.apache.daffodil.util.Misc
 import passera.unsigned.ULong
 import org.apache.daffodil.processors.CharsetEv
+import org.apache.daffodil.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
 
 /**
  * Specifically designed to be used inside one of the SpecifiedLength parsers.
@@ -85,7 +86,13 @@ trait StringOfSpecifiedLengthMixin
     val maxLen = start.tunable.maximumSimpleElementSizeInCharacters
     val startBitPos0b = dis.bitPos0b
 
-    val strOpt = dis.getSomeString(maxLen, start)
+    val strOpt =
+      try {
+        dis.getSomeString(maxLen, start)
+      } catch {
+        case e: BitsCharsetDecoderUnalignedCharDecodeException =>
+          throw new CharsetNotByteAlignedError(start, e)
+      }
     val str = if (strOpt.isDefined) strOpt.get else ""
     // TODO: Performance - trimByJustification wants to operate on a StringBuilder
     // That means that dis.getSomeString wants to return a StringBuilder instead of

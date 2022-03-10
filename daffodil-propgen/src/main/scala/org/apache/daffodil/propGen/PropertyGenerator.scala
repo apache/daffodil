@@ -67,7 +67,7 @@ class PropertyGenerator(arg: Node) {
   }
 
   def excludeAttribute(name: String) = {
-    excludedAttributes.exists { _.toUpperCase.contains(name.toUpperCase()) }
+    excludedAttributes.exists { _.toUpperCase == name.toUpperCase() }
   }
 
   def generate() = {

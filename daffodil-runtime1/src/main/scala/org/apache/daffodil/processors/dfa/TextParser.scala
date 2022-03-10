@@ -30,7 +30,7 @@ class TextParser(override val context: TermRuntimeData)
   override lazy val name: String = "TextParser"
   override lazy val info: String = "" // Nothing additional to add here
 
-  def parse(state: PState, input: DataInputStream, delimIter: DelimiterIterator, isDelimRequired: Boolean): Maybe[ParseResult] = {
+  def parse(state: PState, input: DataInputStream, delimIter: DelimiterIterator): Maybe[ParseResult] = {
 
     val lmt = new LongestMatchTracker()
 
@@ -51,12 +51,7 @@ class TextParser(override val context: TermRuntimeData)
 
     val result = {
       if (lmt.longestMatches.isEmpty) {
-        if (isDelimRequired) Nope
-        else {
-          val totalNumCharsRead = 0
-          input.getString(totalNumCharsRead, state)
-          One(new ParseResult(Nope, Nope, lmt.longestMatches))
-        }
+        Nope
       } else {
         val delim: Maybe[String] = {
           One(lmt.longestMatchedString.toString)
