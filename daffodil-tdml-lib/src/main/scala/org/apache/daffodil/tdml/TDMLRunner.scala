@@ -28,7 +28,6 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.StandardCharsets
-
 import scala.collection.mutable
 import scala.language.postfixOps
 import scala.util.Try
@@ -36,9 +35,8 @@ import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
-
 import org.apache.commons.io.IOUtils
-
+import org.apache.daffodil.api.DaffodilConfig
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
@@ -696,33 +694,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     roundTrip: RoundTrip,
     implString: Option[String]): Unit
 
-  private def retrieveBindings(cfg: DefinedConfig, tunable: DaffodilTunables): Seq[Binding] = {
-    val bindings: Seq[Binding] = cfg.externalVariableBindings match {
-      case None => Seq.empty
-      case Some(bindingsNode) => Binding.getBindings(bindingsNode)
-    }
-    bindings
-  }
-
-  private def retrieveTunables(cfg: DefinedConfig): Map[String, String] = {
-    val configFileTunables: Map[String, String] = cfg.tunables match {
-      case None => Map.empty
-      case Some(tunableNode) => {
-        tunableNode.child.map { n => (n.label, n.text) }.toMap
-      }
-    }
-
-    configFileTunables
-  }
-
   // Provide ability to override existing (default) tunables
   private def retrieveTunablesCombined(existingTunables: Map[String, String], cfg: DefinedConfig) = {
-    val configFileTunables: Map[String, String] = retrieveTunables(cfg)
-
     // Note, ++ on Maps replaces any key/value pair from the left with that on the
     // right, so key/value pairs defined in tunables overrule those defiend in
     // the config file
-    val combined = existingTunables ++ configFileTunables
+    val combined = existingTunables ++ cfg.tunablesMap
     combined
   }
 
@@ -828,22 +805,11 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     }
   }
 
-  lazy val defaultTunables: Map[String, String] = cfg match {
-    case None => Map.empty
-    case Some(definedConfig) => retrieveTunables(definedConfig)
-  }
-
-  lazy val tunables: Map[String, String] = cfg match {
-    case None => defaultTunables
-    case Some(embeddedConfig) => retrieveTunablesCombined(defaultTunables, embeddedConfig)
-  }
+  lazy val tunables = cfg.map{ _.tunablesMap }.getOrElse(Map.empty)
 
   lazy val tunableObj = DaffodilTunables(tunables)
 
-  lazy val externalVarBindings: Seq[Binding] = cfg match {
-    case None => Seq.empty
-    case Some(definedConfig) => retrieveBindings(definedConfig, tunableObj)
-  }
+  lazy val externalVarBindings: Seq[Binding] = cfg.map{ _.externalVariableBindings }.getOrElse(Seq())
 
   def run(): Unit = {
     val suppliedSchema = getSuppliedSchema()
@@ -1903,8 +1869,9 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
 
 case class DefinedConfig(xml: Node, parent: DFDLTestSuite) {
   val name = (xml \ "@name").text.toString
-  val externalVariableBindings = (xml \ "externalVariableBindings").headOption
-  val tunables = (scala.xml.Utility.trim(xml) \ "tunables").headOption /* had to add trim here to get rid of #PCDATA */
+  val dafConfig = DaffodilConfig.fromXML(xml)
+  def externalVariableBindings = dafConfig.externalVariableBindings
+  def tunablesMap = dafConfig.tunablesMap
 
   // Add additional compiler tunable variables here
 

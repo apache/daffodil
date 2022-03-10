@@ -29,33 +29,25 @@ import java.nio.file.Paths
 import java.nio.charset.StandardCharsets
 import java.util.Scanner
 import java.util.concurrent.Executors
-
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.util.matching.Regex
-
 import scala.xml.Node
 import scala.xml.SAXParser
-
 import com.typesafe.config.ConfigFactory
-
 import org.rogach.scallop
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
-
 import org.xml.sax.XMLReader
-
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
-
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.daffodil.Main.ExitCode
@@ -63,6 +55,7 @@ import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api.DFDL.ParseResult
 import org.apache.daffodil.api.DFDL.UnparseResult
+import org.apache.daffodil.api.DaffodilConfig
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.ValidationMode
@@ -112,7 +105,6 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.Timer
 import org.apache.daffodil.validation.Validators
 import org.apache.daffodil.xml.DaffodilSAXParserFactory
-import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.apache.daffodil.xml.QName
 import org.apache.daffodil.xml.RefQName
 import org.apache.daffodil.xml.XMLUtils
@@ -519,17 +511,6 @@ object Main {
     indented.mkString("\n")
   }
 
-  /**
-   * Loads and validates the configuration file.
-   *
-   * @param file The path to the file.
-   * @return The Node representation of the file.
-   */
-  def loadConfigurationFile(file: File) = {
-    val loader = new DaffodilXMLLoader()
-    val node = loader.load(URISchemaSource(file.toURI), Some(XMLUtils.dafextURI))
-    node
-  }
 
   /**
    * Overrides bindings specified via the configuration file with those
@@ -564,23 +545,10 @@ object Main {
    * Retrieves all external variables specified via the command line interface.
    *
    * @param vars The individual variables input via the command line using the -D command.
-   * @param configFileNode The Node representing the configuration file if there is one.
+   * @param optDafConfig DaffodilConfig object from config file (if any)
    */
-  def retrieveExternalVariables(vars: Map[String, String], configFileNode: Option[Node]): Seq[Binding] = {
-    val configFileVars: Seq[Binding] = configFileNode match {
-      case None => Seq.empty
-      case Some(configNode) => {
-        // We have a configuration file node, we now need to grab
-        // the externalVariableBindings node.
-        val extVarBindingNodeOpt = (configNode \ "externalVariableBindings").headOption
-        extVarBindingNodeOpt match {
-          case None => Seq.empty
-          case Some(extVarBindingsNode) => {
-            Binding.getBindings(extVarBindingsNode)
-          }
-        }
-      }
-    }
+  def combineExternalVariables(vars: Map[String, String], optDafConfig: Option[DaffodilConfig]): Seq[Binding] = {
+    val configFileVars: Seq[Binding] = optDafConfig.map{ _.externalVariableBindings }.getOrElse(Seq())
 
     val individualVars = ExternalVariablesLoader.mapToBindings(vars)
 
@@ -606,27 +574,6 @@ object Main {
     }
   }
 
-  def retrieveTunables(tunables: Map[String, String], configFileNode: Option[Node]) = {
-    val configFileTunables: Map[String, String] = configFileNode match {
-      case None => Map.empty
-      case Some(configNode) => {
-        val tunablesOpt = (configNode \ "tunables").headOption
-        tunablesOpt match {
-          case None => Map.empty
-          case Some(tunableNode) => {
-            tunableNode.child.map { n => (n.label, n.text) }.toMap
-          }
-        }
-      }
-    }
-
-    // Note, ++ on Maps replaces any key/value pair from the left with that on the
-    // right, so key/value pairs defined in tunables overrule those defiend in
-    // the config file
-    val combined = configFileTunables ++ tunables
-    combined
-  }
-
   def setupDebugOrTrace(proc: HasSetDebugger, conf: CLIConf) = {
     if (conf.trace() || conf.debug.isDefined) {
       val runner =
@@ -648,10 +595,10 @@ object Main {
   }
 
   def createProcessorFromSchema(schema: URI, rootNS: Option[RefQName], path: Option[String],
-    tunables: Map[String, String],
+    tunablesMap: Map[String, String],
     mode: ValidationMode.Type): Option[DFDL.DataProcessor] = {
     val compiler = {
-      val c = Compiler().withTunables(tunables)
+      val c = Compiler().withTunables(tunablesMap)
       rootNS match {
         case None => c
         case Some(RefQName(_, root, ns)) => c.withDistinguishedRootNode(root, ns.toStringOrNullIfNoNS)
@@ -838,7 +785,7 @@ object Main {
         Left(new JsonInfosetInputter(is))
       }
       case InfosetType.SCALA_XML => {
-        Left(new ScalaXMLInfosetInputter(anyRef.asInstanceOf[scala.xml.Node]))
+        Left(new ScalaXMLInfosetInputter(anyRef.asInstanceOf[Node]))
       }
       case InfosetType.JDOM => {
         Left(new JDOMInfosetInputter(anyRef.asInstanceOf[org.jdom2.Document]))
@@ -880,19 +827,16 @@ object Main {
 
         val validate = parseOpts.validate.toOption.get
 
-        val cfgFileNode: Option[Node] = parseOpts.config.toOption match {
-          case None => None
-          case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
-        }
+        val optDafConfig = parseOpts.config.toOption.map{ DaffodilConfig.fromFile(_) }
 
         val processor: Option[DFDL.DataProcessor] = {
           if (parseOpts.parser.isDefined) {
             createProcessorFromParser(parseOpts.parser(), parseOpts.path.toOption, validate)
           } else {
-            val tunables = retrieveTunables(parseOpts.tunables, cfgFileNode)
+            val tunables = DaffodilTunables.configPlusMoreTunablesMap(parseOpts.tunables, optDafConfig)
             createProcessorFromSchema(parseOpts.schema(), parseOpts.rootNS.toOption, parseOpts.path.toOption, tunables, validate)
           }
-        }.map{ _.withExternalVariables(retrieveExternalVariables(parseOpts.vars, cfgFileNode))}
+        }.map{ _.withExternalVariables(combineExternalVariables(parseOpts.vars, optDafConfig))}
 
         val rc = processor match {
           case None => ExitCode.UnableToCreateProcessor
@@ -1045,19 +989,16 @@ object Main {
 
         val validate = performanceOpts.validate.toOption.get
 
-        val cfgFileNode = performanceOpts.config.toOption match {
-          case None => None
-          case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
-        }
+        val optDafConfig = performanceOpts.config.toOption.map{ DaffodilConfig.fromFile(_) }
 
         val processor = {
           if (performanceOpts.parser.isDefined) {
             createProcessorFromParser(performanceOpts.parser(), performanceOpts.path.toOption, validate)
           } else {
-            val tunables = retrieveTunables(performanceOpts.tunables, cfgFileNode)
+            val tunables = DaffodilTunables.configPlusMoreTunablesMap(performanceOpts.tunables, optDafConfig)
             createProcessorFromSchema(performanceOpts.schema(), performanceOpts.rootNS.toOption, performanceOpts.path.toOption, tunables, validate)
           }
-        }.map{ _.withExternalVariables(retrieveExternalVariables(performanceOpts.vars, cfgFileNode)) }
+        }.map{ _.withExternalVariables(combineExternalVariables(performanceOpts.vars, optDafConfig)) }
          .map{ _.withValidationMode(validate) }
 
         val rc: ExitCode.Value = processor match {
@@ -1190,19 +1131,16 @@ object Main {
 
         val validate = unparseOpts.validate.toOption.get
 
-        val cfgFileNode = unparseOpts.config.toOption match {
-          case None => None
-          case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
-        }
+        val optDafConfig = unparseOpts.config.toOption.map{ DaffodilConfig.fromFile(_) }
 
         val processor = {
           if (unparseOpts.parser.isDefined) {
             createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.toOption, validate)
           } else {
-            val tunables = retrieveTunables(unparseOpts.tunables, cfgFileNode)
+            val tunables = DaffodilTunables.configPlusMoreTunablesMap(unparseOpts.tunables, optDafConfig)
             createProcessorFromSchema(unparseOpts.schema(), unparseOpts.rootNS.toOption, unparseOpts.path.toOption, tunables, validate)
           }
-        }.map{ _.withExternalVariables(retrieveExternalVariables(unparseOpts.vars, cfgFileNode)) }
+        }.map{ _.withExternalVariables(combineExternalVariables(unparseOpts.vars, optDafConfig)) }
 
         val output = unparseOpts.output.toOption match {
           case Some("-") | None => System.out
@@ -1290,12 +1228,9 @@ object Main {
         val saveOpts = conf.save
 
         val validate = ValidationMode.Off
+        val optDafConfig = saveOpts.config.toOption.map{ DaffodilConfig.fromFile(_) }
 
-        val cfgFileNode = saveOpts.config.toOption match {
-          case None => None
-          case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
-        }
-        val tunables = retrieveTunables(saveOpts.tunables, cfgFileNode)
+        val tunables = DaffodilTunables.configPlusMoreTunablesMap(saveOpts.tunables, optDafConfig)
         val tunablesObj = DaffodilTunables(tunables)
 
         val processor = createProcessorFromSchema(saveOpts.schema(), saveOpts.rootNS.toOption, saveOpts.path.toOption, tunables, validate)
@@ -1429,11 +1364,9 @@ object Main {
             val generateOpts = conf.generate.c
 
             // Read any config file and any tunables given as arguments
-            val cfgFileNode = generateOpts.config.toOption match {
-              case None => None
-              case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
-            }
-            val tunables = retrieveTunables(generateOpts.tunables, cfgFileNode)
+            val optDafConfig = generateOpts.config.toOption.map{ DaffodilConfig.fromFile(_) }
+
+            val tunables = DaffodilTunables.configPlusMoreTunablesMap(generateOpts.tunables, optDafConfig)
 
             // Create a CodeGenerator from the DFDL schema
             val generator = createGeneratorFromSchema(generateOpts.schema(), generateOpts.rootNS.toOption,

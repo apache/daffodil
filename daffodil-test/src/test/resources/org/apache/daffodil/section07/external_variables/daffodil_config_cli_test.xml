@@ -40,4 +40,13 @@
 		<daf:bind name="ex:var1">-9</daf:bind>
 		<daf:bind name="ex:var3">-8</daf:bind>
 	</daf:externalVariableBindings>
+	<!--
+	We added tunables here, just to show that we can load a config that also has tunables
+	-->
+	<daf:tunables>
+		<daf:suppressSchemaDefinitionWarnings>
+			facetExplicitLengthOutOfRange
+			encodingErrorPolicyError
+		</daf:suppressSchemaDefinitionWarnings>
+	</daf:tunables>
 </daf:dfdlConfig>
