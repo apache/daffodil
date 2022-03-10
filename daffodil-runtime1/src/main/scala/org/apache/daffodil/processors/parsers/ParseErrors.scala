@@ -27,6 +27,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.ProcessingError
+import org.apache.daffodil.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
@@ -38,6 +39,14 @@ class ParseError(rd: Maybe[SchemaFileLocation], val loc: Maybe[DataLocation], ca
 
   override def toParseError = this
 }
+
+final class CharsetNotByteAlignedError(pstate: PState,
+  cause: BitsCharsetDecoderUnalignedCharDecodeException)
+  extends ParseError(
+    Maybe.toMaybe(pstate.maybeERD.toScalaOption.map{ _.schemaFileLocation}),
+    One(pstate.currentLocation),
+    One(cause),
+    Nope)
 
 class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, details: Maybe[String] = Nope)
   extends ParseError(One(rd), One(state.currentLocation), "Assertion failed: %s", msg) {

@@ -123,6 +123,7 @@
     <xsd:attribute name="fillByte" type="dfdl:DFDLStringLiteral" />
     <xsd:attribute name="leadingSkip" type="dfdl:DFDLNonNegativeInteger" />
     <xsd:attribute name="trailingSkip" type="dfdl:DFDLNonNegativeInteger" />
+    <xsd:attribute ref="dfdlx:alignmentKind" />
   </xsd:attributeGroup>
 
   <!-- 12.2 Delimiters and Text Mark up -->

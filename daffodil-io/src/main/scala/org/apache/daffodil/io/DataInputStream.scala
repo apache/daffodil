@@ -414,14 +414,6 @@ trait DataInputStream
   def getBinaryDouble(finfo: FormatInfo): Double
 
   /**
-   * Returns One(string) if nChars are available, Nope otherwise.
-   *
-   * Throws a CharacterCodingException if the encoding error policy is 'error'
-   * and a decode error is detected within nChars.
-   */
-  def getString(nChars: Long, finfo: FormatInfo): Maybe[String]
-
-  /**
    * Returns One(string) if any (up to nChars) are available, Nope otherwise.
    *
    * Throws a CharacterCodingException if the encoding error policy is 'error'

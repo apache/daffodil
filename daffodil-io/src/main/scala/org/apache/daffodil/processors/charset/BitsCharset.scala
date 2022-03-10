@@ -55,7 +55,7 @@ trait BitsCharset extends Serializable {
   def aliases: Seq[String] = Nil
   def bitWidthOfACodeUnit: Int // in units of bits
   def requiredBitOrder: BitOrder
-  def mandatoryBitAlignment: Int
+  def mandatoryBitAlignment: Int // ignored when dfdlx:alignmentKind is 'manual'
   def newDecoder(): BitsCharsetDecoder
   def newEncoder(): BitsCharsetEncoder
 

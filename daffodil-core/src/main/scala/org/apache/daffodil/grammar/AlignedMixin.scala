@@ -27,6 +27,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dsom.QuasiElementDeclBase
 import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.dsom.Term
+import org.apache.daffodil.schema.annotation.props.gen.AlignmentKind
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
@@ -49,14 +50,21 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   requiredEvaluationsIfActivated(hasNoSkipRegions)
 
   /**
+   * If "manual" this property disables all automatic alignment. The
+   * schema author must use leadingSkip, trailingSkip, or just ensure
+   * all the elements/terms are aligned based on their length.
+   */
+  lazy val alignmentKindDefaulted: AlignmentKind =
+    optionAlignmentKind.getOrElse(AlignmentKind.Automatic)
+
+  /**
    * true if we can statically determine that the start of this
    * will be properly aligned by where the prior thing left us positioned.
    * Hence we are guaranteed to be properly aligned.
    */
   final lazy val isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
-    if (!isRepresented) {
-      true
-    } else {
+    if (!isRepresented || (alignmentKindDefaulted == AlignmentKind.Manual)) true
+    else {
       val pa = priorAlignmentWithLeadingSkipApprox
       val aa = alignmentApprox
       val res = (pa % aa) == 0
@@ -73,7 +81,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
    * considers the surrounding context meeting the alignment needs.
    */
   final lazy val isKnownToBeTextAligned: Boolean = LV('isKnownToBeTextAligned) {
-    if (isKnownEncoding) {
+    if (alignmentKindDefaulted == AlignmentKind.Manual) true // manual alignment
+    else if (isKnownEncoding) {
       if (knownEncodingAlignmentInBits == 1)
         true
       else if (priorAlignmentWithLeadingSkipApprox.nBits % knownEncodingAlignmentInBits == 0)
@@ -87,7 +96,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }.value
 
   final lazy val isDelimiterKnownToBeTextAligned: Boolean = {
-    if (isKnownEncoding) {
+    if (alignmentKindDefaulted == AlignmentKind.Manual) true // manual alignment
+    else if (isKnownEncoding) {
       if (knownEncodingAlignmentInBits == 1)
         true
       else if (endingAlignmentApprox.nBits % knownEncodingAlignmentInBits == 0)
@@ -106,29 +116,22 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
     AlignmentMultipleOf(alignmentValueInBits.toLong)
   }
 
-  lazy val leadingSkipInBits = {
-    alignmentUnits match {
-      case AlignmentUnits.Bits => leadingSkip
-      case AlignmentUnits.Bytes => leadingSkip * 8
-    }
+
+  private def alignmentSkipInBits(skipProp: Int) = alignmentUnits match {
+    case AlignmentUnits.Bits => skipProp
+    case AlignmentUnits.Bytes => skipProp * 8
   }
+
+  lazy val leadingSkipInBits = alignmentSkipInBits(leadingSkip)
+  lazy val trailingSkipInBits = alignmentSkipInBits(trailingSkip)
 
   private lazy val leadingSkipApprox: LengthApprox = {
     LengthExact(leadingSkipInBits)
   }
 
-  lazy val trailingSkipInBits = {
-    alignmentUnits match {
-      case AlignmentUnits.Bits => trailingSkip
-      case AlignmentUnits.Bytes => trailingSkip * 8
-    }
-  }
-
   protected lazy val trailingSkipApprox: LengthApprox = {
     LengthExact(trailingSkipInBits)
   }
-
-  private lazy val unaligned = AlignmentMultipleOf(1)
 
   // FIXME: DAFFODIL-2295
   // Does not take into account that in a sequence, what may be prior may be a separator.
@@ -150,11 +153,11 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
             // come from a previous element of this same array. Since this
             // array element is implicit length, knowing where it ends requires
             // knowing where it starts and the approximate length of the
-            // children. But we can't know whree it starts without knowing
+            // children. But we can't know where it starts without knowing
             // where the previous one array element ends. And we end up in a
             // loop.
             //
-            // So there isn't much we can do regarding alignement. What we can
+            // So there isn't much we can do regarding alignment. What we can
             // do is determine if this array element is byte aligned AND all of
             // its children are byte lengths/byte aligned, if that is the case
             // then we at least know this array and its elements are byte
@@ -197,7 +200,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           ps.endingAlignmentApprox
         }
         eaa
-      }.toSeq
+      }
 
       val parentAlignmentApprox =
         if (priorSibs.isEmpty || isEverInUnorderedSequence) {
@@ -225,7 +228,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   }
 
   protected lazy val contentStartAlignment: AlignmentMultipleOf = {
-    if ((priorAlignmentWithLeadingSkipApprox) % alignmentApprox == 0) {
+    if (priorAlignmentWithLeadingSkipApprox % alignmentApprox == 0) {
       // alignment won't be needed, continue using prior alignment as start alignment
       priorAlignmentWithLeadingSkipApprox
     } else {
@@ -277,7 +280,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
             // can't be last, no possibilities to gather.
             None
         val lastApproxes = lastApproxesConsideringChildren ++ optApproxIfNoChildren
-        Assert.invariant(!lastApproxes.isEmpty)
+        Assert.invariant(lastApproxes.nonEmpty)
         val res = lastApproxes.reduce { _ * _ }
         res
       }
@@ -289,7 +292,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       case eb: ElementBase => {
         eb.lengthKind match {
           case LengthKind.Implicit => {
-            // asssert this is simple element base
+            // assert this is simple element base
             LengthExact(eb.elementLengthInBitsEv.optConstant.get.get)
           }
           case LengthKind.Explicit => {
@@ -316,7 +319,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           case LengthKind.Prefixed => LengthMultipleOf(1) // NYI
         }
       }
-      case mg: ModelGroup => Assert.usageError("Only for elements")
+      case _: ModelGroup => Assert.usageError("Only for elements")
     }
   }
 
@@ -339,9 +342,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       val isByteLength = this match {
         case mg: ModelGroup => mg.groupMembers.forall { _.isKnownToBeByteAlignedAndByteLength }
         case eb: ElementBase => {
-          val isSelfByteSizeEncoding = eb.charsetEv.optConstant.map {
-            _.bitWidthOfACodeUnit == 8
-          }.getOrElse(false)
+          val isSelfByteSizeEncoding = eb.charsetEv.optConstant.exists(_.bitWidthOfACodeUnit == 8)
           val isSelfByteLength =
             if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
               eb.complexType.group.isKnownToBeByteAlignedAndByteLength

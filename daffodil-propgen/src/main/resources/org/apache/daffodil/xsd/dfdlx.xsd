@@ -34,6 +34,7 @@
 
   <xs:simpleType name="PropertyNameType">
     <xs:restriction base="xs:string">
+      <xs:enumeration value="dfdlx:alignmentKind" />
       <xs:enumeration value="dfdlx:choiceBranchKeyRanges" />
       <xs:enumeration value="dfdlx:emptyElementParsePolicy"/>
       <xs:enumeration value="dfdlx:inputTypeCalc"/>
@@ -44,6 +45,34 @@
       <xs:enumeration value="dfdlx:repValueRanges"/>
       <xs:enumeration value="dfdlx:repValues"/>
       <xs:enumeration value="dfdlx:runtimeProperties"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+
+  <xs:attribute name="alignmentKind" type="dfdlx:AlignmentKindEnum" default="automatic">
+    <xs:annotation>
+      <xs:documentation><![CDATA[
+        If manual, then the dfdl:alignment property is ignored, and all alignment must be done
+        manually by way of dfdl:leadingSkip, dfdl:trailingSkip, or just arranging for elements
+        that have the right size such that alignment is correct.
+
+        The dfdl:alignmentUnits property still applies and is used with dfdl:leadingSkip and dfdl:trailingSkip.
+
+        This property helps overcome limitations of the Daffodil schema compiler where it attempts to optimize
+        out normal alignment regions, but is unable to, resulting in the inability to unparse some formats.
+
+        For all constructs in the scope of this property, there will be no alignment regions created,
+        and charset encodings will not have mandatory text alignment of their characters.
+
+        Since this is a new extension property that is experimental, it will have a default value of "automatic".
+        ]]></xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+
+  <xs:simpleType name="AlignmentKindEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="automatic" />
+      <xs:enumeration value="manual" />
     </xs:restriction>
   </xs:simpleType>
 

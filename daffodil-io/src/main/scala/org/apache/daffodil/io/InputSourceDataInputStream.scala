@@ -614,40 +614,23 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
     markPool.finalCheck
   }
 
-  final def getString(nChars: Long, finfo: FormatInfo): Maybe[String] = {
-    val startingBitPos = bitPos0b
-    val aligned = align(finfo.encodingMandatoryAlignmentInBits, finfo)
-    if (!aligned) {
-      Maybe.Nope
-    } else {
-      withLocalCharBuffer { lcb =>
-        val cb = lcb.getBuf(nChars)
-        val numDecoded = finfo.decoder.decode(this, finfo, cb)
-        if (numDecoded == nChars) {
-          Maybe(cb.flip.toString)
-        } else {
-          setBitPos0b(startingBitPos)
-          Maybe.Nope
-        }
-      }
-    }
-  }
-
+  /**
+   * Returns some characters (up to nChars) if they are available.
+   *
+   * @param nChars From 1 up to this many characters are returned as the string, or Nope for 0.
+   * @param finfo
+   * @return
+   */
   final def getSomeString(nChars: Long, finfo: FormatInfo): Maybe[String] = {
     val startingBitPos = bitPos0b
-    val aligned = align(finfo.encodingMandatoryAlignmentInBits, finfo)
-    if (!aligned) {
-      Maybe.Nope
-    } else {
-      withLocalCharBuffer { lcb =>
-        val cb = lcb.getBuf(nChars)
-        val numDecoded = finfo.decoder.decode(this, finfo, cb)
-        if (numDecoded > 0) {
-          Maybe(cb.flip.toString)
-        } else {
-          setBitPos0b(startingBitPos)
-          Maybe.Nope
-        }
+    withLocalCharBuffer { lcb =>
+      val cb = lcb.getBuf(nChars)
+      val numDecoded = finfo.decoder.decode(this, finfo, cb)
+      if (numDecoded > 0) {
+        Maybe(cb.flip.toString)
+      } else {
+        setBitPos0b(startingBitPos)
+        Maybe.Nope
       }
     }
   }

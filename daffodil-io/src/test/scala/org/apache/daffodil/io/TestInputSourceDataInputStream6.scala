@@ -17,8 +17,11 @@
 
 package org.apache.daffodil.io
 
+import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
 import org.junit.Test
 import org.junit.Assert._
+
 import java.nio.ByteBuffer
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
@@ -115,25 +118,25 @@ class TestInputSourceDataInputStream6 {
   @Test def testGetSomeString1(): Unit = {
     val dis = InputSourceDataInputStream("01".getBytes())
     dis.getSignedLong(1, beFinfo)
-    val ms = dis.getSomeString(1, beFinfo)
-    assertTrue(ms.isDefined)
-    val s = ms.get
-    assertEquals(1, s.length)
-    assertEquals(16, dis.bitPos0b)
-    assertEquals('1', s(0))
+    val e = intercept[BitsCharsetDecoderUnalignedCharDecodeException] {
+      dis.getSomeString(1, beFinfo)
+    }
+    val msg = e.getMessage()
+    assertTrue(msg.toLowerCase.contains("not byte aligned"))
+    assertEquals(2, e.bitAlignment1b)
+    assertEquals(1, e.bytePos1b)
+    assertEquals(2, e.bitPos1b)
   }
 
-  @Test def testgetSomeString2(): Unit = {
+  @Test def testGetSomeString2(): Unit = {
     val dis = InputSourceDataInputStream("0年月日".getBytes("utf-8"))
     dis.getSignedLong(4, beFinfo)
-    val ms = dis.getSomeString(3, beFinfo)
-    assertTrue(ms.isDefined)
-    val s = ms.get
-    assertEquals(3, s.length)
-    assertEquals('年', s(0))
-    assertEquals('月', s(1))
-    assertEquals('日', s(2))
-    assertEquals(80, dis.bitPos0b)
+    val e = intercept[BitsCharsetDecoderUnalignedCharDecodeException] {
+      dis.getSomeString(3, beFinfo)
+    }
+    val msg = e.getMessage()
+    assertTrue(msg.toLowerCase.contains("not byte aligned"))
+    assertEquals(5, e.bitAlignment1b)
   }
 
   @Test def testGetSomeStringDataEndsMidByte(): Unit = {

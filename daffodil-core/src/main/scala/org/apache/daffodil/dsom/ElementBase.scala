@@ -545,10 +545,12 @@ trait ElementBase
   private lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType, impliedRepresentation)
 
   final lazy val alignmentValueInBits: JInt = {
-    //
-    // get the alignment, measured in bits based on the alignment property, units, and type (when applicable)
-    //
-    val alignInBits: JInt =
+    if (alignmentKindDefaulted == AlignmentKind.Manual) 1 // disable automatic alignment.
+    else {
+      //
+      // get the alignment, measured in bits based on the alignment property, units, and type (when applicable)
+      //
+      val alignInBits: JInt =
       alignment match {
         case AlignmentType.Implicit => {
           if (this.isComplexType) this.complexType.modelGroup.alignmentValueInBits
@@ -562,65 +564,66 @@ trait ElementBase
           alignInBits
         }
       }
-    //
-    // Do checking of interactions of alignment with the rest of the representation
-    //
-    if ((alignment ne AlignmentType.Implicit) && this.isSimpleType) {
       //
-      // For explicitly aligned simple types there are specific checks having to do with
-      // how explicit alignment interacts with text characters, or with binary packed decimal - as text chars
-      // and packed decimal digits come with alignment constraints of their own.
+      // Do checking of interactions of alignment with the rest of the representation
       //
-      impliedRepresentation match {
-        case Representation.Text => {
-          //
-          // If they have text representation, alignment and the text encoding alignment must be compared.
-          //
-          if (isRepresented && (alignInBits % implicitAlignmentInBits) != 0)
-            SDE(
-              "The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
-              alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
-        }
-        case Representation.Binary => {
-          //
-          // if they have binary representation we must worry about packed digits, which require 4-bit alignment.
-          //
-          primType match {
-            case PrimType.Float | PrimType.Double | PrimType.Boolean | PrimType.HexBinary => /* Non textual data, no need to compare alignment to encoding's expected alignment */
-            case _ => binaryNumberRep match {
-              case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
-                if ((alignInBits % 4) != 0)
-                  SDE(
-                    "The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
-                    alignInBits, primType.name)
+      if ((alignment ne AlignmentType.Implicit) && this.isSimpleType) {
+        //
+        // For explicitly aligned simple types there are specific checks having to do with
+        // how explicit alignment interacts with text characters, or with binary packed decimal - as text chars
+        // and packed decimal digits come with alignment constraints of their own.
+        //
+        impliedRepresentation match {
+          case Representation.Text => {
+            //
+            // If they have text representation, alignment and the text encoding alignment must be compared.
+            //
+            if (isRepresented && (alignInBits % implicitAlignmentInBits) != 0)
+              SDE(
+                "The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
+                alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
+          }
+          case Representation.Binary => {
+            //
+            // if they have binary representation we must worry about packed digits, which require 4-bit alignment.
+            //
+            primType match {
+              case PrimType.Float | PrimType.Double | PrimType.Boolean | PrimType.HexBinary => /* Non textual data, no need to compare alignment to encoding's expected alignment */
+              case _ => binaryNumberRep match {
+                case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
+                  if ((alignInBits % 4) != 0)
+                    SDE(
+                      "The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
+                      alignInBits, primType.name)
+                }
+                case _ => /* Since this is non-textual data, no need to compare alignment to encoding's expected alignment */
               }
-              case _ => /* Since this is non-textual data, no need to compare alignment to encoding's expected alignment */
             }
           }
         }
+      } // end if explicit alignment and simple type
+      //
+      // Now regardless of type, check for whether the initiator interacts badly with
+      // the alignment.
+      //
+      if (hasInitiator) {
+        // Check for case where explicit alignment property and
+        // mandatory text alignment of initiator
+        // are not compatible.
+        val textAlign = knownEncodingAlignmentInBits
+        // the explicit alignment must be a multiple of the textAlign
+        if (textAlign < alignInBits || textAlign % alignInBits != 0)
+          SDW(
+            WarnID.AlignmentAndInitiatorTextAlignmentNotCompatible,
+            "Initiator text may leave the element incorrectly aligned. The text encoding of initiator characters is %s bits, " +
+              "but the element alignment requires %s bits. Suggest consider whether both dfdl:initiator and dfdl:alignment should be specified for this element.",
+            textAlign, alignInBits)
       }
-    } // end if explicit alignment and simple type
-    //
-    // Now regardless of type, check for whether the initiator interacts badly with
-    // the alignment.
-    //
-    if (hasInitiator) {
-      // Check for case where explicit alignment property and
-      // mandatory text alignment of initiator
-      // are not compatible.
-      val textAlign = knownEncodingAlignmentInBits
-      // the explicit alignment must be a multiple of the textAlign
-      if (textAlign < alignInBits || textAlign % alignInBits != 0)
-        SDW(
-          WarnID.AlignmentAndInitiatorTextAlignmentNotCompatible,
-          "Initiator text may leave the element incorrectly aligned. The text encoding of initiator characters is %s bits, " +
-            "but the element alignment requires %s bits. Suggest consider whether both dfdl:initiator and dfdl:alignment should be specified for this element.",
-          textAlign, alignInBits)
+      //
+      // Having done the checks, just return the answer
+      //
+      alignInBits
     }
-    //
-    // Having done the checks, just return the answer
-    //
-    alignInBits
   }
 
   /**

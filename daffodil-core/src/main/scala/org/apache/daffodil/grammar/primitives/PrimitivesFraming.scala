@@ -31,6 +31,7 @@ import org.apache.daffodil.processors.unparsers.SkipRegionUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
 import org.apache.daffodil.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.dsom.TunableLimitExceededError
+import org.apache.daffodil.schema.annotation.props.gen.AlignmentKind
 
 abstract class SkipRegion(e: Term, skipLengthInBits: Int, propName: String) extends Terminal(e, skipLengthInBits > 0) {
 
@@ -72,7 +73,9 @@ case class MandatoryTextAlignment(
   forDelimiter: Boolean)
   extends Terminal(
     e,
-    if (forDelimiter)
+    if (e.alignmentKindDefaulted == AlignmentKind.Manual)
+      false // no MTA if alignmentKind is 'manual'
+    else if (forDelimiter)
       !e.isDelimiterKnownToBeTextAligned
     else
       !e.isKnownToBeTextAligned) {
