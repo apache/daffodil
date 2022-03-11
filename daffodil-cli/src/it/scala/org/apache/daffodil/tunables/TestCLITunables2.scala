@@ -22,6 +22,8 @@ import org.apache.daffodil.CLI.Util
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
 import org.apache.daffodil.Main.ExitCode
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 
 class TestCLITunables2 {
 
@@ -79,5 +81,53 @@ class TestCLITunables2 {
     } finally {
       shell.close()
     }
+  }
+
+  @Test def test_CLI_Parsing_ReloadingDoesNotRepeatWarnings(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/suppressWarnTest.dfdl.xsd")
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val compiledProcFile = Util.newTempFile("savedProc", ".bin")
+    compiledProcFile.deleteOnExit()
+    val compiledProcFilePath = compiledProcFile.getAbsolutePath()
+    //
+    do {
+      val shell = Util.start("")
+      try {
+        // note: 2>&1 is shell-speak for "connect stderr into stdout"
+        val cmd = String.format("""%s save-parser -s %s %s 2>&1""", Util.binPath, testSchemaFile, compiledProcFilePath)
+        shell.sendLine(cmd)
+        //
+        // Saving the processor should compile and issue SDWs which we should see
+        // in the expected output
+        //
+        shell.expect(contains("""Schema Definition Warning"""))
+        Util.expectExitCode(ExitCode.Success, shell)
+        shell.sendLine("exit")
+        shell.expect(eof)
+      } finally {
+        shell.close()
+      }
+    } while (false) // workaround scala local block bug.
+    do {
+      val shell = Util.start("")
+      try {
+        // note: 2>&1 is shell-speak for "connect stderr into stdout"
+        val cmd = String.format("""echo a,b| %s parse -P %s 2>&1""", Util.binPath, compiledProcFilePath)
+        shell.sendLine(cmd)
+        shell.sendLine("exit")
+        val output = shell.expect(eof).getBefore
+        //
+        // Let's make sure we get a parse result
+        //
+        assertTrue(output.contains("""<ex:e1 xmlns:ex="http://example.com">"""))
+        assertTrue(output.contains("""</ex:e1>"""))
+        //
+        // We should NOT see a SDW because that isn't displayed on a reload of a compiled processor
+        //
+        assertFalse(output.contains("Warning"))
+      } finally {
+        shell.close()
+      }
+    } while (false) // workaround scala local block bug
   }
 }
