@@ -560,7 +560,9 @@ object Main {
     try {
       val compiler = Compiler()
       val processor = Timer.getResult("reloading", compiler.reload(savedParser))
-      displayDiagnostics(processor)
+      // note that we do not display the diagnostics that were saved as part of the
+      // saved processor. Those are from compile time, are all warnings, and
+      // are just noise in a production system where we're reloading a parser.
       if (!processor.isError) {
         Some(processor.withValidationMode(mode))
       } else {
