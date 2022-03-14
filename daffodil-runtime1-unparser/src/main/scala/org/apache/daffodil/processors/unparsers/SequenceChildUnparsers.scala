@@ -16,12 +16,12 @@
  */
 package org.apache.daffodil.processors.unparsers
 
-import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.parsers.{EndArrayChecksMixin, MinMaxRepeatsMixin}
+import org.apache.daffodil.processors.parsers.EndArrayChecksMixin
+import org.apache.daffodil.processors.parsers.MinMaxRepeatsMixin
 import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
 
 /**
@@ -107,7 +107,7 @@ abstract class RepeatingChildUnparser(
 
     val actualOccurs = state.arrayPos
 
-    Assert.invariant(state.processorStatus eq Success)
+    // State could be Success or Failure here.
 
     endArray(state, actualOccurs)
   }

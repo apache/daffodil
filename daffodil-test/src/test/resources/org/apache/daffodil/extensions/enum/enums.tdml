@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite
+  xmlns:ex="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:tns="http://example.com"
+  defaultRoundTrip="onePass"
+  defaultValidation="on">
+
+  <tdml:defineSchema
+    name="s1"
+    useDefaultNamespace="false"
+    elementFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema">
+
+    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <element name="r1">
+      <complexType>
+        <sequence>
+          <element name="e1" type="ex:enum1" minOccurs="0"/>
+        </sequence>
+      </complexType>
+    </element>
+
+    <simpleType name="myByte" dfdl:lengthKind="explicit" dfdl:length="1">
+      <restriction base="xs:byte"/>
+    </simpleType>
+
+    <simpleType name="enum1" dfdlx:repType="ex:myByte">
+      <restriction base="xs:string">
+        <enumeration value="validA" dfdlx:repValues="0"/>
+        <enumeration value="validB" dfdlx:repValues="1"/>
+        <enumeration value="invalidC" dfdlx:repValues="2"/>
+        <!--
+        pattern insures that while all enums are well-formed,
+        only ones beginning with "valid" prefix are XSD valid.
+        -->
+        <pattern value="valid.*"/>
+      </restriction>
+    </simpleType>
+
+  </tdml:defineSchema>
+
+  <parserTestCase name="enumValid1" model="s1" root="r1">
+    <document>
+      <documentPart type="byte">01</documentPart>
+    </document>
+    <infoset>
+      <tdml:dfdlInfoset xmlns="">
+        <ex:r1>
+          <e1>validB</e1>
+        </ex:r1>
+      </tdml:dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="enumInvalid1" model="s1" root="r1">
+    <document>
+      <documentPart type="byte">02</documentPart>
+    </document>
+    <infoset>
+      <tdml:dfdlInfoset xmlns="">
+        <ex:r1>
+          <e1>invalidC</e1><!-- well formed, but invalid -->
+        </ex:r1>
+      </tdml:dfdlInfoset>
+    </infoset>
+    <validationErrors>
+      <error>invalidC</error>
+    </validationErrors>
+  </parserTestCase>
+
+
+
+  <unparserTestCase name="enumMiss1" model="s1" root="r1">
+    <infoset>
+      <tdml:dfdlInfoset xmlns="">
+        <ex:r1>
+          <e1>notOneOfTheEnumStrings</e1>
+        </ex:r1>
+      </tdml:dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>notOneOfTheEnumStrings</error>
+    </errors>
+  </unparserTestCase>
+
+</testSuite>
