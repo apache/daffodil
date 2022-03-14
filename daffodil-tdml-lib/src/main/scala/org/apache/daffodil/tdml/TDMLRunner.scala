@@ -694,15 +694,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     roundTrip: RoundTrip,
     implString: Option[String]): Unit
 
-  // Provide ability to override existing (default) tunables
-  private def retrieveTunablesCombined(existingTunables: Map[String, String], cfg: DefinedConfig) = {
-    // Note, ++ on Maps replaces any key/value pair from the left with that on the
-    // right, so key/value pairs defined in tunables overrule those defiend in
-    // the config file
-    val combined = existingTunables ++ cfg.tunablesMap
-    combined
-  }
-
   lazy val optEmbeddedSchema = parent.findEmbeddedSchema(model).map { defSchema =>
     defSchema.schemaSource
   }
