@@ -27,6 +27,9 @@ import org.junit.Assert.assertTrue
 
 class TestCLITunables2 {
 
+  val stdout = 0
+  val stderr = 1
+
   /**
    * Suppresses SDW messages.
    */
@@ -90,44 +93,53 @@ class TestCLITunables2 {
     compiledProcFile.deleteOnExit()
     val compiledProcFilePath = compiledProcFile.getAbsolutePath()
     //
-    do {
+    // Scala compiler was having trouble with local blocks to provide
+    // separate scopes that have their own val shell = ....
+    //
+    // So I split this into two little local functions each of which knows
+    // about the same compiledProcFilePath.
+    //
+    def saveIt(): Unit = {
       val shell = Util.start("")
       try {
-        // note: 2>&1 is shell-speak for "connect stderr into stdout"
-        val cmd = String.format("""%s save-parser -s %s %s 2>&1""", Util.binPath, testSchemaFile, compiledProcFilePath)
+        val cmd = String.format("""%s save-parser -s %s %s """, Util.binPath, testSchemaFile, compiledProcFilePath)
         shell.sendLine(cmd)
         //
         // Saving the processor should compile and issue SDWs which we should see
         // in the expected output
         //
-        shell.expect(contains("""Schema Definition Warning"""))
+        shell.expectIn(stderr, contains("""Schema Definition Warning"""))
         Util.expectExitCode(ExitCode.Success, shell)
         shell.sendLine("exit")
-        shell.expect(eof)
+        shell.expectIn(stdout, eof)
       } finally {
         shell.close()
       }
-    } while (false) // workaround scala local block bug.
-    do {
-      val shell = Util.start("")
-      try {
-        // note: 2>&1 is shell-speak for "connect stderr into stdout"
-        val cmd = String.format("""echo a,b| %s parse -P %s 2>&1""", Util.binPath, compiledProcFilePath)
-        shell.sendLine(cmd)
-        shell.sendLine("exit")
-        val output = shell.expect(eof).getBefore
-        //
-        // Let's make sure we get a parse result
-        //
-        assertTrue(output.contains("""<ex:e1 xmlns:ex="http://example.com">"""))
-        assertTrue(output.contains("""</ex:e1>"""))
-        //
-        // We should NOT see a SDW because that isn't displayed on a reload of a compiled processor
-        //
-        assertFalse(output.contains("Warning"))
-      } finally {
-        shell.close()
+    }
+    def reloadIt(): Unit = {
+        val shell = Util.start("")
+        try {
+          val cmd = String.format("""echo a,b| %s parse -P %s """, Util.binPath, compiledProcFilePath)
+          shell.sendLine(cmd)
+          shell.sendLine("exit")
+          val output = shell.expectIn(stdout, eof).getBefore
+          val errout = shell.expectIn(stderr, eof).getBefore
+          //
+          // Let's make sure we get a parse result
+          //
+          assertTrue(output.contains("""<ex:e1 xmlns:ex="http://example.com">"""))
+          assertTrue(output.contains("""</ex:e1>"""))
+          //
+          // We should NOT see a SDW because that isn't displayed on a reload of a compiled processor
+          //
+          assertFalse(errout.contains("Warning"))
+          assertFalse(output.contains("Warning")) // in case it is somehow routed to stdout instead.
+        } finally {
+          shell.close()
+        }
       }
-    } while (false) // workaround scala local block bug
+
+    saveIt()
+    reloadIt()
   }
 }
