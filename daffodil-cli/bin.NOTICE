@@ -11,95 +11,7 @@ Based on source code originally developed by
 
 The following NOTICE information applies to binary components distributed with this project:
 
-Apache Commons IO (lib/commons-io.commons-io-<VERSION>.jar)
-  Apache Commons IO
-  Copyright 2002-2021 The Apache Software Foundation
-
-  This product includes software developed at
-  The Apache Software Foundation (https://www.apache.org/).
-
-Apache Log4j (lib/org.apache.logging.log4j.log4j-api-<VERSION>.jar, org.apache.logging.log4j.log4j-core-<VERSION>.jar)
-  Apache Log4j
-  Copyright 1999-2019 Apache Software Foundation
-
-  This product includes software developed at
-  The Apache Software Foundation (http://www.apache.org/).
-
-  ResolverUtil.java
-  Copyright 2005-2006 Tim Fennell
-
-  Dumbster SMTP test server
-  Copyright 2004 Jason Paul Kitchen
-
-  TypeUtil.java
-  Copyright 2002-2012 Ramnivas Laddad, Juergen Hoeller, Chris Beams
-
-  picocli (http://picocli.info)
-  Copyright 2017 Remko Popma
-
-Apache Log4j Scala API (lib/org.apache.logging.log4j.log4j-api-scala_<VERSION>.jar)
-  Copyright 2016-2018 Apache Software Foundation
-
-  This product includes software developed at
-  The Apache Software Foundation (http://www.apache.org/).
-
-  AsciidocPlugin.scala
-  Copyright (c) 2008, 2009, 2010, 2011 Josh Suereth, Steven Blundy, Josh Cough,
-  Mark Harrah, Stuart Roebuck, Tony Sloane, Vesa Vilhonen, Jason Zaugg
-
-Apache Xerces Java (lib/xerces.xercesImpl-<VERSION>.jar)
-  Apache Xerces Java
-  Copyright 1999-2022 The Apache Software Foundation
-
-  This product includes software developed at
-  The Apache Software Foundation (http://www.apache.org/).
-
-  Portions of this software were originally based on the following:
-    - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
-    - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
-    - voluntary contributions made by Paul Eng on behalf of the 
-      Apache Software Foundation that were originally developed at iClick, Inc.,
-      software copyright (c) 1999.
-
-Apache XML Commons Resolver (lib/xml-resolver.xml-resolver-<VERSION>.jar)
-  Apache XML Commons Resolver
-  Copyright 2006 The Apache Software Foundation.
-
-  This product includes software developed at
-  The Apache Software Foundation http://www.apache.org/
-
-  Portions of this code are derived from classes placed in the
-  public domain by Arbortext on 10 Apr 2000. See:
-  http://www.arbortext.com/customer_support/updates_and_technical_notes/catalogs/docs/README.htm
-
-Apache XML Commons XML APIs (lib/xml-apis.xml-apis-<VERSION>.jar)
-  Apache XML Commons XML APIs
-  Copyright 1999-2009 The Apache Software Foundation.
-
-  This product includes software developed at
-  The Apache Software Foundation (http://www.apache.org/).
-
-  Portions of this software were originally based on the following:
-    - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
-    - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
-    - software copyright (c) 2000 World Wide Web Consortium, http://www.w3.org
-
-JDOM2 (lib/org.jdom.jdom2-<VERSION>.jar)
-  Copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin.
-
-  All rights reserved.
-
-  This product includes software developed by the
-  JDOM Project (http://www.jdom.org/).
-
-Jansi (lib/org.fusesource.jansi.jansi-<VERSION>.jar)
-  Copyright (C) 2009, Progress Software Corporation and/or its
-  subsidiaries or affiliates.  All rights reserved.
-
-Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-<VERSION>.jar)
-  Copyright (c) 2007- Tatu Saloranta, tatu.saloranta@iki.fi
-  Copyright (c) 2008-2020 FasterXML. All rights reserved.
-
+- lib/com.fasterxml.jackson.core.jackson-core-<VERSION>.jar
   # Jackson JSON processor
 
   Jackson is a high-performance, Free/Open Source JSON processing library.
@@ -118,11 +30,87 @@ Jackson JSON processor (lib/com.fasterxml.jackson.core.jackson-core-<VERSION>.ja
   in some artifacts (usually source distributions); but is always available
   from the source code management (SCM) system project uses.
 
-Scala (lib/org.scala-lang.scala-library-<VERSION>.jar)
-      (org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar)
+- lib/commons-codec.commons-codec-<VERSION>.jar
+  Apache Commons Codec
+  Copyright 2002-2017 The Apache Software Foundation
+
+  src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java
+  contains test data from http://aspell.net/test/orig/batch0.tab.
+  Copyright (C) 2002 Kevin Atkinson (kevina@gnu.org)
+
+  ===============================================================================
+
+  The content of package org.apache.commons.codec.language.bm has been translated
+  from the original php source code available at http://stevemorse.org/phoneticinfo.htm
+  with permission from the original authors.
+  Original source copyright:
+  Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
+
+- lib/commons-io.commons-io-<VERSION>.jar
+  Apache Commons IO
+  Copyright 2002-2021 The Apache Software Foundation
+
+- lib/commons-logging.commons-logging-<VERSION>.jar
+  Apache Commons Logging
+  Copyright 2003-2014 The Apache Software Foundation
+
+- lib/org.apache.httpcomponents.httpclient-<VERSION>.jar
+  Apache HttpClient
+  Copyright 1999-2020 The Apache Software Foundation
+
+- lib/org.apache.httpcomponents.httpcore-<VERSION>.jar
+  Apache HttpCore
+  Copyright 2005-2020 The Apache Software Foundation
+
+- lib/org.apache.logging.log4j.log4j-api-<VERSION>.jar
+  Apache Log4j API
+  Copyright 1999-2022 The Apache Software Foundation
+
+- lib/org.apache.logging.log4j.log4j-api-scala_<VERSION>.jar
+  Apache Log4j Scala API
+  Copyright 2016-2022 Apache Software Foundation
+
+  AsciidocPlugin.scala
+  Copyright (c) 2008, 2009, 2010, 2011 Josh Suereth, Steven Blundy, Josh Cough,
+  Mark Harrah, Stuart Roebuck, Tony Sloane, Vesa Vilhonen, Jason Zaugg
+
+- lib/org.apache.logging.log4j.log4j-core-<VERSION>.jar
+  Apache Log4j Core
+  Copyright 1999-2012 Apache Software Foundation
+
+  ResolverUtil.java
+  Copyright 2005-2006 Tim Fennell
+
+- lib/org.jdom.jdom2-<VERSION>.jar
+  Copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin.
+  All rights reserved.
+
+  This product includes software developed by the
+  JDOM Project (http://www.jdom.org/).
+
+- lib/org.scala-lang.modules.scala-parser-combinators_<VERSION>.jar
+  Scala parser combinators
+  Copyright (c) 2002-2022 EPFL
+  Copyright (c) 2011-2022 Lightbend, Inc.
+
+  Scala includes software developed at
+  LAMP/EPFL (https://lamp.epfl.ch/) and
+  Lightbend, Inc. (https://www.lightbend.com/).
+
+- lib/org.scala-lang.modules.scala-xml_<VERSION>.jar
+  scala-xml
+  Copyright (c) 2002-2022 EPFL
+  Copyright (c) 2011-2022 Lightbend, Inc.
+
+  scala-xml includes software developed at
+  LAMP/EPFL (https://lamp.epfl.ch/) and
+  Lightbend, Inc. (https://www.lightbend.com/).
+
+- lib/org.scala-lang.scala-library-<VERSION>.jar
+- org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
   Scala
-  Copyright (c) 2002-2020 EPFL
-  Copyright (c) 2011-2020 Lightbend, Inc.
+  Copyright (c) 2002-2021 EPFL
+  Copyright (c) 2011-2021 Lightbend, Inc.
 
   Scala includes software developed at
   LAMP/EPFL (https://lamp.epfl.ch/) and
@@ -133,8 +121,8 @@ Scala (lib/org.scala-lang.scala-library-<VERSION>.jar)
   and can be found in:
     daffodil-lib/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala
 
-Scala Parser Combinators (lib/org.scala-lang.modules.scala-parser-combinators_<VERSION>.jar)
-  Scala parser combinators
+- lib/org.scala-lang.scala-reflect-<REFLECT>.jar
+  Scala
   Copyright (c) 2002-2021 EPFL
   Copyright (c) 2011-2021 Lightbend, Inc.
 
@@ -142,20 +130,30 @@ Scala Parser Combinators (lib/org.scala-lang.modules.scala-parser-combinators_<V
   LAMP/EPFL (https://lamp.epfl.ch/) and
   Lightbend, Inc. (https://www.lightbend.com/).
 
-Scala XML (lib/org.scala-lang.modules.scala-xml_<VERSION>.jar)
-  scala-xml
-  Copyright (c) 2002-2020 EPFL
-  Copyright (c) 2011-2020 Lightbend, Inc.
+- lib/xerces.xercesImpl-<VERSION>.jar
+  Apache Xerces Java
+  Copyright 1999-2022 The Apache Software Foundation
 
-  scala-xml includes software developed at
-  LAMP/EPFL (https://lamp.epfl.ch/) and
-  Lightbend, Inc. (https://www.lightbend.com/).
+  Portions of this software were originally based on the following:
+    - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
+    - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
+    - voluntary contributions made by Paul Eng on behalf of the 
+      Apache Software Foundation that were originally developed at iClick, Inc.,
+      software copyright (c) 1999.
 
-XML Resolver (lib/org.xmlresolver.xmlresolver-<VERSION>-data.jar, lib/org.xmlresolver.xmlresolver-<VERSION>.jar)
-  xmlresolver
-  Copyright 2015 Norman Walsh and contributors.
-  <http://nwalsh.com/>
+- lib/xml-apis.xml-apis-<VERSION>.jar
+  Apache XML Commons XML APIs
+  Copyright 1999-2009 The Apache Software Foundation.
 
-  xmlresolver includes software developed by the
-  XML Resolver Project (https://github.com/xmlresolver
-  and https://xmlresolver.org/).
+  Portions of this software were originally based on the following:
+    - software copyright (c) 1999, IBM Corporation., http://www.ibm.com.
+    - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
+    - software copyright (c) 2000 World Wide Web Consortium, http://www.w3.org
+
+- lib/xml-resolver.xml-resolver-<VERSION>.jar
+  Apache XML Commons Resolver
+  Copyright 2006 The Apache Software Foundation.
+
+  Portions of this code are derived from classes placed in the
+  public domain by Arbortext on 10 Apr 2000. See:
+  http://www.arbortext.com/customer_support/updates_and_technical_notes/catalogs/docs/README.htm

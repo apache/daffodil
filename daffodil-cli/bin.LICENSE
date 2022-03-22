@@ -208,8 +208,8 @@ The Apache Daffodil project contains subcomponents with separate copyright
 notices and license terms. Your use of the source code for these subcomponents
 is subject to the terms and conditions of the following licenses.
 
-  This product bundles 'ICU4J', including the following files:
-    - lib/com.ibm.icu.icu4j-<VERSION>.jar
+- lib/com.ibm.icu.icu4j-<VERSION>.jar
+  This product bundles 'ICU4J' with the above files.
   These files are available under the Unicode License. For details, see
   https://github.com/unicode-org/icu/blob/release-<VERSION>/icu4c/LICENSE
 
@@ -628,8 +628,8 @@ is subject to the terms and conditions of the following licenses.
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  This product bundles 'JDOM2', including the following files:
-    - lib/org.jdom.jdom2-<VERSION>.jar
+- lib/org.jdom.jdom2-<VERSION>.jar
+  This product bundles 'JDOM2' with the above files.
   These files are available under an Apache style License:
 
     Redistribution and use in source and binary forms, with or without
@@ -681,8 +681,8 @@ is subject to the terms and conditions of the following licenses.
     Brett McLaughlin <brett_AT_jdom_DOT_org>.  For more information
     on the JDOM Project, please see <http://www.jdom.org/>. 
 
-  This product bundles 'JLine', including the following files:
-    - lib/org.jline.jline-<VERSION>.jar
+- lib/org.jline.jline-<VERSION>.jar
+  This product bundles 'JLine' with the above files.
   These files are available under a BSD-3-Clause license. For details, see
   https://github.com/jline/jline3/blob/HEAD/LICENSE.txt
 
@@ -721,8 +721,8 @@ is subject to the terms and conditions of the following licenses.
     IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
     OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  This product bundles 'Passera' compiled source, including the following files:
-    - passera/ directory in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
+- passera/ directory in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
+  This product bundles 'Passera' compiled source with the above files.
   These files are available under the BSD-2-Clause license:
 
     Copyright (c) 2011-2013, Nate Nystrom
@@ -749,8 +749,8 @@ is subject to the terms and conditions of the following licenses.
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  This product bundles 'Saxon-HE (Home Edition)', including the following files:
-    - lib/net.sf.saxon.Saxon-HE-<VERSION>.jar
+- lib/net.sf.saxon.Saxon-HE-<VERSION>.jar
+  This product bundles 'Saxon-HE (Home Edition)' with the above files.
   These files are available under the MPL 2.0 license:
 
     Most of the open source code in the Saxon product is governed by the Mozilla Public
@@ -1170,8 +1170,8 @@ is subject to the terms and conditions of the following licenses.
       from James Clark.
 
 
-  This product bundles 'Scallop', including the following files:
-    - lib/org.rogach.scallop_<VERSION>.jar
+- lib/org.rogach.scallop_<VERSION>.jar
+  This product bundles 'Scallop' with the above files.
   These files are available under under an MIT License. For details, see
   https://github.com/scallop/scallop/blob/develop/license.txt
 
@@ -1195,9 +1195,9 @@ is subject to the terms and conditions of the following licenses.
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-  This product bundles 'Schematron' converter content, including the following files:
-    - iso-schematron-xslt2/ExtractSchFromXSD-2.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-  The content is available under the MIT License:
+- iso-schematron-xslt2/ExtractSchFromXSD-2.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
+  This product bundles 'Schematron' converter content with the above files.
+  These files are available under the MIT License:
 
     Copyright (c) 2002-2010 Rick Jelliffe and Topologi Pty. Ltd.
 
@@ -1219,14 +1219,14 @@ is subject to the terms and conditions of the following licenses.
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
 
-  This product bundles 'Schematron' skeleton XSLT implementation, including the following files:
-    - iso-schematron-xslt2/iso_abstract_expand.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-    - iso-schematron-xslt2/iso_dsdl_include.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-    - iso-schematron-xslt2/iso_schematron_message_xslt2.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-    - iso-schematron-xslt2/iso_schematron_skeleton_for_saxon.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-    - iso-schematron-xslt2/iso_svrl_for_xslt2.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-    - iso-schematron-xslt2/sch-messages-en.xhtml in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-  The content is available under the MIT License:
+- iso-schematron-xslt2/iso_abstract_expand.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
+- iso-schematron-xslt2/iso_dsdl_include.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
+- iso-schematron-xslt2/iso_schematron_message_xslt2.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
+- iso-schematron-xslt2/iso_schematron_skeleton_for_saxon.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
+- iso-schematron-xslt2/iso_svrl_for_xslt2.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
+- iso-schematron-xslt2/sch-messages-en.xhtml in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
+  This product bundles 'Schematron' skeleton XSLT implementation with the above files.
+  These files are available under the MIT License:
 
     Copyright (c) 2004-2010 Rick Jellife and Academia Sinica Computing Centre, Taiwan
 
@@ -1248,8 +1248,8 @@ is subject to the terms and conditions of the following licenses.
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 
-  This product bundles 'Stax 2 API', including the following files:
-    - lib/org.codehaus.woodstox.stax2-api-<VERSION>.jar
+- lib/org.codehaus.woodstox.stax2-api-<VERSION>.jar
+  This product bundles 'Stax 2 API' with the above files.
   These files are available under the BSD-2-Clause license:
 
     Copyright 2010- FasterXML.com
@@ -1275,12 +1275,13 @@ is subject to the terms and conditions of the following licenses.
     OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-  This product bundles 'W3C' copied or derived material, including the following files:
-    - org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-    - org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-    - org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-    - org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-    - org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
+- org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
+- org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
+- org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
+- org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
+- org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
+- W3C schemas and documents in lib/org.xmlresolver.xmlresolver-<VERSION>-data.jar
+  This product bundles 'W3C' copied or derived material with the above files.
   These files are available under the W3C Software and Document License:
 
     By obtaining and/or copying this work, you (the licensee) agree that you have
@@ -1319,9 +1320,9 @@ is subject to the terms and conditions of the following licenses.
     permission. Title to copyright in this work will at all times remain with
     copyright holders.
 
-  This product bundles 'os-lib', including the following files:
-    - lib/com.lihaoyi.geny_<VERSION>.jar
-    - lib/com.lihaoyi.os-lib_<VERSION>.jar
+- lib/com.lihaoyi.geny_<VERSION>.jar
+- lib/com.lihaoyi.os-lib_<VERSION>.jar
+  This product bundles 'os-lib' with the above files.
   These files are available under the MIT license:
 
     License
