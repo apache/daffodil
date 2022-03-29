@@ -609,7 +609,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   lazy val optExpectedLogs: Option[ExpectedLogs] = (testCaseXML \ "logs").headOption.map { node => ExpectedLogs(node, this) }
   lazy val optExpectedValidationErrors: Option[ExpectedValidationErrors] = (testCaseXML \ "validationErrors").headOption.map { node => ExpectedValidationErrors(node, this) }
 
-  if(LogManager.getRootLogger().asInstanceOf[log4jLogger].getAppenders().get("org.apache.tdml")==null){
+  if(LogManager.getRootLogger().asInstanceOf[log4jLogger].getAppenders().get("org.apache.tdml")==null && optExpectedLogs.isDefined){
     val tdmlAppender = TDMLAppender.createAppender
     val loggers = LogManager.getRootLogger().asInstanceOf[log4jLogger]
     loggers.addAppender(tdmlAppender)
