@@ -22,8 +22,6 @@ import org.junit.AfterClass
 import org.apache.daffodil.Implicits._
 import org.junit.Assert.fail
 
-import org.apache.logging.log4j.LogManager
-
 object TestTDMLRunnerLogs {
   val runner = Runner("/test/tdml/", "testLogs.tdml")
 
