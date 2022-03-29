@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite suiteName="tdml logs"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  <tdml:defineSchema name="causesLogs" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"/>
+    <xs:element name="output">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="hidden_message" />
+          <xs:element name="message" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:inputValueCalc="{
+					if (dfdlx:trace(../Hidden_Value eq '0', 'value')) then 'hello'
+					else fn:error('Unrecognized value')}" dfdl:terminator="" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:group name="hidden_message">
+      <xs:sequence>
+        <xs:element name="Hidden_Value" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:outputValueCalc="{
+				if (dfdlx:trace(../message eq 'hello', 'value')) then '0'
+				else fn:error('Unrecognized value')}" />
+      </xs:sequence>
+    </xs:group>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="causesLogs2" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"/>
+    <xs:element name="output">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="hidden_message" />
+          <xs:element name="message" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:inputValueCalc="{
+					if (dfdlx:trace(../Hidden_Value eq '0', 'value')) then 'hello'
+					else fn:error('Unrecognized value')}" dfdl:terminator="" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:group name="hidden_message">
+      <xs:sequence>
+        <xs:element name="Hidden_Value" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:outputValueCalc="{
+				if (dfdlx:trace(../message eq 'hello', 'value')) then '0'
+				else fn:error('Unrecognized value')}" />
+      </xs:sequence>
+    </xs:group>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="causesWarningsAndLogs" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" occursCountKind="implicit"/>
+    <xs:element name="output" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="hidden_message" />
+          <xs:element name="message" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:inputValueCalc="{
+					if (dfdlx:trace(../Hidden_Value eq '0', 'value')) then 'hello'
+					else fn:error('Unrecognized value')}" dfdl:terminator="" />
+          <xs:element name="AmbgElt" type="xs:string" dfdl:length='1' />
+          <xs:element name="B" type="xs:string" dfdl:length="1" />
+          <xs:element name="AmbgElt" type="xs:string" dfdl:length="1" minOccurs="0"/>
+          <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:assert>{ ./AmbgElt eq '1' }</dfdl:assert>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:group name="hidden_message">
+      <xs:sequence>
+        <xs:element name="Hidden_Value" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:outputValueCalc="{
+				if (dfdlx:trace(../message eq 'hello', 'value')) then '0'
+				else fn:error('Unrecognized value')}" />
+      </xs:sequence>
+    </xs:group>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="logWhenExpectingSuccess" root="output" model="causesLogs">
+    <tdml:document><![CDATA[0]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:output>
+          <message>hello</message>
+        </ex:output>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:logs>
+      <tdml:log>dfdlx:trace</tdml:log>
+    </tdml:logs>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="logWhenExpectingError" root="output" model="causesLogs">
+    <tdml:document><![CDATA[00]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+    <tdml:logs>
+      <tdml:log>dfdlx:trace</tdml:log>
+    </tdml:logs>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="logWhenExpectingWarning" root="output" model="causesWarningsAndLogs">
+    <tdml:document><![CDATA[013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:output>
+          <message>hello</message>
+          <AmbgElt>1</AmbgElt>
+          <B>3</B>
+        </ex:output>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema definition warning</tdml:warning>
+    </tdml:warnings>
+    <tdml:logs>
+      <tdml:log>dfdlx:trace</tdml:log>
+    </tdml:logs>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparserLogWhenExpectingSuccess" root="output" model="causesLogs">
+    <tdml:document><![CDATA[0]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:output>
+          <message>hello</message>
+        </ex:output>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:logs>
+      <tdml:log>dfdlx:trace</tdml:log>
+    </tdml:logs>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparserLogWhenExpectingError" root="output" model="causesLogs">
+    <tdml:document><![CDATA[00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:output>
+          <message>hello</message>
+        </ex:output>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>output data length</tdml:error>
+    </tdml:errors>
+    <tdml:logs>
+      <tdml:log>dfdlx:trace</tdml:log>
+    </tdml:logs>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparserLogWhenExpectingWarning" root="output" model="causesWarningsAndLogs">
+    <tdml:document><![CDATA[013]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:output>
+          <message>hello</message>
+          <AmbgElt>1</AmbgElt>
+          <B>3</B>
+        </ex:output>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema definition warning</tdml:warning>
+    </tdml:warnings>
+    <tdml:logs>
+      <tdml:log>dfdlx:trace</tdml:log>
+    </tdml:logs>
+  </tdml:unparserTestCase>
+</tdml:testSuite>

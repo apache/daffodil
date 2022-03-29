@@ -91,6 +91,8 @@ object Runner {
    */
   def defaultShouldDoWarningComparisonOnCrossTests = false
 
+  def defaultShouldDoLogComparisonCrossTests = false
+
 }
 
 /**

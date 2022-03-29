@@ -167,6 +167,7 @@
       <element ref="tns:infoset"/>
       <element ref="tns:errors"/>
       <element ref="tns:warnings" minOccurs='0'/>
+      <element ref="tns:logs" minOccurs='0'/>
       <element ref="tns:validationErrors" minOccurs="0"/>
     </choice>
     <attributeGroup ref="tns:testCaseAttribs"/>
@@ -336,7 +337,7 @@
   <complexType name="logsType">
     <sequence>
       <element ref="tns:log" maxOccurs="unbounded" minOccurs="0"/>
-                        <!-- use <warnings/> to indicate no warnings should occur. -->
+                        <!-- use <logs/> to indicate no logs should occur. -->
     </sequence>
     <attributeGroup ref="tns:errorWarnAttribs"/>
   </complexType>
@@ -373,6 +374,7 @@
       <element ref="tns:document"/> <!-- must have either document, or errors, or both -->
       <element ref="tns:errors"/>
       <element ref="tns:warnings"/>
+      <element ref="tns:logs"/>
     </choice>
     <attributeGroup ref="tns:testCaseAttribs"/>
   </complexType>

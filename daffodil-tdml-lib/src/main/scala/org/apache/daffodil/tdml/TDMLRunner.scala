@@ -76,7 +76,10 @@ import org.apache.daffodil.util.Misc.hex2Bits
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.apache.daffodil.xml.XMLUtils
-
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.{Logger => log4jLogger}
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.core.config.Configurator
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
  */
@@ -194,13 +197,15 @@ class DFDLTestSuite private[tdml] (
     defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
     defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
     shouldDoErrorComparisonOnCrossTests: Boolean = Runner.defaultShouldDoErrorComparisonOnCrossTests,
-    shouldDoWarningComparisonOnCrossTests: Boolean = Runner.defaultShouldDoWarningComparisonOnCrossTests) =
+    shouldDoWarningComparisonOnCrossTests: Boolean = Runner.defaultShouldDoWarningComparisonOnCrossTests,
+    shouldDoLogComparisonOnCrossTests: Boolean = Runner.defaultShouldDoLogComparisonCrossTests) =
     this(null, aNodeFileOrURL, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
       defaultRoundTripDefault,
       defaultValidationDefault,
       defaultImplementationsDefault,
       shouldDoErrorComparisonOnCrossTests,
-      shouldDoWarningComparisonOnCrossTests)
+      shouldDoWarningComparisonOnCrossTests,
+      shouldDoLogComparisonOnCrossTests)
 
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
 
@@ -540,6 +545,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
    * that wasn't done when this code was updated to call the processor.withXYZ methods which return a
    * new processor.
    */
+
   protected final var processor: TDMLDFDLProcessor = null
 
   lazy val defaultRoundTrip: RoundTrip = parent.defaultRoundTrip
@@ -600,8 +606,16 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   lazy val optExpectedOrInputInfoset = (testCaseXML \ "infoset").headOption.map { node => new Infoset(node, this) }
   lazy val optExpectedErrors: Option[ExpectedErrors] = (testCaseXML \ "errors").headOption.map { node => ExpectedErrors(node, this) }
   lazy val optExpectedWarnings: Option[ExpectedWarnings] = (testCaseXML \ "warnings").headOption.map { node => ExpectedWarnings(node, this) }
-  lazy val optExpectedLogs: Option[ExpectedLogs] = (testCaseXML \ "loggers").headOption.map { node => ExpectedLogs(node, this) }
+  lazy val optExpectedLogs: Option[ExpectedLogs] = (testCaseXML \ "logs").headOption.map { node => ExpectedLogs(node, this) }
   lazy val optExpectedValidationErrors: Option[ExpectedValidationErrors] = (testCaseXML \ "validationErrors").headOption.map { node => ExpectedValidationErrors(node, this) }
+
+  if(LogManager.getRootLogger().asInstanceOf[log4jLogger].getAppenders().get("org.apache.tdml")==null){
+    val tdmlAppender = TDMLAppender.createAppender
+    val loggers = LogManager.getRootLogger().asInstanceOf[log4jLogger]
+    loggers.addAppender(tdmlAppender)
+    tdmlAppender.start()
+    Configurator.setLevel("org.apache.daffodil", Level.INFO)
+  }
 
   val tcName = (testCaseXML \ "@name").text
   lazy val tcID = (testCaseXML \ "@ID").text
@@ -874,6 +888,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         implString)
 
     }
+
+    TDMLAppender.clearDiagnostics()
   }
 
   protected def checkDiagnosticMessages(
@@ -883,7 +899,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     optLogs: Option[ExpectedLogs],
     implString: Option[String]): Unit = {
     Assert.usage(this.isNegativeTest)
-
+    
     // check for any test-specified errors, warnings, or logs
     if (!isCrossTest(implString.get) ||
       parent.shouldDoErrorComparisonOnCrossTests)
@@ -895,7 +911,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
 
     if (!isCrossTest(implString.get) ||
       parent.shouldDoLogComparisonOnCrossTests)
-      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optLogs, implString)
+      VerifyTestCase.verifyAllDiagnosticsFound(TDMLAppender.getDiagnostics(), optLogs, implString)
   }
 }
 
@@ -934,7 +950,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       case (None, Some(errors)) => {
         compileResult.left.foreach { diags =>
-          checkDiagnosticMessages(diags, errors, optExpectedWarnings, implString)
+          checkDiagnosticMessages(diags, errors, optExpectedWarnings, optExpectedLogs, implString)
         }
         compileResult.right.foreach {
           case (_, proc) => {
@@ -951,6 +967,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
     }
+
   }
 
   def runParseExpectErrors(
@@ -1016,6 +1033,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
 
     checkDiagnosticMessages(diagnostics, errors, optWarnings, optLogs, implString)
+
   }
 
   /**
@@ -1093,6 +1111,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     if (!isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests)
       VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optExpectedWarnings, implString)
+
+    if (!isCrossTest(implString.get) ||
+      parent.shouldDoLogComparisonOnCrossTests)
+      VerifyTestCase.verifyAllDiagnosticsFound(TDMLAppender.getDiagnostics(), optExpectedLogs, implString)
   }
 
   /**
@@ -1332,7 +1354,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         secondParseResult.cleanUp()
       }
     }
-
   }
 }
 
@@ -1373,7 +1394,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult.right.foreach {
           case (_, proc) => {
             processor = proc
-            runUnparserExpectErrors(optExpectedData, errors, optWarnings, implString)
+            runUnparserExpectErrors(optExpectedData, errors, optWarnings, optLogs, implString)
           }
         }
       }
@@ -1431,6 +1452,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       parent.shouldDoWarningComparisonOnCrossTests)
       VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optWarnings, implString)
 
+    if (!isCrossTest(implString.get) ||
+      parent.shouldDoLogComparisonOnCrossTests)
+      VerifyTestCase.verifyAllDiagnosticsFound(TDMLAppender.getDiagnostics(), optExpectedLogs, implString)
+
     if (roundTrip eq OnePassRoundTrip) {
 
       val parseActual =
@@ -1466,6 +1491,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       if (!isCrossTest(implString.get) ||
         parent.shouldDoWarningComparisonOnCrossTests)
         VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optWarnings, implString)
+      
+      if (!isCrossTest(implString.get) ||
+        parent.shouldDoLogComparisonOnCrossTests)
+        VerifyTestCase.verifyAllDiagnosticsFound(TDMLAppender.getDiagnostics(), optExpectedLogs, implString)
 
       (shouldValidate, expectsValidationError) match {
         case (true, true) => {
@@ -1493,6 +1522,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // Done with the unparse results, safe to clean up any temporary files
     // if they were not already cleaned up by parseActual.cleanUp() above
     actual.cleanUp()
+
+    TDMLAppender.clearDiagnostics()
   }
 
   def runUnparserExpectErrors(
@@ -1561,6 +1592,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     if (diagnostics.isEmpty)
       throw TDMLException("Unparser test expected error. Didn't get one.", implString)
     checkDiagnosticMessages(diagnostics, errors, optWarnings, optLogs, implString)
+
   }
 }
 
