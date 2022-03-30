@@ -11,7 +11,7 @@ Based on source code originally developed by
 
 The following NOTICE information applies to binary components distributed with this project:
 
-- lib/com.fasterxml.jackson.core.jackson-core-<VERSION>.jar
+- com.fasterxml.jackson.core.jackson-core-<VERSION>.jar
   # Jackson JSON processor
 
   Jackson is a high-performance, Free/Open Source JSON processing library.
@@ -30,7 +30,7 @@ The following NOTICE information applies to binary components distributed with t
   in some artifacts (usually source distributions); but is always available
   from the source code management (SCM) system project uses.
 
-- lib/commons-codec.commons-codec-<VERSION>.jar
+- commons-codec.commons-codec-<VERSION>.jar
   Apache Commons Codec
   Copyright 2002-2017 The Apache Software Foundation
 
@@ -46,27 +46,52 @@ The following NOTICE information applies to binary components distributed with t
   Original source copyright:
   Copyright (c) 2008 Alexander Beider & Stephen P. Morse.
 
-- lib/commons-io.commons-io-<VERSION>.jar
+- commons-io.commons-io-<VERSION>.jar
   Apache Commons IO
   Copyright 2002-2021 The Apache Software Foundation
 
-- lib/commons-logging.commons-logging-<VERSION>.jar
+- commons-logging.commons-logging-<VERSION>.jar
   Apache Commons Logging
   Copyright 2003-2014 The Apache Software Foundation
 
-- lib/org.apache.httpcomponents.httpclient-<VERSION>.jar
+- org.apache.daffodil.daffodil-lib-<VERSION>.jar
+  Apache Daffodil
+  Copyright 2022 The Apache Software Foundation
+
+  Based on source code originally developed by
+  - The Univerisity of Illinois National Center for Supercomputing Applications (http://www.ncsa.illinois.edu/)
+  - Tresys Technology (http://www.tresys.com/)
+  - International Business Machines Corporation (http://www.ibm.com)
+
+  The following NOTICE information applies to components distributed with this project:
+
+  This product includes derived works from Scala
+    Scala
+    Copyright (c) 2002-2021 EPFL
+    Copyright (c) 2011-2021 Lightbend, Inc.
+
+    Scala includes software developed at
+    LAMP/EPFL (https://lamp.epfl.ch/) and
+    Lightbend, Inc. (https://www.lightbend.com/).
+
+    The derived work is adapted from scala/src/library/scala/Symbol.scala:
+      https://github.com/scala/scala/blob/904e3a5d2b9616b9c533d77d0c51652b138e8659/src/library/scala/Symbol.scala
+    and can be found in:
+      daffodil-lib/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala
+
+- org.apache.httpcomponents.httpclient-<VERSION>.jar
   Apache HttpClient
   Copyright 1999-2020 The Apache Software Foundation
 
-- lib/org.apache.httpcomponents.httpcore-<VERSION>.jar
+- org.apache.httpcomponents.httpcore-<VERSION>.jar
   Apache HttpCore
   Copyright 2005-2020 The Apache Software Foundation
 
-- lib/org.apache.logging.log4j.log4j-api-<VERSION>.jar
+- org.apache.logging.log4j.log4j-api-<VERSION>.jar
   Apache Log4j API
   Copyright 1999-2022 The Apache Software Foundation
 
-- lib/org.apache.logging.log4j.log4j-api-scala_<VERSION>.jar
+- org.apache.logging.log4j.log4j-api-scala_<VERSION>.jar
   Apache Log4j Scala API
   Copyright 2016-2022 Apache Software Foundation
 
@@ -74,21 +99,21 @@ The following NOTICE information applies to binary components distributed with t
   Copyright (c) 2008, 2009, 2010, 2011 Josh Suereth, Steven Blundy, Josh Cough,
   Mark Harrah, Stuart Roebuck, Tony Sloane, Vesa Vilhonen, Jason Zaugg
 
-- lib/org.apache.logging.log4j.log4j-core-<VERSION>.jar
+- org.apache.logging.log4j.log4j-core-<VERSION>.jar
   Apache Log4j Core
   Copyright 1999-2012 Apache Software Foundation
 
   ResolverUtil.java
   Copyright 2005-2006 Tim Fennell
 
-- lib/org.jdom.jdom2-<VERSION>.jar
+- org.jdom.jdom2-<VERSION>.jar
   Copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin.
   All rights reserved.
 
   This product includes software developed by the
   JDOM Project (http://www.jdom.org/).
 
-- lib/org.scala-lang.modules.scala-parser-combinators_<VERSION>.jar
+- org.scala-lang.modules.scala-parser-combinators_<VERSION>.jar
   Scala parser combinators
   Copyright (c) 2002-2022 EPFL
   Copyright (c) 2011-2022 Lightbend, Inc.
@@ -97,7 +122,7 @@ The following NOTICE information applies to binary components distributed with t
   LAMP/EPFL (https://lamp.epfl.ch/) and
   Lightbend, Inc. (https://www.lightbend.com/).
 
-- lib/org.scala-lang.modules.scala-xml_<VERSION>.jar
+- org.scala-lang.modules.scala-xml_<VERSION>.jar
   scala-xml
   Copyright (c) 2002-2022 EPFL
   Copyright (c) 2011-2022 Lightbend, Inc.
@@ -106,8 +131,8 @@ The following NOTICE information applies to binary components distributed with t
   LAMP/EPFL (https://lamp.epfl.ch/) and
   Lightbend, Inc. (https://www.lightbend.com/).
 
-- lib/org.scala-lang.scala-library-<VERSION>.jar
-- org/apache/daffodil/util/UniquenessCache.class in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
+- org.scala-lang.scala-library-<VERSION>.jar
+- org.scala-lang.scala-reflect-<VERSION>.jar
   Scala
   Copyright (c) 2002-2021 EPFL
   Copyright (c) 2011-2021 Lightbend, Inc.
@@ -116,21 +141,7 @@ The following NOTICE information applies to binary components distributed with t
   LAMP/EPFL (https://lamp.epfl.ch/) and
   Lightbend, Inc. (https://www.lightbend.com/).
 
-  The derived work is adapted from scala/src/library/scala/Symbol.scala:
-    https://github.com/scala/scala/blob/904e3a5d2b9616b9c533d77d0c51652b138e8659/src/library/scala/Symbol.scala
-  and can be found in:
-    daffodil-lib/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala
-
-- lib/org.scala-lang.scala-reflect-<REFLECT>.jar
-  Scala
-  Copyright (c) 2002-2021 EPFL
-  Copyright (c) 2011-2021 Lightbend, Inc.
-
-  Scala includes software developed at
-  LAMP/EPFL (https://lamp.epfl.ch/) and
-  Lightbend, Inc. (https://www.lightbend.com/).
-
-- lib/xerces.xercesImpl-<VERSION>.jar
+- xerces.xercesImpl-<VERSION>.jar
   Apache Xerces Java
   Copyright 1999-2022 The Apache Software Foundation
 
@@ -141,7 +152,7 @@ The following NOTICE information applies to binary components distributed with t
       Apache Software Foundation that were originally developed at iClick, Inc.,
       software copyright (c) 1999.
 
-- lib/xml-apis.xml-apis-<VERSION>.jar
+- xml-apis.xml-apis-<VERSION>.jar
   Apache XML Commons XML APIs
   Copyright 1999-2009 The Apache Software Foundation.
 
@@ -150,7 +161,7 @@ The following NOTICE information applies to binary components distributed with t
     - software copyright (c) 1999, Sun Microsystems., http://www.sun.com.
     - software copyright (c) 2000 World Wide Web Consortium, http://www.w3.org
 
-- lib/xml-resolver.xml-resolver-<VERSION>.jar
+- xml-resolver.xml-resolver-<VERSION>.jar
   Apache XML Commons Resolver
   Copyright 2006 The Apache Software Foundation.
 

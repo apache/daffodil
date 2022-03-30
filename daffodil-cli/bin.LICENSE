@@ -208,8 +208,8 @@ The Apache Daffodil project contains subcomponents with separate copyright
 notices and license terms. Your use of the source code for these subcomponents
 is subject to the terms and conditions of the following licenses.
 
-- lib/com.ibm.icu.icu4j-<VERSION>.jar
-  This product bundles 'ICU4J' with the above files.
+- com.ibm.icu.icu4j-<VERSION>.jar
+  This product bundles 'ICU4J' from the above files.
   These files are available under the Unicode License. For details, see
   https://github.com/unicode-org/icu/blob/release-<VERSION>/icu4c/LICENSE
 
@@ -496,31 +496,29 @@ is subject to the terms and conditions of the following licenses.
 
     3. Lao Word Break Dictionary Data (laodict.txt)
 
-     #  Copyright (c) 2013 International Business Machines Corporation
-     #  and others. All Rights Reserved.
+     # Copyright (C) 2016 and later: Unicode, Inc. and others.
+     # License & terms of use: http://www.unicode.org/copyright.html
+     # Copyright (c) 2015 International Business Machines Corporation
+     # and others. All Rights Reserved.
      #
-     # Project: https://github.com/veer66/lao-dictionary
-     # Dictionary: https://github.com/veer66/lao-dictionary/blob/2c2344310636f548b09d854362ab2e2e666369e0/Lao-Dictionary.txt
-     # License: https://github.com/veer66/lao-dictionary/blob/2c2344310636f548b09d854362ab2e2e666369e0/Lao-Dictionary-LICENSE.txt
-     #              (copied below)
+     # Project: https://github.com/rober42539/lao-dictionary
+     # Dictionary: https://github.com/rober42539/lao-dictionary/laodict.txt
+     # License: https://github.com/rober42539/lao-dictionary/LICENSE.txt
+     #          (copied below)
      #
-     #  This file is derived from the above dictionary, with slight
-     #  modifications.
+     #	This file is derived from the above dictionary version of Nov 22, 2020
      #  ----------------------------------------------------------------------
      #  Copyright (C) 2013 Brian Eugene Wilson, Robert Martin Campbell.
      #  All rights reserved.
      #
      #  Redistribution and use in source and binary forms, with or without
-     #  modification,
-     #  are permitted provided that the following conditions are met:
+     #  modification, are permitted provided that the following conditions are met:
      #
-     #
-     # Redistributions of source code must retain the above copyright notice, this
-     #  list of conditions and the following disclaimer. Redistributions in
-     #  binary form must reproduce the above copyright notice, this list of
-     #  conditions and the following disclaimer in the documentation and/or
-     #  other materials provided with the distribution.
-     #
+     #  Redistributions of source code must retain the above copyright notice, this
+     #  list of conditions and the following disclaimer. Redistributions in binary
+     #  form must reproduce the above copyright notice, this list of conditions and
+     #  the following disclaimer in the documentation and/or other materials
+     #  provided with the distribution.
      #
      # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
      # "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -628,129 +626,39 @@ is subject to the terms and conditions of the following licenses.
     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-- lib/org.jdom.jdom2-<VERSION>.jar
-  This product bundles 'JDOM2' with the above files.
-  These files are available under an Apache style License:
+- com.lihaoyi.geny_<VERSION>.jar
+- com.lihaoyi.os-lib_<VERSION>.jar
+  This product bundles 'os-lib' from the above files.
+  These files are available under the MIT license:
 
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions
-    are met:
+    License
+    =======
 
-    1. Redistributions of source code must retain the above copyright
-       notice, this list of conditions, and the following disclaimer.
 
-    2. Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions, and the disclaimer that follows 
-       these conditions in the documentation and/or other materials 
-       provided with the distribution.
+    The MIT License (MIT)
 
-    3. The name "JDOM" must not be used to endorse or promote products
-       derived from this software without prior written permission.  For
-       written permission, please contact <request_AT_jdom_DOT_org>.
+    Copyright (c) 2019 Li Haoyi (haoyi.sg@gmail.com)
 
-    4. Products derived from this software may not be called "JDOM", nor
-       may "JDOM" appear in their name, without prior written permission
-       from the JDOM Project Management <request_AT_jdom_DOT_org>.
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
 
-    In addition, we request (but do not require) that you include in the 
-    end-user documentation provided with the redistribution and/or in the 
-    software itself an acknowledgement equivalent to the following:
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
 
-        "This product includes software developed by the
-         JDOM Project (http://www.jdom.org/)."
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
 
-    Alternatively, the acknowledgment may be graphical using the logos 
-    available at http://www.jdom.org/images/logos.
-
-    THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
-    WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED.  IN NO EVENT SHALL THE JDOM AUTHORS OR THE PROJECT
-    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-    USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-    OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-    SUCH DAMAGE.
-
-    This software consists of voluntary contributions made by many 
-    individuals on behalf of the JDOM Project and was originally 
-    created by Jason Hunter <jhunter_AT_jdom_DOT_org> and
-    Brett McLaughlin <brett_AT_jdom_DOT_org>.  For more information
-    on the JDOM Project, please see <http://www.jdom.org/>. 
-
-- lib/org.jline.jline-<VERSION>.jar
-  This product bundles 'JLine' with the above files.
-  These files are available under a BSD-3-Clause license. For details, see
-  https://github.com/jline/jline3/blob/HEAD/LICENSE.txt
-
-    Copyright (c) 2002-2018, the original author or authors.
-    All rights reserved.
-
-    https://opensource.org/licenses/BSD-3-Clause
-
-    Redistribution and use in source and binary forms, with or
-    without modification, are permitted provided that the following
-    conditions are met:
-
-    Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-
-    Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer
-    in the documentation and/or other materials provided with
-    the distribution.
-
-    Neither the name of JLine nor the names of its contributors
-    may be used to endorse or promote products derived from this
-    software without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
-    BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-    AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
-    EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
-    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
-    IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-    OF THE POSSIBILITY OF SUCH DAMAGE.
-
-- passera/ directory in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-  This product bundles 'Passera' compiled source with the above files.
-  These files are available under the BSD-2-Clause license:
-
-    Copyright (c) 2011-2013, Nate Nystrom
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met:
-
-    Redistributions of source code must retain the above copyright notice, this
-    list of conditions and the following disclaimer.
-
-    Redistributions in binary form must reproduce the above copyright notice, this
-    list of conditions and the following disclaimer in the documentation and/or
-    other materials provided with the distribution.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-- lib/net.sf.saxon.Saxon-HE-<VERSION>.jar
-  This product bundles 'Saxon-HE (Home Edition)' with the above files.
+- net.sf.saxon.Saxon-HE-<VERSION>.jar
+  This product bundles 'Saxon-HE (Home Edition)' from the above files.
   These files are available under the MPL 2.0 license:
 
     Most of the open source code in the Saxon product is governed by the Mozilla Public
@@ -1169,119 +1077,15 @@ is subject to the terms and conditions of the following licenses.
       other dealings in this Software without prior written authorization
       from James Clark.
 
-
-- lib/org.rogach.scallop_<VERSION>.jar
-  This product bundles 'Scallop' with the above files.
-  These files are available under under an MIT License. For details, see
-  https://github.com/scallop/scallop/blob/develop/license.txt
-
-    Copyright (C) 2012 Platon Pronko and Chris Hodapp
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy of
-    this software and associated documentation files (the "Software"), to deal in
-    the Software without restriction, including without limitation the rights to
-    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-    of the Software, and to permit persons to whom the Software is furnished to do
-    so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    UTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-
-- iso-schematron-xslt2/ExtractSchFromXSD-2.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-  This product bundles 'Schematron' converter content with the above files.
-  These files are available under the MIT License:
-
-    Copyright (c) 2002-2010 Rick Jelliffe and Topologi Pty. Ltd.
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
-
-- iso-schematron-xslt2/iso_abstract_expand.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-- iso-schematron-xslt2/iso_dsdl_include.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-- iso-schematron-xslt2/iso_schematron_message_xslt2.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-- iso-schematron-xslt2/iso_schematron_skeleton_for_saxon.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-- iso-schematron-xslt2/iso_svrl_for_xslt2.xsl in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-- iso-schematron-xslt2/sch-messages-en.xhtml in lib/org.apache.daffodil.daffodil-schematron-<VERSION>.jar
-  This product bundles 'Schematron' skeleton XSLT implementation with the above files.
-  These files are available under the MIT License:
-
-    Copyright (c) 2004-2010 Rick Jellife and Academia Sinica Computing Centre, Taiwan
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
-
-- lib/org.codehaus.woodstox.stax2-api-<VERSION>.jar
-  This product bundles 'Stax 2 API' with the above files.
-  These files are available under the BSD-2-Clause license:
-
-    Copyright 2010- FasterXML.com
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met:
-
-    1. Redistributions of source code must retain the above copyright notice, this
-       list of conditions and the following disclaimer.
-
-    2. Redistributions in binary form must reproduce the above copyright notice,
-       this list of conditions and the following disclaimer in the documentation
-       and/or other materials provided with the distribution.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-- org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-- org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-- org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-- org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-- org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd) in lib/org.apache.daffodil.daffodil-lib-<VERSION>.jar
-- W3C schemas and documents in lib/org.xmlresolver.xmlresolver-<VERSION>-data.jar
-  This product bundles 'W3C' copied or derived material with the above files.
+- org.apache.daffodil.daffodil-lib-<VERSION>.jar with:
+  org/apache/daffodil/xsd/XMLSchema.dtd (https://www.w3.org/2001/XMLSchema.dtd)
+  org/apache/daffodil/xsd/XMLSchema.xsd (https://www.w3.org/2001/XMLSchema.xsd)
+  org/apache/daffodil/xsd/XMLSchema_for_DFDL.xsd (https://www.w3.org/2001/XMLSchema.dtd)
+  org/apache/daffodil/xsd/datatypes.dtd (https://www.w3.org/2001/datatypes.dtd)
+  org/apache/daffodil/xsd/xml.xsd (https://www.w3.org/2001/xml.xsd)
+- org.xmlresolver.xmlresolver-<VERSION>-data.jar with:
+  W3C schemas and documents
+  This product bundles 'W3C' copied or derived material from the above files.
   These files are available under the W3C Software and Document License:
 
     By obtaining and/or copying this work, you (the licensee) agree that you have
@@ -1320,18 +1124,41 @@ is subject to the terms and conditions of the following licenses.
     permission. Title to copyright in this work will at all times remain with
     copyright holders.
 
-- lib/com.lihaoyi.geny_<VERSION>.jar
-- lib/com.lihaoyi.os-lib_<VERSION>.jar
-  This product bundles 'os-lib' with the above files.
-  These files are available under the MIT license:
+- org.apache.daffodil.daffodil-lib-<VERSION>.jar with:
+  passera/ directory
+  This product bundles 'Passera' compiled source from the above files.
+  These files are available under the BSD-2-Clause license:
 
-    License
-    =======
+    Copyright (c) 2011-2013, Nate Nystrom
+    All rights reserved.
 
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
 
-    The MIT License (MIT)
+    Redistributions of source code must retain the above copyright notice, this
+    list of conditions and the following disclaimer.
 
-    Copyright (c) 2019 Li Haoyi (haoyi.sg@gmail.com)
+    Redistributions in binary form must reproduce the above copyright notice, this
+    list of conditions and the following disclaimer in the documentation and/or
+    other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+- org.apache.daffodil.daffodil-schematron-<VERSION>.jar with:
+  iso-schematron-xslt2/ExtractSchFromXSD-2.xsl
+  This product bundles 'Schematron' converter content from the above files.
+  These files are available under the MIT License:
+
+    Copyright (c) 2002-2010 Rick Jelliffe and Topologi Pty. Ltd.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -1347,6 +1174,184 @@ is subject to the terms and conditions of the following licenses.
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-    DEALINGS IN THE SOFTWARE.
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+
+- org.apache.daffodil.daffodil-schematron-<VERSION>.jar with:
+  iso-schematron-xslt2/iso_abstract_expand.xsl
+  iso-schematron-xslt2/iso_dsdl_include.xsl
+  iso-schematron-xslt2/iso_schematron_message_xslt2.xsl
+  iso-schematron-xslt2/iso_schematron_skeleton_for_saxon.xsl
+  iso-schematron-xslt2/iso_svrl_for_xslt2.xsl
+  iso-schematron-xslt2/sch-messages-en.xhtml
+  This product bundles 'Schematron' skeleton XSLT implementation from the above files.
+  These files are available under the MIT License:
+
+    Copyright (c) 2004-2010 Rick Jellife and Academia Sinica Computing Centre, Taiwan
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+- org.codehaus.woodstox.stax2-api-<VERSION>.jar
+  This product bundles 'Stax 2 API' from the above files.
+  These files are available under the BSD-2-Clause license:
+
+    Copyright 2010- FasterXML.com
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+    1. Redistributions of source code must retain the above copyright notice, this
+       list of conditions and the following disclaimer.
+
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
+       and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+    SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+- org.jdom.jdom2-<VERSION>.jar
+  This product bundles 'JDOM2' from the above files.
+  These files are available under an Apache style License:
+
+    Copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin.
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    1. Redistributions of source code must retain the above copyright
+       notice, this list of conditions, and the following disclaimer.
+
+    2. Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions, and the disclaimer that follows 
+       these conditions in the documentation and/or other materials 
+       provided with the distribution.
+
+    3. The name "JDOM" must not be used to endorse or promote products
+       derived from this software without prior written permission.  For
+       written permission, please contact <request_AT_jdom_DOT_org>.
+
+    4. Products derived from this software may not be called "JDOM", nor
+       may "JDOM" appear in their name, without prior written permission
+       from the JDOM Project Management <request_AT_jdom_DOT_org>.
+
+    In addition, we request (but do not require) that you include in the 
+    end-user documentation provided with the redistribution and/or in the 
+    software itself an acknowledgement equivalent to the following:
+
+        "This product includes software developed by the
+         JDOM Project (http://www.jdom.org/)."
+
+    Alternatively, the acknowledgment may be graphical using the logos 
+    available at http://www.jdom.org/images/logos.
+
+    THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+    WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+    DISCLAIMED.  IN NO EVENT SHALL THE JDOM AUTHORS OR THE PROJECT
+    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+    USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+    OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+    OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+    SUCH DAMAGE.
+
+    This software consists of voluntary contributions made by many 
+    individuals on behalf of the JDOM Project and was originally 
+    created by Jason Hunter <jhunter_AT_jdom_DOT_org> and
+    Brett McLaughlin <brett_AT_jdom_DOT_org>.  For more information
+    on the JDOM Project, please see <http://www.jdom.org/>. 
+
+- org.jline.jline-<VERSION>.jar
+  This product bundles 'JLine' from the above files.
+  These files are available under a BSD-3-Clause license. For details, see
+  https://github.com/jline/jline3/blob/HEAD/LICENSE.txt
+
+    Copyright (c) 2002-2018, the original author or authors.
+    All rights reserved.
+
+    https://opensource.org/licenses/BSD-3-Clause
+
+    Redistribution and use in source and binary forms, with or
+    without modification, are permitted provided that the following
+    conditions are met:
+
+    Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+
+    Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer
+    in the documentation and/or other materials provided with
+    the distribution.
+
+    Neither the name of JLine nor the names of its contributors
+    may be used to endorse or promote products derived from this
+    software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+    BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+    AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+    EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+    AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+    IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+    OF THE POSSIBILITY OF SUCH DAMAGE.
+
+- org.rogach.scallop_<VERSION>.jar
+  This product bundles 'Scallop' from the above files.
+  These files are available under under an MIT License. For details, see
+  https://github.com/scallop/scallop/blob/develop/license.txt
+
+    Copyright (C) 2012 Platon Pronko and Chris Hodapp
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
