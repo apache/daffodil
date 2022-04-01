@@ -102,7 +102,7 @@ jobs:
           echo "COURSIER_CONFIG_DIR=$temp" >> $GITHUB_ENV
 
       - name: Setup Java
-        uses: actions/setup-java@v3.0.0
+        uses: actions/setup-java@v3.1.0
         with:
           distribution: ${{ matrix.distribution }}
           java-version: ${{ matrix.java_version }}
