@@ -83,7 +83,7 @@ jobs:
 
       - name: Check out mxml source (Windows)
         if: runner.os == 'Windows'
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         with:
           repository: michaelrsweet/mxml
           ref: v3.3
@@ -114,7 +114,7 @@ jobs:
       #    path: ~/.cache/coursier ~/.ivy2/cache ~/.sbt 
 
       - name: Check out Repository
-        uses: actions/checkout@v3.0.0
+        uses: actions/checkout@v3.0.1
         # Disabling shallow clone is recommended for improving reporting
         with:
           fetch-depth: 0
