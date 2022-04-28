@@ -101,23 +101,24 @@ jobs:
           echo "COURSIER_CACHE=$temp" >> $GITHUB_ENV
           echo "COURSIER_CONFIG_DIR=$temp" >> $GITHUB_ENV
 
+      - name: Check out Repository
+        uses: actions/checkout@v3.0.2
+        # Disabling shallow clone is recommended for improving reporting
+        with:
+          fetch-depth: 0
+
       - name: Setup Java
-        uses: actions/setup-java@v3.1.1
+        uses: actions/setup-java@v3.2.0
         with:
           distribution: ${{ matrix.distribution }}
           java-version: ${{ matrix.java_version }}
+          cache: sbt
 
       # Cache Action - tried on 2021-06-28, removed because it didn't help
       # 1. Tried coursier/cache-action but Apache didn't allow it
       #    extraSbtFiles: daffodil-cli/build.sbt daffodil-japi/build.sbt
       # 2. Tried actions/cache but it didn't speed up CI at all
       #    path: ~/.cache/coursier ~/.ivy2/cache ~/.sbt 
-
-      - name: Check out Repository
-        uses: actions/checkout@v3.0.2
-        # Disabling shallow clone is recommended for improving reporting
-        with:
-          fetch-depth: 0
 
       ############################################################
       # Build & Package
