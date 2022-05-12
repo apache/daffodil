@@ -38,25 +38,32 @@ class TDMLAppender
     import TDMLAppender._
 
     override def append(event: LogEvent): Unit = {
-        diagnostics = new LogDiagnostic(event.getMessage.getFormattedMessage) +: diagnostics
+        checkForKey
+        diagnostics = diagnostics.updated(Thread.currentThread.getId, diagnostics(Thread.currentThread.getId) :+ new LogDiagnostic(event.getMessage.getFormattedMessage))
     }
 }
 
 object TDMLAppender{
-    var diagnostics: Seq[Diagnostic] = Nil
-    var diagnostics2: Seq[String] = Nil
+    var diagnostics: Map[Long, Seq[Diagnostic]] = Map()
 
     @PluginFactory
     def createAppender(): TDMLAppender = {
             new TDMLAppender
     }
 
-    def getDiagnostics(): Seq[Throwable] = {
-        diagnostics
+    def checkForKey(): Unit = this.synchronized{
+        if(!diagnostics.contains(Thread.currentThread.getId))
+            diagnostics += (Thread.currentThread.getId -> Nil)
     }
 
-    def clearDiagnostics(): Unit = {
-        diagnostics = Nil
+    def getDiagnostics(): Seq[Throwable] = this.synchronized{
+        checkForKey
+        diagnostics(Thread.currentThread.getId)
+    }
+
+    def clearDiagnostics(): Unit = this.synchronized{
+        checkForKey
+        diagnostics = diagnostics.updated(Thread.currentThread.getId, Nil)
     }
 }
 
