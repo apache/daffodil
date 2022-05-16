@@ -38,7 +38,7 @@ trait ElementParseAndUnspecifiedLengthCodeGenerator {
     if (context.isSimpleType) {
       if (cgState.elementNotSeenYet(context)) cgState.addSimpleTypeERD(context) // ERD static initializer
       cgState.addComputations(context) // offset, ERD computations
-      Runtime2CodeGenerator.generateCode(elementContentGram, cgState) // initSelf, parseSelf, unparseSelf
+      Runtime2CodeGenerator.generateCode(elementContentGram, cgState) // initERD, initSelf, parseSelf, unparseSelf
     } else if (cgState.elementNotSeenYet(context)) {
       cgState.pushComplexElement(context)
       cgState.addBeforeSwitchStatements(context) // switch statements for choices
@@ -52,8 +52,8 @@ trait ElementParseAndUnspecifiedLengthCodeGenerator {
       }
       cgState.addAfterSwitchStatements(context) // switch statements for choices
       cgState.addStruct(context) // struct definition
-      cgState.addImplementation(context) // initSelf, parseSelf, unparseSelf
       cgState.addComplexTypeERD(context) // ERD static initializer
+      cgState.addImplementation(context) // initERD, initSelf, parseSelf, unparseSelf
       cgState.popComplexElement()
     }
   }

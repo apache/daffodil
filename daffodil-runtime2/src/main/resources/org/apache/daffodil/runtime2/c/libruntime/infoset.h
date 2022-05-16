@@ -34,7 +34,6 @@ struct PState;
 struct UState;
 struct VisitEventHandler;
 
-typedef void (*ERDInitSelf)(struct InfosetBase *infoNode);
 typedef void (*ERDParseSelf)(struct InfosetBase *infoNode, struct PState *pstate);
 typedef void (*ERDUnparseSelf)(const struct InfosetBase *infoNode, struct UState *ustate);
 typedef const Error *(*InitChoiceRD)(const struct InfosetBase *infoNode,
@@ -88,7 +87,6 @@ typedef struct ERD
     const size_t *      offsets;
     const struct ERD ** childrenERDs;
 
-    const ERDInitSelf    initSelf;
     const ERDParseSelf   parseSelf;
     const ERDUnparseSelf unparseSelf;
     const InitChoiceRD   initChoice;
@@ -114,20 +112,24 @@ typedef struct InfosetBase
 
 typedef struct PState
 {
-    FILE *       stream;      // input to read data from
-    size_t       position;    // 0-based position in stream
+    FILE *       stream;      // stream to read data from (input)
+    size_t       bitPos0b;    // 0-based position of last successful parse (1-bit granularity)
     Diagnostics *diagnostics; // any validation diagnostics
-    const Error *error;       // any error which stops program
+    const Error *error;       // any error which stops parse
+    uint8_t      unreadBits;  // any buffered bits not read yet
+    uint8_t      unreadLen;   // number of buffered bits not read yet
 } PState;
 
 // UState - mutable state while unparsing infoset
 
 typedef struct UState
 {
-    FILE *       stream;      // output to write data to
-    size_t       position;    // 0-based position in stream
+    FILE *       stream;      // stream to write data to (output)
+    size_t       bitPos0b;    // 0-based position of last successful write (1-bit granularity)
     Diagnostics *diagnostics; // any validation diagnostics
-    const Error *error;       // any error which stops program
+    const Error *error;       // any error which stops unparse
+    uint8_t      unwritBits;  // any buffered bits not written yet
+    uint8_t      unwritLen;   // number of buffered bits not written yet
 } UState;
 
 // VisitEventHandler - methods to be called when walking an infoset
@@ -157,5 +159,9 @@ extern InfosetBase *rootElement(void);
 // walkInfoset - walk an infoset and call VisitEventHandler methods
 
 extern const Error *walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoset);
+
+// flushUState - flush any buffered bits not written yet
+
+extern void flushUState(UState *ustate);
 
 #endif // INFOSET_H

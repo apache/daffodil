@@ -64,20 +64,21 @@ trait BinaryValueCodeGenerator {
 
   // Generate C code to initialize, parse, and unparse a primitive value element.  Will be replaced by
   // more specialized functions in other traits for boolean and hexBinary elements.
-  protected def valueAddField(e: ElementBase, initialValue: String, primType: String, deref: String, cgState: CodeGeneratorState): Unit = {
+  protected def valueAddField(e: ElementBase, initialValue: String, lengthInBits: Long, primType: String, deref: String, cgState: CodeGeneratorState): Unit = {
     val localName = e.namedQName.local
     val field = s"instance->$localName$deref"
     val conv = if (e.byteOrderEv.constValue eq ByteOrder.BigEndian) "be" else "le"
     val function = s"${conv}_$primType"
 
-    val initStatement = s"    $field = $initialValue;"
+    val initERDStatement = ""
+    val initSelfStatement = s"    $field = $initialValue;"
     val parseStatement =
-      s"""    parse_$function(&$field, pstate);
+      s"""    parse_$function(&$field, $lengthInBits, pstate);
          |    if (pstate->error) return;""".stripMargin
     val unparseStatement =
-      s"""    unparse_$function($field, ustate);
+      s"""    unparse_$function($field, $lengthInBits, ustate);
          |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
+    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
   }
 
   // Generate C code to validate a primitive element against its fixed value.  Will be replaced by
@@ -87,13 +88,14 @@ trait BinaryValueCodeGenerator {
     val field = s"instance->$localName$deref"
     val fixed = e.fixedValueAsString
 
-    val initStatement = ""
+    val initERDStatement = ""
+    val initSelfStatement = ""
     val parseStatement =
       s"""    parse_validate_fixed($field == $fixed, "$localName", pstate);
          |    if (pstate->error) return;""".stripMargin
     val unparseStatement =
       s"""    unparse_validate_fixed($field == $fixed, "$localName", ustate);
          |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
+    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
   }
 }

@@ -24,6 +24,12 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
+  <!--
+      Can run all tests in this file with:
+
+      daffodil test -i ex_nums.tdml
+  -->
+
   <tdml:defineConfig name="config-runtime1">
     <daf:tunables>
       <daf:tdmlImplementation>daffodil</daf:tdmlImplementation>
@@ -36,6 +42,13 @@
     </daf:tunables>
   </tdml:defineConfig>
 
+  <!--
+      Can run individual daffodil commands for easier debugging:
+
+      daffodil parse -s ex_nums.dfdl.xsd -o ex_nums.dat.xml ex_nums.dat
+      daffodil unparse -s ex_nums.dfdl.xsd -o ex_nums.dat ex_nums.dat.xml
+  -->
+
   <tdml:parserTestCase
     config="config-runtime1"
     model="ex_nums.dfdl.xsd"
@@ -44,9 +57,17 @@
       <tdml:documentPart type="file">ex_nums.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums.runtime1.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <!--
+      Can run individual daffodil commands for easier debugging:
+
+      daffodil generate c -s ex_nums.dfdl.xsd && cd c && make
+      c/daffodil parse -o ex_nums.dat.xml ex_nums.dat
+      c/daffodil unparse -o ex_nums.dat ex_nums.dat.xml
+  -->
 
   <tdml:parserTestCase
     config="config-runtime2"
@@ -56,38 +77,47 @@
       <tdml:documentPart type="file">ex_nums.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums.runtime2.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- validation="limited" will report no validation errors, while
-       validation="on" will report errors which cannot be captured -->
+  <!--
+      validation="limited" will report no validation errors, while
+      validation="on" will report errors which cannot be captured
+  -->
+
   <tdml:parserTestCase
     config="config-runtime1"
     model="ex_nums.dfdl.xsd"
     name="ex_nums_runtime1_error"
-    validation="limited"> 
+    roundTrip="none"
+    validation="limited">
     <tdml:document>
       <tdml:documentPart type="file">ex_nums.error.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums.runtime1.error.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums.error.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- disable round tripping since TDMLRunner can process parse
-       validation errors but not unparse validation errors -->
+  <!--
+      Note that when unparsing (needs a separate test case since
+      roundtripping is turned off), runtime2 should write fixed values
+      instead of writing error values with validation diagnostics
+      (change still to be done)
+  -->
+
   <tdml:parserTestCase
     config="config-runtime2"
     model="ex_nums.dfdl.xsd"
     name="ex_nums_runtime2_error"
     roundTrip="none"
-    validation="limited"> 
+    validation="limited">
     <tdml:document>
       <tdml:documentPart type="file">ex_nums.error.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums.runtime2.error.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">ex_nums.error.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:validationErrors>
       <tdml:error>value</tdml:error>

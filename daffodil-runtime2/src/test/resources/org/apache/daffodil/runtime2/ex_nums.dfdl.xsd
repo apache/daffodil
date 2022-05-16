@@ -30,6 +30,8 @@
         <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:format
                     ref="GeneralFormat"
+                    alignment="1"
+                    alignmentUnits="bits"
                     binaryBooleanFalseRep="0"
                     binaryBooleanTrueRep=""
                     binaryNumberRep="binary"
@@ -59,9 +61,7 @@
                 <xs:element name="array">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="be_bool16" type="xs:boolean"
-                                        dfdl:lengthKind="explicit"
-                                        dfdl:length="16"
+                            <xs:element name="be_boolean" type="xs:boolean"
                                         dfdl:occursCountKind="fixed"
                                         maxOccurs="2" minOccurs="2"/>
                             <xs:element name="be_float" type="xs:float"
@@ -87,14 +87,8 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="be_bool16" type="xs:boolean"
-                                        dfdl:binaryBooleanTrueRep="1"
+                                        dfdl:binaryBooleanTrueRep="16"
                                         dfdl:length="16"
-                                        dfdl:lengthKind="explicit"/>
-                            <xs:element name="be_bool32" type="xs:boolean"
-                                        dfdl:length="32"
-                                        dfdl:lengthKind="explicit"/>
-                            <xs:element name="be_bool8" type="xs:boolean"
-                                        dfdl:length="8"
                                         dfdl:lengthKind="explicit"/>
                             <xs:element name="be_boolean" type="xs:boolean"/>
                             <xs:element name="be_double" type="xs:double"/>
@@ -103,15 +97,15 @@
                             <xs:element name="be_int32" type="xs:int"/>
                             <xs:element name="be_int64" type="xs:long"/>
                             <xs:element name="be_int8" type="xs:byte"/>
-                            <xs:element name="be_integer16" type="xs:integer"
-                                        dfdl:length="16"
+                            <xs:element name="be_integer17" type="xs:integer"
+                                        dfdl:length="17"
                                         dfdl:lengthKind="explicit"/>
                             <xs:element name="be_uint16" type="xs:unsignedShort"/>
                             <xs:element name="be_uint32" type="xs:unsignedInt"/>
                             <xs:element name="be_uint64" type="xs:unsignedLong"/>
                             <xs:element name="be_uint8" type="xs:unsignedByte"/>
-                            <xs:element name="be_nonNegativeInteger32" type="xs:nonNegativeInteger"
-                                        dfdl:length="32"
+                            <xs:element name="be_nonNegativeInteger31" type="xs:nonNegativeInteger"
+                                        dfdl:length="31"
                                         dfdl:lengthKind="explicit"/>
                             <xs:element name="hexBinary4" type="xs:hexBinary"
                                         dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
@@ -126,17 +120,9 @@
                     <xs:complexType>
                         <xs:sequence>
                             <xs:element name="le_bool16" type="xs:boolean"
-                                        dfdl:binaryBooleanTrueRep="1"
+                                        dfdl:binaryBooleanTrueRep="16"
                                         dfdl:byteOrder="littleEndian"
                                         dfdl:length="16"
-                                        dfdl:lengthKind="explicit"/>
-                            <xs:element name="le_bool32" type="xs:boolean"
-                                        dfdl:byteOrder="littleEndian"
-                                        dfdl:length="32"
-                                        dfdl:lengthKind="explicit"/>
-                            <xs:element name="le_bool8" type="xs:boolean"
-                                        dfdl:byteOrder="littleEndian"
-                                        dfdl:length="8"
                                         dfdl:lengthKind="explicit"/>
                             <xs:element name="le_boolean" type="xs:boolean"
                                         dfdl:byteOrder="littleEndian"/>
@@ -152,9 +138,9 @@
                                         dfdl:byteOrder="littleEndian"/>
                             <xs:element name="le_int8" type="xs:byte"
                                         dfdl:byteOrder="littleEndian"/>
-                            <xs:element name="le_integer64" type="xs:integer"
+                            <xs:element name="le_integer46" type="xs:integer"
                                         dfdl:byteOrder="littleEndian"
-                                        dfdl:length="64"
+                                        dfdl:length="46"
                                         dfdl:lengthKind="explicit"/>
                             <xs:element name="le_uint16" type="xs:unsignedShort"
                                         dfdl:byteOrder="littleEndian"/>
@@ -164,9 +150,9 @@
                                         dfdl:byteOrder="littleEndian"/>
                             <xs:element name="le_uint8" type="xs:unsignedByte"
                                         dfdl:byteOrder="littleEndian"/>
-                            <xs:element name="le_nonNegativeInteger8" type="xs:nonNegativeInteger"
+                            <xs:element name="le_nonNegativeInteger10" type="xs:nonNegativeInteger"
                                         dfdl:byteOrder="littleEndian"
-                                        dfdl:length="8"
+                                        dfdl:length="10"
                                         dfdl:lengthKind="explicit"/>
                             <xs:element name="hexBinary0" type="xs:hexBinary"
                                         dfdl:byteOrder="littleEndian"
@@ -186,6 +172,8 @@
                                         fixed="false"/>
                             <xs:element name="boolean_true" type="xs:boolean"
                                         fixed="true"/>
+                            <xs:element name="double_3" type="xs:double"
+                                        fixed="3.0"/>
                             <xs:element name="float_1_5" type="xs:float"
                                         fixed="1.5"/>
                             <xs:element name="int_32" type="xs:int"

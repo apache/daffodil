@@ -17,8 +17,9 @@
 
 // clang-format off
 #include "infoset.h"
+#include <stdio.h>   // for fwrite
 #include <string.h>  // for memccpy
-#include "errors.h"  // for Error, LIMIT_NAME_LENGTH
+#include "errors.h"  // for Error, eof_or_error, LIMIT_NAME_LENGTH
 // clang-format on
 
 // get_erd_name, get_erd_xmlns, get_erd_ns - get name and xmlns
@@ -190,4 +191,29 @@ walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoset)
     }
 
     return error;
+}
+
+// flushUState - flush any buffered bits not written yet
+
+#define BYTE_WIDTH 8
+
+void
+flushUState(UState *ustate)
+{
+    // Do we have any bits within the fractional byte?
+    if (ustate->unwritLen)
+    {
+        // Fill the fractional byte
+        size_t num_bits_fill = BYTE_WIDTH - ustate->unwritLen;
+        ustate->unwritBits <<= num_bits_fill;
+        ustate->bitPos0b += num_bits_fill;
+        ustate->unwritLen = 0; // Even though we don't flush until next line
+
+        // Flush the fractional byte
+        size_t count = fwrite(&ustate->unwritBits, 1, 1, ustate->stream);
+        if (count < 1)
+        {
+            ustate->error = eof_or_error(ustate->stream);
+        }
+    }
 }

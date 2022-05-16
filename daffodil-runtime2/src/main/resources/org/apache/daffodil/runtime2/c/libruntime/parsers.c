@@ -18,141 +18,515 @@
 // clang-format off
 #include "parsers.h"
 #include <assert.h>   // for assert
-#include <endian.h>   // for be32toh, le32toh, be16toh, be64toh, le16toh, le64toh
+#include <endian.h>   // for be64toh, le64toh, be32toh, le32toh
 #include <stdbool.h>  // for bool, false, true
 #include <stdio.h>    // for fread
 #include <stdlib.h>   // for free, malloc
-#include "errors.h"   // for eof_or_error, Error, ERR_PARSE_BOOL, Error::(anonymous), add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, ERR_HEXBINARY_ALLOC, Diagnostics
+#include "errors.h"   // for eof_or_error, Error, add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, ERR_HEXBINARY_ALLOC, ERR_PARSE_BOOL, Error::(anonymous), Diagnostics
 // clang-format on
 
-// Macros not defined by <endian.h> which we need for uniformity
+// Helper macros to get "n" highest bits from a byte's high end
 
-#define be8toh(var) var
-#define le8toh(var) var
+#define BYTE_WIDTH 8
+#define BIG_ENDIAN_DATA 1
+#define LITTLE_ENDIAN_DATA 0
+#define LOW_MASK(n) ((1 << n) - 1)
+#define HIGH_MASK(n) (LOW_MASK(n) << (BYTE_WIDTH - n))
+#define HIGH_BITS(byte, n) ((byte & HIGH_MASK(n)) >> (BYTE_WIDTH - n))
 
-// Helper macro to reduce duplication of C code reading stream,
-// updating position, and checking for errors
+// Helper method to read bits using whole bytes while storing
+// remaining bits not yet read within a fractional byte; returns last
+// bits of last byte already shifted to left end
 
-#define read_stream_update_position(ptr, num_bytes)                                                          \
-    size_t count = fread(ptr, 1, num_bytes, pstate->stream);                                                 \
-    pstate->position += count;                                                                               \
-    if (count < num_bytes)                                                                                   \
-    {                                                                                                        \
-        pstate->error = eof_or_error(pstate->stream);                                                        \
-        if (pstate->error) return;                                                                           \
+// Note callers must check pstate->error after calling read_bits and
+// update pstate->bitPos0b themselves after successful parses
+
+static void
+read_bits(uint8_t *bytes, size_t num_bits, PState *pstate)
+{
+    // Copy as many bytes directly from stream as possible
+    size_t ix_bytes = 0;
+    if (!pstate->unreadLen)
+    {
+        size_t num_bytes = num_bits / BYTE_WIDTH;
+        if (num_bytes)
+        {
+            size_t count = fread(bytes, 1, num_bytes, pstate->stream);
+            if (count < num_bytes)
+            {
+                pstate->error = eof_or_error(pstate->stream);
+                return;
+            }
+            num_bits -= count * BYTE_WIDTH;
+            ix_bytes += count;
+        }
     }
 
-// Macros to define parse_<endian>_<type> functions
+    // Copy and fill the fractional byte as many times as needed
+    while (num_bits > pstate->unreadLen)
+    {
+        // Copy one whole byte from stream to temporary storage
+        size_t whole_byte = 0;
+        size_t count = fread(&whole_byte, 1, 1, pstate->stream);
+        if (count < 1)
+        {
+            pstate->error = eof_or_error(pstate->stream);
+            return;
+        }
 
-#define define_parse_endian_bool(endian, bits)                                                               \
-    void parse_##endian##_bool##bits(bool *number, int64_t true_rep, uint32_t false_rep, PState *pstate)     \
-    {                                                                                                        \
-        union                                                                                                \
-        {                                                                                                    \
-            char           c_val[sizeof(uint##bits##_t)];                                                    \
-            uint##bits##_t i_val;                                                                            \
-        } buffer;                                                                                            \
-                                                                                                             \
-        read_stream_update_position(&buffer.c_val, sizeof(uint##bits##_t));                                  \
-        buffer.i_val = endian##bits##toh(buffer.i_val);                                                      \
-        if (true_rep < 0)                                                                                    \
-        {                                                                                                    \
-            *number = (buffer.i_val != false_rep);                                                           \
-        }                                                                                                    \
-        else if (buffer.i_val == (uint32_t)true_rep)                                                         \
-        {                                                                                                    \
-            *number = true;                                                                                  \
-        }                                                                                                    \
-        else if (buffer.i_val == false_rep)                                                                  \
-        {                                                                                                    \
-            *number = false;                                                                                 \
-        }                                                                                                    \
-        else                                                                                                 \
-        {                                                                                                    \
-            static Error error = {ERR_PARSE_BOOL, {0}};                                                      \
-            error.arg.d64 = (int64_t)buffer.i_val;                                                           \
-            pstate->error = &error;                                                                          \
-        }                                                                                                    \
+        // Copy bits from whole byte to fill fractional byte
+        size_t num_bits_fill = BYTE_WIDTH - pstate->unreadLen;
+        pstate->unreadBits <<= num_bits_fill;
+        pstate->unreadBits |= HIGH_BITS(whole_byte, num_bits_fill);
+        pstate->unreadLen += num_bits_fill;
+        whole_byte <<= num_bits_fill;
+
+        // Copy bits from fractional byte to `bytes`
+        size_t num_bits_read = BYTE_WIDTH;
+        if (num_bits_read > num_bits) num_bits_read = num_bits;
+        num_bits -= num_bits_read;
+        bytes[ix_bytes++] = pstate->unreadBits & HIGH_MASK(num_bits_read);
+        pstate->unreadLen -= num_bits_read;
+
+        // Copy rest of bits from whole byte to fractional byte
+        size_t num_bits_unread = BYTE_WIDTH - num_bits_fill;
+        assert(num_bits_unread + pstate->unreadLen < BYTE_WIDTH);
+        if (num_bits_unread)
+        {
+            pstate->unreadBits <<= num_bits_unread;
+            pstate->unreadBits |= HIGH_BITS(whole_byte, num_bits_unread);
+            pstate->unreadLen += num_bits_unread;
+        }
     }
 
-#define define_parse_endian_real(endian, type, bits)                                                         \
-    void parse_##endian##_##type(type *number, PState *pstate)                                               \
-    {                                                                                                        \
-        union                                                                                                \
-        {                                                                                                    \
-            char           c_val[sizeof(type)];                                                              \
-            type           f_val;                                                                            \
-            uint##bits##_t i_val;                                                                            \
-        } buffer;                                                                                            \
-                                                                                                             \
-        read_stream_update_position(&buffer.c_val, sizeof(type));                                            \
-        buffer.i_val = endian##bits##toh(buffer.i_val);                                                      \
-        *number = buffer.f_val;                                                                              \
+    // Copy bits from fractional byte to `bytes` one last time,
+    // keeping unread bits in right end (NOT shifted left)
+    assert(num_bits <= pstate->unreadLen);
+    if (num_bits)
+    {
+        // Shift the unread bits to the left end so we can copy some
+        // of them starting from the first unread bit
+        size_t shift = BYTE_WIDTH - pstate->unreadLen;
+        pstate->unreadBits <<= shift;
+        bytes[ix_bytes] = pstate->unreadBits & HIGH_MASK(num_bits);
+        pstate->unreadLen -= num_bits;
+
+        // Shift any remaining unread bits back to the right end since
+        // we append new unread bits from the right
+        pstate->unreadBits >>= shift;
+    }
+}
+
+// Helper method to read doubles depending on data endianness;
+// num_bits must be exactly 64 bits
+
+static void
+parse_endian_double(bool big_endian_data, double *number, size_t num_bits, PState *pstate)
+{
+    // Parse all doubles in ths helper function
+    union
+    {
+        uint8_t  bytes[sizeof(double)];
+        double   number;
+        uint64_t integer;
+    } buffer;
+
+    // Read data bits
+    buffer.integer = 0;
+    read_bits(buffer.bytes, num_bits, pstate);
+    if (pstate->error) return;
+
+    // Convert data endianness to host endianness
+    if (big_endian_data)
+    {
+        buffer.integer = be64toh(buffer.integer);
+    }
+    else
+    {
+        buffer.integer = le64toh(buffer.integer);
     }
 
-#define define_parse_endian_integer(endian, type, bits)                                                      \
-    void parse_##endian##_##type##bits(type##bits##_t *number, PState *pstate)                               \
-    {                                                                                                        \
-        union                                                                                                \
-        {                                                                                                    \
-            char           c_val[sizeof(type##bits##_t)];                                                    \
-            type##bits##_t i_val;                                                                            \
-        } buffer;                                                                                            \
-                                                                                                             \
-        read_stream_update_position(&buffer.c_val, sizeof(type##bits##_t));                                  \
-        *number = endian##bits##toh(buffer.i_val);                                                           \
+    // Don't need to remove any padding bits since doubles must be
+    // exactly 64 bits, otherwise SDE would happen sooner
+    assert(num_bits == sizeof(double) * BYTE_WIDTH);
+
+    // Return successfully parsed number and update our last
+    // successful parse position
+    *number = buffer.number;
+    pstate->bitPos0b += num_bits;
+}
+
+// Helper method to read floats depending on data endianness; note
+// num_bits must be exactly 32 bits
+
+static void
+parse_endian_float(bool big_endian_data, float *number, size_t num_bits, PState *pstate)
+{
+    // Parse all floats in this helper function
+    union
+    {
+        uint8_t  bytes[sizeof(float)];
+        float    number;
+        uint32_t integer;
+    } buffer;
+
+    // Read data bits
+    buffer.integer = 0;
+    read_bits(buffer.bytes, num_bits, pstate);
+    if (pstate->error) return;
+
+    // Convert data endianness to host endianness
+    if (big_endian_data)
+    {
+        buffer.integer = be32toh(buffer.integer);
+    }
+    else
+    {
+        buffer.integer = le32toh(buffer.integer);
     }
 
-// Parse binary booleans, real numbers, and integers
+    // Don't need to remove any padding bits since floats must be
+    // exactly 32 bits, otherwise SDE would happen sooner
+    assert(num_bits == sizeof(float) * BYTE_WIDTH);
 
-define_parse_endian_bool(be, 16)
-define_parse_endian_bool(be, 32)
-define_parse_endian_bool(be, 8)
+    // Return successfully parsed number and update our last
+    // successful parse position
+    *number = buffer.number;
+    pstate->bitPos0b += num_bits;
+}
 
-define_parse_endian_real(be, double, 64)
-define_parse_endian_real(be, float, 32)
+// Helper method to read signed integers using fractional byte shifts
+// depending on data endianness (note not tested on big-endian
+// architecture; might work only on low-endian architecture)
 
-define_parse_endian_integer(be, int, 16)
-define_parse_endian_integer(be, int, 32)
-define_parse_endian_integer(be, int, 64)
-define_parse_endian_integer(be, int, 8)
+// When shifting signed integers, it is important that the type be
+// signed, otherwise the shift will not preserve the sign bit; this is
+// why we need a separate helper method for signed integers
 
-define_parse_endian_integer(be, uint, 16)
-define_parse_endian_integer(be, uint, 32)
-define_parse_endian_integer(be, uint, 64)
-define_parse_endian_integer(be, uint, 8)
+static void
+parse_endian_int64(bool big_endian_data, int64_t *number, size_t num_bits, PState *pstate)
+{
+    // Parse all signed integers in this helper function
+    union
+    {
+        uint8_t bytes[sizeof(int64_t)];
+        int64_t integer;
+    } buffer;
 
-define_parse_endian_bool(le, 16)
-define_parse_endian_bool(le, 32)
-define_parse_endian_bool(le, 8)
+    // Read data bits
+    buffer.integer = 0;
+    read_bits(buffer.bytes, num_bits, pstate);
+    if (pstate->error) return;
 
-define_parse_endian_real(le, double, 64)
-define_parse_endian_real(le, float, 32)
+    // Shift data bits differently on endianness
+    if (big_endian_data)
+    {
+        // Convert data endianness to host endianness
+        buffer.integer = be64toh(buffer.integer);
 
-define_parse_endian_integer(le, int, 16)
-define_parse_endian_integer(le, int, 32)
-define_parse_endian_integer(le, int, 64)
-define_parse_endian_integer(le, int, 8)
+        // Need only num_bits so remove any padding bits
+        size_t shift = sizeof(int64_t) * 8 - num_bits;
+        buffer.integer >>= shift; // type must be signed
+    }
+    else
+    {
+        // Convert data endianness to host endianness
+        buffer.integer = le64toh(buffer.integer);
 
-define_parse_endian_integer(le, uint, 16)
-define_parse_endian_integer(le, uint, 32)
-define_parse_endian_integer(le, uint, 64)
-define_parse_endian_integer(le, uint, 8)
+        // Need only num_bits so remove any padding bits
+        size_t msb_ix = (num_bits - 1) / BYTE_WIDTH;
+        int8_t msb_byte = (int8_t)buffer.bytes[msb_ix];
+        size_t shift = (BYTE_WIDTH - num_bits % BYTE_WIDTH) % BYTE_WIDTH;
+        buffer.bytes[msb_ix] = msb_byte >> shift; // type must be signed
 
-// Parse fill bytes until end position is reached
+        // Also, negative low-endian integers require setting
+        // following bytes to -1 to preserve the sign bit too
+        if (msb_byte < 0)
+        {
+            for (msb_ix++; msb_ix < sizeof(int64_t); msb_ix++)
+            {
+                buffer.bytes[msb_ix] = -1;
+            }
+        }
+    }
+
+    // Return successfully parsed number and update our last
+    // successful parse position
+    *number = buffer.integer;
+    pstate->bitPos0b += num_bits;
+}
+
+// Helper method to read unsigned integers using fractional byte
+// shifts depending on data endianness (note not tested on big-endian
+// architecture; might work only on low-endian architecture)
+
+static void
+parse_endian_uint64(bool big_endian_data, uint64_t *number, size_t num_bits, PState *pstate)
+{
+    // Parse all unsigned integers in this helper function
+    union
+    {
+        uint8_t  bytes[sizeof(uint64_t)];
+        uint64_t integer;
+    } buffer;
+
+    // Read data bits
+    buffer.integer = 0;
+    read_bits(buffer.bytes, num_bits, pstate);
+    if (pstate->error) return;
+
+    // Shift data bits differently on endianness
+    if (big_endian_data)
+    {
+        // Convert data endianness to host endianness
+        buffer.integer = be64toh(buffer.integer);
+
+        // Need only num_bits so remove any padding bits
+        size_t shift = sizeof(uint64_t) * BYTE_WIDTH - num_bits;
+        buffer.integer >>= shift;
+    }
+    else
+    {
+        // Convert data endianness to host endianness
+        buffer.integer = le64toh(buffer.integer);
+
+        // Need only num_bits so remove any padding bits
+        size_t msb_ix = (num_bits - 1) / BYTE_WIDTH;
+        size_t shift = (BYTE_WIDTH - num_bits % BYTE_WIDTH) % BYTE_WIDTH;
+        buffer.bytes[msb_ix] >>= shift;
+    }
+
+    // Return successfully parsed number and update our last
+    // successful parse position
+    *number = buffer.integer;
+    pstate->bitPos0b += num_bits;
+}
+
+// Helper method to read booleans depending on data endianness;
+// num_bits should be 1 to 32 bits
+
+static void
+parse_endian_bool(bool big_endian_data, bool *number, size_t num_bits, int64_t true_rep, uint32_t false_rep,
+                  PState *pstate)
+{
+    // Parse all booleans in this helper function
+    const size_t last_successful_parse = pstate->bitPos0b;
+    uint64_t     integer;
+
+    // Booleans are limited to 32 bits in the DFDL spec, but we read
+    // all unsigned integers with parse_endian_uint64 using num_bits
+    assert(num_bits && num_bits <= sizeof(uint32_t) * BYTE_WIDTH);
+
+    // parse_endian_uint64 will change position of last successful parse
+    parse_endian_uint64(big_endian_data, &integer, num_bits, pstate);
+    if (pstate->error) return;
+
+    // Recognize true or false representation and assign boolean value
+    // negative true_rep means it is absent and only false_rep needs
+    // to be checked, otherwise true_rep must fit within uint32_t
+    assert(true_rep <= UINT32_MAX);
+    if (true_rep < 0)
+    {
+        *number = (integer != false_rep);
+    }
+    else if (integer == (uint32_t)true_rep)
+    {
+        *number = true;
+    }
+    else if (integer == false_rep)
+    {
+        *number = false;
+    }
+    else
+    {
+        static Error error = {ERR_PARSE_BOOL, {0}};
+        error.arg.d64 = (int64_t)integer;
+        pstate->error = &error;
+
+        // Restore original position of last successful parse
+        pstate->bitPos0b = last_successful_parse;
+    }
+}
+
+// Parse all binary booleans, real numbers, and integers in helper
+// functions, but wrap calls for type safety and simpler calls
 
 void
-parse_fill_bytes(size_t end_position, PState *pstate)
+parse_be_bool(bool *number, size_t num_bits, int64_t true_rep, uint32_t false_rep, PState *pstate)
+{
+    parse_endian_bool(BIG_ENDIAN_DATA, number, num_bits, true_rep, false_rep, pstate);
+}
+
+void
+parse_be_double(double *number, size_t num_bits, PState *pstate)
+{
+    parse_endian_double(BIG_ENDIAN_DATA, number, num_bits, pstate);
+}
+
+void
+parse_be_float(float *number, size_t num_bits, PState *pstate)
+{
+    parse_endian_float(BIG_ENDIAN_DATA, number, num_bits, pstate);
+}
+
+void
+parse_be_int16(int16_t *number, size_t num_bits, PState *pstate)
+{
+    int64_t integer;
+    parse_endian_int64(BIG_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (int16_t)integer;
+}
+
+void
+parse_be_int32(int32_t *number, size_t num_bits, PState *pstate)
+{
+    int64_t integer;
+    parse_endian_int64(BIG_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (int32_t)integer;
+}
+
+void
+parse_be_int64(int64_t *number, size_t num_bits, PState *pstate)
+{
+    parse_endian_int64(BIG_ENDIAN_DATA, number, num_bits, pstate);
+}
+
+void
+parse_be_int8(int8_t *number, size_t num_bits, PState *pstate)
+{
+    int64_t integer;
+    parse_endian_int64(BIG_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (int8_t)integer;
+}
+
+void
+parse_be_uint16(uint16_t *number, size_t num_bits, PState *pstate)
+{
+    uint64_t integer;
+    parse_endian_uint64(BIG_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (uint16_t)integer;
+}
+
+void
+parse_be_uint32(uint32_t *number, size_t num_bits, PState *pstate)
+{
+    uint64_t integer;
+    parse_endian_uint64(BIG_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (uint32_t)integer;
+}
+
+void
+parse_be_uint64(uint64_t *number, size_t num_bits, PState *pstate)
+{
+    parse_endian_uint64(BIG_ENDIAN_DATA, number, num_bits, pstate);
+}
+
+void
+parse_be_uint8(uint8_t *number, size_t num_bits, PState *pstate)
+{
+    uint64_t integer;
+    parse_endian_uint64(BIG_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (uint8_t)integer;
+}
+
+void
+parse_le_bool(bool *number, size_t num_bits, int64_t true_rep, uint32_t false_rep, PState *pstate)
+{
+    parse_endian_bool(LITTLE_ENDIAN_DATA, number, num_bits, true_rep, false_rep, pstate);
+}
+
+void
+parse_le_double(double *number, size_t num_bits, PState *pstate)
+{
+    parse_endian_double(LITTLE_ENDIAN_DATA, number, num_bits, pstate);
+}
+
+void
+parse_le_float(float *number, size_t num_bits, PState *pstate)
+{
+    parse_endian_float(LITTLE_ENDIAN_DATA, number, num_bits, pstate);
+}
+
+void
+parse_le_int16(int16_t *number, size_t num_bits, PState *pstate)
+{
+    int64_t integer;
+    parse_endian_int64(LITTLE_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (int16_t)integer;
+}
+
+void
+parse_le_int32(int32_t *number, size_t num_bits, PState *pstate)
+{
+    int64_t integer;
+    parse_endian_int64(LITTLE_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (int32_t)integer;
+}
+
+void
+parse_le_int64(int64_t *number, size_t num_bits, PState *pstate)
+{
+    parse_endian_int64(LITTLE_ENDIAN_DATA, number, num_bits, pstate);
+}
+
+void
+parse_le_int8(int8_t *number, size_t num_bits, PState *pstate)
+{
+    int64_t integer;
+    parse_endian_int64(LITTLE_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (int8_t)integer;
+}
+
+void
+parse_le_uint16(uint16_t *number, size_t num_bits, PState *pstate)
+{
+    uint64_t integer;
+    parse_endian_uint64(LITTLE_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (uint16_t)integer;
+}
+
+void
+parse_le_uint32(uint32_t *number, size_t num_bits, PState *pstate)
+{
+    uint64_t integer;
+    parse_endian_uint64(LITTLE_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (uint32_t)integer;
+}
+
+void
+parse_le_uint64(uint64_t *number, size_t num_bits, PState *pstate)
+{
+    parse_endian_uint64(LITTLE_ENDIAN_DATA, number, num_bits, pstate);
+}
+
+void
+parse_le_uint8(uint8_t *number, size_t num_bits, PState *pstate)
+{
+    uint64_t integer;
+    parse_endian_uint64(LITTLE_ENDIAN_DATA, &integer, num_bits, pstate);
+    *number = (uint8_t)integer;
+}
+
+// Skip fill bytes until end bitPos0b is reached
+
+void
+parse_fill_bytes(size_t end_bitPos0b, PState *pstate)
 {
     union
     {
-        char c_val[1];
+        uint8_t bytes[1];
     } buffer;
 
-    while (pstate->position < end_position)
+    // Update our last successful parse position only if this loop
+    // finishes without any errors
+    size_t current_bitPos0b = pstate->bitPos0b;
+    while (current_bitPos0b < end_bitPos0b)
     {
-        read_stream_update_position(&buffer.c_val, 1);
+        read_bits(buffer.bytes, BYTE_WIDTH, pstate);
+        if (pstate->error) return;
+        current_bitPos0b += BYTE_WIDTH;
     }
+    pstate->bitPos0b = current_bitPos0b;
 }
 
 // Allocate memory for hexBinary array
@@ -177,15 +551,17 @@ alloc_hexBinary(HexBinary *hexBinary, size_t num_bytes, PState *pstate)
     }
 }
 
-// Parse 8-bit bytes into hexBinary array
+// Parse opaque bytes into hexBinary array
 
 void
 parse_hexBinary(HexBinary *hexBinary, PState *pstate)
 {
-    read_stream_update_position(hexBinary->array, hexBinary->lengthInBytes);
+    read_bits(hexBinary->array, hexBinary->lengthInBytes * BYTE_WIDTH, pstate);
+    if (pstate->error) return;
+    pstate->bitPos0b += hexBinary->lengthInBytes * BYTE_WIDTH;
 }
 
-// Validate parsed number is same as fixed value
+// Validate element's value matches its fixed attribute
 
 void
 parse_validate_fixed(bool same, const char *element, PState *pstate)

@@ -76,9 +76,8 @@ lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2
                                 Compile / ccArchiveCommand := sys.env.getOrElse("AR", "ar"),
                                 Compile / ccTargets := ListSet(runtime2CFiles),
                                 Compile / cSources  := Map(
-                                  runtime2CFiles -> (
-                                    ((Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" ** GlobFilter("*.c")).get()
-                                  )
+                                  runtime2CFiles -> ((Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c"
+                                    * GlobFilter("lib*") * GlobFilter("*.c")).get()
                                 ),
                                 Compile / cIncludeDirectories := Map(
                                   runtime2CFiles -> Seq(

@@ -116,7 +116,7 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
       val compiler = pickCompiler
       val cFlags = Seq("-std=gnu11")
       val includes = Seq("-Ilibcli", "-Ilibruntime")
-      val absFiles = os.walk(codeDir).filter(_.ext == "c")
+      val absFiles = os.walk(codeDir, skip = _.last == "tests").filter(_.ext == "c")
       val relFiles = Seq("libcli/*.c", "libruntime/*.c")
       val libs = Seq("-lmxml")
 
