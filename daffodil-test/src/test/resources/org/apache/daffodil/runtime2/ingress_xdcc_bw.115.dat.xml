@@ -286,22 +286,22 @@
         <TGT_ISRM_ID7>0</TGT_ISRM_ID7>
         <TGT_ISRM_ID7>0</TGT_ISRM_ID7>
         <TGT_ISRM_ID7>0</TGT_ISRM_ID7>
-        <alt>0</alt>
-        <alt>0</alt>
-        <alt>-2.2363310143334415E+307</alt>
-        <alt>-2.236435215127047E+307</alt>
-        <alt>-2.2363310143043182E+307</alt>
-        <alt>-1.5966722476277758E+293</alt>
-        <alt>-2.2363220410727081E+307</alt>
-        <alt>-2.2363310143063459E+307</alt>
-        <bearing>-1</bearing>
-        <bearing>-1</bearing>
-        <bearing>-2.2363310143048291E+307</bearing>
-        <bearing>-3.3189020416553621E+148</bearing>
-        <bearing>0</bearing>
-        <bearing>-5.1093511924088827E+294</bearing>
-        <bearing>-2.2363310143043182E+307</bearing>
-        <bearing>-7.0592328879678846E+299</bearing>
+        <alt>0.0</alt>
+        <alt>0.0</alt>
+        <alt>-2.236331014333441E307</alt>
+        <alt>-2.236435215127047E307</alt>
+        <alt>-2.236331014304318E307</alt>
+        <alt>-1.596672247627777E293</alt>
+        <alt>-2.236322041072708E307</alt>
+        <alt>-2.236331014306346E307</alt>
+        <bearing>-1.0</bearing>
+        <bearing>-1.0</bearing>
+        <bearing>-2.236331014304829E307</bearing>
+        <bearing>-3.318902041655362E148</bearing>
+        <bearing>0.0</bearing>
+        <bearing>-5.109351192408883E294</bearing>
+        <bearing>-2.236331014304318E307</bearing>
+        <bearing>-7.059232887967885E299</bearing>
         <classification0>99</classification0>
         <classification0>97</classification0>
         <classification0>114</classification0>
@@ -815,37 +815,37 @@
         <classification7>0</classification7>
         <classification7>0</classification7>
         <confidence>0.8304254412651062</confidence>
-        <confidence>0.84350341558456421</confidence>
-        <confidence>-2.236331014302019E+307</confidence>
-        <confidence>0</confidence>
-        <confidence>-2.2363310143025299E+307</confidence>
-        <confidence>-7.0592328879678846E+299</confidence>
-        <confidence>-2.2364351717587783E+307</confidence>
-        <confidence>-2.236435215244131E+307</confidence>
-        <lat>32.730128382409546</lat>
-        <lat>30.730832492300745</lat>
-        <lat>0</lat>
-        <lat>-2.229577558811266E+307</lat>
-        <lat>-2.2363220410652995E+307</lat>
-        <lat>-2.2363310143107049E+307</lat>
-        <lat>-2.236331014301508E+307</lat>
-        <lat>-2.236435213899717E+307</lat>
-        <lon>-117.14324935960397</lon>
-        <lon>-117.13837444312801</lon>
-        <lon>-2.2363310143002307E+307</lon>
-        <lon>-2.2364352132486419E+307</lon>
-        <lon>-1</lon>
-        <lon>-2.2363310143107049E+307</lon>
-        <lon>-2.3316027292373177E+304</lon>
-        <lon>-3.3189020416553621E+148</lon>
-        <speed>-1</speed>
-        <speed>-1</speed>
-        <speed>-2.2363310143109603E+307</speed>
-        <speed>-2.2363220410729635E+307</speed>
-        <speed>-2.2363310142994643E+307</speed>
-        <speed>-2.2364352136680718E+307</speed>
-        <speed>-1</speed>
-        <speed>-2.2363310143107049E+307</speed>
+        <confidence>0.8435034155845642</confidence>
+        <confidence>-2.236331014302019E307</confidence>
+        <confidence>0.0</confidence>
+        <confidence>-2.236331014302532E307</confidence>
+        <confidence>-7.059232887967885E299</confidence>
+        <confidence>-2.236435171758778E307</confidence>
+        <confidence>-2.236435215244131E307</confidence>
+        <lat>32.73012838240955</lat>
+        <lat>30.73083249230075</lat>
+        <lat>0.0</lat>
+        <lat>-2.229577558811266E307</lat>
+        <lat>-2.236322041065322E307</lat>
+        <lat>-2.236331014310705E307</lat>
+        <lat>-2.236331014301508E307</lat>
+        <lat>-2.236435213899717E307</lat>
+        <lon>-117.143249359604</lon>
+        <lon>-117.138374443128</lon>
+        <lon>-2.236331014300231E307</lon>
+        <lon>-2.236435213248642E307</lon>
+        <lon>-1.0</lon>
+        <lon>-2.236331014310705E307</lon>
+        <lon>-2.331602729237318E304</lon>
+        <lon>-3.318902041655362E148</lon>
+        <speed>-1.0</speed>
+        <speed>-1.0</speed>
+        <speed>-2.236331014310967E307</speed>
+        <speed>-2.236322041072964E307</speed>
+        <speed>-2.236331014299464E307</speed>
+        <speed>-2.236435213668072E307</speed>
+        <speed>-1.0</speed>
+        <speed>-2.236331014310705E307</speed>
       </gma:Request_echo_recieveISRMDetections>
     </gma:ApplicationData>
     <gma:GapsTrailer>

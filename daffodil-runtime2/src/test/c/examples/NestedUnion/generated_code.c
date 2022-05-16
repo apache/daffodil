@@ -11,17 +11,13 @@
 
 // Declare prototypes for easier compilation
 
-static void foo_data_NestedUnionType__initSelf(foo_data_NestedUnionType_ *instance);
 static void foo_data_NestedUnionType__parseSelf(foo_data_NestedUnionType_ *instance, PState *pstate);
 static void foo_data_NestedUnionType__unparseSelf(const foo_data_NestedUnionType_ *instance, UState *ustate);
-static void bar_data_NestedUnionType__initSelf(bar_data_NestedUnionType_ *instance);
 static void bar_data_NestedUnionType__parseSelf(bar_data_NestedUnionType_ *instance, PState *pstate);
 static void bar_data_NestedUnionType__unparseSelf(const bar_data_NestedUnionType_ *instance, UState *ustate);
-static void data_NestedUnionType__initSelf(data_NestedUnionType_ *instance);
 static const Error *data_NestedUnionType__initChoice(data_NestedUnionType_ *instance, const NestedUnion_ *rootElement);
 static void data_NestedUnionType__parseSelf(data_NestedUnionType_ *instance, PState *pstate);
 static void data_NestedUnionType__unparseSelf(const data_NestedUnionType_ *instance, UState *ustate);
-static void NestedUnion__initSelf(NestedUnion_ *instance);
 static void NestedUnion__parseSelf(NestedUnion_ *instance, PState *pstate);
 static void NestedUnion__unparseSelf(const NestedUnion_ *instance, UState *ustate);
 
@@ -34,7 +30,7 @@ static const ERD tag_NestedUnionType_ERD = {
         NULL, // namedQName.ns
     },
     PRIMITIVE_INT32, // typeCode
-    0, NULL, NULL, NULL, NULL, NULL, NULL
+    0, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ERD _choice_data_NestedUnionType_ERD = {
@@ -44,7 +40,7 @@ static const ERD _choice_data_NestedUnionType_ERD = {
         NULL, // namedQName.ns
     },
     CHOICE, // typeCode
-    0, NULL, NULL, NULL, NULL, NULL, NULL
+    0, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ERD a_FooType_ERD = {
@@ -54,7 +50,7 @@ static const ERD a_FooType_ERD = {
         NULL, // namedQName.ns
     },
     PRIMITIVE_INT32, // typeCode
-    0, NULL, NULL, NULL, NULL, NULL, NULL
+    0, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ERD b_FooType_ERD = {
@@ -64,7 +60,7 @@ static const ERD b_FooType_ERD = {
         NULL, // namedQName.ns
     },
     PRIMITIVE_INT32, // typeCode
-    0, NULL, NULL, NULL, NULL, NULL, NULL
+    0, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ERD c_FooType_ERD = {
@@ -74,7 +70,7 @@ static const ERD c_FooType_ERD = {
         NULL, // namedQName.ns
     },
     PRIMITIVE_INT32, // typeCode
-    0, NULL, NULL, NULL, NULL, NULL, NULL
+    0, NULL, NULL, NULL, NULL, NULL
 };
 
 static const foo_data_NestedUnionType_ foo_data_NestedUnionType__compute_offsets;
@@ -101,7 +97,6 @@ static const ERD foo_data_NestedUnionType_ERD = {
     3, // numChildren
     foo_data_NestedUnionType__offsets, // offsets
     foo_data_NestedUnionType__childrenERDs, // childrenERDs
-    (ERDInitSelf)&foo_data_NestedUnionType__initSelf, // initSelf
     (ERDParseSelf)&foo_data_NestedUnionType__parseSelf, // parseSelf
     (ERDUnparseSelf)&foo_data_NestedUnionType__unparseSelf, // unparseSelf
     NULL // initChoice
@@ -114,7 +109,7 @@ static const ERD x_BarType_ERD = {
         NULL, // namedQName.ns
     },
     PRIMITIVE_DOUBLE, // typeCode
-    0, NULL, NULL, NULL, NULL, NULL, NULL
+    0, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ERD y_BarType_ERD = {
@@ -124,7 +119,7 @@ static const ERD y_BarType_ERD = {
         NULL, // namedQName.ns
     },
     PRIMITIVE_DOUBLE, // typeCode
-    0, NULL, NULL, NULL, NULL, NULL, NULL
+    0, NULL, NULL, NULL, NULL, NULL
 };
 
 static const ERD z_BarType_ERD = {
@@ -134,7 +129,7 @@ static const ERD z_BarType_ERD = {
         NULL, // namedQName.ns
     },
     PRIMITIVE_DOUBLE, // typeCode
-    0, NULL, NULL, NULL, NULL, NULL, NULL
+    0, NULL, NULL, NULL, NULL, NULL
 };
 
 static const bar_data_NestedUnionType_ bar_data_NestedUnionType__compute_offsets;
@@ -161,7 +156,6 @@ static const ERD bar_data_NestedUnionType_ERD = {
     3, // numChildren
     bar_data_NestedUnionType__offsets, // offsets
     bar_data_NestedUnionType__childrenERDs, // childrenERDs
-    (ERDInitSelf)&bar_data_NestedUnionType__initSelf, // initSelf
     (ERDParseSelf)&bar_data_NestedUnionType__parseSelf, // parseSelf
     (ERDUnparseSelf)&bar_data_NestedUnionType__unparseSelf, // unparseSelf
     NULL // initChoice
@@ -191,7 +185,6 @@ static const ERD data_NestedUnionType_ERD = {
     2, // numChildren
     data_NestedUnionType__offsets, // offsets
     data_NestedUnionType__childrenERDs, // childrenERDs
-    (ERDInitSelf)&data_NestedUnionType__initSelf, // initSelf
     (ERDParseSelf)&data_NestedUnionType__parseSelf, // parseSelf
     (ERDUnparseSelf)&data_NestedUnionType__unparseSelf, // unparseSelf
     (InitChoiceRD)&data_NestedUnionType__initChoice // initChoice
@@ -219,33 +212,22 @@ static const ERD NestedUnion_ERD = {
     2, // numChildren
     NestedUnion__offsets, // offsets
     NestedUnion__childrenERDs, // childrenERDs
-    (ERDInitSelf)&NestedUnion__initSelf, // initSelf
     (ERDParseSelf)&NestedUnion__parseSelf, // parseSelf
     (ERDUnparseSelf)&NestedUnion__unparseSelf, // unparseSelf
     NULL // initChoice
 };
 
-// Return a root element for parsing or unparsing the infoset
-
-InfosetBase *
-rootElement(void)
-{
-    static bool initialized;
-    static NestedUnion_ root;
-    if (!initialized)
-    {
-        NestedUnion__initSelf(&root);
-        initialized = true;
-    }
-    return &root._base;
-}
-
 // Initialize, parse, and unparse nodes of the infoset
+
+static void
+foo_data_NestedUnionType__initERD(foo_data_NestedUnionType_ *instance)
+{
+    instance->_base.erd = &foo_data_NestedUnionType_ERD;
+}
 
 static void
 foo_data_NestedUnionType__initSelf(foo_data_NestedUnionType_ *instance)
 {
-    instance->_base.erd = &foo_data_NestedUnionType_ERD;
     instance->a = 0x77777777;
     instance->b = 0x77777777;
     instance->c = 0x77777777;
@@ -254,29 +236,34 @@ foo_data_NestedUnionType__initSelf(foo_data_NestedUnionType_ *instance)
 static void
 foo_data_NestedUnionType__parseSelf(foo_data_NestedUnionType_ *instance, PState *pstate)
 {
-    parse_be_int32(&instance->a, pstate);
+    parse_be_int32(&instance->a, 32, pstate);
     if (pstate->error) return;
-    parse_be_int32(&instance->b, pstate);
+    parse_be_int32(&instance->b, 32, pstate);
     if (pstate->error) return;
-    parse_be_int32(&instance->c, pstate);
+    parse_be_int32(&instance->c, 32, pstate);
     if (pstate->error) return;
 }
 
 static void
 foo_data_NestedUnionType__unparseSelf(const foo_data_NestedUnionType_ *instance, UState *ustate)
 {
-    unparse_be_int32(instance->a, ustate);
+    unparse_be_int32(instance->a, 32, ustate);
     if (ustate->error) return;
-    unparse_be_int32(instance->b, ustate);
+    unparse_be_int32(instance->b, 32, ustate);
     if (ustate->error) return;
-    unparse_be_int32(instance->c, ustate);
+    unparse_be_int32(instance->c, 32, ustate);
     if (ustate->error) return;
+}
+
+static void
+bar_data_NestedUnionType__initERD(bar_data_NestedUnionType_ *instance)
+{
+    instance->_base.erd = &bar_data_NestedUnionType_ERD;
 }
 
 static void
 bar_data_NestedUnionType__initSelf(bar_data_NestedUnionType_ *instance)
 {
-    instance->_base.erd = &bar_data_NestedUnionType_ERD;
     instance->x = NAN;
     instance->y = NAN;
     instance->z = NAN;
@@ -285,29 +272,34 @@ bar_data_NestedUnionType__initSelf(bar_data_NestedUnionType_ *instance)
 static void
 bar_data_NestedUnionType__parseSelf(bar_data_NestedUnionType_ *instance, PState *pstate)
 {
-    parse_be_double(&instance->x, pstate);
+    parse_be_double(&instance->x, 64, pstate);
     if (pstate->error) return;
-    parse_be_double(&instance->y, pstate);
+    parse_be_double(&instance->y, 64, pstate);
     if (pstate->error) return;
-    parse_be_double(&instance->z, pstate);
+    parse_be_double(&instance->z, 64, pstate);
     if (pstate->error) return;
 }
 
 static void
 bar_data_NestedUnionType__unparseSelf(const bar_data_NestedUnionType_ *instance, UState *ustate)
 {
-    unparse_be_double(instance->x, ustate);
+    unparse_be_double(instance->x, 64, ustate);
     if (ustate->error) return;
-    unparse_be_double(instance->y, ustate);
+    unparse_be_double(instance->y, 64, ustate);
     if (ustate->error) return;
-    unparse_be_double(instance->z, ustate);
+    unparse_be_double(instance->z, 64, ustate);
     if (ustate->error) return;
+}
+
+static void
+data_NestedUnionType__initERD(data_NestedUnionType_ *instance)
+{
+    instance->_base.erd = &data_NestedUnionType_ERD;
 }
 
 static void
 data_NestedUnionType__initSelf(data_NestedUnionType_ *instance)
 {
-    instance->_base.erd = &data_NestedUnionType_ERD;
     instance->_choice = 0xFFFFFFFFFFFFFFFF;
     foo_data_NestedUnionType__initSelf(&instance->foo);
     bar_data_NestedUnionType__initSelf(&instance->bar);
@@ -324,22 +316,17 @@ data_NestedUnionType__initChoice(data_NestedUnionType_ *instance, const NestedUn
     case 1:
     case 2:
         instance->_choice = 0;
+        foo_data_NestedUnionType__initERD(&instance->foo);
         break;
     case 3:
     case 4:
         instance->_choice = 1;
+        bar_data_NestedUnionType__initERD(&instance->bar);
         break;
     default:
         error.arg.d64 = key;
         return &error;
     }
-
-    // Point next ERD to choice of alternative elements' ERDs
-    const size_t choice = instance->_choice + 1; // skip the _choice field
-    const size_t offset = instance->_base.erd->offsets[choice];
-    const ERD *  childERD = instance->_base.erd->childrenERDs[choice];
-    InfosetBase *childNode = (InfosetBase *)((const char *)instance + offset);
-    childNode->erd = childERD;
 
     return NULL;
 }
@@ -397,9 +384,15 @@ data_NestedUnionType__unparseSelf(const data_NestedUnionType_ *instance, UState 
 }
 
 static void
-NestedUnion__initSelf(NestedUnion_ *instance)
+NestedUnion__initERD(NestedUnion_ *instance)
 {
     instance->_base.erd = &NestedUnion_ERD;
+    data_NestedUnionType__initERD(&instance->data);
+}
+
+static void
+NestedUnion__initSelf(NestedUnion_ *instance)
+{
     instance->tag = 0x77777777;
     data_NestedUnionType__initSelf(&instance->data);
 }
@@ -407,7 +400,7 @@ NestedUnion__initSelf(NestedUnion_ *instance)
 static void
 NestedUnion__parseSelf(NestedUnion_ *instance, PState *pstate)
 {
-    parse_be_int32(&instance->tag, pstate);
+    parse_be_int32(&instance->tag, 32, pstate);
     if (pstate->error) return;
     data_NestedUnionType__parseSelf(&instance->data, pstate);
     if (pstate->error) return;
@@ -416,9 +409,24 @@ NestedUnion__parseSelf(NestedUnion_ *instance, PState *pstate)
 static void
 NestedUnion__unparseSelf(const NestedUnion_ *instance, UState *ustate)
 {
-    unparse_be_int32(instance->tag, ustate);
+    unparse_be_int32(instance->tag, 32, ustate);
     if (ustate->error) return;
     data_NestedUnionType__unparseSelf(&instance->data, ustate);
     if (ustate->error) return;
 }
 
+// Return a root element for parsing or unparsing the infoset
+
+InfosetBase *
+rootElement(void)
+{
+    static bool initialized;
+    static NestedUnion_ root;
+    if (!initialized)
+    {
+        NestedUnion__initERD(&root);
+        NestedUnion__initSelf(&root);
+        initialized = true;
+    }
+    return &root._base;
+}

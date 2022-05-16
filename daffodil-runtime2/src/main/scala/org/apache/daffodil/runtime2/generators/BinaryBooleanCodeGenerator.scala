@@ -32,19 +32,16 @@ trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
     Assert.invariant(e.elementLengthInBitsEv.isConstant)
 
     val lengthInBits = e.elementLengthInBitsEv.constValue.get
-    val initialValue = lengthInBits match {
-      case 8 | 16 | 32 => "true"
-      case _ => e.SDE("Boolean lengths other than 8, 16, or 32 bits are not supported.")
-    }
-    val primType = s"bool$lengthInBits"
-    val addField = booleanAddField(e, initialValue, primType, _, cgState)
+    val initialValue = "true"
+    val primType = "bool"
+    val addField = booleanAddField(e, initialValue, lengthInBits, primType, _, cgState)
     val validateFixed = valueValidateFixed(e, _, cgState)
 
     binaryValueGenerateCode(e, addField, validateFixed)
   }
 
   // Generate C code to initialize, parse, and unparse a boolean element
-  private def booleanAddField(e: ElementBase, initialValue: String, primType: String, deref: String, cgState: CodeGeneratorState): Unit = {
+  private def booleanAddField(e: ElementBase, initialValue: String, lengthInBits: Long, primType: String, deref: String, cgState: CodeGeneratorState): Unit = {
     val localName = e.namedQName.local
     val field = s"instance->$localName$deref"
     val conv = if (e.byteOrderEv.constValue eq ByteOrder.BigEndian) "be" else "le"
@@ -54,13 +51,14 @@ trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
     val falseRep = e.binaryBooleanFalseRep
     val unparseTrueRep = if (e.binaryBooleanTrueRep.isDefined) s"$trueRep" else s"~$falseRep"
 
-    val initStatement = s"    $field = $initialValue;"
+    val initERDStatement = ""
+    val initSelfStatement = s"    $field = $initialValue;"
     val parseStatement =
-      s"""    parse_$function(&$field, $trueRep, $falseRep, pstate);
+      s"""    parse_$function(&$field, $lengthInBits, $trueRep, $falseRep, pstate);
          |    if (pstate->error) return;""".stripMargin
     val unparseStatement =
-      s"""    unparse_$function($field, $unparseTrueRep, $falseRep, ustate);
+      s"""    unparse_$function($field, $lengthInBits, $unparseTrueRep, $falseRep, ustate);
          |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
+    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
   }
 }

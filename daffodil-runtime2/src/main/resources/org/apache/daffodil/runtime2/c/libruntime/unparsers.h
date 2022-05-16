@@ -21,51 +21,47 @@
 // clang-format off
 #include <stdbool.h>  // for bool
 #include <stddef.h>   // for size_t
-#include <stdint.h>   // for uint32_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint64_t, uint8_t
+#include <stdint.h>   // for uint32_t, uint8_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint64_t
 #include "infoset.h"  // for UState, HexBinary
 // clang-format on
 
 // Unparse binary booleans, real numbers, and integers
 
-extern void unparse_be_bool16(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
-extern void unparse_be_bool32(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
-extern void unparse_be_bool8(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
+extern void unparse_be_bool(bool number, size_t num_bits, uint32_t true_rep, uint32_t false_rep,
+                            UState *ustate);
+extern void unparse_be_double(double number, size_t num_bits, UState *ustate);
+extern void unparse_be_float(float number, size_t num_bits, UState *ustate);
 
-extern void unparse_be_double(double number, UState *ustate);
-extern void unparse_be_float(float number, UState *ustate);
+extern void unparse_be_int16(int16_t number, size_t num_bits, UState *ustate);
+extern void unparse_be_int32(int32_t number, size_t num_bits, UState *ustate);
+extern void unparse_be_int64(int64_t number, size_t num_bits, UState *ustate);
+extern void unparse_be_int8(int8_t number, size_t num_bits, UState *ustate);
 
-extern void unparse_be_int16(int16_t number, UState *ustate);
-extern void unparse_be_int32(int32_t number, UState *ustate);
-extern void unparse_be_int64(int64_t number, UState *ustate);
-extern void unparse_be_int8(int8_t number, UState *ustate);
+extern void unparse_be_uint16(uint16_t number, size_t num_bits, UState *ustate);
+extern void unparse_be_uint32(uint32_t number, size_t num_bits, UState *ustate);
+extern void unparse_be_uint64(uint64_t number, size_t num_bits, UState *ustate);
+extern void unparse_be_uint8(uint8_t number, size_t num_bits, UState *ustate);
 
-extern void unparse_be_uint16(uint16_t number, UState *ustate);
-extern void unparse_be_uint32(uint32_t number, UState *ustate);
-extern void unparse_be_uint64(uint64_t number, UState *ustate);
-extern void unparse_be_uint8(uint8_t number, UState *ustate);
+extern void unparse_le_bool(bool number, size_t num_bits, uint32_t true_rep, uint32_t false_rep,
+                            UState *ustate);
+extern void unparse_le_double(double number, size_t num_bits, UState *ustate);
+extern void unparse_le_float(float number, size_t num_bits, UState *ustate);
 
-extern void unparse_le_bool16(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
-extern void unparse_le_bool32(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
-extern void unparse_le_bool8(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate);
+extern void unparse_le_int16(int16_t number, size_t num_bits, UState *ustate);
+extern void unparse_le_int32(int32_t number, size_t num_bits, UState *ustate);
+extern void unparse_le_int64(int64_t number, size_t num_bits, UState *ustate);
+extern void unparse_le_int8(int8_t number, size_t num_bits, UState *ustate);
 
-extern void unparse_le_double(double number, UState *ustate);
-extern void unparse_le_float(float number, UState *ustate);
+extern void unparse_le_uint16(uint16_t number, size_t num_bits, UState *ustate);
+extern void unparse_le_uint32(uint32_t number, size_t num_bits, UState *ustate);
+extern void unparse_le_uint64(uint64_t number, size_t num_bits, UState *ustate);
+extern void unparse_le_uint8(uint8_t number, size_t num_bits, UState *ustate);
 
-extern void unparse_le_int16(int16_t number, UState *ustate);
-extern void unparse_le_int32(int32_t number, UState *ustate);
-extern void unparse_le_int64(int64_t number, UState *ustate);
-extern void unparse_le_int8(int8_t number, UState *ustate);
+// Unparse fill bytes until end bytePos0b is reached
 
-extern void unparse_le_uint16(uint16_t number, UState *ustate);
-extern void unparse_le_uint32(uint32_t number, UState *ustate);
-extern void unparse_le_uint64(uint64_t number, UState *ustate);
-extern void unparse_le_uint8(uint8_t number, UState *ustate);
+extern void unparse_fill_bytes(size_t end_bytePos0b, const uint8_t fill_byte, UState *ustate);
 
-// Unparse fill bytes until end position is reached
-
-extern void unparse_fill_bytes(size_t end_position, const char fill_byte, UState *ustate);
-
-// Unparse 8-bit bytes from hexBinary field
+// Unparse opaque bytes from hexBinary field
 
 extern void unparse_hexBinary(HexBinary hexBinary, UState *ustate);
 

@@ -35,6 +35,25 @@ LIBS = -lmxml
 $(PROGRAM): $(HEADERS) $(SOURCES)
 	$(CC) $(CFLAGS) $(INCLUDES) $(SOURCES) $(LIBS) -o $(PROGRAM)
 
+# Step 1.5: Run the tests if you are a developer making changes to the
+# C code, otherwise you can skip this step.  On Ubuntu 20.04, you will
+# need to manually build and install a C test framework library called
+# Criterion (https://github.com/Snaipe/Criterion); note building
+# Criterion requires meson ninja-build libffi-dev libgit2-dev.
+
+TPROGRAM = ./ctests
+EXCLUDES = %/daffodil_main.c %/generated_code.c
+LSOURCES = $(filter-out $(EXCLUDES),$(wildcard $(SOURCES)))
+TSOURCES = tests/*.c
+TINCLUDES = $(INCLUDES) -I/usr/local/include
+TLIBS = $(LIBS) -lcriterion
+
+$(TPROGRAM): $(HEADERS) $(LSOURCES) $(TSOURCES)
+	$(CC) $(CFLAGS) $(TINCLUDES) $(LSOURCES) $(TSOURCES) $(TLIBS) -o $(TPROGRAM)
+
+test: $(TPROGRAM)
+	$(TPROGRAM) #--verbose --debug=gdb --filter=bits/be_signed_integers
+
 # Step 2: Copy your test files here and rename them to test.dat and
 # test.dat.xml or else edit TEST_DAT and TEST_DAT_XML below.
 
@@ -64,7 +83,7 @@ unparse-check: $(PROGRAM)
 # $ make clean
 
 clean:
-	rm -f $(PROGRAM) $(TEST_DAT).tmp $(TEST_DAT_XML).tmp
+	rm -f $(PROGRAM) $(TPROGRAM) $(TEST_DAT).tmp $(TEST_DAT_XML).tmp
 
 # Maintainer only: Format C source files or check includes.
 
@@ -72,9 +91,9 @@ FMT = clang-format -i
 IWYU = iwyu -Xiwyu --max_line_length=999 -Xiwyu --update_comments
 
 format:
-	$(FMT) $(HEADERS) $(SOURCES)
+	$(FMT) $(HEADERS) $(SOURCES) $(TSOURCES)
 
 iwyu:
-	-for f in $(SOURCES); do $(IWYU) $(CFLAGS) $(INCLUDES) $$f; done
+	-for f in $(SOURCES) $(TSOURCES); do $(IWYU) $(CFLAGS) $(INCLUDES) $$f; done
 
-.PHONY: check parse-check unparse-check clean format iwyu
+.PHONY: test check parse-check unparse-check clean format iwyu

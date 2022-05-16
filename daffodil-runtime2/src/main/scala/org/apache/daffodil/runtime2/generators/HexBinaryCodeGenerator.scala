@@ -63,24 +63,25 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val i = if (deref.length > 2) deref.substring(1, deref.length - 1) else ""
     val lenVar = s"_l_$localName$i"
 
-    val initStatement =
+    val initERDStatement =
       s"""    $field.array = NULL;
          |    $field.lengthInBytes = 0;
          |    $field.dynamic = true;""".stripMargin
+    val initSelfStatement = ""
     val parseStatement =
       s"""    ${primType}_t $lenVar;
-         |    parse_$function(&$lenVar, pstate);
+         |    parse_$function(&$lenVar, $intLen, pstate);
          |    if (pstate->error) return;
          |    alloc_hexBinary(&$field, $lenVar, pstate);
          |    if (pstate->error) return;
          |    parse_hexBinary(&$field, pstate);
          |    if (pstate->error) return;""".stripMargin
     val unparseStatement =
-      s"""    unparse_$function($field.lengthInBytes, ustate);
+      s"""    unparse_$function($field.lengthInBytes, $intLen, ustate);
          |    if (ustate->error) return;
          |    unparse_hexBinary($field, ustate);
          |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
+    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
   }
 
   // Generate C code to initialize, parse, and unparse a hexBinary specified length element
@@ -90,22 +91,25 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val fieldArray = s"instance->_a_$localName$deref"
     val specifiedLength = e.elementLengthInBitsEv.constValue.get
 
-    val initStatement = if (specifiedLength > 0)
+    val initERDStatement = if (specifiedLength > 0)
       s"""    $field.array = $fieldArray;
          |    $field.lengthInBytes = sizeof($fieldArray);
-         |    $field.dynamic = false;
-         |    memset($fieldArray, 0x77, sizeof($fieldArray));""".stripMargin
+         |    $field.dynamic = false;""".stripMargin
     else
       s"""    $field.array = NULL;
          |    $field.lengthInBytes = 0;
          |    $field.dynamic = false;""".stripMargin
+    val initSelfStatement = if (specifiedLength > 0)
+      s"    memset($fieldArray, 0x77, sizeof($fieldArray));"
+    else
+      ""
     val parseStatement =
       s"""    parse_hexBinary(&$field, pstate);
          |    if (pstate->error) return;""".stripMargin
     val unparseStatement =
       s"""    unparse_hexBinary($field, ustate);
          |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
+    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
   }
 
   // Generate C code to validate a hexBinary element against its fixed value
@@ -116,7 +120,8 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val fixed = s"${localName}_fixed$i"
     val array = e.fixedValueAsString.grouped(2).mkString("0x", ", 0x", "")
 
-    val initStatement = ""
+    val initERDStatement = ""
+    val initSelfStatement = ""
     val parseStatement =
       s"""    uint8_t $fixed[] = {$array};
          |    parse_validate_fixed(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", pstate);
@@ -125,6 +130,6 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
       s"""    uint8_t $fixed[] = {$array};
          |    unparse_validate_fixed(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", ustate);
          |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initStatement, parseStatement, unparseStatement)
+    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
   }
 }

@@ -22,29 +22,54 @@
 #include <stdbool.h>     // for bool, false, true
 #include <stdint.h>      // for uint8_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t
 #include <stdlib.h>      // for free, malloc
-#include <string.h>      // for strcmp
+#include <string.h>      // for strcmp, strlen
 #include "cli_errors.h"  // for CLI_XML_DECL, CLI_XML_ELEMENT, CLI_XML_WRITE, LIMIT_XML_NESTING
 #include "errors.h"      // for Error, Error::(anonymous)
 #include "stack.h"       // for stack_is_empty, stack_pop, stack_push, stack_top, stack_init
 // clang-format on
 
-// Fix a real number to conform to xsd:float syntax if needed
+// Fix a real number's syntax to remove as many textual differences
+// between runtime1/runtime2 as possible.  A better approach may be
+// to make TDMLRunner compare floats and doubles in XML numerically
+// with a small epsilon instead of textually character by character.
 
 static void
 fixNumberIfNeeded(const char *text)
 {
-    // We aren't writing code to remove all textual differences
-    // between runtime1/runtime2 because it would be better to make
-    // Daffodil compare numbers numerically, not textually.  If we did
-    // have to match runtime1 perfectly, we would have to:
-    //  - Strip + from <f>E+<e> to get <f>E<e>
-    //  - Add .0 to 1 to get 1.0
-    //  - Change number of significant digits to match runtime1
+    // Change 'NAN' to 'NaN' to conform to xsd:float syntax
     if (text && text[0] == 'N' && text[1] == 'A')
     {
-        // xsd:float requires NaN to be capitalized correctly
         char *modifyInPlace = (char *)text;
         modifyInPlace[1] = 'a';
+    }
+
+    // Chop trailing zeros except for one zero after dot
+    size_t zero = strlen(text);
+    while (zero && text[zero - 1] == '0')
+        zero--;
+    if (zero && text[zero - 1] == '.' && text[zero] == '0') zero++;
+    if (zero && text[zero] == '0')
+    {
+        char *modifyInPlace = (char *)text;
+        modifyInPlace[zero] = 0;
+    }
+
+    // Chop + from <f>E+<e> to match runtime2's <f>E<e> syntax
+    size_t plus = 0;
+    size_t i = 0;
+    while (text[i++])
+    {
+        if (text[i - 1] == 'E' && text[i] == '+')
+        {
+            plus = i;
+            break;
+        }
+    }
+    while (plus && plus < zero)
+    {
+        char *modifyInPlace = (char *)text;
+        modifyInPlace[plus] = text[plus + 1];
+        plus++;
     }
 }
 
@@ -92,7 +117,7 @@ binaryToHex(HexBinary hexBinary, bool freeMemory)
         *(nibble++) = hexDigit[hexBinary.array[i] / 16]; // high nibble
         *(nibble++) = hexDigit[hexBinary.array[i] % 16]; // low nibble
     }
-    *(nibble++) = '\0';
+    *(nibble) = '\0';
 
     return text;
 }
@@ -207,13 +232,13 @@ xmlSimpleElem(XMLWriter *writer, const ERD *erd, const void *valueptr)
         text = mxmlNewOpaquef(simple, "%s", *(const bool *)valueptr ? "true" : "false");
         break;
     case PRIMITIVE_FLOAT:
-        // Format as shortest possible round-trippable float
-        text = mxmlNewOpaquef(simple, "%.9G", *(const float *)valueptr);
+        // Format as float with same precision as runtime1
+        text = mxmlNewOpaquef(simple, "%#.8G", *(const float *)valueptr);
         fixNumberIfNeeded(mxmlGetOpaque(text));
         break;
     case PRIMITIVE_DOUBLE:
-        // Format as shortest possible round-trippable double
-        text = mxmlNewOpaquef(simple, "%.17lG", *(const double *)valueptr);
+        // Format as double with same precision as runtime1
+        text = mxmlNewOpaquef(simple, "%#.16lG", *(const double *)valueptr);
         fixNumberIfNeeded(mxmlGetOpaque(text));
         break;
     case PRIMITIVE_HEXBINARY:

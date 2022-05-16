@@ -27,10 +27,10 @@ trait BinaryFloatCodeGenerator extends BinaryValueCodeGenerator {
     // fails to set the field.
     val initialValue = lengthInBits match {
       case 32 | 64 => "NAN"
-      case _ => e.SDE("Floating point lengths other than 32 or 64 bits are not supported.")
+      case _ => e.SDE("Binary floating point lengths other than 32 or 64 bits are not supported.")
     }
     val primType = if (lengthInBits == 32) "float" else "double"
-    val addField = valueAddField(e, initialValue, primType, _, cgState)
+    val addField = valueAddField(e, initialValue, lengthInBits, primType, _, cgState)
     val validateFixed = valueValidateFixed(e, _, cgState)
 
     binaryValueGenerateCode(e, addField, validateFixed)

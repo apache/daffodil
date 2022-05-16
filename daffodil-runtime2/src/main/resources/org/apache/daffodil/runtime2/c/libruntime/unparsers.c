@@ -17,135 +17,424 @@
 
 // clang-format off
 #include "unparsers.h"
-#include <endian.h>   // for htobe32, htole32, htobe16, htobe64, htole16, htole64
+#include <assert.h>   // for assert
+#include <endian.h>   // for htobe64, htole64, htobe32, htole32
 #include <stdbool.h>  // for bool
 #include <stdio.h>    // for fwrite
 #include "errors.h"   // for eof_or_error, add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics, Error
 // clang-format on
 
-// Macros not defined by <endian.h> which we need for uniformity
+// Helper macros to get "n" highest bits from a byte's high end
 
-#define htobe8(var) var
-#define htole8(var) var
+#define BYTE_WIDTH 8
+#define BIG_ENDIAN_DATA 1
+#define LITTLE_ENDIAN_DATA 0
+#define LOW_MASK(n) ((1 << n) - 1)
+#define HIGH_MASK(n) (LOW_MASK(n) << (BYTE_WIDTH - n))
+#define HIGH_BITS(byte, n) ((byte & HIGH_MASK(n)) >> (BYTE_WIDTH - n))
 
-// Helper macro to reduce duplication of C code writing stream,
-// updating position, and checking for errors
+// Helper method to write bits using whole bytes while storing
+// remaining bits not yet written within a fractional byte; expects
+// last bits of last byte to be already shifted to left end
 
-#define write_stream_update_position(ptr, num_bytes)                                                         \
-    size_t count = fwrite(ptr, 1, num_bytes, ustate->stream);                                                \
-    ustate->position += count;                                                                               \
-    if (count < num_bytes)                                                                                   \
-    {                                                                                                        \
-        ustate->error = eof_or_error(ustate->stream);                                                        \
-        if (ustate->error) return;                                                                           \
-    }
+// Note callers must check ustate->error after calling write_bits and
+// update ustate->bitPos0b themselves after successful unparses
 
-// Macros to define unparse_<endian>_<type> functions
-
-#define define_unparse_endian_bool(endian, bits)                                                             \
-    void unparse_##endian##_bool##bits(bool number, uint32_t true_rep, uint32_t false_rep, UState *ustate)   \
-    {                                                                                                        \
-        union                                                                                                \
-        {                                                                                                    \
-            char           c_val[sizeof(uint##bits##_t)];                                                    \
-            uint##bits##_t i_val;                                                                            \
-        } buffer;                                                                                            \
-                                                                                                             \
-        buffer.i_val = hto##endian##bits(number ? true_rep : false_rep);                                     \
-        write_stream_update_position(buffer.c_val, sizeof(uint##bits##_t));                                  \
-    }
-
-#define define_unparse_endian_real(endian, type, bits)                                                       \
-    void unparse_##endian##_##type(type number, UState *ustate)                                              \
-    {                                                                                                        \
-        union                                                                                                \
-        {                                                                                                    \
-            char           c_val[sizeof(type)];                                                              \
-            type           f_val;                                                                            \
-            uint##bits##_t i_val;                                                                            \
-        } buffer;                                                                                            \
-                                                                                                             \
-        buffer.f_val = number;                                                                               \
-        buffer.i_val = hto##endian##bits(buffer.i_val);                                                      \
-        write_stream_update_position(buffer.c_val, sizeof(type));                                            \
-    }
-
-#define define_unparse_endian_integer(endian, type, bits)                                                    \
-    void unparse_##endian##_##type##bits(type##bits##_t number, UState *ustate)                              \
-    {                                                                                                        \
-        union                                                                                                \
-        {                                                                                                    \
-            char           c_val[sizeof(type##bits##_t)];                                                    \
-            type##bits##_t i_val;                                                                            \
-        } buffer;                                                                                            \
-                                                                                                             \
-        buffer.i_val = hto##endian##bits(number);                                                            \
-        write_stream_update_position(buffer.c_val, sizeof(type##bits##_t));                                  \
-    }
-
-// Unparse binary booleans, real numbers, and integers
-
-define_unparse_endian_bool(be, 16)
-define_unparse_endian_bool(be, 32)
-define_unparse_endian_bool(be, 8)
-
-define_unparse_endian_real(be, double, 64)
-define_unparse_endian_real(be, float, 32)
-
-define_unparse_endian_integer(be, int, 16)
-define_unparse_endian_integer(be, int, 32)
-define_unparse_endian_integer(be, int, 64)
-define_unparse_endian_integer(be, int, 8)
-
-define_unparse_endian_integer(be, uint, 16)
-define_unparse_endian_integer(be, uint, 32)
-define_unparse_endian_integer(be, uint, 64)
-define_unparse_endian_integer(be, uint, 8)
-
-define_unparse_endian_bool(le, 16)
-define_unparse_endian_bool(le, 32)
-define_unparse_endian_bool(le, 8)
-
-define_unparse_endian_real(le, double, 64)
-define_unparse_endian_real(le, float, 32)
-
-define_unparse_endian_integer(le, int, 16)
-define_unparse_endian_integer(le, int, 32)
-define_unparse_endian_integer(le, int, 64)
-define_unparse_endian_integer(le, int, 8)
-
-define_unparse_endian_integer(le, uint, 16)
-define_unparse_endian_integer(le, uint, 32)
-define_unparse_endian_integer(le, uint, 64)
-define_unparse_endian_integer(le, uint, 8)
-
-// Unparse fill bytes until end position is reached
-
-void
-unparse_fill_bytes(size_t end_position, const char fill_byte, UState *ustate)
+static void
+write_bits(const uint8_t *bytes, size_t num_bits, UState *ustate)
 {
-    union
+    // Copy as many bytes directly to stream as possible
+    size_t ix_bytes = 0;
+    if (!ustate->unwritLen)
     {
-        char c_val[1];
-    } buffer;
+        size_t num_bytes = num_bits / BYTE_WIDTH;
+        if (num_bytes)
+        {
+            size_t count = fwrite(bytes, 1, num_bytes, ustate->stream);
+            if (count < num_bytes)
+            {
+                ustate->error = eof_or_error(ustate->stream);
+                return;
+            }
+            num_bits -= count * BYTE_WIDTH;
+            ix_bytes += count;
+        }
+    }
 
-    buffer.c_val[0] = fill_byte;
-
-    while (ustate->position < end_position)
+    // Fill and copy the fractional byte as many times as needed
+    while (num_bits + ustate->unwritLen >= BYTE_WIDTH)
     {
-        write_stream_update_position(buffer.c_val, 1);
+        // Fill the fractional byte
+        uint8_t whole_byte = bytes[ix_bytes++];
+        size_t  num_bits_fill = BYTE_WIDTH - ustate->unwritLen;
+        ustate->unwritBits <<= num_bits_fill;
+        ustate->unwritBits |= HIGH_BITS(whole_byte, num_bits_fill);
+        ustate->unwritLen += num_bits_fill;
+        num_bits -= num_bits_fill;
+        whole_byte <<= num_bits_fill;
+
+        // Copy the fractional byte to stream
+        size_t num_bits_write = BYTE_WIDTH;
+        size_t count = fwrite(&ustate->unwritBits, 1, 1, ustate->stream);
+        if (count < 1)
+        {
+            ustate->error = eof_or_error(ustate->stream);
+            return;
+        }
+        ustate->unwritLen -= num_bits_write;
+
+        // Copy any remaining unused bits from the whole byte to the
+        // fractional byte
+        size_t num_bits_unused = BYTE_WIDTH - num_bits_fill;
+        if (num_bits_unused > num_bits) num_bits_unused = num_bits;
+        if (num_bits_unused)
+        {
+            ustate->unwritBits <<= num_bits_unused;
+            ustate->unwritBits |= HIGH_BITS(whole_byte, num_bits_unused);
+            ustate->unwritLen += num_bits_unused;
+            num_bits -= num_bits_unused;
+        }
+    }
+
+    // Fill the fractional byte one last time
+    if (num_bits)
+    {
+        assert(num_bits + ustate->unwritLen < BYTE_WIDTH);
+
+        ustate->unwritBits <<= num_bits;
+        ustate->unwritBits |= HIGH_BITS(bytes[ix_bytes], num_bits);
+        ustate->unwritLen += num_bits;
     }
 }
 
-// Unparse 8-bit bytes from hexBinary field
+// Helper method to write doubles depending on data endianness;
+// num_bits must be exactly 64 bits
+
+static void
+unparse_endian_double(bool big_endian_data, double number, size_t num_bits, UState *ustate)
+{
+    // Unparse all doubles in ths helper function
+    union
+    {
+        uint8_t  bytes[sizeof(double)];
+        double   number;
+        uint64_t integer;
+    } buffer;
+
+    // Don't need to fill with any padding bits since doubles must be
+    // exactly 64 bits, otherwise SDE would happen sooner
+    assert(num_bits == sizeof(double) * BYTE_WIDTH);
+
+    // Convert host endianness to data endianness
+    buffer.number = number;
+    if (big_endian_data)
+    {
+        buffer.integer = htobe64(buffer.integer);
+    }
+    else
+    {
+        buffer.integer = htole64(buffer.integer);
+    }
+
+    // Write data bits and update our last successful write position
+    write_bits(buffer.bytes, num_bits, ustate);
+    if (ustate->error) return;
+    ustate->bitPos0b += num_bits;
+}
+
+// Helper method to write floats depending on data endianness;
+// num_bits must be exactly 32 bits
+
+void
+unparse_endian_float(bool big_endian_data, float number, size_t num_bits, UState *ustate)
+{
+    // Unparse all floats in this helper function
+    union
+    {
+        uint8_t  bytes[sizeof(float)];
+        float    number;
+        uint32_t integer;
+    } buffer;
+
+    // Don't need to fill with any padding bits since floats must be
+    // exactly 32 bits, otherwise SDE would happen sooner
+    assert(num_bits == sizeof(float) * BYTE_WIDTH);
+
+    // Convert host endianness to data endianness
+    buffer.number = number;
+    if (big_endian_data)
+    {
+        buffer.integer = htobe32(buffer.integer);
+    }
+    else
+    {
+        buffer.integer = htole32(buffer.integer);
+    }
+
+    // Write data bits and update our last successful write position
+    write_bits(buffer.bytes, num_bits, ustate);
+    if (ustate->error) return;
+    ustate->bitPos0b += num_bits;
+}
+
+// Helper method to write signed integers using fractional byte shifts
+// depending on data endianness (note not tested on big-endian
+// architecture; might work only on low-endian architecture)
+
+static void
+unparse_endian_int64(bool big_endian_data, int64_t number, size_t num_bits, UState *ustate)
+{
+    // Unparse all signed integers in this helper function
+    union
+    {
+        uint8_t bytes[sizeof(int64_t)];
+        int64_t integer;
+    } buffer;
+
+    // Shift data bits differently on endianness
+    buffer.integer = number;
+    if (big_endian_data)
+    {
+        // Shift data bits and pad with fill bits
+        size_t shift = sizeof(int64_t) * BYTE_WIDTH - num_bits;
+        buffer.integer <<= shift;
+
+        // Convert host endianness to data endianness
+        buffer.integer = htobe64(buffer.integer);
+    }
+    else
+    {
+        // Pad with any bits needed to fill most significant byte
+        size_t msb_ix = (num_bits - 1) / BYTE_WIDTH;
+        size_t shift = (BYTE_WIDTH - num_bits % BYTE_WIDTH) % BYTE_WIDTH;
+        buffer.bytes[msb_ix] <<= shift;
+
+        // Convert host endianness to data endianness
+        buffer.integer = htole64(buffer.integer);
+    }
+
+    // Write data bits and update our last successful write position
+    write_bits(buffer.bytes, num_bits, ustate);
+    if (ustate->error) return;
+    ustate->bitPos0b += num_bits;
+}
+
+// Helper method to write unsigned integers using fractional byte
+// shifts depending on data endianness (note not tested on big-endian
+// architecture; might work only on low-endian architecture)
+
+// Also note that we probably could use this helper function to write
+// signed integers too but let's make debugging easier
+
+static void
+unparse_endian_uint64(bool big_endian_data, uint64_t number, size_t num_bits, UState *ustate)
+{
+    // Unparse all unsigned integers in this helper function
+    union
+    {
+        uint8_t  bytes[sizeof(uint64_t)];
+        uint64_t integer;
+    } buffer;
+
+    // Shift data bits differently on endianness
+    buffer.integer = number;
+    if (big_endian_data)
+    {
+        // Shift data bits and pad with fill bits
+        size_t shift = sizeof(uint64_t) * BYTE_WIDTH - num_bits;
+        buffer.integer <<= shift;
+
+        // Convert host endianness to data endianness
+        buffer.integer = htobe64(buffer.integer);
+    }
+    else
+    {
+        // Pad with any bits needed to fill most significant byte
+        size_t msb_ix = (num_bits - 1) / BYTE_WIDTH;
+        size_t shift = (BYTE_WIDTH - num_bits % BYTE_WIDTH) % BYTE_WIDTH;
+        buffer.bytes[msb_ix] <<= shift;
+
+        // Convert host endianness to data endianness
+        buffer.integer = htole64(buffer.integer);
+    }
+
+    // Write data bits and update our last successful write position
+    write_bits(buffer.bytes, num_bits, ustate);
+    if (ustate->error) return;
+    ustate->bitPos0b += num_bits;
+}
+
+// Unparse all binary booleans, real numbers, and integers in helper
+// functions, but wrap calls for type safety and simpler calls
+
+void
+unparse_be_bool(bool number, size_t num_bits, uint32_t true_rep, uint32_t false_rep, UState *ustate)
+{
+    uint64_t integer = number ? true_rep : false_rep;
+    unparse_endian_uint64(BIG_ENDIAN_DATA, integer, num_bits, ustate);
+}
+
+void
+unparse_be_double(double number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_double(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_be_float(float number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_float(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_be_int16(int16_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_int64(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_be_int32(int32_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_int64(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_be_int64(int64_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_int64(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_be_int8(int8_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_int64(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_be_uint16(uint16_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_uint64(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_be_uint32(uint32_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_uint64(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_be_uint64(uint64_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_uint64(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_be_uint8(uint8_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_uint64(BIG_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_bool(bool number, size_t num_bits, uint32_t true_rep, uint32_t false_rep, UState *ustate)
+{
+    uint64_t integer = number ? true_rep : false_rep;
+    unparse_endian_uint64(LITTLE_ENDIAN_DATA, integer, num_bits, ustate);
+}
+
+void
+unparse_le_double(double number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_double(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_float(float number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_float(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_int16(int16_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_int64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_int32(int32_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_int64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_int64(int64_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_int64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_int8(int8_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_int64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_uint16(uint16_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_uint64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_uint32(uint32_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_uint64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_uint64(uint64_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_uint64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+void
+unparse_le_uint8(uint8_t number, size_t num_bits, UState *ustate)
+{
+    unparse_endian_uint64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
+}
+
+// Add fill bytes until end bitPos0b is reached
+
+void
+unparse_fill_bytes(size_t end_bitPos0b, const uint8_t fill_byte, UState *ustate)
+{
+    union
+    {
+        uint8_t bytes[1];
+    } buffer;
+    buffer.bytes[0] = fill_byte;
+
+    // Update our last successful write position only if this loop
+    // finishes without any errors
+    size_t current_bitPos0b = ustate->bitPos0b;
+    while (current_bitPos0b < end_bitPos0b)
+    {
+        write_bits(buffer.bytes, BYTE_WIDTH, ustate);
+        if (ustate->error) return;
+        current_bitPos0b += BYTE_WIDTH;
+    }
+    ustate->bitPos0b = current_bitPos0b;
+}
+
+// Unparse opaque bytes from hexBinary field
 
 void
 unparse_hexBinary(HexBinary hexBinary, UState *ustate)
 {
-    write_stream_update_position(hexBinary.array, hexBinary.lengthInBytes);
+    write_bits(hexBinary.array, hexBinary.lengthInBytes * BYTE_WIDTH, ustate);
+    if (ustate->error) return;
+    ustate->bitPos0b += hexBinary.lengthInBytes * BYTE_WIDTH;
 }
 
-// Validate unparsed number is same as fixed value
+// Validate element's value matches its fixed attribute
 
 void
 unparse_validate_fixed(bool same, const char *element, UState *ustate)

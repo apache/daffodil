@@ -28,9 +28,9 @@
     </gma:SDHBWHeader>
     <gma:ApplicationData>
       <gma:Request_echo_pnt>
-        <alt>0.10000000000000001</alt>
+        <alt>0.1</alt>
         <lat>29.50464225007952</lat>
-        <lon>-116.00761807405785</lon>
+        <lon>-116.0076180740578</lon>
         <time>1611604087</time>
       </gma:Request_echo_pnt>
     </gma:ApplicationData>
