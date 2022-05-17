@@ -76,10 +76,7 @@ import org.apache.daffodil.util.Misc.hex2Bits
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.{Logger => log4jLogger}
-import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.core.config.Configurator
+
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
  */
@@ -198,7 +195,7 @@ class DFDLTestSuite private[tdml] (
     defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
     shouldDoErrorComparisonOnCrossTests: Boolean = Runner.defaultShouldDoErrorComparisonOnCrossTests,
     shouldDoWarningComparisonOnCrossTests: Boolean = Runner.defaultShouldDoWarningComparisonOnCrossTests,
-    shouldDoLogComparisonOnCrossTests: Boolean = Runner.defaultShouldDoLogComparisonCrossTests) =
+    shouldDoLogComparisonOnCrossTests: Boolean = Runner.defaultShouldDoLogComparisonOnCrossTests) =
     this(null, aNodeFileOrURL, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
       defaultRoundTripDefault,
       defaultValidationDefault,
@@ -401,6 +398,11 @@ class DFDLTestSuite private[tdml] (
   var daffodilDebugger: AnyRef = null
   override def setDebugger(db: AnyRef) = {
     daffodilDebugger = db
+  }
+
+  var tdmlLogger: TDMLLogAppender = null
+  def setTdmlLogger(tdmlLog: TDMLLogAppender): Unit = {
+    tdmlLogger = tdmlLog
   }
 
   def runOneTest(testName: String, leakCheck: Boolean = false): Unit = {
@@ -609,14 +611,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   lazy val optExpectedLogs: Option[ExpectedLogs] = (testCaseXML \ "logs").headOption.map { node => ExpectedLogs(node, this) }
   lazy val optExpectedValidationErrors: Option[ExpectedValidationErrors] = (testCaseXML \ "validationErrors").headOption.map { node => ExpectedValidationErrors(node, this) }
 
-  if(LogManager.getRootLogger().asInstanceOf[log4jLogger].getAppenders().get("org.apache.tdml")==null && optExpectedLogs.isDefined){
-    val tdmlAppender = TDMLAppender.createAppender
-    val loggers = LogManager.getRootLogger().asInstanceOf[log4jLogger]
-    loggers.addAppender(tdmlAppender)
-    tdmlAppender.start()
-    Configurator.setLevel("org.apache.daffodil", Level.INFO)
-  }
-
   val tcName = (testCaseXML \ "@name").text
   lazy val tcID = (testCaseXML \ "@ID").text
   lazy val id = tcName + (if (tcID != "") "(" + tcID + ")" else "")
@@ -709,7 +703,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
-    implString: Option[String]): Unit
+    implString: Option[String],
+    tdmlLogger: TDMLLogAppender): Unit
 
   lazy val optEmbeddedSchema = parent.findEmbeddedSchema(model).map { defSchema =>
     defSchema.schemaSource
@@ -885,11 +880,13 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         optExpectedValidationErrors,
         validationMode,
         roundTrip,
-        implString)
+        implString,
+        parent.tdmlLogger)
 
     }
 
-    TDMLAppender.clearDiagnostics()
+    if (parent.tdmlLogger ne null)
+      parent.tdmlLogger.clearDiagnostics()
   }
 
   protected def checkDiagnosticMessages(
@@ -897,7 +894,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
     optLogs: Option[ExpectedLogs],
-    implString: Option[String]): Unit = {
+    implString: Option[String],
+    tdmlLogger: TDMLLogAppender): Unit = {
     Assert.usage(this.isNegativeTest)
     
     // check for any test-specified errors, warnings, or logs
@@ -910,8 +908,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings, implString)
 
     if (!isCrossTest(implString.get) ||
-      parent.shouldDoLogComparisonOnCrossTests)
-      VerifyTestCase.verifyAllDiagnosticsFound(TDMLAppender.getDiagnostics(), optLogs, implString)
+      parent.shouldDoLogComparisonOnCrossTests){
+      if(tdmlLogger ne null)
+        VerifyTestCase.verifyAllDiagnosticsFound(tdmlLogger.getDiagnostics(), optLogs, implString)
+    }
   }
 }
 
@@ -930,7 +930,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optExpectedValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
-    implString: Option[String]) = {
+    implString: Option[String],
+    tdmlLogger: TDMLLogAppender) = {
 
     Assert.usage(optLengthLimitInBits.isDefined, "TDML tests should always have a length limit.")
     val nBits = optLengthLimitInBits.get
@@ -943,14 +944,14 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult.right.foreach {
           case (_, proc) => {
             processor = proc
-            runParseExpectSuccess(dataToParse, nBits, optExpectedWarnings, optExpectedLogs, optExpectedValidationErrors, validationMode, roundTrip, implString)
+            runParseExpectSuccess(dataToParse, nBits, optExpectedWarnings, optExpectedLogs, optExpectedValidationErrors, validationMode, roundTrip, implString, tdmlLogger)
           }
         }
       }
 
       case (None, Some(errors)) => {
         compileResult.left.foreach { diags =>
-          checkDiagnosticMessages(diags, errors, optExpectedWarnings, optExpectedLogs, implString)
+          checkDiagnosticMessages(diags, errors, optExpectedWarnings, optExpectedLogs, implString, tdmlLogger)
         }
         compileResult.right.foreach {
           case (_, proc) => {
@@ -960,7 +961,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optExpectedLogs,
               optExpectedValidationErrors,
               validationMode,
-              implString)
+              implString,
+              tdmlLogger)
           }
         }
       }
@@ -978,7 +980,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optLogs: Option[ExpectedLogs],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
-    implString: Option[String]): Unit = {
+    implString: Option[String],
+    tdmlLogger: TDMLLogAppender): Unit = {
 
     try {
       processor = processor.withExternalDFDLVariables(externalVarBindings)
@@ -1032,7 +1035,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         implString)
     }
 
-    checkDiagnosticMessages(diagnostics, errors, optWarnings, optLogs, implString)
+    checkDiagnosticMessages(diagnostics, errors, optWarnings, optLogs, implString, tdmlLogger)
 
   }
 
@@ -1090,7 +1093,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   private def verifyParseResults(
     actual: TDMLParseResult,
     testInfoset: Infoset,
-    implString: Option[String]) = {
+    implString: Option[String],
+    tdmlLogger: TDMLLogAppender) = {
     val resultXmlNode = actual.getResult
     VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset, implString)
 
@@ -1113,8 +1117,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optExpectedWarnings, implString)
 
     if (!isCrossTest(implString.get) ||
-      parent.shouldDoLogComparisonOnCrossTests)
-      VerifyTestCase.verifyAllDiagnosticsFound(TDMLAppender.getDiagnostics(), optExpectedLogs, implString)
+      parent.shouldDoLogComparisonOnCrossTests){
+      if(tdmlLogger ne null)
+        VerifyTestCase.verifyAllDiagnosticsFound(tdmlLogger.getDiagnostics(), optExpectedLogs, implString)
+    }
   }
 
   /**
@@ -1183,11 +1189,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     dataToParse: InputStream,
     lengthLimitInBits: Long,
     warnings: Option[ExpectedWarnings],
-    loggers: Option[ExpectedLogs],
+    logs: Option[ExpectedLogs],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTripArg: RoundTrip,
-    implString: Option[String]): Unit = {
+    implString: Option[String],
+    tdmlLogger: TDMLLogAppender): Unit = {
 
     val roundTrip = roundTripArg // change to OnePassRoundTrip to force all parse tests to round trip (to see which fail to round trip)
 
@@ -1205,7 +1212,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     roundTrip match {
       case NoRoundTrip | OnePassRoundTrip => {
-        verifyParseResults(firstParseResult, testInfoset, implString)
+        verifyParseResults(firstParseResult, testInfoset, implString, tdmlLogger)
         verifyLeftOverData(firstParseResult, lengthLimitInBits, implString)
       }
       case TwoPassRoundTrip => {
@@ -1298,7 +1305,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             firstParseResult,
             firstParseTestData,
             testInfoset)
-        verifyParseResults(actual, testInfoset, implString)
+        verifyParseResults(actual, testInfoset, implString, tdmlLogger)
         verifyLeftOverData(actual, reParseTestDataLength, implString)
         // if it doesn't pass, it will throw out of here.
 
@@ -1336,7 +1343,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         //
         // So we just verify normally here.
         //
-        verifyParseResults(secondParseResult, testInfoset, implString)
+        verifyParseResults(secondParseResult, testInfoset, implString, tdmlLogger)
         verifyLeftOverData(secondParseResult, reParseTestDataLength, implString)
         //
         // So now we do the third pass unparse and compare this output with the
@@ -1374,7 +1381,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
-    implString: Option[String]) = {
+    implString: Option[String],
+    tdmlLogger: TDMLLogAppender) = {
 
     (optExpectedData, optErrors) match {
       case (Some(expectedData), None) => {
@@ -1382,19 +1390,19 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         compileResult.right.foreach {
           case (warnings, proc) => {
             processor = proc
-            runUnparserExpectSuccess(expectedData, optWarnings, optLogs, roundTrip, implString)
+            runUnparserExpectSuccess(expectedData, optWarnings, optLogs, roundTrip, implString, tdmlLogger)
           }
         }
       }
 
       case (_, Some(errors)) => {
         compileResult.left.foreach { diags =>
-          checkDiagnosticMessages(diags, errors, optWarnings, optLogs, implString)
+          checkDiagnosticMessages(diags, errors, optWarnings, optLogs, implString, tdmlLogger)
         }
         compileResult.right.foreach {
           case (_, proc) => {
             processor = proc
-            runUnparserExpectErrors(optExpectedData, errors, optWarnings, optLogs, implString)
+            runUnparserExpectErrors(optExpectedData, errors, optWarnings, optLogs, implString, tdmlLogger)
           }
         }
       }
@@ -1408,7 +1416,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[ExpectedWarnings],
     optLogs: Option[ExpectedLogs],
     roundTrip: RoundTrip,
-    implString: Option[String]): Unit = {
+    implString: Option[String],
+    tdmlLogger: TDMLLogAppender): Unit = {
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
 
@@ -1453,8 +1462,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optWarnings, implString)
 
     if (!isCrossTest(implString.get) ||
-      parent.shouldDoLogComparisonOnCrossTests)
-      VerifyTestCase.verifyAllDiagnosticsFound(TDMLAppender.getDiagnostics(), optExpectedLogs, implString)
+      parent.shouldDoLogComparisonOnCrossTests){
+      if (tdmlLogger ne null)
+        VerifyTestCase.verifyAllDiagnosticsFound(tdmlLogger.getDiagnostics(), optExpectedLogs, implString)
+    }
 
     if (roundTrip eq OnePassRoundTrip) {
 
@@ -1493,9 +1504,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optWarnings, implString)
       
       if (!isCrossTest(implString.get) ||
-        parent.shouldDoLogComparisonOnCrossTests)
-        VerifyTestCase.verifyAllDiagnosticsFound(TDMLAppender.getDiagnostics(), optExpectedLogs, implString)
-
+        parent.shouldDoLogComparisonOnCrossTests){
+        if(tdmlLogger ne null)
+          VerifyTestCase.verifyAllDiagnosticsFound(tdmlLogger.getDiagnostics(), optExpectedLogs, implString)
+      }
       (shouldValidate, expectsValidationError) match {
         case (true, true) => {
           VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optExpectedValidationErrors, implString) // verify all validation errors were found
@@ -1523,7 +1535,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // if they were not already cleaned up by parseActual.cleanUp() above
     actual.cleanUp()
 
-    TDMLAppender.clearDiagnostics()
+    if(tdmlLogger ne null)
+      tdmlLogger.clearDiagnostics
   }
 
   def runUnparserExpectErrors(
@@ -1531,7 +1544,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
     optLogs: Option[ExpectedLogs],
-    implString: Option[String]): Unit = {
+    implString: Option[String],
+    tdmlLogger: TDMLLogAppender): Unit = {
 
     try {
       processor = processor.withExternalDFDLVariables(externalVarBindings)
@@ -1591,7 +1605,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     if (diagnostics.isEmpty)
       throw TDMLException("Unparser test expected error. Didn't get one.", implString)
-    checkDiagnosticMessages(diagnostics, errors, optWarnings, optLogs, implString)
+    checkDiagnosticMessages(diagnostics, errors, optWarnings, optLogs, implString, tdmlLogger)
 
   }
 }

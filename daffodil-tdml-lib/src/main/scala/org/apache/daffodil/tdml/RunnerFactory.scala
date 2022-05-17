@@ -91,7 +91,7 @@ object Runner {
    */
   def defaultShouldDoWarningComparisonOnCrossTests = false
 
-  def defaultShouldDoLogComparisonCrossTests = false
+  def defaultShouldDoLogComparisonOnCrossTests = false
 
 }
 
@@ -184,9 +184,14 @@ class Runner private (
         defaultImplementationsDefault,
         Runner.defaultShouldDoErrorComparisonOnCrossTests,
         Runner.defaultShouldDoWarningComparisonOnCrossTests,
-        Runner.defaultShouldDoLogComparisonCrossTests)
+        Runner.defaultShouldDoLogComparisonOnCrossTests)
     }
     ts
+  }
+
+  def runOneTest(testName: String, tdmlLogger: TDMLLogAppender): Unit = {
+    getTS.setTdmlLogger(tdmlLogger)
+    runOneTest(testName)
   }
 
   def runOneTest(testName: String, leakCheck: Boolean = false) =

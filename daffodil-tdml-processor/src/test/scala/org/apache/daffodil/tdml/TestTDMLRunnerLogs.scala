@@ -22,8 +22,21 @@ import org.junit.AfterClass
 import org.apache.daffodil.Implicits._
 import org.junit.Assert.fail
 
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.{Logger => Log4jLogger}
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.core.config.Configurator
+
 object TestTDMLRunnerLogs {
   val runner = Runner("/test/tdml/", "testLogs.tdml")
+  val tdmlAppender = TDMLAppender.createAppender
+
+  if(LogManager.getRootLogger().asInstanceOf[Log4jLogger].getAppenders().get("org.apache.tdml")==null){
+        val loggers = LogManager.getRootLogger().asInstanceOf[Log4jLogger]
+        loggers.addAppender(tdmlAppender)
+        tdmlAppender.start()
+        Configurator.setLevel("org.apache.daffodil", Level.INFO)
+    }
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
@@ -33,12 +46,12 @@ object TestTDMLRunnerLogs {
 class TestTDMLRunnerLogs {
   import TestTDMLRunnerLogs._
 
-  @Test def test_logWhenExpectingSuccess() = { runner.runOneTest("logWhenExpectingSuccess") }
-  @Test def test_logWhenExpectingError() = { runner.runOneTest("logWhenExpectingError") }
-  @Test def test_logWhenExpectingWarning() = { runner.runOneTest("logWhenExpectingWarning") }
-  @Test def test_unparserLogWhenExpectingSuccess() = { runner.runOneTest("unparserLogWhenExpectingSuccess") }
-  @Test def test_unparserLogWhenExpectingError() = { runner.runOneTest("unparserLogWhenExpectingError") }
-  @Test def test_unparserLogWhenExpectingWarning() = { runner.runOneTest("unparserLogWhenExpectingWarning") }
+  @Test def test_logWhenExpectingSuccess() = { runner.runOneTest("logWhenExpectingSuccess", tdmlAppender) }
+  @Test def test_logWhenExpectingError() = { runner.runOneTest("logWhenExpectingError", tdmlAppender) }
+  @Test def test_logWhenExpectingWarning() = { runner.runOneTest("logWhenExpectingWarning", tdmlAppender) }
+  @Test def test_unparserLogWhenExpectingSuccess() = { runner.runOneTest("unparserLogWhenExpectingSuccess", tdmlAppender) }
+  @Test def test_unparserLogWhenExpectingError() = { runner.runOneTest("unparserLogWhenExpectingError", tdmlAppender) }
+  @Test def test_unparserLogWhenExpectingWarning() = { runner.runOneTest("unparserLogWhenExpectingWarning", tdmlAppender) }
 
   /*
    * These tests insure that the TDML runner is actually testing the logs.
@@ -89,7 +102,7 @@ class TestTDMLRunnerLogs {
 
     val runner = new Runner(testSuite)
     val e = intercept[Exception] {
-      runner.runOneTest("warningWhenExpectingSuccess")
+      runner.runOneTest("warningWhenExpectingSuccess", tdmlAppender)
     }
     runner.reset
     val msg = e.getMessage()
