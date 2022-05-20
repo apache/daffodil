@@ -1300,6 +1300,28 @@ class TestCLIparsing {
     }
   }
 
+  @Test def test_XXX_CLI_Parsing_SimpleParse_exi(): Unit = {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format(Util.echoN("Hello") + "| %s parse -I exi -s %s -r e1 | md5sum", Util.binPath, testSchemaFile)
+
+      shell.sendLine(cmd)
+      shell.expect(contains("937b3f96ee0b5cd1ac9f537cf8ddc580"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
+
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
   @Test def test_CLI_Error_Return_Codes(): Unit = {
 
     val shell = Util.start("")
