@@ -128,7 +128,7 @@ class InputStreamSchemaSource(is: java.io.InputStream, tmpDir: Option[File], bla
     csName
   }
   override def newInputSource() = {
-    val is = new FileInputStream(tempSchemaFile)
+    //val is = new FileInputStream(tempSchemaFile) //does not work when uncommented
     val inSrc = new InputSource(is)
     inSrc.setEncoding(csName)
     inSrc.setSystemId(blameName)

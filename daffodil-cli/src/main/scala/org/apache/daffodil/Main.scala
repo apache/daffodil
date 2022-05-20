@@ -87,6 +87,8 @@ import org.apache.daffodil.infoset.W3CDOMInfosetInputter
 import org.apache.daffodil.infoset.W3CDOMInfosetOutputter
 import org.apache.daffodil.infoset.XMLTextInfosetInputter
 import org.apache.daffodil.infoset.XMLTextInfosetOutputter
+import org.apache.daffodil.infoset.EXIInfosetInputter
+import org.apache.daffodil.infoset.EXIInfosetOutputter
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
@@ -118,6 +120,7 @@ object InfosetType extends Enumeration {
   val SCALA_XML = Value("scala-xml")
   val W3CDOM = Value("w3cdom")
   val XML = Value("xml")
+  val EXI = Value("exi")
   val NULL = Value("null")
 }
 
@@ -670,6 +673,7 @@ object Main {
       case InfosetType.JDOM => Left(new JDOMInfosetOutputter())
       case InfosetType.W3CDOM => Left(new W3CDOMInfosetOutputter())
       case InfosetType.SAX => Right(new DaffodilParseOutputStreamContentHandler(os, pretty = true))
+      case InfosetType.EXI => Left(new EXIInfosetOutputter())
       case InfosetType.NULL => Left(new NullInfosetOutputter())
     }
     if (outputter.isLeft) {
@@ -796,6 +800,13 @@ object Main {
         val tl = anyRef.asInstanceOf[ThreadLocal[org.w3c.dom.Document]]
         Left(new W3CDOMInfosetInputter(tl.get))
       }
+      case InfosetType.EXI => {
+        val is = anyRef match {
+          case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
+          case is: InputStream => is
+        }
+        Left(new XMLTextInfosetInputter(EXIInfosetInputter.ConvertEXIToXML(is)))
+      }
       case InfosetType.NULL => {
         val events = anyRef.asInstanceOf[Array[NullInfosetInputter.Event]]
         Left(new NullInfosetInputter(events))
@@ -907,6 +918,9 @@ object Main {
                     val result = new StreamResult(output)
                     val source = new DOMSource(w3cdom.getResult)
                     transformer.transform(source, result)
+                  }
+                  case Left(exi: EXIInfosetOutputter) => {
+                    throw new Exception("Implement EXIInfosetOutputter")
                   }
                   case _ => // do nothing
                 }

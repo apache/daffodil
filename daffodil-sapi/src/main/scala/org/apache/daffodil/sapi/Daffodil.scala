@@ -31,6 +31,7 @@ import org.apache.daffodil.api.{ DataLocation => SDataLocation }
 import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
 import org.apache.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
 import org.apache.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
+//import org.apache.daffodil.api.{DaffodilSchemaSource => SDaffodilSchemaSource }
 import org.apache.daffodil.compiler.{ Compiler => SCompiler }
 import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import org.apache.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
@@ -146,6 +147,14 @@ class Compiler private[sapi] (private var sCompiler: SCompiler) {
     optRootNamespace: Option[String] = None): ProcessorFactory = {
     val source = URISchemaSource(uri)
     val pf = sCompiler.compileSource(source, optRootName, optRootNamespace)
+    new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
+  }
+
+  @throws(classOf[java.io.IOException])
+  def compileStreamSource(streamSource: org.apache.daffodil.api.InputStreamSchemaSource,
+    optRootName: Option[String] = None,
+    optRootNamespace: Option[String] = None): ProcessorFactory = {
+    val pf = sCompiler.compileSource(streamSource, optRootName, optRootNamespace)
     new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
   }
 

@@ -26,11 +26,13 @@ import org.apache.daffodil.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputt
 import org.apache.daffodil.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
 import org.apache.daffodil.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
 import org.apache.daffodil.infoset.{ W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter }
+import org.apache.daffodil.infoset.{ EXIInfosetOutputter => SEXIInfosetOutputter }
 import org.apache.daffodil.infoset.{ ScalaXMLInfosetInputter => SScalaXMLInfosetInputter }
 import org.apache.daffodil.infoset.{ XMLTextInfosetInputter => SXMLTextInfosetInputter }
 import org.apache.daffodil.infoset.{ JsonInfosetInputter => SJsonInfosetInputter }
 import org.apache.daffodil.infoset.{ JDOMInfosetInputter => SJDOMInfosetInputter }
 import org.apache.daffodil.infoset.{ W3CDOMInfosetInputter => SW3CDOMInfosetInputter }
+import org.apache.daffodil.infoset.{ EXIInfosetInputter => SEXIInfosetInputter }
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.infoset.InfosetInputterEventType
 // TODO: Not sure about the access to internal infoset implementation details.
@@ -322,6 +324,11 @@ class JDOMInfosetOutputter()
   def getResult(): org.jdom2.Document = infosetOutputter.getResult()
 }
 
+class EXIInfosetOutputter(writer: java.io.FileOutputStream, pretty: Boolean)
+  extends InfosetOutputterProxy{
+    override val infosetOutputter = new SEXIInfosetOutputter(writer, pretty)
+  }
+
 /**
  * [[InfosetOutputter]] to build an infoset represented as an org.w3c.dom.Document
  */
@@ -433,6 +440,15 @@ class W3CDOMInfosetInputter(document: org.w3c.dom.Document)
   extends InfosetInputterProxy {
 
   override val infosetInputter = new SW3CDOMInfosetInputter(document)
+}
+
+class EXIInfosetInputter(input: java.io.InputStream)
+  extends InfosetInputterProxy {
+
+
+  override val infosetInputter = new SEXIInfosetInputter(input)
+
+  def getInputStream(): java.io.InputStream = infosetInputter.getInputStream
 }
 
 /**

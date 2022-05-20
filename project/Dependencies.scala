@@ -58,4 +58,8 @@ object Dependencies {
   lazy val schematron = Seq(
     "net.sf.saxon" % "Saxon-HE" % "11.2",
   )
+
+  lazy val exi = Seq(
+    "com.siemens.ct.exi" % "exificient" % "1.0.4",
+  )
 }

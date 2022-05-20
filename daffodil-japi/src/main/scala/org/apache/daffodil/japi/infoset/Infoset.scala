@@ -21,12 +21,14 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
 import org.apache.daffodil.infoset.{ InfosetInputter => SInfosetInputter }
 import org.apache.daffodil.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
+import org.apache.daffodil.infoset.{ EXIInfosetOutputter => SEXIInfosetOutputter }
 import org.apache.daffodil.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
 import org.apache.daffodil.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputter }
 import org.apache.daffodil.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
 import org.apache.daffodil.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
 import org.apache.daffodil.infoset.{ W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter }
 import org.apache.daffodil.infoset.{ ScalaXMLInfosetInputter => SScalaXMLInfosetInputter }
+import org.apache.daffodil.infoset.{ EXIInfosetInputter => SEXIInfosetInputter }
 import org.apache.daffodil.infoset.{ XMLTextInfosetInputter => SXMLTextInfosetInputter }
 import org.apache.daffodil.infoset.{ JsonInfosetInputter => SJsonInfosetInputter }
 import org.apache.daffodil.infoset.{ JDOMInfosetInputter => SJDOMInfosetInputter }
@@ -230,6 +232,14 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false)
   def getResult(): scala.xml.Node = infosetOutputter.getResult()
 }
 
+class EXIInfosetOutputter(showFormatInfo: Boolean = false)
+  extends InfosetOutputterProxy {
+
+  override val infosetOutputter = new SEXIInfosetOutputter(showFormatInfo)
+
+  def getResult(): scala.xml.Node = infosetOutputter.getResult()
+}
+
 /**
  * [[InfosetOutputter]] to build an infoset represented as XML written to a java.io.OutputStream
  */
@@ -358,6 +368,12 @@ class ScalaXMLInfosetInputter(node: scala.xml.Node)
   extends InfosetInputterProxy {
 
   override val infosetInputter = new SScalaXMLInfosetInputter(node)
+}
+
+class EXIInfosetInputter(node: scala.xml.Node)
+  extends InfosetInputterProxy {
+
+  override val infosetInputter = new SEXIInfosetInputter(node)
 }
 
 /**
