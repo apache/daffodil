@@ -112,6 +112,7 @@ lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).config
                               .dependsOn(tdmlProc, runtime2, sapi, japi, schematron % Runtime, udf % "it->test") // causes runtime2/sapi/japi to be pulled into the helper zip/tar
                               .settings(commonSettings, nopublish)
                               .settings(libraryDependencies ++= Dependencies.cli)
+                              .settings(libraryDependencies ++= Dependencies.exi)
 
 lazy val udf              = Project("daffodil-udf", file("daffodil-udf")).configs(IntegrationTest)
                               .settings(commonSettings)

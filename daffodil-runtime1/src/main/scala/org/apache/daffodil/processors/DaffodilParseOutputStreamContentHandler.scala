@@ -68,28 +68,24 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
   // if the top of the stack is true, we have guessed we should output a newline
   private def outputNewline: Boolean = outputNewlineStack.top
 
-  def reset(): Unit = {
-    resetIndentation()
-    writer.flush()
-    activePrefixMapping = null
-    currentElementPrefixMapping = null
-    activePrefixMappingContextStack.clear()
-    outputNewlineStack.clear()
-    outputNewlineStack.push(false) //to match initialization state
-    out.flush()
-  }
-
   override def setDocumentLocator(locator: Locator): Unit = {
     // do nothing
   }
 
   override def startDocument(): Unit = {
+    resetIndentation()
+    activePrefixMapping = null
+    currentElementPrefixMapping = null
+    activePrefixMappingContextStack.clear()
+    outputNewlineStack.clear()
+    outputNewlineStack.push(false) //to match initialization state
     writer.write("""<?xml version="1.0" encoding="UTF-8"?>""")
   }
 
   override def endDocument(): Unit = {
     writer.write(System.lineSeparator())
     writer.flush()
+    out.flush()
   }
 
   override def startPrefixMapping(prefix: String, uri: String): Unit = {

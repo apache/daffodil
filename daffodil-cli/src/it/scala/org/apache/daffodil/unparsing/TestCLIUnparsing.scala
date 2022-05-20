@@ -606,6 +606,28 @@ class TestCLIunparsing {
     }
   }
 
+  @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_exi(): Unit = {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.exi")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s unparse -I exi -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Hello"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_null(): Unit = {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")

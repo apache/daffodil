@@ -46,10 +46,15 @@ import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
 import org.xml.sax.XMLReader
+import org.xml.sax.ContentHandler
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.core.config.Configurator
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.output.NullOutputStream
+import com.siemens.ct.exi.core.helpers.DefaultEXIFactory
+import com.siemens.ct.exi.core.FidelityOptions
+import com.siemens.ct.exi.main.api.sax.EXIResult
+import com.siemens.ct.exi.main.api.sax.EXISource
 import org.apache.daffodil.Main.ExitCode
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
@@ -119,6 +124,7 @@ object InfosetType extends Enumeration {
   val SCALA_XML = Value("scala-xml")
   val W3CDOM = Value("w3cdom")
   val XML = Value("xml")
+  val EXI = Value("exi")
   val NULL = Value("null")
 }
 
@@ -304,7 +310,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
     val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
     val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', 'exi', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
     val output = opt[String](argName = "file", descr = "Output file to write infoset to. If not given or is -, infoset is written to stdout.")
     val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](argName = "path", descr = "Path from root element to node from which to start parsing", hidden = true)
@@ -330,6 +336,10 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
       case _ => Right(Unit)
     }
 
+    validateOpt(infosetType, stream) {
+      case (Some(InfosetType.EXI), Some(true)) => Left("Streaming mode is not currently supported with EXI infosets.")
+      case _ => Right(Unit)
+    }
   }
 
   // Unparse Subcommand Options
@@ -348,7 +358,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
     val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
     val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', 'exi', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
     val output = opt[String](argName = "file", descr = "Output file to write data to. If not given or is -, data is written to stdout.")
     val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](argName = "path", descr = "Path from root element to node from which to start unparsing", hidden = true)
@@ -435,7 +445,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
     val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
     val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output or unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output or unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', 'exi', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
     val number = opt[Int](short = 'N', argName = "number", default = Some(1), descr = "Total number of files to process. Defaults to 1.")
     val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](argName = "path", descr = "Path from root element to node from which to start parsing or unparsing", hidden = true)
@@ -676,14 +686,21 @@ object Main {
   val blobSuffix = ".bin"
 
   def getInfosetOutputter(infosetType: InfosetType.Type, os: java.io.OutputStream)
-  : Either[InfosetOutputter, DaffodilParseOutputStreamContentHandler] = {
+  : Either[InfosetOutputter, ContentHandler] = {
     val outputter = infosetType match {
       case InfosetType.XML => Left(new XMLTextInfosetOutputter(os, pretty = true))
       case InfosetType.SCALA_XML => Left(new ScalaXMLInfosetOutputter())
       case InfosetType.JSON => Left(new JsonInfosetOutputter(os, pretty = true))
       case InfosetType.JDOM => Left(new JDOMInfosetOutputter())
       case InfosetType.W3CDOM => Left(new W3CDOMInfosetOutputter())
-      case InfosetType.SAX => Right(new DaffodilParseOutputStreamContentHandler(os, pretty = true))
+      case InfosetType.SAX => Right(new DaffodilParseOutputStreamContentHandler(os, pretty=true))
+      case InfosetType.EXI => {
+        val exiFactory = DefaultEXIFactory.newInstance()
+        exiFactory.getFidelityOptions.setFidelity(FidelityOptions.FEATURE_PREFIX, true)
+        val exiResult = new EXIResult()
+        exiResult.setOutputStream(os)
+        Right(exiResult.getHandler)
+      }
       case InfosetType.NULL => Left(new NullInfosetOutputter())
     }
     if (outputter.isLeft) {
@@ -723,7 +740,7 @@ object Main {
    */
   def infosetDataToInputterData(infosetType: InfosetType.Type, data: Either[Array[Byte],InputStream]): AnyRef = {
     infosetType match {
-      case InfosetType.XML | InfosetType.JSON | InfosetType.SAX => data match {
+      case InfosetType.XML | InfosetType.JSON | InfosetType.SAX | InfosetType.EXI => data match {
         case Left(bytes) => bytes
         case Right(is) => is
       }
@@ -810,13 +827,13 @@ object Main {
         val tl = anyRef.asInstanceOf[ThreadLocal[org.w3c.dom.Document]]
         Left(new W3CDOMInfosetInputter(tl.get))
       }
+      case InfosetType.EXI | InfosetType.SAX => {
+        val dp = processor
+        Right(dp.newContentHandlerInstance(outChannel))
+      }
       case InfosetType.NULL => {
         val events = anyRef.asInstanceOf[Array[NullInfosetInputter.Event]]
         Left(new NullInfosetInputter(events))
-      }
-      case InfosetType.SAX => {
-        val dp = processor
-        Right(dp.newContentHandlerInstance(outChannel))
       }
     }
   }
@@ -887,8 +904,6 @@ object Main {
 
               val parseResult = eitherOutputterOrHandler match {
                 case Right(saxContentHandler) =>
-                  // reset in case we are streaming
-                  saxContentHandler.reset()
                   Timer.getResult("parsing",
                     parseWithSAX(processor, inStream, saxContentHandler))
                 case Left(outputter) =>
@@ -1089,7 +1104,7 @@ object Main {
                               case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
                               case is: InputStream => is
                             }
-                            unparseWithSAX(is, contentHandler)
+                            unparseWithSAX(is, contentHandler, infosetType)
                         }
                       })
                       case Right(data) => Timer.getTimeResult({
@@ -1218,7 +1233,7 @@ object Main {
                     case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
                     case is: InputStream => is
                   }
-                  Timer.getResult("unparsing", unparseWithSAX(is, contentHandler))
+                  Timer.getResult("unparsing", unparseWithSAX(is, contentHandler, unparseOpts.infosetType.toOption.get))
               }
 
               displayDiagnostics(unparseResult)
@@ -1416,8 +1431,15 @@ object Main {
 
   private def unparseWithSAX(
     is: InputStream,
-    contentHandler: DFDL.DaffodilUnparseContentHandler): UnparseResult = {
-    val xmlReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
+    contentHandler: DFDL.DaffodilUnparseContentHandler,
+    infosetType: InfosetType.Type): UnparseResult = {
+    val xmlReader = infosetType match {
+      case InfosetType.EXI => {
+        val exiSource = new EXISource()
+        exiSource.getXMLReader
+      }
+      case _ => DaffodilSAXParserFactory().newSAXParser.getXMLReader
+    }
     xmlReader.setContentHandler(contentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
@@ -1434,7 +1456,7 @@ object Main {
   private def parseWithSAX(
     processor: DFDL.DataProcessor,
     data: InputSourceDataInputStream,
-    saxContentHandler: DaffodilParseOutputStreamContentHandler): ParseResult = {
+    saxContentHandler: ContentHandler): ParseResult = {
     val saxXmlRdr = processor.newXMLReaderInstance
     saxXmlRdr.setContentHandler(saxContentHandler)
     saxXmlRdr.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, blobDir)
