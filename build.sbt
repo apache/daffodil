@@ -57,6 +57,7 @@ lazy val io               = Project("daffodil-io", file("daffodil-io")).configs(
 lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1")).configs(IntegrationTest)
                               .dependsOn(io, lib % "test->test", udf, macroLib % "compile-internal, test-internal")
                               .settings(commonSettings, usesMacros)
+                              .settings(libraryDependencies ++= Dependencies.exi)
 
 lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest)
                               .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test", runtime1Layers)

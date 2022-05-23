@@ -17,22 +17,21 @@
 
 package org.apache.daffodil.infoset
 
+import org.apache.daffodil.api.InputStreamSchemaSource
 import org.junit.Test
-import org.apache.daffodil.infoset.EXIInfosetInputter
-import org.apache.daffodil.api
+
 import java.io.FileInputStream
 import org.apache.daffodil.compiler.Compiler
-import org.apache.daffodil.api.DaffodilSchemaSource
 
 class TestEXIInfoset {
 
 // The application shall support input EXI files
-@Test def test_supportEXIFiles() = {
+@Test def test_supportEXIFiles(): Unit = {
     //open exi file and show returned object is EXIInfosetInputter
 }
 
 // The application shall support EXI files created with the EXIficient library
-@Test def test_supportEXIficient() = {
+@Test def test_supportEXIficient(): Unit = {
     //exiinfosetinputter with this lib
 
     //load input file made with this lib
@@ -41,7 +40,7 @@ class TestEXIInfoset {
 
 }
 // The application shall support EXI files created with the AgileDelta EXI library
-@Test def test_supportAgileDelta() = {
+@Test def test_supportAgileDelta(): Unit = {
     //exiinfosetinputter with this lib
 
     //load input file made with this lib
@@ -50,7 +49,7 @@ class TestEXIInfoset {
     
 }
 // The application shall support EXI files created with the Nagasena EXI library
-@Test def test_supportNagasena() = {
+@Test def test_supportNagasena(): Unit = {
     //exiinfosetinputter with this lib
 
     //load input file made with this lib
@@ -61,28 +60,28 @@ class TestEXIInfoset {
 // The application shall have the ability to support unnamed libraries REWORD
 //???
 // The application shall support bit packed representation of infosets
-@Test def test_supportBitPackedRepresentation() = {
+@Test def test_supportBitPackedRepresentation(): Unit = {
     //exiinfosetinputter with this lib
     
 }
 // The application shall support compression of infosets
-@Test def test_supportCompressionRepresentation() = {
+@Test def test_supportCompressionRepresentation(): Unit = {
 
 }
 // The application shall support the option for namespace preservation
-@Test def test_supportNamespace() = {
+@Test def test_supportNamespace(): Unit = {
 
 }
 // The application shall allow the user to specify the INCLUDE_OPTIONS
-@Test def test_IncludeOptions() = {
+@Test def test_IncludeOptions(): Unit = {
 
 }
 // The application shall allow the user to specify the INCLUDE_SCHEMA_ID
-@Test def test_IncludeSchemaID() = {
+@Test def test_IncludeSchemaID(): Unit = {
 
 }
 // The application shall allow the user to preserve processed schemas 
-@Test def test_preserveSchema() = {
+@Test def test_preserveSchema(): Unit = {
     //parse schema
     val isss = new InputStreamSchemaSource(EXIInfosetInputter.ConvertEXIToXMLWithExificient(
         new FileInputStream("output/customerInformedExificient.dfdl.xsd.exi")))
@@ -93,7 +92,7 @@ class TestEXIInfoset {
     val stii = new XMLTextInfosetInputter(new FileInputStream("input9.txt.xml"))
     val bos = new java.io.ByteArrayOutputStream()
     val wbc = java.nio.channels.Channels.newChannel(bos)
-    dp.parse(stii, wbc)
+    dp.unparse(stii, wbc)
     System.err.println(bos.toString)
 
     //do work with translated schema

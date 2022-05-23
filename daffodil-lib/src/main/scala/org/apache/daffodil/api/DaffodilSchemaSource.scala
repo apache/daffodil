@@ -20,7 +20,6 @@ import org.xml.sax.InputSource
 
 import java.net.URI
 import scala.xml.Node
-import java.io.FileInputStream
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.commons.io.input.XmlStreamReader
 
