@@ -490,4 +490,318 @@ class UnitTestTDMLRunner {
     assertTrue(dataElem ne null)
     runner.reset
   }
+
+  @Test def testCommentBit(): Unit = {
+    val xml = <document bitOrder="LSBFirst"><documentPart type="bits">00000010 //this is a label111</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("00000010", firstPart.bitDigits)
+  }
+
+  @Test def testCommentBitWithNewLine(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
+              <documentPart type="bits">01 01 11 //flagByte1
+                                        1 //bool2</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("0101111", firstPart.bitDigits)
+  }
+
+    @Test def testCommentBitJustComments(): Unit = {
+      val xml = <document bitOrder="LSBFirst">
+                  <documentPart type="bits">
+                  // this doc part contains no bits
+                  // at all. It is just comments.
+                  // 101010101
+                  </documentPart>
+                </document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("", firstPart.bitDigits)
+  }
+
+  @Test def testCommentBitNoLineEnding(): Unit = {
+    val xml = <document bitOrder="LSBFirst"><documentPart type="bits">01011010 // just a comment here no line ending </documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("01011010", firstPart.bitDigits)
+  }
+
+  @Test def testCommentBitBothCommentFormatsNewLine(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
+              <documentPart type="bits">0100110110 /*C0mment 01011111 _01*/11
+100111//D1fferent sty1e c0mment</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("010011011011100111", firstPart.bitDigits)
+  }
+
+  @Test def testCommentBitBothCommentFormats(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
+              <documentPart type="bits">0100110110 /*C0mment 01011111 _01*/100111//D1fferent sty1e c0mment</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("0100110110100111", firstPart.bitDigits)
+  }
+
+  @Test def testBitBadCommentFormatException(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
+              <documentPart type="bits">0100110110 C0mment 01011111 _01100*/111//D1fferent sty1e c0mment</documentPart>
+              </document>
+    val exc = intercept[TDMLException] {
+      val doc = new Document(xml, null)
+      doc.documentParts.collect { case x: BitsDocumentPart => x }
+      val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+      val firstPart = dp(0).bitDigits
+    }
+    assertTrue(exc.getMessage().contains("Improper formatting of /* */ style comment"))
+  }
+
+  @Test def testCommentBitNoWarningCharacters(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
+              <documentPart type="bits">01|01|00
+                                        (10).[01]</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("0101001001", firstPart.bitDigits)
+  }
+
+  @Test def testCommentBitNoWarningCharactersWithInvalid(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
+              <documentPart type="bits">01|01|00 !!
+                                        (10).[01]</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("0101001001", firstPart.bitDigits)
+  }
+
+  @Test def testCommentBitNonGreedy(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
+              <documentPart type="bits">0101 /*Data 1*/ 0101 /*Data 2*/</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("01010101", firstPart.bitDigits)
+  }
+
+  @Test def testCommentBitNonGreedyNewLine(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
+              <documentPart type="bits">0101 /*Data 1
+                                              Explanation*/
+                                        0101 /*Data 2
+                                              Explanation*/
+              </documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("01010101", firstPart.bitDigits)
+  }
+
+  @Test def testCommentBitCarriageReturn(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
+              <documentPart type="bits">0101&#13;00 /*Data 1*/
+                                        0101 /*Data 2*/
+              </documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("0101000101", firstPart.bitDigits)
+  }
+
+  @Test def testCommentByte(): Unit = {
+    val xml = <document><documentPart type="byte">12 3A BC.abc //Label (ABCDEF123456789</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
+    assertEquals("123ABCabc", hexDigits)
+  }
+
+    @Test def testCommentByteWithNewLine(): Unit = {
+    val xml = <document><documentPart type="byte">123ABCabc //Label (ABCDEF123456789
+      456DEFdef //New Label</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
+    assertEquals("123ABCabc456DEFdef", hexDigits)
+  }
+
+  @Test def testCommentByteBothCommentFormatsNewLine(): Unit = {
+    val xml = <document><documentPart type="byte">12AB3C /*Comment ABC123 ** */
+    45D6d//Different style comment</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
+    assertEquals("12AB3C45D6d", hexDigits)
+  }
+
+  @Test def testCommentByteBothCommentFormats(): Unit = {
+    val xml = <document><documentPart type="byte">12AB3C /*Comment ABC123 ** */45D6d//Different style comment</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
+    assertEquals("12AB3C45D6d", hexDigits)
+  }
+
+  @Test def testByteBadCommentFormatException(): Unit = {
+    val xml = <document><documentPart type="byte">12AB3C Comment ABC123 ** */45D6d//Different style comment</documentPart></document>
+    val exc = intercept[TDMLException] {
+      val doc = new Document(xml, null)
+      val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+      val hexDigits = dp(0).hexDigits
+    }
+    assertTrue(exc.getMessage().contains("Improper formatting of /* */ style comment"))
+  }
+
+  @Test def testCommentByteNoWarningCharacters(): Unit = {
+    val xml = <document><documentPart type="byte">01|01|00
+                                                  (AB).[AB]</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
+    assertEquals("010100ABAB", hexDigits)
+  }
+
+  @Test def testCommentByteNoWarningCharactersWithInvalid(): Unit = {
+    val xml = <document><documentPart type="byte">01|01|00 !!
+                                                  (AB).[AB]</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
+    assertEquals("010100ABAB", hexDigits)
+  }
+
+  @Test def testCommentByteCommentNonGreedy(): Unit = {
+    val xml = <document><documentPart type="byte">0101AB /*Data 1*/ 0101ab /*Data 2*/</documentPart></document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
+    assertEquals("0101AB0101ab", hexDigits)
+  }
+
+  @Test def testCommentByteNonGreedyNewLine(): Unit = {
+    val xml = <document>
+                <documentPart type="byte">
+                  <![CDATA[
+                    0101AB /*Data 1
+                            Explanation
+                            `0123456789
+                            [;,]'.\/'
+                            */
+                    0101ab /*Data 2
+                            Explanation
+                            ~)!@#$%^&*(
+                            {:<}">|?
+                            */
+                  ]]>
+                </documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
+    assertEquals("0101AB0101ab", hexDigits)
+  }
+
+  @Test def testCommentByteCarriageReturn(): Unit = {
+    val xml = <document>
+                <documentPart type="byte">
+                    01&#13;01AB /*Data 1*/
+                    0101ab /*Data 2*/
+                </documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
+    assertEquals("0101AB0101ab", hexDigits)
+  }
+
+  @Test def testMIL2045_47001D_Page70_TableB_I_With_Comment_Syntax_1(): Unit = {
+    val doc = new Document(
+      <document bitOrder="LSBFirst">
+        <documentPart type="bits" byteOrder="RTL">/*Version*/                         XXXX 0011</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*FPI*/                             XXX0 XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*Compression*/                     NA       </documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*GPI for Originator Address*/      XX1X XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*FPI for URN*/                     X1XX XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*URN*/  X0000000 00000000 01100111 1XXX XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*FPI for Unit Name*/               1XXX XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*Unit Name*/                       X101 0101</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    0XXX XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    XX10 0111</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    01XX XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    XXX1 0010</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    100X XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    XXXX 1010</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    0001 XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    XXXX X100</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    1111 1XXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">                                    XXXX XX11</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*GPI for Recip. Addr Group*/       XXXX X1XX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*GRI for R_ONE*/                   XXXX 0XXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*FPI for URN*/                     XXX1 XXXX</documentPart>
+        <documentPart type="bits" byteOrder="RTL">/*URN*/ XXXX00000 00000000 00000000 011X XXXX</documentPart>
+      </document>, null)
+    val doc1bits = doc.documentBits
+    doc1bits.length
+    val doc2 = new Document(
+      <document bitOrder="LSBFirst">
+        <documentPart type="byte"><![CDATA[
+            E3 67 00 80 55 67 92 1A FC 77 00 00 00
+         ]]></documentPart>
+      </document>, null)
+    val doc2bits = doc2.documentBits
+    assertEquals(doc2bits, doc1bits)
+  }
+
+  @Test def testMIL2045_47001D_Page70_TableB_I_With_Comment_Syntax_2(): Unit = {
+    val doc = new Document(
+      <document bitOrder="LSBFirst">
+        <documentPart type="bits" byteOrder="RTL">XXXX 0011                          //Version </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XXX0 XXXX                              //FPI </documentPart>
+        <documentPart type="bits" byteOrder="RTL">NA                             //Compression </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XX1X XXXX       //GPI for Originator Address </documentPart>
+        <documentPart type="bits" byteOrder="RTL">X1XX XXXX                      //FPI for URN </documentPart>
+        <documentPart type="bits" byteOrder="RTL">X0000000 00000000 01100111 1XXX XXXX   //URN </documentPart>
+        <documentPart type="bits" byteOrder="RTL">1XXX XXXX                //FPI for Unit Name </documentPart>
+        <documentPart type="bits" byteOrder="RTL">X101 0101                        //Unit Name </documentPart>
+        <documentPart type="bits" byteOrder="RTL">0XXX XXXX                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XX10 0111                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">01XX XXXX                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XXX1 0010                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">100X XXXX                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XXXX 1010                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">0001 XXXX                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XXXX X100                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">1111 1XXX                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XXXX XX11                                    </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XXXX X1XX        //GPI for Recip. Addr Group </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XXXX 0XXX                    //GRI for R_ONE </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XXX1 XXXX                      //FPI for URN </documentPart>
+        <documentPart type="bits" byteOrder="RTL">XXXX00000 00000000 00000000 011X XXXX  //URN </documentPart>
+      </document>, null)
+    val doc1bits = doc.documentBits
+    doc1bits.length
+    val doc2 = new Document(
+      <document bitOrder="LSBFirst">
+        <documentPart type="byte"><![CDATA[
+            E3 67 00 80 55 67 92 1A FC 77 00 00 00
+         ]]></documentPart>
+      </document>, null)
+    val doc2bits = doc2.documentBits
+    assertEquals(doc2bits, doc1bits)
+  }
+
 }
