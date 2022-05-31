@@ -2208,20 +2208,14 @@ class ByteDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     bits
   }
 
-  // Note: anything that is not a valid hex digit (or binary digit for binary) is simply skipped
-  // TODO: we should check for whitespace and other characters we want to allow, and verify them.
-  // TODO: Or better, validate this in the XML Schema for tdml via a pattern facet
-  // TODO: Consider whether to support a comment syntax. When showing data examples this may be useful.
-  //
-  lazy val hexDigits = partRawContent.flatMap { ch => if (validHexDigits.contains(ch)) List(ch) else Nil }
+  lazy val hexDigits = CanonData.canonicalizeData(validHexDigits, partRawContent)
 
 }
 
-class BitsDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
-  lazy val bitDigits = {
-    val res = partRawContent.split("[^01]").mkString
-    res
-  }
+final class BitsDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
+  val validBits = "01"
+
+  lazy val bitDigits = CanonData.canonicalizeData(validBits, partRawContent)
 
   lazy val dataBits = partByteOrder match {
     case LTR => {
@@ -2358,6 +2352,44 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
     }
   }.trim.toUpperCase()
 
+}
+
+object CanonData {
+  private lazy val doubleForwardPattern = "//.*".r
+  private lazy val openClosePattern = "(?s)/[*].*?[*]/".r
+  private lazy val noWarnCharsSet = "|()[].Xx \n\r"
+
+  /*
+  * Allow "//" and "/* */" to act as comments.
+  * Any valid XML characters not explicitly allowed are also considered comments and are removed.
+  */
+  def canonicalizeData(validCharactersSet: String, userData: String): String = {
+    var doWarning: Boolean = false
+
+    //Remove the comments (//) and (/* */)
+    val noCommentsForward = doubleForwardPattern.replaceAllIn(userData, "")
+    val noCommentsBothFormats = openClosePattern.replaceAllIn(noCommentsForward, "")
+
+    //Throw exception if /* or */ still found. This means user input was not formatted correctly.
+    if (noCommentsBothFormats.contains("/*") || noCommentsBothFormats.contains("*/")) {
+      throw TDMLException("Improper formatting of /* */ style comment", None)
+    }
+
+    //Check value of the characters, if invalid character found create log and skip over it
+    val validData = noCommentsBothFormats.filter { ch =>
+      if (validCharactersSet.contains(ch)) true
+      else {
+        if (!noWarnCharsSet.contains(ch)) doWarning = true
+        false
+      }
+    }
+
+    if (doWarning) {
+        Logger.log.warn("Data contains invalid character(s). Consider using a comment (// or /* */).")
+    }
+
+    validData
+  }
 }
 
 case class Infoset(i: NodeSeq, parent: TestCase) {
