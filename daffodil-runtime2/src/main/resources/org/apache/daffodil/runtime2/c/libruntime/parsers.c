@@ -507,26 +507,25 @@ parse_le_uint8(uint8_t *number, size_t num_bits, PState *pstate)
     *number = (uint8_t)integer;
 }
 
-// Skip fill bytes until end bitPos0b is reached
+// Parse fill bits until end bitPos0b is reached
 
 void
-parse_fill_bytes(size_t end_bitPos0b, PState *pstate)
+parse_fill_bits(size_t end_bitPos0b, PState *pstate)
 {
-    union
-    {
-        uint8_t bytes[1];
-    } buffer;
+    assert(pstate->bitPos0b <= end_bitPos0b);
 
-    // Update our last successful parse position only if this loop
-    // finishes without any errors
-    size_t current_bitPos0b = pstate->bitPos0b;
-    while (current_bitPos0b < end_bitPos0b)
+    size_t fill_bits = end_bitPos0b - pstate->bitPos0b;
+    uint8_t bytes[1];
+    while (fill_bits)
     {
-        read_bits(buffer.bytes, BYTE_WIDTH, pstate);
+        size_t num_bits = (fill_bits >= BYTE_WIDTH) ? BYTE_WIDTH : fill_bits;
+        read_bits(bytes, num_bits, pstate);
         if (pstate->error) return;
-        current_bitPos0b += BYTE_WIDTH;
+        fill_bits -= num_bits;
     }
-    pstate->bitPos0b = current_bitPos0b;
+    
+    // If we got all the way here, update our last successful parse position
+    pstate->bitPos0b = end_bitPos0b;
 }
 
 // Allocate memory for hexBinary array

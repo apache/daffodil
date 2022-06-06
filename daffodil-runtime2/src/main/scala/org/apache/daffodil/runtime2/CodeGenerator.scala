@@ -161,9 +161,9 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
    * sequence if no compiler could be found in the user's PATH.
    */
   lazy val pickCompiler: Seq[String] = {
-    val ccEnv = System.getenv("CC")
+    val ccEnv = sys.env.getOrElse("CC", "zig cc")
     val compilers = Seq(ccEnv, "zig cc", "cc", "clang", "gcc")
-    val path = System.getenv("PATH").split(File.pathSeparatorChar)
+    val path = sys.env.getOrElse("PATH", ".").split(File.pathSeparatorChar)
     def inPath(compiler: String): Boolean = {
       (compiler != null) && {
         val exec = compiler.takeWhile(_ != ' ')

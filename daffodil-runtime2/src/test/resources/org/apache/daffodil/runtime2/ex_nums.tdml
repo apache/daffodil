@@ -17,52 +17,22 @@
 -->
 
 <tdml:testSuite
-  defaultImplementations="daffodil daffodil-runtime2"
-  defaultRoundTrip="onePass"
+  defaultRoundTrip="none"
   description="TDML tests for ex_nums.dfdl.xsd"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
   <!--
-      Can run all tests in this file with:
+      Run all tests:
 
-      daffodil test -i ex_nums.tdml
-  -->
+      daffodil test -i -I daffodil ex_nums.tdml
+      daffodil test -i -I daffodilC ex_nums.tdml
 
-  <tdml:defineConfig name="config-runtime1">
-    <daf:tunables>
-      <daf:tdmlImplementation>daffodil</daf:tdmlImplementation>
-    </daf:tunables>
-  </tdml:defineConfig>
-
-  <tdml:defineConfig name="config-runtime2">
-    <daf:tunables>
-      <daf:tdmlImplementation>daffodil-runtime2</daf:tdmlImplementation>
-    </daf:tunables>
-  </tdml:defineConfig>
-
-  <!--
-      Can run individual daffodil commands for easier debugging:
+      Or you can debug specific steps in isolation:
 
       daffodil parse -s ex_nums.dfdl.xsd -o ex_nums.dat.xml ex_nums.dat
       daffodil unparse -s ex_nums.dfdl.xsd -o ex_nums.dat ex_nums.dat.xml
-  -->
-
-  <tdml:parserTestCase
-    config="config-runtime1"
-    model="ex_nums.dfdl.xsd"
-    name="ex_nums_runtime1">
-    <tdml:document>
-      <tdml:documentPart type="file">ex_nums.dat</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset type="file">ex_nums.dat.xml</tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-  <!--
-      Can run individual daffodil commands for easier debugging:
 
       daffodil generate c -s ex_nums.dfdl.xsd && cd c && make
       c/daffodil parse -o ex_nums.dat.xml ex_nums.dat
@@ -70,9 +40,9 @@
   -->
 
   <tdml:parserTestCase
-    config="config-runtime2"
     model="ex_nums.dfdl.xsd"
-    name="ex_nums_runtime2">
+    name="ex_nums"
+    roundTrip="onePass">
     <tdml:document>
       <tdml:documentPart type="file">ex_nums.dat</tdml:documentPart>
     </tdml:document>
@@ -82,15 +52,20 @@
   </tdml:parserTestCase>
 
   <!--
-      validation="limited" will report no validation errors, while
-      validation="on" will report errors which cannot be captured
+      In runtime1, parse with validation="off" or "limited" reads
+      non-fixed values with no validation diagnostics, while parse
+      with validation="on" reads non-fixed values with validation
+      diagnostics
+
+      daffodil parse -s ex_nums.dfdl.xsd -o /dev/null -V off ex_nums.error.dat
+      daffodil parse -s ex_nums.dfdl.xsd -o /dev/null -V limited ex_nums.error.dat
+      daffodil parse -s ex_nums.dfdl.xsd -o /dev/null -V on ex_nums.error.dat
   -->
 
   <tdml:parserTestCase
-    config="config-runtime1"
+    implementations="daffodil"
     model="ex_nums.dfdl.xsd"
-    name="ex_nums_runtime1_error"
-    roundTrip="none"
+    name="runtime1_error_limited"
     validation="limited">
     <tdml:document>
       <tdml:documentPart type="file">ex_nums.error.dat</tdml:documentPart>
@@ -100,19 +75,57 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase
+    model="ex_nums.dfdl.xsd"
+    name="runtime1_error_on"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="file">ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>value</tdml:error>
+      <tdml:error>boolean_false</tdml:error>
+      <tdml:error>does not match</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
   <!--
-      Note that when unparsing (needs a separate test case since
-      roundtripping is turned off), runtime2 should write fixed values
-      instead of writing error values with validation diagnostics
-      (change still to be done)
+      In runtime1, unparse writes non-fixed values with no error or
+      validation diagnostics regardless of validation setting
+
+      daffodil unparse -s ex_nums.dfdl.xsd -o /dev/null -V off ex_nums.error.dat.xml
+      daffodil unparse -s ex_nums.dfdl.xsd -o /dev/null -V limited ex_nums.error.dat.xml
+      daffodil unparse -s ex_nums.dfdl.xsd -o /dev/null -V on ex_nums.error.dat.xml
+  -->
+
+  <tdml:unparserTestCase
+    implementations="daffodil"
+    model="ex_nums.dfdl.xsd"
+    name="runtime1_error_unparse">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+      In runtime2, parse always reads non-fixed values with validation
+      diagnostics (parse doesn't even have a validation option, but
+      test must pass validation="on" so TDMLRunner can expect errors)
+
+      c/daffodil parse -o c/ex_nums.error.dat.xml ex_nums.error.dat
   -->
 
   <tdml:parserTestCase
-    config="config-runtime2"
+    implementations="daffodilC"
     model="ex_nums.dfdl.xsd"
-    name="ex_nums_runtime2_error"
-    roundTrip="none"
-    validation="limited">
+    name="runtime2_error_parse"
+    validation="on">
     <tdml:document>
       <tdml:documentPart type="file">ex_nums.error.dat</tdml:documentPart>
     </tdml:document>
@@ -157,5 +170,29 @@
       <tdml:error>attribute</tdml:error>
     </tdml:validationErrors>
   </tdml:parserTestCase>
+
+  <!--
+      In runtime2, unparse always writes non-fixed values with error
+      diagnostics (unparse doesn't even have a validation option)
+
+      c/daffodil unparse -o c/ex_nums.error.dat ex_nums.error.dat.xml
+  -->
+
+  <tdml:unparserTestCase
+    implementations="daffodilC"
+    model="ex_nums.dfdl.xsd"
+    name="runtime2_error_unparse">
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="file">ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>value</tdml:error>
+      <tdml:error>boolean_false</tdml:error>
+      <tdml:error>does not match</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

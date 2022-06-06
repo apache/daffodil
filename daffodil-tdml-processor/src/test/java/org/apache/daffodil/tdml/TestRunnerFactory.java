@@ -24,6 +24,7 @@ import org.apache.daffodil.util.Misc;
 import org.junit.Test;
 import org.xml.sax.InputSource;
 
+import scala.Option;
 import scala.collection.JavaConverters;
 import scala.xml.Elem;
 import scala.xml.XML;
@@ -39,6 +40,7 @@ public class TestRunnerFactory {
     Right<scala.xml.Elem, String> rightURI = new Right<>(tdmlUri.toString());
     Runner runner = new Runner(
       rightURI,
+      Option.apply(null),
       true,
       true,
       false,

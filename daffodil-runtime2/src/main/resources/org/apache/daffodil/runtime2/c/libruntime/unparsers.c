@@ -401,27 +401,24 @@ unparse_le_uint8(uint8_t number, size_t num_bits, UState *ustate)
     unparse_endian_uint64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
 }
 
-// Add fill bytes until end bitPos0b is reached
+// Unparse fill bits until end bitPos0b is reached
 
 void
-unparse_fill_bytes(size_t end_bitPos0b, const uint8_t fill_byte, UState *ustate)
+unparse_fill_bits(size_t end_bitPos0b, const uint8_t fill_byte, UState *ustate)
 {
-    union
-    {
-        uint8_t bytes[1];
-    } buffer;
-    buffer.bytes[0] = fill_byte;
+    assert(ustate->bitPos0b <= end_bitPos0b);
 
-    // Update our last successful write position only if this loop
-    // finishes without any errors
-    size_t current_bitPos0b = ustate->bitPos0b;
-    while (current_bitPos0b < end_bitPos0b)
+    size_t fill_bits = end_bitPos0b - ustate->bitPos0b;
+    while (fill_bits)
     {
-        write_bits(buffer.bytes, BYTE_WIDTH, ustate);
+        size_t num_bits = (fill_bits >= BYTE_WIDTH) ? BYTE_WIDTH : fill_bits;
+        write_bits(&fill_byte, num_bits, ustate);
         if (ustate->error) return;
-        current_bitPos0b += BYTE_WIDTH;
+        fill_bits -= num_bits;
     }
-    ustate->bitPos0b = current_bitPos0b;
+
+    // If we got all the way here, update our last successful write position
+    ustate->bitPos0b = end_bitPos0b;
 }
 
 // Unparse opaque bytes from hexBinary field

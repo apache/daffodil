@@ -27,10 +27,20 @@
   <tdml:defineSchema name="s1">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
-
     <xs:element name="e1" dfdl:lengthKind="explicit"
       dfdl:length="2" type="xs:int" />
+  </tdml:defineSchema>
 
+  <tdml:defineSchema name="s2">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e2" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="testNotCompatibleImplementation1" root="e1"
@@ -40,6 +50,21 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e1>42</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testDaffodilCImplementation1" root="e1"
+    model="s2" description="this test specifies daffodilC as implementation."
+    implementations="daffodilC">
+    <tdml:document>
+      <tdml:documentPart type="byte">0000002a</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <e2>42</e2>
+        </e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

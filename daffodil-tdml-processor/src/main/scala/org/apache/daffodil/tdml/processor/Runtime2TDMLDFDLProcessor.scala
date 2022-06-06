@@ -38,7 +38,7 @@ final class Runtime2TDMLDFDLProcessorFactory private(
 
   override type R = Runtime2TDMLDFDLProcessorFactory
 
-  override def implementationName = "daffodil-runtime2"
+  override def implementationName = TDMLImplementation.DaffodilC.toString
 
   def this() = this(compiler = Compiler(validateDFDLSchemas = true),
     checkAllTopLevel = false,

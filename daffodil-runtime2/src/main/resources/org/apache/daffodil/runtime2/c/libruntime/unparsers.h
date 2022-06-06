@@ -57,9 +57,9 @@ extern void unparse_le_uint32(uint32_t number, size_t num_bits, UState *ustate);
 extern void unparse_le_uint64(uint64_t number, size_t num_bits, UState *ustate);
 extern void unparse_le_uint8(uint8_t number, size_t num_bits, UState *ustate);
 
-// Unparse fill bytes until end bytePos0b is reached
+// Unparse fill bits until end bitPos0b is reached
 
-extern void unparse_fill_bytes(size_t end_bytePos0b, const uint8_t fill_byte, UState *ustate);
+extern void unparse_fill_bits(size_t end_bitPos0b, const uint8_t fill_byte, UState *ustate);
 
 // Unparse opaque bytes from hexBinary field
 

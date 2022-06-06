@@ -57,6 +57,7 @@ import org.apache.daffodil.api.DFDL.ParseResult
 import org.apache.daffodil.api.DFDL.UnparseResult
 import org.apache.daffodil.api.DaffodilConfig
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.api.TDMLImplementation
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.api.WithDiagnostics
@@ -197,6 +198,15 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
     } catch {
       case _: NoSuchElementException => throw new Exception("Unrecognized infoset type: %s.  Must be one of %s".format(s, InfosetType.values.mkString(", ")))
     }
+  })
+
+  implicit def implementationConverter = singleArgConverter[TDMLImplementation]((s: String) => {
+    val optImplementation = TDMLImplementation.optionStringToEnum("implementation", s)
+    if (!optImplementation.isDefined) {
+      throw new Exception("Unrecognized TDML implementation '%s'.  Must be one of %s"
+        .format(s, TDMLImplementation.allValues.mkString(", ")))
+    }
+    optImplementation.get
   })
 
   def qnameConvert(s: String): RefQName = {
@@ -388,7 +398,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
   // Test Subcommand Options
   object test extends scallop.Subcommand("test") {
-    banner("""|Usage: daffodil test [-l] [-r] [-i] <tdmlfile> [testnames...]
+    banner("""|Usage: daffodil test [-I <implementation>] [-l] [-r] [-i] <tdmlfile> [testnames...]
               |
               |List or execute tests in a TDML file
               |
@@ -397,6 +407,10 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
     descr("List or execute TDML tests")
     helpWidth(width)
 
+    val implementation = opt[TDMLImplementation](short = 'I', argName = "implementation",
+      descr = "Implementation to run TDML tests. Choose one of %s. Defaults to %s."
+        .format(TDMLImplementation.allValues.mkString(", "), TDMLImplementation.Daffodil.toString),
+      default = None)
     val info = tally(descr = "Increment test result information output level, one level for each -i")
     val list = opt[Boolean](descr = "Show names and descriptions instead of running test cases")
     val regex = opt[Boolean](descr = "Treat <testnames...> as regular expressions")
@@ -1257,7 +1271,8 @@ object Main {
         val testOpts = conf.test
 
         val tdmlFile = testOpts.tdmlfile()
-        val tdmlRunner = new Runner(new java.io.File(tdmlFile))
+        val optTDMLImplementation = testOpts.implementation.toOption
+        val tdmlRunner = Runner(tdmlFile, optTDMLImplementation)
 
         val tests = {
           if (testOpts.testnames.isDefined) {
@@ -1330,7 +1345,8 @@ object Main {
                   case s: scala.util.control.ControlThrowable => throw s
                   case u: UnsuppressableException => throw u
                   case e: TDMLTestNotCompatibleException => {
-                    println("[Skipped] %s (Not compatible implementation.)".format(name))
+                    println("[Skipped] %s (not compatible with implementation %s)"
+                      .format(name, e.implementation.getOrElse("<none>")))
                   }
                   case e: Throwable => {
                     println("[Fail] %s".format(name))

@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.runtime2
 
+import org.apache.daffodil.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 import org.junit.Test
 
 object TestEgressXdccBw {
   val testDir = "/org/apache/daffodil/runtime2/"
-  val runner = Runner(testDir, "egress_xdcc_bw.tdml")
+  val runner = Runner(testDir, "egress_xdcc_bw.tdml", TDMLImplementation.DaffodilC)
 
   @AfterClass def shutDown(): Unit = { runner.reset }
 }

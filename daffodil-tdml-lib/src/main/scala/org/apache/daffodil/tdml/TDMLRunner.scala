@@ -41,6 +41,7 @@ import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.EmbeddedSchemaSource
+import org.apache.daffodil.api.TDMLImplementation
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.api.ValidationMode
@@ -140,6 +141,7 @@ private[tdml] object DFDLTestSuite {
  * E.g., it should only need an API specified as a collection of Scala traits, and some simple way to inject
  * dependency on one factory to create processors.
  *
+ * Use the optTDMLImplementation arg to override which TDML implementation runs the test.
  *
  * Use the validateTDMLFile arg to bypass validation of the TDML document itself.
  *
@@ -166,10 +168,8 @@ private[tdml] object DFDLTestSuite {
  */
 
 class DFDLTestSuite private[tdml] (
-  // this extra arg allows us to make this primary constructor
-  // package private so we can deprecate the one generally used.
-  val __nl: Null,
   aNodeFileOrURL: Any,
+  val optTDMLImplementation: Option[TDMLImplementation],
   validateTDMLFile: Boolean,
   val validateDFDLSchemas: Boolean,
   val compileAllTopLevel: Boolean,
@@ -179,27 +179,6 @@ class DFDLTestSuite private[tdml] (
   val shouldDoErrorComparisonOnCrossTests: Boolean,
   val shouldDoWarningComparisonOnCrossTests: Boolean)
   extends HasSetDebugger {
-
-  // Uncomment to force conversion of all test suites to use Runner(...) instead.
-  // That avoids creating the test suites repeatedly, but also leaks memory unless
-  // you have an @AfterClass shutdown method in the object that calls runner.reset() at end.
-  @deprecated("Use Runner(...) instead.", "3.2.0")
-  def this(
-    aNodeFileOrURL: Any,
-    validateTDMLFile: Boolean = true,
-    validateDFDLSchemas: Boolean = true,
-    compileAllTopLevel: Boolean = false,
-    defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
-    defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
-    defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
-    shouldDoErrorComparisonOnCrossTests: Boolean = Runner.defaultShouldDoErrorComparisonOnCrossTests,
-    shouldDoWarningComparisonOnCrossTests: Boolean = Runner.defaultShouldDoWarningComparisonOnCrossTests) =
-    this(null, aNodeFileOrURL, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-      defaultRoundTripDefault,
-      defaultValidationDefault,
-      defaultImplementationsDefault,
-      shouldDoErrorComparisonOnCrossTests,
-      shouldDoWarningComparisonOnCrossTests)
 
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
 
@@ -230,6 +209,53 @@ class DFDLTestSuite private[tdml] (
   computing the details of the test case objects so we only incur the
   overhead of creating the one we're running.
    */
+
+  // Use optTDMLImplementation if it was passed in, otherwise use our
+  // default TDML implementation (normally daffodil unless overridden
+  // by setting the environment variable TDML_IMPLEMENTATION)
+  lazy val defaultTDMLImplementation: TDMLImplementation = {
+    val envName = "TDML_IMPLEMENTATION"
+    val value = sys.env.getOrElse(envName, "")
+    val optImpl = TDMLImplementation.optionStringToEnum(envName, value)
+    // Warn if value of environment variable is not a valid implementation
+    if (value.nonEmpty && optImpl.isEmpty)
+      throw TDMLException(s"$envName=$value does not give a valid TDML implementation", None)
+    optImpl.getOrElse(TDMLImplementation.Daffodil)
+  }
+
+  lazy val tdmlDFDLProcessorFactory: AbstractTDMLDFDLProcessorFactory = {
+    import scala.language.existentials
+
+    // Let optTDMLImplementation override defaultTDMLImplementation
+    val tdmlImplementation = optTDMLImplementation.getOrElse(defaultTDMLImplementation)
+
+    // Right now both daffodil and ibm use the same classname loaded from different
+    // classpaths, but we may find a better way to cross test with ibm in the future
+    val className = tdmlImplementation match {
+      case TDMLImplementation.Daffodil => "org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory"
+      case TDMLImplementation.DaffodilC => "org.apache.daffodil.tdml.processor.Runtime2TDMLDFDLProcessorFactory"
+      case TDMLImplementation.Ibm => "org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory"
+    }
+
+    // If you haven't seen it before. Check out this Try(...) idiom.
+    // Much cleaner than the messy nest of individual try/catches for each case.
+    //
+    // We're not catching anything here, but we could have surrounded the tryInstance.get call with a
+    // single tier of catch, with cases for all the various throws that could have happened anywhere on
+    // the three lines of actions that can throw various things.
+    //
+    // of course this will allocate an object, so not for tightest inner loops, but the code
+    // cleanup is substantial.
+    //
+    val clazz = Try(Class.forName(className))
+    val constructor = clazz.map { _.getDeclaredConstructor() }
+    val tryInstance = constructor.map { _.newInstance().asInstanceOf[AbstractTDMLDFDLProcessorFactory] }
+    val res = tryInstance.recover {
+      // encapsulate exception as TDMLException and throw
+      case e => throw TDMLException(e, None)
+    }.get
+    res
+  }
 
   lazy val errorHandler = new org.xml.sax.ErrorHandler {
     def warning(exception: SAXParseException) = {
@@ -563,38 +589,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
 
   final def isNegativeTest = optExpectedErrors.isDefined
 
-  lazy val tdmlDFDLProcessorFactory: AbstractTDMLDFDLProcessorFactory = {
-    import scala.language.existentials
-
-    // tdmlImplementation is a tunable choice with three values.
-    val className = tunableObj.tdmlImplementation match {
-      // Right now daffodil and ibm use the same ProcessFactory name
-      case "daffodil" | "ibm" => "org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory"
-      case "daffodil-runtime2" => "org.apache.daffodil.tdml.processor.Runtime2TDMLDFDLProcessorFactory"
-      case other => Assert.invariantFailed("'%s' not valid for tdmlImplementation".format(other))
-    }
-
-    //
-    // If you haven't seen it before. Check out this Try(...) idiom.
-    // Much cleaner than the messy nest of individual try/catches for each case.
-    //
-    // We're not catching anything here, but we could have surrounded the tryInstance.get call with a
-    // single tier of catch, with cases for all the various throws that could have happened anywhere on
-    // the three lines of actions that can throw various things.
-    //
-    // of course this will allocate an object, so not for tightest inner loops, but the code
-    // cleanup is substantial.
-    //
-    val clazz = Try(Class.forName(className))
-    val constructor = clazz.map { _.getDeclaredConstructor() }
-    val tryInstance = constructor.map { _.newInstance().asInstanceOf[AbstractTDMLDFDLProcessorFactory] }
-    val res = tryInstance.recover {
-      case th =>
-        toss(th, None) // encapsulates as TDMLException and throws.
-    }.get
-    res
-  }
-
   lazy val document = (testCaseXML \ "document").headOption.map { node => Document(node, this) }
   lazy val optExpectedOrInputInfoset = (testCaseXML \ "infoset").headOption.map { node => new Infoset(node, this) }
   lazy val optExpectedErrors: Option[ExpectedErrors] = (testCaseXML \ "errors").headOption.map { node => ExpectedErrors(node, this) }
@@ -805,7 +799,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   def run(): Unit = {
     val suppliedSchema = getSuppliedSchema()
 
-    var impl: AbstractTDMLDFDLProcessorFactory = this.tdmlDFDLProcessorFactory
+    var impl: AbstractTDMLDFDLProcessorFactory = parent.tdmlDFDLProcessorFactory
     val implString = Some(impl.implementationName)
     //
     // Should we run the test?
