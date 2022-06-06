@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.tdml
 
+import java.nio.file.Paths
+import org.apache.daffodil.api.TDMLImplementation
 import org.apache.daffodil.util.Misc
 
 /**
@@ -37,6 +39,7 @@ import org.apache.daffodil.util.Misc
  */
 object Runner {
   def apply(dir: String, file: String,
+    tdmlImplementation: TDMLImplementation = TDMLImplementation.Daffodil,
     validateTDMLFile: Boolean = true,
     validateDFDLSchemas: Boolean = true,
     compileAllTopLevel: Boolean = false,
@@ -44,21 +47,40 @@ object Runner {
     defaultValidationDefault: String = defaultValidationDefaultDefault,
     defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault): Runner = {
 
-    val resourceDir = if (dir.startsWith("/")) dir else "/" + dir
-    val resourcePath = if (resourceDir.endsWith("/")) resourceDir + file else resourceDir + "/" + file
+    // Prepend forward slash to turn dir/file into classpath resource
+    val resourceDir = if (dir.startsWith("/"))
+      dir
+    else
+      "/" + dir
+    val resourcePath = if (resourceDir.endsWith("/"))
+      resourceDir + file
+    else
+      resourceDir + "/" + file
 
-    new Runner(Right(resourcePath), validateTDMLFile, validateDFDLSchemas, compileAllTopLevel,
-      defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault)
+    new Runner(Right(resourcePath), Some(tdmlImplementation), validateTDMLFile, validateDFDLSchemas,
+      compileAllTopLevel, defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault)
   }
+
+  // Scala 2 allows only one apply method to have default arguments,
+  // so we must overload the next pair of apply methods both with and
+  // without optTDMLImplementation
 
   def apply(path: String): Runner =
     new Runner(path)
+
+  def apply(path: String, optTDMLImplementation: Option[TDMLImplementation]): Runner =
+    // Don't turn path into classpath resource; we want to open a real file
+    new Runner(Right(Paths.get(path).toUri.toString), optTDMLImplementation)
+
+  // Scala 2 allows only one apply method to have default arguments,
+  // so we must overload the next pair of apply methods (generally
+  // used only for testing) both w/ and w/o validateTDMLFile
 
   def apply(elem: scala.xml.Elem): Runner =
     new Runner(elem)
 
   def apply(elem: scala.xml.Elem, validateTDMLFile: Boolean): Runner =
-    new Runner(Left(elem), validateTDMLFile)
+    new Runner(Left(elem), validateTDMLFile = validateTDMLFile)
   
   // Yes, that's a lot of defaults.....
   // but really it is 3-tiers deep:
@@ -76,7 +98,7 @@ object Runner {
    * A test or test suite can override this to specify more or different implementations
    * that the test should pass for.
    */
-  def defaultImplementationsDefaultDefault = Seq("daffodil", "ibm")
+  def defaultImplementationsDefaultDefault = TDMLImplementation.allValues.map(_.toString)
 
   /**
    * By default we don't run Daffodil negative TDML tests against cross-testers.
@@ -106,13 +128,13 @@ object Runner {
  */
 class Runner private (
   source: Either[scala.xml.Elem, String],
+  optTDMLImplementation: Option[TDMLImplementation] = None,
   validateTDMLFile: Boolean = true,
   validateDFDLSchemas: Boolean = true,
   compileAllTopLevel: Boolean = false,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
   defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault) {
-
 
   /**
    * Create a runner for the path. This constructor requires this path be on
@@ -172,8 +194,8 @@ class Runner private (
         case Right(r) => if (r.startsWith("/")) Misc.getRequiredResource(r) else new java.net.URI(r)
       }
       ts = new DFDLTestSuite(
-        null,
         elemOrURI,
+        optTDMLImplementation,
         validateTDMLFile,
         validateDFDLSchemas,
         compileAllTopLevel,

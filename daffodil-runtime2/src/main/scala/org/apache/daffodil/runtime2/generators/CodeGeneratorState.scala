@@ -331,10 +331,10 @@ class CodeGeneratorState(private val root: ElementBase) {
     if (context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0) {
       val octalFillByte = context.fillByteEv.constValue.toByte.toOctalString
       val parseStatement =
-        s"""    parse_fill_bytes(end_bitPos0b, pstate);
+        s"""    parse_fill_bits(end_bitPos0b, pstate);
            |    if (pstate->error) return;""".stripMargin
       val unparseStatement =
-        s"""    unparse_fill_bytes(end_bitPos0b, '\\$octalFillByte', ustate);
+        s"""    unparse_fill_bits(end_bitPos0b, '\\$octalFillByte', ustate);
            |    if (ustate->error) return;""".stripMargin
 
       structs.top.parserStatements += parseStatement

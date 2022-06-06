@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.runtime2
 
+import org.apache.daffodil.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 import org.junit.Test
 
 object TestNested {
   val testDir = "/org/apache/daffodil/runtime2/"
-  val runner: Runner = Runner(testDir, "nested.tdml")
+  val runner: Runner = Runner(testDir, "nested.tdml", TDMLImplementation.DaffodilC)
 
   @AfterClass def shutDown(): Unit = { runner.reset }
 }

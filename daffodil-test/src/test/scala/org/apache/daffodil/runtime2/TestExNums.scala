@@ -17,22 +17,31 @@
 
 package org.apache.daffodil.runtime2
 
-import org.junit.Test
+import org.apache.daffodil.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestExNums {
   val testDir = "/org/apache/daffodil/runtime2/"
-  val runner = Runner(testDir, "ex_nums.tdml")
+  val runner1 = Runner(testDir, "ex_nums.tdml", TDMLImplementation.Daffodil)
+  val runner2 = Runner(testDir, "ex_nums.tdml", TDMLImplementation.DaffodilC)
 
-  @AfterClass def shutDown(): Unit = { runner.reset }
+  @AfterClass def shutDown(): Unit = {
+    runner1.reset
+    runner2.reset
+  }
 }
 
 class TestExNums {
   import TestExNums._
 
-  @Test def test_ex_nums_runtime1(): Unit = { runner.runOneTest("ex_nums_runtime1") }
-  @Test def test_ex_nums_runtime1_error(): Unit = { runner.runOneTest("ex_nums_runtime1_error") }
-  @Test def test_ex_nums_runtime2(): Unit = { runner.runOneTest("ex_nums_runtime2") }
-  @Test def test_ex_nums_runtime2_error(): Unit = { runner.runOneTest("ex_nums_runtime2_error") }
+  @Test def runtime1_ex_nums(): Unit = { runner1.runOneTest("ex_nums") }
+  @Test def runtime1_error_limited(): Unit = { runner1.runOneTest("runtime1_error_limited") }
+  @Test def runtime1_error_on(): Unit = { runner1.runOneTest("runtime1_error_on") }
+  @Test def runtime1_error_unparse(): Unit = { runner1.runOneTest("runtime1_error_unparse") }
+
+  @Test def runtime2_ex_nums(): Unit = { runner2.runOneTest("ex_nums") }
+  @Test def runtime2_error_parse(): Unit = { runner2.runOneTest("runtime2_error_parse") }
+  @Test def runtime2_error_unparse(): Unit = { runner2.runOneTest("runtime2_error_unparse") }
 }

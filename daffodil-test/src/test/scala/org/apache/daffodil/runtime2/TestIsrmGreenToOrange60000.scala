@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.runtime2
 
+import org.apache.daffodil.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 import org.junit.Test
 
 object TestIsrmGreenToOrange60000 {
   val testDir = "/org/apache/daffodil/runtime2/"
-  val runner = Runner(testDir, "ISRM_green_to_orange_60000.tdml")
+  val runner = Runner(testDir, "ISRM_green_to_orange_60000.tdml", TDMLImplementation.DaffodilC)
 
   @AfterClass def shutDown(): Unit = { runner.reset }
 }

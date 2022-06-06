@@ -17,8 +17,6 @@
 -->
 
 <tdml:testSuite
-  defaultConfig="config-runtime2"
-  defaultImplementations="daffodil daffodil-runtime2"
   defaultRoundTrip="onePass"
   defaultValidation="on"
   description="TDML tests for MPU_green_to_orange_60004.dfdl.xsd"
@@ -26,17 +24,12 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
-  <tdml:defineConfig name="config-runtime1">
-    <daf:tunables>
-      <daf:tdmlImplementation>daffodil</daf:tdmlImplementation>
-    </daf:tunables>
-  </tdml:defineConfig>
+  <!--
+      Run all tests:
 
-  <tdml:defineConfig name="config-runtime2">
-    <daf:tunables>
-      <daf:tdmlImplementation>daffodil-runtime2</daf:tdmlImplementation>
-    </daf:tunables>
-  </tdml:defineConfig>
+      daffodil test -i -I daffodil MPU_green_to_orange_60004.tdml
+      daffodil test -i -I daffodilC MPU_green_to_orange_60004.tdml
+  -->
 
   <tdml:parserTestCase model="MPU_green_to_orange_60004.dfdl.xsd" name="MPU_green_to_orange_60004">
     <tdml:document>

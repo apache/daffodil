@@ -26,7 +26,6 @@ import org.apache.daffodil.Main.ExitCode
 
 import java.nio.file.Paths
 import java.io.{File, PrintWriter}
-import scala.collection.JavaConverters._
 import java.util.concurrent.TimeUnit
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert.fail
@@ -39,7 +38,7 @@ object Util {
 
   val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
-  val dafRoot = sys.env.get("DAFFODIL_HOME").getOrElse(".")
+  val dafRoot = sys.env.getOrElse("DAFFODIL_HOME", ".")
 
   def daffodilPath(dafRelativePath: String): String = {
     XMLUtils.slashify(dafRoot) + dafRelativePath
@@ -82,7 +81,7 @@ object Util {
   // The inputStream will be at index 0
   // The errorStream will be at index 1
   def getShell(cmd: String, spawnCmd: String, envp: Map[String, String] = Map.empty[String, String], timeout: Long): Expect = {
-    val newEnv = System.getenv().asScala ++ envp
+    val newEnv = sys.env ++ envp
 
     val envAsArray = newEnv.toArray.map { case (k, v) => k + "=" + v }
     val process = Runtime.getRuntime().exec(spawnCmd, envAsArray)

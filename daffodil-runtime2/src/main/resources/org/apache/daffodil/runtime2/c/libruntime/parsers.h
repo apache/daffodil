@@ -57,9 +57,9 @@ extern void parse_le_uint32(uint32_t *number, size_t num_bits, PState *pstate);
 extern void parse_le_uint64(uint64_t *number, size_t num_bits, PState *pstate);
 extern void parse_le_uint8(uint8_t *number, size_t num_bits, PState *pstate);
 
-// Parse fill bytes until end bytePos0b is reached
+// Parse fill bits until end bitPos0b is reached
 
-extern void parse_fill_bytes(size_t end_bytePos0b, PState *pstate);
+extern void parse_fill_bits(size_t end_bitPos0b, PState *pstate);
 
 // Allocate memory for hexBinary array
 

@@ -17,23 +17,16 @@
 -->
 
 <tdml:testSuite
-  defaultConfig="config-runtime2"
-  defaultImplementations="daffodil daffodil-runtime2"
   defaultRoundTrip="true"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
-  <tdml:defineConfig name="config-runtime1">
-    <daf:tunables>
-      <daf:tdmlImplementation>daffodil</daf:tdmlImplementation>
-    </daf:tunables>
-  </tdml:defineConfig>
+  <!--
+      Run all tests:
 
-  <tdml:defineConfig name="config-runtime2">
-    <daf:tunables>
-      <daf:tdmlImplementation>daffodil-runtime2</daf:tdmlImplementation>
-    </daf:tunables>
-  </tdml:defineConfig>
+      daffodil test -i -I daffodil collisions.tdml
+      daffodil test -i -I daffodilC collisions.tdml
+  -->
 
   <tdml:parserTestCase name="collisions" root="collisions" model="collisions.dfdl.xsd">
     <tdml:document>

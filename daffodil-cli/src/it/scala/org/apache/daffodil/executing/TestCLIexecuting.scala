@@ -194,7 +194,47 @@ class TestCLIexecuting {
       val cmd = String.format("%s test %s testNotCompatibleImplementation1", Util.binPath, testTdmlFile)
       println(cmd)
       shell.sendLine(cmd)
-      shell.expect(contains("[Skipped] testNotCompatibleImplementation1 (Not compatible implementation.)"))
+      shell.expect(contains("[Skipped] testNotCompatibleImplementation1 (not compatible"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
+      shell.sendLine("exit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_catch_TestBadArguments(): Unit = {
+    val tdmlFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/testNonCompatibleImplementation.tdml")
+
+    val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s test -I notDaffodilC %s", Util.binPath, testTdmlFile)
+      println(cmd)
+      shell.sendLine(cmd)
+      shell.expectIn(1, contains("[error] Bad arguments for option 'implementation'"))
+
+      Util.expectExitCode(ExitCode.Usage, shell)
+      shell.sendLine("exit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Executing_implementation(): Unit = {
+    val tdmlFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/testNonCompatibleImplementation.tdml")
+
+    val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s test -I daffodilC %s testDaffodilCImplementation1", Util.binPath, testTdmlFile)
+      println(cmd)
+      shell.sendLine(cmd)
+      shell.expect(contains("[Pass] testDaffodilCImplementation1"))
 
       Util.expectExitCode(ExitCode.Success, shell)
       shell.sendLine("exit")

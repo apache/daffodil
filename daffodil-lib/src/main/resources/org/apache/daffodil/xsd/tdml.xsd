@@ -101,7 +101,7 @@
   <simpleType name="implementationItem">
     <restriction base="xs:token">
       <enumeration value="daffodil"/>
-      <enumeration value="daffodil-runtime2"/>
+      <enumeration value="daffodilC"/>
       <enumeration value="ibm"/>
     </restriction>
   </simpleType>
