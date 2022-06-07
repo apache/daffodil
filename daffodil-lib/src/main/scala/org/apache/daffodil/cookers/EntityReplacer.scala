@@ -130,7 +130,7 @@ final class EntityReplacer {
 
   private def replaceEntityWithChar(input: String, entity: String, newChar: Char): String = {
     val replacement =
-      if (newChar == '%') {
+      if (newChar =#= '%') {
         // Some character entities are not replaced in this EntityReplacer,
         // such as double percents or character classes (NL, WSP, etc.). If
         // this character entity results in a percent character (e.g. %#x25;),
