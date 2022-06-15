@@ -19,7 +19,7 @@ package org.apache.daffodil.exceptions
 
 import java.net.URLDecoder
 import org.apache.daffodil.api.LocationInSchemaFile
-import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 
 trait HasSchemaFileLocation extends LookupLocation {
   override def schemaFileLocation: SchemaFileLocation

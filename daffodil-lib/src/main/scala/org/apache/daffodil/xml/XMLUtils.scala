@@ -32,7 +32,7 @@ import org.apache.daffodil.calendar.DFDLDateConversion
 import org.apache.daffodil.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.calendar.DFDLTimeConversion
 import org.apache.daffodil.exceptions._
-import org.apache.daffodil.schema.annotation.props.LookupLocation
+import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Misc
 import org.xml.sax.XMLReader

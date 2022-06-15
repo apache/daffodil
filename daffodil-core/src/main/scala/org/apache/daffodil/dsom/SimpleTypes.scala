@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import java.math.{ BigInteger => JBigInt }
+import java.math.{BigInteger => JBigInt}
 import scala.xml.Node
 import org.apache.daffodil.cookers.IntRangeCooker
 import org.apache.daffodil.cookers.RepValueCooker
@@ -31,7 +31,6 @@ import org.apache.daffodil.processors.RepValueSet
 import org.apache.daffodil.processors.RepValueSetCompiler
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.TypeCalculatorCompiler
-import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.QName
@@ -41,6 +40,7 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.runtime1.SimpleTypeRuntime1Mixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.ParseUnparsePolicy
 import org.apache.daffodil.xml.RefQName

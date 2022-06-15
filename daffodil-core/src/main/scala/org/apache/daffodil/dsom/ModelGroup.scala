@@ -22,9 +22,9 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.ModelGroupGrammarMixin
 
-import java.lang.{ Integer => JInt }
+import java.lang.{Integer => JInt}
 import org.apache.daffodil.dsom.walker.ModelGroupView
-import org.apache.daffodil.schema.annotation.props.AlignmentType
+import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 

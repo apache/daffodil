@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.schema.annotation.props
+package org.apache.daffodil.lib.schema.annotation.props
 
 import org.apache.daffodil.exceptions._
 import org.apache.daffodil.util.Misc._

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.grammar
 
-import java.lang.{ Long => JLong }
+import java.lang.{Long => JLong}
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
@@ -26,11 +26,9 @@ import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.InitiatedTerminatedMixin
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.grammar.primitives._ // there are too many to show individually
+import org.apache.daffodil.grammar.primitives._
 import org.apache.daffodil.processors.TextJustificationType
-import org.apache.daffodil.schema.annotation.props.Found
-import org.apache.daffodil.schema.annotation.props.NotFound
-import org.apache.daffodil.lib.schema.annotation.props.gen._ // there are too many to show individually
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.util.PackedSignCodes
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.XMLUtils
@@ -40,6 +38,8 @@ import org.apache.daffodil.grammar.primitives.ConvertTextBooleanPrim
 import org.apache.daffodil.grammar.primitives.LeadingSkipRegion
 import org.apache.daffodil.grammar.primitives.SimpleNilOrValue
 import org.apache.daffodil.grammar.primitives.LiteralValueNilOfSpecifiedLength
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.NotFound
 
 /////////////////////////////////////////////////////////////////
 // Elements System

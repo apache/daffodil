@@ -32,12 +32,12 @@ import java.io.File
 import org.apache.daffodil.xml.DFDLCatalogResolver
 import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
-import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.SchemaSetGrammarMixin
+import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.util.TransitiveClosure
 
 import scala.collection.immutable.Queue

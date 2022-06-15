@@ -26,8 +26,8 @@ import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
 import java.io.OutputStream
 import java.io.InputStream
 import org.apache.daffodil.exceptions.ThrowsSDE
-import org.apache.daffodil.schema.annotation.props.Enum
 import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.lib.schema.annotation.props.Enum
 import org.apache.daffodil.processors.ParseOrUnparseState
 
 /*

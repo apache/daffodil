@@ -18,12 +18,12 @@ package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.schema.annotation.props.EmptyElementParsePolicy
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ModelGroupRuntimeData
 import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.DIComplex
+import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicy
 
 sealed abstract class PotentiallyTrailingStatus
 object PotentiallyTrailingStatus {

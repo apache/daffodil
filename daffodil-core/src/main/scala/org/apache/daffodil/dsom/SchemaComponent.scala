@@ -25,9 +25,9 @@ import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.xml.ResolvesQNames
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.xml.GetAttributesMixin
-import org.apache.daffodil.schema.annotation.props.PropTypes
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.BasicComponent
+import org.apache.daffodil.lib.schema.annotation.props.PropTypes
 import org.apache.daffodil.runtime1.SchemaComponentRuntime1Mixin
 import org.apache.daffodil.util.Delay
 

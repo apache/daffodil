@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.grammar
 import org.apache.daffodil.lib.schema.annotation.props.gen._
-import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.primitives._
 import org.apache.daffodil.grammar.primitives.OrderedSequence
 import org.apache.daffodil.grammar.primitives.UnorderedSequence
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.runtime1.SequenceTermRuntime1Mixin
 
 trait SequenceGrammarMixin

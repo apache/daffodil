@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.exceptions
 
-import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 
 /**
  * ThrowsSDE has *only* termination semantics. I.e., SDE just throws. This

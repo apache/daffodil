@@ -17,13 +17,13 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.{ ElementRuntimeData, SequenceRuntimeData, TermRuntimeData }
-import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen.{ SeparatorPosition }
+import org.apache.daffodil.processors.{SequenceRuntimeData, ElementRuntimeData, TermRuntimeData}
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.processors.ModelGroupRuntimeData
+
 import scala.collection.mutable.Buffer
-import SeparatorSuppressionPolicy._
 import SeparatorPosition._
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
 

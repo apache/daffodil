@@ -23,9 +23,13 @@ import org.junit.Test
 import org.apache.daffodil.dsom.SchemaComponentImpl
 import org.apache.daffodil.util.Fakes
 import org.apache.daffodil.dsom.NestingLexicalMixin
+import org.apache.daffodil.lib.schema.annotation.props
+import org.apache.daffodil.lib.schema.annotation.props
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.PropertyMixin
 
 sealed trait MyPropType extends MyProp.Value
-object MyProp extends Enum[MyPropType] // with ThrowsSDE
+object MyProp extends props.Enum[MyPropType] // with ThrowsSDE
 {
   lazy val context = Fakes.fakeElem
   //  lazy val schemaComponent = context
@@ -84,7 +88,7 @@ class HasMixin extends SchemaComponentImpl(<foo/>, None)
 }
 
 sealed trait TheExampleProp extends TheExampleProp.Value
-object TheExampleProp extends Enum[TheExampleProp] {
+object TheExampleProp extends props.Enum[TheExampleProp] {
   case object Left extends TheExampleProp; forceConstruction(Left)
   case object Right extends TheExampleProp; forceConstruction(Right)
   case object Center extends TheExampleProp; forceConstruction(Center)

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import org.apache.daffodil.schema.annotation.props.PropertyMixin
+import org.apache.daffodil.lib.schema.annotation.props.PropertyMixin
 
 trait RawCommonRuntimeValuedPropertiesMixin
   extends PropertyMixin {

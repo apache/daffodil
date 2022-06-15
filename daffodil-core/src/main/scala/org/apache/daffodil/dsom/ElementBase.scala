@@ -17,10 +17,8 @@
 
 package org.apache.daffodil.dsom
 
-import java.lang.{ Integer => JInt }
-
+import java.lang.{Integer => JInt}
 import scala.xml.NamespaceBinding
-
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.dpath.NodeInfo
@@ -32,8 +30,18 @@ import org.apache.daffodil.grammar.ElementBaseGrammarMixin
 import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
+import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
+import org.apache.daffodil.lib.schema.annotation.props.BooleanTextMixin
+import org.apache.daffodil.lib.schema.annotation.props.CalendarTextMixin
+import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicyMixin
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.NillableMixin
+import org.apache.daffodil.lib.schema.annotation.props.NumberTextMixin
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.lib.schema.annotation.props.StringTextMixin
+import org.apache.daffodil.lib.schema.annotation.props.TextNumberFormatMixin
+import org.apache.daffodil.lib.schema.annotation.props.TextStandardBaseMixin
 import org.apache.daffodil.processors._
-import org.apache.daffodil.schema.annotation.props._
 import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc

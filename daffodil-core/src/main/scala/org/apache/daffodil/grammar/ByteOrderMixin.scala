@@ -18,9 +18,9 @@
 package org.apache.daffodil.grammar
 
 import org.apache.daffodil.dsom._
-import org.apache.daffodil.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
-import org.apache.daffodil.schema.annotation.props.NotFound
-import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.equality._
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.NotFound; object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
 trait ByteOrderAnalysisMixin extends GrammarMixin { self: Term =>
 

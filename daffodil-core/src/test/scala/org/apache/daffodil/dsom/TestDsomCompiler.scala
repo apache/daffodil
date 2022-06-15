@@ -21,7 +21,9 @@ import scala.xml.Node
 import scala.xml.Utility
 import scala.xml.XML
 import org.apache.daffodil.compiler._
-import org.apache.daffodil.Implicits._; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.Implicits._
+import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
+import org.apache.daffodil.lib.schema.annotation.props.Found; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryNumberRep
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
@@ -33,14 +35,12 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRep
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
-import org.apache.daffodil.schema.annotation.props.AlignmentType
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert._
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.util._
 import org.junit.Test
-import org.apache.daffodil.schema.annotation.props.Found
 
 class TestDsomCompiler {
 

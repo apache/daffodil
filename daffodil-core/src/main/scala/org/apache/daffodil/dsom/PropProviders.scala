@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.dsom
 
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
+import org.apache.daffodil.lib.schema.annotation.props.NotFound
+import org.apache.daffodil.lib.schema.annotation.props.PropTypes
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.util._
-import org.apache.daffodil.schema.annotation.props.LookupLocation
-import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.schema.annotation.props.PropTypes
-import org.apache.daffodil.schema.annotation.props.NotFound
-import org.apache.daffodil.schema.annotation.props.Found
 
 /**
  * Property lookup uses ChainPropProviders containing LeafPropProviders.

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.schema.annotation.props
+package org.apache.daffodil.lib.schema.annotation.props
 
 import org.apache.daffodil.api.LocationInSchemaFile
 import org.apache.daffodil.exceptions.Assert

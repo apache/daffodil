@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.schema.annotation.props
+package org.apache.daffodil.lib.schema.annotation.props
 
 import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.junit.Assert._
@@ -24,6 +24,12 @@ import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.schema.annotation.props
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
+import org.apache.daffodil.lib.schema.annotation.props.NotFound
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicyMixin
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.
@@ -97,7 +103,7 @@ class TestGeneratedProperties {
           //
           nodeseq match {
             case Nil => Found("", this, pname, false) // we want to hand back the empty string as a value.
-            case _ => Found(nodeseq.toString, this, pname, false)
+            case _ => props.Found(nodeseq.toString, this, pname, false)
           }
         }
       }

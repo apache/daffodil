@@ -22,8 +22,10 @@ import org.apache.daffodil.dsom.DFDLNewVariableInstance
 import org.apache.daffodil.dsom.DFDLSetVariable
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.VariableReference
+import org.apache.daffodil.lib.schema.annotation.props
+import org.apache.daffodil.lib.schema.annotation.props
+import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.processors.VariableRuntimeData
-import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.util.Delay
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.xml.GlobalQName
@@ -55,7 +57,7 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
     val compilationTargetType = primType
     val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
     val defaultValExpr = defaultValue.map { e =>
-      ExpressionCompilers.AnyRef.compileProperty(qn, compilationTargetType, Found(e, this.dpathCompileInfo, "defaultValue", false), this, dpathCompileInfo)
+      ExpressionCompilers.AnyRef.compileProperty(qn, compilationTargetType, props.Found(e, this.dpathCompileInfo, "defaultValue", false), this, dpathCompileInfo)
     }
 
     Maybe.toMaybe(defaultValExpr)
@@ -97,7 +99,7 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
     val compilationTargetType = defv.primType
     val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
     val defaultValExpr = defaultValue.map { e =>
-      ExpressionCompilers.AnyRef.compileProperty(qn, compilationTargetType, Found(e, this.dpathCompileInfo, "defaultValue", false), this, dpathCompileInfo)
+      ExpressionCompilers.AnyRef.compileProperty(qn, compilationTargetType, props.Found(e, this.dpathCompileInfo, "defaultValue", false), this, dpathCompileInfo)
     }
 
     Maybe.toMaybe(defaultValExpr)

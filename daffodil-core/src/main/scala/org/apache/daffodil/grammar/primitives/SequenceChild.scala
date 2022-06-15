@@ -23,8 +23,8 @@ import org.apache.daffodil.processors.unparsers._
 import org.apache.daffodil.processors.parsers._
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.processors.parsers._

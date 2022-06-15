@@ -19,8 +19,8 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import org.apache.daffodil.dsom.walker.GroupRefView
+import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.xml.HasRefMixin
-import org.apache.daffodil.schema.annotation.props.NotFound
 
 trait GroupRef extends GroupRefView { self: ModelGroup =>
 

@@ -22,8 +22,8 @@ import org.apache.daffodil.dsom._
 import org.apache.daffodil.dpath._
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.GlobalQName
-import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
-import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.processors.parsers.{Parser => DaffodilParser}
+import org.apache.daffodil.processors.unparsers.{Unparser => DaffodilUnparser}
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.parsers.NewVariableInstanceStartParser
 import org.apache.daffodil.processors.parsers.AssertExpressionEvaluationParser
@@ -37,13 +37,14 @@ import org.apache.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
 import org.apache.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
 import org.apache.daffodil.processors.unparsers.NadaUnparser
 import org.apache.daffodil.compiler.ForParser
-import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.DFDLSetVariable
 import org.apache.daffodil.dsom.DFDLNewVariableInstance
+import org.apache.daffodil.lib.schema.annotation.props
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.processors.parsers.AssertPatternParser
 import org.apache.daffodil.processors.parsers.TypeValueCalcParser
 import org.apache.daffodil.processors.unparsers.TypeValueCalcUnparser
@@ -100,7 +101,7 @@ abstract class AssertBooleanPrimBase(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase,
   discrim: Boolean, // are we a discriminator or not.
-  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt, "test", false), stmt.messageAttrib, discrim, assertKindName, stmt.failureType)
+  assertKindName: String) extends AssertBase(decl, props.Found(stmt.testTxt, stmt, "test", false), stmt.messageAttrib, discrim, assertKindName, stmt.failureType)
 
 case class AssertBooleanPrim(
   decl: AnnotatedSchemaComponent,

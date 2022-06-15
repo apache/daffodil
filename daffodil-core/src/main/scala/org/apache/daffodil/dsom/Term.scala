@@ -18,19 +18,18 @@
 package org.apache.daffodil.dsom
 
 import java.util.UUID
-
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.TermGrammarMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
-import java.lang.{ Integer => JInt }
 
-import org.apache.daffodil.schema.annotation.props.Found
-import org.apache.daffodil.schema.annotation.props.NotFound
+import java.lang.{Integer => JInt}
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dsom.walker.TermView
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.NotFound
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run

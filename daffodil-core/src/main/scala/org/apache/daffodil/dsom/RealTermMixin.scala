@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 
 trait PropertyReferencedElementInfosMixin {
   protected final type F = ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]

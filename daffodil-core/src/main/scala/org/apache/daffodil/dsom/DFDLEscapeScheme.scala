@@ -21,6 +21,12 @@ import scala.xml.Node
 import scala.xml.Utility
 import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
 import org.apache.daffodil.dpath._
+import org.apache.daffodil.lib.schema.annotation.props
+import org.apache.daffodil.lib.schema.annotation.props
+import org.apache.daffodil.lib.schema.annotation.props
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.NotFound
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeKind
 import org.apache.daffodil.processors.EscapeSchemeParseEv
 import org.apache.daffodil.processors.EscapeSchemeBlockParseEv
@@ -31,9 +37,6 @@ import org.apache.daffodil.processors.EscapeSchemeCharUnparseEv
 import org.apache.daffodil.processors.EscapeCharEv
 import org.apache.daffodil.processors.EscapeEscapeCharEv
 import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.schema.annotation.props.NotFound
-import org.apache.daffodil.schema.annotation.props.Found
 
 final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
   extends DFDLFormatAnnotation(node, decl)
@@ -45,7 +48,7 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
   protected final override def lookupProperty(pname: String): PropertyLookupResult = {
     val propNodeSeq = xml.attribute(pname)
     propNodeSeq match {
-      case None => NotFound(Seq(this), Nil, pname) // attribute was not found
+      case None => props.NotFound(Seq(this), Nil, pname) // attribute was not found
       case Some(nodeseq) => {
         //
         // Interesting that attributeName="" produces a Nil nodeseq, not an empty string.
@@ -57,8 +60,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
         // XML library lets your code be the one doing the DTD resolving, so they can't do it for you.
         //
         nodeseq match {
-          case Nil => Found("", this, pname, false) // we want to hand back the empty string as a value.
-          case _ => Found(nodeseq.toString, this, pname, false)
+          case Nil => props.Found("", this, pname, false) // we want to hand back the empty string as a value.
+          case _ => props.Found(nodeseq.toString, this, pname, false)
         }
       }
     }

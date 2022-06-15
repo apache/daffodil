@@ -21,6 +21,8 @@ import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.equality.TypeEqual
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.TextStandardExponentRepMixin
 import org.apache.daffodil.processors.BinaryFloatRepEv
 import org.apache.daffodil.processors.ByteOrderEv
 import org.apache.daffodil.processors.CharsetEv
@@ -69,8 +71,6 @@ import org.apache.daffodil.processors.LayerEncodingEv
 import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
-import org.apache.daffodil.schema.annotation.props.TextStandardExponentRepMixin
-import org.apache.daffodil.schema.annotation.props.Found
 
 /*
  * These are the DFDL properties which can have their values come
