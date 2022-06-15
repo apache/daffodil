@@ -28,7 +28,7 @@ import org.apache.daffodil.util.CursorImplMixin
 import org.apache.daffodil.processors.unparsers.UnparseError
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ErrorERD
 import org.apache.daffodil.util.MStackOfAnyRef

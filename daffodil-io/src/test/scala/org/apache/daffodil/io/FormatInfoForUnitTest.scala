@@ -21,7 +21,7 @@ import java.nio.charset.CodingErrorAction
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep

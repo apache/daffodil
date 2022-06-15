@@ -19,7 +19,7 @@ package org.apache.daffodil.dpath
 
 import java.lang.{Number => JNumber}
 import scala.xml.NodeSeq.seqToNodeSeq
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.dsom.SchemaDefinitionError

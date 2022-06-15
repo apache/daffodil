@@ -18,7 +18,7 @@
 package org.apache.daffodil.infoset
 
 import org.apache.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.util.Maybe

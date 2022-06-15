@@ -56,8 +56,8 @@ import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api.DFDL.ParseResult
 import org.apache.daffodil.api.DFDL.UnparseResult
 import org.apache.daffodil.api.DaffodilConfig
-import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.api.TDMLImplementation
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.api.WithDiagnostics

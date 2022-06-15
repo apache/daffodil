@@ -23,7 +23,7 @@ import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.xml.ResolvesQNames
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.xml.GetAttributesMixin
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.BasicComponent

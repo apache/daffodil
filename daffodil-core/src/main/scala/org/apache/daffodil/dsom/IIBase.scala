@@ -33,7 +33,7 @@ import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.URISchemaSource
 
 import java.net.URISyntaxException
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include

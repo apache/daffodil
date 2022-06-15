@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
 

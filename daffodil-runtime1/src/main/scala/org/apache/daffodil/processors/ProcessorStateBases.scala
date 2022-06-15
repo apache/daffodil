@@ -20,9 +20,9 @@ package org.apache.daffodil.processors
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.api.Diagnostic
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dpath.DState
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionWarning

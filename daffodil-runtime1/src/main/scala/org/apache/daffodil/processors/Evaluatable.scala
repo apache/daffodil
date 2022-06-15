@@ -38,7 +38,7 @@ import org.apache.daffodil.dsom.ContentValueReferencedElementInfoMixin
 import org.apache.daffodil.infoset._
 import org.apache.daffodil.processors.parsers.DoSDEMixin
 import org.apache.daffodil.processors.parsers.PState
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.dsom.DPathElementCompileInfo
 

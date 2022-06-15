@@ -26,8 +26,8 @@ import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.CompileState
-import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.WarnID
 
 class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],

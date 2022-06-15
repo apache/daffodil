@@ -18,7 +18,7 @@
 package org.apache.daffodil.tdml
 
 import java.nio.file.Paths
-import org.apache.daffodil.api.TDMLImplementation
+import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.util.Misc
 
 /**

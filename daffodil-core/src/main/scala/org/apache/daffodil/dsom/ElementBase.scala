@@ -19,7 +19,7 @@ package org.apache.daffodil.dsom
 
 import java.lang.{Integer => JInt}
 import scala.xml.NamespaceBinding
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType

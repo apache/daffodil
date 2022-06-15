@@ -33,7 +33,7 @@ import scala.xml.Node
 
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilSchemaSource
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.dsom.SchemaSet

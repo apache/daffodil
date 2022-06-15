@@ -49,7 +49,7 @@ import org.apache.daffodil.xml.XMLUtils
 
 import scala.util.matching.Regex; object NoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.util.regex.Matcher
-import org.apache.daffodil.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull

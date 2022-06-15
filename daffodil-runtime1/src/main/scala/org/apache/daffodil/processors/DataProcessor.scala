@@ -31,7 +31,7 @@ import org.apache.daffodil.Implicits._
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.api.ValidationException
 import org.apache.daffodil.api.ValidationFailure
 import org.apache.daffodil.api.ValidationMode

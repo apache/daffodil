@@ -19,7 +19,7 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dsom.walker.ComplexTypeView
 
 import scala.xml.Text

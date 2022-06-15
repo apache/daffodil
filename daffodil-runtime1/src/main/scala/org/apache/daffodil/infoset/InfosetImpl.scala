@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong
 import scala.collection.IndexedSeq
 import scala.collection.mutable.ArrayBuffer
 
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.calendar.DFDLCalendar

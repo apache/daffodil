@@ -22,7 +22,7 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.equality._
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.schema.annotation.props
 import org.apache.daffodil.lib.schema.annotation.props.FindPropertyMixin
 import org.apache.daffodil.lib.schema.annotation.props.Found

@@ -18,7 +18,7 @@
 package org.apache.daffodil.runtime1
 
 import org.apache.daffodil.xml.QNameBase
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.processors.ByteOrderEv
 import org.apache.daffodil.processors.CheckBitOrderAndCharsetEv

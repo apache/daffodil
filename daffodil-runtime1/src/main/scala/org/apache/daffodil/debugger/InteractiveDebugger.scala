@@ -20,7 +20,7 @@ package org.apache.daffodil.debugger
 import java.io.File
 
 import org.apache.daffodil.BasicComponent
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.dpath.ExpressionEvaluationException
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dsom.ExpressionCompilerClass
@@ -2009,7 +2009,7 @@ class DebuggerHost(override val tunable: DaffodilTunables)
    */
   // Members declared in org.apache.daffodil.xml.ResolvesQNames
   def namespaces: scala.xml.NamespaceBinding = ???
-  def unqualifiedPathStepPolicy: org.apache.daffodil.api.UnqualifiedPathStepPolicy = ???
+  def unqualifiedPathStepPolicy: org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy = ???
   // Members declared in org.apache.daffodil.exceptions.ThrowsSDE
   def schemaFileLocation: org.apache.daffodil.exceptions.SchemaFileLocation = ???
 }

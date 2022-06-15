@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.grammar
 
-import org.apache.daffodil.api.ParseUnparsePolicyTunable
+import org.apache.daffodil.lib.api.ParseUnparsePolicyTunable
 import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.runtime1.SchemaSetRuntime1Mixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.ParseUnparsePolicy

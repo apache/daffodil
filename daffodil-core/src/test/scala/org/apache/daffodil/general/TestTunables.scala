@@ -25,7 +25,7 @@ import org.apache.daffodil.util.Fakes
 import org.apache.daffodil.util.SchemaUtils
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert.assertEquals
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 
 class TestTunables {
 

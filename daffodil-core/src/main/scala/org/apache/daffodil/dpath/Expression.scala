@@ -29,14 +29,14 @@ import org.apache.daffodil.equality._
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.lang.{ Long => JLong, Integer => JInt, Boolean => JBoolean, Double => JDouble }
 import org.apache.daffodil.util.Numbers
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.udf.UserDefinedFunctionService
 import org.apache.daffodil.BasicComponent
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.oolag.OOLAG.OOLAGHost
-import org.apache.daffodil.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we

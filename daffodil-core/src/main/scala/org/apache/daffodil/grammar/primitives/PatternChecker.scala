@@ -21,7 +21,7 @@ import org.apache.daffodil.exceptions.SavesErrorsAndWarnings
 import java.util.regex.Pattern
 import org.apache.daffodil.util.Misc
 import java.util.regex.PatternSyntaxException
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 
 /**
  * The purpose of this checker is to examine a regex and look for a situation

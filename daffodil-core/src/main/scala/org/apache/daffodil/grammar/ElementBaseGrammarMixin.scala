@@ -18,7 +18,7 @@
 package org.apache.daffodil.grammar
 
 import java.lang.{Long => JLong}
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.PrefixLengthQuasiElementDecl

@@ -22,7 +22,7 @@ import org.apache.daffodil.dsom.SchemaComponent
 import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.compiler.ParserOrUnparser
 import org.apache.daffodil.compiler.BothParserAndUnparser
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.runtime1.GramRuntime1Mixin
 import org.apache.daffodil.BasicComponent
 import org.apache.daffodil.dsom.Term

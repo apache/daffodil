@@ -19,7 +19,7 @@ package org.apache.daffodil.xml
 
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
-import org.apache.daffodil.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
 
 /**
  * Element references and Group References use this.

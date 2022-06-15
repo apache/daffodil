@@ -18,7 +18,7 @@
 package org.apache.daffodil.infoset
 
 import org.apache.commons.io.output.NullOutputStream
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.compiler._
 import org.apache.daffodil.dsom.{ ElementBase, Root }
 import org.apache.daffodil.exceptions.Assert

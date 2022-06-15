@@ -16,7 +16,7 @@
  */
 package org.apache.daffodil.layers
 
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.ImplementsThrowsOrSavesSDE
 import org.apache.daffodil.processors.SequenceRuntimeData

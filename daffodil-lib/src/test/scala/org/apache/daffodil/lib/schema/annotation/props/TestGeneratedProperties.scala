@@ -22,8 +22,8 @@ import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.exceptions.SchemaFileLocation
-import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.schema.annotation.props
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation

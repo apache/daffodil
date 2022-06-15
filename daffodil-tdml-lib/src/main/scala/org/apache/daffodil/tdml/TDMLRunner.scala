@@ -38,10 +38,10 @@ import scala.xml.SAXParseException
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.DaffodilConfig
 import org.apache.daffodil.api.DaffodilSchemaSource
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.EmbeddedSchemaSource
-import org.apache.daffodil.api.TDMLImplementation
+import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.api.ValidationMode

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.AbstractElementRef

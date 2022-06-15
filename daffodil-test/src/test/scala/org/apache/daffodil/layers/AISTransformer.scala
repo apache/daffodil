@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.layers
 
-import org.apache.daffodil.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.util.MaybeInt
 import org.apache.daffodil.processors.charset.BitsCharsetAISPayloadArmoring

@@ -29,7 +29,7 @@ import org.apache.daffodil.grammar.primitives.DiscriminatorPatternPrim
 import org.apache.daffodil.grammar.primitives.DiscriminatorBooleanPrim
 import org.apache.daffodil.grammar.primitives.AssertPatternPrim
 import org.apache.daffodil.grammar.primitives.AssertBooleanPrim
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {

@@ -23,7 +23,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.Sequence_AnnotationMi
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dsom.walker.SequenceView
 import org.apache.daffodil.grammar.SequenceGrammarMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition

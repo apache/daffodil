@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime1
 
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dsom.ChoiceTermBase
 import org.apache.daffodil.dsom.ElementBase

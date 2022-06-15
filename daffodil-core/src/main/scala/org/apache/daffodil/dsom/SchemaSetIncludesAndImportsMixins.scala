@@ -19,7 +19,7 @@ package org.apache.daffodil.dsom
 
 import org.apache.daffodil.dsom.IIUtils._
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 
 /**
  * Mixin for SchemaSet

@@ -18,8 +18,8 @@
 package org.apache.daffodil.dsom
 
 import scala.runtime.ScalaRunTime.stringOf
-import org.apache.daffodil.api.UnqualifiedPathStepPolicy
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dpath.DState
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.NodeInfo.PrimType

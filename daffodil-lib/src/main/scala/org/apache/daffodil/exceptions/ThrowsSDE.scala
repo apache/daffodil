@@ -18,7 +18,7 @@
 package org.apache.daffodil.exceptions
 
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.api.WarnID
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 
 /**
