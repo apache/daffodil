@@ -167,7 +167,7 @@ class TestGeneratedProperties {
     comparePropValue(hasProps.calendarCheckPolicy, "lax")
     comparePropValue(hasProps.calendarTimeZone, "UTC")
     comparePropValue(hasProps.calendarObserveDST, "yes")
-    comparePropValue(hasProps.calendarFirstDayOfWeek, "monday")
+    comparePropValue(hasProps.calendarFirstDayOfWeek, "Monday")
     comparePropValue(hasProps.calendarDaysInFirstWeek, "4")
     comparePropValue(hasProps.calendarCenturyStart, "53")
     comparePropValue(hasProps.occursCountKind, "parsed")

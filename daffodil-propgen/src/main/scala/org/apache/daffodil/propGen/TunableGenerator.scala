@@ -351,7 +351,12 @@ class TunableEnumDefinition(schemaRootConfig: scala.xml.Node, schemaRootExt: sca
 
   private val scalaEnums = {
     val scalaEnumValues = allEnumerationValues.map { e => e.head.toUpper + e.tail }
-    scalaEnumValues.map { e => s"""  case object ${e} extends ${scalaType}; forceConstruction(${e})""" }
+    scalaEnumValues.map { e => s"""  case object ${e} extends ${scalaType}""" }
+  }
+
+  private val values = {
+    val scalaEnumValues = allEnumerationValues.map { e => e.head.toUpper + e.tail }
+    scalaEnumValues.mkString("  override lazy val values = Array(", ", ", ")")
   }
 
   private val bottom = s"""
@@ -360,7 +365,7 @@ class TunableEnumDefinition(schemaRootConfig: scala.xml.Node, schemaRootExt: sca
 """.stripMargin
 
   val scalaEnumeration = {
-    top + "\n" + scalaEnums.mkString("\n") + "\n" + bottom
+    top + "\n" + scalaEnums.mkString("\n") + "\n" + values + "\n" + bottom
   }
 
 }

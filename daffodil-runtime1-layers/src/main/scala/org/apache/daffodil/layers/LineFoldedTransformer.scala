@@ -126,8 +126,9 @@ sealed trait LineFoldMode extends LineFoldMode.Value {
 
 object LineFoldMode extends Enum[LineFoldMode] {
 
-  case object IMF extends LineFoldMode; forceConstruction(Left)
-  case object iCalendar extends LineFoldMode; forceConstruction(Right)
+  case object IMF extends LineFoldMode
+  case object iCalendar extends LineFoldMode
+  override lazy val values = Array(IMF, iCalendar)
 
   override def apply(name: String, context: ThrowsSDE): LineFoldMode = stringToEnum("lineFoldMode", name, context)
 }

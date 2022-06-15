@@ -204,7 +204,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
     val optImplementation = TDMLImplementation.optionStringToEnum("implementation", s)
     if (!optImplementation.isDefined) {
       throw new Exception("Unrecognized TDML implementation '%s'.  Must be one of %s"
-        .format(s, TDMLImplementation.allValues.mkString(", ")))
+        .format(s, TDMLImplementation.values.mkString(", ")))
     }
     optImplementation.get
   })
@@ -409,7 +409,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
     val implementation = opt[TDMLImplementation](short = 'I', argName = "implementation",
       descr = "Implementation to run TDML tests. Choose one of %s. Defaults to %s."
-        .format(TDMLImplementation.allValues.mkString(", "), TDMLImplementation.Daffodil.toString),
+        .format(TDMLImplementation.values.mkString(", "), TDMLImplementation.Daffodil.toString),
       default = None)
     val info = tally(descr = "Increment test result information output level, one level for each -i")
     val list = opt[Boolean](descr = "Show names and descriptions instead of running test cases")
