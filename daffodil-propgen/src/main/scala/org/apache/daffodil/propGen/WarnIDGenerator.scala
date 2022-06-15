@@ -71,11 +71,17 @@ class WarnIDGenerator(schema: scala.xml.Node) {
     w.write(top)
     w.write("\n")
 
-    enumerationNodes.foreach { node =>
+    val scalaNames = enumerationNodes.map { node =>
       val enumName = node \@ "value"
       val scalaName = enumName.head.toUpper + enumName.tail
-      w.write(s"  case object ${scalaName} extends WarnID; forceConstruction($scalaName)\n")
+      scalaName
     }
+
+    scalaNames.foreach { scalaName =>
+      w.write(s"  case object ${scalaName} extends WarnID\n")
+    }
+
+    w.write(scalaNames.mkString("  override lazy val values = Array(", ", ", ")\n"))
 
     w.write("\n")
     w.write(bottom)

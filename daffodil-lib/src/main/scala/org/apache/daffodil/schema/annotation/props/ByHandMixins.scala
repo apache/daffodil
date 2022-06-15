@@ -58,6 +58,8 @@ import passera.unsigned.ULong
 sealed trait AlignmentType extends AlignmentType.Value
 object AlignmentType extends Enum[AnyRef] { // Note: Was using AlignmentUnits mixin here!
   case object Implicit extends AlignmentType
+  override lazy val values = Array(Implicit)
+
   val allowedAlignmentValues = {
     val ints = 0 to 30 // that's every perfect power of 2 that fits in an Int.
     ints.map(1 << _)
@@ -126,10 +128,11 @@ trait TextStandardBaseMixin extends PropertyMixin {
 
 sealed trait SeparatorSuppressionPolicy extends SeparatorSuppressionPolicy.Value
 object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
-  case object Never extends SeparatorSuppressionPolicy; forceConstruction(Never)
-  case object TrailingEmpty extends SeparatorSuppressionPolicy; forceConstruction(TrailingEmpty)
-  case object TrailingEmptyStrict extends SeparatorSuppressionPolicy; forceConstruction(TrailingEmptyStrict)
-  case object AnyEmpty extends SeparatorSuppressionPolicy; forceConstruction(AnyEmpty)
+  case object Never extends SeparatorSuppressionPolicy
+  case object TrailingEmpty extends SeparatorSuppressionPolicy
+  case object TrailingEmptyStrict extends SeparatorSuppressionPolicy
+  case object AnyEmpty extends SeparatorSuppressionPolicy
+  override lazy val values = Array(Never, TrailingEmpty, TrailingEmptyStrict, AnyEmpty)
 
   def apply(name: String, self: ThrowsSDE): SeparatorSuppressionPolicy = stringToEnum("separatorSuppressionPolicy", name, self)
 }
@@ -427,8 +430,9 @@ trait TextStandardExponentRepMixin extends PropertyMixin {
  */
 sealed trait EmptyElementParsePolicy extends EmptyElementParsePolicy.Value
 object EmptyElementParsePolicy extends Enum[EmptyElementParsePolicy] {
-  case object TreatAsMissing extends EmptyElementParsePolicy; forceConstruction(TreatAsMissing)
-  case object TreatAsEmpty extends EmptyElementParsePolicy; forceConstruction(TreatAsEmpty)
+  case object TreatAsMissing extends EmptyElementParsePolicy
+  case object TreatAsEmpty extends EmptyElementParsePolicy
+  override lazy val values = Array(TreatAsMissing, TreatAsEmpty)
 
   def apply(name: String, context: ThrowsSDE): EmptyElementParsePolicy = stringToEnum("emptyElementParsePolicy", name, context)
 }

@@ -340,7 +340,7 @@ class PropertyGenerator(arg: Node) {
 object Currency extends Enum[Currency] {
 """
   val templateMiddle =
-    """  case object EUR extends Currency ; forceConstruction(EUR)
+    """  case object EUR extends Currency
 """
 
   // Modified to pass the context, so diagnostics can be better.
@@ -425,11 +425,9 @@ trait CurrencyMixin extends PropertyMixin {
     val traitName = initialUpperCase(pname)
     val propName = initialLowerCase(pname)
     val middle = templateMiddle.replaceAll("Currency", traitName)
-    val mids = pvalues.map(pvalue => {
-      // need to insure the enum values aren't digits (as in the TextNumberBase enum)
-      val pvalueAsIdentifier = if (pvalue.charAt(0).isDigit) "INTEGER_" + pvalue else pvalue
-      middle.replace("EUR", initialUpperCase(pvalueAsIdentifier))
-    })
+    val pvalueIDs = pvalues.map(pvalue => initialUpperCase(pvalue))
+    val mids = pvalueIDs.map(id => middle.replace("EUR", id))
+    val values = pvalueIDs.mkString("  override lazy val values = Array(", ", ", ")\n")
     val start = templateStart.replaceAll("Currency", traitName)
     val end = templateEnd.replaceAll("Currency", traitName).replaceAll("currency", propName)
     val mixin =
@@ -437,7 +435,7 @@ trait CurrencyMixin extends PropertyMixin {
       else {
         templateMixin.replaceAll("Currency", traitName).replaceAll("currency", propName)
       }
-    val res = start + mids.foldLeft("")(_ + _) + end + mixin
+    val res = start + mids.foldLeft("")(_ + _) + values + end + mixin
     res
   }
 

@@ -21,7 +21,6 @@ import org.apache.daffodil.exceptions._
 import org.apache.daffodil.util.Misc._
 import org.apache.daffodil.util._
 import org.apache.daffodil.cookers.Converter
-import scala.collection.mutable
 
 /**
  * Enum class as basis for our DFDL properties
@@ -46,9 +45,10 @@ import scala.collection.mutable
  *
  * sealed trait BinaryNumberRep extends BinaryNumberRep.Value
  * object BinaryNumberRep extends Enum[BinaryNumberRep] {
- *   case object Packed extends BinaryNumberRep ; forceConstruction(Packed)
- *   case object Bcd extends BinaryNumberRep ; forceConstruction(Bcd)
- *   case object Binary extends BinaryNumberRep ; forceConstruction(Binary)
+ *   case object Packed extends BinaryNumberRep
+ *   case object Bcd extends BinaryNumberRep
+ *   case object Binary extends BinaryNumberRep
+ *   override lazy val values = Array(Packed, Bcd, Binary)
  *
  *   def apply(name: String) : BinaryNumberRep = stringToEnum("binaryNumberRep", name)
  * }
@@ -84,7 +84,8 @@ import scala.collection.mutable
 abstract class EnumBase
 abstract class EnumValueBase extends Serializable
 abstract class Enum[A] extends EnumBase with Converter[String, A] {
-  class Value extends EnumValueBase { self: A => {
+  class Value extends EnumValueBase { self: A =>
+    override lazy val toString = {
       val theVal = this
       val cn = getNameFromClass(this)
       val en = cn match {
@@ -94,18 +95,13 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
         case "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" => cn
         case _ => Misc.toInitialLowerCaseUnlessAllUpperCase(cn)
       }
-      _values += (en -> theVal)
-      _values
-    }
-    override lazy val toString = {
-      val propName = Misc.toInitialLowerCaseUnlessAllUpperCase(getNameFromClass(this))
-      propName
+      en
     }
   }
 
   def toPropName(prop: A) = prop.toString
 
-  private val _values = mutable.ArrayBuffer.empty[Tuple2[String, A]]
+  val values: Array[A]
 
   /**
    * This is invoked at runtime to compare expression results to see if they
@@ -121,27 +117,13 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
 
   def optionStringToEnum(enumTypeName: String, str: String): Option[A] = {
     var i: Int = 0
-    while (i < _values.size) {
-      if (_values(i)._1.equals(str)) { // was equals ignore case - that's just going to allow errors if used at runtime
-        return Some(_values(i)._2)
+    while (i < values.size) {
+      if (values(i).toString.equals(str)) {
+        return Some(values(i))
       }
       i += 1
     }
     None
-  }
-
-  /**
-   * Useful for diagnostic messages where you want to say "must be one of ...." and list the possibilities.
-   */
-  def allValues = _values.map { case (k, v) => v }
-
-  /**
-   * Scala delays construction of case objects (presumably because many programs don't use them at all)
-   * We need to force creation of our inner property case objects because constructing them also has
-   * the side-effect of registering them in the _values list.
-   */
-  def forceConstruction(obj: Any): Unit = {
-    //Assert.invariant(obj.toString() != "") // TODO: is forceConstruction needed at all?
   }
 
   override protected def convert(b: String, context: ThrowsSDE, forUnparse: Boolean): A = apply(b, context)

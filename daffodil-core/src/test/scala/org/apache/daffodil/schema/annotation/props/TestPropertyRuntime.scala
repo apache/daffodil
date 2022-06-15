@@ -30,9 +30,9 @@ object MyProp extends Enum[MyPropType] // with ThrowsSDE
   lazy val context = Fakes.fakeElem
   //  lazy val schemaComponent = context
   case object PropVal1 extends MyPropType
-  forceConstruction(PropVal1)
   case object PropVal2 extends MyPropType
-  forceConstruction(PropVal2)
+  override lazy val values = Array(PropVal1, PropVal2)
+
   def apply(name: String): MyPropType = apply(name, context)
   def apply(name: String, context: ThrowsSDE) = stringToEnum("myProp", name, context)
 }
@@ -48,7 +48,7 @@ class TestPropertyRuntime {
   @Test
   def testConstructed(): Unit = {
     // val myPropUser = new RealObject
-    val av = MyProp.allValues
+    val av = MyProp.values
     val pv1 = MyProp.PropVal1
     val pv2 = MyProp.PropVal2
     assertTrue(av.contains(pv1))
@@ -85,9 +85,10 @@ class HasMixin extends SchemaComponentImpl(<foo/>, None)
 
 sealed trait TheExampleProp extends TheExampleProp.Value
 object TheExampleProp extends Enum[TheExampleProp] {
-  case object Left extends TheExampleProp; forceConstruction(Left)
-  case object Right extends TheExampleProp; forceConstruction(Right)
-  case object Center extends TheExampleProp; forceConstruction(Center)
+  case object Left extends TheExampleProp
+  case object Right extends TheExampleProp
+  case object Center extends TheExampleProp
+  override lazy val values = Array(Left, Right, Center)
 
   def apply(name: String, self: ThrowsSDE): TheExampleProp = stringToEnum("theExampleProp", name, self)
 }

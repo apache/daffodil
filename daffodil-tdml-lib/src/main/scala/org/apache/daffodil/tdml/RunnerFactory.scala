@@ -98,7 +98,7 @@ object Runner {
    * A test or test suite can override this to specify more or different implementations
    * that the test should pass for.
    */
-  def defaultImplementationsDefaultDefault = TDMLImplementation.allValues.map(_.toString)
+  def defaultImplementationsDefaultDefault = TDMLImplementation.values.map(_.toString)
 
   /**
    * By default we don't run Daffodil negative TDML tests against cross-testers.
