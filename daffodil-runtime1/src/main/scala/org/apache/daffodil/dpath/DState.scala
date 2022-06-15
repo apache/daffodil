@@ -38,7 +38,6 @@ import org.apache.daffodil.util.Maybe.One; object EqualityNoWarn2 { EqualitySupp
 import java.math.{BigDecimal => JBigDecimal}
 import java.math.{BigInteger => JBigInt}
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable

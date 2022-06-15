@@ -19,8 +19,6 @@ package org.apache.daffodil.dsom
 
 import org.xml.sax.SAXParseException
 
-import org.apache.daffodil.api.Diagnostic
-import org.apache.daffodil.api._
 import org.apache.daffodil.dsom.IIUtils._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SchemaFileLocation

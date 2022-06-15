@@ -21,8 +21,6 @@ import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import scala.xml.Elem
-import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataProcessor

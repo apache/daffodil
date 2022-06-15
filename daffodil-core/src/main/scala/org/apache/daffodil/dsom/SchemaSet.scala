@@ -21,7 +21,6 @@ import scala.xml.Node
 import org.apache.daffodil.compiler.RootSpec
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.xml._
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.oolag.OOLAG
@@ -30,8 +29,6 @@ import org.apache.daffodil.dpath.NodeInfo
 
 import java.io.File
 import org.apache.daffodil.xml.DFDLCatalogResolver
-import org.apache.daffodil.api.DaffodilSchemaSource
-import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap

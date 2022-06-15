@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.lib.schema.annotation.props
 
-import org.apache.daffodil.api.LocationInSchemaFile
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.xml.ResolvesQNames
 import org.apache.daffodil.lib.api.WarnID

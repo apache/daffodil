@@ -20,10 +20,7 @@ package org.apache.daffodil.processors.unparsers
 import java.io.ByteArrayOutputStream
 import java.nio.CharBuffer
 import java.nio.LongBuffer
-import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.dpath.UnparserBlocking
 import org.apache.daffodil.equality.EqualitySuppressUnusedImportWarning
 import org.apache.daffodil.exceptions.Assert

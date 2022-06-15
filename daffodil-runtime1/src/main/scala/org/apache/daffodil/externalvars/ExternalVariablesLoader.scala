@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.externalvars
 
-import org.apache.daffodil.api.URISchemaSource
-
 import java.io.File
 import java.net.URI
 import scala.xml.Node

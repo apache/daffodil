@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.api.Diagnostic
-import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
 import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
 import org.apache.daffodil.exceptions.Assert

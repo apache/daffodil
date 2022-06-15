@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.lib.api
 
 import com.typesafe.config.Config
 
@@ -45,8 +45,8 @@ trait ValidatorFactory {
   /**
    * The factory method to generate the Validator instance
    * @param config com.typesafe.config.Config to pass to validator instance
-   * @return [[org.apache.daffodil.api.Validator]] instance ready to execute
-   * @throws org.apache.daffodil.api.ValidatorInitializationException when initialization fails
+   * @return [[Validator]] instance ready to execute
+   * @throws ValidatorInitializationException when initialization fails
    */
   @throws(classOf[ValidatorInitializationException])
   def make(config: Config): Validator
@@ -62,7 +62,7 @@ trait ValidationResult {
 
 object ValidationResult {
   /**
-   * an empty [[org.apache.daffodil.api.ValidationResult]]
+   * an empty [[ValidationResult]]
    */
   val empty: ValidationResult = ValidationResult(Seq.empty, Seq.empty)
 

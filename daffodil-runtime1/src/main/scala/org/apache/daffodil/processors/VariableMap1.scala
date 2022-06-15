@@ -20,7 +20,6 @@ package org.apache.daffodil.processors
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Map
 
-import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE

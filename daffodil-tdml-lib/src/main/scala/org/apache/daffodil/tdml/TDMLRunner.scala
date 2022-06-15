@@ -36,15 +36,8 @@ import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 import org.apache.commons.io.IOUtils
-import org.apache.daffodil.api.DaffodilConfig
-import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.EmbeddedSchemaSource
 import org.apache.daffodil.lib.api.TDMLImplementation
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.api.UnitTestSchemaSource
-import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.cookers.EntityReplacer
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.UnsuppressableException

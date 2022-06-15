@@ -23,14 +23,6 @@ import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 
-import org.apache.daffodil.api.DFDL.{ DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException }
-import org.apache.daffodil.api.DFDL.{ DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException }
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.api.{ DataLocation => SDataLocation }
-import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
-import org.apache.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
-import org.apache.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
 import org.apache.daffodil.compiler.{ Compiler => SCompiler }
 import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import org.apache.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }

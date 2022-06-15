@@ -22,8 +22,6 @@ import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.Collections
-import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.dsom.SchemaDefinitionError

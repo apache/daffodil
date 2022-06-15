@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.processors.unparsers.UState

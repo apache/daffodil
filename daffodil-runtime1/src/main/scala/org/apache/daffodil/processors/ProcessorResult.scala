@@ -18,8 +18,7 @@
 package org.apache.daffodil.processors
 
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.api.Diagnostic
- 
+
 /**
  * The resulting state after invoking a Processor
  */

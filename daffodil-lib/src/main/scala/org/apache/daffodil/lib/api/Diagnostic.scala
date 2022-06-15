@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.lib.api
 
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.exceptions.Assert

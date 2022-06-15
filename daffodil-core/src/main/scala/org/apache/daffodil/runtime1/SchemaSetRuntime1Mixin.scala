@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.runtime1
 
-import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.ExternalVariablesLoader

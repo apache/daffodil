@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.oolag
 
-import org.apache.daffodil.api.Diagnostic
-import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.exceptions.UnsuppressableException

@@ -24,12 +24,6 @@ import com.typesafe.config.ConfigValueFactory
 
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
-import org.apache.daffodil.api.ValidationException
-import org.apache.daffodil.api.ValidationFailure
-import org.apache.daffodil.api.ValidationResult
-import org.apache.daffodil.api.ValidationWarning
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.api.ValidatorFactory
 import org.apache.daffodil.validation.XercesValidator.XercesValidatorImpl
 import org.apache.daffodil.xml.DFDLCatalogResolver
 import org.apache.daffodil.xml.XMLUtils

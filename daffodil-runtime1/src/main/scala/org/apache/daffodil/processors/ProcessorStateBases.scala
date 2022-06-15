@@ -19,9 +19,7 @@ package org.apache.daffodil.processors
 
 import java.nio.CharBuffer
 import java.nio.LongBuffer
-import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.dpath.DState
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
@@ -35,7 +33,6 @@ import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.processors.charset.EncoderDecoderMixin
-import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.exceptions.SavesErrorsAndWarnings

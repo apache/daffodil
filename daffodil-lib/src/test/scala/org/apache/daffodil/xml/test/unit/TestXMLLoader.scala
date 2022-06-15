@@ -18,7 +18,7 @@
 package org.apache.daffodil.xml.test.unit
 
 import org.apache.daffodil.Implicits.intercept
-import org.apache.daffodil.api.StringSchemaSource
+import org.apache.daffodil.lib.api.StringSchemaSource
 import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.junit.Assert._
 import org.junit.Test

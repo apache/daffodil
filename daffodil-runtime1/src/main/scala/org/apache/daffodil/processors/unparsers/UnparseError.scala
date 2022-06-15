@@ -16,7 +16,7 @@
  */
 
 package org.apache.daffodil.processors.unparsers
-import org.apache.daffodil.api._
+
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._

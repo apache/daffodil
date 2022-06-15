@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.lib.api
 
 import java.io.ByteArrayInputStream
 

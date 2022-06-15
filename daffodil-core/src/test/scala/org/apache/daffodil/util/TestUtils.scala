@@ -26,8 +26,6 @@ import scala.util.Try
 import org.apache.commons.io.output.NullOutputStream
 import org.junit.Assert.assertEquals
 import org.apache.daffodil.Implicits._
-import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.debugger._
 import org.apache.daffodil.dsom._

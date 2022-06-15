@@ -17,9 +17,7 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.processors.unparsers.UnparseError
-import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.processors.parsers.ParseError

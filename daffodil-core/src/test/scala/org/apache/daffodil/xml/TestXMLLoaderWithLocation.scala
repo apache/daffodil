@@ -21,7 +21,6 @@ import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.Implicits._
 import java.io.File
-import org.apache.daffodil.api.URISchemaSource
 
 class TestXMLLoaderWithLocation {
 

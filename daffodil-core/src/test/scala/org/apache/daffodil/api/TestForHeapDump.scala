@@ -18,6 +18,7 @@
 package org.apache.daffodil.api;
 
 
+import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.util.TestUtils.compileSchema
 import org.apache.daffodil.util._
 import org.junit.Assert.fail

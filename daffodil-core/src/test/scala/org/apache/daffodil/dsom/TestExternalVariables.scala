@@ -23,7 +23,6 @@ import scala.xml.Node
 
 import org.apache.daffodil.Implicits._
 import org.apache.daffodil.Implicits.ns2String
-import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter

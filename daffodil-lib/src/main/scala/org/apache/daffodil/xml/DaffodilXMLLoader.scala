@@ -49,7 +49,6 @@ import org.apache.xml.resolver.CatalogManager
 
 import org.w3c.dom.ls.LSInput
 
-import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Misc

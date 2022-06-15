@@ -31,11 +31,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml.Node
 
-import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.dsom.walker.RootView
 import org.apache.daffodil.exceptions.Assert

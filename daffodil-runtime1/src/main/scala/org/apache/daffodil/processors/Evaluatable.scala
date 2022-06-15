@@ -29,7 +29,6 @@ import org.apache.daffodil.exceptions.Assert
 
 import scala.collection.JavaConverters._
 import org.apache.daffodil.dpath.ExpressionEvaluationException
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.dpath.EvalMode
 import org.apache.daffodil.dpath.UnparserNonBlocking

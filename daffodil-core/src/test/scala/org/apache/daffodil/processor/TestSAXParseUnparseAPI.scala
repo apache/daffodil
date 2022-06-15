@@ -19,7 +19,6 @@ package org.apache.daffodil.processor
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.infoset.InfosetInputterEventType
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter

@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.lib.api
+
 import org.xml.sax.InputSource
 
 import java.net.URI

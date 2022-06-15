@@ -28,8 +28,6 @@ import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
 import java.math.RoundingMode
 
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.calendar.DFDLDate
 import org.apache.daffodil.calendar.DFDLDateTime

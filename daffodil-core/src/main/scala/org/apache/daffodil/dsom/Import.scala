@@ -21,8 +21,6 @@ import java.net.URI
 
 import scala.xml.Node
 
-import org.apache.daffodil.api.DaffodilSchemaSource
-import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.dsom.IIUtils._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Logger

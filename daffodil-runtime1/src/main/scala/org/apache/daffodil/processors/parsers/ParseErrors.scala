@@ -17,10 +17,6 @@
 
 package org.apache.daffodil.processors.parsers
 
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.Diagnostic
-import org.apache.daffodil.api.ThinDiagnostic
-import org.apache.daffodil.api.LocationInSchemaFile
 import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.exceptions.Assert

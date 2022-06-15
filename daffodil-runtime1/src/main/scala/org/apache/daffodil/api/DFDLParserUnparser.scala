@@ -28,6 +28,12 @@ import org.apache.daffodil.infoset.InfosetInputterEventType
 import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.api.ValidationResult
+import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.util.Coroutine
 import org.apache.daffodil.util.MainCoroutine
 import org.apache.daffodil.util.Maybe

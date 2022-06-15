@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.api
+package org.apache.daffodil.lib.api
 
 import org.junit.Test
 import org.apache.daffodil.util.Misc
@@ -39,8 +39,8 @@ class TestDaffodilTunablesAndConfig {
     val tunables = DaffodilTunables(cfg.tunablesMap)
     val warnings = tunables.suppressSchemaDefinitionWarnings
     assertEquals(2, warnings.length)
-    assertTrue(warnings.contains(WarnID.FacetExplicitLengthOutOfRange))
-    assertTrue(warnings.contains(WarnID.EncodingErrorPolicyError))
+    assertTrue(warnings.contains(FacetExplicitLengthOutOfRange))
+    assertTrue(warnings.contains(EncodingErrorPolicyError))
   }
 
 }

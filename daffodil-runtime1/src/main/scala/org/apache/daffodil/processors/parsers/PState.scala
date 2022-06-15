@@ -22,10 +22,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import scala.collection.mutable
-import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.infoset.DIElement

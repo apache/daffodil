@@ -19,7 +19,6 @@ package org.apache.daffodil.tdml.processor
 
 import java.io.ByteArrayInputStream
 
-import org.apache.daffodil.api._
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.runtime2.ParseResult

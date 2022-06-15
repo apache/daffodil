@@ -22,11 +22,6 @@ import java.io.FileInputStream
 import java.io.InputStream
 
 import com.typesafe.config.Config
-import org.apache.daffodil.api.ValidationFailure
-import org.apache.daffodil.api.ValidationResult
-import org.apache.daffodil.api.ValidationWarning
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.api.ValidatorFactory
 import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.DataProcessor
 import org.apache.daffodil.sapi.infoset.NullInfosetOutputter

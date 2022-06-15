@@ -21,7 +21,6 @@ import org.apache.daffodil.exceptions.Abort
 import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.exceptions.SchemaFileLocation
-import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.util.Misc
 
 /**

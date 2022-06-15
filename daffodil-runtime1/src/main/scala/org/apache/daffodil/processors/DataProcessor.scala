@@ -30,14 +30,7 @@ import scala.collection.immutable.Queue
 import org.apache.daffodil.Implicits._
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.api.ValidationException
-import org.apache.daffodil.api.ValidationFailure
-import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.api.ValidationResult
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.api.WithDiagnostics
 import org.apache.daffodil.debugger.Debugger
 import org.apache.daffodil.dsom.TunableLimitExceededError
 import org.apache.daffodil.dsom._

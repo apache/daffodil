@@ -17,13 +17,7 @@
 
 package org.apache.daffodil.validation.schematron
 
-import org.apache.daffodil.api.ValidationException
-
 import java.io.InputStream
-
-import org.apache.daffodil.api.ValidationFailure
-import org.apache.daffodil.api.ValidationResult
-import org.apache.daffodil.api.Validator
 
 import java.io.FileOutputStream
 import java.nio.file.Path

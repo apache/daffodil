@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.daffodil.api
+package org.apache.daffodil.lib.api
 
+import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.apache.daffodil.xml.NS

@@ -21,8 +21,6 @@ import java.lang.{ Long => JLong, Double => JDouble, Float => JFloat, Byte => JB
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.net.URI
 
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.dsom.DPathCompileInfo

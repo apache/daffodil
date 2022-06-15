@@ -23,23 +23,13 @@ import java.net.URI
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-
 import scala.collection.JavaConverters._
-
-import org.apache.daffodil.api.DFDL.{ DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException }
-import org.apache.daffodil.api.DFDL.{ DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException }
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.api.{ DataLocation => SDataLocation }
-import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
-import org.apache.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
-import org.apache.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
-import org.apache.daffodil.compiler.{ Compiler => SCompiler }
-import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
-import org.apache.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
+import org.apache.daffodil.compiler.{Compiler => SCompiler}
+import org.apache.daffodil.compiler.{InvalidParserException => SInvalidParserException}
+import org.apache.daffodil.compiler.{ProcessorFactory => SProcessorFactory}
 import org.apache.daffodil.debugger.Debugger
-import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
+import org.apache.daffodil.debugger.{InteractiveDebugger => SInteractiveDebugger}
+import org.apache.daffodil.debugger.{TraceDebuggerRunner => STraceDebuggerRunner}
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.walker.RootView
 import org.apache.daffodil.externalvars.Binding
@@ -49,13 +39,14 @@ import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.japi.io.InputSourceDataInputStream
 import org.apache.daffodil.japi.logger._
 import org.apache.daffodil.japi.packageprivate._
-import org.apache.daffodil.processors.{ DaffodilParseXMLReader => SDaffodilParseXMLReader }
-import org.apache.daffodil.processors.{ DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler }
-import org.apache.daffodil.processors.{ DataProcessor => SDataProcessor }
-import org.apache.daffodil.processors.{ ExternalVariableException => SExternalVariableException }
-import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
-import org.apache.daffodil.processors.{ ParseResult => SParseResult }
-import org.apache.daffodil.processors.{ UnparseResult => SUnparseResult }
+import org.apache.daffodil.lib.api
+import org.apache.daffodil.processors.{DaffodilParseXMLReader => SDaffodilParseXMLReader}
+import org.apache.daffodil.processors.{DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler}
+import org.apache.daffodil.processors.{DataProcessor => SDataProcessor}
+import org.apache.daffodil.processors.{ExternalVariableException => SExternalVariableException}
+import org.apache.daffodil.processors.{InvalidUsageException => SInvalidUsageException}
+import org.apache.daffodil.processors.{ParseResult => SParseResult}
+import org.apache.daffodil.processors.{UnparseResult => SUnparseResult}
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeULong
@@ -629,7 +620,7 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    * @param validator validator instance
    */
   def withValidator(validator: Validator): DataProcessor =
-    copy(dp = dp.withValidationMode(org.apache.daffodil.api.ValidationMode.Custom(validator)))
+    copy(dp = dp.withValidationMode(api.ValidationMode.Custom(validator)))
 
   /**
    * Read external variables from a Daffodil configuration file

@@ -18,7 +18,6 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.exceptions._
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.CompileState
 import org.apache.daffodil.util.Maybe

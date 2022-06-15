@@ -21,7 +21,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
-import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.infoset.SAXInfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream

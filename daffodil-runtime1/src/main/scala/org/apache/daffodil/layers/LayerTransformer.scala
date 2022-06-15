@@ -18,8 +18,6 @@
 package org.apache.daffodil.layers
 
 import org.apache.commons.io.IOUtils
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.ThinDiagnostic
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.processors.LayerLengthEv

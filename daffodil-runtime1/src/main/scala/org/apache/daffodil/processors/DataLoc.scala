@@ -29,7 +29,6 @@ import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.processors.parsers.PState
 
 class DataLoc(
