@@ -19,9 +19,9 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Node
 import scala.xml.Utility
-import org.apache.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
 import org.apache.daffodil.dpath._
-import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeKind
 import org.apache.daffodil.processors.EscapeSchemeParseEv
 import org.apache.daffodil.processors.EscapeSchemeBlockParseEv
 import org.apache.daffodil.processors.EscapeSchemeCharParseEv

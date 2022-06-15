@@ -19,20 +19,20 @@ package org.apache.daffodil.dsom
 
 import scala.xml.Elem
 import scala.xml.Node
-import org.apache.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.Sequence_AnnotationMixin
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.schema.annotation.props.gen.SequenceKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
 import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dsom.walker.SequenceView
 import org.apache.daffodil.grammar.SequenceGrammarMixin
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.processors.SeparatorParseEv
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.processors.SeparatorUnparseEv
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.layers.LayerCompiler

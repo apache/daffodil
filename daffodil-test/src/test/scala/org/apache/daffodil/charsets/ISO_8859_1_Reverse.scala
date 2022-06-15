@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.charsets
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.processors.charset.BitsCharsetDefinition
 

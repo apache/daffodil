@@ -19,7 +19,7 @@ package org.apache.daffodil.runtime2.generators
 
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 
 trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
 

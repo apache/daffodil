@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.dsom
 
-import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
 

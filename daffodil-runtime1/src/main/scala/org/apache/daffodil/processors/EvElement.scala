@@ -25,8 +25,8 @@ import org.apache.daffodil.dpath.EvalMode
 import org.apache.daffodil.dpath.UnparserBlocking
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeJULong
 

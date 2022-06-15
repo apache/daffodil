@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
 /**
  * X-DFDL-ISO-88591-8-BIT-PACKED-LSB-FIRST occupies only 8 bits with each

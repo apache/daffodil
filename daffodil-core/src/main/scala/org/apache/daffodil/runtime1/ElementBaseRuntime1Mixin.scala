@@ -19,8 +19,8 @@ package org.apache.daffodil.runtime1
 
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.PrefixLengthQuasiElementDecl
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.dsom.DPathElementCompileInfo
 import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.TermRuntimeData

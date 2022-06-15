@@ -23,8 +23,8 @@ import org.junit.Test
 import org.junit.Assert._
 
 import java.nio.ByteBuffer
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Maybe
 

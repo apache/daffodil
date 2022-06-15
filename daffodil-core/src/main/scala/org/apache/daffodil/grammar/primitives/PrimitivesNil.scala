@@ -22,7 +22,7 @@ import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.processors.parsers.LiteralValueNilOfSpecifiedLengthParser
 import org.apache.daffodil.processors.parsers.LiteralCharacterNilOfSpecifiedLengthParser
 import org.apache.daffodil.processors.unparsers.LiteralValueNilOfSpecifiedLengthUnparser
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.processors.unparsers.NilLiteralCharacterUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
 

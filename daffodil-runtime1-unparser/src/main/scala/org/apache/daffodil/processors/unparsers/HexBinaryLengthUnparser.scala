@@ -24,7 +24,7 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe._
 
 abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)

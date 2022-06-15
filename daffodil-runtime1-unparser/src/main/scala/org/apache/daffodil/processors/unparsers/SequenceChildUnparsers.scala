@@ -22,7 +22,7 @@ import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.parsers.EndArrayChecksMixin
 import org.apache.daffodil.processors.parsers.MinMaxRepeatsMixin
-import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 
 /**
  * base for unparsers for the children of sequences.

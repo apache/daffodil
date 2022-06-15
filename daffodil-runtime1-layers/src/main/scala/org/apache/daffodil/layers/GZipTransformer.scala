@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.layers
 
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.io.ExplicitLengthLimitingStream
 import org.apache.daffodil.processors.ParseOrUnparseState
 

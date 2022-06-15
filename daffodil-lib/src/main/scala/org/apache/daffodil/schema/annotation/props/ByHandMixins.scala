@@ -37,13 +37,13 @@ import org.apache.daffodil.equality.ViewEqual
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.oolag.OOLAG.OOLAGHost
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnitsMixin
-import org.apache.daffodil.schema.annotation.props.gen.NilKind
-import org.apache.daffodil.schema.annotation.props.gen.NilKindMixin
-import org.apache.daffodil.schema.annotation.props.gen.NilValueDelimiterPolicyMixin
-import org.apache.daffodil.schema.annotation.props.gen.Representation
-import org.apache.daffodil.schema.annotation.props.gen.RepresentationMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnitsMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.NilKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.NilKindMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.NilValueDelimiterPolicyMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.RepresentationMixin
 import org.apache.daffodil.util.MaybeULong
 
 import passera.unsigned.ULong

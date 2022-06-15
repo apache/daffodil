@@ -20,7 +20,7 @@ package org.apache.daffodil.layers
 import org.apache.daffodil.io.BoundaryMarkLimitingStream
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
 import org.apache.daffodil.processors.ParseOrUnparseState
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 
 final class Base64MIMELayerCompiler
   extends LayerCompiler("base64_MIME") {

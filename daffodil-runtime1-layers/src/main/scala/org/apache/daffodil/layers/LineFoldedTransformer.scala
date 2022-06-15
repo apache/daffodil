@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.layers
 
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 
 import java.nio.charset.StandardCharsets
 import org.apache.daffodil.exceptions.Assert

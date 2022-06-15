@@ -39,7 +39,7 @@ import org.apache.daffodil.processors.parsers._
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.processors.unparsers.UStateForSuspension
 import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.util.DPathUtil
 import org.apache.daffodil.util.Enum
 import org.apache.daffodil.util.Misc

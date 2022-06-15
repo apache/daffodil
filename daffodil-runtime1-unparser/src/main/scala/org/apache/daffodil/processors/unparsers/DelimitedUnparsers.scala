@@ -28,7 +28,7 @@ import org.apache.daffodil.processors.EscapeSchemeCharUnparserHelper
 import org.apache.daffodil.processors.EscapeSchemeUnparseEv
 import org.apache.daffodil.processors.dfa.CreateFieldDFA
 import org.apache.daffodil.processors.dfa.TextDelimitedUnparser
-import org.apache.daffodil.schema.annotation.props.gen.GenerateEscape
+import org.apache.daffodil.lib.schema.annotation.props.gen.GenerateEscape
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope

@@ -23,12 +23,12 @@ import java.nio.LongBuffer
 
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.util.MaybeInt
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder

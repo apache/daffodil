@@ -30,8 +30,8 @@ import org.apache.commons.io.output.TeeOutputStream
 import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.util.Bits
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope

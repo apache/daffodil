@@ -18,7 +18,7 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.processors._
-import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.util.DecimalUtils
 import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
 

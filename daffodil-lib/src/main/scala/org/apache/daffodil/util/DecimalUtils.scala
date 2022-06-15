@@ -18,8 +18,8 @@
 package org.apache.daffodil.util
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberCheckPolicy
-import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryNumberCheckPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextZonedSignStyle
 
 import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
 

@@ -24,7 +24,7 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.processors.OccursCountEv
-import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.util.Maybe

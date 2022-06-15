@@ -27,7 +27,7 @@
 
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
 /**
  * X-DFDL-6-BIT-DFI-264-DUI-001, special 6 bit encoding

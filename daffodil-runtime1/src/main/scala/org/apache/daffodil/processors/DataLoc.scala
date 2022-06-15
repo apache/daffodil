@@ -19,11 +19,11 @@ package org.apache.daffodil.processors
 
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.exceptions._
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.io.Utils
-import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.processors.unparsers.UState

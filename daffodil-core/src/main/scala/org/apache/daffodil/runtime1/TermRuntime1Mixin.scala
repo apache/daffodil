@@ -25,7 +25,7 @@ import org.apache.daffodil.processors.CheckBitOrderAndCharsetEv
 import org.apache.daffodil.processors.CheckByteAndBitOrderEv
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.TermRuntimeData
-import org.apache.daffodil.schema.annotation.props.gen.NilKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.NilKind
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.DoNotUseThisResolver
 import org.apache.daffodil.infoset.NoNextElement

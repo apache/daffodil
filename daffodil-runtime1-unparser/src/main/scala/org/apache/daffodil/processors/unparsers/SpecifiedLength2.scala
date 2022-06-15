@@ -39,7 +39,7 @@ import org.apache.daffodil.processors.RuntimeData
 import org.apache.daffodil.processors.SuspendableOperation
 import org.apache.daffodil.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.processors.charset.BitsCharset
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._

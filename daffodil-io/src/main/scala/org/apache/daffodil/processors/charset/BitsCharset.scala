@@ -16,7 +16,7 @@
  */
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.exceptions.Assert
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction

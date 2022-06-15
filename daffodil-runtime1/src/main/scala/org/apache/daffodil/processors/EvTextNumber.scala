@@ -34,9 +34,9 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeChar
 import org.apache.daffodil.util.MaybeDouble
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberCheckPolicy
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberRoundingMode
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberCheckPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRoundingMode
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 
 class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], tci: DPathCompileInfo)

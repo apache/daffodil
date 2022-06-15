@@ -647,7 +647,7 @@ object PropertyGenerator {
   }
 
   def generatedCodeFilename = "GeneratedCode.scala"
-  def generatedCodePackage = "org.apache.daffodil.schema.annotation.props.gen"
+  def generatedCodePackage = "org.apache.daffodil.lib.schema.annotation.props.gen"
 
   def tunableCodeFilename = "DaffodilTunablesGen.scala"
   def tunableCodePackage = "org.apache.daffodil.api"

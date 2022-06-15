@@ -30,7 +30,7 @@ import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.processors.parsers._
 import org.apache.daffodil.processors.unparsers._
-import org.apache.daffodil.schema.annotation.props.gen.ChoiceLengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceLengthKind
 import org.apache.daffodil.util.MaybeInt
 
 import java.math.{ BigInteger => JBigInt }

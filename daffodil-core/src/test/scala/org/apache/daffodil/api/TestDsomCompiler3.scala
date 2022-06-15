@@ -21,7 +21,7 @@ import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.util._
 import org.apache.daffodil.Implicits._
 import org.apache.daffodil.compiler._
-import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import java.io.File

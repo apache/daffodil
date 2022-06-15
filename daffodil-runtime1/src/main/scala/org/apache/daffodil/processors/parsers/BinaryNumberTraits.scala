@@ -26,7 +26,7 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Success
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Numbers
 

@@ -55,8 +55,8 @@ import org.apache.daffodil.processors.unparsers.StringMaybeTruncateBitsUnparser
 import org.apache.daffodil.processors.unparsers.StringMaybeTruncateCharactersUnparser
 import org.apache.daffodil.processors.unparsers.StringNoTruncateUnparser
 import org.apache.daffodil.processors.unparsers.{Unparser => DaffodilUnparser}
-import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.PackedSignCodes

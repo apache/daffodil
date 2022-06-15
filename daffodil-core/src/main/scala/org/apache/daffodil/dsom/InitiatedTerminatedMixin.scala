@@ -18,7 +18,7 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.grammar._
-import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.grammar.GrammarMixin
 import org.apache.daffodil.grammar.primitives.InitiatedContent
 import org.apache.daffodil.grammar.primitives.Terminator

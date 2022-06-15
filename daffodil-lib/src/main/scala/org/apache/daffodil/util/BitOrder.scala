@@ -19,7 +19,7 @@ package org.apache.daffodil.util
 
 import org.apache.daffodil.exceptions.Assert
 import java.nio.ByteBuffer
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
 object Bits {
 

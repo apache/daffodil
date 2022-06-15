@@ -31,8 +31,8 @@ import org.apache.daffodil.processors.parsers.Parser
 import org.apache.daffodil.processors.unparsers.ConvertZonedCombinatorUnparser
 import org.apache.daffodil.processors.unparsers.ConvertZonedNumberUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberCheckPolicy
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberCheckPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._

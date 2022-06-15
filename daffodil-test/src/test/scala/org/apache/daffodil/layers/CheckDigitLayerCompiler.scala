@@ -19,8 +19,8 @@ package org.apache.daffodil.layers
 
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.processors.VariableRuntimeData
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
 
 final class CheckDigitLayerCompiler
 extends LayerCompiler("checkDigit") {

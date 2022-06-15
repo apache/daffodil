@@ -16,7 +16,7 @@
  */
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
 /**
  * Special purpose. This is not used for decoding anything.

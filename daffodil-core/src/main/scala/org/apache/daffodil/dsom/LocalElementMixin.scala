@@ -19,7 +19,7 @@ package org.apache.daffodil.dsom
 
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar._
-import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.grammar.LocalElementGrammarMixin
 import org.apache.daffodil.equality._

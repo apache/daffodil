@@ -39,8 +39,8 @@ import org.apache.daffodil.processors.unparsers.NadaUnparser
 import org.apache.daffodil.compiler.ForParser
 import org.apache.daffodil.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.schema.annotation.props.Found
-import org.apache.daffodil.schema.annotation.props.gen.FailureType
-import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
+import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
+import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.DFDLSetVariable
 import org.apache.daffodil.dsom.DFDLNewVariableInstance

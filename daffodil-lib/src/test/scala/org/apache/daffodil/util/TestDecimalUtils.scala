@@ -18,7 +18,7 @@
 package org.apache.daffodil.util
 
 import org.apache.daffodil.util.DecimalUtils._
-import org.apache.daffodil.schema.annotation.props.gen.{ BinaryNumberCheckPolicy, TextZonedSignStyle }
+import org.apache.daffodil.lib.schema.annotation.props.gen.{ BinaryNumberCheckPolicy, TextZonedSignStyle }
 
 import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
 import org.junit.Test

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.schema.annotation.props
 
-import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.oolag.OOLAG.OOLAGHostImpl

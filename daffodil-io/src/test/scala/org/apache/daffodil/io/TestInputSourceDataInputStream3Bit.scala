@@ -29,7 +29,7 @@ import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.processors.charset.BitsCharsetOctalLSBF
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
 /**
  * tests of 7-bit characters

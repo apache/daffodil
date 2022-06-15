@@ -57,11 +57,11 @@ import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
 import org.apache.daffodil.processors.charset.CharsetUtils
-import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.tdml.processor.AbstractTDMLDFDLProcessorFactory
 import org.apache.daffodil.tdml.processor.TDML
 import org.apache.daffodil.tdml.processor.TDMLDFDLProcessor

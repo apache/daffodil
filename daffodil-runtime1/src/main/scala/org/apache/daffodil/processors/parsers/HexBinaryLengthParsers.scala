@@ -22,7 +22,7 @@ import java.nio.ByteBuffer
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.LengthInBitsEv
 import org.apache.daffodil.processors.Processor
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 
 sealed abstract class HexBinaryLengthParser(override val context: ElementRuntimeData)
   extends PrimParser

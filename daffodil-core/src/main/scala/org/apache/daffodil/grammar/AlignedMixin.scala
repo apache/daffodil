@@ -19,15 +19,15 @@ package org.apache.daffodil.grammar
 
 import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.dsom.ModelGroup
-import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.Math
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dsom.QuasiElementDeclBase
 import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.dsom.Term
-import org.apache.daffodil.schema.annotation.props.gen.AlignmentKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentKind
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))

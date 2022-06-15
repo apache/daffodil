@@ -42,7 +42,7 @@ import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.SimpleTypeRuntime1Mixin
-import org.apache.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.ParseUnparsePolicy
 import org.apache.daffodil.xml.RefQName
 
 trait TypeBase {

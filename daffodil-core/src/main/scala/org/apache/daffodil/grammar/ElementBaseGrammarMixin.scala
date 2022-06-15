@@ -30,7 +30,7 @@ import org.apache.daffodil.grammar.primitives._ // there are too many to show in
 import org.apache.daffodil.processors.TextJustificationType
 import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.NotFound
-import org.apache.daffodil.schema.annotation.props.gen._ // there are too many to show individually
+import org.apache.daffodil.lib.schema.annotation.props.gen._ // there are too many to show individually
 import org.apache.daffodil.util.PackedSignCodes
 import org.apache.daffodil.xml.GlobalQName
 import org.apache.daffodil.xml.XMLUtils

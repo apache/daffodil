@@ -24,7 +24,7 @@ import passera.unsigned.ULong
 
 import org.apache.daffodil.equality._
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.util.Bits
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe

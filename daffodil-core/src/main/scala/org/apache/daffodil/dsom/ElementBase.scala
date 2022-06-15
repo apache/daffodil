@@ -34,7 +34,7 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
 import org.apache.daffodil.processors._
 import org.apache.daffodil.schema.annotation.props._
-import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml._

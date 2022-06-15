@@ -20,7 +20,7 @@ package org.apache.daffodil.dsom
 import scala.xml.Node
 
 import org.apache.daffodil.exceptions.ThrowsSDE
-import org.apache.daffodil.schema.annotation.props.gen.TestKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.grammar.primitives.AssertBase
 
 trait ResolvesDFDLStatementMixin

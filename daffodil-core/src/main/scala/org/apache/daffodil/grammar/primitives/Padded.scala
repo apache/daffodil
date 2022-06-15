@@ -22,15 +22,15 @@ import org.apache.daffodil.dsom.ElementBase
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.processors.TextJustificationType
 import org.apache.daffodil.processors.TextTruncationType
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.schema.annotation.props.gen.Representation
-import org.apache.daffodil.schema.annotation.props.gen.TextBooleanJustification
-import org.apache.daffodil.schema.annotation.props.gen.TextCalendarJustification
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberJustification
-import org.apache.daffodil.schema.annotation.props.gen.TextPadKind
-import org.apache.daffodil.schema.annotation.props.gen.TextStringJustification
-import org.apache.daffodil.schema.annotation.props.gen.TextTrimKind
-import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextBooleanJustification
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextCalendarJustification
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberJustification
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextPadKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextStringJustification
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextTrimKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.util.MaybeChar
 
 trait PaddingInfoMixin {

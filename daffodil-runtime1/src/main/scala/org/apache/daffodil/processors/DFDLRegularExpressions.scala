@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.schema.annotation.props.gen.TextStringJustification
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextStringJustification
 
 object DFDLRegularExpressions {
 

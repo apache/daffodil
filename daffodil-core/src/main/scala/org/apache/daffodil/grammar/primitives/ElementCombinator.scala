@@ -46,9 +46,9 @@ import org.apache.daffodil.processors.unparsers.RightCenteredPaddingUnparser
 import org.apache.daffodil.processors.unparsers.RightFillUnparser
 import org.apache.daffodil.processors.unparsers.SimpleTypeRetryUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.schema.annotation.props.gen.Representation
-import org.apache.daffodil.schema.annotation.props.gen.TestKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.parsers.NadaParser
 import org.apache.daffodil.processors.unparsers.NadaUnparser

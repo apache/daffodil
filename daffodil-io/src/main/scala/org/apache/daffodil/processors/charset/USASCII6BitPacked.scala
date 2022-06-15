@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.processors.charset
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
 /**
  * X-DFDL-US-ASCII-6-BIT-PACKED occupies only 6 bits with each

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.schema.annotation.props.gen._
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.dsom._
 
 class BinaryFloatRepEv(expr: CompiledExpression[String], eci: DPathElementCompileInfo)

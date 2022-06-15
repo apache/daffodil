@@ -29,9 +29,9 @@ import org.junit.Test
 
 import org.apache.daffodil.Implicits.intercept
 import org.apache.daffodil.equality.TypeEqual
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
 import passera.unsigned.ULong

@@ -23,8 +23,8 @@ import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.processors.charset.BitsCharsetJava
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.RefQName
 

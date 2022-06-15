@@ -38,11 +38,11 @@ import org.apache.daffodil.processors.parsers.ConvertBinaryCalendarSecMilliParse
 import org.apache.daffodil.processors.parsers.ConvertTextCalendarParser
 import org.apache.daffodil.processors.unparsers.ConvertBinaryCalendarSecMilliUnparser
 import org.apache.daffodil.processors.unparsers.ConvertTextCalendarUnparser
-import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
-import org.apache.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
-import org.apache.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
-import org.apache.daffodil.schema.annotation.props.gen.CalendarPatternKind
-import org.apache.daffodil.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
+import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarCheckPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarFirstDayOfWeek
+import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarPatternKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 
 abstract class ConvertCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {

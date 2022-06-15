@@ -20,7 +20,7 @@ package org.apache.daffodil.grammar
 import org.apache.daffodil.api.ParseUnparsePolicyTunable
 import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.runtime1.SchemaSetRuntime1Mixin
-import org.apache.daffodil.schema.annotation.props.gen.ParseUnparsePolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.ParseUnparsePolicy
 
 trait SchemaSetGrammarMixin
 extends SchemaSetRuntime1Mixin { self: SchemaSet =>

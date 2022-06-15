@@ -29,8 +29,8 @@ import org.apache.daffodil.processors.parsers.DelimiterTextType
 import org.apache.daffodil.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.processors.unparsers.DelimiterTextUnparser
 import org.apache.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
-import org.apache.daffodil.schema.annotation.props.gen.EscapeKind
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 
 object INoWarn5 { ImplicitsSuppressUnusedImportWarning() }
 

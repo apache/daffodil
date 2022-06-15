@@ -24,7 +24,7 @@ import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.DataInputStream.NotEnoughDataException
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.util.MaybeChar
 
 

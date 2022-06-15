@@ -29,7 +29,7 @@ import org.apache.daffodil.processors.parsers.SpecifiedLengthExplicitParser
 import org.apache.daffodil.processors.parsers.SpecifiedLengthImplicitParser
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.processors.parsers.Parser
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
   extends Terminal(e, true) {

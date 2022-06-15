@@ -24,8 +24,8 @@ import java.nio.CharBuffer
 import java.nio.LongBuffer
 
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.util.Bits
 import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.util.Maybe

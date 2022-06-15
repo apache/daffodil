@@ -31,7 +31,7 @@ import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.RetryableException
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
-import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
+import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.xml.GlobalQName

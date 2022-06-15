@@ -17,7 +17,7 @@
 package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.processors._
-import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 
 trait Separated { self: SequenceChildParser =>
 

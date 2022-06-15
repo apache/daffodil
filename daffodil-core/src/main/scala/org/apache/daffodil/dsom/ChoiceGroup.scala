@@ -20,10 +20,10 @@ package org.apache.daffodil.dsom
 import org.apache.daffodil.dsom.walker.ChoiceView
 
 import scala.xml.Node
-import org.apache.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
-import org.apache.daffodil.schema.annotation.props.gen.ChoiceAGMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.Choice_AnnotationMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceAGMixin
 import org.apache.daffodil.grammar.ChoiceGrammarMixin
-import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 
 /**
  *

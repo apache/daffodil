@@ -23,7 +23,7 @@ import org.apache.daffodil.infoset.DIElement
 import org.apache.daffodil.infoset.DataValue.DataValueLong
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.LengthState
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 
 import passera.unsigned.ULong
 

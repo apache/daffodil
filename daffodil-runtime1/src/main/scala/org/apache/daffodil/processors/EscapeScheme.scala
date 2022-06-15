@@ -22,7 +22,7 @@ import org.apache.daffodil.processors.dfa.DFADelimiter
 import org.apache.daffodil.processors.dfa.CreateDelimiterDFA
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.schema.annotation.props.gen.GenerateEscape
+import org.apache.daffodil.lib.schema.annotation.props.gen.GenerateEscape
 import org.apache.daffodil.util.MaybeChar
 import org.apache.daffodil.processors.parsers.DelimiterTextType
 import org.apache.daffodil.dsom.DPathCompileInfo

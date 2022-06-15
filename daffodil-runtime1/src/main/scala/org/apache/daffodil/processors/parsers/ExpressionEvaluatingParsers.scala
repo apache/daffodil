@@ -33,7 +33,7 @@ import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
-import org.apache.daffodil.schema.annotation.props.gen.FailureType
+import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.util.Logger
 
 /**

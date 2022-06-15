@@ -23,8 +23,8 @@ import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.processors.charset.BitsCharset
 import org.apache.daffodil.processors.charset.StandardBitsCharsets
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.processors.charset.CharsetUtils
 import org.apache.daffodil.util.Maybe
 

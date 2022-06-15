@@ -30,7 +30,7 @@ import org.apache.daffodil.runtime1.DFDLDefineVariableRuntime1Mixin
 import org.apache.daffodil.runtime1.DFDLNewVariableInstanceRuntime1Mixin
 import org.apache.daffodil.runtime1.DFDLSetVariableRuntime1Mixin
 import org.apache.daffodil.runtime1.VariableReferenceRuntime1Mixin
-import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
+import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.xml.NS
 
 object DFDLDefineVariable {

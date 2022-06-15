@@ -20,8 +20,8 @@ package org.apache.daffodil.dsom
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import org.apache.daffodil.exceptions._
-import org.apache.daffodil.schema.annotation.props.gen.TestKind
-import org.apache.daffodil.schema.annotation.props.gen.FailureType
+import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import com.ibm.icu.impl.UnicodeRegex
 import java.util.regex.PatternSyntaxException
 import java.util.regex.Pattern

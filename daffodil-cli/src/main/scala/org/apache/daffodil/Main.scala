@@ -96,7 +96,7 @@ import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.ExternalVariableException
 import org.apache.daffodil.processors.HasSetDebugger
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException

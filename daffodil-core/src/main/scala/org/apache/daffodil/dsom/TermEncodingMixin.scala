@@ -18,12 +18,12 @@
 package org.apache.daffodil.dsom
 
 import org.apache.daffodil.processors.EncodingRuntimeData
-import org.apache.daffodil.schema.annotation.props.gen.Representation
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.processors.KnownEncodingMixin
 import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.schema.annotation.props.gen.AlignmentKind
-import org.apache.daffodil.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.util.Maybe
 
 /**

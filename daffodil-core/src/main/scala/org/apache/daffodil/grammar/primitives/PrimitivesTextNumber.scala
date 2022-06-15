@@ -33,7 +33,7 @@ import org.apache.daffodil.processors.TextNumberFormatEv
 import org.apache.daffodil.processors.unparsers.ConvertTextCombinatorUnparser
 import org.apache.daffodil.processors.unparsers.ConvertTextNumberUnparser
 import org.apache.daffodil.processors.unparsers.Unparser
-import org.apache.daffodil.schema.annotation.props.gen.TextNumberRounding
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeDouble

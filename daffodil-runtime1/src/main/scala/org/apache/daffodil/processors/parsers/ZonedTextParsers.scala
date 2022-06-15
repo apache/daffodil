@@ -26,7 +26,7 @@ import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.TextNumberFormatEv
-import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.util.DecimalUtils
 import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
 

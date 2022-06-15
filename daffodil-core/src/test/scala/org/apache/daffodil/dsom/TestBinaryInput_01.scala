@@ -23,8 +23,8 @@ import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.FakeFormatInfo
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.util.Misc
 import org.junit.After
 import org.junit.Test

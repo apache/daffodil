@@ -20,8 +20,8 @@ package org.apache.daffodil.layers
 import org.apache.commons.io.IOUtils
 import org.apache.daffodil.api.DataLocation
 import org.apache.daffodil.api.ThinDiagnostic
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.schema.annotation.props.gen.LayerLengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.processors.LayerLengthEv
 import org.apache.daffodil.processors.LayerBoundaryMarkEv
 import org.apache.daffodil.processors.LayerCharsetEv
@@ -37,7 +37,7 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream

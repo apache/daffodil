@@ -26,7 +26,7 @@ import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.parsers.HasKnownLengthInBits
 import org.apache.daffodil.processors.parsers.HasRuntimeExplicitLength
-import org.apache.daffodil.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.util.DecimalUtils
 
 abstract class IBM4690PackedIntegerBaseUnparser(

@@ -31,10 +31,10 @@ import org.apache.daffodil.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.infoset.PartialNextElementResolver
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.Representation
-import org.apache.daffodil.schema.annotation.props.gen.YesNo
-import org.apache.daffodil.schema.annotation.props.gen.VariableDirection
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.util.Delay
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
@@ -54,7 +54,7 @@ import org.apache.daffodil.infoset.DISimple
 import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
 import org.apache.daffodil.processors.unparsers.UnparseError
-import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.util.OKOrError
 

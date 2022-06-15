@@ -19,7 +19,7 @@ package org.apache.daffodil.processors
 
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.util.MaybeChar
-import org.apache.daffodil.schema.annotation.props.gen.GenerateEscape
+import org.apache.daffodil.lib.schema.annotation.props.gen.GenerateEscape
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.util.MStackOfMaybe

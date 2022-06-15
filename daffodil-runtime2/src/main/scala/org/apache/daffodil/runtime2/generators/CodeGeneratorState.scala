@@ -28,7 +28,7 @@ import org.apache.daffodil.dsom.GlobalElementDecl
 import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.dsom.SchemaComponent
 import org.apache.daffodil.exceptions.ThrowsSDE
-import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 
 import java.net.URI
 import scala.collection.mutable

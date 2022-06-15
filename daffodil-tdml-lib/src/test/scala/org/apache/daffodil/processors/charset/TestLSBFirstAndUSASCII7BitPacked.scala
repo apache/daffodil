@@ -26,8 +26,8 @@ import org.apache.daffodil.util.Misc
 import org.apache.daffodil.tdml.Document
 import org.apache.daffodil.io.FormatInfoForUnitTest
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 
 class TestLSBFirstAndUSASCII7BitPacked {
 

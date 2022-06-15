@@ -29,7 +29,7 @@ import org.apache.daffodil.processors.CalendarEv
 import org.apache.daffodil.processors.CalendarLanguageEv
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Processor
-import org.apache.daffodil.schema.annotation.props.gen.BinaryCalendarRep
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
 import org.apache.daffodil.dsom.TunableLimitExceededError
 
 abstract class ConvertTextCalendarProcessorBase(
