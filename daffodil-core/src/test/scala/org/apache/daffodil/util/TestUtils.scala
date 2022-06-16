@@ -26,6 +26,7 @@ import scala.util.Try
 import org.apache.commons.io.output.NullOutputStream
 import org.junit.Assert.assertEquals
 import org.apache.daffodil.Implicits._
+import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.debugger._
 import org.apache.daffodil.dsom._
@@ -42,6 +43,10 @@ import org.apache.daffodil.xml._
 import java.io.ByteArrayInputStream
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.api.ValidationMode
 
 import java.io.InputStream
 import scala.collection.mutable.ArrayBuffer

@@ -30,6 +30,7 @@ import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.FakeDINode
 import org.apache.daffodil.infoset.InfosetNoNextSiblingException
 import org.apache.daffodil.infoset.RetryableException
+import org.apache.daffodil.lib.api.DataLocation
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.SchemaSetRuntimeData
 import org.apache.daffodil.util.Maybe

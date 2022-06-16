@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.processors
 
+import org.apache.daffodil.api.DFDL
+
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 import org.apache.daffodil.lib.api.DaffodilTunables
@@ -54,6 +56,8 @@ import org.apache.daffodil.processors.dfa.Registers
 import org.apache.daffodil.processors.dfa.RegistersPool
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState

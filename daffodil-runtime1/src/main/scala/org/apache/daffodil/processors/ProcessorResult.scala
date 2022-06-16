@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.processors
 
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.util.Misc
 
 /**

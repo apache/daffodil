@@ -40,6 +40,7 @@ import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.dsom.DPathElementCompileInfo
+import org.apache.daffodil.lib.api.Diagnostic
 
 /**
  * Generates unique int for use as key into EvalCache

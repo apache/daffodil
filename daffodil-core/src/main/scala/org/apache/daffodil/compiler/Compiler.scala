@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.compiler
 
+import org.apache.daffodil.api.DFDL
+
 import java.io.File
 import java.io.FileInputStream
 import java.io.InvalidClassException
@@ -25,18 +27,19 @@ import java.io.StreamCorruptedException
 import java.nio.channels.Channels
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
-
 import scala.collection.immutable.Queue
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml.Node
-
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.dsom.walker.RootView
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Misc

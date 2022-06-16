@@ -18,8 +18,11 @@
 package org.apache.daffodil.tdml.processor
 
 import java.nio.file.Path
-
 import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.ValidationMode
 
 object TDML {
   type CompileResult = Either[Seq[Diagnostic], (Seq[Diagnostic], TDMLDFDLProcessor)]

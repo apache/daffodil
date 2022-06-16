@@ -18,8 +18,12 @@
 package org.apache.daffodil.validation
 
 import java.io.InputStream
-
 import com.typesafe.config.Config
+import org.apache.daffodil.lib.api.ValidationFailure
+import org.apache.daffodil.lib.api.ValidationResult
+import org.apache.daffodil.lib.api.ValidationWarning
+import org.apache.daffodil.lib.api.Validator
+import org.apache.daffodil.lib.api.ValidatorFactory
 
 class PassingValidatorFactory extends ValidatorFactory {
   def name(): String = PassingValidator.name

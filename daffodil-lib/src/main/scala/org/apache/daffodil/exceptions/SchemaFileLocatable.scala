@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.exceptions
 
+import org.apache.daffodil.lib.api.LocationInSchemaFile
+
 import java.net.URLDecoder
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 

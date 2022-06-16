@@ -17,11 +17,14 @@
 
 package org.apache.daffodil.processor
 
+import org.apache.daffodil.api.DFDL
+
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import scala.xml.Elem
 import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.ParseResult

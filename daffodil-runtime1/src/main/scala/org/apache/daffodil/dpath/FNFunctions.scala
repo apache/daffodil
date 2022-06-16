@@ -17,17 +17,16 @@
 
 package org.apache.daffodil.dpath
 
-import java.lang.{ Byte => JByte }
-import java.lang.{ Double => JDouble }
-import java.lang.{ Float => JFloat }
-import java.lang.{ Integer => JInt }
-import java.lang.{ Long => JLong }
-import java.lang.{ Number => JNumber }
-import java.lang.{ Short => JShort }
-import java.math.{ BigDecimal => JBigDecimal }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.{Byte => JByte}
+import java.lang.{Double => JDouble}
+import java.lang.{Float => JFloat}
+import java.lang.{Integer => JInt}
+import java.lang.{Long => JLong}
+import java.lang.{Number => JNumber}
+import java.lang.{Short => JShort}
+import java.math.{BigDecimal => JBigDecimal}
+import java.math.{BigInteger => JBigInt}
 import java.math.RoundingMode
-
 import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.calendar.DFDLDate
 import org.apache.daffodil.calendar.DFDLDateTime
@@ -64,9 +63,10 @@ import org.apache.daffodil.util.Numbers.asFloat
 import org.apache.daffodil.util.Numbers.asInt
 import org.apache.daffodil.util.Numbers.asLong
 import org.apache.daffodil.util.Numbers.asShort
-
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
 
 case class FNAbs(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(v: DataValuePrimitive, dstate: DState) = {

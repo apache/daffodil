@@ -29,6 +29,7 @@ import org.apache.daffodil.infoset.InfosetOutputter
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.DataLocation
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.ValidationMode

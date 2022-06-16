@@ -17,16 +17,14 @@
 
 package org.apache.daffodil.infoset
 
-import java.lang.{ Boolean => JBoolean }
-import java.lang.{ Number => JNumber }
-import java.math.{ BigDecimal => JBigDecimal }
+import java.lang.{Boolean => JBoolean}
+import java.lang.{Number => JNumber}
+import java.math.{BigDecimal => JBigDecimal}
 import java.util.HashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-
 import scala.collection.IndexedSeq
 import scala.collection.mutable.ArrayBuffer
-
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.dpath.NodeInfo
@@ -58,9 +56,10 @@ import org.apache.daffodil.util.Numbers
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.XMLUtils
-
 import passera.unsigned.ULong
 import org.apache.daffodil.dsom.DPathCompileInfo
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.ThinDiagnostic
 
 sealed trait DINode {
 

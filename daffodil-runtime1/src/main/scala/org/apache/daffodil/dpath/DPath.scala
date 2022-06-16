@@ -17,10 +17,9 @@
 
 package org.apache.daffodil.dpath
 
-import java.lang.{ Long => JLong, Double => JDouble, Float => JFloat, Byte => JByte, Integer => JInt, Short => JShort }
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import java.lang.{Integer => JInt, Byte => JByte, Double => JDouble, Short => JShort, Long => JLong, Float => JFloat}
+import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 import java.net.URI
-
 import org.apache.daffodil.calendar.DFDLCalendar
 import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.dsom.DPathCompileInfo
@@ -41,6 +40,8 @@ import org.apache.daffodil.infoset.InfosetNoSuchChildElementException
 import org.apache.daffodil.infoset.InfosetNodeNotFinalException
 import org.apache.daffodil.infoset.OutputValueCalcEvaluationException
 import org.apache.daffodil.infoset.InfosetSelfReferencingException
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.processors.CompileState
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.ParseOrUnparseState

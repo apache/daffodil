@@ -26,6 +26,7 @@ package org.apache.daffodil.japi.packageprivate
 
 import org.apache.daffodil.japi._
 import org.apache.daffodil.japi.debugger._
+import org.apache.daffodil.lib.api.{ ValidationMode => SValidationMode }
 import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
 

@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.lib.api
 
+import org.apache.daffodil.lib.api.WarnID.EncodingErrorPolicyError
+import org.apache.daffodil.lib.api.WarnID.FacetExplicitLengthOutOfRange
 import org.junit.Test
 import org.apache.daffodil.util.Misc
 import org.junit.Assert.assertEquals

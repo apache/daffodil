@@ -17,8 +17,12 @@
 
 package org.apache.daffodil.processors
 
-import scala.xml.NamespaceBinding
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DFDL.DaffodilUnhandledSAXException
+import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.api.DFDL.SAXInfosetEvent
 
+import scala.xml.NamespaceBinding
 import javax.xml.XMLConstants
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.IllegalContentWhereEventExpected

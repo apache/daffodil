@@ -25,11 +25,7 @@ import org.apache.daffodil.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.schema.annotation.props
-import org.apache.daffodil.lib.schema.annotation.props.Found
-import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
-import org.apache.daffodil.lib.schema.annotation.props.NotFound
-import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicyMixin
+
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.

@@ -21,6 +21,10 @@ import org.apache.daffodil.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.LocationInSchemaFile
+import org.apache.daffodil.lib.api.ThinDiagnostic
 import org.apache.daffodil.processors.ParseOrUnparseState
 import org.apache.daffodil.processors.ProcessingError
 import org.apache.daffodil.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException

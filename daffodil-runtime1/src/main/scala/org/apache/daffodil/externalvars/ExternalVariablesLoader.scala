@@ -26,6 +26,7 @@ import org.apache.daffodil.processors.VariableUtils
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Misc._
 import org.apache.daffodil.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.xml.DaffodilXMLLoader
 import org.apache.daffodil.xml.XMLUtils
 

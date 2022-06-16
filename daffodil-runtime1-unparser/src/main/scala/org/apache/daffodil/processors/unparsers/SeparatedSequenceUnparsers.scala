@@ -24,6 +24,10 @@ import org.apache.daffodil.processors.ModelGroupRuntimeData
 import scala.collection.mutable.Buffer
 import SeparatorPosition._
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy.AnyEmpty
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy.Never
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy.TrailingEmpty
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy.TrailingEmptyStrict
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
 

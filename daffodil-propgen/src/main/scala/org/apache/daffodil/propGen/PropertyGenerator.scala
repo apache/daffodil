@@ -668,7 +668,7 @@ object PropertyGenerator {
 //
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-import org.apache.daffodil.schema.annotation.props._
+import org.apache.daffodil.lib.schema.annotation.props._
 import org.apache.daffodil.exceptions.ThrowsSDE
 
 """

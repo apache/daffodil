@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.processors
 
+import org.apache.daffodil.api.DFDL
+
 import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Path

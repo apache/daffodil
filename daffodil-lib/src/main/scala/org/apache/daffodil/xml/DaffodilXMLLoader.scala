@@ -34,22 +34,18 @@ import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
-
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.xml.InputSource
 import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
-
 import org.apache.xerces.jaxp.validation.XMLSchemaFactory
 import org.apache.xerces.xni.parser.XMLInputSource
-
 import org.apache.xml.resolver.Catalog
 import org.apache.xml.resolver.CatalogManager
-
 import org.w3c.dom.ls.LSInput
-
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.validation.XercesValidator

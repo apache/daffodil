@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.tdml
 
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Misc
 

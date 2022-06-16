@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.processors.parsers
 
+import org.apache.daffodil.api.DFDL
+
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
@@ -63,6 +65,8 @@ import org.apache.daffodil.infoset.DISimpleState
 import org.apache.daffodil.exceptions.Abort
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
 
 object MPState {
 

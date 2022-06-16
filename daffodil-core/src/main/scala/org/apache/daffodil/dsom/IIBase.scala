@@ -23,13 +23,14 @@ import scala.xml.Node
 import scala.collection.immutable.ListMap
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.dsom.IIUtils._
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.URISchemaSource
 
 import java.io.File
 import java.net.URI
 import org.apache.daffodil.util.Delay
 
 import java.net.URLEncoder
-
 import java.net.URISyntaxException
 import org.apache.daffodil.lib.api.WarnID
 

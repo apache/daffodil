@@ -18,15 +18,14 @@
 package org.apache.daffodil.dsom
 
 import java.nio.channels.Channels
-
 import scala.xml.Node
-
 import org.apache.daffodil.Implicits._
 import org.apache.daffodil.Implicits.ns2String
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.processors.ExternalVariableException
 import org.apache.daffodil.processors.VariableMap
 import org.apache.daffodil.util.Misc

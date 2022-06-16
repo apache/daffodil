@@ -18,9 +18,13 @@
 package org.apache.daffodil.tdml.processor
 
 import java.io.ByteArrayInputStream
-
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.runtime2.ParseResult
 import org.apache.daffodil.runtime2.Runtime2DataProcessor
 import org.apache.daffodil.runtime2.UnparseResult

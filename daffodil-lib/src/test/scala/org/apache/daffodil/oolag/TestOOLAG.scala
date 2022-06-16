@@ -23,6 +23,7 @@ import org.junit.Test
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.Abort
 import org.apache.daffodil.Implicits._
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe._
 

@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.processors.unparsers
 
+import org.apache.daffodil.api.DFDL
+
 import java.io.ByteArrayOutputStream
 import java.nio.CharBuffer
 import java.nio.LongBuffer
@@ -35,6 +37,8 @@ import org.apache.daffodil.infoset.InfosetAccessor
 import org.apache.daffodil.infoset.InfosetInputter
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.StringDataInputStreamForUnparse
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.processors.DataLoc
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.DelimiterStackUnparseNode

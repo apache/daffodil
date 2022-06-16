@@ -20,6 +20,8 @@ package org.apache.daffodil.xml
 import org.junit.Assert._
 import org.junit.Test
 import org.apache.daffodil.Implicits._
+import org.apache.daffodil.lib.api.URISchemaSource
+
 import java.io.File
 
 class TestXMLLoaderWithLocation {

@@ -17,10 +17,12 @@
 
 package org.apache.daffodil.runtime1
 
+import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.grammar.VariableMapFactory
+import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.SchemaSetRuntimeData

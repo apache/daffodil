@@ -51,8 +51,16 @@ import org.apache.logging.log4j.core.config.Configurator
 import org.apache.commons.io.IOUtils
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.daffodil.Main.ExitCode
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.api.DFDL.ParseResult
+import org.apache.daffodil.api.DFDL.UnparseResult
+import org.apache.daffodil.lib.api.DaffodilConfig
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.compiler.InvalidParserException
 import org.apache.daffodil.debugger.CLIDebuggerRunner

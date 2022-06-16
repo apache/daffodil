@@ -28,6 +28,13 @@ import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 import scala.collection.immutable.Queue
 import org.apache.daffodil.Implicits._
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.lib.api.ValidationException
+import org.apache.daffodil.lib.api.ValidationFailure
+import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.api.ValidationResult
+import org.apache.daffodil.lib.api.Validator
+import org.apache.daffodil.lib.api.WithDiagnostics
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.lib.api.DaffodilTunables

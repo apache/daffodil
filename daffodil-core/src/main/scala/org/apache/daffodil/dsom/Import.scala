@@ -18,11 +18,11 @@
 package org.apache.daffodil.dsom
 
 import java.net.URI
-
 import scala.xml.Node
-
 import org.apache.daffodil.dsom.IIUtils._
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.xml._
 

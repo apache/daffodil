@@ -39,6 +39,8 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.ThinDiagnostic
 import org.apache.daffodil.processors.Evaluatable
 import passera.unsigned.ULong
 import org.apache.daffodil.processors.SequenceRuntimeData

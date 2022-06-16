@@ -34,6 +34,9 @@ import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.SchemaSetGrammarMixin
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.util.TransitiveClosure
 

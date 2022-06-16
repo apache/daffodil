@@ -18,6 +18,7 @@ package org.apache.daffodil.processors.parsers
 
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ElementRuntimeData

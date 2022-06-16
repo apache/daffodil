@@ -22,10 +22,7 @@ import scala.xml.Utility
 import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
 import org.apache.daffodil.dpath._
 import org.apache.daffodil.lib.schema.annotation.props
-import org.apache.daffodil.lib.schema.annotation.props
-import org.apache.daffodil.lib.schema.annotation.props
 import org.apache.daffodil.lib.schema.annotation.props.Found
-import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeKind
 import org.apache.daffodil.processors.EscapeSchemeParseEv

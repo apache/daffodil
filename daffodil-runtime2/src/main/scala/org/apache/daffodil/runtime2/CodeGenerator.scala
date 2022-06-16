@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.runtime2
 
+import org.apache.daffodil.api.DFDL
+
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.Files
@@ -25,6 +27,7 @@ import java.util.Collections
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.dsom.Root
 import org.apache.daffodil.dsom.SchemaDefinitionError
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 import org.apache.daffodil.util.Misc
 

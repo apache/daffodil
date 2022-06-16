@@ -20,10 +20,9 @@ package org.apache.daffodil.processor
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-
 import scala.xml.SAXParseException
-
 import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.ParseResult
 import org.apache.daffodil.xml.XMLUtils

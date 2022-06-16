@@ -27,6 +27,9 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import scala.xml.Node
 import org.apache.commons.io.IOUtils
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DFDL.DaffodilUnhandledSAXException
+import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.debugger.Debugger
 import org.apache.daffodil.debugger.InteractiveDebugger
@@ -36,6 +39,11 @@ import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.UnparseResult

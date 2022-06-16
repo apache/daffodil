@@ -20,6 +20,8 @@ package org.apache.daffodil.oolag
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThinException
 import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.Misc

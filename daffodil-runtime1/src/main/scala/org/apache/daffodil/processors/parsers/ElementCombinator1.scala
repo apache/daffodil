@@ -21,6 +21,8 @@ import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
 import org.apache.daffodil.dpath.DFDLCheckConstraintsFunction
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset._
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.processors.ElementRuntimeData
 import org.apache.daffodil.processors.Processor
 import org.apache.daffodil.processors.Success

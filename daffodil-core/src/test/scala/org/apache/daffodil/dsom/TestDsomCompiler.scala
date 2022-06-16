@@ -22,6 +22,7 @@ import scala.xml.Utility
 import scala.xml.XML
 import org.apache.daffodil.compiler._
 import org.apache.daffodil.Implicits._
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
 import org.apache.daffodil.lib.schema.annotation.props.Found; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits

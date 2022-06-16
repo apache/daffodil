@@ -21,6 +21,12 @@ import java.net.URI
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValueFactory
+import org.apache.daffodil.lib.api.ValidationException
+import org.apache.daffodil.lib.api.ValidationFailure
+import org.apache.daffodil.lib.api.ValidationResult
+import org.apache.daffodil.lib.api.ValidationWarning
+import org.apache.daffodil.lib.api.Validator
+import org.apache.daffodil.lib.api.ValidatorFactory
 
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource

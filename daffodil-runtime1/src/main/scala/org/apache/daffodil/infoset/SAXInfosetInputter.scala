@@ -17,9 +17,13 @@
 
 package org.apache.daffodil.infoset
 
+import org.apache.daffodil.api.DFDL
+import org.apache.daffodil.api.DFDL.DaffodilUnhandledSAXException
+import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.api.DFDL.SAXInfosetEvent
+
 import java.net.URI
 import java.net.URISyntaxException
-
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.InfosetInputterEventType.EndDocument

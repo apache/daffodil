@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.validation.schematron
 
+import org.apache.daffodil.lib.api.ValidatorInitializationException
+
 import javax.xml.transform.Source
 import javax.xml.transform.URIResolver
 import javax.xml.transform.stream.StreamSource

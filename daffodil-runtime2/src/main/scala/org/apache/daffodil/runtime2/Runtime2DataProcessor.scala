@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.runtime2
 
+import org.apache.daffodil.api.DFDL
+
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -24,6 +26,10 @@ import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.dsom.ValidationError
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.api.ValidationResult
+import org.apache.daffodil.lib.api.ValidationWarning
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.ProcessorResult
 import org.apache.daffodil.processors.Success

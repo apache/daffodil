@@ -44,6 +44,13 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.api.DaffodilConfig
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.EmbeddedSchemaSource
+import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.api.UnitTestSchemaSource
+import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.processors.HasSetDebugger
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder

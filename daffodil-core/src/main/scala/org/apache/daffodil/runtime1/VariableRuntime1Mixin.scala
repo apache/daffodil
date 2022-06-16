@@ -24,7 +24,6 @@ import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.VariableReference
 import org.apache.daffodil.lib.schema.annotation.props
 import org.apache.daffodil.lib.schema.annotation.props
-import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.util.Delay
 import org.apache.daffodil.util.Maybe

@@ -28,6 +28,8 @@ import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.io.BacktrackingException
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.Evaluatable
 import org.apache.daffodil.processors.CombinatorProcessor

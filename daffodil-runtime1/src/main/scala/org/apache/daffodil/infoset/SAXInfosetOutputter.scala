@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.infoset
 
-import scala.xml.NamespaceBinding
+import org.apache.daffodil.api.DFDL
 
+import scala.xml.NamespaceBinding
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.xml.XMLUtils
 import org.xml.sax.ContentHandler

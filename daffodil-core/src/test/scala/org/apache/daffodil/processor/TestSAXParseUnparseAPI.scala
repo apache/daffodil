@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.processor
 
+import org.apache.daffodil.api.DFDL
+
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import org.apache.daffodil.dpath.NodeInfo

@@ -19,7 +19,6 @@ package org.apache.daffodil.processors
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Map
-
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
@@ -28,6 +27,7 @@ import org.apache.daffodil.infoset.DataValue
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.infoset.RetryableException
+import org.apache.daffodil.lib.api.ThinDiagnostic
 import org.apache.daffodil.processors.parsers.PState
 import org.apache.daffodil.processors.unparsers.UState
 import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
