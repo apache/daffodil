@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
+
 export BUILD_DIR=`pwd`
 export WINEDEBUG=-all
 
@@ -31,8 +33,9 @@ repo_gpgcheck=0
 enabled=1
 EOF
 
-# install dependencies
-microdnf -y install \
+# install dependencies, explicitly not enabling the updates repo so we are
+# frozen at a particular fedora release
+microdnf -y --disablerepo="*" --enablerepo=fedora --enablerepo=sbt-rpm install \
   clang \
   git \
   java-1.8.0-devel \
@@ -49,8 +52,12 @@ microdnf -y install \
   wine \
   winetricks
 
+# remove left over cache files--this saves space and avoids certain warnings
+microdnf clean all
+
 # install wix
 curl -L https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip -o wix311-binaries.zip
+echo "6fd961c85e1e6adafb99ef50c9659e3eb83c84ecaf49f523e556788845b206e1857aba2c39409405d4cda1df9b30a552ce5aab808be5f8368a37a447d78d1a05 wix311-binaries.zip" | sha512sum -c -
 mkdir /opt/wix311
 unzip wix311-binaries.zip -d /opt/wix311/
 rm wix311-binaries.zip

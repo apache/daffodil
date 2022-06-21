@@ -117,21 +117,37 @@ export LANG=en_US.UTF-8
 export CC=clang
 export AR=llvm-ar
 
-
-read -p "Pre Release label (e.g. rc1): " PRE_RELEASE
-
-echo
-echo "Available Signing Key IDs:"
+AVAILABLE_KEYS=()
 SHORT_SEC_KEY_IDS=`gpg --list-secret-keys --with-colons | grep '^sec'  | cut -d: -f 5`
 for SHORT_SEC_KEY_ID in $SHORT_SEC_KEY_IDS
 do
     LONG_SEC_KEY_ID=`gpg --list-secret-keys --with-colons $SHORT_SEC_KEY_ID | grep -m 1 '^fpr' | cut -d: -f10`
     SEC_KEY_UID=`gpg --list-secret-keys --with-colons $LONG_SEC_KEY_ID | grep '^uid' | cut -d: -f10`
-    echo "  $LONG_SEC_KEY_ID [$SEC_KEY_UID]"
+    AVAILABLE_KEYS+=("$LONG_SEC_KEY_ID [$SEC_KEY_UID]")
 done
-echo
 
-read -p "Signing Key ID (long format): " PGP_SIGNING_KEY_ID
+if [ ${#AVAILABLE_KEYS[@]} -eq 0 ]
+then
+    echo -e "\n!!! No secret keys found !!!\n"
+    echo -e "\n!!! Ensure you have created a bind mount of your gpg directory, for example with -v ~/.gnupg/:/root/.gnupg/ !!!\n"
+    exit
+fi
+
+echo
+echo "Which code signing key:"
+select PGP_KEY_SELECTION in "${AVAILABLE_KEYS[@]}"
+do
+    if [ -z "$PGP_KEY_SELECTION" ]
+    then
+        echo -e "\n!!! Bad key selection !!!\n"
+        exit
+    fi
+    PGP_SIGNING_KEY_ID=$(echo $PGP_KEY_SELECTION | cut -d" " -f 1)
+    break
+done
+
+echo
+read -p "Pre Release label (e.g. rc1): " PRE_RELEASE
 read -p "Git Commit Name: " GIT_COMMIT_NAME
 read -p "Git Commit Email: " GIT_COMMIT_EMAIL
 read -p "Apache Username: " APACHE_USERNAME
@@ -281,6 +297,7 @@ case $PROJECT_REPO in
 
     echo "Building Convenience Binaries..."
     mkdir -p $DAFFODIL_RELEASE_DIR/bin/
+    yarn install
     yarn build
     cp *.vsix $DAFFODIL_RELEASE_DIR/bin/
 
