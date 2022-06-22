@@ -1142,6 +1142,12 @@ case class Up2(s: String, predArg: Option[PredicateExpression])
 
 }
 
+/**
+ * Exception that could be thrown by a NamedStep if it is determined that there is not
+ * enough context to evaluate the step.
+ */
+class PathExpressionNoContextError extends ThinException
+
 case class NamedStep(s: String, predArg: Option[PredicateExpression])
   extends DownStepExpression(s, predArg) {
 
@@ -1228,6 +1234,16 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
           val nc = compileInfo.elementCompileInfos.map {
             _.findNamedChild(stepQName, this) // will SDE on not found.
           }
+
+          // If the Seq of named children is empty, that means the elementCompileInfos Seq
+          // must have been empty. This only happens when the context of this path
+          // expression is unknown. An example of this is a path expression in a global
+          // group where the group is never referenced. Because it is not referenced we
+          // have no element context, and so cannot evaluate the path for correctness. In
+          // cases like this, we throw an exception that is caught elsewere to handle this
+          // issue
+          if (nc.isEmpty) throw new PathExpressionNoContextError()
+
           nc
         }
       } else {

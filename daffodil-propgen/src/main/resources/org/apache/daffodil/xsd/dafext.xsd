@@ -629,6 +629,7 @@
           <xs:enumeration value="emptyElementParsePolicyError" />
           <xs:enumeration value="encodingErrorPolicyError" />
           <xs:enumeration value="escapeSchemeRefUndefined" />
+          <xs:enumeration value="expressionCompilationSkipped" />
           <xs:enumeration value="facetExplicitLengthOutOfRange" />
           <xs:enumeration value="floatingError" />
           <xs:enumeration value="ignoreImport" />
