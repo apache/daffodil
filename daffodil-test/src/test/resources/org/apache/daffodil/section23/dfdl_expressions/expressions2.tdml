@@ -260,5 +260,22 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="unused_path_no_context_01" model="expressions_unused_path_no_context.dfdl.xsd"
+    description="Section 06 - DFDL Expressions - DFDL-6-083R" root="e1">
+    <tdml:document>
+      <tdml:documentPart type="text">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>1</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Expression compilation skipped</tdml:warning>
+      <tdml:warning>value1</tdml:warning>
+      <tdml:warning>value2</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
  
 </tdml:testSuite>

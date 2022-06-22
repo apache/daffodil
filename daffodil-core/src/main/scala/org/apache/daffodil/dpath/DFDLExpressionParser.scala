@@ -24,6 +24,7 @@ import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.CharSequenceReader
 import scala.xml.NamespaceBinding
 
+import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.dsom.ConstantExpression
 import org.apache.daffodil.dsom.DPathCompileInfo
@@ -57,7 +58,14 @@ class DFDLPathExpressionParser[T <: AnyRef](
   def compile(expr: String): CompiledExpression[T] = {
     val tree = getExpressionTree(expr)
 
-    val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
+    val recipe = try {
+      tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
+    } catch {
+      case e: PathExpressionNoContextError => {
+        host.SDW(WarnID.ExpressionCompilationSkipped, s"Expression compilation skipped due to path expression in unreferenced group or complex type: $expr")
+        new CompiledDPath(RuntimeAbortOp(expr))
+      }
+    }
 
     val value = recipe.runExpressionForConstant(context.schemaFileLocation, context, host.tunable)
     val res: CompiledExpression[T] = value.getOptionAnyRef match {

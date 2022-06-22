@@ -1036,4 +1036,6 @@ class TestDFDLExpressions {
 
   @Test def test_DoubleFromRawLong(): Unit = { runner2.runOneTest("DoubleFromRawLong") }
   @Test def test_DoubleToRawLong(): Unit = { runner2.runOneTest("DoubleToRawLong") }
+
+  @Test def test_unused_path_no_context_01(): Unit = { runner7.runOneTest("unused_path_no_context_01") }
 }

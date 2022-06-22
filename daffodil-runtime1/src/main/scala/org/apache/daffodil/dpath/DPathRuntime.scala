@@ -311,3 +311,28 @@ abstract class Converter extends RecipeOp {
 trait ToString extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueString = a.getAnyRef.toString
 }
+
+
+/**
+ * In some cases, expressions that are never used lack context and so cannot be compiled.
+ * An example of this is when a schema has an unused global complex type or group
+ * definition with an expression and compileAllTopLevel is enabled. Compiling such
+ * expressions requires knowledge about where the complex type or group is used. But if
+ * they are never used then we don't have that context and can't correctly compile the
+ * expression.
+ *
+ * Fortunately, because the global complex types/group is never used it it safe to ignore
+ * the expression. Unfortunately, parts of Daffodil code still require a valid
+ * CompiledExpression. In these cases, we can use this RuntimeAbort recipe as the recipe
+ * of the the CompiledExpression. This recipe throws an IllegalStateException during
+ * constant folding so that the expression is treated as non-constant and makes the rest
+ * of Daffodil happy, but throws an invariant if it is ever evaluated at runtime.
+ */
+case class RuntimeAbortOp(expr: String) extends RecipeOp {
+  override def run(dstate: DState): Unit = {
+    dstate match {
+      case _: DStateForConstantFolding => throw new java.lang.IllegalStateException
+      case _ => Assert.invariantFailed(s"Expression should not have been evaluated during runtime: $expr")
+    }
+  }
+}
