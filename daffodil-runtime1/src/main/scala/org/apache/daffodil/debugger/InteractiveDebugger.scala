@@ -1595,7 +1595,22 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
         val desc = "display the current Daffodil " + name
         val longDesc = desc
         def act(args: Seq[String], state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-          debugPrintln("%s: %s".format(name, processor.toBriefXML(2))) // only 2 levels of output, please!
+          state match {
+            case pstate: PState => {
+              if (name == "parser") {
+                debugPrintln("%s: %s".format(name, processor.toBriefXML(2)))
+              } else {
+                debugPrintln("unparser: not available")
+              }
+            }
+            case ustate: UState => {
+              if (name == "unparser") {
+                debugPrintln("%s: %s".format(name, processor.toBriefXML(2)))
+              } else {
+                debugPrintln("parser: not available")
+              }
+            }
+          }
           DebugState.Pause
         }
       }

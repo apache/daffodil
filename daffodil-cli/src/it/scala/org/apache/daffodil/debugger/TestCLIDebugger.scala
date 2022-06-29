@@ -1440,5 +1440,56 @@ class TestCLIdebugger {
     }
   }
 
+  @Test def test_CLI_Debugger_parse_unparser_not_available(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input3.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("info parser")
+      shell.expect(contains("parser: <Element name='matrix'><DelimiterStackParser>...</DelimiterStackParser></Element>"))
+
+      shell.sendLine("info unparser")
+      shell.expect(contains("unparser: not available"))
+
+      shell.sendLine("continue")
+
+      Util.expectExitCode(ExitCode.Success, shell)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_unparse_parser_not_available(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt.xml")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d unparse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("info unparser")
+      shell.expect(contains("unparser: <ConvertTextNumberUnparser/>"))
+
+      shell.sendLine("info parser")
+      shell.expect(contains("parser: not available"))
+
+      shell.sendLine("continue")
+
+      Util.expectExitCode(ExitCode.Success, shell)
+    } finally {
+      shell.close()
+    }
+  }
 
 }
