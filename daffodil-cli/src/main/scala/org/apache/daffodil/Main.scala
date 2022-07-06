@@ -297,7 +297,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
     val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
     val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', 'exi', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
     val output = opt[String](argName = "file", descr = "Output file to write infoset to. If not given or is -, infoset is written to stdout.")
     val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](argName = "path", descr = "Path from root element to node from which to start parsing", hidden = true)
@@ -341,7 +341,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
     val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
     val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', 'exi', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
     val output = opt[String](argName = "file", descr = "Output file to write data to. If not given or is -, data is written to stdout.")
     val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](argName = "path", descr = "Path from root element to node from which to start unparsing", hidden = true)
@@ -424,7 +424,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
 
     val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
     val vars = props[String](name = 'D', keyName = "variable", valueName = "value", descr = "Variables to be used when parsing. Can be prefixed with {namespace}.")
-    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output or unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
+    val infosetType = opt[InfosetType.Type](short = 'I', argName = "infoset_type", descr = "Infoset type to output or unparse. Use 'xml', 'scala-xml', 'json', 'jdom', 'w3cdom', 'sax', 'exi', or 'null'. Defaults to 'xml'.", default = Some(InfosetType.XML))
     val number = opt[Int](short = 'N', argName = "number", default = Some(1), descr = "Total number of files to process. Defaults to 1.")
     val parser = opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](argName = "path", descr = "Path from root element to node from which to start parsing or unparsing", hidden = true)
@@ -673,7 +673,7 @@ object Main {
       case InfosetType.JDOM => Left(new JDOMInfosetOutputter())
       case InfosetType.W3CDOM => Left(new W3CDOMInfosetOutputter())
       case InfosetType.SAX => Right(new DaffodilParseOutputStreamContentHandler(os, pretty = true))
-      case InfosetType.EXI => Left(new EXIInfosetOutputter())
+      case InfosetType.EXI => Left(new EXIInfosetOutputter(os, pretty = true))
       case InfosetType.NULL => Left(new NullInfosetOutputter())
     }
     if (outputter.isLeft) {
@@ -713,7 +713,7 @@ object Main {
    */
   def infosetDataToInputterData(infosetType: InfosetType.Type, data: Either[Array[Byte],InputStream]): AnyRef = {
     infosetType match {
-      case InfosetType.XML | InfosetType.JSON | InfosetType.SAX => data match {
+      case InfosetType.XML | InfosetType.JSON | InfosetType.SAX | InfosetType.EXI => data match {
         case Left(bytes) => bytes
         case Right(is) => is
       }
@@ -918,9 +918,6 @@ object Main {
                     val result = new StreamResult(output)
                     val source = new DOMSource(w3cdom.getResult)
                     transformer.transform(source, result)
-                  }
-                  case Left(exi: EXIInfosetOutputter) => {
-                    throw new Exception("Implement EXIInfosetOutputter")
                   }
                   case _ => // do nothing
                 }

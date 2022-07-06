@@ -28,15 +28,15 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.BufferedOutputStream
 import javax.xml.transform.stream.StreamResult
-import org.apache.daffodil.util.MaybeBoolean
+import org.apache.daffodil.util.{ MaybeBoolean, Misc }
 import org.apache.daffodil.dpath.NodeInfo
 
 object EXIInfosetInputter {
-  def ConvertEXIToXMLWithExificient(input: java.io.InputStream): java.io.InputStream = {
-    val xsdLocation = "daffodil-lib/src/main/resources/org/apache/daffodil/xsd/XMLSchema.xsd"
+  def ConvertEXIToXML(input: java.io.InputStream): java.io.InputStream = {
+    val xsdLocation = Misc.getRequiredResource("org/apache/daffodil/xsd/XMLSchema.xsd")
     lazy val exiFactory = DefaultEXIFactory.newInstance()
     val grammarFactory = GrammarFactory.newInstance()
-    val g = grammarFactory.createGrammars(xsdLocation)
+    val g = grammarFactory.createGrammars(xsdLocation.toString)
     exiFactory.setGrammars(g)
     exiFactory.getFidelityOptions().setFidelity(FidelityOptions.FEATURE_PREFIX, true)
     val saxSource = new EXISource(exiFactory)
@@ -85,7 +85,7 @@ class EXIInfosetInputter (input: java.io.InputStream) extends InfosetInputter{
 
   lazy val xmlInputter = new XMLTextInfosetInputter(xmlInputStream)
 
-  lazy val xmlInputStream = EXIInfosetInputter.ConvertEXIToXMLWithExificient(input)
+  lazy val xmlInputStream = EXIInfosetInputter.ConvertEXIToXML(input)
 
   override val supportsNamespaces = true
 

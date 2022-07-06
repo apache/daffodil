@@ -232,14 +232,6 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false)
   def getResult(): scala.xml.Node = infosetOutputter.getResult()
 }
 
-class EXIInfosetOutputter(showFormatInfo: Boolean = false)
-  extends InfosetOutputterProxy {
-
-  override val infosetOutputter = new SEXIInfosetOutputter(showFormatInfo)
-
-  def getResult(): scala.xml.Node = infosetOutputter.getResult()
-}
-
 /**
  * [[InfosetOutputter]] to build an infoset represented as XML written to a java.io.OutputStream
  */
@@ -317,6 +309,26 @@ class JsonInfosetOutputter private (outputter: SJsonInfosetOutputter)
 }
 
 /**
+ * [[InfosetOutputter]] to build an infoset represented as EXI written to a java.io.OutputStream
+ */
+class EXIInfosetOutputter private (outputter: SEXIInfosetOutputter)
+  extends InfosetOutputterProxy {
+
+  /**
+   * Output the infoset as EXI text, written to a java.io.OutputStream
+   *
+   * @param os the java.io.OutputStream to write the json text to
+   * @param pretty enable or disable pretty printing. Pretty printing will only
+   *               insert indentation and newlines where it will not affect the
+   *               content of the json.
+   */
+  def this(os: java.io.OutputStream, pretty: Boolean) = this(new SEXIInfosetOutputter(os, pretty))
+
+  override val infosetOutputter = outputter
+}
+
+
+/**
  * [[InfosetOutputter]] to build an infoset represented as an org.jdom2.Document
  */
 class JDOMInfosetOutputter()
@@ -370,12 +382,6 @@ class ScalaXMLInfosetInputter(node: scala.xml.Node)
   override val infosetInputter = new SScalaXMLInfosetInputter(node)
 }
 
-class EXIInfosetInputter(node: scala.xml.Node)
-  extends InfosetInputterProxy {
-
-  override val infosetInputter = new SEXIInfosetInputter(node)
-}
-
 /**
  * [[InfosetInputter]] to read an infoset represented as XML from a java.io.InputStream
  */
@@ -420,6 +426,22 @@ class JsonInfosetInputter private (inputter: SJsonInfosetInputter)
    * @param is the java.io.InputStream to read the json text from
    */
   def this(is: java.io.InputStream) = this(new SJsonInfosetInputter(is))
+
+  override val infosetInputter = inputter
+}
+
+/**
+ * [[InfosetInputter]] to read an infoset represented as EXI from a java.io.InputStream
+ */
+class EXIInfosetInputter private (inputter: SEXIInfosetInputter)
+  extends InfosetInputterProxy {
+
+  /**
+   * Read in an infoset in the form of EXI text from a java.io.InputStream
+   *
+   * @param is the java.io.InputStream to read the EXI text from
+   */
+  def this(is: java.io.InputStream) = this(new SEXIInfosetInputter(is))
 
   override val infosetInputter = inputter
 }

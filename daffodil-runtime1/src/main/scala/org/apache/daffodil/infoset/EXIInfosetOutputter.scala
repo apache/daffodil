@@ -17,25 +17,26 @@
 
 package org.apache.daffodil.infoset
 
-import org.apache.daffodil.util.Indentable
+import org.apache.daffodil.util.{ Indentable, Misc }
 import org.apache.daffodil.dpath.NodeInfo
 import com.siemens.ct.exi.core.helpers.DefaultEXIFactory
 import com.siemens.ct.exi.main.api.sax.EXIResult
 import com.siemens.ct.exi.grammars.GrammarFactory
 import com.siemens.ct.exi.core.FidelityOptions
 import org.xml.sax.helpers.XMLReaderFactory
+import org.xml.sax.InputSource
 
 /**
  * Writes the infoset to a java.io.Writer as XML text.
  *
- * @param writer The writer to write the XML text to
+ * @param os The OutputStream to write the XML text to
  * @param pretty Whether or to enable pretty printing. Set to true, XML
  *               elements are indented and newlines are inserted.
  */
-class EXIInfosetOutputter (writer: java.io.FileOutputStream, pretty: Boolean)
+class EXIInfosetOutputter (os: java.io.OutputStream, pretty: Boolean)
   extends InfosetOutputter with Indentable with XMLInfosetOutputter {
 
-  def this(os: java.io.FileOutputStream) = {
+  def this(os: java.io.OutputStream) = {
     this(os, false)
   }
 
@@ -172,17 +173,18 @@ class EXIInfosetOutputter (writer: java.io.FileOutputStream, pretty: Boolean)
     sw.write(System.lineSeparator())
     sw.flush()
 
-    val xsdLocation = "daffodil-lib/src/main/resources/org/apache/daffodil/xsd/XMLSchema.xsd"
+    val xsdLocation = Misc.getRequiredResource("org/apache/daffodil/xsd/XMLSchema.xsd")
     lazy val exiFactory = DefaultEXIFactory.newInstance()
 		val grammarFactory = GrammarFactory.newInstance()
-		val g = grammarFactory.createGrammars(xsdLocation)
+		val g = grammarFactory.createGrammars(xsdLocation.toString)
 		exiFactory.setGrammars(g);
     exiFactory.getFidelityOptions().setFidelity(FidelityOptions.FEATURE_PREFIX,true)
     val exiResult = new EXIResult(exiFactory)
-    exiResult.setOutputStream(writer)
+    exiResult.setOutputStream(os)
     val xmlReader = XMLReaderFactory.createXMLReader()
     xmlReader.setContentHandler( exiResult.getHandler() )
-    xmlReader.parse(sw.toString) // parse XML input
+    val is = new InputSource(new java.io.StringReader(sw.toString))
+    xmlReader.parse(is) // parse XML input
     true
   }
 }
