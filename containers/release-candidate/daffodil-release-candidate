@@ -297,8 +297,7 @@ case $PROJECT_REPO in
 
     echo "Building Convenience Binaries..."
     mkdir -p $DAFFODIL_RELEASE_DIR/bin/
-    yarn install
-    yarn build
+    yarn package
     cp *.vsix $DAFFODIL_RELEASE_DIR/bin/
 
     ;;
