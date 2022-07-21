@@ -27,6 +27,10 @@
 # failed.
 export WINEDEBUG=-all
 
+# Create initial wine config, redirecting stderr to stdout. The command outputs
+# debug message to stderr, which SBT makes look like an actual error.
+winecfg 2>&1
+
 # The sbt native-packager plugin executes the $WIX/{candle,light}.exe
 # executables to build the Daffodil MSI. The problem is that those are Windows
 # executables and so can't be directly executed in the Linux container. To get
@@ -59,9 +63,9 @@ do
 	((++i))
 done
 
-# Tell bash to output the command we are about to execute, helpful for
-# debugging when something goes wrong with wine
-set -x
+# Uncomment to tell bash to output the wine command we are about to execute,
+# helpful for debugging when something goes wrong with wine
+# set -x
 
 # Execute wine with the real WiX command and modified arguments
 wine $WIX/$REAL_CMD "${NEWARGS[@]}"

@@ -339,10 +339,13 @@ echo
 echo "Things to verify: "
 echo
 echo "- Files in $DAFFODIL_DIST_DIR"
-echo "- Files in $DAFFODIL_DOCS_DIR"
-echo "- Files in $DAFFODIL_TUTORIALS_DIR"
 echo "- Git tag created in $DAFFODIL_CODE_DIR for $PROJECT_REPO v$VERSION-$PRE_RELEASE"
-echo "- Staged published files at https://repository.apache.org/"
+if [ "$PROJECT_REPO" = "daffodil" ]
+then
+  echo "- Files in $DAFFODIL_DOCS_DIR"
+  echo "- Files in $DAFFODIL_TUTORIALS_DIR"
+  echo "- Staged published files at https://repository.apache.org/"
+fi
 echo
 
 if [ "$DRY_RUN" = true ]; then
