@@ -56,7 +56,7 @@ object Dependencies {
   )
 
   lazy val schematron = Seq(
-    "net.sf.saxon" % "Saxon-HE" % "11.3",
+    "net.sf.saxon" % "Saxon-HE" % "11.4",
   )
 
   lazy val exi = Seq(
