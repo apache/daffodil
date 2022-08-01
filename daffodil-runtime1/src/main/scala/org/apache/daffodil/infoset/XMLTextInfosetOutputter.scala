@@ -31,12 +31,16 @@ import org.apache.daffodil.util.Indentable
  * @param writer The writer to write the XML text to
  * @param pretty Whether or to enable pretty printing. Set to true, XML
  *               elements are indented and newlines are inserted.
+ * @param xmlTextEscapeStyle Determine whether to wrap values of elements of type
+ *        xs:string in CDATA tags in order to preserve whitespace.
  */
-class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
+class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean,
+  xmlTextEscapeStyle: XMLTextEscapeStyle.Value)
   extends InfosetOutputter with Indentable with XMLInfosetOutputter {
 
-  def this(os: java.io.OutputStream, pretty: Boolean) = {
-    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty)
+  def this(os: java.io.OutputStream, pretty: Boolean,
+    xmlTextEscapeStyle: XMLTextEscapeStyle.Value = XMLTextEscapeStyle.Standard) = {
+    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty, xmlTextEscapeStyle)
   }
 
   private val sb = new StringBuilder()
@@ -160,7 +164,21 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
         if (simple.erd.runtimeProperties.get(XMLTextInfoset.stringAsXml) == "true") {
           writeStringAsXml(simpleVal)
         } else {
-          writer.write(scala.xml.Utility.escape(remapped(simpleVal)))
+          val xmlSafe = remapped(simpleVal)
+          val escaped = xmlTextEscapeStyle match {
+            case XMLTextEscapeStyle.CDATA => {
+              val needsCDataEscape = xmlSafe.exists { c =>
+                scala.xml.Utility.Escapes.escMap.contains(c) || c.isWhitespace
+              }
+              if (needsCDataEscape) {
+                "<![CDATA[%s]]>".format(xmlSafe.replaceAll("]]>", "]]]]><![CDATA[>"))
+              } else {
+                xmlSafe
+              }
+            }
+            case XMLTextEscapeStyle.Standard => scala.xml.Utility.escape(xmlSafe)
+          }
+          writer.write(escaped)
         }
       } else {
         writer.write(simple.dataValueAsString)
@@ -170,7 +188,7 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
     outputEndTag(simple)
     inScopeComplexElementHasChildren = true
   }
-  
+
   override def endSimple(simple: DISimple): Unit = {
     // do nothing, everything is done in startSimple
   }

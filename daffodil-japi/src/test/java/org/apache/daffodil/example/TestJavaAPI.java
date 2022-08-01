@@ -53,6 +53,9 @@ import org.xml.sax.XMLReader;
 
 import javax.xml.XMLConstants;
 
+import java.nio.charset.StandardCharsets;
+import org.apache.daffodil.japi.infoset.*;
+
 public class TestJavaAPI {
 
     /**
@@ -262,7 +265,7 @@ public class TestJavaAPI {
 
     /**
      * Verify that we can detect when the parse did not consume all the data.
-     * 
+     *
      * @throws IOException
      */
     @Test
@@ -393,7 +396,7 @@ public class TestJavaAPI {
     /***
      * Verify that the compiler throws a FileNotFound exception when fed a list
      * of schema files that do not exist.
-     * 
+     *
      * @throws IOException
      */
     @Test
@@ -415,7 +418,7 @@ public class TestJavaAPI {
     /**
      * Tests a user submitted case where the XML appears to be serializing odd
      * xml entities into the output.
-     * 
+     *
      * @throws IOException
      */
     @Test
@@ -452,7 +455,7 @@ public class TestJavaAPI {
      * that this test uses double newline as a terminator for the first element
      * in the sequence rather than double newline as a separator for the
      * sequence
-     * 
+     *
      * @throws IOException
      */
     @Test
@@ -931,7 +934,6 @@ public class TestJavaAPI {
         assertEquals("42", unparseBos.toString());
     }
 
-
     @Test
     public void testJavaAPI21() throws IOException, ClassNotFoundException {
         // Test SAX parsing with errors
@@ -1212,5 +1214,82 @@ public class TestJavaAPI {
         assertTrue(DaffodilXMLEntityResolver.getEntityResolver() != null);
         assertTrue(DaffodilXMLEntityResolver.getXMLEntityResolver() != null);
         assertTrue(DaffodilXMLEntityResolver.getLSResourceResolver() != null);
+    }
+
+    @Test
+    public void testJavaAPINullXMLTextEscapeStyle() throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
+        try {
+            XMLTextInfosetOutputter outputter = new XMLTextInfosetOutputter(xmlBos, true, null);
+        } catch (Exception e) {
+            String msg = e.getMessage().toLowerCase();
+            assertTrue(msg.contains("unrecognized"));
+            assertTrue(msg.contains("null"));
+            assertTrue(msg.contains("xmltextescapestyle"));
+        }
+    }
+
+    @Test
+    public void testJavaAPICDATA1() throws IOException, ClassNotFoundException {
+        String expected = "NO_WHITESPACE_OR_SPECIAL_CHARS";
+        String data = "NO_WHITESPACE_OR_SPECIAL_CHARS$";
+        String schemaType = "string";
+        doXMLTextEscapeStyleTest(expected, data, schemaType);
+    }
+
+    @Test
+    public void testJavaAPICDATA2() throws IOException, ClassNotFoundException {
+        String expected = "<![CDATA[   'some' stuff   here &#xE000; and ]]]]><![CDATA[> even]]>";
+        String data = "   'some' stuff   here &#xE000; and ]]> even$";
+        String schemaType = "string";
+        doXMLTextEscapeStyleTest(expected, data, schemaType);
+    }
+
+    @Test
+    public void testJavaAPICDATA3() throws IOException, ClassNotFoundException {
+        String expected = "6.892";
+        String data = "6.892";
+        String schemaType = "float";
+        doXMLTextEscapeStyleTest(expected, data, schemaType);
+    }
+
+    @Test
+    public void testJavaAPICDATA4() throws IOException, ClassNotFoundException {
+        String expected = "<![CDATA[this contains a CRLF\nline ending]]>";
+        String data = "this contains a CRLF\r\nline ending$";
+        String schemaType = "string";
+        doXMLTextEscapeStyleTest(expected, data, schemaType);
+    }
+
+    @Test
+    public void testJavaAPICDATA5() throws IOException, ClassNotFoundException {
+        String expected = "<![CDATA[abcd&gt]]>";
+        String data = "abcd&gt$";
+        String schemaType = "string";
+        doXMLTextEscapeStyleTest(expected, data, schemaType);
+    }
+
+    public void doXMLTextEscapeStyleTest(String expect, String data, String schemaType)
+        throws IOException, ClassNotFoundException {
+
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        java.io.File schemaFile = getResource("/test/japi/mySchemaCDATA.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile, schemaType, null);
+        DataProcessor dp = pf.onPath("/");
+
+        ByteArrayInputStream is = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
+        InputSourceDataInputStream input = new InputSourceDataInputStream(is);
+        ByteArrayOutputStream bosDP = new ByteArrayOutputStream();
+        XMLTextInfosetOutputter outputter = new XMLTextInfosetOutputter(bosDP, true, XMLTextEscapeStyle.CDATA);
+        ParseResult res = dp.parse(input, outputter);
+        boolean err = res.isError();
+
+        String infosetDPString = bosDP.toString();
+        int start = infosetDPString.indexOf(".com\">") + 6;
+        int end = infosetDPString.indexOf("</tns");
+        String value = infosetDPString.substring(start, end);
+
+        assertFalse(err);
+        assertEquals(expect, value);
     }
 }

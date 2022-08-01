@@ -30,6 +30,9 @@ import org.apache.daffodil.api.{ ValidationMode => SValidationMode }
 import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
 
+import org.apache.daffodil.infoset.{ XMLTextEscapeStyle => SXMLTextEscapeStyle }
+import org.apache.daffodil.sapi.infoset._
+
 private[sapi] object ValidationConversions {
 
   def modeToScala(mode: ValidationMode.Value): SValidationMode.Type = {
@@ -50,6 +53,17 @@ private[sapi] object ValidationConversions {
       case SValidationMode.Custom(v) => ValidationMode.Custom(v)
     }
     mode
+  }
+}
+
+private[sapi] object XMLTextEscapeStyleConversions {
+
+  def styleToScala(style: XMLTextEscapeStyle.Value): SXMLTextEscapeStyle.Value = {
+    val sxmlTextEscapeStyle: SXMLTextEscapeStyle.Value = style match {
+      case XMLTextEscapeStyle.Standard => SXMLTextEscapeStyle.Standard
+      case XMLTextEscapeStyle.CDATA => SXMLTextEscapeStyle.CDATA
+    }
+    sxmlTextEscapeStyle
   }
 }
 
