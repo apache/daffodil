@@ -40,6 +40,8 @@ import org.apache.daffodil.infoset.DIComplex
 import org.apache.daffodil.infoset.DIArray
 import org.apache.daffodil.dpath.NodeInfo
 
+import org.apache.daffodil.sapi.packageprivate._
+
 /**
  * Abstract class used to determine how the infoset representation should be
  * input from a call to [[DataProcessor.unparse(input* DataProcessor.unparse]]. This uses a Cursor API, such
@@ -52,7 +54,7 @@ abstract class InfosetInputter extends SInfosetInputter {
   /**
    * Return the current infoset inputter event type
    */
-  def getEventType(): InfosetInputterEventType 
+  def getEventType(): InfosetInputterEventType
 
   /**
    * Get the local name of the current event. This will only be called when the
@@ -216,7 +218,7 @@ abstract class InfosetOutputter extends SInfosetOutputter {
  * classes, we can document these classes and have a small and clean scaladoc.
  */
 
- 
+
 /**
  * [[InfosetOutputter]] to build an infoset represented as a scala.xml.Node
  *
@@ -248,8 +250,15 @@ class XMLTextInfosetOutputter private (outputter: SXMLTextInfosetOutputter)
    * @param pretty enable or disable pretty printing. Pretty printing will only
    *               insert indentation and newlines where it will not affect the
    *               content of the XML.
+   * @param xmlTextEscapeStyle determine whether to wrap values of elements of type
+   *                       xs:string in CDATA tags in order to preserve
+   *                       whitespace.
    */
-  def this(os: java.io.OutputStream, pretty: Boolean) = this(new SXMLTextInfosetOutputter(os, pretty))
+  def this(os: java.io.OutputStream, pretty: Boolean,
+    xmlTextEscapeStyle: XMLTextEscapeStyle.Value = XMLTextEscapeStyle.Standard) = {
+    this(new SXMLTextInfosetOutputter(os, pretty,
+    XMLTextEscapeStyleConversions.styleToScala(xmlTextEscapeStyle)))
+  }
 
   override val infosetOutputter = outputter
 }

@@ -54,6 +54,8 @@ import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.sapi.io.InputSourceDataInputStream
 
+import java.nio.charset.StandardCharsets
+import org.apache.daffodil.sapi.infoset.XMLTextEscapeStyle
 
 object TestScalaAPI {
   /**
@@ -934,7 +936,7 @@ class TestScalaAPI {
 
     val saxUr = unparseContentHandler.getUnparseResult
     wbc.close()
-    
+
     val saxErr = saxUr.isError()
     assertFalse(saxErr)
     assertTrue(saxUr.getDiagnostics.isEmpty)
@@ -1127,44 +1129,106 @@ class TestScalaAPI {
   }
 
 
-    @Test
-    def testScalaAPI25(): Unit = {
-      // Demonstrates the use of a custom InfosetInputter/Outputter
+  @Test
+  def testScalaAPI25(): Unit = {
+    // Demonstrates the use of a custom InfosetInputter/Outputter
 
-      val expectedData = "42"
-      val expectedEvents = Array(
-        TestInfosetEvent.startDocument(),
-        TestInfosetEvent.startComplex("e1", "http://example.com"),
-        TestInfosetEvent.startSimple("e2", "http://example.com", expectedData),
-        TestInfosetEvent.endSimple("e2", "http://example.com"),
-        TestInfosetEvent.endComplex("e1", "http://example.com"),
-        TestInfosetEvent.endDocument()
-      )
+    val expectedData = "42"
+    val expectedEvents = Array(
+      TestInfosetEvent.startDocument(),
+      TestInfosetEvent.startComplex("e1", "http://example.com"),
+      TestInfosetEvent.startSimple("e2", "http://example.com", expectedData),
+      TestInfosetEvent.endSimple("e2", "http://example.com"),
+      TestInfosetEvent.endComplex("e1", "http://example.com"),
+      TestInfosetEvent.endDocument()
+    )
 
-      val c = Daffodil.compiler()
+    val c = Daffodil.compiler()
 
-      val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
-      val pf = c.compileFile(schemaFile)
-      val dp = pf.onPath("/")
+    val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    val dp = pf.onPath("/")
 
-      val file = getResource("/test/sapi/myData.dat")
-      val fis = new java.io.FileInputStream(file)
-      val dis = new InputSourceDataInputStream(fis)
-      val outputter = new TestInfosetOutputter()
-      val pr = dp.parse(dis, outputter)
+    val file = getResource("/test/sapi/myData.dat")
+    val fis = new java.io.FileInputStream(file)
+    val dis = new InputSourceDataInputStream(fis)
+    val outputter = new TestInfosetOutputter()
+    val pr = dp.parse(dis, outputter)
 
-      assertFalse(pr.isError())
-      assertArrayEquals(
-        expectedEvents.asInstanceOf[Array[Object]],
-        outputter.events.toArray.asInstanceOf[Array[Object]]
-      )
+    assertFalse(pr.isError())
+    assertArrayEquals(
+      expectedEvents.asInstanceOf[Array[Object]],
+      outputter.events.toArray.asInstanceOf[Array[Object]]
+    )
 
-      val bos = new java.io.ByteArrayOutputStream()
-      val wbc = java.nio.channels.Channels.newChannel(bos)
-      val inputter = new TestInfosetInputter(expectedEvents: _*)
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val inputter = new TestInfosetInputter(expectedEvents: _*)
 
-      val ur = dp.unparse(inputter, wbc)
-      assertFalse(ur.isError)
-      assertEquals(expectedData, bos.toString())
-    }
+    val ur = dp.unparse(inputter, wbc)
+    assertFalse(ur.isError)
+    assertEquals(expectedData, bos.toString())
+  }
+
+  @Test
+  def testScalaAPICDATA1(): Unit = {
+    val expected = "NO_WHITESPACE_OR_SPECIAL_CHARS"
+    val data = "NO_WHITESPACE_OR_SPECIAL_CHARS$"
+    val schemaType = "string"
+    doXMLTextEscapeStyleTest(expected, data, schemaType)
+  }
+
+  @Test
+  def testScalaAPICDATA2(): Unit = {
+    val expected = "<![CDATA[   'some' stuff   here &#xE000; and ]]]]><![CDATA[> even]]>"
+    val data = "   'some' stuff   here &#xE000; and ]]> even$"
+    val schemaType = "string"
+    doXMLTextEscapeStyleTest(expected, data, schemaType)
+  }
+
+  @Test
+  def testScalaAPICDATA3(): Unit = {
+    val expected = "6.892"
+    val data = "6.892"
+    val schemaType = "float"
+    doXMLTextEscapeStyleTest(expected, data, schemaType)
+  }
+
+  @Test
+  def testScalaAPICDATA4(): Unit = {
+    val expected = "<![CDATA[this contains a CRLF\nline ending]]>"
+    val data = "this contains a CRLF\r\nline ending$"
+    val schemaType = "string"
+    doXMLTextEscapeStyleTest(expected, data, schemaType)
+  }
+
+  @Test
+  def testScalaAPICDATA5(): Unit = {
+    val expected = "<![CDATA[abcd&gt]]>"
+    val data = "abcd&gt$"
+    val schemaType = "string"
+    doXMLTextEscapeStyleTest(expected, data, schemaType)
+  }
+
+  def doXMLTextEscapeStyleTest(expect: String, data: String, schemaType: String): Unit = {
+    val c = Daffodil.compiler()
+    val schemaFile = getResource("/test/sapi/mySchemaCDATA.dfdl.xsd")
+    val pf = c.compileFile(schemaFile, Some(schemaType), None)
+    var dp = pf.onPath("/")
+
+    val is = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8))
+    val input = new InputSourceDataInputStream(is)
+    val bosDP = new ByteArrayOutputStream()
+    val outputter = new XMLTextInfosetOutputter(bosDP, true, XMLTextEscapeStyle.CDATA)
+    val res = dp.parse(input, outputter)
+    val err = res.isError()
+
+    val infosetDPString = bosDP.toString()
+    val start = infosetDPString.indexOf(".com\">") + 6
+    val end = infosetDPString.indexOf("</tns")
+    val value = infosetDPString.substring(start, end)
+
+    assertFalse(err)
+    assertEquals(expect, value)
+  }
 }

@@ -52,8 +52,7 @@ trait EmbeddedTesting {
       val bos = new ByteArrayOutputStream()
       val r1 = dp.parse(
         new InputSourceDataInputStream(new ByteArrayInputStream(bytes)),
-        new XMLTextInfosetOutputter(bos, true))
-
+        new XMLTextInfosetOutputter(bos, pretty = true))
       verbose match {
         case Always | AnyError if r1.isError() => r1.getDiagnostics.foreach(println)
         case Always => println(bos.toString)
