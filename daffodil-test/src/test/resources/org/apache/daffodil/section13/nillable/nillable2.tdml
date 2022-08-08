@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<testSuite
+  xmlns:tns="http://example.com"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions" 
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true"
+  defaultValidation="on">
+
+  <tdml:defineSchema name="s" elementFormDefault="unqualified" useDefaultNamespace="false"
+                     xmlns="http://www.w3.org/2001/XMLSchema">
+
+    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      textStringPadCharacter="%SP;"
+      nilKind="literalValue"
+    />
+
+    <element name="Foo"
+             dfdl:length="5"
+             dfdl:lengthKind="explicit"
+             dfdl:terminator="/"
+             dfdl:fillByte="%SP;">
+      <!--
+      The above achieves canonical unparse
+      as left-justified fixed length because
+      the fillByte will be used to fill unused
+      space on the right.
+
+      This only works for fixed length left-justified data.
+      If this was right-justified, this trick would not work.
+      -->
+    <complexType>
+      <sequence>
+        <!--
+        The below achieves trimming of spaces either side,
+        but only when parsing. Nothing is added when unparsing.
+        -->
+        <element name="value" nillable="true"
+                 dfdl:nilValue="-"
+                 dfdl:lengthKind="delimited"
+                 dfdl:textStringJustification="center"
+                 dfdl:textTrimKind="padChar"
+                 dfdl:textPadKind="none">
+          <simpleType>
+            <restriction base="xs:string">
+              <enumeration value="AB"/>
+              <enumeration value="ABC"/>
+            </restriction>
+          </simpleType>
+        </element>
+        </sequence>
+     </complexType>
+    </element>
+
+  </tdml:defineSchema>
+
+  <parserTestCase name="foo1" root="Foo" model="s" roundTrip="onePass">
+    <document>-    /</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:Foo xmlns=""><value xsi:nil="true"/></ex:Foo>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="foo2" root="Foo" model="s" roundTrip="twoPass">
+    <document> -   /</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:Foo xmlns=""><value xsi:nil="true"/></ex:Foo>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="foo3" root="Foo" model="s" roundTrip="twoPass">
+    <document> AB  /</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:Foo xmlns=""><value>AB</value></ex:Foo>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="foo4" root="Foo" model="s" roundTrip="onePass">
+    <document>AB   /</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:Foo xmlns=""><value>AB</value></ex:Foo>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+</testSuite>
