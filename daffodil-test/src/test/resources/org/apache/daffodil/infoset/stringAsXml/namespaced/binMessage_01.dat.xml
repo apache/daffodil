@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:binMessage xmlns:b="urn:bin">
+  <record>
+    <id>1</id>
+    <xmlStr>
+      <stringAsXml xmlns="">
+<p:root xmlns:q="urn:payload" xmlns:p="urn:payload" attr2="4" attr1=" value ">
+  <!-- commment -->
+  <?processing instruction?>
+  <field><![CDATA[Field ]]> with <![CDATA[cdata]]> </field>
+  <field>spaces</field>    <field>   spaces   </field>
+  <field/>
+  <field/>
+  <field>entity references: &lt; > &amp; " ' ©</field>
+  <field>CR</field>&#xd;<field>LF</field>
+<field>CRLF</field>&#xd;
+<field>end</field>
+  <field>CR</field>
+  <field>LF</field>
+  <field>CRLF</field>
+  <field>=invalid field</field>
+</p:root>
+      </stringAsXml>
+    </xmlStr>
+    <priority>5</priority>
+  </record>
+  <record>
+    <id>2</id>
+    <xmlStr>
+      <stringAsXml xmlns="">
+<r:root xmlns:r="urn:payload">
+  <field>second record</field>
+</r:root>
+      </stringAsXml>
+    </xmlStr>
+    <priority>1</priority>
+  </record>
+</b:binMessage>

@@ -447,16 +447,6 @@ class DataProcessor private (
     doParse(ssrd.parser, state)
 
     val pr = if (state.processorStatus == Success) {
-      // By the time we get here, all infoset nodes have been set final, all
-      // walker blocks released, and all elements walked. The one exception
-      // is that the root node has not been set final because isFinal is
-      // handled by the sequence parser and there is no sequence around the
-      // root node. So mark it as final and do one last walk to end the
-      // document.
-      state.infoset.contents(0).isFinal = true
-      state.walker.walk(lastWalk = true)
-      Assert.invariant(state.walker.isFinished)
-
       // validate infoset, errors are added to the PState diagnostics
       val vr = maybeValidationBytes.toScalaOption.map { bytes =>
         val bis = new java.io.ByteArrayInputStream(bytes.toByteArray)
@@ -512,6 +502,17 @@ class DataProcessor private (
         // so that subsequent use of the state can generally work and have a context.
         //
         state.setMaybeProcessor(Maybe(p))
+
+        if (state.processorStatus == Success) {
+          // At this point all infoset nodes have been set final, all infoset
+          // walker blocks released, and all elements walked. The one exception
+          // is the root node has not been set final because isFinal is handled
+          // by the sequence parser and there is no sequence around the root
+          // node. So mark it final and do one last walk to end the document.
+          state.infoset.contents(0).isFinal = true
+          state.walker.walk(lastWalk = true)
+          Assert.invariant(state.walker.isFinished)
+        }
       } catch {
         //We will actually be handling all errors in the outer loop
         //However, there is a chance that our finally block will itself throw.
