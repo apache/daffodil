@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:binMessage xmlns:b="urn:bin">
+  <record>
+    <id>1</id>
+    <xmlStr>
+      <notStringAsXml xmlns="">
+<p:root xmlns:p="urn:payload">
+  <field>test</field>
+</p:root>
+      </notStringAsXml>
+    </xmlStr>
+    <priority>1</priority>
+  </record>
+</b:binMessage>

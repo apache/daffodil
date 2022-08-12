@@ -17,10 +17,13 @@
 
 package org.apache.daffodil.infoset
 
+import java.io.StringReader
 import java.nio.charset.StandardCharsets
+import javax.xml.stream.XMLStreamConstants._
 
-import org.apache.daffodil.util.Indentable
 import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Indentable
 
 /**
  * Writes the infoset to a java.io.Writer as XML text.
@@ -99,6 +102,56 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
     writer.write(">")
   }
 
+  private def writeStringAsXml(str: String): Unit = {
+    // create a wrapper element that allows us to reset the default XML
+    // namespace. This ensures the embedded XML does not inherit the default
+    // namespaces if one is defined in the infoset
+    incrementIndentation()
+    if (pretty) {
+      writer.write(System.lineSeparator())
+      outputIndentation(writer)
+    }
+    writer.write("<")
+    writer.write(XMLTextInfoset.stringAsXml)
+    writer.write(" xmlns=\"\">")
+
+    if (pretty) {
+      writer.write(System.lineSeparator())
+    }
+
+    // Parse the string as XML and then write all events out to the
+    // XMLStreamWriter. This performs basic validation of the XML so we do not
+    // create an invalid infoset, though it may contain XML features that
+    // aren't normally in an XML infoset (e.g. elements with attributes). This
+    // logic also skips the START_DOCUMENT event so that the XML declaration is
+    // not written in the middle of our XML infoset
+    val sr = new StringReader(str)
+    val xsr = XMLTextInfoset.xmlInputFactory.createXMLStreamReader(sr)
+    val xsw = XMLTextInfoset.xmlOutputFactory.createXMLStreamWriter(writer, StandardCharsets.UTF_8.toString)
+    Assert.invariant(xsr.getEventType() == START_DOCUMENT)
+    while (xsr.hasNext()) {
+      xsr.next()
+      XMLTextInfoset.writeXMLStreamEvent(xsr, xsw)
+    }
+
+    // write the closing wrapper element
+    if (pretty) {
+      writer.write(System.lineSeparator())
+      outputIndentation(writer)
+    }
+    writer.write("</")
+    writer.write(XMLTextInfoset.stringAsXml)
+    writer.write(">")
+    decrementIndentation()
+
+    // if pretty, write indentation so that the closing tag of the simple
+    // element is indented as if it were complex
+    if (pretty) {
+      writer.write(System.lineSeparator())
+      outputIndentation(writer)
+    }
+  }
+
   override def startSimple(simple: DISimple): Boolean = {
     if (pretty) {
       writer.write(System.lineSeparator())
@@ -107,15 +160,16 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
     outputStartTag(simple)
 
     if (!isNilled(simple) && simple.hasValue) {
-      val text =
-        if (simple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
-          val s = remapped(simple.dataValueAsString)
-          scala.xml.Utility.escape(s)
+      if (simple.erd.optPrimType.get == NodeInfo.String) {
+        val simpleVal = simple.dataValueAsString
+        if (simple.erd.runtimeProperties.get(XMLTextInfoset.stringAsXml) == "true") {
+          writeStringAsXml(simpleVal)
         } else {
-          simple.dataValueAsString
+          writer.write(scala.xml.Utility.escape(remapped(simpleVal)))
         }
-
-      writer.write(text)
+      } else {
+        writer.write(simple.dataValueAsString)
+      }
     }
 
     outputEndTag(simple)

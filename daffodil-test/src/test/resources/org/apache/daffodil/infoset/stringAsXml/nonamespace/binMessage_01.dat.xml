@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<binMessage xmlns="urn:bin" xmlns:b="urn:bin">
+  <record>
+    <id>1</id>
+    <xmlStr>
+      <stringAsXml xmlns="">
+<root>
+  <field>=invalid field</field>
+</root>
+      </stringAsXml>
+    </xmlStr>
+    <priority>5</priority>
+  </record>
+</binMessage>

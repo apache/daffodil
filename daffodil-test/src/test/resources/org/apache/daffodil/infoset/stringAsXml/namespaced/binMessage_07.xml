@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:binMessage xmlns:b="urn:bin">
+  <record>
+    <id>
+      <stringAsXml xmlns="">
+<p:root xmlns:p="urn:payload">
+  <field>stringAsXml on wrong element</field>
+</p:root>
+      </stringAsXml>
+    </id>
+    <xmlStr />
+    <priority>1</priority>
+  </record>
+</b:binMessage>

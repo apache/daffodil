@@ -17,7 +17,12 @@
 
 package org.apache.daffodil.infoset
 
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
+
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.util.MStackOfInt
 import org.apache.daffodil.util.MStackOf
 
@@ -408,6 +413,20 @@ class InfosetWalker private (
     containerIndexStack.setTop(top + 1)
   }
 
+  private def doOutputter(outputterFunc: => Boolean, desc: String, context: ThrowsSDE): Unit = {
+    Try(outputterFunc) match {
+      case Success(true) => // success
+      // $COVERAGE-OFF$
+      case Success(false) => Assert.usageError("InfosetOutputter false return value is deprecated. Throw an Exception instead.")
+      // $COVERAGE-ON$
+      case Failure(e) => {
+        val cause = e.getCause
+        val msg = if (cause == null) e.toString else cause.toString
+        context.SDE("Failed to %s: %s", desc, msg)
+      }
+    }
+  }
+
   /**
    * Start the document. Note that because the top of container index is
    * initialized to one less that the starting index, we also call
@@ -415,7 +434,7 @@ class InfosetWalker private (
    * position.
    */
   private def infosetWalkerStepStart(): Unit = {
-    outputter.startDocument()
+    doOutputter(outputter.startDocument(), "start infoset document", startingContainerNode.erd)
     moveToNextSibling()
   }
 
@@ -425,7 +444,7 @@ class InfosetWalker private (
    * should not call walk() again because it is finished.
    */
   private def infosetWalkerStepEnd(): Unit = {
-    outputter.endDocument()
+    doOutputter(outputter.endDocument(), "end infoset document", startingContainerNode.erd)
     containerNodeStack = null
     containerIndexStack = null
     finished = true
@@ -452,8 +471,8 @@ class InfosetWalker private (
       if (child.isSimple) {
         if (!child.isHidden || walkHidden) {
           val simple = child.asInstanceOf[DISimple]
-          outputter.startSimple(simple)
-          outputter.endSimple(simple)
+          doOutputter(outputter.startSimple(simple), "start infoset simple element", simple.erd)
+          doOutputter(outputter.endSimple(simple), "end infoset simple element", simple.erd)
         }
         // now we can remove this simple element to free up memory
         containerNode.freeChildIfNoLongerNeeded(containerIndex, releaseUnneededInfoset)
@@ -462,9 +481,11 @@ class InfosetWalker private (
         // must be complex or array, exact same logic for both
         if (!child.isHidden || walkHidden) {
           if (child.isComplex) {
-            outputter.startComplex(child.asInstanceOf[DIComplex])
+            val complex = child.asInstanceOf[DIComplex]
+            doOutputter(outputter.startComplex(complex), "start infoset complex element", complex.erd)
           } else {
-            outputter.startArray(child.asInstanceOf[DIArray])
+            val array = child.asInstanceOf[DIArray]
+            doOutputter(outputter.startArray(array), "start infoset array", array.erd)
           }
           moveToFirstChild(child)
         } else {
@@ -485,9 +506,11 @@ class InfosetWalker private (
 
       // create appropriate end event
       if (containerNode.isComplex) {
-        outputter.endComplex(containerNode.asInstanceOf[DIComplex])
+        val complex = containerNode.asInstanceOf[DIComplex]
+        doOutputter(outputter.endComplex(complex), "end infoset complex element", complex.erd)
       } else {
-        outputter.endArray(containerNode.asInstanceOf[DIArray])
+        val array = containerNode.asInstanceOf[DIArray]
+        doOutputter(outputter.endArray(array), "end infoset array", array.erd)
       }
 
       // we've ended this array/complex associated with the container, so we

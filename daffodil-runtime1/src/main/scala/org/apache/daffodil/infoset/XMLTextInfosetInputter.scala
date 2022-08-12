@@ -17,24 +17,36 @@
 
 package org.apache.daffodil.infoset
 
+import java.io.StringWriter
+import java.nio.charset.StandardCharsets
+import javax.xml.XMLConstants
+import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.XMLStreamConstants._
+import javax.xml.stream.XMLStreamException
+import javax.xml.stream.XMLStreamReader
+import javax.xml.stream.XMLStreamWriter
+import javax.xml.stream.util.XMLEventAllocator
+
+import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.infoset.InfosetInputterEventType._
+import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.util.MaybeBoolean
-import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.infoset.InfosetInputterEventType._
 
-import javax.xml.stream.XMLStreamReader
-import javax.xml.stream.XMLStreamConstants._
-import javax.xml.stream.XMLInputFactory
-import javax.xml.stream.util.XMLEventAllocator
-import javax.xml.stream.XMLStreamException
-import javax.xml.XMLConstants
-
-object XMLTextInfosetInputter {
+object XMLTextInfoset {
   lazy val xmlInputFactory = {
     val fact = new com.ctc.wstx.stax.WstxInputFactory()
-    fact.setProperty(XMLInputFactory.IS_COALESCING, true)
+    // Disable coalescing. We use getElementText() almost everywhere in this
+    // inputter, which coalesces simple type content regardless of this
+    // property. This is what we want in most cases since we need to coalesce
+    // simple type content into a single string for Daffodil, so we might as
+    // well let the XMLStreamReader do it. The one exception to this is in our
+    // gatherXmlAsString() function. In this function, we want XML events to
+    // match the actual XML as closely as possible to avoid making changes
+    // where possible. We can achieve this by disabling coalescing, and not use
+    // getElementText() when needed.
+    fact.setProperty(XMLInputFactory.IS_COALESCING, false)
     fact.setEventAllocator(com.ctc.wstx.evt.DefaultEventAllocator.getDefaultInstance)
 
     // Woodstox has it's own properties for turning off DTDs to provide
@@ -47,6 +59,132 @@ object XMLTextInfosetInputter {
     fact.setProperty(XMLInputFactory.SUPPORT_DTD, false)
     fact.setProperty(XMLInputFactory.IS_VALIDATING, false) // no DTD validation
     fact
+  }
+
+  lazy val xmlOutputFactory = {
+    val fact = new com.ctc.wstx.stax.WstxOutputFactory()
+    fact
+  }
+
+  /**
+   * When the stringAsXml runtime property is set to true we treat the simple
+   * content as if it were XML and output it to the infoset. We use this value
+   * as the runtime property name. Additionally, when we output the XML we need
+   * a wrapper element to reset the default XML namespace in case the infoset
+   * has a default namespace. We also use this variable as the name of that
+   * wrapper element.
+   */
+  lazy val stringAsXml = "stringAsXml"
+
+  /**
+   * Read an event from an XMLStreamReader and write the same event to an
+   * XMLStreamWriter. For example, this can be used for convert XML from one
+   * type of input to a different type (e.g. InputStream to String), check for
+   * well-formed XML, and perform some basic normalization. Example usage of
+   * this function is to call this in a loop like this:
+   *
+   *   while (xsr.hasNext()) {
+   *     xsr.next()
+   *     XMLTextInfoset.writeStreamEvent(xsr, xsw)
+   *   }
+   *
+   * This approach allows callers to skip certain events by conditionally
+   * calling this function.
+   *
+   * It is assumed that the caller calls xsw.startDocument() if needed. This
+   * function does not handle the START_DOCUMENT event.
+   *
+   * Because we disable coalescing in our XMLStreamReader, we will actually get
+   * events for CHARACTERS, CDATA, SPACE, and ENTITY_REFERENCE, which would
+   * otherwise be lost. This allows us to convert XML to strings (e.g. in
+   * gatherXmlAsString) that are much closer to the original XML, and in some
+   * cases exactly the same.
+   *
+   * This function drops all DTD events. This is because this function is used
+   * to either embed XML into the middle of an XML infoset, or read an embedded
+   * XML from the middle of an XML infoset. In either case DTD's aren't allowed
+   * because they are only allowed at the top of XML, and so we drop them.
+   *
+   * Spaces inside element tags (e.g. in between attributes/namespce
+   * declarations) are not preserved.
+   *
+   * Attribute and namespace definitions order is preserved, but all namespace
+   * definitions are output first followed by all attributes.
+   *
+   * Element/attribute prefixes are preserved
+   *
+   * Comments are preserved
+   *
+   * CDATA regions are preserved
+   *
+   * Processing instructions are preserved.
+   *
+   * The XML declaration is always output when unparsing, and never output when
+   * parsing (handled by the callers).
+   *
+   * Double quotes are always used for attribute/namespace definitions, except
+   * in the XML declaration which always uses single quotes.
+   *
+   * The following character entities are preserved: &lt; &amp; &#xd;. The
+   * decimal entitity &#10; is converted to the &#xd; hex entity. All others
+   * are converted to thir UTF-8 characters. Because DTD is disabled, custom
+   * entities are not supported and result in an error.
+   *
+   * Whitespace, both inbetween complex elements and inside simple elements, are
+   * preserved. However, whitespace in the epilog or prolog is ignored.
+   *
+   * Elements with no content but with an open and close tag are converted to a
+   * an empty-element tag.
+   *
+   * Both a lone CR and CRLF are converted to LF.
+   */
+  def writeXMLStreamEvent(xsr: XMLStreamReader, xsw: XMLStreamWriter): Unit = {
+    xsr.getEventType() match {
+      case START_ELEMENT => {
+        xsw.writeStartElement(
+          xsr.getPrefix(),
+          xsr.getLocalName(),
+          xsr.getNamespaceURI())
+        for (i <- 0 until xsr.getNamespaceCount()) {
+          xsw.writeNamespace(
+            xsr.getNamespacePrefix(i),
+            xsr.getNamespaceURI(i))
+        }
+        for (i <- 0 until xsr.getAttributeCount()) {
+          xsw.writeAttribute(
+            xsr.getAttributePrefix(i),
+            xsr.getAttributeNamespace(i),
+            xsr.getAttributeLocalName(i),
+            xsr.getAttributeValue(i))
+        }
+      }
+      case END_ELEMENT => xsw.writeEndElement()
+      case CHARACTERS => xsw.writeCharacters(xsr.getText())
+      case COMMENT => xsw.writeComment(xsr.getText())
+      case CDATA => xsw.writeCData(xsr.getText())
+      case PROCESSING_INSTRUCTION => xsw.writeProcessingInstruction(xsr.getPITarget(), xsr.getPIData())
+      case END_DOCUMENT => xsw.writeEndDocument()
+      case DTD => {
+        // even though we disable DTD in the XMLInputFactory, we still get DTD
+        // events when parsing XML. Silently ignore these events
+      }
+      // $COVERAGE-OFF$
+      case START_DOCUMENT | ATTRIBUTE | NAMESPACE | ENTITY_REFERENCE | SPACE | _ => {
+        // START_DOCUMENT events are expected to be handled and skipped by
+        // the caller.
+        //
+        // Woodstox does not create ATTRIBUTE or NAMESPACE events. Namespace
+        // prefix definition and attributes are accessable only from the
+        // START_ELEMENT.
+        //
+        // Woodstox does not create SPACE events.
+        //
+        // ENTITY_REFERENCE events are never created. This event is only used
+        // for custom entities, which error because we disable DTD.
+        Assert.invariantFailed("Unexpected XML event while XML stream: " + xsr.getEventType())
+      }
+      // $COVERAGE-ON$
+    }
   }
 }
 
@@ -65,15 +203,15 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
    */
   private lazy val (xsr: XMLStreamReader, evAlloc: XMLEventAllocator) = {
     val xsr = input match {
-      case Left(reader) => XMLTextInfosetInputter.xmlInputFactory.createXMLStreamReader(reader)
-      case Right(is) => XMLTextInfosetInputter.xmlInputFactory.createXMLStreamReader(is)
+      case Left(reader) => XMLTextInfoset.xmlInputFactory.createXMLStreamReader(reader)
+      case Right(is) => XMLTextInfoset.xmlInputFactory.createXMLStreamReader(is)
     }
 
     //
     // This gets the event allocator corresponding to the xmlStreamReader just created.
     // Strange API. They should let you get this from the xmlStreamReader itself.
     //
-    val evAlloc = XMLTextInfosetInputter.xmlInputFactory.getEventAllocator
+    val evAlloc = XMLTextInfoset.xmlInputFactory.getEventAllocator
 
     // no need for UnparseError here. If the XML syntax is bad, parser catches it before we get here.
     Assert.invariant(xsr.hasNext())
@@ -115,25 +253,83 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
     xsr.getNamespaceURI()
   }
 
+  /**
+  * Consumes all events inside a "stringAsXml" element and forwards those
+  * events to an XMLStreamWriter to write them to a string. That string is
+  * returned and used as the value of the simple element.
+   */
+  private def gatherXmlAsString(): String = {
+    // move past the START_ELEMENT event for this simple type, ignoring all
+    // whitespace/comments
+    xsr.nextTag()
+
+    // we should now be at the START_ELEMENT event for the wrapper element.
+    // We need to skip it. Error if that's not the case.
+    if (xsr.getEventType() != START_ELEMENT || xsr.getLocalName() != XMLTextInfoset.stringAsXml) {
+      throw new XMLStreamException("Expected start of " + XMLTextInfoset.stringAsXml)
+    }
+    xsr.next()
+   
+    // we are now at the first event inside the wrapper element. Convert this
+    // and all following events we see to a string until we find the closing
+    // wrapper tag. We trim the result to remove whitespace that the outputter
+    // may have written with pretty mode enabled.
+    val sw = new StringWriter()
+    val xsw = XMLTextInfoset.xmlOutputFactory.createXMLStreamWriter(sw, StandardCharsets.UTF_8.toString)
+    xsw.writeStartDocument()
+    while (xsr.getEventType() != END_ELEMENT || xsr.getLocalName() != XMLTextInfoset.stringAsXml) {
+      XMLTextInfoset.writeXMLStreamEvent(xsr, xsw)
+      xsr.next()
+    }
+    xsw.writeEndDocument()
+    val xmlString = sw.toString.trim
+
+    // skip the END_ELEMENT event for the wrapper element and any following whitespace
+    xsr.nextTag()
+
+    // should now be at the END_ELEMENT for our simple type
+    if (xsr.getEventType() != END_ELEMENT) {
+      throw new XMLStreamException("Expected end of element following end of " + XMLTextInfoset.stringAsXml)
+    }
+
+    xmlString
+  }
+
   override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
+
     val txt =
-      try {
-        xsr.getElementText()
-      } catch {
-        case xse: XMLStreamException => {
-          throw new NonTextFoundInSimpleContentException("Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber)
+      if (primType == NodeInfo.String && runtimeProperties.get(XMLTextInfoset.stringAsXml) == "true") {
+        try {
+          gatherXmlAsString()
+        } catch {
+          case xse: XMLStreamException => {
+            val lineNum = evAlloc.allocate(xsr).getLocation.getLineNumber
+            throw new InvalidInfosetException("Error on line " + lineNum + ": " + xse.getMessage)
+          }
+        }
+      } else {
+        val elementText = try {
+          xsr.getElementText()
+        } catch {
+          case xse: XMLStreamException => {
+            throw new NonTextFoundInSimpleContentException("Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber)
+          }
+        }
+        if (primType == NodeInfo.String) {
+          XMLUtils.remapPUAToXMLIllegalCharacters(elementText)
+        } else {
+          elementText
         }
       }
+
+    // getElementText and gatherXmlAsString move the current event to the
+    // EndElement. We want to stay on StartElement until next is called. So set
+    // fakeStartEvent to true so that any calls to getEventType will return
+    // StartElement.
     Assert.invariant(xsr.getEventType() == END_ELEMENT)
-    // getElementText moves the current event to the EndElement. We want to
-    // stay on StartElement until next is called. So set fakeStartEvent to true
-    // so that any calls to getEventType will return StartElement.
     fakeStartEvent = true
-    if (primType.isInstanceOf[NodeInfo.String.Kind]) {
-      XMLUtils.remapPUAToXMLIllegalCharacters(txt)
-    } else {
-      txt
-    }
+
+    txt
   }
 
   override def isNilled(): MaybeBoolean = {
@@ -163,11 +359,11 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
 
   override def next(): Unit = {
     if (fakeStartEvent) {
-      // we are faking a StartElement event due to a call to getSimpleText. Now
-      // that we have called next() we need to return an EndElement event. The
-      // xsr is already on the end event for this element (due to
-      // getSimpleText), so all we need to to is flip the fakeStartEvent
-      // variable and we'll get the correct EndElement event
+      // we are faking a StartElement event due to a call to getSimpleText or
+      // gatherXmlAsString. Now that we have called next() we need to return an
+      // EndElement event. The xsr is already on the end event for this
+      // element, so all we need to to is flip the fakeStartEvent flag and
+      // we'll get the correct EndElement event
       fakeStartEvent = false
     } else {
       val next = nextTagOrEndDocument()

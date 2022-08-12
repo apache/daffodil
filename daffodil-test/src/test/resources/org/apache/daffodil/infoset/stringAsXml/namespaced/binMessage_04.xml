@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:binMessage xmlns:b="urn:bin">
+  <record>
+    <id>1</id>
+    <xmlStr>
+      <stringAsXml xmlns="">
+<p:root xmlns:p="urn:payload">
+  <field foo="unclosed attr>invalid xml</field>
+</p:root>
+      </stringAsXml>
+    </xmlStr>
+    <priority>1</priority>
+  </record>
+</b:binMessage>
