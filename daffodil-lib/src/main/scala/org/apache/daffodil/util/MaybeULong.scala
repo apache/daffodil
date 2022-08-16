@@ -77,6 +77,8 @@ final class MaybeJULong(mi: MaybeULong)
   @inline final def isDefined = mi.isDefined
   @inline final def isEmpty = !isDefined
   override def toString = mi.toString
+
+  @inline def toMaybeULong = mi
 }
 
 object MaybeJULong {
