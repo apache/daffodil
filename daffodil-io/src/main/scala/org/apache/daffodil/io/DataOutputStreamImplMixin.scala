@@ -149,7 +149,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    * of the former starting bit pos so as to be able to
    * convert relative positions to absolute positions correctly.
    */
-  protected final def maybeAbsStartingBitPos0b = {
+  final def maybeAbsStartingBitPos0b: MaybeULong = {
     if (this.maybeAbsolutizedRelativeStartingBitPosInBits_.isDefined)
       maybeAbsolutizedRelativeStartingBitPosInBits_
     else
@@ -185,12 +185,34 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       Assert.usageError("You cannot set the abs starting bit pos again.")
     }
     checkInvariants()
+
+    // We now know the absolute starting position of this DOS. If we also know its
+    // length, then we can set the absolute starting position of the next DOS as well
+    // (if one exists and if it doesn't already have an absolute starting
+    // position). This can potentially propagate to other DOSs, greatly improving
+    // the chances of suspensions not deadlocking, since starting absolute positions
+    // are often needed for evaluation (e.g. alignment, length calculations).
+    if (this.maybeLengthInBits_.isDefined && this.maybeNextInChain.isDefined) {
+      val nic = this.maybeNextInChain.get.asInstanceOf[DirectOrBufferedDataOutputStream]
+      if (nic.maybeAbsBitPos0b.isEmpty) {
+        val nextAbsPos = this.maybeAbsStartingBitPos0b.getULong + this.maybeLengthInBits_.getULong
+        nic.setAbsStartingBitPos0b(nextAbsPos)
+      }
+    }
   }
 
   protected final def setRelBitPos0b(newRelBitPos0b: ULong): Unit = {
     Assert.usage(isWritable)
     checkInvariants()
     relBitPos0b_ = newRelBitPos0b
+    checkInvariants()
+  }
+
+  def setLengthInBits(newLengthInBits: ULong): Unit = {
+    Assert.invariant(maybeLengthInBits_.isEmpty)
+    Assert.usage(isWritable)
+    checkInvariants()
+    this.maybeLengthInBits_ = MaybeULong(newLengthInBits.longValue)
     checkInvariants()
   }
 
@@ -214,6 +236,20 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    * we have collapsed the stream into a direct one.
    */
   private var maybeAbsolutizedRelativeStartingBitPosInBits_ = MaybeULong.Nope
+
+  /**
+   * When we split a stream, we do so because some suspension needs to write to
+   * the end of this DOS. In some cases, we know the number of bits that
+   * suspension will write before it does it, and so we can set the starting
+   * absolute bit position of the new buffered stream that we split into.
+   * However, we can only do that if we know the absolute starting position of
+   * the original DOS when the split occurs. If we do not know that, we can
+   * still calculate the final length of this DOS (i.e. the current relative
+   * position + the length of the suspension) and store that here. Once we learn
+   * the starting absolute position of this DOS, we can then set the absolute
+   * starting position of the next DOS using this length.
+   */
+  private var maybeLengthInBits_ = MaybeULong.Nope
 
   /**
    * Absolute bit limit zero based

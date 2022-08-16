@@ -167,7 +167,6 @@ class TestStringAsXml {
     val dp = compileSchema(Misc.getRequiredResource("/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"))
     val unparseInfoset = Misc.getRequiredResource("/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_08.dat").toURL.openStream
     val (unparseDiags, _) = doParse(dp, unparseInfoset)
-    unparseDiags.foreach(System.err.println)
     assertTrue(unparseDiags.find(_.contains("Undeclared general entity \"name\"")).isDefined)
   }
 

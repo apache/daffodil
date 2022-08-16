@@ -218,9 +218,21 @@ case class SimpleTypeRetry(ctxt: ElementBase, v: Gram)
   extends Terminal(ctxt, true) {
   override def parser = v.parser
 
-  override def unparser = new SimpleTypeRetryUnparser(
-    ctxt.erd,
-    ctxt.maybeUnparseTargetLengthInBitsEv, v.unparser)
+  // When unparsing, the target length of this simple type might not actually
+  // match the actual unparsed length due to things like padding or fill. But
+  // if we can statically determine that the target length will be correct
+  // (e.g. there won't be things like padding/fill) then we can use that length
+  // during unparsing to provide more information about buffered data output
+  // streams which can be used to help to avoid deadlocked suspensions.
+  lazy val maybeExactTargetLength = {
+    if (!ctxt.shouldAddPadding && !ctxt.shouldAddFill && !ctxt.shouldCheckExcessLength) {
+      ctxt.maybeUnparseTargetLengthInBitsEv
+    } else {
+      Maybe.Nope
+    }
+  }
+
+  override def unparser = new SimpleTypeRetryUnparser(ctxt.erd, maybeExactTargetLength, v.unparser)
 }
 
 case class CaptureContentLengthStart(ctxt: ElementBase)

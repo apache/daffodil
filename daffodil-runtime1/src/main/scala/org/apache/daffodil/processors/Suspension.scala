@@ -136,24 +136,29 @@ trait Suspension
     val buffered = original.addBuffered
 
     if (maybeKnownLengthInBits.isDefined) {
-      // since we know the length of the unparsed representation that we're skipping for now,
-      // that means we know the absolute position of the bits in the buffer we're creating
-      // and that means alignment operations don't have to suspend waiting for this knowledge
+      // We know the length of the unparsed representation of this suspension that we
+      // are currently skipping. Use that length to give hints to this DOS or the new
+      // split DOS that can used to set absolute bit positions and avoid deadlocks
+      // since absolute bit positions are usually needed to evaluate suspensions
+      // (e.g. alignment, length calculations).
+      val suspensionLength = maybeKnownLengthInBits.getULong
+
       if (original.maybeAbsBitPos0b.isDefined) {
-        // direct streams always know this, but buffered streams may not.
-
+        // We know the absolute bitPosition of the original dataOutputStream. That
+        // means we can just add the known length of this suspension to that and set
+        // it as the starting absolute bit position of the new split buffer.
         val originalAbsBitPos0b = original.maybeAbsBitPos0b.getULong
-
-        // we are passed this length (in bits)
-        // and can use it to initialize the absolute bit pos of the buffered output stream.
-        //
-        // This allows us to deal with alignment regions, that is, we can determine
-        // their size since we know the absolute bit position.
-
-        val mkl = maybeKnownLengthInBits.getULong
-        buffered.setAbsStartingBitPos0b(originalAbsBitPos0b + mkl)
+        buffered.setAbsStartingBitPos0b(originalAbsBitPos0b + suspensionLength)
         buffered.setPriorBitOrder(ustate.bitOrder)
-
+      } else {
+        // We do not know the absolute position of the original buffer. This means we
+        // don't yet know where the new buffer starts. However, we can calculate the
+        // final length of the original DOS (relative position + suspension length),
+        // and set that as length of the original DOS. Once that DOS learns its
+        // absolute starting position, the DOS length can be used to set the absolute
+        // starting position of the split DOS.
+        val originalRelBitPos0b = original.relBitPos0b
+        original.setLengthInBits(originalRelBitPos0b + suspensionLength)
       }
     } else {
       Logger.log.debug(s"Buffered DOS created for ${ustate.currentInfosetNode.erd.diagnosticDebugName} without knowning absolute start bit pos: ${buffered}")
