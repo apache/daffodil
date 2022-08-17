@@ -188,7 +188,7 @@ class DataProcessor private (
     this(ssrd, tunables, ExternalVariablesLoader.loadVariables(compilerExternalVars, ssrd, ssrd.originalVariables),
       false, None, validationMode, compilerExternalVars)
 
-  private def copy(
+  def copy(
     ssrd: SchemaSetRuntimeData = ssrd,
     tunables: DaffodilTunables = tunables,
     areDebugging : Boolean = areDebugging,
