@@ -19,6 +19,8 @@ package org.apache.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 import org.apache.daffodil.processors.WSP
+import org.apache.daffodil.processors.LSP
+import org.apache.daffodil.processors.SP
 import org.apache.daffodil.processors.NL
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.MaybeChar
@@ -684,6 +686,207 @@ class WSPStarState(states: => ArrayBuffer[State], val nextState: Int, val stateN
   extends WSPRepeats(states) {
 
   stateName = "WSPStarState"
+
+  val rules = ArrayBuffer(
+    new Rule {
+      override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+      override def act(r: Registers): Unit = {
+        r.appendToDelim(r.data0)
+        r.advance()
+        r.nextState = stateNum // This state
+      }
+    },
+    new Rule {
+      override def test(r: Registers): Boolean = true
+
+      override def act(r: Registers): Unit = r.nextState = nextState
+    })
+}
+
+abstract class LSPBase(states: => ArrayBuffer[State])
+  extends DelimStateBase(states) with LSP {
+
+  def checkMatch(charIn: Char): Boolean = {
+    val result = charIn match {
+
+      case SPACE | HT => true
+      case _ => false
+    }
+    result
+  }
+}
+
+class LSPState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+  extends LSPBase(states) {
+
+  stateName = "LSPState"
+  val rulesToThisState = ArrayBuffer(
+    new Rule {
+      override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+      override def act(r: Registers): Unit = {
+        r.appendToDelim(r.data0)
+        r.advance()
+        r.nextState = stateNum
+      }
+    })
+
+  val rules = ArrayBuffer(
+    new Rule {
+      override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+      override def act(r: Registers): Unit = {
+        r.appendToDelim(r.data0)
+        r.advance()
+        r.nextState = nextState
+      }
+    })
+}
+
+abstract class LSPRepeats(states: => ArrayBuffer[State])
+  extends LSPBase(states) {
+
+}
+
+class LSPPlusState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+  extends LSPRepeats(states) {
+
+  stateName = "LSPPlusState"
+  val rulesToThisState = ArrayBuffer(
+    new Rule {
+      override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+      override def act(r: Registers): Unit = {
+        r.appendToDelim(r.data0)
+        r.advance()
+        r.nextState = stateNum // This state
+      }
+    })
+  val rules = ArrayBuffer(new Rule {
+    override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+    override def act(r: Registers): Unit = {
+      r.appendToDelim(r.data0)
+      r.advance()
+      r.matchedAtLeastOnce = true
+      r.nextState = stateNum // This state
+    }
+  },
+    new Rule {
+      override def test(r: Registers): Boolean = r.matchedAtLeastOnce
+
+      override def act(r: Registers): Unit = {
+        r.matchedAtLeastOnce = false
+        r.nextState = nextState
+      }
+    })
+}
+
+class LSPStarState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+  extends LSPRepeats(states) {
+
+  stateName = "LSPStarState"
+
+  val rules = ArrayBuffer(
+    new Rule {
+      override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+      override def act(r: Registers): Unit = {
+        r.appendToDelim(r.data0)
+        r.advance()
+        r.nextState = stateNum // This state
+      }
+    },
+    new Rule {
+      override def test(r: Registers): Boolean = true
+
+      override def act(r: Registers): Unit = r.nextState = nextState
+    })
+}
+
+abstract class SPBase(states: => ArrayBuffer[State])
+  extends DelimStateBase(states) with SP {
+
+  def checkMatch(charIn: Char): Boolean = {
+    val result = charIn match {
+      case SPACE => true
+      case _ => false
+    }
+    result
+  }
+}
+
+class SPState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+  extends SPBase(states) {
+
+  stateName = "SPState"
+  val rulesToThisState = ArrayBuffer(
+    new Rule {
+      override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+      override def act(r: Registers): Unit = {
+        r.appendToDelim(r.data0)
+        r.advance()
+        r.nextState = stateNum
+      }
+    })
+
+  val rules = ArrayBuffer(
+    new Rule {
+      override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+      override def act(r: Registers): Unit = {
+        r.appendToDelim(r.data0)
+        r.advance()
+        r.nextState = nextState
+      }
+    })
+}
+
+abstract class SPRepeats(states: => ArrayBuffer[State])
+  extends SPBase(states) {
+
+}
+
+class SPPlusState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+  extends SPRepeats(states) {
+
+  stateName = "SPPlusState"
+  val rulesToThisState = ArrayBuffer(
+    new Rule {
+      override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+      override def act(r: Registers): Unit = {
+        r.appendToDelim(r.data0)
+        r.advance()
+        r.nextState = stateNum // This state
+      }
+    })
+  val rules = ArrayBuffer(new Rule {
+    override def test(r: Registers): Boolean = checkMatch(r.data0)
+
+    override def act(r: Registers): Unit = {
+      r.appendToDelim(r.data0)
+      r.advance()
+      r.matchedAtLeastOnce = true
+      r.nextState = stateNum // This state
+    }
+  },
+    new Rule {
+      override def test(r: Registers): Boolean = r.matchedAtLeastOnce
+
+      override def act(r: Registers): Unit = {
+        r.matchedAtLeastOnce = false
+        r.nextState = nextState
+      }
+    })
+}
+
+class SPStarState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
+  extends SPRepeats(states) {
+
+  stateName = "SPStarState"
 
   val rules = ArrayBuffer(
     new Rule {

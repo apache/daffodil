@@ -27,6 +27,12 @@ import org.apache.daffodil.processors.NLDelim
 import org.apache.daffodil.processors.WSPDelim
 import org.apache.daffodil.processors.WSPPlusDelim
 import org.apache.daffodil.processors.WSPStarDelim
+import org.apache.daffodil.processors.LSPDelim
+import org.apache.daffodil.processors.LSPPlusDelim
+import org.apache.daffodil.processors.LSPStarDelim
+import org.apache.daffodil.processors.SPDelim
+import org.apache.daffodil.processors.SPPlusDelim
+import org.apache.daffodil.processors.SPStarDelim
 import org.apache.daffodil.processors.parsers.DelimiterTextType
 import org.apache.daffodil.dsom.DPathCompileInfo
 
@@ -115,6 +121,24 @@ object CreateDelimiterDFA {
       }
       case d: WSPPlusDelim => {
         new WSPPlusState(allStates, nextState, stateNum)
+      }
+      case d: LSPDelim => {
+        new LSPState(allStates, nextState, stateNum)
+      }
+      case d: LSPStarDelim => {
+        new LSPStarState(allStates, nextState, stateNum)
+      }
+      case d: LSPPlusDelim => {
+        new LSPPlusState(allStates, nextState, stateNum)
+      }
+      case d: SPDelim => {
+        new SPState(allStates, nextState, stateNum)
+      }
+      case d: SPStarDelim => {
+        new SPStarState(allStates, nextState, stateNum)
+      }
+      case d: SPPlusDelim => {
+        new SPPlusState(allStates, nextState, stateNum)
       }
       case d: NLDelim => {
         new NLState(allStates, nextState, stateNum)

@@ -43,8 +43,8 @@ class EntitySyntaxException(msg: String) extends Exception(msg)
  */
 final class EntityReplacer {
 
-  val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
-  val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+|ES"
+  val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|DEL|NBSP|NEL|LS"
+  val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+|ES|LSP|LSP\\*|LSP\\+|SP|SP\\*|SP\\+"
 
   val entityCharacterUnicode: List[(String, String, Matcher)] =
     List(("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE).matcher("")),
@@ -79,7 +79,6 @@ final class EntityReplacer {
       ("GS", "\u001D", Pattern.compile("%" + "GS" + ";", Pattern.MULTILINE).matcher("")),
       ("RS", "\u001E", Pattern.compile("%" + "RS" + ";", Pattern.MULTILINE).matcher("")),
       ("US", "\u001F", Pattern.compile("%" + "US" + ";", Pattern.MULTILINE).matcher("")),
-      ("SP", "\u0020", Pattern.compile("%" + "SP" + ";", Pattern.MULTILINE).matcher("")),
       ("DEL", "\u007F", Pattern.compile("%" + "DEL" + ";", Pattern.MULTILINE).matcher("")),
       ("NBSP", "\u00A0", Pattern.compile("%" + "NBSP" + ";", Pattern.MULTILINE).matcher("")),
       ("NEL", "\u0085", Pattern.compile("%" + "NEL" + ";", Pattern.MULTILINE).matcher("")),
@@ -89,7 +88,13 @@ final class EntityReplacer {
     List(("WSP", "\u0020", Pattern.compile("%" + "WSP" + ";", Pattern.MULTILINE).matcher("")),
       ("WSP*", "", Pattern.compile("%" + "WSP\\*" + ";", Pattern.MULTILINE).matcher("")),
       ("WSP+", "\u0020", Pattern.compile("%" + "WSP\\+" + ";", Pattern.MULTILINE).matcher("")),
-      ("ES", "", Pattern.compile("%" + "ES" + ";", Pattern.MULTILINE).matcher("")))
+      ("ES", "", Pattern.compile("%" + "ES" + ";", Pattern.MULTILINE).matcher("")),
+      ("SP", "\u0020", Pattern.compile("%" + "SP" + ";", Pattern.MULTILINE).matcher("")),             //Moved from entityCharacterUnicode
+      ("SP*", "", Pattern.compile("%" + "SP\\*" + ";", Pattern.MULTILINE).matcher("")),               //SP* outputs nothing
+      ("SP+", "\u0020", Pattern.compile("%" + "SP\\+" + ";", Pattern.MULTILINE).matcher("")),         //SP+ outputs a single space
+      ("LSP", "\u0020", Pattern.compile("%" + "LSP" + ";").matcher("")),                              //LSP outputs a single space
+      ("LSP*", "", Pattern.compile("%" + "LSP\\*" + ";").matcher("")),
+      ("LSP+", "\u0020", Pattern.compile("%" + "LSP\\+" + ";").matcher("")))                           //LSP+ outputs a single space
 
   val escapeReplacements: List[(String, String, Matcher)] = List(("%", "\u0025", Pattern.compile("%%", Pattern.MULTILINE).matcher("")))
 
@@ -584,7 +589,7 @@ class StringLiteralNoCharClassEntities(pn: String, allowByteEntities: Boolean)
   extends StringLiteralBase(pn, allowByteEntities)
   with DisallowedCharClassEntitiesMixin {
 
-  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP", "SP+", "SP*", "LSP", "LSP+", "LSP*")
   override def testRaw(raw: String, context: ThrowsSDE) =
     super[DisallowedCharClassEntitiesMixin].testRaw(raw,context)
 }
@@ -594,7 +599,7 @@ class SingleCharacterLiteralNoCharClassEntities(pn: String, allowByteEntities: B
   with DisallowedCharClassEntitiesMixin
   with SingleCharacterMixin {
 
-  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP", "SP+", "SP*", "LSP", "LSP+", "LSP*")
   override protected def testRaw(raw: String, context: ThrowsSDE) =
     super.testRaw(raw, context)
 }
@@ -604,7 +609,7 @@ class StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities(pn: String = null)
   with DisallowedCharClassEntitiesMixin
   with NonEmptyMixin {
 
-  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP", "SP+", "SP*", "LSP", "LSP+", "LSP*")
   override def testRaw(raw: String, context: ThrowsSDE) =
     super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
 
@@ -624,7 +629,7 @@ class StringLiteralESEntityWithByteEntities(pn: String)
   extends StringLiteralNoCharClassEntities(pn, allowByteEntities = true)
   with DisallowedCharClassEntitiesMixin {
 
-  override val disallowedCharClassEntities = Seq("NL", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "WSP", "WSP+", "WSP*", "SP", "SP*", "SP+", "LSP", "LSP+", "LSP*")
   override def testRaw(raw: String, context: ThrowsSDE) =
     super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
 }
@@ -739,7 +744,7 @@ class ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities(pn: String = 
   override protected val oneLiteralCooker =
     new StringLiteralNonEmpty(propName, allowByteEntities = false) with DisallowedCharClassEntitiesMixin {
 
-      override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+      override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP", "SP+", "SP*", "LSP", "LSP+", "LSP*")
       override def testRaw(raw: String, context: ThrowsSDE) =
         super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
     }
@@ -762,7 +767,7 @@ class SingleCharacterLineEndingOrCRLF_NoCharClassEntitiesNoByteEntities(pn: Stri
 
   private val validNLs: List[Char] = List('\u000A', '\u000D', '\u0085', '\u2028')
 
-  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP", "SP+", "SP*", "LSP", "LSP+", "LSP*")
   override def testRaw(raw: String, context: ThrowsSDE) =
     super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
 
@@ -783,7 +788,7 @@ class NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities(pn: String)
   override protected val oneLiteralCooker =
     new StringLiteral(propName, allowByteEntities = true) with DisallowedCharClassEntitiesMixin {
 
-      override val disallowedCharClassEntities = Seq("NL", "WSP", "WSP+", "WSP*")
+      override val disallowedCharClassEntities = Seq("NL", "WSP", "WSP+", "WSP*", "SP", "SP+", "SP*", "LSP", "LSP+", "LSP*")
       override def testRaw(raw: String, context: ThrowsSDE) =
         super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
     }

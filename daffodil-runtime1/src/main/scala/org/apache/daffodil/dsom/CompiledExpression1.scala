@@ -96,7 +96,7 @@ abstract class CompiledExpression[+T <: AnyRef](
    * is a DFDL entity like %ES; or %WSP*. We do not know whether it can if it is a more
    * complicated constant or runtime expression.
    */
-  final lazy val isKnownCanMatchEmptyString = value == "%ES;" || value == "%WSP*;"
+  final lazy val isKnownCanMatchEmptyString = value == "%ES;" || value == "%WSP*;" || value == "%LSP*;"
 
   /**
    * used to obtain a constant value.
