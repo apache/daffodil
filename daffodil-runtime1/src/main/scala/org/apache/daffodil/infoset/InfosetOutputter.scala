@@ -20,6 +20,20 @@ package org.apache.daffodil.infoset
 import java.nio.file.Path
 import java.nio.file.Paths
 
+/**
+ * Defines the interface for InfosetOutputters.
+ *
+ * Note that these functions all throw the generic java.lang.Exception to
+ * indicate error. Part of the reason to do this instead of a custom exception
+ * (e.g. InfosetOutputterException) is to simplify implementations. If an
+ * implementation already throws an exception when there is an error, there is
+ * no need to catch it and wrap it in a Daffodil specific exception. This is
+ * especially true considering Daffodil will just unwrap the exception and
+ * convert it to a SDE. Additionally, because Scala does not have checked
+ * exceptions, it can be difficult to ensure all expected exceptions are caught
+ * by implementations. This does mean some exceptions that you might normally
+ * expect to bubble up and will not, and will instead be turned into an SDE.
+ */
 trait InfosetOutputter {
 
   import Status._
@@ -30,90 +44,95 @@ trait InfosetOutputter {
    * Reset the internal state of this InfosetOutputter. This should be called
    * inbetween calls to the parse method.
    */
-  def reset(): Unit // call to reuse these. When first constructed no reset call is necessary.
+  def reset(): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of the infoset.
    *
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    */
-  def startDocument(): Boolean
+  @throws[Exception]
+  def startDocument(): Unit
 
   /**
    * Called by Daffodil internals to signify the end of the infoset.
    *
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    */
-  def endDocument(): Boolean
+  @throws[Exception]
+  def endDocument(): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of a simple element.
    *
+   * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
+   *
    * @param diSimple the simple element that is started. Various fields of
    *                 DISimple can be accessed to determine things like the
    *                 value, nil, name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
    */
-
-  def startSimple(diSimple: DISimple): Boolean
+  @throws[Exception]
+  def startSimple(diSimple: DISimple): Unit
 
   /**
    * Called by Daffodil internals to signify the end of a simple element.
    *
+   * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
+   *
    * @param diSimple the simple element that is ended. Various fields of
    *                 DISimple can be accessed to determine things like the
    *                 value, nil, name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
    */
-  def endSimple(diSimple: DISimple): Boolean
+  @throws[Exception]
+  def endSimple(diSimple: DISimple): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of a complex element.
    *
+   * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
+   *
    * @param diComplex the complex element that is started. Various fields of
    *                  DIComplex can be accessed to determine things like the
    *                  nil, name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
    */
-  def startComplex(diComplex: DIComplex): Boolean
+  @throws[Exception]
+  def startComplex(diComplex: DIComplex): Unit
 
   /**
    * Called by Daffodil internals to signify the end of a complex element.
    *
+   * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
+   *
    * @param diComplex the complex element that is ended. Various fields of
    *                  DIComplex can be accessed to determine things like the
    *                  nil, name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
    */
-  def endComplex(diComplex: DIComplex): Boolean
+  @throws[Exception]
+  def endComplex(diComplex: DIComplex): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of an array of elements.
    *
+   * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
+   *
    * @param diComplex the array that is started. Various fields of
    *                  DIArray can be accessed to determine things like the
    *                  name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
    */
-  def startArray(diArray: DIArray): Boolean
+  @throws[Exception]
+  def startArray(diArray: DIArray): Unit
 
   /**
    * Called by Daffodil internals to signify the end of an array of elements.
    *
+   * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
+   *
    * @param diComplex the array that is ended. Various fields of
    *                  DIArray can be accessed to determine things like the
    *                  name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
    */
-  def endArray(diArray: DIArray): Boolean
+  @throws[Exception]
+  def endArray(diArray: DIArray): Unit
 
   def getStatus(): Status = {
     // Done, Ready (Not started), Visiting (part way done - can retry to visit more)...

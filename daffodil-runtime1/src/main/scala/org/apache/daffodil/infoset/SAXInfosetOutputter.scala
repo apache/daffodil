@@ -23,7 +23,6 @@ import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.xml.XMLUtils
 import org.xml.sax.ContentHandler
-import org.xml.sax.SAXException
 import org.xml.sax.helpers.AttributesImpl
 
 class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
@@ -43,104 +42,62 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
     // their contentHandler's reset if applicable and if necessary
   }
 
-  override def startDocument(): Boolean = {
+  override def startDocument(): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      try {
-        contentHandler.startDocument()
-        true
-      } catch {
-        case _: SAXException => false
-      }
-    } else {
-      true
+      contentHandler.startDocument()
     }
   }
 
-  override def endDocument(): Boolean = {
+  override def endDocument(): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      try {
-        contentHandler.endDocument()
-        true
-      } catch {
-        case _: SAXException => false
-      }
-    } else {
-      true
+       contentHandler.endDocument()
     }
   }
 
-  override def startSimple(diSimple: DISimple): Boolean = {
+  override def startSimple(diSimple: DISimple): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      try {
-        doStartElement(diSimple, contentHandler)
-        if (diSimple.hasValue) {
-          val text =
-            if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
-              val s = remapped(diSimple.dataValueAsString)
-              scala.xml.Utility.escape(s)
-            } else {
-              diSimple.dataValueAsString
-            }
-          val arr = text.toCharArray
-          contentHandler.characters(arr, 0, arr.length)
-        }
-        true
-      } catch {
-        case _: SAXException => false
+      doStartElement(diSimple, contentHandler)
+      if (diSimple.hasValue) {
+        val text =
+          if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
+            val s = remapped(diSimple.dataValueAsString)
+            scala.xml.Utility.escape(s)
+          } else {
+            diSimple.dataValueAsString
+          }
+        val arr = text.toCharArray
+        contentHandler.characters(arr, 0, arr.length)
       }
-    } else {
-      true
     }
   }
 
-  override def endSimple(diSimple: DISimple): Boolean = {
+  override def endSimple(diSimple: DISimple): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      try {
-        doEndElement(diSimple, contentHandler)
-        true
-      } catch {
-        case _: SAXException => false
-      }
-    } else {
-      true
+      doEndElement(diSimple, contentHandler)
     }
   }
 
-  override def startComplex(diComplex: DIComplex): Boolean = {
+  override def startComplex(diComplex: DIComplex): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      try {
-        doStartElement(diComplex, contentHandler)
-        true
-      } catch {
-        case _: SAXException => false
-      }
-    } else {
-      true
+      doStartElement(diComplex, contentHandler)
     }
   }
 
-  override def endComplex(diComplex: DIComplex): Boolean = {
+  override def endComplex(diComplex: DIComplex): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      try {
-        doEndElement(diComplex, contentHandler)
-        true
-      } catch {
-        case _: SAXException => false
-      }
-    } else {
-      true
+      doEndElement(diComplex, contentHandler)
     }
   }
 
-  override def startArray(diArray: DIArray): Boolean = true // not applicable
+  override def startArray(diArray: DIArray): Unit = {} // not applicable
 
-  override def endArray(diArray: DIArray): Boolean = true // not applicable
+  override def endArray(diArray: DIArray): Unit = {} // not applicable
 
   private def doStartPrefixMapping(diElem: DIElement, contentHandler: ContentHandler): Unit = {
     val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(diElem)

@@ -35,20 +35,18 @@ class JDOMInfosetOutputter extends InfosetOutputter
     stack.clear
   }
 
-  def startDocument(): Boolean = {
+  def startDocument(): Unit = {
     stack.push(new org.jdom2.Document)
-    true
   }
 
-  def endDocument(): Boolean = {
+  def endDocument(): Unit = {
     val root = stack.pop
     assert(stack.isEmpty)
     assert(root.isInstanceOf[org.jdom2.Document])
     result = Maybe(root.asInstanceOf[org.jdom2.Document])
-    true
   }
 
-  def startSimple(diSimple: DISimple): Boolean = {
+  def startSimple(diSimple: DISimple): Unit = {
 
     val elem = createElement(diSimple)
 
@@ -63,33 +61,26 @@ class JDOMInfosetOutputter extends InfosetOutputter
     }
 
     stack.top.addContent(elem)
-
-    true
   }
 
-  def endSimple(diSimple: DISimple): Boolean = {
-    true
+  def endSimple(diSimple: DISimple): Unit = {
   }
 
-  def startComplex(diComplex: DIComplex): Boolean = {
+  def startComplex(diComplex: DIComplex): Unit = {
 
     val elem = createElement(diComplex)
 
     stack.top.addContent(elem)
     stack.push(elem)
-    true
   }
 
-  def endComplex(diComplex: DIComplex): Boolean = {
+  def endComplex(diComplex: DIComplex): Unit = {
     stack.pop
-    true
   }
 
-  def startArray(diArray: DIArray): Boolean = {
-    true
+  def startArray(diArray: DIArray): Unit = {
   }
-  def endArray(diArray: DIArray): Boolean = {
-    true
+  def endArray(diArray: DIArray): Unit = {
   }
 
   def getResult(): org.jdom2.Document = {

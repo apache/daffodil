@@ -38,7 +38,7 @@ import org.apache.daffodil.util.TestUtils
 class RedactingScalaXMLInfosetOutputter
   extends ScalaXMLInfosetOutputter {
 
-  override def startSimple(diSimple: DISimple): Boolean = {
+  override def startSimple(diSimple: DISimple): Unit = {
     super.startSimple(diSimple)
 
     val runtimeProperties = diSimple.erd.runtimeProperties
@@ -55,7 +55,6 @@ class RedactingScalaXMLInfosetOutputter
       val newElem = thisElem.copy(child = newChild)
       stack.top(stack.top.size - 1) = newElem
     }
-    true
   }
 }
 

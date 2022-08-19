@@ -123,18 +123,18 @@ abstract class InfosetOutputter extends SInfosetOutputter {
   /**
    * Called by Daffodil internals to signify the beginning of the infoset.
    *
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * @throws Exception if there was an error and Daffodil should stop parsing
    */
-  def startDocument(): Boolean
+  @throws[Exception]
+  def startDocument(): Unit
 
   /**
    * Called by Daffodil internals to signify the end of the infoset.
    *
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * @throws Exception if there was an error and Daffodil should stop parsing
    */
-  def endDocument(): Boolean
+  @throws[Exception]
+  def endDocument(): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of a simple element.
@@ -142,11 +142,11 @@ abstract class InfosetOutputter extends SInfosetOutputter {
    * @param diSimple the simple element that is started. Various fields of
    *                 DISimple can be accessed to determine things like the
    *                 value, nil, name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * @throws Exception if there was an error and Daffodil should stop parsing
    */
 
-  def startSimple(diSimple: DISimple): Boolean
+  @throws[Exception]
+  def startSimple(diSimple: DISimple): Unit
 
   /**
    * Called by Daffodil internals to signify the end of a simple element.
@@ -154,10 +154,10 @@ abstract class InfosetOutputter extends SInfosetOutputter {
    * @param diSimple the simple element that is ended. Various fields of
    *                 DISimple can be accessed to determine things like the
    *                 value, nil, name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * @throws Exception if there was an error and Daffodil should stop parsing
    */
-  def endSimple(diSimple: DISimple): Boolean
+  @throws[Exception]
+  def endSimple(diSimple: DISimple): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of a complex element.
@@ -165,10 +165,10 @@ abstract class InfosetOutputter extends SInfosetOutputter {
    * @param diComplex the complex element that is started. Various fields of
    *                  DIComplex can be accessed to determine things like the
    *                  nil, name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * @throws Exception if there was an error and Daffodil should stop parsing
    */
-  def startComplex(diComplex: DIComplex): Boolean
+  @throws[Exception]
+  def startComplex(diComplex: DIComplex): Unit
 
   /**
    * Called by Daffodil internals to signify the end of a complex element.
@@ -176,10 +176,10 @@ abstract class InfosetOutputter extends SInfosetOutputter {
    * @param diComplex the complex element that is ended. Various fields of
    *                  DIComplex can be accessed to determine things like the
    *                  nil, name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * @throws Exception if there was an error and Daffodil should stop parsing
    */
-  def endComplex(diComplex: DIComplex): Boolean
+  @throws[Exception]
+  def endComplex(diComplex: DIComplex): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of an array of elements.
@@ -187,10 +187,10 @@ abstract class InfosetOutputter extends SInfosetOutputter {
    * @param diArray the array that is started. Various fields of
    *                DIArray can be accessed to determine things like the
    *                name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * @throws Exception if there was an error and Daffodil should stop parsing
    */
-  def startArray(diArray: DIArray): Boolean
+  @throws[Exception]
+  def startArray(diArray: DIArray): Unit
 
   /**
    * Called by Daffodil internals to signify the end of an array of elements.
@@ -198,10 +198,10 @@ abstract class InfosetOutputter extends SInfosetOutputter {
    * @param diArray the array that is ended. Various fields of
    *                DIArray can be accessed to determine things like the
    *                name, namespace, etc.
-   * @return true on sucess, false if there was an error and Daffodil should stop all
-   *         future calls to the InfosetOutputter
+   * @throws Exception if there was an error and Daffodil should stop parsing
    */
-  def endArray(diArray: DIArray): Boolean
+  @throws[Exception]
+  def endArray(diArray: DIArray): Unit
 }
 
 /**
@@ -475,12 +475,12 @@ abstract class InfosetOutputterProxy extends InfosetOutputter {
   protected val infosetOutputter: SInfosetOutputter
 
   override def reset(): Unit = infosetOutputter.reset()
-  override def startDocument(): Boolean = infosetOutputter.startDocument()
-  override def endDocument(): Boolean = infosetOutputter.endDocument()
-  override def startSimple(diSimple: DISimple): Boolean = infosetOutputter.startSimple(diSimple)
-  override def endSimple(diSimple: DISimple): Boolean = infosetOutputter.endSimple(diSimple)
-  override def startComplex(diComplex: DIComplex): Boolean = infosetOutputter.startComplex(diComplex)
-  override def endComplex(diComplex: DIComplex): Boolean = infosetOutputter.endComplex(diComplex)
-  override def startArray(diArray: DIArray): Boolean = infosetOutputter.startArray(diArray)
-  override def endArray(diArray: DIArray): Boolean = infosetOutputter.endArray(diArray)
+  override def startDocument(): Unit = infosetOutputter.startDocument()
+  override def endDocument(): Unit = infosetOutputter.endDocument()
+  override def startSimple(diSimple: DISimple): Unit = infosetOutputter.startSimple(diSimple)
+  override def endSimple(diSimple: DISimple): Unit = infosetOutputter.endSimple(diSimple)
+  override def startComplex(diComplex: DIComplex): Unit = infosetOutputter.startComplex(diComplex)
+  override def endComplex(diComplex: DIComplex): Unit = infosetOutputter.endComplex(diComplex)
+  override def startArray(diArray: DIArray): Unit = infosetOutputter.startArray(diArray)
+  override def endArray(diArray: DIArray): Unit = infosetOutputter.endArray(diArray)
 }

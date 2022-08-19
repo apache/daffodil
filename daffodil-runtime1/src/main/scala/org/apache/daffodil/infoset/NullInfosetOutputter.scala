@@ -23,19 +23,17 @@ package org.apache.daffodil.infoset
  */
 class NullInfosetOutputter() extends InfosetOutputter {
 
-  override def reset(): Unit = {
-    //do nothing
-  }
+  override def reset(): Unit = {}
 
-  override def startSimple(simple: DISimple): Boolean = true
-  override def endSimple(simple: DISimple): Boolean = true
+  override def startSimple(simple: DISimple): Unit = {}
+  override def endSimple(simple: DISimple): Unit = {}
 
-  override def startComplex(complex: DIComplex): Boolean = true
-  override def endComplex(complex: DIComplex): Boolean = true
+  override def startComplex(complex: DIComplex): Unit = {}
+  override def endComplex(complex: DIComplex): Unit = {}
 
-  override def startArray(array: DIArray): Boolean = true
-  override def endArray(array: DIArray): Boolean = true
+  override def startArray(array: DIArray): Unit = {}
+  override def endArray(array: DIArray): Unit = {}
 
-  override def startDocument(): Boolean = true
-  override def endDocument(): Boolean = true
+  override def startDocument(): Unit = {}
+  override def endDocument(): Unit = {}
 }
