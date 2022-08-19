@@ -27,7 +27,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.nio.file.Paths
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.equality._
 
 import java.nio.file.FileSystemNotFoundException
 
@@ -54,6 +53,12 @@ sealed trait DaffodilSchemaSource {
    * Use to get the URI that can be used to load the xml.
    */
   def uriForLoading: URI
+
+  /**
+   * @return True if the schema source is for an XSD source file (extension ".xsd")
+   * False otherwise.
+   */
+  def isXSD: Boolean
 }
 
 object URISchemaSource {
@@ -73,17 +78,32 @@ class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchema
 
   private lazy val url = fileOrResource.toURL
 
+  final def isXSD = isXSD_
+
   /**
    * Must be lazy so that it captures the file mod time when it is opened
    * and the content used.
    */
-  lazy val (isFile, file, fileModTime) = try {
-    val path = Paths.get(fileOrResource)
-    val f = path.toFile()
-    (true, f, f.lastModified())
-  } catch {
-    case e: FileSystemNotFoundException => (false, null, 0L)
-    case e: UnsupportedOperationException => (false, null, 0L)
+  lazy val (isFile, isXSD_, file, fileModTime) = {
+    val uriString = uriForLoading.toString
+    //
+    // doing this the manual way using split
+    // on string because FilenameUtils.getExtension
+    // does something complicated for the nested
+    // jar URIs we encounter here. It seems to not
+    // move past the nesting, and sees ".jar" not
+    // ".xsd" for files that are clearly XSD.
+    //
+    val ext = uriString.split("\\.").last
+    val isXSDExt = (ext == "xsd")
+    try {
+      val path = Paths.get(fileOrResource)
+      val f = path.toFile()
+      (true, isXSDExt, f, f.lastModified())
+    } catch {
+      case e: FileSystemNotFoundException => (false, isXSDExt, null, 0L)
+      case e: UnsupportedOperationException => (false, isXSDExt, null, 0L)
+    }
   }
 
   override def newInputSource() = {
@@ -96,16 +116,11 @@ class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchema
   override def uriForLoading = fileOrResource
 
   /**
-   * True if this URI is for a file, other URI is for a file
-   * (it is required that they're both the same URI. Usage error otherwise),
-   * but the modification date
-   * of the two is such that this is newer than the other at the time the
-   * other was accessed via newInputSource()
-   *
-   * Otherwise false.
+   * @return True if this URI is for a file, other URI is for a file
+   * but the modification date of this is newer than the modification
+   * date of the other.
    */
   def isNewerThan(other: URISchemaSource): Boolean = {
-    Assert.usage(fileOrResource =:= other.fileOrResource)
     if (this.isFile && other.isFile) {
       val thisTime = fileModTime
       val otherTime = other.fileModTime
@@ -127,6 +142,9 @@ class InputStreamSchemaSource(is: java.io.InputStream, tmpDir: Option[File], bla
     xmlStream.close()
     csName
   }
+
+  def isXSD = Assert.usageError("isXSD not supported for InputStreamInputSource")
+
   override def newInputSource() = {
     val is = new FileInputStream(tempSchemaFile)
     val inSrc = new InputSource(is)

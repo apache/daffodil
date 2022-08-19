@@ -186,6 +186,7 @@ object Rat {
     file("daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_prefix_separator_as_variable"),
     file("daffodil-test/src/test/resources/test space/A BTinyData.tdml.dat"),
+    file("daffodil-tdml-processor/src/test/resources/test/tdml/fake-precompiled-dfdl-schema.bin"),
     file("test-stdLayout/src/test/resources/org1/test-outer-data1.txt"),
     file("test-stdLayout/src/test/resources/org2/test-data1.txt"),
   )

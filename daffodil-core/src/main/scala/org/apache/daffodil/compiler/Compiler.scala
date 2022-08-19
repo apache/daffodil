@@ -45,6 +45,7 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml._
+import java.net.URI
 
 /**
  * Some grammar rules need to be conditional based on whether we're trying
@@ -281,12 +282,18 @@ class Compiler private (var validateDFDLSchemas: Boolean,
   def withCheckAllTopLevel(flag: Boolean): Compiler =
     copy(checkAllTopLevel = flag)
 
-  def reload(savedParser: File) = reload(new FileInputStream(savedParser).getChannel())
+  def reload(savedParser: File) = reload(new FileInputStream(savedParser))
 
-  def reload(savedParser: java.nio.channels.ReadableByteChannel): DFDL.DataProcessor = {
+  def reload(savedParser: java.nio.channels.ReadableByteChannel): DFDL.DataProcessor =
+     reload(Channels.newInputStream(savedParser))
+
+  def reload(schemaSource: DaffodilSchemaSource): DFDL.DataProcessor =
+    reload(schemaSource.uriForLoading)
+
+  def reload(uri: URI): DFDL.DataProcessor = reload(uri.toURL.openStream())
+
+  def reload(is: java.io.InputStream): DFDL.DataProcessor = {
     try {
-      val is = Channels.newInputStream(savedParser)
-
       // Read the required prefix and version information for this saved parser
       // directly from the input stream. This information is not compressed or
       // serialized by a Java ObjectOutputStream
