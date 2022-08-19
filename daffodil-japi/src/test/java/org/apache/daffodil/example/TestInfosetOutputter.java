@@ -41,63 +41,55 @@ public class TestInfosetOutputter extends InfosetOutputter {
     }
 
     @Override
-    public boolean startDocument() {
+    public void startDocument() {
         events.add(TestInfosetEvent.startDocument());
-        return true;
     }
 
     @Override
-    public boolean endDocument() {
+    public void endDocument() {
         events.add(TestInfosetEvent.endDocument());
-        return true;
     }
 
     @Override
-    public boolean startSimple(DISimple diSimple) {
+    public void startSimple(DISimple diSimple) {
         events.add(
             TestInfosetEvent.startSimple(
                 diSimple.erd().name(),
                 diSimple.erd().namedQName().namespace().toString(),
                 diSimple.dataValueAsString(),
                 diSimple.erd().isNillable() ? diSimple.isNilled() : null));
-        return true;
     }
 
     @Override
-    public boolean endSimple(DISimple diSimple) {
+    public void endSimple(DISimple diSimple) {
         events.add(
             TestInfosetEvent.endSimple(
                 diSimple.erd().name(),
                 diSimple.erd().namedQName().namespace().toString()));
-        return true;
     }
 
     @Override
-    public boolean startComplex(DIComplex diComplex) {
+    public void startComplex(DIComplex diComplex) {
         events.add(
             TestInfosetEvent.startComplex(
                 diComplex.erd().name(),
                 diComplex.erd().namedQName().namespace().toString(),
                 diComplex.erd().isNillable() ? diComplex.isNilled() : null));
-        return true;
     }
 
     @Override
-    public boolean endComplex(DIComplex diComplex) {
+    public void endComplex(DIComplex diComplex) {
         events.add(
             TestInfosetEvent.endComplex(
                 diComplex.erd().name(),
                 diComplex.erd().namedQName().namespace().toString()));
-        return true;
     }
 
     @Override
-    public boolean startArray(DIArray diArray) {
-        return true;
+    public void startArray(DIArray diArray) {
     }
 
     @Override
-    public boolean endArray(DIArray diArray) {
-        return true;
+    public void endArray(DIArray diArray) {
     }
 }

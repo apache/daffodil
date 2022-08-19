@@ -90,56 +90,48 @@ case class TestInfosetOutputter() extends InfosetOutputter {
     events.clear()
   }
 
-  override def startDocument(): Boolean = {
+  override def startDocument(): Unit = {
     events.append(TestInfosetEvent.startDocument())
-    true
   }
 
-  override def endDocument(): Boolean = {
+  override def endDocument(): Unit = {
     events.append(TestInfosetEvent.endDocument())
-    true
   }
 
-  override def startSimple(diSimple: DISimple): Boolean = {
+  override def startSimple(diSimple: DISimple): Unit = {
     events.append(
       TestInfosetEvent.startSimple(
         diSimple.erd.name,
         diSimple.erd.namedQName.namespace,
         diSimple.dataValueAsString,
         if (diSimple.erd.isNillable) MaybeBoolean(diSimple.isNilled) else MaybeBoolean.Nope))
-    true
   }
 
-  override def endSimple(diSimple: DISimple): Boolean = {
+  override def endSimple(diSimple: DISimple): Unit = {
     events.append(
       TestInfosetEvent.endSimple(
         diSimple.erd.name,
         diSimple.erd.namedQName.namespace))
-    true
   }
 
-  override def startComplex(diComplex: DIComplex): Boolean = {
+  override def startComplex(diComplex: DIComplex): Unit = {
     events.append(
       TestInfosetEvent.startComplex(
         diComplex.erd.name,
         diComplex.erd.namedQName.namespace,
         if (diComplex.erd.isNillable) MaybeBoolean(diComplex.isNilled) else MaybeBoolean.Nope))
-    true
   }
 
-  override def endComplex(diComplex: DIComplex): Boolean = {
+  override def endComplex(diComplex: DIComplex): Unit = {
     events.append(
       TestInfosetEvent.endComplex(
         diComplex.erd.name,
         diComplex.erd.namedQName.namespace))
-    true
   }
 
-  override def startArray(diArray: DIArray): Boolean = {
-    true
+  override def startArray(diArray: DIArray): Unit = {
   }
 
-  override def endArray(diArray: DIArray): Boolean = {
-    true
+  override def endArray(diArray: DIArray): Unit = {
   }
 }

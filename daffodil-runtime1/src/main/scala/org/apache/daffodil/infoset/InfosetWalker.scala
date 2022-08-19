@@ -17,10 +17,6 @@
 
 package org.apache.daffodil.infoset
 
-import scala.util.Failure
-import scala.util.Success
-import scala.util.Try
-
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.exceptions.ThrowsSDE
 import org.apache.daffodil.util.MStackOfInt
@@ -413,13 +409,11 @@ class InfosetWalker private (
     containerIndexStack.setTop(top + 1)
   }
 
-  private def doOutputter(outputterFunc: => Boolean, desc: String, context: ThrowsSDE): Unit = {
-    Try(outputterFunc) match {
-      case Success(true) => // success
-      // $COVERAGE-OFF$
-      case Success(false) => Assert.usageError("InfosetOutputter false return value is deprecated. Throw an Exception instead.")
-      // $COVERAGE-ON$
-      case Failure(e) => {
+  private def doOutputter(outputterFunc: => Unit, desc: String, context: ThrowsSDE): Unit = {
+    try {
+      outputterFunc
+    } catch {
+      case e: Exception => {
         val cause = e.getCause
         val msg = if (cause == null) e.toString else cause.toString
         context.SDE("Failed to %s: %s", desc, msg)

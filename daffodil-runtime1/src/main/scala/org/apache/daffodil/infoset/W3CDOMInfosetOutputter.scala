@@ -40,23 +40,21 @@ class W3CDOMInfosetOutputter extends InfosetOutputter
     stack.clear
   }
 
-  def startDocument(): Boolean = {
+  def startDocument(): Unit = {
     val factory: DocumentBuilderFactory = DocumentBuilderFactory.newInstance();
     factory.setNamespaceAware(true)
     document = factory.newDocumentBuilder().newDocument()
     stack.push(document)
-    true
   }
 
-  def endDocument(): Boolean = {
+  def endDocument(): Unit = {
     val root = stack.pop
     assert(stack.isEmpty)
     assert(root.isInstanceOf[Document])
     result = Maybe(root.asInstanceOf[Document])
-    true
   }
 
-  def startSimple(diSimple: DISimple): Boolean = {
+  def startSimple(diSimple: DISimple): Unit = {
 
     val elem = createElement(diSimple)
 
@@ -71,32 +69,25 @@ class W3CDOMInfosetOutputter extends InfosetOutputter
     }
 
     stack.top.appendChild(elem)
-
-    true
   }
 
-  def endSimple(diSimple: DISimple): Boolean = {
-    true
+  def endSimple(diSimple: DISimple): Unit = {
   }
 
-  def startComplex(diComplex: DIComplex): Boolean = {
+  def startComplex(diComplex: DIComplex): Unit = {
 
     val elem = createElement(diComplex)
     stack.top.appendChild(elem)
     stack.push(elem)
-    true
   }
 
-  def endComplex(diComplex: DIComplex): Boolean = {
+  def endComplex(diComplex: DIComplex): Unit = {
     stack.pop
-    true
   }
 
-  def startArray(diArray: DIArray): Boolean = {
-    true
+  def startArray(diArray: DIArray): Unit = {
   }
-  def endArray(diArray: DIArray): Boolean = {
-    true
+  def endArray(diArray: DIArray): Unit = {
   }
 
   def getResult(): Document = {

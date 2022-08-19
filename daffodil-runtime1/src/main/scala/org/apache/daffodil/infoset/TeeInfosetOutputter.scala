@@ -19,11 +19,9 @@ package org.apache.daffodil.infoset
 
 
 /**
- * Receive infoset events and forward them to one or more InfosetOutputters.
- * For infoset events that return a boolean, this returns true only if all
- * outputters return true, otherwise false is returned. Additionally, all
- * events are called on all the outputters regardless of the return of any
- * previous outputters.
+ * Receive infoset events and forward them to one or more InfosetOutputters. A
+ * thrown exception from any outputter is not caught and bubbles up resulting
+ * in an SDE. No other outputters are called when an exception occurs.
  *
  * @param outputters
  *
@@ -36,51 +34,35 @@ class TeeInfosetOutputter(outputters: InfosetOutputter*)
     outputters.foreach { _.reset() }
   }
 
-  override def startSimple(simple: DISimple): Boolean = {
-    outputters.foldLeft(true) { case (res, outputter) =>
-      res & outputter.startSimple(simple)
-    }
+  override def startSimple(simple: DISimple): Unit = {
+    outputters.foreach { _.startSimple(simple) }
   }
   
-  override def endSimple(simple: DISimple): Boolean = {
-    outputters.foldLeft(true) { case (res, outputter) =>
-      res & outputter.endSimple(simple)
-    }
+  override def endSimple(simple: DISimple): Unit = {
+    outputters.foreach { _.endSimple(simple) }
   }
 
-  override def startComplex(complex: DIComplex): Boolean = {
-    outputters.foldLeft(true) { case (res, outputter) =>
-      res & outputter.startComplex(complex)
-    }
+  override def startComplex(complex: DIComplex): Unit = {
+    outputters.foreach { _.startComplex(complex) }
   }
 
-  override def endComplex(complex: DIComplex): Boolean = {
-    outputters.foldLeft(true) { case (res, outputter) =>
-      res & outputter.endComplex(complex)
-    }
+  override def endComplex(complex: DIComplex): Unit = {
+    outputters.foreach { _.endComplex(complex) }
   }
 
-  override def startArray(array: DIArray): Boolean = {
-    outputters.foldLeft(true) { case (res, outputter) =>
-      res & outputter.startArray(array)
-    }
+  override def startArray(array: DIArray): Unit = {
+    outputters.foreach { _.startArray(array) }
   }
 
-  override def endArray(array: DIArray): Boolean = {
-    outputters.foldLeft(true) { case (res, outputter) =>
-      res & outputter.endArray(array)
-    }
+  override def endArray(array: DIArray): Unit = {
+    outputters.foreach { _.endArray(array) }
   }
 
-  override def startDocument(): Boolean = {
-    outputters.foldLeft(true) { case (res, outputter) =>
-      res & outputter.startDocument()
-    }
+  override def startDocument(): Unit = {
+    outputters.foreach { _.startDocument() }
   }
 
-  override def endDocument(): Boolean = {
-    outputters.foldLeft(true) { case (res, outputter) =>
-      res & outputter.endDocument()
-    }
+  override def endDocument(): Unit = {
+    outputters.foreach { _.endDocument() }
   }
 }

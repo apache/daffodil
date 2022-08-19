@@ -97,7 +97,7 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, dum
   }
 
 
-  override def startSimple(simple: DISimple): Boolean = {
+  override def startSimple(simple: DISimple): Unit = {
     startNode()
     startElement(simple)
     if (!isNilled(simple) && simple.hasValue) {
@@ -113,15 +113,13 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, dum
     } else {
       writer.write("null")
     }
-    true
   }
 
-  override def endSimple(simple: DISimple): Boolean = {
+  override def endSimple(simple: DISimple): Unit = {
     // nothing to do
-    true
   }
 
-  override def startComplex(complex: DIComplex): Boolean = {
+  override def startComplex(complex: DIComplex): Unit = {
     startNode()
     startElement(complex)
     if (!isNilled(complex)) {
@@ -130,47 +128,41 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, dum
     } else {
       writer.write("null")
     }
-    true
   }
 
-  override def endComplex(complex: DIComplex): Boolean = {
+  override def endComplex(complex: DIComplex): Unit = {
     if (!isNilled(complex)) {
       endNodeWithChildren()
       writer.write('}')
     } else {
       // do nothing
     }
-    true
   }
 
-  override def startArray(array: DIArray): Boolean = {
+  override def startArray(array: DIArray): Unit = {
     startNode()
     writer.write('"')
     writer.write(array.erd.name)
     writer.write("\": [")
     prepareForChildren()
-    true
   }
 
-  override def endArray(array: DIArray): Boolean = {
+  override def endArray(array: DIArray): Unit = {
     endNodeWithChildren()
     writer.write(']')
-    true
   }
 
-  override def startDocument(): Boolean = {
+  override def startDocument(): Unit = {
     // does not use startNode() because the stack is empty and we also do
     // not want to output the newline that it outputs or do any indentation
     writer.write('{')
     prepareForChildren()
-    true
   }
 
-  override def endDocument(): Boolean = {
+  override def endDocument(): Unit = {
     endNodeWithChildren()
     writer.write('}')
     if (pretty) writer.write(System.lineSeparator())
     writer.flush()
-    true
   }
 }

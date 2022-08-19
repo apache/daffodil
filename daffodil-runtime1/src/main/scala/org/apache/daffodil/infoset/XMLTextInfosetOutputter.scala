@@ -152,7 +152,7 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
     }
   }
 
-  override def startSimple(simple: DISimple): Boolean = {
+  override def startSimple(simple: DISimple): Unit = {
     if (pretty) {
       writer.write(System.lineSeparator())
       outputIndentation(writer)
@@ -174,16 +174,13 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
 
     outputEndTag(simple)
     inScopeComplexElementHasChildren = true
-
-    true
   }
   
-  override def endSimple(simple: DISimple): Boolean = {
+  override def endSimple(simple: DISimple): Unit = {
     // do nothing, everything is done in startSimple
-    true
   }
 
-  override def startComplex(complex: DIComplex): Boolean = {
+  override def startComplex(complex: DIComplex): Unit = {
     if (pretty) {
       writer.write(System.lineSeparator())
       outputIndentation(writer)
@@ -191,11 +188,9 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
     outputStartTag(complex)
     incrementIndentation()
     inScopeComplexElementHasChildren = false
-
-    true
   }
 
-  override def endComplex(complex: DIComplex): Boolean = {
+  override def endComplex(complex: DIComplex): Unit = {
     decrementIndentation()
     if (pretty && inScopeComplexElementHasChildren) {
       // only output newline and indentation for non-empty complex types
@@ -204,28 +199,22 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, 
     }
     outputEndTag(complex)
     inScopeComplexElementHasChildren = true
-
-    true
   }
 
-  override def startArray(array: DIArray): Boolean = {
+  override def startArray(array: DIArray): Unit = {
     // do nothing
-    true
   }
 
-  override def endArray(array: DIArray): Boolean = {
+  override def endArray(array: DIArray): Unit = {
     // do nothing
-    true
   }
 
-  override def startDocument(): Boolean = {
+  override def startDocument(): Unit = {
     writer.write("""<?xml version="1.0" encoding="UTF-8"?>""")
-    true
   }
 
-  override def endDocument(): Boolean = {
+  override def endDocument(): Unit = {
     writer.write(System.lineSeparator())
     writer.flush()
-    true
   }
 }

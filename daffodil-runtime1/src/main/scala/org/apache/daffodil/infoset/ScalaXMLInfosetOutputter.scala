@@ -40,16 +40,14 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
     stack.clear
   }
 
-  def startDocument(): Boolean = {
+  def startDocument(): Unit = {
     stack.push(new ListBuffer())
-    true
   }
 
-  def endDocument(): Boolean = {
+  def endDocument(): Unit = {
     val root = stack.pop
     assert(root.length == 1)
     resultNode = Maybe(root(0))
-    true
   }
 
   private def getAttributes(diElem: DIElement): MetaData = {
@@ -75,7 +73,7 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
     freedAttr
   }
 
-  def startSimple(diSimple: DISimple): Boolean = {
+  def startSimple(diSimple: DISimple): Unit = {
 
     val attributes = getAttributes(diSimple)
 
@@ -103,19 +101,16 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
 
     val elemWithFmt = addFmtInfo(diSimple, elem, showFormatInfo)
     stack.top.append(elemWithFmt)
-    true
   }
 
-  def endSimple(diSimple: DISimple): Boolean = {
-    true
+  def endSimple(diSimple: DISimple): Unit = {
   }
 
-  def startComplex(diComplex: DIComplex): Boolean = {
+  def startComplex(diComplex: DIComplex): Unit = {
     stack.push(new ListBuffer())
-    true
   }
 
-  def endComplex(diComplex: DIComplex): Boolean = {
+  def endComplex(diComplex: DIComplex): Unit = {
 
     val attributes = getAttributes(diComplex)
     val children = stack.pop
@@ -131,15 +126,12 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
 
     val elemWithFmt = addFmtInfo(diComplex, elem, showFormatInfo)
     stack.top.append(elemWithFmt)
-    true
   }
 
-  def startArray(diArray: DIArray): Boolean = {
+  def startArray(diArray: DIArray): Unit = {
     // Array elements are started individually
-    true
   }
-  def endArray(diArray: DIArray): Boolean = {
-    true
+  def endArray(diArray: DIArray): Unit = {
   }
 
   def getResult(): scala.xml.Node = {
