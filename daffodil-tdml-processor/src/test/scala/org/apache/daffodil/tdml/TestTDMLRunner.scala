@@ -912,4 +912,26 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertTrue(exc.getMessage().contains("Duplicate definitions found for defineConfig: dupConfig"))
   }
 
+  @Test def testNonXSDModelNegativeBadCompiledFile(): Unit = {
+    val testSuite =
+       <tdml:testSuite suiteName="theSuiteName"
+                       xmlns:tns={ tns }
+                       xmlns:tdml={ tdml }
+                       xmlns:dfdl={ dfdl }
+                       xmlns:xsd={ xsd }
+                       xmlns:xs={ xsd }
+                       xmlns:xsi={ xsi }>
+         <parserTestCase xmlns={ tdml } name="testCase" root="data"
+                         model="test/tdml/fake-precompiled-dfdl-schema.bin" >
+           <document/>
+           <infoset><dfdlInfoset><data/></dfdlInfoset></infoset>
+           </parserTestCase>
+       </tdml:testSuite>
+    val runner = new Runner(testSuite)
+    val exc = intercept[Exception] {
+      runner.runOneTest("testCase")
+    }
+    runner.reset()
+    assertTrue(exc.getMessage.contains("only compatible with Daffodil 300.400.500"))
+  }
 }

@@ -130,14 +130,14 @@ final class TDMLDFDLProcessorFactory private (
           val output = Channels.newChannel(os)
           p.save(output)
           val is = new java.io.ByteArrayInputStream(os.toByteArray)
-          val input = Channels.newChannel(is)
-          compiler.reload(input)
+          compiler.reload(is)
         } else p
       }
       val diags = p.getDiagnostics
       Right((diags, new DaffodilTDMLDFDLProcessor(dp)))
     }
   }
+
 
   private def compileProcessor(
     schemaSource: DaffodilSchemaSource,
@@ -160,9 +160,15 @@ final class TDMLDFDLProcessorFactory private (
     optRootName: Option[String],
     optRootNamespace: Option[String],
     tunables: Map[String, String]): TDML.CompileResult = {
-
-    val res = compileProcessor(schemaSource, useSerializedProcessor, optRootName, optRootNamespace)
-    res
+    if (schemaSource.isXSD) {
+      val res = compileProcessor(schemaSource, useSerializedProcessor, optRootName, optRootNamespace)
+      res
+    } else {
+      val dp = compiler.reload(schemaSource)
+      val diags = dp.getDiagnostics
+      Assert.invariant(diags.forall{! _.isError })
+      Right((diags, new DaffodilTDMLDFDLProcessor(dp)))
+    }
   }
 
 }
