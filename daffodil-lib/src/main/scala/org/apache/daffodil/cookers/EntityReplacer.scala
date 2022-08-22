@@ -589,7 +589,7 @@ class StringLiteralNoCharClassEntities(pn: String, allowByteEntities: Boolean)
   extends StringLiteralBase(pn, allowByteEntities)
   with DisallowedCharClassEntitiesMixin {
 
-  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP+", "SP*", "LSP", "LSP+", "LSP*")
   override def testRaw(raw: String, context: ThrowsSDE) =
     super[DisallowedCharClassEntitiesMixin].testRaw(raw,context)
 }
@@ -599,7 +599,7 @@ class SingleCharacterLiteralNoCharClassEntities(pn: String, allowByteEntities: B
   with DisallowedCharClassEntitiesMixin
   with SingleCharacterMixin {
 
-  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP+", "SP*", "LSP", "LSP+", "LSP*")
   override protected def testRaw(raw: String, context: ThrowsSDE) =
     super.testRaw(raw, context)
 }
@@ -609,7 +609,7 @@ class StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities(pn: String = null)
   with DisallowedCharClassEntitiesMixin
   with NonEmptyMixin {
 
-  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP+", "SP*", "LSP", "LSP+", "LSP*")
   override def testRaw(raw: String, context: ThrowsSDE) =
     super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
 
@@ -629,7 +629,7 @@ class StringLiteralESEntityWithByteEntities(pn: String)
   extends StringLiteralNoCharClassEntities(pn, allowByteEntities = true)
   with DisallowedCharClassEntitiesMixin {
 
-  override val disallowedCharClassEntities = Seq("NL", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "WSP", "WSP+", "WSP*", "SP+", "SP*", "LSP", "LSP+", "LSP*")
   override def testRaw(raw: String, context: ThrowsSDE) =
     super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
 }
@@ -744,7 +744,7 @@ class ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities(pn: String = 
   override protected val oneLiteralCooker =
     new StringLiteralNonEmpty(propName, allowByteEntities = false) with DisallowedCharClassEntitiesMixin {
 
-      override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+      override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP+", "SP*", "LSP", "LSP+", "LSP*")
       override def testRaw(raw: String, context: ThrowsSDE) =
         super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
     }
@@ -767,7 +767,7 @@ class SingleCharacterLineEndingOrCRLF_NoCharClassEntitiesNoByteEntities(pn: Stri
 
   private val validNLs: List[Char] = List('\u000A', '\u000D', '\u0085', '\u2028')
 
-  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
+  override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*", "SP+", "SP*", "LSP", "LSP+", "LSP*")
   override def testRaw(raw: String, context: ThrowsSDE) =
     super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
 
@@ -788,7 +788,7 @@ class NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities(pn: String)
   override protected val oneLiteralCooker =
     new StringLiteral(propName, allowByteEntities = true) with DisallowedCharClassEntitiesMixin {
 
-      override val disallowedCharClassEntities = Seq("NL", "WSP", "WSP+", "WSP*")
+      override val disallowedCharClassEntities = Seq("NL", "WSP", "WSP+", "WSP*", "SP+", "SP*", "LSP", "LSP+", "LSP*")
       override def testRaw(raw: String, context: ThrowsSDE) =
         super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
     }
