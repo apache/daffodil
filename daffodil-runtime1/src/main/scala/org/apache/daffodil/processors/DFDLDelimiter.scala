@@ -93,45 +93,48 @@ class Delimiter {
   //
   //Large function bc reducing WSP,LSP, and SP. Break this down...
   def reduceDelimBuf(delims: Array[DelimBase]): Array[DelimBase] = {
+    var reducedWSP = reduceWSP(delims)
+    var reducedLSP = reduceLSP(reducedWSP)
+    var reducedDelims = reduceSP(reducedLSP)
+    reducedDelims
+  }
 
-    val qReducedWSP: Queue[DelimBase] = new Queue[DelimBase]()
-    val qReducedWSPLSP: Queue[DelimBase] = new Queue[DelimBase]()
-    val qReducedWSPLSPSP: Queue[DelimBase] = new Queue[DelimBase]()
+  def reduceWSP(delims: Array[DelimBase]): Array[DelimBase] = {
+    val q: Queue[DelimBase] = new Queue[DelimBase]()
 
     // Counters to keep track of WSP,+,* objects
-    var numDelim: Int = 0
-    var numDelim_Plus: Int = 0
-    var numDelim_Star: Int = 0
+    var numWSP: Int = 0
+    var numWSP_Plus: Int = 0
+    var numWSP_Star: Int = 0
 
     var idx: Int = 0 // To index the resultant array
 
-    //Coalesce WSP delimiter
     delims.foreach(delim => {
       delim match {
-        case wsp: WSPDelim => numDelim += 1
-        case wsp: WSPPlusDelim => numDelim_Plus += 1
-        case wsp: WSPStarDelim => numDelim_Star += 1
+        case wsp: WSPDelim => numWSP += 1
+        case wsp: WSPPlusDelim => numWSP_Plus += 1
+        case wsp: WSPStarDelim => numWSP_Star += 1
         case _ => {
           // We've reached a non WSP delimiter, check if we've
           // previously encountered any WSP delimiter objects and
           // return the equivalent representation (if any)
-          val result = getReducedDelim(numDelim, numDelim_Plus, numDelim_Star)
+          val result = getReducedDelim(numWSP, numWSP_Plus, numWSP_Star)
 
           if (result.isDefined) {
             val x = result.get
             // WSP exists and an equivalent representation was found
             x.index = idx // Set the delimiter's index
-            qReducedWSP += x
+            q += x
             idx += 1
           } else {
             // Reduction not possible, but did we come across
             // more than one WSP?
 
             var i = 0
-            while (i < numDelim) {
+            while (i < numWSP) {
               val wsp = new WSPDelim
               wsp.index = idx
-              qReducedWSP += wsp
+              q += wsp
               idx += 1
               i += 1
             }
@@ -140,74 +143,78 @@ class Delimiter {
           // Set the delimiter's index, needed to
           // update the delimBuf individual node (DelimBase) state later
           delim.index = idx
-          qReducedWSP += delim
+          q += delim
           idx += 1
 
           // Reset counters
-          numDelim = 0
-          numDelim_Plus = 0
-          numDelim_Star = 0
+          numWSP = 0
+          numWSP_Plus = 0
+          numWSP_Star = 0
         }
       }
     }) // end-for-each
 
     // Check for leftovers in case the delimiter
     // ends in spaces
-    val result = getReducedDelim(numDelim, numDelim_Plus, numDelim_Star)
+    val result = getReducedDelim(numWSP, numWSP_Plus, numWSP_Star)
 
     if (result.isDefined) {
       val x = result.get
       x.index = idx
-      qReducedWSP += x
+      q += x
     } else {
       // Reduction not possible, but did we come across
       // more than one WSP?
-
       var i = 0
-      while (i < numDelim) {
+      while (i < numWSP) {
         val wsp = new WSPDelim
         wsp.index = idx
-        qReducedWSP += wsp
+        q += wsp
         idx += 1
         i += 1
       }
     }
 
-    //Reset idx and counters
-    idx = 0
-    numDelim = 0
-    numDelim_Plus = 0
-    numDelim_Star = 0
+    q.toArray[DelimBase]
 
-    qReducedWSP.toArray[DelimBase]    //Done reducing WSP
+  }
 
-    //Coalesce LSP
-    qReducedWSP.foreach(delim => {
+  def reduceLSP(delims: Array[DelimBase]): Array[DelimBase] = {
+    val q: Queue[DelimBase] = new Queue[DelimBase]()
+
+    // Counters to keep track of WSP,+,* objects
+    var numLSP: Int = 0
+    var numLSP_Plus: Int = 0
+    var numLSP_Star: Int = 0
+
+    var idx: Int = 0 // To index the resultant array
+
+    delims.foreach(delim => {
       delim match {
-        case lsp: LSPDelim => numDelim += 1
-        case lsp: LSPPlusDelim => numDelim_Plus += 1
-        case lsp: LSPStarDelim => numDelim_Star += 1
+        case lsp: LSPDelim => numLSP += 1
+        case lsp: LSPPlusDelim => numLSP_Plus += 1
+        case lsp: LSPStarDelim => numLSP_Star += 1
         case _ => {
-          // We've reached a non LSP delimiter, check if we've
-          // previously encountered any LSP delimiter objects and
+          // We've reached a non WSP delimiter, check if we've
+          // previously encountered any WSP delimiter objects and
           // return the equivalent representation (if any)
-          val resultLSP = getReducedLSPDelim(numDelim, numDelim_Plus, numDelim_Star)
+          val result = getReducedLSPDelim(numLSP, numLSP_Plus, numLSP_Star)
 
-          if (resultLSP.isDefined) {
-            val x = resultLSP.get
-            // LSP exists and an equivalent representation was found
+          if (result.isDefined) {
+            val x = result.get
+            // WSP exists and an equivalent representation was found
             x.index = idx // Set the delimiter's index
-            qReducedWSPLSP += x
+            q += x
             idx += 1
           } else {
             // Reduction not possible, but did we come across
-            // more than one LSP?
+            // more than one WSP?
 
             var i = 0
-            while (i < numDelim) {
+            while (i < numLSP) {
               val lsp = new LSPDelim
               lsp.index = idx
-              qReducedWSPLSP += lsp
+              q += lsp
               idx += 1
               i += 1
             }
@@ -216,76 +223,78 @@ class Delimiter {
           // Set the delimiter's index, needed to
           // update the delimBuf individual node (DelimBase) state later
           delim.index = idx
-          qReducedWSPLSP += delim
+          q += delim
           idx += 1
 
           // Reset counters
-          numDelim = 0
-          numDelim_Plus = 0
-          numDelim_Star = 0
+          numLSP = 0
+          numLSP_Plus = 0
+          numLSP_Star = 0
         }
       }
     }) // end-for-each
 
     // Check for leftovers in case the delimiter
     // ends in spaces
-    val resultLSP = getReducedLSPDelim(numDelim, numDelim_Plus, numDelim_Star)
+    val result = getReducedDelim(numLSP, numLSP_Plus, numLSP_Star)
 
-    if (resultLSP.isDefined) {
+    if (result.isDefined) {
       val x = result.get
       x.index = idx
-      qReducedWSPLSP += x
+      q += x
     } else {
       // Reduction not possible, but did we come across
-      // more than one LSP?
-
+      // more than one WSP?
       var i = 0
-      while (i < numDelim) {
+      while (i < numLSP) {
         val lsp = new LSPDelim
         lsp.index = idx
-        qReducedWSPLSP += lsp
+        q += lsp
         idx += 1
         i += 1
       }
     }
 
-    //Reset idx
-    idx = 0
-    numDelim = 0
-    numDelim_Plus = 0
-    numDelim_Star = 0
+    q.toArray[DelimBase]
 
-    qReducedWSPLSP.toArray[DelimBase]
+  }
 
-    //---
-    //SP Coalesce
-    //Coalesce LSP
-    qReducedWSPLSP.foreach(delim => {
+  def reduceSP(delims: Array[DelimBase]): Array[DelimBase] = {
+    val q: Queue[DelimBase] = new Queue[DelimBase]()
+
+    // Counters to keep track of WSP,+,* objects
+    var numSP: Int = 0
+    var numSP_Plus: Int = 0
+    var numSP_Star: Int = 0
+
+    var idx: Int = 0 // To index the resultant array
+
+    delims.foreach(delim => {
       delim match {
-        case sp: SPDelim => numDelim += 1
-        case sp: SPPlusDelim => numDelim_Plus += 1
-        case sp: SPStarDelim => numDelim_Star += 1
+        case sp: SPDelim => numSP += 1
+        case sp: SPPlusDelim => numSP_Plus += 1
+        case sp: SPStarDelim => numSP_Star += 1
         case _ => {
-          // We've reached a non SP delimiter, check if we've
-          // previously encountered any SP delimiter objects and
+          // We've reached a non WSP delimiter, check if we've
+          // previously encountered any WSP delimiter objects and
           // return the equivalent representation (if any)
-          val resultSP = getReducedSPDelim(numDelim, numDelim_Plus, numDelim_Star)
+          val result = getReducedSPDelim(numSP, numSP_Plus, numSP_Star)
 
-          if (resultSP.isDefined) {
-            val x = resultSP.get
-            // SP exists and an equivalent representation was found
+          if (result.isDefined) {
+            val x = result.get
+            // WSP exists and an equivalent representation was found
             x.index = idx // Set the delimiter's index
-            qReducedWSPLSPSP += x
+            q += x
             idx += 1
           } else {
             // Reduction not possible, but did we come across
-            // more than one LSP?
+            // more than one WSP?
 
             var i = 0
-            while (i < numDelim) {
+            while (i < numSP) {
               val sp = new SPDelim
               sp.index = idx
-              qReducedWSPLSPSP += sp
+              q += sp
               idx += 1
               i += 1
             }
@@ -294,40 +303,40 @@ class Delimiter {
           // Set the delimiter's index, needed to
           // update the delimBuf individual node (DelimBase) state later
           delim.index = idx
-          qReducedWSPLSPSP += delim
+          q += delim
           idx += 1
 
           // Reset counters
-          numDelim = 0
-          numDelim = 0
-          numDelim = 0
+          numSP = 0
+          numSP_Plus = 0
+          numSP_Star = 0
         }
       }
     }) // end-for-each
 
     // Check for leftovers in case the delimiter
     // ends in spaces
-    val resultSP = getReducedSPDelim(numDelim, numDelim_Plus, numDelim_Star)
+    val result = getReducedSPDelim(numSP, numSP_Plus, numSP_Star)
 
-    if (resultSP.isDefined) {
+    if (result.isDefined) {
       val x = result.get
       x.index = idx
-      qReducedWSPLSPSP += x
+      q += x
     } else {
       // Reduction not possible, but did we come across
-      // more than one LSP?
-
+      // more than one WSP?
       var i = 0
-      while (i < numDelim) {
+      while (i < numSP) {
         val sp = new SPDelim
         sp.index = idx
-        qReducedWSPLSPSP += sp
+        q += sp
         idx += 1
         i += 1
       }
     }
 
-    qReducedWSPLSPSP.toArray[DelimBase]
+    q.toArray[DelimBase]
+
   }
 
   // Based upon what WSP delimiters were encountered,
