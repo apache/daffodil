@@ -281,12 +281,17 @@ protected abstract class MStack[@specialized T] private[util] (
   /**
    * View the top element of the stack.
    *
-   *  Does not remove the element on the top. If the stack is empty,
-   *  an exception is thrown.
+   *  Does not remove the element on the top.
+   *  If the stack is empty returns nullValue for the generic type T
+   *  as provided in the constructor.
    *
-   *  @return the element on top of the stack.
+   *  @return the element on top of the stack, or nullValue (of type T) if the stack is empty
    */
-  @inline final def top: T = table(index - 1)
+  @inline final def top: T = {
+    Assert.invariant(index >= 0)
+    if (index == 0) nullValue
+    else table(index - 1)
+  }
 
   @inline final def bottom: T = table(0)
 

@@ -118,7 +118,10 @@ abstract class UState(
 
   var dataOutputStream: DirectOrBufferedDataOutputStream
 
-  def currentInfosetNode: DINode
+  final def currentInfosetNode: DINode =
+    if (currentInfosetNodeMaybe.isEmpty) null
+    else currentInfosetNodeMaybe.get
+
   def currentInfosetNodeMaybe: Maybe[DINode]
   def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper]
 
@@ -266,7 +269,7 @@ abstract class UState(
       // If we can't check right now because we don't have absolute bit position
       // then split the DOS so it gets checked later.
       //
-      splitOnUknownByteAlignmentBitOrderChange(dos)
+      splitOnUnknownByteAlignmentBitOrderChange(dos)
     }
   }
 
@@ -300,7 +303,7 @@ abstract class UState(
    *  the DOS are collapsed together, and the check for byte boundary occurs
    *  at that time.
    */
-  private def splitOnUknownByteAlignmentBitOrderChange(dos: DirectOrBufferedDataOutputStream): Unit = {
+  private def splitOnUnknownByteAlignmentBitOrderChange(dos: DirectOrBufferedDataOutputStream): Unit = {
     val mabp = dos.maybeAbsBitPos0b
     val mabpDefined = mabp.isDefined
     val isSplitNeeded: Boolean = {
@@ -385,7 +388,7 @@ final class UStateForSuspension(
   val mainUState: UStateMain,
   override var dataOutputStream: DirectOrBufferedDataOutputStream,
   vbox: VariableBox,
-  override val currentInfosetNode: DINode,
+  override val currentInfosetNodeMaybe: Maybe[DINode],
   occursIndex: Long,
   escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
   delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
@@ -394,8 +397,10 @@ final class UStateForSuspension(
   extends UState(vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
-  dState.setCurrentNode(thisElement.asInstanceOf[DINode])
-  dState.setContextNode(thisElement.asInstanceOf[DINode])
+  if (currentInfosetNodeMaybe.isDefined) {
+    dState.setCurrentNode(thisElement.asInstanceOf[DINode])
+    dState.setContextNode(thisElement.asInstanceOf[DINode])
+  }
   dState.setErrorOrWarn(this)
 
   private def die = Assert.invariantFailed("Function should never be needed in UStateForSuspension")
@@ -430,7 +435,6 @@ final class UStateForSuspension(
   // $COVERAGE-ON$
 
   override def groupPos = 0 // was die, but this is called when copying state during debugging
-  override def currentInfosetNodeMaybe = Maybe(currentInfosetNode)
   override def arrayPos = occursIndex
   override def childPos = 0 // was die, but this is called when copying state during debugging.
 
@@ -517,7 +521,7 @@ final class UStateMain private (
       this,
       suspendedDOS,
       variableBox.cloneForSuspension,
-      currentInfosetNodeStack.top.get, // only need the to of the stack, not the whole thing
+      currentInfosetNodeStack.top, // only need the top of the stack, not the whole thing
       arrayIndexStack.top, // only need the top of the stack, not the whole thing
       es,
       ds,
@@ -582,10 +586,6 @@ final class UStateMain private (
       res
     }
   }
-
-  def currentInfosetNode: DINode =
-    if (currentInfosetNodeMaybe.isEmpty) null
-    else currentInfosetNodeMaybe.get
 
   def currentInfosetNodeMaybe: Maybe[DINode] =
     if (currentInfosetNodeStack.isEmpty) Nope
