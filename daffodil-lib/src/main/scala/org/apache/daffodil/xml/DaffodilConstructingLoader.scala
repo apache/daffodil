@@ -292,17 +292,20 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
   }
 
   /**
-   * Same CRLF/CR => LF processing as text gets.
+   * Drops comments
    */
   override def comment(pos: Int, s: String): Comment = {
-    Comment(text(pos, s).text)
+    // returning null drops comments
+    null
   }
 
   /**
-   * Same CRLF/CR => LF processing as text gets.
+   * Drops processing instructions
    */
-  override def procInstr(pos: Int, target: String, txt: String) =
-    ProcInstr(target, text(pos, txt).text)
+  override def procInstr(pos: Int, target: String, txt: String) = {
+    // returning null drops processing instructions
+    null
+  }
 
   private def parseXMLPrologAttributes(m: MetaData): (Option[String], Option[String], Option[Boolean]) = {
 

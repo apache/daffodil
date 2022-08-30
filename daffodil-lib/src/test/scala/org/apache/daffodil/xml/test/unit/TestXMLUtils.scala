@@ -204,9 +204,8 @@ class TestXMLUtils {
     import scala.xml.parsing.ConstructingParser
     //
     // This is the way we load XML for the TDML runner
-    // and it creates PCData nodes where Scala's basic loader
-    // and literal XML in scala program text, converts
-    // PCData to Text nodes (removing the bracket glop)
+    // and it creates PCData nodes. As of Scala XML 2.1.0, Scala's basic loader
+    // and literal XML in scala program text have this same behavior.
     //
     // We use this in the TDML runner because we can
     // preserve whitespace robustly inside CDATA bracketing.
@@ -230,14 +229,16 @@ class TestXMLUtils {
     // This is the way we load XML for DFDL Schemas
     val xml = scala.xml.XML.loadString(xmlRaw)
     //
-    // Scala's scala.xml.XML.loaders do a good job
-    // coalescing adjacent Texts (of all Atom kinds)
+    // Scala's scala.xml.XML.loaders do a good job coalescing adjacent Texts
+    // (of all Atom kinds). Note that as of Scala XML 2.1.0, this loader does
+    // not convert CDATA to text and instead creates actual CDATA nodes. This
+    // is the same behavior as the ConstructingParser
     //
-    assertEquals(1, xml.child.length)
+    assertEquals(3, xml.child.length)
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
-    assertEquals(1, res.length)
-    assertEquals("abc&amp;&amp;&amp;def" + 0xE000.toChar + "ghi", res(0).toString)
-    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res(0).text)
+    assertEquals(3, res.length)
+    assertEquals("abc<![CDATA[&&&]]>def" + 0xE000.toChar + "ghi", res.mkString)
+    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res.text)
   }
 
   @Test def testOnePCData(): Unit = {
