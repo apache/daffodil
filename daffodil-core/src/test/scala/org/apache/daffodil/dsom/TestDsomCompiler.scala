@@ -17,11 +17,19 @@
 
 package org.apache.daffodil.dsom
 
+import org.junit.Assert._
+import org.junit.Test
+
 import scala.xml.Node
 import scala.xml.Utility
 import scala.xml.XML
-import org.apache.daffodil.compiler._
+
 import org.apache.daffodil.Implicits._; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.api.Diagnostic
+import org.apache.daffodil.api.URISchemaSource
+import org.apache.daffodil.compiler._
+import org.apache.daffodil.schema.annotation.props.AlignmentType
+import org.apache.daffodil.schema.annotation.props.Found
 import org.apache.daffodil.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.schema.annotation.props.gen.BinaryNumberRep
 import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
@@ -33,14 +41,10 @@ import org.apache.daffodil.schema.annotation.props.gen.Representation
 import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.schema.annotation.props.gen.TextNumberRep
 import org.apache.daffodil.schema.annotation.props.gen.YesNo
-import org.apache.daffodil.schema.annotation.props.AlignmentType
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.xml.XMLUtils
-import org.junit.Assert._
-import org.apache.daffodil.api.Diagnostic
 import org.apache.daffodil.util._
-import org.junit.Test
-import org.apache.daffodil.schema.annotation.props.Found
+import org.apache.daffodil.xml.DaffodilXMLLoader
+import org.apache.daffodil.xml.XMLUtils
 
 class TestDsomCompiler {
 
@@ -216,7 +220,15 @@ class TestDsomCompiler {
   }
 
   @Test def test3(): Unit = {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
+    // Newer versions of the scala-xml library changed the XML.load() function
+    // so that it does not ignore comments/processing instructions. This causes
+    // issues with parts of the schema compilation that expects these to be
+    // removed. So for this particular test, use the DaffodilXMLLoader (which
+    // does remove comments and what is normally used by Daffodil) to load the
+    // XML to a Scala XML Node.
+    val source = URISchemaSource(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
+    val loader = new DaffodilXMLLoader(null)
+    val testSchema = loader.load(source, None)
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas

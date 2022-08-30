@@ -658,5 +658,39 @@
     </infoset>
   </parserTestCase>
 
+  <defineSchema name="es7">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:defineEscapeScheme name="pound">
+      <!-- comment should be ignored -->
+      <dfdl:escapeScheme escapeCharacter='#'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
+      <!-- comment should be ignored -->
+    </dfdl:defineEscapeScheme>
+
+    <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" escapeSchemeRef="tns:pound" />
+
+    <xs:element name="list">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="field" type="xs:string" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </defineSchema>
+
+  <parserTestCase name="escapeScheme_with_comment" model="es7"
+    description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list" roundTrip="true">
+    <document>1,2#,2,3</document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:list>
+          <tns:field>1</tns:field>
+          <tns:field>2,2</tns:field>
+          <tns:field>3</tns:field>
+        </tns:list>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
 </testSuite>

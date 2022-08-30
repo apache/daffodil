@@ -98,4 +98,6 @@ class TestEscapeScheme {
   @Test def test_escBlkAllQuotes(): Unit = { runner.runOneTest("escBlkAllQuotes") }
   @Test def test_escBlkEndSame(): Unit = { runner.runOneTest("escBlkEndSame") }
   //@Test def test_escBlkMultipleEEC() { runner.runOneTest("escBlkMultipleEEC") } // DAFFODIL-1972
+
+  @Test def test_escapeScheme_with_comment(): Unit = { runner.runOneTest("escapeScheme_with_comment") }
 }

@@ -97,11 +97,13 @@ class TestXMLLoader {
    *
    * At the time of this testing. The basic scala xml loader uses Xerces (java)
    * under the hood. It seems hopelessly broken w.r.t CDATA region preservation.
+   *
+   * This bug was fixed in Scala XML 2.1.0. The XML.loadString function now
+   * creates CDATA object.
    */
   @Test def test_scala_loader_cdata_bug(): Unit = {
 
-    val data = """<x><![CDATA[a
-b&"<>]]></x>"""
+    val data = "<x><![CDATA[a\nb&\"<>]]></x>"
     val node = scala.xml.XML.loadString(data)
     val <x>{ xbody @ _* }</x> = node
     assertEquals(1, xbody.length)
@@ -109,21 +111,13 @@ b&"<>]]></x>"""
     val txt = body.text
     assertTrue(txt.contains("a"))
     assertTrue(txt.contains("b"))
-    //
-    // Note to developer - whomewever sees this test failing....
-    //
-    // IF this test fails, it means that the scala xml loader have been FIXED (hooray!)
-    // and our need for the ConstructingParser may have gone away.
-    //
-    assertFalse(txt.contains("<![CDATA[")) // wrong
-    assertFalse(txt.contains("]]>")) // wrong
+    assertFalse(txt.contains("<![CDATA[")) // correct, PCData.text returns only the contents, not the brackets
+    assertFalse(txt.contains("]]>")) // correct, PCData.text returns only the contents, not the brackets
     assertTrue(txt.contains("a\nb")) // they preserve the contents
-    assertFalse(body.isInstanceOf[scala.xml.PCData]) // wrong - they don't preserve the object properly.
-    assertTrue(body.isInstanceOf[scala.xml.Text]) // wrong
+    assertTrue(body.isInstanceOf[scala.xml.PCData])
     assertTrue(txt.contains("""&"<>""")) // They get the right characters in there.
-    assertTrue(body.toString.contains("""&amp;&quot;&lt;&gt;""")) // wrong
-    assertFalse(body.toString.contains("""<![CDATA[a
-b&"<>]]>"""))
+    assertTrue(body.toString.contains("""&"<>""")) // body.toString preserves content
+    assertTrue(body.toString.contains("<![CDATA[a\nb&\"<>]]>"))
 
   }
 
