@@ -89,6 +89,27 @@ class TestCLIPerformance {
     }
   }
 
+  @Test def test_XXX_CLI_Performance_2_Threads_2_Times_exisa(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s performance -I exisa -N 2 -t 2 -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total parse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
+
   @Test def test_3394_CLI_Performance_3_Threads_20_Times(): Unit = {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
@@ -205,6 +226,27 @@ class TestCLIPerformance {
 
     try {
       val cmd = String.format("%s performance --unparse -I exi -N 2 -t 2 -s %s -r e3 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total unparse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      Util.expectExitCode(ExitCode.Success, shell)
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_XXX_CLI_Performance_Unparse_2_Threads_2_Times_exisa(): Unit = {
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input14.exisa")
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s performance --unparse -I exisa -N 2 -t 2 -s %s -r e3 %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("total unparse time (sec):"))
       shell.expect(contains("avg rate (files/sec):"))

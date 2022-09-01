@@ -98,7 +98,7 @@ object InfosetWalker {
  * The purpose of this class is to walk Daffodil's internal infoset
  * representation (i.e. DINodes), starting at a specified DINode, and call the
  * appropriate functions on the InfosetOutputter. The InfosetOutputter provided
- * to this class determines how the internal infoset is projectted to the user
+ * to this class determines how the internal infoset is projected to the user
  * (e.g. XML, json, SAX events).
  *
  * Calling the walk() method causes the InfosetWalker to begin this process. At

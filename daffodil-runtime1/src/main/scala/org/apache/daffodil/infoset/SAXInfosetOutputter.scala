@@ -63,8 +63,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
       if (diSimple.hasValue) {
         val text =
           if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
-            val s = remapped(diSimple.dataValueAsString)
-            scala.xml.Utility.escape(s)
+            remapped(diSimple.dataValueAsString)
           } else {
             diSimple.dataValueAsString
           }
