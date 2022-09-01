@@ -290,7 +290,9 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
   }
 
   override def characters(ch: Array[Char], start: Int, length: Int): Unit = {
-    writer.write(ch, start, length)
+    val str = new String(ch, start, length)
+    val escaped = scala.xml.Utility.escape(str)
+    writer.write(escaped, 0, escaped.length)
   }
 
   override def ignorableWhitespace(ch: Array[Char], start: Int, length: Int): Unit = {
