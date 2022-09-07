@@ -710,7 +710,7 @@ abstract class LSPBase(states: => ArrayBuffer[State])
   def checkMatch(charIn: Char): Boolean = {
     val result = charIn match {
 
-      case SPACE | HT => true
+      case CTRL0 | SPACE => true
       case _ => false
     }
     result

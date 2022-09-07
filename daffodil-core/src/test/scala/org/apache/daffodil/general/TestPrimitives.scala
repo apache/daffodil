@@ -145,14 +145,14 @@ class TestPrimitives {
 
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
-          <xs:sequence dfdl:separator="%LSP;" dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:separator=",%LSP;" dfdl:separatorPosition="infix">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val (_, actual) = TestUtils.testString(sch, "FirstWord SecondWord")
-    val expected: Node = <e1><s1>FirstWord</s1><s2>SecondWord</s2></e1>
+    val (_, actual) = TestUtils.testString(sch, "SingleSpace, SingleTab,\u0009")
+    val expected: Node = <e1><s1>SingleSpace</s1><s2>SingleTab</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
@@ -164,7 +164,7 @@ class TestPrimitives {
 
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
-          <xs:sequence dfdl:separator="%LSP+;" dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:separator=",%LSP+;" dfdl:separatorPosition="infix">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
@@ -174,12 +174,12 @@ class TestPrimitives {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val (_, actual) = TestUtils.testString(sch, "SingleSpace MultSpace   SingleTab\u0009MultTab\u0009\u0009Mix\u0009\u0009 \u0009     \u0009End")
+    val (_, actual) = TestUtils.testString(sch, "SingleSpace, MultSpace,   SingleTab,\u0009MultTab,\u0009\u0009Mix,\u0009\u0009 \u0009     \u0009End")
     val expected: Node = <e1><s1>SingleSpace</s1><s2>MultSpace</s2><s3>SingleTab</s3><s4>MultTab</s4><s5>Mix</s5><s6>End</s6></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-    @Test def testLSPStarDelimiter(): Unit = {
+  @Test def testLSPStarDelimiter(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
 
@@ -187,7 +187,8 @@ class TestPrimitives {
 
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
-          <xs:sequence dfdl:separator="%LSP;%LSP*;" dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:separator=",%LSP*;" dfdl:separatorPosition="infix">
+            <xs:element name="s0" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
@@ -197,8 +198,8 @@ class TestPrimitives {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val (_, actual) = TestUtils.testString(sch, "SingleSpace MultSpace   SingleTab\u0009MultTab\u0009\u0009Mix\u0009\u0009 \u0009     \u0009End")
-    val expected: Node = <e1><s1>SingleSpace</s1><s2>MultSpace</s2><s3>SingleTab</s3><s4>MultTab</s4><s5>Mix</s5><s6>End</s6></e1>
+    val (_, actual) = TestUtils.testString(sch, "None,SingleSpace, MultSpace,   SingleTab,\u0009MultTab,\u0009\u0009Mix,\u0009\u0009 \u0009     \u0009End")
+    val expected: Node = <e1><s0>None</s0><s1>SingleSpace</s1><s2>MultSpace</s2><s3>SingleTab</s3><s4>MultTab</s4><s5>Mix</s5><s6>End</s6></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
@@ -210,13 +211,13 @@ class TestPrimitives {
 
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
-          <xs:sequence dfdl:separator="%SP;" dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:separator=",%SP;" dfdl:separatorPosition="infix">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val (_, actual) = TestUtils.testString(sch, "SingleSpace End")
+    val (_, actual) = TestUtils.testString(sch, "SingleSpace, End")
     val expected: Node = <e1><s1>SingleSpace</s1><s2>End</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -229,14 +230,14 @@ class TestPrimitives {
 
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
-          <xs:sequence dfdl:separator="%SP+;" dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:separator=",%SP+;" dfdl:separatorPosition="infix">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val (_, actual) = TestUtils.testString(sch, "SingleSpace MultSpace     End")
+    val (_, actual) = TestUtils.testString(sch, "SingleSpace, MultSpace,     End")
     val expected: Node = <e1><s1>SingleSpace</s1><s2>MultSpace</s2><s3>End</s3></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -249,15 +250,15 @@ class TestPrimitives {
 
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
-          <xs:sequence dfdl:separator="%SP;%SP*;" dfdl:separatorPosition="infix">
+          <xs:sequence dfdl:separator=",%SP*;" dfdl:separatorPosition="infix">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
             <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val (_, actual) = TestUtils.testString(sch, "SingleSpace MultSpace     End")
-    val expected: Node = <e1><s1>SingleSpace</s1><s2>MultSpace</s2><s3>End</s3></e1>
+    val (_, actual) = TestUtils.testString(sch, "None, SingleSpace,   MultSpace")
+    val expected: Node = <e1><s1>None</s1><s2>SingleSpace</s2><s3>MultSpace</s3></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
