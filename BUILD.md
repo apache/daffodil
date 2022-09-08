@@ -43,35 +43,11 @@ commands (or set them to `true` to disable C compilation altogether)
 if you don't want `sbt compile` to call your C compiler with `cc` and
 `ar` as the default commands.
 
-## CentOS 7
+## Fedora/CentOS/RHEL
 
-You can use the `yum` package manager to install most of the tools
-needed to build Daffodil:
-
-    sudo yum install clang gcc git java-11-openjdk-devel llvm make pkgconfig
-
-If you want to use clang instead of gcc, you'll have to set your
-environment variables `CC` and `AR` to the clang binaries' names:
-
-    export CC=clang AR=llvm-ar
-
-However, CentOS has no [mxml-devel][Mini-XML] or [sbt][SBT] packages
-in its own repositories.  You'll have to install the latest [SBT]
-version following its website's instructions and you'll have to build
-the [Mini-XML] library from source:
-
-    git clone -b v3.3 https://github.com/michaelrsweet/mxml.git
-    # ./configure fails if you use CC=clang
-    unset CC AR
-    cd mxml
-    ./configure --prefix=/usr --disable-shared --disable-threads
-    make
-    sudo make install
-
-Now you can build Daffodil from source and the sbt and daffodil
-commands you type will be able to call the C compiler.
-
-## Fedora 35
+When building on CentOS or RHEL, the [EPEL] repository must be enabled by
+following its website's instructions. This is necessary to install the
+[libmxml-devel][Mini-XML] package.
 
 You can use the `dnf` package manager to install most of the tools
 needed to build Daffodil:
@@ -154,3 +130,4 @@ will be able to call the C compiler.
 [SBT]: https://www.scala-sbt.org/
 [clang]: https://clang.llvm.org/get_started.html
 [gcc]: https://linuxize.com/post/how-to-install-gcc-on-ubuntu-20-04/
+[EPEL]: https://docs.fedoraproject.org/en-US/epel/
