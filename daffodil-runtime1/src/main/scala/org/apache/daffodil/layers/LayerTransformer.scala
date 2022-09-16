@@ -101,8 +101,8 @@ abstract class LayerTransformer(layerName: String, layerRuntimeInfo: LayerRuntim
     // nothing for now
   }
 
-  final def addLayer(s: DataOutputStream, state: UState): DirectOrBufferedDataOutputStream = {
-    val jos = wrapJavaOutputStream(s, state)
+  final def addLayer(s: DataOutputStream, state: UState, finfo: FormatInfo): DirectOrBufferedDataOutputStream = {
+    val jos = wrapJavaOutputStream(s, finfo)
     val limitedJOS = wrapLimitingStream(state, jos)
     val encodedOutputStream = wrapLayerEncoder(limitedJOS)
     val newDOS = DirectOrBufferedDataOutputStream(
