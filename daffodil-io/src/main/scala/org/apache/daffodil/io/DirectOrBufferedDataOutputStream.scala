@@ -304,6 +304,22 @@ class DirectOrBufferedDataOutputStream private[io] (
     else _following.get.lastInChain
 
   /**
+   * Helpful when debugging suspension or data output stream issues. Outputs
+   * the list of all DataOutputStreams connected to this one, with a marker
+   * pointing to this stream
+   */
+  // $COVERAGE-OFF$
+  def dumpChain(): Unit = {
+    var curDOS = lastInChain
+    while (curDOS != null) {
+      val marker = if (curDOS eq this) " > " else "   "
+      System.err.println(marker + curDOS.toString)
+      curDOS = curDOS.splitFrom
+    }
+  }
+  // $COVERAGE-ON$
+
+  /**
    * Provides a new buffered data output stream. Note that this must
    * be completely configured (byteOrder, encoding, bitOrder, etc.)
    */
