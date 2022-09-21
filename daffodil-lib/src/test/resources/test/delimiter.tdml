@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  description="TDML tests for delimiters WSP/LSP/SP"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <tdml:defineSchema name="LSPSchema">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" ignoreCase="no"/>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",%LSP;" dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="LSPPlusSchema">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" ignoreCase="no"/>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",%LSP+;" dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s4" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s5" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s6" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="LSPStarSchema">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" ignoreCase="no"/>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",%LSP*;" dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s4" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s5" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s6" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s7" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="SPSchema">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" ignoreCase="no"/>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",%SP;" dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="SPPlusSchema">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" ignoreCase="no"/>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",%SP+;" dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="SPStarSchema">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" ignoreCase="no"/>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",%SP*;" dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s4" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="LSPDelimiter"
+    model="LSPSchema">
+    <tdml:document>
+      <tdml:documentPart type="text">SingleSpace, SingleTab,&#x09;End</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <e1><s1>SingleSpace</s1><s2>SingleTab</s2><s3>End</s3></e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="LSPPlusDelimiter"
+    model="LSPPlusSchema">
+    <tdml:document>
+      <tdml:documentPart type="text">SingleSpace, MultSpace,   SingleTab,&#x09;MultTab,&#x09;&#x09;Mix,&#x09;&#x09; &#x09;     &#x09;End</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <e1><s1>SingleSpace</s1><s2>MultSpace</s2><s3>SingleTab</s3><s4>MultTab</s4><s5>Mix</s5><s6>End</s6></e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="LSPStarDelimiter"
+    model="LSPStarSchema">
+    <tdml:document>
+      <tdml:documentPart type="text">None,SingleSpace, MultSpace,   SingleTab,&#x09;MultTab,&#x09;&#x09;Mix,&#x09;&#x09; &#x09;     &#x09;End</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <e1><s1>None</s1><s2>SingleSpace</s2><s3>MultSpace</s3><s4>SingleTab</s4><s5>MultTab</s5><s6>Mix</s6><s7>End</s7></e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="SPDelimiter"
+    model="SPSchema">
+    <tdml:document>
+      <tdml:documentPart type="text">SingleSpace, DoubleSpace,  End</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <e1><s1>SingleSpace</s1><s2>DoubleSpace</s2><s3> End</s3></e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="SPPlusDelimiter"
+    model="SPPlusSchema">
+    <tdml:document>
+      <tdml:documentPart type="text">NoSpace,SingleSpace, MultSpace,     End</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <e1><s1>NoSpace,SingleSpace</s1><s2>MultSpace</s2><s3>End</s3></e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="SPStarDelimiter"
+    model="SPStarSchema">
+    <tdml:document>
+      <tdml:documentPart type="text">NoSpace,SingleSpace, MultSpace,    End</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="infoset">
+        <e1><s1>NoSpace</s1><s2>SingleSpace</s2><s3>MultSpace</s3><s4>End</s4></e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
