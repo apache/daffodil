@@ -114,31 +114,31 @@ object CreateDelimiterDFA {
         new CharState(allStates, d.char, nextState, stateNum, ignoreCase)
       }
       case d: WSPDelim => {
-        new WSPState(allStates, nextState, stateNum)
+        new DelimsState(allStates, nextState, stateNum, "wsp")
       }
       case d: WSPStarDelim => {
-        new WSPStarState(allStates, nextState, stateNum)
+        new DelimsStarState(allStates, nextState, stateNum, "wsp*")
       }
       case d: WSPPlusDelim => {
-        new WSPPlusState(allStates, nextState, stateNum)
+        new DelimsPlusState(allStates, nextState, stateNum, "wsp+")
       }
       case d: LSPDelim => {
-        new LSPState(allStates, nextState, stateNum)
+        new DelimsState(allStates, nextState, stateNum, "lsp")
       }
       case d: LSPStarDelim => {
-        new LSPStarState(allStates, nextState, stateNum)
+        new DelimsStarState(allStates, nextState, stateNum, "lsp*")
       }
       case d: LSPPlusDelim => {
-        new LSPPlusState(allStates, nextState, stateNum)
+        new DelimsPlusState(allStates, nextState, stateNum, "lsp+")
       }
       case d: SPDelim => {
-        new SPState(allStates, nextState, stateNum)
+        new DelimsState(allStates, nextState, stateNum, "sp")
       }
       case d: SPStarDelim => {
-        new SPStarState(allStates, nextState, stateNum)
+        new DelimsStarState(allStates, nextState, stateNum, "sp*")
       }
       case d: SPPlusDelim => {
-        new SPPlusState(allStates, nextState, stateNum)
+        new DelimsPlusState(allStates, nextState, stateNum, "sp+")
       }
       case d: NLDelim => {
         new NLState(allStates, nextState, stateNum)
