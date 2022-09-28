@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.processors
 
+import java.lang.{ Double => JDouble, Float => JFloat }
+
 import scala.xml.NamespaceBinding
 import org.apache.daffodil.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.apache.daffodil.dpath.NodeInfo
@@ -428,27 +430,43 @@ final class SimpleTypeRuntimeData(
   }
 
   private def checkMinInc(diNode: DISimple, minValue: java.math.BigDecimal, primType: PrimType, e: ThrowsSDE): Boolean = {
-    val bdData = diNode.dataValueAsBigDecimal
-    val isDataGreaterThanEqToMinInc = bdData.compareTo(minValue) >= 0
-    isDataGreaterThanEqToMinInc
+    // we must handle float and double separately because diNode.dataValue
+    // could be Inf/Nan, which cannot be converted to BigDecimal
+    diNode.dataValue.getAnyRef match {
+      case f: JFloat => f.compareTo(minValue.floatValue) >= 0
+      case d: JDouble => d.compareTo(minValue.doubleValue) >= 0
+      case _ => diNode.dataValueAsBigDecimal.compareTo(minValue) >= 0
+    }
   }
 
   private def checkMinExc(diNode: DISimple, minValue: java.math.BigDecimal, primType: PrimType, e: ThrowsSDE): Boolean = {
-    val bdData = diNode.dataValueAsBigDecimal
-    val isDataGreaterThanEqToMinExc = bdData.compareTo(minValue) > 0
-    isDataGreaterThanEqToMinExc
+    // we must handle float and double separately because diNode.dataValue
+    // could be Inf/Nan, which cannot be converted to BigDecimal
+    diNode.dataValue.getAnyRef match {
+      case f: JFloat => f.compareTo(minValue.floatValue) > 0
+      case d: JDouble => d.compareTo(minValue.doubleValue) > 0
+      case _ => diNode.dataValueAsBigDecimal.compareTo(minValue) > 0
+    }
   }
 
   private def checkMaxInc(diNode: DISimple, maxValue: java.math.BigDecimal, primType: PrimType, e: ThrowsSDE): Boolean = {
-    val bdData = diNode.dataValueAsBigDecimal
-    val isDataLessThanEqToMaxInc = bdData.compareTo(maxValue) <= 0
-    isDataLessThanEqToMaxInc
+    // we must handle float and double separately because diNode.dataValue
+    // could be Inf/Nan, which cannot be converted to BigDecimal
+    diNode.dataValue.getAnyRef match {
+      case f: JFloat => f.compareTo(maxValue.floatValue) <= 0
+      case d: JDouble => d.compareTo(maxValue.doubleValue) <= 0
+      case _ => diNode.dataValueAsBigDecimal.compareTo(maxValue) <= 0
+    }
   }
 
   private def checkMaxExc(diNode: DISimple, maxValue: java.math.BigDecimal, primType: PrimType, e: ThrowsSDE): Boolean = {
-    val bdData = diNode.dataValueAsBigDecimal
-    val isDataLessThanMaxExc = bdData.compareTo(maxValue) < 0
-    isDataLessThanMaxExc
+    // we must handle float and double separately because diNode.dataValue
+    // could be Inf/Nan, which cannot be converted to BigDecimal
+    diNode.dataValue.getAnyRef match {
+      case f: JFloat => f.compareTo(maxValue.floatValue) < 0
+      case d: JDouble => d.compareTo(maxValue.doubleValue) < 0
+      case _ => diNode.dataValueAsBigDecimal.compareTo(maxValue) < 0
+    }
   }
 
   private def checkTotalDigits(diNode: DISimple, digits: Long): Boolean = {

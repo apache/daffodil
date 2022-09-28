@@ -89,4 +89,22 @@ class TestValidationErr {
   @Test def test_validation_inputValueCalc_01(): Unit = { runner.runOneTest("validation_inputValueCalc_01") }
   @Test def test_validation_inputValueCalc_02(): Unit = { runner.runOneTest("validation_inputValueCalc_02") }
   @Test def test_validation_inputValueCalc_03(): Unit = { runner.runOneTest("validation_inputValueCalc_03") }
+
+  @Test def test_floatExclusiveValid(): Unit = { runner.runOneTest("floatExclusiveValid") }
+  @Test def test_floatExclusiveInf(): Unit = { runner.runOneTest("floatExclusiveInf") }
+  @Test def test_floatExclusiveNegInf(): Unit = { runner.runOneTest("floatExclusiveNegInf") }
+  @Test def test_floatExclusiveNaN(): Unit = { runner.runOneTest("floatExclusiveNaN") }
+  @Test def test_floatInclusiveValid(): Unit = { runner.runOneTest("floatInclusiveValid") }
+  @Test def test_floatInclusiveInf(): Unit = { runner.runOneTest("floatInclusiveInf") }
+  @Test def test_floatInclusiveNegInf(): Unit = { runner.runOneTest("floatInclusiveNegInf") }
+  @Test def test_floatInclusiveNaN(): Unit = { runner.runOneTest("floatInclusiveNaN") }
+
+  @Test def test_doubleExclusiveValid(): Unit = { runner.runOneTest("doubleExclusiveValid") }
+  @Test def test_doubleExclusiveInf(): Unit = { runner.runOneTest("doubleExclusiveInf") }
+  @Test def test_doubleExclusiveNegInf(): Unit = { runner.runOneTest("doubleExclusiveNegInf") }
+  @Test def test_doubleExclusiveNaN(): Unit = { runner.runOneTest("doubleExclusiveNaN") }
+  @Test def test_doubleInclusiveValid(): Unit = { runner.runOneTest("doubleInclusiveValid") }
+  @Test def test_doubleInclusiveInf(): Unit = { runner.runOneTest("doubleInclusiveInf") }
+  @Test def test_doubleInclusiveNegInf(): Unit = { runner.runOneTest("doubleInclusiveNegInf") }
+  @Test def test_doubleInclusiveNaN(): Unit = { runner.runOneTest("doubleInclusiveNaN") }
 }

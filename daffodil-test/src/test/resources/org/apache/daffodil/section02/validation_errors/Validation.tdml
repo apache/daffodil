@@ -579,6 +579,42 @@
         <xs:totalDigits value="2" />
       </xs:restriction>
     </xs:simpleType>
+
+    <xs:element name="floatExclusive" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:float">
+          <xs:minExclusive value="-5" />
+          <xs:maxExclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="floatInclusive" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:float">
+          <xs:minInclusive value="-5" />
+          <xs:maxInclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="doubleExclusive" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:double">
+          <xs:minExclusive value="-5" />
+          <xs:maxExclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="doubleInclusive" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:double">
+          <xs:minInclusive value="-5" />
+          <xs:maxInclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
     
   </tdml:defineSchema>
   
@@ -1883,6 +1919,243 @@
 
 		</tdml:validationErrors>
 
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="floatExclusiveValid"
+    root="floatExclusive" model="TestFacets"
+    validation="on">
+
+    <tdml:document>1.23</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatExclusive>1.23</floatExclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="floatExclusiveInf"
+    root="floatExclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>Inf</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatExclusive>INF</floatExclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>maxExclusive</tdml:error>
+      <tdml:error>5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="floatExclusiveNegInf"
+    root="floatExclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>-Inf</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatExclusive>-INF</floatExclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>minExclusive</tdml:error>
+      <tdml:error>-5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="floatExclusiveNaN"
+    root="floatExclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>NaN</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatExclusive>NaN</floatExclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>maxExclusive</tdml:error>
+      <tdml:error>5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="floatInclusiveValid"
+    root="floatInclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>1.23</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatInclusive>1.23</floatInclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="floatInclusiveInf"
+    root="floatInclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>Inf</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatInclusive>INF</floatInclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>maxInclusive</tdml:error>
+      <tdml:error>5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="floatInclusiveNegInf"
+    root="floatInclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>-Inf</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatInclusive>-INF</floatInclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>minInclusive</tdml:error>
+      <tdml:error>-5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="floatInclusiveNaN"
+    root="floatInclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>NaN</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatInclusive>NaN</floatInclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>maxInclusive</tdml:error>
+      <tdml:error>5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="doubleExclusiveValid"
+    root="doubleExclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>1.23</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleExclusive>1.23</doubleExclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="doubleExclusiveInf"
+    root="doubleExclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>Inf</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleExclusive>INF</doubleExclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>maxExclusive</tdml:error>
+      <tdml:error>5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="doubleExclusiveNegInf"
+    root="doubleExclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>-Inf</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleExclusive>-INF</doubleExclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>minExclusive</tdml:error>
+      <tdml:error>-5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="doubleExclusiveNaN"
+    root="doubleExclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>NaN</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleExclusive>NaN</doubleExclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>maxExclusive</tdml:error>
+      <tdml:error>5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="doubleInclusiveValid"
+    root="doubleInclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>1.23</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleInclusive>1.23</doubleInclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="doubleInclusiveInf"
+    root="doubleInclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>Inf</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleInclusive>INF</doubleInclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>maxInclusive</tdml:error>
+      <tdml:error>5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="doubleInclusiveNegInf"
+    root="doubleInclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>-Inf</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleInclusive>-INF</doubleInclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>minInclusive</tdml:error>
+      <tdml:error>-5.0</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="doubleInclusiveNaN"
+    root="doubleInclusive" model="TestFacets"
+    validation="on">
+    <tdml:document>NaN</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleInclusive>NaN</doubleInclusive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>maxInclusive</tdml:error>
+      <tdml:error>5.0</tdml:error>
+    </tdml:validationErrors>
   </tdml:parserTestCase>
   
 </tdml:testSuite>
