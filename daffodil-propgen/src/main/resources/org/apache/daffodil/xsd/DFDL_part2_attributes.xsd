@@ -71,35 +71,35 @@
 
   <xsd:attributeGroup name="BaseAG">
     <xsd:attribute name="ref" type="xsd:QName" />
-    <xsd:anyAttribute namespace="http://www.ibm.com/xmlns/dfdl/testData" processContents="lax"/> 
+    <xsd:anyAttribute namespace="http://www.ibm.com/xmlns/dfdl/testData" processContents="lax"/>
   </xsd:attributeGroup>
 
   <!-- 11 Properties Common to Both Content and Framing -->
   <xsd:attribute name="byteOrder"
     type="dfdl:ByteOrderEnum_Or_DFDLExpression" />
-  
+
   <!-- ADDED PER PUBLIC COMMENT ON Sept 2013 DRAFT -->
   <xsd:attribute name="bitOrder" type="dfdl:BitOrderEnum"/>
-  
+
   <xsd:attribute name="encoding"
     type="dfdl:EncodingEnum_Or_DFDLExpression" />
   <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
   <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
   <xsd:attribute name="choiceBranchKey" type="dfdl:ListOfDFDLStringLiteral" />
   <xsd:attribute name="textBidi" type="dfdl:YesNoEnum"/>
-  
+
   <!-- Added to DFDL -->
   <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
 
   <xsd:attributeGroup name="CommonAG">
     <xsd:attribute name="byteOrder"
       type="dfdl:ByteOrderEnum_Or_DFDLExpression" />
-      
+
     <xsd:attribute name="bitOrder" type="dfdl:BitOrderEnum"/>
     <xsd:attribute ref="daf:parseUnparsePolicy"/> <!-- backwards compatibility -->
     <xsd:attribute ref="dfdlx:parseUnparsePolicy"/>
     <xsd:attribute ref="dfdlx:emptyElementParsePolicy"/>
-      
+
     <xsd:attribute name="encoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
     <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
@@ -140,6 +140,7 @@
     <xsd:attribute name="terminator"
       type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="outputNewLine" type="dfdl:DFDLStringLiteral" />
+    <xsd:attribute ref="dfdlx:inlineWhiteSpace" />
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="NonGroupMarkupAG">
@@ -207,7 +208,7 @@
     <xsd:attribute name="generateEscapeBlock" type="dfdl:GenerateEscapeEnum" />
   </xsd:attributeGroup>
 
-  <!-- 13.3 Properties for Bidirectional support for all Simple Types with 
+  <!-- 13.3 Properties for Bidirectional support for all Simple Types with
     Text representation -->
   <xsd:attribute name="textBidiTextOrdering" type="dfdl:TextBidiTextOrderingEnum" />
   <xsd:attribute name="textBidiOrientation" type="dfdl:TextBidiOrientationEnum" />
@@ -263,7 +264,7 @@
   <xsd:attribute name="textStandardDecimalSeparator"
     type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="textStandardExponentRep"
-    type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />  
+    type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   <!-- deprecated form accepted by IBM DFDL as of 2018-10-30 -->
   <xsd:attribute name="textStandardExponentCharacter"
     type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
@@ -425,14 +426,14 @@
     type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="separatorPosition" type="dfdl:SeparatorPositionEnum" />
   <xsd:attribute name="separatorPolicy" type="dfdl:SeparatorPolicyEnum" />
-  <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />  
+  <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />
 
   <xsd:attributeGroup name="SeparatorAG">
     <xsd:attribute name="separator"
       type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="separatorPosition" type="dfdl:SeparatorPositionEnum" />
     <xsd:attribute name="separatorPolicy" type="dfdl:SeparatorPolicyEnum" />
-    <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />  
+    <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />
   </xsd:attributeGroup>
 
   <xsd:attribute name="initiatedContent" type="dfdl:YesNoEnum" />
@@ -451,7 +452,7 @@
     <xsd:attribute name="choiceDispatchKey" type="dfdl:DFDLExpression" />
   </xsd:attributeGroup>
 
-  <!--16 Arrays and Optional Elements: Properties for Repeating and Variable-Occurrence 
+  <!--16 Arrays and Optional Elements: Properties for Repeating and Variable-Occurrence
     Data Items -->
   <xsd:attribute name="occursCountKind" type="dfdl:OccursCountKindEnum" />
   <xsd:attribute name="occursCount" type="dfdl:DFDLExpression" />
@@ -604,12 +605,12 @@
 
       <xsd:enumeration value="sequenceKind" />
       <xsd:enumeration value="hiddenGroupRef" />
-      
+
       <xsd:enumeration value="initiatedContent" />
 
       <xsd:enumeration value="separatorPosition" />
       <xsd:enumeration value="separatorPolicy" />
-      <xsd:enumeration value="separatorSuppressionPolicy" />      
+      <xsd:enumeration value="separatorSuppressionPolicy" />
 
       <xsd:enumeration value="choiceLengthKind" />
       <xsd:enumeration value="choiceLength" />
@@ -743,7 +744,7 @@
       type="dfdl:GenerateEscapeEnum" />
   </xsd:attributeGroup>
 
-  <!-- 13.3 Properties for Bidirectional support for all Simple Types with 
+  <!-- 13.3 Properties for Bidirectional support for all Simple Types with
     Text representation -->
 
   <xsd:attributeGroup name="TextBidiSchemeAGQualified">
@@ -948,7 +949,7 @@
     <xsd:attribute form="qualified" name="separatorPolicy"
       type="dfdl:SeparatorPolicyEnum" />
     <xsd:attribute form="qualified" name="separatorSuppressionPolicy"
-      type="dfdl:SeparatorSuppressionPolicyEnum" />      
+      type="dfdl:SeparatorSuppressionPolicyEnum" />
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="GroupCommonAGQualified">
@@ -967,7 +968,7 @@
       type="dfdl:DFDLExpression" />
   </xsd:attributeGroup>
 
-  <!--16 Arrays and Optional Elements: Properties for Repeating and Variable-Occurrence 
+  <!--16 Arrays and Optional Elements: Properties for Repeating and Variable-Occurrence
     Data Items -->
 
   <xsd:attributeGroup name="OccursAGQualified">
@@ -1034,5 +1035,5 @@
     <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAGQualified" />
     <xsd:attributeGroup ref="dfdlx:ObjectKindAGQualified" />
   </xsd:attributeGroup>
-  
+
 </xsd:schema>

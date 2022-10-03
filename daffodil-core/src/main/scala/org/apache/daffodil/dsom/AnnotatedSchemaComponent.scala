@@ -29,6 +29,8 @@ import org.apache.daffodil.schema.annotation.props.FindPropertyMixin
 import org.apache.daffodil.api.WarnID
 import scala.collection.mutable
 
+import org.apache.daffodil.schema.annotation.props.gen.InlineWhiteSpace
+
 /**
  * Only objects from which we generate processors (parsers/unparsers)
  * can lookup scoped property values.
@@ -186,6 +188,25 @@ trait ResolvesScopedProperties
       }
     }
   }
+
+  val sep = findPropertyOption("separator")
+
+  if(sep.isDefined && (inlineWhiteSpaceDefaulted == InlineWhiteSpace.Disallow) ){
+    val delimSep = sep.toOption.get
+    schemaDefinitionUnless(!delimSep.contains("%LSP;"),
+     """LSP entity cannot act as separator without setting dfdlx:inlineWhiteSpace property to "allow".""")
+    schemaDefinitionUnless(!delimSep.contains("%LSP+;"),
+     """LSP+ entity cannot act as separator without setting dfdlx:inlineWhiteSpace property to "allow".""")
+    schemaDefinitionUnless(!delimSep.contains("%LSP*;"),
+    """LSP* entity cannot act as separator without setting dfdlx:inlineWhiteSpace property to "allow".""")
+    schemaDefinitionUnless(!delimSep.contains("%SP;"),
+     """SP entity cannot act as separator without setting dfdlx:inlineWhiteSpace property to "allow".""")
+    schemaDefinitionUnless(!delimSep.contains("%SP+;"),
+     """SP+ entity cannot act as separator without setting dfdlx:inlineWhiteSpace property to "allow".""")
+    schemaDefinitionUnless(!delimSep.contains("%SP*;"),
+     """SP* entity cannot act as separator without setting dfdlx:inlineWhiteSpace property to "allow".""")
+  }
+
 }
 
 /** Convenience class for implemening AnnotatedSchemaComponent trait */

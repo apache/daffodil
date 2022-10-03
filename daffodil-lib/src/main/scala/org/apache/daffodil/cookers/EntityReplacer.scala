@@ -808,6 +808,8 @@ class DelimiterCookerNoES(pn: String) extends ListOfString1OrMoreLiteral(pn, tru
       override val disallowedCharClassEntities = Seq("ES")
       override def testRaw(raw: String, context: ThrowsSDE) = {
         context.schemaDefinitionUnless(raw != "%WSP*;", """For dfdl:%s the WSP* entity cannot appear on it's own when dfdl:lengthKind="delimited".""", propName)
+        context.schemaDefinitionUnless(raw != "%LSP*;", """For dfdl:%s the LSP* entity cannot appear on it's own when dfdl:lengthKind="delimited".""", propName)
+        context.schemaDefinitionUnless(raw != "%SP*;", """For dfdl:%s the SP* entity cannot appear on it's own when dfdl:lengthKind="delimited".""", propName)
         super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
       }
     }
@@ -822,6 +824,8 @@ class DelimiterCookerNoSoleES(pn: String) extends ListOfString1OrMoreLiteral(pn,
         // "Neither %ES or %WSP*;" can appear on their own when lenghtKind is delimited.
         context.schemaDefinitionUnless(raw != "%ES;", """For dfdl:%s the ES entity cannot appear on its own when dfdl:lengthKind="delimited".""", propName)
         context.schemaDefinitionUnless(raw != "%WSP*;", """For dfdl:%s the WSP* entity cannot appear on its own when dfdl:lengthKind="delimited".""", propName)
+        context.schemaDefinitionUnless(raw != "%LSP*;", """For dfdl:%s the LSP* entity cannot appear on its own when dfdl:lengthKind="delimited".""", propName)
+        context.schemaDefinitionUnless(raw != "%SP*;", """For dfdl:%s the SP* entity cannot appear on its own when dfdl:lengthKind="delimited".""", propName)
       }
     }
 }

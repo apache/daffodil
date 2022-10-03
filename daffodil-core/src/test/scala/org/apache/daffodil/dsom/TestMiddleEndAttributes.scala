@@ -155,7 +155,7 @@ class TestMiddleEndAttributes {
 
       <dfdl:format ref="tns:GeneralFormat" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" initiatedContent="no"/>,
 
-      <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
+      <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" type="xs:int"/>
       <xs:element name="e2" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:sequenceKind="ordered" dfdl:separator="," dfdl:separatorPosition="infix">
