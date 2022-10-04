@@ -72,7 +72,6 @@ import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.schema.annotation.props.TextStandardExponentRepMixin
 import org.apache.daffodil.schema.annotation.props.Found
 
-import org.apache.daffodil.schema.annotation.props.gen.InlineWhiteSpace
 
 /*
  * These are the DFDL properties which can have their values come
@@ -87,8 +86,6 @@ trait TermRuntimeValuedPropertiesMixin
   with PropertyReferencedElementInfosMixin
   with ChoiceAGMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: Term =>
-
-  lazy val inlineWhiteSpaceDefaulted: InlineWhiteSpace = optionInlineWhiteSpace.getOrElse(InlineWhiteSpace.Disallow)
 
   private lazy val encodingExpr = LV('encoding) {
     val qn = this.qNameForProperty("encoding")

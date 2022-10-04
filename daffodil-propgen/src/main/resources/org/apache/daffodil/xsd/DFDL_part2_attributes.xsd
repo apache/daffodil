@@ -140,7 +140,6 @@
     <xsd:attribute name="terminator"
       type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="outputNewLine" type="dfdl:DFDLStringLiteral" />
-    <xsd:attribute ref="dfdlx:inlineWhiteSpace" />
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="NonGroupMarkupAG">

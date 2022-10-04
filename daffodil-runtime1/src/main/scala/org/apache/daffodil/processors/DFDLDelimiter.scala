@@ -60,7 +60,6 @@ class Delimiter {
   private lazy val LSP = Pattern.compile("(LSP);")
   private lazy val LSP_Plus = Pattern.compile("(LSP\\+);")
   private lazy val LSP_Star = Pattern.compile("(LSP\\*);")
-  private lazy val SP = Pattern.compile("(SP);")
   private lazy val SP_Plus = Pattern.compile("(SP\\+);")
   private lazy val SP_Star = Pattern.compile("(SP\\*);")
 
@@ -99,9 +98,10 @@ class Delimiter {
   }
 
   def reduceWhitespaceDelimiters(delims: Array[DelimBase], delimType: String): Array[DelimBase] = {
+
     val q: Queue[DelimBase] = new Queue[DelimBase]()
 
-    // Counters to keep track of delim standard,+,* objects
+    // Counters to keep track of Delim base,+,* objects
     var numDelim_Standard: Int = 0
     var numDelim_Plus: Int = 0
     var numDelim_Star: Int = 0
@@ -109,118 +109,86 @@ class Delimiter {
     var idx: Int = 0 // To index the resultant array
 
     delims.foreach(delim => {
-      if (delimType == "wsp") {
-        delim match {
-          case wsp: WSPDelim => numDelim_Standard += 1
-          case wsp: WSPPlusDelim => numDelim_Plus += 1
-          case wsp: WSPStarDelim => numDelim_Star += 1
-          case _ => {
-            val (newQ, newIdx) = updateQueue(numDelim_Standard, numDelim_Plus, numDelim_Star, q, idx, delimType)
-            q.clear()
-            newQ.foreach(x => q += x)
+      (delimType, delim) match {
+        case ("wsp", _: WSPDelim) => numDelim_Standard += 1
+        case ("wsp", _: WSPPlusDelim) => numDelim_Plus += 1
+        case ("wsp", _: WSPStarDelim) => numDelim_Star += 1
+        case ("lsp", _: LSPDelim) => numDelim_Standard += 1
+        case ("lsp", _: LSPPlusDelim) => numDelim_Plus += 1
+        case ("lsp", _: LSPStarDelim) => numDelim_Star += 1
+        case ("sp", _: SPPlusDelim) => numDelim_Plus += 1
+        case ("sp", _: SPStarDelim) => numDelim_Star += 1
+        case _ => {
+          // We've reached a non WSP/LSP/SP delimiter, check if we've
+          // previously encountered any WSP/LSP/SP delimiter objects and
+          // return the equivalent representation (if any)
+          val result = getReducedDelim(numDelim_Standard, numDelim_Plus, numDelim_Star, delimType)
 
-            idx = newIdx
-            delim.index = idx
-            q += delim
+          if (result.isDefined) {
+            val x = result.get
+            // Delim exists and an equivalent representation was found
+            x.index = idx // Set the delimiter's index
+            q += x
             idx += 1
+          } else {
+            // Reduction not possible, but did we come across
+            // more than one delim?
 
-            numDelim_Standard = 0
-            numDelim_Plus = 0
-            numDelim_Star = 0
+            var i = 0
+            while (i < numDelim_Standard) {
+              val delim2 = delimType match {
+                case "wsp" => new WSPDelim
+                case "lsp" => new LSPDelim
+              }
+              delim2.index = idx
+              q += delim2
+              idx += 1
+              i += 1
+            }
           }
-        }
-      } else if (delimType == "lsp") {
-        delim match {
-          case lsp: LSPDelim => numDelim_Standard += 1
-          case lsp: LSPPlusDelim => numDelim_Plus += 1
-          case lsp: LSPStarDelim => numDelim_Star += 1
-          case _ => {
-            val (newQ, newIdx) = updateQueue(numDelim_Standard, numDelim_Plus, numDelim_Star, q, idx, delimType)
-            q.clear()
-            newQ.foreach(x => q += x)
 
-            idx = newIdx
-            delim.index = idx
-            q += delim
-            idx += 1
+          // Set the delimiter's index, needed to
+          // update the delimBuf individual node (DelimBase) state later
+          delim.index = idx
+          q += delim
+          idx += 1
 
-            numDelim_Standard = 0
-            numDelim_Plus = 0
-            numDelim_Star = 0
-          }
-        }
-      } else if (delimType == "sp") {
-        delim match {
-          case sp: SPDelim => numDelim_Standard += 1
-          case sp: SPPlusDelim => numDelim_Plus += 1
-          case sp: SPStarDelim => numDelim_Star += 1
-          case _ => {
-            val (newQ, newIdx) = updateQueue(numDelim_Standard, numDelim_Plus, numDelim_Star, q, idx, delimType)
-            q.clear()
-            newQ.foreach(x => q += x)
-
-            idx = newIdx
-            delim.index = idx
-            q += delim
-            idx += 1
-
-            numDelim_Standard = 0
-            numDelim_Plus = 0
-            numDelim_Star = 0
-          }
+          // Reset counters
+          numDelim_Standard = 0
+          numDelim_Plus = 0
+          numDelim_Star = 0
         }
       }
-    })
+    }) // end-for-each
 
     // Check for leftovers in case the delimiter
     // ends in spaces
-    val (newQ, newIdx) = updateQueue(numDelim_Standard, numDelim_Plus, numDelim_Star, q, idx, delimType)
-    q.clear()
-    newQ.foreach(x => q += x)
-
-    q.toArray[DelimBase]
-  }
-
-  def updateQueue(numDelim_Standard: Int, numDelim_Plus: Int, numDelim_Star: Int, q: Queue[DelimBase], idx: Int, delimType: String) = {
-    var localIdx = idx
-    val q2: Queue[DelimBase] = new Queue[DelimBase]()
-    q.foreach(x => q2 += x)   //q2 is now q and q2 is mutable.
-
     val result = getReducedDelim(numDelim_Standard, numDelim_Plus, numDelim_Star, delimType)
 
     if (result.isDefined) {
       val x = result.get
-      // Delim exists and an equivalent representation was found
-      x.index = localIdx // Set the delimiter's index
-      q2 += x
-      localIdx += 1
+      x.index = idx
+      q += x
     } else {
       // Reduction not possible, but did we come across
-      // more than one delim?
+      // more than one Delim?
       var i = 0
       while (i < numDelim_Standard) {
-        if(delimType == "wsp"){
-          val wsp = new WSPDelim
-          wsp.index = localIdx
-          q2 += wsp
-        }else if (delimType == "lsp"){
-          val lsp = new LSPDelim
-          lsp.index = localIdx
-          q2 += lsp
-        }else{
-          val sp = new SPDelim
-          sp.index = localIdx
-          q2 += sp
+        val delim = delimType match {
+          case "wsp" => new WSPDelim
+          case "lsp" => new LSPDelim
         }
-        localIdx += 1
+        delim.index = idx
+        q += delim
+        idx += 1
         i += 1
       }
     }
 
-    (q2, localIdx)
+    q.toArray[DelimBase]
   }
 
-  // Based upon what WSP delimiters were encountered,
+  // Based upon what WSP/LSP/SP delimiters were encountered,
   // determine the equivalent representation (if any) and return it.
   // 				TRUTH TABLE
   //		delim		delim+	delim*	RESULT
@@ -235,39 +203,29 @@ class Delimiter {
   def getReducedDelim(numDelim: Int, numDelim_Plus: Int, numDelim_Star: Int, delimType: String): Maybe[DelimBase] = {
     if (numDelim_Plus != 0) {
       // Case: 3, 4, 7, 8
-      if (delimType == "wsp") {
-        return One(new WSPPlusDelim() )
-      } else if (delimType == "lsp") {
-        return One (new LSPPlusDelim())
-      } else {
-        return One(new SPPlusDelim())
+      delimType match {
+        case "wsp" => return One(new WSPPlusDelim())
+        case "lsp" => return One(new LSPPlusDelim())
+        case "sp" => return One(new SPPlusDelim())
       }
     } else if (numDelim != 0 && numDelim_Plus == 0 && numDelim_Star != 0) {
       // Case: 6
-      if (delimType == "wsp") {
-        return One(new WSPPlusDelim() )
-      } else if (delimType == "lsp") {
-        return One (new LSPPlusDelim())
-      } else {
-        return One(new SPPlusDelim())
+      delimType match {
+        case "wsp" =>  return One(new WSPPlusDelim())
+        case "lsp" => return One(new LSPPlusDelim())
       }
     } else if (numDelim == 0 && numDelim_Plus == 0 && numDelim_Star != 0) {
       // Case: 2
-      if (delimType == "wsp") {
-        return One(new WSPStarDelim() )
-      } else if (delimType == "lsp") {
-        return One (new LSPStarDelim())
-      } else {
-        return One(new SPStarDelim())
+      delimType match{
+        case "wsp" => return One(new WSPStarDelim())
+        case "lsp" => return One(new LSPStarDelim())
+        case "sp" => return One(new SPStarDelim())
       }
     } else if (numDelim == 1 && numDelim_Plus == 0 && numDelim_Star == 0) {
       // Case: 5
-      if (delimType == "wsp") {
-        return One(new WSPDelim() )
-      } else if (delimType == "lsp") {
-        return One (new LSPDelim())
-      } else {
-        return One(new SPDelim())
+      delimType match {
+        case "wsp" => return One(new WSPDelim())
+        case "lsp" => return One(new LSPDelim())
       }
     }
     Nope
@@ -319,9 +277,6 @@ class Delimiter {
             case lsp: LSPStarDelim => {
               sb.append("(\\u0020|\\u0009)*")
             } // None or more spaces
-            case sp: SPDelim => {
-              sb.append("(\\u0020)")
-            } // Single space
             case sp: SPPlusDelim => {
               sb.append("(\\u0020)+")
             } // One or more spaces
@@ -365,7 +320,6 @@ class Delimiter {
     val mLSP: Matcher = LSP.matcher(str)
     val mLSP_Plus: Matcher = LSP_Plus.matcher(str)
     val mLSP_Star: Matcher = LSP_Star.matcher(str)
-    val mSP: Matcher = SP.matcher(str)
     val mSP_Plus: Matcher = SP_Plus.matcher(str)
     val mSP_Star: Matcher = SP_Star.matcher(str)
 
@@ -405,10 +359,6 @@ class Delimiter {
       classList += ("LSP*" -> (mLSP_Star.start() -> mLSP_Star.end()))
     }
 
-    if (mSP.find()) {
-      classList += ("SP" -> (mSP.start() -> mSP.end()))
-    }
-
     if (mSP_Plus.find()) {
       classList += ("SP+" -> (mSP_Plus.start() -> mSP_Plus.end()))
     }
@@ -429,7 +379,6 @@ class Delimiter {
         case "LSP" => (length, One(new LSPDelim()))
         case "LSP+" => (length, One(new LSPPlusDelim()))
         case "LSP*" => (length, One(new LSPStarDelim()))
-        case "SP" => (length, One(new SPDelim()))
         case "SP+" => (length, One(new SPPlusDelim()))
         case "SP*" => (length, One(new SPStarDelim()))
       }
@@ -810,16 +759,6 @@ class LSPStarDelim extends LSPBase with LSP {
   }
 
   def unparseValue(outputNewLine: String): String = ""
-}
-
-class SPDelim extends SPBase with SP {
-  override lazy val typeName = "SPDelim"
-
-  override def printStr = {
-    val res = typeName
-    res
-  }
-  def unparseValue(outputNewLine: String): String = SPACE.toString
 }
 
 class SPPlusDelim extends SPBase with SP {

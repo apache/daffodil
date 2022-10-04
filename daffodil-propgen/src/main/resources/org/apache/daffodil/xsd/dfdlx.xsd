@@ -35,7 +35,6 @@
   <xs:simpleType name="PropertyNameType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="dfdlx:alignmentKind" />
-      <xs:enumeration value="dfdlx:inlineWhiteSpace" />
       <xs:enumeration value="dfdlx:choiceBranchKeyRanges" />
       <xs:enumeration value="dfdlx:emptyElementParsePolicy"/>
       <xs:enumeration value="dfdlx:inputTypeCalc"/>
@@ -74,23 +73,6 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="automatic" />
       <xs:enumeration value="manual" />
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:attribute name="inlineWhiteSpace" type="dfdlx:InlineWhiteSpaceEnum" default="disallow">
-    <xs:annotation>
-      <xs:documentation><![CDATA[
-      If "allow", character class entity LSP matches space and tab, while character entity SP matches on space.
-
-      Default value for this extension property is "disallow".
-      ]]></xs:documentation>
-    </xs:annotation>
-  </xs:attribute>
-
-  <xs:simpleType name="InlineWhiteSpaceEnum">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="allow" />
-      <xs:enumeration value="disallow" />
     </xs:restriction>
   </xs:simpleType>
 

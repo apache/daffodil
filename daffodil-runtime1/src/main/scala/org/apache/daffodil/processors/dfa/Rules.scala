@@ -612,7 +612,7 @@ abstract class DelimsBase(states: => ArrayBuffer[State], delimType: String)
     NBSP, OGHAM, MONG, SP0, SP1, SP2, SP3, SP4, SP5, SP6, SP7, SP8, SP9, SP10,
     LSP, PSP, NARROW, MED, IDE)
     case "lsp" | "lsp+" | "lsp*" => Seq(SPACE, CTRL0)
-    case "sp" | "sp+" | "sp*" => Seq(SPACE)
+    case  "sp+" | "sp*" => Seq(SPACE)
   }
 
   def checkMatch(charIn: Char): Boolean = {
@@ -630,7 +630,7 @@ abstract class DelimsBase(states: => ArrayBuffer[State], delimType: String)
           case CTRL0 | SPACE => true
           case _ => false
         };
-      case "sp" | "sp+" | "sp*" =>
+      case "sp+" | "sp*" =>
         charIn match {
           case SPACE => true
           case _ => false
@@ -646,7 +646,6 @@ class DelimsState(states: => ArrayBuffer[State], val nextState: Int, val stateNu
   delimType match{
     case "wsp" => stateName = "WSPState"
     case "lsp" => stateName = "LSPState"
-    case "sp" => stateName = "SPState"
   }
 
   val rulesToThisState = ArrayBuffer(

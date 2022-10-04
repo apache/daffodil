@@ -30,7 +30,6 @@ import org.apache.daffodil.processors.WSPStarDelim
 import org.apache.daffodil.processors.LSPDelim
 import org.apache.daffodil.processors.LSPPlusDelim
 import org.apache.daffodil.processors.LSPStarDelim
-import org.apache.daffodil.processors.SPDelim
 import org.apache.daffodil.processors.SPPlusDelim
 import org.apache.daffodil.processors.SPStarDelim
 import org.apache.daffodil.processors.parsers.DelimiterTextType
@@ -130,9 +129,6 @@ object CreateDelimiterDFA {
       }
       case d: LSPPlusDelim => {
         new DelimsPlusState(allStates, nextState, stateNum, "lsp+")
-      }
-      case d: SPDelim => {
-        new DelimsState(allStates, nextState, stateNum, "sp")
       }
       case d: SPStarDelim => {
         new DelimsStarState(allStates, nextState, stateNum, "sp*")
