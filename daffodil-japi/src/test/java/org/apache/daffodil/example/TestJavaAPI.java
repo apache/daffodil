@@ -1205,4 +1205,12 @@ public class TestJavaAPI {
         assertEquals(expectedData, bos.toString());
     }
 
+    @Test
+    public void testJavaAPI26() throws IOException, ClassNotFoundException, ExternalVariableException {
+        // Demonstrates the use of the various EntityResolver methods from Java
+
+        assertTrue(DaffodilXMLEntityResolver.getEntityResolver() != null);
+        assertTrue(DaffodilXMLEntityResolver.getXMLEntityResolver() != null);
+        assertTrue(DaffodilXMLEntityResolver.getLSResourceResolver() != null);
+    }
 }

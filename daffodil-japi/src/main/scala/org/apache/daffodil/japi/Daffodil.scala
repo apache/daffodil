@@ -61,6 +61,7 @@ import org.apache.daffodil.util.Maybe._
 import org.apache.daffodil.util.MaybeULong
 import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.DFDLCatalogResolver
 
 /**
  * API Suitable for Java programmers to use.
@@ -1154,4 +1155,29 @@ class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnp
     contentHandler.processingInstruction(target, data)
   override def skippedEntity(name: String): Unit =
     contentHandler.skippedEntity(name)
+}
+
+/**
+ * Returns the EntityResolver used by Daffodil to resolve import/include
+ * schemaLocations.
+ *
+ * The entity resolver attempts to resolve namespaces and systemId's in the
+ * following order:
+ *
+ * 1. Use an org.apache.xml.resolver.Catalog/CatalogManager. By default the
+ *    Catalog only includes the daffodil-built-in-catalog.xml, but additional
+ *    catalogs can be added by putting CatalogManager.properties on the
+ *    classpath when daffodil is run.
+ *
+ * 2. If not resolved in step 1, schemaLocations are resolved relative to the
+ *    importing schema URI, which could either be a file on the filesystem or in
+ *    a jar on the classpath.
+ *
+ * The EntityResolver isn't thread safe, but it also is expensive and stateful,
+ * so we use ThreadLocal to only create one instance per thread.
+ */
+object DaffodilXMLEntityResolver {
+  def getEntityResolver: org.xml.sax.EntityResolver = DFDLCatalogResolver.get
+  def getXMLEntityResolver: org.apache.xerces.xni.parser.XMLEntityResolver = DFDLCatalogResolver.get
+  def getLSResourceResolver: org.w3c.dom.ls.LSResourceResolver = DFDLCatalogResolver.get
 }
