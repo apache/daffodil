@@ -22,7 +22,7 @@ enablePlugins(PublishJavadocPlugin)
 // for example 0.18_2.12.15. This is incorrect because the unidoc plugin uses
 // crossVersion to figure out the Scala version. This should be set to just the
 // version of the genjavadoc plugin, without the Scala version.
-unidocGenjavadocVersion := "0.18"
+unidocGenjavadocVersion := "0.18_2.13.10"
 
 Genjavadoc / sources := (Genjavadoc / sources).value.filterNot { source =>
   source.toString.contains("$") || source.toString.contains("packageprivate")
