@@ -707,7 +707,7 @@ object Main {
       val ef = DefaultEXIFactory.newInstance
       if (schemaUriOpt.isDefined && infosetType == InfosetType.EXISA) {
         val gf = GrammarFactory.newInstance
-        val grammar = gf.createGrammars(schemaUriOpt.get.toURL.openStream(), DFDLCatalogResolver.get)
+        val grammar = gf.createGrammars(schemaUriOpt.get.toString, DFDLCatalogResolver.get)
         ef.setGrammars(grammar)
       }
       Some(ef)
