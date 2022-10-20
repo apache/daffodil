@@ -17,24 +17,12 @@
 
 addSbtPlugin("com.github.tnakamot" % "sbt-cc" % "0.0.3")
 
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.9")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.11")
 
 addSbtPlugin("org.musigma" % "sbt-rat" % "0.7.0")
 
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.3")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.6")
 
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
-
-// Both sbt and the sbt-native-pacakger plugin have transitive dependencies to
-// different versions of plexus-utils and guava, but with different major
-// version numbers. SBT interprets this major version number difference as
-// having dependencies that are potentially not binary compatible, resulting in
-// a warning message when starting SBT. It appears the binary incompatibilities
-// (if they exist) do not affect building Daffodil, so this overrides the
-// dependencies to the latest versions and removes the warning.
-dependencyOverrides ++= Seq(
-  "org.codehaus.plexus" % "plexus-utils" % "3.0.17",
-  "com.google.guava" % "guava" % "20.0"
-)
