@@ -171,6 +171,24 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="LSPLSPComma" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%LSP;%LSP;," dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="LSPLSP" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%LSP;%LSP;" dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="LSPDelimiter"
@@ -334,5 +352,29 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<tdml:parserTestCase name="LSPLSPCommaDelimiter"
+  model="LSPAndSPSchema" root="LSPLSPComma">
+  <tdml:document>
+    <tdml:documentPart type="text">FirstWord  ,SecondWord</tdml:documentPart>
+  </tdml:document>
+  <tdml:infoset>
+    <tdml:dfdlInfoset type="infoset">
+      <LSPLSPComma><s1>FirstWord</s1><s2>SecondWord</s2></LSPLSPComma>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+</tdml:parserTestCase>
+
+<tdml:parserTestCase name="LSPLSPDelimiter"
+  model="LSPAndSPSchema" root="LSPLSP">
+  <tdml:document>
+    <tdml:documentPart type="text">FirstWord  SecondWord</tdml:documentPart>
+  </tdml:document>
+  <tdml:infoset>
+    <tdml:dfdlInfoset type="infoset">
+      <LSPLSP><s1>FirstWord</s1><s2>SecondWord</s2></LSPLSP>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+</tdml:parserTestCase>
 
 </tdml:testSuite>

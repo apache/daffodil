@@ -107,12 +107,12 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
     val pTerm0 = states(0)
     val res =
       if (pTerm0.isInstanceOf[DelimsStarState]) {
-        val wspStar = pTerm0.asInstanceOf[DelimsStarState]
-        if (wspStar.checkMatch(charIn)) {
+        val starDelim = pTerm0.asInstanceOf[DelimsStarState]
+        if (starDelim.checkMatch(charIn)) {
           // Was a space
           true
         }
-        else if (wspStar.nextState == DFA.FinalState) {
+        else if (starDelim.nextState == DFA.FinalState) {
           // WSP* is not allowed to appear by itself as a terminator
           // or separator.
           //

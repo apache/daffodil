@@ -93,10 +93,10 @@ abstract class CompiledExpression[+T <: AnyRef](
 
   /**
    * Tells us if the expression can match the empty string. We know it can if the expression
-   * is a DFDL entity like %ES; or %WSP*. We do not know whether it can if it is a more
+   * is a DFDL entity like %ES; or %WSP*; or %LSP;. We do not know whether it can if it is a more
    * complicated constant or runtime expression.
    */
-  final lazy val isKnownCanMatchEmptyString = value == "%ES;" || value == "%WSP*;" || value == "%LSP*;" || value == "%SP;"
+  final lazy val isKnownCanMatchEmptyString = value == "%ES;" || value == "%WSP*;" || value == "%LSP*;"
 
   /**
    * used to obtain a constant value.
