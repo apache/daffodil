@@ -1367,7 +1367,8 @@
   </tdml:parserTestCase>
   
   <tdml:unparserTestCase name="LSPUnparseDelimiter"
-    model="LSPAndSPSchema" root="LSPUnparse">
+    model="LSPAndSPSchema" root="LSPUnparse"
+	roundTrip="none">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:LSPUnparse xmlns:ex="http://example.com">
@@ -1381,7 +1382,8 @@
   </tdml:unparserTestCase>
 
   <tdml:unparserTestCase name="SPUnparseDelimiter"
-    model="LSPAndSPSchema" root="SPUnparse">
+    model="LSPAndSPSchema" root="SPUnparse"
+	roundTrip="none">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:SPUnparse xmlns:ex="http://example.com">
