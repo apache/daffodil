@@ -84,4 +84,21 @@ class TestDelimiterProperties {
   @Test def test_emptyInitiator2() = { runner_02.runOneTest("emptyInitiator2") }
   @Test def test_emptyInitiator3() = { runner_02.runOneTest("emptyInitiator3") }
   @Test def test_emptyInitiator4() = { runner_02.runOneTest("emptyInitiator4") }
+
+  @Test def test_LSPDelimiter() = { runner_02.runOneTest("LSPDelimiter") }
+  @Test def test_LSPPlusDelimiter() = { runner_02.runOneTest("LSPPlusDelimiter") }
+  @Test def test_LSPStarDelimiter() = { runner_02.runOneTest("LSPStarDelimiter") }
+  @Test def test_SPPlusDelimiter() = { runner_02.runOneTest("SPPlusDelimiter") }
+  @Test def test_SPStarDelimiter() = { runner_02.runOneTest("SPStarDelimiter") }
+  @Test def test_LSPLSPPlusDelimiter() = { runner_02.runOneTest("LSPLSPPlusDelimiter") }
+  @Test def test_LSPLSPStarDelimiter() = { runner_02.runOneTest("LSPLSPStarDelimiter") }
+  @Test def test_LSPStarLSPStarDelimiter() = { runner_02.runOneTest("LSPStarLSPStarDelimiter") }
+  @Test def test_NLLSPDelimiter() = { runner_02.runOneTest("NLLSPDelimiter") }
+  @Test def test_NLSPPlusDelimiter() = { runner_02.runOneTest("NLSPPlusDelimiter") }
+  @Test def test_NLSPStarDelimiter() = { runner_02.runOneTest("NLSPStarDelimiter") }
+  @Test def test_SPStarSPStarDelimiter() = { runner_02.runOneTest("SPStarSPStarDelimiter") }
+  @Test def test_LSPLSPCommaDelimiter() = { runner_02.runOneTest("LSPLSPCommaDelimiter") }
+  @Test def test_LSPLSPDelimiter() = { runner_02.runOneTest("LSPLSPDelimiter") }
+  @Test def test_LSPUnparseDelimiter() = { runner_02.runOneTest("LSPUnparseDelimiter") }
+  @Test def test_SPUnparseDelimiter() = { runner_02.runOneTest("SPUnparseDelimiter") }
 }
