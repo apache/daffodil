@@ -25,11 +25,27 @@ import org.apache.daffodil.processors._
 import org.apache.daffodil.util.OnStack
 import org.apache.daffodil.schema.annotation.props.gen.FailureType
 
-trait AssertMessageEvaluationMixin {
+trait AssertParserMixin {
   def messageExpr: CompiledExpression[AnyRef]
   def discrim: Boolean
+  def failureType: FailureType
 
-  def getAssertFailureMessage(state: PState): String = {
+  def handleAssertionResult(res: Boolean, state: PState, context: RuntimeData): Unit = {
+    if (!res) {
+      val message = getAssertFailureMessage(state)
+      if (failureType == FailureType.ProcessingError) {
+        val diag = new AssertionFailed(context.schemaFileLocation, state, message)
+        state.setFailed(diag)
+      } else
+        state.validationError("%s", message)
+    } else if (discrim) {
+      // this is a discriminator. Successful assertion resolves the in scope
+      // point of uncertainty
+      state.resolvePointOfUncertainty()
+    }
+  }
+
+  private def getAssertFailureMessage(state: PState): String = {
     val message =
       try {
         messageExpr.evaluate(state).asInstanceOf[String]
@@ -54,9 +70,9 @@ class AssertPatternParser(
   override val discrim: Boolean,
   testPattern: String,
   override val messageExpr: CompiledExpression[AnyRef],
-  failureType: FailureType)
+  override val failureType: FailureType)
   extends PrimParser
-  with AssertMessageEvaluationMixin {
+  with AssertParserMixin {
   override lazy val runtimeDependencies = Vector()
 
   override def toBriefXML(depthLimit: Int = -1) = {
@@ -75,17 +91,6 @@ class AssertPatternParser(
     val isMatch = withMatcher { m => dis.lookingAt(m, start) }
     dis.resetPos(mark)
 
-    if (!isMatch) {
-      val message = getAssertFailureMessage(start)
-      if (failureType == FailureType.ProcessingError) {
-        val diag = new AssertionFailed(context.schemaFileLocation, start, message)
-        start.setFailed(diag)
-      } else
-        start.SDW(message)
-    } else if (discrim) {
-      // this is a pattern discriminator. Successful match resolves the in
-      // scope point of uncertainty
-      start.resolvePointOfUncertainty()
-    }
+    handleAssertionResult(isMatch, start, context)
   }
 }

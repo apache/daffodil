@@ -21,7 +21,6 @@ import org.apache.daffodil.Implicits.using
 import org.apache.daffodil.xml.XMLUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Test
 import org.apache.daffodil.Implicits._
 import org.junit.AfterClass
@@ -52,8 +51,12 @@ class TestTDMLRunner2 {
    * Exception expected? Yes
    *
    * Reasoning: The data parses successfully and validation is 'off'.
-   * Demonstrates that when validation is off, no validation errors
-   * should be expected by the testcase.
+   * Demonstrates that when validation is off, no validation errors will be
+   * generated and so the test will fail because it expects them.
+   *
+   * Note that this test case is not considered invalid because there are ways
+   * to generate validation errors with validation being off, such as asserts
+   * with failureType="recoverableError"
    */
   @Test def testValidationOffValidationErrorGivenShouldError() = {
     val testSuite =
@@ -88,7 +91,7 @@ class TestTDMLRunner2 {
             </tdml:dfdlInfoset>
           </tdml:infoset>
           <tdml:validationErrors>
-            <tdml:error>Specifying this should throw exception</tdml:error>
+            <tdml:error>This error will not be found with validation disabled</tdml:error>
           </tdml:validationErrors>
         </tdml:parserTestCase>
       </tdml:testSuite>
@@ -99,13 +102,7 @@ class TestTDMLRunner2 {
     }
     runner.reset
     val msg = e.getMessage()
-    if (!msg.contains("Test case invalid")) {
-      println(msg)
-      fail("message did not contain expected contents")
-    }
-    assertTrue(msg.contains("Test case invalid"))
-    assertTrue(msg.contains("Validation is off"))
-    assertTrue(msg.contains("test expects an error"))
+    assertTrue(msg.contains("expected but not found"))
   }
 
   /**

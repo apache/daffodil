@@ -86,7 +86,9 @@ abstract class AssertBase(
         qn,
         NodeInfo.String, msgOpt.get, exprNamespaces, exprComponent.dpathCompileInfo, false, this, exprComponent.dpathCompileInfo)
     } else {
-      new ConstantExpression[String](qn, NodeInfo.String, exprWithBraces + " failed")
+      val typeString = if (discrim) "Discriminator" else "Assertion"
+      val defaultMessage = s"$typeString expression failed: $exprWithBraces"
+      new ConstantExpression[String](qn, NodeInfo.String, defaultMessage)
     }
   }
 
@@ -343,7 +345,9 @@ abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discri
     if (stmt.messageAttrib.isDefined) {
       expr
     } else {
-      new ConstantExpression[String](qn, NodeInfo.String, testPattern + " failed")
+      val typeString = if (discrim) "Discriminator" else "Assertion"
+      val defaultMessage = s"$typeString pattern failed: $testPattern"
+      new ConstantExpression[String](qn, NodeInfo.String, defaultMessage)
     }
 
   override val forWhat = ForParser

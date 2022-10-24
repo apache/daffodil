@@ -202,9 +202,9 @@ final class AssertExpressionEvaluationParser(
   override val discrim: Boolean, // are we a discriminator or not.
   decl: RuntimeData,
   expr: CompiledExpression[AnyRef],
-  failureType: FailureType)
+  override val failureType: FailureType)
   extends ExpressionEvaluationParser(expr, decl)
-  with AssertMessageEvaluationMixin {
+  with AssertParserMixin {
 
   def parse(start: PState): Unit = {
     Logger.log.debug(s"This is ${toString}")
@@ -232,15 +232,6 @@ final class AssertExpressionEvaluationParser(
     if (start.processorStatus ne Success) return
 
     val testResult = res.getBoolean
-    if (testResult) {
-      if (discrim) start.resolvePointOfUncertainty()
-    } else {
-      val message = getAssertFailureMessage(start)
-      if (failureType == FailureType.ProcessingError) {
-        val diag = new AssertionFailed(decl.schemaFileLocation, start, message)
-        start.setFailed(diag)
-      } else
-        start.SDW("Assertion " + message)
-    }
+    handleAssertionResult(testResult, start, context)
   }
 }

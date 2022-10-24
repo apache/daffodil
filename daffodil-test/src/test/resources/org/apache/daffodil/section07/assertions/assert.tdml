@@ -397,9 +397,9 @@
         </e3r>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>Assertion</tdml:warning>
-    </tdml:warnings>
+    <tdml:validationErrors>
+      <tdml:error>Assertion</tdml:error>
+    </tdml:validationErrors>
   </tdml:parserTestCase>
 
   <!--

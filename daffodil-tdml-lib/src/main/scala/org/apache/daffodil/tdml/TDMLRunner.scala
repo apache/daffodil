@@ -1059,7 +1059,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset, implString)
 
     (shouldValidate, expectsValidationError) match {
-      case (true, true) => {
+      case (_, true) => {
+        // Note that even if shouldValidate is false, we still need to check
+        // for validation diagnostics because failed assertions with
+        // failureType="recoverableError" are treated as validation errors
         VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optExpectedValidationErrors, implString) // verify all validation errors were found
         Assert.invariant(actual.isValidationError)
       }
@@ -1067,7 +1070,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         VerifyTestCase.verifyNoValidationErrorsFound(actual, implString) // Verify no validation errors from parser
         Assert.invariant(!actual.isValidationError)
       }
-      case (false, true) => throw TDMLException("Test case invalid. Validation is off but the test expects an error.", implString)
       case (false, false) => // Nothing to do here.
     }
 
@@ -1447,7 +1449,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optWarnings, implString)
 
       (shouldValidate, expectsValidationError) match {
-        case (true, true) => {
+        case (_, true) => {
+          // Note that even if shouldValidate is false, we still need to check
+          // for validation diagnostics because failed assertions with
+          // failureType="recoverableError" are treated as validation errors
           VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optExpectedValidationErrors, implString) // verify all validation errors were found
           Assert.invariant(actual.isValidationError)
         }
@@ -1455,7 +1460,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           VerifyTestCase.verifyNoValidationErrorsFound(actual, implString) // Verify no validation errors from parser
           Assert.invariant(!actual.isValidationError)
         }
-        case (false, true) => throw TDMLException("Test case invalid. Validation is off but the test expects an error.", implString)
         case (false, false) => // Nothing to do here.
       }
 
