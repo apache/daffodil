@@ -181,9 +181,9 @@ c0a8 0001 c0a8 00c7
         </ipv4:IPv4Header>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>Assertion Incorrect checksum</tdml:warning>
-    </tdml:warnings>
+    <tdml:validationErrors>
+      <tdml:error>Incorrect checksum</tdml:error>
+    </tdml:validationErrors>
   </tdml:parserTestCase>
 
 
