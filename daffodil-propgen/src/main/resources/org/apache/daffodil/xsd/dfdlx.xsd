@@ -101,7 +101,7 @@
       <xs:enumeration value="treatAsMissing" />
     </xs:restriction>
   </xs:simpleType>
-
+  
   <xs:attribute name="choiceBranchKeyRanges" type="dfdl:NonEmptyListOfInteger" />
 
   <xs:attributeGroup name="SimpleTypeValueCalcAG">

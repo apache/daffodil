@@ -72,7 +72,6 @@ import org.apache.daffodil.processors.LayerCharsetEv
 import org.apache.daffodil.schema.annotation.props.TextStandardExponentRepMixin
 import org.apache.daffodil.schema.annotation.props.Found
 
-
 /*
  * These are the DFDL properties which can have their values come
  * from the data stream itself by way of expressions.
