@@ -32,7 +32,7 @@ The following NOTICE information applies to binary components distributed with t
 
 - commons-codec.commons-codec-<VERSION>.jar
   Apache Commons Codec
-  Copyright 2002-2017 The Apache Software Foundation
+  Copyright 2002-2020 The Apache Software Foundation
 
   src/test/org/apache/commons/codec/language/DoubleMetaphoneTest.java
   contains test data from http://aspell.net/test/orig/batch0.tab.
@@ -49,10 +49,6 @@ The following NOTICE information applies to binary components distributed with t
 - commons-io.commons-io-<VERSION>.jar
   Apache Commons IO
   Copyright 2002-2021 The Apache Software Foundation
-
-- commons-logging.commons-logging-<VERSION>.jar
-  Apache Commons Logging
-  Copyright 2003-2014 The Apache Software Foundation
 
 - org.apache.daffodil.daffodil-lib-<VERSION>.jar
   Apache Daffodil
@@ -79,12 +75,16 @@ The following NOTICE information applies to binary components distributed with t
     and can be found in:
       daffodil-lib/src/main/scala/org/apache/daffodil/util/UniquenessCache.scala
 
-- org.apache.httpcomponents.httpclient-<VERSION>.jar
+- org.apache.httpcomponents.client5.httpclient5-<VERSION>.jar
   Apache HttpClient
   Copyright 1999-2020 The Apache Software Foundation
 
-- org.apache.httpcomponents.httpcore-<VERSION>.jar
-  Apache HttpCore
+- org.apache.httpcomponents.core5.httpcore5-<VERSION>.jar
+  Apache HttpComponents Core HTTP/1.1
+  Copyright 2005-2020 The Apache Software Foundation
+
+- org.apache.httpcomponents.core5.httpcore5-h2-<VERSION>.jar
+  Apache HttpComponents Core HTTP/2
   Copyright 2005-2020 The Apache Software Foundation
 
 - org.apache.logging.log4j.log4j-api-<VERSION>.jar
@@ -134,8 +134,8 @@ The following NOTICE information applies to binary components distributed with t
 - org.scala-lang.scala-library-<VERSION>.jar
 - org.scala-lang.scala-reflect-<VERSION>.jar
   Scala
-  Copyright (c) 2002-2021 EPFL
-  Copyright (c) 2011-2021 Lightbend, Inc.
+  Copyright (c) 2002-2022 EPFL
+  Copyright (c) 2011-2022 Lightbend, Inc.
 
   Scala includes software developed at
   LAMP/EPFL (https://lamp.epfl.ch/) and
