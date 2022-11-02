@@ -1107,7 +1107,7 @@ class DaffodilUnparseContentHandler private[sapi] (sContentHandler: SDaffodilUnp
  *    importing schema URI, which could either be a file on the filesystem or in
  *    a jar on the classpath.
  *
- * The DFDLCatalogResolver isn't thread safe, but it also is expensive and stateful,
+ * The EntityResolver isn't thread safe, but it also is expensive and stateful,
  * so we use ThreadLocal to only create one instance per thread.
  */
 object DaffodilXMLEntityResolver {
