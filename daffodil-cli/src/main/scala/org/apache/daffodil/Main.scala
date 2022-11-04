@@ -22,6 +22,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.io.PrintStream
 import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
@@ -45,6 +46,7 @@ import org.rogach.scallop
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
+import org.rogach.scallop.exceptions.GenericScallopException
 import org.xml.sax.XMLReader
 import org.xml.sax.ContentHandler
 import org.apache.logging.log4j.Level
@@ -56,7 +58,6 @@ import com.siemens.ct.exi.core.EXIFactory
 import com.siemens.ct.exi.grammars.GrammarFactory
 import com.siemens.ct.exi.main.api.sax.EXIResult
 import com.siemens.ct.exi.main.api.sax.EXISource
-import org.apache.daffodil.Main.ExitCode
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api.DFDL.ParseResult
@@ -259,8 +260,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
   val width = 87
   helpWidth(width)
 
-  def error(msg: String) = errorMessageHandler(msg)
-
   errorMessageHandler = { message =>
     val msg =
       if (message.indexOf("Wrong format for option 'schema'") >= 0) {
@@ -271,9 +270,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
       } else {
         message
       }
-
-    Logger.log.error(msg)
-    sys.exit(ExitCode.Usage.id)
+    throw new GenericScallopException(msg)
   }
 
   banner("""|Usage: daffodil [GLOBAL_OPTS] <subcommand> [SUBCOMMAND_OPTS]
@@ -537,6 +534,22 @@ object ValidatorPatterns {
 
 object Main {
 
+  var STDIN: InputStream = System.in
+  var STDOUT: PrintStream = System.out
+  var STDERR: PrintStream = System.err
+
+  /**
+   * Allows changing where the input/output of the CLI goes to. This defaults
+   * to the normal System.in/out/err, but can be changed to support easier
+   * testing. This is not thread safe, but this Main object is not really
+   * thread safe anyways if it is configured to read/write from stdin/stout.
+   */
+  def setInputOutput(in: InputStream, out: PrintStream, err: PrintStream): Unit = {
+    STDIN = in
+    STDOUT = out
+    STDERR = err
+  }
+
   val traceCommands = Seq(
     "display info parser",
     "display info data",
@@ -621,14 +634,14 @@ object Main {
     if (conf.trace() || conf.debug.isDefined) {
       val runner =
         if (conf.trace()) {
-          new TraceDebuggerRunner
+          new TraceDebuggerRunner(STDOUT)
         } else {
           if (System.console == null) {
             Logger.log.warn(s"Using --debug on a non-interactive console may result in display issues")
           }
           conf.debug() match {
-            case Some(f) => new CLIDebuggerRunner(new File(f))
-            case None => new CLIDebuggerRunner()
+            case Some(f) => new CLIDebuggerRunner(new File(f), STDIN, STDOUT)
+            case None => new CLIDebuggerRunner(STDIN, STDOUT)
           }
         }
       val id = new InteractiveDebugger(runner, ExpressionCompilers)
@@ -877,7 +890,7 @@ object Main {
     Configurator.setLevel("org.apache.daffodil", verboseLevel)
   }
 
-  def run(arguments: Array[String]): ExitCode.Value = {
+  def runIgnoreExceptions(arguments: Array[String]): ExitCode.Value = {
     val conf = new CLIConf(arguments)
 
     setLogLevel(conf.verbose())
@@ -906,7 +919,7 @@ object Main {
             Assert.invariant(!proc.isError)
             var processor = proc
             val input = parseOpts.infile.toOption match {
-              case Some("-") | None => System.in
+              case Some("-") | None => STDIN
               case Some(file) => {
                 val f = new File(file)
                 new FileInputStream(f)
@@ -919,7 +932,7 @@ object Main {
             setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
 
             val output = parseOpts.output.toOption match {
-              case Some("-") | None => System.out
+              case Some("-") | None => STDOUT
               case Some(file) => new FileOutputStream(file)
             }
 
@@ -1120,7 +1133,7 @@ object Main {
             val nullOutputStreamForParse = NullOutputStream.NULL_OUTPUT_STREAM
 
             //the following line allows output verification
-            //val nullChannelForUnparse = Channels.newChannel(System.out)
+            //val nullChannelForUnparse = Channels.newChannel(STDOUT)
             val NSConvert = 1000000000.0
             val (totalTime, results) = Timer.getTimeResult({
               val tasks = inputsWithIndex.map {
@@ -1178,10 +1191,10 @@ object Main {
               case true => "unparse"
               case false => "parse"
             }
-            printf("total %s time (sec): %f\n", action, sec)
-            printf("min rate (files/sec): %f\n", rates.min)
-            printf("max rate (files/sec): %f\n", rates.max)
-            printf("avg rate (files/sec): %f\n", (performanceOpts.number() / sec))
+            STDOUT.println(s"total $action time (sec): $sec")
+            STDOUT.println(s"min rate (files/sec): ${rates.min.toFloat}")
+            STDOUT.println(s"max rate (files/sec): ${rates.max.toFloat}")
+            STDOUT.println(s"avg rate (files/sec): ${(performanceOpts.number() / sec).toFloat}")
 
             if (numFailures == 0) ExitCode.Success else ExitCode.PerformanceTestError
           }
@@ -1207,7 +1220,7 @@ object Main {
         }.map{ _.withExternalVariables(combineExternalVariables(unparseOpts.vars, optDafConfig)) }
 
         val output = unparseOpts.output.toOption match {
-          case Some("-") | None => System.out
+          case Some("-") | None => STDOUT
           case Some(file) => new FileOutputStream(file)
         }
 
@@ -1216,7 +1229,7 @@ object Main {
         // We are not loading a schema here, we're loading the infoset to unparse.
         //
         val is = unparseOpts.infile.toOption match {
-          case Some("-") | None => System.in
+          case Some("-") | None => STDIN
           case Some(fileName) => new FileInputStream(fileName)
         }
 
@@ -1301,7 +1314,7 @@ object Main {
         val processor = createProcessorFromSchema(saveOpts.schema(), saveOpts.rootNS.toOption, saveOpts.path.toOption, tunables, validate)
 
         val output = saveOpts.outfile.toOption match {
-          case Some("-") | None => Channels.newChannel(System.out)
+          case Some("-") | None => Channels.newChannel(STDOUT)
           case Some(file) => new FileOutputStream(file).getChannel()
         }
 
@@ -1363,18 +1376,18 @@ object Main {
                 }
             }
             val formatStr = maxCols.map(max => "%" + -max + "s").mkString("  ")
-            println(formatStr.format(headers: _*))
+            STDOUT.println(formatStr.format(headers: _*))
             tests.foreach { testPair =>
               testPair match {
-                case (name, Some(test)) => println(formatStr.format(name, test.model, test.rootName, test.description))
-                case (name, None) => println(formatStr.format(name, "[Not Found]", "", ""))
+                case (name, Some(test)) => STDOUT.println(formatStr.format(name, test.model, test.rootName, test.description))
+                case (name, None) => STDOUT.println(formatStr.format(name, "[Not Found]", "", ""))
               }
             }
           } else {
             tests.foreach { testPair =>
               testPair match {
-                case (name, Some(test)) => println(name)
-                case (name, None) => println("%s  [Not Found]".format(name))
+                case (name, Some(test)) => STDOUT.println(name)
+                case (name, None) => STDOUT.println("%s  [Not Found]".format(name))
               }
             }
           }
@@ -1388,38 +1401,51 @@ object Main {
               case (name, Some(test)) => {
                 try {
                   test.run()
-                  println("[Pass] %s".format(name))
+                  STDOUT.println("[Pass] %s".format(name))
                   pass += 1
                 } catch {
                   case s: scala.util.control.ControlThrowable => throw s
                   case u: UnsuppressableException => throw u
                   case e: TDMLTestNotCompatibleException => {
-                    println("[Skipped] %s (not compatible with implementation %s)"
+                    STDOUT.println("[Skipped] %s (not compatible with implementation: %s)"
                       .format(name, e.implementation.getOrElse("<none>")))
                   }
                   case e: Throwable => {
-                    println("[Fail] %s".format(name))
-                    fail += 1
-                    if (testOpts.info() > 0) {
-                      println("  Failure Information:")
-                      println(indent(e.getMessage(), 4))
-                    }
-                    if (testOpts.info() > 1) {
-                      println("  Backtrace:")
-                      e.getStackTrace.foreach { st => println(indent(st.toString, 4)) }
+                    e.getCause match {
+                      case e: TDMLTestNotCompatibleException => {
+                        // if JUnit is on the classpath (e.g. possible in integration tests), then
+                        // the TDML runner throws an AssumptionViolatedException where the cause is
+                        // a TDMLTestNotCompatibleException. In that case we should output the test
+                        // skipped message. The way we match here avoids having the CLI to require
+                        // JUnit as a dependency
+                        STDOUT.println("[Skipped] %s (not compatible with implementation: %s)"
+                          .format(name, e.implementation.getOrElse("<none>")))
+                      }
+                      case _ => {
+                        STDOUT.println("[Fail] %s".format(name))
+                        fail += 1
+                        if (testOpts.info() > 0) {
+                          STDOUT.println("  Failure Information:")
+                          STDOUT.println(indent(e.getMessage(), 4))
+                        }
+                        if (testOpts.info() > 1) {
+                          STDOUT.println("  Backtrace:")
+                          e.getStackTrace.foreach { st => STDOUT.println(indent(st.toString, 4)) }
+                        }
+                      }
                     }
                   }
                 }
               }
 
               case (name, None) => {
-                println("[Not Found] %s".format(name))
+                STDOUT.println("[Not Found] %s".format(name))
                 notfound += 1
               }
             }
           }
-          println("")
-          println("Total: %d, Pass: %d, Fail: %d, Not Found: %s".format(pass + fail + notfound, pass, fail, notfound))
+          STDOUT.println("")
+          STDOUT.println("Total: %d, Pass: %d, Fail: %d, Not Found: %s".format(pass + fail + notfound, pass, fail, notfound))
 
           if (fail == 0) ExitCode.Success else ExitCode.TestError
         }
@@ -1505,54 +1531,54 @@ object Main {
   }
 
   def bugFound(e: Exception): Int = {
-    System.err.println("""|
-                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                          |!!   An unexpected exception occurred. This is a bug!   !!
-                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                          |
-                          | Please report this bug and help us fix it:
-                          |
-                          |  https://daffodil.apache.org/community/#issue-tracker
-                          |
-                          | Please include the following exception, the command you
-                          | ran, and any input, schema, or tdml files used that led
-                          | to this bug.
-                          |
-                          |""".stripMargin)
+    STDERR.println("""|
+                      |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                      |!!   An unexpected exception occurred. This is a bug!   !!
+                      |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                      |
+                      | Please report this bug and help us fix it:
+                      |
+                      |  https://daffodil.apache.org/community/#issue-tracker
+                      |
+                      | Please include the following exception, the command you
+                      | ran, and any input, schema, or tdml files used that led
+                      | to this bug.
+                      |
+                      |""".stripMargin)
     e.printStackTrace
     1
   }
 
   def nyiFound(e: NotYetImplementedException): Int = {
-    System.err.println("""|
-                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                          |!!                 Not Yet Implemented                  !!
-                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                          |
-                          | You are using a feature that is not yet implemented:
-                          |
-                          | %s
-                          |
-                          | You can create a bug and track the progress of this
-                          | feature at:
-                          |
-                          |  https://issues.apache.org/jira/projects/DAFFODIL
-                          |
-                          |""".format(Misc.getSomeMessage(e)).stripMargin)
+    STDERR.println("""|
+                      |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                      |!!                 Not Yet Implemented                  !!
+                      |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                      |
+                      | You are using a feature that is not yet implemented:
+                      |
+                      | %s
+                      |
+                      | You can create a bug and track the progress of this
+                      | feature at:
+                      |
+                      |  https://issues.apache.org/jira/projects/DAFFODIL
+                      |
+                      |""".format(Misc.getSomeMessage(e)).stripMargin)
     1
   }
 
   def oomError(e: OutOfMemoryError): Int = {
-    System.err.println("""|
-                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                          |!!             Daffodil ran out of memory!              !!
-                          |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                          |
-                          | Try increasing the amount of memory by changing or
-                          | setting the DAFFODIL_JAVA_OPTS environment variable.
-                          | "DAFFODIL_JAVA_OPTS=-Xmx5G" for 5GB.
-                          |
-                          |""".stripMargin)
+    STDERR.println("""|
+                      |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                      |!!             Daffodil ran out of memory!              !!
+                      |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                      |
+                      | Try increasing the amount of memory by changing or
+                      | setting the DAFFODIL_JAVA_OPTS environment variable.
+                      | "DAFFODIL_JAVA_OPTS=-Xmx5G" for 5GB.
+                      |
+                      |""".stripMargin)
     1
   }
 
@@ -1584,10 +1610,10 @@ object Main {
 
   }
 
-  def main(arguments: Array[String]): Unit = {
 
+  def run(arguments: Array[String]): ExitCode.Value = {
     val ret = try {
-      run(arguments)
+      runIgnoreExceptions(arguments)
     } catch {
       case s: scala.util.control.ControlThrowable => throw s
       case e: java.io.FileNotFoundException => {
@@ -1624,12 +1650,20 @@ object Main {
       case e: DebuggerExitException => {
         ExitCode.Failure
       }
+      case e: GenericScallopException => {
+        Logger.log.error(e.message)
+        ExitCode.Usage
+      }
       case e: Exception => {
         bugFound(e)
         ExitCode.BugFound
       }
     }
+    ret
+  }
 
-    System.exit(ret.id)
+  def main(arguments: Array[String]): Unit = {
+    val exitCode = run(arguments)
+    System.exit(exitCode.id)
   }
 }

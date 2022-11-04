@@ -1,6 +1,0 @@
-<base:base xmlns:base="http://baseSchema.com">
-  <a08:aElem xmlns:a08="http://a08.com">random</a08:aElem>
-  <a08:aElem xmlns:a08="http://a08.com">data</a08:aElem>
-  <a08:aElem xmlns:a08="http://a08.com">should</a08:aElem>
-  <a08:aElem xmlns:a08="http://a08.com">work </a08:aElem>
-</base:base>

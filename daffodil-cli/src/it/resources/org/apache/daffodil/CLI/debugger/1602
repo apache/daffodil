@@ -1,5 +1,0 @@
-set removeHidden true
-display info infoset
-break g
-continue
-quit

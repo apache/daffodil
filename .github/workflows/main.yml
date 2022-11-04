@@ -54,7 +54,7 @@ jobs:
     env:
       AR: ${{ matrix.env_ar }}
       CC: ${{ matrix.env_cc }}
-      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
+      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
       SONARSCAN: ${{
                      matrix.os == 'ubuntu-20.04' &&
                      matrix.java_version == '11' &&
@@ -125,7 +125,7 @@ jobs:
       ############################################################
 
       - name: Compile
-        run: $SBT coverage compile Test/compile IntegrationTest/compile
+        run: $SBT compile Test/compile IntegrationTest/compile
 
       - name: Build Documentation
         run: $SBT unidoc
@@ -145,10 +145,10 @@ jobs:
         run: $SBT ratCheck || (cat target/rat.txt; exit 1)
 
       - name: Run Unit Tests
-        run: $SBT coverage test
+        run: $SBT test
 
       - name: Run Integration Tests
-        run: $SBT coverage IntegrationTest/test
+        run: $SBT IntegrationTest/test
 
       - name: Run Modified Example Files Check
         run: git diff --color --exit-code

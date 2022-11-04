@@ -18,6 +18,8 @@
 package org.apache.daffodil.debugger
 
 import java.io.File
+import java.io.InputStream
+import java.io.PrintStream
 
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -29,28 +31,42 @@ import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.ParsedLine
 import org.jline.reader.UserInterruptException
+import org.jline.terminal.TerminalBuilder
+import org.jline.terminal.impl.DumbTerminal
 
-
-class CLIDebuggerRunner(cmdsIter: Iterator[String]) extends InteractiveDebuggerRunner {
+class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintStream) extends InteractiveDebuggerRunner {
   private val prompt = "(debug) "
 
-  def this() {
-    this(Iterator.empty)
+  def this(in: InputStream = System.in, out: PrintStream = System.out) {
+    this(Iterator.empty, in, out)
   }
 
-  def this(file: File) {
-    this(Source.fromFile(file).getLines)
+  def this(file: File, in: InputStream, out: PrintStream) {
+    this(Source.fromFile(file).getLines, in, out)
   }
 
-  def this(seq: Seq[String]) {
-    this(seq.iterator)
+  def this(seq: Seq[String], in: InputStream, out: PrintStream) {
+    this(seq.iterator, in, out)
   }
 
   var reader: Option[LineReader] = None
 
   def init(id: InteractiveDebugger): Unit = {
+    // if the in/out parameters aren't the normal stdin/stdout, it's likely
+    // either some sort of integration test or something where a DumbTerminal
+    // is needed. Otherwise, use the TerminalBuilder which detects OS
+    // capabilities and picks the best terminal
+    val terminal =
+      if ((in ne System.in) || (out ne System.out)) {
+        new DumbTerminal(in, out)
+      } else {
+        TerminalBuilder.builder().build()
+      }
     val completer = new CLIDebuggerCompleter(id)
-    val r = LineReaderBuilder.builder().completer(completer).build()
+    val r = LineReaderBuilder.builder()
+      .terminal(terminal)
+      .completer(completer)
+      .build()
     reader = Some(r)
   }
 
@@ -65,7 +81,7 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String]) extends InteractiveDebuggerR
       if (line.length > 0) {
         reader.get.getHistory.add(line)
       }
-      println("%s%s".format(prompt, line))
+      out.println("%s%s".format(prompt, line))
       line
     } else {
       val line = try {
@@ -80,7 +96,7 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String]) extends InteractiveDebuggerR
   }
 
   def lineOutput(line: String): Unit = {
-    println("  " + line)
+    out.println("  " + line)
   }
 }
 

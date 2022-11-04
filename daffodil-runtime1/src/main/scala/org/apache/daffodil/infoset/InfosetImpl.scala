@@ -373,7 +373,6 @@ sealed abstract class LengthState(ie: DIElement) {
     } catch {
       case th: Throwable => {
         val res = flavor + "(" + hashCode + ")"
-        System.err.println(th)
         res
       }
     }

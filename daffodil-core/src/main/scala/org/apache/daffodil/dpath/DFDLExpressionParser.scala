@@ -29,6 +29,7 @@ import org.apache.daffodil.dsom.CompiledExpression
 import org.apache.daffodil.dsom.ConstantExpression
 import org.apache.daffodil.dsom.DPathCompileInfo
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.util.Logger
 import org.apache.daffodil.xml.NamedQName
 import org.apache.daffodil.xml.QNameRegex
 import org.apache.daffodil.BasicComponent
@@ -122,9 +123,9 @@ class DFDLPathExpressionParser[T <: AnyRef](
   override def log[T](p: => Parser[T])(name: String): Parser[T] =
     if (!verboseParse) p
     else Parser { in =>
-      Console.out.println("trying %s at %s".format(name, in))
+      Logger.log.trace(s"trying $name at $in")
       val r = p(in)
-      Console.out.println("end %s --> %s".format(name, r))
+      Logger.log.trace(s"end $name --> $in")
       r
     }
 

@@ -1,3 +1,0 @@
-<tns:elem xmlns:tns="http://baseSchema.com">
-  <tns:content xmlns:tns="http://complexSchema.com">Hello World </tns:content>
-</tns:elem>

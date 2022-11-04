@@ -17,11 +17,21 @@
 
 package org.apache.daffodil.blob
 
-import java.io.File
-import org.apache.daffodil.CLI.Util
-import net.sf.expectit.matcher.Matchers.contains
-import net.sf.expectit.matcher.Matchers.eof
+import java.net.URI
+import java.nio.file.Files.exists
+import java.nio.file.Path
+import java.nio.file.Paths
+
+import org.apache.commons.io.FileUtils
+
+import org.junit.Test
+import org.junit.Assume.assumeTrue
+import org.junit.Assert.assertEquals
+
 import scala.io.Source
+
+import org.apache.daffodil.CLI.Util._
+import org.apache.daffodil.Main.ExitCode
 
 class TestBlob {
 
@@ -47,6 +57,25 @@ class TestBlob {
    * a comment above that test
    ***/
 
+  private def findInfosetBlob(path: Path): Path = {
+    val contents = Source.fromFile(path.toFile).mkString
+    val blob = contents.substring(contents.indexOf("file://")).takeWhile(_ != '<')
+    Paths.get(new URI(blob))
+  }
+
+  /**
+   * The CLI puts blobs in user.dir / "daffodil-blobs", which cannot be
+   * changed. This should wrap CLI runs so that the blob dir is deleted at the
+   * end
+   */
+  private def withBlobDir(f: => Unit): Unit = {
+    try {
+      f
+    } finally {
+      val blobDir = Paths.get(System.getProperty("user.dir"), "daffodil-blobs")
+      FileUtils.deleteDirectory(blobDir.toFile)
+    }
+  }
 
   /***
    * Command to generate blob file:
@@ -54,51 +83,26 @@ class TestBlob {
    * python gen_blob.py -s 1 -o 1MB.bin
    *
    ***/
-  /*@Test*/ def test_1MB_blob(): Unit = {
+  @Test def test_1MB_blob(): Unit = {
+    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/1MB.bin")
 
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/1MB.bin")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-    val infosetFile = File.createTempFile("daffodil-1MB-", ".bin.xml")
-    val unparseFile = File.createTempFile("daffodil-1MB-", "bin.xml.bin")
-    infosetFile.deleteOnExit()
-    unparseFile.deleteOnExit()
+    assumeTrue("large test input file must be manually generated", exists(input))
 
-    val shell = Util.start("")
+    withTempFile { infoset =>
+      withTempFile { unparse =>
+        withBlobDir {
+          runCLI(args"parse -s $schema -o $infoset $input") { cli =>
+          } (ExitCode.Success)
 
-    try {
-      // parse to a file
-      val cmdP = String.format("%s parse -s %s -o %s %s && echo success", Util.binPath, testSchemaFile, infosetFile, testInputFile)
-      shell.sendLine(cmdP)
-      shell.expect(contains("success"))
+          runCLI(args"unparse -s $schema -o $unparse $infoset") { cli =>
+          } (ExitCode.Success)
 
-      val infosetContents = Source.fromFile(infosetFile).mkString
-
-      // Use +7 to drop the 'file://' to get the path of the file
-      val generated_blob = infosetContents.substring(infosetContents.indexOf("file://") + 7).takeWhile(_ != '<')
-
-      // unparse to a file
-      val cmdU = String.format("%s unparse -s %s -o %s %s && echo success", Util.binPath, testSchemaFile, unparseFile, infosetFile)
-      shell.sendLine(cmdU)
-      shell.expect(contains("success"))
-
-      // Compare blobs
-      shell.sendLine(Util.md5sum(generated_blob))
-      shell.expect(contains("bc8f9d01382bf12248747cd6faecbc59"))
-
-      shell.sendLine(Util.md5sum(unparseFile.toString))
-      shell.expect(contains("72d1f935d7fff766d011757ae03d5b1d"))
-
-      // Clean up files
-      shell.sendLine(Util.rmdir("daffodil-blobs"))
-      infosetFile.delete()
-      unparseFile.delete()
-
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
+          val blob = findInfosetBlob(infoset)
+          assertEquals("bc8f9d01382bf12248747cd6faecbc59", md5sum(blob))
+          assertEquals("72d1f935d7fff766d011757ae03d5b1d", md5sum(unparse))
+        }
+      }
     }
   }
 
@@ -108,52 +112,26 @@ class TestBlob {
    * python gen_blob.py -s 2049 -o 2049MB.bin
    *
    ***/
-  /*@Test*/ def test_2GB_blob(): Unit = {
+  @Test def test_2GB_blob(): Unit = {
+    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
 
-    val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms256m -Xmx512m")
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-    val infosetFile = File.createTempFile("daffodil-2GB-", ".bin.xml")
-    val unparseFile = File.createTempFile("daffodil-2GB-", "bin.xml.bin")
-    infosetFile.deleteOnExit()
-    unparseFile.deleteOnExit()
+    assumeTrue("large test input file must be manually generated", exists(input))
 
-    val shell = Util.start("", envp = DAFFODIL_JAVA_OPTS)
+    withTempFile { infoset =>
+      withTempFile { unparse =>
+        withBlobDir {
+          runCLI(args"parse -s $schema -o $infoset $input", timeout = 120) { cli =>
+          } (ExitCode.Success)
 
-    try {
-      // Parse to a file
-      val cmdP = String.format("%s parse -s %s -o %s %s && echo success", Util.binPath, testSchemaFile, infosetFile, testInputFile)
-      shell.sendLine(cmdP)
-      shell.expect(contains("success"))
+          runCLI(args"unparse -s $schema -o $unparse $infoset", timeout = 120) { cli =>
+          } (ExitCode.Success)
 
-      val infosetContents = Source.fromFile(infosetFile).mkString
-
-      // Use +7 to drop the 'file://' to get the path of the file
-      val generated_blob = infosetContents.substring(infosetContents.indexOf("file://") + 7).takeWhile(_ != '<')
-
-      // unparse to a file
-      val cmdU = String.format("%s unparse -s %s -o %s %s && echo success", Util.binPath, testSchemaFile, unparseFile, infosetFile)
-      shell.sendLine(cmdU)
-      shell.expect(contains("success"))
-
-      // Compare blobs
-      shell.sendLine(Util.md5sum(generated_blob))
-      shell.expect(contains("c5675d3317725595d128af56a624c49f"))
-
-      shell.sendLine(Util.md5sum(unparseFile.toString))
-      shell.expect(contains("2435c33e55aae043fc9b28f38f5cc2e9"))
-
-      // Clean up files
-      shell.sendLine(Util.rmdir("daffodil-blobs"))
-      infosetFile.delete()
-      unparseFile.delete()
-
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
+          val blob = findInfosetBlob(infoset)
+          assertEquals("c5675d3317725595d128af56a624c49f", md5sum(blob))
+          assertEquals("2435c33e55aae043fc9b28f38f5cc2e9", md5sum(unparse))
+        }
+      }
     }
   }
 
@@ -165,29 +143,16 @@ class TestBlob {
    * python gen_blob.py -s 2049 -o 2049MB.bin
    *
    ***/
-  /*@Test*/ def test_blob_backtracking(): Unit = {
+  @Test def test_blob_backtracking(): Unit = {
+    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
 
-    val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms256m -Xmx512m")
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+    assumeTrue("large test input file must be manually generated", exists(input))
 
-    val shell = Util.start("", envp = DAFFODIL_JAVA_OPTS)
-
-    try {
-      // Execute Daffodil
-      val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expectIn(1, contains("Attempted to backtrack too far"))
-
-      // Clean up blobs
-      shell.sendLine(Util.rmdir("daffodil-blobs"))
-
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
+    withBlobDir {
+      runCLI(args"parse -s $schema $input", timeout = 120) { cli =>
+        cli.expectErr("Attempted to backtrack too far")
+      } (ExitCode.ParseError)
     }
   }
 
@@ -199,29 +164,17 @@ class TestBlob {
    * python gen_blob.py -s 2049 -o 2049MB.bin
    *
    ***/
-  /*@Test*/ def test_blob_backtracking_streaming_fail(): Unit = {
+  @Test def test_blob_backtracking_streaming_fail(): Unit = {
+    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
 
-    val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms256m -Xmx512m")
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+    assumeTrue("large test input file must be manually generated", exists(input))
 
-    val shell = Util.start("", envp = DAFFODIL_JAVA_OPTS)
-
-    try {
-      // Execute Daffodil
-      val cmd = String.format(Util.cat(testInputFile) + " | %s parse --stream -s %s", Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expectIn(1, contains("Attempted to backtrack too far"))
-
-      // Clean up blobs
-      shell.sendLine(Util.rmdir("daffodil-blobs"))
-
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
+    withBlobDir {
+      runCLI(args"parse -s $schema", timeout = 120) { cli =>
+        cli.sendFile(input, inputDone = true)
+        cli.expectErr("Attempted to backtrack too far")
+      } (ExitCode.ParseError)
     }
   }
 

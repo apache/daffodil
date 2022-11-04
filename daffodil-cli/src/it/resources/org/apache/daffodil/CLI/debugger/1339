@@ -1,5 +1,0 @@
-set removeHidden false
-display info infoset
-break element.g
-continue
-quit
