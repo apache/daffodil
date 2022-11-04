@@ -17,12 +17,13 @@
 
 package org.apache.daffodil.generating
 
-import net.sf.expectit.matcher.Matchers.contains
-import net.sf.expectit.matcher.Matchers.eof
-import org.apache.daffodil.CLI.Util
-import org.apache.daffodil.Main.ExitCode
-import org.junit.After
+import java.nio.file.Files.exists
+
 import org.junit.Test
+import org.junit.Assert.assertTrue
+
+import org.apache.daffodil.CLI.Util._
+import org.apache.daffodil.Main.ExitCode
 
 /**
  * Checks that we can run the "daffodil generate c" subcommand with
@@ -30,190 +31,106 @@ import org.junit.Test
  */
 class TestCLIGenerateC {
 
-  val daffodil: String = Util.binPath
-  lazy val schemaFile: String = if (Util.isWindows) Util.cmdConvert(sf) else sf
-  val sf: String = Util.daffodilPath("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
-  // Ensure all tests remove tempDir after creating it
-  val tempDir: os.Path = os.temp.dir()
-
-  @After def after(): Unit = {
-    os.remove.all(tempDir)
-  }
-
   @Test def test_CLI_Generate_schema(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile $tempDir"
-    val exitCmd = "exit"
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.sendLine(exitCmd)
-      shell.expect(eof())
-    } finally {
-      shell.close()
+    withTempDir { tempDir =>
+      runCLI(args"generate c -s $schema $tempDir") { cli =>
+      } (ExitCode.Success)
+      assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
-
-    assert(os.exists(tempDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_CLI_Generate_noC_error(): Unit = {
-    val generateCmd = s"$daffodil generate -s $schemaFile $tempDir"
-    val exitCmd = "exit"
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-      shell.expectIn(1, contains("Unknown option 's'"))
-
-      Util.expectExitCode(ExitCode.Usage, shell)
-      shell.sendLine(exitCmd)
-      shell.expectIn(1, eof())
-    } finally {
-      shell.close()
+    withTempDir { tempDir =>
+      runCLI(args"generate -s $schema $tempDir") { cli =>
+        cli.expectErr("Unknown option 's'")
+      } (ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_otherThanC_error(): Unit = {
-    val generateCmd = s"$daffodil generate vhld -s $schemaFile $tempDir"
-    val exitCmd = "exit"
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-      shell.expectIn(1, contains("Unknown option 's'"))
-
-      Util.expectExitCode(ExitCode.Usage, shell)
-      shell.sendLine(exitCmd)
-      shell.expectIn(1, eof())
-    } finally {
-      shell.close()
+    withTempDir { tempDir =>
+      runCLI(args"generate vhld -s $schema $tempDir") { cli =>
+        cli.expectErr("Unknown option 's'")
+      } (ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_noSchema_error(): Unit = {
-    val generateCmd = s"$daffodil generate c $tempDir"
-    val exitCmd = "exit"
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-      shell.expectIn(1, contains("Required option 'schema' not found"))
-
-      Util.expectExitCode(ExitCode.Usage, shell)
-      shell.sendLine(exitCmd)
-      shell.expectIn(1, eof())
-    } finally {
-      shell.close()
+    withTempDir { tempDir =>
+      runCLI(args"generate c $tempDir") { cli =>
+        cli.expectErr("Required option 'schema' not found")
+      } (ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_twoSchema_error(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -s $schemaFile $tempDir"
-    val exitCmd = "exit"
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-      shell.expectIn(1, contains("you should provide exactly one argument"))
-
-      Util.expectExitCode(ExitCode.Usage, shell)
-      shell.sendLine(exitCmd)
-      shell.expectIn(1, eof())
-    } finally {
-      shell.close()
+    withTempDir { tempDir =>
+      runCLI(args"generate c -s $schema -s $schema $tempDir") { cli =>
+        cli.expectErr("you should provide exactly one argument")
+      } (ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_verbose(): Unit = {
-    val generateCmd = s"$daffodil -v generate c -s $schemaFile $tempDir"
-    val exitCmd = "exit"
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-      shell.expectIn(1, contains("[info] Time (compiling)"))
-      shell.expectIn(1, contains("[info] Time (generating)"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.sendLine(exitCmd)
-      shell.expectIn(1, eof())
-    } finally {
-      shell.close()
+    withTempDir { tempDir =>
+      runCLI(args"-v generate c -s $schema $tempDir") { cli =>
+        cli.expectErr("[info] Time (compiling)")
+        cli.expectErr("[info] Time (generating)")
+      } (ExitCode.Success)
+      assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
-
-    assert(os.exists(tempDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_CLI_Generate_root(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -r {http://example.com}ex_nums $tempDir"
-    val exitCmd = "exit"
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.sendLine(exitCmd)
-      shell.expect(eof())
-    } finally {
-      shell.close()
+    withTempDir { tempDir =>
+      runCLI(args"generate c -s $schema -r {http://example.com}ex_nums $tempDir") { cli =>
+      } (ExitCode.Success)
+      assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
-
-    assert(os.exists(tempDir/"c"/"libruntime"/"generated_code.c"))
   }
 
   @Test def test_CLI_Generate_root_error(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -r {ex}ex_nums $tempDir"
-    val exitCmd = "exit"
-
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-      shell.expectIn(1, contains("Schema Definition Error"))
-      shell.expectIn(1, contains("No global element found for {ex}ex_nums"))
-
-      Util.expectExitCode(ExitCode.GenerateCodeError, shell)
-      shell.sendLine(exitCmd)
-      shell.expectIn(1, eof())
-    } finally {
-      shell.close()
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    
+    withTempDir { tempDir =>
+      runCLI(args"generate c -s $schema -r {ex}ex_nums $tempDir") { cli =>
+        cli.expectErr("Schema Definition Error")
+        cli.expectErr("No global element found for {ex}ex_nums")
+      } (ExitCode.GenerateCodeError)
     }
   }
 
   @Test def test_CLI_Generate_namespaceNoRoot_error(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -r {http://example.com} $tempDir"
-    val exitCmd = "exit"
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-      shell.expectIn(1, contains("Invalid syntax for extended QName"))
-
-      Util.expectExitCode(ExitCode.Usage, shell)
-      shell.sendLine(exitCmd)
-      shell.expectIn(1, eof())
-    } finally {
-      shell.close()
+    withTempDir { tempDir =>
+      runCLI(args"generate c -s $schema -r {http://example.com} $tempDir") { cli =>
+      cli.expectErr("Invalid syntax for extended QName")
+      } (ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_tunable(): Unit = {
-    val generateCmd = s"$daffodil generate c -s $schemaFile -T parseUnparsePolicy=parseOnly $tempDir"
-    val exitCmd = "exit"
+    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
 
-    val shell = Util.start("")
-    try {
-      shell.sendLine(generateCmd)
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.sendLine(exitCmd)
-      shell.expect(eof())
-    } finally {
-      shell.close()
+    withTempDir { tempDir =>
+      runCLI(args"generate c -s $schema -T parseUnparsePolicy=parseOnly $tempDir") { cli =>
+      } (ExitCode.Success)
+      assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
-
-    assert(os.exists(tempDir/"c"/"libruntime"/"generated_code.c"))
   }
 }

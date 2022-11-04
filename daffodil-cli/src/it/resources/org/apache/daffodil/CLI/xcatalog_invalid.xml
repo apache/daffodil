@@ -17,5 +17,5 @@
 -->
 
 <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-  <uri name="http://example.com/xcatalog" uri="file:/this/path/does/not/exist" />
+  <uri name="http://example.com/xcatalog" uri="file:/this/path/does/not/exist/non_existent_file.xml" />
 </catalog>

@@ -1,5 +1,0 @@
-<tns:row xmlns:tns="http://example.com">
-  <tns:cell>0</tns:cell>
-  <tns:cell>99</tns:cell>
-  <tns:cell>-2</tns:cell>
-</tns:row>

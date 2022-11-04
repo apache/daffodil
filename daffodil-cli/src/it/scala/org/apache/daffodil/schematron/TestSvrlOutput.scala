@@ -17,138 +17,152 @@
 
 package org.apache.daffodil.schematron
 
-import net.sf.expectit.matcher.Matchers.sequence
-import org.apache.daffodil.CLI.Util
-import org.apache.daffodil.Main.ExitCode
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption.APPEND
+import java.nio.charset.StandardCharsets.UTF_8
+
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 
-import java.nio.file.Path
-import java.nio.file.Paths
 import scala.xml.XML
 
+import org.apache.daffodil.CLI.Util._
+import org.apache.daffodil.Main.ExitCode
+
 class TestSvrlOutput {
-  import TestValidating._
+
+  private def makeConf(conf: Path, schematron: Path, svrl: Path): Unit = {
+    Files.write(conf, s"""schematron.path="${jsonEscape(schematron.toString)}"\n""".getBytes(UTF_8), APPEND)
+    Files.write(conf, s"""schematron.svrl.file="${jsonEscape(svrl.toString)}"\n""".getBytes(UTF_8), APPEND)
+  }
 
   @Test def validationSuccess(): Unit = {
-    val svrlPath = makeTempFilePath()
-    val confFile = mkTmpConf(never, svrlPath)
-    withShell(ExitCode.Success, stderr=true) {
-      s"parse --validate schematron=$confFile -s {{$uuid}} {$data}" -> alwaysResult
-    }
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
 
-    val svrlFile = svrlPath.toFile
-    assertTrue(svrlFile.exists())
+    withTempFile(".conf", { conf =>
+      withTempFile { svrl =>
 
-    try {
-      XML.loadFile(svrlFile) match {
-        case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
-          val res = rules.find {
-            case <svrl:failed-assert>{  _* }</svrl:failed-assert> => true
-            case _ => false
-          }
-          // we should not have found failures
-          assertFalse(res.isDefined)
-        case _ =>
-          fail("schematron pattern didnt match")
+        makeConf(conf, schematron, svrl)
+
+        runCLI(args"parse --validate schematron=$conf -s $schema $input") { cli =>
+          cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+        } (ExitCode.Success)
+
+        XML.loadFile(svrl.toFile) match {
+          case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
+            val res = rules.find {
+              case <svrl:failed-assert>{  _* }</svrl:failed-assert> => true
+              case _ => false
+            }
+            // we should not have found failures
+            assertFalse(res.isDefined)
+          case _ =>
+            fail("schematron pattern didnt match")
+        }
       }
-    } finally {
-      svrlFile.delete()
-    }
+    })
   }
 
   // should get validation output file on a validation failure
   @Test def validationFailure(): Unit = {
-    val svrlPath = makeTempFilePath()
-    val confFile = mkTmpConf(always, svrlPath)
-    withShell(ExitCode.ParseError) {
-      s"parse --validate schematron=$confFile -s {{$uuid}} {$data}" -> alwaysResult
-    }
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/always-fails.sch")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
 
-    val svrlFile = svrlPath.toFile
-    assertTrue(svrlFile.exists())
+    withTempFile(".conf", { conf =>
+      withTempFile { svrl =>
 
-    try {
-      XML.loadFile(svrlFile) match {
-        case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
-          val res = rules.find {
-            case <svrl:failed-assert>{  _* }</svrl:failed-assert> => true
-            case _ => false
-          }
-          // we should have found some failures
-          assertTrue(res.isDefined)
-        case _ =>
-          fail("schematron pattern didnt match")
+        makeConf(conf, schematron, svrl)
+
+        runCLI(args"parse --validate schematron=$conf -s $schema $input") { cli =>
+          cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+        } (ExitCode.ParseError)
+
+        XML.loadFile(svrl.toFile) match {
+          case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
+            val res = rules.find {
+              case <svrl:failed-assert>{  _* }</svrl:failed-assert> => true
+              case _ => false
+            }
+            // we should have found some failures
+            assertTrue(res.isDefined)
+          case _ =>
+            fail("schematron pattern didnt match")
+        }
       }
-    } finally {
-      svrlFile.delete()
-    }
+    })
   }
 
   // shouldnt get a validation output file on parse failure
   // based on negative test test_996_CLI_Parsing_negativeTest04
   @Test def parseFailure(): Unit = {
-    val svrlPath = makeTempFilePath()
-    val confFile = mkTmpConf(never, svrlPath)
-    val data = mktmp("12")
-    withShell(ExitCode.UnableToCreateProcessor, stderr = true) {
-      val schemaFile = Util.daffodilPath(
-        "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-      val schema = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
-      s"parse --validate schematron=$confFile -s $schema -r unknown $data" ->
-        lineEndsWith("No root element found for unknown in any available namespace")
-    }
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
 
-    val svrlFile = svrlPath.toFile
-    if (svrlFile.exists()) {
-      svrlFile.delete()
-      fail("svrl file should not exist on failed parse")
-    }
+    withTempFile(".conf", { conf =>
+      withTempFile { svrl =>
+
+        makeConf(conf, schematron, svrl)
+
+        runCLI(args"parse --validate schematron=$conf -s $schema -r unknown") { cli =>
+          cli.send("12", inputDone = true)
+          cli.expectErr("No root element found for unknown in any available namespace")
+        } (ExitCode.UnableToCreateProcessor)
+      }
+    })
   }
 
   // parse should fail with validation diagnostic when unable to write to the specified location
   @Test def outputPathFailure(): Unit = {
-    val badSvrlPath = Paths.get("thisisnotavalidlocation/schematron.svrl")
-    val confFile = mkTmpConf(never, badSvrlPath)
-    withShell(ExitCode.ParseError, JoinStdError) {
-      s"""parse --validate schematron="$confFile" -s {{$uuid}} {$data}""" -> sequence(
-        lineEndsWithRegex(s"\\[error] Validation Error: .+"),
-        anyLines(2))
-    }
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+    val svrl = path("thisisnotavalidlocation/schematron.svrl")
 
-    val svrlFile = badSvrlPath.toFile
-    assertFalse(svrlFile.exists())
+    withTempFile(".conf", { conf =>
+
+      makeConf(conf, schematron, svrl)
+
+      runCLI(args"parse --validate schematron=$conf -s $schema $input") { cli =>
+        cli.expectErr("[error] Validation Error")
+      } (ExitCode.ParseError)
+    })
   }
 
   // validator output should overwrite existing file
   @Test def overwriteExistingFile(): Unit = {
-    val svrlPath = mktmp("=== this content will be overwritten ===")
-    val confFile = mkTmpConf(never, svrlPath)
-    withShell(ExitCode.Success) {
-      s"parse --validate schematron=$confFile -s {{$uuid}} {$data}" -> alwaysResult
-    }
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
 
-    val svrlFile = svrlPath.toFile
-    assertTrue(svrlFile.exists())
+    withTempFile(".conf", { conf =>
+      withTempFile { svrl =>
+        Files.write(svrl, "=== this content will be overwritten ===".getBytes(UTF_8), APPEND)
 
-    try {
-      XML.loadFile(svrlFile) match {
-        case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
-          val res = rules.find {
-            case <svrl:failed-assert>{  _* }</svrl:failed-assert> => true
-            case _ => false
-          }
-          // we should not have found failures
-          assertFalse(res.isDefined)
-        case _ =>
-          fail("schematron pattern didnt match")
+        makeConf(conf, schematron, svrl)
+
+        runCLI(args"parse --validate schematron=$conf -s $schema $input") { cli =>
+          cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+        } (ExitCode.Success)
+
+        XML.loadFile(svrl.toFile) match {
+          case <svrl:schematron-output>{rules @ _*}</svrl:schematron-output> =>
+            val res = rules.find {
+              case <svrl:failed-assert>{  _* }</svrl:failed-assert> => true
+              case _ => false
+            }
+            // we should not have found failures
+            assertFalse(res.isDefined)
+          case _ =>
+            fail("schematron pattern didnt match")
+        }
       }
-    } finally {
-      svrlFile.delete()
-    }
+    })
   }
 
-  private def makeTempFilePath(): Path = Paths.get(System.getProperty("java.io.tmpdir"), "schTestRaw.svrl")
 }

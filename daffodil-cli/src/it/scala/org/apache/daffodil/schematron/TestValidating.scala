@@ -17,32 +17,43 @@
 
 package org.apache.daffodil.schematron
 
-import org.apache.daffodil.Main.ExitCode
 import org.junit.Test
 
-object TestValidating {
-  val data = "input/uuid.txt"
-  val uuid = "xsd/string.dfdl.xsd"
-  val never = "sch/never-fails.sch"
-  val always = "sch/always-fails.sch"
+import org.apache.daffodil.CLI.Util._
+import org.apache.daffodil.Main.ExitCode
 
-  val alwaysResult = regexLine("<.+-fails>2f6481e6-542c-11eb-ae93-0242ac130002</.+-fails>")
-}
 class TestValidating {
-  import TestValidating._
 
   // always fails sch, but no validate flag so it should pass
-  @Test def nonShouldPass(): Unit = withShell(ExitCode.Success) {
-    s"parse -s {{$uuid}} {$data}" -> alwaysResult
+  @Test def nonShouldPass(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+
+    runCLI(args"parse -s $schema $input") { cli =>
+      cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+    } (ExitCode.Success)
   }
 
   // always fails sch, with validate flag should fail
-  @Test def failShouldFail(): Unit = withShell(ExitCode.ParseError) {
-    s"parse --validate schematron={{$always}} -s {{$uuid}} {$data}" -> alwaysResult
+  @Test def failShouldFail(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/always-fails.sch")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schematron.toString)}" -s $schema $input""") { cli =>
+      cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+      cli.expectErr("[error] Validation Error: never fails")
+    } (ExitCode.ParseError)
   }
 
   // never fails sch, with validate flag should pass
-  @Test def passShouldPass(): Unit = withShell(ExitCode.Success) {
-    s"parse --validate schematron={{$never}} -s {{$uuid}} {$data}" -> alwaysResult
+  @Test def passShouldPass(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schematron.toString)}" -s $schema $input""") { cli =>
+      cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
+    } (ExitCode.Success)
   }
 }

@@ -1,9 +1,0 @@
-break element.cell
-display info childIndex
-display info infoset
-continue
-continue
-continue
-disable breakpoint 1
-continue
-quit

@@ -17,7 +17,9 @@
 
 package org.apache.daffodil.debugger
 
-class TraceDebuggerRunner extends InteractiveDebuggerRunner {
+import java.io.PrintStream
+
+class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebuggerRunner {
   val traceIter = Seq(
     "set infosetParents 1",
     "display info parser",
@@ -44,7 +46,7 @@ class TraceDebuggerRunner extends InteractiveDebuggerRunner {
   }
 
   def lineOutput(line: String): Unit = {
-    println(line)
+    out.println(line)
   }
 
   def fini(): Unit = {

@@ -17,679 +17,319 @@
 
 package org.apache.daffodil.unparsing
 
+import java.nio.charset.StandardCharsets.UTF_8
+
+import org.apache.commons.io.FileUtils
+
 import org.junit.Assert._
 import org.junit.Test
-import java.io.File
-import org.apache.daffodil.CLI.Util
-import net.sf.expectit.matcher.Matchers.contains
-import net.sf.expectit.matcher.Matchers.eof
+
+import org.apache.daffodil.CLI.Util._
 import org.apache.daffodil.Main.ExitCode
 
 class TestCLIunparsing {
 
   @Test def test_3525_CLI_Unparsing_SimpleUnparse_inFile(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input12.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input12.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_3526_CLI_Unparsing_SimpleUnparse_inFile2(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -s %s --root e3 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("[1,2]"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema --root e3 $input") { cli =>
+      cli.expect("[1,2]")
+    } (ExitCode.Success)
   }
 
   @Test def test_3527_CLI_Unparsing_SimpleUnparse_stdin(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input14.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input14.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-	  val cmd = String.format(Util.cat(testInputFile) + "| %s unparse -s %s --root e3", Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("[1,2]"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema --root e3") { cli =>
+      cli.sendFile(input, inputDone = true)
+      cli.expect("[1,2]")
+    } (ExitCode.Success)
   }
 
   @Test def test_3528_CLI_Unparsing_SimpleUnparse_stdin2(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s unparse -s %s --root e1", Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema --root e1") { cli =>
+      cli.send("<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>", inputDone = true)
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_3529_CLI_Unparsing_SimpleUnparse_stdin3(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s unparse -s %s --root e1 -", Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema --root e1 -") { cli =>
+      cli.send("<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>", inputDone = true)
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_3584_CLI_Unparsing_SimpleUnparse_stdin4(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
-
-    val shell = Util.start("")
-
-    try {
-      val input = "\"<tns:file xmlns:tns='http://www.example.org/example1/'><tns:header><tns:title>1</tns:title><tns:title>2</tns:title><tns:title>3</tns:title></tns:header><tns:record><tns:item>4</tns:item><tns:item>5</tns:item><tns:item>6</tns:item></tns:record></tns:file>\""
-      val cmd = String.format(Util.echoN(input) + "| %s unparse -s %s --root file", Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("1,2,3"))
-      shell.expect(contains("4,5,6"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema --root file") { cli =>
+      val input = "<tns:file xmlns:tns='http://www.example.org/example1/'><tns:header><tns:title>1</tns:title><tns:title>2</tns:title><tns:title>3</tns:title></tns:header><tns:record><tns:item>4</tns:item><tns:item>5</tns:item><tns:item>6</tns:item></tns:record></tns:file>"
+      cli.send(input, inputDone = true)
+      cli.expect("1,2,3")
+      cli.expect("4,5,6")
+    } (ExitCode.Success)
   }
 
   @Test def test_3574_CLI_Unparsing_SimpleUnparse_extVars(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
+    val config = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input15.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
-    val configFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input15.txt")
-    val (testSchemaFile, testConfigFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(configFile), Util.cmdConvert(inputFile)) else (schemaFile, configFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -s %s -r row -D\"{http://example.com}var1=99\" -c %s %s", Util.binPath, testSchemaFile, testConfigFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("0"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema -r row -D{http://example.com}var1=99 -c $config $input") { cli =>
+      cli.expect("0")
+    } (ExitCode.Success)
   }
 
   @Test def test_3575_CLI_Unparsing_SimpleUnparse_extVars2(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
+    val config = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input16.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
-    val configFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input16.txt")
-    val (testSchemaFile, testConfigFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(configFile), Util.cmdConvert(inputFile)) else (schemaFile, configFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -s %s -r row -c %s %s", Util.binPath, testSchemaFile, testConfigFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("0"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema -r row -c $config $input") { cli =>
+      cli.expect("0")
+    } (ExitCode.Success)
   }
 
   @Test def test_3582_CLI_Unparsing_SimpleUnparse_outFile(): Unit = {
-    val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
-    val file = new File(tmp_filename)
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-    val shell = Util.start("")
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
 
-    try {
-      val cmd = String.format("%s unparse -s %s -r e3 -o %s %s", Util.binPath, testSchemaFile, tmp_filename, testInputFile)
-      shell.sendLine(cmd)
+    withTempFile { output =>
+      runCLI(args"unparse -s $schema -r e3 -o $output $input") { cli =>
+      } (ExitCode.Success)
 
-      val catCmd = if (Util.isWindows) "type" else "cat"
-      val openCmd = String.format("%s %s", catCmd, tmp_filename)
-
-      shell.sendLine(openCmd)
-      shell.expect(contains("[1,2]"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.sendLine("exit")
-      shell.expect(eof)
-    } finally {
-      shell.close()
-      assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
+      val res = FileUtils.readFileToString(output.toFile, UTF_8)
+      assertTrue(res.contains("[1,2]"))
     }
   }
 
   @Test def test_3581_CLI_Unparsing_SimpleUnparse_stOutDash(): Unit = {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-    val shell = Util.start("")
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
 
-    try {
-      val cmd = String.format("%s unparse -s %s -r e3 -o - %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-
-      shell.expect(contains("[1,2]"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.sendLine("exit")
-      shell.expect(eof)
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema -r e3 -o - $input") { cli =>
+      cli.expect("[1,2]")
+    } (ExitCode.Success)
   }
 
   @Test def test_3580_CLI_Unparsing_SimpleUnparse_verboseMode(): Unit = {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
 
-    val shell = Util.start("")
+    runCLI(args"-v unparse -s $schema --root e1") { cli =>
+      cli.send("<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>", inputDone = true)
+      cli.expectErr("[info]")
+    } (ExitCode.Success)
 
-    try {
-
-      shell.sendLine(String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s -v unparse -s %s --root e1", Util.binPath, testSchemaFile))
-      shell.expectIn(1, contains("[info]"))
-
-      shell.sendLine(String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s -vv unparse -s %s --root e1", Util.binPath, testSchemaFile))
-      shell.expectIn(1, contains("[debug]"))
-
-      shell.sendLine(String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s -vvv unparse -s %s --root e1", Util.binPath, testSchemaFile))
-      shell.expectIn(1, contains("[trace]"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-    } finally {
-      shell.close()
-    }
+    runCLI(args"-vv unparse -s $schema --root e1") { cli =>
+      cli.send("<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>", inputDone = true)
+      cli.expectErr("[debug]")
+    } (ExitCode.Success)
   }
 
   @Test def test_3579_CLI_Unparsing_negativeTest(): Unit = {
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s unparse", Util.binPath)
-      shell.sendLine(cmd)
-      shell.expectIn(1, contains("There should be exactly one of the following options: schema, parser"))
-
-      Util.expectExitCode(ExitCode.Usage, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse") { cli =>
+      cli.send("<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>", inputDone = true)
+      cli.expectErr("There should be exactly one of the following options: schema, parser")
+    } (ExitCode.Usage)
   }
 
   @Test def test_3578_CLI_Unparsing_SimpleUnparse_defaultRoot(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format(Util.echoN("\"<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>\"") + "| %s unparse -s %s", Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema") { cli =>
+      cli.send("<tns:e1 xmlns:tns='http://example.com'>Hello</tns:e1>", inputDone = true)
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_3583_CLI_Unparsing_SimpleUnparse_rootPath(): Unit = {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
 
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format(Util.echoN("\"<tns:hcp2 xmlns:tns='http://www.example.org/example1/'>12</tns:hcp2>\"") + "| %s unparse -s %s -r hcp2 -p /", Util.binPath, testSchemaFile)
-
-      shell.sendLine(cmd)
-      shell.expect(contains("12"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.sendLine("exit")
-      shell.expect(eof)
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema -r hcp2 -p /") { cli =>
+      cli.send("<tns:hcp2 xmlns:tns='http://www.example.org/example1/'>12</tns:hcp2>", inputDone = true)
+      cli.expect("12")
+    } (ExitCode.Success)
   }
 
-  /*
-  // See DFDL-1346
-  @Test def test_3576_CLI_Unparsing_validate() {
+  // DAFFODIL-1346
+  /*@Test*/ def test_3576_CLI_Unparsing_validate(): Unit = {
+    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
 
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
-    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    runCLI(args"unparse -s $schema -r validation_check --validate on") { cli =>
+      cli.sendLine("""<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>""", inputDone = true)
+      cli.expect("[warn] Validation Error: validation_check: cvc-pattern-valid")
+      cli.expect("[warn] Validation Error: validation_check failed")
+    } (ExitCode.Failure)
 
-    val shell = Util.start("")
+    runCLI(args"unparse -s $schema -r validation_check --validate") { cli =>
+      cli.sendLine("""<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>""", inputDone = true)
+      cli.expect("[warn] Validation Error: validation_check: cvc-pattern-valid")
+      cli.expect("[warn] Validation Error: validation_check failed")
+    } (ExitCode.Failure)
 
-    try {
-      val cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate on """, Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("[warn] Validation Error: validation_check: cvc-pattern-valid"))
-      shell.expect(contains("[warn] Validation Error: validation_check failed"))
+    runCLI(args"unparse -s $schema -r validation_check --validate limited") { cli =>
+      cli.sendLine("""<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>""", inputDone = true)
+      cli.expect("[warn] Validation Error: validation_check failed")
+    } (ExitCode.Failure)
 
-      cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate """, Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("[warn] Validation Error: validation_check: cvc-pattern-valid"))
-      shell.expect(contains("[warn] Validation Error: validation_check failed"))
-
-      cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate limited """, Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("[warn] Validation Error: validation_check failed"))
-
-      cmd = String.format("""echo '<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>' | %s unparse -s %s -r validation_check --validate off """, Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-
-      shell.sendLine("exit")
-      shell.expect(eof)
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema -r validation_check --validate off") { cli =>
+      cli.sendLine("""<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>""", inputDone = true)
+    } (ExitCode.Success)
   }
-*/
 
-/*
-  @Test def test_3577_CLI_Unparsing_traceMode() {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_15.dfdl.xsd")
-    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
-    val shell = Util.start("")
+  // DAFFODIL-2709
+  /*@Test*/ def test_3577_CLI_Unparsing_traceMode(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_15.dfdl.xsd")
 
-    try {
-      val cmd = String.format("echo '<rabbitHole><nestSequence><nest>test</nest></nestSequence></rabbitHole>'| %s -t unparse -s %s", Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("parser: <Element name='nest'>"))
-      shell.expect(contains("parser: <Element name='rabbitHole'>"))
-      shell.expect(contains("test"))
-      shell.sendLine("exit")
-      shell.expect(eof)
-    } finally {
-      shell.close()
-    }
+    runCLI(args"-t unparse -s $schema") { cli =>
+      cli.sendLine("<rabbitHole><nestSequence><nest>test</nest></nestSequence></rabbitHole>", inputDone = true)
+      cli.expect("unparser: <Element name='nest'>")
+      cli.expect("unparser: <Element name='rabbitHole'>")
+      cli.expect("test")
+    } (ExitCode.Success)
   }
-*/
 
   @Test def test_3662_CLI_Unparsing_badSchemaPath(): Unit = {
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/doesnotexist.dfdl.xsd")
-    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/doesnotexist.dfdl.xsd")
 
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format(Util.echoN("\"<tns:e1>Hello</tns:e1>\"") + "| %s unparse -s %s -r root", Util.binPath, testSchemaFile)
-      shell.sendLine(cmd)
-      shell.expectIn(1, contains("Bad arguments for option 'schema'"))
-      shell.expectIn(1, contains("Could not find file or resource"))
-
-      Util.expectExitCode(ExitCode.Usage, shell)
-      shell.sendLine("exit")
-      shell.expect(eof)
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -s $schema -r root") { cli =>
+      cli.send("<tns:e1>Hello</tns:e1>", inputDone = true)
+      cli.expectErr("Bad arguments for option 'schema'")
+      cli.expectErr("Could not find file or resource")
+    } (ExitCode.Usage)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_w3cdom(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -I w3cdom -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -I w3cdom -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_jdom(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -I jdom -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -I jdom -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_scala_xml(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -I scala-xml -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -I scala-xml -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_json(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.json")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.json")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -I json -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -I json -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_w3cdom_stream(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse --stream -I w3cdom -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse --stream -I w3cdom -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_jdom_stream(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse --stream -I jdom -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse --stream -I jdom -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_scala_xml_stream(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse --stream -I scala-xml -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse --stream -I scala-xml -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_json_stream(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.json")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.json")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse --stream -I json -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse --stream -I json -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_sax(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -I sax -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -I sax -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_exi(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.exi")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.exi")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -I exi -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -I exi -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_exisa(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.exisa")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.exisa")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -I exisa -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -I exisa -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_null(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
 
-    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
-
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse -I null -s %s --root e1 %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("Hello"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-      shell.expect(eof)
-      shell.close()
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse -I null -s $schema --root e1 $input") { cli =>
+      cli.expect("Hello")
+    } (ExitCode.Success)
   }
 
   @Test def test_XXX_CLI_Unparsing_Stream_01(): Unit = {
-    val schemaFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
-    val inputFile = Util.daffodilPath("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input19.txt")
-    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input19.txt")
 
-    val shell = Util.start("")
-
-    try {
-      val cmd = String.format("%s unparse --stream -s %s %s", Util.binPath, testSchemaFile, testInputFile)
-      shell.sendLine(cmd)
-      shell.expect(contains("123"))
-
-      Util.expectExitCode(ExitCode.Success, shell)
-      shell.send("exit\n")
-    } finally {
-      shell.close()
-    }
+    runCLI(args"unparse --stream -s $schema $input") { cli =>
+      cli.expect("123")
+    } (ExitCode.Success)
   }
-
 
 }

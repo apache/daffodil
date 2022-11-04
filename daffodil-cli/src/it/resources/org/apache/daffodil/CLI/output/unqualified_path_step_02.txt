@@ -1,7 +1,0 @@
-<test_02 xmlns="http://example.com">
-  <a>
-    <b>1</b>
-    <c xmlns="">2</c>
-  </a>
-  <s xmlns="">1</s>
-</test_02>

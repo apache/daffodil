@@ -17,92 +17,122 @@
 
 package org.apache.daffodil.schematron
 
-import net.sf.expectit.matcher.Matchers.sequence
-import org.apache.daffodil.Main.ExitCode
-import org.junit.Test
-
 import java.util.UUID
 
+import org.junit.Test
+
+import org.apache.daffodil.CLI.Util._
+import org.apache.daffodil.Main.ExitCode
+
 class TestEmbedded {
-  @Test def alwaysFails(): Unit = withShell(ExitCode.ParseError) {
-    val data = mktmp(UUID.randomUUID.toString)
-    val schema = "xsd/always-fails-1.dfdl.xsd"
-    s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> lineEndsWith("</always-fails>")
+  @Test def alwaysFails(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/always-fails-1.dfdl.xsd")
+    
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.sendLine(UUID.randomUUID.toString, inputDone = true)
+      cli.expect("</always-fails>")
+    } (ExitCode.ParseError)
   }
 
-  @Test def unitPriceWithoutValidation(): Unit = withShell(ExitCode.Success) {
-    val data = mktmp("widget,monday,1,$5.00,$5.00")
-    val schema = "xsd/unit_price.dfdl.xsd"
-    s"parse -r list -s {{$schema}} $data" -> lineEndsWith("</ex:list>")
+  @Test def unitPriceWithoutValidation(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/unit_price.dfdl.xsd")
+
+    runCLI(args"""parse -r list -s $schema""") { cli =>
+      cli.send("widget,monday,1,$5.00,$5.00", inputDone = true)
+      cli.expect("</ex:list>")
+    } (ExitCode.Success)
   }
 
-  @Test def unitPriceWithValidation(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
-    val data = mktmp("widget,monday,1,$5.00,$6.00")
-    val schema = "xsd/unit_price.dfdl.xsd"
-    s"parse -r list --validate schematron={{$schema}} -s {{$schema}} $data" -> sequence(
-      lineEndsWith("</ex:list>"),
-      anyLines(3)
-    )
+  @Test def unitPriceWithValidation(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/unit_price.dfdl.xsd")
+
+    runCLI(args"""parse -r list --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send("widget,monday,1,$5.00,$6.00", inputDone = true)
+      cli.expect("</ex:list>")
+      cli.expectErr("Validation Error: wrong unit price for widget, monday")
+    } (ExitCode.ParseError)
   }
 
-  @Test def unitPriceWithValidationCheckMessage(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
-    val data = mktmp("widget,monday,5,$5.00,$25.00||gadget,tuesday,1,$10.00,$11.00")
-    val schema = "xsd/unit_price.dfdl.xsd"
-    s"parse -r list --validate schematron={{$schema}} -s {{$schema}} $data" -> sequence(
-      lineEndsWith("</ex:list>"),
-      lineEndsWith("[error] Validation Error: wrong unit price for gadget, tuesday"),
-      anyLines(2)
-    )
+  @Test def unitPriceWithValidationCheckMessage(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/unit_price.dfdl.xsd")
+
+    runCLI(args"""parse -r list --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send("widget,monday,5,$5.00,$25.00||gadget,tuesday,1,$10.00,$11.00", inputDone = true)
+      cli.expect("</ex:list>")
+      cli.expectErr("Validation Error: wrong unit price for gadget, tuesday")
+    } (ExitCode.ParseError)
   }
 
-  @Test def extends1(): Unit = withShell(ExitCode.Success) {
-    val data = mktmp("bob;l;smith")
-    val schema = "xsd/extends-1.dfdl.xsd"
-    s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> lineEndsWith("</name>")
+  @Test def extends1(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send("bob;l;smith", inputDone = true)
+      cli.expect("</name>")
+    } (ExitCode.Success) 
   }
 
-  @Test def extends2(): Unit = withShell(ExitCode.Success) {
-    val data = mktmp("ob;;smith")
-    val schema = "xsd/extends-1.dfdl.xsd"
-    s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> lineEndsWith("</name>")
+  @Test def extends2(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send("ob;;smith", inputDone = true)
+      cli.expect("</name>")
+    } (ExitCode.Success) 
   }
 
-  @Test def extends3(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
-    val data = mktmp(";;smith")
-    val schema = "xsd/extends-1.dfdl.xsd"
-    s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> validationError("first is blank")
+  @Test def extends3(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send(";;smith", inputDone = true)
+      cli.expectErr("Validation Error: first is blank")
+    } (ExitCode.ParseError)
   }
 
-  @Test def extends4(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
-    val data = mktmp("bob;l;")
-    val schema = "xsd/extends-1.dfdl.xsd"
-    s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> validationError("last is blank")
+  @Test def extends4(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send("bob;l;", inputDone = true)
+      cli.expectErr("Validation Error: last is blank")
+    } (ExitCode.ParseError)
   }
 
-  @Test def extends5(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
-    val data = mktmp(";l;")
-    val schema = "xsd/extends-1.dfdl.xsd"
-    s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> sequence(
-      validationError("last is blank"),
-      validationError("first is blank")
-    )
+  @Test def extends5(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/extends-1.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send(";l;", inputDone = true)
+      cli.expectErr("Validation Error: last is blank")
+      cli.expectErr("Validation Error: first is blank")
+    } (ExitCode.ParseError)
   }
 
-  @Test def testWithNs1(): Unit = withShell(ExitCode.Success) {
-    val data = mktmp("0;1")
-    val schema = "xsd/with-ns-1.dfdl.xsd"
-    s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> lineEndsWith("</myns:interval>")
+  @Test def testWithNs1(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/with-ns-1.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send("0;1", inputDone = true)
+      cli.expect("</myns:interval>")
+    } (ExitCode.Success)
   }
 
-  @Test def testWithNs2(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
-    val data = mktmp("2;1")
-    val schema = "xsd/with-ns-1.dfdl.xsd"
-    s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> validationError()
+  @Test def testWithNs2(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/with-ns-1.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send("2;1", inputDone = true)
+      cli.expectErr("Validation Error")
+    } (ExitCode.ParseError)
   }
 
-  @Test def testWithNs3(): Unit = withShell(ExitCode.ParseError, JoinStdError) {
-    val data = mktmp("0;0")
-    val schema = "xsd/with-ns-1.dfdl.xsd"
-    s"parse --validate schematron={{$schema}} -s {{$schema}} $data" -> validationError()
+  @Test def testWithNs3(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/with-ns-1.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") { cli =>
+      cli.send("0;0", inputDone = true)
+      cli.expectErr("Validation Error")
+    } (ExitCode.ParseError)
   }
 }

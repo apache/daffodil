@@ -1,8 +1,0 @@
-display info groupIndex
-break element.price
-break element.comment
-continue
-continue
-continue
-continue
-continue

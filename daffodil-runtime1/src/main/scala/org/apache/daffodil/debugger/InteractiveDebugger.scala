@@ -338,7 +338,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
       case s: scala.util.control.ControlThrowable => throw s
       case u: UnsuppressableException => throw u
       case e: Throwable => {
-        println("caught throwable " + Misc.getNameFromClass(e) + ": " + Misc.getSomeMessage(e).get)
+        debugPrintln("caught throwable " + Misc.getNameFromClass(e) + ": " + Misc.getSomeMessage(e).get)
         state.setSuccess()
         false
       }
@@ -1549,7 +1549,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
               }
               case _ => {
                 val infosetString = infosetToString(node)
-                val lines = infosetString.split("\n")
+                val lines = infosetString.split("\r?\n")
 
                 val dropCount =
                   if (DebuggerConfig.infosetLines < 0) 0
