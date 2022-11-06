@@ -38,7 +38,7 @@ object Dependencies {
   lazy val infoset = Seq(
     "org.jdom" % "jdom2" % "2.0.6.1",
     "com.fasterxml.woodstox" % "woodstox-core" % "6.4.0",
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.13.4"
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.14.0"
   )
 
   lazy val cli = Seq(
