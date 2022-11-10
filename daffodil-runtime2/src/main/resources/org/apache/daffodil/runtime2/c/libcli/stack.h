@@ -35,30 +35,30 @@ typedef struct
     stack_item_t *p_after;  // Pointer to one past top element
     stack_item_t *p_array;  // Pointer to stack's array
     ptrdiff_t     capacity; // Size of stack's array
-} stack_t;
+} c_stack_t;
 
 // Initialize stack with preallocated array
 
-extern void stack_init(stack_t *p_stack, stack_item_t *p_array, ptrdiff_t capacity);
+extern void stack_init(c_stack_t *p_stack, stack_item_t *p_array, ptrdiff_t capacity);
 
 // Check whether stack is empty
 
-extern bool stack_is_empty(stack_t *p_stack);
+extern bool stack_is_empty(c_stack_t *p_stack);
 
 // Check whether stack is full
 
-extern bool stack_is_full(stack_t *p_stack);
+extern bool stack_is_full(c_stack_t *p_stack);
 
 // Pop element from stack
 
-extern stack_item_t stack_pop(stack_t *p_stack);
+extern stack_item_t stack_pop(c_stack_t *p_stack);
 
 // Push element into stack
 
-extern void stack_push(stack_t *p_stack, stack_item_t item);
+extern void stack_push(c_stack_t *p_stack, stack_item_t item);
 
 // Get stack's top element
 
-extern stack_item_t stack_top(stack_t *p_stack);
+extern stack_item_t stack_top(c_stack_t *p_stack);
 
 #endif // STACK_H

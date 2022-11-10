@@ -26,7 +26,7 @@
 // Initialize stack with preallocated array
 
 void
-stack_init(stack_t *p_stack, stack_item_t *p_array, ptrdiff_t capacity)
+stack_init(c_stack_t *p_stack, stack_item_t *p_array, ptrdiff_t capacity)
 {
     p_stack->p_after = p_array;
     p_stack->p_array = p_array;
@@ -36,7 +36,7 @@ stack_init(stack_t *p_stack, stack_item_t *p_array, ptrdiff_t capacity)
 // Check whether stack is empty
 
 bool
-stack_is_empty(stack_t *p_stack)
+stack_is_empty(c_stack_t *p_stack)
 {
     return p_stack->p_after == p_stack->p_array;
 }
@@ -44,7 +44,7 @@ stack_is_empty(stack_t *p_stack)
 // Check whether stack is full
 
 bool
-stack_is_full(stack_t *p_stack)
+stack_is_full(c_stack_t *p_stack)
 {
     ptrdiff_t count = p_stack->p_after - p_stack->p_array;
     return count >= p_stack->capacity;
@@ -53,7 +53,7 @@ stack_is_full(stack_t *p_stack)
 // Pop element from stack
 
 stack_item_t
-stack_pop(stack_t *p_stack)
+stack_pop(c_stack_t *p_stack)
 {
     if (stack_is_empty(p_stack))
     {
@@ -66,7 +66,7 @@ stack_pop(stack_t *p_stack)
 // Push element into stack
 
 void
-stack_push(stack_t *p_stack, stack_item_t item)
+stack_push(c_stack_t *p_stack, stack_item_t item)
 {
     if (stack_is_full(p_stack))
     {
@@ -79,7 +79,7 @@ stack_push(stack_t *p_stack, stack_item_t item)
 // Get stack's top element
 
 stack_item_t
-stack_top(stack_t *p_stack)
+stack_top(c_stack_t *p_stack)
 {
     if (stack_is_empty(p_stack))
     {
