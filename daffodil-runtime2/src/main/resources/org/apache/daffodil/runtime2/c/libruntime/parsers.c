@@ -18,11 +18,11 @@
 // clang-format off
 #include "parsers.h"
 #include <assert.h>   // for assert
-#include <endian.h>   // for be64toh, le64toh, be32toh, le32toh
 #include <stdbool.h>  // for bool, false, true
 #include <stdio.h>    // for fread
 #include <stdlib.h>   // for free, malloc
 #include "errors.h"   // for eof_or_error, Error, add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, ERR_HEXBINARY_ALLOC, ERR_PARSE_BOOL, Error::(anonymous), Diagnostics
+#include "p_endian.h" // for be64toh, le64toh, be32toh, le32toh
 // clang-format on
 
 // Helper macros to get "n" highest bits from a byte's high end

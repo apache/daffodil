@@ -123,11 +123,32 @@ Now when you open a new "MSYS2 MSYS" window from the Start Menu to
 build Daffodil from source, the sbt and daffodil commands you type
 will be able to call the C compiler.
 
+## macOS
+
+Install the Xcode Command Line Tools:
+
+    xcode-select --install
+
+You can use the [Homebrew] package manager to install most of the tools
+needed to build Daffodil:
+
+    brew install clang-format
+    brew install git
+    brew install llvm # needed by iwyu
+    brew install include-what-you-use
+    brew install libmxml
+    brew install openjdk@11
+    brew install sbt
+
+Now you can build Daffodil from source and the sbt and daffodil
+commands you type will be able to call the C compiler.
+
 [C99]: https://en.wikipedia.org/wiki/C99
+[EPEL]: https://docs.fedoraproject.org/en-US/epel/
+[Homebrew]: https://brew.sh/
 [JDK]: https://adoptopenjdk.net/
 [Mini-XML]: https://www.msweet.org/mxml/
 [MSYS2]: https://www.msys2.org/
 [SBT]: https://www.scala-sbt.org/
 [clang]: https://clang.llvm.org/get_started.html
 [gcc]: https://linuxize.com/post/how-to-install-gcc-on-ubuntu-20-04/
-[EPEL]: https://docs.fedoraproject.org/en-US/epel/

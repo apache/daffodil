@@ -18,6 +18,7 @@
 // clang-format off
 #include "xml_writer.h"
 #include <assert.h>      // for assert
+#include <inttypes.h>    // for PRIi64, PRIu64
 #include <mxml.h>        // for mxmlNewOpaquef, mxml_node_t, mxmlElementSetAttr, mxmlGetOpaque, mxmlNewElement, mxmlDelete, mxmlGetElement, mxmlNewOpaque, mxmlNewXML, mxmlSaveFile, MXML_NO_CALLBACK
 #include <stdbool.h>     // for bool, false, true
 #include <stdint.h>      // for uint8_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint32_t, uint64_t
@@ -251,7 +252,7 @@ xmlSimpleElem(XMLWriter *writer, const ERD *erd, const void *valueptr)
         text = mxmlNewOpaquef(simple, "%i", *(const int32_t *)valueptr);
         break;
     case PRIMITIVE_INT64:
-        text = mxmlNewOpaquef(simple, "%li", *(const int64_t *)valueptr);
+        text = mxmlNewOpaquef(simple, "%" PRIi64, *(const int64_t *)valueptr);
         break;
     case PRIMITIVE_INT8:
         text = mxmlNewOpaquef(simple, "%hhi", *(const int8_t *)valueptr);
@@ -263,7 +264,7 @@ xmlSimpleElem(XMLWriter *writer, const ERD *erd, const void *valueptr)
         text = mxmlNewOpaquef(simple, "%u", *(const uint32_t *)valueptr);
         break;
     case PRIMITIVE_UINT64:
-        text = mxmlNewOpaquef(simple, "%lu", *(const uint64_t *)valueptr);
+        text = mxmlNewOpaquef(simple, "%" PRIu64, *(const uint64_t *)valueptr);
         break;
     case PRIMITIVE_UINT8:
         text = mxmlNewOpaquef(simple, "%hhu", *(const uint8_t *)valueptr);

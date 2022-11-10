@@ -18,10 +18,10 @@
 // clang-format off
 #include "unparsers.h"
 #include <assert.h>   // for assert
-#include <endian.h>   // for htobe64, htole64, htobe32, htole32
 #include <stdbool.h>  // for bool
 #include <stdio.h>    // for fwrite
 #include "errors.h"   // for eof_or_error, add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics, Error
+#include "p_endian.h" // for htobe64, htole64, htobe32, htole32
 // clang-format on
 
 // Helper macros to get "n" highest bits from a byte's high end
