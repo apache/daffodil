@@ -129,27 +129,6 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
    */
   def hasReachedEndOfData: Boolean = inputSource.hasReachedEndOfData
 
-  /**
-   * Determine if we're positioned at the end of data.
-   *
-   * Blocks until either one byte of data can be read, or end-of-data
-   * is encountered.
-   *
-   * It is generally not advised to use this on network TCP data streams
-   * as it will block waiting for the sender of data to provide more data
-   * or close the stream.
-   *
-   * @return boolean indicating whether we are known to be positioned at
-   *         the end of data.
-   */
-  @deprecated(
-    "Use bitPos0b or bitPos1b to compare with expected position (possibly bitLimit0b).",
-    "3.1.0")
-  final def isAtEnd(): Boolean = {
-    !hasData() && hasReachedEndOfData
-  }
-
-
   def setBitPos0b(newBitPos0b: Long): Unit = {
     // threadCheck()
     Assert.invariant(newBitPos0b >= 0)

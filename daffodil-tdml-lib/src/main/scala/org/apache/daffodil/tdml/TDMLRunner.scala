@@ -51,7 +51,6 @@ import org.apache.daffodil.exceptions.UnsuppressableException
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.processors.HasSetDebugger
 import org.apache.daffodil.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
@@ -177,8 +176,7 @@ class DFDLTestSuite private[tdml] (
   val defaultValidationDefault: String,
   val defaultImplementationsDefault: Seq[String],
   val shouldDoErrorComparisonOnCrossTests: Boolean,
-  val shouldDoWarningComparisonOnCrossTests: Boolean)
-  extends HasSetDebugger {
+  val shouldDoWarningComparisonOnCrossTests: Boolean) {
 
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
 
@@ -414,12 +412,12 @@ class DFDLTestSuite private[tdml] (
   }
 
   var areDebugging = false
-  override def setDebugging(flag: Boolean) = {
+  def setDebugging(flag: Boolean) = {
     areDebugging = flag
   }
 
   var daffodilDebugger: AnyRef = null
-  override def setDebugger(db: AnyRef) = {
+  def setDebugger(db: AnyRef) = {
     daffodilDebugger = db
   }
 

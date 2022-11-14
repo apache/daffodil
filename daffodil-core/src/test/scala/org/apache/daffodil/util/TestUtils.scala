@@ -338,27 +338,13 @@ class Fakes private () {
   lazy val fakeGroupRefFactory = GroupRefFactory(fs1.xml, fs1, 1, false)
 
   class FakeDataProcessor extends DFDL.DataProcessor {
-    @deprecated("Use withValidationMode.", "2.6.0")
-    override def setValidationMode(mode: ValidationMode.Type): Unit = {}
     def getValidationMode(): ValidationMode.Type = { ValidationMode.Full }
     override def save(output: DFDL.Output): Unit = {}
-    @deprecated("Use withExternalVariables.", "2.6.0")
-    override def setExternalVariables(extVars: Map[String, String]): Unit = {}
-    @deprecated("Use withExternalVariables.", "2.6.0")
-    override def setExternalVariables(extVars: Seq[Binding]): Unit = {}
-    @deprecated("Use withExternalVariables.", "2.6.0")
-    override def setExternalVariables(extVars: File): Unit = {}
-    @deprecated("Use withExternalVariables.", "2.6.0")
-    override def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit = {}
     def getVariables(): VariableMap = VariableMapFactory.create(Nil)
     override def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = null
     override def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = null
     override def getDiagnostics: Seq[Diagnostic] = Seq.empty
     override def isError: Boolean = false
-    @deprecated("Use withTunables.", "2.6.0")
-    override def setTunable(tunable: String, value: String): Unit = {}
-    @deprecated("Use withTunables.", "2.6.0")
-    override def setTunables(tunables: Map[String, String]): Unit = {}
     override def getTunables(): DaffodilTunables = { tunables }
 
     override def validationMode: ValidationMode.Type = ValidationMode.Full
@@ -369,6 +355,8 @@ class Fakes private () {
     override def withTunable(tunable: String, value: String): DFDL.DataProcessor = this
     override def withTunables(tunables: Map[String,String]): DFDL.DataProcessor = this
     override def withValidationMode(mode: ValidationMode.Type): DFDL.DataProcessor = this
+    override def withDebugger(dbg:AnyRef): DFDL.DataProcessor = this
+    override def withDebugging(flag: Boolean): DFDL.DataProcessor = this
 
     override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = null
     override def newContentHandlerInstance(output: DFDL.Output): DFDL.DaffodilUnparseContentHandler = null

@@ -49,28 +49,13 @@ trait AbstractTDMLDFDLProcessorFactory {
 
   def validateDFDLSchemas: Boolean
 
-  @deprecated("Use withValidateDFDLSchemas.", "2.6.0")
-  def setValidateDFDLSchemas(bool: Boolean): Unit
-
   def withValidateDFDLSchemas(bool: Boolean): R
-
-  @deprecated("Use withCheckAllTopLevel.", "2.6.0")
-  def setCheckAllTopLevel(checkAllTopLevel: Boolean): Unit
 
   def withCheckAllTopLevel(checkAllTopLevel: Boolean): R
 
-  @deprecated("Use withTunables.", "2.6.0")
-  def setTunables(tunables: Map[String, String]): Unit
-
   def withTunables(tunables: Map[String, String]): R
 
-  @deprecated("Use TDMLDFDLProcessor.withExternalDFDLVariables", "2.6.0")
-  def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit
-
   def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R
-
-  @deprecated("Use arguments to getProcessor()", "2.6.0")
-  def setDistinguishedRootNode(name: String, namespace: String): Unit
 
   def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean,
     optRootName: Option[String] = None, optRootNamespace: Option[String] = None,
@@ -84,28 +69,13 @@ trait TDMLDFDLProcessor {
 
   protected type R <: TDMLDFDLProcessor
 
-  @deprecated("Use withDebugging.", "2.6.0")
-  def setDebugging(onOff: Boolean): Unit
-
   def withDebugging(onOff: Boolean): R
-
-  @deprecated("Use withTracing.", "2.6.0")
-  def setTracing(onOff: Boolean): Unit
 
   def withTracing(onOff: Boolean): R
 
-  @deprecated("Use withDebugger.", "2.6.0")
-  def setDebugger(db: AnyRef): Unit
-
   def withDebugger(db: AnyRef): R
 
-  @deprecated("Use withValidationMode.", "2.6.0")
-  def setValidationMode(validationMode: ValidationMode.Type): Unit
-
   def withValidationMode(validationMode: ValidationMode.Type): R
-
-  @deprecated("Use withExternalDFDLVariables.", "2.6.0")
-  def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit
 
   def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R
 
@@ -118,9 +88,6 @@ trait TDMLDFDLProcessor {
   def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult
 
   def unparse(parseResult: TDMLParseResult, outStream: java.io.OutputStream): TDMLUnparseResult
-
-  @deprecated("Function no longer called, cleanup must be handled in individual TDMLResults.", "3.3.0")
-  def cleanUp(): Unit = { /* Do nothing */ }
 }
 
 trait TDMLResult {

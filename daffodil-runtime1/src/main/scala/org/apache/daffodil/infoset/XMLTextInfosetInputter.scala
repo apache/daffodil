@@ -188,13 +188,8 @@ object XMLTextInfoset {
   }
 }
 
-class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.InputStream])
+class XMLTextInfosetInputter(input: java.io.InputStream)
   extends InfosetInputter {
-
-  @deprecated("This constructor is deprecated. Use XMLTextInfosetInputter(java.io.InputStream) instead.", "2.4.0")
-  def this(reader: java.io.Reader) = { this(Left(reader)) }
-
-  def this(is: java.io.InputStream) = { this(Right(is)) }
 
   /**
    * evAlloc is only to be used for diagnostic messages. It lets us easily
@@ -202,10 +197,7 @@ class XMLTextInfosetInputter private (input: Either[java.io.Reader, java.io.Inpu
    * as it allocates an object, and we're trying to avoid that.
    */
   private lazy val (xsr: XMLStreamReader, evAlloc: XMLEventAllocator) = {
-    val xsr = input match {
-      case Left(reader) => XMLTextInfoset.xmlInputFactory.createXMLStreamReader(reader)
-      case Right(is) => XMLTextInfoset.xmlInputFactory.createXMLStreamReader(is)
-    }
+    val xsr = XMLTextInfoset.xmlInputFactory.createXMLStreamReader(input)
 
     //
     // This gets the event allocator corresponding to the xmlStreamReader just created.

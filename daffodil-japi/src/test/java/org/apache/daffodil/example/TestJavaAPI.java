@@ -971,7 +971,7 @@ public class TestJavaAPI {
     }
 
     @Test
-    public void testJavaAPI22_setExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException, ExternalVariableException {
+    public void testJavaAPI22_withExternalVariablesUsingAbstractMap() throws IOException, ClassNotFoundException, ExternalVariableException {
         // Demonstrates here that we can set external variables using a
         // Java AbstractMap after compilation but before parsing via DataProcessor.
         DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();

@@ -40,7 +40,6 @@ import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.dsom.walker.RootView
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Misc
@@ -135,12 +134,6 @@ final class ProcessorFactory private(
 
   override def isError = sset.isError
 
-  @deprecated("Use arguments to Compiler.compileSource or compileFile.", "2.6.0")
-  override def setDistinguishedRootNode(name: String, namespace: String): Unit = {
-    Assert.usage(name ne null)
-    optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace))
-  }
-
   def withDistinguishedRootNode(name: String, namespace: String) : ProcessorFactory = {
     Assert.usage(name ne null)
     copy(optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace)))
@@ -193,27 +186,12 @@ class Compiler private (var validateDFDLSchemas: Boolean,
     optRootNamespace: Option[String] = optRootNamespace) =
     new Compiler(validateDFDLSchemas, tunables, externalDFDLVariables, checkAllTopLevel, optRootName, optRootNamespace)
 
-  @deprecated("Pass arguments to compileSource, or compileFile.", "2.6.0")
-  override def setDistinguishedRootNode(name: String, namespace: String): Unit = {
-    Assert.usage(name ne null)
-    optRootName = Option(name)
-    optRootNamespace = Option(namespace)
-  }
-
   def withDistinguishedRootNode(name: String, namespace: String) : Compiler = {
     Assert.usage(name ne null)
     copy(optRootName = Option(name), optRootNamespace = Option(namespace))
   }
 
-  @deprecated("Use constructor argument.", "2.6.0")
-  def setValidateDFDLSchemas(value: Boolean): Unit = validateDFDLSchemas = value
-
   def withValidateDFDLSchemas(value: Boolean) = copy(validateDFDLSchemas = value)
-
-  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-  override def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
-    externalDFDLVariables = externalDFDLVariables.enqueue(getBinding(name, namespace, value))
-  }
 
   /**
    * Supports binding external variables programatically from the API.
@@ -228,14 +206,6 @@ class Compiler private (var validateDFDLSchemas: Boolean,
     b
   }
 
-  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-  def setExternalDFDLVariable(variable: Binding): Unit =
-    externalDFDLVariables = externalDFDLVariables.enqueue(variable)
-
-  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-  def setExternalDFDLVariables(variables: Seq[Binding]): Unit =
-    variables.foreach(b => externalDFDLVariables = externalDFDLVariables.enqueue(b))
-
   //
   // Not deprecated so that we can implement the deprecated things
   // and reuse code.
@@ -247,25 +217,11 @@ class Compiler private (var validateDFDLSchemas: Boolean,
     copy(externalDFDLVariables = extVars)
   }
 
-  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-  def setExternalDFDLVariables(extVarsFile: File): Unit = {
-    val extVars: Seq[Binding] = ExternalVariablesLoader.fileToBindings(extVarsFile)
-    extVars.foreach(b => externalDFDLVariables = externalDFDLVariables.enqueue(b))
-  }
-
-  @deprecated("Use withTunable.", "2.6.0")
-  def setTunable(tunable: String, value: String): Unit =
-    tunables = tunables.setTunable(tunable, value)
-
   def withTunable(tunable: String, value: String): Compiler =
-    copy(tunables = tunables.setTunable(tunable, value))
-
-  @deprecated("Use withTunables.", "2.6.0")
-  def setTunables(tunablesArg: Map[String, String]): Unit =
-    tunables = tunables.setTunables(tunablesArg)
+    copy(tunables = tunables.withTunable(tunable, value))
 
   def withTunables(tunablesArg: Map[String, String]): Compiler =
-    copy(tunables = tunables.setTunables(tunablesArg))
+    copy(tunables = tunables.withTunables(tunablesArg))
 
   /**
    * Controls whether we check everything in the schema, or just the element
@@ -275,10 +231,6 @@ class Compiler private (var validateDFDLSchemas: Boolean,
    * in them, some of which use unimplemented features. Each time we run exactly one
    * test from the set, we want to ignore errors in compilation of the others.
    */
-  @deprecated("Use withCheckAllTopLevel.", "2.6.0")
-  def setCheckAllTopLevel(flag: Boolean): Unit =
-    checkAllTopLevel = flag
-
   def withCheckAllTopLevel(flag: Boolean): Compiler =
     copy(checkAllTopLevel = flag)
 

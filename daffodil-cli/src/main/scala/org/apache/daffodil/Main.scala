@@ -100,9 +100,7 @@ import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.processors.DataLoc
-import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.ExternalVariableException
-import org.apache.daffodil.processors.HasSetDebugger
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
@@ -630,23 +628,25 @@ object Main {
     }
   }
 
-  def setupDebugOrTrace(proc: HasSetDebugger, conf: CLIConf) = {
-    if (conf.trace() || conf.debug.isDefined) {
-      val runner =
-        if (conf.trace()) {
-          new TraceDebuggerRunner(STDOUT)
-        } else {
-          if (System.console == null) {
-            Logger.log.warn(s"Using --debug on a non-interactive console may result in display issues")
+  def withDebugOrTrace(proc: DFDL.DataProcessor, conf: CLIConf): DFDL.DataProcessor = {
+    (conf.trace() || conf.debug.isDefined) match {
+      case true => {
+        val runner =
+          if (conf.trace()) {
+            new TraceDebuggerRunner(STDOUT)
+          } else {
+            if (System.console == null) {
+              Logger.log.warn(s"Using --debug on a non-interactive console may result in display issues")
+            }
+            conf.debug() match {
+              case Some(f) => new CLIDebuggerRunner(new File(f), STDIN, STDOUT)
+              case None => new CLIDebuggerRunner(STDIN, STDOUT)
+            }
           }
-          conf.debug() match {
-            case Some(f) => new CLIDebuggerRunner(new File(f), STDIN, STDOUT)
-            case None => new CLIDebuggerRunner(STDIN, STDOUT)
-          }
-        }
-      val id = new InteractiveDebugger(runner, ExpressionCompilers)
-      proc.setDebugging(true)
-      proc.setDebugger(id)
+        val id = new InteractiveDebugger(runner, ExpressionCompilers)
+        proc.withDebugger(id).withDebugging(true)
+      }
+      case false => proc
     }
   }
 
@@ -911,13 +911,14 @@ object Main {
             val tunables = DaffodilTunables.configPlusMoreTunablesMap(parseOpts.tunables, optDafConfig)
             createProcessorFromSchema(parseOpts.schema(), parseOpts.rootNS.toOption, parseOpts.path.toOption, tunables, validate)
           }
-        }.map{ _.withExternalVariables(combineExternalVariables(parseOpts.vars, optDafConfig))}
+        }.map{ _.withExternalVariables(combineExternalVariables(parseOpts.vars, optDafConfig)) }
+         .map{ _.withValidationMode(validate) }
+         .map{ withDebugOrTrace(_, conf) }
 
         val rc = processor match {
           case None => ExitCode.UnableToCreateProcessor
-          case Some(proc) => {
-            Assert.invariant(!proc.isError)
-            var processor = proc
+          case Some(processor) => {
+            Assert.invariant(!processor.isError)
             val input = parseOpts.infile.toOption match {
               case Some("-") | None => STDIN
               case Some(file) => {
@@ -926,10 +927,6 @@ object Main {
               }
             }
             val inStream = InputSourceDataInputStream(input)
-
-            processor = processor.withValidationMode(validate)
-
-            setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
 
             val output = parseOpts.output.toOption match {
               case Some("-") | None => STDOUT
@@ -1218,6 +1215,8 @@ object Main {
             createProcessorFromSchema(unparseOpts.schema(), unparseOpts.rootNS.toOption, unparseOpts.path.toOption, tunables, validate)
           }
         }.map{ _.withExternalVariables(combineExternalVariables(unparseOpts.vars, optDafConfig)) }
+         .map{ _.withValidationMode(validate) }
+         .map{ withDebugOrTrace(_, conf) }
 
         val output = unparseOpts.output.toOption match {
           case Some("-") | None => STDOUT
@@ -1237,7 +1236,6 @@ object Main {
           case None => ExitCode.UnableToCreateProcessor
           case Some(processor) => {
             Assert.invariant(processor.isError == false)
-            setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
 
             val maybeScanner =
               if (unparseOpts.stream.toOption.get) {

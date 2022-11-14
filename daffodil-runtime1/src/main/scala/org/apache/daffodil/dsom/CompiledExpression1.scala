@@ -103,9 +103,6 @@ abstract class CompiledExpression[+T <: AnyRef](
    *
    * isConstant must be true or this will throw.
    */
-  @deprecated("Code should just call evaluate(...) on an Evaluatable object.", "2016-02-18")
-  def constant: T
-
   def isConstant: Boolean
 
   def evaluate(state: ParseOrUnparseState): T

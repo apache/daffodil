@@ -32,16 +32,11 @@ import org.apache.daffodil.util.Indentable
  * @param pretty Whether or to enable pretty printing. Set to true, XML
  *               elements are indented and newlines are inserted.
  */
-class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, dummy: Int)
+class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
   extends InfosetOutputter with Indentable with XMLInfosetOutputter {
 
-  @deprecated("This constructor is deprecated. Use XMLTextInfosetOutputter(java.io.OutputStream, Boolean) instead.", "2.4.0")
-  def this(writer: java.io.Writer, pretty: Boolean = true) = {
-    this(writer, pretty, 0)
-  }
-
   def this(os: java.io.OutputStream, pretty: Boolean) = {
-    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty, 0)
+    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty)
   }
 
   private val sb = new StringBuilder()

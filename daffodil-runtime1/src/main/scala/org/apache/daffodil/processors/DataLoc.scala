@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.processors
 
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.exceptions._
 import org.apache.daffodil.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.util.Maybe
@@ -37,17 +36,6 @@ class DataLoc(
   bitLimit1b: MaybeULong,
   eitherStream: Either[DataOutputStream, DataInputStream],
   val maybeERD: Maybe[ElementRuntimeData]) extends DataLocation {
-
-  // $COVERAGE-OFF$
-  @deprecated("Use bitPos1b to compare with expected position (possibly bitLimit1b).", "3.1.0")
-  override def isAtEnd = {
-    eitherStream match {
-      case Right(isdis: InputSourceDataInputStream) => isdis.isAtEnd
-      case Left(_) => Assert.usageError("isAtEnd not defined for unparsing.")
-      case Right(s) => Assert.invariantFailed("Unknown kind of data stream: " + s)
-    }
-  }
-  // $COVERAGE-ON$
 
   // override def toString = "DataLoc(bitPos1b='%s', bitLimit1b='%s')".format(bitPos1b, bitLimit1b)
   override def toString() = {
