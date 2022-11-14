@@ -112,14 +112,6 @@ object DataProcessor {
       }
       super.withValidationMode(mode)
     }
-
-    @deprecated("Use withValidationMode.", "2.6.0")
-    override def setValidationMode(mode: ValidationMode.Type): Unit = {
-      if (mode == ValidationMode.Full) {
-        throw new InvalidUsageException("'Full' validation not allowed when using a restored parser.")
-      }
-      validationMode = mode
-    }
   }
 }
 
@@ -128,24 +120,20 @@ object DataProcessor {
  * back-end runtime.
  */
 class DataProcessor private (
-  //
-  // Once the deprecated API goes away, these var can become val.
-  //
-  var ssrd: SchemaSetRuntimeData,
-  var tunables: DaffodilTunables, // Compiler-set tunables
-  var variableMap: VariableMap,
+  val ssrd: SchemaSetRuntimeData,
+  val tunables: DaffodilTunables, // Compiler-set tunables
+  val variableMap: VariableMap,
   //
   // The below do not need to be transient
   // because this object itself isn't serialized. A SerializableDataProcessor is.
   // The values these will have (since this is a base class) are the correct default values that we want
   // back when the object is re-initialized.
   //
-  protected var areDebugging : Boolean,
-  protected var optDebugger : Option[Debugger],
-  var validationMode: ValidationMode.Type,
-  private var externalVars: Queue[Binding])
+  protected val areDebugging : Boolean,
+  protected val optDebugger : Option[Debugger],
+  val validationMode: ValidationMode.Type,
+  private val externalVars: Queue[Binding])
   extends DFDL.DataProcessor
-  with HasSetDebugger
   with Serializable
   with MultipleEventHandler {
 
@@ -222,9 +210,6 @@ class DataProcessor private (
    *
    * Note that the default validation mode is "off", that is, no validation is performed.
    */
-  @deprecated("Use withValidationMode.", "2.6.0")
-  def setValidationMode(mode: ValidationMode.Type): Unit = { validationMode = mode }
-
   def withValidationMode(mode:ValidationMode.Type): DataProcessor = copy(validationMode = mode)
 
   def withValidator(validator: Validator): DataProcessor = withValidationMode(ValidationMode.Custom(validator))
@@ -246,25 +231,13 @@ class DataProcessor private (
     optDebugger.get
   }
 
-  @deprecated("Use withDebugger.", "2.6.0")
-  def setDebugger(dbg: AnyRef): Unit = {
-    val optDbg = if (dbg eq null) None else Some(dbg.asInstanceOf[Debugger])
-    optDebugger = optDbg
-  }
-
   def withDebugger(dbg:AnyRef) = {
     val optDbg = if (dbg eq null) None else Some(dbg.asInstanceOf[Debugger])
     copy(optDebugger = optDbg)
   }
 
-  @deprecated("Use withDebugging.", "2.6.0")
-  def setDebugging(flag: Boolean): Unit = {
-    areDebugging = flag
-    tunables = tunables.setTunable("allowExternalPathExpressions", flag.toString)
-  }
-
   def withDebugging(flag: Boolean): DataProcessor = {
-    val newTunables = tunables.setTunable("allowExternalPathExpressions", flag.toString)
+    val newTunables = tunables.withTunable("allowExternalPathExpressions", flag.toString)
     copy(areDebugging = flag, tunables = newTunables)
   }
 
@@ -288,21 +261,9 @@ class DataProcessor private (
     newVars
   }
 
-  @deprecated("Use withExternalVariables.", "2.6.0")
-  def setExternalVariables(extVars: Map[String, String]): Unit = {
-    val newBindings = loadExternalVariables(extVars)
-    externalVars = newBindings
-  }
-
   def withExternalVariables(extVars: Map[String, String]): DataProcessor = {
     val newBindings = loadExternalVariables(extVars)
     copy(externalVars = newBindings)
-  }
-
-  @deprecated("Use withExternalVariables.", "2.6.0")
-  def setExternalVariables(extVars: File): Unit = {
-    val  newBindings = loadExternalVariables(extVars)
-    externalVars = newBindings
   }
 
   def withExternalVariables(extVars: File): DataProcessor = {
@@ -317,32 +278,14 @@ class DataProcessor private (
    * @param extVars File containing configuration with external variable bindings in it.
    * @param tunable This is ignored.
    */
-  @deprecated("Use withExternalVariables.", "2.6.0")
-  def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit = {
-    val newBindings = loadExternalVariables(extVars)
-    externalVars = newBindings
-  }
-
-  @deprecated("Use withExternalVariables.", "2.6.0")
-  def setExternalVariables(extVars: Seq[Binding]): Unit = {
-    val newBindings = loadExternalVariables(extVars)
-    externalVars = newBindings
-  }
-
   def withExternalVariables(extVars: Seq[Binding]): DataProcessor = {
     val newBindings = loadExternalVariables(extVars)
     copy(externalVars = newBindings)
   }
 
-  @deprecated("Use withTunables.", "2.6.0")
-  def setTunable(tunable: String, value: String): Unit = tunables = tunables.setTunable(tunable, value)
+  def withTunable(tunable: String, value: String): DataProcessor = copy(tunables = tunables.withTunable(tunable, value))
 
-  def withTunable(tunable: String, value: String): DataProcessor = copy(tunables = tunables.setTunable(tunable, value))
-
-  @deprecated("Use withTunables.", "2.6.0")
-  def setTunables(tunablesArg: Map[String, String]): Unit = tunables = tunables.setTunables(tunablesArg)
-
-  def withTunables(tunablesArg: Map[String, String]): DataProcessor = copy(tunables = tunables.setTunables(tunablesArg))
+  def withTunables(tunablesArg: Map[String, String]): DataProcessor = copy(tunables = tunables.withTunables(tunablesArg))
 
   override def isError = false
 
@@ -371,15 +314,17 @@ class DataProcessor private (
     // Make a copy of this object, so that our state mods below don't side-effect the user's object.
     // Saving shouldn't have side-effects on the state of the object.
     //
-    val dpToSave = this.copy()
     //
     // Note that the serialization system *does* preserve these two settings. This is for general serialization
     // that may be required by other software (e.g., Apache Spark)
     //
     // But for our save/reload purposes, we don't want them preserved.
     //
-    dpToSave.externalVars = Queue.empty[Binding] // explicitly set these to empty so restored processor won't have them.
-    dpToSave.validationMode = ValidationMode.Off // explicitly turn off, so restored processor won't be validating.
+
+    val dpToSave = this.copy(
+      externalVars = Queue.empty[Binding], // explicitly set these to empty so restored processor won't have them.
+      validationMode = ValidationMode.Off, // explicitly turn off, so restored processor won't be validating.
+    )
 
     try {
       //

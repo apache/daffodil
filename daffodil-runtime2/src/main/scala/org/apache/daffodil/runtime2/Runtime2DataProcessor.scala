@@ -27,7 +27,6 @@ import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.api.ValidationResult
 import org.apache.daffodil.api.ValidationWarning
 import org.apache.daffodil.dsom.ValidationError
-import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.processors.ProcessorResult
@@ -58,6 +57,10 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
 
   override def withExternalVariables(extVars: Seq[Binding]): DFDL.DataProcessor = ???
 
+  override def withDebugger(dbg:AnyRef): DFDL.DataProcessor = ???
+  
+  override def withDebugging(flag: Boolean): DFDL.DataProcessor = ???
+
   override def validationMode: ValidationMode.Type = ???
 
   override def getTunables(): DaffodilTunables = ???
@@ -65,20 +68,6 @@ class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorB
   override def save(output: DFDL.Output): Unit = ???
 
   override def variableMap: VariableMap = ???
-
-  override def setValidationMode(mode: ValidationMode.Type): Unit = ???
-
-  override def setExternalVariables(extVars: Map[String, String]): Unit = ???
-
-  override def setExternalVariables(extVars: File): Unit = ???
-
-  override def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit = ???
-
-  override def setExternalVariables(extVars: Seq[Binding]): Unit = ???
-
-  override def setTunable(tunable: String, value: String): Unit = ???
-
-  override def setTunables(tunables: Map[String, String]): Unit = ???
 
   /**
    * Returns an object which contains the result, and/or diagnostic information.
@@ -162,11 +151,6 @@ object Runtime2DataLocation {
                              _bytePos1b: Long) extends DataLocation {
     override def bitPos1b: Long = _bitPos1b
     override def bytePos1b: Long = _bytePos1b
-
-    // $COVERAGE-OFF$
-    @deprecated("Use comparison of bitPos1b with expected position instead.", "3.1.0")
-    override def isAtEnd: Boolean = Assert.usageError("isAtEnd is deprecated and not implemented in Runtime2.")
-    // $COVERAGE-ON$
   }
 
   def apply(bitPos1b: Long,

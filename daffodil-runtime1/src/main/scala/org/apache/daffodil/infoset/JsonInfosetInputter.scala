@@ -31,19 +31,11 @@ object JsonInfosetInputter {
   lazy val jsonFactory = new JsonFactory()
 }
 
-class JsonInfosetInputter private (input: Either[java.io.Reader, java.io.InputStream])
+class JsonInfosetInputter(input: java.io.InputStream)
   extends InfosetInputter {
 
-  @deprecated("This constructor is deprecated. Use JsonInfosetInputter(java.io.InputStream) instead.", "2.4.0")
-  def this(reader: java.io.Reader) = { this(Left(reader)) }
-
-  def this(is: java.io.InputStream) = { this(Right(is)) }
-
   private lazy val jsp = {
-    val j = input match {
-      case Left(reader) => JsonInfosetInputter.jsonFactory.createParser(reader)
-      case Right(is) => JsonInfosetInputter.jsonFactory.createParser(is)
-    }
+    val j = JsonInfosetInputter.jsonFactory.createParser(input)
     val tok = getNextToken(j)
     if (tok != JsonToken.START_OBJECT) {
       throw new IllegalContentWhereEventExpected("Expected json content beginning with '{' but got '" + j.getText + "'")

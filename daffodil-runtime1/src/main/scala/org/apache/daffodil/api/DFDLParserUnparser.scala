@@ -105,11 +105,6 @@ object DFDL {
      * it will search for a unique element with your root element name, and
      * if that is unambiguous, it will use it as the root.
      */
-    @deprecated("Use arguments to compileSource, or compileFile method.", "2.6.0")
-    def setDistinguishedRootNode(name: String, namespace: String): Unit
-
-    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-    def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit
 
     /**
      * Compilation returns a [[ProcessorFactory]], which must be interrogated for diagnostics
@@ -146,8 +141,6 @@ object DFDL {
      * To explicitly specify that there is no-namespace, pass "" as
      * the namespace argument.
      */
-    @deprecated("Use arguments to Compiler.compileSource or compileFile.", "2.6.0")
-    def setDistinguishedRootNode(name: String, namespace: String = null): Unit
 
     /**
      * Returns a [[DataProcessor]] to process data matching a compiled XPath expression
@@ -194,27 +187,14 @@ object DFDL {
     def withExternalVariables(extVars: Map[String, String]): DataProcessor
     def withExternalVariables(extVars: File): DataProcessor
     def withExternalVariables(extVars: Seq[Binding]): DataProcessor
+    def withDebugger(dbg:AnyRef): DataProcessor
+    def withDebugging(flag: Boolean): DataProcessor
 
     def validationMode: ValidationMode.Type
 
     def getTunables(): DaffodilTunables
     def save(output: DFDL.Output): Unit
     def variableMap: VariableMap
-
-    @deprecated("Use withValidationMode.", "2.6.0")
-    def setValidationMode(mode: ValidationMode.Type): Unit
-    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-    def setExternalVariables(extVars: Map[String, String]): Unit
-    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-    def setExternalVariables(extVars: File): Unit
-    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-    def setExternalVariables(extVars: File, tunable: DaffodilTunables): Unit
-    @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-    def setExternalVariables(extVars: Seq[Binding]): Unit
-    @deprecated("Use withTunables.", "2.6.0")
-    def setTunable(tunable: String, value: String): Unit
-    @deprecated("Use withTunables.", "2.6.0")
-    def setTunables(tunables: Map[String,String]): Unit
 }
 
   trait DataProcessor extends DataProcessorBase with WithDiagnostics {

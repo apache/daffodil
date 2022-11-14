@@ -62,11 +62,11 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |object DaffodilTunables extends DaffodilTunablesStaticMixin {
     |
     |  def apply(tunables: Map[String, String]): DaffodilTunables = {
-    |    apply().setTunables(tunables)
+    |    apply().withTunables(tunables)
     |  }
     |
     |  def apply(tunable: String, value: String): DaffodilTunables = {
-    |    apply().setTunable(tunable, value)
+    |    apply().withTunable(tunable, value)
     |  }
     |
     |  def apply(): DaffodilTunables = {
@@ -81,7 +81,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |        Map.empty
     |      }
     |
-    |    new DaffodilTunables().setTunables(configTunables)
+    |    new DaffodilTunables().withTunables(configTunables)
     |  }
     |}
     |
@@ -91,11 +91,11 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
   val middle = """
     |  extends Serializable {
     |
-    |  def setTunables(tunables: Map[String, String]): DaffodilTunables = {
-    |    tunables.foldLeft(this) { case (dafTuns, (tunable, value)) => dafTuns.setTunable(tunable, value) }
+    |  def withTunables(tunables: Map[String, String]): DaffodilTunables = {
+    |    tunables.foldLeft(this) { case (dafTuns, (tunable, value)) => dafTuns.withTunable(tunable, value) }
     |  }
     |
-    |  def setTunable(tunable: String, value: String): DaffodilTunables = {
+    |  def withTunable(tunable: String, value: String): DaffodilTunables = {
     |    tunable match {
     """.trim.stripMargin
 

@@ -20,7 +20,6 @@ package org.apache.daffodil.japi
 
 import java.io.File
 import java.net.URI
-import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 
@@ -42,12 +41,9 @@ import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugge
 import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import org.apache.daffodil.dsom.ExpressionCompilers
 import org.apache.daffodil.dsom.walker.RootView
-import org.apache.daffodil.externalvars.Binding
-import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.japi.debugger._
 import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.japi.io.InputSourceDataInputStream
-import org.apache.daffodil.japi.logger._
 import org.apache.daffodil.japi.packageprivate._
 import org.apache.daffodil.processors.{ DaffodilParseXMLReader => SDaffodilParseXMLReader }
 import org.apache.daffodil.processors.{ DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler }
@@ -56,10 +52,6 @@ import org.apache.daffodil.processors.{ ExternalVariableException => SExternalVa
 import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import org.apache.daffodil.processors.{ ParseResult => SParseResult }
 import org.apache.daffodil.processors.{ UnparseResult => SUnparseResult }
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.xml.NS
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.xml.DFDLCatalogResolver
 
@@ -82,24 +74,6 @@ object Daffodil {
   def compiler(): Compiler = {
     new Daffodil // silence warning about unused private constructor
     new Compiler(SCompiler())
-  }
-
-  /**
-   * Set the LogWriter to use to capture logging messages from Daffodil
-   *
-   * @param lw log writer to capture logging messages
-   */
-  @deprecated("Use Log4j for logging", "3.2.0")
-  def setLogWriter(lw: LogWriter): Unit = {
-  }
-
-  /**
-   * Set the maximum logging level
-   *
-   * @param lvl log level
-   */
-  @deprecated("Use Log4j for logging", "3.2.0")
-  def setLoggingLevel(lvl: LogLevel): Unit = {
   }
 
 }
@@ -217,83 +191,6 @@ class Compiler private[japi] (private var sCompiler: SCompiler) {
   }
 
   /**
-   * Specify a global element to be the root of DFDL Schema to start parsing
-   *
-   * @param name name of the root node
-   * @param namespace namespace of the root node. Set to empty string to specify
-   *                  no namespace. Set to to NULL to figure out the namespace.
-   */
-  @deprecated("Pass arguments to compileSource, or compileFile.", "2.6.0")
-  def setDistinguishedRootNode(name: String, namespace: String): Unit =
-    sCompiler = sCompiler.withDistinguishedRootNode(name, namespace)
-
-  /**
-   * Set the value of a DFDL variable
-   *
-   * @param name name of the variable
-   * @param namespace namespace of the variable. Set to empty string to specify
-   *                  no namespace. Set to to NULL to figure out the namespace.
-   * @param value value to so the variable to
-   */
-  @deprecated("Use DataProcessor.withExternalVariable.", "2.6.0")
-  def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
-    val bindings = Seq(Binding(name, Some(NS(namespace)), value))
-    sCompiler = sCompiler.withExternalDFDLVariablesImpl(bindings)
-  }
-
-  /**
-   * Set the value of multiple DFDL variables
-   *
-   * @param extVarsMap a may of key/value pairs, where the key is the variable
-   *                   name, and the value is the value of the variable. The key
-   *                   may be preceded by a string of the form "{namespace}" to
-   *                   define a namespace for the variable. If preceded with "{}",
-   *                   then no namespace is used. With not preceded by "{namespace}",
-   *                   then Daffodil will figure out the namespace.
-   */
-  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-  def setExternalDFDLVariables(extVarsMap: java.util.AbstractMap[String, String]): Unit = {
-    val extVars = ExternalVariablesLoader.mapToBindings(extVarsMap.asScala.toMap)
-    sCompiler = sCompiler.withExternalDFDLVariablesImpl(extVars)
-  }
-
-  /**
-   * Read external variables from a Daffodil configuration file
-   *
-   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
-   *
-   * @param extVarsFile file to read DFDL variables from.
-   */
-  @deprecated("Use DataProcessor.withExternalVariables.", "2.6.0")
-  def setExternalDFDLVariables(extVarsFile: File): Unit = {
-    val extVars = ExternalVariablesLoader.fileToBindings(extVarsFile)
-    sCompiler = sCompiler.withExternalDFDLVariablesImpl(extVars)
-  }
-
-  /**
-   * Enable/disable DFDL validation of resulting infoset with the DFDL schema
-   *
-   * @param value true to enable validation, false to disabled
-   */
-  @deprecated("Do not use this method. DFDL schema validation should be performed.", "2.6.0")
-  def setValidateDFDLSchemas(value: Boolean): Unit =
-    sCompiler = sCompiler.withValidateDFDLSchemas(value)
-
-
-  /**
-   * Set a Daffodil tunable parameter
-   *
-   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/#tunable-parameters'>Tunable Parameters</a> - list of tunables names of default values
-   *
-   * @param tunable name of the tunable parameter to set.
-   * @param value value of the tunable parameter to set
-   */
-  @deprecated("Use withTunable.", "2.6.0")
-  def setTunable(tunable: String, value: String): Unit = {
-    sCompiler = sCompiler.withTunable(tunable, value)
-  }
-
-  /**
    * Create a new Compiler instance having a specific Daffodil tunable parameter value.
    *
    * @see <a target="_blank" href='https://daffodil.apache.org/configuration/#tunable-parameters'>Tunable Parameters</a> - list of tunables names of default values
@@ -303,18 +200,6 @@ class Compiler private[japi] (private var sCompiler: SCompiler) {
    */
   def withTunable(tunable: String, value: String): Compiler = {
     copy(sCompiler = sCompiler.withTunable(tunable, value))
-  }
-
-  /**
-   * Set the value of multiple tunable parameters
-   *
-   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/#tunable-parameters'>Tunable Parameters</a> - list of tunables names of default values
-   *
-   * @param tunables a map of key/value pairs, where the key is the tunable name and the value is the value to set it to
-   */
-  @deprecated("Use withTunables.", "2.6.0")
-  def setTunables(tunables: java.util.AbstractMap[String, String]): Unit = {
-    sCompiler = sCompiler.withTunables(tunables.asScala.toMap)
   }
 
   /**
@@ -339,17 +224,6 @@ class ProcessorFactory private[japi] (private var pf: SProcessorFactory)
   extends WithDiagnostics(pf) {
 
   private def copy(pf: SProcessorFactory = pf) = new ProcessorFactory(pf)
-
-  /**
-   * Specify a global element to be the root of DFDL Schema to start parsing
-   *
-   * @param name name of the root node
-   * @param namespace namespace of the root node. Set to empty string to specify
-   *                  no namespace. Set to to NULL to figure out the namespace.
-   */
-  @deprecated("Use withDistinguishedRootNode.", "2.6.0")
-  def setDistinguishedRootNode(name: String, namespace: String): Unit =
-    pf = pf.withDistinguishedRootNode(name, namespace)
 
   /**
    * Get a new [[ProcessorFactory]] having a global element specified as the root of DFDL Schema to start parsing.
@@ -403,14 +277,6 @@ abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics)
    * @return true if it represents an error, false otherwise
    */
   def isError() = wd.isError
-
-  /**
-   * Determine if this object can be used in any future parse activities
-   *
-   * @return true it is safe to proceed, false otherwise
-   */
-  @deprecated("Use !isError() to determine if it is safe to proceed","2.0.0")
-  def canProceed() = !isError
 
   /**
    * Get the list of [[Diagnostic]]'s created during the construction of the parent object
@@ -482,22 +348,6 @@ class DataLocation private[japi] (dl: SDataLocation) {
   override def toString() = dl.toString
 
   /**
-   * Determine if we're positioned at the end of data.
-   *
-   * Blocks until either one byte of data can be read, or end-of-data
-   * is encountered.
-   *
-   * It is generally not advised to use this on network TCP data streams
-   * as it will block waiting for the sender of data to provide more data
-   * or close the stream.
-   *
-   * @return boolean indicating whether we are known to be positioned at
-   *         the end of data.
-   */
-  @deprecated("Use comparison of bitPos1b() with expected position instead.", "3.1.0")
-  def isAtEnd() = dl.isAtEnd
-
-  /**
    * Get the position of the data, in bits, using 1-based indexing
    *
    * @return position of the data in bits
@@ -532,19 +382,6 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
   private def copy(dp: SDataProcessor = dp) = new DataProcessor(dp)
 
   /**
-   * Enable/disable debugging.
-   *
-   * Before enabling, [[DataProcessor#withDebugger]] or [[DataProcessor#withDebuggerRunner(DebuggerRunner)]] must be
-   * called with a non-null debugger.
-   *
-   * @param flag true to enable debugging, false to disabled
-   */
-  @deprecated("Use withDebugging.", "2.6.0")
-  def setDebugging(flag: Boolean): Unit = {
-    dp = dp.withDebugging(flag)
-  }
-
-  /**
    * Obtain a new [[DataProcessor]] instance with debugging enabled or disabled.
    *
    * Before enabling, [[DataProcessor#withDebugger(Debugger)]] or [[DataProcessor#withDebuggerRunner(DebuggerRunner)]]
@@ -554,17 +391,6 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    */
   def withDebugging(flag: Boolean): DataProcessor = {
     copy(dp = dp.withDebugging(flag))
-  }
-
-  /**
-   * Set the debugger runner
-   *
-   * @param dr debugger runner
-   */
-  @deprecated("Use withDebuggerRunner.", "2.6.0")
-  def setDebugger(dr: DebuggerRunner): Unit = {
-    val debugger = newDebugger(dr)
-    dp = dp.withDebugger(debugger)
   }
 
   /**
@@ -601,19 +427,6 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
   }
 
   /**
-   * Set validation mode
-   *
-   * @param mode mode to control validation
-   * @throws InvalidUsageException if mode is not a valid ValidateMode value
-   */
-  @deprecated("Use withValidationMode.", "2.6.0")
-  @throws(classOf[InvalidUsageException])
-  def setValidationMode(mode: ValidationMode): Unit = {
-    try { dp = dp.withValidationMode(ValidationConversions.modeToScala(mode)) }
-    catch { case e: SInvalidUsageException => throw new InvalidUsageException(e) }
-  }
-
-  /**
    * Obtain a new [[DataProcessor]] having a specific validation mode
    *
    * @param mode mode to control validation
@@ -633,23 +446,6 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
     copy(dp = dp.withValidationMode(org.apache.daffodil.api.ValidationMode.Custom(validator)))
 
   /**
-   * Read external variables from a Daffodil configuration file
-   *
-   * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
-   *
-   * @param extVars file to read DFDL variables from.
-   * @throws ExternalVariableException if an error occurs while setting an external variable
-   */
-  @deprecated("Use withExternalVariables.", "2.6.0")
-  @throws(classOf[ExternalVariableException])
-  def setExternalVariables(extVars: File): Unit = {
-    //$COVERAGE-OFF$
-    try { dp = dp.withExternalVariables(extVars) }
-    catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
-    //$COVERAGE-ON$
-  }
-
-  /**
    * Obtain a new [[DataProcessor]] with external variables read from a Daffodil configuration file
    *
    * @see <a target="_blank" href='https://daffodil.apache.org/configuration/'>Daffodil Configuration File</a> - Daffodil configuration file format
@@ -661,46 +457,6 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
   def withExternalVariables(extVars: File): DataProcessor = {
     try { copy(dp = dp.withExternalVariables(extVars)) }
     catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
-  }
-
-  /**
-   * Set the value of multiple DFDL variables
-   *
-   * @param extVars a map of key/value pairs, where the key is the variable
-   *                name, and the value is the value of the variable. The key
-   *                may be preceded by a string of the form "{namespace}" to
-   *                define a namespace for the variable. If preceded with "{}",
-   *                then no namespace is used. If not preceded by anything,
-   *                then Daffodil will figure out the namespace.
-   * @throws ExternalVariableException if an error occurs while setting an external variable
-   */
-  @deprecated("Use withExternalVariables.", "2.6.0")
-  @throws(classOf[ExternalVariableException])
-  def setExternalVariables(extVars: Map[String, String]) = {
-    //$COVERAGE-OFF$
-    try { dp = dp.withExternalVariables(extVars) }
-    catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
-    //$COVERAGE-ON$
-  }
-
-  /**
-   * Obtain a new [[DataProcessor]] with multiple DFDL variables set.
-   *
-   * @param extVars a map of key/value pairs, where the key is the variable
-   *                name, and the value is the value of the variable. The key
-   *                may be preceded by a string of the form "{namespace}" to
-   *                define a namespace for the variable. If preceded with "{}",
-   *                then no namespace is used. If not preceded by anything,
-   *                then Daffodil will figure out the namespace.
-   * @throws ExternalVariableException if an error occurs while setting an external variable
-   */
-  @deprecated("Use withExternalVariables that accepts a Java AbstractMap", "3.0")
-  @throws(classOf[ExternalVariableException])
-  def withExternalVariables(extVars: Map[String, String]): DataProcessor = {
-    //$COVERAGE-OFF$
-    try { copy(dp = dp.withExternalVariables(extVars)) }
-    catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
-    //$COVERAGE-ON$
   }
 
   /**
@@ -744,65 +500,6 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
       dp.newContentHandlerInstance(output).asInstanceOf[SDaffodilUnparseContentHandler])
 
   /**
-   * Parse input data with a specified length
-   *
-   * @param input data to be parsed
-   * @param lengthLimitInBits the length of the input data in bits, or -1 if no limit
-   * @return an object which contains the result, and/or diagnostic information.
-   */
-  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()","2.2.0")
-  def parse(input: ReadableByteChannel, lengthLimitInBits: Long): ParseResult = {
-    val is = Channels.newInputStream(input)
-    val dis = new InputSourceDataInputStream(is)
-    if (lengthLimitInBits > 0) {
-      dis.dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
-    }
-    val output = new JDOMInfosetOutputter()
-    val pr = dp.parse(dis.dis, output).asInstanceOf[SParseResult]
-    new ParseResult(pr, Maybe(output))
-  }
-
-  /**
-   * Parse input data without specifying a length
-   *
-   * @param input data to be parsed
-   * @return an object which contains the result, and/or diagnostic information.
-   */
-  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()", "2.2.0")
-  def parse(input: ReadableByteChannel): ParseResult = parse(input, -1)
-
-  /**
-   * Parse input data with a specified length
-   *
-   * @param input data to be parsed
-   * @param output the InfosetOutputter that will be used to output the infoset
-   * @param lengthLimitInBits the length of the input data in bits, or -1 if no limit
-   * @return an object which contains the result, and/or diagnostic information.
-   */
-  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()", "2.2.0")
-  def parse(input: ReadableByteChannel, output: InfosetOutputter, lengthLimitInBits: Long): ParseResult = {
-    val is = Channels.newInputStream(input)
-    val dis = new InputSourceDataInputStream(is)
-    if (lengthLimitInBits > 0) {
-      dis.dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
-    }
-    val pr = dp.parse(dis.dis, output).asInstanceOf[SParseResult]
-    new ParseResult(pr, Nope)
-  }
-
-  /**
-   * Parse input data without specifying a length
-   *
-   * Use this when you don't know how big the data is.
-   *
-   * @param input data to be parsed
-   * @param output the InfosetOutputter that will be used to output the infoset
-   * @return an object which contains the result, and/or diagnostic information.
-   */
-  @deprecated("Use parse(InputSourceDataInputStream, InfosetOutputter) to parse the data and get the infoset representation from the InfosetOutputter instead of ParseResult#result()", "2.2.0")
-  def parse(input: ReadableByteChannel, output: InfosetOutputter): ParseResult = parse(input, output, -1)
-
-  /**
    * Parse input data from an InputSourceDataInputStream and output the infoset to an InfosetOutputter
    *
    * @param input data to be parsed
@@ -811,7 +508,7 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    */
   def parse(input: InputSourceDataInputStream, output: InfosetOutputter): ParseResult = {
     val pr = dp.parse(input.dis, output).asInstanceOf[SParseResult]
-    new ParseResult(pr, Nope)
+    new ParseResult(pr)
   }
 
   /**
@@ -825,49 +522,14 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
     val ur = dp.unparse(input, output).asInstanceOf[SUnparseResult]
     new UnparseResult(ur)
   }
-
-  /**
-   * Unparse a JDOM2 infoset
-   *
-   * @param output the byte channel to write the data to
-   * @param infoset the infoset to unparse, as a jdom event cursor
-   * @return an object with contains the result and/or diagnostic information
-   */
-  @deprecated("Use unparse(InfosetInputter, WritableByteChannel)", "2.0.0")
-  def unparse(output: WritableByteChannel, infoset: org.jdom2.Document): UnparseResult = {
-    val input = new JDOMInfosetInputter(infoset)
-    unparse(input, output)
-  }
 }
 
 /**
- * Result of calling [[DataProcessor#parse(java.nio.channels.ReadableByteChannel, InfosetOutputter, long)]], containing
+ * Result of calling [[DataProcessor#parse(InputSourceDataInputStream, InfosetOutputter)]], containing
  * the diagnostic information, and the final data location
  */
-class ParseResult private[japi] (pr: SParseResult, deprecatedOutput: Maybe[JDOMInfosetOutputter])
+class ParseResult private[japi] (pr: SParseResult)
   extends WithDiagnostics(pr) {
-
-  /**
-   * Get the resulting infoset as a jdom2 Document
-   *
-   * @throws InvalidUsageException if you call this when isError is true
-   *         because in that case there is no result document.
-   *
-   * @return a jdom2 Document representing the DFDL infoset for the parsed data
-   */
-  @deprecated("Use parse(ReadableByteChannel, InfosetInputter) to parse the data and get the infoset representation from the InfosetOutputter","2.0.0")
-  @throws(classOf[InvalidUsageException])
-  def result(): org.jdom2.Document = {
-    // When this result function is removed due to deprecation, we should also
-    // remove the deprecatedOutput parameter to the ParseResult constructor
-    if (deprecatedOutput.isDefined) {
-      deprecatedOutput.get.getResult()
-    } else {
-      val ex = new org.apache.daffodil.processors.InvalidUsageException(
-        "When passing an InfosetOutputter to parse(), you must get the infoset result from the InfosetOutputter instead of the ParseResult.")
-      throw new InvalidUsageException(ex)
-    }
-  }
 
   /**
    * Get the [[DataLocation]] where the parse completed
@@ -989,7 +651,7 @@ class DaffodilParseXMLReader private[japi] (xmlrdr: SDaffodilParseXMLReader) ext
   override def getProperty(name: String): AnyRef = {
     val res = xmlrdr.getProperty(name)
     if (name == DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT) {
-      val pr = new ParseResult(res.asInstanceOf[SParseResult], Nope)
+      val pr = new ParseResult(res.asInstanceOf[SParseResult])
       pr
     } else {
       res

@@ -237,25 +237,6 @@ class XMLTextInfosetOutputter private (outputter: SXMLTextInfosetOutputter)
   extends InfosetOutputterProxy {
 
   /**
-   * Output the infoset as XML Text, written to a java.io.Writer
-   *
-   * @param writer the java.io.Writer to write the XML text to
-   * @param pretty enable or disable pretty printing. Pretty printing will only
-   *               insert indentation and newlines where it will not affect the
-   *               content of the XML.
-   */
-  @deprecated("This constructor is deprecated. Use XMLTextInfosetOutputter(java.io.OutputStream, Boolean) instead.", "2.4.0")
-  def this(writer: java.io.Writer, pretty: Boolean) = this(new SXMLTextInfosetOutputter(writer, pretty))
-
-  /**
-   * Output the infoset as XML Text, written to a java.io.Writer
-   *
-   * @param writer the java.io.Writer to write the XML text to
-   */
-  @deprecated("This constructor is deprecated. Use XMLTextInfosetOutputter(java.io.OutputStream, Boolean) instead.", "2.4.0")
-  def this(writer: java.io.Writer) = this(writer, true)
-
-  /**
    * Output the infoset as XML Text, written to a java.io.OutputStream
    *
    * @param os the java.io.OutputStream to write the XML text to
@@ -273,25 +254,6 @@ class XMLTextInfosetOutputter private (outputter: SXMLTextInfosetOutputter)
  */
 class JsonInfosetOutputter private (outputter: SJsonInfosetOutputter)
   extends InfosetOutputterProxy {
-
-  /**
-   * Output the infoset as json text, written to a java.io.Writer
-   *
-   * @param writer the java.io.Writer to write the json text to
-   * @param pretty enable or disable pretty printing. Pretty printing will only
-   *               insert indentation and newlines where it will not affect the
-   *               content of the json.
-   */
-  @deprecated("This constructor is deprecated. Use JsonInfosetOutputter(java.io.OutputStream, Boolean) instead.", "2.4.0")
-  def this(writer: java.io.Writer, pretty: Boolean) = this(new SJsonInfosetOutputter(writer, pretty))
-
-  /**
-   * Output the infoset as json text, written to a java.io.Writer
-   *
-   * @param writer the java.io.Writer to write the json text to
-   */
-  @deprecated("This constructor is deprecated. Use JsonInfosetOutputter(java.io.OutputStream, Boolean) instead.", "2.4.0")
-  def this(writer: java.io.Writer) = this(writer, true)
 
   /**
    * Output the infoset as json text, written to a java.io.OutputStream
@@ -367,14 +329,6 @@ class XMLTextInfosetInputter private (inputter: SXMLTextInfosetInputter)
   extends InfosetInputterProxy {
 
   /**
-   * Read in an infoset in the form of XML text from a java.io.Reader
-   *
-   * @param reader the java.io.Reader to read the XML text from
-   */
-  @deprecated("This constructor is deprecated. Use XMLTextInfosetInputter(java.io.InputStream) instead.", "2.4.0")
-  def this(reader: java.io.Reader) = this(new SXMLTextInfosetInputter(reader))
-
-  /**
    * Read in an infoset in the form of XML text from a java.io.InputStream
    *
    * @param is the java.io.InputStream to read the XML text from
@@ -389,14 +343,6 @@ class XMLTextInfosetInputter private (inputter: SXMLTextInfosetInputter)
  */
 class JsonInfosetInputter private (inputter: SJsonInfosetInputter)
   extends InfosetInputterProxy {
-
-  /**
-   * Read in an infoset in the form of json text from a java.io.Reader
-   *
-   * @param reader the java.io.Reader to read the json text from
-   */
-  @deprecated("This constructor is deprecated. Use JsonInfosetInputter(java.io.InputStream) instead.", "2.4.0")
-  def this(reader: java.io.Reader) = this(new SJsonInfosetInputter(reader))
 
   /**
    * Read in an infoset in the form of json text from a java.io.InputStream

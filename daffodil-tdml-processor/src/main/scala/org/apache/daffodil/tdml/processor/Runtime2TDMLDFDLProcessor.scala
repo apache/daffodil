@@ -50,44 +50,19 @@ final class Runtime2TDMLDFDLProcessorFactory private(
     validateDFDLSchemas: Boolean = validateDFDLSchemas) =
     new Runtime2TDMLDFDLProcessorFactory(compiler, checkAllTopLevel, validateDFDLSchemas)
 
-  /**
-   * Deprecated methods must be implemented. Some are just stubs though now.
-   */
-  @deprecated("Use withValidateDFDLSchemas.", "2.6.0")
-  override def setValidateDFDLSchemas(bool: Boolean): Unit = {
-    compiler = compiler.withValidateDFDLSchemas(bool)
-  }
-
   override def withValidateDFDLSchemas(bool: Boolean): Runtime2TDMLDFDLProcessorFactory = {
     copy(compiler = compiler.withValidateDFDLSchemas(bool))
-  }
-
-  @deprecated("Use withCheckAllTopLevel.", "2.6.0")
-  override def setCheckAllTopLevel(checkAllTopLevel: Boolean): Unit = {
-    compiler = compiler.withCheckAllTopLevel(checkAllTopLevel)
   }
 
   override def withCheckAllTopLevel(checkAllTopLevel: Boolean): Runtime2TDMLDFDLProcessorFactory = {
     copy(compiler = compiler.withCheckAllTopLevel(checkAllTopLevel))
   }
 
-  @deprecated("Use withTunables.", "2.6.0")
-  override def setTunables(tunables: Map[String, String]): Unit =
-    compiler = compiler.withTunables(tunables)
-
   override def withTunables(tunables: Map[String, String]): Runtime2TDMLDFDLProcessorFactory =
     copy(compiler = compiler.withTunables(tunables))
 
-  @deprecated("Use DaffodilTDMLDFDLProcessor.setExternalDFDLVariables.", "2.6.0")
-  override def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit =
-    compiler = compiler.withExternalDFDLVariablesImpl(externalVarBindings)
-
   override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): Runtime2TDMLDFDLProcessorFactory =
     copy(compiler = compiler.withExternalDFDLVariablesImpl(externalVarBindings))
-
-  @deprecated("Use arguments to getProcessor()", "2.6.0")
-  override def setDistinguishedRootNode(name: String, namespace: String): Unit =
-    compiler = compiler.withDistinguishedRootNode(name, namespace)
 
   // Return result is a TDML.CompileResult - so it's the result
   // of compiling the schema for the test.
@@ -149,24 +124,14 @@ class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path)
 
   private val dataProcessor = new Runtime2DataProcessor(executable)
 
-  @deprecated("Use withDebugging.", "2.6.0")
-  override def setDebugging(b: Boolean) = ???
   override def withDebugging(b: Boolean): Runtime2TDMLDFDLProcessor = this
 
-  @deprecated("Use withTracing.", "2.6.0")
-  override def setTracing(bool: Boolean): Unit = ???
   override def withTracing(bool: Boolean): Runtime2TDMLDFDLProcessor = this
 
-  @deprecated("Use withDebugger.", "2.6.0")
-  override def setDebugger(db: AnyRef): Unit = ???
   override def withDebugger(db: AnyRef): Runtime2TDMLDFDLProcessor = this
 
-  @deprecated("Use withValidationMode.", "2.6.0")
-  override def setValidationMode(validationMode: ValidationMode.Type): Unit = ???
   override def withValidationMode(validationMode: ValidationMode.Type): Runtime2TDMLDFDLProcessor = this
 
-  @deprecated("Use withExternalDFDLVariables.", "2.6.0")
-  override def setExternalDFDLVariables(externalVarBindings: Seq[Binding]): Unit = ???
   override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): Runtime2TDMLDFDLProcessor = this
 
   // No need to report errors from this class itself

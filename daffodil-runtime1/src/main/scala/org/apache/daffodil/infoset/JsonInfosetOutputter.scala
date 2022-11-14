@@ -25,16 +25,11 @@ import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.util.Indentable
 import org.apache.daffodil.util.MStackOfBoolean
 
-class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean, dummy: Int)
+class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
   extends InfosetOutputter with Indentable {
 
-  @deprecated("This constructor is deprecated. Use JsonInfosetOutputter(java.io.OutputStream, Boolean) instead.", "2.4.0")
-  def this(writer: java.io.Writer, pretty: Boolean = true) = {
-    this(writer, pretty, 0)
-  }
-
   def this(os: java.io.OutputStream, pretty: Boolean) = {
-    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty, 0)
+    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty)
   }
 
   // Keeps track of if the next element we see is the first child or not of a
