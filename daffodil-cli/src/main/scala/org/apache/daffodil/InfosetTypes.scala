@@ -659,17 +659,24 @@ object EXIInfosetHandler {
 
   /** non-schema aware EXI **/
   def apply(dataProcessor: DataProcessor): InfosetHandler = {
-    val exiFactory = DefaultEXIFactory.newInstance
+    val exiFactory = createEXIFactory(None)
     EXIInfosetHandler(dataProcessor, exiFactory)
   }
 
   /** schema aware EXI **/
   def apply(dataProcessor: DataProcessor, schemaUri: URI): InfosetHandler = {
-    val grammarFactory = GrammarFactory.newInstance
-    val grammar = grammarFactory.createGrammars(schemaUri.toString, DFDLCatalogResolver.get)
-    val exiFactory = DefaultEXIFactory.newInstance
-    exiFactory.setGrammars(grammar)
+    val exiFactory = createEXIFactory(Some(schemaUri))
     EXIInfosetHandler(dataProcessor, exiFactory)
+  }
+
+  def createEXIFactory(optSchema: Option[URI]): EXIFactory = {
+    val exiFactory = DefaultEXIFactory.newInstance
+    if (optSchema.isDefined) {
+      val grammarFactory = GrammarFactory.newInstance
+      val grammar = grammarFactory.createGrammars(optSchema.get.toString, DFDLCatalogResolver.get)
+      exiFactory.setGrammars(grammar)
+    }
+    exiFactory
   }
 }
 

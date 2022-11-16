@@ -28,6 +28,8 @@ import java.nio.channels.Channels
 import java.nio.file.Paths
 import java.util.Scanner
 import java.util.concurrent.Executors
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.stream.StreamResult
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
@@ -47,6 +49,14 @@ import org.rogach.scallop.ArgType
 import org.rogach.scallop.ScallopOption
 import org.rogach.scallop.ValueConverter
 import org.rogach.scallop.exceptions.GenericScallopException
+
+import org.xml.sax.InputSource
+import org.xml.sax.helpers.XMLReaderFactory
+
+import com.siemens.ct.exi.core.EXIFactory
+import com.siemens.ct.exi.core.exceptions.EXIException
+import com.siemens.ct.exi.main.api.sax.EXIResult
+import com.siemens.ct.exi.main.api.sax.EXISource
 
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilConfig
@@ -468,12 +478,30 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
     requireSubcommand()
   }
 
+  // Encode or decode EXI Subcommand Options
+  object exi extends scallop.Subcommand("exi") {
+    banner("""|Usage: daffodil exi [-d] [-s <schema>] [-o <output>] [infile]
+              |
+              |Encode/decode an XML file with EXI. If a schema is specified, it will use schema aware encoding/decoding.
+              |
+              |EncodeEXI Options:""".stripMargin)
+
+    descr("Encode an XML file with EXI")
+    helpWidth(width)
+
+    val output = opt[String](argName = "file", descr = "Output file to write the encoded/decoded file to. If not given or is -, data is written to stdout.")
+    val schema = opt[URI]("schema", argName = "file", descr = "DFDL schema to use for schema aware encoding/decoding.")(fileResourceURIConverter)
+    val decode = opt[Boolean](default = Some(false), descr = "Decode input file from EXI to XML.")
+    val infile = trailArg[String](required = false, descr = "Input XML file to encode. If not specified, or a value of -, reads from stdin.")
+  }
+
   addSubcommand(parse)
   addSubcommand(unparse)
   addSubcommand(save)
   addSubcommand(test)
   addSubcommand(performance)
   addSubcommand(generate)
+  addSubcommand(exi)
 
   mutuallyExclusive(trace, debug) // cannot provide both --trace and --debug
   requireSubcommand()
@@ -1110,7 +1138,7 @@ object Main {
 
         if (testOpts.list()) {
           if (testOpts.info() > 0) {
-            // determine the max lengths of the various pieces of atest
+            // determine the max lengths of the various pieces of a test
             val headers = List("Name", "Model", "Root", "Description")
             val maxCols = tests.foldLeft(headers.map(_.length)) {
               (maxVals, testPair) =>
@@ -1234,6 +1262,78 @@ object Main {
           // Required to avoid "match may not be exhaustive", but should never happen
           case _ => Assert.impossible()
         }
+      }
+
+      case Some(conf.exi) => {
+        var rc = ExitCode.Success
+        val exiOpts = conf.exi
+        val channel = exiOpts.output.toOption match {
+          case Some("-") | None => Channels.newChannel(STDOUT)
+          case Some(file) => new FileOutputStream(file).getChannel()
+        }
+        val output = Channels.newOutputStream(channel)
+
+        val inputStream = exiOpts.infile.toOption match {
+          case Some("-") | None => STDIN
+          case Some(file) => {
+            val f = new File(file)
+            new FileInputStream(f)
+          }
+        }
+        val input = new InputSource(inputStream)
+
+        val exiFactory: Option[EXIFactory] = try {
+          Some(EXIInfosetHandler.createEXIFactory(exiOpts.schema.toOption))
+        } catch {
+          case e: EXIException => {
+            Logger.log.error(s"Error creating EXI grammar for the supplied schema: ${ Misc.getSomeMessage(e).get }")
+            rc = ExitCode.Failure
+            None
+          }
+        }
+
+        (exiOpts.decode.toOption.get, exiFactory.isDefined) match {
+          case (true, true) => { // Decoding
+            val exiSource = new EXISource(exiFactory.get)
+            exiSource.setInputSource(input)
+
+            val result = new StreamResult(output)
+            val tf = TransformerFactory.newInstance()
+            val transformer = tf.newTransformer
+            try {
+              transformer.transform(exiSource, result)
+            } catch {
+              /* We catch a generic Exception here as Exificient will attempt
+               * to decode anything and will throw very generic errors, such as
+               * an IllegalArgumentException when it runs into a series of bytes
+               * that aren't a Unicode codepoint. */
+              case e: Exception => {
+                Logger.log.error(s"Error decoding EXI input: ${ Misc.getSomeMessage(e).get }")
+                rc = ExitCode.Failure
+              }
+            }
+          }
+          case (false, true) => { // Encoding
+            val exiResult = new EXIResult(exiFactory.get)
+            exiResult.setOutputStream(output)
+
+            val reader = XMLReaderFactory.createXMLReader()
+            reader.setContentHandler(exiResult.getHandler)
+            try {
+              reader.parse(input)
+            } catch {
+              case s: org.xml.sax.SAXException => {
+                Logger.log.error(s"Error parsing input XML: ${ Misc.getSomeMessage(s).get }")
+                rc = ExitCode.Failure
+              }
+            }
+          }
+          case (_, false) => // Hit an exception creating exiFactory, rc already set
+        }
+
+        inputStream.close
+        output.close
+        rc
       }
 
       // Required to avoid "match may not be exhaustive", but should never happen
