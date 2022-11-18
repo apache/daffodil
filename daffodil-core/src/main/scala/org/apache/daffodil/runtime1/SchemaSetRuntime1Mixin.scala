@@ -21,7 +21,6 @@ import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.grammar.VariableMapFactory
 import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.processors.Processor
@@ -54,22 +53,6 @@ trait SchemaSetRuntime1Mixin {
     }
     val alldvs = dvs.union(predefinedVars)
     val vmap = VariableMapFactory.create(alldvs)
-    //
-    // Here we verify that any external variable bindings supplied at schema compilation time
-    // are properly structured - the variables they reference exist, are external, and the
-    // supplied value string is convertible into the declared variable's type.
-    //
-    // But... then we throw it away. We don't save the external variable bindings as
-    // part of the saved data structure representing the compiled schema.
-    // Because external variables really have to be bound at runtime, and the schema has
-    // to work with and without any such bindings.
-    //
-    // This same checking must be done at runtime, so we share that same code here at schema compile time.
-    // This is yet another example of where runtime1-specific code is being used in a general
-    // schema-compilation role. So even if building a runtime 2, you would still want to keep much of
-    // the runtime 1 code around.
-    //
-    ExternalVariablesLoader.loadVariables(compilerExternalVarSettings, this, vmap)
     vmap
   }.value
 
@@ -104,7 +87,7 @@ trait SchemaSetRuntime1Mixin {
       typeCalcMap)
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.")
-    val dataProc = new DataProcessor(ssrd, tunable, self.compilerExternalVarSettings)
+    val dataProc = new DataProcessor(ssrd, tunable)
     if (dataProc.isError) {
     } else {
       Logger.log.debug(s"Parser = ${ssrd.parser.toString}.")

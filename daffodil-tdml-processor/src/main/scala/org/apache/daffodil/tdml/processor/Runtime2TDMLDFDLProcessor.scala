@@ -61,9 +61,6 @@ final class Runtime2TDMLDFDLProcessorFactory private(
   override def withTunables(tunables: Map[String, String]): Runtime2TDMLDFDLProcessorFactory =
     copy(compiler = compiler.withTunables(tunables))
 
-  override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): Runtime2TDMLDFDLProcessorFactory =
-    copy(compiler = compiler.withExternalDFDLVariablesImpl(externalVarBindings))
-
   // Return result is a TDML.CompileResult - so it's the result
   // of compiling the schema for the test.
   override def getProcessor(
