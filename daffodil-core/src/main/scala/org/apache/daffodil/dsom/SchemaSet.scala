@@ -34,13 +34,10 @@ import org.apache.daffodil.api.DaffodilSchemaSource
 import org.apache.daffodil.api.UnitTestSchemaSource
 import org.apache.daffodil.schema.annotation.props.LookupLocation
 import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.SchemaSetGrammarMixin
 import org.apache.daffodil.util.TransitiveClosure
-
-import scala.collection.immutable.Queue
 
 object SchemaSet {
   def apply(
@@ -48,14 +45,12 @@ object SchemaSet {
   schemaSource: DaffodilSchemaSource,
   shouldValidateDFDLSchemas: Boolean,
   checkAllTopLevel: Boolean,
-  tunables: DaffodilTunables,
-  compilerExternalVarSettings: Queue[Binding]) = {
+  tunables: DaffodilTunables) = {
     val ss = new SchemaSet(optPFRootSpec,
       schemaSource,
       shouldValidateDFDLSchemas,
       checkAllTopLevel,
-      tunables,
-      compilerExternalVarSettings)
+      tunables)
     ss.initialize()
     ss
   }
@@ -96,8 +91,7 @@ final class SchemaSet private (
   val schemaSource: DaffodilSchemaSource,
   val shouldValidateDFDLSchemas: Boolean,
   val checkAllTopLevel: Boolean,
-  val tunables: DaffodilTunables,
-  protected val compilerExternalVarSettings: Queue[Binding])
+  val tunables: DaffodilTunables)
   extends SchemaComponentImpl(<schemaSet/>, None)
   with SchemaSetIncludesAndImportsMixin
   with SchemaSetGrammarMixin {
@@ -159,8 +153,7 @@ final class SchemaSet private (
       UnitTestSchemaSource(sch, Option(root).getOrElse("anon"), optTmpDir),
       false,
       false,
-      tunableOpt.getOrElse(DaffodilTunables()),
-      Queue.empty)
+      tunableOpt.getOrElse(DaffodilTunables()))
 
   lazy val schemaFileList = schemas.map(s => s.uriString)
 

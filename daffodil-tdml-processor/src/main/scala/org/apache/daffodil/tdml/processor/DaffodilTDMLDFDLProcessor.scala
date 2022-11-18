@@ -88,9 +88,6 @@ final class TDMLDFDLProcessorFactory private (
   override def withTunables(tunables: Map[String, String]): TDMLDFDLProcessorFactory =
     copy(compiler = compiler.withTunables(tunables))
 
-  override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): TDMLDFDLProcessorFactory =
-    copy(compiler = compiler.withExternalDFDLVariablesImpl(externalVarBindings))
-
   /**
    * This doesn't fetch a serialized processor, it runs whatever the processor is
    * through a serialize then unserialize path to get a processor as if

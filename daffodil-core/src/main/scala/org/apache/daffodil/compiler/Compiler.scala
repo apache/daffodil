@@ -26,7 +26,6 @@ import java.nio.channels.Channels
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 
-import scala.collection.immutable.Queue
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml.Node
@@ -63,17 +62,7 @@ object ForUnparser extends ParserOrUnparser
 object BothParserAndUnparser extends ParserOrUnparser
 
 final class ProcessorFactory private(
-  private var optRootSpec: Option[RootSpec],
-  /*
-   * compilerExternalVarSettings supports the deprecated API
-   * where external variable settings can be supplied to the compiler
-   * instance.
-   *
-   * The non-deprecated API is to deal with external variable settings
-   * on the data processor instance. This is passed here so that
-   * the PF can propagate it to the DP.
-   */
-  var compilerExternalVarSettings: Queue[Binding],
+  private val optRootSpec: Option[RootSpec],
   schemaSource: DaffodilSchemaSource,
   val validateDFDLSchemas: Boolean,
   checkAllTopLevel: Boolean,
@@ -83,24 +72,21 @@ final class ProcessorFactory private(
 
   def this(optRootName: Option[String],
     optRootNamespace: Option[String],
-    compilerExternalVarSettings: Queue[Binding],
     schemaSource: DaffodilSchemaSource,
     validateDFDLSchemas: Boolean,
     checkAllTopLevel: Boolean,
     tunables: DaffodilTunables) =
     this(
       RootSpec.makeRootSpec(optRootName, optRootNamespace), // compute root-spec object
-      compilerExternalVarSettings, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables, None)
+      schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables, None)
 
   private def copy(
-    optRootSpec: Option[RootSpec] = optRootSpec,
-    compilerExternalVarSettings: Queue[Binding] = compilerExternalVarSettings): ProcessorFactory =
-    new ProcessorFactory(optRootSpec, compilerExternalVarSettings, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables, Some(sset))
+    optRootSpec: Option[RootSpec] = optRootSpec): ProcessorFactory =
+      new ProcessorFactory(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables, Some(sset))
 
   lazy val sset: SchemaSet =
     optSchemaSet.getOrElse(
-      SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables,
-        compilerExternalVarSettings))
+      SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables))
 
   lazy val rootView: RootView = sset.root
 
@@ -142,16 +128,8 @@ final class ProcessorFactory private(
 
 class InvalidParserException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 
-class Compiler private (var validateDFDLSchemas: Boolean,
-  var tunables : DaffodilTunables,
-  /*
-   * Supports deprecated feature of establishing external vars on the compiler object.
-   * These are just saved and passed to the processor factory which incorporates them into
-   * the variable map of the data processor.
-   *
-   * This argument can be removed once this deprecated feature is removed.
-   */
-  private var externalDFDLVariables: Queue[Binding],
+class Compiler private (val validateDFDLSchemas: Boolean,
+  val tunables : DaffodilTunables,
 
   /**
    * checkAllTopLevel should normally be true. There are some schemas where
@@ -165,26 +143,24 @@ class Compiler private (var validateDFDLSchemas: Boolean,
    * Compiling a schema with that sort of element in it and compileAllTopLevel true
    * causes an SDE about "relative path past root".
    */
-  private var checkAllTopLevel : Boolean,
-  private var optRootName: Option[String],
-  private var optRootNamespace: Option[String])
+  private val checkAllTopLevel : Boolean,
+  private val optRootName: Option[String],
+  private val optRootNamespace: Option[String])
   extends DFDL.Compiler {
 
   private def this(validateDFDLSchemas: Boolean = true) =
     this(validateDFDLSchemas,
       tunables = DaffodilTunables(),
-      externalDFDLVariables = Queue.empty,
       checkAllTopLevel = true,
       optRootName = None,
       optRootNamespace = None)
 
   private def copy(validateDFDLSchemas: Boolean = validateDFDLSchemas,
     tunables : DaffodilTunables = tunables,
-    externalDFDLVariables: Queue[Binding] = externalDFDLVariables,
     checkAllTopLevel : Boolean = checkAllTopLevel,
     optRootName: Option[String] = optRootName,
     optRootNamespace: Option[String] = optRootNamespace) =
-    new Compiler(validateDFDLSchemas, tunables, externalDFDLVariables, checkAllTopLevel, optRootName, optRootNamespace)
+    new Compiler(validateDFDLSchemas, tunables, checkAllTopLevel, optRootName, optRootNamespace)
 
   def withDistinguishedRootNode(name: String, namespace: String) : Compiler = {
     Assert.usage(name ne null)
@@ -204,17 +180,6 @@ class Compiler private (var validateDFDLSchemas: Boolean,
     }
     val b = Binding(name, ns, value)
     b
-  }
-
-  //
-  // Not deprecated so that we can implement the deprecated things
-  // and reuse code.
-  // When the deprecated methods go away, so should this.
-  //
-  def withExternalDFDLVariablesImpl(variables: Seq[Binding]): Compiler = {
-    var extVars = externalDFDLVariables
-    variables.foreach(b => extVars = extVars.enqueue(b))
-    copy(externalDFDLVariables = extVars)
   }
 
   def withTunable(tunable: String, value: String): Compiler =
@@ -365,7 +330,7 @@ class Compiler private (var validateDFDLSchemas: Boolean,
       val rootName = optRootNameArg.orElse(optRootName) // arguments override things set with setters
       val rootNamespace = optRootNamespaceArg.orElse(optRootNamespace)
       new ProcessorFactory(
-        rootName, rootNamespace, externalDFDLVariables, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables)
+        rootName, rootNamespace, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables)
     }
 
     val err = pf.isError
