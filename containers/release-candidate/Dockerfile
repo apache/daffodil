@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM registry.fedoraproject.org/fedora:36
+FROM registry.fedoraproject.org/fedora:37
 
 WORKDIR /root
 
