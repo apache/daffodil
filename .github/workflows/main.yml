@@ -167,7 +167,7 @@ jobs:
 
       - name: Run SonarCloud Scan
         if: ${{ env.SONARSCAN == 'true' }}
-        uses: sonarsource/sonarcloud-github-action@v1.7
+        uses: sonarsource/sonarcloud-github-action@v1.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
