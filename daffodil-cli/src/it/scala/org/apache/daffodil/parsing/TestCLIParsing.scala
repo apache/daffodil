@@ -642,6 +642,17 @@ class TestCLIparsing {
     } (ExitCode.Success)
   }
 
+  @Test def test_XXX_CLI_Parsing_SimpleParse_null(): Unit = {
+    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
+
+    // must be a forking test to match eof to make sure no data is output
+    runCLI(args"parse -I null -s $schema -r e1", fork = true) { cli =>
+      cli.send("Hello", inputDone = true)
+      val res = cli.expect(net.sf.expectit.matcher.Matchers.eof)
+      assertEquals("", res.getBefore())
+    } (ExitCode.Success)
+  }
+
   @Test def test_XXX_CLI_Parsing_SimpleParse_sax(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
 
