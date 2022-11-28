@@ -332,4 +332,13 @@ class TestCLIunparsing {
     } (ExitCode.Success)
   }
 
+  @Test def test_XXX_CLI_Unparsing_Stream_sax(): Unit = {
+    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input19.txt")
+
+    runCLI(args"unparse -I sax --stream -s $schema $input") { cli =>
+      cli.expect("123")
+    } (ExitCode.Success)
+  }
+
 }
