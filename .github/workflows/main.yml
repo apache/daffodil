@@ -24,6 +24,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
 
   # Build Daffodil and run some checks.
@@ -38,6 +42,13 @@ jobs:
         scala_version: [ 2.12.17 ]
         os: [ ubuntu-20.04, windows-2019 ]
         include:
+          - os: macos-12
+            shell: bash
+            distribution: temurin
+            java_version: 17
+            scala_version: 2.12.17
+            env_cc: cc
+            env_ar: ar
           - os: ubuntu-20.04
             shell: bash
             env_cc: clang-10
@@ -69,6 +80,10 @@ jobs:
       ############################################################
       # Setup
       ############################################################
+
+      - name: Install Dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install libmxml
 
       - name: Install Dependencies (Linux)
         if: runner.os == 'Linux'

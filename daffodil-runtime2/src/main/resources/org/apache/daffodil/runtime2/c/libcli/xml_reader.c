@@ -143,7 +143,7 @@ strtofnum(const char *text, float *valueptr)
 // with our own error checking)
 
 static const Error *
-strtonum(const char *text, intmax_t minval, intmax_t maxval, intmax_t *valueptr)
+strtoinum(const char *text, intmax_t minval, intmax_t maxval, intmax_t *valueptr)
 {
     // Should point to text's end after conversion
     char *endptr = NULL;
@@ -450,19 +450,19 @@ xmlSimpleElem(XMLReader *reader, const ERD *erd, void *valueptr)
             case PRIMITIVE_HEXBINARY:
                 return strtohexbinary(text, (HexBinary *)valueptr);
             case PRIMITIVE_INT16:
-                error = strtonum(text, INT16_MIN, INT16_MAX, &num);
+                error = strtoinum(text, INT16_MIN, INT16_MAX, &num);
                 *(int16_t *)valueptr = (int16_t)num;
                 return error;
             case PRIMITIVE_INT32:
-                error = strtonum(text, INT32_MIN, INT32_MAX, &num);
+                error = strtoinum(text, INT32_MIN, INT32_MAX, &num);
                 *(int32_t *)valueptr = (int32_t)num;
                 return error;
             case PRIMITIVE_INT64:
-                error = strtonum(text, INT64_MIN, INT64_MAX, &num);
+                error = strtoinum(text, INT64_MIN, INT64_MAX, &num);
                 *(int64_t *)valueptr = (int64_t)num;
                 return error;
             case PRIMITIVE_INT8:
-                error = strtonum(text, INT8_MIN, INT8_MAX, &num);
+                error = strtoinum(text, INT8_MIN, INT8_MAX, &num);
                 *(int8_t *)valueptr = (int8_t)num;
                 return error;
             case PRIMITIVE_UINT16:
