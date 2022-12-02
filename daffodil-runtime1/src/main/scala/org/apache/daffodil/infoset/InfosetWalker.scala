@@ -57,13 +57,27 @@ object InfosetWalker {
    *   Whether or not to release infoset nodes once it is determined that they
    *   will no longer be used by Daffodil. This should usually be set to true
    *   except while debugging
+   *
+   * @param walkSkipMin
+   *
+   *   The minimum number of walk() calls to skip before actually trying to
+   *   walk the infoset. A value of zero disables skipping.
+   *
+   * @param walkSkipMax
+   *
+   *   When a walk() call fails to make any progress, it assumes we are blocked
+   *   (e.g. due to an unresolved point of uncertainty) and increases the
+   *   number of walk() calls to skip before trying again. This defines the
+   *   maximum number of skipped calls, even as that number increases.
    */
   def apply(
     root: DIElement,
     outputter: InfosetOutputter,
     walkHidden: Boolean,
     ignoreBlocks: Boolean,
-    releaseUnneededInfoset: Boolean): InfosetWalker = {
+    releaseUnneededInfoset: Boolean,
+    walkSkipMin: Int = 32,
+    walkSkipMax: Int = 2048): InfosetWalker = {
 
     // Determine the container of the root node and the index in which it
     // appears in that node
@@ -89,7 +103,9 @@ object InfosetWalker {
       outputter,
       walkHidden,
       ignoreBlocks,
-      releaseUnneededInfoset)
+      releaseUnneededInfoset,
+      walkSkipMin,
+      walkSkipMax)
   }
 
 }
@@ -141,6 +157,18 @@ object InfosetWalker {
  *   Whether or not to remove infoset nodes once it is determined that they
  *   will no longer be used by Daffodil. This should usually be set to true
  *   except while debugging
+ *
+ * @param walkSkipMin
+ *
+ *   The minimum number of walk() calls to skip before actually trying to
+ *   remove unneeded infoset elements.
+ *
+ * @param walkSkipMax
+ *
+ *   When a walk() call fails to remove any infoset elements, it assumes we
+ *   being blocked for removal (e.g. due to an unresolved point of uncertainty)
+ *   and increases the number of walk() calls to skip before trying again. This
+ *   defines the maximum number of skiped calls, even as this number increases.
  */
 class InfosetWalker private (
   startingContainerNode: DINode,
@@ -148,7 +176,9 @@ class InfosetWalker private (
   val outputter: InfosetOutputter,
   walkHidden: Boolean,
   ignoreBlocks: Boolean,
-  releaseUnneededInfoset: Boolean) {
+  releaseUnneededInfoset: Boolean,
+  walkSkipMin: Int,
+  walkSkipMax: Int) {
 
   /**
    * These two pieces of mutable state are all that is needed to keep track of
@@ -216,8 +246,6 @@ class InfosetWalker private (
    * steps back down to the min value so that we try taking steps and stream
    * events more frequently.
    */
-  private val walkSkipMin = 32
-  private val walkSkipMax = 2048
   private var walkSkipSize = walkSkipMin
   private var walkSkipRemaining = walkSkipSize
 
