@@ -207,6 +207,40 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
+        <xs:element name="infosetWalkerSkipMin" default="32" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Daffodil periodically walks the internal infoset to send events to the configured
+              InfosetOutputter, skipping at least this number of walk attempts. Larger values
+              mean delayed InfosetOutputter events and more memory usage; Smaller values mean
+              more CPU usage. Set this value to zero to never skip any walk attempts. This is
+              specifically for advanced testing behavior and should not need to be changed by users.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="0" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="infosetWalkerSkipMax" default="2048" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              Daffodil periodically walks the internal infoset to send events to the configured
+              InfosetOutputter. On walks where no progress is made, the number of walks to skip
+              is increased with the assumption that something is blocking it (like an
+              unresolved point of uncertainty), up to this maximum value. Higher values mean
+              less attempts are made when blocked for a long time, but with potentially more
+              delays and memory usage before InfosetOutputter events are created. This is
+              specifically for advanced testing behavior and should not need to be changed by users.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="0" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
         <xs:element name="inputFileMemoryMapLowThreshold" type="xs:int" default="33554432" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
