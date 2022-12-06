@@ -680,7 +680,7 @@ object UState {
      * This is a full deep copy as variableMap is mutable. Reusing
      * dataProc.VariableMap without a copy would not be thread safe.
      */
-    val variables = dataProc.variableMap.copy
+    val variables = dataProc.variableMap.copy()
 
     val diagnostics = Nil
     val newState = new UStateMain(
@@ -689,7 +689,7 @@ object UState {
         variables,
         diagnostics,
         dataProc.asInstanceOf[DataProcessor],
-        dataProc.getTunables(),
+        dataProc.tunables,
         areDebugging)
     newState
   }

@@ -342,13 +342,9 @@ final class SchemaSet private (
   }
 
   /**
-   * The root element can be specified by a deprecated API call on the compiler
-   * object or the ProcessorFactory class, but the call on the ProcessorFactory class
-   * just overrides anything coming from the compiler object.
+   * You can define the root by passing the root specification to the Compiler.compileX method.
    *
-   * The right way is to pass the root specification to the Compiler.compileX method.
-   *
-   * Or, you can leave it unspecified, and this method will determine from the
+   * Or, you can leave the root unspecified, and this method will determine it from the
    * first element declaration of the first schema file.
    */
   lazy val root: Root = {
@@ -360,12 +356,12 @@ final class SchemaSet private (
           // if the root element and rootNamespace aren't provided at all, then
           // the first element of the first schema document is the root
           val sDocs = this.allSchemaDocuments
-          assuming(sDocs.length > 0)
-          val firstSchemaDocument = sDocs(0)
+          assuming(sDocs.nonEmpty)
+          val firstSchemaDocument = sDocs.head
           val gdecl = firstSchemaDocument.globalElementDecls
           val firstElement = {
-            schemaDefinitionUnless(gdecl.length >= 1, "No global elements in: " + firstSchemaDocument.uriString)
-            gdecl(0)
+            schemaDefinitionUnless(gdecl.nonEmpty, "No global elements in: " + firstSchemaDocument.uriString)
+            gdecl.head
           }
           firstElement
         }

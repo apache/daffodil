@@ -39,35 +39,25 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 
 /**
- * Effectively a scala proxy object that does its work via the underlying C-code.
- * Will need to consider how to use features of underlying C-code to get infoset,
- * walk infoset, generate XML for use by TDML tests.
+ * Effectively a scala proxy object that does its work via the underlying C-code
+ * to get infoset, walk infoset, and generate XML for use by TDML tests.
  */
 class Runtime2DataProcessor(executableFile: os.Path) extends DFDL.DataProcessorBase {
 
+  //$COVERAGE-OFF$
   override def withValidationMode(mode: ValidationMode.Type): DFDL.DataProcessor = ???
-
   override def withTunable(name: String, value: String): DFDL.DataProcessor = ???
-
   override def withTunables(tunables: Map[String, String]): DFDL.DataProcessor = ???
-
   override def withExternalVariables(extVars: Map[String, String]): DFDL.DataProcessor = ???
-
   override def withExternalVariables(extVars: File): DFDL.DataProcessor = ???
-
   override def withExternalVariables(extVars: Seq[Binding]): DFDL.DataProcessor = ???
-
   override def withDebugger(dbg:AnyRef): DFDL.DataProcessor = ???
-  
   override def withDebugging(flag: Boolean): DFDL.DataProcessor = ???
-
-  override def validationMode: ValidationMode.Type = ???
-
-  override def getTunables(): DaffodilTunables = ???
-
   override def save(output: DFDL.Output): Unit = ???
-
+  override def tunables: DaffodilTunables = ???
   override def variableMap: VariableMap = ???
+  override def validationMode: ValidationMode.Type = ???
+  //$COVERAGE-ON$
 
   /**
    * Returns an object which contains the result, and/or diagnostic information.

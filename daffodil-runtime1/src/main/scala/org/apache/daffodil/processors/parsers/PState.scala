@@ -658,7 +658,7 @@ object PState {
     dataProc: DFDL.DataProcessor,
     areDebugging: Boolean): PState = {
 
-    val tunables = dataProc.getTunables()
+    val tunables = dataProc.tunables
     val doc = Infoset.newDocument(root).asInstanceOf[DIElement]
     createInitialPState(
       doc.asInstanceOf[InfosetDocument],
@@ -684,11 +684,11 @@ object PState {
      * This is a full deep copy as variableMap is mutable. Reusing
      * dataProc.VariableMap without a copy would not be thread safe.
      */
-    val variables = dataProc.variableMap.copy
+    val variables = dataProc.variableMap.copy()
 
     val diagnostics = Nil
     val mutablePState = MPState()
-    val tunables = dataProc.getTunables()
+    val tunables = dataProc.tunables
     val infosetWalker = InfosetWalker(
       doc.asInstanceOf[DIElement],
       output,

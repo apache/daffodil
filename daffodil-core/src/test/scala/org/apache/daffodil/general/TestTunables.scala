@@ -63,14 +63,14 @@ class TestTunables {
     val dp1 = pf1.onPath("/")
     var dp2 = pf2.onPath("/")
 
-    val t1 = dp1.getTunables()
-    val t2 = dp2.getTunables()
+    val t1 = dp1.tunables
+    val t2 = dp2.tunables
 
     /* Set tunable at run-time via data processor */
     dp2 = dp2.withTunable("maxSkipLengthInBytes", "50")
 
-    val t3 = dp2.getTunables() // modified tunables at 'run-time'
-    val t4 = dp1.getTunables() // obtain first data processor to see if anything changed
+    val t3 = dp2.tunables // modified tunables at 'run-time'
+    val t4 = dp1.tunables // obtain first data processor to see if anything changed
 
     assertEquals(1026, t1.maxSkipLengthInBytes) // initial compiler-set value
     assertEquals(2048, t2.maxSkipLengthInBytes) // overwrite of compiler-set value
