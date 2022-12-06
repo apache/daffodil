@@ -27,7 +27,6 @@ import org.apache.daffodil.processors.DataProcessor
 import org.apache.daffodil.compiler.Compiler
 import org.apache.daffodil.processors.SequenceRuntimeData
 import org.apache.daffodil.processors.ChoiceRuntimeData
-
 import InfosetEventKind._
 import org.apache.daffodil.processors.ElementRuntimeData
 
@@ -91,7 +90,7 @@ class TestInfosetInputter {
     }
     val rootERD = u.ssrd.elementRuntimeData
     val infosetInputter = new ScalaXMLInfosetInputter(infosetXML)
-    infosetInputter.initialize(rootERD, u.getTunables())
+    infosetInputter.initialize(rootERD, u.tunables)
     (infosetInputter, rootERD)
   }
 

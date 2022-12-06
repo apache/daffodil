@@ -190,11 +190,11 @@ object DFDL {
     def withDebugger(dbg:AnyRef): DataProcessor
     def withDebugging(flag: Boolean): DataProcessor
 
-    def validationMode: ValidationMode.Type
-
-    def getTunables(): DaffodilTunables
     def save(output: DFDL.Output): Unit
+
+    def tunables: DaffodilTunables
     def variableMap: VariableMap
+    def validationMode: ValidationMode.Type
 }
 
   trait DataProcessor extends DataProcessorBase with WithDiagnostics {

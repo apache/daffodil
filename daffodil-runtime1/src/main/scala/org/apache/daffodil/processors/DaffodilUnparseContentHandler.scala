@@ -78,7 +78,7 @@ class DaffodilUnparseContentHandler(
   private var prefixMapping: NamespaceBinding = _
   private lazy val prefixMappingTrackingStack = new MStackOf[NamespaceBinding]
 
-  private lazy val tunablesBatchSize = dp.getTunables().saxUnparseEventBatchSize
+  private lazy val tunablesBatchSize = dp.tunables.saxUnparseEventBatchSize
 
   /**
    * we always have an extra buffer in the array that we use for the inputter.hasNext call. For each

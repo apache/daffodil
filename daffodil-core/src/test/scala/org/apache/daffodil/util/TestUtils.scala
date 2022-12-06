@@ -338,17 +338,16 @@ class Fakes private () {
   lazy val fakeGroupRefFactory = GroupRefFactory(fs1.xml, fs1, 1, false)
 
   class FakeDataProcessor extends DFDL.DataProcessor {
-    def getValidationMode(): ValidationMode.Type = { ValidationMode.Full }
     override def save(output: DFDL.Output): Unit = {}
-    def getVariables(): VariableMap = VariableMapFactory.create(Nil)
     override def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = null
     override def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = null
     override def getDiagnostics: Seq[Diagnostic] = Seq.empty
     override def isError: Boolean = false
-    override def getTunables(): DaffodilTunables = { tunables }
 
-    override def validationMode: ValidationMode.Type = ValidationMode.Full
+    override def tunables: DaffodilTunables = DaffodilTunables()
     override def variableMap: VariableMap = VariableMapFactory.create(Nil)
+    override def validationMode: ValidationMode.Type = ValidationMode.Full
+
     override def withExternalVariables(extVars: Seq[Binding]): DFDL.DataProcessor = this
     override def withExternalVariables(extVars: java.io.File): DFDL.DataProcessor = this
     override def withExternalVariables(extVars: Map[String,String]): DFDL.DataProcessor = this

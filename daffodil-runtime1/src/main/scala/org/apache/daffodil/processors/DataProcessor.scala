@@ -26,7 +26,6 @@ import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
-import scala.collection.immutable.Queue
 import org.apache.daffodil.Implicits._
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
@@ -84,27 +83,26 @@ class InvalidUsageException(msg: String, cause: Throwable = null) extends Except
 object DataProcessor {
 
   /**
-   * This is the DataProcessor constructed from a saved processor.
+   * This is the SerializableDataProcessor constructed from a saved processor.
    *
    * It enables us to implement restrictions on what you can/cannot do with a reloaded
    * processor versus an original one.
    *
-   * When we create one of these, it will have default values for everything
-   * settable like debuggers, debug mode.
+   * When we reload a processor, we want it to have default values for everything settable
+   * like validation mode, debug mode, and debugger.
    *
-   * Note that this does preserve the externalVars and validationMode. That is because
-   * those may be needed by serializations other than our own save/reload (e.g., Apache Spark which
-   * serializes to move things for remote execution).
+   * Note that this class does preserve variableMap and validationMode. That is because
+   * serializations other than our own save/reload may need such settings (e.g., Apache Spark
+   * which serializes to move objects for remote execution).
    *
-   * Hence, we're depending on the save method to explicitly reset validationMode and
-   * externalVars to initial values.
+   * Hence, we're depending on the save method to explicitly reset them to default values.
    */
   private class SerializableDataProcessor(
-    val data: SchemaSetRuntimeData,
-    tunable: DaffodilTunables,
-    externalVars: Queue[Binding], // must be explicitly set to empty by save method
-    validationModeArg: ValidationMode.Type) // must be explicitly set from Full to Limited by save method.
-    extends DataProcessor(data, tunable, externalVars, validationModeArg) {
+    ssrd: SchemaSetRuntimeData,
+    tunables: DaffodilTunables,
+    variableMap: VariableMap,            // must be explicitly reset by save method
+    validationMode: ValidationMode.Type, // must be explicitly turned off by save method
+  ) extends DataProcessor(ssrd, tunables, variableMap, validationMode) {
 
     override def withValidationMode(mode: ValidationMode.Type): DataProcessor = {
       if (mode == ValidationMode.Full) {
@@ -119,7 +117,7 @@ object DataProcessor {
  * The very last aspects of compilation, and the start of the
  * back-end runtime.
  */
-class DataProcessor private (
+class DataProcessor(
   val ssrd: SchemaSetRuntimeData,
   val tunables: DaffodilTunables, // Compiler-set tunables
   val variableMap: VariableMap,
@@ -129,11 +127,10 @@ class DataProcessor private (
   // The values these will have (since this is a base class) are the correct default values that we want
   // back when the object is re-initialized.
   //
-  protected val areDebugging : Boolean,
-  protected val optDebugger : Option[Debugger],
-  val validationMode: ValidationMode.Type,
-  private val externalVars: Queue[Binding])
-  extends DFDL.DataProcessor
+  val validationMode: ValidationMode.Type = ValidationMode.Off,
+  protected val areDebugging : Boolean = false,
+  protected val optDebugger : Option[Debugger] = None,
+) extends DFDL.DataProcessor
   with Serializable
   with MultipleEventHandler {
 
@@ -141,50 +138,33 @@ class DataProcessor private (
 
   /**
    * In order to make this serializable, without serializing the unwanted current state of
-   * debugger, external var settings, etc. we replace, at serialization time, this object
-   * with a [[SerializableDataProcessor]] which is a private derived class that
-   * sets all these troublesome var slots back to the default values.
+   * validation mode, debugging mode, debugger, etc. we replace, at serialization time, this
+   * object with a [[SerializableDataProcessor]] which is a private derived class that
+   * sets all these troublesome slots back to the default values.
    *
    * But note: there is serialization for us to save/reload, and there is serialization
    * in other contexts like Apache Spark, which may serialize objects without notifying us.
    *
-   * So we preserve everything that something like Spark might need preserved (validation modes, external vars)
+   * So we preserve everything that something like Spark might need preserved (validation mode)
    * and reinitialize things that are *always* reinitialized e.g., debugger, areDebugging.
    *
-   * That means when we save for reloading, we must explicitly clobber validationMode and externalVars to
-   * initialized values.
+   * That means when we save for reloading, we must explicitly clobber validationMode in save().
    *
-   * @throws java.io.ObjectStreamException
+   * @throws java.io.ObjectStreamException Must be part of writeReplace's API
    * @return the serializable object
    */
   @throws(classOf[java.io.ObjectStreamException])
   private def writeReplace() : Object =
-    new SerializableDataProcessor(ssrd, tunables, externalVars, validationMode)
-
-  /**
-   * The compilerExternalVars argument supports the deprecated feature to assign external var bindings
-   * on the compiler object.
-   *
-   * These are just incorporated into the initial variable map of the data processor.
-   */
-
-  def this(
-    ssrd: SchemaSetRuntimeData,
-    tunables:DaffodilTunables,
-    compilerExternalVars: Queue[Binding] = Queue.empty,
-    validationMode: ValidationMode.Type = ValidationMode.Off) =
-    this(ssrd, tunables, ExternalVariablesLoader.loadVariables(compilerExternalVars, ssrd, ssrd.originalVariables),
-      false, None, validationMode, compilerExternalVars)
+    new SerializableDataProcessor(ssrd, tunables, variableMap.copy(), validationMode)
 
   def copy(
     ssrd: SchemaSetRuntimeData = ssrd,
     tunables: DaffodilTunables = tunables,
-    areDebugging : Boolean = areDebugging,
-    optDebugger : Option[Debugger] = optDebugger,
+    variableMap: VariableMap = variableMap.copy(),
     validationMode: ValidationMode.Type = validationMode,
-    variableMap : VariableMap = variableMap.copy,
-    externalVars: Queue[Binding] = externalVars) =
-    new DataProcessor(ssrd, tunables, variableMap, areDebugging, optDebugger, validationMode,  externalVars)
+    areDebugging: Boolean = areDebugging,
+    optDebugger: Option[Debugger] = optDebugger,
+  ) = new DataProcessor(ssrd, tunables, variableMap, validationMode, areDebugging, optDebugger)
 
   // This thread local state is used by the PState when it needs buffers for
   // regex matching. This cannot be in PState because a PState does not last
@@ -223,15 +203,12 @@ class DataProcessor private (
     }
   }
 
-  // TODO Deprecate and replace usages with just tunables.
-  def getTunables: DaffodilTunables = tunables
-
   def debugger = {
     Assert.invariant(areDebugging)
     optDebugger.get
   }
 
-  def withDebugger(dbg:AnyRef) = {
+  def withDebugger(dbg:AnyRef): DataProcessor = {
     val optDbg = if (dbg eq null) None else Some(dbg.asInstanceOf[Debugger])
     copy(optDebugger = optDbg)
   }
@@ -241,51 +218,32 @@ class DataProcessor private (
     copy(areDebugging = flag, tunables = newTunables)
   }
 
-  private def loadExternalVariables(extVars: Map[String, String]): Queue[Binding] = {
-    val bindings = ExternalVariablesLoader.mapToBindings(extVars)
-    val newVars = externalVars ++ bindings
-    ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap)
-    newVars
-  }
-
-  private def loadExternalVariables(extVars: File): Queue[Binding]  = {
-    val bindings = ExternalVariablesLoader.fileToBindings(extVars)
-    val newVars = externalVars ++ bindings
-    ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap)
-    newVars
-  }
-
-  private def loadExternalVariables(bindings: Seq[Binding]): Queue[Binding]  = {
-    val newVars = externalVars ++ bindings
-    ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap)
-    newVars
-  }
-
   def withExternalVariables(extVars: Map[String, String]): DataProcessor = {
-    val newBindings = loadExternalVariables(extVars)
-    copy(externalVars = newBindings)
+    val bindings = ExternalVariablesLoader.mapToBindings(extVars)
+    val newVariableMap = ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
+    copy(variableMap = newVariableMap)
   }
 
   def withExternalVariables(extVars: File): DataProcessor = {
-    val newBindings = loadExternalVariables(extVars)
-    copy(externalVars = newBindings)
+    val bindings = ExternalVariablesLoader.fileToBindings(extVars)
+    val newVariableMap = ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
+    copy(variableMap = newVariableMap)
   }
 
-  /**
-   * Note that tunables is not used. So this method is equivalent to
-   * the other similar method that doesn't take that parameter.
-   *
-   * @param extVars File containing configuration with external variable bindings in it.
-   * @param tunable This is ignored.
-   */
-  def withExternalVariables(extVars: Seq[Binding]): DataProcessor = {
-    val newBindings = loadExternalVariables(extVars)
-    copy(externalVars = newBindings)
+  def withExternalVariables(bindings: Seq[Binding]): DataProcessor = {
+    val newVariableMap = ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
+    copy(variableMap = newVariableMap)
   }
 
-  def withTunable(tunable: String, value: String): DataProcessor = copy(tunables = tunables.withTunable(tunable, value))
+  def withTunable(tunable: String, value: String): DataProcessor = {
+    val newTunables = tunables.withTunable(tunable, value)
+    copy(tunables = newTunables)
+  }
 
-  def withTunables(tunablesArg: Map[String, String]): DataProcessor = copy(tunables = tunables.withTunables(tunablesArg))
+  def withTunables(tunablesArg: Map[String, String]): DataProcessor = {
+    val newTunables = tunables.withTunables(tunablesArg)
+    copy(tunables = newTunables)
+  }
 
   override def isError = false
 
@@ -311,19 +269,15 @@ class DataProcessor private (
     val oos = new ObjectOutputStream(new GZIPOutputStream(os))
 
     //
-    // Make a copy of this object, so that our state mods below don't side-effect the user's object.
-    // Saving shouldn't have side-effects on the state of the object.
+    // Make a copy of this object so that we can make its saved state
+    // different than its original state.  Note other software like
+    // Apache Spark may require variableMap and validationMode to be
+    // preserved.  But for our save/reload purposes, we want to reset
+    // them back to their original values.
     //
-    //
-    // Note that the serialization system *does* preserve these two settings. This is for general serialization
-    // that may be required by other software (e.g., Apache Spark)
-    //
-    // But for our save/reload purposes, we don't want them preserved.
-    //
-
     val dpToSave = this.copy(
-      externalVars = Queue.empty[Binding], // explicitly set these to empty so restored processor won't have them.
-      validationMode = ValidationMode.Off, // explicitly turn off, so restored processor won't be validating.
+      variableMap = ssrd.originalVariables, // reset to original variables defined in schema
+      validationMode = ValidationMode.Off,  // explicitly turn off, so restored processor won't be validating
     )
 
     try {
@@ -518,7 +472,7 @@ class DataProcessor private (
   }
 
   def unparse(inputter: InfosetInputter, outStream: java.io.OutputStream) = {
-    inputter.initialize(ssrd.elementRuntimeData, getTunables())
+    inputter.initialize(ssrd.elementRuntimeData, tunables)
     val unparserState =
       UState.createInitialUState(
         outStream,

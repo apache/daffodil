@@ -18,7 +18,6 @@
 package org.apache.daffodil.runtime1
 
 import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.ValidationMode
 import org.apache.daffodil.dsom.SchemaSet
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.VariableMapFactory
@@ -75,7 +74,6 @@ trait SchemaSetRuntime1Mixin {
     root.schemaDefinitionUnless(
       !rootERD.dpathElementCompileInfo.isOutputValueCalc,
       "The root element cannot have the dfdl:outputValueCalc property.")
-    val validationMode = ValidationMode.Off
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null
     val ssrd = new SchemaSetRuntimeData(
@@ -87,7 +85,7 @@ trait SchemaSetRuntime1Mixin {
       typeCalcMap)
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.")
-    val dataProc = new DataProcessor(ssrd, tunable)
+    val dataProc = new DataProcessor(ssrd, tunable, variableMap.copy())
     if (dataProc.isError) {
     } else {
       Logger.log.debug(s"Parser = ${ssrd.parser.toString}.")
