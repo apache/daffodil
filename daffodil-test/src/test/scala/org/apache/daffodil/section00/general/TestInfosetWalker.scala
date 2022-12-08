@@ -35,6 +35,6 @@ class TestInfosetWalker {
 
   @Test def test_infosetWalker_01() = { runner2.runOneTest("infosetWalker_01") }
   // DAFFODIL-2755
-  /*@Test*/ def test_infosetWalker_02() = { runner2.runOneTest("infosetWalker_02") }
+  @Test def test_infosetWalker_02() = { runner2.runOneTest("infosetWalker_02") }
   @Test def test_infosetWalker_03() = { runner2.runOneTest("infosetWalker_03") }
 }

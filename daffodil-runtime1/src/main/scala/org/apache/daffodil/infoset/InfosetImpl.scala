@@ -1111,15 +1111,6 @@ final class DIArray(
 
   final def length: Long = _contents.length
 
-  final def maybeMostRecentlyAddedChild(): Maybe[DIElement] = {
-    val len = contents.length
-    if (len == 0) Maybe.Nope
-    else {
-      val e = _contents(len - 1)
-      Maybe(e)
-    }
-  }
-
   final def totalElementCount: Long = {
     var a: Long = 0
     _contents.foreach { c => a += c.totalElementCount }
@@ -1631,25 +1622,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
       _numChildren = childNodes.length
     }
     e.setParent(this)
-  }
-
-  /**
-   * Needed because at the point in the code where we need the
-   * most recently added child, that node has already been popped from
-   * the stack and the current node is its parent. This let's us get
-   * a handle on the child just added without changing the invariants of
-   * the way the node stack is handled in the PState/UState.
-   */
-  def maybeMostRecentlyAddedChild(): Maybe[DIElement] = {
-    val len = contents.length
-    if (len == 0) Maybe.Nope
-    else {
-      val lastChild = contents(len - 1)
-      lastChild match {
-        case a: DIArray => a.maybeMostRecentlyAddedChild()
-        case e: DIElement => Maybe(e)
-      }
-    }
   }
 
   def addChildToFastLookup(node: DINode): Unit = {

@@ -218,7 +218,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
     }
 
     // handle xsi:nil attribute
-    if (diElem.isNilled) {
+    if (isNilled(diElem)) {
       val isNilled = "true"
       val nType: String = "CDATA"
       val nValue: String = isNilled

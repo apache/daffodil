@@ -380,7 +380,7 @@ class InfosetWalker private (
 
     } else {
       // no blocks on the container, figure out if we can take a step for the
-      // element and the child index of this container 
+      // element at the child index of this container
 
       val children = containerNode.contents
 
@@ -398,6 +398,13 @@ class InfosetWalker private (
           // This is a simple element that is not final, i.e. we are still
           // doing some parsing for this simple element. Wait until we finish
           // that parse before stepping into it.
+          false
+        } else if (elem.isComplex && elem.numChildren == 0 && !elem.isFinal) {
+          // This is a complex element that has no children and is not final.
+          // This means we don't yet know if it's just an empty complex element
+          // or if it's a complex element that is going to be nilled. We'll
+          // know for sure once it has children or is made final, but for now,
+          // do not step into it.
           false
         } else {
           true
