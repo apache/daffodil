@@ -35,6 +35,7 @@ import org.apache.daffodil.processors.TypeCalculator
 import org.apache.daffodil.processors.VariableRuntimeData
 import org.apache.daffodil.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.util.Logger
+import org.apache.daffodil.util.Maybe.Nope
 
 /**
  * Common parser base class for any parser that evaluates an expression.
@@ -103,7 +104,8 @@ trait WithDetachedParser {
      */
 
     val priorElement = pstate.infoset
-    pstate.setParent(pstate.infoset.diParent)
+    val priorElementLastChild = pstate.infosetLastChild
+    pstate.setInfoset(pstate.infoset.diParent, Nope)
 
     // This isn't actually a point of uncertainty, we just use the logic to
     // allow resetting the infoset after we create the detached parser
@@ -123,7 +125,7 @@ trait WithDetachedParser {
       res
     }
 
-    pstate.setParent(priorElement)
+    pstate.setInfoset(priorElement, priorElementLastChild)
 
     ans
   }

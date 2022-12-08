@@ -29,6 +29,8 @@ import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.util.Logger
 import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.util.Maybe.One
 
 abstract class ElementParserBase(
   rd: TermRuntimeData,
@@ -252,7 +254,7 @@ class ElementParser(
       }
     }
     Logger.log.debug(s"priorElement = ${priorElement}")
-    pstate.setParent(currentElement)
+    pstate.setInfoset(currentElement, Nope)
   }
 
   def parseEnd(pstate: PState): Unit = {
@@ -266,7 +268,7 @@ class ElementParser(
         // Execute checkConstraints
         validate(pstate)
       }
-      if (priorElement ne null) pstate.setParent(priorElement)
+      if (priorElement ne null) pstate.setInfoset(priorElement, One(currentElement))
       move(pstate)
     } else { // failure.
       if (priorElement ne null) {
@@ -274,7 +276,7 @@ class ElementParser(
         // But we do not remove the child here. That's done at the
         // point of uncertainty when it restores the state of the
         // element after a failure.
-        pstate.setParent(priorElement)
+        pstate.setInfoset(priorElement, One(currentElement))
       }
     }
   }

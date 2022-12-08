@@ -150,6 +150,7 @@ class MPState private () {
 
 final class PState private (
   var infoset: DIElement,
+  var infosetLastChild: Maybe[DIElement],
   var dataInputStream: InputSourceDataInputStream,
   val walker: InfosetWalker,
   vmap: VariableMap,
@@ -296,17 +297,35 @@ final class PState private (
   }
 
   /**
-   * This takes newParent as DIElement, not DIComplex, because there is code
-   * where we don't know whether the node is simple or complex but we set it as
-   * the parent anyway. If simple children will simply not be appended.
+   * Change the current infoset element that we are modifying and the last
+   * child of that element that has been added to that infoset element.
    *
-   * But this invariant that there is always a parent we could append a child into
-   * is being maintained. THis invariant starts at the very top as there is a
-   * Document which is the parent of the root element. So there's no time when there
-   * isn't a parent there.
+   * This takes newInfoset as a DIElement, not DIComplex, because 'infoset'
+   * represents the current DIElement that Daffodil is working on, which could
+   * be either a complex or simple element.
+   *
+   * This also expects the last element that has been added as a child of
+   * newInfoset, sometimes needed for logic related to separated content.
+   *
+   * When starting a new infoset element, this function should be called with
+   * the new element passed as newInfoset (since it is the current infoset
+   * element being modified) and newInfosetLastChild set to Nope (because this
+   * new element does not have any children yet).
+   *
+   * When ending an element, this function should be called with the elements
+   * parent as newInfoset (because we are now modifying the parent, e.g.
+   * adding more children), and newInfosetLastChild should be set to the element
+   * we just ended (because it is the last child added to newInfoset).
+   *
+   * Note that we must keep track of and store infosetLastChild because by the
+   * time Daffodil needs information about the last child added, the child
+   * could have been released by the InfosetWalker and no longer actually be
+   * part of the infoset. So we cannot query the infoset for this information,
+   * but must instead store it in, and retrieve it from, the PState.
    */
-  def setParent(newParent: DIElement): Unit = {
-    this.infoset = newParent
+  def setInfoset(newInfoset: DIElement, newInfosetLastChild: Maybe[DIElement]): Unit = {
+    this.infoset = newInfoset
+    this.infosetLastChild = newInfosetLastChild
   }
 
   /**
@@ -561,6 +580,7 @@ object PState {
     val simpleElementState = DISimpleState()
     val complexElementState = DIComplexState()
     var element: DIElement = _
+    var elementLastChild: Maybe[DIElement] = _
     var disMark: DataInputStream.Mark = _
     var variableMap: VariableMap = _
     var processorStatus: ProcessorResult = _
@@ -573,6 +593,7 @@ object PState {
     val mpStateMark = new MPState.Mark
 
     def clear(): Unit = {
+      elementLastChild = Nope
       simpleElementState.clear()
       complexElementState.clear()
       disMark = null
@@ -588,6 +609,7 @@ object PState {
 
     def captureFrom(ps: PState, requestorID: String, context: RuntimeData): Unit = {
       this.element = ps.thisElement
+      this.elementLastChild = ps.infosetLastChild
       if (element.isSimple)
         simpleElementState.captureFrom(element)
       else
@@ -619,6 +641,7 @@ object PState {
 
     def restoreInto(ps: PState): Unit = {
       restoreInfoset(ps)
+      ps.infosetLastChild = this.elementLastChild
       ps.dataInputStream.reset(this.disMark)
       ps.setVariableMap(this.variableMap)
       ps._processorStatus = this.processorStatus
@@ -701,6 +724,7 @@ object PState {
     dis.cst.setPriorBitOrder(root.defaultBitOrder)
     val newState = new PState(
       doc.asInstanceOf[DIElement],
+      Nope,
       dis,
       infosetWalker,
       variables,

@@ -166,7 +166,7 @@ trait ElementSequenceChildParseResultHelper
       currentBitPosAfterChild == prevBitPosBeforeChild
     }
     if (pstate.isSuccess) {
-      val maybeElem = pstate.infoset.asComplex.maybeMostRecentlyAddedChild()
+      val maybeElem = pstate.infosetLastChild
       Assert.invariant(maybeElem.isDefined)
       val elem = maybeElem.get
       val maybeIsNilled = elem.maybeIsNilled // can't just call isNilled because that throws exceptions on not defined
