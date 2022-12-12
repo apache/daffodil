@@ -21,14 +21,14 @@
    <String Id="ApplicationName">Daffodil</String>
    <String Id="ManufacturerName">Apache</String>
    
-   <!-- SBT Native Packager plug-in uses 'ManufacturerFullName' instead of 'ManufacturerName'. -->
+   <!-- sbt Native Packager plug-in uses 'ManufacturerFullName' instead of 'ManufacturerName'. -->
    <!-- This doesn't matter most places, but in the directory structure we have to be short and have no spaces. -->
    <String Id="ManufacturerFullName">Apache</String>
    
-   <!-- SBT Native Packager plug-in uses 'ProductDescription' as the title on the installer window. -->
+   <!-- sbt Native Packager plug-in uses 'ProductDescription' as the title on the installer window. -->
    <String Id="ProductDescription">Daffodil Installer</String>
    
-   <!-- SBT Native Packager plug-in does not support comments, so this next line is ignored. -->
+   <!-- sbt Native Packager plug-in does not support comments, so this next line is ignored. -->
    <String Id="Comments">Installs Daffodil</String>
  
    <!-- Set up the License Agreement dialog. -->

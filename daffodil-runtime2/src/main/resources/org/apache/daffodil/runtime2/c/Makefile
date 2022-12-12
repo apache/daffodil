@@ -36,10 +36,11 @@ $(PROGRAM): $(HEADERS) $(SOURCES)
 	$(CC) $(CFLAGS) $(INCLUDES) $(SOURCES) $(LIBS) -o $(PROGRAM)
 
 # Step 1.5: Run the tests if you are a developer making changes to the
-# C code, otherwise you can skip this step.  On Ubuntu 20.04, you will
-# need to manually build and install a C test framework library called
-# Criterion (https://github.com/Snaipe/Criterion); note building
-# Criterion requires meson ninja-build libffi-dev libgit2-dev.
+# C code, otherwise you can skip this step.  On Ubuntu, you will need
+# to manually build and install a C test framework library called
+# Criterion (https://github.com/Snaipe/Criterion).  Also note that
+# building Criterion from source will require running "sudo apt
+# install meson ninja-build libffi-dev libgit2-dev" first.
 
 TPROGRAM = ./ctests
 EXCLUDES = %/daffodil_main.c %/generated_code.c

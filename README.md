@@ -40,16 +40,17 @@ For more information about Daffodil, see <https://daffodil.apache.org/>.
 
 ## Build Requirements
 
-* JDK 8 or higher
-* SBT 0.13.8 or higher
+* Java 8 or higher
+* sbt 0.13.8 or higher
 * C compiler C99 or higher
 * Mini-XML Version 3.0 or higher
 
-See [BUILD.md](BUILD.md) for more details.
+See [BUILD.md](BUILD.md) for more details and [DEVELOP.md](DEVELOP.md)
+for a developer guide.
 
 ## Getting Started
 
-[SBT] is the officially supported tool to build Daffodil.  Below are
+[sbt] is the officially supported tool to build Daffodil.  Below are
 some of the more commonly used commands for Daffodil development.
 
 ### Compile
@@ -108,6 +109,6 @@ Apache Daffodil is licensed under the [Apache License, v2.0].
 [Daffodil JIRA]: https://issues.apache.org/jira/projects/DAFFODIL/
 [Github Actions]: https://github.com/apache/daffodil/actions?query=branch%3Amain+
 [Releases]: http://daffodil.apache.org/releases/
-[SBT]: https://www.scala-sbt.org/
 [Website]: https://daffodil.apache.org/
 [sbt-scoverage]: https://github.com/scoverage/sbt-scoverage/
+[sbt]: https://www.scala-sbt.org/

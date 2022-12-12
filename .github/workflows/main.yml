@@ -24,8 +24,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+# Cancel CI runs in progress when a branch or pull request is updated.
+
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  group: ${{ github.actor }}-${{ github.head_ref || github.ref_name }}-${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
@@ -40,7 +42,7 @@ jobs:
         distribution: [ temurin ]
         java_version: [ 8, 11, 17 ]
         scala_version: [ 2.12.17 ]
-        os: [ ubuntu-20.04, windows-2019 ]
+        os: [ ubuntu-22.04, windows-2022 ]
         include:
           - os: macos-12
             shell: bash
@@ -49,11 +51,11 @@ jobs:
             scala_version: 2.12.17
             env_cc: cc
             env_ar: ar
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             shell: bash
-            env_cc: clang-10
-            env_ar: llvm-ar-10
-          - os: windows-2019
+            env_cc: clang
+            env_ar: llvm-ar-14
+          - os: windows-2022
             shell: msys2 {0}
             env_cc: clang
             env_ar: llvm-ar
@@ -67,7 +69,7 @@ jobs:
       CC: ${{ matrix.env_cc }}
       SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
       SONARSCAN: ${{
-                     matrix.os == 'ubuntu-20.04' &&
+                     matrix.os == 'ubuntu-22.04' &&
                      matrix.java_version == '11' &&
                      matrix.scala_version == '2.12.17' &&
                      github.event_name == 'push' &&
@@ -195,7 +197,7 @@ jobs:
   single-commit:
     name: Single Commit Pull Request
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Check Single Commit
         uses: actions/github-script@v6.3.3

@@ -42,7 +42,7 @@ RUN \
     winetricks && \
   dnf clean all
 
-# Enable SBT pgp plugin
+# Enable sbt-pgp plugin
 COPY src/plugins.sbt /root/.sbt/1.0/plugins/
 
 # Install wix, including changes to allow WiX to run in wine on Linux. See

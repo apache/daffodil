@@ -101,24 +101,24 @@ rpmPrefix := Some(defaultLinuxInstallLocation.value)
 //
 
 //
-// Here we set the variables that are supported by the SBT Native Packager plug-in.
+// Here we set the variables that are supported by the sbt Native Packager plug-in.
 // We also get fairly aggressive in editing/modifying the XML in order
 // to control and use some specific features that are supported by WiX
-// but which are not properly suported by the SBT plug-in.
+// but which are not properly suported by the sbt plug-in.
 //
 
 // Force the correct installation directory name. This overwrites
 // 'daffodil-cli', which is the directory that we invoke sbt in.
-// The SBT WiX plug-in incorrectly assumes that the directory of
+// The sbt WiX plug-in incorrectly assumes that the directory of
 // invocation is the same name as the direcotry you eventually
 // want to install into.
 Windows / name := "Daffodil"
 
-// The Windows packager SBT plug-in maps the packageSummary variable
+// The Windows packager sbt plug-in maps the packageSummary variable
 // into the WiX productName field. Another strange choice.
 Windows / packageSummary := "Daffodil"
 
-// The Windows packager SBT plug-in limits the length of the packageDescription
+// The Windows packager sbt plug-in limits the length of the packageDescription
 // field to a single line. Use the short packageSummary from the RPM config.
 Windows / packageDescription := (Rpm / packageSummary).value
 
@@ -179,7 +179,7 @@ wixFiles ++= Seq(
   (Windows / sourceDirectory).value / "WixUI_Daffodil.wxs",
 )
 
-// The SBT Native Packager plug-in assumes that we want to give the user
+// The sbt Native Packager plug-in assumes that we want to give the user
 // a Feature Tree to select from. One of the 'features' that the plug-in
 // offers up is a set of all shortcuts and menu links. Daffodil is
 // actually a command-line executable, so we do not include
