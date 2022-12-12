@@ -280,7 +280,7 @@ When an application uses Daffodil's Java or Scala API, it will need to
 put fewer Daffodil jars and third-party dependency jars on its
 classpath (omitting the jars needed only by Daffodil's CLI).  The best
 way for a Java or Scala application to use Daffodil is to get
-Daffodil's Java API from Maven or get Daffodil's Scala API from SBT:
+Daffodil's Java API from Maven or get Daffodil's Scala API from sbt:
 
 ```xml
 <dependency>
@@ -393,13 +393,13 @@ links to every website page (sorted in alphabetical order).
 ### Tests
 
 The majority of Daffodil tests are written inside TDML files with
-corresponding Scala unit tests which allow your IDE or SBT to run
+corresponding Scala unit tests which allow your IDE or sbt to run
 these tests within the TDML files.  Daffodil also has some pure Scala
 unit tests for testing smaller parts of Daffodil at a lower level.
 Both kinds of tests are important, although new Daffodil tests tend to
 be written in TDML and focus on testing issues with Daffodil's
 processing of DFDL schemas and parsing data or unparsing data.  You
-can run both kinds of tests with SBT using this command:
+can run both kinds of tests with sbt using this command:
 
 ```text
 sbt test
@@ -428,7 +428,7 @@ work on that issue more easily.  The developer is free to decide
 whether to define the schema and test data inline in the TDML file or
 leave the schema and test data in separate files which the TDML file
 reads.  For easier development, you can run TDML tests in the same
-directory without needing your IDE or SBT using this command:
+directory without needing your IDE or sbt using this command:
 
 ```text
 daffodil test nums.tdml
@@ -451,7 +451,7 @@ Daffodil also has integration tests in the daffodil-cli module which
 test Daffodil's command line interface.  If a developer changes any
 part of Daffodil's command line interface, the developer should test
 that change in an integration test too.  You can run integration tests
-with SBT using this command:
+with sbt using this command:
 
 ```text
 sbt IntegrationTest/test

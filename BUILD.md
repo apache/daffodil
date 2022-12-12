@@ -19,16 +19,16 @@
 
 Daffodil's build requirements include:
 
-* JDK 8 or higher
-* SBT 0.13.8 or higher
+* Java 8 or higher
+* sbt 0.13.8 or higher
 * C compiler C99 or higher
 * Mini-XML Version 3.0 or higher
 
-You will need the Java Software Development Kit ([JDK]) and the Scala
-Build Tool ([SBT]) to build Daffodil, run all tests, create packages,
-and more.  You can install the latest [Java 11 LTS][JDK] version and
-the latest [SBT] version following their websites' instructions or
-install them using your operating system's package manager.
+You will need the Java Software Development Kit ([Java]) and the Scala
+Build Tool ([sbt]) to build Daffodil, run all tests, create packages,
+and more.  You can install the latest [Java LTS][Java] version and the
+latest [sbt] version following their websites' instructions or install
+them using your operating system's package manager.
 
 Since Daffodil now has a C backend as well as a Scala backend, you
 will need a C compiler supporting the [C99] standard or later and the
@@ -59,27 +59,27 @@ environment variables `CC` and `AR` to the clang binaries' names:
 
     export CC=clang AR=llvm-ar
 
-However, Fedora has no [sbt][SBT] package in its own repositories.
-You'll have to install the latest [SBT] version following its
+However, Fedora has no [sbt] package in its own repositories.
+You'll have to install the latest [sbt] version following its
 website's instructions.
 
 Now you can build Daffodil from source and the sbt and daffodil
 commands you type will be able to call the C compiler.
 
-## Ubuntu 20.04
+## Ubuntu
 
 You can use the `apt` package manager to install most of the tools
 needed to build Daffodil:
 
-    sudo apt install build-essential clang-10 clang-format-10 default-jdk git libmxml-dev
+    sudo apt install build-essential clang clang-format default-jdk git libmxml-dev
 
 If you want to use clang instead of gcc, you'll have to set your
 environment variables `CC` and `AR` to the clang binaries' names:
 
-    export CC=clang-10 AR=llvm-ar-10
+    export CC=clang AR=llvm-ar-14 # or llvm-ar-10 or whatever you have
 
-However, Ubuntu has no [sbt][SBT] package in its own repositories.
-You'll have to install the latest [SBT] version following its
+However, Ubuntu has no [sbt] package in its own repositories.
+You'll have to install the latest [sbt] version following its
 website's instructions.
 
 Now you can build Daffodil from source and the sbt and daffodil
@@ -87,7 +87,7 @@ commands you type will be able to call the C compiler.
 
 ## Windows 10
 
-Install the latest [Java 11 LTS][JDK] version and the latest [SBT]
+Install the latest [Java LTS][Java] version and the latest [sbt]
 version following their websites' instructions.
 
 Install [MSYS2] following its website's instructions and open a new
@@ -137,7 +137,7 @@ needed to build Daffodil:
     brew install llvm # needed by iwyu
     brew install include-what-you-use
     brew install libmxml
-    brew install openjdk@11
+    brew install openjdk
     brew install sbt
 
 Now you can build Daffodil from source and the sbt and daffodil
@@ -146,9 +146,9 @@ commands you type will be able to call the C compiler.
 [C99]: https://en.wikipedia.org/wiki/C99
 [EPEL]: https://docs.fedoraproject.org/en-US/epel/
 [Homebrew]: https://brew.sh/
-[JDK]: https://adoptopenjdk.net/
+[Java]: https://adoptium.net/
 [Mini-XML]: https://www.msweet.org/mxml/
 [MSYS2]: https://www.msys2.org/
-[SBT]: https://www.scala-sbt.org/
 [clang]: https://clang.llvm.org/get_started.html
 [gcc]: https://linuxize.com/post/how-to-install-gcc-on-ubuntu-20-04/
+[sbt]: https://www.scala-sbt.org/

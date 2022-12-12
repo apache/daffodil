@@ -107,10 +107,10 @@ class TestScalaAPI {
    *
    * Note that this function contains an ObjectInputStream for
    * deserialization, but one that is extended to override the resolveClass
-   * function. This override is necessary to work around a bug when running
-   * tests in SBT that causes an incorrect class loader to be used. Normal
-   * users of the Scala API should not need this and can serialize/deserialize
-   * as one would normally do with a standard Object{Input,Output}Stream.
+   * function. This override is necessary because running tests in sbt causes
+   * an incorrect class loader to be used. Normal users of the Scala API
+   * should not need this and can serialize/deserialize as one would normally
+   * do with a standard Object{Input,Output}Stream.
    */
   private def reserializeDataProcessor(dp: DataProcessor): DataProcessor = {
     val baos = new ByteArrayOutputStream()
@@ -121,9 +121,9 @@ class TestScalaAPI {
     val bais = new ByteArrayInputStream(baos.toByteArray())
     val ois = new ObjectInputStream(bais) {
       /**
-       * This override is here because of a bug in sbt where the wrong class loader is being
-       * used when deserializing an object.
-       * For more information, see https://github.com/sbt/sbt/issues/163
+       * This override is here because running tests in sbt causes the wrong
+       * class loader to be used when deserializing an object.  For more
+       * information, see https://github.com/sbt/sbt/issues/163
        */
       override protected def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
         try {
