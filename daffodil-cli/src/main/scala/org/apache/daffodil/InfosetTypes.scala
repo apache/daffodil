@@ -43,6 +43,7 @@ import org.xml.sax.ContentHandler
 import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 import org.xml.sax.Locator
+import org.xml.sax.helpers.AttributesImpl
 import org.xml.sax.helpers.DefaultHandler
 
 import org.apache.daffodil.api.DFDL
@@ -598,7 +599,7 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
       events += SaxEventStartDocument()
 
     override def startElement(uri: String, localName: String, qName: String, atts: Attributes): Unit =
-      events += SaxEventStartElement(uri, localName, qName, atts)
+      events += SaxEventStartElement(uri, localName, qName, new AttributesImpl(atts))
 
     override def startPrefixMapping(prefix: String, uri: String): Unit =
       events += SaxEventStartPrefixMapping(prefix, uri)
