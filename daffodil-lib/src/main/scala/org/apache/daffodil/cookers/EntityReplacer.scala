@@ -657,7 +657,7 @@ sealed abstract class ListOfStringLiteralBase(propNameArg: String,
       val wsVisible = Misc.remapCodepointToVisibleGlyph(ws.toChar).toChar
       val hexCodePoint = "%04x".format(ws.toInt)
       context.SDE("The property '%s' cannot start or end with the string \"%s\"(Unicode hex code point U+%s), or consist entirely of whitespace."
-        + "\nDid you mean to use character entities like '%%SP;' or '%%NL;' to indicate whitespace in the data format instead?", propNameArg, wsVisible, hexCodePoint)
+        + "\nDid you mean to use character entities like '%%SP;' or '%%NL;' to indicate whitespace in the data format instead?", propName, wsVisible, hexCodePoint)
     }
 
     val rawList = raw.split("\\s+").toList
