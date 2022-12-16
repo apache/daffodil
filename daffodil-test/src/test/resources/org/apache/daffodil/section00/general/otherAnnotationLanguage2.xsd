@@ -17,20 +17,15 @@
 -->
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="urn:otherAnnotationLanguage" 
-  xmlns:tns="urn:otherAnnotationLanguage"
+  targetNamespace="urn:otherAnnotationLanguage2"
+  xmlns:tns="urn:otherAnnotationLanguage2"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
-  <!--
-  Check that other language schemas can be properly nested.
-  -->
-  <xs:import namespace="urn:otherAnnotationLanguage2" schemaLocation="otherAnnotationLanguage2.xsd" />
-
-  <element name="otherAnnotation">
+  <element name="otherAnnotation2">
     <complexType>
-       <attribute ref="tns:otherAnnotationAttribute"/>
+       <attribute ref="tns:otherAnnotationAttribute2"/>
     </complexType>
   </element>
 
@@ -39,6 +34,6 @@
   have attributes. These attributes should be legal in DFDL, as they're not describing data, they're
   just describing annotations on the schema that a DFDL processor should be ignoring.
    -->
-  <attribute name="otherAnnotationAttribute" type="string"/>
+  <attribute name="otherAnnotationAttribute2" type="string"/>
 
 </schema>

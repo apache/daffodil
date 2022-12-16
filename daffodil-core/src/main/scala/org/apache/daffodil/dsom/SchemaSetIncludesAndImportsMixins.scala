@@ -57,13 +57,20 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
   lazy val allSchemaFiles = {
     val fd = fakeXMLSchemaDocument //bootstrap
     val sa = fd.seenAfter
+    val first = sa.value.head._2
     val sfl = sa.value.flatMap {
       case (_, ii) => {
         val sf = ii.iiSchemaFileMaybe // maybe not if we've already seen this file for the same namespace.
+        // Require the first schema file to have a DFDL namespace. Other included or imported schemas can be
+        // standard XSD schemas but emit a warning that the schema is being ignored.
         sf.filter { f =>
-          if (f.isDFDLSchemaFile)
+          if (f.isDFDLSchemaFile) {
             true
-          else {
+          } else if (f eq first) {
+            f.SDE("Non-DFDL Schema file. Does not have DFDL namespace definition on schema root element.\n" +
+              "Add xmlns:dfdl='%s' to the root element.", XMLUtils.DFDL_NAMESPACE)
+            false
+          } else {
             f.SDW(WarnID.IgnoreImport, "Non-DFDL Schema file ignored. Does not have DFDL namespace definition on schema root element.\n" +
               "Add xmlns:dfdl='%s' to the root element if this file must be part of the DFDL schema.", XMLUtils.DFDL_NAMESPACE)
             false
