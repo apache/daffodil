@@ -29,6 +29,7 @@ import java.nio.file.Paths
 import java.util.Scanner
 import java.util.concurrent.Executors
 import javax.xml.transform.TransformerFactory
+import javax.xml.transform.TransformerException
 import javax.xml.transform.stream.StreamResult
 
 import scala.concurrent.Await
@@ -51,6 +52,7 @@ import org.rogach.scallop.ValueConverter
 import org.rogach.scallop.exceptions.GenericScallopException
 
 import org.xml.sax.InputSource
+import org.xml.sax.SAXParseException
 import org.xml.sax.helpers.XMLReaderFactory
 
 import com.siemens.ct.exi.core.EXIFactory
@@ -1300,13 +1302,15 @@ object Main {
             val result = new StreamResult(output)
             val tf = TransformerFactory.newInstance()
             val transformer = tf.newTransformer
+            transformer.setErrorListener(new EXIErrorHandler)
             try {
               transformer.transform(exiSource, result)
             } catch {
               /* We catch a generic Exception here as Exificient will attempt
                * to decode anything and will throw very generic errors, such as
                * an IllegalArgumentException when it runs into a series of bytes
-               * that aren't a Unicode codepoint. */
+               * that aren't a Unicode codepoint. This should be removed once
+               * https://github.com/EXIficient/exificient/issues/33 is fixed.*/
               case e: Exception => {
                 Logger.log.error(s"Error decoding EXI input: ${ Misc.getSomeMessage(e).get }")
                 rc = ExitCode.Failure
@@ -1319,6 +1323,7 @@ object Main {
 
             val reader = XMLReaderFactory.createXMLReader()
             reader.setContentHandler(exiResult.getHandler)
+            reader.setErrorHandler(new EXIErrorHandler)
             try {
               reader.parse(input)
             } catch {
@@ -1478,5 +1483,32 @@ object Main {
   def main(arguments: Array[String]): Unit = {
     val exitCode = run(arguments)
     System.exit(exitCode.id)
+  }
+}
+
+class EXIErrorHandler extends org.xml.sax.ErrorHandler with javax.xml.transform.ErrorListener {
+
+  // SAX ErrorHandler methods
+  def error(e: SAXParseException): Unit = {
+    Logger.log.error(e.getMessage)
+  }
+
+  def fatalError(e: SAXParseException): Unit = {
+    Logger.log.error(e.getMessage)
+  }
+
+  def warning(e: SAXParseException): Unit = {
+    Logger.log.warn(e.getMessage)
+  }
+
+  // Transformer ErrorListener methods
+  def error(e: TransformerException): Unit = {
+    Logger.log.error(e.getMessage)
+  }
+  def fatalError(e: TransformerException): Unit = {
+    Logger.log.error(e.getMessage)
+  }
+  def warning(e: TransformerException): Unit = {
+    Logger.log.warn(e.getMessage)
   }
 }
