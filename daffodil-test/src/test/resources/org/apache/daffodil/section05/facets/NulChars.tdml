@@ -60,7 +60,7 @@
         -->
         <xs:element name="nz" type="xs:string" minOccurs="0" maxOccurs="0"
                     dfdl:lengthPattern='[^\x{00}]+' dfdl:lengthKind="pattern"
-                    dfdl:occursCountKind="parsed" dfdl:encoding="iso-8859-1" dfdlx:emptyElementParsePolicy="treatAsMissing">
+                    dfdl:occursCountKind="parsed" dfdl:encoding="iso-8859-1" dfdl:emptyElementParsePolicy="treatAsAbsent">
         </xs:element>
       </xs:sequence>
     </xs:complexType>

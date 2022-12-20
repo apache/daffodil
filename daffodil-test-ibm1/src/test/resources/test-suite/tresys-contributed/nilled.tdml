@@ -38,7 +38,7 @@
 
   <tdml:defineConfig name="cfg_noEmptyElements">
     <daf:tunables>
-      <daf:defaultEmptyElementParsePolicy>treatAsMissing</daf:defaultEmptyElementParsePolicy>
+      <daf:defaultEmptyElementParsePolicy>treatAsAbsent</daf:defaultEmptyElementParsePolicy>
       <daf:suppressSchemaDefinitionWarnings>
         unsupportedAttributeFormDefault
         encodingErrorPolicyError

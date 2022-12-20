@@ -39,6 +39,7 @@ object DeprecatedProperty {
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLength", "dfdlx:layerLength"),
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLengthUnits", "dfdlx:layerLengthUnits"),
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerBoundaryMark", "dfdlx:layerBoundaryMark"),
+    DeprecatedProperty(XMLUtils.DFDLX_NAMESPACE, "emptyElementParsePolicy", "dfdl:emptyElementParsePolicy"),
     DeprecatedProperty(XMLUtils.EXT_NS_APACHE, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy"),
     DeprecatedProperty(XMLUtils.EXT_NS_NCSA, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy"))
 

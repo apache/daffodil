@@ -36,12 +36,12 @@
       </daf:suppressSchemaDefinitionWarnings>
     </daf:tunables>
   </tdml:defineConfig>
-  
+
   <tdml:defineConfig name="cfg_noEmptyElements">
     <daf:tunables>
-      <daf:defaultEmptyElementParsePolicy>treatAsMissing</daf:defaultEmptyElementParsePolicy>
+      <daf:defaultEmptyElementParsePolicy>treatAsAbsent</daf:defaultEmptyElementParsePolicy>
       <daf:suppressSchemaDefinitionWarnings>
-        unsupportedAttributeFormDefault 
+        unsupportedAttributeFormDefault
         encodingErrorPolicyError
       </daf:suppressSchemaDefinitionWarnings>
     </daf:tunables>
@@ -209,7 +209,7 @@
           <record>
             <required1>a</required1>
             <!-- 
-              On Daffodil, because we are using dfdlx:emptyElementParsePolicy='treatAsMissing'
+              On Daffodil, because we are using dfdl:emptyElementParsePolicy='treatAsAbsent'
               This test should not create any empty-string-valued elements.
               That should be consistent with IBM DFDL behavior (as of 2019-05-04 version).              
             <positional2/>
@@ -247,7 +247,7 @@
         <ptg1>
           <record>
             <required1>a</required1>
-            <!-- dfdlx:emptyElementParsePolicy='treatAsMissing'
+            <!-- dfdl:emptyElementParsePolicy='treatAsAbsent'
               <positional2/>
               <positional3/>
             -->
@@ -257,7 +257,7 @@
           </record>
           <record>
             <required1>a</required1>
-            <!-- dfdlx:emptyElementParsePolicy='treatAsMissing'
+            <!-- dfdl:emptyElementParsePolicy='treatAsAbsent'
               <positional2/>
               <positional3/>
             -->
@@ -283,7 +283,7 @@
             <!-- 
               Because these are optional, and their dfdl:emptyValueDelimiterPolicy is 'none'
               an empty representation does not create an element.
-              This is true for dfdlx:emptyElementParsePolicy="treatAsEmpty".
+              This is true for dfdl:emptyElementParsePolicy="treatAsEmpty".
               If you want empty elements, there has to be a non-zero-length 
               syntax in the data stream
               <positional2/>
@@ -640,7 +640,69 @@
     </xs:element>
     
   </tdml:defineSchema>
-  
+
+  <!-- Same as s3 schema but emptyElementParsePolicy is now treatAsAbsent -->
+
+  <tdml:defineSchema name="s3_absent" elementFormDefault="unqualified">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormatPortable"
+                 lengthKind="delimited"
+                 occursCountKind="implicit"
+                 emptyElementParsePolicy="treatAsAbsent"/>
+
+    <!--
+      ptg3 explores spoiling the choice's potentially trailing by just having
+      a single branch that has required framing.
+     -->
+    <xs:element name="ptg3" dfdl:initiator="|">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element dfdl:occursCountKind="implicit" dfdl:terminator="|%WSP*;"
+                      maxOccurs="unbounded" name="record">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+                <xs:element name="required1" type="xs:string" />
+                <xs:element name="positional2" type="xs:string" minOccurs="0" /> <!-- never trailing due to choice -->
+                <xs:element name="positional3" type="xs:string" minOccurs="0" /> <!-- never trailing due to choice -->
+                <xs:choice>
+                  <!--
+                    choice is not trailing, because none of the choice branches are.
+                    (In general, it ought to be the last choice branch, otherwise
+                    finding zero length will cut off consideration of any branches after
+                    the first potentially trailing branch.)
+                   -->
+                  <xs:sequence>
+                    <xs:element name="positional4_n" type="xs:decimal"/>
+                  </xs:sequence>
+                  <xs:sequence>
+                    <xs:element name="positional4_s" type="xs:string" />
+                  </xs:sequence>
+                  <xs:sequence />
+                </xs:choice>
+                <!--
+                  Element potTrailing5 is potentially trailing because the sequence
+                  following it is a potentially trailing group.
+                 -->
+                <xs:element name="potTrailing5" type="xs:string" minOccurs="0"/>
+                <xs:sequence dfdl:separator="*" dfdl:separatorSuppressionPolicy="trailingEmpty">
+                  <!--
+                    This sequence is potentially trailing,
+                    If empty and trailing the comma for this group in the enclosing sequence may be omitted.
+                  -->
+                  <xs:element name="potTrailing6" type="xs:int" minOccurs="0" maxOccurs="3" />
+                </xs:sequence>
+                <xs:element name="potTrailing7" type="xs:string" minOccurs="0"/>
+                <xs:element name="potTrailing8" type="xs:string" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
   <tdml:parserTestCase name="ptg3_2p_daf" root="ptg3" model="s3"
     description="Test of potentially trailing groups. Daffodil specific as it retains required empty string elements."
     roundTrip="none"
@@ -653,7 +715,7 @@
         <ex:ptg3>
           <record>
             <required1>a</required1>
-            <!-- empty string has no syntax, so even when dfdlx:emptyElementParsePolicy is 'treatAsEmpty'
+            <!-- empty string has no syntax, so even when dfdl:emptyElementParsePolicy is 'treatAsEmpty'
                  we still don't create optional empty string elements.
             <positional2/>
             <positional3/>
@@ -680,9 +742,8 @@
 
   </tdml:parserTestCase>
  
-  <tdml:parserTestCase name="ptg3_1p" root="ptg3" model="s3"
+  <tdml:parserTestCase name="ptg3_1p" root="ptg3" model="s3_absent"
     description="Test of potentially trailing groups."
-    config="cfg_noEmptyElements"
     roundTrip="none">
 
     <tdml:document><![CDATA[|a,,,,|a,,,,|]]></tdml:document>
@@ -692,12 +753,12 @@
         <ex:ptg3>
           <record>
             <required1>a</required1>
-            <!-- <positional4_s/> scalar, but is backtracked anyway by IBM DFDL, daffodil treatAsMissing mode. -->
+            <!-- <positional4_s/> scalar, but is backtracked anyway by IBM DFDL, daffodil treatAsAbsent mode. -->
             <!-- no empty string for positional5 -->
           </record>
           <record>
             <required1>a</required1>
-            <!-- <positional4_s/> scalar, but is backtracked anyway by IBM DFDL, daffodil treatAsMissing mode. -->
+            <!-- <positional4_s/> scalar, but is backtracked anyway by IBM DFDL, daffodil treatAsAbsent mode. -->
             <!-- no empty string for positional5 -->
           </record>
         </ex:ptg3>

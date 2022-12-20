@@ -103,7 +103,8 @@
       </dfdl:defineFormat>
       
       <dfdl:defineFormat name="GeneralFormat">
-        <dfdl:format ref="GeneralFormatOriginal" />
+        <dfdl:format ref="GeneralFormatOriginal"
+            emptyElementParsePolicy="treatAsEmpty"/>
       </dfdl:defineFormat>
         
       <dfdl:defineFormat name="GeneralFormatPortable">

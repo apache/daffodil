@@ -29,7 +29,7 @@
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
       lengthUnits="bits"
-      dfdlx:emptyElementParsePolicy="treatAsEmpty"
+      emptyElementParsePolicy="treatAsEmpty"
       representation="binary"
       />
 

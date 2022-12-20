@@ -344,7 +344,7 @@
         <xs:sequence dfdl:separator="$;" dfdl:separatorPosition="infix">
           <xs:element name="x" type="xs:string" dfdl:escapeSchemeRef="tns:scenario2" />
           <xs:element name="y" type="xs:string" minOccurs="0" dfdl:escapeSchemeRef="tns:scenario2"
-            dfdlx:emptyElementParsePolicy="treatAsEmpty" />
+            dfdl:emptyElementParsePolicy="treatAsEmpty" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>

@@ -626,6 +626,13 @@
     </xsd:restriction>
   </xsd:simpleType>
 
+  <xsd:simpleType name="EmptyElementParsePolicyEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="treatAsEmpty" />
+      <xsd:enumeration value="treatAsAbsent" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
   <!-- ============================================================= -->
   <!-- Simple types with DFDL Expression -->
   <!-- ============================================================= -->
