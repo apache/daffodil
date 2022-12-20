@@ -32,6 +32,7 @@ RUN \
     llvm \
     mxml-devel \
     npm \
+    pandoc \
     pinentry \
     rpm-build \
     rpm-sign \

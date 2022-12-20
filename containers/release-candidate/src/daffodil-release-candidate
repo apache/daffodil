@@ -224,6 +224,7 @@ fi
 DAFFODIL_CODE_DIR=$REPO_ROOT/$DAFFODIL_CODE_REPO
 DAFFODIL_SITE_DIR=$REPO_ROOT/$DAFFODIL_SITE_REPO
 DAFFODIL_DOCS_DIR=$DAFFODIL_SITE_DIR/site/docs/$VERSION
+DAFFODIL_VSCODE_DOCS_DIR=$DAFFODIL_SITE_DIR/site/docs/vscode/$VERSION
 DAFFODIL_TUTORIALS_DIR=$DAFFODIL_SITE_DIR/site/tutorials
 DAFFODIL_DIST_DIR=$REPO_ROOT/$DAFFODIL_DIST
 DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_DIR/$VERSION-$PRE_RELEASE
@@ -300,6 +301,18 @@ case $PROJECT_REPO in
     yarn package
     cp *.vsix $DAFFODIL_RELEASE_DIR/bin/
 
+    echo "Building Extension Docs..."
+    DOC_NAME="Apache-Daffodil-Extension-for-Visual-Studio-Code-$VERSION"
+    git clone https://github.com/apache/daffodil-vscode.wiki.git .wiki
+    pandoc -t docx -f markdown -o .wiki/$DOC_NAME.docx .wiki/*.md 
+    pandoc -t html -f markdown -o .wiki/$DOC_NAME.html .wiki/*.md 
+
+    echo "Installing Extension Docs..."
+    rm -rf $DAFFODIL_VSCODE_DOCS_DIR
+    mkdir -p $DAFFODIL_VSCODE_DOCS_DIR
+    mv .wiki/$DOC_NAME.* $DAFFODIL_VSCODE_DOCS_DIR
+    rm -rf .wiki
+
     ;;
 
 esac
@@ -324,7 +337,7 @@ popd &> /dev/null
 pushd $DAFFODIL_SITE_DIR &> /dev/null
 echo "Committing Site Changes..."
 git add .
-git diff-index --quiet HEAD || git commit -m "Stage release v$VERSION-$PRE_RELEASE"
+git diff-index --quiet HEAD || git commit -m "Stage $PROJECT_NAME release v$VERSION-$PRE_RELEASE"
 popd &> /dev/null
 
 echo "Adding Release Files..."
