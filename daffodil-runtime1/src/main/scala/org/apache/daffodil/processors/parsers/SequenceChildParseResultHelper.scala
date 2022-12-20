@@ -274,7 +274,7 @@ trait ElementSequenceChildParseResultHelper
             pstate.schemaDefinitionError("Default values not implemented.")
           } else {
             emptyElementParsePolicy match {
-              case EmptyElementParsePolicy.TreatAsMissing => {
+              case EmptyElementParsePolicy.TreatAsMissing | EmptyElementParsePolicy.TreatAsAbsent => { // deprecated: TreatAsMissing
                 parser.PE(pstate, "Empty element not allowed for required element.")
                 ParseAttemptStatus.MissingItem
               }

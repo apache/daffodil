@@ -430,9 +430,11 @@ trait TextStandardExponentRepMixin extends PropertyMixin {
  */
 sealed trait EmptyElementParsePolicy extends EmptyElementParsePolicy.Value
 object EmptyElementParsePolicy extends Enum[EmptyElementParsePolicy] {
-  case object TreatAsMissing extends EmptyElementParsePolicy
+  case object TreatAsMissing extends EmptyElementParsePolicy // deprecated
   case object TreatAsEmpty extends EmptyElementParsePolicy
-  override lazy val values = Array(TreatAsMissing, TreatAsEmpty)
+  case object TreatAsAbsent extends EmptyElementParsePolicy
+
+  override lazy val values = Array(TreatAsMissing, TreatAsEmpty, TreatAsAbsent) // deprecated: TreatAsMissing
 
   def apply(name: String, context: ThrowsSDE): EmptyElementParsePolicy = stringToEnum("emptyElementParsePolicy", name, context)
 }
@@ -454,7 +456,7 @@ trait EmptyElementParsePolicyMixin extends PropertyMixin {
 
   /**
    * Property determines whether Daffodil implements empty elements in a manner consistent with
-   * IBM DFDL (as of 2019-05-02), which has policy treatAsMissing, or implements what is
+   * IBM DFDL (as of 2019-05-02), which has policy treatAsAbsent, or implements what is
    * described in the DFDL spec., which is treatAsEmpty - if the syntax of
    * empty (or nullness) is matched, create an empty (or null) item, even if optional, unless
    * the element is entirely absent.
@@ -468,15 +470,10 @@ trait EmptyElementParsePolicyMixin extends PropertyMixin {
       // prop is not required AND not defined so use tunable value
       // but issue warning (which can be suppressed)
       val defaultEmptyElementParsePolicy = this.tunable.defaultEmptyElementParsePolicy
-      // This property is an extension, so we don't want to require users to
-      // add this property just to silence this warning, especially since the
-      // property might change in the future. So silently use a default without
-      // outputting a warning. We may want to turn this warning on when the
-      // property makes its way into the official DFDL spec.
-      //SDW(
-      //  WarnID.EmptyElementParsePolicyError,
-      //  "Property 'dfdlx:emptyElementParsePolicy' is required but not defined, using tunable '%s' by default.",
-      //  defaultEmptyElementParsePolicy)
+      SDW(
+        WarnID.EmptyElementParsePolicyError,
+        "Property 'dfdl:emptyElementParsePolicy' is required but not defined, using tunable '%s' by default.",
+        defaultEmptyElementParsePolicy)
       defaultEmptyElementParsePolicy
     }
   }

@@ -98,8 +98,9 @@
     <xsd:attribute name="bitOrder" type="dfdl:BitOrderEnum"/>
     <xsd:attribute ref="daf:parseUnparsePolicy"/> <!-- backwards compatibility -->
     <xsd:attribute ref="dfdlx:parseUnparsePolicy"/>
-    <xsd:attribute ref="dfdlx:emptyElementParsePolicy"/>
-      
+    <xsd:attribute name="emptyElementParsePolicy" type="dfdl:EmptyElementParsePolicyEnum"/>
+    <xsd:attribute ref="dfdlx:emptyElementParsePolicy"/> <!-- deprecated -->
+
     <xsd:attribute name="encoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
     <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
@@ -539,6 +540,7 @@
       <xsd:enumeration value="bitOrder"/>
       <xsd:enumeration value="encoding" />
       <xsd:enumeration value="encodingErrorPolicy"/>
+      <xsd:enumeration value="emptyElementParsePolicy"/>
       <xsd:enumeration value="utf16Width" />
       <xsd:enumeration value="ignoreCase" />
 
@@ -641,6 +643,8 @@
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="encodingErrorPolicy"
       type="dfdl:EncodingErrorPolicyEnum" />
+    <xsd:attribute form="qualified" name="emptyElementParsePolicy"
+      type="dfdl:EmptyElementParsePolicyEnum" />
     <xsd:attribute form="qualified" name="utf16Width"
       type="dfdl:UTF16WidthEnum" />
     <xsd:attribute form="qualified" name="ignoreCase"

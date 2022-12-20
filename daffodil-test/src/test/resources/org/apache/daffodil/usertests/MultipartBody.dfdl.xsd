@@ -53,8 +53,8 @@
 				dfdl:terminator="--%CR;%LF;">
 				<xsd:element name="BodyPart" dfdl:lengthKind="delimited"
 					minOccurs="1" maxOccurs="unbounded" type="xsd:string"
-					dfdl:occursCountKind="implicit" 
-          dfdlx:emptyElementParsePolicy="treatAsEmpty" />
+					dfdl:occursCountKind="implicit"
+				 	dfdl:emptyElementParsePolicy="treatAsEmpty" />
 			</xsd:sequence>
 		</xsd:complexType>
 	</xsd:element>

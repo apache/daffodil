@@ -438,11 +438,11 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
 
   /**
    * Must deal with nils, emptyness and string/hexBinary exceptional behavior
-   * including the behavior for dfdlx:emptyElementParsePolicy 'treatAsMissing' which special cases
+   * including the behavior for dfdl:emptyElementParsePolicy 'treatAsAbsent' which special cases
    * Required elements like scalars, iff they are emptyRep, emptyValueDelimiterPolicy,
    * nilValueDelimiterPolicy, complex elements that nillable, or fully defaultable.
    *
-   * So we have ((simpleStringHexBinary x (treatAsMissing, treatAsEmpty), simpleOther, complex) x (nillable, not) x
+   * So we have ((simpleStringHexBinary x (treatAsAbsent, treatAsEmpty), simpleOther, complex) x (nillable, not) x
    * 4 behaviors. That's 32 combinations. Let's start with fewer cases and more runtime
    * decisions, and specialize if we think it will help clarity or performance.
    */

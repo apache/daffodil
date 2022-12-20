@@ -598,7 +598,11 @@
   </xs:element>
 
   <xs:simpleType name="TunableEmptyElementParsePolicy">
-    <xs:restriction base="dfdlx:EmptyElementParsePolicyEnum" />
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="treatAsEmpty" />
+      <xs:enumeration value="treatAsAbsent" />
+      <xs:enumeration value="treatAsMissing" /> <!-- deprecated -->
+    </xs:restriction>
   </xs:simpleType>
 
   <!--

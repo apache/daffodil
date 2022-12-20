@@ -36,7 +36,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="dfdlx:alignmentKind" />
       <xs:enumeration value="dfdlx:choiceBranchKeyRanges" />
-      <xs:enumeration value="dfdlx:emptyElementParsePolicy"/>
+      <xs:enumeration value="dfdlx:emptyElementParsePolicy"/> <!-- deprecated -->
       <xs:enumeration value="dfdlx:inputTypeCalc"/>
       <xs:enumeration value="dfdlx:objectKind"/>
       <xs:enumeration value="dfdlx:outputTypeCalc"/>
@@ -94,11 +94,11 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:attribute name="emptyElementParsePolicy" type="dfdlx:EmptyElementParsePolicyEnum"/>
+  <xs:attribute name="emptyElementParsePolicy" type="dfdlx:EmptyElementParsePolicyEnum"/> <!-- deprecated -->
   <xs:simpleType name="EmptyElementParsePolicyEnum">
     <xs:restriction base="xs:string">
       <xs:enumeration value="treatAsEmpty" />
-      <xs:enumeration value="treatAsMissing" />
+      <xs:enumeration value="treatAsMissing" /> <!-- deprecated -->
     </xs:restriction>
   </xs:simpleType>
   
