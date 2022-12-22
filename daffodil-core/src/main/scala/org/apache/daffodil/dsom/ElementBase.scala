@@ -573,7 +573,7 @@ trait ElementBase
         // how explicit alignment interacts with text characters, or with binary packed decimal - as text chars
         // and packed decimal digits come with alignment constraints of their own.
         //
-        impliedRepresentation match {
+        repElement.impliedRepresentation match {
           case Representation.Text => {
             //
             // If they have text representation, alignment and the text encoding alignment must be compared.
