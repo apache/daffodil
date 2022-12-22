@@ -38,4 +38,5 @@ class TestEnums {
   @Test def test_enumInvalid1(): Unit = { runner.runOneTest("enumInvalid1") }
   @Test def test_enumMiss1(): Unit = { runner.runOneTest("enumMiss1") }
 
+  @Test def test_repTypeAlignment(): Unit = { runner.runOneTest("repTypeAlignment") }
 }

@@ -109,4 +109,63 @@
     </errors>
   </unparserTestCase>
 
+  <tdml:defineSchema
+    name="s2"
+    useDefaultNamespace="false"
+    elementFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema">
+
+    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
+      alignment="1" alignmentUnits="bits"
+      lengthUnits="bits"/>
+
+    <element name="r1">
+      <complexType>
+        <sequence>
+          <element name="e1" type="ex:enum1"/>
+          <element name="e2" type="ex:enum1"/>
+          <element name="e3" type="ex:enum1"/>
+          <element name="e4" type="ex:enum1"/>
+          <element name="e5" type="ex:enum1"/>
+          <element name="e6" type="ex:enum1"/>
+          <element name="e7" type="ex:enum1"/>
+          <element name="e8" type="ex:enum1"/>
+        </sequence>
+      </complexType>
+    </element>
+
+    <simpleType name="myBit" dfdl:lengthKind="explicit" dfdl:length="1">
+      <restriction base="xs:byte"/>
+    </simpleType>
+
+    <simpleType name="enum1" dfdlx:repType="ex:myBit">
+      <restriction base="xs:string">
+        <enumeration value="validA" dfdlx:repValues="0"/>
+        <enumeration value="validB" dfdlx:repValues="1"/>
+      </restriction>
+    </simpleType>
+
+  </tdml:defineSchema>
+
+  <parserTestCase name="repTypeAlignment" model="s2" root="r1">
+    <document>
+      <documentPart type="bits">01010101</documentPart>
+    </document>
+    <infoset>
+      <tdml:dfdlInfoset xmlns="">
+        <ex:r1>
+          <e1>validA</e1>
+          <e2>validB</e2>
+          <e3>validA</e3>
+          <e4>validB</e4>
+          <e5>validA</e5>
+          <e6>validB</e6>
+          <e7>validA</e7>
+          <e8>validB</e8>
+        </ex:r1>
+      </tdml:dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
 </testSuite>
