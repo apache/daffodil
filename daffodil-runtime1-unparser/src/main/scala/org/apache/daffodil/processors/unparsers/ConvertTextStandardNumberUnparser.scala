@@ -20,6 +20,10 @@ package org.apache.daffodil.processors.unparsers
 import org.apache.daffodil.processors._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.processors.TextNumberFormatEv
+import org.apache.daffodil.processors.parsers.TextDecimalVirtualPointMixin
+import org.apache.daffodil.util.Numbers.isZero
+
+import java.lang.{Number => JNumber}
 
 case class ConvertTextCombinatorUnparser(
   rd: TermRuntimeData,
@@ -43,8 +47,10 @@ case class ConvertTextCombinatorUnparser(
 case class ConvertTextNumberUnparser(
   textNumberFormatEv: TextNumberFormatEv,
   zeroRep: Maybe[String],
-  override val context: ElementRuntimeData)
+  override val context: ElementRuntimeData,
+  override val textDecimalVirtualPoint: Int)
   extends PrimUnparser
+  with TextDecimalVirtualPointMixin
   with ToBriefXMLImpl {
 
   override lazy val runtimeDependencies = Vector(textNumberFormatEv)
@@ -52,7 +58,7 @@ case class ConvertTextNumberUnparser(
   override def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
-    val value = node.dataValue
+    val value = node.dataValue.getAnyRef
 
     // The type of value should have the type of S, but type erasure makes this
     // difficult to assert. Could probably check this with TypeTags or Manifest
@@ -62,11 +68,24 @@ case class ConvertTextNumberUnparser(
     val df = textNumberFormatEv.evaluate(state).get
     val dfs = df.getDecimalFormatSymbols
 
-    val strRep = value.getAnyRef match {
-      case n: Number if n == 0 && zeroRep.isDefined => zeroRep.get
+    val scaledValue = applyTextDecimalVirtualPointForUnparse(value)
+
+    val strRep = scaledValue match {
+      //
+      // Note that Java bigDecimal equals (which is invoked by the == operator) does NOT
+      // consider two bigDecimal values equal if they have different scale.
+      // So, if you take the number 0 and scale it, you get a "different zero" as far as equals
+      // is concerned.
+      //
+      // Java BigDecimal is also not equal to any other Number sub-type.
+      // Really we should revisit the decision to use Java number types instead of Scala types.
+      //
+      // You must use compareTo method to compare bigDecimal values.
+      //
+      case n: JNumber if zeroRep.isDefined && isZero(n) => zeroRep.get
       case _ =>
         try {
-          df.format(value.getAnyRef)
+          df.format(scaledValue)
         } catch {
           case e: java.lang.ArithmeticException => UE(state, "Unable to format number to pattern: %s", e.getMessage())
         }

@@ -311,4 +311,22 @@ object Numbers {
   def asAnyRef(n: Any): AnyRef = {
     n.asInstanceOf[AnyRef]
   }
+
+  /** For any standard predefined subtype of JNumber, is the value numerically zero. */
+  def isZero(n1: JNumber) : Boolean = {
+    n1 match {
+      case d: JDouble => d.doubleValue() == 0.0
+      case f: JFloat => f.floatValue() == 0.0
+      case bd: JBigDecimal => bd.signum() == 0
+      case bi: JBigInt => bi.signum() == 0
+      case l: JLong => l.longValue == 0
+      case i: JInt => i.intValue == 0
+      case s: JShort => s.shortValue == 0
+      case b: JByte => b.byteValue == 0
+      // $COVERAGE-OFF$
+      case _ => Assert.invariantFailed(s"Unknown JNumber type: ${n1.getClass.getName}")
+      // $COVERAGE-ON$
+    }
+  }
+
 }

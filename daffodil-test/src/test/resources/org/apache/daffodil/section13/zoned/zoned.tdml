@@ -113,7 +113,9 @@
       <tdml:documentPart type="text">1988</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Invalid characters used in textNubmerPattern for zoned number</tdml:error>
+      <tdml:error>textNumberPattern</tdml:error>
+      <tdml:error>'E'</tdml:error>
+      <tdml:error>zoned</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
