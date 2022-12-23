@@ -21,6 +21,7 @@ import scala.xml.Comment
 import scala.xml.Node
 import scala.xml.Text
 
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 
 object GlobalGroupDef {
@@ -118,6 +119,7 @@ sealed abstract class GlobalGroupDef(
 
   def groupMembers = {
     validateChoiceBranchKey()
+    checkForGroupDefAnnotations()
     this.groupMembersNotShared
   }
 
@@ -129,6 +131,18 @@ sealed abstract class GlobalGroupDef(
         "dfdl:choiceBranchKey cannot be specified on the choice/sequence child of a global group definition",
       )
     }
+  }
+
+  private def checkForGroupDefAnnotations(): Unit = {
+    // Ensure that the group definition itself does not have any annotations.
+    // Annotations should only be on group references or children of the group
+    // definition
+    val dais = getDFDLAppinfos(defXML \ "annotation" \ "appinfo")
+    if (dais.nonEmpty)
+      SDW(
+        WarnID.InvalidAnnotationPoint,
+        "Annotations placed directly on a group definition will be ignored by DFDL. Any annotation expected to be processed by DFDL should instead be placed on the group reference, sequence or choice."
+      )
   }
 
   final override lazy val name = defXML

@@ -163,6 +163,8 @@ class TestVariables {
     runner.runOneTest("multipleVarReadInPoU_01")
   }
 
+  @Test def test_nviInGroupDecl_01(): Unit = { runner.runOneTest("nviInGroupDecl_01") }
+
   /*****************************************************************/
   val tdmlVal = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
