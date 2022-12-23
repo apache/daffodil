@@ -19,6 +19,7 @@ package org.apache.daffodil.core.dsom
 
 import scala.collection.mutable
 import scala.xml.Node
+import scala.xml.NodeSeq
 
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.equality._
@@ -412,9 +413,8 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
 
   private def isDfdlNamespace(ns: String): Boolean = ns.contains("ogf") && ns.contains("dfdl")
 
-  lazy val dfdlAppInfos = {
-    val ais = (annotationNode \ "appinfo")
-    val dais = ais.filter { ai =>
+  def getDFDLAppinfos(appinfos: NodeSeq): NodeSeq = {
+    val dais = appinfos.filter { ai =>
       {
         ai.attribute("source") match {
           case None => {
@@ -459,6 +459,11 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
       }
     }
     dais
+  }
+
+  lazy val dfdlAppInfos = {
+    val ais = (annotationNode \ "appinfo")
+    getDFDLAppinfos(ais)
   }
 
   /**

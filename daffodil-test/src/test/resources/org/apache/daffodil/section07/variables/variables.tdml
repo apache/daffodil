@@ -2708,4 +2708,51 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="nviInGroupDecl">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:defineVariable defaultValue="x" name="var1" type="xs:string"/>
+
+    <dfdl:format ref="GeneralFormat" />
+
+    <xs:group name="g1">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:newVariableInstance ref="ex:var1" defaultValue="test"/>
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:sequence>
+        <xs:element name="e1" type="xs:string" dfdl:inputValueCalc="{ $ex:var1 }"/>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:group ref="ex:g1"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nviInGroupDecl_01" root="root" model="nviInGroupDecl">
+    <tdml:document></tdml:document>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Annotations</tdml:warning>
+      <tdml:warning>group definition</tdml:warning>
+      <tdml:warning>ignored</tdml:warning>
+    </tdml:warnings>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <e1>x</e1>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
 </tdml:testSuite>
