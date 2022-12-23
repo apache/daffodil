@@ -391,6 +391,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>positive part</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

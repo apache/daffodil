@@ -18,6 +18,7 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.processors._
+import org.apache.daffodil.processors.parsers.TextDecimalVirtualPointMixin
 import org.apache.daffodil.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.util.DecimalUtils
 import org.apache.daffodil.util.DecimalUtils.OverpunchLocation
@@ -44,8 +45,10 @@ case class ConvertZonedCombinatorUnparser(
 case class ConvertZonedNumberUnparser(
   opl: OverpunchLocation.Value,
   zonedSignStyle: TextZonedSignStyle,
-  override val context: ElementRuntimeData)
+  override val context: ElementRuntimeData,
+  override val textDecimalVirtualPoint: Int)
   extends PrimUnparser
+  with TextDecimalVirtualPointMixin
   with ToBriefXMLImpl {
 
   override lazy val runtimeDependencies = Vector()
@@ -53,12 +56,18 @@ case class ConvertZonedNumberUnparser(
   override def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
-    val value = node.dataValueAsString
 
+    // Note re: Type safety
     // The type of value should have the type of S, but type erasure makes this
     // difficult to assert. Could probably check this with TypeTags or Manifest
     // if we find this is not the case. Want something akin to:
     // Assert.invariant(value.isInstanceOf[S])
+
+    val valueAsAnyRef = node.dataValue.getAnyRef
+
+    val scaledNum = this.applyTextDecimalVirtualPointForUnparse(valueAsAnyRef)
+
+    val value = scaledNum.toString
 
     val strRep = DecimalUtils.zonedFromNumber(value, zonedSignStyle, opl)
 

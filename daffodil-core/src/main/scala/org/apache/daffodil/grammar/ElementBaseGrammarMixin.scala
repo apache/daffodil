@@ -642,7 +642,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val textConverter = {
     primType match {
-      case _: NodeInfo.Numeric.Kind => ConvertTextNumberPrim(this)
+      case _: NodeInfo.Numeric.Kind => ConvertTextStandardNumberPrim(this)
       case PrimType.Boolean => ConvertTextBooleanPrim(this)
       case PrimType.Date => ConvertTextDatePrim(this)
       case PrimType.Time => ConvertTextTimePrim(this)

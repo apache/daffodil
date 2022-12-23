@@ -18,8 +18,6 @@
 package org.apache.daffodil.grammar.primitives
 
 
-import com.ibm.icu.text.DecimalFormat
-
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom._
 import org.apache.daffodil.grammar.Gram
@@ -47,71 +45,67 @@ case class ConvertZonedCombinator(e: ElementBase, value: Gram, converter: Gram)
 }
 
 case class ConvertZonedNumberPrim(e: ElementBase)
-  extends Terminal(e, true) {
+  extends Terminal(e, true)
+  with ConvertTextNumberMixin {
 
-  val textNumberFormatEv: TextNumberFormatEv = {
-    val pattern = {
-      val p = e.textNumberPattern
-
-      val noEscapedTicksRegex = """''""".r
-      val patternNoEscapedTicks = noEscapedTicksRegex.replaceAllIn(p, "")
-      val noQuotedRegex = """'[^']+'""".r
-      val patternNoQuoted = noQuotedRegex.replaceAllIn(patternNoEscapedTicks, "")
-      val zonedPatternRegex = "\\+?#*[0-9]+\\+?".r
-
-      if (patternNoQuoted.contains("V")) {
-        e.notYetImplemented("textNumberPattern with V symbol")
-      }
-
-      if (patternNoQuoted.contains("P")) {
-        e.notYetImplemented("textNumberPattern with P symbol")
-      }
-
-      if (patternNoQuoted.contains("@")) {
-        e.SDE("The '@' symbol may not be used in textNumberPattern for textNumberRep='zoned'")
-      }
-
-      if (patternNoQuoted.contains(";")) {
-        e.SDE("Negative patterns may not be used in textNumberPattern for textNumberRep='zoned'")
-      }
-
-      e.primType match {
-        case PrimType.Double | PrimType.Float => e.SDE("textZonedFormat='zoned' does not support Doubles/Floats")
-        case PrimType.UnsignedLong | PrimType.UnsignedInt | PrimType.UnsignedShort | PrimType.UnsignedByte => {
-          if (e.textNumberCheckPolicy == TextNumberCheckPolicy.Lax) {
-            if ((patternNoQuoted(0) != '+') && (patternNoQuoted(patternNoQuoted.length - 1) != '+'))
-              e.SDE("textNumberPattern must have '+' at the beginning or the end of the pattern when textZonedFormat='zoned' and textNumberPolicy='lax' for unsigned numbers")
-          }
-        }
-        case _ => {
-          if ((patternNoQuoted(0) != '+') && (patternNoQuoted(patternNoQuoted.length - 1) != '+'))
-            e.SDE("textNumberPattern must have '+' at the beginning or the end of the pattern when textZonedFormat='zoned' for signed numbers")
-        }
-      }
-
-      if ((patternNoQuoted(0) == '+') && (patternNoQuoted(patternNoQuoted.length - 1) == '+'))
-        e.SDE("The textNumberPattern may either begin or end with a '+', not both.")
-
-      if (!zonedPatternRegex.pattern.matcher(patternNoQuoted).matches)
-        e.SDE("Invalid characters used in textNubmerPattern for zoned number. Only the following characters may be used with zoned numbers: '+', 'V', 'P', '0-9', and '#'")
-
-      // Load the pattern to make sure it is valid
-      try {
-        new DecimalFormat(p.replace("+", ""))
-      } catch {
-        case ex: IllegalArgumentException => e.SDE("Invalid textNumberPattern: " + ex.getMessage())
-      }
-
-      p
+  final override protected lazy val textDecimalVirtualPointFromPattern: Int = {
+    TextNumberPatternUtils.textDecimalVirtualPointForZoned(patternStripped).getOrElse {
+      e.SDE(
+        s"""The dfdl:textNumberPattern '%s' contains 'V' (virtual decimal point).
+           |Other than the leading or trailing '+' sign indicator,
+           |it can contain only digits 0-9.""".stripMargin('|'),
+        pattern)
     }
+  }
+
+  lazy val textNumberFormatEv: TextNumberFormatEv = {
+
+    if (patternStripped.contains("@")) {
+      e.SDE("The '@' symbol may not be used in textNumberPattern for textNumberRep='zoned'")
+    }
+
+    if (patternStripped.contains("E")) {
+      e.SDE("The 'E' symbol may not be used in textNumberPattern for textNumberRep='zoned'")
+    }
+
+    e.schemaDefinitionWhen(patternStripped.contains(";"),
+      "Negative patterns may not be used in textNumberPattern for textNumberRep='zoned'")
+
+    e.primType match {
+      case PrimType.Double | PrimType.Float => e.SDE("textNumberRep='zoned' does not support Doubles/Floats")
+      case PrimType.UnsignedLong | PrimType.UnsignedInt | PrimType.UnsignedShort | PrimType.UnsignedByte => {
+        if (e.textNumberCheckPolicy == TextNumberCheckPolicy.Lax) {
+          if ((patternStripped(0) != '+') && (patternStripped(patternStripped.length - 1) != '+'))
+            e.SDE("textNumberPattern must have '+' at the beginning or the end of the pattern when textNumberRep='zoned' and textNumberPolicy='lax' for unsigned numbers")
+        }
+      }
+      case _ => {
+        if ((patternStripped(0) != '+') && (patternStripped(patternStripped.length - 1) != '+'))
+          e.SDE("textNumberPattern must have '+' at the beginning or the end of the pattern when textNumberRep='zoned' for signed numbers")
+      }
+    }
+
+    if ((patternStripped(0) == '+') && (patternStripped(patternStripped.length - 1) == '+'))
+      e.SDE("The textNumberPattern may either begin or end with a '+', not both.")
+
+    if (textDecimalVirtualPoint > 0) {
+      e.primType match {
+        case PrimType.Decimal => // ok
+        case _ => e.SDE(
+          """The dfdl:textNumberPattern has a virtual decimal point 'V' and dfdl:textNumberRep='zoned'.
+            | The type must be xs:decimal, but was: %s.""".stripMargin, e.primType.globalQName.toPrettyString)
+      }
+    }
+
+    checkPatternWithICU(e)
 
     /* Need to remove the '+' from the number pattern as '+' is only
     *  used to indicate which digit of the number is overpunched when
     *  dealing with zoned decimal formats. If the '+' is not removed
-    *  DecimalFormat will attempt to use it as an indicator for exponent
-    *  numbers, which will most likely not match the zoned number being
-    *  parsed */
-    val zonedPattern = pattern.replace("+", "")
+    *  the underlying ICU library will attempt to use it as an indicator for exponent
+    *  numbers, which will be wrong for zoned number parsing.
+    */
+    val zonedPattern = runtimePattern.replace("+", "")
 
     val (roundingIncrement, roundingMode) =
       e.textNumberRounding match {
@@ -148,7 +142,11 @@ case class ConvertZonedNumberPrim(e: ElementBase)
       OverpunchLocation.None
   }
 
-  lazy val parser: Parser = new ConvertZonedNumberParser(opl, textNumberFormatEv, e.textZonedSignStyle, e.elementRuntimeData)
+  lazy val parser: Parser =
+    new ConvertZonedNumberParser(opl, textNumberFormatEv, e.textZonedSignStyle, e.elementRuntimeData,
+      textDecimalVirtualPoint)
 
-  override lazy val unparser: Unparser = new ConvertZonedNumberUnparser(opl, e.textZonedSignStyle, e.elementRuntimeData)
+  override lazy val unparser: Unparser =
+    new ConvertZonedNumberUnparser(opl, e.textZonedSignStyle, e.elementRuntimeData,
+      textDecimalVirtualPoint)
 }

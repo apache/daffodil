@@ -52,7 +52,10 @@ case class ConvertZonedNumberParser(
   opl: OverpunchLocation.Value,
   textNumberFormatEv: TextNumberFormatEv,
   zonedSignStyle: TextZonedSignStyle,
-  override val context: ElementRuntimeData) extends TextPrimParser {
+  override val context: ElementRuntimeData,
+  override val textDecimalVirtualPoint: Int)
+  extends TextPrimParser
+  with TextDecimalVirtualPointMixin {
 
   override lazy val runtimeDependencies = Vector(textNumberFormatEv)
 
@@ -85,18 +88,20 @@ case class ConvertZonedNumberParser(
       if (decodedNum(0) == '-')
         checkLength = checkLength + 1
 
-      val num = df.get.parse(decodedNum, pos)
+      val num1 = df.get.parse(decodedNum, pos)
 
       // Verify that what was parsed was what was passed exactly in byte count.
       // Use pos to verify all characters consumed & check for errors!
-      if (num == null || pos.getIndex != checkLength) {
+      if (num1 == null || pos.getIndex != checkLength) {
         PE(start, "Unable to parse zoned %s from text: %s.",
           context.optPrimType.get.globalQName, str)
         return
       }
 
+      val num2 = applyTextDecimalVirtualPointForParse(num1)
+
       val numValue = try {
-        primNumeric.fromNumber(num)
+        primNumeric.fromNumber(num2)
       } catch {
         case e: InvalidPrimitiveDataException => {
           PE(start, "%s", e.getMessage)
