@@ -18,8 +18,8 @@
 // for be64toh, le64toh, be32toh, le32toh
 // for htobe64, htole64, htobe32, htole32
 #if defined(__APPLE__)
-#include <machine/endian.h>
 #include <libkern/OSByteOrder.h>
+#include <machine/endian.h>
 #define htobe16(x) OSSwapHostToBigInt16(x)
 #define htole16(x) OSSwapHostToLittleInt16(x)
 #define be16toh(x) OSSwapBigToHostInt16(x)

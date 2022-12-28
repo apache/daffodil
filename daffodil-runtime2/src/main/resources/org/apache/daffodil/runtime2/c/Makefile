@@ -20,10 +20,11 @@
 # $ sudo apt install libmxml-dev xmldiff
 
 # Step 1: Compile the C source files into an executable program which
-# can run the parse and unparse checks (e.g., .dat <-> .xml).  Just
-# run make with no arguments unless you want to override CC or CFLAGS.
+# can parse and unparse test files (e.g., test.dat <-> test.dat.xml).
+# Just run make with no arguments unless you want to override CC or
+# CFLAGS.
 
-# $ make
+# $ make CC=clang
 
 PROGRAM = ./daffodil
 HEADERS = libcli/*.h libruntime/*.h
@@ -32,15 +33,52 @@ INCLUDES = -Ilibcli -Ilibruntime
 CFLAGS = -g -Wall -Wextra -Wpedantic -std=gnu11
 LIBS = -lmxml
 
+all: $(PROGRAM)
+
 $(PROGRAM): $(HEADERS) $(SOURCES)
 	$(CC) $(CFLAGS) $(INCLUDES) $(SOURCES) $(LIBS) -o $(PROGRAM)
 
-# Step 1.5: Run the tests if you are a developer making changes to the
-# C code, otherwise you can skip this step.  On Ubuntu, you will need
-# to manually build and install a C test framework library called
+# Step 2: Copy your test files here and rename them to test.dat and
+# test.dat.xml or else override TEST on the make command line.
+
+# $ cp <other-dir>/nums.dat test.dat
+# $ cp <other-dir>/nums.dat.xml test.dat.xml
+# $ make test
+# or:
+# $ cp <other-dir>/nums.dat .
+# $ cp <other-dir>/nums.dat.xml .
+# $ make test TEST=nums
+
+TEST = test
+TEST_DAT = $(TEST).dat
+TEST_DAT_XML = $(TEST_DAT).xml
+PARSE = $(PROGRAM) parse
+UNPARSE = $(PROGRAM) unparse
+
+# Step 3: Run the executable on the test files and verify that the new
+# scratch files match the original test files.
+
+# $ make test
+
+test: test-parse test-unparse
+
+test-parse: $(PROGRAM)
+	$(PARSE) -o $(TEST_DAT_XML).tmp $(TEST_DAT)
+	xmldiff $(TEST_DAT_XML) $(TEST_DAT_XML).tmp
+
+test-unparse: $(PROGRAM)
+	$(UNPARSE) -o $(TEST_DAT).tmp $(TEST_DAT_XML)
+	diff $(TEST_DAT) $(TEST_DAT).tmp
+
+# Step 4: If you are a developer who is making changes to the
+# bit-reading and bit-writing C code, you can run some unit tests for
+# that C code, otherwise you can skip this step.  On Ubuntu, you will
+# need to manually build and install a C test framework library called
 # Criterion (https://github.com/Snaipe/Criterion).  Also note that
 # building Criterion from source will require running "sudo apt
 # install meson ninja-build libffi-dev libgit2-dev" first.
+
+# $ make tests
 
 TPROGRAM = ./ctests
 EXCLUDES = %/daffodil_main.c %/generated_code.c
@@ -52,41 +90,20 @@ TLIBS = $(LIBS) -lcriterion
 $(TPROGRAM): $(HEADERS) $(LSOURCES) $(TSOURCES)
 	$(CC) $(CFLAGS) $(TINCLUDES) $(LSOURCES) $(TSOURCES) $(TLIBS) -o $(TPROGRAM)
 
-test: $(TPROGRAM)
+tests: $(TPROGRAM)
 	$(TPROGRAM) #--verbose --debug=gdb --filter=bits/be_signed_integers
-
-# Step 2: Copy your test files here and rename them to test.dat and
-# test.dat.xml or else edit TEST_DAT and TEST_DAT_XML below.
-
-# $ cp ../ex_nums.dat test.dat
-# $ cp ../ex_nums.dat.xml.runtime2 test.dat.xml
-
-TEST_DAT = test.dat
-TEST_DAT_XML = test.dat.xml
-
-# Step 3: Run the executable on the test files and check that the new
-# scratch files match the original test files.
-
-# $ make check
-
-check: parse-check unparse-check
-
-parse-check: $(PROGRAM)
-	$(PROGRAM) -o $(TEST_DAT_XML).tmp parse $(TEST_DAT)
-	xmldiff $(TEST_DAT_XML) $(TEST_DAT_XML).tmp
-
-unparse-check: $(PROGRAM)
-	$(PROGRAM) -o $(TEST_DAT).tmp unparse $(TEST_DAT_XML)
-	diff $(TEST_DAT) $(TEST_DAT).tmp
 
 # Step 4: Remove the executable and scratch files (optional).
 
 # $ make clean
 
 clean:
-	rm -f $(PROGRAM) $(TPROGRAM) $(TEST_DAT).tmp $(TEST_DAT_XML).tmp
+	rm -f $(PROGRAM) $(TPROGRAM) *.tmp
 
 # Maintainer only: Format C source files or check includes.
+
+# $ make format
+# $ make iwyu
 
 FMT = clang-format -i
 IWYU = iwyu -Xiwyu --max_line_length=999 -Xiwyu --update_comments
@@ -97,4 +114,4 @@ format:
 iwyu:
 	-for f in $(SOURCES) $(TSOURCES); do $(IWYU) $(CFLAGS) $(INCLUDES) $$f; done
 
-.PHONY: test check parse-check unparse-check clean format iwyu
+.PHONY: all test test-parse test-unparse tests clean format iwyu

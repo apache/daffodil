@@ -29,6 +29,7 @@
 
 enum ErrorCode
 {
+    ERR_ARRAY_BOUNDS,
     ERR_CHOICE_KEY,
     ERR_FIXED_VALUE,
     ERR_HEXBINARY_ALLOC,

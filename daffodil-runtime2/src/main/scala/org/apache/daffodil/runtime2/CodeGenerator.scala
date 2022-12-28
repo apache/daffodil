@@ -244,17 +244,27 @@ object CodeGenerator {
     val exNumsRootName = None
     val nestedSchema = schemaDir/"nested.dfdl.xsd"
     val nestedRootName = Some("NestedUnion")
+    val padTestSchema = schemaDir/"padtest.dfdl.xsd"
+    val padTestRootName = None
+    val variableLenSchema = schemaDir/"variablelen.dfdl.xsd"
+    val variableLenRootName = Some("expressionElement")
 
     val examplesDir = os.Path(args(0))
     val exNumsCodeHeader = examplesDir/"ex_nums"/"generated_code.h"
     val exNumsCodeFile = examplesDir/"ex_nums"/"generated_code.c"
     val nestedCodeHeader = examplesDir/"NestedUnion"/"generated_code.h"
     val nestedCodeFile = examplesDir/"NestedUnion"/"generated_code.c"
+    val padTestCodeHeader = examplesDir/"padtest"/"generated_code.h"
+    val padTestCodeFile = examplesDir/"padtest"/"generated_code.c"
+    val variableLenCodeHeader = examplesDir/"variablelen"/"generated_code.h"
+    val variableLenCodeFile = examplesDir/"variablelen"/"generated_code.c"
 
     // Update each set of example generated code files
     try {
       updateGeneratedCodeExample(exNumsSchema, exNumsRootName, exNumsCodeHeader, exNumsCodeFile)
       updateGeneratedCodeExample(nestedSchema, nestedRootName, nestedCodeHeader, nestedCodeFile)
+      updateGeneratedCodeExample(padTestSchema, padTestRootName, padTestCodeHeader, padTestCodeFile)
+      updateGeneratedCodeExample(variableLenSchema, variableLenRootName, variableLenCodeHeader, variableLenCodeFile)
     } catch {
       case e: Throwable =>
         System.err.println(s"Error generating example code files: $e")

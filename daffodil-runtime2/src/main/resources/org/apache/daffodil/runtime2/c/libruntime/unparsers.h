@@ -57,8 +57,9 @@ extern void unparse_le_uint32(uint32_t number, size_t num_bits, UState *ustate);
 extern void unparse_le_uint64(uint64_t number, size_t num_bits, UState *ustate);
 extern void unparse_le_uint8(uint8_t number, size_t num_bits, UState *ustate);
 
-// Unparse fill bits until end bitPos0b is reached
+// Unparse fill bits up to alignmentInBits or end_bitPos0b
 
+extern void unparse_align(size_t alignmentInBits, const uint8_t fill_byte, UState *ustate);
 extern void unparse_fill_bits(size_t end_bitPos0b, const uint8_t fill_byte, UState *ustate);
 
 // Unparse opaque bytes from hexBinary field
@@ -68,5 +69,9 @@ extern void unparse_hexBinary(HexBinary hexBinary, UState *ustate);
 // Validate unparsed number is same as fixed value
 
 extern void unparse_validate_fixed(bool same, const char *element, UState *ustate);
+
+// Check array count is within bounds
+
+extern void unparse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs, UState *ustate);
 
 #endif // UNPARSERS_H

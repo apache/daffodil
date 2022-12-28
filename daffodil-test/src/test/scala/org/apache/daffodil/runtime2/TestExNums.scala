@@ -24,24 +24,31 @@ import org.junit.Test
 
 object TestExNums {
   val testDir = "/org/apache/daffodil/runtime2/"
-  val runner1 = Runner(testDir, "ex_nums.tdml", TDMLImplementation.Daffodil)
-  val runner2 = Runner(testDir, "ex_nums.tdml", TDMLImplementation.DaffodilC)
+  val runnerS: Runner = Runner(testDir, "ex_nums.tdml", TDMLImplementation.Daffodil)
+  val runnerC: Runner = Runner(testDir, "ex_nums.tdml", TDMLImplementation.DaffodilC)
 
   @AfterClass def shutDown(): Unit = {
-    runner1.reset
-    runner2.reset
+    runnerS.reset()
+    runnerC.reset()
   }
 }
 
 class TestExNums {
   import TestExNums._
 
-  @Test def runtime1_ex_nums(): Unit = { runner1.runOneTest("ex_nums") }
-  @Test def runtime1_error_limited(): Unit = { runner1.runOneTest("runtime1_error_limited") }
-  @Test def runtime1_error_on(): Unit = { runner1.runOneTest("runtime1_error_on") }
-  @Test def runtime1_error_unparse(): Unit = { runner1.runOneTest("runtime1_error_unparse") }
+  @Test def s_ex_nums(): Unit               = { runnerS.runOneTest("ex_nums") }
+  @Test def s_parse_error_off(): Unit       = { runnerS.runOneTest("parse_error_off") }
+  @Test def s_parse_error_limited(): Unit   = { runnerS.runOneTest("parse_error_limited") }
+  @Test def s_parse_error_on(): Unit        = { runnerS.runOneTest("parse_error_on") }
+  @Test def s_unparse_error_off(): Unit     = { runnerS.runOneTest("unparse_error_off") }
+  @Test def s_unparse_error_limited(): Unit = { runnerS.runOneTest("unparse_error_limited") }
+  @Test def s_unparse_error_on(): Unit      = { runnerS.runOneTest("unparse_error_on") }
 
-  @Test def runtime2_ex_nums(): Unit = { runner2.runOneTest("ex_nums") }
-  @Test def runtime2_error_parse(): Unit = { runner2.runOneTest("runtime2_error_parse") }
-  @Test def runtime2_error_unparse(): Unit = { runner2.runOneTest("runtime2_error_unparse") }
+  @Test def c_ex_nums(): Unit               = { runnerC.runOneTest("ex_nums") }
+  @Test def c_parse_error_off(): Unit       = { runnerC.runOneTest("parse_error_off") }
+  @Test def c_parse_error_limited(): Unit   = { runnerC.runOneTest("parse_error_limitedC") }
+  @Test def c_parse_error_on(): Unit        = { runnerC.runOneTest("parse_error_on") }
+  @Test def c_unparse_error_off(): Unit     = { runnerC.runOneTest("unparse_error_offC") }
+  @Test def c_unparse_error_limited(): Unit = { runnerC.runOneTest("unparse_error_limitedC") }
+  @Test def c_unparse_error_on(): Unit      = { runnerC.runOneTest("unparse_error_onC") }
 }

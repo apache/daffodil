@@ -28,7 +28,7 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val addField = hexBinaryPrefixedLengthAddField(e, _, cgState)
     val validateFixed = hexBinaryValidateFixed(e, _, cgState)
 
-    binaryValueGenerateCode(e, addField, validateFixed)
+    binaryValueGenerateCode(e, addField, validateFixed, cgState)
   }
 
   // Called by Runtime2CodeGenerator to generate C code for a hexBinary specified length element
@@ -36,11 +36,13 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val addField = hexBinarySpecifiedLengthAddField(e, _, cgState)
     val validateFixed = hexBinaryValidateFixed(e, _, cgState)
 
-    binaryValueGenerateCode(e, addField, validateFixed)
+    binaryValueGenerateCode(e, addField, validateFixed, cgState)
   }
 
   // Generate C code to initialize, parse, and unparse a hexBinary prefixed length element
   private def hexBinaryPrefixedLengthAddField(e: ElementBase, deref: String, cgState: CodeGeneratorState): Unit = {
+    val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
+    val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local
     val field = s"instance->$localName$deref"
     val intType = e.prefixedLengthElementDecl.optPrimType.get match {
@@ -60,76 +62,70 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val primType = s"$intType$intLen"
     val conv = if (e.prefixedLengthElementDecl.byteOrderEv.constValue == ByteOrder.BigEndian) "be" else "le"
     val function = s"${conv}_$primType"
-    val i = if (deref.length > 2) deref.substring(1, deref.length - 1) else ""
-    val lenVar = s"_l_$localName$i"
+    val lenVar = s"_l_$localName"
 
     val initERDStatement =
-      s"""    $field.array = NULL;
-         |    $field.lengthInBytes = 0;
-         |    $field.dynamic = true;""".stripMargin
-    val initSelfStatement = ""
+      s"""$indent1$indent2    $field.dynamic = true;""".stripMargin
     val parseStatement =
-      s"""    ${primType}_t $lenVar;
-         |    parse_$function(&$lenVar, $intLen, pstate);
-         |    if (pstate->error) return;
-         |    alloc_hexBinary(&$field, $lenVar, pstate);
-         |    if (pstate->error) return;
-         |    parse_hexBinary(&$field, pstate);
-         |    if (pstate->error) return;""".stripMargin
+      s"""$indent1$indent2    ${primType}_t $lenVar;
+         |$indent1$indent2    parse_$function(&$lenVar, $intLen, pstate);
+         |$indent1$indent2    if (pstate->error) return;
+         |$indent1$indent2    alloc_hexBinary(&$field, $lenVar, pstate);
+         |$indent1$indent2    if (pstate->error) return;
+         |$indent1$indent2    parse_hexBinary(&$field, pstate);
+         |$indent1$indent2    if (pstate->error) return;""".stripMargin
     val unparseStatement =
-      s"""    unparse_$function($field.lengthInBytes, $intLen, ustate);
-         |    if (ustate->error) return;
-         |    unparse_hexBinary($field, ustate);
-         |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
+      s"""$indent1$indent2    unparse_$function($field.lengthInBytes, $intLen, ustate);
+         |$indent1$indent2    if (ustate->error) return;
+         |$indent1$indent2    unparse_hexBinary($field, ustate);
+         |$indent1$indent2    if (ustate->error) return;""".stripMargin
+    cgState.addSimpleTypeStatements(initERDStatement, parseStatement, unparseStatement)
   }
 
   // Generate C code to initialize, parse, and unparse a hexBinary specified length element
   private def hexBinarySpecifiedLengthAddField(e: ElementBase, deref: String, cgState: CodeGeneratorState): Unit = {
+    val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
+    val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local
     val field = s"instance->$localName$deref"
     val fieldArray = s"instance->_a_$localName$deref"
     val specifiedLength = e.elementLengthInBitsEv.constValue.get
 
     val initERDStatement = if (specifiedLength > 0)
-      s"""    $field.array = $fieldArray;
-         |    $field.lengthInBytes = sizeof($fieldArray);
-         |    $field.dynamic = false;""".stripMargin
+      s"""$indent1$indent2    $field.array = $fieldArray;
+         |$indent1$indent2    $field.lengthInBytes = sizeof($fieldArray);
+         |$indent1$indent2    $field.dynamic = false;""".stripMargin
     else
-      s"""    $field.array = NULL;
-         |    $field.lengthInBytes = 0;
-         |    $field.dynamic = false;""".stripMargin
-    val initSelfStatement = if (specifiedLength > 0)
-      s"    memset($fieldArray, 0x77, sizeof($fieldArray));"
-    else
-      ""
+      s"""$indent1$indent2    $field.array = NULL;
+         |$indent1$indent2    $field.lengthInBytes = 0;
+         |$indent1$indent2    $field.dynamic = false;""".stripMargin
     val parseStatement =
-      s"""    parse_hexBinary(&$field, pstate);
-         |    if (pstate->error) return;""".stripMargin
+      s"""$indent1$indent2    parse_hexBinary(&$field, pstate);
+         |$indent1$indent2    if (pstate->error) return;""".stripMargin
     val unparseStatement =
-      s"""    unparse_hexBinary($field, ustate);
-         |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
+      s"""$indent1$indent2    unparse_hexBinary($field, ustate);
+         |$indent1$indent2    if (ustate->error) return;""".stripMargin
+    cgState.addSimpleTypeStatements(initERDStatement, parseStatement, unparseStatement)
   }
 
   // Generate C code to validate a hexBinary element against its fixed value
   private def hexBinaryValidateFixed(e: ElementBase, deref: String, cgState: CodeGeneratorState): Unit = {
+    val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
+    val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local
     val field = s"instance->$localName$deref"
-    val i = if (deref.length > 2) deref.substring(1, deref.length - 1) else ""
-    val fixed = s"${localName}_fixed$i"
+    val fixed = s"${localName}_fixed"
     val array = e.fixedValueAsString.grouped(2).mkString("0x", ", 0x", "")
 
     val initERDStatement = ""
-    val initSelfStatement = ""
     val parseStatement =
-      s"""    uint8_t $fixed[] = {$array};
-         |    parse_validate_fixed(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", pstate);
-         |    if (pstate->error) return;""".stripMargin
+      s"""$indent1$indent2    uint8_t $fixed[] = {$array};
+         |$indent1$indent2    parse_validate_fixed(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", pstate);
+         |$indent1$indent2    if (pstate->error) return;""".stripMargin
     val unparseStatement =
-      s"""    uint8_t $fixed[] = {$array};
-         |    unparse_validate_fixed(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", ustate);
-         |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
+      s"""$indent1$indent2    uint8_t $fixed[] = {$array};
+         |$indent1$indent2    unparse_validate_fixed(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", ustate);
+         |$indent1$indent2    if (ustate->error) return;""".stripMargin
+    cgState.addSimpleTypeStatements(initERDStatement, parseStatement, unparseStatement)
   }
 }

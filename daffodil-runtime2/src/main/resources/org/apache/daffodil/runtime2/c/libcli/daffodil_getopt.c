@@ -19,7 +19,7 @@
 #include "daffodil_getopt.h"
 #include <string.h>            // for strcmp, strrchr
 #include <unistd.h>            // for optarg, getopt, optopt, optind
-#include "cli_errors.h"        // for CLI_UNEXPECTED_ARGUMENT, CLI_HELP_USAGE, CLI_INVALID_COMMAND, CLI_INVALID_INFOSET, CLI_INVALID_OPTION, CLI_MISSING_COMMAND, CLI_MISSING_VALUE, CLI_PROGRAM_ERROR, CLI_PROGRAM_VERSION
+#include "cli_errors.h"        // for CLI_UNEXPECTED_ARGUMENT, CLI_HELP_USAGE, CLI_INVALID_COMMAND, CLI_INVALID_INFOSET, CLI_INVALID_OPTION, CLI_INVALID_VALIDATE, CLI_MISSING_COMMAND, CLI_MISSING_VALUE, CLI_PROGRAM_ERROR, CLI_PROGRAM_VERSION
 #include "daffodil_version.h"  // for daffodil_version
 // clang-format on
 
@@ -35,6 +35,7 @@ struct daffodil_parse_cli daffodil_parse = {
     "xml", // default infoset type
     "-",   // default infile
     "-",   // default outfile
+    false, // default validate
 };
 
 // Initialize our "daffodil unparse" CLI options
@@ -62,7 +63,7 @@ parse_daffodil_cli(int argc, char *argv[])
 
     // We expect callers to put all non-option arguments at the end
     int opt = 0;
-    while ((opt = getopt(argc, argv, ":hI:o:V")) != -1)
+    while ((opt = getopt(argc, argv, ":hI:o:V:v")) != -1)
     {
         switch (opt)
         {
@@ -85,6 +86,18 @@ parse_daffodil_cli(int argc, char *argv[])
             daffodil_unparse.outfile = optarg;
             break;
         case 'V':
+            if (strcmp("limited", optarg) == 0 || strcmp("on", optarg) == 0)
+            {
+                daffodil_parse.validate = true;
+            }
+            else if (strcmp("off", optarg) != 0)
+            {
+                error.code = CLI_INVALID_VALIDATE;
+                error.arg.s = optarg;
+                return &error;
+            }
+            break;
+        case 'v':
             error.code = CLI_PROGRAM_VERSION;
             error.arg.s = daffodil_version;
             return &error;

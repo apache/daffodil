@@ -18,9 +18,9 @@
 // clang-format off
 #include <stdio.h>            // for NULL, FILE, perror, fclose, fopen, stdin, stdout
 #include <string.h>           // for strcmp
-#include "cli_errors.h"       // for CLI_FILE_CLOSE, CLI_FILE_OPEN
+#include "cli_errors.h"       // for CLI_DIAGNOSTICS, CLI_FILE_CLOSE, CLI_FILE_OPEN
 #include "daffodil_getopt.h"  // for daffodil_cli, parse_daffodil_cli, daffodil_parse, daffodil_parse_cli, daffodil_unparse, daffodil_unparse_cli, DAFFODIL_PARSE, DAFFODIL_UNPARSE
-#include "errors.h"           // for continue_or_exit, print_diagnostics, Error
+#include "errors.h"           // for continue_or_exit, print_diagnostics, Error, Diagnostics, Error::(anonymous)
 #include "infoset.h"          // for walkInfoset, InfosetBase, PState, UState, flushUState, rootElement, ERD, VisitEventHandler
 #include "xml_reader.h"       // for xmlReaderMethods, XMLReader
 #include "xml_writer.h"       // for xmlWriterMethods, XMLWriter
@@ -88,6 +88,15 @@ main(int argc, char *argv[])
         XMLWriter xmlWriter = {xmlWriterMethods, output, {NULL, NULL, 0}};
         error = walkInfoset((VisitEventHandler *)&xmlWriter, root);
         continue_or_exit(error);
+
+        // Any diagnostics will fail the parse if validate mode is on
+        if (daffodil_parse.validate && pstate.diagnostics)
+        {
+            static Error error = {CLI_DIAGNOSTICS, {0}};
+
+            error.arg.d64 = pstate.diagnostics->length;
+            continue_or_exit(&error);
+        }
     }
     else if (daffodil_cli.subcommand == DAFFODIL_UNPARSE)
     {

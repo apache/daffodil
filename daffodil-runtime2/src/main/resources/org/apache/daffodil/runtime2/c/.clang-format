@@ -23,4 +23,3 @@ ColumnLimit: 110
 IndentWidth: 4
 KeepEmptyLinesAtTheStartOfBlocks: false
 SortIncludes: false
-StatementMacros: ['define_parse_endian_bool', 'define_parse_endian_real', 'define_parse_endian_integer', 'define_unparse_endian_bool', 'define_unparse_endian_real', 'define_unparse_endian_integer']
