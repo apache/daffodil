@@ -32,6 +32,7 @@ static const ErrorLookup *
 error_lookup(uint8_t code)
 {
     static const ErrorLookup table[CLI_ZZZ - ERR_ZZZ] = {
+        {CLI_DIAGNOSTICS, "parse failed with %" PRId64 " diagnostics\n", FIELD_D64},
         {CLI_FILE_CLOSE, "error closing file\n", FIELD_ZZZ},
         {CLI_FILE_OPEN, "error opening file '%s'\n", FIELD_S},
         {CLI_HELP_USAGE,
@@ -42,7 +43,8 @@ error_lookup(uint8_t code)
          "  -I            Infoset type to write or read. Must be 'xml'\n"
          "  -o            Write output to file. If not given or is -,\n"
          "                output is written to stdout\n"
-         "  -V            Print program version\n"
+         "  -V            Validate mode to choose. Use off (default), limited, or on\n"
+         "  -v            Print program version\n"
          "\n"
          "Commands:\n"
          "  parse         Parse a data file to an infoset file\n"
@@ -58,6 +60,7 @@ error_lookup(uint8_t code)
         {CLI_INVALID_COMMAND, "invalid command -- '%s'\n" USAGE, FIELD_S},
         {CLI_INVALID_INFOSET, "invalid infoset type -- '%s'\n" USAGE, FIELD_S},
         {CLI_INVALID_OPTION, "invalid option -- '%c'\n" USAGE, FIELD_C},
+        {CLI_INVALID_VALIDATE, "invalid validate mode -- '%s'\n" USAGE, FIELD_S},
         {CLI_MISSING_COMMAND, "missing command\n" USAGE, FIELD_ZZZ},
         {CLI_MISSING_VALUE, "option requires an argument -- '%c'\n" USAGE, FIELD_C},
         {CLI_PROGRAM_ERROR,

@@ -21,7 +21,7 @@
 #include <stdbool.h>  // for bool, false, true
 #include <stdio.h>    // for fread
 #include <stdlib.h>   // for free, malloc
-#include "errors.h"   // for eof_or_error, Error, add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, ERR_HEXBINARY_ALLOC, ERR_PARSE_BOOL, Error::(anonymous), Diagnostics
+#include "errors.h"   // for eof_or_error, Error, add_diagnostic, get_diagnostics, ERR_ARRAY_BOUNDS, ERR_FIXED_VALUE, ERR_HEXBINARY_ALLOC, ERR_PARSE_BOOL, Error::(anonymous), Diagnostics
 #include "p_endian.h" // for be64toh, le64toh, be32toh, le32toh
 // clang-format on
 
@@ -507,14 +507,21 @@ parse_le_uint8(uint8_t *number, size_t num_bits, PState *pstate)
     *number = (uint8_t)integer;
 }
 
-// Parse fill bits until end bitPos0b is reached
+// Parse fill bits up to alignmentInBits or end_bitPos0b
+
+void
+parse_align(size_t alignmentInBits, PState *pstate)
+{
+    size_t end_bitPos0b = ((pstate->bitPos0b + alignmentInBits - 1) / alignmentInBits) * alignmentInBits;
+    parse_fill_bits(end_bitPos0b, pstate);
+}
 
 void
 parse_fill_bits(size_t end_bitPos0b, PState *pstate)
 {
     assert(pstate->bitPos0b <= end_bitPos0b);
 
-    size_t fill_bits = end_bitPos0b - pstate->bitPos0b;
+    size_t  fill_bits = end_bitPos0b - pstate->bitPos0b;
     uint8_t bytes[1];
     while (fill_bits)
     {
@@ -523,7 +530,7 @@ parse_fill_bits(size_t end_bitPos0b, PState *pstate)
         if (pstate->error) return;
         fill_bits -= num_bits;
     }
-    
+
     // If we got all the way here, update our last successful parse position
     pstate->bitPos0b = end_bitPos0b;
 }
@@ -572,5 +579,18 @@ parse_validate_fixed(bool same, const char *element, PState *pstate)
 
         add_diagnostic(diagnostics, &error);
         pstate->diagnostics = diagnostics;
+    }
+}
+
+// Check array count is within bounds
+
+void
+parse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs, PState *pstate)
+{
+    if (count < minOccurs || count > maxOccurs)
+    {
+        static Error error = {ERR_ARRAY_BOUNDS, {0}};
+        error.arg.s = name;
+        pstate->error = &error;
     }
 }

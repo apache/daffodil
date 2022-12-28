@@ -19,7 +19,8 @@
 #define DAFFODIL_GETOPT_H
 
 // clang-format off
-#include "errors.h"  // for Error
+#include <stdbool.h>  // for bool
+#include "errors.h"   // for Error
 // clang-format on
 
 // Declare our "daffodil" CLI options
@@ -41,6 +42,7 @@ extern struct daffodil_parse_cli
     const char *infoset_converter;
     const char *infile;
     const char *outfile;
+    bool        validate;
 } daffodil_parse;
 
 // Declare our "daffodil unparse" CLI options

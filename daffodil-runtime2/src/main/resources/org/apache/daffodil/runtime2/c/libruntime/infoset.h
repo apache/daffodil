@@ -36,8 +36,8 @@ struct VisitEventHandler;
 
 typedef void (*ERDParseSelf)(struct InfosetBase *infoNode, struct PState *pstate);
 typedef void (*ERDUnparseSelf)(const struct InfosetBase *infoNode, struct UState *ustate);
-typedef const Error *(*InitChoiceRD)(const struct InfosetBase *infoNode,
-                                     const struct InfosetBase *rootElement);
+typedef const Error *(*InitChoiceRD)(const struct InfosetBase *infoNode);
+typedef size_t (*GetArraySize)(const struct InfosetBase *infoNode);
 
 typedef const Error *(*VisitStartDocument)(const struct VisitEventHandler *handler);
 typedef const Error *(*VisitEndDocument)(const struct VisitEventHandler *handler);
@@ -61,6 +61,7 @@ typedef struct NamedQName
 
 enum TypeCode
 {
+    ARRAY,
     CHOICE,
     COMPLEX,
     PRIMITIVE_BOOLEAN,
@@ -81,15 +82,20 @@ enum TypeCode
 
 typedef struct ERD
 {
-    const NamedQName    namedQName;
-    const enum TypeCode typeCode;
-    const size_t        numChildren;
-    const size_t *      offsets;
-    const struct ERD ** childrenERDs;
+    const NamedQName         namedQName;
+    const enum TypeCode      typeCode;
+    const size_t             numChildren;
+    const size_t *           offsets;
+    const struct ERD *const *childrenERDs;
 
     const ERDParseSelf   parseSelf;
     const ERDUnparseSelf unparseSelf;
-    const InitChoiceRD   initChoice;
+    // Save space since typeCode won't be both ARRAY and CHOICE
+    union
+    {
+        const InitChoiceRD initChoice;
+        const GetArraySize getArraySize;
+    };
 } ERD;
 
 // HexBinary - data of a hexBinary element
@@ -105,7 +111,8 @@ typedef struct HexBinary
 
 typedef struct InfosetBase
 {
-    const ERD *erd;
+    const ERD *               erd;
+    const struct InfosetBase *parent;
 } InfosetBase;
 
 // PState - mutable state while parsing data
@@ -156,7 +163,7 @@ extern const char *get_erd_ns(const ERD *erd);
 
 extern InfosetBase *rootElement(void);
 
-// walkInfoset - walk an infoset and call VisitEventHandler methods
+// walkInfoset - walk each node of an infoset and call VisitEventHandler methods
 
 extern const Error *walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoset);
 

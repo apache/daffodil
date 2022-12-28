@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  defaultRoundTrip="onePass"
+  description="TDML tests for variablelen.dfdl.xsd"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <!--
+      Run all tests:
+
+      daffodil test -i -I daffodil variablelen.tdml
+      daffodil test -i -I daffodilC variablelen.tdml
+
+      Or you can debug specific steps in isolation:
+
+      mkdir c
+      daffodil parse -r fixedElement -s variablelen.dfdl.xsd -o c/variablelen.fixed.dat.xml data/variablelen.fixed.dat
+      daffodil unparse -r fixedElement -s variablelen.dfdl.xsd -o c/variablelen.fixed.dat infosets/variablelen.fixed.dat.xml
+
+      daffodil parse -r implicitElement -s variablelen.dfdl.xsd -o c/variablelen.implicit.dat.xml data/variablelen.implicit.dat
+      daffodil unparse -r implicitElement -s variablelen.dfdl.xsd -o c/variablelen.implicit.dat infosets/variablelen.implicit.dat.xml
+
+      daffodil parse -r parsedElement -s variablelen.dfdl.xsd -o c/variablelen.parsed.dat.xml data/variablelen.parsed.dat
+      daffodil unparse -r parsedElement -s variablelen.dfdl.xsd -o c/variablelen.parsed.dat infosets/variablelen.parsed.dat.xml
+
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.expression.dat.xml data/variablelen.expression.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.expression.dat infosets/variablelen.expression.dat.xml
+
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.00.dat.xml data/variablelen.00.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.00.dat infosets/variablelen.00.dat.xml
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.01.dat.xml data/variablelen.01.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.01.dat infosets/variablelen.01.dat.xml
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.16.dat.xml data/variablelen.16.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.16.dat infosets/variablelen.16.dat.xml
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.17.dat.xml data/variablelen.17.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.17.dat infosets/variablelen.17.dat.xml
+
+      daffodil parse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
+      daffodil unparse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat infosets/variablelen.stopValue.dat.xml
+
+      daffodil generate c -r fixedElement -s variablelen.dfdl.xsd && cd c && make
+      c/daffodil parse -o c/variablelen.fixed.dat.xml data/variablelen.fixed.dat
+      c/daffodil unparse -o c/variablelen.fixed.dat infosets/variablelen.fixed.dat.xml
+
+      daffodil generate c -r implicitElement -s variablelen.dfdl.xsd && cd c && make
+      c/daffodil parse -o c/variablelen.implicit.dat.xml data/variablelen.implicit.dat
+      c/daffodil unparse -o c/variablelen.implicit.dat infosets/variablelen.implicit.dat.xml
+
+      daffodil generate c -r parsedElement -s variablelen.dfdl.xsd && cd c && make
+      c/daffodil parse -o c/variablelen.parsed.dat.xml data/variablelen.parsed.dat
+      c/daffodil unparse -o c/variablelen.parsed.dat infosets/variablelen.parsed.dat.xml
+
+      daffodil generate c -r expressionElement -s variablelen.dfdl.xsd && cd c && make
+      c/daffodil parse -o c/variablelen.expression.dat.xml data/variablelen.expression.dat
+      c/daffodil unparse -o c/variablelen.expression.dat infosets/variablelen.expression.dat.xml
+
+      c/daffodil parse -o c/variablelen.00.dat.xml data/variablelen.00.dat
+      c/daffodil unparse -o c/variablelen.00.dat infosets/variablelen.00.dat.xml
+      c/daffodil parse -o c/variablelen.01.dat.xml data/variablelen.01.dat
+      c/daffodil unparse -o c/variablelen.01.dat infosets/variablelen.01.dat.xml
+      c/daffodil parse -o c/variablelen.16.dat.xml data/variablelen.16.dat
+      c/daffodil unparse -o c/variablelen.16.dat infosets/variablelen.16.dat.xml
+      c/daffodil parse -o c/variablelen.17.dat.xml data/variablelen.17.dat
+      c/daffodil unparse -o c/variablelen.17.dat infosets/variablelen.17.dat.xml
+
+      daffodil generate c -r stopValueElement -s variablelen.dfdl.xsd && cd c && make
+      c/daffodil parse -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
+      c/daffodil unparse -o c/variablelen.stopValue.dat infosets/variablelen.stopValue.dat.xml
+  -->
+
+  <tdml:parserTestCase
+    implementations="daffodil daffodilC"
+    model="variablelen.dfdl.xsd"
+    name="fixed"
+    root="fixedElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.fixed.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/variablelen.fixed.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    implementations="daffodil"
+    model="variablelen.dfdl.xsd"
+    name="implicit"
+    root="implicitElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.implicit.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/variablelen.implicit.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    implementations="daffodil"
+    model="variablelen.dfdl.xsd"
+    name="parsed"
+    root="parsedElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.parsed.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/variablelen.parsed.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    implementations="daffodil daffodilC"
+    model="variablelen.dfdl.xsd"
+    name="expression"
+    root="expressionElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.expression.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/variablelen.expression.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Test several sizes of the variable length array (0, 1, 16, 17) -->
+
+  <tdml:parserTestCase
+    implementations="daffodil daffodilC"
+    model="variablelen.dfdl.xsd"
+    name="expression_00"
+    root="expressionElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.00.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/variablelen.00.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    implementations="daffodil daffodilC"
+    model="variablelen.dfdl.xsd"
+    name="expression_01"
+    root="expressionElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.01.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/variablelen.01.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    implementations="daffodil daffodilC"
+    model="variablelen.dfdl.xsd"
+    name="expression_16"
+    root="expressionElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.16.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/variablelen.16.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    implementations="daffodil"
+    model="variablelen.dfdl.xsd"
+    name="expression_17"
+    root="expressionElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.17.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/variablelen.17.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- Can't test 17C since daffodilC supports only static memory arrays  -->
+
+  <tdml:parserTestCase
+    implementations="daffodilC"
+    model="variablelen.dfdl.xsd"
+    name="expression_17C"
+    root="expressionElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.17.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>array</tdml:error>
+      <tdml:error>count</tdml:error>
+      <tdml:error>out of bounds</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!-- Can't test stopValue since Daffodil doesn't support stopValue (DAFFODIL-501) -->
+
+  <tdml:parserTestCase
+    implementations="daffodil daffodilC"
+    model="variablelen.dfdl.xsd"
+    name="stopValue"
+    root="stopValueElement">
+    <tdml:document>
+      <tdml:documentPart type="file">data/variablelen.stopValue.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>stopValue</tdml:error>
+      <tdml:error>not supported</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

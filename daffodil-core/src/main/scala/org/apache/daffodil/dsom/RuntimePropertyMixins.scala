@@ -501,7 +501,7 @@ trait ElementRuntimeValuedPropertiesMixin
   // implementation, the ".." does get literally evaluated.
   //
 
-  private lazy val occursCountExpr = LV('occursCount) {
+  lazy val occursCountExpr = LV('occursCount) {
     val qn = this.qNameForProperty("occursCount")
     val isEvaluatedAbove = true
     ExpressionCompilers.JLong.compileProperty(qn, NodeInfo.Long, occursCountRaw, decl, dpathCompileInfo, isEvaluatedAbove)

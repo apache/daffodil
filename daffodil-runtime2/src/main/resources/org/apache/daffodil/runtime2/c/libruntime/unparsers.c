@@ -20,7 +20,7 @@
 #include <assert.h>   // for assert
 #include <stdbool.h>  // for bool
 #include <stdio.h>    // for fwrite
-#include "errors.h"   // for eof_or_error, add_diagnostic, get_diagnostics, ERR_FIXED_VALUE, Diagnostics, Error
+#include "errors.h"   // for eof_or_error, add_diagnostic, get_diagnostics, ERR_ARRAY_BOUNDS, ERR_FIXED_VALUE, Diagnostics, Error
 #include "p_endian.h" // for htobe64, htole64, htobe32, htole32
 // clang-format on
 
@@ -401,7 +401,14 @@ unparse_le_uint8(uint8_t number, size_t num_bits, UState *ustate)
     unparse_endian_uint64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
 }
 
-// Unparse fill bits until end bitPos0b is reached
+// Unparse fill bits up to alignmentInBits or end_bitPos0b
+
+void
+unparse_align(size_t alignmentInBits, const uint8_t fill_byte, UState *ustate)
+{
+    size_t end_bitPos0b = ((ustate->bitPos0b + alignmentInBits - 1) / alignmentInBits) * alignmentInBits;
+    unparse_fill_bits(end_bitPos0b, fill_byte, ustate);
+}
 
 void
 unparse_fill_bits(size_t end_bitPos0b, const uint8_t fill_byte, UState *ustate)
@@ -443,5 +450,18 @@ unparse_validate_fixed(bool same, const char *element, UState *ustate)
 
         add_diagnostic(diagnostics, &error);
         ustate->diagnostics = diagnostics;
+    }
+}
+
+// Check array count is within bounds
+
+void
+unparse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs, UState *ustate)
+{
+    if (count < minOccurs || count > maxOccurs)
+    {
+        static Error error = {ERR_ARRAY_BOUNDS, {0}};
+        error.arg.s = name;
+        ustate->error = &error;
     }
 }

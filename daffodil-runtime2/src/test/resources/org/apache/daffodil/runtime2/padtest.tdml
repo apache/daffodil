@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  defaultRoundTrip="onePass"
+  description="TDML tests for padtest.dfdl.xsd"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <!--
+      Run all tests:
+
+      daffodil test -i -I daffodil padtest.tdml
+      daffodil test -i -I daffodilC padtest.tdml
+
+      Or you can debug specific steps in isolation:
+
+      mkdir c
+      daffodil parse -s padtest.dfdl.xsd -o c/padtest.00.dat.xml data/padtest.00.dat
+      daffodil unparse -s padtest.dfdl.xsd -o c/padtest.00.dat infosets/padtest.00.dat.xml
+
+      daffodil parse -s padtest.dfdl.xsd -o c/padtest.01.dat.xml data/padtest.01.dat
+      daffodil unparse -s padtest.dfdl.xsd -o c/padtest.01.dat infosets/padtest.01.dat.xml
+
+      daffodil parse -s padtest.dfdl.xsd -o c/padtest.16.dat.xml data/padtest.16.dat
+      daffodil unparse -s padtest.dfdl.xsd -o c/padtest.16.dat infosets/padtest.16.dat.xml
+
+      daffodil parse -s padtest.dfdl.xsd -o c/padtest.17.dat.xml data/padtest.17.dat
+      daffodil unparse -s padtest.dfdl.xsd -o c/padtest.17.dat infosets/padtest.17.dat.xml
+
+      daffodil generate c -s padtest.dfdl.xsd && cd c && make
+      c/daffodil parse -o c/padtest.00.dat.xml data/padtest.00.dat
+      c/daffodil unparse -o c/padtest.00.dat infosets/padtest.00.dat.xml
+
+      c/daffodil parse -o c/padtest.01.dat.xml data/padtest.01.dat
+      c/daffodil unparse -o c/padtest.01.dat infosets/padtest.01.dat.xml
+
+      c/daffodil parse -o c/padtest.16.dat.xml data/padtest.16.dat
+      c/daffodil unparse -o c/padtest.16.dat infosets/padtest.16.dat.xml
+
+      c/daffodil parse -o c/padtest.17.dat.xml data/padtest.17.dat
+      c/daffodil unparse -o c/padtest.17.dat infosets/padtest.17.dat.xml
+  -->
+
+  <!-- Test several sizes of the padtest (0, 1, 16, 17) -->
+
+  <tdml:parserTestCase
+    model="padtest.dfdl.xsd"
+    name="padtest_00"
+    root="padtest">
+    <tdml:document>
+      <tdml:documentPart type="file">data/padtest.00.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/padtest.00.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    model="padtest.dfdl.xsd"
+    name="padtest_01"
+    root="padtest">
+    <tdml:document>
+      <tdml:documentPart type="file">data/padtest.01.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/padtest.01.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    model="padtest.dfdl.xsd"
+    name="padtest_16"
+    root="padtest">
+    <tdml:document>
+      <tdml:documentPart type="file">data/padtest.16.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/padtest.16.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    model="padtest.dfdl.xsd"
+    name="padtest_17"
+    root="padtest">
+    <tdml:document>
+      <tdml:documentPart type="file">data/padtest.17.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/padtest.17.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

@@ -32,16 +32,17 @@ trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
     Assert.invariant(e.elementLengthInBitsEv.isConstant)
 
     val lengthInBits = e.elementLengthInBitsEv.constValue.get
-    val initialValue = "true"
     val primType = "bool"
-    val addField = booleanAddField(e, initialValue, lengthInBits, primType, _, cgState)
+    val addField = booleanAddField(e, lengthInBits, primType, _, cgState)
     val validateFixed = valueValidateFixed(e, _, cgState)
 
-    binaryValueGenerateCode(e, addField, validateFixed)
+    binaryValueGenerateCode(e, addField, validateFixed, cgState)
   }
 
   // Generate C code to initialize, parse, and unparse a boolean element
-  private def booleanAddField(e: ElementBase, initialValue: String, lengthInBits: Long, primType: String, deref: String, cgState: CodeGeneratorState): Unit = {
+  private def booleanAddField(e: ElementBase, lengthInBits: Long, primType: String, deref: String, cgState: CodeGeneratorState): Unit = {
+    val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
+    val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local
     val field = s"instance->$localName$deref"
     val conv = if (e.byteOrderEv.constValue eq ByteOrder.BigEndian) "be" else "le"
@@ -52,13 +53,12 @@ trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
     val unparseTrueRep = if (e.binaryBooleanTrueRep.isDefined) s"$trueRep" else s"~$falseRep"
 
     val initERDStatement = ""
-    val initSelfStatement = s"    $field = $initialValue;"
     val parseStatement =
-      s"""    parse_$function(&$field, $lengthInBits, $trueRep, $falseRep, pstate);
-         |    if (pstate->error) return;""".stripMargin
+      s"""$indent1$indent2    parse_$function(&$field, $lengthInBits, $trueRep, $falseRep, pstate);
+         |$indent1$indent2    if (pstate->error) return;""".stripMargin
     val unparseStatement =
-      s"""    unparse_$function($field, $lengthInBits, $unparseTrueRep, $falseRep, ustate);
-         |    if (ustate->error) return;""".stripMargin
-    cgState.addSimpleTypeStatements(initERDStatement, initSelfStatement, parseStatement, unparseStatement)
+      s"""$indent1$indent2    unparse_$function($field, $lengthInBits, $unparseTrueRep, $falseRep, ustate);
+         |$indent1$indent2    if (ustate->error) return;""".stripMargin
+    cgState.addSimpleTypeStatements(initERDStatement, parseStatement, unparseStatement)
   }
 }

@@ -78,6 +78,7 @@ static const ErrorLookup *
 error_lookup(uint8_t code)
 {
     static const ErrorLookup table[ERR_ZZZ] = {
+        {ERR_ARRAY_BOUNDS, "%s count out of bounds\n", FIELD_S},
         {ERR_CHOICE_KEY, "no match between choice dispatch key %" PRId64 " and any branch key\n", FIELD_D64},
         {ERR_FIXED_VALUE, "value of element '%s' does not match value of its 'fixed' attribute\n", FIELD_S},
         {ERR_HEXBINARY_ALLOC, "error allocating hexBinary memory -- %" PRId64 " bytes\n", FIELD_D64},

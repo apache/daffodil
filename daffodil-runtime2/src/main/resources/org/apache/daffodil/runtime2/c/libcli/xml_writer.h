@@ -30,7 +30,7 @@ typedef struct XMLWriter
 {
     const VisitEventHandler handler;
     FILE *                  stream;
-    c_stack_t                 stack;
+    c_stack_t               stack;
 } XMLWriter;
 
 // XMLWriter methods to pass to walkInfoset method

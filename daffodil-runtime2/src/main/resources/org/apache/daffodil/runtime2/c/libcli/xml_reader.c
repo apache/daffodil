@@ -388,9 +388,16 @@ xmlStartComplex(XMLReader *reader, const InfosetBase *base)
     // Check whether we are walking both XML data and infoset in lockstep
     if (name_from_xml && name_from_erd)
     {
-        static Error error = {CLI_XML_MISMATCH, {0}};
-        error.arg.s = name_from_erd;
-        return strcmp(name_from_xml, name_from_erd) == 0 ? NULL : &error;
+        if (strcmp(name_from_xml, name_from_erd) == 0)
+        {
+            return NULL;
+        }
+        else
+        {
+            static Error error = {CLI_XML_MISMATCH, {0}};
+            error.arg.s = name_from_erd;
+            return &error;
+        }
     }
     else
     {

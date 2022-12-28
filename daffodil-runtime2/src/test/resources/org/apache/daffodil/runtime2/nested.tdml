@@ -32,28 +32,28 @@
 
   <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_struct">
     <tdml:document>
-      <tdml:documentPart type="file">nested.struct.dat</tdml:documentPart>
+      <tdml:documentPart type="file">data/nested.struct.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">nested.struct.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">infosets/nested.struct.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_union_bar">
     <tdml:document>
-      <tdml:documentPart type="file">nested.union.bar.dat</tdml:documentPart>
+      <tdml:documentPart type="file">data/nested.union.bar.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">nested.union.bar.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">infosets/nested.union.bar.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_union_foo">
     <tdml:document>
-      <tdml:documentPart type="file">nested.union.foo.dat</tdml:documentPart>
+      <tdml:documentPart type="file">data/nested.union.foo.dat</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset type="file">nested.union.foo.dat.xml</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset type="file">infosets/nested.union.foo.dat.xml</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 

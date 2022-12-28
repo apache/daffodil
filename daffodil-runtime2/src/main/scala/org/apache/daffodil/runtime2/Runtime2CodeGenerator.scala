@@ -19,8 +19,8 @@ package org.apache.daffodil.runtime2
 
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Prod
-import org.apache.daffodil.grammar.RootGrammarMixin
 import org.apache.daffodil.grammar.SeqComp
+import org.apache.daffodil.grammar.primitives.AlignmentFill
 import org.apache.daffodil.grammar.primitives.BinaryBoolean
 import org.apache.daffodil.grammar.primitives.BinaryDouble
 import org.apache.daffodil.grammar.primitives.BinaryFloat
@@ -29,62 +29,123 @@ import org.apache.daffodil.grammar.primitives.CaptureContentLengthEnd
 import org.apache.daffodil.grammar.primitives.CaptureContentLengthStart
 import org.apache.daffodil.grammar.primitives.CaptureValueLengthEnd
 import org.apache.daffodil.grammar.primitives.CaptureValueLengthStart
+import org.apache.daffodil.grammar.primitives.ChoiceCombinator
 import org.apache.daffodil.grammar.primitives.ElementCombinator
 import org.apache.daffodil.grammar.primitives.ElementParseAndUnspecifiedLength
+import org.apache.daffodil.grammar.primitives.ElementUnused
 import org.apache.daffodil.grammar.primitives.HexBinaryLengthPrefixed
 import org.apache.daffodil.grammar.primitives.HexBinarySpecifiedLength
 import org.apache.daffodil.grammar.primitives.OrderedSequence
+import org.apache.daffodil.grammar.primitives.RepOrderedExactlyNSequenceChild
+import org.apache.daffodil.grammar.primitives.RepOrderedExpressionOccursCountSequenceChild
 import org.apache.daffodil.grammar.primitives.RightFill
 import org.apache.daffodil.grammar.primitives.ScalarOrderedSequenceChild
+import org.apache.daffodil.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.grammar.primitives.SpecifiedLengthImplicit
+import org.apache.daffodil.runtime2.generators.AlignmentFillCodeGenerator
 import org.apache.daffodil.runtime2.generators.BinaryBooleanCodeGenerator
 import org.apache.daffodil.runtime2.generators.BinaryFloatCodeGenerator
 import org.apache.daffodil.runtime2.generators.BinaryIntegerKnownLengthCodeGenerator
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
-import org.apache.daffodil.runtime2.generators.ElementParseAndUnspecifiedLengthCodeGenerator
 import org.apache.daffodil.runtime2.generators.HexBinaryCodeGenerator
-import org.apache.daffodil.runtime2.generators.OrderedSequenceCodeGenerator
-import org.apache.daffodil.runtime2.generators.SeqCompCodeGenerator
 import org.apache.daffodil.util.Misc
 
-import scala.annotation.tailrec
-
 object Runtime2CodeGenerator
-  extends BinaryBooleanCodeGenerator
-    with BinaryIntegerKnownLengthCodeGenerator
-    with BinaryFloatCodeGenerator
-    with ElementParseAndUnspecifiedLengthCodeGenerator
-    with HexBinaryCodeGenerator
-    with OrderedSequenceCodeGenerator
-    with SeqCompCodeGenerator {
+  extends AlignmentFillCodeGenerator
+  with BinaryBooleanCodeGenerator
+  with BinaryIntegerKnownLengthCodeGenerator
+  with BinaryFloatCodeGenerator
+  with HexBinaryCodeGenerator {
 
-  @tailrec
-  def generateCode(gram: Gram, state: CodeGeneratorState): Unit = {
+  def generateCode(gram: Gram, cgState: CodeGeneratorState): Unit = {
     gram match {
-      case g: RootGrammarMixin => Runtime2CodeGenerator.generateCode(g.documentElement, state)
-      case g: Prod if g.guard => Runtime2CodeGenerator.generateCode(g.gram, state)
-      case g: ElementCombinator => Runtime2CodeGenerator.generateCode(g.subComb, state)
-      case g: SpecifiedLengthImplicit => Runtime2CodeGenerator.generateCode(g.eGram, state)
-      case g: ScalarOrderedSequenceChild => Runtime2CodeGenerator.generateCode(g.term.termContentBody, state)
-      case g: BinaryBoolean => binaryBooleanGenerateCode(g.e, state)
-      case g: BinaryDouble => binaryFloatGenerateCode(g.e,64, state)
-      case g: BinaryFloat => binaryFloatGenerateCode(g.e,32, state)
-      case g: BinaryIntegerKnownLength => binaryIntegerKnownLengthGenerateCode(g.e, g.lengthInBits, g.signed, state)
-      case g: ElementParseAndUnspecifiedLength => elementParseAndUnspecifiedLengthGenerateCode(g, state)
-      case g: HexBinaryLengthPrefixed => hexBinaryLengthPrefixedGenerateCode(g.e, state)
-      case g: HexBinarySpecifiedLength => hexBinarySpecifiedLengthGenerateCode(g.e, state)
-      case g: OrderedSequence => orderedSequenceGenerateCode(g, state)
-      case g: SeqComp => seqCompGenerateCode(g, state)
-      case _: CaptureContentLengthStart => noop()
-      case _: CaptureContentLengthEnd => noop()
-      case _: CaptureValueLengthStart => noop()
-      case _: CaptureValueLengthEnd => noop()
-      case _: RightFill => noop()
+      case g: AlignmentFill => alignmentFillGenerateCode(g, cgState)
+      case g: BinaryBoolean => binaryBooleanGenerateCode(g.e, cgState)
+      case g: BinaryDouble => binaryFloatGenerateCode(g.e, lengthInBits = 64, cgState)
+      case g: BinaryFloat => binaryFloatGenerateCode(g.e, lengthInBits = 32, cgState)
+      case g: BinaryIntegerKnownLength => binaryIntegerKnownLengthGenerateCode(g.e, g.lengthInBits, g.signed, cgState)
+      case g: CaptureContentLengthEnd => noop(g)
+      case g: CaptureContentLengthStart => noop(g)
+      case g: CaptureValueLengthEnd => noop(g)
+      case g: CaptureValueLengthStart => noop(g)
+      case g: ChoiceCombinator => choiceCombinator(g, cgState)
+      case g: ElementCombinator => elementCombinator(g, cgState)
+      case g: ElementParseAndUnspecifiedLength => elementParseAndUnspecifiedLengthGenerateCode(g, cgState)
+      case g: ElementUnused => noop(g)
+      case g: HexBinaryLengthPrefixed => hexBinaryLengthPrefixedGenerateCode(g.e, cgState)
+      case g: HexBinarySpecifiedLength => hexBinarySpecifiedLengthGenerateCode(g.e, cgState)
+      case g: OrderedSequence => orderedSequenceGenerateCode(g, cgState)
+      case g: Prod => prod(g, cgState)
+      case g: RepOrderedExactlyNSequenceChild => repOrderedExactlyNSequenceChild(g, cgState)
+      case g: RepOrderedExpressionOccursCountSequenceChild => repOrderedExpressionOccursCountSequenceChild(g, cgState)
+      case g: RightFill => noop(g)
+      case g: ScalarOrderedSequenceChild => scalarOrderedSequenceChild(g, cgState)
+      case g: SeqComp => seqCompGenerateCode(g, cgState)
+      case g: SpecifiedLengthExplicit => specifiedLengthExplicit(g, cgState)
+      case g: SpecifiedLengthImplicit => specifiedLengthImplicit(g, cgState)
       case _ => gram.SDE("Code generation not supported for: %s", Misc.getNameFromClass(gram))
     }
   }
 
-  private def noop(): Unit = {
-    // Not generating code here, but can use as a breakpoint
+  private def choiceCombinator(g: ChoiceCombinator, cgState: CodeGeneratorState): Unit = {
+    cgState.addBeforeSwitchStatements() // switch statements for choices
+    for (gram <- g.alternatives) {
+      Runtime2CodeGenerator.generateCode(gram, cgState)
+    }
+    cgState.addAfterSwitchStatements() // switch statements for choices
+  }
+
+  private def elementCombinator(g: ElementCombinator, cgState: CodeGeneratorState): Unit = {
+    cgState.pushElement(g.context)
+    Runtime2CodeGenerator.generateCode(g.subComb, cgState)
+    cgState.popElement(g.context)
+  }
+
+  private def elementParseAndUnspecifiedLengthGenerateCode(g: ElementParseAndUnspecifiedLength, cgState: CodeGeneratorState): Unit = {
+    Runtime2CodeGenerator.generateCode(g.eGram, cgState)
+  }
+
+  private def noop(g: Gram): Unit = {
+    g.name // Not generating code, but can use as a breakpoint
+  }
+
+  private def orderedSequenceGenerateCode(g: OrderedSequence, cgState: CodeGeneratorState): Unit = {
+    for (gram <- g.sequenceChildren) {
+      Runtime2CodeGenerator.generateCode(gram, cgState)
+    }
+  }
+
+  private def prod(g: Prod, cgState: CodeGeneratorState): Unit = {
+    if (g.guard) Runtime2CodeGenerator.generateCode(g.gram, cgState)
+  }
+
+  private def repOrderedExactlyNSequenceChild(g: RepOrderedExactlyNSequenceChild, cgState: CodeGeneratorState): Unit = {
+    cgState.pushArray(g.context)
+    Runtime2CodeGenerator.generateCode(g.term.termContentBody, cgState)
+    cgState.popArray(g.context)
+  }
+
+  private def repOrderedExpressionOccursCountSequenceChild(g: RepOrderedExpressionOccursCountSequenceChild, cgState: CodeGeneratorState): Unit = {
+    cgState.pushArray(g.context)
+    Runtime2CodeGenerator.generateCode(g.term.termContentBody, cgState)
+    cgState.popArray(g.context)
+  }
+
+  private def scalarOrderedSequenceChild(g: ScalarOrderedSequenceChild, cgState: CodeGeneratorState): Unit = {
+    Runtime2CodeGenerator.generateCode(g.term.termContentBody, cgState)
+  }
+
+  private def seqCompGenerateCode(g: SeqComp, cgState: CodeGeneratorState): Unit = {
+    for (gram <- g.children) {
+      Runtime2CodeGenerator.generateCode(gram, cgState)
+    }
+  }
+
+  private def specifiedLengthExplicit(g: SpecifiedLengthExplicit, cgState: CodeGeneratorState): Unit = {
+    Runtime2CodeGenerator.generateCode(g.eGram, cgState)
+  }
+
+  private def specifiedLengthImplicit(g: SpecifiedLengthImplicit, cgState: CodeGeneratorState): Unit = {
+    Runtime2CodeGenerator.generateCode(g.eGram, cgState)
   }
 }
