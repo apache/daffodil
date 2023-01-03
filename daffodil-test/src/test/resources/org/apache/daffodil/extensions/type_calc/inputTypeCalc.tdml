@@ -50,9 +50,6 @@
       </xs:complexType>
     </xs:element>
 
-    <!-- lengthKind="implicit" triggers DAFFODIL-2596 -->
-    <xs:element name="keysetValue_03" type="tns:keysetValue_01" dfdl:lengthKind="implicit"/>
-
     <xs:simpleType name="uint8" dfdl:lengthKind="explicit" dfdl:length="1">
       <xs:restriction base="xs:unsignedInt"/>
     </xs:simpleType>
@@ -183,23 +180,6 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="RepType_lengthKind_inherited_01"
-    root="keysetValue_03" model="inputTypeCalc-Embedded.dfdl.xsd"
-    description="Verify that the lengthKind property is inherited from the repType, not the element using the repType">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    01
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <keysetValue_03>one</keysetValue_03>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
   <tdml:unparserTestCase name="InputTypeCalc_unparse_keysetValue_00"
     root="keysetValue_00" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
 
@@ -256,22 +236,6 @@
     </tdml:infoset>
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="InputTypeCalc_unparse_keysetValue_03"
-    root="keysetValue_03" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - inputTypeCalc keysetValue transform">
-
-    <tdml:document>
-    <tdml:documentPart type="byte">
-    01
-    </tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <keysetValue_03>one</keysetValue_03>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:unparserTestCase>
-
   <tdml:parserTestCase name="InputTypeCalc_unionOfKeysetValueCalcs_01"
     root="inputTypeCalc_unionOfKeysetValueCalcs_01" model="inputTypeCalc-Embedded.dfdl.xsd" description="Extensions - repType with union of keysetValue types">
 
@@ -311,5 +275,50 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="inputTypeCalc-Inherited.dfdl.xsd">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="binary" />
+
+    <xs:simpleType name="enumVal" dfdl:lengthKind="explicit" dfdl:length="4">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="enumElem" dfdlx:repType="tns:enumVal">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="VALUE=0" dfdlx:repValues="0"/>
+        <xs:enumeration value="VALUE=1" dfdlx:repValues="1"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="int" type="tns:enumElem"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="inherited_LengthKind"
+    root="root" model="inputTypeCalc-Inherited.dfdl.xsd"
+    description="DAFFODIL-2596 - Demonstrates that although global lengthKind='implicit' the enum string representation doesn't complain about implicit length string">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 00 00 01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <root><int>VALUE=1</int></root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
