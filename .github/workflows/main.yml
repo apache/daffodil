@@ -100,7 +100,7 @@ jobs:
 
       - name: Check out mxml source (Windows)
         if: runner.os == 'Windows'
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.3.0
         with:
           repository: michaelrsweet/mxml
           ref: v3.3
@@ -119,7 +119,7 @@ jobs:
           echo "COURSIER_CONFIG_DIR=$temp" >> $GITHUB_ENV
 
       - name: Check out Repository
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v3.3.0
         # Disabling shallow clone is recommended for improving reporting
         with:
           fetch-depth: 0
