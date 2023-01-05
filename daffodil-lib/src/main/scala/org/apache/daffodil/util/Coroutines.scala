@@ -20,9 +20,38 @@
  import org.apache.daffodil.exceptions.UnsuppressableException
 
  import java.util.concurrent.ArrayBlockingQueue
+ import java.util.concurrent.Executors
+
+ import scala.concurrent.ExecutionContext
+ import scala.concurrent.Future
  import scala.util.Failure
  import scala.util.Success
  import scala.util.Try
+
+ object Coroutine {
+   /**
+    * This execution context should be used when creating Coroutine threads to
+    * improve performance. Creating threads has high overhead, but getting
+    * threads from a thread pool we reduce some of that overhead.
+    *
+    * This thread pool is a cached thread pool, which means unused threads are
+    * closed after 60 seconds of unuse. This also places no limits on the
+    * number of threads that will be created, so if many coroutines are created
+    * at the same time we could potentially starve the system of
+    * threads/processing. However, we only create one thread per coroutine, and
+    * we currently only create one coroutine per SAX unparse, and it is
+    * hopefully unlikely that a user will create enough parallel SAX unparse
+    * calls to cause issues.
+    */
+   val executionContext = new ExecutionContext {
+     private val threadPool = Executors.newCachedThreadPool()
+     def execute(runnable: Runnable): Unit = threadPool.submit(runnable)
+
+     //$COVERAGE-OFF$
+     def reportFailure(t: Throwable): Unit = {} //do nothing
+     //$COVERAGE-ON$
+   }
+ }
 
  /**
   * General purpose Co-routines.
@@ -55,15 +84,14 @@
     */
    protected def isMain: Boolean = false
 
-   private var thread_ : Option[Thread] = None
+   private var thread_ : Option[Future[Unit]] = None
 
    private final def init(): Unit = {
      if (!isMain && thread_.isEmpty) {
-       val thr = new Thread {
-         override def run(): Unit = self.run()
-       }
+       val thr = Future {
+         self.run()
+       } (Coroutine.executionContext)
        thread_ = Some(thr)
-       thr.start()
      }
    }
 
