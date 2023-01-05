@@ -18,6 +18,7 @@
 package org.apache.daffodil.processors
 
 import scala.xml.NamespaceBinding
+import scala.xml.TopScope
 
 import javax.xml.XMLConstants
 import org.apache.daffodil.api.DFDL
@@ -32,6 +33,7 @@ import org.apache.daffodil.infoset.InfosetInputterEventType.StartDocument
 import org.apache.daffodil.infoset.InfosetInputterEventType.StartElement
 import org.apache.daffodil.infoset.SAXInfosetInputter
 import org.apache.daffodil.util.MStackOf
+import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.Misc
@@ -75,7 +77,7 @@ class DaffodilUnparseContentHandler(
   private lazy val inputter = new SAXInfosetInputter(this, dp, output)
   private var unparseResult: DFDL.UnparseResult = _
   private lazy val characterData = new StringBuilder
-  private var prefixMapping: NamespaceBinding = _
+  private var prefixMapping: NamespaceBinding = TopScope
   private lazy val prefixMappingTrackingStack = new MStackOf[NamespaceBinding]
 
   private lazy val tunablesBatchSize = dp.tunables.saxUnparseEventBatchSize
@@ -158,7 +160,7 @@ class DaffodilUnparseContentHandler(
    * is already done using the prefixMappings
    */
   override def endPrefixMapping(prefix: String): Unit = {
-    prefixMapping = if (prefixMapping == null) prefixMapping else prefixMapping.parent
+    prefixMapping = prefixMapping.parent
   }
 
   /**
@@ -324,14 +326,8 @@ class DaffodilUnparseContentHandler(
     val maybeNamespaceURI =
       if (uri.nonEmpty) {
         One(uri)
-      } else if (prefixMapping != null) {
-        try {
-          One(prefixMapping.getURI(qNamePrefix))
-        } catch {
-          case _: NullPointerException => Nope
-        }
       } else {
-        Nope
+        Maybe(prefixMapping.getURI(qNamePrefix))
       }
 
     batchedInfosetEvents(currentIndex).localName = maybelocalName
