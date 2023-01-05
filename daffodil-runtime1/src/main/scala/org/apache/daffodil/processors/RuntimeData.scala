@@ -632,9 +632,9 @@ sealed class ElementRuntimeData(
 
   def isComplexType = !isSimpleType
 
-  def prefix = this.minimizedScope.getPrefix(namedQName.namespace)
+  lazy val prefix = this.minimizedScope.getPrefix(namedQName.namespace)
 
-  def prefixedName = {
+  lazy val prefixedName = {
     if (prefix != null) {
       prefix + ":" + name
     } else {
