@@ -96,15 +96,14 @@ class SAXInfosetInputter(
     } else {
       throw new NonTextFoundInSimpleContentException(getLocalName())
     }
-    primType match {
-      case _: NodeInfo.String.Kind =>
-        val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(res)
-        remapped
-      case _: NodeInfo.AnyURI.Kind if resolveRelativeInfosetBlobURIs && res.nonEmpty =>
-        val absUri = resolveRelativeBlobURIs(res)
-        absUri
-      case _ =>
-        res
+    if (primType eq NodeInfo.String) {
+      val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(res)
+      remapped
+    } else if (resolveRelativeInfosetBlobURIs && (primType eq NodeInfo.AnyURI) && res.nonEmpty) {
+      val absUri = resolveRelativeBlobURIs(res)
+      absUri
+    } else {
+      res
     }
   }
 
