@@ -25,6 +25,7 @@ object TestEnums {
   val testDir = "/org/apache/daffodil/extensions/enum/"
 
   val runner = Runner(testDir, "enums.tdml")
+  val runner2 = Runner(testDir, "enumInvalid.tdml", validateTDMLFile=false)
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
@@ -39,4 +40,6 @@ class TestEnums {
   @Test def test_enumMiss1(): Unit = { runner.runOneTest("enumMiss1") }
 
   @Test def test_repTypeAlignment(): Unit = { runner.runOneTest("repTypeAlignment") }
+
+  @Test def test_emptyRepValues(): Unit = { runner2.runOneTest("emptyRepValues") }
 }
