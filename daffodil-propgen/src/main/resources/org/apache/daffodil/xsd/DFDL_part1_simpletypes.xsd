@@ -94,8 +94,15 @@
 
   <xsd:simpleType name="NonEmptyListOfDFDLStringLiteral">
     <xsd:restriction base="dfdl:ListOfDFDLStringLiteral">
+      <xsd:minLength value="1"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="NonEmptyListOfDFDLStringLiteral_nilValue">
+    <xsd:restriction base="dfdl:ListOfDFDLStringLiteral">
     <!-- used for dfdl:nilValue. We can give a much clearer diagnostic with a suggestion
-         on what the user should do instead. So we don't check this here. -->
+         on what the user should do instead, ie did they mean to use '%ES;'. So we don't
+         check this here. -->
       <!-- <xsd:minLength value="1"/> --> 
     </xsd:restriction>
   </xsd:simpleType>

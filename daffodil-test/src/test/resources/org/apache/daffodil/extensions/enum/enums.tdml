@@ -94,8 +94,6 @@
     </validationErrors>
   </parserTestCase>
 
-
-
   <unparserTestCase name="enumMiss1" model="s1" root="r1">
     <infoset>
       <tdml:dfdlInfoset xmlns="">
