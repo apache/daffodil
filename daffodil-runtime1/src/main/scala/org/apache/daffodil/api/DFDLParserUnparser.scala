@@ -252,6 +252,7 @@ object DFDL {
     var nilValue: Maybe[String] = Nope
     var causeError: Maybe[SAXException] = Nope
     var unparseResult: Maybe[UnparseResult] = Nope
+    var mixedContent: Maybe[String] = Nope
 
     def isError: Boolean = causeError.isDefined
 
@@ -263,6 +264,7 @@ object DFDL {
       nilValue = Nope
       causeError = Nope
       unparseResult = Nope
+      mixedContent = Nope
     }
 
     def isEmpty: Boolean = {
@@ -272,7 +274,8 @@ object DFDL {
         eventType.isEmpty &&
         nilValue.isEmpty &&
         causeError.isEmpty &&
-        unparseResult.isEmpty
+        unparseResult.isEmpty &&
+        mixedContent.isEmpty
     }
 
     override def toString: String = {
@@ -293,6 +296,7 @@ object DFDL {
         dest.localName = source.localName
         dest.nilValue = source.nilValue
         dest.simpleText = source.simpleText
+        dest.mixedContent = source.mixedContent
       }
     }
   }
