@@ -27,6 +27,7 @@ import org.apache.daffodil.api.DFDL.SAXInfosetEvent
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.InfosetInputterEventType.EndDocument
+import org.apache.daffodil.infoset.InfosetInputterEventType.StartElement
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.util.Misc
@@ -154,6 +155,17 @@ class SAXInfosetInputter(
 
       // increment current index to the next index
       currentIndex += 1
+
+      if (batchedInfosetEvents(currentIndex).mixedContent.isDefined) {
+        // This is a Start or EndElement event that has mixed content prior to
+        // it. We must handle the error here, which causes unparse() to finish
+        // and return execution back to the DaffodilUnparseContentHandler
+        // coroutine where it can report the error via the SAX API
+        val eventType = if (batchedInfosetEvents(currentIndex).eventType.get eq StartElement) "start" else "end"
+        val element = s"{${batchedInfosetEvents(currentIndex).namespaceURI.get}}${batchedInfosetEvents(currentIndex).localName.get}"
+        val msg = s"Mixed content found prior to $eventType of $element"
+        throw new IllegalContentWhereEventExpected(msg)
+      }
 
       // check if new current index is EndDocument
       if (batchedInfosetEvents(currentIndex).eventType.contains(EndDocument)) {

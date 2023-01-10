@@ -21,12 +21,15 @@ import scala.xml.NamespaceBinding
 import scala.xml.TopScope
 
 import javax.xml.XMLConstants
+
+import org.xml.sax.Attributes
+import org.xml.sax.Locator
+
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DFDL.DaffodilUnhandledSAXException
 import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.api.DFDL.SAXInfosetEvent
 import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.IllegalContentWhereEventExpected
 import org.apache.daffodil.infoset.InfosetInputterEventType.EndDocument
 import org.apache.daffodil.infoset.InfosetInputterEventType.EndElement
 import org.apache.daffodil.infoset.InfosetInputterEventType.StartDocument
@@ -37,8 +40,6 @@ import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.Misc
-import org.xml.sax.Attributes
-import org.xml.sax.Locator
 
 /**
  * DaffodilUnparseContentHandler produces SAXInfosetEvent objects for the SAXInfosetInputter to
@@ -185,35 +186,33 @@ class DaffodilUnparseContentHandler(
   }
 
   override def startElement(uri: String, localName: String, qName: String, atts: Attributes): Unit = {
-    // we need to check if the characters data is all whitespace, if it is we drop the whitespace
-    // data, if it is not, it is an error as starting a new element with actual characterData means
-    // we haven't hit an endElement yet, which means we're in a complexElement and a complexElement
-    // cannot have character content
-    if (characterData.nonEmpty && !Misc.isAllWhitespace(characterData)) {
-      throw new IllegalContentWhereEventExpected("Non-whitespace characters in complex " +
-        "Element: " + characterData.toString
-      )
-    } else {
-      // reset since it was whitespace only
-      characterData.setLength(0)
+    // If we have received a startElement() SAX event and the current batched
+    // eventType is defined, it must mean that the current event is a
+    // StartElement event for a complex element and this startElement call is
+    // starting its first child. We can send the current event to the
+    // inputter and start a new event.
+    if (batchedInfosetEvents(currentIndex).eventType.isDefined) {
+      Assert.invariant(batchedInfosetEvents(currentIndex).eventType.get eq StartElement)
+      maybeSendToInputter()
     }
 
+    batchedInfosetEvents(currentIndex).eventType = One(StartElement)
+
+    // If the XMLReader doesn't use the start/endPrefixMapping() functions to
+    // pass along namespaceMapping information, we must extract the information
+    // from the Attributes parameter. We push the current mapping to a stack
+    // first so that when the associated endElement() event is called we can
+    // remove whatever mappings we added (which may be nothing). Note that this
+    // must happen before setLocalNameAndNamespaceUri since this startElement
+    // may use namespace prefixes defined in the attributes.
     if (!contentHandlerPrefixMappingUsed) {
-      // this is for the situation where the XMLReader doesn't use the start/endPrefixMappings to
-      // pass along namespaceMapping informayion, so prefix information must be determined via
-      // the Attribute param.
-      // we always pushes but mapPrefixMappingFromAttributesImpl won't always add a mapping
-      // since atts can be empty
       prefixMappingTrackingStack.push(prefixMapping)
       mapPrefixMappingFromAttributesImpl(atts)
     }
 
-    if (!batchedInfosetEvents(currentIndex).isEmpty && batchedInfosetEvents(currentIndex).localName.isDefined) {
-      // we started another element while we were in the process of building a startElement
-      // this means the first element was complex and we are ready for the inputter queue
-      maybeSendToInputter()
-    }
-    // use Attributes to determine xsi:nil value
+    // Use Attributes to determine xsi:nil value. Note that we don't care if
+    // the value of the attribute is valid yet. We let the SAXInfosetInputter
+    // check that and handle it to end the unparse correctly.
     val nilIn = atts.getIndex(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "nil")
     batchedInfosetEvents(currentIndex).nilValue = if (nilIn >= 0) {
       val nilValue = atts.getValue(nilIn)
@@ -225,18 +224,25 @@ class DaffodilUnparseContentHandler(
     // set localName and namespaceURI
     setLocalNameAndNamespaceUri(uri, localName, qName)
 
-    batchedInfosetEvents(currentIndex).eventType = One(StartElement)
+    // check for any mixed content priror to this StartElement
+    checkMixedContent()
   }
 
   override def endElement(uri: String, localName: String, qName: String): Unit = {
-    // if infosetEvent is a startElement, send that first
     if (batchedInfosetEvents(currentIndex).eventType.contains(StartElement)) {
-      // any characterData that exists at this point is valid data as padding data has been
-      // taken care of in startElement
+      // If the current event is a StartElement event, then we are just ending
+      // a simple element. Any characterData that we have accumulated so far
+      // via calls to characters() becomes the simpleText of that StartElement.
+      // We are now done with that event so we can clear the character state
+      // and send it to the infoset inputter.
       val maybeNewStr = One(characterData.toString)
       batchedInfosetEvents(currentIndex).simpleText = maybeNewStr
       characterData.setLength(0)
       maybeSendToInputter()
+    } else {
+      // This must be ending a complex element. Check for any mixed content
+      // between the end of this element and the end of its last child element.
+      checkMixedContent()
     }
 
     batchedInfosetEvents(currentIndex).eventType = One(EndElement)
@@ -244,11 +250,45 @@ class DaffodilUnparseContentHandler(
     // set localName and namespaceURI
     setLocalNameAndNamespaceUri(uri, localName, qName)
 
+    // If the XMLReader doesn't use start/endPrefixMapping functions to pass
+    // along namespaceMapping information, that means we added mappings from
+    // the Attributes in the startElement() function and pushed those new
+    // mappings to a stack. We need to undo those mappings by popping the stack.
+    // Note that this must happen after setLocalAndNamespaceUri since this
+    // endElement() might use namespace prefixes defined in the Attributes
+    // added in the associated startElement() call.
     if (!contentHandlerPrefixMappingUsed) {
-      // always pops
       prefixMapping = prefixMappingTrackingStack.pop
     }
+
+    // We are done with this EndEvent, it can be sent to the infoset inputter
     maybeSendToInputter()
+  }
+
+  /**
+   * This function should be called whenever mixed content (i.e non-whitespace
+   * characters in between elements) should be checked for and, since it isn't
+   * allowed in a DFDL infoset, state mutated to indicate the error.
+   *
+   * Note that if mixed content is detected we cannot simply throw a
+   * SAXException. This is because if this ContentHandler thread finishes, the
+   * unparse coroutine thread will still be blocked waiting for more events,
+   * leaving it hanging.
+   *
+   * Instead, we set the mixedContent value of the current event to the
+   * characterData we have accumulated, and the SAXInfosetInputer will check
+   * this and error when it gets to this event. We also reset the characterData
+   * and just pretend like there was no mixed content as far as the
+   * ContentHandler is concerned. Eventually the SAXInfosetInputter will
+   * discover the error and cause processing to stop.
+   */
+  private def checkMixedContent(): Unit = {
+    if (characterData.nonEmpty) {
+      if (!Misc.isAllWhitespace(characterData)) {
+        batchedInfosetEvents(currentIndex).mixedContent = One(characterData.toString)
+      }
+      characterData.setLength(0)
+    }
   }
 
   override def characters(ch: Array[Char], start: Int, length: Int): Unit = {

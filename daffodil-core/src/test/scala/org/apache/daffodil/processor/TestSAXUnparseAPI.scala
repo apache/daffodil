@@ -26,6 +26,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.xml.sax.InputSource
+import org.xml.sax.SAXException
 import org.xml.sax.SAXParseException
 import org.xml.sax.XMLReader
 
@@ -128,5 +129,49 @@ class TestSAXUnparseAPI {
     }
     val m = e.getMessage()
     assertTrue(m.contains("DOCTYPE is disallowed"))
+  }
+
+  /**
+   * tests the case of unparsing with mixed content before a start element.
+   */
+  @Test def testUnparseContentHandler_unparse_mixed_01(): Unit = {
+    val xmlReader: XMLReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
+    val bao = new ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bao)
+    val unparseContentHandler = dp.newContentHandlerInstance(wbc)
+    xmlReader.setContentHandler(unparseContentHandler)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+    val mixedInfoset = <list xmlns="http://example.com">mixed<w>9</w><w>1</w><w>0</w></list>
+    val bai = new ByteArrayInputStream(mixedInfoset.toString.getBytes)
+    val e = intercept[SAXException] {
+      xmlReader.parse(new InputSource(bai))
+    }
+    val m = e.getMessage()
+    assertTrue(m.contains("Mixed content"))
+    assertTrue(m.contains("prior to start"))
+    assertTrue(m.contains("{http://example.com}w"))
+  }
+
+  /**
+   * tests the case of unparsing with mixed content before an end element.
+   */
+  @Test def testUnparseContentHandler_unparse_mixed_02(): Unit = {
+    val xmlReader: XMLReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
+    val bao = new ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bao)
+    val unparseContentHandler = dp.newContentHandlerInstance(wbc)
+    xmlReader.setContentHandler(unparseContentHandler)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+    val mixedInfoset = <list xmlns="http://example.com"><w>9</w><w>1</w><w>0</w>mixed</list>
+    val bai = new ByteArrayInputStream(mixedInfoset.toString.getBytes)
+    val e = intercept[SAXException] {
+      xmlReader.parse(new InputSource(bai))
+    }
+    val m = e.getMessage()
+    assertTrue(m.contains("Mixed content"))
+    assertTrue(m.contains("prior to end"))
+    assertTrue(m.contains("{http://example.com}list"))
   }
 }
