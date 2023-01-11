@@ -20,6 +20,7 @@ package org.apache.daffodil.grammar.primitives
 
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom._
+import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.grammar.Gram
 import org.apache.daffodil.grammar.Terminal
 import org.apache.daffodil.processors.TextNumberFormatEv
@@ -49,51 +50,70 @@ case class ConvertZonedNumberPrim(e: ElementBase)
   with ConvertTextNumberMixin {
 
   final override protected lazy val textDecimalVirtualPointFromPattern: Int = {
-    TextNumberPatternUtils.textDecimalVirtualPointForZoned(patternStripped).getOrElse {
-      e.SDE(
-        s"""The dfdl:textNumberPattern '%s' contains 'V' (virtual decimal point).
-           |Other than the leading or trailing '+' sign indicator,
-           |it can contain only digits 0-9.""".stripMargin('|'),
-        pattern)
+    if (hasV) {
+      TextNumberPatternUtils.textNumber_V_DecimalVirtualPointForZoned(patternWithoutEscapedChars).getOrElse {
+        e.SDE(
+          s"""The dfdl:textNumberPattern '%s' contains 'V' (virtual decimal point).
+             |Other than the leading or trailing '+' sign indicator,
+             |it can contain only digits 0-9.""".stripMargin('|'),
+          pattern)
+      }
+    } else if (hasP) {
+      val rr = TextNumberPatternUtils.pOnRightRegexZoned
+      val rl = TextNumberPatternUtils.pOnLeftRegexZoned
+      val rightMatch = rr.findFirstMatchIn(patternWithoutEscapedChars)
+      val leftMatch = rl.findFirstMatchIn(patternWithoutEscapedChars)
+      (leftMatch, rightMatch) match {
+        case (None, None) => e.SDE(
+          """The dfdl:textNumberPattern '%s' contains 'P' (decimal scaling position symbol(s)).
+            |However, it did not match the allowed syntax which allows the sign indicator
+            |plus digits on only one side of the P symbols.""".stripMargin,
+          pattern)
+        case (Some(rl(_, ps, digits, _)), None) => ps.length + digits.length
+        case (None, Some(rr(_, digits, ps, _))) => -ps.length // negate value.
+        case _ => Assert.invariantFailed("Should not match both left P and right P regular expressions.")
+      }
+    } else {
+      0 // neither P nor V in pattern
     }
   }
 
   lazy val textNumberFormatEv: TextNumberFormatEv = {
 
-    if (patternStripped.contains("@")) {
+    if (patternWithoutEscapedChars.contains("@")) {
       e.SDE("The '@' symbol may not be used in textNumberPattern for textNumberRep='zoned'")
     }
 
-    if (patternStripped.contains("E")) {
+    if (patternWithoutEscapedChars.contains("E")) {
       e.SDE("The 'E' symbol may not be used in textNumberPattern for textNumberRep='zoned'")
     }
 
-    e.schemaDefinitionWhen(patternStripped.contains(";"),
+    e.schemaDefinitionWhen(patternWithoutEscapedChars.contains(";"),
       "Negative patterns may not be used in textNumberPattern for textNumberRep='zoned'")
 
     e.primType match {
       case PrimType.Double | PrimType.Float => e.SDE("textNumberRep='zoned' does not support Doubles/Floats")
       case PrimType.UnsignedLong | PrimType.UnsignedInt | PrimType.UnsignedShort | PrimType.UnsignedByte => {
         if (e.textNumberCheckPolicy == TextNumberCheckPolicy.Lax) {
-          if ((patternStripped(0) != '+') && (patternStripped(patternStripped.length - 1) != '+'))
+          if ((patternWithoutEscapedChars(0) != '+') && (patternWithoutEscapedChars(patternWithoutEscapedChars.length - 1) != '+'))
             e.SDE("textNumberPattern must have '+' at the beginning or the end of the pattern when textNumberRep='zoned' and textNumberPolicy='lax' for unsigned numbers")
         }
       }
       case _ => {
-        if ((patternStripped(0) != '+') && (patternStripped(patternStripped.length - 1) != '+'))
+        if ((patternWithoutEscapedChars(0) != '+') && (patternWithoutEscapedChars(patternWithoutEscapedChars.length - 1) != '+'))
           e.SDE("textNumberPattern must have '+' at the beginning or the end of the pattern when textNumberRep='zoned' for signed numbers")
       }
     }
 
-    if ((patternStripped(0) == '+') && (patternStripped(patternStripped.length - 1) == '+'))
+    if ((patternWithoutEscapedChars(0) == '+') && (patternWithoutEscapedChars(patternWithoutEscapedChars.length - 1) == '+'))
       e.SDE("The textNumberPattern may either begin or end with a '+', not both.")
 
     if (textDecimalVirtualPoint > 0) {
       e.primType match {
         case PrimType.Decimal => // ok
         case _ => e.SDE(
-          """The dfdl:textNumberPattern has a virtual decimal point 'V' and dfdl:textNumberRep='zoned'.
-            | The type must be xs:decimal, but was: %s.""".stripMargin, e.primType.globalQName.toPrettyString)
+          """The dfdl:textNumberPattern has a virtual decimal point 'V' or decimal scaling 'P' and dfdl:textNumberRep='zoned'.
+            | The type must be xs:decimal but was: %s.""".stripMargin, e.primType.globalQName.toPrettyString)
       }
     }
 

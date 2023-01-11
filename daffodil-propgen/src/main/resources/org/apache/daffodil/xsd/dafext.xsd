@@ -684,6 +684,7 @@
           <xs:enumeration value="queryStylePathExpression" />
           <xs:enumeration value="regexPatternZeroLength" />
           <xs:enumeration value="textBidiError" />
+          <xs:enumeration value="textNumberPatternWarning" />
           <xs:enumeration value="textOutputMinLengthOutOfRange" />
           <xs:enumeration value="textStandardBaseUndefined" />
           <xs:enumeration value="unsupportedAttributeBlockDefault" />

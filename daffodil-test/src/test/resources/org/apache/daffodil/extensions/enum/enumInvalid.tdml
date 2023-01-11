@@ -46,7 +46,7 @@
       </complexType>
     </element>
 
-    <simpleType name="enum2" dfdlx:repType="ex:myByte">
+    <simpleType name="enum2" dfdlx:repType="xs:byte">
       <restriction base="xs:string">
         <enumeration value="valid" dfdlx:repValues="0"/>
         <enumeration value="empty" dfdlx:repValues=""/>
