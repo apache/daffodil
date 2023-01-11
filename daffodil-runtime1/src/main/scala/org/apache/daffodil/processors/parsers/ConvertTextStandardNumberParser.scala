@@ -17,13 +17,11 @@
 
 package org.apache.daffodil.processors.parsers
 
-import com.ibm.icu.math.{ BigDecimal => ICUBigDecimal }
+import com.ibm.icu.math.{BigDecimal => ICUBigDecimal}
 import com.ibm.icu.text.DecimalFormat
 
 import java.text.ParsePosition
-
 import scala.util.matching.Regex
-
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.exceptions.Assert
@@ -34,7 +32,8 @@ import org.apache.daffodil.processors.Success
 import org.apache.daffodil.processors.TermRuntimeData
 import org.apache.daffodil.processors.TextNumberFormatEv
 
-import java.lang.{Long => JLong, Float => JFloat, Double => JDouble, Number => JNumber}
+import java.lang.{Float => JFloat, Number => JNumber, Long => JLong, Double => JDouble}
+import java.math.MathContext
 import java.math.{BigDecimal => JBigDecimal}
 
 case class ConvertTextCombinatorParser(
@@ -59,7 +58,7 @@ case class ConvertTextCombinatorParser(
 trait TextDecimalVirtualPointMixin {
   def textDecimalVirtualPoint: Int
 
-  final protected val virtualPointScaleFactor = scala.math.pow(10.0, textDecimalVirtualPoint)
+  final protected lazy val virtualPointScaleFactor = scala.math.pow(10.0, textDecimalVirtualPoint)
 
   final protected def applyTextDecimalVirtualPointForParse(num1: JNumber): JNumber = {
     if (textDecimalVirtualPoint == 0) num1
@@ -68,7 +67,11 @@ trait TextDecimalVirtualPointMixin {
       val scaledNum: JNumber = num1 match {
         // Empirically, in our test suite, we do get Long back here, so the runtime sometimes represents small integer
         // (or possibly even smaller decimal numbers with no fraction part) as Long.
-        case l: JLong => JBigDecimal.valueOf(l).scaleByPowerOfTen(-textDecimalVirtualPoint)
+        case l: JLong => {
+          val scaled = JBigDecimal.valueOf(l).scaleByPowerOfTen(-textDecimalVirtualPoint)
+          if (textDecimalVirtualPoint < 0) scaled.toBigIntegerExact()
+          else scaled
+        }
         case bd: JBigDecimal => bd.scaleByPowerOfTen(-textDecimalVirtualPoint)
         case f: JFloat => (f / virtualPointScaleFactor).toFloat
         case d: JDouble => (d / virtualPointScaleFactor).toDouble
@@ -89,21 +92,55 @@ trait TextDecimalVirtualPointMixin {
   }
   // $COVERAGE-ON$
 
+
+  /**
+   * Always creates an integer from a JFloat, JDouble, or JBigDecimal
+   * by scaling the argument by the virtual decimal point scaling factor.
+   *
+   * Aborts if the result of scaling is not an integer. That is, the virtual decimal
+   * point must be specified (elsewhere) such that this scaling results in an integer.
+   *
+   * If the argument is some other JNumber, i.e., not a JFloat, JDouble, or JBigDecimal
+   * it can only be an integer type. This method this returns the argument value
+   * only if no virtual decimal point scaling is needed.
+   * Otherwise aborts since only JFloat, JDouble, or JDecimal can be scaled in this way.
+   *
+   * Floating point NaNs and Infinities are tolerated. (No scaling occurs.)
+   *
+   * @param valueAsAnyRef value to be scaled. Should be a JNumber. Aborts otherwise.
+   * @return a JLong or JBigInt
+   */
   final protected def applyTextDecimalVirtualPointForUnparse(valueAsAnyRef: AnyRef) : JNumber = {
-    valueAsAnyRef match {
+    val res: JNumber = valueAsAnyRef match {
+      case jn: JNumber if (textDecimalVirtualPoint == 0) => jn
       // This is not perfectly symmetrical with the parse side equivalent.
       // Empirically in our test suite, we do not see JLong here.
-      case f: JFloat => (f * virtualPointScaleFactor).toFloat
-      case d: JDouble => (d * virtualPointScaleFactor).toDouble
-      case bd: JBigDecimal => bd.scaleByPowerOfTen(textDecimalVirtualPoint)
-
+      //
+      // If the base 10 data is 1.23 and it becomes a float, that's 1.2300000190734863
+      // That is to say, it isn't a perfect representation of 1.23, so we don't know for
+      // certain that when we unscale it by the virtualPointScaleFactor that it will
+      // become an integer. We just know it will be close to an integer.
+      // The same holds for a decimal number that was created via math involving division.
+      // In that case there may be fraction digits that will still exist even after we scale
+      // the value so that it "should be" an integer.
+      //
+      // So if it is float/double/decimal after scaling we round it to be exactly an
+      // integer.
+      //
+      case f: JFloat if f.isNaN || f.isInfinite => f
+      case f: JFloat => (f * virtualPointScaleFactor).round.toFloat
+      case d: JDouble if d.isNaN || d.isInfinite => d
+      case d: JDouble => (d * virtualPointScaleFactor).round.toDouble
+      case bd: JBigDecimal => bd.scaleByPowerOfTen(textDecimalVirtualPoint).round(MathContext.UNLIMITED)
       case n: JNumber =>
-        if (textDecimalVirtualPoint == 0) n
         // $COVERAGE-OFF$ // both badType and the next case are coverage-off
-        else badType(n)
+        badType(n)
       case _ => Assert.invariantFailed("Not a JNumber")
       // $COVERAGE-ON$
     }
+    // Result type is same as argument type.
+    Assert.invariant(res.getClass == valueAsAnyRef.getClass)
+    res
   }
 }
 
