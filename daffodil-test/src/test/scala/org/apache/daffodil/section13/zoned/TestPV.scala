@@ -40,6 +40,7 @@ class TestPV {
   @Test def vpattern_04(): Unit = { runner.runOneTest("vpattern_04") }
   @Test def vpattern_05(): Unit = { runner.runOneTest("vpattern_05") }
   @Test def vpattern_06(): Unit = { runner.runOneTest("vpattern_06") }
+  @Test def vpattern_07(): Unit = { runner.runOneTest("vpattern_07") }
 
   @Test def vpattern_zero(): Unit = { runner.runOneTest("vpattern_zero") }
   @Test def vpattern_ZZZ(): Unit = { runner.runOneTest("vpattern_ZZZ") }
@@ -57,7 +58,7 @@ class TestPV {
   @Test def vpattern_bad_01(): Unit = { runner.runOneTest("vpattern_bad_01") }
   @Test def vpattern_bad_02(): Unit = { runner.runOneTest("vpattern_bad_02") }
   @Test def vpattern_bad_03(): Unit = { runner.runOneTest("vpattern_bad_03") }
-  @Test def vpattern_bad_P01(): Unit = { runner.runOneTest("vpattern_bad_P01") }
+  @Test def vpattern_warn_04(): Unit = { runner.runOneTest("vpattern_warn_04") }
 
 
   @Test def zoned_vpattern_01(): Unit = { runner.runOneTest("zoned_vpattern_01") }
@@ -74,7 +75,10 @@ class TestPV {
   @Test def zoned_vpattern_bad_01(): Unit = { runner.runOneTest("zoned_vpattern_bad_01") }
   @Test def zoned_vpattern_bad_02(): Unit = { runner.runOneTest("zoned_vpattern_bad_02") }
   @Test def zoned_vpattern_bad_03(): Unit = { runner.runOneTest("zoned_vpattern_bad_03") }
-  @Test def zoned_vpattern_bad_P01(): Unit = { runner.runOneTest("zoned_vpattern_bad_P01") }
+
+  @Test def ppattern_01(): Unit = { runner.runOneTest("ppattern_01") }
+  @Test def ppattern_02(): Unit = { runner.runOneTest("ppattern_02") }
+
 
 }
 

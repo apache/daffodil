@@ -47,20 +47,47 @@
 
     <element name="money" type="xs:decimal" dfdl:textNumberPattern="######0V00;-######0V00"/>
     <element name="money2" type="xs:decimal" dfdl:textNumberPattern="[######0V00];(######0V00)"/>
+    <element name="money3" type="xs:decimal" dfdl:textNumberPattern="[######0V00];(#)"/>
+
 
     <element name="bad01" type="xs:decimal" dfdl:textNumberPattern=";-######0V00"/>
     <element name="bad02" type="xs:decimal" dfdl:textNumberPattern="######0V0#"/>
     <element name="bad03" type="xs:decimal" dfdl:textNumberPattern="##0###0V0#"/>
 
-    <element name="badP01" type="xs:decimal" dfdl:textNumberPattern="PPP000V00"/>
-
+    <!--
+    Should produce warning that negative pattern and positive pattern are not matching
+    -->
+    <element name="warn04" type="xs:decimal" dfdl:textNumberPattern="#0V00;-###"/>
 
     <element name="float" type="xs:float" dfdl:textNumberPattern="##0V00;-##0V00"/>
     <element name="double" type="xs:double" dfdl:textNumberPattern="##0V00;-##0V00"/>
 
     <element name="byte" type="xs:byte" dfdl:textNumberPattern="0V0"/>
 
+
+    <element name="pOnLeft" type="xs:decimal" dfdl:textNumberPattern="PP000;-PP000"/>
+
+    <element name="pOnRight" type="xs:decimal" dfdl:textNumberPattern="##0PP+;##0PP-"/>
+
   </tdml:defineSchema>
+
+  <parserTestCase name="ppattern_01" root="pOnLeft" model="s1">
+    <document>123</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:pOnLeft>0.00123</ex:pOnLeft>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="ppattern_02" root="pOnRight" model="s1">
+    <document>123-</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:pOnRight>-12300</ex:pOnRight>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
 
 
   <parserTestCase name="vpattern_01" root="money" model="s1">
@@ -115,6 +142,15 @@
     <infoset>
       <dfdlInfoset>
         <ex:money2>-9.99</ex:money2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="vpattern_07" root="money3" model="s1">
+    <document>(999)</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:money3>-9.99</ex:money3>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
@@ -215,12 +251,19 @@
     </errors>
   </parserTestCase>
 
-  <parserTestCase name="vpattern_bad_P01" root="badP01" model="s1">
+  <parserTestCase name="vpattern_warn_04" root="warn04" model="s1">
     <document>999999999</document>
-    <errors>
-      <error>textNumberPattern</error>
-      <error>not yet implemented</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <ex:warn04>9999999.99</ex:warn04>
+      </dfdlInfoset>
+    </infoset>
+    <warnings>
+      <warning>textNumberPattern</warning>
+      <warning>negative numeric part</warning>
+      <warning>###</warning>
+      <warning>#0V00</warning>
+    </warnings>
   </parserTestCase>
 
   <parserTestCase name="float_vpattern_01" root="float" model="s1">
@@ -275,9 +318,6 @@
     <element name="bad01" type="xs:decimal" dfdl:textNumberPattern=";-######0V00"/>
     <element name="bad02" type="xs:decimal" dfdl:textNumberPattern="######0V0#"/>
     <element name="bad03" type="xs:decimal" dfdl:textNumberPattern="##0###0V0#"/>
-
-    <element name="badP01" type="xs:decimal" dfdl:textNumberPattern="PPP000V00"/>
-
 
     <element name="float" type="xs:float" dfdl:textNumberPattern="##0V00"/>
     <element name="double" type="xs:double" dfdl:textNumberPattern="##0V00"/>
@@ -359,14 +399,6 @@
     <errors>
       <error>textNumberPattern</error>
       <error>contain only digits 0-9</error>
-    </errors>
-  </parserTestCase>
-
-  <parserTestCase name="zoned_vpattern_bad_P01" root="badP01" model="zoned1">
-    <document>999999999</document>
-    <errors>
-      <error>textNumberPattern</error>
-      <error>not yet implemented</error>
     </errors>
   </parserTestCase>
 

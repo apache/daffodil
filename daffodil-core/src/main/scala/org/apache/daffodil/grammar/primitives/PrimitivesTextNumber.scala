@@ -18,6 +18,7 @@
 package org.apache.daffodil.grammar.primitives
 
 import com.ibm.icu.text.DecimalFormat
+import org.apache.daffodil.api.WarnID
 import org.apache.daffodil.cookers.EntityReplacer
 import org.apache.daffodil.dpath.NodeInfo.PrimType
 import org.apache.daffodil.dsom._
@@ -45,27 +46,56 @@ case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   override lazy val unparser = new ConvertTextCombinatorUnparser(e.termRuntimeData, value.unparser, converter.unparser)
 }
 
-// This is a separate object for unit testing purposes.
+/**
+ * This is a separate object so that we can easily unit test these subtle regular
+ * expressions.
+ */
 private[primitives]
 object TextNumberPatternUtils {
+
+  //  DFDL v1.0 Spec says
+  //  It is a Schema Definition Error if any symbols other than "0", "1" through "9" or #
+  //  are used in the vpinteger region of the pattern.
+  //
+  // The prefix and suffix chars can surround the vpinteger region, and there can be
+  // a positive and a negative pattern.
+
+  /**
+   * The prefix and suffix are quoted any single character
+   * or a single non-special character (excepting + and - which are allowed
+   * though they appear in the table of special characters for textNumberFormat).
+   *
+   * By default these regex will not allow line-ending chars either.
+   */
+  val prefixChars = """(?:'.'|[^0-9#PVE\.\,\;\*\@\'])?""" // same for suffix.
+
+  /**
+   * sharps and at least 1 digit before the V.
+   */
+  val beforeVChars = """#*[0-9]+"""
+
+  /**
+   * one or more digits after the V. (No trailing sharps)
+   */
+  val afterVChars = """[0-9]+"""
+
+  /**
+   * The negative pattern must be a valid pattern, but
+   * does NOT have to match the positive one, as it is
+   * always ignored.
+   *
+   * The shortest possible match is just a # or just a digit.
+   * If a V appears it must have a digit on either side.
+   */
+  val negVNumberChars = """#|#+|#*[0-9]+(?:V[0-9]+)?"""
+
 
   /**
    * A regex which matches textNumberPatterns that legally use the V
    * (implied decimal point) character.
    */
-   private[primitives] lazy val vregexStandard = {
-    //  DFDL v1.0 Spec says
-    //  It is a Schema Definition Error if any symbols other than "0", "1" through "9" or #
-    //  are used in the vpinteger region of the pattern.
-    //
-    // The prefix and suffix chars can surround the vpinteger region, and there can be
-    // a positive and a negative pattern.
-    //
-    // The prefix and suffix cannot be digits, # or P or V. No quoted chars in prefix either.
-    //
-     val prefixChars = """[^0-9#PV']?""" // same for suffix.
-     val beforeVChars = """#*[0-9]+"""
-     val afterVChars = """[0-9]+"""
+  lazy val vRegexStandard = {
+
      //
      // Each of the capture groups is defined here in order
      //
@@ -74,20 +104,87 @@ object TextNumberPatternUtils {
      val posAfterV = s"""($afterVChars)"""
      val posSuffix = posPrefix
      val negPrefix = posPrefix
-     val negBeforeV = posBeforeV
-     val negAfterV = posAfterV
+     val negNumber = s"""($negVNumberChars)"""
      val negSuffix = posPrefix
      // don't forget the ^ and $ (start of data, end of data) because we want
      // the match to consume all the characters, starting at the beginning.
     val vPattern=
-     s"""^${posPrefix}${posBeforeV}V${posAfterV}${posSuffix}(?:;${negPrefix}${negBeforeV}V${negAfterV}${negSuffix})?$$"""
+     s"""^${posPrefix}${posBeforeV}V${posAfterV}${posSuffix}""" +
+       s"""(?:;${negPrefix}${negNumber}${negSuffix})?$$"""
     val re = vPattern.r
     re
   }
 
+  /*
+   * There are two regex used for 'P' pattern case. One if the P chars
+   * appear to the left of the digits, the other for P chars on the right
+   * of the digits.
+   *
+   * When P is on left of the digits, there must be 1 or more digits.
+   * When P is on right of the digits there must be 1 or more digits, and there may be sharps.
+   */
+  val afterPChars = """[0-9]+""" // P is left, digits are after
+  val beforePChars = """#*[0-9]+""" // P is right, digits are before (sharps before the digits).
 
+  /**
+   * For P patterns, with P on the left, the negative pattern can be just # or just a digit
+   * or can be P chars followed by one or more digits.
+   */
+  val negPOnLeftNumberChars = "#|P*[0-9]+"
 
-  private[primitives] lazy val vregexZoned= {
+  /**
+   * For P patterns, with P on the right, the negative patterncan be just # or just a digit
+   * or can be sharps, then digits, then P chars.
+   */
+  val negPOnRightNumberChars = "#|#*[0-9]+P*"
+
+  /**
+   * A regex which matches textNumberPatterns that legally use the P
+   * (implied decimal point) character, on the LEFT of the digits.
+   */
+  lazy val pOnLeftRegexStandard = {
+    //
+    // Each of the capture groups is defined here in order
+    //
+    val posPrefix = s"""($prefixChars)"""
+    val posPs = s"""(P+)"""
+    val posAfterP = s"""($afterPChars)"""
+    val posSuffix = posPrefix
+    val negPrefix = posPrefix
+    val negPNumber = s"""($negPOnLeftNumberChars)"""
+    val negSuffix = posPrefix
+    // don't forget the ^ and $ (start of data, end of data) because we want
+    // the match to consume all the characters, starting at the beginning.
+    val vPattern =
+    s"""^${posPrefix}$posPs${posAfterP}${posSuffix}(?:;${negPrefix}${negPNumber}${negSuffix})?$$"""
+    val re = vPattern.r
+    re
+  }
+
+  /**
+   * A regex which matches textNumberPatterns that legally use the P
+   * (implied decimal point) character, on the RIGHT of the digits.
+   */
+  lazy val pOnRightRegexStandard = {
+    //
+    // Each of the capture groups is defined here in order
+    //
+    val posPrefix = s"""($prefixChars)"""
+    val posBeforeP = s"""($beforePChars)"""
+    val posPs = s"""(P+)"""
+    val posSuffix = posPrefix
+    val negPrefix = posPrefix
+    val negPNumber = s"""($negPOnRightNumberChars)"""
+    val negSuffix = posPrefix
+    // don't forget the ^ and $ (start of data, end of data) because we want
+    // the match to consume all the characters, starting at the beginning.
+    val vPattern =
+    s"""^${posPrefix}${posBeforeP}$posPs${posSuffix}(?:;${negPrefix}${negPNumber}${negSuffix})?$$"""
+    val re = vPattern.r
+    re
+  }
+
+  lazy val vRegexZoned= {
     // Note: for zoned, can only have a positive pattern
     // Prefix or suffix can only be '+' character, to
     // indicate leading or trailing sign, and can only
@@ -114,19 +211,64 @@ object TextNumberPatternUtils {
    * Checks a pattern for suitability with V (virtual decimal point) in the pattern
    * in the context of zoned textNumberRep.
    *
-   * This is broken out separately for unit testing purposes.
+   * This method is here in this object for unit testing purposes.
    *
    * @param patternStripped the dfdl:textNumberPattern pattern - with all quoting removed.
    * @return None if the pattern is illegal syntax for use with V (virtual decimal point)
    *         otherwise Some(N) where N is the number of digits to the right of the V character.
    */
-  private[primitives] def textDecimalVirtualPointForZoned(patternStripped: String): Option[Int] = {
-    val r = TextNumberPatternUtils.vregexZoned
+  def textNumber_V_DecimalVirtualPointForZoned(patternStripped: String): Option[Int] = {
+    val r = TextNumberPatternUtils.vRegexZoned
     r.findFirstMatchIn(patternStripped) match {
       // note: cannot have both a prefix and suffix. Only one of them.
-      case Some(r(pre, _, afterV, suf)) if (pre.length + suf.length <= 1) => Some(afterV.length)
+      case Some(r(pre, _, afterV, suf)) if (pre.length + suf.length <= 1) =>
+        Some(afterV.length)
       case _ => None
     }
+  }
+
+  lazy val pOnLeftRegexZoned = {
+    // Note: for zoned, can only have a positive pattern
+    // Prefix or suffix can only be '+' character, to
+    // indicate leading or trailing sign, and can only
+    // one of those.
+    //
+    // Also we're not allowing the # character, since I think that
+    // makes no sense for zoned with virtual decimal point.
+    //
+    val prefixChars = """\+?""" // only + for prefix/suffix
+    //
+    // capture groups are defined here in sequence
+    //
+    val prefix = s"""($prefixChars)"""
+    val ps = s"""(P+)"""
+    val afterP = s"""($afterPChars)"""
+    val suffix = prefix
+    val vPattern = s"""^${prefix}$ps${afterP}${suffix}$$""" // only positive pattern allowed
+    val re = vPattern.r
+    re
+  }
+
+  lazy val pOnRightRegexZoned = {
+    // Note: for zoned, can only have a positive pattern
+    // Prefix or suffix can only be '+' character, to
+    // indicate leading or trailing sign, and can only
+    // one of those.
+    //
+    // Also we're not allowing the # character, since I think that
+    // makes no sense for zoned with virtual decimal point.
+    //
+    val prefixChars = """\+?""" // only + for prefix/suffix
+    //
+    // capture groups are defined here in sequence
+    //
+    val prefix = s"""($prefixChars)"""
+    val beforeP = s"""($beforePChars)"""
+    val ps = s"""(P+)"""
+    val suffix = prefix
+    val vPattern = s"""^${prefix}${beforeP}$ps${suffix}$$""" // only positive pattern allowed
+    val re = vPattern.r
+    re
   }
 
   /**
@@ -137,25 +279,12 @@ object TextNumberPatternUtils {
    * @return the pattern string with all unquoted P and unquoted V removed.
    */
   def removeUnquotedPV(pattern: String) : String = {
-    val uniqueQQString = "alsdflslkjskjslkkjlkkjfppooiipsldsflj"
-    // A single regex that matches an unquoted character
-    // where the quoting char is self quoting requires
-    // a zero-width look behind that matches a potentially
-    // unbounded number of quote chars. That's not allowed.
-    //
-    // Consider ''''''P. We want a regex that matches only the P here
-    // because it is preceded by an even number of quotes.
-    //
-    // I did some tests, and the formulations you think might work
-    // such as from stack-overflow, don't work.
-    // (See test howNotToUseRegexLookBehindWithReplaceAll)
-    //
-    // So we use this brute force technique of replacing all ''
-    // first, so we have only single quotes to deal with.
-    pattern.replaceAll("''", uniqueQQString).
-      replaceAll("(?<!')P", "").
-      replaceAll("(?<!')V", "").
-      replaceAll(uniqueQQString, "''")
+    val regex = "'.*?'|.".r
+    val res = regex.findAllIn(pattern)
+      .filterNot(_ == "P")
+      .filterNot(_ == "V")
+      .mkString("")
+    res
   }
 }
 
@@ -170,13 +299,23 @@ trait ConvertTextNumberMixin {
   final protected def pattern = e.textNumberPattern
 
   /**
-   * Checks a pattern for suitability with V (virtual decimal point) in the pattern
-   * in the context of the corresponding textNumberRep. Computes number of digits to right of the V.
+   * Analogous to the property dfdl:binaryDecimalVirtualPoint
    *
-   * SDE if pattern has a syntax error.
+   * Value is 0 if there is no virtual decimal point.
    *
-   * @return the number of digits to the right of the V character. Must be 1 or greater.
+   * Value is the number of digits to the right of the 'V' for V patterns.
    *
+   * For P patterns, the value is the number of P characters when
+   * the P chars are on the right of the digits, or it is negated if the
+   * P chars are on the left of the digits.
+   *
+   * Examples:
+   *
+   * "000V00" returns 2, so text "12345" yields 123.45
+   *
+   * "PP000" returns 5, so text "123" yields 0.00123
+   *
+   * "000PP" returns -2 so text "123" yields 12300.0
    */
   protected def textDecimalVirtualPointFromPattern: Int
 
@@ -186,41 +325,57 @@ trait ConvertTextNumberMixin {
    * but cannot be used as an operational pattern given that
    * potentially lots of things have been removed from it.
    */
-  final protected lazy val patternStripped = {
+  final protected lazy val patternWithoutEscapedChars = {
     // note: tick == apos == ' == single quote.
     // First remove entirely all escaped ticks ie., ''
     val noEscapedTicksRegex = """''""".r
     val patternNoEscapedTicks = noEscapedTicksRegex.replaceAllIn(pattern, "")
     // Next remove all tick-escaped characters entirely
     val noQuotedRegex = """'[^']+'""".r
-    val patternNoQuoted = noQuotedRegex.replaceAllIn(patternNoEscapedTicks, "")
+    val res = noQuotedRegex.replaceAllIn(patternNoEscapedTicks, "")
     // the remaining string contains only pattern special characters
     // and regular non-pattern characters
-    patternNoQuoted
+    res
   }
 
-  protected final lazy val hasV = patternStripped.contains("V")
-  protected final lazy val hasP = patternStripped.contains("P")
+  protected final lazy val hasV = patternWithoutEscapedChars.contains("V")
+  protected final lazy val hasP = patternWithoutEscapedChars.contains("P")
 
   /**
-   * analogous to the property dfdl:binaryDecimalVirtualPoint
+   * Analogous to the property dfdl:binaryDecimalVirtualPoint
    *
    * Value is 0 if there is no virtual decimal point.
-   * Value is the number of digits to the right of the 'V'
+   *
+   * Value is the number of digits to the right of the 'V' for V patterns.
+   *
+   * For P patterns, the value is the number of P characters when
+   * the P chars are on the right of the digits, or it is negated if the
+   * P chars are on the left of the digits.
+   *
+   * Examples:
+   *
+   * "000V00" returns 2, so text "12345" yields 123.45
+   *
+   * "PP000" returns 2, so text "123" yields 0.00123
+   *
+   * "000PP" returns -2 so text "123" yields 12300.0
    */
   final lazy val textDecimalVirtualPoint: Int = {
-    if (!hasV && !hasP) 0 // no virtual point
-    else {
-      if (hasP) {
-        e.notYetImplemented("textNumberPattern with P symbol")
-      }
-      Assert.invariant(hasV)
+    lazy val virtualPoint = textDecimalVirtualPointFromPattern
+    if (hasV) {
       //
       // check for things incompatible with "V"
       //
-      val virtualPoint = textDecimalVirtualPointFromPattern
       Assert.invariant(virtualPoint >= 1) // if this fails the regex is broken.
       virtualPoint
+    } else if (hasP) {
+      //
+      // check for things incompatible with "P"
+      //
+      Assert.invariant(virtualPoint != 0) // if this fails the regex is broken.
+      virtualPoint
+    } else {
+      0 // no virtual point since we have neither V nor P in the pattern.
     }
   }
 
@@ -275,17 +430,72 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
   extends Terminal(e, true)
   with ConvertTextNumberMixin {
 
+
   final override protected lazy val textDecimalVirtualPointFromPattern: Int = {
-    val r = TextNumberPatternUtils.vregexStandard
-    r.findFirstMatchIn(patternStripped) match {
-      case Some(r(_, _, afterV, _, _, _, _, _)) => afterV.length
-      case None =>
-        e.SDE(
-          s"""The dfdl:textNumberPattern '%s' contains 'V' (virtual decimal point).
-             | Other than the sign indicators, it can contain only
-             | '#', then digits 0-9 then 'V' then digits 0-9.
-             | The positive part of the dfdl:textNumberPattern is mandatory.""".stripMargin('|'),
+    if (hasV) {
+      val r = TextNumberPatternUtils.vRegexStandard
+      r.findFirstMatchIn(patternWithoutEscapedChars) match {
+        case Some(r(_, beforeV, afterV, _, _, negNum, _)) => {
+          checkPosNegNumPartSyntax(beforeV + "V" + afterV, negNum)
+          afterV.length
+        }
+        case None =>
+          e.SDE(
+            s"""The dfdl:textNumberPattern '%s' contains 'V' (virtual decimal point).
+               | Other than the sign indicators, it can contain only
+               | '#', then digits 0-9 then 'V' then digits 0-9.
+               | The positive part of the dfdl:textNumberPattern is mandatory.""".stripMargin('|'),
+            pattern)
+      }
+    } else if (hasP) {
+      val rr = TextNumberPatternUtils.pOnRightRegexStandard
+      val rl = TextNumberPatternUtils.pOnLeftRegexStandard
+      val rightMatch = rr.findFirstMatchIn(patternWithoutEscapedChars)
+      val leftMatch = rl.findFirstMatchIn(patternWithoutEscapedChars)
+      (leftMatch, rightMatch) match {
+        case (None, None) => e.SDE(
+          """The dfdl:textNumberPattern '%s' contains 'P' (virtual decimal point positioners).
+            |However, it did not match the allowed syntax which allows the sign indicator
+            |plus digits on only one side of the P symbols.""".stripMargin,
           pattern)
+        case (Some(rl(_, ps, digits, _, negPre, negNum, _)), None) => {
+          checkPosNegNumPartSyntax(ps + digits, negNum)
+          ps.length + digits.length
+        }
+        case (None, Some(rr(_, digits, ps, _, negPre, negNum, _))) => {
+          checkPosNegNumPartSyntax(digits + ps, negNum)
+          -ps.length // negate value.
+        }
+        case _ => Assert.invariantFailed("Should not match both left P and right P regular expressions.")
+      }
+    } else {
+      0 // there is no V nor P, so there is no virtual decimal point scaling involved.
+    }
+  }
+
+  /**
+   * Check for common errors in the pattern matches for 'P' patterns.
+   *
+   * @param posNum positive number pattern part (combined ps and digits on left or right)
+   * @param negNum negative number pattern part
+   */
+  private def checkPosNegNumPartSyntax(
+    posNum: String,
+    negNum: String): Unit = {
+    if (negNum ne null) {
+      // there is a negative part
+      if (negNum.length == 1) {
+        Assert.invariant(negNum.matches("#|[0-9]")) // must be # or digit or wouldn't have matched.
+        // do nothing. This is ok. (The negNum is ignored anyway)
+      } else {
+        // we issue a warning if there is a negNum pattern part and it is not
+        // identical to the positive part.
+        e.schemaDefinitionWarningUnless(WarnID.TextNumberPatternWarning, posNum == negNum,
+        s"""The negative numeric part of the textNumberPattern: '${negNum}' is being ignored.
+             | It should either be just '#' or should exactly
+             | match the numeric part of the positive pattern,
+             | which is '${posNum}'.""".stripMargin)
+      }
     }
   }
 
@@ -346,8 +556,8 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
     // also require the separators if the prim type is not an integer type,
     // since ICU will use them even if the pattern does not specify them.
     val requireDecGroupSeps =
-      patternStripped.contains(",") || patternStripped.contains(".") ||
-      patternStripped.contains("E") || patternStripped.contains("@") ||
+      patternWithoutEscapedChars.contains(",") || patternWithoutEscapedChars.contains(".") ||
+      patternWithoutEscapedChars.contains("E") || patternWithoutEscapedChars.contains("@") ||
       !isInt
 
     val decSep =
