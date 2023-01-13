@@ -287,7 +287,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     val saxOutputStream = new ByteArrayOutputStream
     val saxOutputChannel = java.nio.channels.Channels.newChannel(saxOutputStream)
     val unparseContentHandler = dp.newContentHandlerInstance(saxOutputChannel)
-    unparseContentHandler.enableInputterResolutionOfRelativeInfosetBlobURIs()
+    unparseContentHandler.enableResolutionOfRelativeInfosetBlobURIs()
     val xmlReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
     xmlReader.setContentHandler(unparseContentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)

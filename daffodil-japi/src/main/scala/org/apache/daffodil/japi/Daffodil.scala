@@ -25,8 +25,19 @@ import java.nio.channels.WritableByteChannel
 
 import scala.collection.JavaConverters._
 
+import org.xml.sax.ContentHandler
+import org.xml.sax.DTDHandler
+import org.xml.sax.EntityResolver
+import org.xml.sax.ErrorHandler
+import org.xml.sax.InputSource
+import org.xml.sax.Locator
+import org.xml.sax.SAXException
+import org.xml.sax.XMLReader
+import org.xml.sax.Attributes
+
 import org.apache.daffodil.api.DFDL.{ DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException }
 import org.apache.daffodil.api.DFDL.{ DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException }
+import org.apache.daffodil.api.DFDL.{ DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler }
 import org.apache.daffodil.api.URISchemaSource
 import org.apache.daffodil.api.Validator
 import org.apache.daffodil.api.{ DataLocation => SDataLocation }
@@ -46,7 +57,6 @@ import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.japi.io.InputSourceDataInputStream
 import org.apache.daffodil.japi.packageprivate._
 import org.apache.daffodil.processors.{ DaffodilParseXMLReader => SDaffodilParseXMLReader }
-import org.apache.daffodil.processors.{ DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler }
 import org.apache.daffodil.processors.{ DataProcessor => SDataProcessor }
 import org.apache.daffodil.processors.{ ExternalVariableException => SExternalVariableException }
 import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
@@ -496,8 +506,7 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    *  Obtain a new [[DaffodilUnparseContentHandler]] from the current [[DataProcessor]].
    */
   def newContentHandlerInstance(output: WritableByteChannel): DaffodilUnparseContentHandler =
-    new DaffodilUnparseContentHandler(sContentHandler =
-      dp.newContentHandlerInstance(output).asInstanceOf[SDaffodilUnparseContentHandler])
+    new DaffodilUnparseContentHandler(dp.newContentHandlerInstance(output))
 
   /**
    * Parse input data from an InputSourceDataInputStream and output the infoset to an InfosetOutputter
@@ -587,16 +596,22 @@ class InvalidUsageException private[japi] (cause: org.apache.daffodil.processors
 class ExternalVariableException private[japi] (message: String) extends Exception(message)
 
 /**
- * This exception will be thrown when unparseResult.isError returns true during a SAX Unparse
+ * This exception is thrown when UnparseResult.isError returns true while
+ * unparsing an infoset with an XMLReader and a DaffodilUnparseContentHandler. If
+ * caught, the DaffodilUnparseContentHandler.getUnparseResult function can be
+ * used to get the UnparseResult and error diagnostics
  */
 class DaffodilUnparseErrorSAXException private[japi] (exception: SDaffodilUnparseErrorSAXException)
-  extends org.xml.sax.SAXException(exception.getMessage)
+  extends SAXException(exception.getMessage)
 
 /**
- * This exception will be thrown when an unexpected error occurs during the SAX unparse
+ * This exception is thrown when and unexpected error occurs while unparsing an
+ * infoset with an XMLReader and a DaffodilUnparseContentHandler. If caught,
+ * the DaffodilUnparseContentHandler.getUnparseResult returns null. This most
+ * likely represents a bug in Daffodil.
  */
 class DaffodilUnhandledSAXException private[japi] (exception: SDaffodilUnhandledSAXException)
-  extends org.xml.sax.SAXException(exception.getMessage, new Exception(exception.getCause))
+  extends SAXException(exception.getMessage, new Exception(exception.getCause))
 
 /**
  * The full URIs needed for setting/getting properties for the [[DaffodilParseXMLReader]]
@@ -628,7 +643,7 @@ object DaffodilParseXMLReader {
  * SAX method of parsing schema and getting the DFDL Infoset via some
  * org.xml.sax.ContentHandler, based on the org.xml.sax.XMLReader interface
  */
-class DaffodilParseXMLReader private[japi] (xmlrdr: SDaffodilParseXMLReader) extends org.xml.sax.XMLReader {
+class DaffodilParseXMLReader private[japi] (xmlrdr: SDaffodilParseXMLReader) extends XMLReader {
   /**
    * Get the value of the feature flag
    * @param name feature flag whose value is to be retrieved
@@ -669,59 +684,59 @@ class DaffodilParseXMLReader private[japi] (xmlrdr: SDaffodilParseXMLReader) ext
    * Register an entity resolver
    * @param resolver entity resolver to be registered
    */
-  override def setEntityResolver(resolver: org.xml.sax.EntityResolver): Unit =
+  override def setEntityResolver(resolver: EntityResolver): Unit =
     xmlrdr.setEntityResolver(resolver)
 
   /**
    * Return the registered entity resolver
    * @return registered entity resolver or null
    */
-  override def getEntityResolver: org.xml.sax.EntityResolver = xmlrdr.getEntityResolver
+  override def getEntityResolver: EntityResolver = xmlrdr.getEntityResolver
 
   /**
    * Register a DTD Handler
    * @param handler DTD Handler to be registered
    */
-  override def setDTDHandler(handler: org.xml.sax.DTDHandler): Unit = xmlrdr.setDTDHandler(handler)
+  override def setDTDHandler(handler: DTDHandler): Unit = xmlrdr.setDTDHandler(handler)
 
   /**
    * Retrieve registered DTD Handler
    * @return registered DTD Handler or null
    */
-  override def getDTDHandler: org.xml.sax.DTDHandler = xmlrdr.getDTDHandler
+  override def getDTDHandler: DTDHandler = xmlrdr.getDTDHandler
 
   /**
    * Register a content handler
    * @param handler content handler to be registered
    */
-  override def setContentHandler(handler: org.xml.sax.ContentHandler): Unit =
+  override def setContentHandler(handler: ContentHandler): Unit =
     xmlrdr.setContentHandler(handler)
 
   /**
    * Retrieve registered content handler
    * @return registered content handler or null
    */
-  override def getContentHandler: org.xml.sax.ContentHandler = xmlrdr.getContentHandler
+  override def getContentHandler: ContentHandler = xmlrdr.getContentHandler
 
   /**
    * Register an error handler
    * @param handler error handler to be registered
    */
-  override def setErrorHandler(handler: org.xml.sax.ErrorHandler): Unit =
+  override def setErrorHandler(handler: ErrorHandler): Unit =
     xmlrdr.setErrorHandler(handler)
 
   /**
    * Retrieve registered error handler
    * @return registered error handler or null
    */
-  override def getErrorHandler: org.xml.sax.ErrorHandler = xmlrdr.getErrorHandler
+  override def getErrorHandler: ErrorHandler = xmlrdr.getErrorHandler
 
   /**
    * Parse input data from an InputSource. Infoset can be retrieved via the registered
    * contentHandler and diagnostics via the registered errorHandler
    * @param input data to be parsed
    */
-  override def parse(input: org.xml.sax.InputSource): Unit = xmlrdr.parse(input)
+  override def parse(input: InputSource): Unit = xmlrdr.parse(input)
 
   /**
    * Parse data from a system identifier/URI. This method is not supported by the API.
@@ -755,9 +770,7 @@ class DaffodilParseXMLReader private[japi] (xmlrdr: SDaffodilParseXMLReader) ext
  * Accepts SAX callback events from any SAX XMLReader for unparsing
  */
 class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnparseContentHandler)
-  extends org.xml.sax.ContentHandler {
-
-  private val contentHandler: org.xml.sax.ContentHandler = sContentHandler
+  extends ContentHandler {
 
   /**
    * Returns the result of the SAX unparse containing diagnostic information. In the case of an
@@ -769,12 +782,12 @@ class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnp
     else new UnparseResult(ur)
   }
 
-  override def setDocumentLocator(locator: org.xml.sax.Locator): Unit =
-    contentHandler.setDocumentLocator(locator)
+  override def setDocumentLocator(locator: Locator): Unit =
+    sContentHandler.setDocumentLocator(locator)
 
   override def startDocument(): Unit =
     try {
-      contentHandler.startDocument()
+      sContentHandler.startDocument()
     } catch {
       case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
       case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
@@ -782,20 +795,20 @@ class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnp
 
   override def endDocument(): Unit =
     try {
-      contentHandler.endDocument()
+      sContentHandler.endDocument()
     } catch {
       case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
       case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
     }
 
   override def startPrefixMapping(prefix: String, uri: String): Unit =
-    contentHandler.startPrefixMapping(prefix, uri)
+    sContentHandler.startPrefixMapping(prefix, uri)
   override def endPrefixMapping(prefix: String): Unit =
-    contentHandler.endPrefixMapping(prefix)
+    sContentHandler.endPrefixMapping(prefix)
 
-  override def startElement(uri: String, localName: String, qName: String, atts: org.xml.sax.Attributes): Unit =
+  override def startElement(uri: String, localName: String, qName: String, atts: Attributes): Unit =
     try {
-      contentHandler.startElement(uri, localName, qName, atts)
+      sContentHandler.startElement(uri, localName, qName, atts)
     } catch {
       case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
       case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
@@ -803,20 +816,20 @@ class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnp
 
   override def endElement(uri: String, localName: String, qName: String): Unit =
     try {
-      contentHandler.endElement(uri, localName, qName)
+      sContentHandler.endElement(uri, localName, qName)
     } catch {
       case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
       case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
     }
 
   override def characters(ch: Array[Char], start: Int, length: Int): Unit =
-    contentHandler.characters(ch, start, length)
+    sContentHandler.characters(ch, start, length)
   override def ignorableWhitespace(ch: Array[Char], start: Int, length: Int): Unit =
-    contentHandler.ignorableWhitespace(ch, start, length)
+    sContentHandler.ignorableWhitespace(ch, start, length)
   override def processingInstruction(target: String, data: String): Unit =
-    contentHandler.processingInstruction(target, data)
+    sContentHandler.processingInstruction(target, data)
   override def skippedEntity(name: String): Unit =
-    contentHandler.skippedEntity(name)
+    sContentHandler.skippedEntity(name)
 }
 
 /**

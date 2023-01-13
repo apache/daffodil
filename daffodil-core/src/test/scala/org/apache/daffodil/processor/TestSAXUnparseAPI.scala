@@ -102,6 +102,26 @@ class TestSAXUnparseAPI {
   }
 
   /**
+   * tests the case of unparsing with the namespace features/prefixes set to
+   * false/true, with non-empty prefixes and ignored attributes
+   */
+  @Test def testUnparseContentHandler_unparse_namespace_prefix_feature_non_empty_prefix(): Unit = {
+    val xmlReader: XMLReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
+    val bao = new ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bao)
+    val unparseContentHandler = dp.newContentHandlerInstance(wbc)
+    xmlReader.setContentHandler(unparseContentHandler)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, false)
+    xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+    val infoset = <p:list xmlns:p="http://example.com" ignored="attr"><p:w>9</p:w><p:w>1</p:w><p:w>0</p:w></p:list>
+    val bai = new ByteArrayInputStream(infoset.toString.getBytes)
+    xmlReader.parse(new InputSource(bai))
+    val ur = unparseContentHandler.getUnparseResult
+    assertTrue(!ur.isError)
+    assertEquals(testData, bao.toString)
+  }
+
+  /**
    * Verifies if the XML reader has secure defaults, then unparsing does
    * detect and refuse the use of DOCTYPE decls.
    *
@@ -127,6 +147,8 @@ class TestSAXUnparseAPI {
     val e = intercept[SAXParseException] {
       xmlReader.parse(new InputSource(bai))
     }
+    // should be null since unparse never completed
+    assertEquals(null, unparseContentHandler.getUnparseResult)
     val m = e.getMessage()
     assertTrue(m.contains("DOCTYPE is disallowed"))
   }

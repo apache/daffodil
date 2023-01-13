@@ -17,22 +17,20 @@
 
 package org.apache.daffodil.api
 
-import org.apache.daffodil.processors.ProcessorResult
-import org.apache.daffodil.processors.Success
-
 import java.io.File
-import org.apache.daffodil.processors.VariableMap
+
+import org.xml.sax.SAXException
+import org.xml.sax.XMLReader
+import org.xml.sax.ContentHandler
+
 import org.apache.daffodil.externalvars.Binding
 import org.apache.daffodil.infoset.InfosetInputter
-import org.apache.daffodil.infoset.InfosetInputterEventType
 import org.apache.daffodil.infoset.InfosetOutputter
-import org.apache.daffodil.processors.Failure
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.util.Coroutine
-import org.apache.daffodil.util.MainCoroutine
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.Nope
-import org.xml.sax.SAXException
+import org.apache.daffodil.processors.Failure
+import org.apache.daffodil.processors.ProcessorResult
+import org.apache.daffodil.processors.Success
+import org.apache.daffodil.processors.VariableMap
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -219,91 +217,41 @@ object DFDL {
     def parse(input: InputSourceDataInputStream, output: InfosetOutputter): ParseResult
   }
 
-  trait DaffodilParseXMLReader extends org.xml.sax.XMLReader {
+  /**
+   * Interface of an XMLReader providing additional parse functions to support that
+   * data that Daffodil usually expects. Used to parse data to a infoset represent as
+   * SAX events
+   */
+  trait DaffodilParseXMLReader extends XMLReader {
     def parse(is: java.io.InputStream): Unit
     def parse(in: InputSourceDataInputStream): Unit
     def parse(ab: Array[Byte]): Unit
   }
 
-  trait DaffodilUnparseContentHandler
-    extends  ProducerCoroutine
-    with org.xml.sax.ContentHandler {
+  /**
+   * Interface of a ContentHandler providing an additional function to the
+   * UnparseResult. Used to unparse and infoset represented as SAX events from an
+   * XMLReader to data.
+   */
+  trait DaffodilUnparseContentHandler extends ContentHandler {
     def getUnparseResult: UnparseResult
-    def enableInputterResolutionOfRelativeInfosetBlobURIs(): Unit
+    def enableResolutionOfRelativeInfosetBlobURIs(): Unit
   }
 
   /**
-   * Used in SAXInfosetEvent.causeError to identify when an unparseResult.isError is true
+   * Thrown by the DaffodilUnparseContentHandler when an a Daffodil UnparseResult
+   * fails because of an error. The DaffodilUnparseContentHandler.getUnparseResult
+   * can be used to get the result and any diagnostics.
    */
   class DaffodilUnparseErrorSAXException(unparseResult: UnparseResult)
-    extends org.xml.sax.SAXException(unparseResult.getDiagnostics.mkString("\n"))
+    extends SAXException(unparseResult.getDiagnostics.mkString("\n"))
 
   /**
-   * Used in SAXInfosetEvent.causeError to identify when an unexpected error occurs
+   * Thrown by the DaffodilUnparseConentHandler when an unexpected error
+   * occurs, this usually represents a bug in Daffodil
    */
   class DaffodilUnhandledSAXException(description: String, cause: Exception)
-    extends org.xml.sax.SAXException(description, cause)
-
-  class SAXInfosetEvent() {
-    var localName: Maybe[String] = Nope
-    var simpleText: Maybe[String] = Nope
-    var namespaceURI: Maybe[String] = Nope
-    var eventType: Maybe[InfosetInputterEventType] = Nope
-    var nilValue: Maybe[String] = Nope
-    var causeError: Maybe[SAXException] = Nope
-    var unparseResult: Maybe[UnparseResult] = Nope
-    var mixedContent: Maybe[String] = Nope
-
-    def isError: Boolean = causeError.isDefined
-
-    def clear(): Unit = {
-      localName = Nope
-      simpleText = Nope
-      namespaceURI = Nope
-      eventType = Nope
-      nilValue = Nope
-      causeError = Nope
-      unparseResult = Nope
-      mixedContent = Nope
-    }
-
-    def isEmpty: Boolean = {
-      localName.isEmpty &&
-        simpleText.isEmpty &&
-        namespaceURI.isEmpty &&
-        eventType.isEmpty &&
-        nilValue.isEmpty &&
-        causeError.isEmpty &&
-        unparseResult.isEmpty &&
-        mixedContent.isEmpty
-    }
-
-    override def toString: String = {
-      val errorState = if (isError) "ERROR" else ""
-      s"$errorState ${if (eventType.isDefined) eventType.get else "No_EventType"}:" +
-        s"{${if (namespaceURI.isDefined) namespaceURI.get else ""}}" +
-        s"${if (localName.isDefined) localName.get else "No_Name"}:" +
-        s"(${if (simpleText.isDefined) simpleText.get else "No_content"})"
-    }
-  }
-
-  object SAXInfosetEvent {
-    def copyEvent(source: DFDL.SAXInfosetEvent, dest: DFDL.SAXInfosetEvent): Unit = {
-      if (source == null) dest.clear()
-      else {
-        dest.eventType = source.eventType
-        dest.namespaceURI = source.namespaceURI
-        dest.localName = source.localName
-        dest.nilValue = source.nilValue
-        dest.simpleText = source.simpleText
-        dest.mixedContent = source.mixedContent
-      }
-    }
-  }
-
-  trait ProducerCoroutine extends MainCoroutine[Array[SAXInfosetEvent]]
-
-  trait ConsumerCoroutine extends Coroutine[Array[SAXInfosetEvent]]
+    extends SAXException(description, cause)
 
   trait ParseResult extends Result with WithDiagnostics {
     def resultState: State

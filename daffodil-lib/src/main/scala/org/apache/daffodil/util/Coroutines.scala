@@ -66,6 +66,11 @@
   * the context-switching overhead is implementation specific, and can be done by passing in a
   * larger data structure containing multiple event for the Coroutine generic Type, rather than
   * enlarging the queue size
+  *
+  * The T type parameter defines the type of data that this Courtine is expected to
+  * receive from its peer coroutine (i.e. the return type when this calls resume).
+  * This T type parameter does not need to be the same for both coroutines, allowing
+  * two coroutines to send and receive different types of data from one another.
   */
  trait Coroutine[T] {
 
