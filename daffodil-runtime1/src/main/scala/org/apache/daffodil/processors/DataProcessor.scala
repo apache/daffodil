@@ -255,7 +255,7 @@ class DataProcessor(
   }
 
   override def newContentHandlerInstance(output: DFDL.Output): DFDL.DaffodilUnparseContentHandler =
-    new DaffodilUnparseContentHandler(this, output)
+    new DaffodilUnparseContentHandlerImpl(this, output)
 
   def save(output: DFDL.Output): Unit = {
 

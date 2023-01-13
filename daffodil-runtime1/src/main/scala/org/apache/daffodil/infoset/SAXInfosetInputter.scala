@@ -21,79 +21,70 @@ import java.net.URI
 import java.net.URISyntaxException
 
 import org.apache.daffodil.api.DFDL
-import org.apache.daffodil.api.DFDL.DaffodilUnhandledSAXException
-import org.apache.daffodil.api.DFDL.DaffodilUnparseErrorSAXException
-import org.apache.daffodil.api.DFDL.SAXInfosetEvent
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.InfosetInputterEventType.EndDocument
 import org.apache.daffodil.infoset.InfosetInputterEventType.StartElement
+import org.apache.daffodil.processors.DaffodilUnparseContentHandlerImpl
+import org.apache.daffodil.util.Coroutine
+import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.Maybe.One
+import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.XMLUtils
 
 /**
- * The SAXInfosetInputter consumes SAXInfosetEvent objects from the DaffodilUnparseContentHandler
- * class and converts them to events that the DataProcessor unparse can use. This class contains an
- * array of batched SAXInfosetEvent objects that it receives from the contentHandler and the index
- * of the current element being processed.
+ * The SAXInfosetInputter worker coroutine receives batches of SAXInfosetEvent
+ * objects from a DaffodilUnparseContentHandlerImpl main coroutine and calls
+ * the unparse() function to provide these events and unparse the data.
+ * 
+ * See the DaffodilUnparseContentHandlerImpl for a detailed description of how
+ * these two classes interact.
  *
- * This class, together with the SAXInfosetInputter, uses coroutines to ensure that a batch of events
- * (based on the tunable saxUnparseEventBatchSize) can be passed from the former to the latter.
- * The following is the general process:
- *
- * - the run method is called, with the first batch of events, starting with the StartDocument event,
- * already loaded on the inputter's queue.
- * This is collected and stored in the batchedInfosetEvents member, and the currentIndex is set to 0
- * - The dp.unparse method is called, and it calls hasNext to make sure an event exists to be
- * processed and then queries the event at currentIndex. The hasNext call also checks that there is
- * a next event to be processed (currentIndex+1), and if not, queues the next batch of events by
- * transferring control to the contentHandler so it can load them.
- * - After it is done with the current event, it calls inputter.next to get the next event, and that
- * increments the currentIndex and cleans out the event at the previous index
- * - This process continues until the event at currentIndex either contains an EndDocument event or
- * the currentIndex is the last in the batch. If it is the former, the endDocumentReceived flag is
- * set to true and hasNext will return false. If it is the latter, the next batch of events will be
- * queued by transferring control to the contentHandler so it can load them.
- * - This ends the unparse process, and the unparseResult and/or any Errors are set on a single element
- * array containing response events. We call resumeFinal passing along that array, terminating this
- * thread and resuming the contentHandler for the last time.
- *
- * @param unparseContentHandler producer coroutine that sends the SAXInfosetEvent to this class
- * @param dp dataprocessor that we use to kickstart the unparse process and that consumes the
- *           currentEvent
- * @param output  outputChannel of choice where the unparsed data is stored
+ * @param unparseContentHandler main coroutine that sends the SAXInfosetEvents to this class
+ * @param dp DataProcessor that we use to start the unparse and provide infoset information
+ * @param output  OutputChannel where the unparsed data is written
+ * @param resolveRelaiveInfosetBlobURIs if true, elements with type xs:anyURI type and a
+ *   relativeURI are resolved relative to the classpath. This should only be true when used
+ *   via a TDMLRunner or similar testing infrastructure
  */
 class SAXInfosetInputter(
-  unparseContentHandler: DFDL.DaffodilUnparseContentHandler,
+  unparseContentHandler: DaffodilUnparseContentHandlerImpl,
   dp: DFDL.DataProcessor,
-  output: DFDL.Output)
-  extends InfosetInputter with DFDL.ConsumerCoroutine {
+  output: DFDL.Output,
+  resolveRelativeInfosetBlobURIs: Boolean)
+  extends InfosetInputter with Coroutine[Array[SAXInfosetEvent]] {
 
   /**
-   * allows support for converting relative URIs in Blobs to absolute URIs, this is necessary
-   * for running TDML tests as they allow relative URIs. Because Daffodil proper only uses
-   * absolute URIs, we hide this functionality behind this flag. It can be set to true by calling
-   * the unparseContentHandler.enableInputterResolutionOfRelativeInfosetBlobURIs(), which calls the
-   * inputter's enableResolutionOfRelativeInfosetBlobURIs() function to set the below variable to true
+   * The index into the batchedInfosetEvents array that the InfosetInputter is
+   * currently providing information to unparse()
    */
-  private var resolveRelativeInfosetBlobURIs: Boolean = false
-
-  private var endDocumentReceived = false
   private var currentIndex: Int = 0
+
+  /**
+   * The array of batched infoset events received from the ContentHandler.
+   */
   private var batchedInfosetEvents: Array[SAXInfosetEvent] = _
-  private lazy val returnedInfosetEvent: Array[SAXInfosetEvent] = new Array[SAXInfosetEvent](1)
 
-  override def getEventType(): InfosetInputterEventType = batchedInfosetEvents(currentIndex).eventType.orNull
+  /**
+   * A helper function to succinctly access the SAXInfosetEvent at the currentIndex
+   * in the batchedInfosetEvents array. This is the event that the InfosetInputter is
+   * currently returning information about to the unparse().
+   */
+  @inline
+  private def currentEvent = batchedInfosetEvents(currentIndex)
 
-  override def getLocalName(): String = batchedInfosetEvents(currentIndex).localName.orNull
 
-  override def getNamespaceURI(): String = batchedInfosetEvents(currentIndex).namespaceURI.orNull
+  override def getEventType(): InfosetInputterEventType = currentEvent.eventType.get
+
+  override def getLocalName(): String = currentEvent.localName.get
+
+  override def getNamespaceURI(): String = currentEvent.namespaceURI.orNull
 
   override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
-    val res = if (batchedInfosetEvents(currentIndex).simpleText.isDefined) {
-      batchedInfosetEvents(currentIndex).simpleText.get
+    val res = if (currentEvent.simpleText.isDefined) {
+      currentEvent.simpleText.get
     } else {
       throw new NonTextFoundInSimpleContentException(getLocalName())
     }
@@ -109,8 +100,8 @@ class SAXInfosetInputter(
   }
 
   override def isNilled(): MaybeBoolean = {
-    val _isNilled = if (batchedInfosetEvents(currentIndex).nilValue.isDefined) {
-      val nilValue = batchedInfosetEvents(currentIndex).nilValue.get
+    val _isNilled = if (currentEvent.nilValue.isDefined) {
+      val nilValue = currentEvent.nilValue.get
       if (nilValue == "true" || nilValue == "1") {
         MaybeBoolean(true)
       } else if (nilValue == "false" || nilValue == "0") {
@@ -126,57 +117,47 @@ class SAXInfosetInputter(
   }
 
   override def hasNext(): Boolean = {
-    val nextIndex = currentIndex + 1
-    if (endDocumentReceived) {
-      // if the current Element is EndDocument, then there is no valid next
-      false
-    } else if (batchedInfosetEvents != null && nextIndex < batchedInfosetEvents.length) {
-      // if we have not yet reached the end of the array and endDocument has not yet been received
-      true
-    }  else  {
-      // there is no nextEvent or it was empty, but we still have no EndDocument. So load the next
-      // batch from the contentHandler
-      returnedInfosetEvent(0) = batchedInfosetEvents(currentIndex)
-      batchedInfosetEvents = this.resume(unparseContentHandler, returnedInfosetEvent)
-      // we reset the index to 0 to guarantee that the last element we were looking at when hasNext
-      // was called is still the event we'll be looking at, when we leave this function. This is
-      // guaranteed because the DaffodilUnparseContentHandler moves the last element into the first
-      // index when it resumed.
-      currentIndex = 0
-      true
-    }
+    // If we haven't reached an EndDocument event yet, there must be more
+    // events on their way, even if we don't know for sure yet.
+    currentEvent.eventType.get ne EndDocument
   }
 
   override def next(): Unit = {
-    if (hasNext()) {
-      // clear element at current index as we're done with it, except in the case we just loaded the
-      // new elements, then do nothing
-      batchedInfosetEvents(currentIndex).clear()
+    Assert.usage(hasNext())
 
-      // increment current index to the next index
-      currentIndex += 1
+    // we are about to move to the next event, clear the current event so it is
+    // already reset when the DaffodilUnparseContentHandlerImpl goes to reuse
+    // it later
+    currentEvent.clear()
 
-      if (batchedInfosetEvents(currentIndex).mixedContent.isDefined) {
-        // This is a Start or EndElement event that has mixed content prior to
-        // it. We must handle the error here, which causes unparse() to finish
-        // and return execution back to the DaffodilUnparseContentHandler
-        // coroutine where it can report the error via the SAX API
-        val eventType = if (batchedInfosetEvents(currentIndex).eventType.get eq StartElement) "start" else "end"
-        val element = s"{${batchedInfosetEvents(currentIndex).namespaceURI.get}}${batchedInfosetEvents(currentIndex).localName.get}"
-        val msg = s"Mixed content found prior to $eventType of $element"
-        throw new IllegalContentWhereEventExpected(msg)
-      }
+    if (currentIndex == batchedInfosetEvents.length - 1) {
+      // We have used all of the events that have been batched, and still have not
+      // seen an EndDocument event, so there must be more events. We send None back
+      // to the main coroutine to signify that there isn't an error and we aren't
+      // finished, but we do need more events.
+      batchedInfosetEvents = this.resume(unparseContentHandler, Nope)
 
-      // check if new current index is EndDocument
-      if (batchedInfosetEvents(currentIndex).eventType.contains(EndDocument)) {
-        endDocumentReceived = true
-      }
+      // We are now back from the main coroutine and received a new batch of events.
+      // We set the index back to the beginning of the batchedInfosetEvents array and
+      // will start returning information from these for unparse
+      currentIndex = 0
     } else {
-      Assert.abort()
+      // We are still reading our current batch of infoset events, just increment the
+      // current index to the next index
+      currentIndex += 1
+    }
+
+    if (currentEvent.mixedContent.isDefined) {
+      // This is a Start or EndElement event that has mixed content prior to
+      // it. We must throw an exception here, which causes unparse() to finish
+      // and return execution back to the DaffodilUnparseContentHandlerImpl
+      // main coroutine where it can report the error via the SAX API
+      val eventType = if (currentEvent.eventType.get eq StartElement) "start" else "end"
+      val element = s"{${currentEvent.namespaceURI.get}}${currentEvent.localName.get}"
+      val msg = s"Mixed content found prior to $eventType of $element"
+      throw new IllegalContentWhereEventExpected(msg)
     }
   }
-
-  def enableResolutionOfRelativeInfosetBlobURIs(): Unit = resolveRelativeInfosetBlobURIs = true
 
   /**
    * TDML files must allow blob URI's to be relative, but Daffodil
@@ -206,23 +187,61 @@ class SAXInfosetInputter(
 
   override protected def run(): Unit = {
     try {
-      // startDocument kicks off this entire process, so the first batch of events, of which
-      // startDocument is first, should be on the queue so the waitForResume call can grab it.
-      // This populates the inputter.batchedInfosetEvents var for use by the rest of the Inputter
+      // We are starting the inputter worker routine in a new Thread, the first
+      // thing we need to do is wait to receive the batch of events from the
+      // DaffodilUnparseContentHandlerImpl main coroutine. Once received, we
+      // can call unparse() which will call the above InfosetInputter functions
+      // to read these events and ask the main routine for more batched events
+      // if needed
       batchedInfosetEvents = this.waitForResume()
       val unparseResult = dp.unparse(this, output)
-      batchedInfosetEvents(currentIndex).unparseResult = One(unparseResult)
-      if (unparseResult.isError) {
-        // unparseError is contained within unparseResult
-        batchedInfosetEvents(currentIndex).causeError = One(new DaffodilUnparseErrorSAXException(unparseResult))
-      }
+
+      // now that the unparse is complete, we can send the unparse result back to
+      // the main coroutine.
+      this.resumeFinal(unparseContentHandler, One(Right(unparseResult)))
     } catch {
+      // $COVERAGE-OFF$
       case e: Exception => {
-        batchedInfosetEvents(currentIndex).causeError = One(new DaffodilUnhandledSAXException(e.getMessage, e))
+        // if any Exception makes it out of the unparse call, that's almost certainly
+        // a bug. We capture that here and return it back to the main coroutine where
+        // it can rethrow it so that the main thread sees it
+        this.resumeFinal(unparseContentHandler, One(Left(e)))
       }
-    } finally {
-      returnedInfosetEvent(0) = batchedInfosetEvents(currentIndex)
-      this.resumeFinal(unparseContentHandler, returnedInfosetEvent)
+      // $COVERAGE-ON$
     }
+  }
+}
+
+class SAXInfosetEvent() {
+  var localName: Maybe[String] = Nope
+  var simpleText: Maybe[String] = Nope
+  var namespaceURI: Maybe[String] = Nope
+  var eventType: Maybe[InfosetInputterEventType] = Nope
+  var nilValue: Maybe[String] = Nope
+  var mixedContent: Maybe[String] = Nope
+
+  def clear(): Unit = {
+    localName = Nope
+    simpleText = Nope
+    namespaceURI = Nope
+    eventType = Nope
+    nilValue = Nope
+    mixedContent = Nope
+  }
+
+  def isEmpty: Boolean = {
+    localName.isEmpty &&
+      simpleText.isEmpty &&
+      namespaceURI.isEmpty &&
+      eventType.isEmpty &&
+      nilValue.isEmpty &&
+      mixedContent.isEmpty
+  }
+
+  override def toString: String = {
+    s"${if (eventType.isDefined) eventType.get else "No_EventType"}:" +
+      s"{${if (namespaceURI.isDefined) namespaceURI.get else ""}}" +
+      s"${if (localName.isDefined) localName.get else "No_Name"}:" +
+      s"(${if (simpleText.isDefined) simpleText.get else "No_content"})"
   }
 }
