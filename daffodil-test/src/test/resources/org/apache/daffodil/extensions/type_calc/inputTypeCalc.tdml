@@ -295,6 +295,15 @@
       </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="enumWithRange" dfdlx:repType="tns:enumVal">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="VALUE=0" dfdlx:repValues="0"/>
+        <xs:enumeration value="VALUE=1" dfdlx:repValues="1"/>
+        <xs:enumeration value="VALUE=2" dfdlx:repValueRanges="4 5"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence>
@@ -302,6 +311,15 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="r2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="int2" type="tns:enumWithRange"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="inherited_LengthKind"
@@ -320,5 +338,77 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueNotFound_1"
+    root="root" model="inputTypeCalc-Inherited.dfdl.xsd"
+    description="Demonstrates a case where the provided value doesn't match any value in the enumeration">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 00 00 03
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Value</tdml:error>
+      <tdml:error>3</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>enumeration</tdml:error>
+      <tdml:error>repValues</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseValueNotFound_1"
+    root="root" model="inputTypeCalc-Inherited.dfdl.xsd"
+    description="Demonstrates a case where the provided key doesn't match any key in the enumeration">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <root><int>BAD_KEY</int></root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Value</tdml:error>
+      <tdml:error>BAD_KEY</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>enumeration</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="valueNotFound_2"
+    root="r2" model="inputTypeCalc-Inherited.dfdl.xsd"
+    description="Demonstrates a case where the provided value doesn't match any value in the enumeration">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 00 00 03
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Value</tdml:error>
+      <tdml:error>3</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>enumeration</tdml:error>
+      <tdml:error>repValues</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseValueNotFound_2"
+    root="r2" model="inputTypeCalc-Inherited.dfdl.xsd"
+    description="Demonstrates a case where the provided key doesn't match any key in the enumeration">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <r2><int2>BAD_KEY</int2></r2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Value</tdml:error>
+      <tdml:error>BAD_KEY</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>enumeration</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>
