@@ -20,6 +20,7 @@ package org.apache.daffodil.api
 import org.junit.Test
 import org.apache.daffodil.util.Misc
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 
 class TestDaffodilTunablesAndConfig {
@@ -43,4 +44,9 @@ class TestDaffodilTunablesAndConfig {
     assertTrue(warnings.contains(WarnID.EncodingErrorPolicyError))
   }
 
+  @Test
+  def testDaffodilConfigBad(): Unit = {
+    val uri = Misc.getRequiredResource("test/configBad.txt")
+    assertThrows(classOf[DaffodilConfigException], () => DaffodilConfig.fromURI(uri))
+  }
 }

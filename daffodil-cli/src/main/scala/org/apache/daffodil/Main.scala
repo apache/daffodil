@@ -62,6 +62,7 @@ import com.siemens.ct.exi.main.api.sax.EXISource
 
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.api.DaffodilConfig
+import org.apache.daffodil.api.DaffodilConfigException
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.api.TDMLImplementation
 import org.apache.daffodil.api.URISchemaSource
@@ -1416,7 +1417,7 @@ object Main {
     val GenerateCodeError = Value(23)
     val TestError = Value(24)
     val PerformanceTestError = Value(25)
-
+    val ConfigError = Value(26)
 
     val LeftOverData = Value(31)
     val InvalidParserException = Value(32)
@@ -1471,6 +1472,10 @@ object Main {
       case e: GenericScallopException => {
         Logger.log.error(e.message)
         ExitCode.Usage
+      }
+      case e: DaffodilConfigException => {
+        Logger.log.error(e.message)
+        ExitCode.ConfigError
       }
       case e: Exception => {
         bugFound(e)
