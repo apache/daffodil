@@ -53,6 +53,11 @@ class TestInputTypeValueCalc {
 
   @Test def test_inherited_LengthKind(): Unit = { runner.runOneTest("inherited_LengthKind") }
 
+  @Test def test_valueNotFound_1(): Unit = { runner.runOneTest("valueNotFound_1") }
+  @Test def test_unparseValueNotFound_1(): Unit = { runner.runOneTest("unparseValueNotFound_1") }
+  @Test def test_valueNotFound_2(): Unit = { runner.runOneTest("valueNotFound_2") }
+  @Test def test_unparseValueNotFound_2(): Unit = { runner.runOneTest("unparseValueNotFound_2") }
+
   @Test def test_InputTypeCalc_expression_01(): Unit = { exprRunner.runOneTest("InputTypeCalc_expression_01") }
   @Test def test_OutputTypeCalc_expression_01(): Unit = { exprRunner.runOneTest("OutputTypeCalc_expression_01") }
   @Test def test_InputTypeCalc_expression_02(): Unit = { exprRunner.runOneTest("InputTypeCalc_expression_02") }

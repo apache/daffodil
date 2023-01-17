@@ -153,7 +153,7 @@ class KeysetValueTypeCalculatorOrdered(valueMap: HashMap[DataValuePrimitive, Dat
       })
       ans1 match {
         case None => {
-          (DataValue.NoValue, One(s"Key ${x} not found in keyset-value mapping"))
+          (DataValue.NoValue, One(s"Value ${x} not found in enumeration dfdlx:repValues"))
         }
         case Some((_, _, v)) => (v, Maybe.Nope)
       }
@@ -163,7 +163,7 @@ class KeysetValueTypeCalculatorOrdered(valueMap: HashMap[DataValuePrimitive, Dat
   override def outputTypeCalc(x: DataValuePrimitive, xType: NodeInfo.Kind): (DataValuePrimitiveNullable, Maybe[Error]) = {
     unparseMap.get(x) match {
       case Some(v) => (v, Maybe.Nope)
-      case None => (DataValue.NoValue, One(s"Value ${x} not found in keyset-value mapping"))
+      case None => (DataValue.NoValue, One(s"Value ${x} not found in enumeration"))
     }
   }
 
@@ -173,20 +173,16 @@ class KeysetValueTypeCalculatorUnordered(valueMap: HashMap[DataValuePrimitive, D
   extends TypeCalculator(srcType, dstType) {
 
   override def inputTypeCalc(x: DataValuePrimitive, xType: NodeInfo.Kind): (DataValuePrimitiveNullable, Maybe[Error]) = {
-    if (valueMap.contains(x)) {
-      valueMap.get(x) match {
-        case Some(a) => (a, Maybe.Nope)
-        case None => (DataValue.NoValue, One(s"Value ${x} not found in keyset-value mapping"))
-      }
-    } else {
-      (DataValue.NoValue, One(s"Key ${x} not found in keyset-value mapping"))
-
+    valueMap.get(x) match {
+      case Some(a) => (a, Maybe.Nope)
+      case None => (DataValue.NoValue, One(s"Value ${x} not found in enumeration dfdlx:repValues"))
     }
   }
+
   override def outputTypeCalc(x: DataValuePrimitive, xType: NodeInfo.Kind): (DataValuePrimitiveNullable, Maybe[Error]) = {
     unparseMap.get(x) match {
       case Some(v) => (v, Maybe.Nope)
-      case None => (DataValue.NoValue, One(s"Value ${x} not found in keyset-value mapping"))
+      case None => (DataValue.NoValue, One(s"Value ${x} not found in enumeration"))
     }
   }
 
