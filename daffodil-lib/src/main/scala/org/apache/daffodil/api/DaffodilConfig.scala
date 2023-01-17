@@ -46,15 +46,19 @@ object DaffodilConfig {
 
   def fromSchemaSource(source: DaffodilSchemaSource) = {
     val loader = new DaffodilXMLLoader()
-    var node = loader.load(source, None) // might not be daf:dfdlConfig, so don't validate.
-    val rootElem = node.asInstanceOf[Elem]
-    if (rootElem.label == "dfdlConfig" &&
-        NS(rootElem.namespace) == XMLUtils.EXT_NS_APACHE ) {
-      // it's a daf:dfdlConfig element, so reload with validation
-      // which will cause it to throw validation errors
-      node = loader.load(source, Some(XMLUtils.dafextURI))
+    try {
+      var node = loader.load(source, None) // might not be daf:dfdlConfig, so don't validate.
+      val rootElem = node.asInstanceOf[Elem]
+      if (rootElem.label == "dfdlConfig" &&
+          NS(rootElem.namespace) == XMLUtils.EXT_NS_APACHE ) {
+        // it's a daf:dfdlConfig element, so reload with validation
+        // which will cause it to throw validation errors
+        node = loader.load(source, Some(XMLUtils.dafextURI))
+      }
+     fromXML(node)
+    } catch {
+      case e: org.xml.sax.SAXParseException => throw DaffodilConfigException(s"Unable to load configuration: $e", e)
     }
-    fromXML(node)
   }
 
   def fromURI(uri: URI) = fromSchemaSource(URISchemaSource(uri))
@@ -74,3 +78,10 @@ final class DaffodilConfig private (
   val tunablesMap: Map[String, String]) {
   // no methods
 }
+
+/**
+ * Thrown when the configuration file cannot be parsed.
+ * @param message used in the Exception
+ * @param cause the exception thrown while trying to parse
+ */
+final case class DaffodilConfigException(message: String, cause: Exception) extends Exception(message, cause)

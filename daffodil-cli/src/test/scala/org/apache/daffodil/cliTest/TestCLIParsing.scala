@@ -694,4 +694,13 @@ class TestCLIparsing {
     } (ExitCode.Success)
   }
 
+  @Test def test_Invalid_Configuration_File(): Unit = {
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/single.dfdl.xsd")
+    val config = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/single_conf_bad.txt")
+
+    runCLI(args"parse -s $schema -c $config") { cli =>
+      cli.sendLine("0", inputDone = true)
+      cli.expectErr("Unable to load configuration")
+    } (ExitCode.ConfigError)
+  }
 }
