@@ -124,7 +124,7 @@
 
     <xs:element name="float_01" type="xs:float" />
     <xs:element name="double_01" type="xs:double" />
-    <xs:element name="integer_01" type="xs:integer"
+    <xs:element name="integer_01" type="xs:int"
       dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="8" />
 
   </tdml:defineSchema>

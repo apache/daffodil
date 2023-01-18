@@ -911,7 +911,7 @@
     
     <xs:element name="bit26" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:byteOrder="bigEndian" />
     <xs:element name="bit27" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="9" dfdl:byteOrder="bigEndian" />
-    <xs:element name="bit28" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="13" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit28" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="13" dfdl:byteOrder="bigEndian" />
     <xs:element name="bit29" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:byteOrder="bigEndian" />
     <xs:element name="bit30" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian" />
     
@@ -924,7 +924,7 @@
           <xs:element name="bit33" type="xs:byte" dfdl:lengthKind="implicit" dfdl:byteOrder="bigEndian" />
           <xs:element name="bit34" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="littleEndian"/>
           <xs:element name="bit35" type="xs:int" dfdl:lengthKind="implicit" dfdl:byteOrder="littleEndian"/>
-          <xs:element name="bit36" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian"/>
+          <xs:element name="bit36" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian"/>
           <xs:element name="bit37" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian"/>
         </xs:sequence>
       </xs:complexType>

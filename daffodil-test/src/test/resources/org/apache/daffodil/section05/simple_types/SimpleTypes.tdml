@@ -211,7 +211,7 @@
     <xs:element name="integer01" type="xs:integer" />
     <xs:element name="integer02" type="xs:integer"
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="32" />
-    <xs:element name="integer03" type="xs:integer"
+    <xs:element name="integer03" type="xs:int"
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="4" />
 
     <xs:element name="posint01" type="xs:nonNegativeInteger" />

@@ -42,12 +42,12 @@
     <be_int32>-32</be_int32>
     <be_int64>-64</be_int64>
     <be_int8>-8</be_int8>
-    <be_integer17>-17</be_integer17>
+    <be_int17>-17</be_int17>
     <be_uint16>16</be_uint16>
     <be_uint32>32</be_uint32>
     <be_uint64>64</be_uint64>
     <be_uint8>8</be_uint8>
-    <be_nonNegativeInteger31>31</be_nonNegativeInteger31>
+    <be_uint31>31</be_uint31>
     <hexBinary4>1A2B3C4D</hexBinary4>
     <hexBinaryPrefixed>DEADBEEF</hexBinaryPrefixed>
   </bigEndian>
@@ -60,12 +60,12 @@
     <le_int32>-32</le_int32>
     <le_int64>-64</le_int64>
     <le_int8>-8</le_int8>
-    <le_integer46>-46</le_integer46>
+    <le_int46>-46</le_int46>
     <le_uint16>16</le_uint16>
     <le_uint32>32</le_uint32>
     <le_uint64>64</le_uint64>
     <le_uint8>8</le_uint8>
-    <le_nonNegativeInteger10>10</le_nonNegativeInteger10>
+    <le_uint10>10</le_uint10>
     <hexBinary0></hexBinary0>
     <hexBinaryPrefixed>DEADBEEF</hexBinaryPrefixed>
   </littleEndian>

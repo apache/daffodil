@@ -271,10 +271,10 @@
 			</xs:complexType>
 		</xs:element>
 
-		<xs:element name="binaryIntegerBE" type="xs:integer"
+		<xs:element name="binaryIntegerBE" type="xs:int"
 			dfdl:lengthKind="explicit" dfdl:representation="binary"
 			dfdl:lengthUnits="bits" dfdl:length="32" dfdl:byteOrder="bigEndian" />
-		<xs:element name="binaryIntegerLE" type="xs:integer"
+		<xs:element name="binaryIntegerLE" type="xs:int"
 			dfdl:lengthKind="explicit" dfdl:representation="binary"
 			dfdl:lengthUnits="bits" dfdl:length="32" dfdl:byteOrder="littleEndian" />
 
