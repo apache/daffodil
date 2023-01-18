@@ -167,4 +167,6 @@ class TestLengthKindPrefixed {
   @Test def test_pl_simpleContentLengthCharacters_1() = { runner.runOneTest("pl_simpleContentLengthCharacters_1")}
   @Test def test_pl_complexContentLengthCharacters_1() = { runner.runOneTest("pl_complexContentLengthCharacters_1")}
   @Test def test_pl_complexContentLengthCharacters_utf8_1() = { runner.runOneTest("pl_complexContentLengthCharacters_utf8_1")}
+  @Test def test_invalidLengthUnits_prefixed(): Unit = { runner.runOneTest("invalidLengthUnits_prefixed")}
+
 }

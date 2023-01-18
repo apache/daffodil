@@ -103,6 +103,7 @@ trait ElementBaseGrammarMixin
 
   lazy val prefixedLengthElementDecl: PrefixLengthQuasiElementDecl = LV('prefixedLengthElementDecl){
     Assert.invariant(lengthKind == LengthKind.Prefixed)
+    checkLengthUnits()
     val detachedNode =
         <element name={name + " (prefixLength)"} type={prefixLengthType.toQNameString}/>
         .copy(scope = prefixLengthTypeGSTD.xml.scope)
@@ -546,7 +547,9 @@ trait ElementBaseGrammarMixin
   private def explicitBinaryLengthInBits() = {
     val lengthFromProp: JLong = repElement.lengthEv.optConstant.get
     val nbits = repElement.lengthUnits match {
-      case LengthUnits.Bits => lengthFromProp.longValue()
+      case LengthUnits.Bits =>
+        checkLengthUnits(repElement)
+        lengthFromProp.longValue()
       case LengthUnits.Bytes => lengthFromProp.longValue() * 8
       case LengthUnits.Characters => SDE("The lengthUnits for the binary type %s must be either 'bits' or 'bytes'. Not 'characters'.", primType.name)
     }
@@ -1368,4 +1371,32 @@ trait ElementBaseGrammarMixin
       mtaBase
     }
 
+  val allowedBitTypes = Set[PrimType](
+    PrimType.Boolean,
+    PrimType.Byte,
+    PrimType.Short,
+    PrimType.Int,
+    PrimType.Long,
+    PrimType.UnsignedByte,
+    PrimType.UnsignedShort,
+    PrimType.UnsignedInt,
+    PrimType.UnsignedLong,
+  )
+  val allowedBitTypesText = allowedBitTypes.map("xs:" + _.toString).toList.sorted.mkString(", ")
+
+  private def checkLengthUnits(elem: ElementBase = context): Unit = {
+    elem.lengthUnits match {
+      case LengthUnits.Bits if elem.representation == Representation.Binary =>
+        elem.optPrimType match {
+          case Some(primType) =>
+            if (!allowedBitTypes.contains(primType))
+              if (tunable.allowBigIntegerBits)
+                elem.SDW(WarnID.DeprecatedBigIntegerBits, s"In a future release, lengthUnits='bits' will only be supported for the following types: $allowedBitTypesText")
+              else
+                elem.SDE("lengthUnits='bits' is only supported for the following types: $allowedBitTypesText")
+          case None =>
+        }
+      case _ =>
+    }
+  }
 }

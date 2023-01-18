@@ -326,10 +326,10 @@ static const ERD be_int8_bigEndian_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, {NULL}
 };
 
-static const ERD be_integer17_bigEndian_ex_nums_ERD = {
+static const ERD be_int17_bigEndian_ex_nums_ERD = {
     {
         NULL, // namedQName.prefix
-        "be_integer17", // namedQName.local
+        "be_int17", // namedQName.local
         NULL, // namedQName.ns
     },
     PRIMITIVE_INT32, // typeCode
@@ -376,10 +376,10 @@ static const ERD be_uint8_bigEndian_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, {NULL}
 };
 
-static const ERD be_nonNegativeInteger31_bigEndian_ex_nums_ERD = {
+static const ERD be_uint31_bigEndian_ex_nums_ERD = {
     {
         NULL, // namedQName.prefix
-        "be_nonNegativeInteger31", // namedQName.local
+        "be_uint31", // namedQName.local
         NULL, // namedQName.ns
     },
     PRIMITIVE_UINT32, // typeCode
@@ -417,12 +417,12 @@ static const size_t bigEndian_ex_nums__offsets[16] = {
     (const char *)&bigEndian_ex_nums__compute_offsets.be_int32 - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.be_int64 - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.be_int8 - (const char *)&bigEndian_ex_nums__compute_offsets,
-    (const char *)&bigEndian_ex_nums__compute_offsets.be_integer17 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_int17 - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.be_uint16 - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.be_uint32 - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.be_uint64 - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.be_uint8 - (const char *)&bigEndian_ex_nums__compute_offsets,
-    (const char *)&bigEndian_ex_nums__compute_offsets.be_nonNegativeInteger31 - (const char *)&bigEndian_ex_nums__compute_offsets,
+    (const char *)&bigEndian_ex_nums__compute_offsets.be_uint31 - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.hexBinary4 - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.hexBinaryPrefixed - (const char *)&bigEndian_ex_nums__compute_offsets
 };
@@ -436,12 +436,12 @@ static const ERD *const bigEndian_ex_nums__childrenERDs[16] = {
     &be_int32_bigEndian_ex_nums_ERD,
     &be_int64_bigEndian_ex_nums_ERD,
     &be_int8_bigEndian_ex_nums_ERD,
-    &be_integer17_bigEndian_ex_nums_ERD,
+    &be_int17_bigEndian_ex_nums_ERD,
     &be_uint16_bigEndian_ex_nums_ERD,
     &be_uint32_bigEndian_ex_nums_ERD,
     &be_uint64_bigEndian_ex_nums_ERD,
     &be_uint8_bigEndian_ex_nums_ERD,
-    &be_nonNegativeInteger31_bigEndian_ex_nums_ERD,
+    &be_uint31_bigEndian_ex_nums_ERD,
     &hexBinary4_bigEndian_ex_nums_ERD,
     &hexBinaryPrefixed_bigEndian_ex_nums_ERD
 };
@@ -541,10 +541,10 @@ static const ERD le_int8_littleEndian_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, {NULL}
 };
 
-static const ERD le_integer46_littleEndian_ex_nums_ERD = {
+static const ERD le_int46_littleEndian_ex_nums_ERD = {
     {
         NULL, // namedQName.prefix
-        "le_integer46", // namedQName.local
+        "le_int46", // namedQName.local
         NULL, // namedQName.ns
     },
     PRIMITIVE_INT64, // typeCode
@@ -591,10 +591,10 @@ static const ERD le_uint8_littleEndian_ex_nums_ERD = {
     0, NULL, NULL, NULL, NULL, {NULL}
 };
 
-static const ERD le_nonNegativeInteger10_littleEndian_ex_nums_ERD = {
+static const ERD le_uint10_littleEndian_ex_nums_ERD = {
     {
         NULL, // namedQName.prefix
-        "le_nonNegativeInteger10", // namedQName.local
+        "le_uint10", // namedQName.local
         NULL, // namedQName.ns
     },
     PRIMITIVE_UINT16, // typeCode
@@ -632,12 +632,12 @@ static const size_t littleEndian_ex_nums__offsets[16] = {
     (const char *)&littleEndian_ex_nums__compute_offsets.le_int32 - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.le_int64 - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.le_int8 - (const char *)&littleEndian_ex_nums__compute_offsets,
-    (const char *)&littleEndian_ex_nums__compute_offsets.le_integer46 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_int46 - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.le_uint16 - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.le_uint32 - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.le_uint64 - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.le_uint8 - (const char *)&littleEndian_ex_nums__compute_offsets,
-    (const char *)&littleEndian_ex_nums__compute_offsets.le_nonNegativeInteger10 - (const char *)&littleEndian_ex_nums__compute_offsets,
+    (const char *)&littleEndian_ex_nums__compute_offsets.le_uint10 - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.hexBinary0 - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.hexBinaryPrefixed - (const char *)&littleEndian_ex_nums__compute_offsets
 };
@@ -651,12 +651,12 @@ static const ERD *const littleEndian_ex_nums__childrenERDs[16] = {
     &le_int32_littleEndian_ex_nums_ERD,
     &le_int64_littleEndian_ex_nums_ERD,
     &le_int8_littleEndian_ex_nums_ERD,
-    &le_integer46_littleEndian_ex_nums_ERD,
+    &le_int46_littleEndian_ex_nums_ERD,
     &le_uint16_littleEndian_ex_nums_ERD,
     &le_uint32_littleEndian_ex_nums_ERD,
     &le_uint64_littleEndian_ex_nums_ERD,
     &le_uint8_littleEndian_ex_nums_ERD,
-    &le_nonNegativeInteger10_littleEndian_ex_nums_ERD,
+    &le_uint10_littleEndian_ex_nums_ERD,
     &hexBinary0_littleEndian_ex_nums_ERD,
     &hexBinaryPrefixed_littleEndian_ex_nums_ERD
 };
@@ -1125,7 +1125,7 @@ bigEndian_ex_nums__parseSelf(bigEndian_ex_nums_ *instance, PState *pstate)
     if (pstate->error) return;
     parse_be_int8(&instance->be_int8, 8, pstate);
     if (pstate->error) return;
-    parse_be_int32(&instance->be_integer17, 17, pstate);
+    parse_be_int32(&instance->be_int17, 17, pstate);
     if (pstate->error) return;
     parse_be_uint16(&instance->be_uint16, 16, pstate);
     if (pstate->error) return;
@@ -1135,7 +1135,7 @@ bigEndian_ex_nums__parseSelf(bigEndian_ex_nums_ *instance, PState *pstate)
     if (pstate->error) return;
     parse_be_uint8(&instance->be_uint8, 8, pstate);
     if (pstate->error) return;
-    parse_be_uint32(&instance->be_nonNegativeInteger31, 31, pstate);
+    parse_be_uint32(&instance->be_uint31, 31, pstate);
     if (pstate->error) return;
     parse_hexBinary(&instance->hexBinary4, pstate);
     if (pstate->error) return;
@@ -1167,7 +1167,7 @@ bigEndian_ex_nums__unparseSelf(const bigEndian_ex_nums_ *instance, UState *ustat
     if (ustate->error) return;
     unparse_be_int8(instance->be_int8, 8, ustate);
     if (ustate->error) return;
-    unparse_be_int32(instance->be_integer17, 17, ustate);
+    unparse_be_int32(instance->be_int17, 17, ustate);
     if (ustate->error) return;
     unparse_be_uint16(instance->be_uint16, 16, ustate);
     if (ustate->error) return;
@@ -1177,7 +1177,7 @@ bigEndian_ex_nums__unparseSelf(const bigEndian_ex_nums_ *instance, UState *ustat
     if (ustate->error) return;
     unparse_be_uint8(instance->be_uint8, 8, ustate);
     if (ustate->error) return;
-    unparse_be_uint32(instance->be_nonNegativeInteger31, 31, ustate);
+    unparse_be_uint32(instance->be_uint31, 31, ustate);
     if (ustate->error) return;
     unparse_hexBinary(instance->hexBinary4, ustate);
     if (ustate->error) return;
@@ -1217,7 +1217,7 @@ littleEndian_ex_nums__parseSelf(littleEndian_ex_nums_ *instance, PState *pstate)
     if (pstate->error) return;
     parse_le_int8(&instance->le_int8, 8, pstate);
     if (pstate->error) return;
-    parse_le_int64(&instance->le_integer46, 46, pstate);
+    parse_le_int64(&instance->le_int46, 46, pstate);
     if (pstate->error) return;
     parse_le_uint16(&instance->le_uint16, 16, pstate);
     if (pstate->error) return;
@@ -1227,7 +1227,7 @@ littleEndian_ex_nums__parseSelf(littleEndian_ex_nums_ *instance, PState *pstate)
     if (pstate->error) return;
     parse_le_uint8(&instance->le_uint8, 8, pstate);
     if (pstate->error) return;
-    parse_le_uint16(&instance->le_nonNegativeInteger10, 10, pstate);
+    parse_le_uint16(&instance->le_uint10, 10, pstate);
     if (pstate->error) return;
     parse_hexBinary(&instance->hexBinary0, pstate);
     if (pstate->error) return;
@@ -1259,7 +1259,7 @@ littleEndian_ex_nums__unparseSelf(const littleEndian_ex_nums_ *instance, UState 
     if (ustate->error) return;
     unparse_le_int8(instance->le_int8, 8, ustate);
     if (ustate->error) return;
-    unparse_le_int64(instance->le_integer46, 46, ustate);
+    unparse_le_int64(instance->le_int46, 46, ustate);
     if (ustate->error) return;
     unparse_le_uint16(instance->le_uint16, 16, ustate);
     if (ustate->error) return;
@@ -1269,7 +1269,7 @@ littleEndian_ex_nums__unparseSelf(const littleEndian_ex_nums_ *instance, UState 
     if (ustate->error) return;
     unparse_le_uint8(instance->le_uint8, 8, ustate);
     if (ustate->error) return;
-    unparse_le_uint16(instance->le_nonNegativeInteger10, 10, ustate);
+    unparse_le_uint16(instance->le_uint10, 10, ustate);
     if (ustate->error) return;
     unparse_hexBinary(instance->hexBinary0, ustate);
     if (ustate->error) return;

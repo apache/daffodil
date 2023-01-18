@@ -63,5 +63,7 @@ class TestLengthKindExplicit {
   // Added for issue related to DFDL-1674
   @Test def test_denseBit_lengthKind_explicit(): Unit = { runner.runOneTest("denseBit_lengthKind_explicit") }
 
-
+  @Test def test_invalidLengthUnitsIntegerWarning_explicit(): Unit = { runner.runOneTest("invalidLengthUnitsIntegerWarning_explicit")}
+  @Test def test_invalidLengthUnitsIntegerError_explicit(): Unit = { runner.runOneTest("invalidLengthUnitsIntegerError_explicit")}
+  @Test def test_invalidLengthUnitsDecimalWarning_explicit(): Unit = { runner.runOneTest("invalidLengthUnitsDecimalWarning_explicit")}
 }

@@ -73,12 +73,12 @@
 
     <xs:simpleType name="twentyFourBitsTextInt" dfdl:representation="text" dfdl:lengthKind="explicit"
       dfdl:length="24" dfdl:lengthUnits="bits">
-      <xs:restriction base="xs:integer" /> 
+      <xs:restriction base="xs:int" />
     </xs:simpleType>
 
     <xs:simpleType name="twentyFourBitsBinInt" dfdl:representation="binary" dfdl:lengthKind="explicit"
       dfdl:length="24" dfdl:lengthUnits="bits">
-      <xs:restriction base="xs:integer" />
+      <xs:restriction base="xs:int" />
     </xs:simpleType>
 
     <xs:simpleType name="threeCharTextInt" dfdl:representation="text" dfdl:lengthKind="explicit"
@@ -311,7 +311,7 @@
 
     <xs:simpleType name="twentyFourBitsBinInt" dfdl:representation="binary" dfdl:lengthKind="explicit"
       dfdl:length="24" dfdl:lengthUnits="bits">
-      <xs:restriction base="xs:integer" />
+      <xs:restriction base="xs:int" />
     </xs:simpleType>
 
     <xs:simpleType name="threeCharTextInt" dfdl:representation="text" dfdl:lengthKind="explicit"
@@ -2551,6 +2551,41 @@
       <tdml:error>dfdl:lengthUnits='characters'</tdml:error>
       <tdml:error>variable-width encoding</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidLengthUnits_prefixed">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:defineFormat name="Binary">
+      <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:Binary" />
+
+    <xs:simpleType name="prefixType" dfdl:lengthKind="implicit">
+      <xs:restriction base="xs:unsignedByte"/>
+    </xs:simpleType>
+
+    <xs:element name="r1"
+                dfdl:lengthKind="prefixed"
+                dfdl:prefixLengthType="ex:prefixType"
+                dfdl:prefixIncludesPrefixLength="no"
+                type="xs:nonNegativeInteger"
+                dfdl:lengthUnits="bits"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidLengthUnits_prefixed" root="r1" model="invalidLengthUnits_prefixed"
+                       description="">
+    <tdml:document>
+      <tdml:documentPart type="byte">08 ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r1>255</r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>lengthUnits='bits'</tdml:warning>
+      <tdml:warning>will only be supported</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

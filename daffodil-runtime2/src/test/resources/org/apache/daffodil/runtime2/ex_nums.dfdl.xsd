@@ -97,14 +97,14 @@
                             <xs:element name="be_int32" type="xs:int"/>
                             <xs:element name="be_int64" type="xs:long"/>
                             <xs:element name="be_int8" type="xs:byte"/>
-                            <xs:element name="be_integer17" type="xs:integer"
+                            <xs:element name="be_int17" type="xs:int"
                                         dfdl:length="17"
                                         dfdl:lengthKind="explicit"/>
                             <xs:element name="be_uint16" type="xs:unsignedShort"/>
                             <xs:element name="be_uint32" type="xs:unsignedInt"/>
                             <xs:element name="be_uint64" type="xs:unsignedLong"/>
                             <xs:element name="be_uint8" type="xs:unsignedByte"/>
-                            <xs:element name="be_nonNegativeInteger31" type="xs:nonNegativeInteger"
+                            <xs:element name="be_uint31" type="xs:unsignedInt"
                                         dfdl:length="31"
                                         dfdl:lengthKind="explicit"/>
                             <xs:element name="hexBinary4" type="xs:hexBinary"
@@ -138,7 +138,7 @@
                                         dfdl:byteOrder="littleEndian"/>
                             <xs:element name="le_int8" type="xs:byte"
                                         dfdl:byteOrder="littleEndian"/>
-                            <xs:element name="le_integer46" type="xs:integer"
+                            <xs:element name="le_int46" type="xs:int"
                                         dfdl:byteOrder="littleEndian"
                                         dfdl:length="46"
                                         dfdl:lengthKind="explicit"/>
@@ -150,7 +150,7 @@
                                         dfdl:byteOrder="littleEndian"/>
                             <xs:element name="le_uint8" type="xs:unsignedByte"
                                         dfdl:byteOrder="littleEndian"/>
-                            <xs:element name="le_nonNegativeInteger10" type="xs:nonNegativeInteger"
+                            <xs:element name="le_uint10" type="xs:unsignedInt"
                                         dfdl:byteOrder="littleEndian"
                                         dfdl:length="10"
                                         dfdl:lengthKind="explicit"/>
