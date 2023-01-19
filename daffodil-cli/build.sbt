@@ -23,10 +23,20 @@ enablePlugins(JavaAppPackaging)
 enablePlugins(RpmPlugin)
 enablePlugins(WindowsPlugin)
 
+// CLI tests are not thread safe
+// due to use of temporary buffer used to capture stdout/stderr.
+// So we cannot test in parallel
+Test / parallelExecution := false
+IntegrationTest / parallelExecution := false
+
 // need 'sbt stage' to build the CLI for cli integration tests
 (IntegrationTest / test) := (IntegrationTest / test).dependsOn(Compile / stage).value
 (IntegrationTest / testOnly) := (IntegrationTest / testOnly).dependsOn(Compile / stage).evaluated
 (IntegrationTest / testQuick) := (IntegrationTest / testQuick).dependsOn(Compile / stage).evaluated
+
+// Add the classes in src/test/ to the IntegrationTest classpath
+// so we can share CLI utliities in Util.scala
+(IntegrationTest / dependencyClasspath) ++= (Test / exportedProducts).value
 
 executableScriptName := "daffodil"
 
