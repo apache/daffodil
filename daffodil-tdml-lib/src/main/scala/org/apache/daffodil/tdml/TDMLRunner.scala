@@ -2564,9 +2564,9 @@ object UTF8Encoder {
         val high5 = ((byte1 & 0x07) << 2) | (byte2 >> 6)
         byteList(high5 | 0xC0, low6 | 0x80)
       }
-      case _ if (XMLUtils.isLeadingSurrogate(c)) => {
+      case _ if (Character.isHighSurrogate(c)) => {
         // High (initial) Surrogate character case.
-        if (XMLUtils.isTrailingSurrogate(next)) {
+        if (Character.isLowSurrogate(next)) {
           // Next codepoint is a low surrogate.
           // We need to create a 4-byte representation from the
           // two surrogate characters.
@@ -2576,9 +2576,9 @@ object UTF8Encoder {
           threeByteEncode()
         }
       }
-      case _ if (XMLUtils.isTrailingSurrogate(c)) => {
+      case _ if (Character.isLowSurrogate(c)) => {
         // Low (subsequent) Surrogate character case.
-        if (XMLUtils.isLeadingSurrogate(prev)) {
+        if (Character.isHighSurrogate(prev)) {
           // Previous codepoint was a high surrogate.
           // This codepoint was handled as part of converting the
           // surrogate pair.
