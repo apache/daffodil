@@ -178,7 +178,7 @@ lazy val commonSettings = Seq(
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
-  IntegrationTest / parallelExecution := false,
+  // IntegrationTest / parallelExecution := false, // allow test in parallel
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
 ) ++ Defaults.itSettings
 

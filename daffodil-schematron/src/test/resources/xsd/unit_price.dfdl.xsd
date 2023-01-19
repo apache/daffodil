@@ -22,7 +22,7 @@
            xmlns:sch="http://purl.oclc.org/dsdl/schematron"
            sch:queryBinding="xslt2">
 
-    <!-- modified from daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_03.dfdl.xsd -->
+    <!-- modified from daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema_03.dfdl.xsd -->
 
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
