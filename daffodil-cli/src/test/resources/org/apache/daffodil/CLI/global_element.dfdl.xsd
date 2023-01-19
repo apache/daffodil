@@ -32,7 +32,7 @@
 	</xs:annotation>
 
 	<xs:import namespace="http://complexSchema.com"
-		schemaLocation="./complex_types.dfdl.xsd" />
+		schemaLocation="complex_types.dfdl.xsd" />
 
 	<xs:element name="elem" type="a:dfdl_913">
 	</xs:element>

@@ -42,7 +42,7 @@ class TestSvrlOutput {
   @Test def validationSuccess(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
     val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/uuid.txt")
 
     withTempFile(".conf", { conf =>
       withTempFile { svrl =>
@@ -72,7 +72,7 @@ class TestSvrlOutput {
   @Test def validationFailure(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
     val schematron = path("daffodil-schematron/src/test/resources/sch/always-fails.sch")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/uuid.txt")
 
     withTempFile(".conf", { conf =>
       withTempFile { svrl =>
@@ -121,7 +121,7 @@ class TestSvrlOutput {
   @Test def outputPathFailure(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
     val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/uuid.txt")
     val svrl = path("thisisnotavalidlocation/schematron.svrl")
 
     withTempFile(".conf", { conf =>
@@ -138,7 +138,7 @@ class TestSvrlOutput {
   @Test def overwriteExistingFile(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
     val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/uuid.txt")
 
     withTempFile(".conf", { conf =>
       withTempFile { svrl =>

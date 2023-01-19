@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.saving
+package org.apache.daffodil.exi
 
 import org.junit.Test
 import scala.xml.XML

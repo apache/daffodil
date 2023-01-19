@@ -31,7 +31,7 @@ class TestCLIunparsing {
 
   @Test def test_3525_CLI_Unparsing_SimpleUnparse_inFile(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input12.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input12.txt")
 
     runCLI(args"unparse -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -40,7 +40,7 @@ class TestCLIunparsing {
 
   @Test def test_3526_CLI_Unparsing_SimpleUnparse_inFile2(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input13.txt")
 
     runCLI(args"unparse -s $schema --root e3 $input") { cli =>
       cli.expect("[1,2]")
@@ -49,7 +49,7 @@ class TestCLIunparsing {
 
   @Test def test_3527_CLI_Unparsing_SimpleUnparse_stdin(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input14.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input14.txt")
 
     runCLI(args"unparse -s $schema --root e3") { cli =>
       cli.sendFile(input, inputDone = true)
@@ -89,7 +89,7 @@ class TestCLIunparsing {
   @Test def test_3574_CLI_Unparsing_SimpleUnparse_extVars(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
     val config = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input15.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input15.txt")
 
     runCLI(args"unparse -s $schema -r row -D{http://example.com}var1=99 -c $config $input") { cli =>
       cli.expect("0")
@@ -99,7 +99,7 @@ class TestCLIunparsing {
   @Test def test_3575_CLI_Unparsing_SimpleUnparse_extVars2(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd")
     val config = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input16.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input16.txt")
 
     runCLI(args"unparse -s $schema -r row -c $config $input") { cli =>
       cli.expect("0")
@@ -108,7 +108,7 @@ class TestCLIunparsing {
 
   @Test def test_3582_CLI_Unparsing_SimpleUnparse_outFile(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input13.txt")
 
     withTempFile { output =>
       runCLI(args"unparse -s $schema -r e3 -o $output $input") { cli =>
@@ -121,7 +121,7 @@ class TestCLIunparsing {
 
   @Test def test_3581_CLI_Unparsing_SimpleUnparse_stOutDash(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input13.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input13.txt")
 
     runCLI(args"unparse -s $schema -r e3 -o - $input") { cli =>
       cli.expect("[1,2]")
@@ -169,7 +169,7 @@ class TestCLIunparsing {
 
   // DAFFODIL-1346
   /*@Test*/ def test_3576_CLI_Unparsing_validate(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema.dfdl.xsd")
 
     runCLI(args"unparse -s $schema -r validation_check --validate on") { cli =>
       cli.sendLine("""<ex:validation_check xmlns:ex="http://example.com">test</ex:validation_check>""", inputDone = true)
@@ -217,7 +217,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_w3cdom(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.txt")
 
     runCLI(args"unparse -I w3cdom -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -226,7 +226,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_jdom(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.txt")
 
     runCLI(args"unparse -I jdom -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -235,7 +235,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_scala_xml(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.txt")
 
     runCLI(args"unparse -I scala-xml -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -244,7 +244,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_json(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.json")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.json")
 
     runCLI(args"unparse -I json -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -253,7 +253,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_w3cdom_stream(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.txt")
 
     runCLI(args"unparse --stream -I w3cdom -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -262,7 +262,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_jdom_stream(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.txt")
 
     runCLI(args"unparse --stream -I jdom -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -271,7 +271,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_scala_xml_stream(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.txt")
 
     runCLI(args"unparse --stream -I scala-xml -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -280,7 +280,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_json_stream(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.json")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.json")
 
     runCLI(args"unparse --stream -I json -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -289,7 +289,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_sax(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.txt")
 
     runCLI(args"unparse -I sax -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -298,7 +298,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_exi(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.exi")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.exi")
 
     runCLI(args"unparse -I exi -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -307,7 +307,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_exisa(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.exisa")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.exisa")
 
     runCLI(args"unparse -I exisa -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -316,7 +316,7 @@ class TestCLIunparsing {
 
   @Test def test_xxxx_CLI_Unparsing_SimpleUnparse_null(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input18.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input18.txt")
 
     runCLI(args"unparse -I null -s $schema --root e1 $input") { cli =>
       cli.expect("Hello")
@@ -324,8 +324,8 @@ class TestCLIunparsing {
   }
 
   @Test def test_XXX_CLI_Unparsing_Stream_01(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input19.txt")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input19.txt")
 
     runCLI(args"unparse --stream -s $schema $input") { cli =>
       cli.expect("123")
@@ -333,8 +333,8 @@ class TestCLIunparsing {
   }
 
   @Test def test_XXX_CLI_Unparsing_Stream_sax(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input19.txt")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input19.txt")
 
     runCLI(args"unparse -I sax --stream -s $schema $input") { cli =>
       cli.expect("123")

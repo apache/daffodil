@@ -43,7 +43,7 @@ class TestBlob {
    * will need to generate the test file(s) using the gen_blob.py script. It can
    * be found in and should be run from the directory:
    *
-   * daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/
+   * daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/
    *
    * Please note that the md5sum that is printed out from the script is the hash
    * of just the blob portion of the file that is generated, it does not include
@@ -51,7 +51,7 @@ class TestBlob {
    *
    * Make sure that the generated file is located in the following directory:
    *
-   * daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/
+   * daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/
    *
    * The exact command used to generate the blob for each test will be listed in
    * a comment above that test
@@ -84,8 +84,8 @@ class TestBlob {
    *
    ***/
   @Test def test_1MB_blob(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/1MB.bin")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/1MB.bin")
 
     assumeTrue("large test input file must be manually generated", exists(input))
 
@@ -113,8 +113,8 @@ class TestBlob {
    *
    ***/
   @Test def test_2GB_blob(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/large_blob.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/2049MB.bin")
 
     assumeTrue("large test input file must be manually generated", exists(input))
 
@@ -144,8 +144,8 @@ class TestBlob {
    *
    ***/
   @Test def test_blob_backtracking(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/2049MB.bin")
 
     assumeTrue("large test input file must be manually generated", exists(input))
 
@@ -165,8 +165,8 @@ class TestBlob {
    *
    ***/
   @Test def test_blob_backtracking_streaming_fail(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/2049MB.bin")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/blob_backtracking.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/2049MB.bin")
 
     assumeTrue("large test input file must be manually generated", exists(input))
 

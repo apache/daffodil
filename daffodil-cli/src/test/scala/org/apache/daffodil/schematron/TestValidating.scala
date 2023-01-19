@@ -27,7 +27,7 @@ class TestValidating {
   // always fails sch, but no validate flag so it should pass
   @Test def nonShouldPass(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/uuid.txt")
 
     runCLI(args"parse -s $schema $input") { cli =>
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
@@ -38,7 +38,7 @@ class TestValidating {
   @Test def failShouldFail(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
     val schematron = path("daffodil-schematron/src/test/resources/sch/always-fails.sch")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/uuid.txt")
 
     runCLI(args"""parse --validate schematron="${jsonEscape(schematron.toString)}" -s $schema $input""") { cli =>
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
@@ -50,7 +50,7 @@ class TestValidating {
   @Test def passShouldPass(): Unit = {
     val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
     val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/uuid.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/uuid.txt")
 
     runCLI(args"""parse --validate schematron="${jsonEscape(schematron.toString)}" -s $schema $input""") { cli =>
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")

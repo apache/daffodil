@@ -21,6 +21,6 @@
 	targetNamespace="http://importSchema.com">
 
 	<xs:import namespace="http://baseSchema.com"
-		schemaLocation="./global_element.dfdl.xsd" />
+		schemaLocation="global_element.dfdl.xsd" />
 		
 </xs:schema>

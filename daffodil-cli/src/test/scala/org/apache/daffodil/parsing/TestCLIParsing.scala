@@ -217,7 +217,7 @@ class TestCLIparsing {
 
   @Test def test_979_CLI_Parsing_SimpleParse_inFile(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input1.txt")
 
     runCLI(args"parse -s $schema -r matrix $input") { cli =>
       cli.expect("<tns:cell>2</tns:cell>")
@@ -226,7 +226,7 @@ class TestCLIparsing {
 
   @Test def test_980_CLI_Parsing_SimpleParse_stOutDash(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input1.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input1.txt")
 
     runCLI(args"parse -s $schema -r matrix -o - $input") { cli =>
       cli.expect("<tns:cell>2</tns:cell>")
@@ -322,7 +322,7 @@ class TestCLIparsing {
 
   @Test def test_1003_CLI_Parsing_SimpleParse_emptyNamespace(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input7.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input7.txt")
 
     runCLI(args"parse -s $schema -r {}address $input") { cli =>
       cli.expect("<address>")
@@ -330,8 +330,8 @@ class TestCLIparsing {
   }
 
   @Test def test_1004_CLI_Parsing_SimpleParse_namespaceUsed(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/charClassEntities.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input8.txt")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/charClassEntities.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input8.txt")
 
     runCLI(args"parse -s $schema -r {target}matrix $input") { cli =>
       cli.expect("""<tns:matrix xmlns:tns="target">""")
@@ -340,8 +340,8 @@ class TestCLIparsing {
   }
 
   @Test def test_2615_CLI_Parsing_SimpleParse_namespaceUsedLongOpt(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/charClassEntities.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input8.txt")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/charClassEntities.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input8.txt")
 
     runCLI(args"parse -s $schema --root {target}matrix $input") { cli =>
       cli.expect("""<tns:matrix xmlns:tns="target">""")
@@ -362,7 +362,7 @@ class TestCLIparsing {
 
   @Test def test_1015_CLI_Parsing_SimpleParse_defaultRootMultSchema(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input7.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input7.txt")
 
     runCLI(args"parse -s $schema $input") { cli =>
       cli.expect("<address>")
@@ -417,7 +417,7 @@ class TestCLIparsing {
   }
 
   @Test def test_1319_CLI_Parsing_invalidElementSDE(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/ABC_IBM_invalid.dfdl.xsd")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/ABC_IBM_invalid.dfdl.xsd")
 
     runCLI(args"parse -s $schema -r ABC") { cli =>
       cli.sendLine("ababababbaacccccb", inputDone = true)
@@ -427,7 +427,7 @@ class TestCLIparsing {
 
   @Test def test_1346_CLI_Parsing_SimpleParse_defaultRootMultSchemaMultiple(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input7.txt")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input7.txt")
     for (x <- 1 to 10) {
       runCLI(args"parse -s $schema $input") { cli =>
         cli.expect("<address>")
@@ -474,7 +474,7 @@ class TestCLIparsing {
   }
 
   @Test def test_CLI_Parsing_BitParse_LSBPartialByte_leftOverData(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/bits_parsing.dfdl.xsd")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/bits_parsing.dfdl.xsd")
 
     runCLI(args"parse -s $schema -r lsbPartialByte") { cli =>
       cli.send("stri", inputDone = true)
@@ -486,7 +486,7 @@ class TestCLIparsing {
   }
 
   @Test def test_CLI_Parsing_BitParse_MSBPartialByte_leftOverData(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/bits_parsing.dfdl.xsd")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/bits_parsing.dfdl.xsd")
 
     runCLI(args"parse -s $schema -r msbPartialByte") { cli =>
       cli.send("stri", inputDone = true)
@@ -498,7 +498,7 @@ class TestCLIparsing {
   }
 
   @Test def test_CLI_Parsing_BitParse_MSBFullByte_leftOverData(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/bits_parsing.dfdl.xsd")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/bits_parsing.dfdl.xsd")
 
     runCLI(args"parse -s $schema -r msbFullByte") { cli =>
       cli.send("stri", inputDone = true)
@@ -509,8 +509,8 @@ class TestCLIparsing {
   }
 
   @Test def test_DFDL_714(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/global_element.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/test_DFDL-714.txt")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/global_element.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/test_DFDL-714.txt")
 
     runCLI(args"parse -s $schema $input") { cli =>
       cli.expect("<tns:elem xmlns:tns=\"http://baseSchema.com\">")
@@ -521,8 +521,8 @@ class TestCLIparsing {
   }
 
   @Test def test_DFDL_1203_schema_from_jar(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/global_element.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/test_DFDL-714.txt")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/global_element.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/test_DFDL-714.txt")
 
     runCLI(args"parse -s $schema $input") { cli =>
       cli.expect("<tns:elem xmlns:tns=\"http://baseSchema.com\">")
@@ -546,8 +546,8 @@ class TestCLIparsing {
   }
 
   @Test def test_CLI_Parsing_built_in_formats(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_04.dfdl.xsd")
-    val input = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/input/input6.txt")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema_04.dfdl.xsd")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/input/input6.txt")
 
     runCLI(args"parse -s $schema -r e $input") { cli =>
       cli.expectErr("Schema Definition Warning")
@@ -570,7 +570,7 @@ class TestCLIparsing {
   }
 
   @Test def test_XXX_CLI_Parsing_Stream_01(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
 
     runCLI(args"parse --stream -s $schema") { cli =>
       cli.send("123", inputDone = true)
@@ -581,7 +581,7 @@ class TestCLIparsing {
   }
 
   @Test def test_XXX_CLI_Parsing_Stream_02(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
 
     runCLI(args"parse --stream -s $schema") { cli =>
       cli.send("123ab", inputDone = true)
@@ -594,8 +594,8 @@ class TestCLIparsing {
   }
 
   @Test def test_CLI_Parsing_XCatalog_Resolution_Failure(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/xcatalog_import_failure.dfdl.xsd")
-    val xcatalog = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/xcatalog_invalid.xml")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/xcatalog_import_failure.dfdl.xsd")
+    val xcatalog = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/xcatalog_invalid.xml")
 
     withSysProp("xml.catalog.files" -> xcatalog.toAbsolutePath.toString) {
       runCLI(args"parse -s $schema") { cli =>
@@ -687,7 +687,7 @@ class TestCLIparsing {
   }
 
   @Test def test_2575_DFDLX_Trace_output(): Unit = {
-    val schema = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/trace_input.dfdl.xsd")
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/trace_input.dfdl.xsd")
 
     runCLI(args"-v parse -r output -s $schema") { cli =>
       cli.send("0", inputDone = true)

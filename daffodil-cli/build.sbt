@@ -27,6 +27,7 @@ enablePlugins(WindowsPlugin)
 (IntegrationTest / test) := (IntegrationTest / test).dependsOn(Compile / stage).value
 (IntegrationTest / testOnly) := (IntegrationTest / testOnly).dependsOn(Compile / stage).evaluated
 (IntegrationTest / testQuick) := (IntegrationTest / testQuick).dependsOn(Compile / stage).evaluated
+(IntegrationTest / dependencyClasspath) ++= (Test / exportedProducts).value
 
 executableScriptName := "daffodil"
 

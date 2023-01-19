@@ -95,7 +95,7 @@ class TestCLItdml {
   }
 
   @Test def test_CLI_catch_TestNotCompatible(): Unit = {
-    val tdml = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/testNonCompatibleImplementation.tdml")
+    val tdml = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/testNonCompatibleImplementation.tdml")
 
     runCLI(args"test -iii $tdml testNotCompatibleImplementation1") { cli =>
       cli.expect("[Skipped] testNotCompatibleImplementation1 (not compatible with implementation: daffodil)")
@@ -103,7 +103,7 @@ class TestCLItdml {
   }
 
   @Test def test_CLI_catch_TestBadArguments(): Unit = {
-    val tdml = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/testNonCompatibleImplementation.tdml")
+    val tdml = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/testNonCompatibleImplementation.tdml")
 
     runCLI(args"test -I notDaffodilC $tdml") { cli =>
       cli.expectErr("[error] Bad arguments for option 'implementation'")
@@ -111,7 +111,7 @@ class TestCLItdml {
   }
 
   @Test def test_CLI_Tdml_implementation(): Unit = {
-    val tdml = path("daffodil-cli/src/it/resources/org/apache/daffodil/CLI/testNonCompatibleImplementation.tdml")
+    val tdml = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/testNonCompatibleImplementation.tdml")
 
     runCLI(args"test -I daffodilC $tdml testDaffodilCImplementation1") { cli =>
       cli.expect("[Pass] testDaffodilCImplementation1")
