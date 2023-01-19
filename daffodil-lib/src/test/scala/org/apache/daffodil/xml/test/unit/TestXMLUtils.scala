@@ -21,13 +21,9 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
-
 import scala.xml._
-
 import org.junit.Assert._
 import org.junit.Test
-
-import org.apache.daffodil.Implicits._
 import org.apache.daffodil.util.Misc
 import org.apache.daffodil.xml.JDOMUtils
 import org.apache.daffodil.xml.NS
@@ -119,20 +115,6 @@ class TestXMLUtils {
     val d2 = JDOMUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>foo</a>)
     assertTrue(JDOMUtils.isNil(d1))
     assertFalse(JDOMUtils.isNil(d2))
-  }
-
-  @Test def testRemapXMLIllegalCharToPUA(): Unit = {
-    val ec = XMLUtils.remapXMLIllegalCharToPUA(false)(0x0)
-    assertEquals(0xE000, ec)
-    val ed = XMLUtils.remapXMLIllegalCharToPUA(false)(0xd880)
-    assertEquals(0xE880, ed)
-  }
-
-  @Test def testRemapPUAToXMLIllegalChar(): Unit = {
-    val ec = XMLUtils.remapPUAToXMLIllegalChar(0xE000)
-    assertEquals(0x0, ec)
-    val ed = XMLUtils.remapPUAToXMLIllegalChar(0xE880)
-    assertEquals(0xD880, ed)
   }
 
   @Test def testWalkUnicodeString1(): Unit = {

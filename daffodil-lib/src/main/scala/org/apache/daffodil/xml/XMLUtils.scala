@@ -65,111 +65,6 @@ object XMLUtils {
   val NaNString = "NaN"
 
   /**
-   * Legal XML v1.0 chars are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-   *
-   * Note that this function is curried. You first close over the parameters of the algorithm
-   * to obtain a function that converts individual characters.
-   */
-  def remapXMLIllegalCharToPUA(
-    checkForExistingPUA: Boolean = true,
-    replaceCRWithLF: Boolean = true)(c: Char): Char = {
-    val cInt = c.toInt
-    val res = cInt match {
-      case 0x9 => c
-      case 0xA => c
-      case 0xD =>
-        if (replaceCRWithLF) 0xA.toChar // Map CR to LF. That's what XML does.
-        else 0xE00D.toChar // or remap it to PUA so it is non-whitespace, and preserved.
-      case _ if (cInt < 0x20) => (cInt + 0xE000).toChar // ascii c0 controls
-      case _ if (cInt > 0xD7FF && cInt < 0xE000) => (cInt + 0x1000).toChar // surrogate code points
-      case _ if (cInt >= 0xE000 && cInt <= 0xF8FF) => { // Unicode PUA is E000 to F8FF.
-        if (checkForExistingPUA)
-          Assert.usageError("Pre-existing Private Use Area (PUA) character found in data: '%s'".format(c))
-        else c
-      }
-      case 0xFFFE => 0xF0FE.toChar
-      case 0xFFFF => 0xF0FF.toChar
-      case _ if (cInt > 0x10FFFF) => {
-        Assert.invariantFailed("Character code beyond U+10FFFF found in data. Codepoint: %s".format(cInt))
-      }
-      case _ => c
-
-    }
-    res
-  }
-
-  /**
-   * Scans the string looking for XML-illegal characters. True if any are found.
-   *
-   * Note that this considers CR (0x0d) to be a character that requires remapping.
-   */
-  def needsXMLToPUARemapping(s: String): Boolean = {
-    var i = 0
-    val len = s.length
-    while (i < len) {
-      val v = s.charAt(i).toInt
-      if ((v < 0x20 && !(v == 0xA || v == 0x9)) ||
-        (v > 0xD7FF && v < 0xE000) ||
-        (v >= 0xE000 && v <= 0xF8FF) ||  // Unicode PUA is E000 to F8FF
-        (v == 0xFFFE) ||
-        (v == 0xFFFF) ||
-        (v > 0x10FFFF)) {
-        return true
-      }
-      i += 1
-    }
-    false
-  }
-
-  /**
-   * Reverse of the remapXMLIllegalCharToPUA method
-   */
-  def remapPUAToXMLIllegalChar(c: Char): Char = {
-    val cInt = c.toInt
-    val res = cInt match {
-      case _ if (c >= 0xE000 && c <= 0xE01F) => (c - 0xE000).toChar // Ascii c0 controls
-      case _ if (c >= 0xE800 && c <= 0xEFFF) => (c - 0x1000).toChar // surrogate codepoints
-      case 0xF0FE => 0xFFFE.toChar
-      case 0xF0FF => 0xFFFF.toChar
-      case _ if (c > 0x10FFFF) => {
-        Assert.invariantFailed("Character code beyond U+10FFFF found in data. Codepoint: %s".format(c.toInt))
-      }
-      case _ => c
-    }
-    res
-  }
-
-  /**
-   * Determines if we need to unmap PUA-mapped characters back to the (XML illegal) original characters.
-   *
-   * Used to save allocating a string every time, given that these PUA mapped chars are rare.
-   */
-  def needsPUAToXMLRemapping(s: String): Boolean = {
-    var i = 0
-    val len = s.length
-    while (i < len) {
-      val v = s.charAt(i).toInt
-      if ((v == 0xD) || // not PUA, but string still needs remapping since CR must be mapped to LF
-          (v >= 0xE000 && v <= 0xE01F) || // PUA chars that are Ascii C0 controls.
-          (v >= 0xE800 && v <= 0xEFFF) || // Surrogate codepoints
-          (v == 0xF0FE) || (v == 0xF0FF) || // FFFE and FFFF illegal chars
-          (v > 0x10FFFF)) {
-        return true
-      }
-      i += 1
-    }
-    false
-  }
-
-  def isLeadingSurrogate(c: Char) = {
-    c >= 0xD800 && c <= 0xDBFF
-  }
-
-  def isTrailingSurrogate(c: Char) = {
-    c >= 0xDC00 && c <= 0xDFFF
-  }
-
-  /**
    * Length where a surrogate pair counts as 1 character, not two.
    */
   def uncodeLength(s: String) = {
@@ -189,10 +84,16 @@ object XMLUtils {
    * This calls a body function with prev, current, next bound to those.
    * For first codepoint prev will be 0. For last codepoint next will be 0.
    *
-   * NOTE: This function contains the same algorithm as
-   * remapXMLIllegalCharactersToPUA, but is more general and is a bit slower.
-   * Any changes made to this function probably need to be incorporated into
-   * the other.
+   * NOTE: This function contains a similar algorithm as
+   * CharacterSetRemapper, but is more general in that this can create an output
+   * that is a Seq[T] (e.g., a Seq[Byte]) so it can replace a character with
+   * multiple characters, e.g., this can express an encoder for UTF-8 where two
+   * adjacent surrogate code points become a sequence of 4 bytes in the UTF-8
+   * encoding.
+   *
+   * CharacterSetRemapper can only map characters to other characters, and can
+   * only remove 1 character (skip 1) when doing so.
+   *
    */
   def walkUnicodeString[T](str: String)(bodyFunc: (Char, Char, Char) => T): Seq[T] = {
     val len = str.length
@@ -216,89 +117,15 @@ object XMLUtils {
     list
   }
 
-  /*
-   * This function contains the same string traversal algorithm as
-   * walkUnicodeString. The only difference is that it uses a StringBuilder
-   * rather than a ListBuffer[T] that would be used in walkUnicodeString. Note
-   * that since StringBuilder is not synchronized it is noticably faster than
-   * StringBuffer, and since the StringBuilder is local to the function, we
-   * don't have to worry about any threading issues. This specificity makes for
-   * a noticable speed increase, so much so that the code duplication is worth
-   * it. Any changes made to this function probably need to be incorporated
-   * into the other.
-   */
-  def remapXMLCharacters(dfdlString: String, remapFunc: (Char) => Char): String = {
-    // we want to remap XML-illegal characters
-    // but leave legal surrogate-pair character pairs alone.
-    def remapOneChar(previous: Char, current: Char, next: Char): Char = {
-      if (isLeadingSurrogate(current) && isTrailingSurrogate(next)) return current
-      if (isTrailingSurrogate(current) && isLeadingSurrogate(previous)) return current
-      remapFunc(current)
-    }
+  private val remapXMLToPUA =
+    new RemapXMLIllegalCharToPUA(checkForExistingPUA = true, replaceCRWithLF = true)
 
-    val len = dfdlString.length
-    if (len == 0) return dfdlString
+  def remapXMLIllegalCharactersToPUA(s: String): String = remapXMLToPUA.remap(s)
 
-    val sb = new StringBuilder()
+  private val remapPUAToXML = new RemapPUAToXMLIllegalChar()
 
-    var pos = 0;
-    var prev = 0.toChar
-    var curr = dfdlString(0)
-    var next = 0.toChar
+  def remapPUAToXMLIllegalCharacters(text: String) = remapPUAToXML.remap(text)
 
-    while (pos < len) {
-      next = if (pos + 1 < len) dfdlString(pos + 1) else 0.toChar
-      if (curr == 0xD) {
-        if (next != 0xA) {
-          // This is a lone CR (i.e. not a CRLF), so convert the CR to a LF
-          sb.append(0xA.toChar)
-        } else {
-          // This is a CRLF. Skip the CR, essentially converting the CRLF to
-          // just LF. Do nothing.
-        }
-      } else {
-        sb.append(remapOneChar(prev, curr, next))
-      }
-      prev = curr
-      curr = next
-
-      pos += 1
-    }
-
-    sb.toString
-  }
-
-  def remapXMLIllegalCharactersToPUA(dfdlString: String): String = {
-    if (needsXMLToPUARemapping(dfdlString)) {
-      // This essentially doubles the work if remapping is needed (since we
-      // scan the string once to see if it's needed, then scan again for
-      // remapping). But the common case is that remapping is not needed, so we
-      // only need to scan the string once AND we avoid allocating a new string
-      // with characters remapped.
-      remapXMLCharacters(dfdlString, remapXMLIllegalCharToPUA(false))
-    } else {
-      dfdlString
-    }
-  }
-
-  /**
-   * Converts PUA characters back into the original (XML Illegal) characters
-   * they represent.
-   *
-   *
-   */
-  def remapPUAToXMLIllegalCharacters(dfdlString: String): String = {
-    if (needsPUAToXMLRemapping(dfdlString)) {
-      // This essentially doubles the work if remapping is needed (since we
-      // scan the string once to see if it's needed, then scan again for
-      // remapping). But the common case is that remapping is not needed, so we
-      // only need to scan the string once AND we avoid allocating a new string
-      // with characters remapped.
-      remapXMLCharacters(dfdlString, remapPUAToXMLIllegalChar)
-    } else {
-      dfdlString
-    }
-  }
 
   def coalesceAllAdjacentTextNodes(node: Node): Node = {
     node match {
@@ -1299,11 +1126,11 @@ Differences were (path, expected, actual):
    * We have to use our own PUA remapping trick if we want to be sure to preserve
    * CR in XML.
    */
-  def escape(str: String, sb: StringBuilder = new StringBuilder()): StringBuilder = {
+  def escape(s: String, sb: StringBuilder = new StringBuilder()): StringBuilder = {
     var i = 0
+    val str = xmlRemapperPreservingCR.remap(s)
     while (i < str.length) {
-      val x = str(i)
-      val c = escapeMapper(x)
+      val c = str(i)
       i += 1
       c match {
         case '\'' => sb.append("&#x27;") // don't use "&apos;" because it's not universally accepted (HTML doesn't have it in early versions)
@@ -1323,10 +1150,8 @@ Differences were (path, expected, actual):
     sb
   }
 
-  private val escapeMapper =
-    remapXMLIllegalCharToPUA(
-      checkForExistingPUA = false,
-      replaceCRWithLF = false) _
+  private val xmlRemapperPreservingCR =
+    new RemapXMLIllegalCharToPUA(checkForExistingPUA = false, replaceCRWithLF = false)
 
   def toNumericCharacterEntity(c: Char, sb: StringBuilder) = {
     val i = c.toInt
@@ -1489,3 +1314,4 @@ class QNamePrefixNotInScopeException(pre: String, loc: LookupLocation)
 //    res
 //  }
 //}
+
