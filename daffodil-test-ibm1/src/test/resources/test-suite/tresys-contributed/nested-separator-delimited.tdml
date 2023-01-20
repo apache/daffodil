@@ -202,8 +202,6 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-
-
   <tdml:defineSchema name="nest1">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
@@ -223,31 +221,17 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="nest1" root="nest1"
-    model="nest1" description="Unambiguous nested separators, no terminators.">
+    model="nest1" description="Verify that improperly defined schemas fails with the correct error message">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[0,1,2;3,4,5;6,7;8;9!]]></tdml:documentPart>
     </tdml:document>
 
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <nest1>
-          <a>0</a>
-          <a>1</a>
-          <a>2</a>
-          <a>3</a>
-          <a>4</a>
-          <a>5</a>
-          <a>6</a>
-          <a>7</a>
-          <a>8</a>
-          <a>9</a>
-        </nest1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Terminator</tdml:error>
+      <tdml:error>not found</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
-
 
   <tdml:defineSchema name="nest2">
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -256,7 +240,7 @@
       to keep track of what's got priority over what else. (i.e., that inner
       wins) -->
     <xs:element name="nest2" dfdl:lengthKind="implicit"
-      dfdl:terminator="ddd">
+      dfdl:terminator="! ddd">
       <xs:complexType>
         <xs:sequence dfdl:separator="; ddd">
           <xs:element name="b" minOccurs="0" maxOccurs="unbounded"
