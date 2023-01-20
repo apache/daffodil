@@ -28,6 +28,7 @@ import org.apache.daffodil.infoset.DataValue.DataValueDate
 import org.apache.daffodil.infoset.DataValue.DataValueDateTime
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueTime
+import org.apache.daffodil.util.Misc
 
 case object AnyAtomicToString extends ToString {
   val name = "AnyAtomicToString"
@@ -80,7 +81,7 @@ case object StringToHexBinary extends Converter with HexBinaryKind {
 
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueByteArray = {
     val result = a.getAnyRef match {
-      case s: String => hexStringToByteArray(s)
+      case s: String => Misc.hex2Bytes(s)
       case hb: Array[Byte] => hb
       case x => throw new NumberFormatException("%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String or HexBinary.".format(x.toString))
     }

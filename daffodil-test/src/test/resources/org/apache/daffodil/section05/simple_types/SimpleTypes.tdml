@@ -8182,8 +8182,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>PPPDABAIAB</tdml:error>
-      <tdml:error>Invalid hexadecimal digit</tdml:error>
+      <tdml:error>Hex character must be</tdml:error>
     </tdml:errors>        
   </tdml:parserTestCase>
 
