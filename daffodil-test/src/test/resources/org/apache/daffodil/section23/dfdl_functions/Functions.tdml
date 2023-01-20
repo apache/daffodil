@@ -6707,7 +6707,7 @@
     </xs:element>
     
     <xs:element name="dfdlHexBinary01" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(xs:short(208)) }"/>
-    <xs:element name="dfdlHexBinary02" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary('208') }"/>
+    <xs:element name="dfdlHexBinary02" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary('0208') }"/>
     <xs:element name="dfdlHexBinary03" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(-2084) }"/>
     <xs:element name="dfdlHexBinary04" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(200000000000000000000) }"/>
     <xs:element name="dfdlHexBinary05" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(xs:integer(32768)) }"/>
@@ -8875,7 +8875,7 @@
       <tdml:documentPart type="text">ABCDEF12345</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>A hexBinary value must contain an even number of characters</tdml:error>
+      <tdml:error>even number of characters</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -8896,7 +8896,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Invalid hexadecimal digit</tdml:error>
+      <tdml:error>Hex character must be</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -11808,7 +11808,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:dfdlHexBinary02>D0</ex:dfdlHexBinary02>
+        <ex:dfdlHexBinary02>0208</ex:dfdlHexBinary02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

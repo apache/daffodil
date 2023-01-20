@@ -33,11 +33,7 @@ object TestSimpleTypesUnparse {
 
 class TestSimpleTypesUnparse {
   import TestSimpleTypesUnparse._
- 
-  //DFDL-1454
-  //dfdl:hexBinary not behaving like xs:hexBinary 
-  //@Test def test_hexBinary_unparse_13() { runner.runOneTest("hexBinary_unparse_13") }
-  
+
   @Test def test_hexBinary_unparse_01(): Unit = { runner.runOneTest("hexBinary_unparse_01") }
   @Test def test_hexBinary_unparse_02(): Unit = { runner.runOneTest("hexBinary_unparse_02") }
   @Test def test_hexBinary_unparse_03(): Unit = { runner.runOneTest("hexBinary_unparse_03") }
@@ -50,7 +46,9 @@ class TestSimpleTypesUnparse {
   @Test def test_hexBinary_unparse_10(): Unit = { runner.runOneTest("hexBinary_unparse_10") }
   @Test def test_hexBinary_unparse_11(): Unit = { runner.runOneTest("hexBinary_unparse_11") }
   @Test def test_hexBinary_unparse_12(): Unit = { runner.runOneTest("hexBinary_unparse_12") }
+  @Test def test_hexBinary_unparse_13(): Unit = { runner.runOneTest("hexBinary_unparse_13") }
   @Test def test_hexBinary_unparse_14(): Unit = { runner.runOneTest("hexBinary_unparse_14") }
+
   @Test def test_hexBinary_unparse_15(): Unit = { runner.runOneTest("hexBinary_unparse_15") }
   @Test def test_hexBinary_unparse_16(): Unit = { runner.runOneTest("hexBinary_unparse_16") }
   @Test def test_hexBinary_unparse_17(): Unit = { runner.runOneTest("hexBinary_unparse_17") }

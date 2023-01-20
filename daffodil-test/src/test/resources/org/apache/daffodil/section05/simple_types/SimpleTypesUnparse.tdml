@@ -61,8 +61,6 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-    
-    <xs:element name="hb_11" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary('a1') }"/>
 
   <xs:element name="ehb_09">
     <xs:complexType>
@@ -79,15 +77,23 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-   
-    <xs:element name="hb_12">
-      <xs:complexType>
-        <xs:sequence dfdl:separator=",">
-          <xs:element name="input" type="xs:string" dfdl:lengthKind="delimited"/> 
-          <xs:element name="out" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary(../ex:input) }"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+
+  <xs:element name="ehb_11">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="hb_11" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary('a1') }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="hb_12">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+        <xs:element name="input" type="xs:string" dfdl:lengthKind="delimited"/>
+        <xs:element name="out" type="xs:hexBinary" dfdl:fillByte="a" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ dfdl:hexBinary(xs:byte(../ex:input)) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
   <xs:element name="ehb_13">
     <xs:complexType>
@@ -406,11 +412,11 @@
     Schema: SimpleTypes-binary
     Purpose: This document demonstrates the use of outputValueCalc for hexBinary with the dfdl:hexBinary constructor function
   -->
-  <tdml:unparserTestCase name="hexBinary_unparse_13" root="hb_11"
-      model="SimpleTypes-binary">
+  <tdml:unparserTestCase name="hexBinary_unparse_13" root="ehb_11"
+      model="SimpleTypes-binary" roundTrip="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:hb_11></ex:hb_11>
+        <ex:ehb_11></ex:ehb_11>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
@@ -428,13 +434,13 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:hb_12>
-          <ex:input>208</ex:input>
+          <ex:input>-48</ex:input>
           <ex:out>D0</ex:out>
         </ex:hb_12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>
-      <tdml:documentPart type="byte"><![CDATA[3230382cd0]]></tdml:documentPart>
+      <tdml:documentPart type="byte"><![CDATA[2D34382CD0]]></tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
 

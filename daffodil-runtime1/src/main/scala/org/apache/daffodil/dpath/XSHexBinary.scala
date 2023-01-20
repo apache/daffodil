@@ -20,35 +20,9 @@ package org.apache.daffodil.dpath
 import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
 import org.apache.daffodil.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.infoset.DataValue.DataValueByteArray
+import org.apache.daffodil.util.Misc
 
 trait HexBinaryKind {
-
-  /**
-   * http://travisdazell.blogspot.com/2012/11/converting-hex-string-to-byte-array-in.html
-   */
-  protected def hexStringToByteArray(str: String): Array[Byte] = {
-    val len = str.length
-
-    if ((len % 2) != 0)
-      throw new NumberFormatException("Failed to evaluate expression: A hexBinary value must contain an even number of characters.")
-
-    val arr = new Array[Byte](len / 2)
-    var i = 0
-    while (i < len) {
-      val upper = Character.digit(str.charAt(i), 16)
-      val lower = Character.digit(str.charAt(i + 1), 16)
-
-      if (upper == -1)
-        throw new NumberFormatException("Failed to evaluate expression: Invalid hexadecimal digit '%c' at index %d of '%s'".format(str.charAt(i), i, str))
-      if (lower == -1)
-        throw new NumberFormatException("Failed to evaluate expression: Invalid hexadecimal digit '%c' at index %d of '%s'".format(str.charAt(i + 1), i + 1, str))
-
-      val byte = (upper << 4) + (lower)
-      arr(i / 2) = byte.asInstanceOf[Byte]
-      i += 2
-    }
-    return arr
-  }
 
   protected def reduce(numeric: Any): Array[Byte] = {
     val res: Array[Byte] = numeric match {
@@ -67,7 +41,7 @@ trait HexBinaryKind {
       case bi: JBigInt if (bi.bitLength <= 63) => reduce(bi.longValue())
       case bi: JBigInt => bi.toByteArray()
       case bd: JBigDecimal if (try { bd.toBigIntegerExact(); true } catch { case e: ArithmeticException => false }) => reduce(bd.toBigIntegerExact())
-      case str: String => reduce(new JBigInt(str))
+      case str: String => Misc.hex2Bytes(str)
       case _ => throw new NumberFormatException("%s could not fit into a long".format(numeric.toString))
     }
     res

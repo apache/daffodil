@@ -277,13 +277,13 @@ object Misc {
         if (i >= 48 && i <= 57) i - 48 // number 0-9
         else if (i >= 65 && i <= 70) (i - 65) + 10 // capital A-F
         else if (i >= 97 && i <= 102) (i - 97) + 10 // lowercase a-f
-        else throw new java.lang.IllegalArgumentException("Hex character must be 0-9, a-z, or A-Z, but was '" + c + "'")
+        else throw new NumberFormatException("Hex character must be 0-9, a-z, or A-Z, but was '" + c + "'")
       v
     }
 
     val len = hex.length
     if (len % 2 != 0) {
-      throw new java.lang.IllegalArgumentException("Hex string must have an even number of characters, but was " + len)
+      throw new NumberFormatException("Hex string must have an even number of characters, but was " + len + " for " + hex)
     }
     val numBytes: Int = len / 2
     val arr = new Array[Byte](numBytes)
