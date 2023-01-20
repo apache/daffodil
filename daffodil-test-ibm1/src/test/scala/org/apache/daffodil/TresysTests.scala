@@ -107,10 +107,8 @@ class TresysTests {
   @Test def test_nested_separator_delimited_basicNest(): Unit = { runnerNSD.runOneTest("basicNest") }
   @Test def test_nested_separator_delimited_basicNest2(): Unit = { runnerNSD.runOneTest("basicNest2")}
 
-  // Nested delimiter issues - DAFFODIL-2101
-  // @Test def test_nested_separator_delimited_nest1() { runnerNSD.runOneTest("nest1")}
-  // Nested delimiter issues - DAFFODIL-2101
-  // @Test def test_nested_separator_delimited_nest2() { runnerNSD.runOneTest("nest2")}
+  @Test def test_nested_separator_delimited_nest1(): Unit = { runnerNSD.runOneTest("nest1")}
+  @Test def test_nested_separator_delimited_nest2(): Unit = { runnerNSD.runOneTest("nest2")}
   @Test def test_nested_separator_delimited_nest3(): Unit = { runnerNSD.runOneTest("nest3")}
 
   @Test def test_runtime_diagnostics1(): Unit = { runnerRD.runOneTest("PE1") }
