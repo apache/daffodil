@@ -1520,49 +1520,31 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
-  
-  <!--
-     Test Name: textStandardDecimalSeparator10
-        Schema: textNumberPattern
-          Root: tnp26
-       Purpose: This test demonstrates that textStandardDecimalSeparator can be a whitespace-separated list of
-                single characters that appear (individually) in the data as the decimal separator
-  -->
 
-  <tdml:parserTestCase name="textStandardDecimalSeparator10" root="tnp26" model="textNumberPattern"
+  <tdml:parserTestCase name="textStandardDecimalSeparatorOneOnly1" root="tnp26" model="textNumberPattern"
     description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">5*55</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <tnp26>5.55</tnp26>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardDecimalSeparator</tdml:error>
+      <tdml:error>more than one</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
-  
-  <!--
-     Test Name: textStandardDecimalSeparator11
-        Schema: textNumberPattern
-          Root: tnp26
-       Purpose: This test demonstrates that textStandardDecimalSeparator can be a whitespace-separated list of
-                single characters that appear (individually) in the data as the decimal separator
-  -->
 
-  <tdml:parserTestCase name="textStandardDecimalSeparator11" root="tnp26" model="textNumberPattern"
+  <tdml:parserTestCase name="textStandardDecimalSeparatorOneOnly2" root="tnp26" model="textNumberPattern"
     description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">5,55</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <tnp26>5.55</tnp26>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardDecimalSeparator</tdml:error>
+      <tdml:error>more than one</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--

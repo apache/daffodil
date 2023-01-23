@@ -179,8 +179,9 @@ class TextNumberFormatEv(
     val decimalSepList = if (decimalSepEv.isDefined) {
       val seps = decimalSepEv.get.evaluate(state)
       if (seps.length > 1) {
-        // TODO: ICU only supports a single decimal separator
-        tci.notYetImplemented("More than one textStandardDecimalSeparator")
+        // ICU only supports a single decimal separator
+        tci.SDE("More than one textStandardDecimalSeparator '%s'. Only a single one is supported.",
+          seps.mkString(" "))
       }
       MaybeChar(seps.head(0))
     } else {

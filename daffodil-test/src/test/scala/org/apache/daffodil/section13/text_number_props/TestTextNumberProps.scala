@@ -162,9 +162,8 @@ class TestTextNumberProps {
   @Test def test_textStandardDecimalSeparator16(): Unit = { runner.runOneTest("textStandardDecimalSeparator16") }
   @Test def test_textStandardDecimalSeparator17(): Unit = { runner.runOneTest("textStandardDecimalSeparator17") }
 
-  // DFDL-847
-  //  @Test def test_textStandardDecimalSeparator10() { runner.runOneTest("textStandardDecimalSeparator10") }
-  //  @Test def test_textStandardDecimalSeparator11() { runner.runOneTest("textStandardDecimalSeparator11") }
+  @Test def test_textStandardDecimalSeparatorOneOnly1(): Unit = { runner.runOneTest("textStandardDecimalSeparatorOneOnly1") }
+  @Test def test_textStandardDecimalSeparatorOneOnly2(): Unit = { runner.runOneTest("textStandardDecimalSeparatorOneOnly2") }
 
   @Test def test_textStandardGroupingSeparator01(): Unit = { runner.runOneTest("textStandardGroupingSeparator01") }
   @Test def test_textStandardGroupingSeparator02(): Unit = { runner.runOneTest("textStandardGroupingSeparator02") }
