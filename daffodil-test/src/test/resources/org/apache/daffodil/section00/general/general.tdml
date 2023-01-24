@@ -217,4 +217,32 @@
         <tdml:error>in no namespace</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="nameAndRef">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat" />
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="nameAndRef" type="xs:string" ref="ex:root2" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="root2" type="xs:string" dfdl:lengthKind="delimited" />
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="nameAndRefError_01" root="root1" model="nameAndRef">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>name</tdml:error>
+      <tdml:error>type</tdml:error>
+      <tdml:error>cannot appear</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

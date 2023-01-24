@@ -62,6 +62,8 @@ class TestGeneral {
   @Test def test_litNil1FullPath(): Unit = { runner.runOneTest("litNil1FullPath") }
   @Test def test_referentialIntegrity(): Unit = { runner.runOneTest("referentialIntegrity") }
 
+  @Test def test_nameAndRefError_01(): Unit = { runner.runOneTest("nameAndRefError_01") }
+
   // Test causes exception as the file is not found
   // @Test def test_fileDNE() { runner.runOneTest("fileDNE") }
 
