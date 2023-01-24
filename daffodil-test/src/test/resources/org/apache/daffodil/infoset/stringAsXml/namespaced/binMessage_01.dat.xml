@@ -7,9 +7,9 @@
 <p:root xmlns:q="urn:payload" xmlns:p="urn:payload" attr2="4" attr1=" value ">
   <!-- commment -->
   <?processing instruction?>
-  <field><![CDATA[Field ]]> with <![CDATA[cdata]]> </field>
-  <field>spaces</field>    <field>   spaces   </field>
-  <field/>
+  <field><![CDATA[Field ]]> with <![CDATA[cdata]]> </field> here is mixed content
+  <field>spaces</field>    <field>   spaces   </field> and more mixed content
+  <field/> and more mixed content
   <field/>
   <field>entity references: &lt; > &amp; " ' ©</field>
   <field>CR</field>&#xd;<field>LF</field>
