@@ -81,8 +81,8 @@ class TextNumberFormatEv(
   zeroRepsRaw: List[String],
   isInt: Boolean,
   primType: PrimType)
-  extends Evaluatable[ThreadLocal[DecimalFormat]](tci)
-  with InfosetCachedEvaluatable[ThreadLocal[DecimalFormat]] {
+  extends Evaluatable[DecimalFormat](tci)
+  with InfosetCachedEvaluatable[DecimalFormat] {
 
   override lazy val runtimeDependencies = (decimalSepEv.toList ++ groupingSepEv.toList ++ exponentRepEv.toList).toVector
 
@@ -107,6 +107,16 @@ class TextNumberFormatEv(
     tci.schemaDefinitionUnless(dupeStrings.size == 0, dupeStrings.mkString("\n"))
   }
 
+  /**
+   * Creates a thread-safe DecimalFormat that can be used to parse and format
+   * text numbers.
+   *
+   * Note that as of ICU 59, DecimalFormat is thread safe as long as the
+   * setters are called only during construction and not after being used to
+   * format/parse numbers. This function is the only place these setters should
+   * be called. Once returned, only the DecimalFormat parse() and format()
+   * functions should be called.
+   */
   private def generateNumFormat(
     decimalSep: MaybeChar,
     groupingSep: MaybeChar,
@@ -175,7 +185,7 @@ class TextNumberFormatEv(
     df
   }
 
-  override protected def compute(state: ParseOrUnparseState): ThreadLocal[DecimalFormat] = {
+  override protected def compute(state: ParseOrUnparseState): DecimalFormat = {
 
     val decimalSepList = if (decimalSepEv.isDefined) {
       val seps = decimalSepEv.get.evaluate(state)
@@ -206,14 +216,10 @@ class TextNumberFormatEv(
       groupingSep,
       exponentRep)
 
-    val numFormat = new ThreadLocal[DecimalFormat] with Serializable {
-      override def initialValue() = {
-        generateNumFormat(
-          decimalSepList,
-          groupingSep,
-          exponentRep)
-      }
-    }
+    val numFormat = generateNumFormat(
+      decimalSepList,
+      groupingSep,
+      exponentRep)
 
     numFormat
   }

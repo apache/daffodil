@@ -170,7 +170,7 @@ case class ConvertTextStandardNumberParser(
     val numValue: DataValueNumber = zeroRepsRegex.find { _.findFirstIn(str).isDefined } match {
       case Some(_) => primNumeric.fromNumber(0)
       case None => {
-        val df = textNumberFormatEv.evaluate(start).get
+        val df = textNumberFormatEv.evaluate(start)
         val strCheckPolicy = if (df.isParseStrict) str else str.trim
         val pos = new ParsePosition(0)
         val icuNum: Number = df.parse(strCheckPolicy, pos) match {

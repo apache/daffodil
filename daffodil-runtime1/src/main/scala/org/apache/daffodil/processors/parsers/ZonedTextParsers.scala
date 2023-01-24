@@ -88,7 +88,7 @@ case class ConvertZonedNumberParser(
       if (decodedNum(0) == '-')
         checkLength = checkLength + 1
 
-      val num1 = df.get.parse(decodedNum, pos)
+      val num1 = df.parse(decodedNum, pos)
 
       // Verify that what was parsed was what was passed exactly in byte count.
       // Use pos to verify all characters consumed & check for errors!
