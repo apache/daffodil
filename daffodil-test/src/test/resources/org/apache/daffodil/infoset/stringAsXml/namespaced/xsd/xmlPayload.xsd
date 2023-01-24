@@ -22,8 +22,13 @@
   xmlns:p="urn:payload"
   targetNamespace="urn:payload">
 
+  <!--
+  Note that this is NOT a DFDL schema. It's a general XSD and can
+  use any feature of XSD.
+  -->
+
   <element name="root">
-    <complexType>
+    <complexType mixed="true">
       <sequence>
         <element name="field" maxOccurs="unbounded">
           <simpleType>
