@@ -65,7 +65,7 @@ case class ConvertTextNumberUnparser(
     // if we find this is not the case. Want something akin to:
     // Assert.invariant(value.isInstanceOf[S])
         
-    val df = textNumberFormatEv.evaluate(state).get
+    val df = textNumberFormatEv.evaluate(state)
     val dfs = df.getDecimalFormatSymbols
 
     val scaledValue = applyTextDecimalVirtualPointForUnparse(value)
