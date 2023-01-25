@@ -592,13 +592,14 @@ class CodeGeneratorState(private val root: ElementBase) {
   }
 
   // Generates an array's ERD, offsets, childrenERDs, initERD, parseSelf, unparseSelf, getArraySize
-  private def addArrayImplementation(e: ElementBase): Unit = {
+  private def addArrayImplementation(elem: ElementBase): Unit = {
     val C = structs.top.C
-    val arrayName = s"array_${cStructName(e)}$C"
-    val erd = erdName(e)
-    val maxOccurs = e.maxOccurs
-    val minOccurs = e.minOccurs
-    val qNameInit = defineQNameInit(e)
+    val e = elem.namedQName.local
+    val arrayName = s"array_${cStructName(elem)}$C"
+    val erd = erdName(elem)
+    val maxOccurs = elem.maxOccurs
+    val minOccurs = elem.minOccurs
+    val qNameInit = defineQNameInit(elem)
 
     // Add the array's ERD, offsets, childrenERDs
     val arrayERD =
@@ -653,7 +654,7 @@ class CodeGeneratorState(private val root: ElementBase) {
          |    {
          |${structs.top.unparserStatements.mkString("\n")}
          |    }""".stripMargin
-    val arraySizeStatements = getOccursCount(e)
+    val arraySizeStatements = getOccursCount(elem)
 
     val prototypeFunctions =
       s"""static void ${arrayName}_parseSelf($C *instance, PState *pstate);
