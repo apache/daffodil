@@ -19,7 +19,7 @@
 <!-- markdownlint-disable line-length -->
 <!-- markdownlint-disable no-inline-html -->
 [<img src="https://daffodil.apache.org/assets/themes/apache/img/apache-daffodil-logo.svg" height="85" align="left" alt="Apache Daffodil"/>][Website]
-[<img src="https://img.shields.io/github/workflow/status/apache/daffodil/CI/main.svg" align="right"/>][GitHub Actions]
+[<img src="https://img.shields.io/github/actions/workflow/status/apache/daffodil/main.yml?branch=main" align="right"/>][GitHub Actions]
 <br clear="right" />
 [<img src="https://img.shields.io/codecov/c/github/apache/daffodil/main.svg" align="right"/>][CodeCov]
 <br clear="right" />
