@@ -169,6 +169,7 @@ class TextNumberFormatEv(
       df.setMaximumFractionDigits(0)
       df.setDecimalSeparatorAlwaysShown(false)
       df.setParseIntegerOnly(true)
+      df.setParseBigDecimal(false)
     }
 
     df
