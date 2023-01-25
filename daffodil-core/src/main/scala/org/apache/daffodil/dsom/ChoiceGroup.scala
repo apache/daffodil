@@ -162,7 +162,7 @@ abstract class ChoiceTermBase(
         case regular => regular
       }
       if (realBranch.isOptional) {
-        schemaDefinitionErrorButContinue("Branch of choice %s must be non-optional.".format(realBranch.path))
+        realBranch.schemaDefinitionErrorButContinue("Branch of choice must be non-optional.")
         false
       } else true
     }
@@ -172,7 +172,7 @@ abstract class ChoiceTermBase(
   final lazy val branchesAreNotIVCElements = LV('branchesAreNotIVCElements) {
     val branchesOk = groupMembers map { branch =>
       if (!branch.isRepresented) {
-        schemaDefinitionErrorButContinue("Branch of choice %s cannot have the dfdl:inputValueCalc property.".format(branch.path))
+        branch.schemaDefinitionErrorButContinue("Branch of choice cannot have the dfdl:inputValueCalc property.")
         false
       } else true
     }
