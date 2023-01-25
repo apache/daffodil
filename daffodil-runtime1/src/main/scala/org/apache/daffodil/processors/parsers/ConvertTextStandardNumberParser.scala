@@ -173,27 +173,32 @@ case class ConvertTextStandardNumberParser(
         val df = textNumberFormatEv.evaluate(start).get
         val strCheckPolicy = if (df.isParseStrict) str else str.trim
         val pos = new ParsePosition(0)
-        val icuNum: Number = df.parse(strCheckPolicy, pos)
-
-
-        if (icuNum == null) {
-          PE(start, "Unable to parse %s from text: %s",
-            context.optPrimType.get.globalQName, str)
-          return
-        }
-
-        // sometimes ICU will return their own custom BigDecimal, even if the
-        // value could be represented as a BigInteger. We only want Java types,
-        // so detect this and convert it to the appropriate type
-        val num1 = icuNum match {
+        val icuNum: Number = df.parse(strCheckPolicy, pos) match {
+          case null => {
+            PE(start, "Unable to parse %s from text: %s", context.optPrimType.get.globalQName, str)
+            return
+          }
+          case d: JDouble if primNumeric.isInteger => {
+            // If ICU returns a Double when only integers are expected, it means the
+            // string must have been NaN, -Infinity, or Infinity using the locales
+            // default symbols. There does not seem to be a way to disable this even
+            // with setParseBigDecimal to false and setParseIntegerOnly set to true.
+            // So just create the same PE as if it failed to parse it, which is what
+            // we really want ICU to do
+            Assert.invariant(d.isNaN || d.isInfinite)
+            PE(start, "Unable to parse %s from text: %s", context.optPrimType.get.globalQName, str)
+            return
+          }
           case bd: ICUBigDecimal => {
+            // sometimes ICU will return their own custom BigDecimal, even if the
+            // value could be represented as a BigInteger. We only want Java types,
+            // so detect this and convert it to the appropriate type
             if (bd.scale == 0) bd.unscaledValue
             else bd.toBigDecimal
           }
-          case _ => icuNum
+          case num: Number => num
         }
 
-        val num2: JNumber = applyTextDecimalVirtualPointForParse(num1)
 
         // Verify that what was parsed was what was passed exactly in byte count.
         // Use pos to verify all characters consumed & check for errors!
@@ -220,8 +225,10 @@ case class ConvertTextStandardNumberParser(
           }
         }
 
+        val num: JNumber = applyTextDecimalVirtualPointForParse(icuNum)
+
         val numValue: DataValueNumber = try {
-          primNumeric.fromNumber(num2)
+          primNumeric.fromNumber(num)
         } catch {
           case e: InvalidPrimitiveDataException => {
             PE(start, "%s", e.getMessage)

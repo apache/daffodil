@@ -667,7 +667,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="runtimeSDE">
+    <xs:element name="runtimeLenInt">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="len" type="xs:int"
@@ -692,7 +692,30 @@
       </xs:complexType>
     </xs:element>
 
-
+    <xs:element name="runtimeLenDouble">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:double"
+            dfdl:lengthKind="explicit" dfdl:length="{ 3 }"
+            dfdl:outputValueCalc="{ dfdl:valueLength(../ex:address, 'bytes') }"/>
+          <xs:element name="address" dfdl:lengthKind="explicit"
+            dfdl:length="{ xs:long(../ex:len) }" dfdl:lengthUnits="bytes">
+            <xs:complexType>
+              <xs:sequence dfdl:sequenceKind="ordered">
+                <xs:element name="houseNumber" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
+                <xs:element name="street" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="city" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
+                <xs:element name="state" type="xs:string"
+                  dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -754,18 +777,45 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="test_lengthRuntimeSDENaN"
-    root="runtimeSDE" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+  <tdml:parserTestCase name="test_lengthRuntimeIntNaN_PE"
+    root="runtimeLenInt" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[NaN000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>placeholder</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+      <tdml:error>NaN</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="test_lengthRuntimeSDENegative"
-    root="runtimeSDE" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+  <tdml:parserTestCase name="test_lengthRuntimeDoubleNaN_PE"
+    root="runtimeLenDouble" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[NaN000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>NaN</tdml:error>
+      <tdml:error>double</tdml:error>
+      <tdml:error>xs:long</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_lengthRuntimeIntNegative_SDE"
+    root="runtimeLenInt" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[-10000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:length</tdml:error>
+      <tdml:error>-10</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_lengthRuntimeDoubleNegative_SDE"
+    root="runtimeLenDouble" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[-10000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
     </tdml:document>

@@ -514,14 +514,14 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
   }
 
   lazy val textNumberFormatEv: TextNumberFormatEv = {
+    val primNumeric = e.primType.asInstanceOf[PrimType.PrimNumeric]
 
     if (textDecimalVirtualPoint > 0) {
-      e.primType match {
-        case PrimType.Double | PrimType.Float | PrimType.Decimal => // ok
-        case _ => e.SDE("The dfdl:textNumberPattern has a virtual decimal point 'V', but the type is an integer-only type: %s." ++
-          "The type must be xs:decimal, xs:double, or xs:float", e.primType.globalQName.toPrettyString)
+      e.schemaDefinitionUnless(!primNumeric.isInteger,
+        "The dfdl:textNumberPattern has a virtual decimal point 'V', but the type is an integer-only type: %s." ++
+          "The type must be xs:decimal, xs:double, or xs:float",
+        e.primType.globalQName.toPrettyString)
 
-      }
       e.schemaDefinitionUnless(e.textStandardBase == 10,
         "The dfdl:textNumberPattern 'V' (virtual decimal point) requires that " +
           "dfdl:textStandardBase is 10, but its value was %s",
@@ -542,11 +542,6 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       case _ => (Nope, Nope)
     }
 
-    val isInt = e.primType match {
-      case PrimType.Double | PrimType.Float | PrimType.Decimal => false
-      case _ => true
-    }
-
     // If the pattern contains any of these characters, we need to set both
     // group and decimal separators, even if the pattern doesn't contain the
     // associated character. This is because even when the pattern does not
@@ -558,7 +553,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
     val requireDecGroupSeps =
       patternWithoutEscapedChars.contains(",") || patternWithoutEscapedChars.contains(".") ||
       patternWithoutEscapedChars.contains("E") || patternWithoutEscapedChars.contains("@") ||
-      !isInt
+      !primNumeric.isInteger
 
     val decSep =
       if (requireDecGroupSeps) {
@@ -587,7 +582,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       roundingMode,
       roundingIncrement,
       zeroRepsRaw,
-      isInt,
+      primNumeric.isInteger,
       e.primType)
     ev.compile(tunable)
     ev

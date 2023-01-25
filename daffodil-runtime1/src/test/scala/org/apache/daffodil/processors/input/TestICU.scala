@@ -179,4 +179,38 @@ class TestICU {
     assertEquals(7, pp.getIndex)
     assertEquals(123.456, num.doubleValue, 1e-15)
   }
+
+  // Shows that even if a DecimalFormat pattern doesn't contain a decimal, and
+  // properties are set to disable parsing decimals, and DeciamlFormatSymbols
+  // doesn't explicitly set NaN/INF representations, ICU will still parse NaN
+  // and Infinity using the locale symbols and return a Double. There is no way
+  // to disable this behavior, like would be needed when parsing integer types
+  @Test def test_nan_inf() = {
+
+    // defaults to values from the locale. Note that Daffodil does not set
+    // inf/nan representations when parsing integers since they should not
+    // apply and aren't used according to the DFDL spec
+    val dfs = new DecimalFormatSymbols()
+
+    // Define a pattern that only has a grouping separator--no decimal
+    // separator and should only parse integers
+    val df = new DecimalFormat("###,###", dfs)
+    df.setParseIntegerOnly(true)
+    df.setParseBigDecimal(false)
+
+    val ppNaN = new ParsePosition(0)
+    val numNaN = df.parse(dfs.getNaN, ppNaN)
+    assertTrue(numNaN.isInstanceOf[Double])
+    assertEquals(java.lang.Double.NaN, numNaN.doubleValue, 0.0)
+
+    val ppInf = new ParsePosition(0)
+    val numInf = df.parse(dfs.getInfinity, ppInf)
+    assertTrue(numInf.isInstanceOf[Double])
+    assertEquals(java.lang.Double.POSITIVE_INFINITY, numInf.doubleValue, 0.0)
+
+    val ppNInf = new ParsePosition(0)
+    val numNInf = df.parse(dfs.getMinusSign + dfs.getInfinity, ppNInf)
+    assertTrue(numNInf.isInstanceOf[Double])
+    assertEquals(java.lang.Double.NEGATIVE_INFINITY, numNInf.doubleValue, 0.0)
+  }
 }

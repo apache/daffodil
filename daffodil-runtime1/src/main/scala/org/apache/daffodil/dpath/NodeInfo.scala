@@ -547,6 +547,8 @@ object NodeInfo extends Enum {
 
         num
       }
+
+      def isInteger: Boolean
     }
 
     // this should only be used for integer primitives that can fit inside a
@@ -573,11 +575,15 @@ object NodeInfo extends Enum {
             l >= min && l <= max
           }
         }
+        case d: JDouble if d.isInfinite || d.isNaN => false
+        case f: JFloat if f.isInfinite || f.isNaN => false
         case _ => {
           val l = n.longValue
           l >= min && l <= max
         }
       }
+
+      override def isInteger = true
     }
 
     trait PrimNumericFloat extends PrimNumeric { self: Numeric.Kind =>
@@ -595,6 +601,8 @@ object NodeInfo extends Enum {
           (d.isNaN || d.isInfinite) || (d >= min && d <= max)
         }
       }
+
+      override def isInteger = false
     }
 
     protected sealed trait FloatKind extends SignedNumeric.Kind
@@ -641,6 +649,8 @@ object NodeInfo extends Enum {
       override def isValid(n: Number): Boolean = true
 
       override val width: MaybeInt = MaybeInt.Nope
+
+      override def isInteger = false
     }
 
     protected sealed trait IntegerKind extends Decimal.Kind
@@ -652,6 +662,8 @@ object NodeInfo extends Enum {
       override def isValid(n: Number): Boolean = true
 
       override val width: MaybeInt = MaybeInt.Nope
+
+      override def isInteger = true
     }
 
     protected sealed trait LongKind extends Integer.Kind
@@ -701,11 +713,14 @@ object NodeInfo extends Enum {
       protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
       def isValid(n: Number): Boolean = n match {
+        case bd: JBigDecimal => bd.signum >= 0
         case bi: JBigInt => bi.signum >= 0
         case _ => n.longValue >= 0
       }
 
       override val width: MaybeInt = MaybeInt.Nope
+
+      override def isInteger = true
     }
 
     protected sealed trait UnsignedLongKind extends NonNegativeInteger.Kind
@@ -722,6 +737,8 @@ object NodeInfo extends Enum {
       val max = new JBigInt(1, scala.Array.fill(8)(0xFF.toByte))
       val maxBD = new JBigDecimal(max)
       override val width: MaybeInt = MaybeInt(64)
+
+      override def isInteger = true
     }
 
     protected sealed trait UnsignedIntKind extends UnsignedLong.Kind
