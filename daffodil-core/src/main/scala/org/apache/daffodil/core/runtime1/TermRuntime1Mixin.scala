@@ -21,6 +21,7 @@ import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.NilKind
+import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.QNameBase
 import org.apache.daffodil.runtime1.dsom._
@@ -194,6 +195,7 @@ trait TermRuntime1Mixin { self: Term =>
     }
     thisItself
   }
+
   /*
    * Returns a Closed or Open list of posslble elements that could follow this Term, within its
    * lexically enclosing model group.
@@ -229,10 +231,16 @@ trait TermRuntime1Mixin { self: Term =>
       // term itself has not provided a match to the incoming event, and we need to
       // see if things following the term provide a match.
       //
-      case stb: SequenceTermBase =>
+      case stb: SequenceTermBase => {
         followingLexicalSiblingStreamingUnparserElements
-      case _ =>
-        possibleSelfPlusNextLexicalSiblingStreamingUnparserElements
+      }
+      case _: ElementBase | _: ChoiceTermBase => {
+        // If this element is closed, we only want it and not it's siblings
+        if (possibleThisTermNextStreamingUnparserElements.isClosed)
+          possibleThisTermNextStreamingUnparserElements
+        else
+          possibleSelfPlusNextLexicalSiblingStreamingUnparserElements
+      }
     }
     //
     // Check for ambiguity except for namespaces
@@ -332,24 +340,28 @@ trait TermRuntime1Mixin { self: Term =>
           res.getOrElse(Open(Nil))
         }
       }
-      val res = thisItself match {
-        //
-        // check this case separately first to avoid evaluating
-        // followingLexicalSiblingStreamingUnparserElements unless
-        // we have to.
-        //
-        case Closed(pnes1) => thisItself // most common case - a required element.
-        case _ => {
-          val res: PossibleNextElements =
-            (thisItself, followingLexicalSiblingStreamingUnparserElements) match {
-              case (Open(pnes1), Closed(Nil)) =>
-                thisItself // case of Open(...) followed by end of complex element.
-              case (poss1, Closed(pnes2)) => Closed((poss1.pnes ++ pnes2).distinct)
-              case (poss1, poss2) => Open((poss1.pnes ++ poss2.pnes).distinct)
-            }
-          res
+      Logger.log.debug(s"""
+        NextElementResolver -> thisItself: $thisItself\n
+        NextElementResolver -> following: $followingLexicalSiblingStreamingUnparserElements""")
+      val res: PossibleNextElements =
+        (thisItself, followingLexicalSiblingStreamingUnparserElements) match {
+          case (_, Closed(Nil)) => {
+            thisItself // case of Open(...) followed by end of complex element.
+          }
+          case (Closed(pnes1), Open(List())) => {
+            thisItself // case of Closed(...) followed by empty list, which is default for nothing
+          }
+          case (Closed(pnes1), Closed(pnes2)) => {
+            thisItself // When everything is closed, we only want thisItself and not the entire list of Closed possibilities
+          }
+          case (Open(pnes1), Closed(pnes2)) => {
+            // If there are optional elements before a required element, the whole sequence is considered closed
+            Closed((pnes1 ++ pnes2).distinct)
+          }
+          case (poss1, poss2) => {
+            Open((poss1.pnes ++ poss2.pnes).distinct)
+          }
         }
-      }
       res
     }.value
 
