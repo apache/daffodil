@@ -18,6 +18,7 @@
 package org.apache.daffodil.runtime1.infoset
 
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
@@ -45,6 +46,7 @@ trait NextElementResolver { self: InfosetInputter =>
     nameSpace: String,
     hasNamespace: Boolean,
   ): ElementRuntimeData = {
+    Logger.log.debug(s"NextERDResovler -> trdStack: $trdStack")
     val iter = trdStack.iter
     iter.reset()
     var firstOne: Boolean = true
@@ -75,6 +77,10 @@ trait NextElementResolver { self: InfosetInputter =>
         // or it will issue an UnparseError if there are required elements in the
         // set of possible elements.
         //
+        Logger.log.debug(s"""
+          NextERDResovler -> current trd: $trd\n
+          NextERDResovler -> resolver: $resolver\n
+          NextERDResovler -> name: $name\n""")
         maybeERD = resolver.maybeNextElement(name, nameSpace, hasNamespace)
         // The cases where ERD is in a hidden context are addressed where the elements
         // are assigned their value i.e ElementUnparser
@@ -297,6 +303,10 @@ class SeveralPossibilitiesForNextElement(
     namespace: String,
     hasNamespace: Boolean,
   ): Maybe[ElementRuntimeData] = {
+    Logger.log.debug(s"""
+      NextERDResovler -> trd: $trd\n
+      NextERDResovler -> looking for: $local\n
+      NextERDResovler -> nextERDMap: $nextERDMap\n""")
     val optnextERD =
       if (hasNamespace) {
         val sqn = StepQName(
@@ -314,7 +324,7 @@ class SeveralPossibilitiesForNextElement(
           // It was statically determined at compile time that this
           // NextElementResolver does not have any possible NextERDs with the
           // same local name. Because of this, just find the first thing that
-          // matches and return it it is was found.
+          // matches and return it if it was found.
           nextERDMap.find(_._1.local == local).map(_._2)
         } else {
           // It was statically determined at compile time that some nextERDs
