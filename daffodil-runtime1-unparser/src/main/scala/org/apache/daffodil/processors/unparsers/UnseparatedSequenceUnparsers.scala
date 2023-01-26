@@ -43,8 +43,6 @@ class RepOrderedUnseparatedSequenceChildUnparser(
   extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Unseparated {
 
-  private val ock = erd.maybeOccursCountKind.get
-
   override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean = {
     if (ock eq OccursCountKind.Implicit)
       state.arrayPos <= maxRepeats(state)
