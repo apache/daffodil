@@ -17,15 +17,16 @@
 package org.apache.daffodil.processors.unparsers
 
 import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.processors.ModelGroupRuntimeData
 import org.apache.daffodil.processors.{ ElementRuntimeData, SequenceRuntimeData, TermRuntimeData }
 import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.schema.annotation.props.gen.{ SeparatorPosition }
-import org.apache.daffodil.processors.ModelGroupRuntimeData
-import scala.collection.mutable.Buffer
-import SeparatorSuppressionPolicy._
-import SeparatorPosition._
+import org.apache.daffodil.schema.annotation.props.SeparatorSuppressionPolicy._
+import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.schema.annotation.props.gen.SeparatorPosition._
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.util.MaybeInt
+import scala.collection.mutable.Buffer
 
 trait Separated { self: SequenceChildUnparser =>
 
@@ -458,8 +459,13 @@ class OrderedSeparatedSequenceUnparser(
     var numOccurrences = numOccurs
     unparserArg match {
       case unparser: RepOrderedSeparatedSequenceChildUnparser => {
-        val isBounded = unparser.isBoundedMax
-        if (unparser.isPositional && isBounded &&
+        // note that if we are unparsing an array/optional, we only add positionally
+        // required separators for occursCountKind="implicit". All other
+        // occursCountKind's use the number of elements in the infoset to determine
+        // the number of separators, which would have already been unparsed prior to
+        // this function being called.
+        if ((unparser.ock eq OccursCountKind.Implicit) &&
+          unparser.isPositional && unparser.isBoundedMax &&
           (!unparser.isDeclaredLast || !unparser.isPotentiallyTrailing)) {
           val maxReps = unparser.maxRepeats(state)
           while (numOccurrences < maxReps) {
@@ -469,7 +475,6 @@ class OrderedSeparatedSequenceUnparser(
             state.moveOverOneGroupIndexOnly()
             numOccurrences += 1
           }
-          //
         }
       }
       case _ => Assert.invariantFailed("Not a repeating element")

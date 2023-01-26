@@ -1375,6 +1375,43 @@
       </xs:complexType>
     </xs:element>
 
+    <!-- same idea as ocke10, but uses occursCountKind="expression" -->
+    <xs:element name="ocke9">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="exists" type="xs:boolean" dfdl:terminator=":"
+            dfdl:textBooleanTrueRep="true" dfdl:textBooleanFalseRep="false" />
+          <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+            <xs:element name="field1" type="xs:string" minOccurs="0"
+              dfdl:occursCountKind="expression"
+              dfdl:occursCount="{ if (../ex:exists eq fn:true()) then 1 else 0 }" />
+            <xs:element name="field2" type="xs:string" dfdl:occursCountKind="implicit" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <!-- same idea as ocke9, but uses occursCountKind="implicit" plus a discriminator -->
+    <xs:element name="ocke10">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="exists" type="xs:boolean" dfdl:terminator=":"
+            dfdl:textBooleanTrueRep="true" dfdl:textBooleanFalseRep="false" />
+          <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+            <xs:element name="field1" type="xs:string" minOccurs="0"
+              dfdl:occursCountKind="implicit">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:discriminator>{ ../ex:exists eq fn:true() }</dfdl:discriminator>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="field2" type="xs:string" dfdl:occursCountKind="implicit" maxOccurs="unbounded" />
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="expr_space" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -1763,6 +1800,72 @@
       <tdml:error>xs:unsignedLong</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="ocke_optional_separator_01" root="ocke9"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document>true:field1|field2a|field2b|field2c</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ocke9 xmlns:ex="http://example.com">
+          <ex:exists>true</ex:exists>
+          <ex:field1>field1</ex:field1>
+          <ex:field2>field2a</ex:field2>
+          <ex:field2>field2b</ex:field2>
+          <ex:field2>field2c</ex:field2>
+        </ex:ocke9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ocke_optional_separator_02" root="ocke9"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document>false:field2a|field2b|field2c</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ocke9 xmlns:ex="http://example.com">
+          <ex:exists>false</ex:exists>
+          <ex:field2>field2a</ex:field2>
+          <ex:field2>field2b</ex:field2>
+          <ex:field2>field2c</ex:field2>
+        </ex:ocke9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ocke_optional_separator_03" root="ocke10"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document>true:field1|field2a|field2b|field2c</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ocke10 xmlns:ex="http://example.com">
+          <ex:exists>true</ex:exists>
+          <ex:field1>field1</ex:field1>
+          <ex:field2>field2a</ex:field2>
+          <ex:field2>field2b</ex:field2>
+          <ex:field2>field2c</ex:field2>
+        </ex:ocke10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="ocke_optional_separator_04" root="ocke10"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document>false:field2a|field2b|field2c</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ocke10 xmlns:ex="http://example.com">
+          <ex:exists>false</ex:exists>
+          <ex:field2>field2a</ex:field2>
+          <ex:field2>field2b</ex:field2>
+          <ex:field2>field2c</ex:field2>
+        </ex:ocke10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
 
 <!--
      Test Name: internal_space_preserved

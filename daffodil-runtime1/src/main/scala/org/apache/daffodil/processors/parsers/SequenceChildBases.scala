@@ -460,7 +460,7 @@ trait MinMaxRepeatsMixin {
 
   def erd: ElementRuntimeData
 
-  private val ock = erd.maybeOccursCountKind.get
+  final val ock = erd.maybeOccursCountKind.get
 
   private val minRepeats_ = {
     val mr =
@@ -551,8 +551,6 @@ abstract class OccursCountMinMaxParser(
   extends RepeatingChildParser(childParser, srd, erd, "MinMax") {
 
   Assert.invariant(erd.maybeOccursCountKind.isDefined)
-
-  private val ock = erd.maybeOccursCountKind.get
 
   Assert.invariant(ock == OccursCountKind.Implicit ||
     ock == OccursCountKind.Parsed)

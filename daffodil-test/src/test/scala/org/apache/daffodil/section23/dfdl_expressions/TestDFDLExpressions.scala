@@ -237,6 +237,11 @@ class TestDFDLExpressions {
   @Test def test_ocke_array_index_step_dne(): Unit = { runner.runOneTest("ocke_array_index_step_dne") }
   @Test def test_ocke_non_upward(): Unit = { runner.runOneTest("ocke_non_upward") }
   @Test def test_ocke_single_upward(): Unit = { runner.runOneTest("ocke_single_upward") }
+  @Test def test_ocke_optional_separator_01(): Unit = { runner.runOneTest("ocke_optional_separator_01") }
+  @Test def test_ocke_optional_separator_02(): Unit = { runner.runOneTest("ocke_optional_separator_02") }
+  @Test def test_ocke_optional_separator_03(): Unit = { runner.runOneTest("ocke_optional_separator_03") }
+  @Test def test_ocke_optional_separator_04(): Unit = { runner.runOneTest("ocke_optional_separator_04") }
+
   @Test def test_internal_space_preserved(): Unit = { runner.runOneTest("internal_space_preserved") }
   @Test def test_internal_space_preserved2(): Unit = { runner.runOneTest("internal_space_preserved2") }
   @Test def test_internal_space_preserved3a(): Unit = { runner.runOneTest("internal_space_preserved3a") }
