@@ -200,7 +200,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check Single Commit
-        uses: actions/github-script@v6.3.3
+        uses: actions/github-script@v6.4.0
         with:
           script: |
             const commits = await github.rest.pulls.listCommits({
