@@ -869,6 +869,7 @@ class TestCLIdebugger {
       cli.expect("Hello  breakpoint 1: e1")
       cli.sendLine("info data")
       cli.expect("4865 6c6c 6f                             Hello")
+      cli.sendLine("quit")
     } (ExitCode.Failure)
   }
 
