@@ -170,9 +170,8 @@ object Util {
    *   runs the CLI in a new process instead of a thread and will likely decrease
    *   performance
    * @param fork if true, forces the the CLI to run in a new process
-   * @param timeout how long to wait, in seconds, for the CLI to exit after the
-   *   testFunc has returned. Also how long to wait for individual expect
-   *   operations in the CLITester
+   * @param timeout how long to wait, in seconds, for the testFunc to finish after
+   *   the CLI has completed. Test testFunc is interrupted if this timeout is reached
    * @param debug if true, prints arguments and classpath information to
    *   stdout. Also echos all CLITester input and output to stdout.
    * @param testFunc function to call to send input to the CLI and validate
@@ -187,7 +186,7 @@ object Util {
     (testFunc: (CLITester) => Unit)
     (expectedExitCode: ExitCode.Value): Unit = {
 
-    val (toIn, fromOut, fromErr, threadOrProc: Either[CLIThread, Process]) =
+    val (toIn, fromOut, fromErr, cliThreadOrProc: Either[CLIThread, Process]) =
       if (classpaths.nonEmpty || fork) {
         // spawn a new process to run Daffodil, needed if a custom classpath is
         // defined or if the caller explicitly wants to fork
@@ -228,11 +227,20 @@ object Util {
         (toIn, fromOut, fromErr, Left(thread))
       }
 
+    // Create an ExpectIt object that reads/writes the streams created above.
     val eb = new ExpectBuilder()
     eb.withOutput(toIn)
     eb.withInputs(fromOut, fromErr)
     eb.withInputFilters(replaceInString("\r\n", "\n"))
-    eb.withTimeout(timeout, TimeUnit.SECONDS)
+    // Disable timeouts on expect calls. We do this because often times the CLI can
+    // take a while to start up (e.g. spawning a thread, schema compilation) which
+    // can lead to timeouts and false negatives. Instead, we will spawn the expect
+    // body in a separate TestThread. Only once the CLI finishes do we start a
+    // timeout countdown and require the test body logic to complete in a specified
+    // number of seconds. If if doesn't finish, then we interrupt the test thread and
+    // capture any errors. So although expect will never timeout itself, we may time
+    // it out after the CLI is complete.
+    eb.withInfiniteTimeout()
     eb.withExceptionOnFailure()
     if (debug) {
       eb.withEchoOutput(System.out)
@@ -241,24 +249,116 @@ object Util {
     val expect = eb.build()
     val tester = new CLITester(expect, toIn)
 
-    try {
-      testFunc(tester)
-    } finally {
-      threadOrProc match {
-        case Left(thread) => thread.join(timeout * 1000)
-        case Right(process) => process.waitFor(timeout, TimeUnit.SECONDS)
+    // run the test function in a new thread. We do this so that we can configure
+    // ExpectIt to have an infinite timeout. This way we can trigger a timeout only
+    // after the CLI has exited, at which point we give the test thread timeout
+    // seconds to finish its tests and interrupt it if it still hasn't finished. This
+    // way if the CLI is slow to start up, ExpectIt won't create a timeout exception
+    // and fail the test. We at least let the CLI finish before doing that
+    val testThread = new TestThread(testFunc, tester, cliThreadOrProc)
+    testThread.start()
+
+    // wait for the CLI process/thread to finish with no timeout--we really don't
+    // know how long the CLI is going to take, but we assume the CLI will eventually
+    // finish. If it doesn't, we'll see the hang and investigate. Note that if there
+    // is a hang here, it is most likely a bad test. The most common cause is the CLI
+    // is waiting for something on stdin (e.g. EOF, debugger command), but the test
+    // body is not providing it. For CLI tests taking significantly longer than
+    // expected (6x the timeout, which is 1 minute for the default timeout), we can
+    // assume it is hung and output a message with helpful reference to possible
+    // causes. We still don't kill it though, since we might just be very resources
+    // starved and it might finish eventually.
+    val cliWarningTimeoutMS = 6 * timeout * 1000
+    var isAlive = true
+    while (isAlive) {
+      isAlive = cliThreadOrProc match {
+        case Left(cliThread) => {
+          cliThread.join(cliWarningTimeoutMS)
+          cliThread.isAlive
+        }
+        case Right(cliProcess) => {
+          cliProcess.waitFor(cliWarningTimeoutMS, TimeUnit.MILLISECONDS)
+          cliProcess.isAlive
+        }
       }
-      expect.close()
-      toIn.close()
-      fromOut.close()
-      fromErr.close()
+      if (isAlive) {
+        System.err.println("CLI test may be hanging, see DAFFODIL-2751 for possible causes")
+      }
     }
 
-    val actualExitCode = threadOrProc match {
-      case Left(thread) => thread.exitCode
-      case Right(process) => ExitCode(process.exitValue)
+    // now that the CLI has finished, we give the test thread timeout seconds to
+    // finish verifying the output. Hopefully it was doing all the checks in parallel
+    // with the CLI thread so it should be mostly complete and finish in time.
+    testThread.join(timeout * 1000)
+
+    // If the test thread still isn't done, assume it failed and is stuck expecting
+    // something that isn't ever coming from the CLI. Interrupt the thread to end it
+    // and join to wait for it to cleanup and die. Although this join is technically
+    // infinite, as long as the expect library or test body doesn't explicitly
+    // capture and ignore the interrupt and then block on something, this should not
+    // hang
+    testThread.interrupt()
+    testThread.join()
+
+    // the test thread is finally done, clean up our in/out/err buffers
+    expect.close()
+    toIn.close()
+    fromOut.close()
+    fromErr.close()
+
+    // if the test thread didn't end cleanly then it must have thrown an exception
+    // (e.g. assertion failed, interrupted exception). Just rethrow that exception
+    // and cause the test to fail
+    testThread.optException.map { e => throw e }
+
+    // if the test thread didn't throw an exception then that means all of its tests
+    // passed. We just need to verify the CLI exit code
+    val actualExitCode = cliThreadOrProc match {
+      case Left(cliThread) => cliThread.exitCode
+      case Right(cliProcess) => ExitCode(cliProcess.exitValue)
     }
     assertEquals("Incorrect exit code,", expectedExitCode, actualExitCode)
+  }
+
+  /**
+   * Run CLITester function body in a new thread
+   *
+   * If an exception was thrown during evaluation it is stored in the optException
+   * variable. This thread will not exit until the cli thread/process has completed
+   */
+  private class TestThread(
+    testFunc: (CLITester) => Unit,
+    tester: CLITester,
+    cli: Either[Thread, Process])
+    extends Thread {
+
+    var optException: Option[Throwable] = None
+
+    private val exceptionHandler = new Thread.UncaughtExceptionHandler {
+      def uncaughtException(t: Thread, e: Throwable): Unit = {
+        optException = Some(e)
+      }
+    }
+
+    override def run(): Unit = {
+      // if this thread throws an exception (e.g. an expect function fails, this
+      // thread is interrupted), we just handle it and store it in optException above
+      this.setUncaughtExceptionHandler(exceptionHandler)
+
+      // now run the test
+      testFunc(tester)
+
+      // it is possible we finished the test before the CLI actually finished.
+      // Unfortunately, we can't let this thread die until the CLI is complete
+      // because ExpectIt has some magic that will close the pipes we set up and
+      // cause the CLI to get a pipe broken exception instead of finishing. So we
+      // just wait for the CLI to finish. Once the CLI is done this thread can
+      // cleanly die and the main thread can figure out what happened.
+      cli match {
+        case Left(thread) => thread.join()
+        case Right(process) => process.waitFor()
+      }
+    }
   }
 
   /**
@@ -267,7 +367,7 @@ object Util {
    * stdin/out/err.
    */
   private class CLIThread(args: Array[String], in: InputStream, out: OutputStream, err: OutputStream) extends Thread {
-    var exitCode = ExitCode.Failure
+    var exitCode: ExitCode.Value = _
 
     override def run(): Unit = {
       val psOut = new PrintStream(out)
@@ -278,7 +378,17 @@ object Util {
       Main.setInputOutput(in, psOut, psErr)
       configureLog4j(psErr)
 
-      exitCode = Main.run(args)
+      try {
+        exitCode = Main.run(args)
+      } catch {
+        case t: Throwable => {
+          // Main.run should never throw an exception so if it did it means the CLI
+          // hit a bug. So just print the exception and set the exit code to
+          // BugFound. No tests should expect the BugFound exit code and should fail.
+          t.printStackTrace()
+          exitCode = ExitCode.BugFound
+        }
+      }
     }
 
     /**
