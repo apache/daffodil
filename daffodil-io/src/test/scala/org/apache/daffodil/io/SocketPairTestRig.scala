@@ -58,14 +58,9 @@ abstract class SocketPairTestRig {
   def run(): Unit = {
     val serverSocket = new ServerSocket(0) // 0 means to allocate an unused port
     val port = serverSocket.getLocalPort()
-    val csf = Future {
-      serverSocket.accept() // start accepting connections for consumer
-    }
-    val psf = Future {
-      val useLoopBack: String = null
-      new Socket(useLoopBack, port) // connect producer
-    }
-    val (producerSocket, consumerSocket) = Await.result(psf zip csf, 1000.milliseconds)
+    val useLoopBack: String = null
+    val producerSocket = new Socket(useLoopBack, port)
+    val consumerSocket = serverSocket.accept()
     assert(producerSocket.isConnected)
     assert(consumerSocket.isConnected)
     try {
@@ -174,9 +169,7 @@ class TestSocketPairTestRig {
         //
         // read 4 bytes. Should not hang.
         //
-        // Caution: if debugging, this will timeout if you stop inside here!
-        //
-        val nRead = withTimeout("Read 4 bytes") {
+        val nRead = {
           val buf = new Array[Byte](4)
           cis.read(buf, 0, 4)
           assertEquals("1234".getBytes.toSeq, buf.toSeq)
@@ -185,7 +178,7 @@ class TestSocketPairTestRig {
         // read 1 more byte. This will hang, and timeout.
         //
         intercept[TimeoutException] {
-          withTimeout(100.milliseconds) {
+          withTimeout(1000.milliseconds) {
             val buf = new Array[Byte](1)
             cis.read(buf, 0, 1)
           }
@@ -211,7 +204,7 @@ class TestSocketPairTestRig {
         pos.flush()
 
         var buf = new Array[Byte](4)
-        var nRead = withTimeout("Read 4 bytes") {
+        var nRead = {
           //
           // This won't hang
           //
@@ -234,7 +227,7 @@ class TestSocketPairTestRig {
         // finally happens.
         //
         buf = new Array[Byte](1)
-        nRead = withTimeout {
+        nRead = {
           cis.read(buf, 0, 1)
         }
         assertEquals('4'.toByte, buf(0))

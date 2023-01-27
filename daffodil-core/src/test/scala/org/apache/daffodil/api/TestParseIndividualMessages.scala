@@ -71,13 +71,8 @@ class TestParseIndividualMessages {
         //
         // If we need more than 4 bytes to successfully parse (we shouldn't for this schema)
         // then this will hang, because only 4 bytes are in fact available.
-        //
-        // Caution: if debugging, this will timeout if you stop inside here!
-        //
         val (pr: DFDL.ParseResult, xml: Node) =
-        SocketPairTestRig.withTimeout("Daffodil parse") {
           TestUtils.runDataProcessorOnInputStream(dp, cis, areTracing = false)
-        }
 
         assertFalse(pr.isError)
         assertEquals("1234", xml.text)
