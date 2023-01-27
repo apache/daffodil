@@ -614,4 +614,37 @@
 
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="separatorSuppressionPolicy">
+
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;"/>
+
+    <xs:element name="policyNever">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NL;" dfdl:sequenceKind="ordered" dfdl:separatorSuppressionPolicy="never">
+            <xs:element name="A" type="xs:string" minOccurs="0" dfdl:occursCountKind="implicit" />
+            <xs:element name="B" type="xs:string" minOccurs="0" dfdl:occursCountKind="implicit" />
+            <xs:element name="C" type="xs:string" minOccurs="0" dfdl:occursCountKind="implicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="separatorSuppressionPolicy_never" model="separatorSuppressionPolicy">
+    <tdml:document>
+      <tdml:documentPart type="text"
+                         replaceDFDLEntities="true"><![CDATA[Hello%CR;%LF;world%CR;%LF;]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:policyNever>
+          <tns:A>Hello</tns:A>
+          <tns:B>world</tns:B>
+          <tns:C></tns:C>
+        </tns:policyNever>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

@@ -52,6 +52,7 @@ class TestSequenceGroups {
   @Test def test_groupRefInheritProps(): Unit = { runner_01.runOneTest("groupRefInheritProps") }
   @Test def test_sequenceWithinSequence(): Unit = { runner_01.runOneTest("sequenceWithinSequence") }
   @Test def test_delimitedByNextInitFail(): Unit = { runner_01.runOneTest("delimitedByNextInitFail") }
+  @Test def test_separatorSuppressionPolicy_never(): Unit = { runner_01.runOneTest("separatorSuppressionPolicy_never") }
 
   // DAFFODIL-669
   //  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
