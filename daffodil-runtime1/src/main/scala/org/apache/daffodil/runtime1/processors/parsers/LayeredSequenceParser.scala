@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.runtime1.layers.LayerExecutionException
 import org.apache.daffodil.runtime1.layers.LayerNotEnoughDataException
 import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
 import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
@@ -54,6 +55,8 @@ class LayeredSequenceParser(
     } catch {
       case le: LayerNotEnoughDataException =>
         PENotEnoughBits(state, le.schemaFileLocation, le.dataLocation, le.nBytesRequired * 8, MaybeULong.Nope)
+      case e: Exception =>
+        throw LayerExecutionException(s"Unexpected exception in layer transformer '${layerTransformer.layerName}': $e", e)
     } finally {
       state.dataInputStream = savedDIS
     }

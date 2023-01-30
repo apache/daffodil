@@ -62,7 +62,7 @@ import java.nio.charset.Charset
  * A layer transformer is created at runtime as part of a single parse/unparse call.
  * Hence, they can be stateful without causing thread-safety issues.
  */
-abstract class LayerTransformer(layerName: String, layerRuntimeInfo: LayerRuntimeInfo) {
+abstract class LayerTransformer(val layerName: String, layerRuntimeInfo: LayerRuntimeInfo) {
 
   protected def wrapLayerDecoder(jis: InputStream): InputStream
 
@@ -222,6 +222,8 @@ case class LayerNotEnoughDataException(sfl: SchemaFileLocation, dataLocation: Da
   override def isError = true
   override def modeName = "Parse"
   }
+
+case class LayerExecutionException(message: String, cause: Throwable) extends RuntimeException(message, cause)
 
 /**
  * Allows access to all the layer properties, if defined, including
