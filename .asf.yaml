@@ -24,6 +24,8 @@ github:
     squash:   false
     merge:    false
     rebase:   true
+  autolink_jira:
+    - DAFFODIL
 notifications:
     commits:      commits@daffodil.apache.org
     issues:       commits@daffodil.apache.org
