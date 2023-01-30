@@ -70,7 +70,7 @@ object Util {
 
   /**
    * Convert the daffodilRoot + parameter to a java Path. The string
-   * parameter should contain unix path sparators and it will be interpreted
+   * parameter should contain unix path separators and it will be interpreted
    * correctly regardless of operating system. When converted to a string to
    * send to the CLI, it will use the correct line separator for the
    * operating system
@@ -102,7 +102,7 @@ object Util {
   def withTempFile(f: (Path) => Unit) : Unit = withTempFile(null, f)
 
   /**
-   * Create a temporary file in /tmp/daffodil/ with a givin suffix, call a user
+   * Create a temporary file in /tmp/daffodil/ with a given suffix, call a user
    * provided function passing in the Path to that new file, and delete the
    * file when the function returns.
    */
@@ -443,7 +443,7 @@ object Util {
     def closeInput(): Unit = { toIn.close() }
 
     /**
-     * Write a string to stdin. This does not incluede trailing newline. If
+     * Write a string to stdin. This does not include trailing newline. If
      * inputDone is true, close stdin afterwards.
      */
     def send(string: String, inputDone: Boolean = false): Unit = {
@@ -514,7 +514,7 @@ object Util {
    *
    *   args"parse -s $schema $input".split(" ")
    *
-   * Becomes someething like this:
+   * Becomes something like this:
    *
    *   Array("parse", "-s", "path/to/schema.dfdl.xsd", "path/to/input.bin")
    *

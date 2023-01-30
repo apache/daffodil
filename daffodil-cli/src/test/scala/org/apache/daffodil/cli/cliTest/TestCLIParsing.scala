@@ -24,7 +24,7 @@ import org.junit.Test
 import org.apache.daffodil.cli.cliTest.Util._
 import org.apache.daffodil.cli.Main.ExitCode
 
-class TestCLIparsing {
+class TestCLIParsing {
 
   @Test def test_3677_CLI_Parsing_elementFormDefault_qualified(): Unit = {
     val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/elementFormDefaultQualified.dfdl.xsd")
@@ -715,5 +715,21 @@ class TestCLIparsing {
       cli.sendLine("0", inputDone = true)
       cli.expectErr("Unable to load configuration")
     } (ExitCode.ConfigError)
+  }
+
+  @Test def test_Layer_Execution(): Unit = {
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/layers/buggy.dfdl.xsd")
+    runCLI(args"parse -s $schema") { cli =>
+      cli.sendLine("1", inputDone = true)
+      cli.expect("""<value>1</value>""")
+    } (ExitCode.Success)
+  }
+
+  @Test def test_Layer_Execution_Error(): Unit = {
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/layers/buggy.dfdl.xsd")
+    runCLI(args"parse -s $schema") { cli =>
+      cli.sendLine("0", inputDone = true)
+      cli.expectErr("Unexpected exception in layer transformer 'buggy'")
+    } (ExitCode.LayerExecutionError)
   }
 }

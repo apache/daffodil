@@ -84,6 +84,7 @@ import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.runtime1.layers.LayerExecutionException
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.ExternalVariableException
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
@@ -1433,6 +1434,7 @@ object Main {
     val BadExternalVariable = Value(33)
     val UserDefinedFunctionError = Value(34)
     val UnableToCreateProcessor = Value(35)
+    val LayerExecutionError = Value(36)
 
     val Usage = Value(64)
 
@@ -1485,6 +1487,10 @@ object Main {
       case e: DaffodilConfigException => {
         Logger.log.error(e.message)
         ExitCode.ConfigError
+      }
+      case e: LayerExecutionException => {
+        Logger.log.error(e.message, e)
+        ExitCode.LayerExecutionError
       }
       case e: Exception => {
         bugFound(e)

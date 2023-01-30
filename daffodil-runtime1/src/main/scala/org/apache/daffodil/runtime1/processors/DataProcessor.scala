@@ -27,6 +27,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.runtime1.layers.LayerExecutionException
+
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.runtime1.api.DFDL
@@ -455,6 +457,7 @@ class DataProcessor(
         state.setFailed(e)
       }
       case us: UnsuppressableException => throw us
+      case le: LayerExecutionException => throw le
       case x: Throwable => {
         val sw = new java.io.StringWriter()
         val pw = new java.io.PrintWriter(sw)
