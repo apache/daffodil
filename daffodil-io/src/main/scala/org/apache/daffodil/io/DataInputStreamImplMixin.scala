@@ -25,8 +25,10 @@ trait DataInputStreamImplMixin extends DataInputStream
   with LocalBufferMixin {
 
   override def setDebugging(setting: Boolean): Unit = {
-    if (bitPos0b > 0) throw new IllegalStateException("Must call before any access to data")
-    cst.debugging = setting
+    if (setting != cst.debugging) {
+      if (bitPos0b > 0) throw new IllegalStateException("Must call before any access to data")
+      cst.debugging = setting
+    }
   }
 
   final override def isAligned(bitAlignment1b: Int): Boolean = {
