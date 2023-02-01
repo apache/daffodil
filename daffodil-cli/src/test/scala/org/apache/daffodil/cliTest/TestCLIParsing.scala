@@ -590,6 +590,19 @@ class TestCLIparsing {
     } (ExitCode.LeftOverData)
   }
 
+  @Test def test_XXX_CLI_Parsing_Stream_03(): Unit = {
+    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema_02.dfdl.xsd")
+
+    runCLI(args"--trace parse --stream -s $schema") { cli =>
+      cli.send("123", inputDone = true)
+      cli.expect("<a>1</a>")
+      cli.expect("bitPosition: 8")
+      cli.expect("<a>2</a>")
+      cli.expect("bitPosition: 16")
+      cli.expect("<a>3</a>")
+    } (ExitCode.Success)
+  }
+
   @Test def test_CLI_Parsing_XCatalog_Resolution_Failure(): Unit = {
     val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/xcatalog_import_failure.dfdl.xsd")
     val xcatalog = path("daffodil-cli/src/test/resources/org/apache/daffodil/CLI/xcatalog_invalid.xml")
