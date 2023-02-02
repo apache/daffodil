@@ -536,15 +536,16 @@ object NodeInfo extends Enum {
 
       protected def fromString(s: String): DataValueNumber
       def fromXMLString(s: String): DataValueNumber = {
+        val st = s.trim
         val num = try {
-          fromString(s)
+          fromString(st)
         } catch {
           case nfe: NumberFormatException =>
-            throw new InvalidPrimitiveDataException("Value '%s' is not a valid %s".format(s, this.globalQName))
+            throw new InvalidPrimitiveDataException("Value '%s' is not a valid %s".format(st, this.globalQName))
         }
 
         if (!isValid(num.getNumber))
-          throw new InvalidPrimitiveDataException("Value '%s' is out of range for type: %s".format(s, this.globalQName))
+          throw new InvalidPrimitiveDataException("Value '%s' is out of range for type: %s".format(st, this.globalQName))
 
         num
       }
