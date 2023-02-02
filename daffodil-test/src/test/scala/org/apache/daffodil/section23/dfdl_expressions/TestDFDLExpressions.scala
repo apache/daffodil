@@ -706,6 +706,7 @@ class TestDFDLExpressions {
   @Test def test_dfdlByte_constructor_08(): Unit = { runner2.runOneTest("dfdlByte_constructor_08") }
   @Test def test_dfdlByte_constructor_09(): Unit = { runner2.runOneTest("dfdlByte_constructor_09") }
   @Test def test_dfdlByte_constructor_10(): Unit = { runner2.runOneTest("dfdlByte_constructor_10") }
+  @Test def test_dfdlByte_constructor_11(): Unit = { runner2.runOneTest("dfdlByte_constructor_11") }
 
   @Test def test_dfdlUByte_constructor_01(): Unit = { runner2.runOneTest("dfdlUByte_constructor_01") }
   @Test def test_dfdlUByte_constructor_02(): Unit = { runner2.runOneTest("dfdlUByte_constructor_02") }
@@ -717,6 +718,7 @@ class TestDFDLExpressions {
   @Test def test_dfdlUByte_constructor_08(): Unit = { runner2.runOneTest("dfdlUByte_constructor_08") }
   @Test def test_dfdlUByte_constructor_09(): Unit = { runner2.runOneTest("dfdlUByte_constructor_09") }
   @Test def test_dfdlUByte_constructor_11(): Unit = { runner2.runOneTest("dfdlUByte_constructor_11") }
+  @Test def test_dfdlUByte_constructor_12(): Unit = { runner2.runOneTest("dfdlUByte_constructor_12") }
 
   @Test def test_dfdlShort_constructor_01(): Unit = { runner2.runOneTest("dfdlShort_constructor_01") }
   @Test def test_dfdlShort_constructor_02(): Unit = { runner2.runOneTest("dfdlShort_constructor_02") }
@@ -728,6 +730,7 @@ class TestDFDLExpressions {
   @Test def test_dfdlShort_constructor_08(): Unit = { runner2.runOneTest("dfdlShort_constructor_08") }
   @Test def test_dfdlShort_constructor_09(): Unit = { runner2.runOneTest("dfdlShort_constructor_09") }
   @Test def test_dfdlShort_constructor_11(): Unit = { runner2.runOneTest("dfdlShort_constructor_11") }
+  @Test def test_dfdlShort_constructor_12(): Unit = { runner2.runOneTest("dfdlShort_constructor_12") }
 
   @Test def test_dfdlUShort_constructor_01(): Unit = { runner2.runOneTest("dfdlUShort_constructor_01") }
   @Test def test_dfdlUShort_constructor_02(): Unit = { runner2.runOneTest("dfdlUShort_constructor_02") }
@@ -739,6 +742,7 @@ class TestDFDLExpressions {
   @Test def test_dfdlUShort_constructor_08(): Unit = { runner2.runOneTest("dfdlUShort_constructor_08") }
   @Test def test_dfdlUShort_constructor_09(): Unit = { runner2.runOneTest("dfdlUShort_constructor_09") }
   @Test def test_dfdlUShort_constructor_11(): Unit = { runner2.runOneTest("dfdlUShort_constructor_11") }
+  @Test def test_dfdlUShort_constructor_12(): Unit = { runner2.runOneTest("dfdlUShort_constructor_12") }
 
   @Test def test_dfdlInt_constructor_01(): Unit = { runner2.runOneTest("dfdlInt_constructor_01") }
   @Test def test_dfdlInt_constructor_02(): Unit = { runner2.runOneTest("dfdlInt_constructor_02") }
@@ -753,6 +757,7 @@ class TestDFDLExpressions {
   @Test def test_dfdlInt_constructor_12(): Unit = { runner2.runOneTest("dfdlInt_constructor_12") }
   @Test def test_dfdlInt_constructor_13(): Unit = { runner2.runOneTest("dfdlInt_constructor_13") }
   @Test def test_dfdlInt_constructor_14(): Unit = { runner2.runOneTest("dfdlInt_constructor_14") }
+  @Test def test_dfdlInt_constructor_15(): Unit = { runner2.runOneTest("dfdlInt_constructor_15") }
 
   @Test def test_dfdlUInt_constructor_01(): Unit = { runner2.runOneTest("dfdlUInt_constructor_01") }
   @Test def test_dfdlUInt_constructor_02(): Unit = { runner2.runOneTest("dfdlUInt_constructor_02") }
@@ -765,6 +770,7 @@ class TestDFDLExpressions {
   @Test def test_dfdlUInt_constructor_09(): Unit = { runner2.runOneTest("dfdlUInt_constructor_09") }
   @Test def test_dfdlUInt_constructor_11(): Unit = { runner2.runOneTest("dfdlUInt_constructor_11") }
   @Test def test_dfdlUInt_constructor_12(): Unit = { runner2.runOneTest("dfdlUInt_constructor_12") }
+  @Test def test_dfdlUInt_constructor_13(): Unit = { runner2.runOneTest("dfdlUInt_constructor_13") }
 
   @Test def test_dfdlLong_constructor_01(): Unit = { runner2.runOneTest("dfdlLong_constructor_01") }
   @Test def test_dfdlLong_constructor_02(): Unit = { runner2.runOneTest("dfdlLong_constructor_02") }
@@ -777,6 +783,7 @@ class TestDFDLExpressions {
   @Test def test_dfdlLong_constructor_09(): Unit = { runner2.runOneTest("dfdlLong_constructor_09") }
   @Test def test_dfdlLong_constructor_11(): Unit = { runner2.runOneTest("dfdlLong_constructor_11") }
   @Test def test_dfdlLong_constructor_12(): Unit = { runner2.runOneTest("dfdlLong_constructor_12") }
+  @Test def test_dfdlLong_constructor_13(): Unit = { runner2.runOneTest("dfdlLong_constructor_13") }
 
   @Test def test_dfdlULong_constructor_01(): Unit = { runner2.runOneTest("dfdlULong_constructor_01") }
   @Test def test_dfdlULong_constructor_02(): Unit = { runner2.runOneTest("dfdlULong_constructor_02") }
@@ -789,6 +796,7 @@ class TestDFDLExpressions {
   @Test def test_dfdlULong_constructor_09(): Unit = { runner2.runOneTest("dfdlULong_constructor_09") }
   @Test def test_dfdlULong_constructor_11(): Unit = { runner2.runOneTest("dfdlULong_constructor_11") }
   @Test def test_dfdlULong_constructor_12(): Unit = { runner2.runOneTest("dfdlULong_constructor_12") }
+  @Test def test_dfdlULong_constructor_13(): Unit = { runner2.runOneTest("dfdlULong_constructor_13") }
 
   @Test def test_xsDateTime_constructor_06(): Unit = { runner2.runOneTest("xsDateTime_constructor_06") }
   @Test def test_xsDateTime_constructor_07(): Unit = { runner2.runOneTest("xsDateTime_constructor_07") }

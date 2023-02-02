@@ -6722,7 +6722,8 @@
     <xs:element name="dfdlByte08" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(xs:short(127)) }"/> <!-- valid -->
     <xs:element name="dfdlByte09" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(xs:short(208)) }"/> <!-- invalid -->
     <xs:element name="dfdlByte10" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(dfdl:hexBinary(127)) }"/> <!-- invalid -->
-    
+    <xs:element name="dfdlByte11" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte('  x7F') }"/> <!-- valid -->
+
     <xs:element name="dfdlUByte01" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte(208) }"/> <!-- valid -->
     <xs:element name="dfdlUByte02" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte(256) }"/> <!-- invalid -->
     <xs:element name="dfdlUByte03" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte('208') }"/> <!-- valid -->
@@ -6733,7 +6734,8 @@
     <xs:element name="dfdlUByte08" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte(xs:short(256)) }"/> <!-- invalid -->
     <xs:element name="dfdlUByte09" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte(dfdl:hexBinary(208)) }"/> <!-- valid -->
     <xs:element name="dfdlUByte11" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte('xDG') }"/> <!-- invalid -->
-    
+    <xs:element name="dfdlUByte12" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte('  xD0') }"/> <!-- valid -->
+
     <xs:element name="dfdlShort01" type="xs:short" dfdl:inputValueCalc="{ dfdl:short(32767) }"/> <!-- valid -->
     <xs:element name="dfdlShort02" type="xs:short" dfdl:inputValueCalc="{ dfdl:short(32768) }"/> <!-- invalid -->
     <xs:element name="dfdlShort03" type="xs:short" dfdl:inputValueCalc="{ dfdl:short('32767') }"/> <!-- valid -->
@@ -6744,7 +6746,8 @@
     <xs:element name="dfdlShort08" type="xs:short" dfdl:inputValueCalc="{ dfdl:short(xs:long(32768)) }"/> <!-- invalid -->
     <xs:element name="dfdlShort09" type="xs:short" dfdl:inputValueCalc="{ dfdl:short(dfdl:hexBinary(32767)) }"/> <!-- valid -->
     <xs:element name="dfdlShort11" type="xs:short" dfdl:inputValueCalc="{ dfdl:short('x7FFG') }"/> <!-- invalid -->
-    
+    <xs:element name="dfdlShort12" type="xs:short" dfdl:inputValueCalc="{ dfdl:short('x7FFF  ') }"/> <!-- valid -->
+
     <xs:element name="dfdlUShort01" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort(65535) }"/> <!-- valid -->
     <xs:element name="dfdlUShort02" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort(65536) }"/> <!-- invalid -->
     <xs:element name="dfdlUShort03" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort('65535') }"/> <!-- valid -->
@@ -6755,7 +6758,8 @@
     <xs:element name="dfdlUShort08" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort(xs:long(65536)) }"/> <!-- invalid -->
     <xs:element name="dfdlUShort09" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort(dfdl:hexBinary(65535)) }"/> <!-- valid -->
     <xs:element name="dfdlUShort11" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort('xFFFG') }"/> <!-- invalid -->
-    
+    <xs:element name="dfdlUShort12" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort('  65535') }"/> <!-- valid -->
+
     <xs:element name="dfdlInt01" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(2147483647) }"/> <!-- valid -->
     <xs:element name="dfdlInt02" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(2147483648) }"/> <!-- invalid -->
     <xs:element name="dfdlInt03" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int('2147483647') }"/> <!-- valid -->
@@ -6769,7 +6773,8 @@
     <xs:element name="dfdlInt12" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(-2147483648) }"/> <!-- valid -->
     <xs:element name="dfdlInt13" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(dfdl:hexBinary(dfdl:int(127))) }"/> <!-- invalid -->
     <xs:element name="dfdlInt14" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(fn:concat('x', xs:string(dfdl:hexBinary(dfdl:int(125))))) }"/> <!-- valid -->
-    
+    <xs:element name="dfdlInt15" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int('  2147483647') }"/> <!-- valid -->
+
     <xs:element name="dfdlUInt01" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(4294967295) }"/> <!-- valid -->
     <xs:element name="dfdlUInt02" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(4294967296) }"/> <!-- invalid -->
     <xs:element name="dfdlUInt03" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt('4294967295') }"/> <!-- valid -->
@@ -6781,7 +6786,8 @@
     <xs:element name="dfdlUInt09" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(dfdl:hexBinary(4294967295)) }"/> <!-- valid -->
     <xs:element name="dfdlUInt11" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt('xFFFFFFFG') }"/> <!-- invalid -->
     <xs:element name="dfdlUInt12" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(-1) }"/> <!-- invalid -->
-    
+    <xs:element name="dfdlUInt13" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt('  4294967295') }"/> <!-- valid -->
+
     <xs:element name="dfdlLong01" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(9223372036854775807) }"/> <!-- valid -->
     <xs:element name="dfdlLong02" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(9223372036854775808) }"/> <!-- invalid -->
     <xs:element name="dfdlLong03" type="xs:long" dfdl:inputValueCalc="{ dfdl:long('9223372036854775807') }"/> <!-- valid -->
@@ -6793,7 +6799,8 @@
     <xs:element name="dfdlLong09" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(dfdl:hexBinary(9223372036854775807)) }"/> <!-- valid -->
     <xs:element name="dfdlLong11" type="xs:long" dfdl:inputValueCalc="{ dfdl:long('x7FFFFFFFFFFFFFFG') }"/> <!-- invalid -->
     <xs:element name="dfdlLong12" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(-9223372036854775808) }"/> <!-- valid -->
-    
+    <xs:element name="dfdlLong13" type="xs:long" dfdl:inputValueCalc="{ dfdl:long('  -9223372036854775808') }"/> <!-- valid -->
+
     <xs:element name="dfdlULong01" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(18446744073709551615) }"/> <!-- valid -->
     <xs:element name="dfdlULong02" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(18446744073709551616) }"/> <!-- invalid -->
     <xs:element name="dfdlULong03" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong('18446744073709551615') }"/> <!-- valid -->
@@ -6805,7 +6812,8 @@
     <xs:element name="dfdlULong09" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(dfdl:hexBinary(9223372036854775807)) }"/> <!-- valid -->
     <xs:element name="dfdlULong11" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong('xFFFFFFFFFFFFFFFG') }"/> <!-- invalid -->
     <xs:element name="dfdlULong12" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(-1) }"/> <!-- invalid -->
-    
+    <xs:element name="dfdlULong13" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong('18446744073709551615  ') }"/> <!-- valid -->
+
     <xs:element name="byte01">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -12068,7 +12076,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
-    <!--
+  <!--
     Test name: dfdlByte_constructor_10
        Schema: constructorSchema
          Root: dfdlByte10
@@ -12087,13 +12095,34 @@
     	<tdml:error>received an unrecognized type!</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
-     <!--
-    Test name: dfdlUByte_constructor_01
-       Schema: constructorSchema
-         Root: dfdlUByte01
-      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
-               construct a hexBinary string from a short.
+
+  <!--
+  Test name: dfdlByte_constructor_11
+     Schema: constructorSchema
+       Root: dfdlByte11
+    Purpose: This test demonstrates the use of the dfdl:byte constructor to parse a string with leading
+             whitespace.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_11" root="dfdlByte11" model="constructorSchema"
+                       description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dfdlByte11>127</ex:dfdlByte11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+  Test name: dfdlUByte_constructor_01
+     Schema: constructorSchema
+       Root: dfdlUByte01
+    Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+             construct a hexBinary string from a short.
   -->
 
   <tdml:parserTestCase name="dfdlUByte_constructor_01" root="dfdlUByte01" model="constructorSchema"
@@ -12296,6 +12325,27 @@
     	<tdml:error>Schema Definition Error</tdml:error>
     	<tdml:error>Cannot convert to type long: For input string: "DG"</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+  Test name: dfdlUByte_constructor_12
+     Schema: constructorSchema
+       Root: dfdlUByte12
+    Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor to parse a string with leading
+             whitespace.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_12" root="dfdlUByte12" model="constructorSchema"
+                       description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dfdlUByte12>208</ex:dfdlUByte12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
    <!--
@@ -12509,7 +12559,28 @@
     	<tdml:error>Cannot convert to type long: For input string: "7FFG"</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
+  <!--
+  Test name: dfdlShort_constructor_12
+     Schema: constructorSchema
+       Root: dfdlShort12
+    Purpose: This test demonstrates the use of the dfdl:short constructor to parse a string with leading
+             whitespace.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_12" root="dfdlShort12" model="constructorSchema"
+                       description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dfdlShort12>32767</ex:dfdlShort12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: dfdlUShort_constructor_01
        Schema: constructorSchema
@@ -12717,6 +12788,27 @@
     	<tdml:error>Schema Definition Error</tdml:error>
     	<tdml:error>Cannot convert to type long: For input string: "FFFG"</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: dfdlUShort_constructor_12
+       Schema: constructorSchema
+         Root: dfdlUShort12
+      Purpose: This test demonstrates the use of the dfdl:unsignedShort constructor to parse a string with leading
+               whitespace.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_12" root="dfdlUShort12" model="constructorSchema"
+                       description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dfdlUShort12>65535</ex:dfdlUShort12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--
@@ -12992,6 +13084,27 @@
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <!--
+    Test name: dfdlInt_constructor_15
+       Schema: constructorSchema
+         Root: dfdlInt15
+      Purpose: This test demonstrates the use of the dfdl:int constructor function to parse a string with leading
+               whitespace.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_15" root="dfdlInt15" model="constructorSchema"
+                       description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dfdlInt15>2147483647</ex:dfdlInt15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
   <!--
     Test name: dfdlUInt_constructor_01
@@ -13225,8 +13338,27 @@
       <tdml:error>-1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
-  
+
+  <!--
+    Test name: dfdlUInt_constructor_12
+       Schema: constructorSchema
+         Root: dfdlUInt12
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor to parse a string with leading
+               whitespace.
+  -->
+  <tdml:parserTestCase name="dfdlUInt_constructor_13" root="dfdlUInt13" model="constructorSchema"
+                       description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dfdlUInt13>4294967295</ex:dfdlUInt13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: dfdlLong_constructor_01
        Schema: constructorSchema
@@ -13456,8 +13588,28 @@
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
-  
+
+  <!--
+    Test name: dfdlLong_constructor_13
+       Schema: constructorSchema
+         Root: dfdlLong13
+      Purpose: This test demonstrates the use of the dfdl:long constructor function parses a string with leading
+               whitespace.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_13" root="dfdlLong13" model="constructorSchema"
+                       description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dfdlLong13>-9223372036854775808</ex:dfdlLong13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: dfdlULong_constructor_01
        Schema: constructorSchema
@@ -13688,6 +13840,27 @@
       <tdml:error>unsignedLong</tdml:error>
       <tdml:error>-1</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+  Test name: dfdlULong_constructor_13
+     Schema: constructorSchema
+       Root: dfdlULong13
+    Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function parses a string with leading
+             whitespace.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_13" root="dfdlULong13" model="constructorSchema"
+                       description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dfdlULong13>18446744073709551615</ex:dfdlULong13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--

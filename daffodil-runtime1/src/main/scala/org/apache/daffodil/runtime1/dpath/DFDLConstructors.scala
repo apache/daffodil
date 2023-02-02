@@ -50,11 +50,10 @@ abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.
       case _: JShort => ShortToLong.computeValue(a, dstate)
       case _: JInt => IntToLong.computeValue(a, dstate)
       case l: JLong => l
-      case s: String if s.startsWith("x") => {
-        val hexStr = s.substring(1)
+      case s: String if s.trim.startsWith("x") =>
+        val hexStr = s.trim.substring(1)
         if (hexStr.length > maxHexDigits) throw new NumberFormatException(hexMsg.format(hexStr.length))
         HexStringToLong.computeValue(hexStr, dstate)
-      }
       case _: String => StringToLong.computeValue(a, dstate)
       case _: JBigInt => IntegerToLong.computeValue(a, dstate)
       case _: JBigDecimal => DecimalToLong.computeValue(a, dstate)
