@@ -37,6 +37,7 @@ import java.nio.file.Paths
 import scala.collection.JavaConverters._
 
 import org.apache.daffodil.equality._
+import org.apache.daffodil.exceptions.Assert
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
@@ -310,6 +311,7 @@ object Misc {
   private val hexLookup = "0123456789ABCDEF".toArray
 
   def bytes2Hex(bytes: Array[Byte]): String = {
+    Assert.invariant(bytes.length <= Int.MaxValue / 2)
     val hexArr = new Array[Char](bytes.length * 2)
     var bytIdx = 0
     var hexIdx = 0

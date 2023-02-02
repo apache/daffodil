@@ -308,7 +308,7 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
-        <xs:element name="maxHexBinaryLengthInBytes" default="2147483647" minOccurs="0">
+        <xs:element name="maxHexBinaryLengthInBytes" default="1073741823" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
               The maximum size allowed for an xs:hexBinary element.
@@ -317,6 +317,12 @@
           <xs:simpleType>
             <xs:restriction base="xs:int">
               <xs:minInclusive value="1" />
+              <!--
+                The maxInclusive value is set to (Int.MaxValue / 2) since each byte in
+                hex binary becomes 2 hex chars, and the maximum length of a string in
+                Java is Int.MaxValue
+              -->
+              <xs:maxInclusive value="1073741823" />
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
