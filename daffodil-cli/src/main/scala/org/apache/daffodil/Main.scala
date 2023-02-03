@@ -454,30 +454,40 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
     footer("""|
               |Run 'daffodil generate <language> --help' for subcommand specific options""".stripMargin)
 
-    object c extends scallop.Subcommand("c") {
-      banner("""|Usage: daffodil generate c -s <schema> [-r <root>]
-                |                           [-c <file>] [-T<tunable>=<value>...]
-                |                           [outdir]
-                |
-                |Generate C code from a DFDL schema to parse or unparse data
-                |
-                |Generate Options:""".stripMargin)
+    // Takes language by name so we can pass it to scallop.Subcommand and interpolate it into
+    // strings without getting a runtime java.lang.ClassCastException on Scala 2.12 (class
+    // scala.collection.mutable.WrappedArray$ofRef cannot be cast to class java.lang.String)
+    // @param languageArg Typed on command line & passed to Compiler.forLanguage
+    // @param languageName Formal descriptive name of language for help/usage messages
+    class LanguageConf(languageArg: => String, val languageName: String)
+      extends scallop.Subcommand(languageArg) {
 
-      descr("Generate C code from a DFDL schema")
+      val language = languageArg
+      banner(s"""|Usage: daffodil generate $language -s <schema> [-r <root>]
+                 |                              [-c <file>] [-T<tunable>=<value>...]
+                 |                              [outdir]
+                 |
+                 |Generate $languageName code from a DFDL schema to parse or unparse data
+                 |
+                 |Generate Options:""".stripMargin)
+      descr(s"Generate $languageName code from a DFDL schema")
       helpWidth(width)
 
-      val language = "c"
       val config = opt[File](short = 'c', argName = "file", descr = "XML file containing configuration items")
       val rootNS = opt[RefQName]("root", argName = "node", descr = "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.")
       val schema = opt[URI]("schema", required = true, argName = "file", descr = "DFDL schema to use to create parser")(fileResourceURIConverter)
       val tunables = props[String](name = 'T', keyName = "tunable", valueName = "value", descr = "Tunable configuration options to change Daffodil's behavior")
 
-      val outdir = trailArg[String](required = false, descr = "Output directory in which to create 'c' subdirectory. If not specified, uses current directory.")
+      val outdir = trailArg[String](required = false, descr = s"Output directory in which to create '$language' subdirectory. If not specified, uses current directory.")
 
       requireOne(schema) // --schema must be provided
       validateFileIsFile(config) // --config must be a file that exists
     }
+
+    object c extends LanguageConf("c", "C")
+
     addSubcommand(c)
+
     requireSubcommand()
   }
 
@@ -1236,35 +1246,34 @@ object Main {
         }
       }
 
+      // Get our generate options from whichever language we're generating
       case Some(conf.generate) => {
-        conf.subcommands match {
-          case List(conf.generate, conf.generate.c) => {
-            val generateOpts = conf.generate.c
+        val generateOpts = conf.generate.subcommand match {
+          case Some(conf.generate.c) => conf.generate.c
 
-            // Read any config file and any tunables given as arguments
-            val optDafConfig = generateOpts.config.toOption.map{ DaffodilConfig.fromFile(_) }
-
-            val tunables = DaffodilTunables.configPlusMoreTunablesMap(generateOpts.tunables, optDafConfig)
-
-            // Create a CodeGenerator from the DFDL schema
-            val generator = createGeneratorFromSchema(generateOpts.schema(), generateOpts.rootNS.toOption,
-              tunables, generateOpts.language)
-
-            // Ask the CodeGenerator to generate source code from the DFDL schema
-            val outputDir = generateOpts.outdir.toOption.getOrElse(".")
-            val rc = generator match {
-              case Some(generator) => {
-                Timer.getResult("generating", generator.generateCode(outputDir))
-                displayDiagnostics(generator)
-                if (generator.isError) ExitCode.GenerateCodeError else ExitCode.Success
-              }
-              case None => ExitCode.GenerateCodeError
-            }
-            rc
-          }
           // Required to avoid "match may not be exhaustive", but should never happen
           case _ => Assert.impossible()
         }
+
+        // Read any config file and any tunables given as arguments
+        val optDafConfig = generateOpts.config.toOption.map{ DaffodilConfig.fromFile(_) }
+        val tunables = DaffodilTunables.configPlusMoreTunablesMap(generateOpts.tunables, optDafConfig)
+
+        // Create a CodeGenerator from the DFDL schema
+        val generator = createGeneratorFromSchema(generateOpts.schema(), generateOpts.rootNS.toOption,
+          tunables, generateOpts.language)
+
+        // Ask the CodeGenerator to generate source code from the DFDL schema
+        val outputDir = generateOpts.outdir.toOption.getOrElse(".")
+        val rc = generator match {
+          case Some(generator) => {
+            Timer.getResult("generating", generator.generateCode(outputDir))
+            displayDiagnostics(generator)
+            if (generator.isError) ExitCode.GenerateCodeError else ExitCode.Success
+          }
+          case None => ExitCode.GenerateCodeError
+        }
+        rc
       }
 
       case Some(conf.exi) => {
