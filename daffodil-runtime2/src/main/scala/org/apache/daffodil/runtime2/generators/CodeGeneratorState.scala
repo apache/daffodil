@@ -17,15 +17,15 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.api.WarnID
-import org.apache.daffodil.cookers.ChoiceBranchKeyCooker
-import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.dsom.Choice
-import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.dsom.GlobalComplexTypeDef
-import org.apache.daffodil.dsom.GlobalElementDecl
-import org.apache.daffodil.dsom.SchemaComponent
-import org.apache.daffodil.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.core.dsom.Choice
+import org.apache.daffodil.core.dsom.ElementBase
+import org.apache.daffodil.core.dsom.GlobalComplexTypeDef
+import org.apache.daffodil.core.dsom.GlobalElementDecl
+import org.apache.daffodil.core.dsom.SchemaComponent
+import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 
 import scala.collection.mutable
 

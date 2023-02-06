@@ -27,16 +27,16 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import passera.unsigned.ULong
 import org.apache.commons.io.output.TeeOutputStream
-import org.apache.daffodil.equality._
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.util.Bits
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe.Nope
-import org.apache.daffodil.util.Maybe.One
-import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.util.Bits
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.lib.util.MaybeULong
 
 sealed trait DOSState
 private[io] case object Active extends DOSState

@@ -42,7 +42,7 @@ object IOMacros {
     val selfExp = c.prefix
 
     q"""{
-    import org.apache.daffodil.util.MaybeULong
+    import org.apache.daffodil.lib.util.MaybeULong
 
     val $dStream = $selfExp
     val $newLengthLimit = $lengthLimitInBits

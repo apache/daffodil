@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.charsets
 
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
-import org.apache.daffodil.processors.charset.BitsCharsetDefinition
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
+import org.apache.daffodil.io.processors.charset.BitsCharsetDefinition
 
 object BitsCharset_ISO_8859_1_Reverse extends{
   override val name = "X-DFDL-ISO-8859-1-8-BIT-PACKED-LSB-FIRST-REVERSE"

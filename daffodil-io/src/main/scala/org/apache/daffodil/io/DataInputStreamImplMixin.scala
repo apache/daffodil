@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.MaybeULong
 
 trait DataInputStreamImplMixin extends DataInputStream
   with DataStreamCommonImplMixin

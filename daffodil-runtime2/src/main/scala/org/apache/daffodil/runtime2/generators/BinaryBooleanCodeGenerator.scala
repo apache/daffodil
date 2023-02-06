@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.core.dsom.ElementBase
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import passera.unsigned.ULong
 
 trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {

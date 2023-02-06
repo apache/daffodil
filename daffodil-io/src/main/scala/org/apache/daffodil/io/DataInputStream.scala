@@ -20,10 +20,10 @@ package org.apache.daffodil.io
 import java.math.{ BigInteger => JBigInt }
 import java.util.regex.Matcher
 
-import org.apache.daffodil.exceptions.ThinException
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Poolable
+import org.apache.daffodil.lib.exceptions.ThinException
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Poolable
 
 import passera.unsigned.ULong
 

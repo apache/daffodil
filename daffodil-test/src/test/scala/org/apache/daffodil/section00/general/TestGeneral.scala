@@ -23,7 +23,7 @@ package org.apache.daffodil.section00.general
 
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 

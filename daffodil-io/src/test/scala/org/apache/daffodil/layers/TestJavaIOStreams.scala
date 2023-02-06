@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.layers
+package org.apache.daffodil.io.layers
 
 import org.junit.Assert._
 import org.junit.Test
 import org.apache.commons.io.IOUtils
 import collection.JavaConverters._
-import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.Assert
 import java.util.Scanner
 import java.nio.charset.StandardCharsets
 import java.io.BufferedInputStream

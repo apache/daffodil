@@ -38,7 +38,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     | * limitations under the License.
     | */
     |
-    |package org.apache.daffodil.api
+    |package org.apache.daffodil.lib.api
     |
     |////////////////////////////////////////////////////////////////////////////////////////////
     |//
@@ -51,13 +51,13 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |//
     |////////////////////////////////////////////////////////////////////////////////////////////
     |
-    |import org.apache.daffodil.exceptions.Assert
-    |import org.apache.daffodil.exceptions.ThrowsSDE
-    |import org.apache.daffodil.schema.annotation.props.EmptyElementParsePolicy
-    |import org.apache.daffodil.schema.annotation.props.Enum
-    |import org.apache.daffodil.util.Misc
-    |import org.apache.daffodil.xml.DaffodilXMLLoader
-    |import org.apache.daffodil.xml.XMLUtils
+    |import org.apache.daffodil.lib.exceptions.Assert
+    |import org.apache.daffodil.lib.exceptions.ThrowsSDE
+    |import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicy
+    |import org.apache.daffodil.lib.schema.annotation.props.Enum
+    |import org.apache.daffodil.lib.util.Misc
+    |import org.apache.daffodil.lib.xml.DaffodilXMLLoader
+    |import org.apache.daffodil.lib.xml.XMLUtils
     |
     |object DaffodilTunables extends DaffodilTunablesStaticMixin {
     |

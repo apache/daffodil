@@ -172,9 +172,9 @@ class TestPropertyGenerator {
   @Test def testPropertyGeneratorMain(): Unit = {
     val args = Array(folder.getRoot.getCanonicalPath)
     PropertyGenerator.main(args)
-    val path1 = Paths.get(args(0), "org/apache/daffodil/schema/annotation/props/gen/GeneratedCode.scala")
-    val path2 = Paths.get(args(0), "org/apache/daffodil/api/DaffodilTunablesGen.scala")
-    val path3 = Paths.get(args(0), "org/apache/daffodil/api/WarnIdGen.scala")
+    val path1 = Paths.get(args(0), "org/apache/daffodil/lib/schema/annotation/props/gen/GeneratedCode.scala")
+    val path2 = Paths.get(args(0), "org/apache/daffodil/lib/api/DaffodilTunablesGen.scala")
+    val path3 = Paths.get(args(0), "org/apache/daffodil/lib/api/WarnIdGen.scala")
     assert(Files.exists(path1), "Expected PropertyGenerator to create a file")
     assert(Files.exists(path2), "Expected PropertyGenerator to create a file")
     assert(Files.exists(path3), "Expected PropertyGenerator to create a file")

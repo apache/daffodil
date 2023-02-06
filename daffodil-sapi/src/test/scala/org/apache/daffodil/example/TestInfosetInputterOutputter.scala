@@ -23,16 +23,16 @@ import org.apache.daffodil.sapi.infoset.InfosetInputter
 import org.apache.daffodil.sapi.infoset.InfosetOutputter
 
 // TODO: Shouldn't need to import things not in the sapi package
-import org.apache.daffodil.dpath.NodeInfo
-import org.apache.daffodil.infoset.DIArray
-import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.InfosetInputterEventType
-import org.apache.daffodil.infoset.InfosetInputterEventType.EndDocument
-import org.apache.daffodil.infoset.InfosetInputterEventType.EndElement
-import org.apache.daffodil.infoset.InfosetInputterEventType.StartDocument
-import org.apache.daffodil.infoset.InfosetInputterEventType.StartElement
-import org.apache.daffodil.util.MaybeBoolean
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.DIArray
+import org.apache.daffodil.runtime1.infoset.DIComplex
+import org.apache.daffodil.runtime1.infoset.DISimple
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndElement
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartDocument
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartElement
+import org.apache.daffodil.lib.util.MaybeBoolean
 
 case class TestInfosetEvent(
   eventType: InfosetInputterEventType,

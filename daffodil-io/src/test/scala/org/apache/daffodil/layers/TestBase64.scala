@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.layers
+package org.apache.daffodil.io.layers
 
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.Implicits._
+import org.apache.daffodil.lib.Implicits._
 import org.apache.commons.io.IOUtils
-import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.Assert
 
 /**
  * There are 3 variations of base64 we care about.

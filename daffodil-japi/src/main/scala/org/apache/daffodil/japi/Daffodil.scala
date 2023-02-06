@@ -35,35 +35,35 @@ import org.xml.sax.SAXException
 import org.xml.sax.XMLReader
 import org.xml.sax.Attributes
 
-import org.apache.daffodil.api.DFDL.{ DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException }
-import org.apache.daffodil.api.DFDL.{ DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException }
-import org.apache.daffodil.api.DFDL.{ DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler }
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.api.{ DataLocation => SDataLocation }
-import org.apache.daffodil.api.{ Diagnostic => SDiagnostic }
-import org.apache.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
-import org.apache.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
-import org.apache.daffodil.compiler.{ Compiler => SCompiler }
-import org.apache.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
-import org.apache.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
-import org.apache.daffodil.debugger.Debugger
-import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import org.apache.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
-import org.apache.daffodil.dsom.ExpressionCompilers
-import org.apache.daffodil.dsom.walker.RootView
+import org.apache.daffodil.runtime1.api.DFDL.{ DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException }
+import org.apache.daffodil.runtime1.api.DFDL.{ DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException }
+import org.apache.daffodil.runtime1.api.DFDL.{ DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler }
+import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.api.Validator
+import org.apache.daffodil.lib.api.{ DataLocation => SDataLocation }
+import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
+import org.apache.daffodil.lib.api.{ LocationInSchemaFile => SLocationInSchemaFile }
+import org.apache.daffodil.lib.api.{ WithDiagnostics => SWithDiagnostics }
+import org.apache.daffodil.core.compiler.{ Compiler => SCompiler }
+import org.apache.daffodil.core.compiler.{ InvalidParserException => SInvalidParserException }
+import org.apache.daffodil.core.compiler.{ ProcessorFactory => SProcessorFactory }
+import org.apache.daffodil.runtime1.debugger.Debugger
+import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
+import org.apache.daffodil.runtime1.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
+import org.apache.daffodil.core.dsom.ExpressionCompilers
+import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.japi.debugger._
 import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.japi.io.InputSourceDataInputStream
 import org.apache.daffodil.japi.packageprivate._
-import org.apache.daffodil.processors.{ DaffodilParseXMLReader => SDaffodilParseXMLReader }
-import org.apache.daffodil.processors.{ DataProcessor => SDataProcessor }
-import org.apache.daffodil.processors.{ ExternalVariableException => SExternalVariableException }
-import org.apache.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
-import org.apache.daffodil.processors.{ ParseResult => SParseResult }
-import org.apache.daffodil.processors.{ UnparseResult => SUnparseResult }
-import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.xml.DFDLCatalogResolver
+import org.apache.daffodil.runtime1.processors.{ DaffodilParseXMLReader => SDaffodilParseXMLReader }
+import org.apache.daffodil.runtime1.processors.{ DataProcessor => SDataProcessor }
+import org.apache.daffodil.runtime1.processors.{ ExternalVariableException => SExternalVariableException }
+import org.apache.daffodil.runtime1.processors.{ InvalidUsageException => SInvalidUsageException }
+import org.apache.daffodil.runtime1.processors.{ ParseResult => SParseResult }
+import org.apache.daffodil.runtime1.processors.{ UnparseResult => SUnparseResult }
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 
 /**
  * API Suitable for Java programmers to use.
@@ -453,7 +453,7 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    * @param validator validator instance
    */
   def withValidator(validator: Validator): DataProcessor =
-    copy(dp = dp.withValidationMode(org.apache.daffodil.api.ValidationMode.Custom(validator)))
+    copy(dp = dp.withValidationMode(org.apache.daffodil.lib.api.ValidationMode.Custom(validator)))
 
   /**
    * Obtain a new [[DataProcessor]] with external variables read from a Daffodil configuration file
@@ -579,12 +579,12 @@ class UnparseResult private[japi] (ur: SUnparseResult)
  * that is invalid (not a parser file, corrupt, etc.) or
  * is not in the GZIP format.
  */
-class InvalidParserException private[japi] (cause: org.apache.daffodil.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())
+class InvalidParserException private[japi] (cause: org.apache.daffodil.core.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())
 
 /**
  * This exception will be thrown as a result of an invalid usage of the Daffodil API
  */
-class InvalidUsageException private[japi] (cause: org.apache.daffodil.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())
+class InvalidUsageException private[japi] (cause: org.apache.daffodil.runtime1.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())
 
 /**
  * This exception will be thrown if an error occurs when setting an external variable. Example of errors include:

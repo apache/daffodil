@@ -18,8 +18,8 @@
 package org.apache.daffodil.tdml
 
 import java.nio.file.Paths
-import org.apache.daffodil.api.TDMLImplementation
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.util.Misc
 
 /**
  * Creates the DFDLTestSuite object lazily, so the file isn't read into memory
@@ -187,7 +187,7 @@ class Runner private (
   // avoid unnecessary allocations/computations. So all access of the
   // underlying test suite should occur through this function, which is
   // synchronized to ensure we only ever create one per Runner.
-  private[tdml] def getTS = this.synchronized {
+  def getTS = this.synchronized {
     if (ts == null) {
       val elemOrURI: Any = source match {
         case Left(l) => l

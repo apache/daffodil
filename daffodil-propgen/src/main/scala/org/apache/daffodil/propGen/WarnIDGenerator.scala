@@ -38,7 +38,7 @@ class WarnIDGenerator(schema: scala.xml.Node) {
     | * limitations under the License.
     | */
     |
-    |package org.apache.daffodil.api
+    |package org.apache.daffodil.lib.api
     |
     |////////////////////////////////////////////////////////////////////////////////////////////
     |//
@@ -51,9 +51,9 @@ class WarnIDGenerator(schema: scala.xml.Node) {
     |//
     |////////////////////////////////////////////////////////////////////////////////////////////
     |
-    |import org.apache.daffodil.exceptions.Assert
-    |import org.apache.daffodil.exceptions.ThrowsSDE
-    |import org.apache.daffodil.schema.annotation.props.Enum
+    |import org.apache.daffodil.lib.exceptions.Assert
+    |import org.apache.daffodil.lib.exceptions.ThrowsSDE
+    |import org.apache.daffodil.lib.schema.annotation.props.Enum
     |
     |sealed trait WarnID extends WarnID.Value
     |object WarnID extends Enum[WarnID] {

@@ -20,7 +20,7 @@ package org.apache.daffodil.validation.schematron
 import java.io.ByteArrayInputStream
 
 import com.typesafe.config.ConfigFactory
-import org.apache.daffodil.validation.Validators
+import org.apache.daffodil.lib.validation.Validators
 import org.junit.Test
 
 import scala.io.Source

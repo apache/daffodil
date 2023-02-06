@@ -20,8 +20,8 @@ package org.apache.daffodil.example;
 import org.apache.daffodil.japi.infoset.InfosetInputter;
 
 // TODO: Shouldn't need to import things not in the japi package
-import org.apache.daffodil.dpath.NodeInfo;
-import org.apache.daffodil.infoset.InfosetInputterEventType;
+import org.apache.daffodil.runtime1.dpath.NodeInfo;
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType;
 
 
 public class TestInfosetInputter extends InfosetInputter {

@@ -48,7 +48,7 @@ realpath() {
   echo "$REALPATH"
 }
 
-MAINCLASS=org.apache.daffodil.Main
+MAINCLASS=org.apache.daffodil.cli.Main
 SCRIPT=$(realpath "$0")			# Full path to script, needed for symlinks
 BINDIR=$(dirname "${SCRIPT}")		# Directory script is run in
 LIBDIR="$BINDIR/../lib"

@@ -19,7 +19,7 @@ package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 
-import org.apache.daffodil.util.MaybeULong
+import org.apache.daffodil.lib.util.MaybeULong
 
 /**
  * This is an interface trait, and it defines methods shared by

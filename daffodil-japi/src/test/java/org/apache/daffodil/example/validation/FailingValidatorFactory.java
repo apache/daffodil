@@ -18,8 +18,8 @@
 package org.apache.daffodil.example.validation;
 
 import com.typesafe.config.Config;
-import org.apache.daffodil.api.Validator;
-import org.apache.daffodil.api.ValidatorFactory;
+import org.apache.daffodil.lib.api.Validator;
+import org.apache.daffodil.lib.api.ValidatorFactory;
 
 public class FailingValidatorFactory implements ValidatorFactory {
     @Override

@@ -19,8 +19,8 @@ package org.apache.daffodil.cliTest
 
 import java.nio.file.Path
 import org.junit.Test
-import org.apache.daffodil.CLI.Util._
-import org.apache.daffodil.Main.ExitCode
+import org.apache.daffodil.cli.cliTest.Util._
+import org.apache.daffodil.cli.Main.ExitCode
 
 class TestCLIUdfs {
 

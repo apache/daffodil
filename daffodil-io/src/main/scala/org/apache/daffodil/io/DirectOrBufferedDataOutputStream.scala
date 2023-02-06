@@ -22,15 +22,15 @@ import java.nio.file.Path
 
 import passera.unsigned.ULong
 
-import org.apache.daffodil.equality._
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.util.Bits
-import org.apache.daffodil.util.Logger
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.util.Bits
+import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Misc
 
 /**
  * This simple extension just gives us a public method for access to the underlying byte array.

@@ -26,11 +26,11 @@ package org.apache.daffodil.sapi.packageprivate
 
 import org.apache.daffodil.sapi._
 import org.apache.daffodil.sapi.debugger._
-import org.apache.daffodil.api.{ ValidationMode => SValidationMode }
-import org.apache.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import org.apache.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
+import org.apache.daffodil.lib.api.{ ValidationMode => SValidationMode }
+import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
+import org.apache.daffodil.runtime1.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
 
-import org.apache.daffodil.infoset.{ XMLTextEscapeStyle => SXMLTextEscapeStyle }
+import org.apache.daffodil.runtime1.infoset.{ XMLTextEscapeStyle => SXMLTextEscapeStyle }
 import org.apache.daffodil.sapi.infoset._
 
 private[sapi] object ValidationConversions {

@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.example;
 
-import org.apache.daffodil.debugger.Debugger;
+import org.apache.daffodil.runtime1.debugger.Debugger;
 import org.apache.daffodil.japi.Daffodil;
 import org.apache.daffodil.japi.DataProcessor;
 import org.apache.daffodil.japi.ParseResult;
 import org.apache.daffodil.japi.ProcessorFactory;
 import org.apache.daffodil.japi.infoset.NullInfosetOutputter;
 import org.apache.daffodil.japi.io.InputSourceDataInputStream;
-import org.apache.daffodil.processors.parsers.PState;
-import org.apache.daffodil.processors.parsers.Parser;
-import org.apache.daffodil.util.Misc;
+import org.apache.daffodil.runtime1.processors.parsers.PState;
+import org.apache.daffodil.runtime1.processors.parsers.Parser;
+import org.apache.daffodil.lib.util.Misc;
 import org.junit.Test;
 
 import java.io.IOException;

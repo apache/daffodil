@@ -21,7 +21,7 @@ import org.junit.Assert._
 import org.junit.Test
 import java.nio.ByteBuffer
 import java.io.File
-import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.lib.util.Maybe
 
 class TestDataOutputStream2 {
 

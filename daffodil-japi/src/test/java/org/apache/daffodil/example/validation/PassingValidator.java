@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.example.validation;
 
-import org.apache.daffodil.api.ValidationFailure;
-import org.apache.daffodil.api.ValidationResult;
-import org.apache.daffodil.api.ValidationWarning;
-import org.apache.daffodil.api.Validator;
+import org.apache.daffodil.lib.api.ValidationFailure;
+import org.apache.daffodil.lib.api.ValidationResult;
+import org.apache.daffodil.lib.api.ValidationWarning;
+import org.apache.daffodil.lib.api.Validator;
 
 import java.io.InputStream;
 import java.util.Collection;

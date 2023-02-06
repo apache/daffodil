@@ -37,7 +37,7 @@ REM defaults for Daffodil will be defined.
 
 setlocal
 
-set MAINCLASS=org.apache.daffodil.Main
+set MAINCLASS=org.apache.daffodil.cli.Main
 set BINDIR=%~dp0
 set LIBDIR=%BINDIR%..\lib
 set CONFDIR=%BINDIR%..\conf

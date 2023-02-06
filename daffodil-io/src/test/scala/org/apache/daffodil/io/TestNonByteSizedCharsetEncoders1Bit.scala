@@ -23,8 +23,8 @@ import java.nio.CharBuffer
 import org.junit.Assert._
 import org.junit.Test
 
-import org.apache.daffodil.processors.charset.CharsetUtils
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.io.processors.charset.CharsetUtils
+import org.apache.daffodil.lib.util.Misc
 
 class TestNonByteSizedCharsetEncoders1Bit {
 

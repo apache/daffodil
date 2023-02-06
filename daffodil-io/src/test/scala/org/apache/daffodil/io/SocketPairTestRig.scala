@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.io.SocketPairTestRig.timeLimit
 import org.apache.daffodil.io.SocketPairTestRig.withTimeout
 import org.junit.Assert.assertEquals

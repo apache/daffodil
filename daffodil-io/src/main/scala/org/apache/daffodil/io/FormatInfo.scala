@@ -20,16 +20,16 @@ package org.apache.daffodil.io
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 
-import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import org.apache.daffodil.util.MaybeInt
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.processors.charset.BitsCharsetDecoder
-import org.apache.daffodil.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 
 /**
  * Abstract interface to obtain format properties or values derived from

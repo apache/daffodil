@@ -85,7 +85,7 @@ class TestLengthProperties {
   @Test def test_lengthGreaterThanEight5(): Unit = { runner_02.runOneTest("lengthGreaterThanEight5") }
 
   @Test def test_littleEndianBits1() = {
-    import org.apache.daffodil.util._
+    import org.apache.daffodil.lib.util._
     val b1 = Bits.littleEndianBitValue(1, 10)
     val b2 = Bits.littleEndianBitValue(10, 10)
     val res = b1 + b2

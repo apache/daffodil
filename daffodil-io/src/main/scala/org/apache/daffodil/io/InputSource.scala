@@ -19,9 +19,9 @@ package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 import scala.collection.mutable.ArrayBuffer
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.ThinException
-import org.apache.daffodil.exceptions.UnsuppressableException
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.ThinException
+import org.apache.daffodil.lib.exceptions.UnsuppressableException
 
 import java.io.InputStream
 

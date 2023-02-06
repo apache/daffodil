@@ -18,12 +18,12 @@
 package org.apache.daffodil.example;
 
 // TODO: Shouldn't need to import things not in the japi package
-import org.apache.daffodil.dpath.NodeInfo;
-import org.apache.daffodil.infoset.InfosetInputterEventType;
-import org.apache.daffodil.infoset.InfosetInputterEventType.EndDocument$;
-import org.apache.daffodil.infoset.InfosetInputterEventType.EndElement$;
-import org.apache.daffodil.infoset.InfosetInputterEventType.StartDocument$;
-import org.apache.daffodil.infoset.InfosetInputterEventType.StartElement$;
+import org.apache.daffodil.runtime1.dpath.NodeInfo;
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType;
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument$;
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndElement$;
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartDocument$;
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartElement$;
 
 
 public class TestInfosetEvent {

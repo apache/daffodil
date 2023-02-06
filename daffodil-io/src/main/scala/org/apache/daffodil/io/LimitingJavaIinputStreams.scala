@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.Assert
 import java.util.regex.Pattern
 import java.util.Scanner
 import java.nio.charset.Charset

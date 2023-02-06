@@ -36,46 +36,46 @@ import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 import org.apache.commons.io.IOUtils
-import org.apache.daffodil.api.DaffodilConfig
-import org.apache.daffodil.api.DaffodilSchemaSource
-import org.apache.daffodil.api.DaffodilTunables
-import org.apache.daffodil.api.DataLocation
-import org.apache.daffodil.api.EmbeddedSchemaSource
-import org.apache.daffodil.api.TDMLImplementation
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.api.UnitTestSchemaSource
-import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.cookers.EntityReplacer
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.exceptions.UnsuppressableException
-import org.apache.daffodil.externalvars.Binding
+import org.apache.daffodil.lib.api.DaffodilConfig
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.EmbeddedSchemaSource
+import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.api.UnitTestSchemaSource
+import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.lib.cookers.EntityReplacer
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.UnsuppressableException
+import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.processors.charset.BitsCharsetDecoder
-import org.apache.daffodil.processors.charset.BitsCharsetEncoder
-import org.apache.daffodil.processors.charset.BitsCharsetNonByteSize
-import org.apache.daffodil.processors.charset.BitsCharsetNonByteSizeEncoder
-import org.apache.daffodil.processors.charset.CharsetUtils
-import org.apache.daffodil.schema.annotation.props.gen.BinaryFloatRep
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
+import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
+import org.apache.daffodil.io.processors.charset.CharsetUtils
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.tdml.processor.AbstractTDMLDFDLProcessorFactory
 import org.apache.daffodil.tdml.processor.TDML
 import org.apache.daffodil.tdml.processor.TDMLDFDLProcessor
 import org.apache.daffodil.tdml.processor.TDMLParseResult
 import org.apache.daffodil.tdml.processor.TDMLResult
 import org.apache.daffodil.tdml.processor.TDMLUnparseResult
-import org.apache.daffodil.util.Logger
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.MaybeInt
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.Misc.bits2Bytes
-import org.apache.daffodil.util.Misc.hex2Bits
-import org.apache.daffodil.util.SchemaUtils
-import org.apache.daffodil.xml.DaffodilXMLLoader
-import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.Misc.bits2Bytes
+import org.apache.daffodil.lib.util.Misc.hex2Bits
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.xml.DaffodilXMLLoader
+import org.apache.daffodil.lib.xml.XMLUtils
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -230,9 +230,9 @@ class DFDLTestSuite private[tdml] (
     // Right now both daffodil and ibm use the same classname loaded from different
     // classpaths, but we may find a better way to cross test with ibm in the future
     val className = tdmlImplementation match {
-      case TDMLImplementation.Daffodil => "org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory"
-      case TDMLImplementation.DaffodilC => "org.apache.daffodil.tdml.processor.Runtime2TDMLDFDLProcessorFactory"
-      case TDMLImplementation.Ibm => "org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory"
+      case TDMLImplementation.Daffodil => "org.apache.daffodil.processor.tdml.TDMLDFDLProcessorFactory"
+      case TDMLImplementation.DaffodilC => "org.apache.daffodil.processor.tdml.Runtime2TDMLDFDLProcessorFactory"
+      case TDMLImplementation.Ibm => "org.apache.daffodil.processor.tdml.TDMLDFDLProcessorFactory"
     }
 
     // If you haven't seen it before. Check out this Try(...) idiom.

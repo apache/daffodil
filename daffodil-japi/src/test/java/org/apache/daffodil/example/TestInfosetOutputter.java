@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import org.apache.daffodil.japi.infoset.InfosetOutputter;
 
 // TODO: Shouldn't need to import things not in the japi package
-import org.apache.daffodil.infoset.DIArray;
-import org.apache.daffodil.infoset.DIComplex;
-import org.apache.daffodil.infoset.DISimple;
+import org.apache.daffodil.runtime1.infoset.DIArray;
+import org.apache.daffodil.runtime1.infoset.DIComplex;
+import org.apache.daffodil.runtime1.infoset.DISimple;
 
 
 public class TestInfosetOutputter extends InfosetOutputter {

@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.tdml
 
-import org.apache.daffodil.api.Diagnostic
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Misc
 
 object TDMLException {
 
