@@ -42,6 +42,7 @@ lazy val daffodil         = project.in(file(".")).configs(IntegrationTest)
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
                               .settings(commonSettings, nopublish)
                               .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value)
+                              .disablePlugins(OsgiCheckPlugin)
 
 lazy val propgen          = Project("daffodil-propgen", file("daffodil-propgen")).configs(IntegrationTest)
                               .settings(commonSettings, nopublish)
