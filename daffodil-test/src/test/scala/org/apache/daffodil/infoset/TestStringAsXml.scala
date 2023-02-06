@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.infoset
+package org.apache.daffodil.runtime1.infoset
 
 import java.io.ByteArrayOutputStream
 import java.io.ByteArrayInputStream
@@ -34,13 +34,13 @@ import org.xml.sax.SAXParseException
 
 import org.apache.commons.io.IOUtils
 
-import org.apache.daffodil.api.DFDL.DataProcessor
-import org.apache.daffodil.api.URISchemaSource
-import org.apache.daffodil.api.ValidationMode
-import org.apache.daffodil.compiler.Compiler
+import org.apache.daffodil.runtime1.api.DFDL.DataProcessor
+import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.api.ValidationMode
+import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.Implicits.intercept
 
 
 class TestStringAsXml {

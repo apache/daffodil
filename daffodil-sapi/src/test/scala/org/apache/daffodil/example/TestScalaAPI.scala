@@ -38,7 +38,7 @@ import org.junit.Test
 
 import org.xml.sax.XMLReader
 
-import org.apache.daffodil.exceptions.Abort
+import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.DaffodilParseXMLReader
 import org.apache.daffodil.sapi.DaffodilUnhandledSAXException

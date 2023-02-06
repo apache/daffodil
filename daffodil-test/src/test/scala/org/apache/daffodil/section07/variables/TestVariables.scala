@@ -18,8 +18,8 @@
 package org.apache.daffodil.section07.variables
 
 import org.junit.Test
-import org.apache.daffodil.xml.XMLUtils
-import org.apache.daffodil.Implicits._
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.lib.Implicits._
 import scala.math.Pi
 import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass

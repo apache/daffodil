@@ -18,7 +18,7 @@
 package org.apache.daffodil.section13.validation_errors
 
 import org.apache.daffodil.tdml.Runner
-import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.junit.Test
 
 class PadCharacter {

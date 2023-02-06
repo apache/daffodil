@@ -18,11 +18,11 @@
 
 package org.apache.daffodil.charsets
 
-import org.apache.daffodil.processors.charset.BitsCharsetJava
-import org.apache.daffodil.processors.charset.BitsCharsetDecoderByteSize
+import org.apache.daffodil.io.processors.charset.BitsCharsetJava
+import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderByteSize
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.processors.charset.BitsCharsetDefinition
+import org.apache.daffodil.io.processors.charset.BitsCharsetDefinition
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 

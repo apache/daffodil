@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.grammar.primitives.AlignmentFill
+import org.apache.daffodil.core.grammar.primitives.AlignmentFill
 
 trait AlignmentFillCodeGenerator {
 

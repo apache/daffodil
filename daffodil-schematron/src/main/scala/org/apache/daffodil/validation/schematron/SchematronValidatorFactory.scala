@@ -25,9 +25,9 @@ import com.typesafe.config.ConfigValueType
 
 import javax.xml.transform.URIResolver
 import net.sf.saxon.TransformerFactoryImpl
-import org.apache.daffodil.api.Validator
-import org.apache.daffodil.api.ValidatorFactory
-import org.apache.daffodil.api.ValidatorInitializationException
+import org.apache.daffodil.lib.api.Validator
+import org.apache.daffodil.lib.api.ValidatorFactory
+import org.apache.daffodil.lib.api.ValidatorInitializationException
 
 import java.nio.file.Files
 import java.nio.file.Path

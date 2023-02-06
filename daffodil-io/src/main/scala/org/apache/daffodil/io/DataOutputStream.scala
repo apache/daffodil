@@ -21,8 +21,8 @@ import passera.unsigned.ULong
 import java.nio.CharBuffer
 import java.nio.file.Path
 import java.io.File
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Maybe
 import java.math.{BigInteger => JBigInt}
 
 sealed abstract class ZeroLengthStatus

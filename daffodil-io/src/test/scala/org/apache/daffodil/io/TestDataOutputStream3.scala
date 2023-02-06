@@ -19,9 +19,9 @@ package org.apache.daffodil.io
 
 import java.io.File
 import org.junit.Assert._
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.util.Maybe
 import org.junit.Test
 
 class TestDataOutputStream3 {

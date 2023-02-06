@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.japi;
 
-import org.apache.daffodil.api.Diagnostic;
+import org.apache.daffodil.lib.api.Diagnostic;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;

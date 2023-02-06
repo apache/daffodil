@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe._
 import java.nio.CharBuffer
 import java.nio.ByteBuffer
-import org.apache.daffodil.util.LocalStack
+import org.apache.daffodil.lib.util.LocalStack
 
 abstract class LocalBuffer[T <: java.nio.Buffer] {
   protected def allocate(length: Long): T

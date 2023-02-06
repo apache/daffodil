@@ -24,8 +24,8 @@ import java.io.ByteArrayInputStream
 import java.io.InputStreamReader
 import java.io.File
 import org.apache.commons.io.IOUtils
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.util.Maybe
 
 class TestDirectOrBufferedDataOutputStream {
 

@@ -16,11 +16,11 @@
  */
 
 package org.apache.daffodil.io
-import org.apache.daffodil.util.MaybeChar
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.Maybe._
-import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.util.MaybeChar
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.exceptions.Assert
 
 trait DataStreamCommonState {
 

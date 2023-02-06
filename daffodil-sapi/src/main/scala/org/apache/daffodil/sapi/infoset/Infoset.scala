@@ -17,28 +17,28 @@
 
 package org.apache.daffodil.sapi.infoset
 
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.infoset.{ InfosetOutputter => SInfosetOutputter }
-import org.apache.daffodil.infoset.{ InfosetInputter => SInfosetInputter }
-import org.apache.daffodil.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
-import org.apache.daffodil.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
-import org.apache.daffodil.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputter }
-import org.apache.daffodil.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
-import org.apache.daffodil.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
-import org.apache.daffodil.infoset.{ W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter }
-import org.apache.daffodil.infoset.{ ScalaXMLInfosetInputter => SScalaXMLInfosetInputter }
-import org.apache.daffodil.infoset.{ XMLTextInfosetInputter => SXMLTextInfosetInputter }
-import org.apache.daffodil.infoset.{ JsonInfosetInputter => SJsonInfosetInputter }
-import org.apache.daffodil.infoset.{ JDOMInfosetInputter => SJDOMInfosetInputter }
-import org.apache.daffodil.infoset.{ W3CDOMInfosetInputter => SW3CDOMInfosetInputter }
-import org.apache.daffodil.util.MaybeBoolean
-import org.apache.daffodil.infoset.InfosetInputterEventType
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.infoset.{ InfosetOutputter => SInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ InfosetInputter => SInfosetInputter }
+import org.apache.daffodil.runtime1.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ ScalaXMLInfosetInputter => SScalaXMLInfosetInputter }
+import org.apache.daffodil.runtime1.infoset.{ XMLTextInfosetInputter => SXMLTextInfosetInputter }
+import org.apache.daffodil.runtime1.infoset.{ JsonInfosetInputter => SJsonInfosetInputter }
+import org.apache.daffodil.runtime1.infoset.{ JDOMInfosetInputter => SJDOMInfosetInputter }
+import org.apache.daffodil.runtime1.infoset.{ W3CDOMInfosetInputter => SW3CDOMInfosetInputter }
+import org.apache.daffodil.lib.util.MaybeBoolean
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
 // TODO: Not sure about the access to internal infoset implementation details.
 // Should API users have this deep access to our internal infoset?
-import org.apache.daffodil.infoset.DISimple
-import org.apache.daffodil.infoset.DIComplex
-import org.apache.daffodil.infoset.DIArray
-import org.apache.daffodil.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.DISimple
+import org.apache.daffodil.runtime1.infoset.DIComplex
+import org.apache.daffodil.runtime1.infoset.DIArray
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 import org.apache.daffodil.sapi.packageprivate._
 

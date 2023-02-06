@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 
-import org.apache.daffodil.Implicits.intercept
+import org.apache.daffodil.lib.Implicits.intercept
 import org.junit.Assert._
 import org.junit.Test
 

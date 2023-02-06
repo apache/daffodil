@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.Implicits.intercept
-import org.apache.daffodil.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
+import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
 import org.junit.Test
 import org.junit.Assert._
 
 import java.nio.ByteBuffer
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Maybe
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Maybe
 
 class TestInputSourceDataInputStream6 {
 

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.Assert
 
 /**
  * Mixin to classes that are supposed to exist 1 to 1 with threads.

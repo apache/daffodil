@@ -22,7 +22,7 @@ import org.apache.daffodil.example.validation.PassingValidator;
 import org.apache.daffodil.japi.*;
 import org.apache.daffodil.japi.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.japi.io.InputSourceDataInputStream;
-import org.apache.daffodil.util.Misc;
+import org.apache.daffodil.lib.util.Misc;
 import org.jdom2.output.XMLOutputter;
 import org.junit.Test;
 

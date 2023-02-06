@@ -19,10 +19,10 @@ package org.apache.daffodil.io
 
 import java.math.{ BigInteger => JBigInt }
 
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Misc
 
 /**
  * When unparsing, we reuse all the DFA logic to identify delimiters within

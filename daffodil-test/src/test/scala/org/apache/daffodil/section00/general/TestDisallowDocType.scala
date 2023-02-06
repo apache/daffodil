@@ -21,14 +21,14 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
-import org.apache.daffodil.Implicits.intercept
-import org.apache.daffodil.processors.DataProcessor
+import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.junit.Test
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.SchemaUtils
-import org.apache.daffodil.util.TestUtils.compileSchema
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.core.util.TestUtils.compileSchema
 import org.junit.AfterClass
 import org.junit.Assert.assertTrue
 import org.xml.sax.SAXParseException

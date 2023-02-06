@@ -15,19 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.processors.charset
+package org.apache.daffodil.runtime1.processors.charset
+
+import org.apache.daffodil.io.processors.charset._
 
 import java.nio.CharBuffer
 
 import org.junit.Assert.assertEquals
 
 import org.junit.Test
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.tdml.Document
 import org.apache.daffodil.io.FormatInfoForUnitTest
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 
 class TestLSBFirstAndUSASCII7BitPacked {
 

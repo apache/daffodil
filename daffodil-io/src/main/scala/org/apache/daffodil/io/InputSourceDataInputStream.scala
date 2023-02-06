@@ -23,14 +23,14 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.LongBuffer
 
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.util.Bits
-import org.apache.daffodil.util.MStackOf
-import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.util.MaybeULong
-import org.apache.daffodil.util.Pool
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.util.Bits
+import org.apache.daffodil.lib.util.MStackOf
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Pool
 
 import passera.unsigned.ULong
 

@@ -18,7 +18,7 @@
 package org.apache.daffodil.example;
 
 import com.typesafe.config.ConfigFactory;
-import org.apache.daffodil.api.ValidatorFactory;
+import org.apache.daffodil.lib.api.ValidatorFactory;
 import org.apache.daffodil.example.validation.FailingValidator;
 import org.apache.daffodil.example.validation.PassingValidator;
 import org.apache.daffodil.japi.Daffodil;
@@ -27,7 +27,7 @@ import org.apache.daffodil.japi.ParseResult;
 import org.apache.daffodil.japi.ProcessorFactory;
 import org.apache.daffodil.japi.infoset.JDOMInfosetOutputter;
 import org.apache.daffodil.japi.io.InputSourceDataInputStream;
-import org.apache.daffodil.validation.Validators;
+import org.apache.daffodil.lib.validation.Validators;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

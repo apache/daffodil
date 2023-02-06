@@ -23,7 +23,7 @@ import javax.xml.transform.Templates
 import javax.xml.transform.URIResolver
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamResult
-import org.apache.daffodil.xml.DaffodilSAXParserFactory
+import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.xml.sax.InputSource
 import org.xml.sax.XMLReader
 

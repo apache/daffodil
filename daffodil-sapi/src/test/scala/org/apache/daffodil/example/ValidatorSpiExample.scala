@@ -18,7 +18,7 @@
 package org.apache.daffodil.example
 
 import com.typesafe.config.ConfigFactory
-import org.apache.daffodil.validation.Validators
+import org.apache.daffodil.lib.validation.Validators
 import org.junit.Test
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

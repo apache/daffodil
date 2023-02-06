@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.dsom.ElementBase
+import org.apache.daffodil.core.dsom.ElementBase
 
 trait BinaryFloatCodeGenerator extends BinaryValueCodeGenerator {
 

@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.dsom.ElementBase
-import org.apache.daffodil.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.util.Maybe.Nope
+import org.apache.daffodil.core.dsom.ElementBase
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.util.Maybe.Nope
 
 // Base trait which provides common code to generate C code for primitive value elements
 trait BinaryValueCodeGenerator {

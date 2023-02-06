@@ -27,9 +27,9 @@ import com.ibm.icu.lang.UCharacter
 import com.ibm.icu.lang.UCharacterEnums
 import com.ibm.icu.lang.UProperty
 
-import org.apache.daffodil.equality._
-import org.apache.daffodil.exceptions.Assert
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Misc
 
 /**
  * Hex/Bits and text dump formats for debug/trace purposes.

@@ -23,7 +23,7 @@ import org.apache.daffodil.sapi.Diagnostic
 import org.apache.daffodil.sapi.ParseResult
 import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.sapi.io.InputSourceDataInputStream
-import org.apache.daffodil.util.Misc
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.validation.schematron.SchSource.Xsd
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

@@ -20,11 +20,11 @@ package org.apache.daffodil.runtime2
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.channels.Channels
-import org.apache.daffodil.Implicits.intercept
-import org.apache.daffodil.compiler.Compiler
-import org.apache.daffodil.util.Misc
-import org.apache.daffodil.util.SchemaUtils
-import org.apache.daffodil.util.TestUtils
+import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.core.util.TestUtils
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test
