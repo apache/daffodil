@@ -49,24 +49,30 @@ class DataLoc(
   Assert.usage(bitLimit1b.isEmpty || bitLimit1b.get >= 0)
   Assert.usage(bitPos1b >= 1)
 
-  val bitPos0b = math.max(bitPos1b - 1, 0).toInt
-  val bitLimit0b = if (bitLimit1b.isDefined) MaybeULong(bitLimit1b.get - 1) else MaybeULong.Nope
-  val lengthInBits = if (bitLimit0b.isDefined) math.max(bitLimit0b.get - bitPos0b, 0) else 256L
+  val bitPos0b: Long = bitPos1b - 1
+  val bitLimit0b: MaybeULong = if (bitLimit1b.isDefined) MaybeULong(bitLimit1b.get - 1) else MaybeULong.Nope
+  val lengthInBits: Long = if (bitLimit0b.isDefined) (bitLimit0b.get - bitPos0b) else 256L
 
   // The dump region is the identified data for this data loc
-  lazy val regionStartBitPos0b = bitPos0b
-  lazy val regionLengthInBits = lengthInBits
-  lazy val regionEndPos0b = lengthInBits + bitPos0b
+  private lazy val regionStartBitPos0b = bitPos0b
+  private lazy val regionLengthInBits = lengthInBits
+  private lazy val regionEndPos0b = lengthInBits + bitPos0b
 
   // The dump rounds down and up to boundaries of 16 bytes (128 bits)
-  lazy val dumpStartBitPos0b = (regionStartBitPos0b >> 7) << 7
-  lazy val dumpEndBitPos0b = (math.ceil(regionEndPos0b / 128.0) * 128).toInt
-  lazy val dumpLengthInBits = dumpEndBitPos0b - dumpStartBitPos0b
+  private lazy val dumpStartBitPos0b = (regionStartBitPos0b >> 7) << 7
+  private lazy val dumpEndBitPos0b = (math.ceil(regionEndPos0b / 128.0) * 128).toLong
+  private lazy val dumpLengthInBits = dumpEndBitPos0b - dumpStartBitPos0b
 
-  lazy val (bytePos0b, lengthInBytes, endBytePos0b) = Dump.convertBitsToBytesUnits(bitPos0b, lengthInBits)
-  lazy val bytePos1b = bytePos0b + 1
-  lazy val (dumpStartBytePos0b, dumpLengthInBytes, dumpEndBytePos0b) = Dump.convertBitsToBytesUnits(dumpStartBitPos0b, dumpLengthInBits)
-  lazy val (regionStartBytePos0b, regionLengthInBytes, regionEndBytePos0b) = Dump.convertBitsToBytesUnits(regionStartBitPos0b, regionLengthInBits)
+  lazy val bytePos1b: Long = bytePos0b + 1
+
+  lazy val (bytePos0b: Long, lengthInBytes: Int, endBytePos0b: Long) =
+    Dump.convertBitsToBytesUnits(bitPos0b, lengthInBits)
+
+  private lazy val (dumpStartBytePos0b, dumpLengthInBytes, dumpEndBytePos0b) =
+    Dump.convertBitsToBytesUnits(dumpStartBitPos0b, dumpLengthInBits)
+
+  private lazy val (regionStartBytePos0b, regionLengthInBytes, regionEndBytePos0b) =
+    Dump.convertBitsToBytesUnits(regionStartBitPos0b, regionLengthInBits)
 
   def dump(rep: Option[Representation], prestate: DataLocation, state: ParseOrUnparseState): String = {
 

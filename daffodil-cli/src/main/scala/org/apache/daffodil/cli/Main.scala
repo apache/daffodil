@@ -829,7 +829,7 @@ object Main {
                     // not streaming mode, and there is more data available,
                     // so show left over data warning
                     val Dump = new DataDumper
-                    val bitsAlreadyConsumed = loc.bitPos0b % 8
+                    val bitsAlreadyConsumed = (loc.bitPos0b % 8).toInt
                     val firstByteString = if (bitsAlreadyConsumed != 0) {
                       val bitsToDisplay = 8 - bitsAlreadyConsumed
                       val pbp = inStream.inputSource.position + 1
