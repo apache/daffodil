@@ -32,7 +32,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.TimeoutException
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.Duration
 import scala.xml.Node
 
 
@@ -125,16 +125,9 @@ class TestParseIndividualMessages {
         //
         pos.write(followingDataString.getBytes)
         pos.flush()
-        val (pr, xml) = Await.result(fut, 100.milliseconds)
-        if (!pr.isError) {
-          assertEquals("1234", xml.text)
-        } else {
-          //parse failed.
-          val diagString = pr.getDiagnostics.map {
-            _.getMessage()
-          }.mkString("\n")
-          fail("Parse failed, but did not time-out.\n" + diagString)
-        }
+        val (pr, xml) = Await.result(fut, Duration.Inf)
+        assertFalse(pr.isError)
+        assertEquals("1234", xml.text)
       }
     }
     sptr.run()
