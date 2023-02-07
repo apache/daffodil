@@ -261,6 +261,31 @@
 
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="traceReturnType">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:element name="e1" dfdl:lengthKind="explicit"
+                dfdl:length="2" type="xs:string">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{dfdlx:trace(42, 'answer')}"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="traceReturnType"
+                       root="e1" model="traceReturnType"
+                       description="argument to trace passes back unchanged and can be used in assert">
+    <tdml:document>42</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>42</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="unused_path_no_context_01" model="expressions_unused_path_no_context.dfdl.xsd"
     description="Section 06 - DFDL Expressions - DFDL-6-083R" root="e1">
     <tdml:document>
