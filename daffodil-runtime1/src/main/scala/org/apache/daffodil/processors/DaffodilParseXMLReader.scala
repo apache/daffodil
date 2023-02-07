@@ -152,7 +152,8 @@ class DaffodilParseXMLReader (dp: DataProcessor) extends DFDL.DaffodilParseXMLRe
     // creates SAXInfosetOutputter object and calls setBlobAttributes on it
     val sio = new SAXInfosetOutputter(this,
       saxNamespaceFeatureValue,
-      saxNamespacePrefixesFeatureValue)
+      saxNamespacePrefixesFeatureValue,
+      xmlConversionControl)
     sio.setBlobAttributes(saxBlobDirectoryPropertyValue,
       saxBlobPrefixPropertyValue,
       saxBlobSuffixPropertyValue

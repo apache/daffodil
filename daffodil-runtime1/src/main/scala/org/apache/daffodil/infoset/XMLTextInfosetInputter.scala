@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.infoset
 
+import org.apache.daffodil.api.XMLConversionControl
+
 import java.io.StringWriter
 import java.nio.charset.StandardCharsets
 import javax.xml.XMLConstants
@@ -26,13 +28,11 @@ import javax.xml.stream.XMLStreamException
 import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.XMLStreamWriter
 import javax.xml.stream.util.XMLEventAllocator
-
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.infoset.InfosetInputterEventType._
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.xml.XMLUtils
 
 object XMLTextInfoset {
   lazy val xmlInputFactory = {
@@ -188,8 +188,9 @@ object XMLTextInfoset {
   }
 }
 
-class XMLTextInfosetInputter(input: java.io.InputStream)
+class XMLTextInfosetInputter(input: java.io.InputStream,
   extends InfosetInputter {
+  with XMLInfosetInputterMixin {
 
   /**
    * evAlloc is only to be used for diagnostic messages. It lets us easily
@@ -308,7 +309,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream)
           }
         }
         if (primType == NodeInfo.String) {
-          XMLUtils.remapPUAToXMLIllegalCharacters(elementText)
+          remapped(elementText)
         } else {
           elementText
         }

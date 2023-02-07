@@ -17,14 +17,31 @@
 
 package org.apache.daffodil.infoset
 
+import org.apache.daffodil.api.XMLConversionControl
 import org.apache.daffodil.util.Maybe
-import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.equality._
+import org.apache.daffodil.xml.RemapXMLIllegalCharToPUA
+import org.apache.daffodil.api.XMLConversionControl.CarriageReturnMapping._
 
 
-trait XMLInfosetOutputter {
+trait XMLInfosetOutputterMixin {
 
-  def remapped(dataValueAsString: String) = XMLUtils.remapXMLIllegalCharactersToPUA(dataValueAsString)
+  def xmlConversionControl: XMLConversionControl
+  /**
+   * FIXME: must change to allow parameterization of replaceCRWithLF
+   * via the config file.
+   */
+  private val remapper: RemapXMLIllegalCharToPUA = {
+    val replaceCRWithLF =
+      xmlConversionControl.crm match {
+        case ConvertCR2LF => true
+        case PreserveCR => false
+      }
+    new RemapXMLIllegalCharToPUA(checkForExistingPUA = true, replaceCRWithLF)
+  }
+
+  def remapped(dataValueAsString: String) =
+    remapper.remap(dataValueAsString)
 
   /**
    * String suitable for use in the text of a Processing Instruction.

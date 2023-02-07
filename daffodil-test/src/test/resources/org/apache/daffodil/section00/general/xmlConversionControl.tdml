@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ex="http://example.com"
+	xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  defaultRoundTrip="onePass">
+
+	<defineConfig name="convertCR2LF">
+		<daf:xmlConversionControl carriageReturnMapping="ConvertCR2LF"/>
+	</defineConfig>
+
+	<defineConfig name="preserveCR">
+		<daf:xmlConversionControl carriageReturnMapping="PreserveCR"/>
+	</defineConfig>
+
+	<tdml:defineSchema
+		name="s1"
+		elementFormDefault="unqualified"
+		useDefaultNamespace="false"
+	  xmlns="http://www.w3.org/2001/XMLSchema">
+
+		<include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format
+			ref="ex:GeneralFormat"
+		  lengthKind="delimited"/>
+
+		<element name="a" type="xs:string" />
+
+	</tdml:defineSchema>
+
+  <parserTestCase
+    name="preserveCR_1"
+		root="a"
+    model="s1"
+    config="preserveCR"
+	  roundTrip="onePass">
+    <document>
+			<documentPart
+				replaceDFDLEntities="true"
+				type="text">abc%#x0d;%#x0a;def%#x0d;%#x0a;ghi</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+				<ex:a>abc&#xE00D;&#x0a;def&#xE00D;&#x0a;ghi</ex:a>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+	<unparserTestCase
+		name="preserveCR_2"
+		root="a"
+		model="s1"
+		config="preserveCR"
+		roundTrip="none">
+		<document>
+			<documentPart
+				replaceDFDLEntities="true"
+				type="text">abc%#x0d;%#x0a;def%#x0d;%#x0a;ghi</documentPart>
+		</document>
+		<infoset>
+			<dfdlInfoset>
+				<ex:a>abc&#xE00D;&#x0a;def&#xE00D;&#x0a;ghi</ex:a>
+			</dfdlInfoset>
+		</infoset>
+	</unparserTestCase>
+
+	<parserTestCase
+		name="convertCR_1"
+		root="a"
+		model="s1"
+		config="convertCR2LF"
+	  roundTrip="none">
+		<document>
+			<documentPart
+				replaceDFDLEntities="true"
+				type="text">abc%#x0d;%#x0a;def%#x0d;%#x0a;ghi</documentPart>
+		</document>
+		<infoset>
+			<dfdlInfoset>
+				<ex:a>abc&#x0a;def&#x0a;ghi</ex:a>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+</testSuite>

@@ -17,10 +17,11 @@
 
 package org.apache.daffodil.infoset
 
+import org.apache.daffodil.api.XMLConversionControl
+
 import java.io.StringReader
 import java.nio.charset.StandardCharsets
 import javax.xml.stream.XMLStreamConstants._
-
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.Indentable
@@ -32,8 +33,8 @@ import org.apache.daffodil.util.Indentable
  * @param pretty Whether or to enable pretty printing. Set to true, XML
  *               elements are indented and newlines are inserted.
  */
-class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
-  extends InfosetOutputter with Indentable with XMLInfosetOutputter {
+class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean,
+  extends InfosetOutputter with Indentable with XMLInfosetOutputterMixin {
 
   def this(os: java.io.OutputStream, pretty: Boolean) = {
     this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty)

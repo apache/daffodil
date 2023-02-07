@@ -19,7 +19,6 @@ package org.apache.daffodil.infoset
 
 import java.net.URI
 import java.net.URISyntaxException
-
 import org.apache.daffodil.api.DFDL
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
@@ -32,7 +31,6 @@ import org.apache.daffodil.util.Maybe.One
 import org.apache.daffodil.util.Maybe.Nope
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.util.Misc
-import org.apache.daffodil.xml.XMLUtils
 
 /**
  * The SAXInfosetInputter worker coroutine receives batches of SAXInfosetEvent
@@ -54,7 +52,9 @@ class SAXInfosetInputter(
   dp: DFDL.DataProcessor,
   output: DFDL.Output,
   resolveRelativeInfosetBlobURIs: Boolean)
-  extends InfosetInputter with Coroutine[Array[SAXInfosetEvent]] {
+  extends InfosetInputter with Coroutine[Array[SAXInfosetEvent]]
+    with XMLInfosetInputterMixin  {
+
 
   /**
    * The index into the batchedInfosetEvents array that the InfosetInputter is
@@ -89,8 +89,7 @@ class SAXInfosetInputter(
       throw new NonTextFoundInSimpleContentException(getLocalName())
     }
     if (primType eq NodeInfo.String) {
-      val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(res)
-      remapped
+      remapped(res)
     } else if (resolveRelativeInfosetBlobURIs && (primType eq NodeInfo.AnyURI) && res.nonEmpty) {
       val absUri = resolveRelativeBlobURIs(res)
       absUri

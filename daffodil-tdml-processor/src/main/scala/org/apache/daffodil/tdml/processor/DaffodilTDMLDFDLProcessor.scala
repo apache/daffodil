@@ -211,7 +211,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
   }
 
   override def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = {
-    val scalaInputter = new ScalaXMLInfosetInputter(infosetXML)
+    val scalaInputter = new ScalaXMLInfosetInputter(infosetXML, xmlConversionControl)
     // We can't compare against other inputters since we only have scala XML,
     // but we still need to use the TDMLInfosetInputter since it may make TDML
     // specific modifications to the input infoset (e.g. blob paths)
@@ -246,7 +246,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor) extends 
     //
     Assert.usage(lengthLimitInBits >= 0)
 
-    val outputter = new TDMLInfosetOutputter()
+    val outputter = new TDMLInfosetOutputter(xmlConversionControl)
     outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
 
     val xri = dp.newXMLReaderInstance

@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.infoset
 
+import org.apache.daffodil.api.XMLConversionControl
 import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.util.MaybeBoolean
 import org.apache.daffodil.xml.XMLUtils
@@ -37,7 +38,9 @@ object JDOMInfosetInputter {
 }
 
 class JDOMInfosetInputter(doc: Document)
-  extends InfosetInputter {
+  override val xmlConversionControl: XMLConversionControl)
+  extends InfosetInputter
+  with XMLInfosetInputterMixin {
 
   /**
    * This stack represents the stack of elements that have been visited. Each
@@ -94,7 +97,7 @@ class JDOMInfosetInputter(doc: Document)
           case _ => throw new NonTextFoundInSimpleContentException(stack.top._1.getQualifiedName)
         }
         if (primType.isInstanceOf[NodeInfo.String.Kind]) {
-          XMLUtils.remapPUAToXMLIllegalCharacters(text)
+          remapped(text)
         } else {
           text
         }

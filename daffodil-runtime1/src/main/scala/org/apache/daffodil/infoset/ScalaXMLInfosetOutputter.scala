@@ -21,7 +21,6 @@ import scala.collection.mutable.ListBuffer
 import scala.xml.MetaData
 import scala.xml.Null
 import scala.xml.UnprefixedAttribute
-
 import org.apache.daffodil.dpath.NodeInfo
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.util.MStackOf
@@ -30,7 +29,7 @@ import org.apache.daffodil.xml.XMLUtils
 
 
 class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: Boolean = false) extends InfosetOutputter
-    with XMLInfosetOutputter {
+  with XMLInfosetOutputterMixin {
 
   protected val stack = new MStackOf[ListBuffer[scala.xml.Node]]
   private var resultNode: Maybe[scala.xml.Node] = Maybe.Nope

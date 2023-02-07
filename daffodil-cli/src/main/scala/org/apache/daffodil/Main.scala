@@ -874,7 +874,7 @@ object Main {
             val tunables = DaffodilTunables.configPlusMoreTunablesMap(performanceOpts.tunables, optDafConfig)
             createProcessorFromSchema(performanceOpts.schema(), performanceOpts.rootNS.toOption, performanceOpts.path.toOption, tunables, validate)
           }
-        }.map{ _.withExternalVariables(combineExternalVariables(performanceOpts.vars, optDafConfig)) }
+        }.map{ _.withExternalVariables(combineExternalVariables(performanceOpts.vars, dafConfig)) }
          .map{ _.withValidationMode(validate) }
 
         val rc: ExitCode.Value = processor match {

@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.infoset
 
+import org.apache.daffodil.api.XMLConversionControl
+
 import java.io.InputStream
-
 import scala.collection.mutable.ArrayBuffer
-
 import scala.xml.Elem
 import scala.xml.SAXParser
 import scala.xml.Text
@@ -72,7 +72,7 @@ object NullInfosetInputter {
     val localName = elem.label
     val namespaceURI = elem.namespace
     val (simpleText, isNilled) = if (isSimple) {
-      val text = XMLUtils.remapPUAToXMLIllegalCharacters(elem.text)
+      val text = remapped(elem.text)
       val isNilled = elem.attribute(XMLUtils.XSI_NAMESPACE, "nil").map { attrs =>
         val str = attrs.head.toString
         val value = str == "true" || str == "1"

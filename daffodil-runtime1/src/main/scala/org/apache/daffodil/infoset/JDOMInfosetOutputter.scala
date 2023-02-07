@@ -17,14 +17,15 @@
 
 package org.apache.daffodil.infoset
 
+import org.apache.daffodil.api.XMLConversionControl
 import org.apache.daffodil.util.Maybe
 import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dpath.NodeInfo
 
-class JDOMInfosetOutputter extends InfosetOutputter
-    with XMLInfosetOutputter {
+class JDOMInfosetOutputter(override val xmlConversionControl: XMLConversionControl) extends InfosetOutputter
+    with XMLInfosetOutputterMixin {
 
   private val stack = new MStackOf[org.jdom2.Parent]
   private var result: Maybe[org.jdom2.Document] = Maybe.Nope

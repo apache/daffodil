@@ -17,6 +17,9 @@
 
 package org.apache.daffodil.tdml
 
+import org.apache.daffodil.api.XMLConversionControl.CarriageReturnMapping.ConvertCR2LF
+import org.apache.daffodil.api.XMLConversionControl.CarriageReturnMapping.PreserveCR
+
 import java.net.URI
 import java.net.URISyntaxException
 import org.apache.daffodil.infoset.InfosetInputter
@@ -71,9 +74,16 @@ class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Se
       val firstVersion = i.getSimpleText(primType, runtimeProperties)
       val finalVersion = i match {
         case _ if (firstVersion eq null) => ""
-        // the json infoset inputter maintains CRLF/CR, but XML converts CRLF/CR to
-        // LF. So if this is Json, then we want the CRLF/CR converted to LF
-        case jsonii: JsonInfosetInputter => firstVersion.replaceAll("(\r\n|\r)", "\n")
+        case jsonii: JsonInfosetInputter => {
+          this.scalaInputter.xmlConversionControl.crm match {
+            case ConvertCR2LF =>
+              // the json infoset inputter maintains CRLF/CR, but in this case XML converts CRLF/CR to
+              // LF. So if this is Json, then we want the CRLF/CR converted to LF
+              firstVersion.replaceAll("(\r\n|\r)", "\n")
+            case PreserveCR =>
+              firstVersion
+          }
+        }
         case _ => firstVersion
       }
       finalVersion

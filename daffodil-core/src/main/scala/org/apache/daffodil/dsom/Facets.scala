@@ -21,10 +21,41 @@ import java.math.BigInteger
 import scala.xml.Node
 import org.apache.daffodil.exceptions.Assert
 import org.apache.daffodil.dpath.NodeInfo.PrimType
-import org.apache.daffodil.xml.XMLUtils
+import org.apache.daffodil.xml.RemapPUAToXMLIllegalChar
+
+object Facets {
+
+  /**
+   * Remapper used to convert pattern facet values
+   * so that they can describe the DFDL infoset (for use
+   * in our limited Daffodil-itself validation, as well
+   * as the same pattern being useful for full validation
+   * by a regular XSD validator.
+   *
+   * A regular XML validator (ex: Xerces) will need to look at the
+   * infoset as we've mapped it to the PUA. Hence, if the
+   * pattern is looking for say, control characters, it cannot
+   * look for control-A (U+0001), because that will have been
+   * remapped to U+E001.
+   *
+   * So the pattern facet value will have E001 in it, likely
+   * expressed as `&#xE001;`. That will work fine for
+   * external validation by Xerces or other.
+   *
+   * But Daffodil's internal (aka limited) validation operates
+   * on the regular DFDL infoset, before any remapping for XML occurs.
+   *
+   * So we instead map the pattern facet value itself down
+   * so that the `&#xE001;` in the pattern turns into an actual
+   * NUL (\u0000 or \x00) in the regex as is used for limited validation.
+   */
+  private val remapper =
+    new RemapPUAToXMLIllegalChar()
+}
 
 trait Facets { self: Restriction =>
   import org.apache.daffodil.dsom.FacetTypes._
+  import Facets._
 
   private def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet.Type): String = {
     val res = xml \\ "restriction" \ facetName.toString() \ "@value"
@@ -151,7 +182,17 @@ trait Facets { self: Restriction =>
           // The XSD numeric character entity &#xE000; can be used to match ASCII NUL
           // (char code 0).
           //
-          val remapped: String = XMLUtils.remapPUAToXMLIllegalCharacters(v)
+          // This remapping is for pattern facets, which are inside a DFDL schema,
+          // and so will not contain CR characters, since XML reading will convert those
+          // to LF. To discuss CR in this pattern we can't use `&#x0d;` syntax because that
+          // turns into a CR which gets turned into a LF. Plus the pattern value is
+          // an XML attribute, the value of which gets its whitespace collapsed, all
+          // line-ending chars converted to spaces, and adjacent spaces collapsed to one.
+          //
+          // So a pattern facet must use `\r` and '\n' to describe line-endings within the pattern.
+          // And in general one must be careful about whitespace.
+          //
+          val remapped: String = remapper.remap(v)
           (f, remapped.r)
         }
       }

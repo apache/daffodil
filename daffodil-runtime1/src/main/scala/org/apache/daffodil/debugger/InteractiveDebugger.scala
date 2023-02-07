@@ -18,8 +18,8 @@
 package org.apache.daffodil.debugger
 
 import java.io.File
-
 import org.apache.daffodil.BasicComponent
+import org.apache.daffodil.api.DaffodilConfig
 import org.apache.daffodil.api.DaffodilTunables
 import org.apache.daffodil.dpath.ExpressionEvaluationException
 import org.apache.daffodil.dpath.NodeInfo
@@ -435,9 +435,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     }
   }
 
-  private def infosetToString(ie: InfosetElement): String = {
+  private def infosetToString(ie: InfosetElement, daffodilConfig: DaffodilConfig): String = {
     val bos = new java.io.ByteArrayOutputStream()
-    val xml = new XMLTextInfosetOutputter(bos, true)
+    val xml = new XMLTextInfosetOutputter(bos, true, daffodilConfig.xmlConversionControl)
     val iw = InfosetWalker(
       ie.asInstanceOf[DIElement],
       xml,
@@ -448,8 +448,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
     bos.toString("UTF-8")
   }
 
-  private def debugPrettyPrintXML(ie: InfosetElement): Unit = {
-    val infosetString = infosetToString(ie)
+  private def debugPrettyPrintXML(ie: InfosetElement, dc: DaffodilConfig): Unit = {
+    val infosetString = infosetToString(ie, dc)
     debugPrintln(infosetString)
   }
 
@@ -987,10 +987,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
             debugPrintln(_)
           }
           res match {
-            case ie: InfosetElement => debugPrettyPrintXML(ie)
+            case ie: InfosetElement => debugPrettyPrintXML(ie, state.dataProc.get.daffodilConfig)
             case nodeSeq: Seq[Any] => nodeSeq.foreach { a =>
               a match {
-                case ie: InfosetElement => debugPrettyPrintXML(ie)
+                case ie: InfosetElement => debugPrettyPrintXML(ie, state.dataProc.get.daffodilConfig)
                 case _ => debugPrintln(a)
               }
             }
@@ -1024,7 +1024,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
               //
               // Displays the empty element since it has no value.
               //
-              debugPrettyPrintXML(nd.diElement)
+              debugPrettyPrintXML(nd.diElement, state.dataProc.get.daffodilConfig)
               state.suppressDiagnosticAndSucceed(r)
             }
             case _ => throw r
@@ -1548,7 +1548,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompilers: Express
                 debugPrintln("No Infoset", "  ")
               }
               case _ => {
-                val infosetString = infosetToString(node)
+                val infosetString = infosetToString(node, state.dataProc.get.daffodilConfig)
                 val lines = infosetString.split("\r?\n")
 
                 val dropCount =

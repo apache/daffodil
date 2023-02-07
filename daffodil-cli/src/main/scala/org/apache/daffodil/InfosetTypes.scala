@@ -276,7 +276,7 @@ case class XMLTextInfosetHandler(dataProcessor: DataProcessor)
   extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new XMLTextInfosetOutputter(os, pretty = true)
+    val output = new XMLTextInfosetOutputter(os, pretty = true, dataProcessor.daffodilConfig.xmlConversionControl)
     val pr = parseWithInfosetOutputter(input, output)
     new InfosetParseResult(pr)
   }
@@ -286,7 +286,7 @@ case class XMLTextInfosetHandler(dataProcessor: DataProcessor)
       case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
       case is: InputStream => is
     }
-    val input = new XMLTextInfosetInputter(is)
+    val input = new XMLTextInfosetInputter(is, dataProcessor.daffodilConfig.xmlConversionControl)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -330,14 +330,14 @@ case class JDOMInfosetHandler(dataProcessor: DataProcessor)
   extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new JDOMInfosetOutputter()
+    val output = new JDOMInfosetOutputter(dataProcessor.daffodilConfig.xmlConversionControl)
     val pr = parseWithInfosetOutputter(input, output)
     new JDOMInfosetParseResult(pr, output)
   }
 
   def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
     val doc = data.asInstanceOf[org.jdom2.Document]
-    val input = new JDOMInfosetInputter(doc)
+    val input = new JDOMInfosetInputter(doc, dataProcessor.daffodilConfig.xmlConversionControl)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -372,14 +372,14 @@ case class ScalaXMLInfosetHandler(dataProcessor: DataProcessor)
   extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new ScalaXMLInfosetOutputter()
+    val output = new ScalaXMLInfosetOutputter(dataProcessor.daffodilConfig.xmlConversionControl)
     val pr = parseWithInfosetOutputter(input, output)
     new ScalaXMLInfosetParseResult(pr, output)
   }
 
   def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
     val node = data.asInstanceOf[scala.xml.Node]
-    val input = new ScalaXMLInfosetInputter(node)
+    val input = new ScalaXMLInfosetInputter(node, dataProcessor.daffodilConfig.xmlConversionControl)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -414,15 +414,17 @@ class ScalaXMLInfosetParseResult(parseResult: ParseResult, output: ScalaXMLInfos
 case class W3CDOMInfosetHandler(dataProcessor: DataProcessor)
   extends InfosetHandler {
 
+  private val xcc = dataProcessor.daffodilConfig.xmlConversionControl
+
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
-    val output = new W3CDOMInfosetOutputter()
+    val output = new W3CDOMInfosetOutputter(xcc)
     val pr = parseWithInfosetOutputter(input, output)
     new W3CDOMInfosetParseResult(pr, output)
   }
 
   def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
     val doc = data.asInstanceOf[ThreadLocal[org.w3c.dom.Document]].get
-    val input = new W3CDOMInfosetInputter(doc)
+    val input = new W3CDOMInfosetInputter(doc, xcc)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
@@ -473,18 +475,18 @@ case class NULLInfosetHandler(dataProcessor: DataProcessor)
   }
 
   def unparse(data: AnyRef, output: DFDL.Output): UnparseResult = {
-    val events = data.asInstanceOf[Array[NullInfosetInputter.Event]]
-    val input = new NullInfosetInputter(events)
+    val is = data match {
+      case bytes: Array[Byte] => new ByteArrayInputStream(bytes)
+      case is: InputStream => is
+    }
+    val input = new NullInfosetInputter(is, dataProcessor.daffodilConfig.xmlConversionControl)
     val ur = unparseWithInfosetInputter(input, output)
     ur
   }
 
-  def dataToInfoset(bytes: Array[Byte]): AnyRef = dataToInfoset(new ByteArrayInputStream(bytes))
+  def dataToInfoset(bytes: Array[Byte]): AnyRef = bytes
 
-  def dataToInfoset(stream: InputStream): AnyRef = {
-    val events = NullInfosetInputter.toEvents(stream)
-    events
-  }
+  def dataToInfoset(stream: InputStream): AnyRef = stream
 }
 
 /**

@@ -27,6 +27,9 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 import org.apache.daffodil.Implicits._
+import org.apache.daffodil.api.DaffodilConfig
+
+import java.net.URI
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.api.DFDL
@@ -101,8 +104,9 @@ object DataProcessor {
     ssrd: SchemaSetRuntimeData,
     tunables: DaffodilTunables,
     variableMap: VariableMap,            // must be explicitly reset by save method
+    daffodilConfig: DaffodilConfig,
     validationMode: ValidationMode.Type, // must be explicitly turned off by save method
-  ) extends DataProcessor(ssrd, tunables, variableMap, validationMode) {
+  ) extends DataProcessor(ssrd, tunables, variableMap, daffodilConfig, validationMode) {
 
     override def withValidationMode(mode: ValidationMode.Type): DataProcessor = {
       if (mode == ValidationMode.Full) {
@@ -326,7 +330,7 @@ class DataProcessor(
       validationMode match {
         case ValidationMode.Full | ValidationMode.Custom(_) =>
           val bos = new java.io.ByteArrayOutputStream()
-          val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
+          val xmlOutputter = new XMLTextInfosetOutputter(bos, false, xmlConversionControl)
           val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
           (teeOutputter, One(bos))
         case _ =>

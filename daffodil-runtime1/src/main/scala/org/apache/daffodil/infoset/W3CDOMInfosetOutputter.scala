@@ -27,7 +27,8 @@ import org.w3c.dom.Element
 import org.w3c.dom.Node
 import javax.xml.parsers.DocumentBuilderFactory; 
 
-class W3CDOMInfosetOutputter extends InfosetOutputter
+class W3CDOMInfosetOutputter()
+  extends InfosetOutputter
     with XMLInfosetOutputter {
 
   private var document: Document = null

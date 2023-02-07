@@ -18,13 +18,14 @@
 <daf:dfdlConfig
 xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
 xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
-    <daf:externalVariableBindings>
-      <daf:bind name="dfdl:byteOrder">littleEndian</daf:bind>
-    </daf:externalVariableBindings>
-    <daf:tunables>
-      <daf:suppressSchemaDefinitionWarnings>
-        facetExplicitLengthOutOfRange
+    <externalVariableBindings>
+      <bind name="dfdl:byteOrder">littleEndian</bind>
+    </externalVariableBindings>
+    <tunables>
+      <suppressSchemaDefinitionWarnings>
         encodingErrorPolicyError
-      </daf:suppressSchemaDefinitionWarnings>
-    </daf:tunables>
+        facetExplicitLengthOutOfRange
+      </suppressSchemaDefinitionWarnings>
+    </tunables>
+  <xmlConversionControl carriageReturnMapping="PreserveCR"/>
 </daf:dfdlConfig>

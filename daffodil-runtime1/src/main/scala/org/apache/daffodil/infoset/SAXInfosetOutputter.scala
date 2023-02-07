@@ -29,7 +29,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
   val namespacesFeature: Boolean,
   val namespacePrefixesFeature: Boolean)
   extends InfosetOutputter
-  with XMLInfosetOutputter {
+  with XMLInfosetOutputterMixin {
 
   /**
    * Reset the internal state of this InfosetOutputter. This should be called

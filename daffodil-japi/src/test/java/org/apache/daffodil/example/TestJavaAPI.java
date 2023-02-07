@@ -127,7 +127,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -137,7 +137,7 @@ public class TestJavaAPI {
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult(), dp.daffodilConfig().xmlConversionControl());
         UnparseResult res2 = dp.unparse(inputter, wbc);
         err = res2.isError();
         assertFalse(err);
@@ -174,7 +174,7 @@ public class TestJavaAPI {
         byte[] ba = FileUtils.readFileToByteArray(data);
         ByteBuffer bb = ByteBuffer.wrap(ba);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(bb);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = parser.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -184,7 +184,7 @@ public class TestJavaAPI {
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult(), dp.daffodilConfig().xmlConversionControl());
         UnparseResult res2 = dp.unparse(inputter, wbc);
         err = res2.isError();
         assertFalse(err);
@@ -236,7 +236,7 @@ public class TestJavaAPI {
         // and byte buffer.
         byte[] ba = FileUtils.readFileToByteArray(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(ba);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
 
         // TODO: NEED a java friendly way to get the status of the outputter.
@@ -278,7 +278,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData16.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -287,7 +287,7 @@ public class TestJavaAPI {
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult(), dp.daffodilConfig().xmlConversionControl());
         UnparseResult res2 = dp.unparse(inputter, wbc);
         err = res2.isError();
         assertFalse(err);
@@ -318,7 +318,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData16.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = parser.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -327,7 +327,7 @@ public class TestJavaAPI {
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult(), dp.daffodilConfig().xmlConversionControl());
         UnparseResult res2 = dp.unparse(inputter, wbc);
         err = res2.isError();
         assertFalse(err);
@@ -346,7 +346,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData2.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -355,7 +355,7 @@ public class TestJavaAPI {
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult(), dp.daffodilConfig().xmlConversionControl());
         UnparseResult res2 = dp.unparse(inputter, wbc);
         err = res2.isError();
         assertFalse(err);
@@ -374,7 +374,7 @@ public class TestJavaAPI {
                                                                    // bytes
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -383,7 +383,7 @@ public class TestJavaAPI {
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult(), dp.daffodilConfig().xmlConversionControl());
         UnparseResult res2 = dp.unparse(inputter, wbc);
         err = res2.isError();
         assertFalse(err);
@@ -433,14 +433,14 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult(), dp.daffodilConfig().xmlConversionControl());
         UnparseResult res2 = dp.unparse(inputter, wbc);
         err = res2.isError();
         assertFalse(err);
@@ -466,14 +466,14 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult(), dp.daffodilConfig().xmlConversionControl());
         UnparseResult res2 = dp.unparse(inputter, wbc);
         err = res2.isError();
         assertFalse(err);
@@ -495,7 +495,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -504,7 +504,7 @@ public class TestJavaAPI {
 
         java.io.ByteArrayOutputStream bos1 = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc1 = java.nio.channels.Channels.newChannel(bos1);
-        JDOMInfosetInputter inputter1 = new JDOMInfosetInputter(doc1);
+        JDOMInfosetInputter inputter1 = new JDOMInfosetInputter(doc1, dp.daffodilConfig().xmlConversionControl());
         UnparseResult res2 = dp.unparse(inputter1, wbc1);
         err = res2.isError();
         assertFalse(err);
@@ -514,7 +514,7 @@ public class TestJavaAPI {
 
         java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc2 = java.nio.channels.Channels.newChannel(bos2);
-        JDOMInfosetInputter inputter2 = new JDOMInfosetInputter(doc2);
+        JDOMInfosetInputter inputter2 = new JDOMInfosetInputter(doc2, dp.daffodilConfig().xmlConversionControl());
         UnparseResult res3 = dp.unparse(inputter2, wbc2);
         err = res3.isError();
         assertFalse(err);
@@ -536,7 +536,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData4.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -563,7 +563,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData5.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -605,7 +605,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -635,7 +635,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -669,7 +669,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -707,7 +707,7 @@ public class TestJavaAPI {
 
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(doc);
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(doc, dp.daffodilConfig().xmlConversionControl());
         UnparseResult res = dp.unparse(inputter, wbc);
         boolean err = res.isError();
         assertTrue(err);
@@ -732,7 +732,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         assertTrue(res.isError());
         assertFalse(res.isProcessingError());
@@ -758,7 +758,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         assertTrue(res.isError());
         assertFalse(res.isProcessingError());
@@ -799,7 +799,7 @@ public class TestJavaAPI {
       java.io.FileInputStream fis = new java.io.FileInputStream(file);
       InputSourceDataInputStream input = new InputSourceDataInputStream(fis);
 
-      JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+      JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
       ParseResult res = null;
       boolean err = false;
 
@@ -840,7 +840,7 @@ public class TestJavaAPI {
       java.io.FileInputStream fis = new java.io.FileInputStream(file);
       InputSourceDataInputStream input = new InputSourceDataInputStream(fis);
 
-      JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+      JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
       ParseResult res = null;
       boolean err = false;
 
@@ -873,7 +873,7 @@ public class TestJavaAPI {
         InputSourceDataInputStream disDP = new InputSourceDataInputStream(fisDP);
         InputSourceDataInputStream disSAX = new InputSourceDataInputStream(fisSAX);
         ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
-        XMLTextInfosetOutputter outputter = new XMLTextInfosetOutputter(xmlBos, true);
+        XMLTextInfosetOutputter outputter = new XMLTextInfosetOutputter(xmlBos, true, dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(disDP, outputter);
         String infosetDPString = xmlBos.toString();
 
@@ -994,7 +994,7 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
         InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
         ParseResult res = dp.parse(dis, outputter);
         boolean err = res.isError();
         assertFalse(err);
@@ -1137,7 +1137,7 @@ public class TestJavaAPI {
             byte[] ba = {};
             ByteBuffer bb = ByteBuffer.wrap(ba);
             InputSourceDataInputStream dis = new InputSourceDataInputStream(bb);
-            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
             ParseResult res = dp.parse(dis, outputter);
             assertFalse(res.isError());
             org.jdom2.Document doc = outputter.getResult();
@@ -1157,7 +1157,7 @@ public class TestJavaAPI {
             byte[] ba = {};
             ByteBuffer bb = ByteBuffer.wrap(ba);
             InputSourceDataInputStream dis = new InputSourceDataInputStream(bb);
-            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter(dp.daffodilConfig().xmlConversionControl());
             ParseResult res = dp.parse(dis, outputter);
             assertFalse(res.isError());
             org.jdom2.Document doc = outputter.getResult();

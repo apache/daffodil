@@ -29,7 +29,8 @@ import scala.xml.ProcInstr
 import scala.xml.Comment
 
 class ScalaXMLInfosetInputter(rootNode: Node)
-  extends InfosetInputter {
+  extends InfosetInputter
+  with XMLInfosetInputterMixin {
 
   /**
    * This stack represents the stack of elements that have been visited. Each
@@ -107,7 +108,7 @@ class ScalaXMLInfosetInputter(rootNode: Node)
     }
     val result = {
       if (primType.isInstanceOf[NodeInfo.String.Kind]) {
-          XMLUtils.remapPUAToXMLIllegalCharacters(text)
+          remapped(text)
       } else {
         text
       }

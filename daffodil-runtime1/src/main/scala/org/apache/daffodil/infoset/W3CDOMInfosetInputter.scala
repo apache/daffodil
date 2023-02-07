@@ -17,11 +17,10 @@
 
 package org.apache.daffodil.infoset
 
+import org.apache.daffodil.api.XMLConversionControl
 import org.apache.daffodil.util.MStackOf
 import org.apache.daffodil.util.MaybeBoolean
-import org.apache.daffodil.xml.XMLUtils
 import org.apache.daffodil.dpath.NodeInfo
-
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.NodeList
@@ -29,10 +28,12 @@ import org.w3c.dom.Text
 import org.w3c.dom.ProcessingInstruction
 import org.w3c.dom.Comment
 import org.w3c.dom.Node
+
 import javax.xml.XMLConstants
 
 class W3CDOMInfosetInputter(doc: Document)
-  extends InfosetInputter {
+  extends InfosetInputter
+  with XMLInfosetInputterMixin {
 
   /**
    * This stack represents the stack of elements that have been visited. Each
@@ -97,7 +98,7 @@ class W3CDOMInfosetInputter(doc: Document)
           case _ => throw new NonTextFoundInSimpleContentException(stack.top._1.getNodeName)
         }
         if (primType.isInstanceOf[NodeInfo.String.Kind]) {
-          XMLUtils.remapPUAToXMLIllegalCharacters(text)
+          remapped(text)
         } else {
           text
         }
