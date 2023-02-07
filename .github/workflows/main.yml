@@ -161,6 +161,9 @@ jobs:
       - name: Run Rat Check
         run: $SBT ratCheck || (cat target/rat.txt; exit 1)
 
+      - name: Run OSGI Check
+        run: $SBT osgiCheck
+
       - name: Run Unit Tests
         run: $SBT test
 
