@@ -1024,6 +1024,9 @@ class TestDFDLExpressions {
   // DFDL-1804
   @Test def test_traceComplex(): Unit = { runner7.runOneTest("traceComplex") }
 
+  // DFDL-2628
+  @Test def test_traceReturnType(): Unit = { runner7.runOneTest("traceReturnType") }
+
   //DFDL-1076
   @Test def test_nilled_01(): Unit = { runner2.runOneTest("nilled_01") }
 

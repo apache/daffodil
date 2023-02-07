@@ -2482,11 +2482,11 @@ case class DFDLXTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Ex
   }
 
   override lazy val inherentType: NodeInfo.Kind = realArg.inherentType
-  override def targetTypeForSubexpression(subExp: Expression): NodeInfo.Kind = targetType
 
-  override lazy val compiledDPath = {
+  override def targetTypeForSubexpression(subExp: Expression): NodeInfo.Kind = inherentType
+
+  override lazy val compiledDPath =
     new CompiledDPath(DFDLXTrace(realArg.compiledDPath, msgText) +: conversions)
-  }
 }
 
 case class DAFErrorExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
