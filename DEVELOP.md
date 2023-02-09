@@ -257,11 +257,10 @@ daffodil/
 └── tutorials/                  - Contains Daffodil's TDML test tutorials
 ```
 
-When compiled into a command line interface, Daffodil is composed of a
-script, a log4j2 configuration file, and a lib directory containing
-all Daffodil jars and third-party dependency jars needed by the
-Daffodil CLI.  Daffodil's command line interface is released in binary
-form as follows:
+When compiled into a command line interface, Daffodil is composed of a script
+and a lib directory containing all Daffodil jars and third-party dependency
+jars needed by the Daffodil CLI.  Daffodil's command line interface is released
+in binary form as follows:
 
 ```text
 apache-daffodil-3.4.0-bin/
@@ -271,8 +270,6 @@ apache-daffodil-3.4.0-bin/
 ├── bin/
 │   ├── daffodil     - Starts Daffodil on Linux
 │   └── daffodil.bat - Starts Daffodil on Windows
-├── conf/
-│   └── log4j2.xml   - Configures log4j logger output
 └── lib/             - Contains Daffodil jars and third party jars
 ```
 

@@ -77,7 +77,6 @@ DEFAULT_JOPTS=(
   "-Xms1024m"
   "-Xmx1024m"
   "-XX:ReservedCodeCacheSize=128m"
-  "-Dlog4j.configurationFile=$CONFDIR/log4j2.xml"
 )
 
 exec java "${DEFAULT_JOPTS[@]}" $JOPTS -cp "$CLASSPATH" $MAINCLASS "$@"

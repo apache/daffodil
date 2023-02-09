@@ -17,30 +17,18 @@
 
 package org.apache.daffodil.lib.util
 
-import org.apache.logging.log4j.scala.Logging
+import com.typesafe.scalalogging.{ Logger => ScalaLogger }
 
 /**
- * The log4j.scala.Logging trait adds a log4j.scala.Logger member val called
- * 'logger' to whatever class mixes it in. Classes that mixin this trait can
- * then just call logger.warn/info/debug/etc to log a message, which are macros
- * to minimize overhead.
- *
- * However, the Logger class is not serializable, and so all classes that might
- * need to be serialized, (e.g. runtime objects), cannot take this approach.
- *
- * Instead, we have a single Logger object that mixes in this trait. This
- * object is never serialized and so can be used anywhere, regardless of
- * serializablility. For simplicity, consistency, and to avoid potential
- * serialization issues, all logging should be done via the logger in this
- * object, rather than mixing in the Logging trait, for example:
+ * At this time, we do not need loggers specific to each class. Instead we do
+ * the lookup once to get the and "org.apache.daffodil" logger via the
+ * scala-logging/SLF4J API and store that logger in this object. For simplicity
+ * and consistency, all logging should be done via the logger in this object,
+ * for example:
  *
  *   Logger.log.info("Message to log")
  *
- * The downside to this is that it breaks the ability to use Log4j's feature to
- * configure different log levels for different namespaces or classes or have
- * useful line numbers, because all logging comes from and is associated with
- * this single Logger in the 'org.apache.daffodil.lib.util.Logger' class.
  */
-object Logger extends Logging {
-  def log = this.logger  
+object Logger {
+  val log = ScalaLogger("org.apache.daffodil")
 }

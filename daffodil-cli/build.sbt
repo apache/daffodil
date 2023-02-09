@@ -23,10 +23,8 @@ enablePlugins(JavaAppPackaging)
 enablePlugins(RpmPlugin)
 enablePlugins(WindowsPlugin)
 
-// CLI tests are not thread safe
-// due to use of temporary buffer used to capture stdout/stderr.
-// So we cannot test in parallel
-Test / parallelExecution := false
+// integration tests require forking, which require a lot of extra memory, so
+// these should only be run sequentially
 IntegrationTest / parallelExecution := false
 
 // need 'sbt stage' to build the CLI for cli integration tests
@@ -49,7 +47,6 @@ Universal / mappings ++= Seq(
   baseDirectory.value / "bin.LICENSE" -> "LICENSE",
   baseDirectory.value / "bin.NOTICE" -> "NOTICE",
   baseDirectory.value / "README.md" -> "README.md",
-  sourceDirectory.value / "conf" / "log4j2.xml" -> "conf/log4j2.xml",
 )
 
 maintainer := "Apache Daffodil <dev@daffodil.apache.org>"

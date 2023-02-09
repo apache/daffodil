@@ -216,7 +216,7 @@ object TimeTracker {
   /**
    * Output the results of the tracked sections in sorted columnar format.
    */
-  def logTimes(logLevel: org.apache.logging.log4j.Level): Unit = {
+  def logTimes(): Unit = {
     val stats = sectionTimes.asScala.toSeq.map { case (name, SectionTime(timeNS, count)) => {
       val average = timeNS / count
       (name, timeNS / 1000000000.0, average, count)
@@ -247,11 +247,11 @@ object TimeTracker {
       "%"  + averageLen + "s  " +
       "%"  + countLen + "s"
 
-    Logger.log(logLevel, formatString.format("Name", "Time", "Pct", "Average", "Count"))
+    Logger.log.info(formatString.format("Name", "Time", "Pct", "Average", "Count"))
     stringStats.foreach { stats =>
-      Logger.log(logLevel, formatString.format(stats.productIterator.toList: _*))
+      Logger.log.info(formatString.format(stats.productIterator.toList: _*))
     }
-    Logger.log(logLevel, f"Total Time: $totalTime%.3f")
+    Logger.log.info(f"Total Time: $totalTime%.3f")
   }
 
   def clear(): Unit = {
