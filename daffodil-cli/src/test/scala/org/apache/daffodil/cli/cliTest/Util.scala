@@ -45,13 +45,6 @@ import net.sf.expectit.matcher.Matchers.contains
 
 import org.apache.commons.io.FileUtils
 
-import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.core.appender.OutputStreamAppender
-import org.apache.logging.log4j.core.config.AbstractConfiguration
-import org.apache.logging.log4j.core.config.ConfigurationSource
-import org.apache.logging.log4j.core.config.Configurator
-import org.apache.logging.log4j.core.layout.PatternLayout
-
 import org.junit.Assert.assertEquals
 
 import org.apache.daffodil.cli.Main
@@ -373,13 +366,12 @@ object Util {
       val psOut = new PrintStream(out)
       val psErr = new PrintStream(err)
 
-      // configure the CLI and log4j to use our custom streams, nothing should
-      // actually use stdin/stdout/stderr
-      Main.setInputOutput(in, psOut, psErr)
-      configureLog4j(psErr)
-
       try {
-        exitCode = Main.run(args)
+        // Run a thread-safe CLI instance that uses our custom streams that
+        // expect will read/write. Nothing in the CLI should use the real
+        // stdin/stdout/stderr, or expect won't be able to see it
+        val main = new Main(in, psOut, psErr)
+        exitCode = main.run(args)
       } catch {
         case t: Throwable => {
           // Main.run should never throw an exception so if it did it means the CLI
@@ -389,42 +381,6 @@ object Util {
           exitCode = ExitCode.BugFound
         }
       }
-    }
-
-    /**
-     * By default log4j outputs to stderr. This changes that so it writes to a
-     * provided PrintStream which is connected to the CLITester, allowing tests
-     * to expect content written by log4j. This also defines the same pattern
-     * used by the CLI from the daffodil-cli/src/conf/log4j2.xml config
-     * file--we duplicate it here because the normal log4j config file targets
-     * stderr while we need to target the provided PrintStream (which can only
-     * be defined programatically). It was also found to be too difficult to
-     * load the config file and mutate the log4j configuration to write to this
-     * PrintStream instead of stderr.
-     */
-    private def configureLog4j(ps: PrintStream): Unit = {
-      val config = new AbstractConfiguration(null, ConfigurationSource.NULL_SOURCE) {
-        override def doConfigure(): Unit = {
-          val appenderName = "DaffodilCli"
-
-          val layout = PatternLayout.newBuilder()
-            .withPattern("[%p{lowerCase=true}] %m%n")
-            .withConfiguration(this)
-            .build()
-
-          val appenderBuilder: OutputStreamAppender.Builder[_] = OutputStreamAppender.newBuilder()
-          appenderBuilder.setName(appenderName)
-          appenderBuilder.setLayout(layout)
-          appenderBuilder.setTarget(ps)
-          appenderBuilder.setConfiguration(this)
-          val appender = appenderBuilder.build()
-
-          val rootLogger = getRootLogger()
-          rootLogger.setLevel(Level.WARN);
-          rootLogger.addAppender(appender, null, null)
-        }
-      }
-      Configurator.reconfigure(config)
     }
   }
 

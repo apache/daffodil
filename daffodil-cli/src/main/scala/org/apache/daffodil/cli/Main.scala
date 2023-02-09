@@ -42,8 +42,7 @@ import com.typesafe.config.ConfigFactory
 
 import org.apache.commons.io.output.NullOutputStream
 
-import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.core.config.Configurator
+import org.slf4j.event.Level;
 
 import org.rogach.scallop
 import org.rogach.scallop.ArgType
@@ -91,6 +90,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
+import org.apache.daffodil.slf4j.DaffodilLogger
 import org.apache.daffodil.runtime1.udf.UserDefinedFunctionFatalErrorException
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
@@ -530,21 +530,50 @@ object ValidatorPatterns {
 
 object Main {
 
-  var STDIN: InputStream = System.in
-  var STDOUT: PrintStream = System.out
-  var STDERR: PrintStream = System.err
-
-  /**
-   * Allows changing where the input/output of the CLI goes to. This defaults
-   * to the normal System.in/out/err, but can be changed to support easier
-   * testing. This is not thread safe, but this Main object is not really
-   * thread safe anyways if it is configured to read/write from stdin/stout.
-   */
-  def setInputOutput(in: InputStream, out: PrintStream, err: PrintStream): Unit = {
-    STDIN = in
-    STDOUT = out
-    STDERR = err
+  def main(arguments: Array[String]): Unit = {
+    val main = new Main()
+    val exitCode = main.run(arguments)
+    System.exit(exitCode.id)
   }
+
+  // write blobs to $PWD/daffodil-blobs/*.bin
+  val blobDir = Paths.get(System.getProperty("user.dir"), "daffodil-blobs")
+  val blobSuffix = ".bin"
+
+  object ExitCode extends Enumeration {
+
+    val Success = Value(0)
+    val Failure = Value(1)
+
+    val FileNotFound = Value(2)
+    val OutOfMemory = Value(3)
+    val BugFound = Value(4)
+    val NotYetImplemented = Value(5)
+
+    val ParseError = Value(20)
+    val UnparseError = Value(21)
+    val GenerateCodeError = Value(23)
+    val TestError = Value(24)
+    val PerformanceTestError = Value(25)
+    val ConfigError = Value(26)
+
+    val LeftOverData = Value(31)
+    val InvalidParserException = Value(32)
+    val BadExternalVariable = Value(33)
+    val UserDefinedFunctionError = Value(34)
+    val UnableToCreateProcessor = Value(35)
+    val LayerExecutionError = Value(36)
+
+    val Usage = Value(64)
+  }
+}
+
+class Main(
+  STDIN: InputStream = System.in,
+  STDOUT: PrintStream = System.out,
+  STDERR: PrintStream = System.err,
+) {
+  import Main._
 
   val traceCommands = Seq(
     "display info parser",
@@ -709,11 +738,10 @@ object Main {
     cg
   }
 
-  // write blobs to $PWD/daffodil-blobs/*.bin
-  val blobDir = Paths.get(System.getProperty("user.dir"), "daffodil-blobs")
-  val blobSuffix = ".bin"
+  // assumes that the DaffodilLogger is the instance used by the CLI
+  lazy val daffodilLogger = Logger.log.underlying.asInstanceOf[DaffodilLogger]
 
-
+  // Set a log level and stream for this Thread only
   def setLogLevel(verbose: Int): Unit = {
     val verboseLevel = verbose match {
       case 0 => Level.WARN
@@ -721,12 +749,13 @@ object Main {
       case 2 => Level.DEBUG
       case _ => Level.TRACE
     }
-    Configurator.setLevel("org.apache.daffodil", verboseLevel)
+    daffodilLogger.setThreadLoggerConfig(verboseLevel, STDERR)
   }
 
   def runIgnoreExceptions(arguments: Array[String]): ExitCode.Value = {
     val conf = new CLIConf(arguments)
 
+    // Set the log level to whatever was parsed by the options
     setLogLevel(conf.verbose())
 
     val ret: ExitCode.Value = conf.subcommand match {
@@ -1411,38 +1440,11 @@ object Main {
     1
   }
 
-  object ExitCode extends Enumeration {
-
-    val Success = Value(0)
-    val Failure = Value(1)
-
-    val FileNotFound = Value(2)
-    val OutOfMemory = Value(3)
-    val BugFound = Value(4)
-    val NotYetImplemented = Value(5)
-
-
-    val ParseError = Value(20)
-    val UnparseError = Value(21)
-    val GenerateCodeError = Value(23)
-    val TestError = Value(24)
-    val PerformanceTestError = Value(25)
-    val ConfigError = Value(26)
-
-    val LeftOverData = Value(31)
-    val InvalidParserException = Value(32)
-    val BadExternalVariable = Value(33)
-    val UserDefinedFunctionError = Value(34)
-    val UnableToCreateProcessor = Value(35)
-    val LayerExecutionError = Value(36)
-
-    val Usage = Value(64)
-
-  }
-
-
   def run(arguments: Array[String]): ExitCode.Value = {
     val ret = try {
+      // Initialize the log level to Level.WARN in case we log anything before
+      // succesfully parsing command line arguments and setting the log level
+      setLogLevel(0)
       runIgnoreExceptions(arguments)
     } catch {
       case s: scala.util.control.ControlThrowable => throw s
@@ -1496,14 +1498,14 @@ object Main {
         bugFound(e)
         ExitCode.BugFound
       }
+    } finally {
+      // now that we are done we can remove the ThreadLocal that was set for
+      // CLI thread specific logging
+      daffodilLogger.removeThreadLoggerConfig()
     }
     ret
   }
 
-  def main(arguments: Array[String]): Unit = {
-    val exitCode = run(arguments)
-    System.exit(exitCode.id)
-  }
 }
 
 class EXIErrorHandler extends org.xml.sax.ErrorHandler with javax.xml.transform.ErrorListener {

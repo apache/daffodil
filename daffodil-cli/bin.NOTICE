@@ -30,6 +30,9 @@ The following NOTICE information applies to binary components distributed with t
   in some artifacts (usually source distributions); but is always available
   from the source code management (SCM) system project uses.
 
+- com.typesafe.scala-logging.scala-logging_<VERSION>.jar
+  Copyright 2014-2021 Lightbend, Inc.
+
 - commons-codec.commons-codec-<VERSION>.jar
   Apache Commons Codec
   Copyright 2002-2020 The Apache Software Foundation
@@ -86,25 +89,6 @@ The following NOTICE information applies to binary components distributed with t
 - org.apache.httpcomponents.core5.httpcore5-h2-<VERSION>.jar
   Apache HttpComponents Core HTTP/2
   Copyright 2005-2020 The Apache Software Foundation
-
-- org.apache.logging.log4j.log4j-api-<VERSION>.jar
-  Apache Log4j API
-  Copyright 1999-2022 The Apache Software Foundation
-
-- org.apache.logging.log4j.log4j-api-scala_<VERSION>.jar
-  Apache Log4j Scala API
-  Copyright 2016-2022 Apache Software Foundation
-
-  AsciidocPlugin.scala
-  Copyright (c) 2008, 2009, 2010, 2011 Josh Suereth, Steven Blundy, Josh Cough,
-  Mark Harrah, Stuart Roebuck, Tony Sloane, Vesa Vilhonen, Jason Zaugg
-
-- org.apache.logging.log4j.log4j-core-<VERSION>.jar
-  Apache Log4j Core
-  Copyright 1999-2012 Apache Software Foundation
-
-  ResolverUtil.java
-  Copyright 2005-2006 Tim Fennell
 
 - org.jdom.jdom2-<VERSION>.jar
   Copyright (C) 2000-2012 Jason Hunter & Brett McLaughlin.
