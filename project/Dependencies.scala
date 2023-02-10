@@ -30,7 +30,7 @@ object Dependencies {
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.11.0",
     "com.typesafe" % "config" % "1.4.2",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
   )
 
   lazy val slf4jAPI = Seq(
