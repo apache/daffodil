@@ -18,24 +18,20 @@
 package org.apache.daffodil.runtime2
 
 import java.io.File
-import java.nio.file.FileSystems
+import java.net.JarURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.Collections
-import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.lib.api.Diagnostic
+import scala.collection.JavaConverters._
+
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom.Root
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
-import org.apache.daffodil.lib.util.Misc
 
 import scala.util.Properties.isWin
-
-/**
- * We need a mutux object for exclusive access to a code block
- */
-private object mutex {}
 
 /**
  * Generates and compiles C source files from a DFDL schema encapsulated in the parameter.
@@ -66,21 +62,23 @@ class CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     os.remove.all(codeDir)
 
     // Copy all the C source files from our resources to our code subdirectory
-    // (using synchronized to avoid calling FileSystems.newFileSystem concurrently)
     val resourceUri = Misc.getRequiredResource(resources)
-    mutex.synchronized {
-      val fileSystem = if (resourceUri.getScheme == "jar") {
-        val env: java.util.Map[String, String] = Collections.emptyMap()
-        FileSystems.newFileSystem(resourceUri, env)
-      } else {
-        null
-      }
-      try {
-        val resourceDir = os.Path(if (fileSystem != null) fileSystem.getPath(resources) else Paths.get(resourceUri))
-        os.copy(resourceDir, codeDir)
-      }
-      finally
-        if (fileSystem != null) fileSystem.close()
+    if (resourceUri.getScheme == "jar") {
+      val jarConnection = resourceUri.toURL.openConnection().asInstanceOf[JarURLConnection]
+      val jarFile = jarConnection.getJarFile()
+      jarFile.entries.asScala
+        .filter { entry => ("/" + entry.getName).startsWith(resources) }
+        .filterNot { entry => entry.isDirectory }
+        .foreach { entry =>
+          val entryPath = "/" + entry.getName
+          val subPath = os.SubPath(entryPath.stripPrefix(resources + "/"))
+          val dstPath = codeDir / subPath
+          val stream = jarFile.getInputStream(entry)
+          os.write(dstPath, stream, createFolders = true)
+        }
+    } else {
+      val srcDir = os.Path(Paths.get(resourceUri))
+      os.copy(srcDir, codeDir)
     }
 
     // Generate C code from the DFDL schema, appending any warnings to our diagnostics
