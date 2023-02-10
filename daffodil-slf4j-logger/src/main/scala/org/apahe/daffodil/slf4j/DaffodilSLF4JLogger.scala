@@ -117,7 +117,7 @@ class DaffodilLogger(name: String) extends AbstractLogger {
       buf.append(levelStr)
       buf.append("] ")
 
-      // a weird quirk of the scala-logging library is that if s-interpolation is used and
+      // a bug in the scala-logging library is that if s-interpolation is used and
       // the last interpolated variable is a Throwable, then it thinks we're calling the
       // Throwable variant of a log function, and so the Throwable isn't in the arguments
       // array but is in the throwable variable. We don't use the Throwable variant in
