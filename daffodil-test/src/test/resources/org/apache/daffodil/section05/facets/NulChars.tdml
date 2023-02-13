@@ -66,6 +66,19 @@
     </xs:complexType>
     </xs:element>
 
+    <xs:element name="sparseRoot">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%NUL;" dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:separatorPosition="infix"
+                     dfdl:encoding="iso-8859-1">
+          <xs:element name="char" type="xs:string" minOccurs="0" maxOccurs="unbounded"
+                      dfdl:lengthPattern='[^\x{00}]' dfdl:lengthKind="pattern"
+                      dfdl:occursCountKind="parsed" dfdl:encoding="iso-8859-1"
+                      dfdl:emptyElementParsePolicy="treatAsAbsent">
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="nulPattern1" model="nullTest"
@@ -81,13 +94,29 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nulPad1" model="nullTest"
-                       validation="on">
+                       validation="on" roundTrip="none">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:padRoot></ex:padRoot>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nulPad2" model="nullTest" root="sparseRoot"
+                       validation="on" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 31 00 00 32 00 00 33 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:sparseRoot>
+          <ex:char>1</ex:char>
+          <ex:char>2</ex:char>
+          <ex:char>3</ex:char>
+        </ex:sparseRoot>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

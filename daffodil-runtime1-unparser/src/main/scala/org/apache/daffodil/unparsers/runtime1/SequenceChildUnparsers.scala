@@ -111,11 +111,9 @@ abstract class RepeatingChildUnparser(
       }
     }
 
-    val actualOccurs = state.arrayPos
-
     // State could be Success or Failure here.
 
-    endArray(state, actualOccurs)
+    endArray(state)
   }
 
   /**

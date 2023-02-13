@@ -108,6 +108,7 @@ object MPState {
 class MPState private () {
 
   val arrayIndexStack = MStackOfLong()
+
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
   def moveBackOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop - 1)
 

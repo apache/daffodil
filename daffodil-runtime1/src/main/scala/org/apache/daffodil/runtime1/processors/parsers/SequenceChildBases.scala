@@ -331,7 +331,6 @@ abstract class RepeatingChildParser(
    * there can be more than 1 occurrence.
    */
   def startArray(state: PState): Unit = {
-
     state.mpstate.arrayIndexStack.push(1L) // one-based indexing
   }
 
@@ -345,8 +344,8 @@ abstract class RepeatingChildParser(
    * by way of index: e.g., fn:exists( optElement[dfdl:currentIndex()]  )
    */
   def endArray(state: PState): Unit = {
-    val actualOccurs = state.mpstate.arrayIndexStack.pop()
-    super.endArray(state, actualOccurs)
+    state.mpstate.arrayIndexStack.pop()
+    super.endArray(state)
   }
 
 }
@@ -516,7 +515,7 @@ trait EndArrayChecksMixin {
 
   def erd: ElementRuntimeData
 
-  def endArray(state: ParseOrUnparseState, actualOccurs: Long): Unit = {
+  def endArray(state: ParseOrUnparseState): Unit = {
     if (state.processorStatus eq Success) {
 
       val shouldValidate =
@@ -526,8 +525,21 @@ trait EndArrayChecksMixin {
         val minO = erd.minOccurs
         val maxO = erd.maxOccurs
         val isUnbounded = maxO == -1
-        val occurrence = actualOccurs - 1
 
+        // At this point, state.infoset is the parent node of the DIArray that
+        // we are trying to validate. If any elements were added for this
+        // array, then the DIArray will be the last child of that parent node
+        // AND it will have the same erd as this parser. If that's not the
+        // case, and the parent has no children or it does but the last child
+        // has a different erd than what we expect, then it must mean nothing
+        // was added for this array and the occurrences are zero.
+        val occurrence = {
+          val maybeLastChild = state.infoset.maybeLastChild
+          if (maybeLastChild.isEmpty || maybeLastChild.get.erd != erd)
+            0
+          else
+            maybeLastChild.get.numChildren
+        }
         if (isUnbounded && occurrence < minO)
           state.validationError(
             "%s occurred '%s' times when it was expected to be a " +
