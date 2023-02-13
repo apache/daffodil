@@ -32,7 +32,7 @@ Global / excludeLintKeys ++= Set(
 lazy val genManaged = taskKey[Seq[File]]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
-lazy val genExamples = taskKey[Seq[File]]("Generate runtime2 example files")
+lazy val genRuntime2Examples = taskKey[Seq[File]]("Generate runtime2 example files")
 
 lazy val daffodil         = project.in(file(".")).configs(IntegrationTest)
                               .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
@@ -59,7 +59,7 @@ lazy val daffodil         = project.in(file(".")).configs(IntegrationTest)
                                  tutorials,
                                  udf,
                                )
-                              .settings(commonSettings, nopublish, ratSettings, unidocSettings, genExamplesSettings)
+                              .settings(commonSettings, nopublish, ratSettings, unidocSettings, genRuntime2ExamplesSettings)
 
 lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
                               .settings(commonSettings, nopublish)
@@ -155,7 +155,7 @@ lazy val test             = Project("daffodil-test", file("daffodil-test")).conf
                               .dependsOn(tdmlProc % "test", runtime2 % "test->test", udf % "test->test")
                               .settings(commonSettings, nopublish)
                               //
-                              // Uncomment the following line to run these tests 
+                              // Uncomment the following line to run these tests
                               // against IBM DFDL using the Cross Tester
                               //
                               //.settings(IBMDFDLCrossTesterPlugin.settings)
@@ -164,7 +164,7 @@ lazy val testIBM1         = Project("daffodil-test-ibm1", file("daffodil-test-ib
                               .dependsOn(tdmlProc % "test")
                               .settings(commonSettings, nopublish)
                               //
-                              // Uncomment the following line to run these tests 
+                              // Uncomment the following line to run these tests
                               // against IBM DFDL using the Cross Tester
                               //
                               //.settings(IBMDFDLCrossTesterPlugin.settings)
@@ -209,7 +209,6 @@ lazy val commonSettings = Seq(
   // IntegrationTest / parallelExecution := false, // allow test in parallel
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
 ) ++ Defaults.itSettings
-
 
 def buildScalacOptions(scalaVersion: String) = {
   val commonOptions = Seq(
@@ -336,7 +335,7 @@ lazy val libManagedSettings = Seq(
       val files = forkCaptureLogger.stdout.map { f =>
         new File(f)
       }.toSet
-      stream.log.info(s"generated ${files.size} Scala sources to ${outdir}")
+      stream.log.info(s"generated ${files.size} Scala sources to $outdir")
       files
     }
     cachedFun(filesToWatch).toSeq
@@ -352,7 +351,7 @@ lazy val libManagedSettings = Seq(
         IO.copyFile(schema, out)
         out
       }
-      stream.log.info(s"generated ${files.size} XML schemas to ${outdir}")
+      stream.log.info(s"generated ${files.size} XML schemas to $outdir")
       files
     }
     cachedFun(filesToWatch).toSeq
@@ -393,19 +392,19 @@ lazy val unidocSettings = Seq(
   },
 )
 
-lazy val genExamplesSettings = Seq(
-  Compile / genExamples := {
+lazy val genRuntime2ExamplesSettings = Seq(
+  Compile / genRuntime2Examples := {
     val cp = (runtime2 / Test / dependencyClasspath).value
     val inSrc = (runtime2 / Compile / sources).value
     val inRSrc = (runtime2 / Test / resources).value
     val stream = (runtime2 / streams).value
     val filesToWatch = (inSrc ++ inRSrc).toSet
-    val cachedFun = FileFunction.cached(stream.cacheDirectory / "genExamples") { _ =>
+    val cachedFun = FileFunction.cached(stream.cacheDirectory / "genRuntime2Examples") { _ =>
       val forkCaptureLogger = ForkCaptureLogger()
       val forkOpts = ForkOptions()
                        .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
                        .withBootJars(cp.files.toVector)
-      val mainClass = "org.apache.daffodil.runtime2.CodeGenerator"
+      val mainClass = "org.apache.daffodil.runtime2.Runtime2ExamplesGenerator"
       val outdir = (runtime2 / Test / sourceDirectory).value / "c" / "examples"
       val args = Seq(mainClass, outdir.toString)
       val ret = Fork.java(forkOpts, args)
@@ -416,14 +415,14 @@ lazy val genExamplesSettings = Seq(
       val files = forkCaptureLogger.stdout.filterNot(_.startsWith("WARNING")).map { f =>
         new File(f)
       }.toSet
-      stream.log.info(s"generated ${files.size} runtime2 example files to ${outdir}")
+      stream.log.info(s"generated ${files.size} runtime2 examples to $outdir")
       files
     }
     cachedFun(filesToWatch).toSeq
   },
   Compile / compile := {
     val res = (Compile / compile).value
-    (Compile / genExamples).value
+    (Compile / genRuntime2Examples).value
     res
   }
 )

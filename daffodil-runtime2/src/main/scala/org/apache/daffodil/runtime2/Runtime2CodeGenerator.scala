@@ -17,6 +17,11 @@
 
 package org.apache.daffodil.runtime2
 
+import java.io.File
+import java.net.JarURLConnection
+import java.nio.file.Files
+import java.nio.file.Paths
+import org.apache.daffodil.core.dsom.Root
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Prod
 import org.apache.daffodil.core.grammar.SeqComp
@@ -42,14 +47,191 @@ import org.apache.daffodil.core.grammar.primitives.RightFill
 import org.apache.daffodil.core.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthImplicit
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
+import org.apache.daffodil.runtime1.dsom.SchemaDefinitionWarning
 import org.apache.daffodil.runtime2.generators.AlignmentFillCodeGenerator
 import org.apache.daffodil.runtime2.generators.BinaryBooleanCodeGenerator
 import org.apache.daffodil.runtime2.generators.BinaryFloatCodeGenerator
 import org.apache.daffodil.runtime2.generators.BinaryIntegerKnownLengthCodeGenerator
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 import org.apache.daffodil.runtime2.generators.HexBinaryCodeGenerator
-import org.apache.daffodil.lib.util.Misc
 
+import scala.collection.JavaConverters._
+import scala.util.Properties.isWin
+
+/**
+ * Generates C source files from a DFDL schema.  Implements
+ * DFDL.CodeGenerator trait in order to be called by Daffodil's
+ * command line interface.  Contains mutable state for implementing
+ * WithDiagnostics trait, so you need to instantiate a new
+ * Runtime2CodeGenerator each time you generate code for any schema.
+ *
+ * @param root Passes DFDL schema from which to generate code
+ */
+class Runtime2CodeGenerator(root: Root) extends DFDL.CodeGenerator {
+  // Note this class is not thread-safe due to mutable state needed to
+  // implement WithDiagnostics trait
+  private var diagnostics: Seq[Diagnostic] = Nil
+  private var errorStatus: Boolean = false
+
+  /**
+   * Writes C source files generated from the schema into a "c"
+   * subdirectory of the given output directory.  Removes the "c"
+   * subdirectory if it existed before.  Returns the newly created "c"
+   * subdirectory.
+   */
+  override def generateCode(outputDirArg: String): os.Path = {
+    // Get the paths of the output directory and its code subdirectory and
+    // recreate the code subdirectory to ensure it has no old files in it
+    val outputDir = os.Path(Paths.get(outputDirArg).toAbsolutePath)
+    val codeDir = outputDir/"c"
+    os.makeDir.all(outputDir)
+    os.remove.all(codeDir)
+
+    // Copy all the C resources to the code subdirectory
+    val resources = "/org/apache/daffodil/runtime2/c"
+    val resourceUri = Misc.getRequiredResource(resources)
+    if (resourceUri.getScheme == "jar") {
+      val jarConnection = resourceUri.toURL.openConnection().asInstanceOf[JarURLConnection]
+      val jarFile = jarConnection.getJarFile()
+      jarFile.entries.asScala
+        .filter { entry => ("/" + entry.getName).startsWith(resources) }
+        .filterNot { entry => entry.isDirectory }
+        .foreach { entry =>
+          val entryPath = "/" + entry.getName
+          val subPath = os.SubPath(entryPath.stripPrefix(resources + "/"))
+          val dstPath = codeDir / subPath
+          val stream = jarFile.getInputStream(entry)
+          os.write(dstPath, stream, createFolders = true)
+        }
+    } else {
+      val resourceDir = os.Path(Paths.get(resourceUri))
+      os.copy(resourceDir, codeDir)
+    }
+
+    // Generate C code from the given root element of the DFDL schema,
+    // while appending any warnings to our diagnostics
+    val cgState = new CodeGeneratorState(root)
+    Runtime2CodeGenerator.generateCode(root.document, cgState)
+    diagnostics = diagnostics ++ root.warnings
+    val versionHeaderText = cgState.generateVersionHeader
+    val codeHeaderText = cgState.generateCodeHeader
+    val codeFileText = cgState.generateCodeFile
+
+    // Write the generated C code into our code subdirectory
+    val generatedVersionHeader = codeDir/"libcli"/"daffodil_version.h"
+    val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
+    val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
+    os.write.over(generatedVersionHeader, versionHeaderText)
+    os.write(generatedCodeHeader, codeHeaderText)
+    os.write(generatedCodeFile, codeFileText)
+
+    // Return our code directory in case caller wants to call compileCode next
+    codeDir
+  }
+
+  /**
+   * Compiles any C files inside the given code directory.  Returns the path
+   * of the newly built executable in order to run it in a TDML test.
+   */
+  override def compileCode(codeDir: os.Path): os.Path = {
+    // Get the path of the executable we will build
+    val exe = if (isWin) codeDir/"daffodil.exe" else codeDir/"daffodil"
+
+    try {
+      // Assemble the compiler's command line arguments
+      val compiler = pickCompiler
+      val cFlags = Seq("-std=gnu11")
+      val includes = Seq("-Ilibcli", "-Ilibruntime")
+      val absFiles = os.walk(codeDir, skip = _.last == "tests").filter(_.ext == "c")
+      val relFiles = Seq("libcli/*.c", "libruntime/*.c")
+      val libs = Seq("-lmxml")
+
+      // Run the compiler within the code directory
+      if (compiler.nonEmpty) {
+        val result = os.proc(compiler, cFlags, includes, if (isWin) relFiles else absFiles, libs, "-o", exe).call(cwd = codeDir, stderr = os.Pipe)
+        if (result.chunks.nonEmpty) {
+          // Report any compiler output as a warning
+          warning(result.toString())
+        }
+      }
+    } catch {
+      // Report any subprocess termination error as an error
+      case e: os.SubprocessException =>
+        error("Error compiling C files: %s wd: %s", Misc.getSomeMessage(e).get, codeDir.toString)
+    }
+
+    // Report any failure to build the executable as an error
+    if (!os.exists(exe)) error("No executable was built: %s", exe.toString)
+
+    // Return our executable in case caller wants to run it next
+    exe
+  }
+
+  /**
+   * Searches for any available C compiler on the system.  Tries to find the
+   * compiler given by `CC` if `CC` exists in the environment, then tries to
+   * find any compiler from the following list:
+   *
+   *   - zig cc
+   *   - cc
+   *   - clang
+   *   - gcc
+   *
+   * Returns the first compiler found as a sequence of strings in case the
+   * compiler is a program with a subcommand argument.  Returns the empty
+   * sequence if no compiler could be found in the user's PATH.
+   */
+  private lazy val pickCompiler: Seq[String] = {
+    val ccEnv = sys.env.getOrElse("CC", "zig cc")
+    val compilers = Seq(ccEnv, "zig cc", "cc", "clang", "gcc")
+    val path = sys.env.getOrElse("PATH", ".").split(File.pathSeparatorChar)
+    def inPath(compiler: String): Boolean = {
+      (compiler != null) && {
+        val exec = compiler.takeWhile(_ != ' ')
+        val exec2 = exec + ".exe"
+        path.exists(dir => Files.isExecutable(Paths.get(dir, exec))
+          || (isWin && Files.isExecutable(Paths.get(dir, exec2))))
+      }
+    }
+    val compiler = compilers.find(inPath)
+    if (compiler.isDefined)
+      compiler.get.split(' ').toSeq
+    else
+      Seq.empty[String]
+  }
+
+  /**
+   * Adds a warning message to the diagnostics
+   */
+  private def warning(formatString: String, args: Any*): Unit = {
+    val sde = new SchemaDefinitionWarning(None, None, formatString, args: _*)
+    diagnostics :+= sde
+  }
+
+  /**
+   * Adds an error message to the diagnostics and sets isError true
+   */
+  private def error(formatString: String, args: Any*): Unit = {
+    val sde = new SchemaDefinitionError(None, None, formatString, args: _*)
+    diagnostics :+= sde
+    errorStatus = true
+  }
+
+  // Implements the WithDiagnostics trait
+  override def getDiagnostics: Seq[Diagnostic] = diagnostics
+  override def isError: Boolean = errorStatus
+}
+
+/**
+ * Performs recursive pattern matching starting from a root document
+ * to generate code for selected components recognized by the pattern
+ * matcher.  Handles more complicated code generation situations by
+ * delegating them to trait methods defined in other classes.
+ */
 object Runtime2CodeGenerator
   extends AlignmentFillCodeGenerator
   with BinaryBooleanCodeGenerator
@@ -57,6 +239,11 @@ object Runtime2CodeGenerator
   with BinaryFloatCodeGenerator
   with HexBinaryCodeGenerator {
 
+  /**
+   * Starting from a root document, performs recursive pattern
+   * matching to generate code for components recognized by the
+   * pattern matching code.
+   */
   def generateCode(gram: Gram, cgState: CodeGeneratorState): Unit = {
     gram match {
       case g: AlignmentFill => alignmentFillGenerateCode(g, cgState)

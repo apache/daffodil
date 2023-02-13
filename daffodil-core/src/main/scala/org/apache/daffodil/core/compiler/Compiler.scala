@@ -104,7 +104,7 @@ final class ProcessorFactory private(
     // it after we observe how the validator SPI evolves and wait for our
     // requirements to become clearer
     val className = language match {
-      case "c" => "org.apache.daffodil.runtime2.CodeGenerator"
+      case "c" => "org.apache.daffodil.runtime2.Runtime2CodeGenerator"
       case _ => throw new InvalidParserException(s"code generator; source language $language is not supported")
     }
     import scala.language.existentials // Needed to make next line compile

@@ -20,15 +20,14 @@ package org.apache.daffodil.runtime1.api
 import org.apache.daffodil.lib.api._
 
 import java.io.File
-
 import org.xml.sax.SAXException
 import org.xml.sax.XMLReader
 import org.xml.sax.ContentHandler
-
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.ProcessorResult
 import org.apache.daffodil.runtime1.processors.Success
@@ -123,25 +122,6 @@ object DFDL {
    * and/or generation of source code to process data matching the compiled schema
    */
   trait ProcessorFactory extends WithDiagnostics {
-
-    /**
-     * If you didn't set a root on the compiler, then get another
-     * chance to specify one here.
-     *
-     * If you don't set a root at all it uses the first element in the
-     * first schema document as the root.
-     *
-     * If you don't specify a namespace, or pass null, then it searches, and if
-     * it is unambiguous, it will use the unique global element with
-     * that name.
-     *
-     * Note: null used specifically here not an Option type, because this API
-     * will shine through to a Java API.
-     *
-     * To explicitly specify that there is no-namespace, pass "" as
-     * the namespace argument.
-     */
-
     /**
      * Returns a [[DataProcessor]] to process data matching a compiled XPath expression
      * @param xpath XPath expression in DFDL schema that data should match (you can use only "/" at this time)
@@ -175,7 +155,7 @@ object DFDL {
     def compileCode(codeDir: os.Path): os.Path
   }
 
-  trait DataProcessorBase {
+  trait DataProcessor extends WithDiagnostics {
     /**
      * Returns a data processor with all the same state, but the validation mode changed to that of the argument.
      *
@@ -195,9 +175,7 @@ object DFDL {
     def tunables: DaffodilTunables
     def variableMap: VariableMap
     def validationMode: ValidationMode.Type
-}
 
-  trait DataProcessor extends DataProcessorBase with WithDiagnostics {
     /**
      * Creates a new instance of XMLReader for SAX Parsing
      */
