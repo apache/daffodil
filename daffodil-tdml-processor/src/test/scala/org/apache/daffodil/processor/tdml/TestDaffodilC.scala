@@ -15,36 +15,44 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.runtime2
+package org.apache.daffodil.processor.tdml
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.nio.channels.Channels
-import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime2.Runtime2CodeGenerator
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.fail
 import org.junit.Test
 
 /**
- * Checks that we can create a [[CodeGenerator]] and call its methods.
- * The value of this test is to debug the call path from [[Compiler]]
- * to [[CodeGenerator]] for a single test DFDL schema.  Running TDML
- * tests with daffodil-runtime2 is a more effective way to check that
- * CodeGenerator can generate appropriate code for as many DFDL schemas
- * as you could want.
+ * Checks that we can generate C code from a DFDL schema, build an
+ * executable from the C code, and parse or unparse data or infosets
+ * with the executable.
+ * 
+ * Those tests run Runtime2CodeGenerator, Runtime2TDMLDFDLProcessor,
+ * and Runtime2TDMLDFDLProcessorFactory on a very simple, single DFDL
+ * schema to debug the complete call path.  You can test even more
+ * DFDL schemas by writing TDML tests and running them with DaffodilC.
  */
-class TestCodeGenerator {
-  // Ensure all tests remove tempDir after creating it
-  val tempDir: os.Path = os.temp.dir(dir = null, prefix = "daffodil-runtime2-")
+class TestDaffodilC {
+
+  // Defines temporary directory for all tests to use
+  val tempDir: os.Path = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
+
+  // Ensures each test cleans up temporary directory afterwards
   @After def after(): Unit = {
     os.remove.all(tempDir)
   }
 
-  // Define a simple DFDL test schema for debugging our code path
+  // Defines a very simple DFDL test schema for all tests to use
   private val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format representation="binary" ref="GeneralFormat"/>,
@@ -56,16 +64,19 @@ class TestCodeGenerator {
       </xs:complexType>
     </xs:element>)
 
-  @Test def test_forLanguageC_success(): Unit = {
+  // Checks that processorFactory.forLanguage("c") succeeds
+  @Test def test_forLanguage_success(): Unit = {
     // Create a ProcessorFactory from the test schema
     val pf = Compiler().compileNode(testSchema)
     assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
 
     // Create a CodeGenerator from the ProcessorFactory for a supported language
     val cg = pf.forLanguage("c")
+    assert(cg.isInstanceOf[Runtime2CodeGenerator])
     assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
   }
 
+  // Checks that processorFactory.forLanguage("hls") fails
   @Test def test_forLanguage_error(): Unit = {
     // Create a ProcessorFactory from the test schema
     val pf = Compiler().compileNode(testSchema)
@@ -73,11 +84,12 @@ class TestCodeGenerator {
 
     // Create a CodeGenerator from the ProcessorFactory for an unsupported language
     val e = intercept[Exception] {
-      pf.forLanguage("vhld")
+      pf.forLanguage("hls")
     }
-    assert(e.getMessage.contains("source language vhld is not supported"))
+    assert(e.getMessage.contains("source language hls is not supported"))
   }
 
+  // Checks that codeGenerator.generateCode(tempDir) succeeds
   @Test def test_generateCode_success(): Unit = {
     // Create a ProcessorFactory and CodeGenerator from the test schema
     val pf = Compiler().compileNode(testSchema)
@@ -95,6 +107,7 @@ class TestCodeGenerator {
     assert(os.exists(generatedCodeFile))
   }
 
+  // Checks that codeGenerator.compileCode(codeDir) succeeds
   @Test def test_compileCode_success(): Unit = {
     // Create a CodeGenerator and generate code from the test schema
     val pf = Compiler().compileNode(testSchema)
@@ -107,23 +120,25 @@ class TestCodeGenerator {
     assert(os.exists(executable))
   }
 
+  // Checks that daffodilTDMLDFDLProcessor.parse(goodData) succeeds
   @Test def test_parse_success(): Unit = {
-    // Compile the test schema into a C executable
+    // Compile the test schema into an executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
     val codeDir = cg.generateCode(tempDir.toString)
     val executable = cg.compileCode(codeDir)
 
-    // Create a Runtime2DataProcessor and parse a binary int32 number successfully
-    val dp = new Runtime2DataProcessor(executable)
-    val b = Misc.hex2Bytes("00000005")
+    // Create a Runtime2TDMLDFDLProcessor and parse a binary int32 number successfully
+    val tdp = new Runtime2TDMLDFDLProcessor(executable)
+    val b = Misc.hex2Bytes("00000500")
     val input = new ByteArrayInputStream(b)
-    val pr = dp.parse(input)
-    assert(!pr.isError && pf.getDiagnostics.isEmpty, pr.getDiagnostics.map(_.getMessage()).mkString("\n"))
-    val expected = <e1><x>5</x></e1>
-    TestUtils.assertEqualsXMLElements(expected, pr.infosetAsXML)
+    val pr = tdp.parse(input, b.length * 8)
+    assert(!pr.isProcessingError && pf.getDiagnostics.isEmpty, pr.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    val expected = <e1><x>1280</x></e1>
+    XMLUtils.compareAndReport(expected, pr.getResult)
   }
 
+  // Checks that daffodilTDMLDFDLProcessor.parse(badData) fails
   @Test def test_parse_error(): Unit = {
     // Compile the test schema into a C executable
     val pf = Compiler().compileNode(testSchema)
@@ -131,53 +146,66 @@ class TestCodeGenerator {
     val codeDir = cg.generateCode(tempDir.toString)
     val executable = cg.compileCode(codeDir)
 
-    // Create a Runtime2DataProcessor and parse an empty file unsuccessfully
-    val dp = new Runtime2DataProcessor(executable)
-    val b = Misc.hex2Bytes("")
+    // Create a Runtime2TDMLDFDLProcessor and parse an empty file unsuccessfully
+    val tdp = new Runtime2TDMLDFDLProcessor(executable)
+    val b = Misc.hex2Bytes("50")
     val input = new ByteArrayInputStream(b)
-    val pr = dp.parse(input)
-    assert(pr.isError, "expected pr.isError to be true")
+    val pr = tdp.parse(input, b.length * 8)
+    assert(pr.isProcessingError, "expected pr.isError to be true")
     assert(pr.getDiagnostics.nonEmpty, "expected pr.getDiagnostics to be non-empty")
   }
 
+  // Checks that daffodilTDMLDFDLProcessor.unparse(goodData) succeeds
   @Test def test_unparse_success(): Unit = {
-    // Compile the test schema into a C executable
+    // Compile the test schema into an executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
     val codeDir = cg.generateCode(tempDir.toString)
     val executable = cg.compileCode(codeDir)
 
-    // Create a Runtime2DataProcessor and unparse a binary int32 number successfully
-    val dp = new Runtime2DataProcessor(executable)
-    val input = Channels.newInputStream(Misc.stringToReadableByteChannel("<e1><x>5</x></e1>"))
+    // Create a Runtime2TDMLDFDLProcessor and unparse a binary int32 number successfully
+    val tdp = new Runtime2TDMLDFDLProcessor(executable)
+    val infosetXML = <e1 xmlns="http://example.com"><x>1280</x></e1>
     val output = new ByteArrayOutputStream()
-    val ur = dp.unparse(input, output)
-    assert(!ur.isError && pf.getDiagnostics.isEmpty, ur.getDiagnostics.map(_.getMessage()).mkString("\n"))
-    val expected = Misc.hex2Bytes("00000005")
+    val ur = tdp.unparse(infosetXML, output)
+    assert(!ur.isProcessingError && pf.getDiagnostics.isEmpty, ur.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    val expected = Misc.hex2Bytes("00000500")
     assertArrayEquals(expected, output.toByteArray)
   }
 
+  // Checks that daffodilTDMLDFDLProcessor.unparse(badData) fails
   @Test def test_unparse_error(): Unit = {
-    // Compile the test schema into a C executable
+    // Compile the test schema into an executable
     val pf = Compiler().compileNode(testSchema)
     val cg = pf.forLanguage("c")
     val codeDir = cg.generateCode(tempDir.toString)
     val executable = cg.compileCode(codeDir)
 
-    // Create a Runtime2DataProcessor and unparse a binary int32 number unsuccessfully
-    val dp = new Runtime2DataProcessor(executable)
-    val input = Channels.newInputStream(Misc.stringToReadableByteChannel("<e1><x>FAIL</x></e1>"))
+    // Create a Runtime2TDMLDFDLProcessor and unparse a binary int32 number unsuccessfully
+    val dp = new Runtime2TDMLDFDLProcessor(executable)
+    val infosetXML = <e1 xmlns="http://example.com"><x>FAIL</x></e1>
     val output = new ByteArrayOutputStream()
-    val ur = dp.unparse(input, output)
-    assert(ur.isError, "expected ur.isError to be true")
+    val ur = dp.unparse(infosetXML, output)
+    assert(ur.isProcessingError, "expected ur.isError to be true")
     assert(ur.getDiagnostics.nonEmpty, "expected ur.getDiagnostics to be non-empty")
   }
 
-  // Test added for code coverage because "sbt coverage compile" doesn't include genExamples
-  @Test def test_CodeGenerator_main(): Unit = {
-    val rootDir = if (os.exists(os.pwd/"src")) os.pwd/os.up else os.pwd
-    val examplesDir = rootDir/"daffodil-runtime2"/"target"/"test_CodeGenerator_main"
-    val args = Array(examplesDir.toString)
-    CodeGenerator.main(args)
+  // Checks that Runtime2TDMLDFDLProcessorFactory.getProcessor succeeds
+  @Test def test_getProcessor_success(): Unit = {
+    val processorFactory = new Runtime2TDMLDFDLProcessorFactory()
+    val schemaSource = UnitTestSchemaSource(testSchema, nameHint = "getProcessor", Some(tempDir.toIO))
+    val useSerializedProcessor = false
+    val optRootName = None
+    val optRootNamespace = None
+    val tunables = Map.empty[String, String]
+    val cr = processorFactory.getProcessor(schemaSource, useSerializedProcessor, optRootName, optRootNamespace, tunables)
+    cr match {
+      case Left(diagnostics) => fail(s"getProcessor failed: ${diagnostics.mkString}")
+      case Right((diagnostics, tdmlDFDLProcessor)) =>
+        assert(diagnostics.isEmpty)
+        assert(!tdmlDFDLProcessor.isError)
+        assert(tdmlDFDLProcessor.isInstanceOf[Runtime2TDMLDFDLProcessor])
+    }
   }
+
 }

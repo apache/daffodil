@@ -17,179 +17,280 @@
 
 package org.apache.daffodil.processor.tdml
 
-import org.apache.daffodil.tdml.processor._
-
-import java.io.ByteArrayInputStream
-
-import org.apache.daffodil.lib.api._
 import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.lib.externalvars.Binding
-import org.apache.daffodil.runtime2.ParseResult
-import org.apache.daffodil.runtime2.Runtime2DataProcessor
-import org.apache.daffodil.runtime2.UnparseResult
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
+import org.apache.daffodil.runtime1.processors.Failure
+import org.apache.daffodil.runtime1.processors.ProcessorResult
+import org.apache.daffodil.runtime1.processors.Success
+import org.apache.daffodil.runtime1.processors.parsers.ParseError
+import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
+import org.apache.daffodil.tdml.processor.AbstractTDMLDFDLProcessorFactory
+import org.apache.daffodil.tdml.processor.TDML
+import org.apache.daffodil.tdml.processor.TDMLDFDLProcessor
+import org.apache.daffodil.tdml.processor.TDMLParseResult
+import org.apache.daffodil.tdml.processor.TDMLUnparseResult
+import org.xml.sax.SAXParseException
+import os.CommandResult
 
+import java.io.FileNotFoundException
+import java.io.InputStream
+import java.io.OutputStream
 import scala.xml.Node
+import scala.xml.XML
 
-final class Runtime2TDMLDFDLProcessorFactory private(
-  private var compiler: Compiler,
-  private var checkAllTopLevel: Boolean,
-  validateDFDLSchemasArg: Boolean)
+/**
+  * A factory called by the TDML runner to create a TDMLDFDL processor.
+  * The factory is immutable and can be shared across threads.
+  */
+final class Runtime2TDMLDFDLProcessorFactory(compiler: Compiler)
   extends AbstractTDMLDFDLProcessorFactory {
 
-  override def validateDFDLSchemas = validateDFDLSchemasArg
+  def this() = this(Compiler())
+  private def copy(compiler: Compiler = compiler) =
+    new Runtime2TDMLDFDLProcessorFactory(compiler)
 
   override type R = Runtime2TDMLDFDLProcessorFactory
+  override def implementationName: String = TDMLImplementation.DaffodilC.toString
+  override def validateDFDLSchemas: Boolean = compiler.validateDFDLSchemas
+  override def withValidateDFDLSchemas(validateDFDLSchemas: Boolean): R =
+    copy(compiler.withValidateDFDLSchemas(validateDFDLSchemas))
+  override def withCheckAllTopLevel(checkAllTopLevel: Boolean): R =
+    copy(compiler.withCheckAllTopLevel(checkAllTopLevel))
+  override def withTunables(tunables: Map[String, String]): R =
+    copy(compiler.withTunables(tunables))
 
-  override def implementationName = TDMLImplementation.DaffodilC.toString
-
-  def this() = this(compiler = Compiler(validateDFDLSchemas = true),
-    checkAllTopLevel = false,
-    validateDFDLSchemasArg = true)
-
-  private def copy(
-    compiler: Compiler = compiler,
-    checkAllTopLevel: Boolean = checkAllTopLevel,
-    validateDFDLSchemas: Boolean = validateDFDLSchemas) =
-    new Runtime2TDMLDFDLProcessorFactory(compiler, checkAllTopLevel, validateDFDLSchemas)
-
-  override def withValidateDFDLSchemas(bool: Boolean): Runtime2TDMLDFDLProcessorFactory = {
-    copy(compiler = compiler.withValidateDFDLSchemas(bool))
-  }
-
-  override def withCheckAllTopLevel(checkAllTopLevel: Boolean): Runtime2TDMLDFDLProcessorFactory = {
-    copy(compiler = compiler.withCheckAllTopLevel(checkAllTopLevel))
-  }
-
-  override def withTunables(tunables: Map[String, String]): Runtime2TDMLDFDLProcessorFactory =
-    copy(compiler = compiler.withTunables(tunables))
-
-  // Return result is a TDML.CompileResult - so it's the result
-  // of compiling the schema for the test.
+  // Compiles the given schema and returns the result of compiling the
+  // schema (only diagnostics on left, or processor too on right)
   override def getProcessor(
     schemaSource: DaffodilSchemaSource,
     useSerializedProcessor: Boolean,
     optRootName: Option[String] = None,
     optRootNamespace: Option[String] = None,
-    tunables: Map[String, String]): TDML.CompileResult = {
+    tunables: Map[String, String],
+  ): TDML.CompileResult = {
 
-    // Compile the DFDL schema into a ProcessorFactory
+    // Compile the DFDL schema into diagnostics and/or a processor factory
     val pf = compiler.compileSource(schemaSource, optRootName, optRootNamespace)
     val res = if (pf.isError) {
       Left(pf.getDiagnostics) // DFDL schema compilation diagnostics
     } else {
-      // Create a CodeGenerator from the DFDL schema for the C language
+      // Create a code generator for the C language
       val generator = pf.forLanguage("c")
 
-      // Generate the C source code in a temporary unique directory
-      val tempDir = os.temp.dir(dir = null, prefix = "daffodil-runtime2-")
+      // Generate the C code in a temporary unique directory
+      val tempDir = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
       val codeDir = generator.generateCode(tempDir.toString)
 
-      // Compile the generated code into an executable
+      // Compile the C code into an executable
       val executable = generator.compileCode(codeDir)
 
-      // There is is no way to clean up TDMLDFDLProcessors, they are just garbage
+      // There is no way to clean up TDMLDFDLProcessors - they are just garbage
       // collected when no longer needed. So recursively mark all generated
       // files as deleteOnExit so we at least clean them up when the JVM exits
       os.walk.stream(tempDir).foreach { _.toIO.deleteOnExit() }
 
-      // Summarize the result of compiling the schema for the test
+      // Summarize the result of compiling the C code
       val compileResult = if (generator.isError) {
-        Left(generator.getDiagnostics) // C code compilation diagnostics
+        Left(generator.getDiagnostics) // C compilation diagnostics
       } else {
-        // Create a processor for running the test using the executable, passing it
-        // tempDir so its cleanUp function will delete tempDir for us
-        val processor = new Runtime2TDMLDFDLProcessor(tempDir, executable)
-        // Although we return generator diagnostics to TDMLRunner, TDMLRunner won't
-        // do anything with them in its usual path
+        // Create a processor for running the executable
+        val processor = new Runtime2TDMLDFDLProcessor(executable)
+        // Although we return C compilation diagnostics to TDMLRunner, TDMLRunner
+        // won't do anything with them in its usual path
         Right((generator.getDiagnostics, processor))
       }
       compileResult
     }
     res
   }
-
 }
 
 /**
- * Delegates all execution, error gathering, error access to the Runtime2DataProcessor.
- * The responsibility of this class is just for TDML matching up. That is dealing with
- * TDML XML Infosets, feeding to the unparser, creating XML from the result created by
- * the Runtime2DataProcessor. All the "real work" is done by Runtime2DataProcessor.
+ * A TDMLDFDL processor which runs an executable built from C code for
+ * a given DFDL schema.  Deals with TDML XML infosets, feeding to the
+ * executable, returning the output created by the executable, etc.
  */
-class Runtime2TDMLDFDLProcessor(tempDir: os.Path, executable: os.Path)
+final class Runtime2TDMLDFDLProcessor(executable: os.Path)
   extends TDMLDFDLProcessor {
 
+  // We don't pass any options to the executable
   override type R = Runtime2TDMLDFDLProcessor
-
-  private val dataProcessor = new Runtime2DataProcessor(executable)
-
-  override def withDebugging(b: Boolean): Runtime2TDMLDFDLProcessor = this
-
-  override def withTracing(bool: Boolean): Runtime2TDMLDFDLProcessor = this
-
-  override def withDebugger(db: AnyRef): Runtime2TDMLDFDLProcessor = this
-
-  override def withValidationMode(validationMode: ValidationMode.Type): Runtime2TDMLDFDLProcessor = this
-
-  override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): Runtime2TDMLDFDLProcessor = this
-
-  // No need to report errors from this class itself
+  override def withDebugging(onOff: Boolean): R = this
+  override def withTracing(onOff: Boolean): R = this
+  override def withDebugger(db: AnyRef): R = this
+  override def withValidationMode(validationMode: ValidationMode.Type): R = this
+  override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R = this
+  // We return errors and diagnostics in TDMLParseResult and TDMLUnparseResult
   override def isError: Boolean = false
   override def getDiagnostics: Seq[Diagnostic] = Seq.empty
 
-  // Run the C code, collect and save the infoset with any errors and
-  // diagnostics, and return a [[TDMLParseResult]] summarizing the result.
-  // The C code will run in a subprocess, parse the input stream, write
-  // an XML infoset on its standard output, and write any error messages
-  // on its standard output (all done in [[Runtime2DataProcessor.parse]]).
-  override def parse(is: java.io.InputStream, lengthLimitInBits: Long): TDMLParseResult = {
-    // TODO: pass lengthLimitInBits to the C program to tell it how big the data is
-    val pr = dataProcessor.parse(is)
-    new Runtime2TDMLParseResult(pr)
+  // Parses the input stream to an infoset and returns a TDMLParseResult
+  // containing the infoset with any errors and diagnostics.
+  //
+  // We save the input stream to an input file and run the executable in a
+  // subprocess.  The executable will parse data from the input file and write an
+  // infoset to an output file.  We return the infoset with any errors and
+  // diagnostics messages written by the executable on its standard error and/or
+  // output.
+  override def parse(input: InputStream, lengthLimitInBits: Long): TDMLParseResult = {
+    // Write the input to an input file to let the executable parse it
+    val tempDir = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
+    val infile = tempDir/"infile"
+    val outfile = tempDir/"outfile"
+    os.write(infile, input)
+
+    // Verify the input file has the correct size TDML runner said it would
+    val inputSizeInBits = os.size(infile) * 8
+    assert(inputSizeInBits == lengthLimitInBits, s"$infile has $inputSizeInBits bits, but needed $lengthLimitInBits bits")
+
+    // Parse the input file using the executable and capture its exit status
+    val parseResult = try {
+      // Darwin and MSYS2 support only "daffodil -o outfile parse infile" (all getopt options must come first)
+      val result = os.proc(executable, "-o", outfile, "parse", infile).call(cwd = tempDir, stderr = os.Pipe)
+      new Runtime2TDMLParseResult(result, lengthLimitInBits, outfile, Success)
+    } catch {
+      case e: os.SubprocessException =>
+        val result = e.result
+        val parseError = new ParseError(Nope, Nope, Maybe(e), Nope)
+        new Runtime2TDMLParseResult(result, lengthLimitInBits, outfile, Failure(parseError))
+    } finally {
+      os.remove.all(tempDir)
+    }
+
+    parseResult
   }
 
-  // Run the C code, collect and save the unparsed data with any errors and
-  // diagnostics, and return a [[TDMLUnparseResult]] summarizing the result.
-  // The C code will run in a subprocess, unparse the input stream, write
-  // the unparsed data on its standard output, and write any error messages
-  // on its standard output (all done in [[Runtime2DataProcessor.unparse]]).
-  override def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult = {
-    val inStream = new ByteArrayInputStream(infosetXML.toString.getBytes())
-    val upr = dataProcessor.unparse(inStream, outStream)
-    new Runtime2TDMLUnparseResult(upr)
+  // Unparses the infoset and returns a TDMLUnparseResult containing the data with
+  // any errors and diagnostics.
+  //
+  // We save the infoset to an input file and run the executable in a subprocess.
+  // The executable will unparse the infoset and write data to an output file.  We
+  // return the data with any errors and diagnostics messages written by the
+  // executable on its standard error and/or output.
+  override def unparse(infosetXML: Node, output: OutputStream): TDMLUnparseResult = {
+    // Write the infoset to an input file to let the executable parse it
+    val tempDir = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
+    val infile = tempDir/"infile"
+    val outfile = tempDir/"outfile"
+    os.write(infile, infosetXML.toString)
+
+    // Unparse the infoset using the executable, capture its exit status, and return the data
+    val unparseResult = try {
+      // Darwin and MSYS2 support only "daffodil -o outfile parse infile" (all getopt options must come first)
+      val result = os.proc(executable, "-o", outfile, "unparse", infile).call(cwd = tempDir, stderr = os.Pipe)
+      os.read.stream(outfile).writeBytesTo(output)
+      val finalBitPos0b = os.size(outfile) * 8
+      new Runtime2TDMLUnparseResult(result, finalBitPos0b, Success)
+    } catch {
+      case e: os.SubprocessException =>
+        val result = e.result
+        val finalBitPos0b = os.size(outfile) * 8
+        val unparseError = new UnparseError(Nope, Nope, Maybe(e), Nope)
+        new Runtime2TDMLUnparseResult(result, finalBitPos0b, Failure(unparseError))
+    } finally {
+      os.remove.all(tempDir)
+    }
+
+    unparseResult
   }
 
-  def unparse(parseResult: TDMLParseResult, outStream: java.io.OutputStream): TDMLUnparseResult = {
-    unparse(parseResult.getResult, outStream)
+  // Complete a round trip from data to infoset and back to data
+  def unparse(parseResult: TDMLParseResult, outStream: OutputStream): TDMLUnparseResult = {
+    val infosetXML = parseResult.getResult
+    val res = unparse(infosetXML, outStream)
+    res
   }
 }
 
-final class Runtime2TDMLParseResult(pr: ParseResult) extends TDMLParseResult {
-  override def addDiagnostic(failure: Diagnostic): Unit = pr.addDiagnostic(failure)
+/**
+ * A TDML parse result which captures the result of running the executable
+ */
+final class Runtime2TDMLParseResult(
+  result: CommandResult,
+  finalBitPos0b: Long,
+  outfile: os.Path,
+  processorResult: ProcessorResult,
+) extends TDMLParseResult {
 
-  override def getResult: Node = pr.infosetAsXML
+  private var diagnostics: Seq[Diagnostic] = processorResult match {
+    case Success =>
+      if (result.chunks.nonEmpty) List(Runtime2TDMLMessages(result.toString())) else Nil
+    case Failure(cause) => List(cause)
+  }
 
-  override def currentLocation: DataLocation = pr.currentLocation
+  override def addDiagnostic(diagnostic: Diagnostic): Unit = {
+    diagnostics = diagnostics :+ diagnostic
+  }
 
-  override def isValidationError: Boolean = pr.isValidationError
+  // We must read outFile right away (def or lazy val will not work) because the parse
+  // method will delete outFile before returning the parse result, but we must prevent
+  // loadFile errors from interrupting the parse result's construction
+  override val getResult: Node = {
+    val elem = try {
+      XML.loadFile(outfile.toIO)
+    } catch {
+      case _: FileNotFoundException => <noFile></noFile>
+      case _: SAXParseException => <parseError></parseError>
+    }
+    elem
+  }
 
-  override def isProcessingError: Boolean = pr.isProcessingError
-
-  override def getDiagnostics: Seq[Diagnostic] = pr.getDiagnostics
+  override def currentLocation: DataLocation = Runtime2TDMLDataLocation(finalBitPos0b)
+  override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
+  override def isProcessingError: Boolean = processorResult.isFailure
+  override def getDiagnostics: Seq[Diagnostic] = diagnostics
 }
 
-final class Runtime2TDMLUnparseResult(upr: UnparseResult) extends TDMLUnparseResult {
-  override def bitPos0b: Long = upr.finalBitPos0b
+/**
+ * A TDML diagnostic which captures the executable's standard output/error
+ */
+final case class Runtime2TDMLMessages(messages: String)
+  extends SchemaDefinitionDiagnosticBase(Nope, Nope, None, Nope, Maybe(messages)) {
 
-  override def finalBitPos0b: Long = upr.finalBitPos0b
+  override def isValidation: Boolean = true
+  override def isError: Boolean = false
+  override protected def modeName: String = TDMLImplementation.DaffodilC.toString
+}
 
-  override def isScannable: Boolean = upr.isScannable
+/**
+ * A TDML data location which captures the executable's final position
+ */
+object Runtime2TDMLDataLocation {
+  // DataLocation stores 1-based bit/byte positions
+  private class Runtime2TDMLDataLocation(val bitPos1b: Long, val bytePos1b: Long)
+    extends DataLocation
+  // We pass a 0-based bit position, so we have to add 1 to it
+  def apply(finalBitPos0b: Long): DataLocation =
+    new Runtime2TDMLDataLocation(finalBitPos0b + 1, (finalBitPos0b + 1) / 8)
+}
 
-  override def encodingName: String = upr.encodingName
+/**
+ * A TDML unparse result which captures the result of running the executable
+ */
+final class Runtime2TDMLUnparseResult(
+  result: CommandResult,
+  override val finalBitPos0b: Long,
+  processorResult: ProcessorResult,
+) extends TDMLUnparseResult {
 
-  override def isValidationError: Boolean = upr.isValidationError
+  private val diagnostics: Seq[Diagnostic] = processorResult match {
+    case Success =>
+      if (result.chunks.nonEmpty) List(Runtime2TDMLMessages(result.toString())) else Nil
+    case Failure(cause) => List(cause)
+  }
 
-  override def isProcessingError: Boolean = upr.isProcessingError
-
-  override def getDiagnostics: Seq[Diagnostic] = upr.getDiagnostics
+  override def bitPos0b: Long = finalBitPos0b
+  override def isScannable: Boolean = false // binary data is not scannable
+  override def encodingName: String = "" // encoding needed only if scannable
+  override def isValidationError: Boolean = diagnostics.exists(_.isValidation)
+  override def isProcessingError: Boolean = processorResult.isFailure
+  override def getDiagnostics: Seq[Diagnostic] = diagnostics
 }
