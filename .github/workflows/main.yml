@@ -24,10 +24,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-# Cancel CI runs in progress when a branch or pull request is updated.
-
+# Cancel CI runs in progress when a pull request is updated.
 concurrency:
-  group: ${{ github.actor }}-${{ github.head_ref || github.ref_name }}-${{ github.workflow }}
+  group: ${{ github.head_ref || ((github.ref_name != 'main' && github.ref_name) || github.run_id) }}-${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
