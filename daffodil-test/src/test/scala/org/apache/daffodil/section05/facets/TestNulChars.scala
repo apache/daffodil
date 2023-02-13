@@ -35,6 +35,6 @@ class TestNulChars {
   // DAFFODIL-2363 &#xE000; (NUL replacement into XML) can't be used in pattern facet. With full validation.
   @Test def test_nulPattern1() = { runner.runOneTest("nulPattern1") }
 
-  // DAFFODIL-2364 - infinite loop
-  // @Test def test_nulPad1() = { runner.runOneTest("nulPad1") }
+  @Test def test_nulPad1() = { runner.runOneTest("nulPad1") }
+  @Test def test_nulPad2() = { runner.runOneTest("nulPad2") }
 }
