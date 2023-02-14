@@ -87,7 +87,9 @@ object AssertMacros {
     """
   }
 
-  def notYetImplementedMacro2(c: Context)(testThatWillThrowIfTrue: c.Tree, msg: c.Tree): c.Tree = {
+  def notYetImplementedMacro2(
+    c: Context,
+  )(testThatWillThrowIfTrue: c.Tree, msg: c.Tree): c.Tree = {
     import c.universe._
 
     val testAsString = testThatWillThrowIfTrue.toString

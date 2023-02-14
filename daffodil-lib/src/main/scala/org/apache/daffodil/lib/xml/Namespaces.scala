@@ -18,9 +18,10 @@
 package org.apache.daffodil.lib.xml
 
 import java.net.URI
+
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.UniquenessCache
 import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.UniquenessCache
 
 /**
  * Central factory for, and class to represent namespace URIs
@@ -79,7 +80,8 @@ object NoNamespace extends NS(null) {
   override def toString = "No_Namespace"
   override def uri = Assert.usageError("No-namespace has no URI.")
   override def optURI = Nope
-  override def toStringOrNullIfNoNS: String = null // most places in Java APIs, no namespace is represented by null.
+  override def toStringOrNullIfNoNS: String =
+    null // most places in Java APIs, no namespace is represented by null.
   override def explainForMsg = "in no namespace"
 }
 
@@ -93,7 +95,8 @@ object UnspecifiedNamespace extends NS(null) {
   override def toString = "Unspecified_Namespace"
   override def uri = Assert.usageError("UnspecifiedNamespace has no URI.")
   override def optURI = Nope
-  override def toStringOrNullIfNoNS: String = null // most places in Java APIs, no namespace is represented by null.
+  override def toStringOrNullIfNoNS: String =
+    null // most places in Java APIs, no namespace is represented by null.
   override def explainForMsg = "with unspecified namespace"
 }
 
@@ -124,7 +127,9 @@ sealed class NS protected (uriArg: URI) extends Serializable { // protected cons
 
   override def equals(other: Any): Boolean = {
     if (this eq other.asInstanceOf[AnyRef]) return true
-    Assert.invariant(this.toString != other.toString) // this fails if the cache isn't being used
+    Assert.invariant(
+      this.toString != other.toString,
+    ) // this fails if the cache isn't being used
     false
   }
 }

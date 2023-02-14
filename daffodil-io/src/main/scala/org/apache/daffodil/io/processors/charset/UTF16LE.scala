@@ -17,28 +17,32 @@
 
 package org.apache.daffodil.io.processors.charset
 
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.io.InputSourceDataInputStream
 
-object BitsCharsetUTF16LE extends {
-  override val name = "UTF-16LE"
-} with BitsCharsetJava {
+object BitsCharsetUTF16LE
+  extends {
+    override val name = "UTF-16LE"
+  }
+  with BitsCharsetJava {
 
   override def newDecoder() = new BitsCharsetDecoderUTF16LE()
 }
 
-class BitsCharsetDecoderUTF16LE
-  extends BitsCharsetDecoderCreatesSurrogates {
+class BitsCharsetDecoderUTF16LE extends BitsCharsetDecoderCreatesSurrogates {
 
-  protected override def decodeOneUnicodeChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
+  protected override def decodeOneUnicodeChar(
+    dis: InputSourceDataInputStream,
+    finfo: FormatInfo,
+  ): Char = {
     val byte2 = getByte(dis, 0)
     val byte1 = getByte(dis, 8)
-  
+
     val high = (byte1 << 8) | byte2
 
-    if (high >= 0xD800 && high <= 0xDFFF) {
+    if (high >= 0xd800 && high <= 0xdfff) {
       // surrogate pair, this needs to be a high surrogate or its an error
-      if (high >= 0xDC00) throw new BitsCharsetDecoderMalformedException(16)
+      if (high >= 0xdc00) throw new BitsCharsetDecoderMalformedException(16)
 
       // this is a valid high surrogate pair, need to get the low and save it
       // for the next decode
@@ -47,7 +51,7 @@ class BitsCharsetDecoderUTF16LE
 
       val low = (byte3 << 8) | byte4
       // ensure valid low surrogate
-      if (low < 0xDC00 || low > 0xDFFF) throw new BitsCharsetDecoderMalformedException(32)
+      if (low < 0xdc00 || low > 0xdfff) throw new BitsCharsetDecoderMalformedException(32)
 
       setLowSurrogate(low.toChar)
     }
@@ -55,5 +59,4 @@ class BitsCharsetDecoderUTF16LE
   }
 }
 
-final class BitsCharsetUTF16LEDefinition
-  extends BitsCharsetDefinition(BitsCharsetUTF16LE)
+final class BitsCharsetUTF16LEDefinition extends BitsCharsetDefinition(BitsCharsetUTF16LE)

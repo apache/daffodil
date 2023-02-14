@@ -20,7 +20,7 @@ package org.apache.daffodil.japi.io
 import java.io.InputStream
 import java.nio.ByteBuffer
 
-import org.apache.daffodil.io.{InputSourceDataInputStream => SInputSourceDataInputStream}
+import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataInputStream }
 
 /**
  * Provides Daffodil with byte data from an InputStream, ByteBuffer, or byte
@@ -28,7 +28,9 @@ import org.apache.daffodil.io.{InputSourceDataInputStream => SInputSourceDataInp
  *
  * @param dis the underlying Scala InputSourceDataInputStream
  */
-class InputSourceDataInputStream private[japi](private[japi] val dis: SInputSourceDataInputStream) {
+class InputSourceDataInputStream private[japi] (
+  private[japi] val dis: SInputSourceDataInputStream,
+) {
 
   /**
    * Create an InputSourceDataInputStream from a java.io.InputStream

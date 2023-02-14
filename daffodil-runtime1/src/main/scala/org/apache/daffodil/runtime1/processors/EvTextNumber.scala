@@ -18,32 +18,32 @@
 package org.apache.daffodil.runtime1.processors
 
 import java.math.RoundingMode
-   
 import scala.collection.mutable
 
-import com.ibm.icu.text.DecimalFormat
-import com.ibm.icu.text.DecimalFormatSymbols
-
-import org.apache.daffodil.runtime1.dsom._
-import org.apache.daffodil.lib.cookers.TextStandardGroupingSeparatorCooker
 import org.apache.daffodil.lib.cookers.TextBooleanFalseRepCooker
-import org.apache.daffodil.lib.cookers.TextStandardExponentRepCooker
 import org.apache.daffodil.lib.cookers.TextBooleanTrueRepCooker
 import org.apache.daffodil.lib.cookers.TextStandardDecimalSeparatorCooker
+import org.apache.daffodil.lib.cookers.TextStandardExponentRepCooker
+import org.apache.daffodil.lib.cookers.TextStandardGroupingSeparatorCooker
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberCheckPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRoundingMode
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.lib.util.MaybeDouble
-import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberCheckPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
-import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRoundingMode
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.dsom._
+
+import com.ibm.icu.text.DecimalFormat
+import com.ibm.icu.text.DecimalFormatSymbols
 
 class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], tci: DPathCompileInfo)
   extends EvaluatableConvertedExpression[String, List[String]](
     expr,
     TextStandardDecimalSeparatorCooker,
-    tci)
+    tci,
+  )
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Vector()
 }
@@ -52,7 +52,8 @@ class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], tci: DPa
   extends EvaluatableConvertedExpression[String, String](
     expr,
     TextStandardGroupingSeparatorCooker,
-    tci)
+    tci,
+  )
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
 }
@@ -61,7 +62,8 @@ class TextStandardExponentRepEv(expr: CompiledExpression[String], tci: DPathComp
   extends EvaluatableConvertedExpression[String, String](
     expr,
     TextStandardExponentRepCooker,
-    tci)
+    tci,
+  )
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
 }
@@ -80,29 +82,33 @@ class TextNumberFormatEv(
   roundingIncrement: MaybeDouble,
   zeroRepsRaw: List[String],
   isInt: Boolean,
-  primType: PrimType)
-  extends Evaluatable[DecimalFormat](tci)
+  primType: PrimType,
+) extends Evaluatable[DecimalFormat](tci)
   with InfosetCachedEvaluatable[DecimalFormat] {
 
-  override lazy val runtimeDependencies = (decimalSepEv.toList ++ groupingSepEv.toList ++ exponentRepEv.toList).toVector
+  override lazy val runtimeDependencies =
+    (decimalSepEv.toList ++ groupingSepEv.toList ++ exponentRepEv.toList).toVector
 
   private def checkUnique(
     decimalSep: MaybeChar,
     groupingSep: MaybeChar,
-    exponentRep: Maybe[String]): Unit = {
+    exponentRep: Maybe[String],
+  ): Unit = {
 
-    val mm = new mutable.HashMap[String, mutable.Set[String]] with mutable.MultiMap[String, String]
-    if (decimalSep.isDefined) mm.addBinding(decimalSep.get.toString, "textStandardDecimalSeparator")
-    if (groupingSep.isDefined) mm.addBinding(groupingSep.get.toString, "textStandardGroupingSeparator")
+    val mm = new mutable.HashMap[String, mutable.Set[String]]
+      with mutable.MultiMap[String, String]
+    if (decimalSep.isDefined)
+      mm.addBinding(decimalSep.get.toString, "textStandardDecimalSeparator")
+    if (groupingSep.isDefined)
+      mm.addBinding(groupingSep.get.toString, "textStandardGroupingSeparator")
     if (exponentRep.isDefined) mm.addBinding(exponentRep.get, "textStandardExponentRep")
     if (infRep.isDefined) mm.addBinding(infRep.get, "textStandardInfinityRep")
     if (nanRep.isDefined) mm.addBinding(nanRep.get, "textStandardNaNRep")
     zeroRepsRaw.foreach { zr => mm.addBinding(zr, "textStandardZeroRep") }
 
     val dupes = mm.filter { case (k, s) => s.size > 1 }
-    val dupeStrings = dupes.map {
-      case (k, s) =>
-        "Non-distinct property '%s' found in: %s".format(k, s.mkString(", "))
+    val dupeStrings = dupes.map { case (k, s) =>
+      "Non-distinct property '%s' found in: %s".format(k, s.mkString(", "))
     }
     tci.schemaDefinitionUnless(dupeStrings.size == 0, dupeStrings.mkString("\n"))
   }
@@ -120,7 +126,8 @@ class TextNumberFormatEv(
   private def generateNumFormat(
     decimalSep: MaybeChar,
     groupingSep: MaybeChar,
-    exponentRep: Maybe[String]): DecimalFormat = {
+    exponentRep: Maybe[String],
+  ): DecimalFormat = {
 
     val dfs = new DecimalFormatSymbols()
 
@@ -191,8 +198,10 @@ class TextNumberFormatEv(
       val seps = decimalSepEv.get.evaluate(state)
       if (seps.length > 1) {
         // ICU only supports a single decimal separator
-        tci.SDE("More than one textStandardDecimalSeparator '%s'. Only a single one is supported.",
-          seps.mkString(" "))
+        tci.SDE(
+          "More than one textStandardDecimalSeparator '%s'. Only a single one is supported.",
+          seps.mkString(" "),
+        )
       }
       MaybeChar(seps.head(0))
     } else {
@@ -211,43 +220,45 @@ class TextNumberFormatEv(
       Nope
     }
 
-    checkUnique(
-      decimalSepList,
-      groupingSep,
-      exponentRep)
+    checkUnique(decimalSepList, groupingSep, exponentRep)
 
-    val numFormat = generateNumFormat(
-      decimalSepList,
-      groupingSep,
-      exponentRep)
+    val numFormat = generateNumFormat(decimalSepList, groupingSep, exponentRep)
 
     numFormat
   }
-  
+
 }
 
-
-class TextBooleanTrueRepEv(exprT: CompiledExpression[String], falseRepEv: TextBooleanFalseRepEv, mustBeSameLength: Boolean, tci: DPathCompileInfo)
-  extends EvaluatableConvertedExpression[String, List[String]](
+class TextBooleanTrueRepEv(
+  exprT: CompiledExpression[String],
+  falseRepEv: TextBooleanFalseRepEv,
+  mustBeSameLength: Boolean,
+  tci: DPathCompileInfo,
+) extends EvaluatableConvertedExpression[String, List[String]](
     exprT,
     TextBooleanTrueRepCooker,
-    tci)
+    tci,
+  )
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Vector()
 
   override final protected def compute(state: ParseOrUnparseState): List[String] = {
     if (mustBeSameLength) {
 
-      //All values of textBooleanTrueRep and textBooleanFalseRep must be equal in length
+      // All values of textBooleanTrueRep and textBooleanFalseRep must be equal in length
       val textBooleanTrueReps: List[String] = super.compute(state)
       val textBooleanFalseReps: List[String] = falseRepEv.evaluate(state)
 
       val trueLength = textBooleanTrueReps(0).length
       val falseLength = textBooleanFalseReps(0).length
-      if (trueLength != falseLength ||
+      if (
+        trueLength != falseLength ||
         textBooleanTrueReps.exists(x => x.length != trueLength) ||
-        textBooleanFalseReps.exists(x => x.length != falseLength)) {
-        tci.schemaDefinitionError("If dfdl:lengthKind is 'explicit' or 'implicit' and either dfdl:textPadKind or dfdl:textTrimKind  is 'none' then both dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length.")
+        textBooleanFalseReps.exists(x => x.length != falseLength)
+      ) {
+        tci.schemaDefinitionError(
+          "If dfdl:lengthKind is 'explicit' or 'implicit' and either dfdl:textPadKind or dfdl:textTrimKind  is 'none' then both dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length.",
+        )
       }
       textBooleanTrueReps
     } else {
@@ -260,7 +271,8 @@ class TextBooleanFalseRepEv(expr: CompiledExpression[String], tci: DPathCompileI
   extends EvaluatableConvertedExpression[String, List[String]](
     expr,
     TextBooleanFalseRepCooker,
-    tci)
+    tci,
+  )
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Vector()
 }

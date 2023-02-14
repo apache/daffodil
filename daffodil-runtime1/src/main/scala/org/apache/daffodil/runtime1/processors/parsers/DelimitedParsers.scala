@@ -17,24 +17,27 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.TextJustificationType
-import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
-import org.apache.daffodil.runtime1.processors.EscapeSchemeBlockParserHelper
-import org.apache.daffodil.runtime1.processors.dfa
+import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.PackedSignCodes
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.EscapeSchemeBlockParserHelper
+import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
+import org.apache.daffodil.runtime1.processors.TextJustificationType
+import org.apache.daffodil.runtime1.processors.dfa
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
-import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserWithEscapeBlock
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.equality._; object ENoWarn { EqualitySuppressUnusedImportWarning() }
+import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserWithEscapeBlock;
+object ENoWarn { EqualitySuppressUnusedImportWarning() }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
 import java.nio.charset.StandardCharsets
-import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
-import org.apache.daffodil.lib.util.MaybeChar
-import org.apache.daffodil.lib.util.DecimalUtils
-import org.apache.daffodil.runtime1.processors.AllTerminatingMarkupDelimiterIterator
-import passera.unsigned.ULong
+
 import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
+import org.apache.daffodil.lib.util.DecimalUtils
+import org.apache.daffodil.lib.util.MaybeChar
+import org.apache.daffodil.runtime1.processors.AllTerminatingMarkupDelimiterIterator
+
+import passera.unsigned.ULong
 
 class StringDelimitedParser(
   override val context: ElementRuntimeData,
@@ -42,8 +45,8 @@ class StringDelimitedParser(
   pad: MaybeChar,
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
-  isDelimRequired: Boolean)
-  extends TextPrimParser
+  isDelimRequired: Boolean,
+) extends TextPrimParser
   with CaptureParsingValueLength {
 
   override val runtimeDependencies = Vector(fieldDFAEv, context.encInfo.charsetEv)
@@ -52,7 +55,8 @@ class StringDelimitedParser(
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
 
-    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), context.diagnosticDebugName)
+    if (!parseResult.isDefined)
+      this.PE(state, "%s - %s - Parse failed.", this.toString(), context.diagnosticDebugName)
     else {
       val result = parseResult.get
       val field = if (result.field.isDefined) result.field.get else ""
@@ -71,15 +75,31 @@ class StringDelimitedParser(
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
-    val delimIter = new AllTerminatingMarkupDelimiterIterator(start.mpstate.delimiters, start.mpstate.delimitersLocalIndexStack.top)
+    val delimIter = new AllTerminatingMarkupDelimiterIterator(
+      start.mpstate.delimiters,
+      start.mpstate.delimitersLocalIndexStack.top,
+    )
     val fieldDFA = fieldDFAEv.evaluate(start)
 
     start.clearDelimitedParseResult
 
     val result = {
       if (textParser.isInstanceOf[TextDelimitedParserWithEscapeBlock]) {
-        val s = fieldDFAEv.escapeSchemeEv.get.evaluate(start).asInstanceOf[EscapeSchemeBlockParserHelper]
-        textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(start, start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delimIter, isDelimRequired)
+        val s = fieldDFAEv.escapeSchemeEv.get
+          .evaluate(start)
+          .asInstanceOf[EscapeSchemeBlockParserHelper]
+        textParser
+          .asInstanceOf[TextDelimitedParserWithEscapeBlock]
+          .parse(
+            start,
+            start.dataInputStream,
+            fieldDFA,
+            s.fieldEscDFA,
+            s.blockStartDFA,
+            s.blockEndDFA,
+            delimIter,
+            isDelimRequired,
+          )
       } else {
         textParser.parse(start, start.dataInputStream, fieldDFA, delimIter, isDelimRequired)
       }
@@ -96,8 +116,8 @@ class LiteralNilDelimitedEndOfDataParser(
   fieldDFAEv: FieldDFAParseEv,
   override val cookedNilValuesForParse: List[String],
   rawNilValuesForParse: List[String],
-  override val ignoreCase: Boolean)
-  extends StringDelimitedParser(erd, justificationTrim, pad, textParser, fieldDFAEv, false)
+  override val ignoreCase: Boolean,
+) extends StringDelimitedParser(erd, justificationTrim, pad, textParser, fieldDFAEv, false)
   with NilMatcherMixin {
 
   val isDelimRequired: Boolean = false
@@ -108,7 +128,13 @@ class LiteralNilDelimitedEndOfDataParser(
         "(one of) '" + rawNilValuesForParse.mkString(" ") + "'."
       else
         "'" + rawNilValuesForParse.head + "'"
-    this.PE(state, "%s - %s - Parse failed. Does not contain a nil literal matching %s", this.toString(), erd.diagnosticDebugName, nilValuesDescription)
+    this.PE(
+      state,
+      "%s - %s - Parse failed. Does not contain a nil literal matching %s",
+      this.toString(),
+      erd.diagnosticDebugName,
+      nilValuesDescription,
+    )
   }
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
@@ -120,8 +146,10 @@ class LiteralNilDelimitedEndOfDataParser(
       val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
 
       lazy val isNilLiteral = isFieldNilLiteralValue(field)
-      if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any.
-        isNilLiteral) { // Not empty, but matches.
+      if (
+        (isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any.
+        isNilLiteral
+      ) { // Not empty, but matches.
         // Contains a nilValue, Success!
         state.thisElement.setNilled()
         captureValueLengthOfString(state, field)
@@ -139,8 +167,15 @@ class HexBinaryDelimitedParser(
   erd: ElementRuntimeData,
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
-  isDelimRequired: Boolean)
-  extends StringDelimitedParser(erd, TextJustificationType.None, MaybeChar.Nope, textParser, fieldDFAEv, isDelimRequired) {
+  isDelimRequired: Boolean,
+) extends StringDelimitedParser(
+    erd,
+    TextJustificationType.None,
+    MaybeChar.Nope,
+    textParser,
+    fieldDFAEv,
+    isDelimRequired,
+  ) {
 
   /**
    * HexBinary is just a string in iso-8859-1 encoding.
@@ -155,9 +190,12 @@ class HexBinaryDelimitedParser(
    */
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
-    Assert.invariant(erd.encodingInfo.isKnownEncoding && erd.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1)
+    Assert.invariant(
+      erd.encodingInfo.isKnownEncoding && erd.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1,
+    )
 
-    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.diagnosticDebugName)
+    if (!parseResult.isDefined)
+      this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.diagnosticDebugName)
     else {
       val result = parseResult.get
       val field = if (result.field.isDefined) result.field.get else ""
@@ -175,11 +213,13 @@ class PackedIntegerDelimitedParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
-  packedSignCodes: PackedSignCodes)
-  extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
+  packedSignCodes: PackedSignCodes,
+) extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
+  override def toBigInteger(num: Array[Byte]): JBigInteger =
+    DecimalUtils.packedToBigInteger(num, packedSignCodes)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
+    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
 
 }
 
@@ -189,11 +229,19 @@ class PackedDecimalDelimitedParser(
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
   binaryDecimalVirtualPoint: Int,
-  packedSignCodes: PackedSignCodes)
-  extends PackedBinaryDecimalDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired, binaryDecimalVirtualPoint) {
+  packedSignCodes: PackedSignCodes,
+) extends PackedBinaryDecimalDelimitedBaseParser(
+    erd,
+    textParser,
+    fieldDFAEv,
+    isDelimRequired,
+    binaryDecimalVirtualPoint,
+  ) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
+  override def toBigInteger(num: Array[Byte]): JBigInteger =
+    DecimalUtils.packedToBigInteger(num, packedSignCodes)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
+    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
 
 }
 
@@ -201,11 +249,12 @@ class BCDIntegerDelimitedParser(
   erd: ElementRuntimeData,
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
-  isDelimRequired: Boolean)
-  extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
+  isDelimRequired: Boolean,
+) extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
 
   override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.bcdToBigDecimal(num, scale)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
+    DecimalUtils.bcdToBigDecimal(num, scale)
 
 }
 
@@ -214,11 +263,18 @@ class BCDDecimalDelimitedParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
-  binaryDecimalVirtualPoint: Int)
-  extends PackedBinaryDecimalDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired, binaryDecimalVirtualPoint) {
+  binaryDecimalVirtualPoint: Int,
+) extends PackedBinaryDecimalDelimitedBaseParser(
+    erd,
+    textParser,
+    fieldDFAEv,
+    isDelimRequired,
+    binaryDecimalVirtualPoint,
+  ) {
 
   override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.bcdToBigDecimal(num, scale)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
+    DecimalUtils.bcdToBigDecimal(num, scale)
 
 }
 
@@ -226,11 +282,13 @@ class IBM4690PackedIntegerDelimitedParser(
   erd: ElementRuntimeData,
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
-  isDelimRequired: Boolean)
-  extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
+  isDelimRequired: Boolean,
+) extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.ibm4690ToBigDecimal(num, scale)
+  override def toBigInteger(num: Array[Byte]): JBigInteger =
+    DecimalUtils.ibm4690ToBigInteger(num)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
+    DecimalUtils.ibm4690ToBigDecimal(num, scale)
 
 }
 
@@ -239,10 +297,18 @@ class IBM4690PackedDecimalDelimitedParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
-  binaryDecimalVirtualPoint: Int)
-  extends PackedBinaryDecimalDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired, binaryDecimalVirtualPoint) {
+  binaryDecimalVirtualPoint: Int,
+) extends PackedBinaryDecimalDelimitedBaseParser(
+    erd,
+    textParser,
+    fieldDFAEv,
+    isDelimRequired,
+    binaryDecimalVirtualPoint,
+  ) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal = DecimalUtils.ibm4690ToBigDecimal(num, scale)
+  override def toBigInteger(num: Array[Byte]): JBigInteger =
+    DecimalUtils.ibm4690ToBigInteger(num)
+  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
+    DecimalUtils.ibm4690ToBigDecimal(num, scale)
 
 }

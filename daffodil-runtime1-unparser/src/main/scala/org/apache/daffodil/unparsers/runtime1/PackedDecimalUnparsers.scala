@@ -17,43 +17,41 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
 import java.lang.{ Long => JLong }
 import java.math.{ BigInteger => JBigInteger }
 
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.util.{ DecimalUtils, PackedSignCodes }
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
+import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.parsers.HasKnownLengthInBits
 import org.apache.daffodil.runtime1.processors.parsers.HasRuntimeExplicitLength
-import org.apache.daffodil.runtime1.processors.Processor
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.lib.util.{ DecimalUtils, PackedSignCodes }
-
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 abstract class PackedIntegerBaseUnparser(
   e: ElementRuntimeData,
-  packedSignCodes: PackedSignCodes)
-  extends PackedBinaryIntegerBaseUnparser(e) {
+  packedSignCodes: PackedSignCodes,
+) extends PackedBinaryIntegerBaseUnparser(e) {
 
-  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] = DecimalUtils.packedFromBigInteger(bigInt, nBits, packedSignCodes)
+  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
+    DecimalUtils.packedFromBigInteger(bigInt, nBits, packedSignCodes)
 }
 
 class PackedIntegerKnownLengthUnparser(
   e: ElementRuntimeData,
   packedSignCodes: PackedSignCodes,
-  override val lengthInBits: Int)
-  extends PackedIntegerBaseUnparser(e, packedSignCodes)
-  with HasKnownLengthInBits {
-}
+  override val lengthInBits: Int,
+) extends PackedIntegerBaseUnparser(e, packedSignCodes)
+  with HasKnownLengthInBits {}
 
 class PackedIntegerRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   packedSignCodes: PackedSignCodes,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits)
-  extends PackedIntegerBaseUnparser(e, packedSignCodes)
+  val lengthUnits: LengthUnits,
+) extends PackedIntegerBaseUnparser(e, packedSignCodes)
   with HasRuntimeExplicitLength {
 
   override lazy val runtimeDependencies = Vector(lengthEv)
@@ -61,8 +59,8 @@ class PackedIntegerRuntimeLengthUnparser(
 
 final class PackedIntegerDelimitedUnparser(
   e: ElementRuntimeData,
-  packedSignCodes: PackedSignCodes)
-  extends PackedIntegerBaseUnparser(e, packedSignCodes) {
+  packedSignCodes: PackedSignCodes,
+) extends PackedIntegerBaseUnparser(e, packedSignCodes) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
@@ -73,8 +71,8 @@ final class PackedIntegerPrefixedLengthUnparser(
   override val prefixedLengthERD: ElementRuntimeData,
   packedSignCodes: PackedSignCodes,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends PackedIntegerBaseUnparser(e, packedSignCodes)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends PackedIntegerBaseUnparser(e, packedSignCodes)
   with KnownPrefixedLengthUnparserMixin {
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
@@ -93,32 +91,31 @@ final class PackedIntegerPrefixedLengthUnparser(
   }
 }
 
-
 abstract class PackedDecimalBaseUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  packedSignCodes: PackedSignCodes)
-  extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
+  packedSignCodes: PackedSignCodes,
+) extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
-  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] = DecimalUtils.packedFromBigInteger(bigInt, nBits, packedSignCodes)
+  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
+    DecimalUtils.packedFromBigInteger(bigInt, nBits, packedSignCodes)
 }
 
 class PackedDecimalKnownLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
-  override val lengthInBits: Int)
-  extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
-  with HasKnownLengthInBits {
-}
+  override val lengthInBits: Int,
+) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
+  with HasKnownLengthInBits {}
 
 class PackedDecimalRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits)
-  extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
+  val lengthUnits: LengthUnits,
+) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
   with HasRuntimeExplicitLength {
 
   override lazy val runtimeDependencies = Vector(lengthEv)
@@ -127,8 +124,8 @@ class PackedDecimalRuntimeLengthUnparser(
 final class PackedDecimalDelimitedUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  packedSignCodes: PackedSignCodes)
-  extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes) {
+  packedSignCodes: PackedSignCodes,
+) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
@@ -140,10 +137,10 @@ final class PackedDecimalPrefixedLengthUnparser(
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint, packedSignCodes)
   with KnownPrefixedLengthUnparserMixin {
-  
+
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
   override lazy val runtimeDependencies = Vector()
 

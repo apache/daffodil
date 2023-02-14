@@ -19,13 +19,13 @@ package org.apache.daffodil.runtime1.dpath
 
 import java.math.{ BigInteger => JBigInt }
 
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.Numbers.asLong
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueLong
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueString
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.util.Numbers.asLong
 
 case object NumericToString extends ToString
 case object DateTimeToString extends ToString
@@ -59,7 +59,9 @@ case object HexStringToUnsignedLong extends Converter {
         new JBigInt(str, 16)
       } catch {
         case nfe: NumberFormatException => {
-          val e = new NumberFormatException("Cannot convert to type unsignedLong: " + nfe.getMessage())
+          val e = new NumberFormatException(
+            "Cannot convert to type unsignedLong: " + nfe.getMessage(),
+          )
           throw e
         }
       }
@@ -67,29 +69,43 @@ case object HexStringToUnsignedLong extends Converter {
   }
 }
 case object IntegerToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = PrimType.Long.fromNumber(a.getBigInt).getLong
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =
+    PrimType.Long.fromNumber(a.getBigInt).getLong
 }
 case object IntToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getInt)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
+    a.getInt,
+  )
 }
 case object UnsignedLongToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = PrimType.Long.fromNumber(a.getBigInt).getLong
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =
+    PrimType.Long.fromNumber(a.getBigInt).getLong
 }
 case object UnsignedIntToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = a.getLong
 }
 case object ArrayIndexToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getAnyRef)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
+    a.getAnyRef,
+  )
 }
 case object ShortToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getShort)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
+    a.getShort,
+  )
 }
 case object UnsignedShortToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getInt)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
+    a.getInt,
+  )
 }
 case object ByteToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getByte)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
+    a.getByte,
+  )
 }
 case object UnsignedByteToLong extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(a.getShort)
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
+    a.getShort,
+  )
 }

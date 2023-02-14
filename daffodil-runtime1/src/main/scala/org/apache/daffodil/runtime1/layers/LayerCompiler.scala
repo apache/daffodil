@@ -16,17 +16,17 @@
  */
 package org.apache.daffodil.runtime1.layers
 
-import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.dsom.ImplementsThrowsOrSavesSDE
-import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
-import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 import org.apache.daffodil.io.processors.charset.BitsCharsetJava
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.RefQName
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.dsom.ImplementsThrowsOrSavesSDE
+import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
 /**
  * Must be implemented by all layers.
@@ -57,20 +57,31 @@ abstract class LayerCompiler(nom: String) {
  *
  * Allows reporting of schema definition errors and warnings at schema compile time.
  */
-final class LayerCompileInfo(sequence: ImplementsThrowsOrSavesSDE,
-  val layerRuntimeInfo: LayerRuntimeInfo) {
+final class LayerCompileInfo(
+  sequence: ImplementsThrowsOrSavesSDE,
+  val layerRuntimeInfo: LayerRuntimeInfo,
+) {
 
   private def lri = layerRuntimeInfo
   private def srd: SequenceRuntimeData = lri.runtimeData
 
-  def getVariableRuntimeData(prefix: String, namespace: String, localName: String, primType: PrimType) : VariableRuntimeData = {
+  def getVariableRuntimeData(
+    prefix: String,
+    namespace: String,
+    localName: String,
+    primType: PrimType,
+  ): VariableRuntimeData = {
     val varNamespace = NS(namespace)
     val qName = RefQName(Some(prefix), localName, varNamespace).toGlobalQName
     val vrd = srd.variableMap.getVariableRuntimeData(qName).getOrElse {
       srd.SDE("Variable '%s' is not defined.", qName.toExtendedSyntax)
     }
-    srd.schemaDefinitionUnless(vrd.primType == primType,
-      "Variable '%s' is not of type '%s'.", qName.toExtendedSyntax, primType)
+    srd.schemaDefinitionUnless(
+      vrd.primType == primType,
+      "Variable '%s' is not of type '%s'.",
+      qName.toExtendedSyntax,
+      primType,
+    )
     vrd
   }
 
@@ -94,9 +105,10 @@ final class LayerCompileInfo(sequence: ImplementsThrowsOrSavesSDE,
 
   def optLayerLengthOptConstantValue: Option[Option[Long]] = {
     if (lri.maybeLayerLengthEv.isEmpty) None
-    else Some(lri.maybeLayerLengthEv.get.optConstant.map {
-      _.toLong
-    })
+    else
+      Some(lri.maybeLayerLengthEv.get.optConstant.map {
+        _.toLong
+      })
   }
 
   def optLayerLengthUnits: Option[LayerLengthUnits] = {
@@ -116,9 +128,8 @@ final class LayerCompileInfo(sequence: ImplementsThrowsOrSavesSDE,
     sequence.SDW(WarnID.LayerCompileWarning, message, args: _*)
   }
 
-  def SDEUnless(test: Boolean, message: String, args: Any*): Unit = if (!test) SDE(message, args: _*)
+  def SDEUnless(test: Boolean, message: String, args: Any*): Unit =
+    if (!test) SDE(message, args: _*)
 
   def SDE(message: String, args: Any*): Nothing = schemaDefinitionError(message, args: _*)
 }
-
-

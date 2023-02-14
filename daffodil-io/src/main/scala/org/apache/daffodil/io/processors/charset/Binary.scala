@@ -23,28 +23,30 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * X-DFDL-BITS-LSBF occupies only 1 bit with each
  * code unit.
  */
-object BitsCharsetBinaryLSBF extends {
-  override val name = "X-DFDL-BITS-LSBF"
-  override val bitWidthOfACodeUnit = 1
-  override val decodeString = "01"
-  override val replacementCharCode = 0x0
-  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetBinaryLSBF
+  extends {
+    override val name = "X-DFDL-BITS-LSBF"
+    override val bitWidthOfACodeUnit = 1
+    override val decodeString = "01"
+    override val replacementCharCode = 0x0
+    override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
-final class BitsCharsetBinaryLSBFDefinition
-  extends BitsCharsetDefinition(BitsCharsetBinaryLSBF)
+final class BitsCharsetBinaryLSBFDefinition extends BitsCharsetDefinition(BitsCharsetBinaryLSBF)
 
 /**
  * X-DFDL-BITS-MSBF occupies only 1 bit with each
  * code unit.
  */
-object BitsCharsetBinaryMSBF extends {
-  override val name = "X-DFDL-BITS-MSBF"
-  override val bitWidthOfACodeUnit = 1
-  override val decodeString = "01"
-  override val replacementCharCode = 0x0
-  override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetBinaryMSBF
+  extends {
+    override val name = "X-DFDL-BITS-MSBF"
+    override val bitWidthOfACodeUnit = 1
+    override val decodeString = "01"
+    override val replacementCharCode = 0x0
+    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
-final class BitsCharsetBinaryMSBFDefinition
-  extends BitsCharsetDefinition(BitsCharsetBinaryMSBF)
+final class BitsCharsetBinaryMSBFDefinition extends BitsCharsetDefinition(BitsCharsetBinaryMSBF)

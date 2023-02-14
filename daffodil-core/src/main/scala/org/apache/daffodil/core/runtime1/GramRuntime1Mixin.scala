@@ -18,10 +18,10 @@
 package org.apache.daffodil.core.runtime1
 
 import org.apache.daffodil.core.grammar.Gram
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
 trait GramRuntime1Mixin { self: Gram =>
 

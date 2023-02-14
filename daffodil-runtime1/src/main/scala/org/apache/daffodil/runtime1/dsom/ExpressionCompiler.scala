@@ -17,19 +17,25 @@
 
 package org.apache.daffodil.runtime1.dsom
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.lib.xml.NamedQName
+import java.lang.{ Boolean => JBoolean, Long => JLong }
 import scala.xml.NamespaceBinding
-import java.lang.{ Long => JLong, Boolean => JBoolean }
+
+import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.BasicComponent
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 trait ExpressionCompilerBase[T <: AnyRef] {
 
-  def compileExpression(qn: NamedQName, nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
+  def compileExpression(
+    qn: NamedQName,
+    nodeInfoKind: NodeInfo.Kind,
+    exprWithBracesMaybe: String,
+    namespaces: NamespaceBinding,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,
-    compileInfo: DPathCompileInfo): CompiledExpression[T]
+    compileInfo: DPathCompileInfo,
+  ): CompiledExpression[T]
 }
 
 abstract class ExpressionCompilerClass {

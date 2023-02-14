@@ -18,6 +18,7 @@
 package org.apache.daffodil.lib.util
 
 import scala.xml._
+
 import org.apache.daffodil.lib.xml._
 
 /*
@@ -43,8 +44,15 @@ object SchemaUtils {
     includeImports: Seq[Node],
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],
-    fileName: String = ""): Elem =
-    dfdlTestSchema(includeImports, topLevelAnnotations, contentElements, fileName = fileName, elementFormDefault = "unqualified")
+    fileName: String = "",
+  ): Elem =
+    dfdlTestSchema(
+      includeImports,
+      topLevelAnnotations,
+      contentElements,
+      fileName = fileName,
+      elementFormDefault = "unqualified",
+    )
 
   def dfdlTestSchemaWithTarget(
     includeImports: Seq[Node],
@@ -52,14 +60,19 @@ object SchemaUtils {
     contentElements: Seq[Node],
     theTargetNS: String,
     elementFormDefault: String = "qualified",
-    hasDefaultNamespace: Boolean = true): Elem = {
+    hasDefaultNamespace: Boolean = true,
+  ): Elem = {
     val tns = if (theTargetNS == "" || theTargetNS == null) NoNamespace else NS(theTargetNS)
     val sch =
-      dfdlTestSchema(includeImports, topLevelAnnotations, contentElements,
+      dfdlTestSchema(
+        includeImports,
+        topLevelAnnotations,
+        contentElements,
         targetNamespace = tns,
         defaultNamespace = tns,
         elementFormDefault = elementFormDefault,
-        useDefaultNamespace = hasDefaultNamespace)
+        useDefaultNamespace = hasDefaultNamespace,
+      )
     sch
   }
 
@@ -82,7 +95,8 @@ object SchemaUtils {
     targetNamespace: NS = XMLUtils.targetNS,
     defaultNamespace: NS = XMLUtils.targetNS,
     elementFormDefault: String = "qualified",
-    useDefaultNamespace: Boolean = true): Elem = {
+    useDefaultNamespace: Boolean = true,
+  ): Elem = {
     val fileAttrib =
       if (fileName == "") Null
       else Attribute(XMLUtils.INT_PREFIX, "file", Text(fileName), Null)
@@ -93,7 +107,9 @@ object SchemaUtils {
       if (schemaScope != TopScope) schemaScope
       else {
         import XMLUtils._
-        <ignore xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:math={ mathURI } xmlns:dafint={ dafintURI }/>.scope
+        <ignore xmlns:xsd={xsdURI} xmlns:dfdl={dfdlURI} xmlns:xsi={xsiURI} xmlns:fn={
+          fnURI
+        } xmlns:math={mathURI} xmlns:dafint={dafintURI}/>.scope
       }
     scope = XMLUtils.combineScopes("xs", XMLUtils.xsdURI, scope) // always need this one
     if (useDefaultNamespace) {
@@ -104,24 +120,24 @@ object SchemaUtils {
     scope = XMLUtils.combineScopes("dfdlx", XMLUtils.DFDLX_NAMESPACE, scope)
 
     val schemaNode =
-      <xs:schema elementFormDefault={ elementFormDefault }>
+      <xs:schema elementFormDefault={elementFormDefault}>
         {
-          includeImports
-        }
+        includeImports
+      }
         <xs:annotation>
-          <xs:appinfo source={ XMLUtils.dfdlAppinfoSource }>
-            { topLevelAnnotations }
+          <xs:appinfo source={XMLUtils.dfdlAppinfoSource}>
+            {topLevelAnnotations}
           </xs:appinfo>
         </xs:annotation>
         {
-          contentElements.map {
-            case e: Elem => {
-              val combined = XMLUtils.combineScopes(e.scope, scope)
-              val res = e.copy(scope = combined)
-              res
-            }
+        contentElements.map {
+          case e: Elem => {
+            val combined = XMLUtils.combineScopes(e.scope, scope)
+            val res = e.copy(scope = combined)
+            res
           }
         }
+      }
       </xs:schema>.copy(scope = scope) % targetNamespaceAttrib % fileAttrib
     //
     // Note: no longer needs to write out and re-load to get namespaces

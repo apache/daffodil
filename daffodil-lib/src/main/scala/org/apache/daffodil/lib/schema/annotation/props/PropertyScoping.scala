@@ -18,10 +18,10 @@
 package org.apache.daffodil.lib.schema.annotation.props
 
 import org.apache.daffodil.lib.api.LocationInSchemaFile
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.xml.ResolvesQNames
 import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.DPathUtil
+import org.apache.daffodil.lib.xml.ResolvesQNames
 
 /**
  * This file is classes and traits to implement
@@ -48,26 +48,34 @@ import org.apache.daffodil.lib.util.DPathUtil
  */
 sealed abstract class PropertyLookupResult(val pname: String) extends Serializable {
   def isDefined: Boolean
+
   /**
    * True if the property value was found by way of the default format, that is
    * the lexically enclosing format properties specified by the dfdl:format annotation
    * for the schema file.
    */
   def isFromDefaultFormat: Boolean
-  
-  lazy val toOption = this match{
-    case Found(value, _,_,_) => Some(value)
+
+  lazy val toOption = this match {
+    case Found(value, _, _, _) => Some(value)
     case _: NotFound => None
   }
 }
 
-case class Found(value: String, location: LookupLocation, override val pname: String,
-  override val isFromDefaultFormat: Boolean) extends PropertyLookupResult(pname) {
+case class Found(
+  value: String,
+  location: LookupLocation,
+  override val pname: String,
+  override val isFromDefaultFormat: Boolean,
+) extends PropertyLookupResult(pname) {
   override def isDefined = true
 }
 
-case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: Seq[LookupLocation], override val pname: String)
-  extends PropertyLookupResult(pname) {
+case class NotFound(
+  localWhereLooked: Seq[LookupLocation],
+  defaultWhereLooked: Seq[LookupLocation],
+  override val pname: String,
+) extends PropertyLookupResult(pname) {
   override def isDefined = false
   override def isFromDefaultFormat = Assert.usageError("Not meaningful for NotFound.")
 }
@@ -85,10 +93,10 @@ case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: S
  * contains a QName, the associated LookupLocation can be used to resolve that
  * QName to a namespace and a local name.
  */
-trait LookupLocation
-  extends ResolvesQNames with LocationInSchemaFile
+trait LookupLocation extends ResolvesQNames with LocationInSchemaFile
 
 trait PropTypes {
+
   /**
    * type of a map entry which maps a property name as key, to a property value,
    * and along side it is a LookupLocation object telling us where we found that
@@ -125,7 +133,7 @@ trait FindPropertyMixin extends PropTypes {
    * findPropertyOption and friends, which ensure that caching is consistent.
    */
   protected def lookupProperty(pname: String): PropertyLookupResult
-  
+
   val propCache = new scala.collection.mutable.LinkedHashMap[String, PropertyLookupResult]
 
   /**
@@ -133,7 +141,10 @@ trait FindPropertyMixin extends PropTypes {
    * is valid for this option. Used to decide whether a warning
    * should be produced if the value "looks like" an expression
    */
-  def findPropertyOption(pname: String, expressionAllowed: Boolean = false): PropertyLookupResult = {
+  def findPropertyOption(
+    pname: String,
+    expressionAllowed: Boolean = false,
+  ): PropertyLookupResult = {
     val propCacheResult = propCache.get(pname)
     val propRes =
       propCacheResult match {
@@ -150,15 +161,19 @@ trait FindPropertyMixin extends PropTypes {
       propRes match {
         case Found(v, _, _, _) => {
           if (DPathUtil.isExpression(v)) {
-            SDW(WarnID.NonExpressionPropertyValueLooksLikeExpression,
-              "Property %s looks like an expression but cannot be an expression: %s", pname, v)
+            SDW(
+              WarnID.NonExpressionPropertyValueLooksLikeExpression,
+              "Property %s looks like an expression but cannot be an expression: %s",
+              pname,
+              v,
+            )
           }
         }
         case _ => {
           // Do Nothing
         }
       }
-    } 
+    }
     propRes
   }
 

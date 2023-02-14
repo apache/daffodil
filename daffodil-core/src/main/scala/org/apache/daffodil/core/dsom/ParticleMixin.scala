@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 
 trait RequiredOptionalMixin { self: ElementBase =>
 
@@ -43,9 +43,11 @@ trait RequiredOptionalMixin { self: ElementBase =>
       case (0, max) => {
         // now we must check on occursCountKind.
         // if parsed or stopValue then we consider it an array
-        if (occursCountKind =:= OccursCountKind.Parsed ||
+        if (
+          occursCountKind =:= OccursCountKind.Parsed ||
           occursCountKind =:= OccursCountKind.StopValue ||
-          occursCountKind =:= OccursCountKind.Expression) {
+          occursCountKind =:= OccursCountKind.Expression
+        ) {
           // we disregard the min/max occurs
           false
         } else {
@@ -124,9 +126,11 @@ trait RequiredOptionalMixin { self: ElementBase =>
          * with these occursCountKinds is an array (so long as it isn't
          * scalar)
          */
-        case (_, 1) | (0, 0) if (occursCountKind == OccursCountKind.Parsed ||
-          occursCountKind == OccursCountKind.StopValue ||
-          occursCountKind == OccursCountKind.Expression) => true
+        case (_, 1) | (0, 0)
+            if (occursCountKind == OccursCountKind.Parsed ||
+              occursCountKind == OccursCountKind.StopValue ||
+              occursCountKind == OccursCountKind.Expression) =>
+          true
         /**
          * Special case for minoccurs 0 and maxOccurs 0 when OCK is 'implicit' in that
          * case we treat as an array that cannot have any occurrences.
@@ -144,10 +148,10 @@ trait RequiredOptionalMixin { self: ElementBase =>
    */
   override final lazy val isArrayWithAtLeastOneRequiredArrayElement = {
     isArray &&
-      minOccurs > 0 &&
-      (occursCountKind == OccursCountKind.Fixed ||
-        occursCountKind == OccursCountKind.Implicit ||
-        occursCountKind == OccursCountKind.Expression)
+    minOccurs > 0 &&
+    (occursCountKind == OccursCountKind.Fixed ||
+      occursCountKind == OccursCountKind.Implicit ||
+      occursCountKind == OccursCountKind.Expression)
   }
 }
 
@@ -214,20 +218,24 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
    *
    * This excludes elements that have no representation e.g., elements with dfdl:inputValueCalc.
    */
-  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = LV('hasStaticallyRequiredOccurrencesInDataRepresentation) {
-    val res =
-      if (!isRepresented) false // if there's no rep, then it's not statically required.
-      else if (isScalar) true
-      else if (isFixedOccurrences) true
-      else if (isArrayWithAtLeastOneRequiredArrayElement) true
-      else false
-    res
-  }.value
+  final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation =
+    LV('hasStaticallyRequiredOccurrencesInDataRepresentation) {
+      val res =
+        if (!isRepresented) false // if there's no rep, then it's not statically required.
+        else if (isScalar) true
+        else if (isFixedOccurrences) true
+        else if (isArrayWithAtLeastOneRequiredArrayElement) true
+        else false
+      res
+    }.value
 
   final lazy val hasStopValue = LV('hasStopValue) {
     val sv = !isScalar && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
-    schemaDefinitionUnless(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
+    schemaDefinitionUnless(
+      !(sv && occursStopValue == ""),
+      "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.",
+    )
     schemaDefinitionUnless(!sv, "occursCountKind='stopValue' is not implemented.")
     sv
   }.value

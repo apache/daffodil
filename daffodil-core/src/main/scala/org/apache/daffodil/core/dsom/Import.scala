@@ -18,12 +18,11 @@
 package org.apache.daffodil.core.dsom
 
 import java.net.URI
-
 import scala.xml.Node
 
+import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.URISchemaSource
-import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.xml._
@@ -77,7 +76,8 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   override lazy val targetNamespace: NS = LV('targetNamespace) {
     val tns = importElementNS match {
       case Some(ns) => ns // don't load it just to check compatibility.
-      case None => iiSchemaFile.iiSchemaDocument.targetNamespace // load it because we have to have it.
+      case None =>
+        iiSchemaFile.iiSchemaDocument.targetNamespace // load it because we have to have it.
     }
     tns
   }.value
@@ -91,7 +91,10 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   lazy val resolvedNamespaceURI: Option[DaffodilSchemaSource] = LV('resolvedNamespaceURI) {
     importElementNS match {
       case None => {
-        schemaDefinitionUnless(schemaLocationProperty != None, "When there is no namespace specified, there must be a schemaLocation specified.")
+        schemaDefinitionUnless(
+          schemaLocationProperty != None,
+          "When there is no namespace specified, there must be a schemaLocation specified.",
+        )
         None
       }
       case Some(ns) => {
@@ -113,9 +116,16 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
    */
   lazy val resolvedLocation: DaffodilSchemaSource = LV('resolvedLocation) {
 
-    Logger.log.debug(s"Computing resolvedLocation\nimportElementNS='${importElementNS}'\nresolvedNamespaceURI='${resolvedNamespaceURI}'\nschemaLocationProperty='${schemaLocationProperty}'\nresolvedSchemaLocation='${resolvedSchemaLocation}'")
+    Logger.log.debug(
+      s"Computing resolvedLocation\nimportElementNS='${importElementNS}'\nresolvedNamespaceURI='${resolvedNamespaceURI}'\nschemaLocationProperty='${schemaLocationProperty}'\nresolvedSchemaLocation='${resolvedSchemaLocation}'",
+    )
 
-    val rl = (importElementNS, resolvedNamespaceURI, schemaLocationProperty, resolvedSchemaLocation) match {
+    val rl = (
+      importElementNS,
+      resolvedNamespaceURI,
+      schemaLocationProperty,
+      resolvedSchemaLocation,
+    ) match {
       case (None, _, Some(sl), None) => {
         if (xsd.isBootStrapSD) {
           //
@@ -126,15 +136,30 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
           //
           schemaDefinitionError("No schema document at location %s.", sl)
         } else {
-          schemaDefinitionError("Unable to import a no-namespace schema from schema location %s. %s", importNode, whereSearched)
+          schemaDefinitionError(
+            "Unable to import a no-namespace schema from schema location %s. %s",
+            importNode,
+            whereSearched,
+          )
         }
       }
-      case (Some(_), Some(rnURI), _, _) => rnURI // found it in the catalog based on namespace attribute
+      case (Some(_), Some(rnURI), _, _) =>
+        rnURI // found it in the catalog based on namespace attribute
       case (Some(ns), None, Some(sl), None) =>
-        schemaDefinitionError("Unable to import namespace %s from XML catalog(s) %s or schema location %s. %s", ns, catFiles, importNode, whereSearched)
+        schemaDefinitionError(
+          "Unable to import namespace %s from XML catalog(s) %s or schema location %s. %s",
+          ns,
+          catFiles,
+          importNode,
+          whereSearched,
+        )
       case (_, None, Some(sl), Some(rsl)) => rsl // found it by way of the schemaLocation
       case (Some(ns), None, None, None) => {
-        schemaDefinitionError("Unable to import namespace %s using XML Catalog(s) %s", ns, catFiles)
+        schemaDefinitionError(
+          "Unable to import namespace %s using XML Catalog(s) %s",
+          ns,
+          catFiles,
+        )
       }
       case _ => Assert.invariantFailed("illegal combination of namespace and schemaLocation")
     }

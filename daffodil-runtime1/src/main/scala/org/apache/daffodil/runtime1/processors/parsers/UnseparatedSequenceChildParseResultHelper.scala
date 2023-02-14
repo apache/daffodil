@@ -16,16 +16,15 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicy
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
 
 /**
  * TODO: Consider merge of these helpers into the parser classes so we don't have
  * two distinct object taxonomies with mixins etc.
  */
-trait UnseparatedSequenceChildParseResultHelper
-  extends SequenceChildParseResultHelper {
+trait UnseparatedSequenceChildParseResultHelper extends SequenceChildParseResultHelper {
 
   //  final override protected def anyTypeElementFailedParseAttemptStatus(pstate: PState,
   //    isZL: Boolean, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
@@ -37,8 +36,8 @@ class ScalarElementUnseparatedSequenceChildParseResultHelper(
   override val erd: ElementRuntimeData,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean)
-  extends UnseparatedSequenceChildParseResultHelper
+  override val isEmptyRepNonZeroLength: Boolean,
+) extends UnseparatedSequenceChildParseResultHelper
   with ScalarElementSequenceChildParseResultHelper
   with NonPositionalLikeElementSequenceChildParseResultMixin
 
@@ -46,17 +45,15 @@ class RepElementUnseparatedSequenceChildParseResultHelper(
   override val erd: ElementRuntimeData,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean)
-  extends UnseparatedSequenceChildParseResultHelper
+  override val isEmptyRepNonZeroLength: Boolean,
+) extends UnseparatedSequenceChildParseResultHelper
   with RepElementSequenceChildParseResultHelper
   with NonPositionalLikeElementSequenceChildParseResultMixin
 
 final class GroupUnseparatedSequenceChildParseResultHelper(
   override val mgrd: ModelGroupRuntimeData,
   override val isModelGroupRepPossiblyZeroLength: Boolean,
-  override val isModelGroupRepNonZeroLength: Boolean)
-  extends UnseparatedSequenceChildParseResultHelper
+  override val isModelGroupRepNonZeroLength: Boolean,
+) extends UnseparatedSequenceChildParseResultHelper
   with ModelGroupSequenceChildParseResultHelper
-  with PositionalLikeGroupSequenceChildParseResultMixin {
-
-}
+  with PositionalLikeGroupSequenceChildParseResultMixin {}

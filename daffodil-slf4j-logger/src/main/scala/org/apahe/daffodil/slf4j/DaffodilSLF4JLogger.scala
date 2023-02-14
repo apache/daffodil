@@ -25,8 +25,8 @@ import org.slf4j.IMarkerFactory
 import org.slf4j.Logger
 import org.slf4j.Marker
 import org.slf4j.event.Level
-import org.slf4j.helpers.BasicMarkerFactory
 import org.slf4j.helpers.AbstractLogger
+import org.slf4j.helpers.BasicMarkerFactory
 import org.slf4j.helpers.MessageFormatter
 import org.slf4j.helpers.NOPMDCAdapter
 import org.slf4j.spi.MDCAdapter
@@ -106,7 +106,8 @@ class DaffodilLogger(name: String) extends AbstractLogger {
     marker: Marker,
     msg: String,
     arguments: Array[Object],
-    throwable: Throwable): Unit = {
+    throwable: Throwable,
+  ): Unit = {
 
     val loggerConfig = perThreadLoggerConfig.get
     if (loggerConfig != null) {

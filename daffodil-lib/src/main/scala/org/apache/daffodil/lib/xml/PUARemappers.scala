@@ -37,9 +37,7 @@ import org.apache.daffodil.lib.util.CharacterSetRemapper
  * See https://daffodil.apache.org/infoset/, specifically the section "XML Illegal Characters", for
  * more discussion.
  */
-final class RemapXMLIllegalCharToPUA (
-  checkForExistingPUA: Boolean,
-  replaceCRWithLF: Boolean)
+final class RemapXMLIllegalCharToPUA(checkForExistingPUA: Boolean, replaceCRWithLF: Boolean)
   extends CharacterSetRemapper {
 
   /**
@@ -48,26 +46,28 @@ final class RemapXMLIllegalCharToPUA (
   override protected def remap(prev: Char, curr: Char, next: Char): Int = {
     val res: Int = curr match {
       case 0x9 => curr
-      case 0xA => curr
-      case 0xD =>
-        if (next == 0xA) {
+      case 0xa => curr
+      case 0xd =>
+        if (next == 0xa) {
           // CRLF case.
           if (replaceCRWithLF)
-            -0xA // CRLF => LF, standard XML behavior. Note negated.
+            -0xa // CRLF => LF, standard XML behavior. Note negated.
           else
-            0xE00D // remap CR to preserve it. Leave LF alone.
+            0xe00d // remap CR to preserve it. Leave LF alone.
         } else {
           // isolated CR case
           if (replaceCRWithLF)
-            0xA // isolated CR => LF, standard XML behavior. Note NOT negated.
+            0xa // isolated CR => LF, standard XML behavior. Note NOT negated.
           else
-            0xE00D // remap isolated CR to preserve it.
+            0xe00d // remap isolated CR to preserve it.
         }
-      case _ if (curr < 0x20) => curr + 0xE000 // ascii c0 controls
+      case _ if (curr < 0x20) => curr + 0xe000 // ascii c0 controls
       // no remapping for the so called C1 controls (0x80-0x9F) Those are not XML illegal.
       case _ if Character.isSurrogate(curr) => {
-        if ((Character.isHighSurrogate(curr) && Character.isLowSurrogate(next)) ||
-          (Character.isLowSurrogate(curr) && Character.isHighSurrogate(prev))) {
+        if (
+          (Character.isHighSurrogate(curr) && Character.isLowSurrogate(next)) ||
+          (Character.isLowSurrogate(curr) && Character.isHighSurrogate(prev))
+        ) {
           // well formed surrogate pairs are preserved
           curr
         } else {
@@ -75,27 +75,30 @@ final class RemapXMLIllegalCharToPUA (
           curr + 0x1000
         }
       }
-      case _ if (curr >= 0xE000 && curr <= 0xF8FF) => { // Unicode PUA is E000 to F8FF.
+      case _ if (curr >= 0xe000 && curr <= 0xf8ff) => { // Unicode PUA is E000 to F8FF.
         if (checkForExistingPUA)
           throw new RemapPUACharDetected(curr)
         else curr
       }
-      case _ if (curr < 0xFFFE) => curr
+      case _ if (curr < 0xfffe) => curr
       // 0xFFFE and 0xFFFF are regular Unicode chars, but XML illegal.
       // (XML only allows up to 0xFFFD)
       // They can't remap into the PUA by the basic techniques of adding
       // 0xE000 or 0x1000 like with control chars or unpaired surrogate code points.
       // So we just pick two adhoc, but recognizable, PUA code points to use by subtracting
       // 0x0F00 from them.
-      case 0xFFFE => 0xF0FE // U+FFFE is not a legal XML char. Can't remap to PUA the regular way.
-      case 0xFFFF => 0xF0FF // U+FFFF is not a legal XML char
+      case 0xfffe =>
+        0xf0fe // U+FFFE is not a legal XML char. Can't remap to PUA the regular way.
+      case 0xffff => 0xf0ff // U+FFFF is not a legal XML char
       case bad =>
         // $COVERAGE-OFF$
         // This is a final class, so this only gets called with characters by the
         // base class remap(s: String) method. Those chars are only
         // taken from Scala/Java strings, hence, the char codes cannot be beyond 0xFFFF
-        Assert.impossibleCase("Scala/Java character code cannot be beyond 0xFFFF but was 0x%40X".format(bad))
-        // $COVERAGE-ON$
+        Assert.impossibleCase(
+          "Scala/Java character code cannot be beyond 0xFFFF but was 0x%40X".format(bad),
+        )
+      // $COVERAGE-ON$
     }
     res
   }
@@ -103,13 +106,14 @@ final class RemapXMLIllegalCharToPUA (
 }
 
 class RemapPUACharDetected(val char: Char)
-extends Exception ("Pre-existing Private Use Area (PUA) character found in data: U+%04X.".format(char.toInt))
+  extends Exception(
+    "Pre-existing Private Use Area (PUA) character found in data: U+%04X.".format(char.toInt),
+  )
 
 /**
  * Reverse of the RemapXMLIllegalCharToPUA mapping.
  */
-final class RemapPUAToXMLIllegalChar()
-  extends CharacterSetRemapper {
+final class RemapPUAToXMLIllegalChar() extends CharacterSetRemapper {
 
   /**
    * This direction of remapping is simpler. No context characters are needed, and
@@ -117,10 +121,11 @@ final class RemapPUAToXMLIllegalChar()
    */
   override protected def remap(prevIgnored: Char, c: Char, nextIgnored: Char): Int = {
     val res: Int = c match {
-      case _ if (c >= 0xE000 && c <= 0xE01F) => c - 0xE000 // Ascii c0 controls
-      case _ if (c >= 0xE800 && c <= 0xEFFF) => c - 0x1000 // isolated remapped surrogate codepoints
-      case 0xF0FE => 0xFFFE // FFFE is illegal in XML
-      case 0xF0FF => 0xFFFF // FFFF is illegal in XML
+      case _ if (c >= 0xe000 && c <= 0xe01f) => c - 0xe000 // Ascii c0 controls
+      case _ if (c >= 0xe800 && c <= 0xefff) =>
+        c - 0x1000 // isolated remapped surrogate codepoints
+      case 0xf0fe => 0xfffe // FFFE is illegal in XML
+      case 0xf0ff => 0xffff // FFFF is illegal in XML
       case _ => c
     }
     res

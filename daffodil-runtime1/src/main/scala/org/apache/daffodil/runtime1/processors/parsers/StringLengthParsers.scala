@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.TextJustificationType
+import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.lib.util.Misc
-import passera.unsigned.ULong
 import org.apache.daffodil.runtime1.processors.CharsetEv
-import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.TextJustificationType
+
+import passera.unsigned.ULong
 
 /**
  * Specifically designed to be used inside one of the SpecifiedLength parsers.
@@ -34,8 +35,8 @@ import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedChar
 final class StringOfSpecifiedLengthParser(
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
-  erd: ElementRuntimeData)
-  extends TextPrimParser
+  erd: ElementRuntimeData,
+) extends TextPrimParser
   with StringOfSpecifiedLengthMixin {
 
   override lazy val runtimeDependencies = Vector(erd.encInfo.charsetEv)
@@ -60,7 +61,11 @@ final class StringOfSpecifiedLengthParser(
 trait CaptureParsingValueLength {
   def charsetEv: CharsetEv
 
-  final def captureValueLength(state: PState, startBitPos0b: ULong, endBitPos0b: ULong): Unit = {
+  final def captureValueLength(
+    state: PState,
+    startBitPos0b: ULong,
+    endBitPos0b: ULong,
+  ): Unit = {
     val elem = state.infoset
     elem.valueLength.setAbsStartPos0bInBits(startBitPos0b)
     elem.valueLength.setAbsEndPos0bInBits(endBitPos0b)
@@ -77,9 +82,7 @@ trait CaptureParsingValueLength {
   }
 }
 
-trait StringOfSpecifiedLengthMixin
-  extends PaddingRuntimeMixin
-  with CaptureParsingValueLength {
+trait StringOfSpecifiedLengthMixin extends PaddingRuntimeMixin with CaptureParsingValueLength {
 
   protected final def parseString(start: PState): String = {
     val dis = start.dataInputStream
@@ -100,7 +103,8 @@ trait StringOfSpecifiedLengthMixin
     val field = trimByJustification(str)
 
     justificationTrim match {
-      case TextJustificationType.None => captureValueLength(start, ULong(startBitPos0b), ULong(dis.bitPos0b))
+      case TextJustificationType.None =>
+        captureValueLength(start, ULong(startBitPos0b), ULong(dis.bitPos0b))
       case _ => captureValueLengthOfString(start, field)
     }
 

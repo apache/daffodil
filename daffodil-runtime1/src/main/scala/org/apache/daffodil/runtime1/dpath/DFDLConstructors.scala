@@ -24,6 +24,7 @@ import java.lang.{ Short => JShort }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
 
+import org.apache.daffodil.lib.util.Numbers.asBigInt
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueByte
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueByteArray
@@ -31,7 +32,6 @@ import org.apache.daffodil.runtime1.infoset.DataValue.DataValueInt
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueLong
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueShort
-import org.apache.daffodil.lib.util.Numbers.asBigInt
 
 abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
@@ -39,8 +39,10 @@ abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.
   def constructorName: String
   def maxHexDigits: Int
 
-  lazy val nfeMsg = "%s cannot be cast to dfdl:" + constructorName + "\ndfdl:" + constructorName + " received an unrecognized type! Must be String, Byte, Short, Integer, Long or a subtype thereof."
-  lazy val hexMsg = "dfdl:" + constructorName + " received string violates maximum hex digits.  Received %s expected a max of " + maxHexDigits
+  lazy val nfeMsg =
+    "%s cannot be cast to dfdl:" + constructorName + "\ndfdl:" + constructorName + " received an unrecognized type! Must be String, Byte, Short, Integer, Long or a subtype thereof."
+  lazy val hexMsg =
+    "dfdl:" + constructorName + " received string violates maximum hex digits.  Received %s expected a max of " + maxHexDigits
 
   protected def convert(longValue: DataValueLong, dstate: DState): DataValuePrimitive
 
@@ -52,7 +54,8 @@ abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.
       case l: JLong => l
       case s: String if s.trim.startsWith("x") =>
         val hexStr = s.trim.substring(1)
-        if (hexStr.length > maxHexDigits) throw new NumberFormatException(hexMsg.format(hexStr.length))
+        if (hexStr.length > maxHexDigits)
+          throw new NumberFormatException(hexMsg.format(hexStr.length))
         HexStringToLong.computeValue(hexStr, dstate)
       case _: String => StringToLong.computeValue(a, dstate)
       case _: JBigInt => IntegerToLong.computeValue(a, dstate)
@@ -91,10 +94,12 @@ abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.
  *
  */
 case class DFDLHexBinary(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType) with HexBinaryKind {
+  extends FNOneArg(recipe, argType)
+  with HexBinaryKind {
   val name = "DFDLHexBinary"
 
-  lazy val nfeMsg = "%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String, Byte, Short, Integer, Long or a subtype thereof."
+  lazy val nfeMsg =
+    "%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String, Byte, Short, Integer, Long or a subtype thereof."
 
   /**
    * If the argument is of some fixed-width type like Byte, Int, Short, Long or
@@ -139,7 +144,8 @@ case class DFDLByte(recipe: CompiledDPath, argType: NodeInfo.Kind)
   val constructorName = "byte"
   val maxHexDigits = 2
 
-  protected def convert(longValue: DataValueLong, dstate: DState): DataValueByte = LongToByte.computeValue(longValue, dstate)
+  protected def convert(longValue: DataValueLong, dstate: DState): DataValueByte =
+    LongToByte.computeValue(longValue, dstate)
 }
 
 case class DFDLUnsignedByte(recipe: CompiledDPath, argType: NodeInfo.Kind)
@@ -147,7 +153,8 @@ case class DFDLUnsignedByte(recipe: CompiledDPath, argType: NodeInfo.Kind)
   val constructorName = "unsignedByte"
   val maxHexDigits = 2
 
-  protected def convert(longValue: DataValueLong, dstate: DState): DataValueShort = LongToUnsignedByte.computeValue(longValue, dstate)
+  protected def convert(longValue: DataValueLong, dstate: DState): DataValueShort =
+    LongToUnsignedByte.computeValue(longValue, dstate)
 }
 
 case class DFDLShort(recipe: CompiledDPath, argType: NodeInfo.Kind)
@@ -155,7 +162,8 @@ case class DFDLShort(recipe: CompiledDPath, argType: NodeInfo.Kind)
   val constructorName = "short"
   val maxHexDigits = 4
 
-  protected def convert(longValue: DataValueLong, dstate: DState): DataValueShort = LongToShort.computeValue(longValue, dstate)
+  protected def convert(longValue: DataValueLong, dstate: DState): DataValueShort =
+    LongToShort.computeValue(longValue, dstate)
 }
 
 case class DFDLUnsignedShort(recipe: CompiledDPath, argType: NodeInfo.Kind)
@@ -163,7 +171,8 @@ case class DFDLUnsignedShort(recipe: CompiledDPath, argType: NodeInfo.Kind)
   val constructorName = "unsignedShort"
   val maxHexDigits = 4
 
-  protected def convert(longValue: DataValueLong, dstate: DState): DataValueInt = LongToUnsignedShort.computeValue(longValue, dstate)
+  protected def convert(longValue: DataValueLong, dstate: DState): DataValueInt =
+    LongToUnsignedShort.computeValue(longValue, dstate)
 }
 
 case class DFDLInt(recipe: CompiledDPath, argType: NodeInfo.Kind)
@@ -171,7 +180,8 @@ case class DFDLInt(recipe: CompiledDPath, argType: NodeInfo.Kind)
   val constructorName = "int"
   val maxHexDigits = 8
 
-  protected def convert(longValue: DataValueLong, dstate: DState): DataValueInt = LongToInt.computeValue(longValue, dstate)
+  protected def convert(longValue: DataValueLong, dstate: DState): DataValueInt =
+    LongToInt.computeValue(longValue, dstate)
 }
 
 case class DFDLUnsignedInt(recipe: CompiledDPath, argType: NodeInfo.Kind)
@@ -179,7 +189,8 @@ case class DFDLUnsignedInt(recipe: CompiledDPath, argType: NodeInfo.Kind)
   val constructorName = "unsignedInt"
   val maxHexDigits = 8
 
-  protected def convert(longValue: DataValueLong, dstate: DState): DataValueLong = LongToUnsignedInt.computeValue(longValue, dstate)
+  protected def convert(longValue: DataValueLong, dstate: DState): DataValueLong =
+    LongToUnsignedInt.computeValue(longValue, dstate)
 }
 
 case class DFDLLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
@@ -195,7 +206,9 @@ case class DFDLUnsignedLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
   val constructorName = "unsignedLong"
   val maxHexDigits = 16
 
-  protected def convert(longValue: DataValueLong, dstate: DState): DataValueBigInt = asBigInt(longValue.getLong)
+  protected def convert(longValue: DataValueLong, dstate: DState): DataValueBigInt = asBigInt(
+    longValue.getLong,
+  )
 
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
     val ulong: DataValuePrimitive = a.getAnyRef match {
@@ -213,7 +226,8 @@ case class DFDLUnsignedLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
       }
       case s: String if s.startsWith("x") => {
         val hexStr = s.substring(1)
-        if (hexStr.length > maxHexDigits) throw new NumberFormatException(hexMsg.format(hexStr.length))
+        if (hexStr.length > maxHexDigits)
+          throw new NumberFormatException(hexMsg.format(hexStr.length))
         HexStringToUnsignedLong.computeValue(hexStr, dstate)
       }
       case _: String => StringToUnsignedLong.computeValue(a, dstate)

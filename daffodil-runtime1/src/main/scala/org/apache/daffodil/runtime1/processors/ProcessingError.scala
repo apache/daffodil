@@ -18,11 +18,11 @@
 package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 import org.apache.daffodil.lib.api.ThinDiagnostic
-import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
+import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 abstract class ProcessingError protected (
   override val modeName: String,
@@ -30,8 +30,8 @@ abstract class ProcessingError protected (
   dataContext: Maybe[DataLocation],
   val maybeCause: Maybe[Throwable], // use this OR the format string, Not both.
   val maybeFormatString: Maybe[String],
-  val args: Any*)
-  extends ThinDiagnostic(schemaContext, dataContext, maybeCause, maybeFormatString, args: _*) {
+  val args: Any*,
+) extends ThinDiagnostic(schemaContext, dataContext, maybeCause, maybeFormatString, args: _*) {
 
   override def isError = true
 
@@ -40,7 +40,8 @@ abstract class ProcessingError protected (
     rd: Maybe[SchemaFileLocation],
     loc: Maybe[DataLocation],
     fmtString: String,
-    args: Any*) = this(modeName, rd, loc, Maybe.Nope, Maybe(fmtString), args: _*)
+    args: Any*,
+  ) = this(modeName, rd, loc, Maybe.Nope, Maybe(fmtString), args: _*)
 
   /**
    * Used to convert a processing error into a parse error so that it

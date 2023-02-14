@@ -18,23 +18,24 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import java.text.ParsePosition
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextZonedSignStyle
+import org.apache.daffodil.lib.util.DecimalUtils
+import org.apache.daffodil.lib.util.DecimalUtils.OverpunchLocation
+import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
-import org.apache.daffodil.lib.schema.annotation.props.gen.TextZonedSignStyle
-import org.apache.daffodil.lib.util.DecimalUtils
-import org.apache.daffodil.lib.util.DecimalUtils.OverpunchLocation
 
 case class ConvertZonedCombinatorParser(
   rd: TermRuntimeData,
   valueParser: Parser,
-  converterParser: Parser)
-  extends CombinatorParser(rd) {
+  converterParser: Parser,
+) extends CombinatorParser(rd) {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -53,8 +54,8 @@ case class ConvertZonedNumberParser(
   textNumberFormatEv: TextNumberFormatEv,
   zonedSignStyle: TextZonedSignStyle,
   override val context: ElementRuntimeData,
-  override val textDecimalVirtualPoint: Int)
-  extends TextPrimParser
+  override val textDecimalVirtualPoint: Int,
+) extends TextPrimParser
   with TextDecimalVirtualPointMixin {
 
   override lazy val runtimeDependencies = Vector(textNumberFormatEv)
@@ -67,7 +68,11 @@ case class ConvertZonedNumberParser(
 
     Assert.invariant(str != null) // worst case it should be empty string. But not null.
     if (str == "") {
-      PE(start, "Unable to parse zoned %s from empty string", context.optPrimType.get.globalQName)
+      PE(
+        start,
+        "Unable to parse zoned %s from empty string",
+        context.optPrimType.get.globalQName,
+      )
       return
     }
 
@@ -76,15 +81,21 @@ case class ConvertZonedNumberParser(
       val df = textNumberFormatEv.evaluate(start)
       val pos = new ParsePosition(0)
 
-      val decodedNum = try {
-        DecimalUtils.zonedToNumber(str, zonedSignStyle, opl)
-      } catch {
-        case e: NumberFormatException => {
-          PE(start, "Unable to parse zoned %s from text: %s. %s",
-            context.optPrimType.get.globalQName, str, e.getMessage)
-          return
+      val decodedNum =
+        try {
+          DecimalUtils.zonedToNumber(str, zonedSignStyle, opl)
+        } catch {
+          case e: NumberFormatException => {
+            PE(
+              start,
+              "Unable to parse zoned %s from text: %s. %s",
+              context.optPrimType.get.globalQName,
+              str,
+              e.getMessage,
+            )
+            return
+          }
         }
-      }
       if (decodedNum(0) == '-')
         checkLength = checkLength + 1
 
@@ -93,21 +104,26 @@ case class ConvertZonedNumberParser(
       // Verify that what was parsed was what was passed exactly in byte count.
       // Use pos to verify all characters consumed & check for errors!
       if (num1 == null || pos.getIndex != checkLength) {
-        PE(start, "Unable to parse zoned %s from text: %s.",
-          context.optPrimType.get.globalQName, str)
+        PE(
+          start,
+          "Unable to parse zoned %s from text: %s.",
+          context.optPrimType.get.globalQName,
+          str,
+        )
         return
       }
 
       val num2 = applyTextDecimalVirtualPointForParse(num1)
 
-      val numValue = try {
-        primNumeric.fromNumber(num2)
-      } catch {
-        case e: InvalidPrimitiveDataException => {
-          PE(start, "%s", e.getMessage)
-          return
+      val numValue =
+        try {
+          primNumeric.fromNumber(num2)
+        } catch {
+          case e: InvalidPrimitiveDataException => {
+            PE(start, "%s", e.getMessage)
+            return
+          }
         }
-      }
       numValue
     }
 

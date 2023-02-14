@@ -17,18 +17,25 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import org.apache.daffodil.lib.util.Numbers._
 import java.lang.{ Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
+import org.apache.daffodil.lib.util.Numbers._
+
 case object PlusDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).add(asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = {
+    asBigDecimal(v1).add(asBigDecimal(v2))
+  }
 }
 case object MinusDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).subtract(asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = {
+    asBigDecimal(v1).subtract(asBigDecimal(v2))
+  }
 }
 case object TimesDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).multiply(asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = {
+    asBigDecimal(v1).multiply(asBigDecimal(v2))
+  }
 }
 
 /**
@@ -86,7 +93,9 @@ case object IDivDecimal extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(DivDecimal.operate(v1, v2)) }
 }
 case object ModDecimal extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigDecimal = { asBigDecimal(v1).remainder(asBigDecimal(v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigDecimal = {
+    asBigDecimal(v1).remainder(asBigDecimal(v2))
+  }
 }
 
 case object PlusInteger extends NumericOp {
@@ -121,7 +130,9 @@ case object DivNonNegativeInteger extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigDecimal = { DivDecimal.operate(v1, v2) }
 }
 case object IDivNonNegativeInteger extends NumericOp {
-  def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(DivNonNegativeInteger.operate(v1, v2)) }
+  def operate(v1: JNumber, v2: JNumber): JBigInt = {
+    asBigInt(DivNonNegativeInteger.operate(v1, v2))
+  }
 }
 case object ModNonNegativeInteger extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JBigInt = { asBigInt(v1).mod(asBigInt(v2)) }
@@ -332,7 +343,8 @@ case object IDivDouble extends NumericOp {
     if (v1d.isInfinite || v1d.isNaN || v2d.isNaN) {
       throw new ArithmeticException("integer division with NaN or Infinity")
     }
-    asLong(DivDouble.operate(v1, v2)) }
+    asLong(DivDouble.operate(v1, v2))
+  }
 }
 case object ModDouble extends NumericOp {
   def operate(v1: JNumber, v2: JNumber): JNumber = { asDouble(v1) % asDouble(v2) }

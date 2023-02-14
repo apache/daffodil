@@ -22,8 +22,9 @@ import java.nio.CharBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.StandardCharsets
-import org.apache.daffodil.lib.exceptions.Assert
+
 import org.apache.daffodil.io.LocalBufferMixin
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MaybeInt
 
 object CharsetUtils {
@@ -37,9 +38,9 @@ object CharsetUtils {
     if (cs == null)
       null
     else
-      cs.charset 
+      cs.charset
   }
-  
+
   def supportedEncodingsString = BitsCharsetDefinitionRegistry.supportedEncodingsString
 
   /**
@@ -59,9 +60,11 @@ object CharsetUtils {
     bb.limit(6).position(0)
     val cb = CharBuffer.allocate(1)
     val cr = decoder.decode(bb, cb, true)
-    if (cr.isOverflow && // This is the bug!
+    if (
+      cr.isOverflow && // This is the bug!
       cb.position() == 0 &&
-      bb.position() == 0) true
+      bb.position() == 0
+    ) true
     else if (cr.isError) false // no bug
     //    else if (cr.isOverflow && // This is what *should* happen if CodingErrorAction.REPLACE is used.
     //      cb.position == 1 &&
@@ -74,18 +77,27 @@ object CharsetUtils {
   val unicodeReplacementChar = '\uFFFD'
 }
 
-sealed abstract class CoderInfo(val encodingMandatoryAlignmentInBits: Int, val maybeCharWidthInBits: MaybeInt)
+sealed abstract class CoderInfo(
+  val encodingMandatoryAlignmentInBits: Int,
+  val maybeCharWidthInBits: MaybeInt,
+)
 
-case class DecoderInfo(coder: BitsCharsetDecoder,
-  encodingMandatoryAlignmentInBitsArg: Int, maybeCharWidthInBitsArg: MaybeInt)
-  extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
+case class DecoderInfo(
+  coder: BitsCharsetDecoder,
+  encodingMandatoryAlignmentInBitsArg: Int,
+  maybeCharWidthInBitsArg: MaybeInt,
+) extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
 
-case class EncoderInfo(coder: BitsCharsetEncoder, replacingCoder: BitsCharsetEncoder, reportingCoder: BitsCharsetEncoder,
-  encodingMandatoryAlignmentInBitsArg: Int, maybeCharWidthInBitsArg: MaybeInt)
-  extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
+case class EncoderInfo(
+  coder: BitsCharsetEncoder,
+  replacingCoder: BitsCharsetEncoder,
+  reportingCoder: BitsCharsetEncoder,
+  encodingMandatoryAlignmentInBitsArg: Int,
+  maybeCharWidthInBitsArg: MaybeInt,
+) extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
 
-trait EncoderDecoderMixin
-  extends LocalBufferMixin {
+trait EncoderDecoderMixin extends LocalBufferMixin {
+
   /**
    * The reason for these caches is that otherwise to
    * get a decoder you have to take the Charset and call
@@ -153,7 +165,13 @@ trait EncoderDecoderMixin
       reportingCoder.onMalformedInput(CodingErrorAction.REPORT)
       reportingCoder.onUnmappableCharacter(CodingErrorAction.REPORT)
       val (encodingMandatoryAlignmentInBits, maybeCharWidthInBits) = derivations(charset)
-      entry = EncoderInfo(coder, replacingCoder, reportingCoder, encodingMandatoryAlignmentInBits, maybeCharWidthInBits)
+      entry = EncoderInfo(
+        coder,
+        replacingCoder,
+        reportingCoder,
+        encodingMandatoryAlignmentInBits,
+        maybeCharWidthInBits,
+      )
       encoderCache.put(charset, entry)
     }
     entry
@@ -207,8 +225,9 @@ trait EncoderDecoderMixin
 
           val cr = encoder.encode(cb, bb, true)
           cr match {
-            case CoderResult.UNDERFLOW => //ok. Normal termination
-            case CoderResult.OVERFLOW => Assert.invariantFailed("byte buffer wasn't big enough to accomodate the string")
+            case CoderResult.UNDERFLOW => // ok. Normal termination
+            case CoderResult.OVERFLOW =>
+              Assert.invariantFailed("byte buffer wasn't big enough to accomodate the string")
             case _ if cr.isMalformed() => cr.throwException()
             case _ if cr.isUnmappable() => cr.throwException()
           }
@@ -274,7 +293,7 @@ trait EncoderDecoderMixin
                 val truncString = cb.toString()
                 truncString
               }
-              case _ if cr.isMalformed() || cr.isUnmappable=> {
+              case _ if cr.isMalformed() || cr.isUnmappable => {
                 cr.throwException()
                 Assert.impossible()
               }
@@ -287,6 +306,11 @@ trait EncoderDecoderMixin
 
 }
 
-class CharacterSetAlignmentError(csName: String, requiredAlignmentInBits: Int, alignmentInBitsWas: Int)
-  extends Exception("Character set %s requires %s alignment (bits), but alignment was %s (bits)".
-    format(csName, requiredAlignmentInBits, alignmentInBitsWas))
+class CharacterSetAlignmentError(
+  csName: String,
+  requiredAlignmentInBits: Int,
+  alignmentInBitsWas: Int,
+) extends Exception(
+    "Character set %s requires %s alignment (bits), but alignment was %s (bits)"
+      .format(csName, requiredAlignmentInBits, alignmentInBitsWas),
+  )

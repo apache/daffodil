@@ -26,12 +26,13 @@ import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
+
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.runtime1.layers.LayerExecutionException
 
 object INoWarn4 {
-  ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.runtime1.api.DFDL
+  ImplicitsSuppressUnusedImportWarning()
+}
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.ValidationException
 import org.apache.daffodil.lib.api.ValidationFailure
@@ -39,16 +40,26 @@ import org.apache.daffodil.lib.api.ValidationMode
 import org.apache.daffodil.lib.api.ValidationResult
 import org.apache.daffodil.lib.api.Validator
 import org.apache.daffodil.lib.api.WithDiagnostics
+import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.runtime1.dsom._
-import org.apache.daffodil.lib.equality._
 object EqualityNoWarn3 {
-  EqualitySuppressUnusedImportWarning() }
-import org.apache.daffodil.runtime1.events.MultipleEventHandler
+  EqualitySuppressUnusedImportWarning()
+}
+import org.apache.daffodil.io.BitOrderChangeException
+import org.apache.daffodil.io.FileIOException
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.oolag.ErrorAlreadyHandled
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.validation.XercesValidatorFactory
+import org.apache.daffodil.runtime1.events.MultipleEventHandler
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.InfosetException
@@ -56,19 +67,11 @@ import org.apache.daffodil.runtime1.infoset.InfosetInputter
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.infoset.TeeInfosetOutputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
-import org.apache.daffodil.io.BitOrderChangeException
-import org.apache.daffodil.io.FileIOException
-import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.oolag.ErrorAlreadyHandled
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.parsers.Parser
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.validation.XercesValidatorFactory
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -102,13 +105,15 @@ object DataProcessor {
   private class SerializableDataProcessor(
     ssrd: SchemaSetRuntimeData,
     tunables: DaffodilTunables,
-    variableMap: VariableMap,            // must be explicitly reset by save method
+    variableMap: VariableMap, // must be explicitly reset by save method
     validationMode: ValidationMode.Type, // must be explicitly turned off by save method
   ) extends DataProcessor(ssrd, tunables, variableMap, validationMode) {
 
     override def withValidationMode(mode: ValidationMode.Type): DataProcessor = {
       if (mode == ValidationMode.Full) {
-        throw new InvalidUsageException("'Full' validation not allowed when using a restored parser.")
+        throw new InvalidUsageException(
+          "'Full' validation not allowed when using a restored parser.",
+        )
       }
       super.withValidationMode(mode)
     }
@@ -130,8 +135,8 @@ class DataProcessor(
   // back when the object is re-initialized.
   //
   val validationMode: ValidationMode.Type = ValidationMode.Off,
-  protected val areDebugging : Boolean = false,
-  protected val optDebugger : Option[Debugger] = None,
+  protected val areDebugging: Boolean = false,
+  protected val optDebugger: Option[Debugger] = None,
 ) extends DFDL.DataProcessor
   with Serializable
   with MultipleEventHandler {
@@ -156,7 +161,7 @@ class DataProcessor(
    * @return the serializable object
    */
   @throws(classOf[java.io.ObjectStreamException])
-  private def writeReplace() : Object =
+  private def writeReplace(): Object =
     new SerializableDataProcessor(ssrd, tunables, variableMap.copy(), validationMode)
 
   def copy(
@@ -192,15 +197,19 @@ class DataProcessor(
    *
    * Note that the default validation mode is "off", that is, no validation is performed.
    */
-  def withValidationMode(mode:ValidationMode.Type): DataProcessor = copy(validationMode = mode)
+  def withValidationMode(mode: ValidationMode.Type): DataProcessor = copy(validationMode = mode)
 
-  def withValidator(validator: Validator): DataProcessor = withValidationMode(ValidationMode.Custom(validator))
+  def withValidator(validator: Validator): DataProcessor = withValidationMode(
+    ValidationMode.Custom(validator),
+  )
 
   lazy val validator: Validator = {
     validationMode match {
       case ValidationMode.Custom(cv) => cv
       case _ =>
-        val cfg = XercesValidatorFactory.makeConfig(ssrd.elementRuntimeData.schemaURIStringsForFullValidation)
+        val cfg = XercesValidatorFactory.makeConfig(
+          ssrd.elementRuntimeData.schemaURIStringsForFullValidation,
+        )
         XercesValidatorFactory.makeValidator(cfg)
     }
   }
@@ -210,7 +219,7 @@ class DataProcessor(
     optDebugger.get
   }
 
-  def withDebugger(dbg:AnyRef): DataProcessor = {
+  def withDebugger(dbg: AnyRef): DataProcessor = {
     val optDbg = if (dbg eq null) None else Some(dbg.asInstanceOf[Debugger])
     copy(optDebugger = optDbg)
   }
@@ -222,18 +231,21 @@ class DataProcessor(
 
   def withExternalVariables(extVars: Map[String, String]): DataProcessor = {
     val bindings = ExternalVariablesLoader.mapToBindings(extVars)
-    val newVariableMap = ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
+    val newVariableMap =
+      ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
     copy(variableMap = newVariableMap)
   }
 
   def withExternalVariables(extVars: File): DataProcessor = {
     val bindings = ExternalVariablesLoader.fileToBindings(extVars)
-    val newVariableMap = ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
+    val newVariableMap =
+      ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
     copy(variableMap = newVariableMap)
   }
 
   def withExternalVariables(bindings: Seq[Binding]): DataProcessor = {
-    val newVariableMap = ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
+    val newVariableMap =
+      ExternalVariablesLoader.loadVariables(bindings, ssrd, variableMap.copy())
     copy(variableMap = newVariableMap)
   }
 
@@ -256,7 +268,9 @@ class DataProcessor(
     xrdr
   }
 
-  override def newContentHandlerInstance(output: DFDL.Output): DFDL.DaffodilUnparseContentHandler =
+  override def newContentHandlerInstance(
+    output: DFDL.Output,
+  ): DFDL.DaffodilUnparseContentHandler =
     new DaffodilUnparseContentHandlerImpl(this, output)
 
   def save(output: DFDL.Output): Unit = {
@@ -279,7 +293,8 @@ class DataProcessor(
     //
     val dpToSave = this.copy(
       variableMap = ssrd.originalVariables, // reset to original variables defined in schema
-      validationMode = ValidationMode.Off,  // explicitly turn off, so restored processor won't be validating
+      validationMode =
+        ValidationMode.Off, // explicitly turn off, so restored processor won't be validating
     )
 
     try {
@@ -352,8 +367,8 @@ class DataProcessor(
       val vr = maybeValidationBytes.toScalaOption.map { bytes =>
         val bis = new java.io.ByteArrayInputStream(bytes.toByteArray)
         val res = validator.validateXML(bis)
-        res.warnings().forEach{ w => state.validationError(w.getMessage) }
-        res.errors().forEach{
+        res.warnings().forEach { w => state.validationError(w.getMessage) }
+        res.errors().forEach {
           case e: ValidationException =>
             state.validationErrorNoContext(e.getCause)
           case f: ValidationFailure =>
@@ -384,7 +399,10 @@ class DataProcessor(
     var optThrown: Maybe[Throwable] = None
     try {
       try {
-        Assert.usageErrorUnless(state.dataInputStreamIsValid, "Attempted to use an invalid input source. This can happen due to our position in the input source not being properly reset after failed parse could not backtrack to its original position")
+        Assert.usageErrorUnless(
+          state.dataInputStreamIsValid,
+          "Attempted to use an invalid input source. This can happen due to our position in the input source not being properly reset after failed parse could not backtrack to its original position",
+        )
 
         // Force the evaluation of any defineVariable's with non-constant default
         // value expressions
@@ -415,9 +433,9 @@ class DataProcessor(
           Assert.invariant(state.walker.isFinished)
         }
       } catch {
-        //We will actually be handling all errors in the outer loop
-        //However, there is a chance that our finally block will itself throw.
-        //In such a case, it is useful to include the original error.
+        // We will actually be handling all errors in the outer loop
+        // However, there is a chance that our finally block will itself throw.
+        // In such a case, it is useful to include the original error.
         case e: Throwable => {
           optThrown = Some(e)
           throw e
@@ -433,7 +451,9 @@ class DataProcessor(
       //
       case pe: ParseError => {
         // if we get one here, then someone threw instead of returning a status.
-        Assert.invariantFailed("ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please.")
+        Assert.invariantFailed(
+          "ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please.",
+        )
       }
       case procErr: ProcessingError => {
         val x = procErr
@@ -477,67 +497,64 @@ class DataProcessor(
   def unparse(inputter: InfosetInputter, outStream: java.io.OutputStream) = {
     inputter.initialize(ssrd.elementRuntimeData, tunables)
     val unparserState =
-      UState.createInitialUState(
-        outStream,
-        this,
-        inputter,
-        areDebugging)
-    val res = try {
-      if (areDebugging) {
-        Assert.invariant(optDebugger.isDefined)
-        addEventHandler(debugger)
-        unparserState.notifyDebugging(true)
-      }
-      unparserState.dataProc.get.init(unparserState, ssrd.unparser)
-      unparserState.dataOutputStream.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
-      doUnparse(unparserState)
-      unparserState.evalSuspensions(isFinal = true)
-      unparserState.unparseResult
-    } catch {
-      case ue: UnparseError => {
-        unparserState.addUnparseError(ue)
+      UState.createInitialUState(outStream, this, inputter, areDebugging)
+    val res =
+      try {
+        if (areDebugging) {
+          Assert.invariant(optDebugger.isDefined)
+          addEventHandler(debugger)
+          unparserState.notifyDebugging(true)
+        }
+        unparserState.dataProc.get.init(unparserState, ssrd.unparser)
+        unparserState.dataOutputStream.setPriorBitOrder(ssrd.elementRuntimeData.defaultBitOrder)
+        doUnparse(unparserState)
+        unparserState.evalSuspensions(isFinal = true)
         unparserState.unparseResult
+      } catch {
+        case ue: UnparseError => {
+          unparserState.addUnparseError(ue)
+          unparserState.unparseResult
+        }
+        case procErr: ProcessingError => {
+          val x = procErr
+          unparserState.setFailed(x.toUnparseError)
+          unparserState.unparseResult
+        }
+        case sde: SchemaDefinitionError => {
+          // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
+          // These are fatal, and there's no notion of backtracking them, so they propagate to top level
+          // here.
+          unparserState.setFailed(sde)
+          unparserState.unparseResult
+        }
+        case rsde: RuntimeSchemaDefinitionError => {
+          unparserState.setFailed(rsde)
+          unparserState.unparseResult
+        }
+        case e: ErrorAlreadyHandled => {
+          unparserState.setFailed(e.th)
+          unparserState.unparseResult
+        }
+        case e: TunableLimitExceededError => {
+          unparserState.setFailed(e)
+          unparserState.unparseResult
+        }
+        case se: org.xml.sax.SAXException => {
+          unparserState.setFailed(new UnparseError(None, None, se))
+          unparserState.unparseResult
+        }
+        case e: scala.xml.parsing.FatalError => {
+          unparserState.setFailed(new UnparseError(None, None, e))
+          unparserState.unparseResult
+        }
+        case ie: InfosetException => {
+          unparserState.setFailed(new UnparseError(None, None, ie))
+          unparserState.unparseResult
+        }
+        case th: Throwable => throw th
+      } finally {
+        unparserState.dataOutputStream.cleanUp
       }
-      case procErr: ProcessingError => {
-        val x = procErr
-        unparserState.setFailed(x.toUnparseError)
-        unparserState.unparseResult
-      }
-      case sde: SchemaDefinitionError => {
-        // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
-        // These are fatal, and there's no notion of backtracking them, so they propagate to top level
-        // here.
-        unparserState.setFailed(sde)
-        unparserState.unparseResult
-      }
-      case rsde: RuntimeSchemaDefinitionError => {
-        unparserState.setFailed(rsde)
-        unparserState.unparseResult
-      }
-      case e: ErrorAlreadyHandled => {
-        unparserState.setFailed(e.th)
-        unparserState.unparseResult
-      }
-      case e: TunableLimitExceededError => {
-        unparserState.setFailed(e)
-        unparserState.unparseResult
-      }
-      case se: org.xml.sax.SAXException => {
-        unparserState.setFailed(new UnparseError(None, None, se))
-        unparserState.unparseResult
-      }
-      case e: scala.xml.parsing.FatalError => {
-        unparserState.setFailed(new UnparseError(None, None, e))
-        unparserState.unparseResult
-      }
-      case ie: InfosetException => {
-        unparserState.setFailed(new UnparseError(None, None, ie))
-        unparserState.unparseResult
-      }
-      case th: Throwable => throw th
-    } finally {
-      unparserState.dataOutputStream.cleanUp
-    }
     res
   }
 
@@ -548,7 +565,7 @@ class DataProcessor(
       // rootERD is pushed when the state is constructed and initialized.
       val mtrd = state.maybeTopTRD()
       mtrd.isDefined &&
-        (mtrd.get eq rootUnparser.context)
+      (mtrd.get eq rootUnparser.context)
     }
 
     // Force the evaluation of any defineVariable's with non-constant default
@@ -576,7 +593,7 @@ class DataProcessor(
     Assert.invariant(state.currentInfosetNodeMaybe.isEmpty)
     Assert.invariant(state.escapeSchemeEVCache.isEmpty)
     Assert.invariant(state.maybeTopTRD().isEmpty) // dynamic TRD stack is empty
-    Assert.invariant(!state.withinHiddenNest) //ensure we are not in hidden nest
+    Assert.invariant(!state.withinHiddenNest) // ensure we are not in hidden nest
 
     //
     // All the DOS that precede the last one
@@ -603,13 +620,20 @@ class DataProcessor(
 
     val ev = state.advanceMaybe
     if (ev.isDefined) {
-      UnparseError(Nope, One(state.currentLocation), "Expected no remaining events, but received %s.", ev.get)
+      UnparseError(
+        Nope,
+        One(state.currentLocation),
+        "Expected no remaining events, but received %s.",
+        ev.get,
+      )
     }
   }
 }
 
-class ParseResult(override val resultState: PState, val validationResult: Option[ValidationResult])
-  extends DFDL.ParseResult
+class ParseResult(
+  override val resultState: PState,
+  val validationResult: Option[ValidationResult],
+) extends DFDL.ParseResult
   with WithDiagnosticsImpl
 
 class UnparseResult(dp: DataProcessor, ustate: UState)
@@ -624,7 +648,8 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
     else
       Nope
 
-  private def encodingInfo = if (maybeEncodingInfo.isDefined) maybeEncodingInfo.get else dp.ssrd.elementRuntimeData.encodingInfo
+  private def encodingInfo = if (maybeEncodingInfo.isDefined) maybeEncodingInfo.get
+  else dp.ssrd.elementRuntimeData.encodingInfo
 
   override def isScannable = encodingInfo.isScannable
   override def encodingName = {

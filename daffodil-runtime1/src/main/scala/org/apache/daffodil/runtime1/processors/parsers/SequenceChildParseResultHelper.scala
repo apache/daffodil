@@ -16,14 +16,14 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicy
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DISimple
-import org.apache.daffodil.runtime1.infoset.DIComplex
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
 
 sealed abstract class PotentiallyTrailingStatus
 object PotentiallyTrailingStatus {
@@ -42,8 +42,7 @@ object PotentiallyTrailingStatus {
  * or absentRep based on static characteristics of the item (element, group)
  * and the required/optionality of the item.
  */
-trait SequenceChildParseResultHelper
-  extends Serializable {
+trait SequenceChildParseResultHelper extends Serializable {
 
   /**
    * Based on position within the group, is there a specific required/optional status
@@ -67,7 +66,8 @@ trait SequenceChildParseResultHelper
     parser: SequenceChildParser,
     prevBitPosBeforeChild: Long,
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus
 
   /**
    * Computes the parse attempt status after a failure to parse.
@@ -84,19 +84,23 @@ trait SequenceChildParseResultHelper
     prevBitPosBeforeChild: Long,
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus
 
   /**
    * Overridden for PositionalTrailingStrict case.
    */
-  def finalChecks(parser: SequenceChildParser, pstate: PState, resultOfTry: ParseAttemptStatus,
-    priorResultOfTry: ParseAttemptStatus): Unit = {
+  def finalChecks(
+    parser: SequenceChildParser,
+    pstate: PState,
+    resultOfTry: ParseAttemptStatus,
+    priorResultOfTry: ParseAttemptStatus,
+  ): Unit = {
     // do nothing by default
   }
 }
 
-trait ElementSequenceChildParseResultHelper
-  extends SequenceChildParseResultHelper {
+trait ElementSequenceChildParseResultHelper extends SequenceChildParseResultHelper {
 
   def erd: ElementRuntimeData
 
@@ -158,7 +162,8 @@ trait ElementSequenceChildParseResultHelper
     parser: SequenceChildParser,
     prevBitPosBeforeChild: Long,
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
 
     val currentBitPosAfterChild = pstate.bitPos0b
     val isZL = {
@@ -169,21 +174,42 @@ trait ElementSequenceChildParseResultHelper
       val maybeElem = pstate.infosetLastChild
       Assert.invariant(maybeElem.isDefined)
       val elem = maybeElem.get
-      val maybeIsNilled = elem.maybeIsNilled // can't just call isNilled because that throws exceptions on not defined
+      val maybeIsNilled =
+        elem.maybeIsNilled // can't just call isNilled because that throws exceptions on not defined
       if (maybeIsNilled.isDefined && maybeIsNilled.get) {
         ParseAttemptStatus.NilRep
       } else {
         // not nilled
         val optPrimType = erd.optPrimType
         if (optPrimType.isDefined) {
-          simpleTypeSuccessParseAttemptStatus(parser, pstate, isZL, erd, elem.asSimple, requiredOptional)
+          simpleTypeSuccessParseAttemptStatus(
+            parser,
+            pstate,
+            isZL,
+            erd,
+            elem.asSimple,
+            requiredOptional,
+          )
         } else {
-          complexTypeSuccessParseAttemptStatus(parser, pstate, isZL, erd, elem.asComplex, requiredOptional)
+          complexTypeSuccessParseAttemptStatus(
+            parser,
+            pstate,
+            isZL,
+            erd,
+            elem.asComplex,
+            requiredOptional,
+          )
         }
       }
     } else {
       Assert.invariant(pstate.isFailure)
-      computeFailedParseAttemptStatus(parser, prevBitPosBeforeChild, pstate, isZL, requiredOptional)
+      computeFailedParseAttemptStatus(
+        parser,
+        prevBitPosBeforeChild,
+        pstate,
+        isZL,
+        requiredOptional,
+      )
     } // end if isSuccess/isFailed
   }
 
@@ -196,7 +222,8 @@ trait ElementSequenceChildParseResultHelper
     prevBitPosBeforeChild: Long,
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     Assert.usage(pstate.isFailure)
     val optPrimType = erd.optPrimType
     if (optPrimType.isDefined) {
@@ -209,7 +236,12 @@ trait ElementSequenceChildParseResultHelper
   /**
    * Did the most recent parse succeed consuming the emptyRep.
    */
-  final protected def isEmptyRep(parser: SequenceChildParser, pstate: PState, isZL: Boolean, maybeElem: Maybe[DIElement]): Boolean = {
+  final protected def isEmptyRep(
+    parser: SequenceChildParser,
+    pstate: PState,
+    isZL: Boolean,
+    maybeElem: Maybe[DIElement],
+  ): Boolean = {
     Assert.invariant(pstate.isSuccess)
     val isIt =
       if (isEmptyRepZeroLength) {
@@ -263,7 +295,8 @@ trait ElementSequenceChildParseResultHelper
     isZL: Boolean,
     erd: ElementRuntimeData,
     elem: DISimple,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     Assert.invariant(pstate.isSuccess)
     val isEmpty = isEmptyRep(parser, pstate, isZL, Maybe(elem))
     if (isEmpty) {
@@ -274,14 +307,15 @@ trait ElementSequenceChildParseResultHelper
             pstate.schemaDefinitionError("Default values not implemented.")
           } else {
             emptyElementParsePolicy match {
-              case EmptyElementParsePolicy.TreatAsMissing | EmptyElementParsePolicy.TreatAsAbsent => { // deprecated: TreatAsMissing
+              case EmptyElementParsePolicy.TreatAsMissing |
+                  EmptyElementParsePolicy.TreatAsAbsent => { // deprecated: TreatAsMissing
                 parser.PE(pstate, "Empty element not allowed for required element.")
                 ParseAttemptStatus.MissingItem
               }
               case EmptyElementParsePolicy.TreatAsEmpty => {
                 elem.dataValue.getAnyRef match {
-                  case string: String if string.length == 0 => //ok
-                  case byteArray: Array[Byte] if byteArray.length == 0 => //ok
+                  case string: String if string.length == 0 => // ok
+                  case byteArray: Array[Byte] if byteArray.length == 0 => // ok
                   case _ => Assert.invariant(!isZL) // must be nonZL empty rep.
                 }
                 ParseAttemptStatus.EmptyRep // success. EmptyRep. Value is an empty string or hexBinary
@@ -306,7 +340,8 @@ trait ElementSequenceChildParseResultHelper
     isZL: Boolean,
     erd: ElementRuntimeData,
     elem: DIComplex,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     requiredOptional match {
       case _: RequiredOptionalStatus.Required if isZL =>
         ParseAttemptStatus.EmptyRep
@@ -333,14 +368,17 @@ trait ElementSequenceChildParseResultHelper
    */
   protected def anyTypeElementFailedParseAttemptStatus(
     pstate: PState,
-    isZL: Boolean, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus
+    isZL: Boolean,
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus
 
   final protected def simpleTypeFailedParseAttemptStatus(
     parser: SequenceChildParser,
     pstate: PState,
     isZL: Boolean,
     erd: ElementRuntimeData,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus =
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus =
     anyTypeElementFailedParseAttemptStatus(pstate, isZL, requiredOptional)
 
   final protected def complexTypeFailedParseAttemptStatus(
@@ -348,12 +386,12 @@ trait ElementSequenceChildParseResultHelper
     pstate: PState,
     isZL: Boolean,
     erd: ElementRuntimeData,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus =
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus =
     anyTypeElementFailedParseAttemptStatus(pstate, isZL, requiredOptional)
 }
 
-trait ModelGroupSequenceChildParseResultHelper
-  extends SequenceChildParseResultHelper {
+trait ModelGroupSequenceChildParseResultHelper extends SequenceChildParseResultHelper {
 
   def mgrd: ModelGroupRuntimeData
 
@@ -387,7 +425,8 @@ trait ModelGroupSequenceChildParseResultHelper
     parser: SequenceChildParser,
     prevBitPosBeforeChild: Long,
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     val currentBitPosAfterChild = pstate.bitPos0b
     val isZL = {
       Assert.invariant(currentBitPosAfterChild >= prevBitPosBeforeChild)
@@ -398,7 +437,13 @@ trait ModelGroupSequenceChildParseResultHelper
       modelGroupSuccessParseAttemptStatus(parser, pstate, isZL, mgrd, requiredOptional)
     } else {
       Assert.invariant(pstate.isFailure)
-      computeFailedParseAttemptStatus(parser, prevBitPosBeforeChild, pstate, isZL, requiredOptional)
+      computeFailedParseAttemptStatus(
+        parser,
+        prevBitPosBeforeChild,
+        pstate,
+        isZL,
+        requiredOptional,
+      )
     } // end if isSuccess/isFailed
   }
 
@@ -434,14 +479,16 @@ trait ModelGroupSequenceChildParseResultHelper
     pstate: PState,
     isZL: Boolean,
     mgrd: ModelGroupRuntimeData,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus
 
   final def computeFailedParseAttemptStatus(
     parser: SequenceChildParser,
     prevBitPosBeforeChild: Long,
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     if (isZL) ParseAttemptStatus.MissingItem
     else ParseAttemptStatus.FailureUnspecified
   }
@@ -454,7 +501,6 @@ trait ModelGroupSequenceChildParseResultHelper
 trait ScalarElementSequenceChildParseResultHelper
   extends ElementSequenceChildParseResultHelper {
 
-
   /**
    * a scalar element is always required.
    */
@@ -464,10 +510,10 @@ trait ScalarElementSequenceChildParseResultHelper
   def erd: ElementRuntimeData
 }
 
-trait RepElementSequenceChildParseResultHelper
-  extends ElementSequenceChildParseResultHelper {
+trait RepElementSequenceChildParseResultHelper extends ElementSequenceChildParseResultHelper {
 
-  final override def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus] = Maybe.Nope
+  final override def maybeStaticRequiredOptionalStatus: Maybe[RequiredOptionalStatus] =
+    Maybe.Nope
 }
 
 /**
@@ -478,7 +524,9 @@ trait NonPositionalLikeElementSequenceChildParseResultMixin
 
   override protected def anyTypeElementFailedParseAttemptStatus(
     pstate: PState,
-    isZL: Boolean, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    isZL: Boolean,
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     if (isZL)
       ParseAttemptStatus.MissingItem
     else

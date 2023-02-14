@@ -17,19 +17,18 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.lib.xml.GetAttributesMixin
 import scala.xml.Node
-import org.apache.daffodil.lib.xml._
-import org.apache.daffodil.lib.util.NamedMixinBase
-import org.apache.daffodil.lib.util.Misc
+
 import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.NamedMixinBase
+import org.apache.daffodil.lib.xml.GetAttributesMixin
+import org.apache.daffodil.lib.xml._
 
 /**
  * Common Mixin for things that have a name attribute.
  */
-trait NamedMixin
-  extends GetAttributesMixin
-  with NamedMixinBase {
+trait NamedMixin extends GetAttributesMixin with NamedMixinBase {
 
   def name = getAttributeOption("name").getOrElse(Misc.getNameFromClass(this))
 
@@ -50,21 +49,23 @@ sealed trait PrefixAndNamespaceMixin {
   def xml: Node
   def schemaDocument: SchemaDocument
 
-  final lazy val prefix = xml.scope.getPrefix(namespace.toString) // can be null meaning no prefix
+  final lazy val prefix =
+    xml.scope.getPrefix(namespace.toString) // can be null meaning no prefix
 
   lazy val namespace: NS = schemaDocument.targetNamespace
 
 }
 
-sealed trait LocalComponentMixinBase
-  extends NamedMixin {
+sealed trait LocalComponentMixinBase extends NamedMixin {
+
   /**
    * True for elements if elementFormDefault is 'qualified'
    * False for any other named local component type
    */
   def isQualified: Boolean
 
-  override lazy val namedQName: NamedQName = QName.createLocal(name, namespace, isQualified, xml.scope)
+  override lazy val namedQName: NamedQName =
+    QName.createLocal(name, namespace, isQualified, xml.scope)
 }
 
 trait LocalNonElementComponentMixin
@@ -75,9 +76,7 @@ trait LocalNonElementComponentMixin
 
 }
 
-trait LocalElementComponentMixin
-  extends LocalComponentMixinBase
-  with ElementFormDefaultMixin {
+trait LocalElementComponentMixin extends LocalComponentMixinBase with ElementFormDefaultMixin {
 
   final override def isQualified = elementFormDefault == "qualified"
 
@@ -89,9 +88,7 @@ trait LocalElementComponentMixin
  * has to do with the elementFormDefault attribute of the xs:schema
  * element. Global things are always qualified
  */
-sealed trait GlobalComponent
-  extends NamedMixin
-  with PrefixAndNamespaceMixin {
+sealed trait GlobalComponent extends NamedMixin with PrefixAndNamespaceMixin {
 
   override def namedQName: NamedQName = globalQName
 
@@ -101,13 +98,11 @@ sealed trait GlobalComponent
   def shortSchemaComponentDesignator: String
 }
 
-trait GlobalNonElementComponentMixin
-  extends GlobalComponent {
+trait GlobalNonElementComponentMixin extends GlobalComponent {
   // nothing for now
 }
 
-trait GlobalElementComponentMixin
-  extends GlobalComponent
+trait GlobalElementComponentMixin extends GlobalComponent
 
 /**
  * elementFormDefault is an attribute of the xs:schema element.
@@ -188,7 +183,10 @@ trait ElementFormDefaultMixin {
       //
       val tns = namespace
       // record this error on the schemaDocument
-      xmlSchemaDocument.schemaDefinitionUnless(tns != NoNamespace, "Must have a targetNamespace if elementFormDefault='qualified'.")
+      xmlSchemaDocument.schemaDefinitionUnless(
+        tns != NoNamespace,
+        "Must have a targetNamespace if elementFormDefault='qualified'.",
+      )
       val prefix = {
         val existingPrefix = xml.scope.getPrefix(tns.toString)
         if (existingPrefix != null) existingPrefix

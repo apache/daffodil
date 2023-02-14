@@ -16,12 +16,11 @@
  */
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-import org.apache.daffodil.runtime1.processors.{ SequenceRuntimeData, TermRuntimeData }
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.{ SequenceRuntimeData, TermRuntimeData }
 
 trait Unseparated { self: SequenceChildUnparser =>
 
@@ -31,8 +30,8 @@ trait Unseparated { self: SequenceChildUnparser =>
 class ScalarOrderedUnseparatedSequenceChildUnparser(
   childUnparser: Unparser,
   srd: SequenceRuntimeData,
-  trd: TermRuntimeData)
-  extends SequenceChildUnparser(childUnparser, srd, trd)
+  trd: TermRuntimeData,
+) extends SequenceChildUnparser(childUnparser, srd, trd)
   with Unseparated {
 
   override protected def unparse(state: UState) = childUnparser.unparse1(state)
@@ -41,8 +40,8 @@ class ScalarOrderedUnseparatedSequenceChildUnparser(
 class RepOrderedUnseparatedSequenceChildUnparser(
   childUnparser: Unparser,
   srd: SequenceRuntimeData,
-  erd: ElementRuntimeData)
-  extends RepeatingChildUnparser(childUnparser, srd, erd)
+  erd: ElementRuntimeData,
+) extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Unseparated {
 
   override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean = {
@@ -53,8 +52,10 @@ class RepOrderedUnseparatedSequenceChildUnparser(
   }
 }
 
-class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers: Seq[SequenceChildUnparser])
-  extends OrderedSequenceUnparserBase(rd, childUnparsers.toVector) {
+class OrderedUnseparatedSequenceUnparser(
+  rd: SequenceRuntimeData,
+  childUnparsers: Seq[SequenceChildUnparser],
+) extends OrderedSequenceUnparserBase(rd, childUnparsers.toVector) {
 
   /**
    * Unparses one iteration of an array/optional element
@@ -62,7 +63,8 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
   protected def unparseOne(
     unparser: SequenceChildUnparser,
     trd: TermRuntimeData,
-    state: UState): Unit = {
+    state: UState,
+  ): Unit = {
 
     unparser.unparse1(state)
   }
@@ -119,17 +121,27 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
                   doUnparser = unparser.shouldDoUnparser(unparser, state)
                   doUnparser
                 }) {
-                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
+                  if (isArr)
+                    if (state.dataProc.isDefined)
+                      state.dataProc.get.beforeRepetition(state, this)
 
                   unparseOne(unparser, erd, state)
                   numOccurrences += 1
                   state.moveOverOneArrayIndexOnly()
                   state.moveOverOneGroupIndexOnly() // array elements are always represented.
 
-                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
+                  if (isArr)
+                    if (state.dataProc.isDefined)
+                      state.dataProc.get.afterRepetition(state, this)
                 }
 
-                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, state.arrayPos - 1)
+                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
+                  state,
+                  unparser,
+                  numOccurrences,
+                  maxReps,
+                  state.arrayPos - 1,
+                )
                 unparser.endArrayOrOptional(erd, state)
               } else {
                 //
@@ -154,7 +166,13 @@ class OrderedUnseparatedSequenceUnparser(rd: SequenceRuntimeData, childUnparsers
               Assert.invariant(eventNQN != erd.namedQName)
             } else {
               Assert.invariant(ev.isEnd && ev.erd.isComplexType)
-              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, 0)
+              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
+                state,
+                unparser,
+                numOccurrences,
+                maxReps,
+                0,
+              )
             }
           } else {
             // no event (state.inspect returned false)

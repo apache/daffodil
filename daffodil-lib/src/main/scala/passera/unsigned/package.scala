@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2011-2013, Nate Nystrom
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice, this
  * list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -39,7 +39,9 @@ package object unsigned {
   implicit def signedLongOps(x: Long) = new SignedLongOps(x)
   implicit def floatOps(x: Float) = new FloatOps(x)
   implicit def doubleOps(x: Double) = new DoubleOps(x)
-  implicit def signedRichIntOps(x: scala.runtime.RichInt) = new SignedRichIntOps(x.self.asInstanceOf[Int])
+  implicit def signedRichIntOps(x: scala.runtime.RichInt) = new SignedRichIntOps(
+    x.self.asInstanceOf[Int],
+  )
   implicit def richUInt(x: UInt) = new RichUInt(x)
   implicit def richerUInt(x: UInt) = new RicherUInt(x.toInt)
 

@@ -17,27 +17,25 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
 import java.lang.{ Number => JNumber }
-import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 trait PackedBinaryConversion {
   def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte]
 }
 
-abstract class PackedBinaryBaseUnparser(
-  override val context: ElementRuntimeData)
+abstract class PackedBinaryBaseUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser
   with PackedBinaryConversion {
 
@@ -56,7 +54,8 @@ abstract class PackedBinaryBaseUnparser(
     //   With packed numbers, dataValue is already a number so just use that.
     val nodeValue: DataValuePrimitiveNullable =
       node.erd.optPrimType.get match {
-        case NodeInfo.Date | NodeInfo.DateTime | NodeInfo.Time => new JBigInteger(node.dataValueAsString)
+        case NodeInfo.Date | NodeInfo.DateTime | NodeInfo.Time =>
+          new JBigInteger(node.dataValueAsString)
         case _ => node.dataValue
       }
 
@@ -72,8 +71,14 @@ abstract class PackedBinaryBaseUnparser(
 
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)
-      UnparseError(One(state.schemaFileLocation), One(state.currentLocation), "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
-        context.dpathElementCompileInfo.namedQName.toPrettyString, nBits, dos.maybeRelBitLimit0b.get)
+      UnparseError(
+        One(state.schemaFileLocation),
+        One(state.currentLocation),
+        "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
+        context.dpathElementCompileInfo.namedQName.toPrettyString,
+        nBits,
+        dos.maybeRelBitLimit0b.get,
+      )
     }
   }
 
@@ -81,26 +86,34 @@ abstract class PackedBinaryBaseUnparser(
 
 abstract class PackedBinaryDecimalBaseUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int)
-  extends PackedBinaryBaseUnparser(e) {
+  binaryDecimalVirtualPoint: Int,
+) extends PackedBinaryBaseUnparser(e) {
 
   override def getNumberToPut(ustate: UState): JNumber = {
     val number = super.getNumberToPut(ustate)
     val bigDec = number.asInstanceOf[JBigDecimal]
     if (bigDec.movePointRight(binaryDecimalVirtualPoint).scale != 0) {
-      e.schemaDefinitionError("Decimal point of number '%s' does not match the binaryVirtualDecmialPoint: %d", bigDec, binaryDecimalVirtualPoint)
+      e.schemaDefinitionError(
+        "Decimal point of number '%s' does not match the binaryVirtualDecmialPoint: %d",
+        bigDec,
+        binaryDecimalVirtualPoint,
+      )
     }
     bigDec.unscaledValue
   }
 
-  override def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
+  override def putNumber(
+    dos: DataOutputStream,
+    number: JNumber,
+    nBits: Int,
+    finfo: FormatInfo,
+  ): Boolean = {
     val packedNum = fromBigInteger(number.asInstanceOf[JBigInteger], nBits)
     dos.putByteArray(packedNum, packedNum.length * 8, finfo)
   }
 }
 
-abstract class PackedBinaryIntegerBaseUnparser(
-  e: ElementRuntimeData)
+abstract class PackedBinaryIntegerBaseUnparser(e: ElementRuntimeData)
   extends PackedBinaryBaseUnparser(e) {
 
   override def getNumberToPut(ustate: UState): JNumber = {
@@ -112,7 +125,12 @@ abstract class PackedBinaryIntegerBaseUnparser(
     bigInt
   }
 
-  override def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
+  override def putNumber(
+    dos: DataOutputStream,
+    number: JNumber,
+    nBits: Int,
+    finfo: FormatInfo,
+  ): Boolean = {
     val packedNum = fromBigInteger(number.asInstanceOf[JBigInteger], nBits)
     dos.putByteArray(packedNum, packedNum.length * 8, finfo)
   }

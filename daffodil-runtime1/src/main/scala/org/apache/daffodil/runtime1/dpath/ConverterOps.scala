@@ -29,6 +29,9 @@ import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.lib.calendar.DFDLDate
 import org.apache.daffodil.lib.calendar.DFDLDateTime
+import org.apache.daffodil.lib.util.Numbers.asBigInt
+import org.apache.daffodil.lib.util.Numbers.asBoolean
+import org.apache.daffodil.lib.util.Numbers.asDouble
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigDecimal
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
@@ -44,9 +47,6 @@ import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueShort
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueString
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueTime
-import org.apache.daffodil.lib.util.Numbers.asBigInt
-import org.apache.daffodil.lib.util.Numbers.asBoolean
-import org.apache.daffodil.lib.util.Numbers.asDouble
 
 case object BooleanToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong =
@@ -62,7 +62,10 @@ case object DateTimeToDate extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDate = {
     a.getAnyRef match {
       case dt: DFDLDateTime => dt.toDate
-      case _ => throw new NumberFormatException("xs:dateTime expected but an invalid type was received.")
+      case _ =>
+        throw new NumberFormatException(
+          "xs:dateTime expected but an invalid type was received.",
+        )
     }
   }
 }
@@ -70,7 +73,10 @@ case object DateTimeToTime extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueTime = {
     a.getAnyRef match {
       case dt: DFDLDateTime => dt.toTime
-      case _ => throw new NumberFormatException("xs:dateTime expected but an invalid type was received.")
+      case _ =>
+        throw new NumberFormatException(
+          "xs:dateTime expected but an invalid type was received.",
+        )
     }
   }
 }
@@ -78,7 +84,8 @@ case object DateToDateTime extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueDateTime = {
     a.getAnyRef match {
       case d: DFDLDate => d.toDateTime
-      case _ => throw new NumberFormatException("xs:date expected but an invalid type was received.")
+      case _ =>
+        throw new NumberFormatException("xs:date expected but an invalid type was received.")
     }
   }
 }
@@ -275,8 +282,8 @@ case object FNToBoolean extends Converter {
       case l: JLong => if (l == 0) false else true
       case bi: JBigInt => if (bi.compareTo(JBigInt.ZERO) == 0) false else true
       // TODO: Once sequences are supported, fill in these case statements
-      //case s: LocalSequence if s.length == 0 => false
-      //case s: LocalSequence if s(0) == Node => true
+      // case s: LocalSequence if s.length == 0 => false
+      // case s: LocalSequence if s(0) == Node => true
       case _ => throw new NumberFormatException("Invalid argument type.")
     }
     res

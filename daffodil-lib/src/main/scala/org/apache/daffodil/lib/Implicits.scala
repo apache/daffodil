@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.lib
 
-import java.io.{ ByteArrayInputStream, BufferedInputStream }
-
-import org.apache.daffodil.lib.xml.NS
-import org.apache.daffodil.lib.exceptions.Assert
-import scala.language.reflectiveCalls
+import java.io.{ BufferedInputStream, ByteArrayInputStream }
 import scala.language.implicitConversions
+import scala.language.reflectiveCalls
 import scala.language.{ implicitConversions, reflectiveCalls } // silences scala 2.10 warnings
+
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.xml.NS
 
 object Implicits {
 
@@ -39,7 +39,9 @@ object Implicits {
   /**
    * Convenience: automatically create buffered stream when needed.
    */
-  implicit def byteArrayInputStream2bufferedInputStream(bais: ByteArrayInputStream): BufferedInputStream =
+  implicit def byteArrayInputStream2bufferedInputStream(
+    bais: ByteArrayInputStream,
+  ): BufferedInputStream =
     new BufferedInputStream(bais)
 
   /**
@@ -48,7 +50,8 @@ object Implicits {
    * http://www.amazon.com/Beginning-Scala-David-Pollak/dp/1430219890
    */
   def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
-    try { f(param) } finally { param.close() }
+    try { f(param) }
+    finally { param.close() }
 
   // TODO: move these to TestUtils object in daffodil-lib-unittest
   // add test->test dependency on that
@@ -58,21 +61,26 @@ object Implicits {
    */
   def intercept[T <: AnyRef](body: => Any)(implicit tag: scala.reflect.ClassTag[T]): T = {
     val clazz = tag.runtimeClass.asInstanceOf[Class[T]]
-    val caught = try {
-      body
-      None
-    } catch {
-      case npe: NullPointerException => throw npe
-      case s: scala.util.control.ControlThrowable => throw s
-      case u: Throwable => {
-        if (!clazz.isAssignableFrom(u.getClass)) {
-          throw new InterceptFailedException(
-            "Failed to intercept expected exception. Expected '%s' but got '%s'.".format(clazz.getName, u.getClass.getName))
-        } else {
-          Some(u)
+    val caught =
+      try {
+        body
+        None
+      } catch {
+        case npe: NullPointerException => throw npe
+        case s: scala.util.control.ControlThrowable => throw s
+        case u: Throwable => {
+          if (!clazz.isAssignableFrom(u.getClass)) {
+            throw new InterceptFailedException(
+              "Failed to intercept expected exception. Expected '%s' but got '%s'.".format(
+                clazz.getName,
+                u.getClass.getName,
+              ),
+            )
+          } else {
+            Some(u)
+          }
         }
       }
-    }
     caught match {
       case None => throw new InterceptFailedException("Failed to intercept any exceptions.")
       case Some(e) => e.asInstanceOf[T]

@@ -19,13 +19,12 @@ package org.apache.daffodil.lib.xml
 
 import java.net.URI
 import java.net.URISyntaxException
-
 import scala.language.reflectiveCalls
 import scala.util.Try
+
 import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.exceptions.Assert
-
 
 /**
  * Please centralize QName handling here.
@@ -109,37 +108,43 @@ object QName {
   /**
    * Construct a RefQName from a QName string, and a scope.
    */
-  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding,
-      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[RefQName] =
+  def resolveRef(
+    qnameString: String,
+    scope: scala.xml.NamespaceBinding,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+  ): Try[RefQName] =
     RefQNameFactory.resolveRef(qnameString, scope, unqualifiedPathStepPolicy)
 
   def parseExtSyntax(extSyntax: String): (Option[String], NS, String) = {
-    val res = try {
-      extSyntax match {
-      case QNameRegex.ExtQName(prefix, uriString, local) => {
-        val pre = if (prefix eq null) None else Some(prefix)
-        val ns = (pre, uriString) match {
-          case (Some(pre), "") => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
-          case (Some(pre), null) => UnspecifiedNamespace
-          case (Some(pre), s) => NS(s)
-          case (None, "") => NoNamespace
-          case (None, null) => UnspecifiedNamespace
-          case (None, s) => NS(s)
+    val res =
+      try {
+        extSyntax match {
+          case QNameRegex.ExtQName(prefix, uriString, local) => {
+            val pre = if (prefix eq null) None else Some(prefix)
+            val ns = (pre, uriString) match {
+              case (Some(pre), "") =>
+                throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
+              case (Some(pre), null) => UnspecifiedNamespace
+              case (Some(pre), s) => NS(s)
+              case (None, "") => NoNamespace
+              case (None, null) => UnspecifiedNamespace
+              case (None, s) => NS(s)
+            }
+            (pre, ns, local)
+          }
+          case _ => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
         }
-        (pre, ns, local)
-      }
-        case _ => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
-      }
-  } catch {
-      case ex: URISyntaxException => throw new ExtendedQNameSyntaxException(Some(extSyntax), Some(ex))
-      case ia: IllegalArgumentException => {
-        val ex = ia.getCause()
-        if (ex ne null)
+      } catch {
+        case ex: URISyntaxException =>
           throw new ExtendedQNameSyntaxException(Some(extSyntax), Some(ex))
-        else
-          throw ia
+        case ia: IllegalArgumentException => {
+          val ex = ia.getCause()
+          if (ex ne null)
+            throw new ExtendedQNameSyntaxException(Some(extSyntax), Some(ex))
+          else
+            throw ia
+        }
       }
-    }
     res
   }
 
@@ -159,12 +164,19 @@ object QName {
     res
   }
 
-  def resolveStep(qnameString: String, scope: scala.xml.NamespaceBinding,
-      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[StepQName] =
+  def resolveStep(
+    qnameString: String,
+    scope: scala.xml.NamespaceBinding,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+  ): Try[StepQName] =
     StepQNameFactory.resolveRef(qnameString, scope, unqualifiedPathStepPolicy)
 
-  def createLocal(name: String, targetNamespace: NS, isQualified: Boolean,
-    scope: scala.xml.NamespaceBinding) = {
+  def createLocal(
+    name: String,
+    targetNamespace: NS,
+    isQualified: Boolean,
+    scope: scala.xml.NamespaceBinding,
+  ) = {
     val ns = if (isQualified) targetNamespace else NoNamespace
     // TODO: where we parse xmlSchemaDocument, a check for
     // xs:schema with no target namespace, but elementFormDefault 'qualified'
@@ -178,15 +190,16 @@ object QName {
     LocalDeclQName(optPrefix(scope, ns), name, ns)
   }
 
-  private def optPrefix(scope: scala.xml.NamespaceBinding, targetNamespace:NS) = {
-   val res = if (scope eq null) None
-    else if (targetNamespace == NoNamespace) None
-    else if (targetNamespace == UnspecifiedNamespace) None
-    else {
-      val prefix = scope.getPrefix(targetNamespace)
-      if (prefix eq null) None
-      else Some(prefix)
-    }
+  private def optPrefix(scope: scala.xml.NamespaceBinding, targetNamespace: NS) = {
+    val res =
+      if (scope eq null) None
+      else if (targetNamespace == NoNamespace) None
+      else if (targetNamespace == UnspecifiedNamespace) None
+      else {
+        val prefix = scope.getPrefix(targetNamespace)
+        if (prefix eq null) None
+        else Some(prefix)
+      }
     res
   }
 
@@ -195,8 +208,11 @@ object QName {
   }
 }
 
-protected sealed abstract class QNameSyntaxExceptionBase(kind: String, offendingSyntax: Option[String], cause: Option[Throwable])
-  extends Exception(offendingSyntax.getOrElse(null), cause.getOrElse(null)) {
+protected sealed abstract class QNameSyntaxExceptionBase(
+  kind: String,
+  offendingSyntax: Option[String],
+  cause: Option[Throwable],
+) extends Exception(offendingSyntax.getOrElse(null), cause.getOrElse(null)) {
 
   override def getMessage = {
     val intro = "Invalid syntax for " + kind + " "
@@ -254,7 +270,8 @@ trait QNameBase extends Serializable {
    */
   def toPrettyString: String = {
     (prefix, local, namespace) match {
-      case (Some(pre), local, NoNamespace) => Assert.invariantFailed("QName has prefix, but NoNamespace")
+      case (Some(pre), local, NoNamespace) =>
+        Assert.invariantFailed("QName has prefix, but NoNamespace")
       case (Some(pre), local, UnspecifiedNamespace) => pre + ":" + local
       case (None, local, NoNamespace) => "{}" + local
       case (None, local, UnspecifiedNamespace) => local
@@ -268,8 +285,10 @@ trait QNameBase extends Serializable {
    */
   def toExtendedSyntax: String = {
     (prefix, local, namespace) match {
-      case (Some(pre), local, NoNamespace) => Assert.invariantFailed("QName has prefix, but NoNamespace")
-      case (Some(pre), local, UnspecifiedNamespace) => Assert.invariantFailed("QName has prefix, but unspecified namespace")
+      case (Some(pre), local, NoNamespace) =>
+        Assert.invariantFailed("QName has prefix, but NoNamespace")
+      case (Some(pre), local, UnspecifiedNamespace) =>
+        Assert.invariantFailed("QName has prefix, but unspecified namespace")
 
       case (None, local, NoNamespace) => "{}" + local
       case (None, local, UnspecifiedNamespace) => local
@@ -292,7 +311,8 @@ trait QNameBase extends Serializable {
    */
   def diagnosticDebugName: String = {
     (prefix, local, namespace) match {
-      case (Some(pre), local, NoNamespace) => pre + ":" + local // generally this is an error. Shouldn't have a prefix.
+      case (Some(pre), local, NoNamespace) =>
+        pre + ":" + local // generally this is an error. Shouldn't have a prefix.
       case (Some(pre), local, UnspecifiedNamespace) => pre + ":" + local
       case (None, local, NoNamespace) => local
       case (None, local, UnspecifiedNamespace) => local
@@ -316,7 +336,8 @@ trait QNameBase extends Serializable {
   def toAttributeNameString: String = {
     (prefix, local, namespace) match {
       case (None, local, NoNamespace) => local
-      case (None, local, ns) => Assert.invariantFailed("QName has namespace, but no prefix defined.")
+      case (None, local, ns) =>
+        Assert.invariantFailed("QName has namespace, but no prefix defined.")
       case _ => toPrettyString
     }
   }
@@ -335,10 +356,7 @@ trait QNameBase extends Serializable {
 /**
  * common base trait for named things, both global and local
  */
-sealed abstract class NamedQName(
-    prefix: Option[String],
-    local: String,
-    namespace: NS)
+sealed abstract class NamedQName(prefix: Option[String], local: String, namespace: NS)
   extends QNameBase {
 
   if (prefix.isDefined) {
@@ -376,7 +394,8 @@ final case class LocalDeclQName(prefix: Option[String], local: String, namespace
         //
         false
       }
-      case StepQName(_, `local`, _) => false // NS didn't match, even if local did we don't care.
+      case StepQName(_, `local`, _) =>
+        false // NS didn't match, even if local did we don't care.
       case StepQName(_, notLocal, _) => false
       case _ => Assert.usageError("other must be a StepQName")
     }
@@ -441,7 +460,8 @@ final case class StepQName(prefix: Option[String], local: String, namespace: NS)
 
   override def matches[Q <: QNameBase](other: Q): Boolean = {
     other match {
-      case named: NamedQName => named.matches(this) // let the named things decide how other things match them.
+      case named: NamedQName =>
+        named.matches(this) // let the named things decide how other things match them.
       case _ => Assert.usageError("other must be a NamedQName")
     }
   }
@@ -466,8 +486,10 @@ final case class StepQName(prefix: Option[String], local: String, namespace: NS)
 
 protected trait RefQNameFactoryBase[T] {
 
-  protected def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding,
-      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Option[String]
+  protected def resolveDefaultNamespace(
+    scope: scala.xml.NamespaceBinding,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+  ): Option[String]
 
   protected def constructor(prefix: Option[String], local: String, namespace: NS): T
 
@@ -475,8 +497,11 @@ protected trait RefQNameFactoryBase[T] {
    * This variant to resolve normal QNames such as in a ref="pre:local" syntax, or
    * a path step like these steps .../foo/bar:baz/quux.
    */
-  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding,
-      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[T] = Try {
+  def resolveRef(
+    qnameString: String,
+    scope: scala.xml.NamespaceBinding,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+  ): Try[T] = Try {
     qnameString match {
       case QNameRegex.QName(pre, local) => {
         val prefix = Option(pre)
@@ -504,8 +529,9 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
     RefQName(prefix, local, namespace)
 
   override def resolveDefaultNamespace(
-      scope: scala.xml.NamespaceBinding,
-      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy) =
+    scope: scala.xml.NamespaceBinding,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+  ) =
     Option(scope.getURI(null)) // could be a default namespace
 
   /**
@@ -513,7 +539,11 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
    * or for variable binding mechanisms like from the command line options of Daffodil CLI which
    * accept the extended syntax.
    */
-  def resolveExtendedSyntaxRef(extSyntax: String, scope: scala.xml.NamespaceBinding, unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy): Try[RefQName] = Try {
+  def resolveExtendedSyntaxRef(
+    extSyntax: String,
+    scope: scala.xml.NamespaceBinding,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+  ): Try[RefQName] = Try {
     val (pre, ns, local) = QName.parseExtSyntax(extSyntax)
     // note that the prefix, if defined, can never be ""
     val optURI = pre match {
@@ -526,7 +556,9 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
       case (_, Some(uriString), UnspecifiedNamespace) => Some(NS(uriString))
       case (Some(pre), None, _) => throw new QNameUndefinedPrefixException(pre)
       case (Some(pre), Some(uriString), n) if (n.toString != uriString) =>
-        Assert.invariantFailed("namespace from prefix and scope, and ns argument are inconsitent.")
+        Assert.invariantFailed(
+          "namespace from prefix and scope, and ns argument are inconsitent.",
+        )
       case (_, _, n) => Some(n)
     }
     val resolvedNS = optNS.getOrElse(UnspecifiedNamespace)
@@ -541,12 +573,16 @@ object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
     StepQName(prefix, local, namespace)
 
   /* This is what needs Tunables and propagates into Expression */
-  override def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding,
-      unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy) = {
+  override def resolveDefaultNamespace(
+    scope: scala.xml.NamespaceBinding,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+  ) = {
     unqualifiedPathStepPolicy match {
       case UnqualifiedPathStepPolicy.NoNamespace => None // don't consider default namespace
-      case UnqualifiedPathStepPolicy.DefaultNamespace => Option(scope.getURI(null)) // could be a default namespace
-      case UnqualifiedPathStepPolicy.PreferDefaultNamespace => Option(scope.getURI(null)) // could be a default namespace
+      case UnqualifiedPathStepPolicy.DefaultNamespace =>
+        Option(scope.getURI(null)) // could be a default namespace
+      case UnqualifiedPathStepPolicy.PreferDefaultNamespace =>
+        Option(scope.getURI(null)) // could be a default namespace
     }
   }
 }
@@ -573,7 +609,8 @@ object QNameRegex {
     // x370_37D + // TODO: why is this one is left out? Add comments please.
     x37F_1FFF + x200C_200D +
     x2070_218F + x2C00_2FEF + x3001_D7FF + xF900_FDCF + xFDF0_FFFD + x10000_EFFFF
-  private val ncNameChar = ncNameStartChar + "\\-" + "\\." + range0_9 // + "|" + xB7 + "|" + x0300_036F + "|" + x203F_2040
+  private val ncNameChar =
+    ncNameStartChar + "\\-" + "\\." + range0_9 // + "|" + xB7 + "|" + x0300_036F + "|" + x203F_2040
   // TODO: why are the above left out? Add comments please.
   private val NCNameRegexString = "([" + ncNameStartChar + "](?:[" + ncNameChar + "])*)"
   private val QNameRegexString = "(?:" + NCNameRegexString + "\\:)?" + NCNameRegexString
@@ -586,7 +623,8 @@ object QNameRegex {
   //
   private val URIPartRegexString = """(?:\{(.*)\})"""
   private val PrefixPartRegexString = """(?:""" + NCNameRegexString + """\:)"""
-  private val ExtQNameRegexString = PrefixPartRegexString + "?" + URIPartRegexString + "?" + NCNameRegexString
+  private val ExtQNameRegexString =
+    PrefixPartRegexString + "?" + URIPartRegexString + "?" + NCNameRegexString
   lazy val ExtQName = ExtQNameRegexString.r
 
   def isURISyntax(s: String): Boolean = {

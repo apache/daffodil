@@ -17,23 +17,21 @@
 
 package org.apache.daffodil.runtime1.externalvars
 
-import org.apache.daffodil.lib.externalvars._
-
-import org.apache.daffodil.lib.api.URISchemaSource
-
 import java.io.File
 import java.net.URI
-import scala.xml.Node
+import scala.collection.immutable.Queue
 import scala.io.Codec.string2codec
-import org.apache.daffodil.runtime1.processors.VariableMap
-import org.apache.daffodil.runtime1.processors.VariableUtils
+import scala.xml.Node
+
+import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Misc._
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.externalvars._
+import org.apache.daffodil.lib.util.Misc._
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
-
-import scala.collection.immutable.Queue
+import org.apache.daffodil.runtime1.processors.VariableMap
+import org.apache.daffodil.runtime1.processors.VariableUtils
 
 /**
  * The purpose of this object is to be able to take
@@ -46,8 +44,15 @@ import scala.collection.immutable.Queue
  */
 object ExternalVariablesLoader {
 
-  def loadVariables(bindings: Seq[Binding], referringContext: ThrowsSDE, vmap: VariableMap): VariableMap = {
-    Assert.usage(referringContext != null, "loadVariables expects 'referringContext' to not be null!")
+  def loadVariables(
+    bindings: Seq[Binding],
+    referringContext: ThrowsSDE,
+    vmap: VariableMap,
+  ): VariableMap = {
+    Assert.usage(
+      referringContext != null,
+      "loadVariables expects 'referringContext' to not be null!",
+    )
     VariableUtils.setExternalVariables(vmap, bindings, referringContext)
     vmap
   }
@@ -85,7 +90,7 @@ object ExternalVariablesLoader {
     var res = Queue.empty[Binding]
     // couldn't get the enqueue(iterable) method overload to resolve.
     // So just doing this one by one
-    newBindings.foreach{ b => res = res.enqueue(b) }
+    newBindings.foreach { b => res = res.enqueue(b) }
     res
   }
 }

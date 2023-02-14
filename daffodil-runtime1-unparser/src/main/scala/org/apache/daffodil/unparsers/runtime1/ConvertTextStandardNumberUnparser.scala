@@ -17,21 +17,20 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
+import java.lang.{ Number => JNumber }
 
-import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
-import org.apache.daffodil.runtime1.processors.parsers.TextDecimalVirtualPointMixin
 import org.apache.daffodil.lib.util.Numbers.isZero
-
-import java.lang.{Number => JNumber}
+import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
+import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.runtime1.processors.parsers.TextDecimalVirtualPointMixin
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 case class ConvertTextCombinatorUnparser(
   rd: TermRuntimeData,
   valueUnparser: Unparser,
-  converterUnparser: Unparser)
-  extends CombinatorUnparser(rd) {
+  converterUnparser: Unparser,
+) extends CombinatorUnparser(rd) {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -50,8 +49,8 @@ case class ConvertTextNumberUnparser(
   textNumberFormatEv: TextNumberFormatEv,
   zeroRep: Maybe[String],
   override val context: ElementRuntimeData,
-  override val textDecimalVirtualPoint: Int)
-  extends PrimUnparser
+  override val textDecimalVirtualPoint: Int,
+) extends PrimUnparser
   with TextDecimalVirtualPointMixin
   with ToBriefXMLImpl {
 
@@ -66,7 +65,7 @@ case class ConvertTextNumberUnparser(
     // difficult to assert. Could probably check this with TypeTags or Manifest
     // if we find this is not the case. Want something akin to:
     // Assert.invariant(value.isInstanceOf[S])
-        
+
     val df = textNumberFormatEv.evaluate(state)
     val dfs = df.getDecimalFormatSymbols
 
@@ -89,9 +88,10 @@ case class ConvertTextNumberUnparser(
         try {
           df.format(scaledValue)
         } catch {
-          case e: java.lang.ArithmeticException => UE(state, "Unable to format number to pattern: %s", e.getMessage())
+          case e: java.lang.ArithmeticException =>
+            UE(state, "Unable to format number to pattern: %s", e.getMessage())
         }
-      }
+    }
 
     node.overwriteDataValue(strRep)
   }

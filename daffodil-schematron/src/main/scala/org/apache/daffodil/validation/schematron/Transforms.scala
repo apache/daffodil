@@ -17,28 +17,30 @@
 
 package org.apache.daffodil.validation.schematron
 
-import javax.xml.transform.dom.DOMResult
-import javax.xml.transform.dom.DOMSource
 import java.io.InputStream
+import java.nio.file.Path
 import javax.xml.transform.Source
 import javax.xml.transform.Templates
-import javax.xml.transform.stream.StreamSource
 import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMResult
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamSource
+
 import org.apache.daffodil.validation.schematron.Schematron.templatesRootDir
 
-import java.nio.file.Path
-
 object Transforms {
-  def from(sch: InputStream, srcfmt: SchSource, tf: TransformerFactory): Templates = read(sch, srcfmt.stages, tf)
+  def from(sch: InputStream, srcfmt: SchSource, tf: TransformerFactory): Templates =
+    read(sch, srcfmt.stages, tf)
 
-  private def read(sch: InputStream, stages: Seq[String], tf: TransformerFactory): Templates = tf.newTemplates(
-    stages.foldLeft(new StreamSource(sch): Source) { (source, template) =>
-      val xsl = getClass.getClassLoader.getResourceAsStream(s"$templatesRootDir/$template")
-      val result: DOMResult = new DOMResult
-      tf.newTransformer(new StreamSource(xsl)).transform(source, result)
-      new DOMSource(result.getNode)
-    }
-  )
+  private def read(sch: InputStream, stages: Seq[String], tf: TransformerFactory): Templates =
+    tf.newTemplates(
+      stages.foldLeft(new StreamSource(sch): Source) { (source, template) =>
+        val xsl = getClass.getClassLoader.getResourceAsStream(s"$templatesRootDir/$template")
+        val result: DOMResult = new DOMResult
+        tf.newTransformer(new StreamSource(xsl)).transform(source, result)
+        new DOMSource(result.getNode)
+      },
+    )
 }
 
 sealed trait SchSource {
@@ -51,7 +53,8 @@ object SchSource {
   }
 
   case object Sch extends SchSource {
-    lazy val stages = List("iso_dsdl_include.xsl", "iso_abstract_expand.xsl", "iso_svrl_for_xslt2.xsl")
+    lazy val stages =
+      List("iso_dsdl_include.xsl", "iso_abstract_expand.xsl", "iso_svrl_for_xslt2.xsl")
   }
   case object Xsd extends SchSource {
     lazy val stages: Seq[String] = "ExtractSchFromXSD-2.xsl" :: Sch.stages

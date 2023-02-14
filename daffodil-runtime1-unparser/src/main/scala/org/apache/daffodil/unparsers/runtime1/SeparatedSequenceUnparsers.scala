@@ -16,11 +16,9 @@
  */
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
+import scala.collection.mutable.Buffer
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
-import org.apache.daffodil.runtime1.processors.{ ElementRuntimeData, SequenceRuntimeData, TermRuntimeData }
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy._
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
@@ -28,7 +26,13 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition._
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
-import scala.collection.mutable.Buffer
+import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.runtime1.processors.{
+  ElementRuntimeData,
+  SequenceRuntimeData,
+  TermRuntimeData,
+}
 
 trait Separated { self: SequenceChildUnparser =>
 
@@ -58,8 +62,8 @@ sealed abstract class ScalarOrderedSeparatedSequenceChildUnparserBase(
   override val isPotentiallyTrailing: Boolean,
   override val isKnownStaticallyNotToSuppressSeparator: Boolean,
   override val isPositional: Boolean,
-  override val isDeclaredLast: Boolean)
-  extends SequenceChildUnparser(childUnparser, srd, trd)
+  override val isDeclaredLast: Boolean,
+) extends SequenceChildUnparser(childUnparser, srd, trd)
   with Separated {
 
   override def unparse(state: UState) = childUnparser.unparse1(state)
@@ -76,10 +80,20 @@ class ScalarOrderedSeparatedSequenceChildUnparser(
   isPotentiallyTrailing: Boolean,
   isKnownStaticallyNotToSuppressSeparator: Boolean,
   isPositional: Boolean,
-  isDeclaredLast: Boolean)
-  extends ScalarOrderedSeparatedSequenceChildUnparserBase(childUnparser, srd, trd, sep, spos, ssp,
-    zlDetector, isPotentiallyTrailing, isKnownStaticallyNotToSuppressSeparator, isPositional,
-    isDeclaredLast)
+  isDeclaredLast: Boolean,
+) extends ScalarOrderedSeparatedSequenceChildUnparserBase(
+    childUnparser,
+    srd,
+    trd,
+    sep,
+    spos,
+    ssp,
+    zlDetector,
+    isPotentiallyTrailing,
+    isKnownStaticallyNotToSuppressSeparator,
+    isPositional,
+    isDeclaredLast,
+  )
 
 class RepOrderedSeparatedSequenceChildUnparser(
   childUnparser: Unparser,
@@ -92,8 +106,8 @@ class RepOrderedSeparatedSequenceChildUnparser(
   override val isPotentiallyTrailing: Boolean,
   override val isKnownStaticallyNotToSuppressSeparator: Boolean,
   override val isPositional: Boolean,
-  override val isDeclaredLast: Boolean)
-  extends RepeatingChildUnparser(childUnparser, srd, erd)
+  override val isDeclaredLast: Boolean,
+) extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Separated {
 
   override def checkArrayPosAgainstMaxOccurs(state: UState) =
@@ -107,8 +121,11 @@ class OrderedSeparatedSequenceUnparser(
   sepMtaAlignmentMaybe: MaybeInt,
   sepMtaUnparserMaybe: Maybe[Unparser],
   sep: Unparser,
-  childUnparsersArg: Vector[SequenceChildUnparser])
-  extends OrderedSequenceUnparserBase(rd, (childUnparsersArg :+ sep) ++ sepMtaUnparserMaybe.toSeq) {
+  childUnparsersArg: Vector[SequenceChildUnparser],
+) extends OrderedSequenceUnparserBase(
+    rd,
+    (childUnparsersArg :+ sep) ++ sepMtaUnparserMaybe.toSeq,
+  ) {
 
   private val childUnparsers =
     childUnparsersArg.asInstanceOf[Seq[SequenceChildUnparser with Separated]]
@@ -119,7 +136,8 @@ class OrderedSeparatedSequenceUnparser(
   protected def unparseOne(
     unparser: SequenceChildUnparser,
     trd: TermRuntimeData,
-    state: UState): Unit = {
+    state: UState,
+  ): Unit = {
 
     if (trd.isRepresented) {
       spos match {
@@ -213,7 +231,8 @@ class OrderedSeparatedSequenceUnparser(
     trd: TermRuntimeData,
     state: UState,
     trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation],
-    onlySeparatorFlag: Boolean): Unit = {
+    onlySeparatorFlag: Boolean,
+  ): Unit = {
     val doUnparseChild = !onlySeparatorFlag
     // We don't know if the unparse will result in zero length or not. We have
     // to use a suspendable unparser here for the separator which suspends
@@ -232,7 +251,8 @@ class OrderedSeparatedSequenceUnparser(
       // no separator possible; hence, no suppression
       if (doUnparseChild) unparser.unparse1(state)
     } else {
-      val suspendableOp = new SuppressableSeparatorUnparserSuspendableOperation(sepMtaAlignmentMaybe, sep, trd)
+      val suspendableOp =
+        new SuppressableSeparatorUnparserSuspendableOperation(sepMtaAlignmentMaybe, sep, trd)
       // TODO: merge these two objects. We can allocate just one thing here.
       val suppressableSep = SuppressableSeparatorUnparser(sep, trd, suspendableOp)
 
@@ -242,7 +262,9 @@ class OrderedSeparatedSequenceUnparser(
           if (doUnparseChild) unparser.unparse1(state)
           ssp match {
             case AnyEmpty => {
-              suspendableOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(state)
+              suspendableOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(
+                state,
+              )
             }
             case TrailingEmpty | TrailingEmptyStrict => {
               trailingSuspendedOps += suspendableOp
@@ -257,7 +279,9 @@ class OrderedSeparatedSequenceUnparser(
               if (doUnparseChild) unparser.unparse1(state)
               suspendableOp.captureDOSForEndOfSeparatedRegionBeforePostfixSeparator(state)
               suppressableSep.unparse1(state)
-              suspendableOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(state)
+              suspendableOp.captureStateAtEndOfPotentiallyZeroLengthRegionFollowingTheSeparator(
+                state,
+              )
             }
             case TrailingEmpty | TrailingEmptyStrict => {
               suspendableOp.captureDOSForStartOfSeparatedRegionBeforePostfixSeparator(state)
@@ -286,7 +310,9 @@ class OrderedSeparatedSequenceUnparser(
     while (index < limit) {
       val childUnparser = childUnparsers(index)
       val trd = childUnparser.trd
-      state.pushTRD(trd) // because we inspect before we call the unparse1 for the child unparser.
+      state.pushTRD(
+        trd,
+      ) // because we inspect before we call the unparse1 for the child unparser.
       val zlDetector = childUnparser.zeroLengthDetector
       childUnparser match {
         case unparser: RepOrderedSeparatedSequenceChildUnparser => {
@@ -336,20 +362,30 @@ class OrderedSeparatedSequenceUnparser(
                   val groupIndexBefore = state.groupPos
                   val groupIndexStackDepthBefore = state.groupIndexStack.length
 
-                  Assert.invariant(erd.isRepresented) // since this is an array, can't have inputValueCalc
+                  Assert.invariant(
+                    erd.isRepresented,
+                  ) // since this is an array, can't have inputValueCalc
 
-                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
+                  if (isArr)
+                    if (state.dataProc.isDefined)
+                      state.dataProc.get.beforeRepetition(state, this)
 
-                  if (unparser.isKnownStaticallyNotToSuppressSeparator ||
-                    {
+                  if (
+                    unparser.isKnownStaticallyNotToSuppressSeparator || {
                       val isKnownNonZeroLength =
                         zlDetector.isKnownNonZeroLength(state.inspectAccessor.info.element)
                       isKnownNonZeroLength
-                    }) {
+                    }
+                  ) {
                     unparseOne(unparser, erd, state)
                   } else {
-                    unparseOneWithSuppression(unparser, erd, state, trailingSuspendedOps,
-                      onlySeparatorFlag = false)
+                    unparseOneWithSuppression(
+                      unparser,
+                      erd,
+                      state,
+                      trailingSuspendedOps,
+                      onlySeparatorFlag = false,
+                    )
                   }
                   numOccurrences += 1
                   Assert.invariant(state.arrayIndexStack.length == arrayIndexStackDepthBefore)
@@ -360,18 +396,38 @@ class OrderedSeparatedSequenceUnparser(
                   state.moveOverOneGroupIndexOnly() // array elements are always represented.
                   Assert.invariant(state.groupPos == groupIndexBefore + 1)
 
-                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
+                  if (isArr)
+                    if (state.dataProc.isDefined)
+                      state.dataProc.get.afterRepetition(state, this)
 
                 }
-                numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
-                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, state.arrayPos - 1)
+                numOccurrences = unparsePositionallyRequiredSeps(
+                  unparser,
+                  erd,
+                  state,
+                  numOccurrences,
+                  trailingSuspendedOps,
+                )
+                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
+                  state,
+                  unparser,
+                  numOccurrences,
+                  maxReps,
+                  state.arrayPos - 1,
+                )
                 unparser.endArrayOrOptional(erd, state)
               } else {
                 //
                 // start array for some other array. Not this one.
                 //
                 Assert.invariant(erd.minOccurs == 0L)
-                numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
+                numOccurrences = unparsePositionallyRequiredSeps(
+                  unparser,
+                  erd,
+                  state,
+                  numOccurrences,
+                  trailingSuspendedOps,
+                )
               }
 
             } else if (ev.isStart) {
@@ -383,11 +439,29 @@ class OrderedSeparatedSequenceUnparser(
               // That has to be for a different element later in the sequence
               // since this one has a RepUnparser (i.e., is NOT scalar)
               //
-              numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
+              numOccurrences = unparsePositionallyRequiredSeps(
+                unparser,
+                erd,
+                state,
+                numOccurrences,
+                trailingSuspendedOps,
+              )
             } else {
               Assert.invariant(ev.isEnd && ev.erd.isComplexType)
-              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, 0)
-              numOccurrences = unparsePositionallyRequiredSeps(unparser, erd, state, numOccurrences, trailingSuspendedOps)
+              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
+                state,
+                unparser,
+                numOccurrences,
+                maxReps,
+                0,
+              )
+              numOccurrences = unparsePositionallyRequiredSeps(
+                unparser,
+                erd,
+                state,
+                numOccurrences,
+                trailingSuspendedOps,
+              )
             }
           } else {
             // no event (state.inspect returned false)
@@ -395,37 +469,43 @@ class OrderedSeparatedSequenceUnparser(
           }
           state.arrayIndexStack.pop()
         }
-        case scalarUnparser => trd match {
-          case erd: ElementRuntimeData => {
-            // scalar element case. These always get associated separator (if represented)
-            unparseOne(scalarUnparser, trd, state) // handles case of non-represented.
-            if (erd.isRepresented)
-              state.moveOverOneGroupIndexOnly()
-          }
-          case mgrd: ModelGroupRuntimeData => {
-            //
-            // There are cases where we suppress the separator associated with a model group child
-            //
-            // The model group must have no required syntax (initiator/terminator nor alignment)
-            // and all optional children (none of which can be present if there are unsuppressed separators)
-            //
-            // The model group must be zero-length
-            // The SSP must be AnyEmpty or
-            // The SSP must be TrailingEmpty | TrailingEmptyStrict, AND the model group must be
-            // potentially trailing AND actually trailing.
-            //
-            // Most of the above is static information. Only whether the length is nonZero or zero, and
-            // whether it is actually trailing are run-time concepts.
-            //
-            if (scalarUnparser.isKnownStaticallyNotToSuppressSeparator) {
-              unparseOne(scalarUnparser, trd, state)
-            } else {
-              unparseOneWithSuppression(scalarUnparser, trd, state, trailingSuspendedOps,
-                onlySeparatorFlag = false)
+        case scalarUnparser =>
+          trd match {
+            case erd: ElementRuntimeData => {
+              // scalar element case. These always get associated separator (if represented)
+              unparseOne(scalarUnparser, trd, state) // handles case of non-represented.
+              if (erd.isRepresented)
+                state.moveOverOneGroupIndexOnly()
             }
-            state.moveOverOneGroupIndexOnly()
+            case mgrd: ModelGroupRuntimeData => {
+              //
+              // There are cases where we suppress the separator associated with a model group child
+              //
+              // The model group must have no required syntax (initiator/terminator nor alignment)
+              // and all optional children (none of which can be present if there are unsuppressed separators)
+              //
+              // The model group must be zero-length
+              // The SSP must be AnyEmpty or
+              // The SSP must be TrailingEmpty | TrailingEmptyStrict, AND the model group must be
+              // potentially trailing AND actually trailing.
+              //
+              // Most of the above is static information. Only whether the length is nonZero or zero, and
+              // whether it is actually trailing are run-time concepts.
+              //
+              if (scalarUnparser.isKnownStaticallyNotToSuppressSeparator) {
+                unparseOne(scalarUnparser, trd, state)
+              } else {
+                unparseOneWithSuppression(
+                  scalarUnparser,
+                  trd,
+                  state,
+                  trailingSuspendedOps,
+                  onlySeparatorFlag = false,
+                )
+              }
+              state.moveOverOneGroupIndexOnly()
+            }
           }
-        }
       }
       state.popTRD(trd)
       index += 1
@@ -457,7 +537,11 @@ class OrderedSeparatedSequenceUnparser(
 
   private def unparsePositionallyRequiredSeps(
     unparserArg: SequenceChildUnparser,
-    erd: ElementRuntimeData, state: UState, numOccurs: Int, trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation]): Int = {
+    erd: ElementRuntimeData,
+    state: UState,
+    numOccurs: Int,
+    trailingSuspendedOps: Buffer[SuppressableSeparatorUnparserSuspendableOperation],
+  ): Int = {
     var numOccurrences = numOccurs
     unparserArg match {
       case unparser: RepOrderedSeparatedSequenceChildUnparser => {
@@ -466,13 +550,20 @@ class OrderedSeparatedSequenceUnparser(
         // occursCountKind's use the number of elements in the infoset to determine
         // the number of separators, which would have already been unparsed prior to
         // this function being called.
-        if ((unparser.ock eq OccursCountKind.Implicit) &&
+        if (
+          (unparser.ock eq OccursCountKind.Implicit) &&
           unparser.isPositional && unparser.isBoundedMax &&
-          (!unparser.isDeclaredLast || !unparser.isPotentiallyTrailing)) {
+          (!unparser.isDeclaredLast || !unparser.isPotentiallyTrailing)
+        ) {
           val maxReps = unparser.maxRepeats(state)
           while (numOccurrences < maxReps) {
-            unparseOneWithSuppression(unparser, erd, state, trailingSuspendedOps,
-              onlySeparatorFlag = true)
+            unparseOneWithSuppression(
+              unparser,
+              erd,
+              state,
+              trailingSuspendedOps,
+              onlySeparatorFlag = true,
+            )
             state.moveOverOneArrayIndexOnly()
             state.moveOverOneGroupIndexOnly()
             numOccurrences += 1
@@ -508,7 +599,7 @@ class OrderedSeparatedSequenceUnparser(
           val erd = unparser.erd
           var numOccurrences = 0
           val maxReps = unparser.maxRepeats(state)
-          //val isBounded = unparser.isBoundedMax // not needed for the no-suppression case
+          // val isBounded = unparser.isBoundedMax // not needed for the no-suppression case
 
           //
           // The number of occurrances we unparse is always exactly driven
@@ -542,9 +633,13 @@ class OrderedSeparatedSequenceUnparser(
                   val groupIndexBefore = state.groupPos
                   val groupIndexStackDepthBefore = state.groupIndexStack.length
 
-                  Assert.invariant(erd.isRepresented) // since this is an array, can't have inputValueCalc
+                  Assert.invariant(
+                    erd.isRepresented,
+                  ) // since this is an array, can't have inputValueCalc
 
-                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.beforeRepetition(state, this)
+                  if (isArr)
+                    if (state.dataProc.isDefined)
+                      state.dataProc.get.beforeRepetition(state, this)
 
                   unparseOne(unparser, erd, state)
                   numOccurrences += 1
@@ -556,7 +651,9 @@ class OrderedSeparatedSequenceUnparser(
                   state.moveOverOneGroupIndexOnly() // array elements are always represented.
                   Assert.invariant(state.groupPos == groupIndexBefore + 1)
 
-                  if (isArr) if (state.dataProc.isDefined) state.dataProc.get.afterRepetition(state, this)
+                  if (isArr)
+                    if (state.dataProc.isDefined)
+                      state.dataProc.get.afterRepetition(state, this)
                 }
                 //
                 // If not enough occurences in array, we output extra separators
@@ -568,7 +665,13 @@ class OrderedSeparatedSequenceUnparser(
                     numExtraSeps -= 1
                   }
                 }
-                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, state.arrayPos - 1)
+                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
+                  state,
+                  unparser,
+                  numOccurrences,
+                  maxReps,
+                  state.arrayPos - 1,
+                )
                 unparser.endArrayOrOptional(erd, state)
               } else {
                 //
@@ -589,7 +692,13 @@ class OrderedSeparatedSequenceUnparser(
               Assert.invariant(eventNQN != erd.namedQName)
             } else {
               Assert.invariant(ev.isEnd && ev.erd.isComplexType)
-              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(state, unparser, numOccurrences, maxReps, 0)
+              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
+                state,
+                unparser,
+                numOccurrences,
+                maxReps,
+                0,
+              )
             }
           } else {
             // no event (state.inspect returned false)

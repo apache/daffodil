@@ -17,26 +17,24 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.unparsers.runtime1._
-
+import java.math.{ BigInteger => JBigInt }
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
-import org.apache.daffodil.lib.cookers.IntRangeCooker
-import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.dsom.ChoiceTermBase
-import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.runtime1.processors.parsers._
-import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
+import org.apache.daffodil.lib.cookers.IntRangeCooker
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceLengthKind
 import org.apache.daffodil.lib.util.MaybeInt
-
-import java.math.{ BigInteger => JBigInt }
 import org.apache.daffodil.runtime1.processors.RangeBound
+import org.apache.daffodil.runtime1.processors.parsers._
+import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.unparsers.runtime1._
 
 /*
  * The purpose of the ChoiceCombinator (and the parsers it creates) is to
@@ -73,78 +71,87 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
     case ChoiceLengthKind.Implicit => MaybeInt.Nope
   }
 
-  private def  branchKeyAttribute = "dfdl:choiceBranchKey"
-  private def  branchKeyRangeAttribute = "dfdlx:choiceBranchKeyRanges"
+  private def branchKeyAttribute = "dfdl:choiceBranchKey"
+  private def branchKeyRangeAttribute = "dfdlx:choiceBranchKeyRanges"
 
   lazy val parser: Parser = {
     if (!ch.isDirectDispatch) {
       val cp = new ChoiceParser(ch.termRuntimeData, parsers.toVector)
       ch.choiceLengthKind match {
         case ChoiceLengthKind.Implicit => cp
-        case ChoiceLengthKind.Explicit => new SpecifiedLengthChoiceParser(cp, ch.choiceRuntimeData, choiceLengthInBits.get)
+        case ChoiceLengthKind.Explicit =>
+          new SpecifiedLengthChoiceParser(cp, ch.choiceRuntimeData, choiceLengthInBits.get)
       }
     } else {
-      //Verify that every alternative has some form of branch key
+      // Verify that every alternative has some form of branch key
       alternatives.foreach { alt =>
         val keyTerm = alt.context.asInstanceOf[Term]
         val hasBranchKey = keyTerm.findPropertyOption("choiceBranchKey").isDefined
         val hasBranchKeyRanges = keyTerm.findPropertyOption("choiceBranchKeyRanges").isDefined
         if (!hasBranchKey && !hasBranchKeyRanges) {
-          keyTerm.SDE("Neither dfdl:choiceBranchKey nor dfdlx:choiceBranchKeyRanges is defined.")
+          keyTerm.SDE(
+            "Neither dfdl:choiceBranchKey nor dfdlx:choiceBranchKeyRanges is defined.",
+          )
         }
       }
       val dispatchBranchKeyValueTuples: Seq[(String, Gram)] = alternatives.flatMap { alt =>
         val keyTerm = alt.context.asInstanceOf[Term]
         val optUncooked =
-           keyTerm.findPropertyOption("choiceBranchKey").toOption
-        val cookedBranchKeys: Seq[String] = optUncooked.map{ uncooked =>
+          keyTerm.findPropertyOption("choiceBranchKey").toOption
+        val cookedBranchKeys: Seq[String] = optUncooked
+          .map { uncooked =>
             ChoiceBranchKeyCooker.convertConstant(uncooked, ch.runtimeData, forUnparse = false)
-          }.toSeq.flatten
+          }
+          .toSeq
+          .flatten
         val tuples: Seq[(String, Gram)] = cookedBranchKeys.map { (_, alt) }
         tuples
       }
 
-      //[(minKeyValue, maxKeyValue, parser, isRepresented)]
-      val dispatchBranchKeyRangeTuples: Seq[(RangeBound, RangeBound, Parser, Boolean)] = alternatives.flatMap { alt =>
-        val keyTerm = alt.context.asInstanceOf[Term]
-        val branchKeyRanges: Seq[(RangeBound, RangeBound)] = {
-          val optUncooked = keyTerm.findPropertyOption("choiceBranchKeyRanges").toOption
-          val cooked: Seq[(JBigInt, JBigInt)] =
-            optUncooked.map { uncooked => IntRangeCooker.convertConstant(uncooked, context, false) }.toSeq.flatten
-          val tuples = cooked.map({
-            case (lowerBound, upperBound) =>
+      // [(minKeyValue, maxKeyValue, parser, isRepresented)]
+      val dispatchBranchKeyRangeTuples: Seq[(RangeBound, RangeBound, Parser, Boolean)] =
+        alternatives.flatMap { alt =>
+          val keyTerm = alt.context.asInstanceOf[Term]
+          val branchKeyRanges: Seq[(RangeBound, RangeBound)] = {
+            val optUncooked = keyTerm.findPropertyOption("choiceBranchKeyRanges").toOption
+            val cooked: Seq[(JBigInt, JBigInt)] =
+              optUncooked
+                .map { uncooked => IntRangeCooker.convertConstant(uncooked, context, false) }
+                .toSeq
+                .flatten
+            val tuples = cooked.map({ case (lowerBound, upperBound) =>
               (new RangeBound(lowerBound, true), new RangeBound(upperBound, true))
-          })
-          tuples
-        }
+            })
+            tuples
+          }
 
-        //
-        // The choice alternative (aka branch) is either an element having
-        // the repType, or it is a computed (inputValueCalc) element that uses the
-        // repType.
-        //
-        // This creates a problem where we need to parse the repType but we need
-        // to avoid parsing it twice.
-        //
-        // If the branch alternatives are all elements having the repType as their type,
-        // then parsing the repType to compute the dispatch key would result in double
-        // parsing the repType when we then select a branch and parse that branch.
-        //
-        // So we determine if the choice branch is represented. If it is, we parse the repType
-        // in order to compute the dispatch key, then we backtrack that, so that when
-        // we parse the selected branch it appears to not be parsing twice, just once.
-        //
-        // For the case where the choice branch is computed (inputValueCalc), we can
-        // just parse the repType, and no backtracking is needed. So we pass this boolean
-        // down into the choice parser so that it can do the right thing depending on the
-        // nature of the branches.
-        //
-        // In all cases, we're looking for the characteristics here of the lexical
-        // object that is the choice branch.
-        //
-        val isRepresentedTerm = alt.term.isRepresented
-        branchKeyRanges.toSeq.map(x => (x._1, x._2, alt.parser, isRepresentedTerm))
-      }
+          //
+          // The choice alternative (aka branch) is either an element having
+          // the repType, or it is a computed (inputValueCalc) element that uses the
+          // repType.
+          //
+          // This creates a problem where we need to parse the repType but we need
+          // to avoid parsing it twice.
+          //
+          // If the branch alternatives are all elements having the repType as their type,
+          // then parsing the repType to compute the dispatch key would result in double
+          // parsing the repType when we then select a branch and parse that branch.
+          //
+          // So we determine if the choice branch is represented. If it is, we parse the repType
+          // in order to compute the dispatch key, then we backtrack that, so that when
+          // we parse the selected branch it appears to not be parsing twice, just once.
+          //
+          // For the case where the choice branch is computed (inputValueCalc), we can
+          // just parse the repType, and no backtracking is needed. So we pass this boolean
+          // down into the choice parser so that it can do the right thing depending on the
+          // nature of the branches.
+          //
+          // In all cases, we're looking for the characteristics here of the lexical
+          // object that is the choice branch.
+          //
+          val isRepresentedTerm = alt.term.isRepresented
+          branchKeyRanges.toSeq.map(x => (x._1, x._2, alt.parser, isRepresentedTerm))
+        }
 
       // check for duplicate branch keys
       // Our handling of ranges here is definantly suboptimal, but hopefully
@@ -153,51 +160,83 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
       // or the repValue family of attributes
 
       val groupedByKey = dispatchBranchKeyValueTuples.groupBy(_._1)
-      groupedByKey.foreach {
-        case (k, kvs) =>
-          if (kvs.length > 1) {
-            SDE(
-              "%s value (%s) is not unique across all branches of a direct dispatch choice. Offending branches are:\n%s",
-              branchKeyAttribute, k,
-              kvs.map(_._2.context.runtimeData).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
-          }
-          Try(k.toLong) match {
-            case Success(v) => {
-              val asBigInt = JBigInt.valueOf(v)
-              val conflictingRanges = dispatchBranchKeyRangeTuples.filter({ case (min, max, _, _) => min.testAsLower(asBigInt) && max.testAsUpper(asBigInt) })
-              if (conflictingRanges.nonEmpty) {
-                SDE(
-                  "%s (%s) conflicts with %s. Offending branches are:\n%s\n%s",
-                  branchKeyAttribute, k, branchKeyRangeAttribute,
-                  kvs.map(_._2.context.runtimeData).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""),
-                  conflictingRanges.map(_._3.context).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
-              }
+      groupedByKey.foreach { case (k, kvs) =>
+        if (kvs.length > 1) {
+          SDE(
+            "%s value (%s) is not unique across all branches of a direct dispatch choice. Offending branches are:\n%s",
+            branchKeyAttribute,
+            k,
+            kvs
+              .map(_._2.context.runtimeData)
+              .map(rd =>
+                rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription,
+              )
+              .mkString("- ", "\n- ", ""),
+          )
+        }
+        Try(k.toLong) match {
+          case Success(v) => {
+            val asBigInt = JBigInt.valueOf(v)
+            val conflictingRanges = dispatchBranchKeyRangeTuples.filter({
+              case (min, max, _, _) => min.testAsLower(asBigInt) && max.testAsUpper(asBigInt)
+            })
+            if (conflictingRanges.nonEmpty) {
+              SDE(
+                "%s (%s) conflicts with %s. Offending branches are:\n%s\n%s",
+                branchKeyAttribute,
+                k,
+                branchKeyRangeAttribute,
+                kvs
+                  .map(_._2.context.runtimeData)
+                  .map(rd =>
+                    rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription,
+                  )
+                  .mkString("- ", "\n- ", ""),
+                conflictingRanges
+                  .map(_._3.context)
+                  .map(rd =>
+                    rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription,
+                  )
+                  .mkString("- ", "\n- ", ""),
+              )
             }
-            /*
-             * If k is not a numeric type, it cannot possibly overlap with a range. Since we currently
-             * only support up to 64 bit integers as "numeric" keys, this means that if k.toLong
-             * fails, we assume that it cannot conflict with a range.
-             */
-            case Failure(_) => ()
           }
+          /*
+           * If k is not a numeric type, it cannot possibly overlap with a range. Since we currently
+           * only support up to 64 bit integers as "numeric" keys, this means that if k.toLong
+           * fails, we assume that it cannot conflict with a range.
+           */
+          case Failure(_) => ()
+        }
       }
-      //check for overlap in choiceBranchKeyRanges
-      dispatchBranchKeyRangeTuples.foreach({
-        case (min, max, alt, isRepresented) =>
-          val conflictingRanges1 = dispatchBranchKeyRangeTuples.filter({ case (min2, max2, _, _) => min.intersectsWithOtherBounds(min2, max2) })
-          val conflictingRanges2 = dispatchBranchKeyRangeTuples.filter({ case (min2, max2, _, _) => max.intersectsWithOtherBounds(min2, max2) })
-          val conflictingRanges = (conflictingRanges1 ++ conflictingRanges2).toSet
-          if (conflictingRanges.size > 1) {
-            SDE(
-              "%s (%s, %s) conflicts with other ranges. Offending branches are:\n%s",
-              branchKeyRangeAttribute,
-              min, max,
-              conflictingRanges.map(_._3.context).map(rd => rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
-          }
+      // check for overlap in choiceBranchKeyRanges
+      dispatchBranchKeyRangeTuples.foreach({ case (min, max, alt, isRepresented) =>
+        val conflictingRanges1 = dispatchBranchKeyRangeTuples.filter({
+          case (min2, max2, _, _) => min.intersectsWithOtherBounds(min2, max2)
+        })
+        val conflictingRanges2 = dispatchBranchKeyRangeTuples.filter({
+          case (min2, max2, _, _) => max.intersectsWithOtherBounds(min2, max2)
+        })
+        val conflictingRanges = (conflictingRanges1 ++ conflictingRanges2).toSet
+        if (conflictingRanges.size > 1) {
+          SDE(
+            "%s (%s, %s) conflicts with other ranges. Offending branches are:\n%s",
+            branchKeyRangeAttribute,
+            min,
+            max,
+            conflictingRanges
+              .map(_._3.context)
+              .map(rd =>
+                rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription,
+              )
+              .mkString("- ", "\n- ", ""),
+          )
+        }
       })
 
       val dispatchBranchKeyMap = dispatchBranchKeyValueTuples.toMap.mapValues { gram =>
-        val isRepresented = true // choice branches are, currently, always represented (cannot have inputValueCalc).
+        val isRepresented =
+          true // choice branches are, currently, always represented (cannot have inputValueCalc).
         val gramParser = gram.parser
         val parser =
           if (gramParser.isEmpty) {
@@ -208,9 +247,15 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
         (parser, isRepresented)
       }
       val serializableMap: Map[String, (Parser, Boolean)] = dispatchBranchKeyMap.map(identity)
-      val serializableKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)] = dispatchBranchKeyRangeTuples.toVector.map(identity)
+      val serializableKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)] =
+        dispatchBranchKeyRangeTuples.toVector.map(identity)
 
-      new ChoiceDispatchCombinatorParser(ch.termRuntimeData, ch.choiceDispatchKeyEv, serializableMap, serializableKeyRangeMap)
+      new ChoiceDispatchCombinatorParser(
+        ch.termRuntimeData,
+        ch.choiceDispatchKeyEv,
+        serializableMap,
+        serializableKeyRangeMap,
+      )
     }
   }
 
@@ -248,7 +293,8 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
            */
           cgr.SDE(
             "At least one branch of hidden choice must be fully defaultable or define dfdl:outputValueCalc:\n%s",
-            ch.groupMembers.mkString("\n"))
+            ch.groupMembers.mkString("\n"),
+          )
         }
         /*
          * empty unparser is fine as we have no expectations of hiddenness during
@@ -260,8 +306,8 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
       optDefaultUnparser
     }
 
-    val eventUnparserMap = eventRDMap.map {
-      case (cbe, branchTerm) => (cbe, branchTerm.termContentBody.unparser)
+    val eventUnparserMap = eventRDMap.map { case (cbe, branchTerm) =>
+      (cbe, branchTerm.termContentBody.unparser)
     }
     val mapValues = eventUnparserMap.map { case (k, v) => v }.toSeq.filterNot(_.isEmpty)
     if (mapValues.isEmpty) {

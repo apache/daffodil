@@ -19,7 +19,6 @@ package org.apache.daffodil.runtime1.layers
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.util.SimpleNamedServiceLoader
 
-
 /**
  * Transformers have factories. This lets you find the transformer factory
  * by the name obtained from dfdlx:layerTransform.
@@ -38,7 +37,11 @@ object LayerCompilerRegistry {
     val maybeCompiler: Option[LayerCompiler] = layerCompilerMap.get(name)
     if (maybeCompiler.isEmpty) {
       val choices = layerCompilerMap.keySet.mkString(", ")
-      context.SDE("The dfdlx:layerTransform '%s' was not found. Available choices are: %s", name, choices)
+      context.SDE(
+        "The dfdlx:layerTransform '%s' was not found. Available choices are: %s",
+        name,
+        choices,
+      )
     } else {
       maybeCompiler.get
     }

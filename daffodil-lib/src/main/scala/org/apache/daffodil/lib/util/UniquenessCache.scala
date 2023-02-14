@@ -21,8 +21,7 @@ package org.apache.daffodil.lib.util
  * This is normally used for scala Symbols. See also Namespaces.scala for a
  * slightly more comple xusage.
  */
-abstract class UniquenessCache[K, V >: Null]
-{
+abstract class UniquenessCache[K, V >: Null] {
   import java.lang.ref.WeakReference
   import java.util.WeakHashMap
   import java.util.concurrent.locks.ReentrantReadWriteLock
@@ -39,11 +38,10 @@ abstract class UniquenessCache[K, V >: Null]
     def cached(): V = {
       rlock.lock
       try {
-        val reference = map get name
+        val reference = map.get(name)
         if (reference == null) null
-        else reference.get  // will be null if we were gc-ed
-      }
-      finally rlock.unlock
+        else reference.get // will be null if we were gc-ed
+      } finally rlock.unlock
     }
     def updateCache(): V = {
       wlock.lock
@@ -55,13 +53,12 @@ abstract class UniquenessCache[K, V >: Null]
           // wind up with one String as the key and a different String as
           // the name field in the Symbol, which can lead to surprising GC
           // behavior and duplicate Symbols. See scala/bug#6706.
-          map remove name
+          map.remove(name)
           val sym = valueFromKey(name)
           map.put(name, new WeakReference(sym))
           sym
         }
-      }
-      finally wlock.unlock
+      } finally wlock.unlock
     }
 
     val res = cached()

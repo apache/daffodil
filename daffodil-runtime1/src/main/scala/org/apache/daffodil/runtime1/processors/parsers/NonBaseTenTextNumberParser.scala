@@ -19,13 +19,11 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import java.math.{ BigInteger => JBigInt }
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 
-class ConvertNonBaseTenTextNumberParser(
-  override val context: ElementRuntimeData,
-  base: Int)
+class ConvertNonBaseTenTextNumberParser(override val context: ElementRuntimeData, base: Int)
   extends TextPrimParser {
 
   override lazy val runtimeDependencies = Vector()
@@ -49,30 +47,42 @@ class ConvertNonBaseTenTextNumberParser(
     // pattern would allow this.
     val firstChar = baseStr(0)
     if (firstChar == '-' || firstChar == '+') {
-      PE(state, "Unable to parse %s from base-%d text with leading sign: %s",
-        context.optPrimType.get.globalQName, base, baseStr)
+      PE(
+        state,
+        "Unable to parse %s from base-%d text with leading sign: %s",
+        context.optPrimType.get.globalQName,
+        base,
+        baseStr,
+      )
       return
     }
 
     // always parse the base string a BigInt since it allows us to differentiate
     // between invalid characters or just too many characters for the prim type
-    val bi = try {
-      new JBigInt(baseStr, base)
-    } catch {
-      case e: NumberFormatException =>
-        PE(state, "Unable to parse %s from base-%d text due to invalid characters: %s",
-          context.optPrimType.get.globalQName, base, baseStr)
-        return
-    }
-
-    val num = try {
-      primNumeric.fromNumber(bi)
-    } catch {
-      case e: InvalidPrimitiveDataException => {
-        PE(state, "%s", e.getMessage)
-        return
+    val bi =
+      try {
+        new JBigInt(baseStr, base)
+      } catch {
+        case e: NumberFormatException =>
+          PE(
+            state,
+            "Unable to parse %s from base-%d text due to invalid characters: %s",
+            context.optPrimType.get.globalQName,
+            base,
+            baseStr,
+          )
+          return
       }
-    }
+
+    val num =
+      try {
+        primNumeric.fromNumber(bi)
+      } catch {
+        case e: InvalidPrimitiveDataException => {
+          PE(state, "%s", e.getMessage)
+          return
+        }
+      }
     node.overwriteDataValue(num)
   }
 }

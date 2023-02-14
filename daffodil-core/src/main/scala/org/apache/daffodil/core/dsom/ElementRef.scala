@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import scala.xml.Node
+
 import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
@@ -28,6 +29,7 @@ object ElementRef {
     er
   }
 }
+
 /**
  * There are 3 first-class concrete children of ElementBase.
  * Root, LocalElementDecl, and ElementRef
@@ -35,10 +37,7 @@ object ElementRef {
 final class ElementRef private (xmlArg: Node, lexicalParent: GroupDefLike, position: Int)
   extends AbstractElementRef(xmlArg, lexicalParent, position)
 
-abstract class AbstractElementRef(
-  xmlArg: Node,
-  parentArg: SchemaComponent,
-  positionArg: Int)
+abstract class AbstractElementRef(xmlArg: Node, parentArg: SchemaComponent, positionArg: Int)
   extends ElementBase
   with HasRefMixin
   with NamedMixin

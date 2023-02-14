@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.Success
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 
 abstract class NilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueParser: Parser)
   extends CombinatorParser(ctxt) {
@@ -32,7 +32,6 @@ abstract class NilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueP
     // can discriminate this PoU. We are really just using this as a technique
     // to be able to reset back to this point if the nil parser fails.
     pstate.withPointOfUncertainty("NilOrValueParser", ctxt) { pou =>
-
       nilParser.parse1(pstate)
 
       if (pstate.processorStatus ne Success) {
@@ -47,9 +46,11 @@ abstract class NilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueP
   }
 }
 
-
 case class SimpleNilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueParser: Parser)
   extends NilOrValueParser(ctxt, nilParser, valueParser)
 
-case class ComplexNilOrContentParser(ctxt: TermRuntimeData, emptyParser: Parser, contentParser: Parser)
-  extends NilOrValueParser(ctxt, emptyParser, contentParser)
+case class ComplexNilOrContentParser(
+  ctxt: TermRuntimeData,
+  emptyParser: Parser,
+  contentParser: Parser,
+) extends NilOrValueParser(ctxt, emptyParser, contentParser)

@@ -17,13 +17,11 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
 
-import org.apache.daffodil.runtime1.processors.RuntimeData
-import org.apache.daffodil.lib.exceptions.Assert
-
-class NadaUnparser(override val context: RuntimeData)
-  extends PrimUnparser {
+class NadaUnparser(override val context: RuntimeData) extends PrimUnparser {
 
   override def isEmpty = true
 

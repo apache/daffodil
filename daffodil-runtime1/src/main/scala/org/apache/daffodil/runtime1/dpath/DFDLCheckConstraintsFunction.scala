@@ -19,11 +19,12 @@ package org.apache.daffodil.runtime1.dpath
 
 // TODO: replace these with our own Infoset implementation objects
 
-import org.apache.daffodil.runtime1.processors.parsers.PState
-import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.lib.util.OKOrError
+import org.apache.daffodil.runtime1.infoset.DISimple
+import org.apache.daffodil.runtime1.processors.parsers.PState
 
 object DFDLCheckConstraintsFunction {
+
   /**
    * Used for validation purposes when ValidationMode is Limited or Full.
    *

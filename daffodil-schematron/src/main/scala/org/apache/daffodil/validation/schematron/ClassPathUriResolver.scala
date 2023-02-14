@@ -20,12 +20,14 @@ package org.apache.daffodil.validation.schematron
 import javax.xml.transform.Source
 import javax.xml.transform.URIResolver
 import javax.xml.transform.stream.StreamSource
+
 import org.apache.daffodil.lib.api.ValidatorInitializationException
 
 /**
  * Class path resolver for schematron templates
  */
-final class ClassPathUriResolver(rulesDir: String, fallback: Option[URIResolver]) extends URIResolver {
+final class ClassPathUriResolver(rulesDir: String, fallback: Option[URIResolver])
+  extends URIResolver {
   def resolve(href: String, base: String): Source = {
     val path = s"$rulesDir/$href"
     Option(getClass.getClassLoader.getResourceAsStream(path)) match {
@@ -36,9 +38,13 @@ final class ClassPathUriResolver(rulesDir: String, fallback: Option[URIResolver]
           case Some(is) => new StreamSource(is)
           case None =>
             // fallback #2;; use the fallback resolver if provided
-            fallback.map(_.resolve(href, base)).getOrElse(
-              throw ValidatorInitializationException(s"schematron resource not found at $path")
-            )
+            fallback
+              .map(_.resolve(href, base))
+              .getOrElse(
+                throw ValidatorInitializationException(
+                  s"schematron resource not found at $path",
+                ),
+              )
         }
     }
   }

@@ -26,8 +26,7 @@ import java.nio.ByteBuffer
  *
  * @param bb The ByteBuffer to be filled in.
  */
-class ByteBufferOutputStream(val byteBuffer: ByteBuffer)
- extends OutputStream {
+class ByteBufferOutputStream(val byteBuffer: ByteBuffer) extends OutputStream {
 
   byteBuffer.limit(byteBuffer.capacity())
 

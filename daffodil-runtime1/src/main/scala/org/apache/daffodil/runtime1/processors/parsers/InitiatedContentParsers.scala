@@ -22,8 +22,8 @@ import org.apache.daffodil.runtime1.processors.TermRuntimeData
 
 final class InitiatedContentDiscrimOnIndexGreaterThanMinParser(
   min: Int,
-  override val context: ElementRuntimeData)
-  extends PrimParser {
+  override val context: ElementRuntimeData,
+) extends PrimParser {
   override lazy val runtimeDependencies = Vector()
 
   final def parse(start: PState): Unit = {
@@ -41,8 +41,9 @@ final class InitiatedContentDiscrimChoiceParser(override val context: TermRuntim
   }
 }
 
-final class InitiatedContentDiscrimChoiceOnlyOnFirstIndexParser(override val context: TermRuntimeData)
-  extends PrimParser {
+final class InitiatedContentDiscrimChoiceOnlyOnFirstIndexParser(
+  override val context: TermRuntimeData,
+) extends PrimParser {
   override lazy val runtimeDependencies = Vector()
 
   final def parse(start: PState): Unit = {
@@ -53,8 +54,8 @@ final class InitiatedContentDiscrimChoiceOnlyOnFirstIndexParser(override val con
 
 final class InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser(
   min: Int,
-  override val context: ElementRuntimeData)
-  extends PrimParser {
+  override val context: ElementRuntimeData,
+) extends PrimParser {
   override lazy val runtimeDependencies = Vector()
 
   final def parse(start: PState): Unit = {

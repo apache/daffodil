@@ -16,6 +16,7 @@
  */
 
 package org.apache.daffodil.runtime1.infoset
+
 /**
  * XMLTextEscapeStyle determines how to wrap values of elements of type xs:string
  *

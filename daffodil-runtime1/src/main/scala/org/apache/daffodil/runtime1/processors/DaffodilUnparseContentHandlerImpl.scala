@@ -17,30 +17,29 @@
 
 package org.apache.daffodil.runtime1.processors
 
+import javax.xml.XMLConstants
 import scala.xml.NamespaceBinding
 import scala.xml.TopScope
 
-import javax.xml.XMLConstants
-
-import org.xml.sax.Attributes
-import org.xml.sax.Locator
-
-import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.runtime1.api.DFDL.DaffodilUnhandledSAXException
-import org.apache.daffodil.runtime1.api.DFDL.DaffodilUnparseErrorSAXException
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndElement
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartDocument
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartElement
-import org.apache.daffodil.runtime1.infoset.SAXInfosetEvent
-import org.apache.daffodil.runtime1.infoset.SAXInfosetInputter
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MainCoroutine
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.api.DFDL.DaffodilUnhandledSAXException
+import org.apache.daffodil.runtime1.api.DFDL.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndElement
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartDocument
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartElement
+import org.apache.daffodil.runtime1.infoset.SAXInfosetEvent
+import org.apache.daffodil.runtime1.infoset.SAXInfosetInputter
+
+import org.xml.sax.Attributes
+import org.xml.sax.Locator
 
 /**
  * Handle and unparse XMLReader SAX events using a provided DataProcessor and
@@ -107,13 +106,11 @@ import org.apache.daffodil.lib.util.Misc
  * @param dp DataProcessor object that will be used to start the unparse
  * @param output OutputChannel of where the unparsed data is written
  */
-class DaffodilUnparseContentHandlerImpl(
-  dp: DFDL.DataProcessor,
-  output: DFDL.Output)
+class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Output)
   extends MainCoroutine[Maybe[Either[Exception, DFDL.UnparseResult]]]
   with DFDL.DaffodilUnparseContentHandler {
 
-   /**
+  /**
     * The SAXInfosetInputter worker coroutine that receives the batches of
     * SAXInfosetEvents to be used to unparse data. The coroutine thread will not be
     * created until the DaffodilUnparseContentHandlerImpl calls resume() with the
@@ -152,7 +149,7 @@ class DaffodilUnparseContentHandlerImpl(
    * there are no concerns about thread safety--there is no way for one class to read
    * this array while another is writing to it.
    */
-  private lazy val batchedInfosetEvents: Array[SAXInfosetEvent] = { 
+  private lazy val batchedInfosetEvents: Array[SAXInfosetEvent] = {
     val batchSize = dp.tunables.saxUnparseEventBatchSize
     Assert.invariant(batchSize > 0, "invalid saxUnparseEventBatchSize; minimum value is 1")
     Array.fill[SAXInfosetEvent](batchSize)(new SAXInfosetEvent)
@@ -253,7 +250,12 @@ class DaffodilUnparseContentHandlerImpl(
     }
   }
 
-  override def startElement(uri: String, localName: String, qName: String, atts: Attributes): Unit = {
+  override def startElement(
+    uri: String,
+    localName: String,
+    qName: String,
+    atts: Attributes,
+  ): Unit = {
     // If we are handling a startElement() event and the current eventType is
     // defined, it must mean that the currentEvent is a StartElement event for a
     // complex element and we are starting its first child element. We are done with
@@ -373,7 +375,9 @@ class DaffodilUnparseContentHandlerImpl(
    * SAXException.
    */
   private def currentEventIsFinished(): Unit = {
-    if (currentIndex < batchedInfosetEvents.length - 1 && (currentEvent.eventType.get ne EndDocument)) {
+    if (
+      currentIndex < batchedInfosetEvents.length - 1 && (currentEvent.eventType.get ne EndDocument)
+    ) {
       // We have room left on the batchedInfosetEvents array and the current event is
       // not EndDocument. Increment currentIndex so future SAX API calls modify that
       // event state. We also ensure that the SAXInfosetInputter cleared the state of
@@ -421,9 +425,13 @@ class DaffodilUnparseContentHandlerImpl(
    * Use the prefixMapping and input parameters to set the localName and NamespaceURI of the
    * SAXInfoset object.
    */
-  private def setLocalNameAndNamespaceUri(uri: String, localName: String, qName: String): Unit = {
+  private def setLocalNameAndNamespaceUri(
+    uri: String,
+    localName: String,
+    qName: String,
+  ): Unit = {
     lazy val qNameArr = qName.split(":")
-    lazy val qNamePrefix = if (qNameArr.length > 1) {//there is a prefix
+    lazy val qNamePrefix = if (qNameArr.length > 1) { // there is a prefix
       qNameArr.head
     } else {
       // if there is no prefix, we attempt to try to get the namespace when the prefix is "". Since

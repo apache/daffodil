@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.daffodil.lib.calendar
 
 object TextCalendarConstants {

@@ -37,7 +37,8 @@ object Validators {
    * @return [[org.apache.daffodil.lib.api.ValidatorFactory]] the factory instance
    */
   @throws(classOf[ValidatorNotRegisteredException])
-  def get(name: String): ValidatorFactory = impls.getOrElse(name, throw ValidatorNotRegisteredException(name))
+  def get(name: String): ValidatorFactory =
+    impls.getOrElse(name, throw ValidatorNotRegisteredException(name))
 
   /**
    * Optionally find the factory

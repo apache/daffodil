@@ -17,28 +17,32 @@
 
 package org.apache.daffodil.io.processors.charset
 
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.io.InputSourceDataInputStream
 
-object BitsCharsetUTF16BE extends {
-  override val name = "UTF-16BE"
-} with BitsCharsetJava {
+object BitsCharsetUTF16BE
+  extends {
+    override val name = "UTF-16BE"
+  }
+  with BitsCharsetJava {
 
   override def newDecoder() = new BitsCharsetDecoderUTF16BE()
 }
 
-class BitsCharsetDecoderUTF16BE
-  extends BitsCharsetDecoderCreatesSurrogates {
+class BitsCharsetDecoderUTF16BE extends BitsCharsetDecoderCreatesSurrogates {
 
-  protected override def decodeOneUnicodeChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
+  protected override def decodeOneUnicodeChar(
+    dis: InputSourceDataInputStream,
+    finfo: FormatInfo,
+  ): Char = {
     val byte1 = getByte(dis, 0)
     val byte2 = getByte(dis, 8)
-  
+
     val high = (byte1 << 8) | byte2
 
-    if (high >= 0xD800 && high <= 0xDFFF) {
+    if (high >= 0xd800 && high <= 0xdfff) {
       // surrogate pair, this needs to be a high or its an error
-      if (high >= 0xDC00) throw new BitsCharsetDecoderMalformedException(16)
+      if (high >= 0xdc00) throw new BitsCharsetDecoderMalformedException(16)
 
       // this is a valid high surrogate pair, need to get the low and save it
       // for the next decode
@@ -46,7 +50,7 @@ class BitsCharsetDecoderUTF16BE
       val byte4 = getByte(dis, 24)
 
       val low = (byte3 << 8) | byte4
-      if (low < 0xDC00 || low > 0xDFFF) throw new BitsCharsetDecoderMalformedException(32)
+      if (low < 0xdc00 || low > 0xdfff) throw new BitsCharsetDecoderMalformedException(32)
 
       setLowSurrogate(low.toChar)
     }
@@ -54,8 +58,7 @@ class BitsCharsetDecoderUTF16BE
   }
 }
 
-final class BitsCharsetUTF16BEDefinition
-  extends BitsCharsetDefinition(BitsCharsetUTF16BE)
+final class BitsCharsetUTF16BEDefinition extends BitsCharsetDefinition(BitsCharsetUTF16BE)
 
 final class BitsCharsetUTF16Definition
   extends BitsCharsetDefinition(BitsCharsetUTF16BE, Some("UTF-16"))

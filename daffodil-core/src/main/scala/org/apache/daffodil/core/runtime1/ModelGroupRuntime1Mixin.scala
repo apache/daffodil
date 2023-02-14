@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.core.runtime1
 
-import org.apache.daffodil.core.dsom.ModelGroup
-import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.RuntimeData
-import org.apache.daffodil.core.dsom.Term
 import org.apache.daffodil.core.dsom.ElementBase
+import org.apache.daffodil.core.dsom.ModelGroup
+import org.apache.daffodil.core.dsom.Term
+import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
+import org.apache.daffodil.runtime1.processors.RuntimeData
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 
 trait ModelGroupRuntime1Mixin { self: ModelGroup =>
 
@@ -34,12 +34,13 @@ trait ModelGroupRuntime1Mixin { self: ModelGroup =>
 
   protected lazy val groupMembersRuntimeData = {
     val res = this match {
-      case mg: ModelGroup => mg.groupMembers.map {
-        _ match {
-          case eb: ElementBase => eb.erd
-          case t: Term => t.termRuntimeData
+      case mg: ModelGroup =>
+        mg.groupMembers.map {
+          _ match {
+            case eb: ElementBase => eb.erd
+            case t: Term => t.termRuntimeData
+          }
         }
-      }
       case _ => Nil
     }
     res

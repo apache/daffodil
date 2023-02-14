@@ -24,13 +24,18 @@ import org.apache.daffodil.lib.util.Misc
 object TDMLException {
 
   def msgWithImpl(msg: String, implementation: Option[String]) =
-    implementation.map { impl =>
-      "(Implementation: " + impl + ") " + msg
-    }.getOrElse(msg)
+    implementation
+      .map { impl =>
+        "(Implementation: " + impl + ") " + msg
+      }
+      .getOrElse(msg)
 
-  def apply(msg: String, implementation: Option[String]) = new TDMLExceptionImpl(msg, implementation)
-  def apply(cause: Throwable, implementation: Option[String]) = new TDMLExceptionImpl(cause, implementation)
-  def apply(causes: Seq[Throwable], implementation: Option[String]) = new TDMLExceptionImpl(causes, implementation)
+  def apply(msg: String, implementation: Option[String]) =
+    new TDMLExceptionImpl(msg, implementation)
+  def apply(cause: Throwable, implementation: Option[String]) =
+    new TDMLExceptionImpl(cause, implementation)
+  def apply(causes: Seq[Throwable], implementation: Option[String]) =
+    new TDMLExceptionImpl(causes, implementation)
 }
 
 /**
@@ -56,12 +61,14 @@ trait TDMLException { self: Exception =>
   def asException = self
 }
 
-class TDMLExceptionImpl(override val msg: String,
+class TDMLExceptionImpl(
+  override val msg: String,
   override val causes: Seq[Throwable],
-  override val implementation: Option[String])
-  extends Exception(
+  override val implementation: Option[String],
+) extends Exception(
     TDMLException.msgWithImpl(msg, implementation),
-    if (causes.length > 0) causes(0) else null)
+    if (causes.length > 0) causes(0) else null,
+  )
   with TDMLException {
 
   def this(msg: String, implementation: Option[String]) = this(msg, Nil, implementation)
@@ -70,17 +77,24 @@ class TDMLExceptionImpl(override val msg: String,
     this(Misc.getNameFromClass(cause) + ": " + cause.getMessage(), List(cause), implementation)
 
   def this(causes: Seq[Throwable], implementation: Option[String]) = this(
-    causes.map { cause => Misc.getNameFromClass(cause) + ": " + cause.getMessage() }.mkString("\n"),
+    causes
+      .map { cause => Misc.getNameFromClass(cause) + ": " + cause.getMessage() }
+      .mkString("\n"),
     causes,
-    implementation)
+    implementation,
+  )
 }
 
 /**
  * Use when TDML Runner must add to diagnostic lists held by other objects.
  */
 class TDMLDiagnostic(diag: String, implementation: Option[String])
-  extends Diagnostic(Maybe.Nope, Maybe.Nope, Maybe.Nope,
-    Maybe(TDMLException.msgWithImpl(diag, implementation))) {
+  extends Diagnostic(
+    Maybe.Nope,
+    Maybe.Nope,
+    Maybe.Nope,
+    Maybe(TDMLException.msgWithImpl(diag, implementation)),
+  ) {
   override def isError = true
   override def modeName = "TDML"
 }
@@ -95,9 +109,12 @@ class TDMLDiagnostic(diag: String, implementation: Option[String])
  * if that is the case, we may need the exception to figure out the reason why
  * the reflective access failed.
  */
-class TDMLTestNotCompatibleException(testName: String,
+class TDMLTestNotCompatibleException(
+  testName: String,
   override val implementation: Option[String],
-  cause: Option[Throwable] = None)
-  extends TDMLExceptionImpl(
+  cause: Option[Throwable] = None,
+) extends TDMLExceptionImpl(
     "Test '%s' not compatible with implementation.".format(testName),
-    cause.toSeq, implementation)
+    cause.toSeq,
+    implementation,
+  )

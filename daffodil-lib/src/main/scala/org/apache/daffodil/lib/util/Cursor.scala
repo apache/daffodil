@@ -18,6 +18,7 @@
 package org.apache.daffodil.lib.util
 
 import org.apache.daffodil.lib.exceptions.Assert
+
 import Maybe._
 
 /**
@@ -119,8 +120,7 @@ trait Cursor[AccessorType <: Accessor[AccessorType]] {
   def fini(): Unit
 }
 
-trait CursorImplMixin[AccessorType <: Accessor[AccessorType]]
-  extends Cursor[AccessorType] {
+trait CursorImplMixin[AccessorType <: Accessor[AccessorType]] extends Cursor[AccessorType] {
   /*
    * We are a bit of a state machine based on what the last operation was.
    * At all times, we have a "current" element, which is what future calls to

@@ -17,32 +17,29 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.TimeZone
-import com.ibm.icu.util.TimeZone
-import com.ibm.icu.util.ULocale
-
 import java.text.ParsePosition
-
 import scala.Boolean
 
-import org.apache.daffodil.lib.calendar.TextCalendarConstants
 import org.apache.daffodil.core.dsom.ElementBase
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.core.grammar.Terminal
+import org.apache.daffodil.lib.calendar.TextCalendarConstants
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
+import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarCheckPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarFirstDayOfWeek
+import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarPatternKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.runtime1.processors.CalendarEv
 import org.apache.daffodil.runtime1.processors.CalendarLanguageEv
 import org.apache.daffodil.runtime1.processors.parsers.ConvertBinaryCalendarSecMilliParser
 import org.apache.daffodil.runtime1.processors.parsers.ConvertTextCalendarParser
 import org.apache.daffodil.unparsers.runtime1.ConvertBinaryCalendarSecMilliUnparser
 import org.apache.daffodil.unparsers.runtime1.ConvertTextCalendarUnparser
-import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
-import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarCheckPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarFirstDayOfWeek
-import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarPatternKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+
+import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.TimeZone
+import com.ibm.icu.util.ULocale
 
 abstract class ConvertCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {
@@ -80,7 +77,9 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   val TimeZoneRegex = """(UTC)?([+\-])?([01]\d|\d)(:?([0-5]\d))?""".r
 
   // Binary calendars with a BinaryCalendarRep of 'bcd' or 'ibm4690Packed' should ignore the calendarTimeZone option
-  val tzStr = if (e.representation == Representation.Binary && e.binaryCalendarRep != BinaryCalendarRep.Packed) {
+  val tzStr = if (
+    e.representation == Representation.Binary && e.binaryCalendarRep != BinaryCalendarRep.Packed
+  ) {
     ""
   } else {
     e.calendarTimeZone match {
@@ -99,8 +98,13 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
       val tz = TimeZone.getTimeZone(tzStr)
       if (tz == TimeZone.UNKNOWN_ZONE) {
         e.schemaDefinitionErrorDueToPropertyValue(
-          "calendarTimeZone", e.calendarTimeZone, e.calendarTimeZone_location, e,
-          "Unknown time zone '%s'", e.calendarTimeZone)
+          "calendarTimeZone",
+          e.calendarTimeZone,
+          e.calendarTimeZone_location,
+          e,
+          "Unknown time zone '%s'",
+          e.calendarTimeZone,
+        )
       }
       Some(tz) // Valid time zone
     }
@@ -133,7 +137,14 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   }
 
   private lazy val calendarEv = {
-    val cev = new CalendarEv(localeEv, calendarTz, firstDay, calendarDaysInFirstWeek, calendarCheckPolicy, e.eci)
+    val cev = new CalendarEv(
+      localeEv,
+      calendarTz,
+      firstDay,
+      calendarDaysInFirstWeek,
+      calendarCheckPolicy,
+      e.eci,
+    )
     cev.compile(e.tunable)
     cev
   }
@@ -141,10 +152,11 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   lazy val pattern: String = {
     val p = e.calendarPatternKind match {
       case CalendarPatternKind.Explicit => e.calendarPattern
-      case CalendarPatternKind.Implicit => e.representation match {
-        case Representation.Binary => Assert.impossibleCase
-        case _ => implicitPattern
-      }
+      case CalendarPatternKind.Implicit =>
+        e.representation match {
+          case Representation.Binary => Assert.impossibleCase
+          case _ => implicitPattern
+        }
     }
 
     val patternToCheck: String = if (e.representation == Representation.Text) {
@@ -156,20 +168,34 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     patternToCheck.toSeq.foreach(char =>
       if (!validFormatCharacters.contains(char)) {
         if (e.representation == Representation.Binary)
-          SDE("Character '%s' not allowed in dfdl:calendarPattern for xs:%s with a binaryCalendarRep of '%s'".format(char, xsdType, e.binaryCalendarRep))
+          SDE(
+            "Character '%s' not allowed in dfdl:calendarPattern for xs:%s with a binaryCalendarRep of '%s'"
+              .format(char, xsdType, e.binaryCalendarRep),
+          )
         else
-          SDE("Character '%s' not allowed in dfdl:calendarPattern for xs:%s".format(char, xsdType))
-      })
+          SDE(
+            "Character '%s' not allowed in dfdl:calendarPattern for xs:%s".format(char, xsdType),
+          )
+      },
+    )
 
     if (e.representation == Representation.Binary) {
       // For binary calendars, calendarPattern can contain only characters that always result in digits,
       //   so more than 2 'e' or 'M' in a row aren't valid as they result in text
       if (patternToCheck.contains("eee") || patternToCheck.contains("MMM")) {
-        SDE("dfdl:calendarPattern must only contain characters that result in the presentation of digits for xs:%s with a binaryCalendarRep of '%s'".format(xsdType, e.binaryCalendarRep))
+        SDE(
+          "dfdl:calendarPattern must only contain characters that result in the presentation of digits for xs:%s with a binaryCalendarRep of '%s'"
+            .format(xsdType, e.binaryCalendarRep),
+        )
       }
     }
     if (patternToCheck.indexOf("S" * (TextCalendarConstants.maxFractionalSeconds + 1)) >= 0) {
-      SDE("More than %d fractional seconds unsupported in dfdl:calendarPattern for xs:%s".format(TextCalendarConstants.maxFractionalSeconds, xsdType))
+      SDE(
+        "More than %d fractional seconds unsupported in dfdl:calendarPattern for xs:%s".format(
+          TextCalendarConstants.maxFractionalSeconds,
+          xsdType,
+        ),
+      )
     }
 
     p
@@ -182,13 +208,11 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     pattern,
     hasTZ,
     localeEv,
-    calendarEv)
+    calendarEv,
+  )
 
-  override lazy val unparser = new ConvertTextCalendarUnparser(
-    e.elementRuntimeData,
-    pattern,
-    localeEv,
-    calendarEv)
+  override lazy val unparser =
+    new ConvertTextCalendarUnparser(e.elementRuntimeData, pattern, localeEv, calendarEv)
 }
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
@@ -217,7 +241,8 @@ case class ConvertTextTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBa
     }
 }
 
-case class ConvertTextDateTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
+case class ConvertTextDateTimePrim(e: ElementBase)
+  extends ConvertTextCalendarPrimBase(e, true) {
   protected override val xsdType = "dateTime"
   protected override val prettyType = "DateTime"
   protected override val infosetPattern = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx"
@@ -230,7 +255,8 @@ case class ConvertTextDateTimePrim(e: ElementBase) extends ConvertTextCalendarPr
     }
 }
 
-case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long) extends ConvertCalendarPrimBase(e, true) {
+case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
+  extends ConvertCalendarPrimBase(e, true) {
   protected override val xsdType = "dateTime"
   protected override val prettyType = "DateTime"
 
@@ -252,7 +278,9 @@ case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
       sdf.parse(e.binaryCalendarEpoch, cal, pos)
 
       if (pos.getIndex != e.binaryCalendarEpoch.length || pos.getErrorIndex >= 0) {
-        SDE("Failed to parse binaryCalendarEpoch - Format must match the pattern 'uuuu-MM-dd'T'HH:mm:ss' or 'uuuu-MM-dd'T'HH:mm:ssZZZZ'")
+        SDE(
+          "Failed to parse binaryCalendarEpoch - Format must match the pattern 'uuuu-MM-dd'T'HH:mm:ss' or 'uuuu-MM-dd'T'HH:mm:ssZZZZ'",
+        )
       }
     }
 
@@ -272,7 +300,8 @@ case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
     !epochCalendar.getTimeZone.equals(TimeZone.UNKNOWN_ZONE),
     e.binaryCalendarRep,
     epochCalendar,
-    lengthInBits.toInt)
+    lengthInBits.toInt,
+  )
 
   override lazy val unparser =
     new ConvertBinaryCalendarSecMilliUnparser(
@@ -280,5 +309,6 @@ case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
       e.binaryCalendarRep,
       epochCalendar.getTimeInMillis,
       lengthInBits.toInt,
-      !epochCalendar.getTimeZone.equals(TimeZone.UNKNOWN_ZONE))
+      !epochCalendar.getTimeZone.equals(TimeZone.UNKNOWN_ZONE),
+    )
 }

@@ -21,9 +21,9 @@ import org.apache.daffodil.core.compiler.ForParser
 import org.apache.daffodil.core.compiler.ForUnparser
 import org.apache.daffodil.core.compiler.ParserOrUnparser
 import org.apache.daffodil.core.dsom.SchemaComponent
+import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.unparsers.runtime1.NadaUnparser
-import org.apache.daffodil.lib.util.Logger
 
 /**
  * Prod or Grammar Production
@@ -41,12 +41,13 @@ import org.apache.daffodil.lib.util.Logger
  * Prod objects are not required. They essentially provide some useful debug capability
  * because a grammar term object will display as it's name, not as some anonymous object.
  */
-final class Prod(nameArg: String,
-                 val sc: SchemaComponent,
-                 val guard: Boolean,
-                 gramArg: => Gram,
-                 override val forWhat: ParserOrUnparser)
-  extends NamedGram(sc) {
+final class Prod(
+  nameArg: String,
+  val sc: SchemaComponent,
+  val guard: Boolean,
+  gramArg: => Gram,
+  override val forWhat: ParserOrUnparser,
+) extends NamedGram(sc) {
 
   final override lazy val deref = gram
 
@@ -65,7 +66,7 @@ final class Prod(nameArg: String,
           case p: Prod => {
             p.gram // recursively force this
           }
-          case _ => //ok
+          case _ => // ok
         }
         g
       }
@@ -80,7 +81,8 @@ final class Prod(nameArg: String,
 
   final override lazy val parser = {
     (forWhat, gram.forWhat) match {
-      case (ForUnparser, _) => new NadaParser(context.runtimeData) // TODO: detect this and remove from final parser
+      case (ForUnparser, _) =>
+        new NadaParser(context.runtimeData) // TODO: detect this and remove from final parser
       case (_, ForUnparser) => new NadaParser(gram.context.runtimeData)
       case _ => gram.parser
     }
@@ -92,7 +94,10 @@ final class Prod(nameArg: String,
         EmptyGram.unparser
       } else {
         (forWhat, gram.forWhat) match {
-          case (ForParser, _) => new NadaUnparser(context.runtimeData) // TODO: detect this and remove from final unparser
+          case (ForParser, _) =>
+            new NadaUnparser(
+              context.runtimeData,
+            ) // TODO: detect this and remove from final unparser
           case (_, ForParser) => new NadaUnparser(gram.context.runtimeData)
           case _ => gram.unparser
         }

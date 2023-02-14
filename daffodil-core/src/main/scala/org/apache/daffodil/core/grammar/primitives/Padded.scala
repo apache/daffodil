@@ -17,11 +17,8 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.grammar.Gram
-import org.apache.daffodil.runtime1.processors.TextJustificationType
-import org.apache.daffodil.runtime1.processors.TextTruncationType
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextBooleanJustification
@@ -32,6 +29,9 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.TextStringJustificati
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextTrimKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.MaybeChar
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.processors.TextJustificationType
+import org.apache.daffodil.runtime1.processors.TextTruncationType
 
 trait PaddingInfoMixin {
   protected def eBase: ElementBase
@@ -45,17 +45,20 @@ trait PaddingInfoMixin {
    * textTrimKind="none", so there can't be just one pad char object if it is to
    * carry information about both whether or not a pad character is to be used, and the value.
    */
-  lazy val (parsingPadChar, justificationTrim): (MaybeChar, TextJustificationType.Type) = eBase.textTrimKind match {
-    case TextTrimKind.None => (MaybeChar.Nope, TextJustificationType.None)
-    case TextTrimKind.PadChar if eBase.isSimpleType => padCharAndJustificationForType
-  }
+  lazy val (parsingPadChar, justificationTrim): (MaybeChar, TextJustificationType.Type) =
+    eBase.textTrimKind match {
+      case TextTrimKind.None => (MaybeChar.Nope, TextJustificationType.None)
+      case TextTrimKind.PadChar if eBase.isSimpleType => padCharAndJustificationForType
+    }
 
   lazy val (unparsingPadChar: MaybeChar, justificationPad) = {
     val tpk = eBase.textPadKind
     val res = tpk match {
       case TextPadKind.None => (MaybeChar.Nope, TextJustificationType.None)
-      case TextPadKind.PadChar if eBase.isSimpleType &&
-        eBase.impliedRepresentation == Representation.Text => padCharAndJustificationForType
+      case TextPadKind.PadChar
+          if eBase.isSimpleType &&
+            eBase.impliedRepresentation == Representation.Text =>
+        padCharAndJustificationForType
       case _ => (MaybeChar.Nope, TextJustificationType.None)
     }
     res
@@ -65,22 +68,25 @@ trait PaddingInfoMixin {
     val res =
       if (eBase.primType != PrimType.String) TextTruncationType.None
       else if (eBase.truncateSpecifiedLengthString eq YesNo.No) TextTruncationType.None
-      else if ((eBase.lengthKind eq LengthKind.Pattern) ||
-        (eBase.lengthKind eq LengthKind.Prefixed)) TextTruncationType.None
-      else eBase.textStringJustification match {
-        case TextStringJustification.Left => TextTruncationType.Left
-        case TextStringJustification.Right => TextTruncationType.Right
-        case TextStringJustification.Center => TextTruncationType.ErrorIfNeeded
-      }
+      else if (
+        (eBase.lengthKind eq LengthKind.Pattern) ||
+        (eBase.lengthKind eq LengthKind.Prefixed)
+      ) TextTruncationType.None
+      else
+        eBase.textStringJustification match {
+          case TextStringJustification.Left => TextTruncationType.Left
+          case TextStringJustification.Right => TextTruncationType.Right
+          case TextStringJustification.Center => TextTruncationType.ErrorIfNeeded
+        }
     res
   }
 
   private lazy val padCharAndJustificationForType: (MaybeChar, TextJustificationType.Type) = {
     val theJust = eBase.primType match {
-      case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
-        PrimType.Integer | PrimType.UnsignedInt | PrimType.UnsignedByte | PrimType.UnsignedShort |
-        PrimType.UnsignedLong | PrimType.Double | PrimType.Float | PrimType.Decimal |
-        PrimType.NonNegativeInteger => {
+      case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long | PrimType.Integer |
+          PrimType.UnsignedInt | PrimType.UnsignedByte | PrimType.UnsignedShort |
+          PrimType.UnsignedLong | PrimType.Double | PrimType.Float | PrimType.Decimal |
+          PrimType.NonNegativeInteger => {
         val padChar = eBase.textNumberPadCharacter.charAt(0)
         val just = eBase.textNumberJustification match {
           case TextNumberJustification.Left => TextJustificationType.Left

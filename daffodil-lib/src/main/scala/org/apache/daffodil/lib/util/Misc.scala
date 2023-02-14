@@ -29,11 +29,10 @@ import java.nio.CharBuffer
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import java.nio.charset.CodingErrorAction
-import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.StandardCharsets
+import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.file.Files
 import java.nio.file.Paths
-
 import scala.collection.JavaConverters._
 
 import org.apache.daffodil.lib.equality._
@@ -70,7 +69,9 @@ object Misc {
 
   def stripQuotes(s: String) = {
     val stripFirst = if (s.startsWith("\"")) s.substring(1) else s
-    val stripLast = if (stripFirst.endsWith("\"")) stripFirst.substring(0, stripFirst.length - 1) else stripFirst
+    val stripLast =
+      if (stripFirst.endsWith("\"")) stripFirst.substring(0, stripFirst.length - 1)
+      else stripFirst
     stripLast
   }
 
@@ -197,7 +198,7 @@ object Misc {
       case (None, resPath) => {
         val msg = "Required resource " + resPath + " was not found.\nClasspath is " +
           (if (classPath.length == 0) "unknown."
-          else ": " + classPath.mkString("\n"))
+           else ": " + classPath.mkString("\n"))
         throw new java.io.FileNotFoundException(msg)
       }
       case (Some(res), _) => res
@@ -278,13 +279,18 @@ object Misc {
         if (i >= 48 && i <= 57) i - 48 // number 0-9
         else if (i >= 65 && i <= 70) (i - 65) + 10 // capital A-F
         else if (i >= 97 && i <= 102) (i - 97) + 10 // lowercase a-f
-        else throw new NumberFormatException("Hex character must be 0-9, a-z, or A-Z, but was '" + c + "'")
+        else
+          throw new NumberFormatException(
+            "Hex character must be 0-9, a-z, or A-Z, but was '" + c + "'",
+          )
       v
     }
 
     val len = hex.length
     if (len % 2 != 0) {
-      throw new NumberFormatException("Hex string must have an even number of characters, but was " + len + " for " + hex)
+      throw new NumberFormatException(
+        "Hex string must have an even number of characters, but was " + len + " for " + hex,
+      )
     }
     val numBytes: Int = len / 2
     val arr = new Array[Byte](numBytes)
@@ -302,8 +308,8 @@ object Misc {
 
   def hex2Bits(hex: String): String = {
     val nums = hex.map { ch => Integer.parseInt(ch.toString, 16) }
-    val bits = nums map { java.lang.Long.toString(_, 2) }
-    val paddedBits = bits map { "%4s".format(_).replaceAll(" ", "0") }
+    val bits = nums.map { java.lang.Long.toString(_, 2) }
+    val paddedBits = bits.map { "%4s".format(_).replaceAll(" ", "0") }
     val res = paddedBits.mkString
     res
   }
@@ -316,9 +322,9 @@ object Misc {
     var bytIdx = 0
     var hexIdx = 0
     while (bytIdx < bytes.length) {
-      val b = bytes(bytIdx) & 0xFF
+      val b = bytes(bytIdx) & 0xff
       hexArr(hexIdx) = hexLookup(b >>> 4)
-      hexArr(hexIdx + 1) = hexLookup(b & 0x0F)
+      hexArr(hexIdx + 1) = hexLookup(b & 0x0f)
       bytIdx += 1
       hexIdx += 2
     }
@@ -337,7 +343,7 @@ object Misc {
   }
 
   def bytes2Bits(bytes: Array[Byte]): String = {
-    bytes.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.mkString
+    bytes.map { b => (b & 0xff).toBinaryString.reverse.padTo(8, '0').reverse }.mkString
   }
 
   // Moved here from Compiler object.
@@ -387,28 +393,29 @@ object Misc {
   }
 
   def remapControlOrLineEndingToVisibleGlyphs(c: Char) = {
-    val URC = 0x2426 // Unicode control picture character for substutition (also looks like arabic q-mark)
+    val URC =
+      0x2426 // Unicode control picture character for substutition (also looks like arabic q-mark)
     val code = c.toInt match {
       //
       // C0 Control pictures
-      case n if (n <= 0x1F) => n + 0x2400
+      case n if (n <= 0x1f) => n + 0x2400
       case 0x20 => 0x2423 // For space we use the SP we use the ␣ (Unicode OPEN BOX)
-      case 0x7F => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
+      case 0x7f => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
       //
       // Unicode separators & joiners
-      case 0x00A0 => URC // no-break space
-      case 0x200B => URC // zero width space
+      case 0x00a0 => URC // no-break space
+      case 0x200b => URC // zero width space
       case 0x2028 => URC // line separator
       case 0x2029 => URC // paragraph separator
-      case 0x200C => URC // zero width non-joiner
-      case 0x200D => URC // zero width joiner
+      case 0x200c => URC // zero width non-joiner
+      case 0x200d => URC // zero width joiner
       case 0x2060 => URC // word joiner
       // bi-di controls
-      case 0x200E | 0x200F => URC
-      case b if (b >= 0x202A && b <= 0x202E) => URC
+      case 0x200e | 0x200f => URC
+      case b if (b >= 0x202a && b <= 0x202e) => URC
       // byte order mark
-      case 0xFFFE => URC // ZWNBS aka Byte Order Mark
-      case 0xFFFF => URC // non-character FFFF
+      case 0xfffe => URC // ZWNBS aka Byte Order Mark
+      case 0xffff => URC // non-character FFFF
       // we assume surrogate codepoints all have a glyph (depends on font used of course)
       //
       // TODO: this could go on and on. There's a flock of 'space' characters (EM SPACE)
@@ -432,7 +439,8 @@ object Misc {
     code.toChar
   }
 
-  private val bytesCharset = JavaCharset.forName("windows-1252") // same as iso-8859-1 but has a few more glyphs.
+  private val bytesCharset =
+    JavaCharset.forName("windows-1252") // same as iso-8859-1 but has a few more glyphs.
   private val bytesDecoder = {
     val decoder = bytesCharset.newDecoder()
     decoder.onMalformedInput(CodingErrorAction.REPLACE)
@@ -512,12 +520,12 @@ object Misc {
       //
       // replace C0 controls with unicode control pictures
       //
-      case n if (n <= 0x1F) => n + 0x2400
+      case n if (n <= 0x1f) => n + 0x2400
       //
       // replace space and DEL with control pictures
       //
       case 0x20 => 0x2423 // For space we use the SP we use the ␣ (Unicode OPEN BOX)
-      case 0x7F => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
+      case 0x7f => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
       //
       // replace undefined characters in the C1 control space with
       // glyph characters. These are the only codepoints in the C1
@@ -527,15 +535,15 @@ object Misc {
       // adding 0x100 to their basic value.
       //
       case 0x81 => 0x0181
-      case 0x8D => 0x018d
-      case 0x8F => 0x018F
+      case 0x8d => 0x018d
+      case 0x8f => 0x018f
       case 0x90 => 0x0190
-      case 0x9D => 0x019D
+      case 0x9d => 0x019d
       //
       // Non-break space
       //
-      case 0xA0 => 0x2422 // little b with stroke
-      case 0xAD => 0x002D // soft hyphen becomes hyphen
+      case 0xa0 => 0x2422 // little b with stroke
+      case 0xad => 0x002d // soft hyphen becomes hyphen
       case regular => -1 // all other cases -1 means we just use the regular character glyph.
     }
   }
@@ -551,11 +559,10 @@ object Misc {
     val byName =
       aliases.exists { s =>
         !(s.contains("7-BIT")) &&
-          !(s.contains("EBCDIC")) && (
-            s.startsWith("ASCII") ||
-            s.startsWith("US-ASCII") ||
-            s.startsWith("ISO-8859") ||
-            s.startsWith("UTF"))
+        !(s.contains("EBCDIC")) && (s.startsWith("ASCII") ||
+          s.startsWith("US-ASCII") ||
+          s.startsWith("ISO-8859") ||
+          s.startsWith("UTF"))
       }
     if (byName) byName
     else {
@@ -576,7 +583,8 @@ object Misc {
    * Convenient I/O tools
    */
   def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
-    try { f(param) } finally { param.close() }
+    try { f(param) }
+    finally { param.close() }
 
   /**
    * convenience method

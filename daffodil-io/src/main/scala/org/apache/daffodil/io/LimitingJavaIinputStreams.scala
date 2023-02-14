@@ -17,14 +17,15 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.lib.exceptions.Assert
-import java.util.regex.Pattern
-import java.util.Scanner
-import java.nio.charset.Charset
-import java.io.InputStream
 import java.io.FilterInputStream
+import java.io.InputStream
 import java.io.InputStreamReader
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
+import java.util.Scanner
+import java.util.regex.Pattern
+
+import org.apache.daffodil.lib.exceptions.Assert
 
 /**
  * This class can be used with any InputStream to restrict what is
@@ -36,8 +37,7 @@ import java.nio.charset.StandardCharsets
  * Thread safety: This is inherently stateful - so not thread safe to use
  * this object from more than one thread.
  */
-class ExplicitLengthLimitingStream(in: InputStream, limit: Long)
-  extends FilterInputStream(in) {
+class ExplicitLengthLimitingStream(in: InputStream, limit: Long) extends FilterInputStream(in) {
 
   private var numRemaining = limit
 
@@ -66,7 +66,7 @@ class ExplicitLengthLimitingStream(in: InputStream, limit: Long)
     else {
       Assert.invariant(n == 1)
       val i = readBuf(0).toInt
-      val b = i & 0xFF
+      val b = i & 0xff
       b
     }
   }
@@ -92,24 +92,35 @@ class ExplicitLengthLimitingStream(in: InputStream, limit: Long)
  */
 object BoundaryMarkLimitingStream {
 
-  def apply(inputStream: InputStream, boundaryMark: String, charset: Charset,
-    targetChunkSize: Int = 32 * 1024) = {
+  def apply(
+    inputStream: InputStream,
+    boundaryMark: String,
+    charset: Charset,
+    targetChunkSize: Int = 32 * 1024,
+  ) = {
 
     Assert.usage(targetChunkSize >= 1)
     Assert.usage(boundaryMark.length >= 1)
 
-    val boundaryMarkIn8859 = new String(boundaryMark.getBytes(charset), StandardCharsets.ISO_8859_1)
+    val boundaryMarkIn8859 =
+      new String(boundaryMark.getBytes(charset), StandardCharsets.ISO_8859_1)
 
-    val quotedBoundaryMark = Pattern.quote(boundaryMarkIn8859) // in case pattern has non-regex-safe characters in it
+    val quotedBoundaryMark =
+      Pattern.quote(boundaryMarkIn8859) // in case pattern has non-regex-safe characters in it
 
-    val result = new RegexLimitingStream(inputStream, quotedBoundaryMark, boundaryMarkIn8859, charset, targetChunkSize)
+    val result = new RegexLimitingStream(
+      inputStream,
+      quotedBoundaryMark,
+      boundaryMarkIn8859,
+      charset,
+      targetChunkSize,
+    )
     result
   }
 
 }
 
-class StreamIterator[T](s: Stream[T])
-  extends Iterator[T] {
+class StreamIterator[T](s: Stream[T]) extends Iterator[T] {
   private var str = s
   override def hasNext = !str.isEmpty
   override def next() = {
@@ -143,12 +154,13 @@ class StreamIterator[T](s: Stream[T])
  * Thread safety: This is inherently stateful - so not thread safe to use
  * this object from more than one thread.
  */
-class RegexLimitingStream(inputStream: InputStream,
+class RegexLimitingStream(
+  inputStream: InputStream,
   regexForDelimiter: String,
   maximumLengthDelimiterExample: String,
   charset: Charset,
-  targetChunkSize: Int = 32 * 1024)
-  extends InputStream {
+  targetChunkSize: Int = 32 * 1024,
+) extends InputStream {
 
   Assert.usage(targetChunkSize >= 1)
   Assert.usage(maximumLengthDelimiterExample.length >= 1)
@@ -172,11 +184,16 @@ class RegexLimitingStream(inputStream: InputStream,
    * bytes 00 and FF. So this could be %#x00;%#rFF; The 00, or NUL is a legal
    * UTF-8 code point. The FF is not.
    */
-  private val maxDelimiterIn8859 = new String(maximumLengthDelimiterExample.getBytes(charset), StandardCharsets.ISO_8859_1)
+  private val maxDelimiterIn8859 =
+    new String(maximumLengthDelimiterExample.getBytes(charset), StandardCharsets.ISO_8859_1)
 
   private val maxDelimiterLength =
-    math.ceil(maxDelimiterIn8859.length *
-      charset.newEncoder().maxBytesPerChar()).toInt
+    math
+      .ceil(
+        maxDelimiterIn8859.length *
+          charset.newEncoder().maxBytesPerChar(),
+      )
+      .toInt
 
   private val chunkSize = math.max(targetChunkSize, maxDelimiterLength + 1)
 
@@ -186,7 +203,8 @@ class RegexLimitingStream(inputStream: InputStream,
    * Group 1 is the chunk matched with group 2 containing the boundaryMark.
    * Group 3 is the chunk matched if boundaryMark is not found.
    */
-  private val regex = """([\s\S]{0,""" + chunkSize + """}?)(?=(""" + regexForDelimiter + """))|([\s\S]{0,""" + chunkSize + """})"""
+  private val regex =
+    """([\s\S]{0,""" + chunkSize + """}?)(?=(""" + regexForDelimiter + """))|([\s\S]{0,""" + chunkSize + """})"""
   private val pattern = Pattern.compile(regex)
 
   /**
@@ -210,10 +228,11 @@ class RegexLimitingStream(inputStream: InputStream,
     if (charsIter.hasNext) 1 else 0
 
   override def close(): Unit = {
-    //do nothing
+    // do nothing
   }
 
   private var noMoreChunks = false
+
   /**
    * This lazy stream stuff might look like a lot of overhead, but
    * consider that the overhead is once per chunk, so honestly the
@@ -285,4 +304,3 @@ class RegexLimitingStream(inputStream: InputStream,
   }
 
 }
-

@@ -17,15 +17,16 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.runtime1.udf.UserDefinedFunctionProcessingErrorException
-import org.apache.daffodil.udf.exceptions.UserDefinedFunctionProcessingError
-import org.apache.daffodil.runtime1.udf.UserDefinedFunctionFatalErrorException
-import org.apache.daffodil.runtime1.udf.UserDefinedFunctionService.UserDefinedFunctionMethod
 import java.lang.reflect.InvocationTargetException
+
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.runtime1.udf.UserDefinedFunctionFatalErrorException
+import org.apache.daffodil.runtime1.udf.UserDefinedFunctionProcessingErrorException
+import org.apache.daffodil.runtime1.udf.UserDefinedFunctionService.UserDefinedFunctionMethod
+import org.apache.daffodil.udf.UserDefinedFunction
+import org.apache.daffodil.udf.exceptions.UserDefinedFunctionProcessingError
 
 /**
  * Both the serializable evaluate method and the User Defined Function instance are passed in,
@@ -35,8 +36,8 @@ case class UserDefinedFunctionCall(
   functionQNameString: String,
   recipes: List[CompiledDPath],
   userDefinedFunction: UserDefinedFunction,
-  evaluateFxn: UserDefinedFunctionMethod)
-  extends FNArgsList(recipes) {
+  evaluateFxn: UserDefinedFunctionMethod,
+) extends FNArgsList(recipes) {
 
   override def computeValue(values: List[DataValuePrimitive], dstate: DState) = {
     val jValues = values.map { _.getAnyRef.asInstanceOf[Object] }
@@ -51,21 +52,34 @@ case class UserDefinedFunctionCall(
           case te: UserDefinedFunctionProcessingError =>
             throw new UserDefinedFunctionProcessingErrorException(
               s"User Defined Function '$functionQNameString'",
-              Maybe(dstate.compileInfo.schemaFileLocation), dstate.contextLocation, Maybe(te), Maybe.Nope)
+              Maybe(dstate.compileInfo.schemaFileLocation),
+              dstate.contextLocation,
+              Maybe(te),
+              Maybe.Nope,
+            )
           case te: Exception =>
             throw new UserDefinedFunctionFatalErrorException(
               s"User Defined Function '$functionQNameString' Error",
-              te, userDefinedFunction.getClass.getName)
+              te,
+              userDefinedFunction.getClass.getName,
+            )
         }
       }
-      case e @ (_: IllegalArgumentException | _: NullPointerException | _: ReflectiveOperationException) =>
+      case e @ (_: IllegalArgumentException | _: NullPointerException |
+          _: ReflectiveOperationException) =>
         throw new UserDefinedFunctionProcessingErrorException(
           s"User Defined Function '$functionQNameString'",
-          Maybe(dstate.compileInfo.schemaFileLocation), dstate.contextLocation, Maybe(e), Maybe.Nope)
+          Maybe(dstate.compileInfo.schemaFileLocation),
+          dstate.contextLocation,
+          Maybe(e),
+          Maybe.Nope,
+        )
       case e: ExceptionInInitializerError =>
         throw new UserDefinedFunctionFatalErrorException(
           s"User Defined Function '$functionQNameString' Error",
-          e, userDefinedFunction.getClass.getName)
+          e,
+          userDefinedFunction.getClass.getName,
+        )
     }
   }
 }

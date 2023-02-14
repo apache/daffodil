@@ -172,5 +172,4 @@ abstract class AbstractDSOMWalker {
     onTermEnd(termView)
   }
 
-
 }

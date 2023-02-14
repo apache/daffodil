@@ -17,20 +17,20 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.lib.exceptions.Assert
+import java.math.{ BigInteger => JBigInt }
+
+import org.apache.daffodil.core.grammar.LocalElementGrammarMixin
 import org.apache.daffodil.core.grammar._
+import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.core.grammar.LocalElementGrammarMixin
-import org.apache.daffodil.lib.equality._
-import java.math.{ BigInteger => JBigInt }
 
 /**
  * Common to local element decls and element references
  */
-trait LocalElementMixin
-  extends ParticleMixin
-  with LocalElementGrammarMixin { self: ElementBase =>
+trait LocalElementMixin extends ParticleMixin with LocalElementGrammarMixin {
+  self: ElementBase =>
 
   /**
    * True if the length of the SimpleContent region or the ComplexContent region
@@ -40,28 +40,35 @@ trait LocalElementMixin
    * empty representations, and to all aspects of framing - alignment, skip, delimiters
    * etc.
    */
-  final lazy val isContentRegionLengthKnownToBeGreaterThanZero = LV('isContentRegionLengthKnownToBeGreaterThanZero) {
-    val pt = primType
-    val res = lengthKind match {
-      case LengthKind.Explicit => (isFixedLength && (fixedLength > 0))
-      case LengthKind.Prefixed => false
-      case LengthKind.Pattern => lengthPattern.r.findFirstIn("") match { // can regex match nothing?
-        case None => true
-        case Some(s) => false
-      }
-      case LengthKind.Delimited =>
-        (pt != PrimType.String && // delimited strings can be zero length
+  final lazy val isContentRegionLengthKnownToBeGreaterThanZero =
+    LV('isContentRegionLengthKnownToBeGreaterThanZero) {
+      val pt = primType
+      val res = lengthKind match {
+        case LengthKind.Explicit => (isFixedLength && (fixedLength > 0))
+        case LengthKind.Prefixed => false
+        case LengthKind.Pattern =>
+          lengthPattern.r.findFirstIn("") match { // can regex match nothing?
+            case None => true
+            case Some(s) => false
+          }
+        case LengthKind.Delimited =>
+          (pt != PrimType.String && // delimited strings can be zero length
           pt != PrimType.HexBinary) // delimited hexBinary can be zero length
-      case LengthKind.Implicit => {
-        if ((pt =:= PrimType.String || pt =:= PrimType.HexBinary) && self.hasMaxLength && self.maxLength.toBigInteger.compareTo(JBigInt.ZERO) == 1) true
-        else if (representation =:= Representation.Binary) true
-        else false
+        case LengthKind.Implicit => {
+          if (
+            (pt =:= PrimType.String || pt =:= PrimType.HexBinary) && self.hasMaxLength && self.maxLength.toBigInteger
+              .compareTo(JBigInt.ZERO) == 1
+          ) true
+          else if (representation =:= Representation.Binary) true
+          else false
+        }
+        case LengthKind.EndOfParent if isComplexType =>
+          notYetImplemented("lengthKind='endOfParent' for complex type")
+        case LengthKind.EndOfParent =>
+          notYetImplemented("lengthKind='endOfParent' for simple type")
       }
-      case LengthKind.EndOfParent if isComplexType => notYetImplemented("lengthKind='endOfParent' for complex type")
-      case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent' for simple type")
-    }
-    res
-  }.value
+      res
+    }.value
 
   final override def hasKnownRequiredSyntax: Boolean = !couldBeMissing
 
@@ -69,9 +76,14 @@ trait LocalElementMixin
     val res =
       if (minOccurs == 0) true
       else if (isNillable && !hasNilValueRequiredSyntax) true
-      else if (isDefaultable && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.None) true
-      else if (isDefaultable && !hasInitiator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Initiator) true
-      else if (isDefaultable && !hasTerminator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Terminator) true
+      else if (isDefaultable && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.None)
+        true
+      else if (
+        isDefaultable && !hasInitiator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Initiator
+      ) true
+      else if (
+        isDefaultable && !hasTerminator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Terminator
+      ) true
       else if (hasInitiator) {
         //
         // TODO: It is possible that this initiator expression cannot match zero length
@@ -100,8 +112,10 @@ trait LocalElementMixin
         }
       } else if (isSimpleType) {
         primType match {
-          case PrimType.String | PrimType.HexBinary => !isContentRegionLengthKnownToBeGreaterThanZero
-          case PrimType.Boolean => false // Note that textBooleanTrueRep and textBooleanFalseRep cannot contain %ES; so there is no way for an ES as boolean rep.
+          case PrimType.String | PrimType.HexBinary =>
+            !isContentRegionLengthKnownToBeGreaterThanZero
+          case PrimType.Boolean =>
+            false // Note that textBooleanTrueRep and textBooleanFalseRep cannot contain %ES; so there is no way for an ES as boolean rep.
           case _ => false // all other types require some syntax.
         }
       } else if (isComplexType) {

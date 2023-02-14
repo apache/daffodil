@@ -18,23 +18,26 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import java.text.ParsePosition
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.ULocale
-import org.apache.daffodil.lib.exceptions.Assert
+
+import org.apache.daffodil.lib.calendar.DFDLDate
 import org.apache.daffodil.lib.calendar.DFDLDateTime
 import org.apache.daffodil.lib.calendar.DFDLTime
-import org.apache.daffodil.lib.calendar.DFDLDate
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
+import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.runtime1.processors.CalendarEv
 import org.apache.daffodil.runtime1.processors.CalendarLanguageEv
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Processor
-import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
-import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
+
+import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.ULocale
 
 abstract class ConvertTextCalendarProcessorBase(
   override val context: ElementRuntimeData,
-  pattern: String) extends Processor {
+  pattern: String,
+) extends Processor {
   // The dfdl:calendarLanguage property can be a runtime-valued expression.
   // Hence, locale and calendar, derived from it, can also be runtime-valued.
   //
@@ -90,8 +93,8 @@ case class ConvertTextCalendarParser(
   pattern: String,
   hasTZ: Boolean,
   localeEv: CalendarLanguageEv,
-  calendarEv: CalendarEv)
-  extends ConvertTextCalendarProcessorBase(erd, pattern)
+  calendarEv: CalendarEv,
+) extends ConvertTextCalendarProcessorBase(erd, pattern)
   with TextPrimParser {
 
   override lazy val runtimeDependencies = Vector(localeEv, calendarEv)
@@ -154,10 +157,18 @@ case class ConvertTextCalendarParser(
     // exception to be thrown if a Calendar is not valid.
     try {
       calendar.getTime
-      if ((calendar.get(Calendar.YEAR) > start.tunable.maxValidYear) || (calendar.get(Calendar.YEAR) < start.tunable.minValidYear))
-        throw new TunableLimitExceededError(erd.schemaFileLocation,
+      if (
+        (calendar.get(Calendar.YEAR) > start.tunable.maxValidYear) || (calendar.get(
+          Calendar.YEAR,
+        ) < start.tunable.minValidYear)
+      )
+        throw new TunableLimitExceededError(
+          erd.schemaFileLocation,
           "Year value of %s is not within the limits of the tunables minValidYear (%s) and maxValidYear (%s)",
-          calendar.get(Calendar.YEAR), start.tunable.minValidYear, start.tunable.maxValidYear)
+          calendar.get(Calendar.YEAR),
+          start.tunable.minValidYear,
+          start.tunable.maxValidYear,
+        )
     } catch {
       case e: IllegalArgumentException => {
         PE(start, "Unable to parse xs:%s from text: %s. %s", xsdType, str, e.getMessage())
@@ -182,8 +193,8 @@ case class ConvertBinaryCalendarSecMilliParser(
   hasTZ: Boolean,
   binCalRep: BinaryCalendarRep,
   epochCal: Calendar,
-  lengthInBits: Int)
-  extends PrimParser {
+  lengthInBits: Int,
+) extends PrimParser {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -208,14 +219,26 @@ case class ConvertBinaryCalendarSecMilliParser(
     val newTime = cal.getTimeInMillis + millisToAdd
     try {
       cal.setTimeInMillis(newTime)
-      if ((cal.get(Calendar.YEAR) > start.tunable.maxValidYear) || (cal.get(Calendar.YEAR) < start.tunable.minValidYear))
-        throw new TunableLimitExceededError(context.schemaFileLocation,
+      if (
+        (cal.get(Calendar.YEAR) > start.tunable.maxValidYear) || (cal.get(
+          Calendar.YEAR,
+        ) < start.tunable.minValidYear)
+      )
+        throw new TunableLimitExceededError(
+          context.schemaFileLocation,
           "Year value of %s is not within the limits of the tunables minValidYear (%s) and maxValidYear (%s)",
-          cal.get(Calendar.YEAR), start.tunable.minValidYear, start.tunable.maxValidYear)
+          cal.get(Calendar.YEAR),
+          start.tunable.minValidYear,
+          start.tunable.maxValidYear,
+        )
     } catch {
       case e: IllegalArgumentException => {
-        PE(start, "%s milliseconds from the binaryCalendarEpoch is out of range of valid values: %s.",
-          millisToAdd, e.getMessage())
+        PE(
+          start,
+          "%s milliseconds from the binaryCalendarEpoch is out of range of valid values: %s.",
+          millisToAdd,
+          e.getMessage(),
+        )
         return
       }
     }

@@ -28,7 +28,9 @@ import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataIn
  *
  * @param dis the underlying Scala InputSourceDataInputStream
  */
-class InputSourceDataInputStream private[sapi] (private [sapi] val dis: SInputSourceDataInputStream) {
+class InputSourceDataInputStream private[sapi] (
+  private[sapi] val dis: SInputSourceDataInputStream,
+) {
 
   /**
    * Create an InputSourceDataInputStream from a java.io.InputStream
@@ -38,13 +40,12 @@ class InputSourceDataInputStream private[sapi] (private [sapi] val dis: SInputSo
   /**
    * Create an InputSourceDataInputStream from a java.nio.ByteBuffer
    */
-  def this(bb: ByteBuffer) = this(SInputSourceDataInputStream(bb)) 
+  def this(bb: ByteBuffer) = this(SInputSourceDataInputStream(bb))
 
   /**
    * Create an InputSourceDataInputStream from a byte array
    */
   def this(arr: Array[Byte]) = this(SInputSourceDataInputStream(arr))
-
 
   /**
    * Returns true if the input stream has at least 1 bit of data.

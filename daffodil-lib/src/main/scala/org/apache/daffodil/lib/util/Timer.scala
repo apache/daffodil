@@ -108,10 +108,7 @@ object TakTimer {
   def tak(x: Long, y: Long, z: Long): Long = {
     callCount += 1
     if (y < x)
-      tak(
-        tak(x - 1, y, z),
-        tak(y - 1, z, x),
-        tak(z - 1, x, y))
+      tak(tak(x - 1, y, z), tak(y - 1, z, x), tak(z - 1, x, y))
     else
       z
   }
@@ -155,7 +152,7 @@ object TakTimer {
   lazy val takeon: Double = {
     callCount = 0
     val basenanos = Timer.getTimeNS("Calibrating Takeon Units", tak(x, y, z))
-    val takUnit = (1.0E0 * basenanos) / callCount
+    val takUnit = (1.0e0 * basenanos) / callCount
     takUnit
   }
 
@@ -167,7 +164,6 @@ object TakTimer {
 
 }
 
-
 object TimeTracker {
 
   case class SectionTime(var time: Long, var count: Int)
@@ -175,7 +171,7 @@ object TimeTracker {
   /**
    * A mapping of each section of code tracked
    */
-  val sectionTimes = new java.util.HashMap[String,SectionTime]()
+  val sectionTimes = new java.util.HashMap[String, SectionTime]()
 
   /**
    * Used to track the time of child tracked sections so they can be excluded
@@ -217,10 +213,15 @@ object TimeTracker {
    * Output the results of the tracked sections in sorted columnar format.
    */
   def logTimes(): Unit = {
-    val stats = sectionTimes.asScala.toSeq.map { case (name, SectionTime(timeNS, count)) => {
-      val average = timeNS / count
-      (name, timeNS / 1000000000.0, average, count)
-    }}.sortBy(_._2).reverse
+    val stats = sectionTimes.asScala.toSeq
+      .map {
+        case (name, SectionTime(timeNS, count)) => {
+          val average = timeNS / count
+          (name, timeNS / 1000000000.0, average, count)
+        }
+      }
+      .sortBy(_._2)
+      .reverse
 
     val totalTime = stats.map { _._2 }.sum
 
@@ -230,7 +231,7 @@ object TimeTracker {
         "%.3f".format(time),
         "%.2f%%".format(time * 100 / totalTime),
         average.toString,
-        count.toString
+        count.toString,
       )
     }
 
@@ -242,10 +243,10 @@ object TimeTracker {
 
     val formatString =
       "%-" + nameLen + "s  " +
-      "%"  + timeLen + "s  " +
-      "%"  + percentLen + "s  " +
-      "%"  + averageLen + "s  " +
-      "%"  + countLen + "s"
+        "%" + timeLen + "s  " +
+        "%" + percentLen + "s  " +
+        "%" + averageLen + "s  " +
+        "%" + countLen + "s"
 
     Logger.log.info(formatString.format("Name", "Time", "Pct", "Average", "Count"))
     stringStats.foreach { stats =>

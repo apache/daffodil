@@ -24,9 +24,9 @@ import java.lang.{ Integer => JInt }
 import java.lang.{ Long => JLong }
 import java.lang.{ Number => JNumber }
 import java.lang.{ Short => JShort }
+import java.math.RoundingMode
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
-import java.math.RoundingMode
 
 import org.apache.daffodil.lib.api.DataLocation
 import org.apache.daffodil.lib.api.Diagnostic
@@ -37,6 +37,18 @@ import org.apache.daffodil.lib.calendar.DFDLTime
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.lib.util.Numbers.asBigDecimal
+import org.apache.daffodil.lib.util.Numbers.asBigInt
+import org.apache.daffodil.lib.util.Numbers.asBoolean
+import org.apache.daffodil.lib.util.Numbers.asByte
+import org.apache.daffodil.lib.util.Numbers.asDouble
+import org.apache.daffodil.lib.util.Numbers.asFloat
+import org.apache.daffodil.lib.util.Numbers.asInt
+import org.apache.daffodil.lib.util.Numbers.asLong
+import org.apache.daffodil.lib.util.Numbers.asShort
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigDecimal
@@ -54,23 +66,12 @@ import org.apache.daffodil.runtime1.infoset.InfosetWrongNodeType
 import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ProcessingError
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe.Nope
-import org.apache.daffodil.lib.util.Maybe.One
-import org.apache.daffodil.lib.util.Numbers.asBigDecimal
-import org.apache.daffodil.lib.util.Numbers.asBigInt
-import org.apache.daffodil.lib.util.Numbers.asBoolean
-import org.apache.daffodil.lib.util.Numbers.asByte
-import org.apache.daffodil.lib.util.Numbers.asDouble
-import org.apache.daffodil.lib.util.Numbers.asFloat
-import org.apache.daffodil.lib.util.Numbers.asInt
-import org.apache.daffodil.lib.util.Numbers.asLong
-import org.apache.daffodil.lib.util.Numbers.asShort
 
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 
-case class FNAbs(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class FNAbs(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
   override def computeValue(v: DataValuePrimitive, dstate: DState) = {
     val value = asBigDecimal(v.getAnyRef).abs
     argType match {
@@ -83,27 +84,39 @@ case class FNAbs(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg
       case NodeInfo.Integer => asBigInt(value)
       case NodeInfo.Short => asShort(value)
       case NodeInfo.Byte => asByte(value)
-      case _ => Assert.invariantFailed(String.format("Type %s is not a valid type for function abs.", argType))
+      case _ =>
+        Assert.invariantFailed(
+          String.format("Type %s is not a valid type for function abs.", argType),
+        )
     }
   }
 }
 
-case class FNStringLength(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: DataValuePrimitive, dstate: DState):DataValueLong = str.getString.length.toLong
+case class FNStringLength(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
+  override def computeValue(str: DataValuePrimitive, dstate: DState): DataValueLong =
+    str.getString.length.toLong
 }
 
-case class FNLowerCase(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: DataValuePrimitive, dstate: DState):DataValueString = str.getString.toLowerCase
+case class FNLowerCase(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
+  override def computeValue(str: DataValuePrimitive, dstate: DState): DataValueString =
+    str.getString.toLowerCase
 }
 
-case class FNUpperCase(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: DataValuePrimitive, dstate: DState):DataValueString = str.getString.toUpperCase
+case class FNUpperCase(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
+  override def computeValue(str: DataValuePrimitive, dstate: DState): DataValueString =
+    str.getString.toUpperCase
 }
 
 case class FNConcat(recipes: List[CompiledDPath]) extends FNArgsList(recipes) {
-  override def computeValue(values: List[DataValuePrimitive], dstate: DState):DataValueString = {
+  override def computeValue(
+    values: List[DataValuePrimitive],
+    dstate: DState,
+  ): DataValueString = {
     val ans = new StringBuilder()
-    for(i <- 0 to values.length-1){
+    for (i <- 0 to values.length - 1) {
       ans.append(values(i).getAnyRef.toString())
     }
     ans.toString()
@@ -155,14 +168,17 @@ trait SubstringKind {
         val sp =
           if (rounded <= 0) 0
           else rounded - 1 // adjust to zero-based
-        val ep = sourceString.length() // Pos Infinity for length, so result is whole string from startLoc
+        val ep =
+          sourceString
+            .length() // Pos Infinity for length, so result is whole string from startLoc
         substr(sourceString, sp, ep)
       } else {
         val rounded = startingLoc.round.toInt
         val sp =
           if (rounded <= 0) 0
           else rounded - 1 // adjust to zero-based
-        val ep = rounded + length.round.toInt - 1 // startLoc + len yields endLoc, adust to zero-based
+        val ep =
+          rounded + length.round.toInt - 1 // startLoc + len yields endLoc, adust to zero-based
         substr(sourceString, sp, ep)
       }
     result
@@ -189,13 +205,18 @@ trait SubstringKind {
 case class FNSubstring2(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes)
   with SubstringKind {
+
   /**
    * The two argument version of the function assumes that \$length is infinite
    * and returns the characters in \$sourceString whose position \$p obeys:
    *
    * fn:round(\$startingLoc) <= \$p < fn:round(INF)
    */
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValueString = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueString = {
     val sourceString = arg1.getString
     val startingLoc = asDouble(arg2.getAnyRef).doubleValue()
     val length = Double.PositiveInfinity
@@ -219,7 +240,12 @@ case class FNSubstring3(recipes: List[CompiledDPath])
    *
    * See: http://www.w3.org/TR/xpath-functions/#func-substring
    */
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, arg3: DataValuePrimitive, dstate: DState): DataValueString = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    arg3: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueString = {
     val sourceString = arg1.getString
     val startingLoc = asDouble(arg2.getAnyRef)
     val length = asDouble(arg3.getAnyRef)
@@ -232,7 +258,11 @@ case class FNSubstringBefore(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes)
   with SubstringKind {
 
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValueString = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueString = {
     val sourceString: String = arg1.getString
     val searchString: String = arg2.getString
 
@@ -251,7 +281,11 @@ case class FNSubstringAfter(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes)
   with SubstringKind {
 
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValueString = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueString = {
     val sourceString: String = arg1.getString
     val searchString: String = arg2.getString
 
@@ -269,16 +303,32 @@ case class FNSubstringAfter(recipes: List[CompiledDPath])
 case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
   val name = "FNDateTime"
 
-  private def calendarToDFDLDateTime(calendar: Calendar, hasTZ: Boolean, dstate: DState, fncName: String, toType: String): DFDLCalendar = {
+  private def calendarToDFDLDateTime(
+    calendar: Calendar,
+    hasTZ: Boolean,
+    dstate: DState,
+    fncName: String,
+    toType: String,
+  ): DFDLCalendar = {
     try {
       val cal = DFDLDateTime(calendar, hasTZ)
       return cal
     } catch {
       case ex: java.lang.IllegalArgumentException =>
-        dstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, calendar.toString, toType, ex.getMessage())
+        dstate.SDE(
+          "Conversion Error: %s failed to convert \"%s\" to %s. Due to %s",
+          fncName,
+          calendar.toString,
+          toType,
+          ex.getMessage(),
+        )
     }
   }
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState):DataValueCalendar = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueCalendar = {
     val dateCalendar = arg1.getCalendar
     val timeCalendar = arg2.getCalendar
 
@@ -320,7 +370,8 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
       }
       case (true, false) => newCal.setTimeZone(dateTZ)
       case (false, true) => newCal.setTimeZone(timeTZ)
-      case (true, true) if dateTZ != timeTZ => dstate.SDE("The two arguments to fn:dateTime have inconsistent timezones")
+      case (true, true) if dateTZ != timeTZ =>
+        dstate.SDE("The two arguments to fn:dateTime have inconsistent timezones")
       case (true, true) => newCal.setTimeZone(dateTZ)
     }
 
@@ -340,7 +391,10 @@ case class FNRoundHalfToEven(recipeNum: CompiledDPath, recipePrecision: Compiled
     recipePrecision.run(dstate)
     val precision = dstate.intValue
     val bd = unrounded.getAnyRef match {
-      case s: String => new JBigDecimal(s) // TODO: Remove eventually. Holdover from JDOM where everything is a string.
+      case s: String =>
+        new JBigDecimal(
+          s,
+        ) // TODO: Remove eventually. Holdover from JDOM where everything is a string.
       case l: JLong => JBigDecimal.ONE
       case f: JFloat => JBigDecimal.valueOf(f.toDouble)
       case d: JDouble => JBigDecimal.valueOf(d)
@@ -372,7 +426,7 @@ trait FNRoundHalfToEvenKind {
    *
    * NOTE: Java does not appear to make a distinction between pos or neg zero.
    */
-  def compute(value: DataValuePrimitive, precision: Int):DataValuePrimitive = {
+  def compute(value: DataValuePrimitive, precision: Int): DataValuePrimitive = {
     // We should only receive 'Numeric' types here which are either
     // xs:double, xs:float, xs:decimal, xs:integer or a sub-type thereof.
     //
@@ -385,9 +439,17 @@ trait FNRoundHalfToEvenKind {
       roundedValue
     }
 
-    val result:DataValuePrimitive = value.getAnyRef match {
-      case f: JFloat if (f.isNaN() || f == 0 || f.floatValue().isPosInfinity || f.floatValue().isNegInfinity) => f
-      case d: JDouble if (d.isNaN() || d == 0 || d.doubleValue().isPosInfinity || d.doubleValue().isNegInfinity) => d
+    val result: DataValuePrimitive = value.getAnyRef match {
+      case f: JFloat
+          if (f.isNaN() || f == 0 || f.floatValue().isPosInfinity || f
+            .floatValue()
+            .isNegInfinity) =>
+        f
+      case d: JDouble
+          if (d.isNaN() || d == 0 || d.doubleValue().isPosInfinity || d
+            .doubleValue()
+            .isNegInfinity) =>
+        d
       //
       // This used to be a single big case like:
       // case _:Float | _: Double | ... | _: Short => ....
@@ -402,7 +464,10 @@ trait FNRoundHalfToEvenKind {
       case _: JInt => roundIt
       case _: JByte => roundIt
       case _: JShort => roundIt
-      case _ => Assert.invariantFailed("Unrecognized numeric type. Must be xs:float, xs:double, xs:decimal, xs:integer or a type derived from these.")
+      case _ =>
+        Assert.invariantFailed(
+          "Unrecognized numeric type. Must be xs:float, xs:double, xs:decimal, xs:integer or a type derived from these.",
+        )
     }
     result
   }
@@ -421,8 +486,12 @@ trait FNRoundHalfToEvenKind {
       // will affect the correctness of this rounding operation.
       //
       case _: JFloat | _: JDouble | _: JBigDecimal => asBigDecimal(value.getAnyRef)
-      case _: JBigInt | _: JLong | _: JInt | _: JByte | _: JShort => asBigDecimal(value.getAnyRef)
-      case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")
+      case _: JBigInt | _: JLong | _: JInt | _: JByte | _: JShort =>
+        asBigDecimal(value.getAnyRef)
+      case _ =>
+        Assert.usageError(
+          "Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.",
+        )
     }
     result
   }
@@ -439,14 +508,21 @@ trait FNRoundHalfToEvenKind {
    * If the type of \$arg is a type derived from one of the numeric types, the
    * result is an instance of the base numeric type.
    */
-  private def toBaseNumericType(value: DataValueBigDecimal, origValue: DataValuePrimitive): DataValuePrimitive = {
-    val result:DataValuePrimitive = origValue.getAnyRef match {
+  private def toBaseNumericType(
+    value: DataValueBigDecimal,
+    origValue: DataValuePrimitive,
+  ): DataValuePrimitive = {
+    val result: DataValuePrimitive = origValue.getAnyRef match {
       case _: JFloat => value.getBigDecimal.floatValue() // xs:float
       case _: JDouble => value.getBigDecimal.doubleValue() // xs:double
       case _: JBigDecimal => value
       case _: JBigInt => value.getBigDecimal.toBigInteger()
-      case _: JLong | _: JInt | _: JByte | _: JShort => value.getBigDecimal.toBigInteger() // xs:integer
-      case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")
+      case _: JLong | _: JInt | _: JByte | _: JShort =>
+        value.getBigDecimal.toBigInteger() // xs:integer
+      case _ =>
+        Assert.usageError(
+          "Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.",
+        )
     }
     result
   }
@@ -488,7 +564,11 @@ case class FNRoundHalfToEven2(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes)
   with FNRoundHalfToEvenKind {
 
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState) = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ) = {
     val precision = asInt(arg2.getAnyRef)
     val roundedValue = compute(arg1, precision)
     roundedValue
@@ -525,13 +605,14 @@ trait ExistsKind {
   def exists(recipe: CompiledDPath, dstate: DState): Boolean = {
     dstate.fnExists() // hook so we can insist this is non-constant at compile time.
 
-    val res = try {
-      recipe.run(dstate)
-      true
-    } catch {
-      case ue: UnsuppressableException => throw ue
-      case th: Throwable => handleThrow(th, dstate)
-    }
+    val res =
+      try {
+        recipe.run(dstate)
+        true
+      } catch {
+        case ue: UnsuppressableException => throw ue
+        case th: Throwable => handleThrow(th, dstate)
+      }
     res
   }
 
@@ -669,7 +750,9 @@ case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
     val localName = dstate.currentElement.name
 
     if (localName.contains(":"))
-      throw new IllegalArgumentException("fn:local-name failed. " + localName + " is not a valid NCName as it contains ':'.")
+      throw new IllegalArgumentException(
+        "fn:local-name failed. " + localName + " is not a valid NCName as it contains ':'.",
+      )
 
     dstate.setCurrentValue(localName)
   }
@@ -683,7 +766,9 @@ case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
 case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   override def computeValue(value: DataValuePrimitive, dstate: DState) = {
-    Assert.usageError("not to be called. DPath compiler should be answering this without runtime calls.")
+    Assert.usageError(
+      "not to be called. DPath compiler should be answering this without runtime calls.",
+    )
   }
 
   override def run(dstate: DState): Unit = {
@@ -699,7 +784,9 @@ case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
     dstate.setCurrentNode(savedNode)
 
     if (localName.contains(":"))
-      throw new IllegalArgumentException("fn:local-name failed. " + localName + " is not a valid NCName as it contains ':'.")
+      throw new IllegalArgumentException(
+        "fn:local-name failed. " + localName + " is not a valid NCName as it contains ':'.",
+      )
 
     dstate.setCurrentValue(localName)
   }
@@ -751,7 +838,9 @@ case class FNNamespaceUri0(recipe: CompiledDPath, argType: NodeInfo.Kind)
 case class FNNamespaceUri1(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   override def computeValue(value: DataValuePrimitive, dstate: DState) = {
-    Assert.usageError("not to be called. DPath compiler should be answering this without runtime calls.")
+    Assert.usageError(
+      "not to be called. DPath compiler should be answering this without runtime calls.",
+    )
   }
 
   override def run(dstate: DState): Unit = {
@@ -780,7 +869,8 @@ case class FNNamespaceUri1(recipe: CompiledDPath, argType: NodeInfo.Kind)
   }
 }
 
-case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
   override def computeValue(value: DataValuePrimitive, dstate: DState) = argType match {
 
     case NodeInfo.Decimal => {
@@ -790,11 +880,15 @@ case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOn
     case NodeInfo.Float => asFloat(value.getAnyRef).floatValue().ceil
     case NodeInfo.Double => asDouble(value.getAnyRef).doubleValue().ceil
     case _: NodeInfo.Numeric.Kind => value
-    case _ => Assert.invariantFailed(String.format("Type %s is not a valid type for function ceiling.", argType))
+    case _ =>
+      Assert.invariantFailed(
+        String.format("Type %s is not a valid type for function ceiling.", argType),
+      )
   }
 }
 
-case class FNFloor(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class FNFloor(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
   override def computeValue(value: DataValuePrimitive, dstate: DState) = argType match {
 
     case NodeInfo.Decimal => {
@@ -804,13 +898,17 @@ case class FNFloor(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneA
     case NodeInfo.Float => asFloat(value.getAnyRef).floatValue().floor
     case NodeInfo.Double => asDouble(value.getAnyRef).doubleValue().floor
     case _: NodeInfo.Numeric.Kind => value
-    case _ => Assert.invariantFailed(String.format("Type %s is not a valid type for function floor.", argType))
+    case _ =>
+      Assert.invariantFailed(
+        String.format("Type %s is not a valid type for function floor.", argType),
+      )
   }
 }
 
-case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
   override def computeValue(value: DataValuePrimitive, dstate: DState) = {
-    val res:DataValuePrimitive = argType match {
+    val res: DataValuePrimitive = argType match {
       case NodeInfo.Decimal => {
         val bd = asBigDecimal(value.getAnyRef)
         //
@@ -823,16 +921,19 @@ case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneA
         val f = asFloat(value.getAnyRef).floatValue()
         if (f.isPosInfinity || f.isNegInfinity) f
         else if (f.isNaN()) throw new NumberFormatException("fn:round received NaN")
-        else f.round:Float
+        else f.round: Float
       }
       case NodeInfo.Double => {
         val d = asDouble(value.getAnyRef).doubleValue()
         if (d.isPosInfinity || d.isNegInfinity) d
         else if (d.isNaN()) throw new NumberFormatException("fn:round received NaN")
-        else d.round:Double
+        else d.round: Double
       }
       case _: NodeInfo.Numeric.Kind => value
-      case _ => Assert.invariantFailed(String.format("Type %s is not a valid type for function round.", argType))
+      case _ =>
+        Assert.invariantFailed(
+          String.format("Type %s is not a valid type for function round.", argType),
+        )
     }
     res
   }
@@ -849,7 +950,10 @@ abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
     a.getAnyRef match {
       case dt: DFDLDateTime => JBigInt.valueOf(dt.calendar.get(field))
-      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
+      case _ =>
+        throw new NumberFormatException(
+          "fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.",
+        )
     }
   }
 }
@@ -860,7 +964,8 @@ abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
     a.getAnyRef match {
       case d: DFDLDate => JBigInt.valueOf(d.calendar.get(field))
-      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-date only accepts xs:date.")
+      case _ =>
+        throw new NumberFormatException("fn:" + fieldName + "-from-date only accepts xs:date.")
     }
   }
 }
@@ -871,7 +976,8 @@ abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueNumber = {
     a.getAnyRef match {
       case t: DFDLTime => JBigInt.valueOf(t.calendar.get(field))
-      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-time only accepts xs:time.")
+      case _ =>
+        throw new NumberFormatException("fn:" + fieldName + "-from-time only accepts xs:time.")
     }
   }
 }
@@ -936,7 +1042,10 @@ case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
           d
         }
       }
-      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
+      case _ =>
+        throw new NumberFormatException(
+          "fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.",
+        )
     }
     asBigDecimal(res)
   }
@@ -990,19 +1099,26 @@ case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
           d
         }
       }
-      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
+      case _ =>
+        throw new NumberFormatException(
+          "fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.",
+        )
     }
     asBigDecimal(res)
   }
 }
 
-case class FNContains(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes) {
+case class FNContains(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
+
   /**
    * Returns an xs:boolean indicating whether or not the value of \$arg1 contains
    * (at the beginning, at the end, or anywhere within) \$arg2.
    */
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValueBool = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueBool = {
     val sourceString = arg1.getString
     val valueString = arg2.getString
 
@@ -1017,13 +1133,17 @@ case class FNContains(recipes: List[CompiledDPath])
   }
 }
 
-case class FNStartsWith(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes) {
+case class FNStartsWith(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
+
   /**
    *  Returns an xs:boolean indicating whether or not the
    *  value of \$arg1 starts with \$arg2.
    */
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValueBool = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueBool = {
     val sourceString = arg1.getString
     val prefixString = arg2.getString
 
@@ -1039,13 +1159,17 @@ case class FNStartsWith(recipes: List[CompiledDPath])
   }
 }
 
-case class FNEndsWith(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes) {
+case class FNEndsWith(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
+
   /**
    * Returns an xs:boolean indicating whether or not the
    * value of \$arg1 ends with \$arg2.
    */
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValueBool = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueBool = {
     val sourceString = arg1.getString
     val postfixString = arg2.getString
 
@@ -1066,8 +1190,11 @@ trait FNErrorException {
   def asDiagnostic = self
 }
 
-case class FNErrorFunctionException(schemaContext: Maybe[SchemaFileLocation], dataContext: Maybe[DataLocation], errorMessage: String)
-  extends ProcessingError("Expression Evaluation", schemaContext, dataContext, errorMessage)
+case class FNErrorFunctionException(
+  schemaContext: Maybe[SchemaFileLocation],
+  dataContext: Maybe[DataLocation],
+  errorMessage: String,
+) extends ProcessingError("Expression Evaluation", schemaContext, dataContext, errorMessage)
   with FNErrorException
 
 case class FNError(recipes: List[CompiledDPath]) extends FNArgsList(recipes) {

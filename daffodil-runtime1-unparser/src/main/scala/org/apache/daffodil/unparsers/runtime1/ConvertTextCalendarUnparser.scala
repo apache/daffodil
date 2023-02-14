@@ -17,25 +17,24 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
+import org.apache.daffodil.lib.calendar.DFDLCalendar
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.processors.CalendarEv
+import org.apache.daffodil.runtime1.processors.CalendarLanguageEv
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.parsers.ConvertTextCalendarProcessorBase
 import org.apache.daffodil.runtime1.processors.unparsers._
 
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.ULocale
 
-import org.apache.daffodil.lib.calendar.DFDLCalendar
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.CalendarEv
-import org.apache.daffodil.runtime1.processors.CalendarLanguageEv
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.processors.parsers.ConvertTextCalendarProcessorBase
-
 case class ConvertTextCalendarUnparser(
   erd: ElementRuntimeData,
   pattern: String,
   localeEv: CalendarLanguageEv,
-  calendarEv: CalendarEv)
-  extends ConvertTextCalendarProcessorBase(erd, pattern)
+  calendarEv: CalendarEv,
+) extends ConvertTextCalendarProcessorBase(erd, pattern)
   with TextPrimUnparser {
 
   /**
@@ -51,7 +50,13 @@ case class ConvertTextCalendarUnparser(
 
     val infosetCalendar = node.dataValue.getAnyRef match {
       case dc: DFDLCalendar => dc.calendar
-      case x => Assert.invariantFailed("ConvertTextCalendar received unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
+      case x =>
+        Assert.invariantFailed(
+          "ConvertTextCalendar received unsupported type. %s of type %s.".format(
+            x,
+            Misc.getNameFromClass(x),
+          ),
+        )
     }
 
     val locale: ULocale = localeEv.evaluate(state)
@@ -104,7 +109,7 @@ case class ConvertTextCalendarUnparser(
       infosetCalendar.get(Calendar.DAY_OF_MONTH),
       infosetCalendar.get(Calendar.HOUR_OF_DAY),
       infosetCalendar.get(Calendar.MINUTE),
-      infosetCalendar.get(Calendar.SECOND)
+      infosetCalendar.get(Calendar.SECOND),
     )
     calendar.set(Calendar.MILLISECOND, infosetCalendar.get(Calendar.MILLISECOND))
     calendar.setTimeZone(infosetCalendar.getTimeZone)

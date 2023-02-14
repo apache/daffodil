@@ -17,21 +17,22 @@
 
 package org.apache.daffodil.runtime1.api
 
-import org.apache.daffodil.lib.api._
-
 import java.io.File
-import org.xml.sax.SAXException
-import org.xml.sax.XMLReader
-import org.xml.sax.ContentHandler
+
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.api.WithDiagnostics
+import org.apache.daffodil.lib.api._
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
-import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.ProcessorResult
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.VariableMap
+
+import org.xml.sax.ContentHandler
+import org.xml.sax.SAXException
+import org.xml.sax.XMLReader
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -112,7 +113,8 @@ object DFDL {
     def compileSource(
       schemaSource: DaffodilSchemaSource,
       optRootNodeName: Option[String] = None,
-      optRootNodeNamespace: Option[String] = None): ProcessorFactory
+      optRootNodeNamespace: Option[String] = None,
+    ): ProcessorFactory
 
     def reload(savedParser: File): DataProcessor
   }
@@ -122,6 +124,7 @@ object DFDL {
    * and/or generation of source code to process data matching the compiled schema
    */
   trait ProcessorFactory extends WithDiagnostics {
+
     /**
      * Returns a [[DataProcessor]] to process data matching a compiled XPath expression
      * @param xpath XPath expression in DFDL schema that data should match (you can use only "/" at this time)
@@ -140,6 +143,7 @@ object DFDL {
    * which must be interrogated for diagnostics to see if each call was successful or not.
    */
   trait CodeGenerator extends WithDiagnostics {
+
     /**
      * Generates language-specific code from a DFDL schema to parse or unparse data
      * @param outputDir output directory in which to create code directory (codeDir)
@@ -156,18 +160,19 @@ object DFDL {
   }
 
   trait DataProcessor extends WithDiagnostics {
+
     /**
      * Returns a data processor with all the same state, but the validation mode changed to that of the argument.
      *
      * Note that the default validation mode is "off", that is, no validation is performed.
      */
-    def withValidationMode(mode:ValidationMode.Type): DataProcessor
+    def withValidationMode(mode: ValidationMode.Type): DataProcessor
     def withTunable(name: String, value: String): DataProcessor
     def withTunables(tunables: Map[String, String]): DataProcessor
     def withExternalVariables(extVars: Map[String, String]): DataProcessor
     def withExternalVariables(extVars: File): DataProcessor
     def withExternalVariables(extVars: Seq[Binding]): DataProcessor
-    def withDebugger(dbg:AnyRef): DataProcessor
+    def withDebugger(dbg: AnyRef): DataProcessor
     def withDebugging(flag: Boolean): DataProcessor
 
     def save(output: DFDL.Output): Unit
@@ -239,6 +244,7 @@ object DFDL {
   }
 
   trait UnparseResult extends Result with WithDiagnostics {
+
     /**
      * Data is 'scannable' if it consists entirely of textual data, and that data
      * is all in the same encoding.

@@ -18,23 +18,22 @@
 package org.apache.daffodil.core.runtime1
 
 import org.apache.daffodil.core.dsom._
-
-import org.apache.daffodil.lib.xml.QNameBase
 import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.runtime1.dsom._
-import org.apache.daffodil.runtime1.processors.ByteOrderEv
-import org.apache.daffodil.runtime1.processors.CheckBitOrderAndCharsetEv
-import org.apache.daffodil.runtime1.processors.CheckByteAndBitOrderEv
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.lib.schema.annotation.props.gen.NilKind
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.NilKind
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.xml.QNameBase
+import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.infoset.DoNotUseThisResolver
 import org.apache.daffodil.runtime1.infoset.NoNextElement
 import org.apache.daffodil.runtime1.infoset.OnlyOnePossibilityForNextElement
 import org.apache.daffodil.runtime1.infoset.PartialNextElementResolver
 import org.apache.daffodil.runtime1.infoset.SeveralPossibilitiesForNextElement
-import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.processors.ByteOrderEv
+import org.apache.daffodil.runtime1.processors.CheckBitOrderAndCharsetEv
+import org.apache.daffodil.runtime1.processors.CheckByteAndBitOrderEv
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 
 /**
  * A set of possibilities for elements that can arrive as events
@@ -207,8 +206,10 @@ trait TermRuntime1Mixin { self: Term =>
    * Within the lexically enclosing model group, if that group is a sequence, then
    * this computation involves subsequent siblings, children of those siblings.
    */
-  lazy val (hasNamesDifferingOnlyByNS: Boolean,
-    possibleNextLexicalSiblingStreamingUnparserElements: PossibleNextElements) = {
+  lazy val (
+    hasNamesDifferingOnlyByNS: Boolean,
+    possibleNextLexicalSiblingStreamingUnparserElements: PossibleNextElements,
+  ) = {
     var hasNamesDifferingOnlyByNS = false
     val possibles = this match {
       // Quasi elements are used for type-value calc, and for prefixed lengths
@@ -244,24 +245,25 @@ trait TermRuntime1Mixin { self: Term =>
     }
     if (sibs.size > 1) {
       val groupedByName = possibles.pnes.groupBy(_.e.namedQName.local)
-      groupedByName.foreach {
-        case (_, sameNamesEB) =>
-          if (sameNamesEB.length > 1) {
-            SDW(
-              WarnID.NamespaceDifferencesOnly,
-              "Neighboring QNames differ only by namespaces. " +
-                "Infoset representations that do not support namespaces " +
-                "cannot differentiate between these elements and " +
-                "may fail to unparse. QNames are: %s",
-              sameNamesEB.map(_.e.namedQName.toExtendedSyntax).mkString(", "))
-            hasNamesDifferingOnlyByNS = true
-          }
+      groupedByName.foreach { case (_, sameNamesEB) =>
+        if (sameNamesEB.length > 1) {
+          SDW(
+            WarnID.NamespaceDifferencesOnly,
+            "Neighboring QNames differ only by namespaces. " +
+              "Infoset representations that do not support namespaces " +
+              "cannot differentiate between these elements and " +
+              "may fail to unparse. QNames are: %s",
+            sameNamesEB.map(_.e.namedQName.toExtendedSyntax).mkString(", "),
+          )
+          hasNamesDifferingOnlyByNS = true
+        }
       }
     }
     (hasNamesDifferingOnlyByNS, possibles)
   }
 
-  final protected lazy val possibleSelfPlusNextLexicalSiblingStreamingUnparserElements: PossibleNextElements =
+  final protected lazy val possibleSelfPlusNextLexicalSiblingStreamingUnparserElements
+    : PossibleNextElements =
     LV('possibleSelfPlusNextLexicalSiblingStreamingUnparserElements) {
       val thisItself: PossibleNextElements = this match {
         //
@@ -324,7 +326,9 @@ trait TermRuntime1Mixin { self: Term =>
           //
           val subTerms = stb.groupMembers
           val res =
-            subTerms.headOption.map { _.possibleSelfPlusNextLexicalSiblingStreamingUnparserElements }
+            subTerms.headOption.map {
+              _.possibleSelfPlusNextLexicalSiblingStreamingUnparserElements
+            }
           res.getOrElse(Open(Nil))
         }
       }
@@ -338,7 +342,8 @@ trait TermRuntime1Mixin { self: Term =>
         case _ => {
           val res: PossibleNextElements =
             (thisItself, followingLexicalSiblingStreamingUnparserElements) match {
-              case (Open(pnes1), Closed(Nil)) => thisItself // case of Open(...) followed by end of complex element.
+              case (Open(pnes1), Closed(Nil)) =>
+                thisItself // case of Open(...) followed by end of complex element.
               case (poss1, Closed(pnes2)) => Closed((poss1.pnes ++ pnes2).distinct)
               case (poss1, poss2) => Open((poss1.pnes ++ poss2.pnes).distinct)
             }
@@ -365,7 +370,9 @@ trait TermRuntime1Mixin { self: Term =>
           //
           // compute what is possible for each of them.
           //
-          val sibPossibles = sibTerms.map { _.possibleSelfPlusNextLexicalSiblingStreamingUnparserElements }
+          val sibPossibles = sibTerms.map {
+            _.possibleSelfPlusNextLexicalSiblingStreamingUnparserElements
+          }
           //
           // split the possibles into the opens and closed lists
           // Then assemble the opens plus the first closed if it exists.
@@ -405,8 +412,7 @@ trait TermRuntime1Mixin { self: Term =>
           Closed(Nil)
         }
         case _ =>
-          Assert.invariantFailed(
-            "unexpected lexical parent type for term: " + lexicalParent)
+          Assert.invariantFailed("unexpected lexical parent type for term: " + lexicalParent)
       }
     }.value
 
@@ -428,7 +434,8 @@ trait TermRuntime1Mixin { self: Term =>
         val (sibs, isRequiredStreamingUnparserEvent) = possibles match {
           case PossibleNextElements.Closed(sibs) => (sibs, true)
           case PossibleNextElements.Open(sibs) => (sibs, false)
-          case PossibleNextElements.DoNotUse => Assert.invariantFailed("should never be DoNotUse")
+          case PossibleNextElements.DoNotUse =>
+            Assert.invariantFailed("should never be DoNotUse")
         }
         //
         // Annoying, but scala's immutable Map is not covariant in its first argument
@@ -436,21 +443,27 @@ trait TermRuntime1Mixin { self: Term =>
         // So Map[NamedQName, ElementRuntimeData] is not a subtype of Map[QNameBase, ElementRuntimeData]
         // So we need a cast upward to Map[QNameBase,ElementRuntimeData]
         //
-        val eltMap = sibs.map {
-          sib => (sib.e.namedQName, sib.e.erd)
-        }.toMap.asInstanceOf[Map[QNameBase, ElementRuntimeData]]
+        val eltMap = sibs
+          .map { sib =>
+            (sib.e.namedQName, sib.e.erd)
+          }
+          .toMap
+          .asInstanceOf[Map[QNameBase, ElementRuntimeData]]
         val resolver = eltMap.size match {
           case 0 => new NoNextElement(trd, isRequiredStreamingUnparserEvent)
-          case 1 => new OnlyOnePossibilityForNextElement(
-            trd,
-            sibs.head.e.erd,
-            isRequiredStreamingUnparserEvent)
+          case 1 =>
+            new OnlyOnePossibilityForNextElement(
+              trd,
+              sibs.head.e.erd,
+              isRequiredStreamingUnparserEvent,
+            )
           case _ => {
             new SeveralPossibilitiesForNextElement(
               trd,
               eltMap,
               hasNamesDifferingOnlyByNS,
-              isRequiredStreamingUnparserEvent)
+              isRequiredStreamingUnparserEvent,
+            )
           }
         }
         resolver
@@ -528,7 +541,9 @@ trait TermRuntime1Mixin { self: Term =>
     val stmtRefs = statementContentParserReferencedElementInfos
     val calcRefs = calcContentParserReferencedElementInfos
     val locRefs = propRefs ++ stmtRefs ++ calcRefs
-    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.contentLengthParserReferencedElementInfos) }
+    val res = realChildren.foldLeft(locRefs) { (s, i) =>
+      s.union(i.contentLengthParserReferencedElementInfos)
+    }
     res
   }
 
@@ -541,7 +556,9 @@ trait TermRuntime1Mixin { self: Term =>
     val stmtRefs = statementContentUnparserReferencedElementInfos
     val calcRefs = calcContentUnparserReferencedElementInfos
     val locRefs = propRefs ++ stmtRefs ++ calcRefs
-    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.contentLengthUnparserReferencedElementInfos) }
+    val res = realChildren.foldLeft(locRefs) { (s, i) =>
+      s.union(i.contentLengthUnparserReferencedElementInfos)
+    }
     res
   }
 
@@ -554,7 +571,9 @@ trait TermRuntime1Mixin { self: Term =>
     val stmtRefs = statementValueParserReferencedElementInfos
     val calcRefs = calcValueParserReferencedElementInfos
     val locRefs = propRefs ++ stmtRefs ++ calcRefs
-    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.valueLengthParserReferencedElementInfos) }
+    val res = realChildren.foldLeft(locRefs) { (s, i) =>
+      s.union(i.valueLengthParserReferencedElementInfos)
+    }
     res
   }
 
@@ -567,7 +586,9 @@ trait TermRuntime1Mixin { self: Term =>
     val stmtRefs = statementValueUnparserReferencedElementInfos
     val calcRefs = calcValueUnparserReferencedElementInfos
     val locRefs = propRefs ++ stmtRefs ++ calcRefs
-    val res = realChildren.foldLeft(locRefs) { (s, i) => s.union(i.valueLengthUnparserReferencedElementInfos) }
+    val res = realChildren.foldLeft(locRefs) { (s, i) =>
+      s.union(i.valueLengthUnparserReferencedElementInfos)
+    }
     res
   }
 
@@ -586,8 +607,7 @@ trait TermRuntime1Mixin { self: Term =>
       Maybe.Nope
     else {
       val checkByteAndBitOrder = {
-        val ev = new CheckByteAndBitOrderEv(ci, defaultBitOrder,
-          mboEv)
+        val ev = new CheckByteAndBitOrderEv(ci, defaultBitOrder, mboEv)
         ev.compile(tunable)
         ev
       }

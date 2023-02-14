@@ -17,30 +17,30 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.runtime1.dsom.CompiledExpression
+import scala.collection.JavaConverters._
+
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.cookers.Converter
-import org.apache.daffodil.lib.xml.NamedQName
-import org.apache.daffodil.lib.xml.GlobalQName
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.MStackOfMaybe
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.exceptions.Assert
-
-import scala.collection.JavaConverters._
-import org.apache.daffodil.runtime1.dpath.ExpressionEvaluationException
-import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.runtime1.processors.unparsers.UState
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.xml.GlobalQName
+import org.apache.daffodil.lib.xml.NamedQName
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.EvalMode
+import org.apache.daffodil.runtime1.dpath.ExpressionEvaluationException
 import org.apache.daffodil.runtime1.dpath.UnparserNonBlocking
-import org.apache.daffodil.lib.util.MStackOfMaybe
+import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.dsom.ContentValueReferencedElementInfoMixin
+import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
+import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.parsers.DoSDEMixin
 import org.apache.daffodil.runtime1.processors.parsers.PState
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
-import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
+import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 /**
  * Generates unique int for use as key into EvalCache
@@ -167,8 +167,10 @@ trait NoCacheEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
  * Evaluatable - things that could be runtime-valued, but also could be compile-time constants
  * are instances of Ev.
  */
-abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNameArg: NamedQName = null)
-  extends Serializable {
+abstract class Evaluatable[+T <: AnyRef](
+  protected val ci: DPathCompileInfo,
+  qNameArg: NamedQName = null,
+) extends Serializable {
 
   type State = ParseOrUnparseState
 
@@ -208,27 +210,28 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
     // detonation chamber. Evaluate it. Did it blow up because it needs
     // data, not just static information, to succeed?
     //
-    val result = try {
-      val v = evaluate(state)
-      One(v)
-    } catch {
-      //
-      // Really what this should be catching are the special-purpose exceptions thrown
-      // by the Infoset data-accessing API to indicate no data being found.
-      //
-      // However, for unparsing outputValueCalc this needs to distinguish whether we've determined
-      // that the OVC expression is non-constant, from a failure at runtime.
-      //
-      // So non-constant is detected based on it failing by accessing either data or the infoset
-      // when evaluated with a fake state that has neither. But SDE means there is something wrong
-      // with the expression, so we can't absorb those.
-      //
-      // Thrown if we're trying to navigate from parent to child and the child doesn't exist.
-      // or there is no data, etc.
-      case _: ExpressionEvaluationException => Nope
-      case _: InfosetException => Nope
-      case _: VariableException => Nope
-    }
+    val result =
+      try {
+        val v = evaluate(state)
+        One(v)
+      } catch {
+        //
+        // Really what this should be catching are the special-purpose exceptions thrown
+        // by the Infoset data-accessing API to indicate no data being found.
+        //
+        // However, for unparsing outputValueCalc this needs to distinguish whether we've determined
+        // that the OVC expression is non-constant, from a failure at runtime.
+        //
+        // So non-constant is detected based on it failing by accessing either data or the infoset
+        // when evaluated with a fake state that has neither. But SDE means there is something wrong
+        // with the expression, so we can't absorb those.
+        //
+        // Thrown if we're trying to navigate from parent to child and the child doesn't exist.
+        // or there is no data, etc.
+        case _: ExpressionEvaluationException => Nope
+        case _: InfosetException => Nope
+        case _: VariableException => Nope
+      }
     result
   }
 
@@ -239,6 +242,7 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
    *      override lazy val qName = dafName("foobar")
    */
   protected def dafName(local: String) = GlobalQName(Some("dafint"), local, XMLUtils.dafintURI)
+
   /**
    * Override if this evaluatable needs to use a different evaluate mode
    * for unparsing.
@@ -247,7 +251,11 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
    */
   protected def maybeUseUnparserMode: Maybe[EvalMode] = Maybe(UnparserNonBlocking)
 
-  override def toString = "(%s@%x, %s)".format(qName, this.hashCode(), (if (isConstant) "constant: " + constValue else "runtime"))
+  override def toString = "(%s@%x, %s)".format(
+    qName,
+    this.hashCode(),
+    (if (isConstant) "constant: " + constValue else "runtime"),
+  )
 
   def toBriefXML(depth: Int = -1): String = if (isConstant) constValue.toString else toString
 
@@ -343,7 +351,8 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
     val it = if (thing.isDefined) thing.value else "Nope"
     val stringValueUnlimited = XMLUtils.remapXMLIllegalCharactersToPUA(it.toString())
     val truncated = if (stringValueUnlimited.length > 60) "...(truncated)" else ""
-    val stringValue = stringValueUnlimited.substring(0, math.min(60, stringValueUnlimited.length)) + truncated
+    val stringValue =
+      stringValueUnlimited.substring(0, math.min(60, stringValueUnlimited.length)) + truncated
     Assert.usage(!stringValue.contains("]]>"))
     val pseudoXMLStringValue =
       if (stringValue.contains("<") && !stringValue.contains("\"")) {
@@ -362,7 +371,10 @@ abstract class Evaluatable[+T <: AnyRef](protected val ci: DPathCompileInfo, qNa
 }
 
 final class EvalCache {
-  private val ht = new java.util.LinkedHashMap[Evaluatable[AnyRef], AnyRef] // linked so we can depend on order in unit tests.
+  private val ht =
+    new java.util.LinkedHashMap[Evaluatable[
+      AnyRef,
+    ], AnyRef] // linked so we can depend on order in unit tests.
 
   def get[T <: AnyRef](ev: Evaluatable[T]): Maybe[T] = {
     val got = ht.get(ev)
@@ -371,7 +383,8 @@ final class EvalCache {
   }
 
   def put[T <: AnyRef](ev: Evaluatable[T], thing: T): Unit = {
-    if (thing.isInstanceOf[DINode]) return // happens in the interactive debugger due to expression ".." being compiled & run.
+    if (thing.isInstanceOf[DINode])
+      return // happens in the interactive debugger due to expression ".." being compiled & run.
     Assert.usage(!thing.isInstanceOf[DINode])
     Assert.usage(thing ne null)
     Assert.usage(ht.get(ev) eq null) // cannot be present already
@@ -389,7 +402,8 @@ final class EvalCache {
 }
 
 trait ExprEvalMixin[T <: AnyRef]
-  extends DoSDEMixin with ContentValueReferencedElementInfoMixin {
+  extends DoSDEMixin
+  with ContentValueReferencedElementInfoMixin {
 
   protected def expr: CompiledExpression[T]
 
@@ -438,13 +452,15 @@ trait ExprEvalMixin[T <: AnyRef]
  */
 abstract class EvaluatableExpression[ExprType <: AnyRef](
   override protected val expr: CompiledExpression[ExprType],
-  ci: DPathCompileInfo)
-  extends Evaluatable[ExprType](ci)
+  ci: DPathCompileInfo,
+) extends Evaluatable[ExprType](ci)
   with ExprEvalMixin[ExprType] {
 
   override lazy val runtimeDependencies = Vector()
 
-  override final def toBriefXML(depth: Int = -1) = "<EvaluatableExpression eName='" + ci.diagnosticDebugName + "' expr=" + expr.toBriefXML() + " />"
+  override final def toBriefXML(depth: Int = -1) =
+    "<EvaluatableExpression eName='" + ci.diagnosticDebugName + "' expr=" + expr
+      .toBriefXML() + " />"
 
   override protected def compute(state: ParseOrUnparseState): ExprType = eval(expr, state)
 
@@ -464,7 +480,8 @@ trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: 
 
   override lazy val runtimeDependencies = Vector()
 
-  override final def toBriefXML(depth: Int = -1) = if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)
+  override final def toBriefXML(depth: Int = -1) =
+    if (this.isConstant) this.constValue.toString else expr.toBriefXML(depth)
 
   override protected def compute(state: ParseOrUnparseState): ConvertedType = {
     val expressionResult = eval(expr, state)
@@ -485,6 +502,6 @@ trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: 
 abstract class EvaluatableConvertedExpression[ExprType <: AnyRef, +ConvertedType <: AnyRef](
   val expr: CompiledExpression[ExprType],
   val converter: Converter[ExprType, ConvertedType],
-  ci: DPathCompileInfo)
-  extends Evaluatable[ConvertedType](ci)
+  ci: DPathCompileInfo,
+) extends Evaluatable[ConvertedType](ci)
   with EvaluatableConvertedExpressionMixin[ExprType, ConvertedType]

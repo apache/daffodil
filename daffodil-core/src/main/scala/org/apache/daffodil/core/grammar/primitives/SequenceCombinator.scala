@@ -17,17 +17,16 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.unparsers.runtime1._
-
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.runtime1.processors.parsers._
-import org.apache.daffodil.runtime1.processors.unparsers._
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.processors.parsers._
+import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.unparsers.runtime1._
 
 /**
  * Base class for all kinds of sequences.
@@ -75,13 +74,18 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
   lazy val sequenceChildren = sequenceChildrenArg.toVector
 
   override lazy val parser: Parser = sq.hasSeparator match {
-    case true => new OrderedSeparatedSequenceParser(
-      srd, sq.separatorPosition, sepParser,
-      sequenceChildren.flatMap { _.optSequenceChildParser })
+    case true =>
+      new OrderedSeparatedSequenceParser(
+        srd,
+        sq.separatorPosition,
+        sepParser,
+        sequenceChildren.flatMap { _.optSequenceChildParser },
+      )
     case false =>
       new OrderedUnseparatedSequenceParser(
         srd,
-        sequenceChildren.flatMap { _.optSequenceChildParser })
+        sequenceChildren.flatMap { _.optSequenceChildParser },
+      )
   }
   override lazy val unparser: Unparser = {
     sq match {
@@ -92,36 +96,41 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
          */
         val nonUnparseableIfHidden = sq.groupMembers.filter(!_.canUnparseIfHidden)
         if (nonUnparseableIfHidden.nonEmpty) {
-          SDE("Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
-            nonUnparseableIfHidden.mkString("\n"))
+          SDE(
+            "Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
+            nonUnparseableIfHidden.mkString("\n"),
+          )
         }
       case _ => {
-        //do nothing as only GroupRefs have the concept of hiddenness at compile time
+        // do nothing as only GroupRefs have the concept of hiddenness at compile time
       }
     }
     val childUnparsers = sequenceChildren.flatMap { _.optSequenceChildUnparser }
     if (childUnparsers.isEmpty) new NadaUnparser(null)
     else {
       sq.hasSeparator match {
-        case true => new OrderedSeparatedSequenceUnparser(
-          srd,
-          sq.separatorSuppressionPolicy,
-          sq.separatorPosition,
-          sepMtaAlignmentMaybe,
-          sepMtaUnparserMaybe,
-          sepUnparser,
-          childUnparsers)
-        case false =>
-          new OrderedUnseparatedSequenceUnparser(
+        case true =>
+          new OrderedSeparatedSequenceUnparser(
             srd,
-            childUnparsers)
+            sq.separatorSuppressionPolicy,
+            sq.separatorPosition,
+            sepMtaAlignmentMaybe,
+            sepMtaUnparserMaybe,
+            sepUnparser,
+            childUnparsers,
+          )
+        case false =>
+          new OrderedUnseparatedSequenceUnparser(srd, childUnparsers)
       }
     }
   }
 }
 
-class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChild], alternatives: Seq[Gram])
-  extends SequenceCombinator(sq, sequenceChildrenArg) {
+class UnorderedSequence(
+  sq: SequenceTermBase,
+  sequenceChildrenArg: Seq[SequenceChild],
+  alternatives: Seq[Gram],
+) extends SequenceCombinator(sq, sequenceChildrenArg) {
 
   private lazy val sepMtaGram = sq.delimMTA
   // Note that we actually only ever use one of these depending on
@@ -155,13 +164,17 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
     sq.hasSeparator match {
       case true => {
         new UnorderedSeparatedSequenceParser(
-          srd, sq.separatorPosition, sepParser,
-          sequenceChildren.flatMap { _.optSequenceChildParser })
+          srd,
+          sq.separatorPosition,
+          sepParser,
+          sequenceChildren.flatMap { _.optSequenceChildParser },
+        )
       }
       case false => {
         new UnorderedUnseparatedSequenceParser(
           srd,
-          sequenceChildren.flatMap { _.optSequenceChildParser })
+          sequenceChildren.flatMap { _.optSequenceChildParser },
+        )
       }
     }
   }
@@ -173,31 +186,33 @@ class UnorderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceC
          * This is a requirement for all descendants of a hidden sequence, so we
          * SDE if all descendants are not fully defaultable, optional or OVC.
          */
-        val nonUnparseableIfHidden  = sq.groupMembers.filter( !_.canUnparseIfHidden)
+        val nonUnparseableIfHidden = sq.groupMembers.filter(!_.canUnparseIfHidden)
         if (nonUnparseableIfHidden.nonEmpty) {
-          SDE("Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
-            nonUnparseableIfHidden.mkString("\n"))
+          SDE(
+            "Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
+            nonUnparseableIfHidden.mkString("\n"),
+          )
         }
       case _ => {
-        //do nothing as only GroupRefs have the concept of hiddenness at compile state
+        // do nothing as only GroupRefs have the concept of hiddenness at compile state
       }
     }
     val childUnparsers = sequenceChildren.flatMap { _.optSequenceChildUnparser }
     if (childUnparsers.isEmpty) new NadaUnparser(null)
     else {
       sq.hasSeparator match {
-        case true => new OrderedSeparatedSequenceUnparser(
-          srd,
-          SeparatorSuppressionPolicy.AnyEmpty,
-          sq.separatorPosition,
-          sepMtaAlignmentMaybe,
-          sepMtaUnparserMaybe,
-          sepUnparser,
-          childUnparsers)
-        case false =>
-          new OrderedUnseparatedSequenceUnparser(
+        case true =>
+          new OrderedSeparatedSequenceUnparser(
             srd,
-            childUnparsers)
+            SeparatorSuppressionPolicy.AnyEmpty,
+            sq.separatorPosition,
+            sepMtaAlignmentMaybe,
+            sepMtaUnparserMaybe,
+            sepUnparser,
+            childUnparsers,
+          )
+        case false =>
+          new OrderedUnseparatedSequenceUnparser(srd, childUnparsers)
       }
     }
   }

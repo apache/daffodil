@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.lib.util
 
-import org.apache.daffodil.lib.equality._
 import scala.collection.mutable
+
+import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
 
 /**
@@ -37,6 +38,7 @@ import org.apache.daffodil.lib.exceptions.Assert
  *  Derive from this for debug purposes if you want to pool things.
  */
 trait Poolable {
+
   /**
    * The debug label is used to report diagnostics about pool management errors.
    * It helps to pinpoint the problematic place where pooled items are being
@@ -98,8 +100,9 @@ trait Pool[T <: Poolable] {
    */
   final def finalCheck(): Unit = {
     if (!(numOutstanding =#= 0)) {
-      val msg = "Pool " + Misc.getNameFromClass(this) + " leaked " + numOutstanding + " instance(s)." +
-        "\n" + inUse.map { item => "poolDebugLabel = " + item.poolDebugLabel }.mkString("\n")
+      val msg =
+        "Pool " + Misc.getNameFromClass(this) + " leaked " + numOutstanding + " instance(s)." +
+          "\n" + inUse.map { item => "poolDebugLabel = " + item.poolDebugLabel }.mkString("\n")
       Assert.invariantFailed(msg)
     }
   }

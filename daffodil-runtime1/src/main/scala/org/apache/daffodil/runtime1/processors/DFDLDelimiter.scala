@@ -20,10 +20,11 @@ package org.apache.daffodil.runtime1.processors
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import scala.collection.mutable.Queue
+
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Enum
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.exceptions.Assert
 
 object DelimiterType extends Enum {
   sealed abstract trait Type extends EnumValueType
@@ -41,7 +42,8 @@ object DelimiterLocation extends Enum {
 class Delimiter {
   var delimiterStr: String = "" // String representation of delimiter Ex. "%WSP;,%WSP*;"
 
-  var delimBuf: Array[DelimBase] = Array.empty[DelimBase] /* Buffer where each cell (DelimBase) represents a character
+  var delimBuf: Array[DelimBase] =
+    Array.empty[DelimBase] /* Buffer where each cell (DelimBase) represents a character
 		  												     in the delimiter string */
 
   var delimRegExParseDelim: String = "" // Regex to actually parse the entire delimiter
@@ -207,53 +209,60 @@ class Delimiter {
   //
   def delimRegexParseDelim(delimiterBuf: Array[DelimBase] = delimBuf): String = {
     val sb: StringBuilder = new StringBuilder
-    delimiterBuf foreach {
-      delim =>
-        {
-          delim match {
-            case nl: NLDelim => {
-              sb.append("(?>" + // Eliminates needles backtracking. Atomic group of
+    delimiterBuf.foreach { delim =>
+      {
+        delim match {
+          case nl: NLDelim => {
+            sb.append(
+              "(?>" + // Eliminates needles backtracking. Atomic group of
                 "(\\r\\n)|" + // CRLF
                 "((?<!\\r)\\n)|" + // LF not preceded by CR
                 "(\\r(?!\\n))|" + // CR not followed by LF
-                "\\u0085|\\u2028)")
-            }
-            case wsp: WSPDelim => {
-              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "\\u0085|\\u2028)",
+            )
+          }
+          case wsp: WSPDelim => {
+            sb.append(
+              "(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)")
-            } // Single space
-            case wsp: WSPPlusDelim => {
-              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)",
+            )
+          } // Single space
+          case wsp: WSPPlusDelim => {
+            sb.append(
+              "(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+")
-            } // One or more spaces
-            case wsp: WSPStarDelim => {
-              sb.append("(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+",
+            )
+          } // One or more spaces
+          case wsp: WSPStarDelim => {
+            sb.append(
+              "(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*")
-            } // None or more spaces
-            case ws: ESDelim => // noop
-            case char: CharDelim => { // Some character
-              char.char match {
-                case '[' => sb.append("\\[")
-                case '\\' => sb.append("\\\\")
-                case '^' => sb.append("\\^")
-                case '$' => sb.append("\\$")
-                case '.' => sb.append("\\.")
-                case '|' => sb.append("\\|")
-                case '?' => sb.append("\\?")
-                case '*' => sb.append("\\*")
-                case '+' => sb.append("\\+")
-                case '(' => sb.append("\\(")
-                case ')' => sb.append("\\)")
-                case '{' => sb.append("\\{")
-                case '}' => sb.append("\\}")
-                case x => sb.append(x)
-              }
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*",
+            )
+          } // None or more spaces
+          case ws: ESDelim => // noop
+          case char: CharDelim => { // Some character
+            char.char match {
+              case '[' => sb.append("\\[")
+              case '\\' => sb.append("\\\\")
+              case '^' => sb.append("\\^")
+              case '$' => sb.append("\\$")
+              case '.' => sb.append("\\.")
+              case '|' => sb.append("\\|")
+              case '?' => sb.append("\\?")
+              case '*' => sb.append("\\*")
+              case '+' => sb.append("\\+")
+              case '(' => sb.append("\\(")
+              case ')' => sb.append("\\)")
+              case '{' => sb.append("\\{")
+              case '}' => sb.append("\\}")
+              case x => sb.append(x)
             }
           }
         }
+      }
     }
     sb.toString()
   }
@@ -270,7 +279,8 @@ class Delimiter {
 
     var length: Int = -1
 
-    val classList: scala.collection.mutable.Map[String, (Int, Int)] = scala.collection.mutable.Map.empty
+    val classList: scala.collection.mutable.Map[String, (Int, Int)] =
+      scala.collection.mutable.Map.empty
 
     if (mNL.find()) {
       classList += ("NL" -> (mNL.start() -> mNL.end()))
@@ -328,7 +338,9 @@ class Delimiter {
         if ((idx + 1) == delimStr.length) {
           // last character in delimStr was a single isolated '%'.
           // This shouldn't happen
-          Assert.invariantFailed("delimStr should not end in an isolated single %. DelimStr = " + delimStr)
+          Assert.invariantFailed(
+            "delimStr should not end in an isolated single %. DelimStr = " + delimStr,
+          )
         }
         if (delimStr.charAt(idx + 1) == '%') {
           // double percent. We want only a single one. And we
@@ -439,7 +451,8 @@ class CharDelim(val char: Char, ignoreCase: Boolean) extends DelimBase {
   lazy val allChars: Seq[Char] = Seq(char)
   def checkMatch(charIn: Char): Boolean = {
     if (charIn == char) true
-    else if (ignoreCase && (charIn.toUpper == char.toUpper || charIn.toLower == char.toLower)) true
+    else if (ignoreCase && (charIn.toUpper == char.toUpper || charIn.toLower == char.toLower))
+      true
     else false
   }
 
@@ -550,9 +563,34 @@ trait WSP extends CharacterClass {
   lazy val MED: Char = { convertUnicodeToChar("\\u205F") }
   lazy val IDE: Char = { convertUnicodeToChar("\\u3000") }
 
-  lazy val allChars: Seq[Char] = Seq(CTRL0, CTRL1, CTRL2, CTRL3, CTRL4, SPACE, NEL,
-    NBSP, OGHAM, MONG, SP0, SP1, SP2, SP3, SP4, SP5, SP6, SP7, SP8, SP9, SP10,
-    LSP, PSP, NARROW, MED, IDE)
+  lazy val allChars: Seq[Char] = Seq(
+    CTRL0,
+    CTRL1,
+    CTRL2,
+    CTRL3,
+    CTRL4,
+    SPACE,
+    NEL,
+    NBSP,
+    OGHAM,
+    MONG,
+    SP0,
+    SP1,
+    SP2,
+    SP3,
+    SP4,
+    SP5,
+    SP6,
+    SP7,
+    SP8,
+    SP9,
+    SP10,
+    LSP,
+    PSP,
+    NARROW,
+    MED,
+    IDE,
+  )
 }
 
 abstract class WSPBase extends DelimBase with WSP {
@@ -618,7 +656,8 @@ class WSPStarDelim extends WSPBase with WSP {
  * when we're "scanning for nothing".
  */
 class ESDelim extends DelimBase {
-  override def checkMatch(charIn: Char): Boolean = Assert.impossible("We should never ask if a character matches an %ES;")
+  override def checkMatch(charIn: Char): Boolean =
+    Assert.impossible("We should never ask if a character matches an %ES;")
   override def allChars: Seq[Char] = Seq.empty
   override def printStr: String = typeName
   override def typeName: String = "ES"

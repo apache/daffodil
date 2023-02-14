@@ -17,16 +17,15 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.runtime1.dsom._
-
-import org.apache.daffodil.runtime1.processors.EncodingRuntimeData
-import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
-import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.runtime1.processors.KnownEncodingMixin
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.processors.EncodingRuntimeData
+import org.apache.daffodil.runtime1.processors.KnownEncodingMixin
 
 /**
  * Captures concepts around dfdl:encoding property and Terms.
@@ -39,11 +38,14 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
 
   private lazy val optionTextBidi = findPropertyOption("textBidi")
 
-  private lazy val checkTextBidi = (optionTextBidi.isDefined, self.tunable.requireTextBidiProperty) match {
-    case (false, false) => SDW(WarnID.TextBidiError, "Property 'dfdl:textBidi' is required but not defined.")
-    case (false, true) => textBidi
-    case (_, _) => this.subset((textBidi eq YesNo.No), "Property value textBidi='yes' is not supported.")
-  }
+  private lazy val checkTextBidi =
+    (optionTextBidi.isDefined, self.tunable.requireTextBidiProperty) match {
+      case (false, false) =>
+        SDW(WarnID.TextBidiError, "Property 'dfdl:textBidi' is required but not defined.")
+      case (false, true) => textBidi
+      case (_, _) =>
+        this.subset((textBidi eq YesNo.No), "Property value textBidi='yes' is not supported.")
+    }
 
   protected final lazy val defaultEncodingErrorPolicy = {
     val policy =
@@ -53,17 +55,21 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
         if (!optionEncodingErrorPolicy.isDefined)
           SDW(
             WarnID.EncodingErrorPolicyError,
-            "Property 'dfdl:encodingErrorPolicy' is required but not defined, using 'replace' by default.")
+            "Property 'dfdl:encodingErrorPolicy' is required but not defined, using 'replace' by default.",
+          )
         optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
       }
     if (policy == EncodingErrorPolicy.Error) {
       // DFDL-935 to enable
-      SDW(WarnID.EncodingErrorPolicyError,
-        "dfdl:encodingErrorPolicy=\"error\" is not yet implemented. The 'replace' value will be used.")
+      SDW(
+        WarnID.EncodingErrorPolicyError,
+        "dfdl:encodingErrorPolicy=\"error\" is not yet implemented. The 'replace' value will be used.",
+      )
       EncodingErrorPolicy.Replace
     }
     policy
   }
+
   /**
    * Character encoding common attributes
    *
@@ -95,7 +101,8 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
         WarnID.DeprecatedEncodingNameUSASCII7BitPacked,
         knownEncodingName == "US-ASCII-7-BIT-PACKED",
         "Character set encoding name US-ASCII-7-BIT-PACKED is deprecated." +
-          "Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED.")
+          "Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED.",
+      )
       val cs = charsetEv.optConstant.get
       cs.mandatoryBitAlignment
     } else 8 // unknown encodings always assumed to be 8-bit aligned.
@@ -110,9 +117,8 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
       isKnownEncoding,
       isScannable,
       knownEncodingAlignmentInBits,
-      hasTextAlignment)
-
-
+      hasTextAlignment,
+    )
 
   /**
    * True if this element itself consists only of text. No binary stuff like alignment
@@ -124,17 +130,18 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
     val res = this match {
       case eb: ElementBase => {
         eb.hasNoSkipRegions &&
-          hasTextAlignment &&
-          ((eb.isSimpleType && eb.impliedRepresentation == Representation.Text) ||
-            eb.isComplexType)
+        hasTextAlignment &&
+        ((eb.isSimpleType && eb.impliedRepresentation == Representation.Text) ||
+          eb.isComplexType)
       }
       case mg: ModelGroup => {
         mg.hasNoSkipRegions &&
-          hasTextAlignment
+        hasTextAlignment
       }
     }
     res
   }
+
   /**
    * True if it is sensible to scan this data e.g., with a regular expression.
    * Requires that all children have same encoding as enclosing groups and
@@ -180,9 +187,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * then s1, else "mixed". Also "notext" combines
    * with anything.
    */
-  private def combinedEncoding(
-    s1: EncodingLattice,
-    s2: EncodingLattice): EncodingLattice = {
+  private def combinedEncoding(s1: EncodingLattice, s2: EncodingLattice): EncodingLattice = {
     (s1, s2) match {
       case (x, y) if (x == y) => x
       case (NoText, x) => x
@@ -204,11 +209,12 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * then we lose.
    */
   final lazy val summaryEncoding: EncodingLattice = {
-    val myEnc = if (!isRepresented) NoText
-    else if (!isLocallyTextOnly) Binary
-    else if (!couldHaveText) NoText
-    else if (!isKnownEncoding) Runtime
-    else NamedEncoding(this.knownEncodingName)
+    val myEnc =
+      if (!isRepresented) NoText
+      else if (!isLocallyTextOnly) Binary
+      else if (!couldHaveText) NoText
+      else if (!isKnownEncoding) Runtime
+      else NamedEncoding(this.knownEncodingName)
     val childEncs: Seq[EncodingLattice] = termChildren.map { x => x.summaryEncoding }
     val res = childEncs.fold(myEnc) { (x, y) => combinedEncoding(x, y) }
     res

@@ -17,21 +17,21 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.unparsers.runtime1._
-
 import java.util.regex.PatternSyntaxException
+
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.runtime1.processors.parsers._
-import org.apache.daffodil.runtime1.processors.unparsers._
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.unparsers.runtime1.SpecifiedLengthExplicitImplicitUnparser
-import org.apache.daffodil.runtime1.processors.parsers.SpecifiedLengthExplicitParser
-import org.apache.daffodil.runtime1.processors.parsers.SpecifiedLengthImplicitParser
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.processors.parsers.Parser
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.runtime1.processors.parsers.SpecifiedLengthExplicitParser
+import org.apache.daffodil.runtime1.processors.parsers.SpecifiedLengthImplicitParser
+import org.apache.daffodil.runtime1.processors.parsers._
+import org.apache.daffodil.runtime1.processors.unparsers._
+import org.apache.daffodil.unparsers.runtime1.SpecifiedLengthExplicitImplicitUnparser
+import org.apache.daffodil.unparsers.runtime1._
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gram)
   extends Terminal(e, true) {
@@ -51,7 +51,8 @@ abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGramArg: => Gr
   def kind: String
 
   def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
+    if (depthLimit == 0) "..."
+    else
       "<SpecifiedLengthCombinator_" + kind + ">" +
         eParser.toBriefXML(depthLimit - 1) +
         "</SpecifiedLengthCombinator_" + kind + ">"
@@ -78,13 +79,14 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
     // ISO-8859-1. The ISO-8859-1 check is done elsewhere, so to allow pattern
     // lengths, either this must be scannable or the type must be xs:hexBinary.
     // Anything else is an error.
-    e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.diagnosticDebugName)
+    e.SDE(
+      "Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.",
+      e.diagnosticDebugName,
+    )
   }
 
-  override lazy val parser: Parser = new SpecifiedLengthPatternParser(
-    eParser,
-    e.elementRuntimeData,
-    pattern)
+  override lazy val parser: Parser =
+    new SpecifiedLengthPatternParser(eParser, e.elementRuntimeData, pattern)
 
   // When unparsing, the pattern is not used to calculate a length, so just
   // skip that parser and go straight to unparsing the string in the eUnparser
@@ -109,7 +111,8 @@ trait SpecifiedLengthExplicitImplicitUnparserMixin {
         u,
         e.elementRuntimeData,
         e.unparseTargetLengthInBitsEv,
-        e.maybeUnparseTargetLengthInCharactersEv)
+        e.maybeUnparseTargetLengthInCharactersEv,
+      )
   }
 }
 
@@ -123,11 +126,13 @@ class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: In
 
   lazy val parser: Parser = {
     if (eParser.isEmpty) eParser
-    else new SpecifiedLengthExplicitParser(
-      eParser,
-      e.elementRuntimeData,
-      e.lengthEv,
-      bitsMultiplier)
+    else
+      new SpecifiedLengthExplicitParser(
+        eParser,
+        e.elementRuntimeData,
+        e.lengthEv,
+        bitsMultiplier,
+      )
   }
 
 }
@@ -140,10 +145,8 @@ class SpecifiedLengthImplicit(e: ElementBase, eGram: => Gram, nBits: Long)
 
   lazy val toBits = 1
 
-  lazy val parser: Parser = new SpecifiedLengthImplicitParser(
-    eParser,
-    e.elementRuntimeData,
-    nBits)
+  lazy val parser: Parser =
+    new SpecifiedLengthImplicitParser(eParser, e.elementRuntimeData, nBits)
 
 }
 
@@ -164,21 +167,26 @@ class SpecifiedLengthPrefixed(e: ElementBase, eGram: => Gram, bitsMultiplier: In
     e.prefixedLengthBody.parser,
     plerd,
     e.lengthUnits,
-    pladj)
+    pladj,
+  )
 
   lazy val unparser: Unparser = {
-    if (e.lengthUnits == LengthUnits.Characters &&
-        e.isComplexType &&
-        !e.encodingInfo.knownEncodingIsFixedWidth)
+    if (
+      e.lengthUnits == LengthUnits.Characters &&
+      e.isComplexType &&
+      !e.encodingInfo.knownEncodingIsFixedWidth
+    )
       e.subsetError(
-        "Unparsing with dfdl:lengthUnits 'characters' for complex types requires a fixed-width known (constant) encoding.")
+        "Unparsing with dfdl:lengthUnits 'characters' for complex types requires a fixed-width known (constant) encoding.",
+      )
     new SpecifiedLengthPrefixedUnparser(
       eUnparser,
       erd,
       e.prefixedLengthBody.unparser,
       plerd,
       e.lengthUnits,
-      pladj)
+      pladj,
+    )
   }
 }
 
@@ -188,10 +196,8 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
 
   val kind = "ExplicitCharacters"
 
-  lazy val parser: Parser = new SpecifiedLengthExplicitCharactersParser(
-    eParser,
-    e.elementRuntimeData,
-    e.lengthEv)
+  lazy val parser: Parser =
+    new SpecifiedLengthExplicitCharactersParser(eParser, e.elementRuntimeData, e.lengthEv)
 }
 
 class SpecifiedLengthImplicitCharacters(e: ElementBase, eGram: => Gram, nChars: Long)
@@ -200,10 +206,8 @@ class SpecifiedLengthImplicitCharacters(e: ElementBase, eGram: => Gram, nChars: 
 
   val kind = "ImplicitCharacters"
 
-  lazy val parser: Parser = new SpecifiedLengthImplicitCharactersParser(
-    eParser,
-    e.elementRuntimeData,
-    nChars)
+  lazy val parser: Parser =
+    new SpecifiedLengthImplicitCharactersParser(eParser, e.elementRuntimeData, nChars)
 }
 
 class SpecifiedLengthPrefixedCharacters(e: ElementBase, eGram: => Gram)
@@ -216,10 +220,12 @@ class SpecifiedLengthPrefixedCharacters(e: ElementBase, eGram: => Gram)
     e.elementRuntimeData,
     e.prefixedLengthBody.parser,
     e.prefixedLengthElementDecl.elementRuntimeData,
-    e.prefixedLengthAdjustmentInUnits)
+    e.prefixedLengthAdjustmentInUnits,
+  )
 
   lazy val unparser: Unparser =
     e.subsetError(
       """Unparsing with dfdl:lengthKind='prefixed' and dfdl:lengthUnits='characters' and
-        |a non-constant or variable-width encoding is not supported.""".stripMargin)
+        |a non-constant or variable-width encoding is not supported.""".stripMargin,
+    )
 }

@@ -314,5 +314,3 @@ package org.apache.daffodil
  *
  */
 package object sapi
-
-

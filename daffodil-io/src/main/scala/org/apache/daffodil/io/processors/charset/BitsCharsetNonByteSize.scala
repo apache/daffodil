@@ -19,11 +19,11 @@ package org.apache.daffodil.io.processors.charset
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
-import java.nio.charset.{ CharsetDecoder => JavaCharsetDecoder }
-import java.nio.charset.{ CharsetEncoder => JavaCharsetEncoder }
-import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
+import java.nio.charset.{ Charset => JavaCharset }
+import java.nio.charset.{ CharsetDecoder => JavaCharsetDecoder }
+import java.nio.charset.{ CharsetEncoder => JavaCharsetEncoder }
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
@@ -55,10 +55,10 @@ trait BitsCharsetNonByteSize extends BitsCharset {
 
   val replacementCharCode: Int
 
-  def averageCharsPerByte() = averageCharsPerBit() * 8.0F
-  def averageCharsPerBit() = 1.0F / bitWidthOfACodeUnit
-  def maxCharsPerByte() = maxCharsPerBit() * 8.0F
-  def maxCharsPerBit() = 1.0F / bitWidthOfACodeUnit
+  def averageCharsPerByte() = averageCharsPerBit() * 8.0f
+  def averageCharsPerBit() = 1.0f / bitWidthOfACodeUnit
+  def maxCharsPerByte() = maxCharsPerBit() * 8.0f
+  def maxCharsPerBit() = 1.0f / bitWidthOfACodeUnit
   def averageBytesPerChar() = 1 / averageCharsPerByte()
   def averageBitsPerChar() = 1 / averageCharsPerBit()
   def maxBytesPerChar() = 1 / maxCharsPerByte()
@@ -69,7 +69,8 @@ trait BitsCharsetNonByteSize extends BitsCharset {
 
   override def newDecoder(): BitsCharsetDecoder = new BitsCharsetNonByteSizeDecoder(this)
 
-  override def newEncoder(): BitsCharsetEncoder = new BitsCharsetNonByteSizeEncoder(this, replacementCharCode)
+  override def newEncoder(): BitsCharsetEncoder =
+    new BitsCharsetNonByteSizeEncoder(this, replacementCharCode)
 
   override def mandatoryBitAlignment = 1
 
@@ -90,7 +91,7 @@ trait BitsCharsetNonByteSize extends BitsCharset {
     (0 to 255).foreach { index =>
       arr(index) = MaybeInt.Nope
     }
-    val imap = decodeString zip (0 to (len - 1))
+    val imap = decodeString.zip(0 to (len - 1))
     imap.foreach {
       case (c, index) => {
         if (c < 256)
@@ -98,7 +99,9 @@ trait BitsCharsetNonByteSize extends BitsCharset {
         else if (c == '\uFFFD') {
           // ok. unmapped on purpose.
         } else
-          Assert.invariantFailed("Char with code %n found. Character codes must be < 256.".format(c.toInt))
+          Assert.invariantFailed(
+            "Char with code %n found. Character codes must be < 256.".format(c.toInt),
+          )
       }
     }
     arr
@@ -121,9 +124,12 @@ trait BitsCharsetNonByteSize extends BitsCharset {
  * TODO: Similar to our decoders, we should create custom encoders. Then we
  * wouldn't need all this complex code related to proxying java charsets.
  */
-protected final class ProxyJavaCharsetEncoder(cs: JavaCharset, real: BitsCharsetNonByteSizeEncoder)
-  extends JavaCharsetEncoder(cs, 1.0F, 1.0F) {
-  override def encodeLoop(in: CharBuffer, out: ByteBuffer): CoderResult = real.encodeLoop(in, out)
+protected final class ProxyJavaCharsetEncoder(
+  cs: JavaCharset,
+  real: BitsCharsetNonByteSizeEncoder,
+) extends JavaCharsetEncoder(cs, 1.0f, 1.0f) {
+  override def encodeLoop(in: CharBuffer, out: ByteBuffer): CoderResult =
+    real.encodeLoop(in, out)
   // The default implementation of isLegalReplacement tries to create a decoder
   // and decode the replacement bits and validate that the replace works.
   // However, our decoders are custom and do not implement the Java API, so the
@@ -133,9 +139,11 @@ protected final class ProxyJavaCharsetEncoder(cs: JavaCharset, real: BitsCharset
   override def isLegalReplacement(repl: Array[Byte]): Boolean = true
 }
 
-final class BitsCharsetNonByteSizeEncoder(override val bitsCharset: BitsCharsetNonByteSize, replacementChar: Int)
-  extends BitsCharsetEncoder {
-  
+final class BitsCharsetNonByteSizeEncoder(
+  override val bitsCharset: BitsCharsetNonByteSize,
+  replacementChar: Int,
+) extends BitsCharsetEncoder {
+
   final def bitWidthOfACodeUnit: Int = bitsCharset.bitWidthOfACodeUnit
   final def requiredBitOrder: BitOrder = bitsCharset.requiredBitOrder
   def averageCharsPerBit(): Float = bitsCharset.averageCharsPerBit()
@@ -164,23 +172,28 @@ final class BitsCharsetNonByteSizeEncoder(override val bitsCharset: BitsCharsetN
   val thisEncoder = this
 
   protected object ProxyJavaCharset extends JavaCharset("proxyCharset", Array()) {
-    override def newEncoder(): JavaCharsetEncoder = new ProxyJavaCharsetEncoder(this, thisEncoder)
-    override def newDecoder(): JavaCharsetDecoder = Assert.usageError("newDecoder method not to be called on " + this)
-    override def contains(jcs: JavaCharset): Boolean = Assert.usageError("contains method not to be called on " + this)
+    override def newEncoder(): JavaCharsetEncoder =
+      new ProxyJavaCharsetEncoder(this, thisEncoder)
+    override def newDecoder(): JavaCharsetDecoder =
+      Assert.usageError("newDecoder method not to be called on " + this)
+    override def contains(jcs: JavaCharset): Boolean =
+      Assert.usageError("contains method not to be called on " + this)
   }
-  
+
   private lazy val proxy = new ProxyJavaCharsetEncoder(ProxyJavaCharset, this)
 
   def malformedInputAction(): CodingErrorAction = proxy.malformedInputAction()
   def unmappableCharacterAction(): CodingErrorAction = proxy.unmappableCharacterAction()
   def onMalformedInput(action: CodingErrorAction) = { proxy.onMalformedInput(action); this }
-  def onUnmappableCharacter(action: CodingErrorAction) = { proxy.onUnmappableCharacter(action); this }
+  def onUnmappableCharacter(action: CodingErrorAction) = {
+    proxy.onUnmappableCharacter(action); this
+  }
   def replacement() = proxy.replacement()
   def replaceWith(newReplacement: Array[Byte]) = { proxy.replaceWith(newReplacement); this }
 
-  def encode(in: CharBuffer, out: ByteBuffer, endOfInput: Boolean) = proxy.encode(in, out, endOfInput)
+  def encode(in: CharBuffer, out: ByteBuffer, endOfInput: Boolean) =
+    proxy.encode(in, out, endOfInput)
   def flush(out: ByteBuffer) = proxy.flush(out)
-
 
   private var partialByte: Int = 0
   private var partialByteLenInBits: Int = 0
@@ -274,15 +287,15 @@ final class BitsCharsetNonByteSizeEncoder(override val bitsCharset: BitsCharsetN
           if (requiredBitOrder eq BitOrder.MostSignificantBitFirst) {
             val nLeftOverBits = bitWidthOfACodeUnit - nUsedBits
             Assert.invariant(nLeftOverBits >= 0)
-            partialByte |= (charCodeToWrite >> nLeftOverBits) & 0xFF
+            partialByte |= (charCodeToWrite >> nLeftOverBits) & 0xff
             out.put(partialByte.toByte)
             val leftOverMask = (1 << nLeftOverBits) - 1
             val newPartialByte = (charCodeToWrite & leftOverMask) << (8 - nLeftOverBits)
-            partialByte = newPartialByte & 0xFF
+            partialByte = newPartialByte & 0xff
             partialByteLenInBits = nLeftOverBits
           } else {
             // LSBF
-            partialByte |= (charCodeToWrite << partialByteLenInBits) & 0xFF
+            partialByte |= (charCodeToWrite << partialByteLenInBits) & 0xff
             out.put(partialByte.toByte)
             partialByte = charCodeToWrite >> nUsedBits
             partialByteLenInBits = bitWidthOfACodeUnit - nUsedBits
@@ -290,10 +303,10 @@ final class BitsCharsetNonByteSizeEncoder(override val bitsCharset: BitsCharsetN
         } else {
           // there's a partial byte but there won't be enough bits to make it a full byte
           if (requiredBitOrder eq BitOrder.MostSignificantBitFirst) {
-            partialByte |= (charCodeToWrite << (8 - partialByteLenInBits - bitWidthOfACodeUnit)) & 0xFF
+            partialByte |= (charCodeToWrite << (8 - partialByteLenInBits - bitWidthOfACodeUnit)) & 0xff
           } else {
             // LSBF
-            partialByte |= (charCodeToWrite << partialByteLenInBits) & 0xFF
+            partialByte |= (charCodeToWrite << partialByteLenInBits) & 0xff
           }
           partialByteLenInBits = bitWidthOfACodeUnit + partialByteLenInBits
         }
@@ -306,7 +319,7 @@ final class BitsCharsetNonByteSizeEncoder(override val bitsCharset: BitsCharsetN
             if (requiredBitOrder eq BitOrder.MostSignificantBitFirst)
               (1 << (8 - partialByteLenInBits)) - 1
             else
-              (-1 << partialByteLenInBits) & 0xFF
+              (-1 << partialByteLenInBits) & 0xff
           val unusedPartialByteBits = partialByte & unusedPartialByteMask
           unusedPartialByteBits == 0
         })

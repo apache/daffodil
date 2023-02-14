@@ -23,13 +23,15 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * X-DFDL-ISO-88591-8-BIT-PACKED-LSB-FIRST occupies only 8 bits with each
  * code unit.
  */
-object BitsCharsetISO885918BitPackedLSBF extends {
-  override val name = "X-DFDL-ISO-88591-8-BIT-PACKED-LSB-FIRST"
-  override val bitWidthOfACodeUnit = 8
-  override val decodeString = (0 to 255).map { _.toChar }.mkString
-  override val replacementCharCode = 0x3F
-  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetISO885918BitPackedLSBF
+  extends {
+    override val name = "X-DFDL-ISO-88591-8-BIT-PACKED-LSB-FIRST"
+    override val bitWidthOfACodeUnit = 8
+    override val decodeString = (0 to 255).map { _.toChar }.mkString
+    override val replacementCharCode = 0x3f
+    override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
 final class BitsCharsetISO885918BitPackedLSBFDefinition
   extends BitsCharsetDefinition(BitsCharsetISO885918BitPackedLSBF)
@@ -38,13 +40,15 @@ final class BitsCharsetISO885918BitPackedLSBFDefinition
  * X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST occupies only 8 bits with each
  * code unit.
  */
-object BitsCharsetISO885918BitPackedMSBF extends {
-  override val name = "X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST"
-  override val bitWidthOfACodeUnit = 8
-  override val decodeString = (0 to 255).map { _.toChar }.mkString
-  override val replacementCharCode = 0x3F
-  override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetISO885918BitPackedMSBF
+  extends {
+    override val name = "X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST"
+    override val bitWidthOfACodeUnit = 8
+    override val decodeString = (0 to 255).map { _.toChar }.mkString
+    override val replacementCharCode = 0x3f
+    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
 final class BitsCharsetISO885918BitPackedMSBFDefinition
   extends BitsCharsetDefinition(BitsCharsetISO885918BitPackedMSBF)

@@ -17,23 +17,20 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.lib.util.Misc
-
-import scala.xml.Node
-import scala.collection.immutable.ListMap
-import org.apache.daffodil.lib.xml.NS
-import org.apache.daffodil.core.dsom.IIUtils._
-
 import java.io.File
 import java.net.URI
-import org.apache.daffodil.lib.util.Delay
-
+import java.net.URISyntaxException
 import java.net.URLEncoder
+import scala.collection.immutable.ListMap
+import scala.xml.Node
+
+import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.URISchemaSource
-
-import java.net.URISyntaxException
 import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.util.Delay
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.xml.NS
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include
@@ -127,8 +124,11 @@ object IIUtils {
 /**
  * Include/Import = "II" for short
  */
-abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMap)
-  extends SchemaComponent
+abstract class IIBase(
+  final override val xml: Node,
+  xsdArg: XMLSchemaDocument,
+  val seenBefore: IIMap,
+) extends SchemaComponent
   with NestingLexicalMixin {
   final override def optLexicalParent = Option(xsdArg)
 
@@ -162,11 +162,15 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
    * we will detect it.
    */
   protected final lazy val seenBeforeThisFile: IIMap = LV('seenBeforeThisFile) {
-    val res = Delay('seenBeforeThisFile, this, {
-      val v = if (notSeenThisBefore) seenBefore.value + mapTuple
-      else seenBefore.value
-      v
-    })
+    val res = Delay(
+      'seenBeforeThisFile,
+      this, {
+        val v =
+          if (notSeenThisBefore) seenBefore.value + mapTuple
+          else seenBefore.value
+        v
+      },
+    )
     res
   }.value
 
@@ -178,13 +182,17 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
   final lazy val schemaLocationProperty = {
     val prop = getAttributeOption("schemaLocation")
     if (prop.isDefined && prop.get == "edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd") {
-      SDW(WarnID.DeprecatedBuiltInFormats, "schemaLocation property uses deprecated include/import of edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd. Use org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd instead and change the dfdl:format ref to \"GeneralFormat\".")
+      SDW(
+        WarnID.DeprecatedBuiltInFormats,
+        "schemaLocation property uses deprecated include/import of edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd. Use org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd instead and change the dfdl:format ref to \"GeneralFormat\".",
+      )
     }
     prop
   }
 
   protected final def isValidURI(uri: String): Boolean = {
-    try { new URI(uri) } catch { case ex: URISyntaxException => return false }
+    try { new URI(uri) }
+    catch { case ex: URISyntaxException => return false }
     true
   }
 
@@ -194,46 +202,50 @@ abstract class IIBase( final override val xml: Node, xsdArg: XMLSchemaDocument, 
    * to the location of the including/importing file, etc.
    */
 
-  protected final lazy val resolvedSchemaLocation: Option[DaffodilSchemaSource] = LV('resolvedSchemaLocation) {
-    val res = schemaLocationProperty.flatMap { slText =>
-      // We need to determine if the URI is valid, if it's not we should attempt to encode it
-      // to make it valid (takes care of spaces in directories). If it fails after this, oh well!
-      val encodedSLText = if (!isValidURI(slText)) {
-        val file = new File(slText)
-        if (file.exists()) file.toURI().toString() else URLEncoder.encode(slText, "UTF-8")
-      } else slText
+  protected final lazy val resolvedSchemaLocation: Option[DaffodilSchemaSource] =
+    LV('resolvedSchemaLocation) {
+      val res = schemaLocationProperty.flatMap { slText =>
+        // We need to determine if the URI is valid, if it's not we should attempt to encode it
+        // to make it valid (takes care of spaces in directories). If it fails after this, oh well!
+        val encodedSLText = if (!isValidURI(slText)) {
+          val file = new File(slText)
+          if (file.exists()) file.toURI().toString() else URLEncoder.encode(slText, "UTF-8")
+        } else slText
 
-      val uri: URI = URI.create(encodedSLText)
-      val enclosingSchemaURI: Option[URI] = if (Misc.isFileURI(uri)) None else schemaFile.map { _.schemaSource.uriForLoading }
+        val uri: URI = URI.create(encodedSLText)
+        val enclosingSchemaURI: Option[URI] =
+          if (Misc.isFileURI(uri)) None else schemaFile.map { _.schemaSource.uriForLoading }
 
-      val completeURI = enclosingSchemaURI.map { _.resolve(uri) }.getOrElse(uri)
-      val protocol = {
-        if (completeURI.isAbsolute) {
-          val completeURL = completeURI.toURL
-          completeURL.getProtocol()
-        } else {
-          ""
+        val completeURI = enclosingSchemaURI.map { _.resolve(uri) }.getOrElse(uri)
+        val protocol = {
+          if (completeURI.isAbsolute) {
+            val completeURL = completeURI.toURL
+            completeURL.getProtocol()
+          } else {
+            ""
+          }
         }
+        //
+        // Note that Looking in the current working directory (CWD)
+        // would be a security risk/issue. So if a user wants the CWD
+        // they should add "." to their classpath to get it to be
+        // searched.
+        //
+        val resolved =
+          if (protocol == "file" && (new File(completeURI)).exists)
+            Some(URISchemaSource(completeURI))
+          else if (protocol == "jar")
+            Some(
+              URISchemaSource(completeURI),
+            ) // jars are pre-resolved - we got the jar URI from the resolver
+          else {
+            val res = Misc.getResourceRelativeOption(encodedSLText, enclosingSchemaURI)
+            res.map { URISchemaSource(_) }
+          }
+        resolved
       }
-      //
-      // Note that Looking in the current working directory (CWD)
-      // would be a security risk/issue. So if a user wants the CWD
-      // they should add "." to their classpath to get it to be
-      // searched.
-      //
-      val resolved =
-        if (protocol == "file" && (new File(completeURI)).exists)
-          Some(URISchemaSource(completeURI))
-        else if (protocol == "jar")
-          Some(URISchemaSource(completeURI)) // jars are pre-resolved - we got the jar URI from the resolver
-        else {
-          val res = Misc.getResourceRelativeOption(encodedSLText, enclosingSchemaURI)
-          res.map { URISchemaSource(_) }
-        }
-      resolved
-    }
-    res
-  }.value
+      res
+    }.value
 
   protected def mapPair: (NS, DaffodilSchemaSource)
 

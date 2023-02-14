@@ -17,19 +17,18 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-import org.apache.daffodil.runtime1.processors._
-import org.apache.daffodil.runtime1.processors.parsers.TextDecimalVirtualPointMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextZonedSignStyle
 import org.apache.daffodil.lib.util.DecimalUtils
 import org.apache.daffodil.lib.util.DecimalUtils.OverpunchLocation
+import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.runtime1.processors.parsers.TextDecimalVirtualPointMixin
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 case class ConvertZonedCombinatorUnparser(
   rd: TermRuntimeData,
   valueUnparser: Unparser,
-  converterUnparser: Unparser)
-  extends CombinatorUnparser(rd) {
+  converterUnparser: Unparser,
+) extends CombinatorUnparser(rd) {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -48,8 +47,8 @@ case class ConvertZonedNumberUnparser(
   opl: OverpunchLocation.Value,
   zonedSignStyle: TextZonedSignStyle,
   override val context: ElementRuntimeData,
-  override val textDecimalVirtualPoint: Int)
-  extends PrimUnparser
+  override val textDecimalVirtualPoint: Int,
+) extends PrimUnparser
   with TextDecimalVirtualPointMixin
   with ToBriefXMLImpl {
 

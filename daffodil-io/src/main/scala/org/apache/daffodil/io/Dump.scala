@@ -23,13 +23,13 @@ import java.nio.charset.CoderResult
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.{ CharsetDecoder => JavaCharsetDecoder }
 
-import com.ibm.icu.lang.UCharacter
-import com.ibm.icu.lang.UCharacterEnums
-import com.ibm.icu.lang.UProperty
-
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
+
+import com.ibm.icu.lang.UCharacter
+import com.ibm.icu.lang.UCharacterEnums
+import com.ibm.icu.lang.UProperty
 
 /**
  * Hex/Bits and text dump formats for debug/trace purposes.
@@ -54,13 +54,24 @@ class DataDumper {
   protected sealed trait BinaryKind extends Kind
   protected sealed trait HexKind extends BinaryKind // hexadecimal
   protected sealed trait Direction
-  protected sealed trait RTL extends Direction // used with least-signif-bit first data like mil-std-2045
+  protected sealed trait RTL
+    extends Direction // used with least-signif-bit first data like mil-std-2045
   protected sealed trait LTR extends Direction
-  case class TextOnly(override val optCharset: Option[String] = None) extends TextKind(optCharset)
-  case class MixedHexLTR(override val optCharset: Option[String] = None) extends TextKind(optCharset) with HexKind with LTR
-  case class MixedHexRTL(override val optCharset: Option[String] = None) extends TextKind(optCharset) with HexKind with RTL
+  case class TextOnly(override val optCharset: Option[String] = None)
+    extends TextKind(optCharset)
+  case class MixedHexLTR(override val optCharset: Option[String] = None)
+    extends TextKind(optCharset)
+    with HexKind
+    with LTR
+  case class MixedHexRTL(override val optCharset: Option[String] = None)
+    extends TextKind(optCharset)
+    with HexKind
+    with RTL
 
-  def convertBitsToBytesUnits(startBitAddress0b: Long, lengthInBits: Long): (Long, Int, Long) = {
+  def convertBitsToBytesUnits(
+    startBitAddress0b: Long,
+    lengthInBits: Long,
+  ): (Long, Int, Long) = {
     Assert.usage(startBitAddress0b >= 0)
     Assert.usage(lengthInBits >= 0)
     val startByteAddress0b = startBitAddress0b >> 3
@@ -100,14 +111,21 @@ class DataDumper {
    *
    * The byte source is a window into the data stream.
    */
-  def dump(kind: Kind, shamStartBitAddress0b: Long, lengthInBits: Int, byteBuffer: ByteBuffer, maxLineLength: Int = defaultMaxLineLength,
+  def dump(
+    kind: Kind,
+    shamStartBitAddress0b: Long,
+    lengthInBits: Int,
+    byteBuffer: ByteBuffer,
+    maxLineLength: Int = defaultMaxLineLength,
     includeHeadingLine: Boolean = true,
-    indicatorInfo: Option[(Long, Int)] = None): Seq[String] = {
-    val (shamStartByteAddress0b, lengthInBytes, _) = convertBitsToBytesUnits(shamStartBitAddress0b, lengthInBits)
-    val indicatorInfoInBytes = indicatorInfo.map {
-      case (indStartBits0b, indLenBits) =>
-        val (indStartByteAddress0b, indLengthInBytes, _) = convertBitsToBytesUnits(indStartBits0b, indLenBits)
-        (indStartByteAddress0b, indLengthInBytes)
+    indicatorInfo: Option[(Long, Int)] = None,
+  ): Seq[String] = {
+    val (shamStartByteAddress0b, lengthInBytes, _) =
+      convertBitsToBytesUnits(shamStartBitAddress0b, lengthInBits)
+    val indicatorInfoInBytes = indicatorInfo.map { case (indStartBits0b, indLenBits) =>
+      val (indStartByteAddress0b, indLengthInBytes, _) =
+        convertBitsToBytesUnits(indStartBits0b, indLenBits)
+      (indStartByteAddress0b, indLengthInBytes)
     }
     val optEncName = kind match {
       case t: TextKind => t.optCharset
@@ -115,12 +133,32 @@ class DataDumper {
     }
     kind match {
       case TextOnly(enc) => {
-        dumpTextLine(maxLineLength, shamStartByteAddress0b, lengthInBytes, byteBuffer, enc, indicatorInfoInBytes)
+        dumpTextLine(
+          maxLineLength,
+          shamStartByteAddress0b,
+          lengthInBytes,
+          byteBuffer,
+          enc,
+          indicatorInfoInBytes,
+        )
       }
       case MixedHexLTR(optionCS) =>
-        dumpHexAndTextBytes(shamStartByteAddress0b, lengthInBytes, byteBuffer, includeHeadingLine, optEncName, indicatorInfoInBytes)
+        dumpHexAndTextBytes(
+          shamStartByteAddress0b,
+          lengthInBytes,
+          byteBuffer,
+          includeHeadingLine,
+          optEncName,
+          indicatorInfoInBytes,
+        )
       case MixedHexRTL(None) =>
-        dumpHexAndTextBytesLSBFirst(shamStartByteAddress0b, lengthInBytes, byteBuffer, includeHeadingLine, optEncName)
+        dumpHexAndTextBytesLSBFirst(
+          shamStartByteAddress0b,
+          lengthInBytes,
+          byteBuffer,
+          includeHeadingLine,
+          optEncName,
+        )
       case _ => Assert.usageError("unsupported dump kind")
     }
   }
@@ -132,14 +170,22 @@ class DataDumper {
   var paddingFromPriorLine = ""
   var nPadBytesFromPriorLine = 0
 
-  private def textDump(addr: Long, rowStart0b: Int, txtsb: StringBuilder,
-    limit0b: Int, endByteAddress0b: Long, byteBuffer: ByteBuffer, decoder: Option[JavaCharsetDecoder],
-    textByteWidth: Int): Unit = {
+  private def textDump(
+    addr: Long,
+    rowStart0b: Int,
+    txtsb: StringBuilder,
+    limit0b: Int,
+    endByteAddress0b: Long,
+    byteBuffer: ByteBuffer,
+    decoder: Option[JavaCharsetDecoder],
+    textByteWidth: Int,
+  ): Unit = {
     var i = rowStart0b + nPadBytesFromPriorLine
     txtsb ++= paddingFromPriorLine
     while (i <= limit0b) {
       val bytePos0b = addr + i
-      val (charRep, nBytesConsumed, width) = convertToCharRepr(bytePos0b, endByteAddress0b, byteBuffer, decoder)
+      val (charRep, nBytesConsumed, width) =
+        convertToCharRepr(bytePos0b, endByteAddress0b, byteBuffer, decoder)
       Assert.invariant(nBytesConsumed > 0)
       // some characters will print double width. It is assumed all such
       // characters occupy at least one byte.
@@ -183,6 +229,7 @@ class DataDumper {
       i += nBytesConsumed
     }
   }
+
   /**
    * Creates a dump that looks like Emacs Hexl mode.
    *
@@ -196,11 +243,14 @@ class DataDumper {
    * <p>
    * For examples see the TestDump class.
    */
-  private[io] def dumpHexAndTextBytes(startByteAddress0b: Long, lengthInBytes: Int,
+  private[io] def dumpHexAndTextBytes(
+    startByteAddress0b: Long,
+    lengthInBytes: Int,
     byteBuffer: ByteBuffer,
     includeHeadingLine: Boolean,
     optEncodingName: Option[String],
-    indicatorInfoInBytes: Option[(Long, Int)]): Seq[String] = {
+    indicatorInfoInBytes: Option[(Long, Int)],
+  ): Seq[String] = {
 
     Assert.usage(startByteAddress0b >= 0)
     Assert.usage(lengthInBytes >= 0)
@@ -213,7 +263,7 @@ class DataDumper {
     val hexHeader = """0011 2233 4455 6677 8899 aabb ccdd eeff""" // space on the end is needed
     val headingHex = addressHeader + hexHeader
     val firstGutter = ": "
-    val offset0b = (startByteAddress0b & 0xF).toInt
+    val offset0b = (startByteAddress0b & 0xf).toInt
     val hexRegionInitialWhitespace = {
       val offset2 = offset0b / 2
       val res = "     " * offset2 +
@@ -223,13 +273,20 @@ class DataDumper {
     val textRegionInitialWhitespace = (" " * textByteWidth) * offset0b
 
     val indicatorLine =
-      makeHexAndTextIndicatorLine(indicatorInfoInBytes, startByteAddress0b, lengthInBytes,
-        hexHeader.length, addressHeader.length, textByteWidth)
+      makeHexAndTextIndicatorLine(
+        indicatorInfoInBytes,
+        startByteAddress0b,
+        lengthInBytes,
+        hexHeader.length,
+        addressHeader.length,
+        textByteWidth,
+      )
 
     var isFirstRow = true
     var isLastRow = false
-    val firstLeftAddress = startByteAddress0b & 0x7FFFFFFFFFFFFF0L
-    val lastLeftAddress = math.max(0, (startByteAddress0b + lengthInBytes - 1)) & 0x7FFFFFFFFFFFFFF0L
+    val firstLeftAddress = startByteAddress0b & 0x7fffffffffffff0L
+    val lastLeftAddress =
+      math.max(0, (startByteAddress0b + lengthInBytes - 1)) & 0x7ffffffffffffff0L
 
     val headingLine = headingHex + "  " + textDataHeader
 
@@ -249,12 +306,11 @@ class DataDumper {
     paddingFromPriorLine = ""
     nPadBytesFromPriorLine = 0
 
-    firstLeftAddress to lastLeftAddress by 16 foreach {
+    (firstLeftAddress to lastLeftAddress by 16).foreach {
       //
       // for each line/row, we assemble the address part, the hex part, and the text part
       //
       addr =>
-
         if (addr == lastLeftAddress) {
           isLastRow = true
           limit0b = (endByteAddress0b & 0xf).toInt // might be fewer than all 16 for last row
@@ -270,13 +326,14 @@ class DataDumper {
         //
         // Hex dump
         //
-        rowStart0b to limit0b foreach { i =>
+        (rowStart0b to limit0b).foreach { i =>
           val bytePos0b = addr + i - startByteAddress0b
-          val byteValue = try {
-            byteBuffer.get(bytePos0b.toInt)
-          } catch {
-            case e: IndexOutOfBoundsException => 0.toByte
-          }
+          val byteValue =
+            try {
+              byteBuffer.get(bytePos0b.toInt)
+            } catch {
+              case e: IndexOutOfBoundsException => 0.toByte
+            }
           val hex = "%02x".format(byteValue)
           val gutter = if ((i & 0x1) == 0) "" else " "
           hexsb ++= hex + gutter
@@ -284,22 +341,29 @@ class DataDumper {
         //
         // Text dump
         //
-        textDump(addr - startByteAddress0b, rowStart0b, txtsb,
-          limit0b, endByteAddress0b, byteBuffer, decoder,
-          textByteWidth)
+        textDump(
+          addr - startByteAddress0b,
+          rowStart0b,
+          txtsb,
+          limit0b,
+          endByteAddress0b,
+          byteBuffer,
+          decoder,
+          textByteWidth,
+        )
 
         if (isLastRow) {
           //
           // Trailing spaces on the hex dump
           //
-          (limit0b + 1) to 15 foreach { i =>
+          ((limit0b + 1) to 15).foreach { i =>
             val gutter = if ((i & 0x1) == 1) " " else ""
             hexsb ++= "  " + gutter
           }
           //
           // Trailing spaces on the text dump
           //
-          (limit0b + 1) to 15 foreach { i =>
+          ((limit0b + 1) to 15).foreach { i =>
             txtsb ++= (" " * textByteWidth)
           }
         }
@@ -327,85 +391,93 @@ class DataDumper {
   // but they can also be shorter than 16 bytes if the region starts further
   // in from the left.
   //
-  private def makeHexAndTextIndicatorLine(indicatorInfoInBytes: Option[(Long, Int)], startByteAddress0b: Long, lengthInBytes: Int,
-    hexHeaderLength: Int, addressHeaderLength: Int, textByteWidth: Int) = {
-    indicatorInfoInBytes.map {
-      case (goalIndByteAddress0b: Long, indLengthInBytes: Int) =>
-        val indByteAddress0b = math.max(goalIndByteAddress0b, startByteAddress0b)
-        val delta = indByteAddress0b - startByteAddress0b
-        val realLengthInBytes = math.min(indLengthInBytes, lengthInBytes)
-        //
-        // if the delta is more than this, the indicator will be ambiguous because what it
-        // points at isn't directly below, but possibly a further row down.
-        //
-        Assert.usage(delta < 16)
-        Assert.usage(indLengthInBytes >= 0) // if too big we'll clamp it.
-        val indicatorOffset0b = indByteAddress0b.toInt % 16
-        val indOffset2 = indicatorOffset0b / 2
-        val initialHexSpaces = "     " * indOffset2 +
-          ("  " * (indicatorOffset0b & 0x1)) // blank first half of pair
+  private def makeHexAndTextIndicatorLine(
+    indicatorInfoInBytes: Option[(Long, Int)],
+    startByteAddress0b: Long,
+    lengthInBytes: Int,
+    hexHeaderLength: Int,
+    addressHeaderLength: Int,
+    textByteWidth: Int,
+  ) = {
+    indicatorInfoInBytes.map { case (goalIndByteAddress0b: Long, indLengthInBytes: Int) =>
+      val indByteAddress0b = math.max(goalIndByteAddress0b, startByteAddress0b)
+      val delta = indByteAddress0b - startByteAddress0b
+      val realLengthInBytes = math.min(indLengthInBytes, lengthInBytes)
+      //
+      // if the delta is more than this, the indicator will be ambiguous because what it
+      // points at isn't directly below, but possibly a further row down.
+      //
+      Assert.usage(delta < 16)
+      Assert.usage(indLengthInBytes >= 0) // if too big we'll clamp it.
+      val indicatorOffset0b = indByteAddress0b.toInt % 16
+      val indOffset2 = indicatorOffset0b / 2
+      val initialHexSpaces = "     " * indOffset2 +
+        ("  " * (indicatorOffset0b & 0x1)) // blank first half of pair
 
-        val pictureLengthInBytes = math.min(16 - indicatorOffset0b.toInt, realLengthInBytes)
-        val hexIndicator = {
-          val picture =
-            (pictureLengthInBytes, indByteAddress0b % 2) match {
-              case (0, _) => "│"
-              case (1, _) if realLengthInBytes =#= 1 => "├┤"
-              case (1, _) => "├═"
-              case (2, 0) if realLengthInBytes =#= 2 => "├──┤"
-              case (2, 0) => "├──═"
-              case (2, 1) => "├───┤" // middle dash spans the gutter
-              case (n, s) => {
-                Assert.invariant(n >= 3)
-                val startCap = "├─"
-                val endCap =
-                  if (realLengthInBytes > n) "─═"
-                  else "─┤"
-                val startBytePic = if (s =#= 0) startCap + "──" else startCap
-                val endBytePic = if (((indicatorOffset0b.toInt + n) % 2) =#= 0) "──" + endCap else endCap
+      val pictureLengthInBytes = math.min(16 - indicatorOffset0b.toInt, realLengthInBytes)
+      val hexIndicator = {
+        val picture =
+          (pictureLengthInBytes, indByteAddress0b % 2) match {
+            case (0, _) => "│"
+            case (1, _) if realLengthInBytes =#= 1 => "├┤"
+            case (1, _) => "├═"
+            case (2, 0) if realLengthInBytes =#= 2 => "├──┤"
+            case (2, 0) => "├──═"
+            case (2, 1) => "├───┤" // middle dash spans the gutter
+            case (n, s) => {
+              Assert.invariant(n >= 3)
+              val startCap = "├─"
+              val endCap =
+                if (realLengthInBytes > n) "─═"
+                else "─┤"
+              val startBytePic = if (s =#= 0) startCap + "──" else startCap
+              val endBytePic =
+                if (((indicatorOffset0b.toInt + n) % 2) =#= 0) "──" + endCap else endCap
 
-                val startRoundUp2 = (indicatorOffset0b.toInt + 2) - (indicatorOffset0b.toInt + 2) % 2
-                val endRoundDown2 = (indicatorOffset0b.toInt + n - 1) - (indicatorOffset0b.toInt + n - 1) % 2
+              val startRoundUp2 =
+                (indicatorOffset0b.toInt + 2) - (indicatorOffset0b.toInt + 2) % 2
+              val endRoundDown2 =
+                (indicatorOffset0b.toInt + n - 1) - (indicatorOffset0b.toInt + n - 1) % 2
 
-                val middleBytes = (endRoundDown2 - startRoundUp2) / 2
-                val middleBytePics = Seq.fill(middleBytes.toInt)("────")
+              val middleBytes = (endRoundDown2 - startRoundUp2) / 2
+              val middleBytePics = Seq.fill(middleBytes.toInt)("────")
 
-                val bytePix = startBytePic +: middleBytePics :+ endBytePic
-                val pic = bytePix.mkString("─") // for the single space gutters between
-                pic
-              }
+              val bytePix = startBytePic +: middleBytePics :+ endBytePic
+              val pic = bytePix.mkString("─") // for the single space gutters between
+              pic
             }
-          val pictureOnly = initialHexSpaces + picture
-          val endPadLength = hexHeaderLength - pictureOnly.length
-          val endPad = " " * endPadLength
-          val finalPicture = pictureOnly + endPad
-          finalPicture
-        }
-        val textIndicator = {
-          val initialTextSpaces = " " * textByteWidth * indicatorOffset0b
-          val picture =
-            (pictureLengthInBytes, textByteWidth) match {
-              case (0, _) => "│"
-              case (1, 1) => "║"
-              case (1, 2) => "├┤"
-              case (n, w) => {
-                val pad = if (w =#= 1) "" else "─"
-                val startCap = "├" + pad
-                val endCap =
-                  if (realLengthInBytes > n) pad + "═"
-                  else pad + "┤"
-                val middleBytePics = 1 to (pictureLengthInBytes - 2) map { _ => "─" + pad }
-                val allPix = startCap +: middleBytePics :+ endCap
-                val pic = allPix.mkString
-                pic
-              }
+          }
+        val pictureOnly = initialHexSpaces + picture
+        val endPadLength = hexHeaderLength - pictureOnly.length
+        val endPad = " " * endPadLength
+        val finalPicture = pictureOnly + endPad
+        finalPicture
+      }
+      val textIndicator = {
+        val initialTextSpaces = " " * textByteWidth * indicatorOffset0b
+        val picture =
+          (pictureLengthInBytes, textByteWidth) match {
+            case (0, _) => "│"
+            case (1, 1) => "║"
+            case (1, 2) => "├┤"
+            case (n, w) => {
+              val pad = if (w =#= 1) "" else "─"
+              val startCap = "├" + pad
+              val endCap =
+                if (realLengthInBytes > n) pad + "═"
+                else pad + "┤"
+              val middleBytePics = (1 to (pictureLengthInBytes - 2)).map { _ => "─" + pad }
+              val allPix = startCap +: middleBytePics :+ endCap
+              val pic = allPix.mkString
+              pic
             }
-          val finalPicture = initialTextSpaces + picture
-          finalPicture
-        }
-        val initialSpaces = " " * addressHeaderLength
-        val line = initialSpaces + hexIndicator + "  " + textIndicator
-        line
+          }
+        val finalPicture = initialTextSpaces + picture
+        finalPicture
+      }
+      val initialSpaces = " " * addressHeaderLength
+      val line = initialSpaces + hexIndicator + "  " + textIndicator
+      line
     }
   }
 
@@ -435,6 +507,7 @@ class DataDumper {
       }
     }
   }
+
   /**
    * The width of the character in terms of how many "places" it uses up
    * relative to a regular monospaced font character. This is for trying to get
@@ -455,7 +528,9 @@ class DataDumper {
     }
   }
 
-  private def getReportingDecoder(optEncodingName: Option[String]): Option[JavaCharsetDecoder] = {
+  private def getReportingDecoder(
+    optEncodingName: Option[String],
+  ): Option[JavaCharsetDecoder] = {
     val cs = optEncodingName.map { JavaCharset.forName(_) }
     lazy val decoder = cs.map { _.newDecoder() }
     decoder
@@ -469,7 +544,8 @@ class DataDumper {
     startingBytePos0b: Long,
     endingBytePos0b: Long,
     byteBuffer: ByteBuffer,
-    decoder: Option[JavaCharsetDecoder]): (String, Int, Int) = {
+    decoder: Option[JavaCharsetDecoder],
+  ): (String, Int, Int) = {
 
     Assert.invariant(decoder.map { d => Misc.isAsciiBased(d.charset()) }.getOrElse(true))
     decoder match {
@@ -481,17 +557,21 @@ class DataDumper {
         var remapped = ""
         var nCols = 0
         val INVALID_CODEPOINT = -1
-        val lastAvailableBytePos0b = scala.math.min(endingBytePos0b, startingBytePos0b + 5) // widest possible char representation is 6 bytes.
+        val lastAvailableBytePos0b = scala.math.min(
+          endingBytePos0b,
+          startingBytePos0b + 5,
+        ) // widest possible char representation is 6 bytes.
         val nBytes = (lastAvailableBytePos0b - startingBytePos0b).toInt + 1
         Assert.invariant(nBytes > 0) // have to have at least 1 byte left
-        0 until nBytes foreach { i =>
+        (0 until nBytes).foreach { i =>
           val thePos = (startingBytePos0b + i).toInt
           Assert.invariant(thePos >= 0)
-          val theByte = try {
-            byteBuffer.get(thePos)
-          } catch {
-            case e: IndexOutOfBoundsException => 0.toByte
-          }
+          val theByte =
+            try {
+              byteBuffer.get(thePos)
+            } catch {
+              case e: IndexOutOfBoundsException => 0.toByte
+            }
           bb.put(theByte)
         }
         bb.flip()
@@ -520,7 +600,7 @@ class DataDumper {
         Assert.invariant(!(cr.isUnderflow && nConsumedBytes == 0))
 
         if ((cr.isMalformed || cr.isUnmappable) && nConsumedBytes == 0) {
-          //do manual replacement
+          // do manual replacement
           remapped = dec.replacement()
           // grab malformed/unmappable byte so we can keep decoding
           nConsumedBytes = cr.length
@@ -551,8 +631,10 @@ class DataDumper {
               if (uCodePoint == INVALID_CODEPOINT) {
                 allChars.map(c => homogenizeChars(c)).foldLeft(("", 0)) {
                   (accForRemappedAndNcols, tupResultRemappedAndNcols) =>
-                    (accForRemappedAndNcols._1 + tupResultRemappedAndNcols._1, //concat remapped value for each char
-                      accForRemappedAndNcols._2 + tupResultRemappedAndNcols._2) // add width value for each char
+                    (
+                      accForRemappedAndNcols._1 + tupResultRemappedAndNcols._1, // concat remapped value for each char
+                      accForRemappedAndNcols._2 + tupResultRemappedAndNcols._2,
+                    ) // add width value for each char
                 }
               } else {
                 homogenizeChars(uCodePoint)
@@ -568,11 +650,12 @@ class DataDumper {
       case None => {
         // no encoding, so use the general one based on windows-1252 where
         // every byte corresponds to a character with a glyph.
-        val byteValue = try {
-          byteBuffer.get(startingBytePos0b.toInt)
-        } catch {
-          case e: IndexOutOfBoundsException => 0.toByte
-        }
+        val byteValue =
+          try {
+            byteBuffer.get(startingBytePos0b.toInt)
+          } catch {
+            case e: IndexOutOfBoundsException => 0.toByte
+          }
         // decoding using a decoder might produce C0 or C1 control characters or
         // other whitespace characters. But we want visible glyphs no matter what for those.
         //
@@ -588,9 +671,14 @@ class DataDumper {
    * If displaying ONLY text, then we just display one long line
    * and replace any whitespace or non-glyph characters with glyph characters.
    */
-  def dumpTextLine(maxLineLen: Int, startByteAddress0b: Long, lengthInBytesRequested: Int, byteBuffer: ByteBuffer,
+  def dumpTextLine(
+    maxLineLen: Int,
+    startByteAddress0b: Long,
+    lengthInBytesRequested: Int,
+    byteBuffer: ByteBuffer,
     optEncodingName: Option[String] = None,
-    indicatorInfoInBytes: Option[(Long, Int)] = None): Seq[String] = {
+    indicatorInfoInBytes: Option[(Long, Int)] = None,
+  ): Seq[String] = {
     Assert.usage(startByteAddress0b >= 0)
     Assert.usage(lengthInBytesRequested >= 0)
     val lengthInBytes = math.min(lengthInBytesRequested, maxLineLen)
@@ -616,7 +704,8 @@ class DataDumper {
               if (lengthInBytesRequested <= maxLineLength) {
                 // the number of characters displayed will be shorter than
                 // the max width
-                if (indicatorEndLength <= lengthInBytesRequested) "┤" // indicator ends at or before the data
+                if (indicatorEndLength <= lengthInBytesRequested)
+                  "┤" // indicator ends at or before the data
                 else "═" // indicator indicates past the end. This shouldn't really happen.
               } else {
                 // the number of characters displayed will meet the maximum
@@ -636,7 +725,8 @@ class DataDumper {
     var i = startByteAddress0b
     val sb = new StringBuilder
     while (i <= endByteAddress0b) {
-      val (cR, nBytesConsumed, _) = convertToCharRepr(i - startByteAddress0b, endByteAddress0b, byteBuffer, decoder)
+      val (cR, nBytesConsumed, _) =
+        convertToCharRepr(i - startByteAddress0b, endByteAddress0b, byteBuffer, decoder)
       sb ++= cR
       i += nBytesConsumed
     }
@@ -648,7 +738,9 @@ class DataDumper {
   /**
    * gets header line, width of a character, and encoding name to actually use
    */
-  private def getTextParameters(optEncodingName: Option[String]): (String, Int, Option[String]) = {
+  private def getTextParameters(
+    optEncodingName: Option[String],
+  ): (String, Int, Option[String]) = {
     //
     // this def and subsequent match-case are done this way to silence
     // a scala compiler warning
@@ -673,30 +765,40 @@ class DataDumper {
    * Create a right-to-left presentation of the kind used for LSB-first
    * little-endian data
    */
-  private[io] def dumpHexAndTextBytesLSBFirst(startByteAddress0b: Long, lengthInBytes: Int,
+  private[io] def dumpHexAndTextBytesLSBFirst(
+    startByteAddress0b: Long,
+    lengthInBytes: Int,
     byteBuffer: ByteBuffer,
     includeHeadingLine: Boolean = true,
-    optEncodingName: Option[String] = None): Seq[String] = {
-    val ltrDump = dumpHexAndTextBytes(startByteAddress0b, lengthInBytes,
-      byteBuffer, includeHeadingLine, optEncodingName, None)
+    optEncodingName: Option[String] = None,
+  ): Seq[String] = {
+    val ltrDump = dumpHexAndTextBytes(
+      startByteAddress0b,
+      lengthInBytes,
+      byteBuffer,
+      includeHeadingLine,
+      optEncodingName,
+      None,
+    )
     val ltrLines =
       ltrDump.filterNot { _.length() == 0 }
     val wholeLineRegex = """([0-9a-fA-F]{8})(:?\s+)([0-9a-fA-F ]+[0-9a-fA-F])(\s+)(.*)""".r
-    val rtlLines = ltrLines.map {
-      ltrLine =>
-        ltrLine match {
-          case wholeLineRegex(addr, sep1, hexlBytes, sep2, asciiText) => {
-            val hexlNibblesSwitch = hexlBytes
-              .split(" ").map { hexlGroup =>
-                hexlGroup
-                  .sliding(2, 2) // grab each incorrectly reversed (nibbles are switched) byte
-                  .map(_.reverse) // reverse the byte
-                  .mkString // and convert back to string
-              }.mkString(" ") //convert back to string
-            asciiText.reverse + sep2 + hexlNibblesSwitch.reverse + sep1.reverse + addr
-          }
-          case x => x
+    val rtlLines = ltrLines.map { ltrLine =>
+      ltrLine match {
+        case wholeLineRegex(addr, sep1, hexlBytes, sep2, asciiText) => {
+          val hexlNibblesSwitch = hexlBytes
+            .split(" ")
+            .map { hexlGroup =>
+              hexlGroup
+                .sliding(2, 2) // grab each incorrectly reversed (nibbles are switched) byte
+                .map(_.reverse) // reverse the byte
+                .mkString // and convert back to string
+            }
+            .mkString(" ") // convert back to string
+          asciiText.reverse + sep2 + hexlNibblesSwitch.reverse + sep1.reverse + addr
         }
+        case x => x
+      }
     }
     val rtlDump =
       rtlLines

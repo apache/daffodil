@@ -19,15 +19,15 @@ package org.apache.daffodil.core.grammar
 
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ModelGroup
+import org.apache.daffodil.core.dsom.QuasiElementDeclBase
+import org.apache.daffodil.core.dsom.Root
+import org.apache.daffodil.core.dsom.Term
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.Math
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.core.dsom.QuasiElementDeclBase
-import org.apache.daffodil.core.dsom.Root
-import org.apache.daffodil.core.dsom.Term
-import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentKind
 
 case class AlignmentMultipleOf(nBits: Long) {
   def *(that: AlignmentMultipleOf) = AlignmentMultipleOf(Math.gcd(nBits, that.nBits))
@@ -110,12 +110,13 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       false
   }
 
-  final lazy val hasNoSkipRegions = LV('hasNoSkipRegions) { leadingSkip == 0 && trailingSkip == 0 }.value
+  final lazy val hasNoSkipRegions = LV('hasNoSkipRegions) {
+    leadingSkip == 0 && trailingSkip == 0
+  }.value
 
   private lazy val alignmentApprox: AlignmentMultipleOf = {
     AlignmentMultipleOf(alignmentValueInBits.toLong)
   }
-
 
   private def alignmentSkipInBits(skipProp: Int) = alignmentUnits match {
     case AlignmentUnits.Bits => skipProp
@@ -140,7 +141,9 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   //
   private lazy val priorAlignmentApprox: AlignmentMultipleOf = LV('priorAlignmentApprox) {
     if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
-      AlignmentMultipleOf(0) // root and quasi elements are aligned with anything // TODO: really? Why quasi-elements - they should have implicit alignment ?
+      AlignmentMultipleOf(
+        0,
+      ) // root and quasi elements are aligned with anything // TODO: really? Why quasi-elements - they should have implicit alignment ?
     } else {
       val priorSibs = potentialPriorTerms
       val arraySelfAlignment =
@@ -215,7 +218,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
           Seq()
         }
 
-      val priorAlignmentsApprox = priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment ++ unorderedSequenceSelfAlignment
+      val priorAlignmentsApprox =
+        priorSibsAlignmentsApprox ++ parentAlignmentApprox ++ arraySelfAlignment ++ unorderedSequenceSelfAlignment
       if (priorAlignmentsApprox.isEmpty)
         alignmentApprox // it will be the containing context's responsibility to insure this IS where we start.
       else
@@ -254,16 +258,15 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
         // and we need to aggregate those to get the summary endingAlignmentApprox.
         //
         val (lastChildren, couldBeLast) = mg.potentialLastChildren
-        val lastApproxesConsideringChildren: Seq[AlignmentMultipleOf] = lastChildren.map {
-          lc =>
-            //
-            // for each possible last child, add its ending alignment
-            // to our trailing skip to get where it would leave off were
-            // it the actual last child.
-            //
-            val lceaa = lc.endingAlignmentApprox
-            val res = lceaa + trailingSkipApprox
-            res
+        val lastApproxesConsideringChildren: Seq[AlignmentMultipleOf] = lastChildren.map { lc =>
+          //
+          // for each possible last child, add its ending alignment
+          // to our trailing skip to get where it would leave off were
+          // it the actual last child.
+          //
+          val lceaa = lc.endingAlignmentApprox
+          val res = lceaa + trailingSkipApprox
+          res
         }
         val optApproxIfNoChildren =
           //
@@ -307,11 +310,12 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
                 // multiple of 8
                 LengthMultipleOf(8)
               }
-            } else eb.lengthUnits match {
-              case LengthUnits.Bits => LengthMultipleOf(1)
-              case LengthUnits.Bytes => LengthMultipleOf(8)
-              case LengthUnits.Characters => encodingLengthApprox
-            }
+            } else
+              eb.lengthUnits match {
+                case LengthUnits.Bits => LengthMultipleOf(1)
+                case LengthUnits.Bytes => LengthMultipleOf(8)
+                case LengthUnits.Characters => encodingLengthApprox
+              }
           }
           case LengthKind.Delimited => encodingLengthApprox
           case LengthKind.Pattern => encodingLengthApprox
@@ -326,7 +330,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   private lazy val encodingLengthApprox: LengthApprox = {
     if (isKnownEncoding) {
       val dfdlCharset = charsetEv.optConstant.get
-      val fixedWidth = if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
+      val fixedWidth =
+        if (dfdlCharset.maybeFixedWidth.isDefined) dfdlCharset.maybeFixedWidth.get else 8
       LengthMultipleOf(fixedWidth)
     } else {
       // runtime encoding, which must be a byte-length encoding
@@ -342,7 +347,8 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
       val isByteLength = this match {
         case mg: ModelGroup => mg.groupMembers.forall { _.isKnownToBeByteAlignedAndByteLength }
         case eb: ElementBase => {
-          val isSelfByteSizeEncoding = eb.charsetEv.optConstant.exists(_.bitWidthOfACodeUnit == 8)
+          val isSelfByteSizeEncoding =
+            eb.charsetEv.optConstant.exists(_.bitWidthOfACodeUnit == 8)
           val isSelfByteLength =
             if (eb.isComplexType && eb.lengthKind == LengthKind.Implicit) {
               eb.complexType.group.isKnownToBeByteAlignedAndByteLength

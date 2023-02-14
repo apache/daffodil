@@ -41,11 +41,16 @@ object Runtime2ExamplesGenerator {
     assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
 
     // Replace the example generated files with the newly generated files
-    val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
-    val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
-    val exampleCodeHeader = exampleDir/"generated_code.h"
-    val exampleCodeFile = exampleDir/"generated_code.c"
-    os.copy(generatedCodeHeader, exampleCodeHeader, replaceExisting = true, createFolders = true)
+    val generatedCodeHeader = codeDir / "libruntime" / "generated_code.h"
+    val generatedCodeFile = codeDir / "libruntime" / "generated_code.c"
+    val exampleCodeHeader = exampleDir / "generated_code.h"
+    val exampleCodeFile = exampleDir / "generated_code.c"
+    os.copy(
+      generatedCodeHeader,
+      exampleCodeHeader,
+      replaceExisting = true,
+      createFolders = true,
+    )
     os.copy(generatedCodeFile, exampleCodeFile, replaceExisting = true, createFolders = true)
 
     // Print the example directory so "sbt 'show genRuntime2Examples'" can list it
@@ -63,23 +68,24 @@ object Runtime2ExamplesGenerator {
     assert(args.length == 1, s"Usage: $Runtime2ExamplesGenerator <examples directory location>")
 
     // Get paths to our sample schemas and their corresponding example directories
-    val rootDir = if (os.exists(os.pwd/"src")) os.pwd/os.up else os.pwd
+    val rootDir = if (os.exists(os.pwd / "src")) os.pwd / os.up else os.pwd
 
-    val schemaDir = rootDir/"daffodil-runtime2"/"src"/"test"/"resources"/"org"/"apache"/"daffodil"/"runtime2"
-    val exNumsSchema = schemaDir/"ex_nums.dfdl.xsd"
+    val schemaDir =
+      rootDir / "daffodil-runtime2" / "src" / "test" / "resources" / "org" / "apache" / "daffodil" / "runtime2"
+    val exNumsSchema = schemaDir / "ex_nums.dfdl.xsd"
     val exNumsRootName = None
-    val nestedSchema = schemaDir/"nested.dfdl.xsd"
+    val nestedSchema = schemaDir / "nested.dfdl.xsd"
     val nestedRootName = Some("NestedUnion")
-    val padTestSchema = schemaDir/"padtest.dfdl.xsd"
+    val padTestSchema = schemaDir / "padtest.dfdl.xsd"
     val padTestRootName = None
-    val variableLenSchema = schemaDir/"variablelen.dfdl.xsd"
+    val variableLenSchema = schemaDir / "variablelen.dfdl.xsd"
     val variableLenRootName = Some("expressionElement")
 
     val examplesDir = os.Path(args(0))
-    val exNumsExampleDir = examplesDir/"ex_nums"
-    val nestedExampleDir = examplesDir/"NestedUnion"
-    val padTestExampleDir = examplesDir/"padtest"
-    val variableLenExampleDir = examplesDir/"variablelen"
+    val exNumsExampleDir = examplesDir / "ex_nums"
+    val nestedExampleDir = examplesDir / "NestedUnion"
+    val padTestExampleDir = examplesDir / "padtest"
+    val variableLenExampleDir = examplesDir / "variablelen"
 
     // Update each example of generated C code
     updateRuntime2Example(exNumsSchema, exNumsRootName, exNumsExampleDir)

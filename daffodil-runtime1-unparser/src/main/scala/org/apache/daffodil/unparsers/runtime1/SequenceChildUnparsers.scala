@@ -16,15 +16,14 @@
  */
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.EndArrayChecksMixin
 import org.apache.daffodil.runtime1.processors.parsers.MinMaxRepeatsMixin
-import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 /**
  * base for unparsers for the children of sequences.
@@ -38,8 +37,8 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 abstract class SequenceChildUnparser(
   val childUnparser: Unparser,
   val srd: SequenceRuntimeData,
-  val trd: TermRuntimeData)
-  extends CombinatorUnparser(srd) {
+  val trd: TermRuntimeData,
+) extends CombinatorUnparser(srd) {
 
   override def runtimeDependencies = Vector()
 
@@ -54,8 +53,8 @@ abstract class SequenceChildUnparser(
 abstract class RepeatingChildUnparser(
   override val childUnparser: Unparser,
   override val srd: SequenceRuntimeData,
-  val erd: ElementRuntimeData)
-  extends SequenceChildUnparser(childUnparser, srd, erd)
+  val erd: ElementRuntimeData,
+) extends SequenceChildUnparser(childUnparser, srd, erd)
   with MinMaxRepeatsMixin
   with EndArrayChecksMixin {
 
@@ -73,7 +72,8 @@ abstract class RepeatingChildUnparser(
   override def toString = "RepUnparser(" + childUnparser.toString + ")"
 
   override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
+    if (depthLimit == 0) "..."
+    else
       "<RepUnparser name='" + erd.name + "'>" + childUnparser.toBriefXML(depthLimit - 1) +
         "</RepUnparser>"
   }
@@ -102,8 +102,12 @@ abstract class RepeatingChildUnparser(
       // only pull end array event for a true array, not an optional
       val event = state.advanceOrError
       if (!(event.isEnd && event.isArray)) {
-        UE(state, "Expected array end event for %s, but received %s.",
-          erd.namedQName.toExtendedSyntax, event)
+        UE(
+          state,
+          "Expected array end event for %s, but received %s.",
+          erd.namedQName.toExtendedSyntax,
+          event,
+        )
       }
     }
 
@@ -190,7 +194,10 @@ abstract class RepeatingChildUnparser(
   def checkFinalOccursCountBetweenMinAndMaxOccurs(
     state: UState,
     unparser: RepeatingChildUnparser,
-    numOccurrences: Int, maxReps: Long, arrPos: Long): Unit = {
+    numOccurrences: Int,
+    maxReps: Long,
+    arrPos: Long,
+  ): Unit = {
     import OccursCountKind._
 
     val minReps = unparser.minRepeats(state)
@@ -203,7 +210,13 @@ abstract class RepeatingChildUnparser(
       //
       // Assert.invariant(!erd.isDefaultable) // should have handled this elsewhere
       //
-      UE(state, "Expected %s additional %s elements, but received %s.", minReps - numOccurrences, erd.namedQName, ev)
+      UE(
+        state,
+        "Expected %s additional %s elements, but received %s.",
+        minReps - numOccurrences,
+        erd.namedQName,
+        ev,
+      )
     }
     //
     // Now if there is an unspecified number of occurrences
@@ -222,15 +235,23 @@ abstract class RepeatingChildUnparser(
     // Then we ended with whatever's next NOT being another occurrence of this
     // same element.
     //
-    if (arrPos < maxReps &&
+    if (
+      arrPos < maxReps &&
       minReps < maxReps &&
-      (ock ne Implicit)) {
+      (ock ne Implicit)
+    ) {
       if (state.inspect) {
         val ev = state.inspectAccessor
         if (ev.isStart && ev.erd.namedQName == erd)
           // This is the error we get if there are more events in the infoset event stream
           // for an array, than are allowed by maxOccurs.
-          UE(state, "More than maxOccurs %s occurrences of %s in Infoset input: Expected no more events for %s, but received %s.", maxReps, erd.namedQName, ev)
+          UE(
+            state,
+            "More than maxOccurs %s occurrences of %s in Infoset input: Expected no more events for %s, but received %s.",
+            maxReps,
+            erd.namedQName,
+            ev,
+          )
       }
     }
   }

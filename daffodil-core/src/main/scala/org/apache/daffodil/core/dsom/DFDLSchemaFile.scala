@@ -17,13 +17,9 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.runtime1.dsom._
-
-import org.xml.sax.SAXParseException
-
+import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api._
-import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.util.Logger
@@ -31,9 +27,12 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dsom._
+
+import org.xml.sax.SAXParseException
 
 class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
-extends org.xml.sax.ErrorHandler {
+  extends org.xml.sax.ErrorHandler {
 
   private var loaderErrors_ : Seq[SAXParseException] = Nil
   private var loaderWarnings_ : Seq[SAXParseException] = Nil
@@ -50,7 +49,7 @@ extends org.xml.sax.ErrorHandler {
     new SchemaDefinitionError(schemaFileLocation, "Error loading schema due to %s", _)
   }
 
-  private def loaderSDWs: Seq[Diagnostic] = loaderWarnings.map{
+  private def loaderSDWs: Seq[Diagnostic] = loaderWarnings.map {
     new SchemaDefinitionWarning(schemaFileLocation, "Warning loading schema due to %s", _)
   }
 
@@ -76,10 +75,10 @@ extends org.xml.sax.ErrorHandler {
    */
   def handleLoadErrors(context: DFDLSchemaFile): Unit = {
     loaderSDEs.foreach { context.error(_) }
-    loaderSDWs.foreach { context.warn(_)  }
+    loaderSDWs.foreach { context.warn(_) }
     val optErr = loaderSDEs.headOption
     reset()
-    optErr.foreach{
+    optErr.foreach {
       context.toss(_) // escalate to a thrown SDE.
     }
   }
@@ -96,8 +95,11 @@ extends org.xml.sax.ErrorHandler {
    * Called on a fatal exception. The parser/validator throws the exception after
    * this call returns.
    */
-  def fatalError(exception: SAXParseException) = error(exception) // same as non-fatal exception.
+  def fatalError(exception: SAXParseException) = error(
+    exception,
+  ) // same as non-fatal exception.
 }
+
 /**
  * represents one schema document file
  *
@@ -107,9 +109,8 @@ final class DFDLSchemaFile(
   val sset: SchemaSet,
   schemaSourceArg: => DaffodilSchemaSource, // fileName, URL, or a scala.xml.Node
   val iiParent: IIBase,
-  seenBeforeArg: IIMap)
-  extends SchemaComponentImpl(<file/>, sset)
-  {
+  seenBeforeArg: IIMap,
+) extends SchemaComponentImpl(<file/>, sset) {
 
   private lazy val seenBefore = seenBeforeArg
 
@@ -135,38 +136,43 @@ final class DFDLSchemaFile(
 
   override protected lazy val diagnosticDebugNameImpl = schemaSource.uriForLoading.toString
 
-  lazy val diagnosticChildren = Nil // no recursive descent. We just want the loader's validation errors.
+  lazy val diagnosticChildren =
+    Nil // no recursive descent. We just want the loader's validation errors.
 
   lazy val schemaSource = schemaSourceArg
 
   lazy val (node, validationDiagnostics, isValid) = {
-    val res = try {
-      Logger.log.debug(s"Loading ${diagnosticDebugName}.")
-      //
-      // We do not want to validate here ever, because we have to examine the
-      // root xs:schema element of a schema to decide if it is a  DFDL schema
-      // at all that we're even supposed to compile.
-      //
-      // need line numbers for diagnostics
-      val node = try {
-        loader.load(schemaSource, None, addPositionAttributes = true)
+    val res =
+      try {
+        Logger.log.debug(s"Loading ${diagnosticDebugName}.")
+        //
+        // We do not want to validate here ever, because we have to examine the
+        // root xs:schema element of a schema to decide if it is a  DFDL schema
+        // at all that we're even supposed to compile.
+        //
+        // need line numbers for diagnostics
+        val node =
+          try {
+            loader.load(schemaSource, None, addPositionAttributes = true)
+          } catch {
+            case e: SAXParseException => {
+              // the loader can throw these due to e.g., doctype disallowed which is fatal.
+              // It would be redundant to record it again.
+              // So we simply ignore it.
+              errHandler.error(e)
+              null // node is null in this case.
+            }
+          }
+        errHandler.handleLoadErrors(this)
+        Assert.invariant(node != null)
+        (node, errHandler.loadingDiagnostics, true)
       } catch {
-        case e: SAXParseException => {
-          // the loader can throw these due to e.g., doctype disallowed which is fatal.
-          // It would be redundant to record it again.
-          // So we simply ignore it.
-          errHandler.error(e)
-          null // node is null in this case.
-        }
+        case e: java.io.IOException =>
+          SDE(
+            "Error loading schema due to %s.",
+            Misc.getSomeMessage(e).getOrElse("an unknown error."),
+          )
       }
-      errHandler.handleLoadErrors(this)
-      Assert.invariant(node != null)
-      (node, errHandler.loadingDiagnostics, true)
-    } catch {
-      case e: java.io.IOException =>
-        SDE("Error loading schema due to %s.",
-          Misc.getSomeMessage(e).getOrElse("an unknown error."))
-    }
     res
   }
 
@@ -201,22 +207,30 @@ final class DFDLSchemaFile(
     res
   }
 
-  private def makeXMLSchemaDocument(before: IIMap, sf: Option[DFDLSchemaFile]): XMLSchemaDocument = {
+  private def makeXMLSchemaDocument(
+    before: IIMap,
+    sf: Option[DFDLSchemaFile],
+  ): XMLSchemaDocument = {
     val sd = node match {
-      case <schema>{ _* }</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
+      case <schema>{_*}</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
         val sd = XMLSchemaDocument(node, sset, Some(iiParent), sf, before, false)
         sd
       }
       case _ => {
         val ns = NS(node.namespace)
-        schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s %s.", diagnosticDebugName, node.label, ns.explainForMsg)
+        schemaDefinitionError(
+          "The file %s did not contain a schema element as the document element. Found %s %s.",
+          diagnosticDebugName,
+          node.label,
+          ns.explainForMsg,
+        )
       }
     }
     sd
   }
 
   lazy val seenAfter: IIMap = {
-      val aft = iiXMLSchemaDocument.seenAfter
-      aft
+    val aft = iiXMLSchemaDocument.seenAfter
+    aft
   }
 }

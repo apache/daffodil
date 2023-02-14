@@ -39,23 +39,26 @@ object SimpleNamedServiceLoader {
    *           It must have a name member returning a string. It must have a default (no-arg) constructor.
    * @return A map from the name (string) to the corresponding instance of the class.
    */
-  def loadClass[T <: { def name(): String }](clazz : Class[T]): Map[String, T] =  {
+  def loadClass[T <: { def name(): String }](clazz: Class[T]): Map[String, T] = {
     val thingName = Misc.getNameGivenAClassObject(clazz)
     val iter = ServiceLoader.load(clazz).iterator()
     val instanceBuf = new ArrayBuffer[T]
-    while(iter.hasNext()) { // a throw from hasNext() just propagates. It's fatal.
-      val compilerOpt = try {
-        instanceBuf += iter.next()
-      } catch {
-        case e: ServiceConfigurationError =>
-          Logger.log.warn(s"Named service $thingName failed to load. Cause: ${e.getMessage}")
-      }
+    while (iter.hasNext()) { // a throw from hasNext() just propagates. It's fatal.
+      val compilerOpt =
+        try {
+          instanceBuf += iter.next()
+        } catch {
+          case e: ServiceConfigurationError =>
+            Logger.log.warn(s"Named service $thingName failed to load. Cause: ${e.getMessage}")
+        }
     }
-    val instancesFound: Map[String, Seq[T]] = instanceBuf.toSeq.groupBy{ _.name() }
+    val instancesFound: Map[String, Seq[T]] = instanceBuf.toSeq.groupBy { _.name() }
     val instanceMap: Map[String, T] = instancesFound.toSeq.flatMap {
       case (name, Seq(lc)) => Some((name, lc))
       case (name, seq) => {
-        Logger.log.warn(s"Duplicate classes for $thingName found. Ignored: ${seq.map{ Misc.getNameFromClass(_) }.mkString(", ")}.")
+        Logger.log.warn(
+          s"Duplicate classes for $thingName found. Ignored: ${seq.map { Misc.getNameFromClass(_) }.mkString(", ")}.",
+        )
         None
       }
     }.toMap

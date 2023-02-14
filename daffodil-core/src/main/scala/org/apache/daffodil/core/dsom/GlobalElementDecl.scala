@@ -27,9 +27,7 @@ object GlobalElementDecl {
   }
 }
 
-final class GlobalElementDecl private (
-  xmlArg: Node,
-  schemaDocument: SchemaDocument)
+final class GlobalElementDecl private (xmlArg: Node, schemaDocument: SchemaDocument)
   extends AnnotatedSchemaComponentImpl(xmlArg, schemaDocument)
   with GlobalElementComponentMixin
   with ElementDeclMixin

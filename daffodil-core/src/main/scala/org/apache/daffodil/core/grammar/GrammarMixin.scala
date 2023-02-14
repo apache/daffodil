@@ -36,7 +36,11 @@ trait GrammarMixin {
    * Use when production has a guard predicate
    *
    */
-  def prod(prodName: String, guard: Boolean = true, forWhat: ParserOrUnparser = BothParserAndUnparser)(gram: => Gram): Gram = {
+  def prod(
+    prodName: String,
+    guard: Boolean = true,
+    forWhat: ParserOrUnparser = BothParserAndUnparser,
+  )(gram: => Gram): Gram = {
     new Prod(prodName, grammarContext, guard, gram, forWhat)
   }
 

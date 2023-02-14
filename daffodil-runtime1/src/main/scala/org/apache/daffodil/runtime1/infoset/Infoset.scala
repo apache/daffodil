@@ -19,11 +19,11 @@ package org.apache.daffodil.runtime1.infoset
 
 import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.xml.NS
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 
 object INoWarn2 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -89,10 +89,10 @@ trait InfosetSimpleElement extends InfosetElement {
   def isDefaulted: Boolean
 }
 
-trait InfosetDocument extends InfosetItem {
-}
+trait InfosetDocument extends InfosetItem {}
 
 trait InfosetItem {
+
   /**
    * The totalElementCount is the total count of how many elements this InfosetItem contains.
    *

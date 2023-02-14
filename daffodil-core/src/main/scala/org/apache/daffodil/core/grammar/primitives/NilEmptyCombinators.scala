@@ -17,16 +17,17 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.core.grammar.Gram
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.core.dsom.ElementBase
-import org.apache.daffodil.runtime1.processors.parsers.SimpleNilOrValueParser
-import org.apache.daffodil.unparsers.runtime1.SimpleNilOrValueUnparser
-import org.apache.daffodil.runtime1.processors.parsers.ComplexNilOrContentParser
-import org.apache.daffodil.unparsers.runtime1.ComplexNilOrContentUnparser
+import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.processors.parsers.ComplexNilOrContentParser
+import org.apache.daffodil.runtime1.processors.parsers.SimpleNilOrValueParser
+import org.apache.daffodil.unparsers.runtime1.ComplexNilOrContentUnparser
+import org.apache.daffodil.unparsers.runtime1.SimpleNilOrValueUnparser
 
-case class SimpleNilOrValue(ctxt: ElementBase, nilGram: Gram, valueGram: Gram) extends Terminal(ctxt, true) {
+case class SimpleNilOrValue(ctxt: ElementBase, nilGram: Gram, valueGram: Gram)
+  extends Terminal(ctxt, true) {
   Assert.invariant(!nilGram.isEmpty)
   Assert.invariant(!valueGram.isEmpty)
 
@@ -42,7 +43,8 @@ case class SimpleNilOrValue(ctxt: ElementBase, nilGram: Gram, valueGram: Gram) e
 
 }
 
-case class ComplexNilOrContent(ctxt: ElementBase, nilGram: Gram, contentGram: Gram) extends Terminal(ctxt, true) {
+case class ComplexNilOrContent(ctxt: ElementBase, nilGram: Gram, contentGram: Gram)
+  extends Terminal(ctxt, true) {
   Assert.invariant(!nilGram.isEmpty)
   Assert.invariant(!contentGram.isEmpty)
 
@@ -54,6 +56,7 @@ case class ComplexNilOrContent(ctxt: ElementBase, nilGram: Gram, contentGram: Gr
 
   override lazy val parser = ComplexNilOrContentParser(ctxt.erd, nilParser, contentParser)
 
-  override lazy val unparser = ComplexNilOrContentUnparser(ctxt.erd, nilUnparser, contentUnparser)
+  override lazy val unparser =
+    ComplexNilOrContentUnparser(ctxt.erd, nilUnparser, contentUnparser)
 
 }

@@ -27,13 +27,14 @@ import org.apache.daffodil.runtime1.infoset.JsonInfosetOutputter
 import org.apache.daffodil.runtime1.infoset.NullInfosetInputter
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
+import org.apache.daffodil.runtime1.infoset.TeeInfosetOutputter
 import org.apache.daffodil.runtime1.infoset.W3CDOMInfosetInputter
 import org.apache.daffodil.runtime1.infoset.W3CDOMInfosetOutputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetInputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
-import org.apache.daffodil.runtime1.infoset.TeeInfosetOutputter
 
-class TDMLInfosetOutputter extends {
+class TDMLInfosetOutputter
+  extends {
     private val jsonStream = new ByteArrayOutputStream()
     val xmlStream = new ByteArrayOutputStream()
 
@@ -44,7 +45,8 @@ class TDMLInfosetOutputter extends {
     private val xmlOut = new XMLTextInfosetOutputter(xmlStream, false)
 
     private val outputters = Seq(xmlOut, scalaOut, jdomOut, w3cdomOut, jsonOut)
-  } with TeeInfosetOutputter(outputters: _*) {
+  }
+  with TeeInfosetOutputter(outputters: _*) {
 
   def getResult() = scalaOut.getResult
 

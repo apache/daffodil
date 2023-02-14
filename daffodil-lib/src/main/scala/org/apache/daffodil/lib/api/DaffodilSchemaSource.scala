@@ -16,19 +16,18 @@
  */
 
 package org.apache.daffodil.lib.api
-import org.xml.sax.InputSource
-
-import java.net.URI
-import scala.xml.Node
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.commons.io.input.XmlStreamReader
-
 import java.io.File
 import java.io.FileInputStream
-import java.nio.file.Paths
-import org.apache.daffodil.lib.exceptions.Assert
-
+import java.net.URI
 import java.nio.file.FileSystemNotFoundException
+import java.nio.file.Paths
+import scala.xml.Node
+
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.apache.commons.io.input.XmlStreamReader
+import org.xml.sax.InputSource
 
 /**
  * Our abstraction of the source of a schema.
@@ -133,8 +132,14 @@ class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchema
 /**
  * For stdin, or other anonymous pipe-like source of schema.
  */
-class InputStreamSchemaSource(is: java.io.InputStream, tmpDir: Option[File], blameName: String, extension: String) extends DaffodilSchemaSource {
-  lazy val tempSchemaFile = XMLUtils.convertInputStreamToTempFile(is, tmpDir.getOrElse(null), blameName, extension)
+class InputStreamSchemaSource(
+  is: java.io.InputStream,
+  tmpDir: Option[File],
+  blameName: String,
+  extension: String,
+) extends DaffodilSchemaSource {
+  lazy val tempSchemaFile =
+    XMLUtils.convertInputStreamToTempFile(is, tmpDir.getOrElse(null), blameName, extension)
   lazy val tempURI = tempSchemaFile.toURI
   lazy val csName = {
     val xmlStream = new XmlStreamReader(tempSchemaFile)
@@ -155,8 +160,11 @@ class InputStreamSchemaSource(is: java.io.InputStream, tmpDir: Option[File], bla
   override def uriForLoading = tempURI
 }
 
-protected sealed abstract class NodeSchemaSourceBase(node: Node, nameHint: String, tmpDir: Option[File])
-  extends URISchemaSource({
+protected sealed abstract class NodeSchemaSourceBase(
+  node: Node,
+  nameHint: String,
+  tmpDir: Option[File],
+) extends URISchemaSource({
     val tempSchemaFile = XMLUtils.convertNodeToTempFile(node, tmpDir.orNull, nameHint)
     val tempURI = tempSchemaFile.toURI
     tempURI

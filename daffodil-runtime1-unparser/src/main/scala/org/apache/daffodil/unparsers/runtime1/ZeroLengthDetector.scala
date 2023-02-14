@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.DIElement
+import org.apache.daffodil.runtime1.infoset.DISimple
 
 /**
  * Rapidly determines if an Infoset Element will have non-zero length when unparsed.
@@ -39,8 +39,7 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo
  * of whether the element can have zero length at all, and if so, under
  * what conditions.
  */
-sealed trait ZeroLengthDetector
-  extends Serializable {
+sealed trait ZeroLengthDetector extends Serializable {
 
   /**
    * Determines if the representation is known for certain to be non-zero length.
@@ -76,6 +75,7 @@ sealed trait NillableZeroLengthMixin { self: ZeroLengthDetector =>
     diElement.isNilled
   }
 }
+
 /**
  * Use when the characteristics of the nil representation are such that
  * unparsing a nilled element will result in non-zero length.
@@ -84,10 +84,10 @@ sealed trait NillableZeroLengthMixin { self: ZeroLengthDetector =>
  * representation other than the nil representation, meaning not strings, and
  * not hexBinary.
  */
-class NillableZeroLengthDetector
-  extends ZeroLengthDetector
-  with NillableZeroLengthMixin {
-  override def isKnownNonZeroLength(diElement: DIElement) = isNillableKnownNonZeroLength(diElement)
+class NillableZeroLengthDetector extends ZeroLengthDetector with NillableZeroLengthMixin {
+  override def isKnownNonZeroLength(diElement: DIElement) = isNillableKnownNonZeroLength(
+    diElement,
+  )
   override def isKnownZeroLength(diElement: DIElement) = isNillableKnownZeroLength(diElement)
 }
 
@@ -147,10 +147,10 @@ sealed trait StringZeroLengthMixin { self: ZeroLengthDetector =>
 /**
  * Use when the element is of simple type string, not nillable.
  */
-class StringZeroLengthDetector
-  extends ZeroLengthDetector
-  with StringZeroLengthMixin {
-  override def isKnownNonZeroLength(diElement: DIElement) = isStringKnownNonZeroLength(diElement)
+class StringZeroLengthDetector extends ZeroLengthDetector with StringZeroLengthMixin {
+  override def isKnownNonZeroLength(diElement: DIElement) = isStringKnownNonZeroLength(
+    diElement,
+  )
   override def isKnownZeroLength(diElement: DIElement) = isStringKnownZeroLength(diElement)
 
 }
@@ -205,46 +205,50 @@ sealed trait HexBinaryZeroLengthMixin { self: ZeroLengthDetector =>
 /**
  * Use when the element is of simple type hexBinary, not nillable.
  */
-class HexBinaryZeroLengthDetector
-  extends ZeroLengthDetector
-  with HexBinaryZeroLengthMixin {
-  override def isKnownNonZeroLength(diElement: DIElement) = isHexBinaryKnownNonZeroLength(diElement)
+class HexBinaryZeroLengthDetector extends ZeroLengthDetector with HexBinaryZeroLengthMixin {
+  override def isKnownNonZeroLength(diElement: DIElement) = isHexBinaryKnownNonZeroLength(
+    diElement,
+  )
   override def isKnownZeroLength(diElement: DIElement) = isHexBinaryKnownZeroLength(diElement)
 }
 
 /**
  * Use when analysis shows the element can never be zero length.
  */
-object NeverZeroLengthDetector
-  extends ZeroLengthDetector {
+object NeverZeroLengthDetector extends ZeroLengthDetector {
   override def isKnownNonZeroLength(diElement: DIElement) = true
   override def isKnownZeroLength(diElement: DIElement) = false
   override def isKnownNonZeroLengthModelGroup = true
   override def isKnownZeroLengthModelGroup = false
 }
 
-object PossiblyZeroLengthModelGroupDetector
-  extends ZeroLengthDetector {
-  override def isKnownNonZeroLength(diElement: DIElement) = Assert.usageError("Not for use on Model Groups")
-  override def isKnownZeroLength(diElement: DIElement) = Assert.usageError("Not for use on Model Groups")
+object PossiblyZeroLengthModelGroupDetector extends ZeroLengthDetector {
+  override def isKnownNonZeroLength(diElement: DIElement) =
+    Assert.usageError("Not for use on Model Groups")
+  override def isKnownZeroLength(diElement: DIElement) =
+    Assert.usageError("Not for use on Model Groups")
   override def isKnownNonZeroLengthModelGroup = false
   override def isKnownZeroLengthModelGroup = false
 }
 
-object PossiblyZeroArrayOccurrencesDetector
-  extends ZeroLengthDetector {
+object PossiblyZeroArrayOccurrencesDetector extends ZeroLengthDetector {
   override def isKnownNonZeroLength(diElement: DIElement) = false
   override def isKnownZeroLength(diElement: DIElement) = false
-  override def isKnownNonZeroLengthModelGroup = Assert.usageError("Not for use on recurring elements")
-  override def isKnownZeroLengthModelGroup = Assert.usageError("Not for use on recurring elements")
+  override def isKnownNonZeroLengthModelGroup =
+    Assert.usageError("Not for use on recurring elements")
+  override def isKnownZeroLengthModelGroup =
+    Assert.usageError("Not for use on recurring elements")
 }
 
-object NotRepresentedZeroLengthDetector
-  extends ZeroLengthDetector {
-  override def isKnownNonZeroLength(diElement: DIElement) = Assert.usageError("Not for use on computed elements")
-  override def isKnownZeroLength(diElement: DIElement) = Assert.usageError("Not for use on computed elements")
-  override def isKnownNonZeroLengthModelGroup = Assert.usageError("Not for use on computed elements")
-  override def isKnownZeroLengthModelGroup = Assert.usageError("Not for use on computed elements")
+object NotRepresentedZeroLengthDetector extends ZeroLengthDetector {
+  override def isKnownNonZeroLength(diElement: DIElement) =
+    Assert.usageError("Not for use on computed elements")
+  override def isKnownZeroLength(diElement: DIElement) =
+    Assert.usageError("Not for use on computed elements")
+  override def isKnownNonZeroLengthModelGroup =
+    Assert.usageError("Not for use on computed elements")
+  override def isKnownZeroLengthModelGroup =
+    Assert.usageError("Not for use on computed elements")
 }
 
 /**

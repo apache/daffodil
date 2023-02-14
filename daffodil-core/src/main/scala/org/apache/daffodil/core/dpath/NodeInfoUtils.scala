@@ -17,9 +17,8 @@
 
 package org.apache.daffodil.core.dpath
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 import NodeInfo._
 
@@ -31,7 +30,8 @@ object NodeInfoUtils {
   def generalizeArgTypesForComparisonOp(
     op: String,
     inherent1: Numeric.Kind,
-    inherent2: Numeric.Kind): Numeric.Kind = {
+    inherent2: Numeric.Kind,
+  ): Numeric.Kind = {
 
     val argType: Numeric.Kind = (inherent1, inherent2) match {
       case (x, y) if (x eq y) => x
@@ -65,8 +65,14 @@ object NodeInfoUtils {
       case (UnsignedByte, _) => Short
       case (_, Byte) => Byte
       case (Byte, _) => Byte
-      case _ => Assert.usageError(
-        "Unsupported types for comparison op '%s' were %s and %s.".format(op, inherent1, inherent2))
+      case _ =>
+        Assert.usageError(
+          "Unsupported types for comparison op '%s' were %s and %s.".format(
+            op,
+            inherent1,
+            inherent2,
+          ),
+        )
     }
     argType
   }
@@ -78,10 +84,11 @@ object NodeInfoUtils {
   def generalizeArgAndResultTypesForNumericOp(
     op: String,
     leftArgType: Numeric.Kind,
-    rightArgType: Numeric.Kind): ( //
+    rightArgType: Numeric.Kind,
+  ): ( //
     Numeric.Kind, // first result is generalized arg type
-    Numeric.Kind // second result is generalized result type
-    ) = {
+    Numeric.Kind, // second result is generalized result type
+  ) = {
 
     /*
      * Adjust for the Decimal result type when div/idiv is used

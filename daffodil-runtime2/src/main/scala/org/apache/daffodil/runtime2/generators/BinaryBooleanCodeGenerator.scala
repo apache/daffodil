@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime2.generators
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+
 import passera.unsigned.ULong
 
 trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
@@ -27,7 +28,9 @@ trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
   // Called by Runtime2CodeGenerator to generate C code for a boolean element
   def binaryBooleanGenerateCode(e: ElementBase, cgState: CodeGeneratorState): Unit = {
     // Make sure we know how to read and write the boolean element
-    Assert.invariant(e.binaryBooleanTrueRep.isEmpty || e.binaryBooleanTrueRep.getULong >= ULong(0))
+    Assert.invariant(
+      e.binaryBooleanTrueRep.isEmpty || e.binaryBooleanTrueRep.getULong >= ULong(0),
+    )
     Assert.invariant(e.binaryBooleanFalseRep >= ULong(0))
     Assert.invariant(e.elementLengthInBitsEv.isConstant)
 
@@ -40,7 +43,13 @@ trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
   }
 
   // Generate C code to initialize, parse, and unparse a boolean element
-  private def booleanAddField(e: ElementBase, lengthInBits: Long, primType: String, deref: String, cgState: CodeGeneratorState): Unit = {
+  private def booleanAddField(
+    e: ElementBase,
+    lengthInBits: Long,
+    primType: String,
+    deref: String,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local

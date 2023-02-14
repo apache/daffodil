@@ -17,46 +17,43 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
 import java.lang.{ Long => JLong }
 import java.math.{ BigInteger => JBigInteger }
 
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.util.DecimalUtils
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.parsers.HasKnownLengthInBits
 import org.apache.daffodil.runtime1.processors.parsers.HasRuntimeExplicitLength
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.lib.util.DecimalUtils
+import org.apache.daffodil.runtime1.processors.unparsers._
 
-abstract class IBM4690PackedIntegerBaseUnparser(
-  e: ElementRuntimeData)
+abstract class IBM4690PackedIntegerBaseUnparser(e: ElementRuntimeData)
   extends PackedBinaryIntegerBaseUnparser(e) {
 
-  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] = DecimalUtils.ibm4690FromBigInteger(bigInt, nBits)
+  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
+    DecimalUtils.ibm4690FromBigInteger(bigInt, nBits)
 }
 
 class IBM4690PackedIntegerKnownLengthUnparser(
   e: ElementRuntimeData,
-  override val lengthInBits: Int)
-  extends IBM4690PackedIntegerBaseUnparser(e)
-  with HasKnownLengthInBits {
-}
+  override val lengthInBits: Int,
+) extends IBM4690PackedIntegerBaseUnparser(e)
+  with HasKnownLengthInBits {}
 
 class IBM4690PackedIntegerRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits)
-  extends IBM4690PackedIntegerBaseUnparser(e)
+  val lengthUnits: LengthUnits,
+) extends IBM4690PackedIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
   override lazy val runtimeDependencies = Vector(lengthEv)
 }
 
-final class IBM4690PackedIntegerDelimitedUnparser(
-  e: ElementRuntimeData)
+final class IBM4690PackedIntegerDelimitedUnparser(e: ElementRuntimeData)
   extends IBM4690PackedIntegerBaseUnparser(e) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
@@ -67,8 +64,8 @@ final class IBM4690PackedIntegerPrefixedLengthUnparser(
   override val prefixedLengthUnparser: Unparser,
   override val prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends IBM4690PackedIntegerBaseUnparser(e)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends IBM4690PackedIntegerBaseUnparser(e)
   with KnownPrefixedLengthUnparserMixin {
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
@@ -79,7 +76,7 @@ final class IBM4690PackedIntegerPrefixedLengthUnparser(
     val bigInt = number.asInstanceOf[JBigInteger]
     val absBigIntStr = bigInt.abs.toString
     val negative = (bigInt.signum != 1)
-    val (byteLength, _) =  DecimalUtils.ibm4690FromBigIntegerLength(absBigIntStr, 0, negative)
+    val (byteLength, _) = DecimalUtils.ibm4690FromBigIntegerLength(absBigIntStr, 0, negative)
     byteLength * 8
   }
 
@@ -91,26 +88,26 @@ final class IBM4690PackedIntegerPrefixedLengthUnparser(
 
 abstract class IBM4690PackedDecimalBaseUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int)
-  extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
+  binaryDecimalVirtualPoint: Int,
+) extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
-  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] = DecimalUtils.ibm4690FromBigInteger(bigInt, nBits)
+  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
+    DecimalUtils.ibm4690FromBigInteger(bigInt, nBits)
 }
 
 class IBM4690PackedDecimalKnownLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  override val lengthInBits: Int)
-  extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
-  with HasKnownLengthInBits {
-}
+  override val lengthInBits: Int,
+) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
+  with HasKnownLengthInBits {}
 
 class IBM4690PackedDecimalRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits)
-  extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
+  val lengthUnits: LengthUnits,
+) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
   override lazy val runtimeDependencies = Vector(lengthEv)
@@ -118,8 +115,8 @@ class IBM4690PackedDecimalRuntimeLengthUnparser(
 
 final class IBM4690PackedDecimalDelimitedUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int)
-  extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
+  binaryDecimalVirtualPoint: Int,
+) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
@@ -130,10 +127,10 @@ final class IBM4690PackedDecimalPrefixedLengthUnparser(
   override val prefixedLengthERD: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with KnownPrefixedLengthUnparserMixin {
-  
+
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
   override lazy val runtimeDependencies = Vector()
 
@@ -142,7 +139,7 @@ final class IBM4690PackedDecimalPrefixedLengthUnparser(
     val bigInt = number.asInstanceOf[JBigInteger]
     val absBigIntStr = bigInt.abs.toString
     val negative = (bigInt.signum != 1)
-    val (byteLength, _) =  DecimalUtils.ibm4690FromBigIntegerLength(absBigIntStr, 0, negative)
+    val (byteLength, _) = DecimalUtils.ibm4690FromBigIntegerLength(absBigIntStr, 0, negative)
     byteLength * 8
   }
 

@@ -35,14 +35,17 @@ sealed abstract class EncodingLattice
  * not known until runtime.
  */
 case object Mixed extends EncodingLattice
+
 /**
  * Contains binary data (only)
  */
 case object Binary extends EncodingLattice
+
 /**
  * Means the encoding is determined via a runtime expression.
  */
 case object Runtime extends EncodingLattice
+
 /**
  * NoText is the bottom of the lattice. We have no information
  * here. Means the item could have text, but just so happens to not

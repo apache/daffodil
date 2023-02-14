@@ -22,12 +22,14 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
+import javax.xml.XMLConstants
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
+import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 import scala.xml._
-import org.apache.commons.io.IOUtils
+
 import org.apache.daffodil.lib.calendar.DFDLDateConversion
 import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.lib.calendar.DFDLTimeConversion
@@ -35,10 +37,9 @@ import org.apache.daffodil.lib.exceptions._
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Misc
-import org.xml.sax.XMLReader
 
-import javax.xml.XMLConstants
-import scala.util.matching.Regex
+import org.apache.commons.io.IOUtils
+import org.xml.sax.XMLReader
 
 /**
  * Utilities for handling XML
@@ -54,6 +55,7 @@ object XMLUtils {
 
   lazy val tdmlURI =
     Misc.getRequiredResource("org/apache/daffodil/xsd/tdml.xsd")
+
   /**
    * We must have xsi prefix bound to the right namespace.
    * That gets enforced elsewhere.
@@ -125,7 +127,6 @@ object XMLUtils {
   private val remapPUAToXML = new RemapPUAToXMLIllegalChar()
 
   def remapPUAToXMLIllegalCharacters(text: String) = remapPUAToXML.remap(text)
-
 
   def coalesceAllAdjacentTextNodes(node: Node): Node = {
     node match {
@@ -238,11 +239,15 @@ object XMLUtils {
     ab.result
   }
 
-  val XSD_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema") // removed trailing slash (namespaces care)
+  val XSD_NAMESPACE = NS(
+    "http://www.w3.org/2001/XMLSchema",
+  ) // removed trailing slash (namespaces care)
   val XSI_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema-instance")
   val XPATH_FUNCTION_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions")
   val XPATH_MATH_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions/math")
-  val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
+  val DFDL_NAMESPACE = NS(
+    "http://www.ogf.org/dfdl/dfdl-1.0/",
+  ) // dfdl ns does have a trailing slash
   val DFDLX_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/extensions")
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
@@ -279,8 +284,11 @@ object XMLUtils {
    *
    * These definitions must match their XSD counterparts in dafint.xsd and dafext.xsd
    */
-  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012"
-  private val DAFFODIL_EXTENSION_NAMESPACE_NCSA = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA + ":ext")
+  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA =
+    "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012"
+  private val DAFFODIL_EXTENSION_NAMESPACE_NCSA = NS(
+    DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA + ":ext",
+  )
   val EXT_PREFIX_NCSA = "daf"
   val EXT_NS_NCSA = NS(DAFFODIL_EXTENSION_NAMESPACE_NCSA.uri)
 
@@ -310,23 +318,26 @@ object XMLUtils {
   /**
    * Always disable this. Might not be necessary if doctypes are disallowed.
    */
-  val XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE = "http://xml.org/sax/features/external-parameter-entities"
+  val XML_EXTERNAL_PARAMETER_ENTITIES_FEATURE =
+    "http://xml.org/sax/features/external-parameter-entities"
 
   /**
    * Always disable this. Might not be necessary if doctypes are disallowed.
    */
-  val XML_EXTERNAL_GENERAL_ENTITIES_FEATURE = "http://xml.org/sax/features/external-general-entities"
+  val XML_EXTERNAL_GENERAL_ENTITIES_FEATURE =
+    "http://xml.org/sax/features/external-general-entities"
 
   /**
    * Always disable this. Might not be necessary if doctypes are disallowed.
    */
-  val XML_LOAD_EXTERNAL_DTD_FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd"
+  val XML_LOAD_EXTERNAL_DTD_FEATURE =
+    "http://apache.org/xml/features/nonvalidating/load-external-dtd"
 
   /**
    * Sets properties that disable insecure XML reader behaviors.
    * @param xmlReader - the reader to change feature settings on.
    */
-  def setSecureDefaults(xmlReader: XMLReader) : Unit = {
+  def setSecureDefaults(xmlReader: XMLReader): Unit = {
     xmlReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
     //
     // We don't actually know what FEATURE_SECURE_PROCESSING disables
@@ -372,7 +383,8 @@ object XMLUtils {
       "date",
       "time",
       "dateTime",
-      "hexBinary")
+      "hexBinary",
+    )
 
   def slashify(s: String): String = if (s == "" || s.endsWith("/")) s else s + "/"
 
@@ -395,7 +407,7 @@ object XMLUtils {
    * We don't want to be sensitive to which prefix people bind
    */
   def dfdlAttributes(n: Node) = {
-    n.attributes filter {
+    n.attributes.filter {
       _.getNamespace(n) == DFDL_NAMESPACE.toString
     }
   }
@@ -409,7 +421,7 @@ object XMLUtils {
   def dafAttributes(n: Node) = {
     n.attributes.filter { a =>
       a.getNamespace(n) == XMLUtils.EXT_NS_NCSA.toString ||
-        a.getNamespace(n) == XMLUtils.EXT_NS_APACHE.toString
+      a.getNamespace(n) == XMLUtils.EXT_NS_APACHE.toString
     }
   }
 
@@ -446,8 +458,13 @@ object XMLUtils {
         // unnecessary.
         //
         val outerWithoutDuplicate = removeBindings(NamespaceBinding(pre, uri, TopScope), outer)
-        val moreBindingsWithoutConflict = removeBindings(NamespaceBinding(pre, uri, TopScope), moreBindings)
-        NamespaceBinding(pre, uri, combineScopes(moreBindingsWithoutConflict, outerWithoutDuplicate))
+        val moreBindingsWithoutConflict =
+          removeBindings(NamespaceBinding(pre, uri, TopScope), moreBindings)
+        NamespaceBinding(
+          pre,
+          uri,
+          combineScopes(moreBindingsWithoutConflict, outerWithoutDuplicate),
+        )
       }
     }
   }
@@ -485,7 +502,14 @@ object XMLUtils {
     x match {
       case Elem(pre, lab, md, scp, child @ _*) => {
         val newScope = combineScopes(scp, outer)
-        Elem(pre, lab, md, newScope, true, (child flatMap { ch => collapseScopes(ch, newScope) }): _*)
+        Elem(
+          pre,
+          lab,
+          md,
+          newScope,
+          true,
+          (child.flatMap { ch => collapseScopes(ch, newScope) }): _*,
+        )
       }
       case _ => x
     }
@@ -558,7 +582,11 @@ object XMLUtils {
    *
    * Throws an exception if it contains mixed non-whitespace nodes.
    */
-  def removeAttributes(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): Node = {
+  def removeAttributes(
+    n: Node,
+    ns: Seq[NS] = Seq[NS](),
+    parentScope: Option[NamespaceBinding] = None,
+  ): Node = {
     val res1 = removeAttributes1(n, ns, parentScope).asInstanceOf[scala.xml.Node]
     val res2 = removeMixedWhitespace(res1)
     val res = res2(0) // .asInstanceOf[scala.xml.Node]
@@ -575,11 +603,14 @@ object XMLUtils {
     val children = e.child
     val noMixedChildren =
       if (children.exists(_.isInstanceOf[Elem])) {
-        children.filter {
-          case Text(data) if data.matches("""\s*""") => false
-          case Text(data) => throw new Exception("Element %s contains mixed data: %s".format(e.label, data))
-          case _ => true
-        }.map(removeMixedWhitespace)
+        children
+          .filter {
+            case Text(data) if data.matches("""\s*""") => false
+            case Text(data) =>
+              throw new Exception("Element %s contains mixed data: %s".format(e.label, data))
+            case _ => true
+          }
+          .map(removeMixedWhitespace)
       } else {
         children.filter {
           //
@@ -617,7 +648,11 @@ object XMLUtils {
     res
   }
 
-  private def removeAttributes1(n: Node, ns: Seq[NS], parentScope: Option[NamespaceBinding]): NodeSeq = {
+  private def removeAttributes1(
+    n: Node,
+    ns: Seq[NS],
+    parentScope: Option[NamespaceBinding],
+  ): NodeSeq = {
     val res = n match {
 
       case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
@@ -670,19 +705,25 @@ object XMLUtils {
 
         val newAttributes = attributes.filter { m =>
           m match {
-            case xsiNilAttr @ PrefixedAttribute(_, "nil", Text("true"), _) if (NS(xsiNilAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) => {
+            case xsiNilAttr @ PrefixedAttribute(_, "nil", Text("true"), _)
+                if (NS(xsiNilAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) => {
               true
             }
             //
             // This tolerates xsi:nil='true' when xsi has no definition at all.
-            case xsiNilAttr @ PrefixedAttribute("xsi", "nil", Text("true"), _) if (xsiNilAttr.getNamespace(e) == null) => {
+            case xsiNilAttr @ PrefixedAttribute("xsi", "nil", Text("true"), _)
+                if (xsiNilAttr.getNamespace(e) == null) => {
               true
             }
-            case dafIntAttr @ PrefixedAttribute(pre, _, _, _) if (pre ne null) && (dafIntAttr.getNamespace(e) == XMLUtils.DAFFODIL_INTERNAL_NAMESPACE.toString) => {
+            case dafIntAttr @ PrefixedAttribute(pre, _, _, _)
+                if (pre ne null) && (dafIntAttr.getNamespace(
+                  e,
+                ) == XMLUtils.DAFFODIL_INTERNAL_NAMESPACE.toString) => {
               Assert.invariant(pre != "")
               false // drop dafint attributes.
             }
-            case xsiTypeAttr @ PrefixedAttribute(_, "type", _, _) if (NS(xsiTypeAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) => {
+            case xsiTypeAttr @ PrefixedAttribute(_, "type", _, _)
+                if (NS(xsiTypeAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) => {
               // TODO: actually check xsi:type attributes are correct according
               // to the schema--requires schema-awareness in TDML Runner.
               // Do not hide xsi:type since it is used for hints for type aware
@@ -732,7 +773,8 @@ object XMLUtils {
     actual: Node,
     ignoreProcInstr: Boolean = true,
     checkPrefixes: Boolean = false,
-    checkNamespaces: Boolean = false): Unit = {
+    checkNamespaces: Boolean = false,
+  ): Unit = {
     val expectedMinimized = normalize(expected)
     val actualMinimized = normalize(actual)
     val diffs = XMLUtils.computeDiff(
@@ -740,9 +782,11 @@ object XMLUtils {
       actualMinimized,
       ignoreProcInstr,
       checkPrefixes,
-      checkNamespaces)
+      checkNamespaces,
+    )
     if (diffs.length > 0) {
-      throw new XMLDifferenceException("""
+      throw new XMLDifferenceException(
+        """
 Comparison failed.
 Expected (attributes %s)
           %s
@@ -750,14 +794,16 @@ Actual (attributes %s for diff)
           %s
 Differences were (path, expected, actual):
 %s""".format(
-        (if (checkPrefixes || checkNamespaces) "compared for diff"
-        else "stripped"),
-        (if (checkPrefixes || checkNamespaces) expected
-        else removeAttributes(expected).toString),
-        (if (checkPrefixes || checkNamespaces) "compared"
-        else "ignored"),
-        actual,
-        diffs.map { _.toString }.mkString("- ", "\n- ", "\n")))
+          (if (checkPrefixes || checkNamespaces) "compared for diff"
+           else "stripped"),
+          (if (checkPrefixes || checkNamespaces) expected
+           else removeAttributes(expected).toString),
+          (if (checkPrefixes || checkNamespaces) "compared"
+           else "ignored"),
+          actual,
+          diffs.map { _.toString }.mkString("- ", "\n- ", "\n"),
+        ),
+      )
     }
   }
 
@@ -770,7 +816,8 @@ Differences were (path, expected, actual):
     b: Node,
     ignoreProcInstr: Boolean = true,
     checkPrefixes: Boolean = false,
-    checkNamespaces: Boolean = false) = {
+    checkNamespaces: Boolean = false,
+  ) = {
     computeDiffOne(
       a,
       b,
@@ -781,7 +828,8 @@ Differences were (path, expected, actual):
       ignoreProcInstr,
       checkPrefixes,
       checkNamespaces,
-      None)
+      None,
+    )
   }
 
   def childArrayCounters(e: Elem) = {
@@ -789,8 +837,12 @@ Differences were (path, expected, actual):
     val labels = children.map { _.label }
     val groups = labels.groupBy { x => x }
     val counts = groups.map { case (label, labelList) => (label, labelList.length) }
-    val arrayCounts = counts.filter { case (label, 1) => false; case _ => true } // remove counters for scalars
-    val arrayCounters = arrayCounts.map { case (label, _) => (label, 1.toLong) } // 1 based like XPath!
+    val arrayCounts = counts.filter {
+      case (label, 1) => false; case _ => true
+    } // remove counters for scalars
+    val arrayCounters = arrayCounts.map { case (label, _) =>
+      (label, 1.toLong)
+    } // 1 based like XPath!
     arrayCounters
   }
 
@@ -804,7 +856,8 @@ Differences were (path, expected, actual):
     ignoreProcInstr: Boolean,
     checkPrefixes: Boolean,
     checkNamespaces: Boolean,
-    maybeType: Option[String]): Seq[(String, String, String)] = {
+    maybeType: Option[String],
+  ): Seq[(String, String, String)] = {
     lazy val zPath = parentPathSteps.reverse.mkString("/")
     (an, bn) match {
       case (a: Elem, b: Elem) => {
@@ -829,14 +882,22 @@ Differences were (path, expected, actual):
           List((zPath + "/" + labelA + "@xmlns", mappingsA, mappingsB))
         } else if (nilledA != nilledB) {
           // different xsi:nil
-          List((zPath + "/" + labelA + "@xsi:nil",
-            nilledA.map(_.toString).getOrElse(""),
-            nilledB.map(_.toString).getOrElse("")))
+          List(
+            (
+              zPath + "/" + labelA + "@xsi:nil",
+              nilledA.map(_.toString).getOrElse(""),
+              nilledB.map(_.toString).getOrElse(""),
+            ),
+          )
         } else if (typeA != typeB && typeA.isDefined && typeB.isDefined) {
           // different xsi:type (if both suppplied)
-          List((zPath + "/" + labelA + "@xsi:type",
-            typeA.map(_.toString).getOrElse(""),
-            typeA.map(_.toString).getOrElse("")))
+          List(
+            (
+              zPath + "/" + labelA + "@xsi:type",
+              typeA.map(_.toString).getOrElse(""),
+              typeA.map(_.toString).getOrElse(""),
+            ),
+          )
         } else {
           val pathLabel = labelA + maybeIndex.map("[" + _ + "]").getOrElse("")
           val thisPathStep = pathLabel +: parentPathSteps
@@ -854,7 +915,8 @@ Differences were (path, expected, actual):
           // outut. So for repeating children, we'll create a mutable map where
           // the key is the label and the value is the count of how many
           // children of that label we've seen
-          val repeatingChildrenLabels = childrenA.groupBy(_.label).filter { case (k,v) => v.length > 1 }.keys
+          val repeatingChildrenLabels =
+            childrenA.groupBy(_.label).filter { case (k, v) => v.length > 1 }.keys
           val labelsWithZeroCount = repeatingChildrenLabels.map { _ -> 0 }
           val countMap = mutable.Map(labelsWithZeroCount.toSeq: _*)
 
@@ -874,16 +936,21 @@ Differences were (path, expected, actual):
               ignoreProcInstr,
               checkPrefixes,
               checkNamespaces,
-              maybeType)
+              maybeType,
+            )
           }
 
           // if childrenA and childrenB have different length, zip will drop an
           // extra. This will report a diff if the lengths are off.
           val childrenLengthDiff =
             if (childrenA.length != childrenB.length) {
-              List((zPath + "/" + labelA + "::child@count)",
-                childrenA.length.toString,
-                childrenB.length.toString))
+              List(
+                (
+                  zPath + "/" + labelA + "::child@count)",
+                  childrenA.length.toString,
+                  childrenB.length.toString,
+                ),
+              )
             } else {
               Nil
             }
@@ -923,7 +990,8 @@ Differences were (path, expected, actual):
     zPath: String,
     tA: Text,
     tB: Text,
-    maybeType: Option[String]): Seq[(String, String, String)] = {
+    maybeType: Option[String],
+  ): Seq[(String, String, String)] = {
 
     val dataA = tA.toString
     val dataB = tB.toString
@@ -957,10 +1025,10 @@ Differences were (path, expected, actual):
       var areSame: Boolean = true
 
       while ({
-          lenA = streamA.read(arrayA)
-          lenB = streamB.read(arrayB)
-          areSame = lenA == lenB && arrayA.sameElements(arrayB)
-          areSame && lenA != -1 && lenB != -1
+        lenA = streamA.read(arrayA)
+        lenB = streamB.read(arrayB)
+        areSame = lenA == lenB && arrayA.sameElements(arrayB)
+        areSame && lenA != -1 && lenB != -1
       }) {
         numSameBytes += lenA
       }
@@ -988,7 +1056,8 @@ Differences were (path, expected, actual):
     zPath: String,
     dataA: String,
     dataB: String,
-    maybeType: Option[String]): Seq[(String, String, String)] = {
+    maybeType: Option[String],
+  ): Seq[(String, String, String)] = {
 
     val hasBlobType = maybeType.isDefined && maybeType.get == "xs:anyURI"
     val dataLooksLikeBlobURI = Seq(dataA, dataB).forall(_.startsWith("file://"))
@@ -1011,8 +1080,12 @@ Differences were (path, expected, actual):
       // prefix of the other and index is where the prefix ends, or index is
       // the first difference found. Either way, we can safely use slice() to
       // get at most some number of characters at that index for context.
-      val contextA = Misc.remapControlsAndLineEndingsToVisibleGlyphs(dataA.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF))
-      val contextB = Misc.remapControlsAndLineEndingsToVisibleGlyphs(dataB.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF))
+      val contextA = Misc.remapControlsAndLineEndingsToVisibleGlyphs(
+        dataA.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF),
+      )
+      val contextB = Misc.remapControlsAndLineEndingsToVisibleGlyphs(
+        dataB.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF),
+      )
       val path = zPath + ".charAt(" + (index + 1) + ")"
       Seq((path, contextA, contextB))
     }
@@ -1083,7 +1156,8 @@ Differences were (path, expected, actual):
     is: java.io.InputStream,
     tmpDir: File,
     nameHint: String,
-    suffix: String) = {
+    suffix: String,
+  ) = {
     val prefix = prefixFromHint(nameHint)
     val tmpSchemaFile = File.createTempFile(prefix, suffix, tmpDir)
     // Delete temp file when program exits
@@ -1133,7 +1207,10 @@ Differences were (path, expected, actual):
       val c = str(i)
       i += 1
       c match {
-        case '\'' => sb.append("&#x27;") // don't use "&apos;" because it's not universally accepted (HTML doesn't have it in early versions)
+        case '\'' =>
+          sb.append(
+            "&#x27;",
+          ) // don't use "&apos;" because it's not universally accepted (HTML doesn't have it in early versions)
         case '"' => sb.append("&quot;")
         case '&' => sb.append("&amp;")
         case '<' => sb.append("&lt;")
@@ -1141,9 +1218,9 @@ Differences were (path, expected, actual):
         case _ if (c.isLetterOrDigit) => sb.append(c)
         case _ if (c.isWhitespace || c.isControl) => toNumericCharacterEntity(c, sb)
         // A0 is the NBSP character - not considered whitespace, but no glyph, so we need it numeric
-        case _ if (c.toInt == 0xA0) => toNumericCharacterEntity(c, sb)
+        case _ if (c.toInt == 0xa0) => toNumericCharacterEntity(c, sb)
         // Any other char < 256 is punctuation or other glyph char
-        case _ if (c.toInt < 0xFF) => sb.append(c)
+        case _ if (c.toInt < 0xff) => sb.append(c)
         case _ => toNumericCharacterEntity(c, sb)
       }
     }
@@ -1167,15 +1244,18 @@ Differences were (path, expected, actual):
   /**
    * Remove XML escapes like &amp; and &gt; &lt; from a string.
    */
-   def unescape(raw: String) = {
+  def unescape(raw: String) = {
     val withoutNamedXMLCharEntities: String = {
-      val res = xmlEntityPattern.replaceAllIn(raw, m => {
-        val sb = scala.xml.Utility.unescape(m.group("entity"), new StringBuilder())
-        // There really is no possibility for null to come back as we've made
-        // sure to only include valid xml entities in the xmlEntityPattern.
-        Assert.invariant(sb ne null)
-        sb.toString()
-      })
+      val res = xmlEntityPattern.replaceAllIn(
+        raw,
+        m => {
+          val sb = scala.xml.Utility.unescape(m.group("entity"), new StringBuilder())
+          // There really is no possibility for null to come back as we've made
+          // sure to only include valid xml entities in the xmlEntityPattern.
+          Assert.invariant(sb ne null)
+          sb.toString()
+        },
+      )
       res
     }
     withoutNamedXMLCharEntities
@@ -1191,7 +1271,7 @@ Differences were (path, expected, actual):
    * @return the uri string wrapped in a Maybe.One, or Maybe.Nope, if not found
    */
   @tailrec
-def maybeURI(nsb: NamespaceBinding, prefix: String): Maybe[String] = {
+  def maybeURI(nsb: NamespaceBinding, prefix: String): Maybe[String] = {
     if (nsb == null) Maybe.Nope
     else if (nsb.prefix == prefix) Maybe.One(nsb.uri)
     else maybeURI(nsb.parent, prefix)
@@ -1217,8 +1297,7 @@ def maybeURI(nsb: NamespaceBinding, prefix: String): Maybe[String] = {
       } else {
         Maybe.One(nsb.prefix)
       }
-    }
-    else maybePrefix(nsb.parent, uri)
+    } else maybePrefix(nsb.parent, uri)
   }
 }
 
@@ -1314,4 +1393,3 @@ class QNamePrefixNotInScopeException(pre: String, loc: LookupLocation)
 //    res
 //  }
 //}
-

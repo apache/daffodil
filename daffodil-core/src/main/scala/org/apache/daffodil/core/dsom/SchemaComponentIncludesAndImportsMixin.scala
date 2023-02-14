@@ -21,8 +21,8 @@ package org.apache.daffodil.core.dsom
  * Mixin for all SchemaComponents
  */
 
-trait SchemaComponentIncludesAndImportsMixin
-  extends CommonContextMixin { self: SchemaComponent =>
+trait SchemaComponentIncludesAndImportsMixin extends CommonContextMixin {
+  self: SchemaComponent =>
 
   protected final val orElseURL: String = "file:??"
 

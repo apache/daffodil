@@ -22,12 +22,12 @@ import org.apache.daffodil.core.dsom.DFDLNewVariableInstance
 import org.apache.daffodil.core.dsom.DFDLSetVariable
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.VariableReference
-import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
 trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
 
@@ -45,7 +45,8 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
       this.typeQName,
       this.namedQName.asInstanceOf[GlobalQName],
       this.primType,
-      this.tunable.unqualifiedPathStepPolicy)
+      this.tunable.unqualifiedPathStepPolicy,
+    )
     vrd
   }
 
@@ -55,7 +56,13 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
     val compilationTargetType = primType
     val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
     val defaultValExpr = defaultValue.map { e =>
-      ExpressionCompilers.AnyRef.compileProperty(qn, compilationTargetType, Found(e, this.dpathCompileInfo, "defaultValue", false), this, dpathCompileInfo)
+      ExpressionCompilers.AnyRef.compileProperty(
+        qn,
+        compilationTargetType,
+        Found(e, this.dpathCompileInfo, "defaultValue", false),
+        this,
+        dpathCompileInfo,
+      )
     }
 
     Maybe.toMaybe(defaultValExpr)
@@ -73,10 +80,10 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
   requiredEvaluationsIfActivated(variableRuntimeData.initialize)
 
   /* Need to override variableRuntimeData so that defaultValues
-  * are read from newVariableInstance instead of the original
-  * variable definition. Also allows diagnostic messages to
-  * point to this location instead of the original definition
-  */
+   * are read from newVariableInstance instead of the original
+   * variable definition. Also allows diagnostic messages to
+   * point to this location instead of the original definition
+   */
   final override lazy val variableRuntimeData = {
     val vrd = new VariableRuntimeData(
       this.schemaFileLocation,
@@ -89,7 +96,8 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
       defv.typeQName,
       defv.namedQName.asInstanceOf[GlobalQName],
       defv.primType,
-      this.tunable.unqualifiedPathStepPolicy)
+      this.tunable.unqualifiedPathStepPolicy,
+    )
     vrd
   }
 
@@ -97,7 +105,13 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
     val compilationTargetType = defv.primType
     val qn = this.qNameForProperty("defaultValue", XMLUtils.dafintURI)
     val defaultValExpr = defaultValue.map { e =>
-      ExpressionCompilers.AnyRef.compileProperty(qn, compilationTargetType, Found(e, this.dpathCompileInfo, "defaultValue", false), this, dpathCompileInfo)
+      ExpressionCompilers.AnyRef.compileProperty(
+        qn,
+        compilationTargetType,
+        Found(e, this.dpathCompileInfo, "defaultValue", false),
+        this,
+        dpathCompileInfo,
+      )
     }
 
     Maybe.toMaybe(defaultValExpr)

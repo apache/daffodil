@@ -52,7 +52,8 @@ abstract class UnsuppressableException(m: String, th: Throwable) extends Excepti
 }
 
 class UsageException(m: String) extends UnsuppressableException(m)
-class NotYetImplementedException(m: String) extends UnsuppressableException("Not yet implemented: " + m)
+class NotYetImplementedException(m: String)
+  extends UnsuppressableException("Not yet implemented: " + m)
 class Abort(m: String, th: Throwable) extends UnsuppressableException(m, th) {
   def this(th: Throwable) = this(null, th)
   def this(m: String) = this(m, null)
@@ -80,8 +81,10 @@ object Assert extends Assert {
   /**
    * Verbose name helps you get the sense of the predicate right.
    */
-  def usageErrorUnless(testAbortsIfFalse: Boolean, message: String): Unit = macro AssertMacros.usageMacro2
+  def usageErrorUnless(testAbortsIfFalse: Boolean, message: String): Unit =
+    macro AssertMacros.usageMacro2
   def usageErrorUnless(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.usageMacro1
+
   /**
    * Brief form
    */
@@ -102,13 +105,16 @@ object Assert extends Assert {
    *
    * The msg parameter is only evaluated if the test fails
    */
-  def invariant(testAbortsIfFalse: Boolean, msg: String): Unit = macro AssertMacros.invariantMacro2
+  def invariant(testAbortsIfFalse: Boolean, msg: String): Unit =
+    macro AssertMacros.invariantMacro2
 
   /**
    * Conditional behavior for NYIs
    */
-  def notYetImplemented(testThatWillThrowIfTrue: Boolean): Unit = macro AssertMacros.notYetImplementedMacro1
-  def notYetImplemented(testThatWillThrowIfTrue: Boolean, msg: String): Unit = macro AssertMacros.notYetImplementedMacro2
+  def notYetImplemented(testThatWillThrowIfTrue: Boolean): Unit =
+    macro AssertMacros.notYetImplementedMacro1
+  def notYetImplemented(testThatWillThrowIfTrue: Boolean, msg: String): Unit =
+    macro AssertMacros.notYetImplementedMacro2
 
   // $COVERAGE-OFF$ These unconditional assertions should never get executed by tests.
 
@@ -149,7 +155,9 @@ object Assert extends Assert {
     toss(new Abort(th))
   }
 
-  def impossible(message: String = "impossible! this code path is supposed to be unreachable."): Nothing = {
+  def impossible(
+    message: String = "impossible! this code path is supposed to be unreachable.",
+  ): Nothing = {
     abort(message)
   }
 

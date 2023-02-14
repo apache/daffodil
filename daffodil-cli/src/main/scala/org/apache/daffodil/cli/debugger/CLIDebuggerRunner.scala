@@ -17,14 +17,13 @@
 
 package org.apache.daffodil.cli.debugger
 
-import org.apache.daffodil.runtime1.debugger._
-
 import java.io.File
 import java.io.InputStream
 import java.io.PrintStream
-
 import scala.collection.JavaConverters._
 import scala.io.Source
+
+import org.apache.daffodil.runtime1.debugger._
 
 import org.jline.reader.Candidate
 import org.jline.reader.Completer
@@ -36,7 +35,8 @@ import org.jline.reader.UserInterruptException
 import org.jline.terminal.TerminalBuilder
 import org.jline.terminal.impl.DumbTerminal
 
-class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintStream) extends InteractiveDebuggerRunner {
+class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintStream)
+  extends InteractiveDebuggerRunner {
   private val prompt = "(debug) "
 
   def this(in: InputStream = System.in, out: PrintStream = System.out) {
@@ -65,7 +65,8 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
         TerminalBuilder.builder().build()
       }
     val completer = new CLIDebuggerCompleter(id)
-    val r = LineReaderBuilder.builder()
+    val r = LineReaderBuilder
+      .builder()
       .terminal(terminal)
       .completer(completer)
       .build()
@@ -86,12 +87,13 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
       out.println("%s%s".format(prompt, line))
       line
     } else {
-      val line = try {
-        reader.get.readLine(prompt)
-      } catch {
-        case _: UserInterruptException => "quit" // Ctrl-C
-        case _: EndOfFileException => "quit" // Ctrl-D
-      }
+      val line =
+        try {
+          reader.get.readLine(prompt)
+        } catch {
+          case _: UserInterruptException => "quit" // Ctrl-C
+          case _: EndOfFileException => "quit" // Ctrl-D
+        }
       line
     }
     cmd.trim
@@ -104,7 +106,11 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String], in: InputStream, out: PrintS
 
 class CLIDebuggerCompleter(id: InteractiveDebugger) extends Completer {
 
-  def complete(reader: LineReader, line: ParsedLine, candidates: java.util.List[Candidate]): Unit = {
+  def complete(
+    reader: LineReader,
+    line: ParsedLine,
+    candidates: java.util.List[Candidate],
+  ): Unit = {
     // JLine3 completely parses the line, taking care of delmiters/quotes/etc.,
     // and stores it in the ParsedLine, with delimeted fields split up in to the
     // line.words array. The last item in this array is the thing we are
@@ -115,33 +121,34 @@ class CLIDebuggerCompleter(id: InteractiveDebugger) extends Completer {
 
     // iterate over the list of commands to find the last subcommand which is
     // used to determine what possible candidates there are
-    val optCmd = cmds.foldLeft(Some(id.DebugCommandBase): Option[id.DebugCommand]) { case (optCurCmd, nextCmdName) =>
-      optCurCmd match {
-        case Some(id.DebugCommandBase.Info) => {
-          // We found the info command, even if there are more command names
-          // after that, we are going to ignore them and just keep the Info
-          // command. This lets use provide and autocomplete multiple info
-          // commands at once and complete only the last one, e.g. "info foo
-          // bar baz"
-          optCurCmd
+    val optCmd = cmds.foldLeft(Some(id.DebugCommandBase): Option[id.DebugCommand]) {
+      case (optCurCmd, nextCmdName) =>
+        optCurCmd match {
+          case Some(id.DebugCommandBase.Info) => {
+            // We found the info command, even if there are more command names
+            // after that, we are going to ignore them and just keep the Info
+            // command. This lets use provide and autocomplete multiple info
+            // commands at once and complete only the last one, e.g. "info foo
+            // bar baz"
+            optCurCmd
+          }
+          case Some(cmd) => {
+            // We have the name for the next command, try to find the
+            // associated subcommand of the current DebugCommand. If we don't
+            // find one, it just means they user typed something that's not a
+            // valid command and we have no command to use for completing. Note
+            // that by comparing using == with the RHS being a String, we match
+            // against both short and long debug command names
+            val nextCmd = cmd.subcommands.find { _ == nextCmdName }
+            nextCmd
+          }
+          case None => {
+            // We previously failed to find a next command, likely because one
+            // of the subcommands was misspelled. That means we'll have no idea
+            // how to complete the last word, so we'll have no candidates
+            None
+          }
         }
-        case Some(cmd) => {
-          // We have the name for the next command, try to find the
-          // associated subcommand of the current DebugCommand. If we don't
-          // find one, it just means they user typed something that's not a
-          // valid command and we have no command to use for completing. Note
-          // that by comparing using == with the RHS being a String, we match
-          // against both short and long debug command names
-          val nextCmd = cmd.subcommands.find { _ == nextCmdName }
-          nextCmd
-        }
-        case None => {
-          // We previously failed to find a next command, likely because one
-          // of the subcommands was misspelled. That means we'll have no idea
-          // how to complete the last word, so we'll have no candidates
-          None
-        }
-      }
     }
 
     optCmd match {

@@ -19,16 +19,18 @@ package org.apache.daffodil.runtime1.infoset
 
 import scala.xml.NamespaceBinding
 
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.xml.sax.ContentHandler
 import org.xml.sax.helpers.AttributesImpl
 
-class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
+class SAXInfosetOutputter(
+  xmlReader: DFDL.DaffodilParseXMLReader,
   val namespacesFeature: Boolean,
-  val namespacePrefixesFeature: Boolean)
-  extends InfosetOutputter
+  val namespacePrefixesFeature: Boolean,
+) extends InfosetOutputter
   with XMLInfosetOutputter {
 
   /**
@@ -52,7 +54,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
   override def endDocument(): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-       contentHandler.endDocument()
+      contentHandler.endDocument()
     }
   }
 
@@ -123,7 +125,10 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
    * Add the prefixes and uris from the element's NamespaceBinding to Attributes,
    * when namespacePrefixes feature is true
    */
-  private def doAttributesPrefixMapping(diElem: DIElement, attrs: AttributesImpl): AttributesImpl = {
+  private def doAttributesPrefixMapping(
+    diElem: DIElement,
+    attrs: AttributesImpl,
+  ): AttributesImpl = {
     val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(diElem)
     var n = nsbStart
     while (n.ne(nsbEnd) && n.ne(null) && n.ne(scala.xml.TopScope)) {
@@ -141,14 +146,17 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
    * ensure we use the same logic to convert NamespaceBindings to mappings as
    * other InfosetOutputters that use NamespaceBinding.buildString(stop)
    */
-  private def shadowRedefined(start: NamespaceBinding, stop: NamespaceBinding): NamespaceBinding = {
+  private def shadowRedefined(
+    start: NamespaceBinding,
+    stop: NamespaceBinding,
+  ): NamespaceBinding = {
     def prefixList(x: NamespaceBinding): List[String] =
       if ((x == null) || (x eq stop)) Nil
       else x.prefix :: prefixList(x.parent)
 
     // $COVERAGE-OFF$ See below comment for why coverage is disabled
     def fromPrefixList(l: List[String]): NamespaceBinding = l match {
-      case Nil     => stop
+      case Nil => stop
       case x :: xs => new NamespaceBinding(x, start.getURI(x), fromPrefixList(xs))
     }
     // $COVERAGE-ON$
@@ -232,7 +240,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
     contentHandler.startElement(elemUri, elemLocalName, elemQname, attrs)
   }
 
-  private def doEndElement (diElem: DIElement, contentHandler: ContentHandler): Unit = {
+  private def doEndElement(diElem: DIElement, contentHandler: ContentHandler): Unit = {
     val (ns: String, localName: String, qName: String) = getNamespaceLocalNameAndQName(diElem)
     val elemUri: String = if (namespacesFeature) ns else ""
     val elemLocalName = if (namespacesFeature) localName else ""
@@ -244,8 +252,7 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
     if (namespacesFeature) doEndPrefixMapping(diElem, contentHandler)
   }
 
-  private def getNamespaceLocalNameAndQName(
-    diElem: DIElement): (String, String, String) = {
+  private def getNamespaceLocalNameAndQName(diElem: DIElement): (String, String, String) = {
     val ns: String =
       if (diElem.erd.namedQName.namespace.isNoNamespace) {
         ""
@@ -258,5 +265,3 @@ class SAXInfosetOutputter(xmlReader: DFDL.DaffodilParseXMLReader,
   }
 
 }
-
-

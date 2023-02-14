@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 
 trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
 
@@ -32,7 +32,10 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   }
 
   // Called by Runtime2CodeGenerator to generate C code for a hexBinary specified length element
-  def hexBinarySpecifiedLengthGenerateCode(e: ElementBase, cgState: CodeGeneratorState): Unit = {
+  def hexBinarySpecifiedLengthGenerateCode(
+    e: ElementBase,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     val addField = hexBinarySpecifiedLengthAddField(e, _, cgState)
     val validateFixed = hexBinaryValidateFixed(e, _, cgState)
 
@@ -40,27 +43,29 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   }
 
   // Generate C code to initialize, parse, and unparse a hexBinary prefixed length element
-  private def hexBinaryPrefixedLengthAddField(e: ElementBase, deref: String, cgState: CodeGeneratorState): Unit = {
+  private def hexBinaryPrefixedLengthAddField(
+    e: ElementBase,
+    deref: String,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local
     val field = s"instance->$localName$deref"
     val intType = e.prefixedLengthElementDecl.optPrimType.get match {
-      case PrimType.Byte
-           | PrimType.Short
-           | PrimType.Int
-           | PrimType.Long
-           | PrimType.Integer => "int"
-      case PrimType.UnsignedByte
-           | PrimType.UnsignedShort
-           | PrimType.UnsignedInt
-           | PrimType.UnsignedLong
-           | PrimType.NonNegativeInteger => "uint"
-      case p => e.SDE("Prefixed length PrimType %s is not supported in C code generator.", p.toString)
+      case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer =>
+        "int"
+      case PrimType.UnsignedByte | PrimType.UnsignedShort | PrimType.UnsignedInt |
+          PrimType.UnsignedLong | PrimType.NonNegativeInteger =>
+        "uint"
+      case p =>
+        e.SDE("Prefixed length PrimType %s is not supported in C code generator.", p.toString)
     }
     val intLen = e.prefixedLengthElementDecl.elementLengthInBitsEv.constValue.get
     val primType = s"$intType$intLen"
-    val conv = if (e.prefixedLengthElementDecl.byteOrderEv.constValue == ByteOrder.BigEndian) "be" else "le"
+    val conv =
+      if (e.prefixedLengthElementDecl.byteOrderEv.constValue == ByteOrder.BigEndian) "be"
+      else "le"
     val function = s"${conv}_$primType"
     val lenVar = s"_l_$localName"
 
@@ -83,7 +88,11 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   }
 
   // Generate C code to initialize, parse, and unparse a hexBinary specified length element
-  private def hexBinarySpecifiedLengthAddField(e: ElementBase, deref: String, cgState: CodeGeneratorState): Unit = {
+  private def hexBinarySpecifiedLengthAddField(
+    e: ElementBase,
+    deref: String,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local
@@ -91,12 +100,13 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val fieldArray = s"instance->_a_$localName$deref"
     val specifiedLength = e.elementLengthInBitsEv.constValue.get
 
-    val initERDStatement = if (specifiedLength > 0)
-      s"""$indent1$indent2    $field.array = $fieldArray;
+    val initERDStatement =
+      if (specifiedLength > 0)
+        s"""$indent1$indent2    $field.array = $fieldArray;
          |$indent1$indent2    $field.lengthInBytes = sizeof($fieldArray);
          |$indent1$indent2    $field.dynamic = false;""".stripMargin
-    else
-      s"""$indent1$indent2    $field.array = NULL;
+      else
+        s"""$indent1$indent2    $field.array = NULL;
          |$indent1$indent2    $field.lengthInBytes = 0;
          |$indent1$indent2    $field.dynamic = false;""".stripMargin
     val parseStatement =
@@ -109,7 +119,11 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   }
 
   // Generate C code to validate a hexBinary element against its fixed value
-  private def hexBinaryValidateFixed(e: ElementBase, deref: String, cgState: CodeGeneratorState): Unit = {
+  private def hexBinaryValidateFixed(
+    e: ElementBase,
+    deref: String,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local

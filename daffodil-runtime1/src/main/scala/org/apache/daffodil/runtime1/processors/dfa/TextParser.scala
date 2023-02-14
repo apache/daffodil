@@ -17,20 +17,23 @@
 
 package org.apache.daffodil.runtime1.processors.dfa
 
+import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.DelimiterIterator
-import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.PState
 
-class TextParser(override val context: TermRuntimeData)
-  extends DFAParser {
+class TextParser(override val context: TermRuntimeData) extends DFAParser {
 
   override lazy val name: String = "TextParser"
   override lazy val info: String = "" // Nothing additional to add here
 
-  def parse(state: PState, input: DataInputStream, delimIter: DelimiterIterator): Maybe[ParseResult] = {
+  def parse(
+    state: PState,
+    input: DataInputStream,
+    delimIter: DelimiterIterator,
+  ): Maybe[ParseResult] = {
 
     val lmt = new LongestMatchTracker()
 

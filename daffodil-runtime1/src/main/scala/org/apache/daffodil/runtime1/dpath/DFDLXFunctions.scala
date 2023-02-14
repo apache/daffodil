@@ -17,23 +17,25 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.math.{BigInteger => JBigInt}
-import java.lang.{Double => JDouble}
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType.PrimNumeric
+import java.lang.{ Double => JDouble }
+import java.math.{ BigInteger => JBigInt }
+
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType.PrimNumeric
 import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.infoset.DISimple
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValueDouble
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValueLong
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
-import org.apache.daffodil.lib.util.Maybe.Nope
-import org.apache.daffodil.lib.util.Maybe.One
-import passera.unsigned.{UByte, UInt, ULong, UShort}
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValueLong
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValueDouble
-import org.apache.daffodil.lib.util.Logger
+
+import passera.unsigned.{ UByte, UInt, ULong, UShort }
 
 /**
  * This is the "logical" shift left.
@@ -42,15 +44,25 @@ import org.apache.daffodil.lib.util.Logger
  * @param recipes
  * @param argType
  */
-case class DFDLXLeftShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind) extends FNTwoArgs(recipes)  {
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+case class DFDLXLeftShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
+  extends FNTwoArgs(recipes) {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValuePrimitive = {
 
     val shiftLong = arg2.getLong
     val shift = shiftLong.toInt
     val width = argType.asInstanceOf[PrimNumeric].width.get
     Assert.invariant(shift >= 0)
-    if(shift>=width)
-      dstate.SDE("dfdlx:leftShift not supported for shift greater or equal to %s for %s. Shift was %s", width, argType.globalQName, shift)
+    if (shift >= width)
+      dstate.SDE(
+        "dfdlx:leftShift not supported for shift greater or equal to %s for %s. Shift was %s",
+        width,
+        argType.globalQName,
+        shift,
+      )
 
     argType match {
       case NodeInfo.Long => arg1.getLong << shift
@@ -61,8 +73,11 @@ case class DFDLXLeftShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind) 
       case NodeInfo.UnsignedInt => ULong(arg1.getLong << shift).toUInt.toLong
       case NodeInfo.UnsignedShort => UInt(arg1.getInt << shift).toUShort.toInt
       case NodeInfo.UnsignedByte => UInt(arg1.getShort << shift).toUByte.toShort
-      //$COVERAGE-OFF$
-      case _ => Assert.invariantFailed(s"Should not have gotten ${argType.globalQName} for left shift argument type")
+      // $COVERAGE-OFF$
+      case _ =>
+        Assert.invariantFailed(
+          s"Should not have gotten ${argType.globalQName} for left shift argument type",
+        )
       // $COVERAGE-ON$
     }
   }
@@ -77,14 +92,24 @@ case class DFDLXLeftShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind) 
  * @param recipes
  * @param argType
  */
-case class DFDLXRightShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind) extends FNTwoArgs(recipes) {
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+case class DFDLXRightShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
+  extends FNTwoArgs(recipes) {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValuePrimitive = {
     val shiftLong = arg2.getLong
     val shift = shiftLong.toInt
     val width = argType.asInstanceOf[PrimNumeric].width.get
     Assert.invariant(shift >= 0)
-    if(shift>=width)
-      dstate.SDE("dfdlx:rightShift not supported for shift greater or equal to %s for %s. Shift was %s", width, argType.globalQName, shift)
+    if (shift >= width)
+      dstate.SDE(
+        "dfdlx:rightShift not supported for shift greater or equal to %s for %s. Shift was %s",
+        width,
+        argType.globalQName,
+        shift,
+      )
     argType match {
       case NodeInfo.Long => arg1.getLong >> shift
       case NodeInfo.Int => arg1.getInt >> shift
@@ -94,14 +119,22 @@ case class DFDLXRightShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
       case NodeInfo.UnsignedInt => ULong(arg1.getLong.toInt >> shift).toUInt.toLong
       case NodeInfo.UnsignedShort => UInt(arg1.getInt.toShort >> shift).toUShort.toInt
       case NodeInfo.UnsignedByte => UInt(arg1.getShort.toByte >> shift).toUByte.toShort
-      //$COVERAGE-OFF$
-      case _ => Assert.invariantFailed(s"Should not have gotten ${argType.globalQName} for right shift argument type")
+      // $COVERAGE-OFF$
+      case _ =>
+        Assert.invariantFailed(
+          s"Should not have gotten ${argType.globalQName} for right shift argument type",
+        )
       // $COVERAGE-ON$
     }
   }
 }
-case class DFDLXBitAnd(recipes: List[CompiledDPath], argType: NodeInfo.Kind) extends FNTwoArgs(recipes) {
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+case class DFDLXBitAnd(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
+  extends FNTwoArgs(recipes) {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValuePrimitive = {
     argType match {
       case NodeInfo.Long => arg1.getLong & arg2.getLong
       case NodeInfo.Int => arg1.getInt & arg2.getInt
@@ -111,15 +144,20 @@ case class DFDLXBitAnd(recipes: List[CompiledDPath], argType: NodeInfo.Kind) ext
       case NodeInfo.UnsignedInt => arg1.getLong & arg2.getLong
       case NodeInfo.UnsignedShort => arg1.getInt & arg2.getInt
       case NodeInfo.UnsignedByte => (arg1.getShort & arg2.getShort).toShort
-      //$COVERAGE-OFF$
+      // $COVERAGE-OFF$
       case _ => Assert.invariantFailed(s"dfdlx:bitAnd not supported")
       // $COVERAGE-ON$
     }
   }
 }
 
-case class DFDLXBitOr(recipes: List[CompiledDPath], argType: NodeInfo.Kind) extends FNTwoArgs(recipes) {
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+case class DFDLXBitOr(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
+  extends FNTwoArgs(recipes) {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValuePrimitive = {
     argType match {
       case NodeInfo.Long => arg1.getLong | arg2.getLong
       case NodeInfo.Int => arg1.getInt | arg2.getInt
@@ -129,14 +167,15 @@ case class DFDLXBitOr(recipes: List[CompiledDPath], argType: NodeInfo.Kind) exte
       case NodeInfo.UnsignedInt => arg1.getLong | arg2.getLong
       case NodeInfo.UnsignedShort => arg1.getInt | arg2.getInt
       case NodeInfo.UnsignedByte => (arg1.getShort | arg2.getShort).toShort
-      //$COVERAGE-OFF$
+      // $COVERAGE-OFF$
       case _ => Assert.invariantFailed(s"dfdlx:bitOr not supported")
       // $COVERAGE-ON$
     }
   }
 }
 
-case class DFDLXBitNot(recipes: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipes,argType) {
+case class DFDLXBitNot(recipes: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipes, argType) {
   override def computeValue(arg1: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
     argType match {
       case NodeInfo.Long => ~arg1.getLong
@@ -147,14 +186,19 @@ case class DFDLXBitNot(recipes: CompiledDPath, argType: NodeInfo.Kind) extends F
       case NodeInfo.UnsignedInt => UInt((~arg1.getLong).toInt).toLong
       case NodeInfo.UnsignedShort => UShort((~arg1.getInt).toShort).toInt
       case NodeInfo.UnsignedByte => UByte((~arg1.getShort).toByte).toShort
-      //$COVERAGE-OFF$
+      // $COVERAGE-OFF$
       case _ => Assert.invariantFailed(s"dfdlx:bitNot not supported")
       // $COVERAGE-ON$
     }
   }
 }
-case class DFDLXBitXor(recipes: List[CompiledDPath], argType: NodeInfo.Kind) extends FNTwoArgs(recipes) {
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+case class DFDLXBitXor(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
+  extends FNTwoArgs(recipes) {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValuePrimitive = {
     argType match {
       case NodeInfo.Long => arg1.getLong ^ arg2.getLong
       case NodeInfo.Int => arg1.getInt ^ arg2.getInt
@@ -164,12 +208,12 @@ case class DFDLXBitXor(recipes: List[CompiledDPath], argType: NodeInfo.Kind) ext
       case NodeInfo.UnsignedInt => arg1.getLong ^ arg2.getLong
       case NodeInfo.UnsignedShort => arg1.getInt ^ arg2.getInt
       case NodeInfo.UnsignedByte => (arg1.getShort ^ arg2.getShort).toShort
-          //$COVERAGE-OFF$
+      // $COVERAGE-OFF$
       case _ => Assert.invariantFailed(s"dfdlx:bitXor not supported")
-          // $COVERAGE-ON$
-    }
+      // $COVERAGE-ON$
     }
   }
+}
 
 case class DFDLXTrace(recipe: CompiledDPath, msg: String)
   extends RecipeOpWithSubRecipes(recipe) {
@@ -205,17 +249,24 @@ case object DAFError extends RecipeOp {
       case UnparserNonBlocking | UnparserBlocking =>
         UnparseError(maybeSFL, dstate.contextLocation, "The error function was called.")
       case _: ParserMode => {
-        val fe = new FNErrorFunctionException(maybeSFL, dstate.contextLocation, "The error function was called.")
+        val fe = new FNErrorFunctionException(
+          maybeSFL,
+          dstate.contextLocation,
+          "The error function was called.",
+        )
         throw fe
       }
     }
   }
 }
 
-case class DFDLXLookAhead(recipes: List[CompiledDPath])
-  extends FNTwoArgs(recipes) {
+case class DFDLXLookAhead(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
 
-  def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive = {
+  def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValuePrimitive = {
     val offset = arg1.getLong
     val lBitSize = arg2.getLong
 
@@ -230,18 +281,22 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath])
     val totalLookahead = offset + lBitSize
     val maxLookahead = dstate.tunable.maxLookaheadFunctionBits
     if (totalLookahead > maxLookahead) {
-      dstate.SDE("Look-ahead distance of %s bits exceeds implementation defined limit of %s bits", totalLookahead, maxLookahead)
+      dstate.SDE(
+        "Look-ahead distance of %s bits exceeds implementation defined limit of %s bits",
+        totalLookahead,
+        maxLookahead,
+      )
     }
-    //Safe since we guard on totalLookahead
+    // Safe since we guard on totalLookahead
     val bitSize = lBitSize.toInt
 
     if (!dstate.parseOrUnparseState.isDefined) {
       Assert.invariant(dstate.isCompile)
       /*
-        * This is an expected code path.
-        * Throwing an exception is how we indicated that this expression
-        * cannot be reduced to a constant at compile time.
-        */
+       * This is an expected code path.
+       * Throwing an exception is how we indicated that this expression
+       * cannot be reduced to a constant at compile time.
+       */
       throw new IllegalStateException("No input stream at compile time")
     }
     if (dstate.parseOrUnparseState.get.isInstanceOf[PState]) {
@@ -251,9 +306,15 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath])
         val maybeSFL =
           if (dstate.runtimeData.isDefined) One(dstate.runtimeData.get.schemaFileLocation)
           else Nope
-        throw new ParseError(maybeSFL, dstate.contextLocation, Nope,
+        throw new ParseError(
+          maybeSFL,
+          dstate.contextLocation,
+          Nope,
           One("Insufficient bits available to satisfy dfdlx:lookAhead(%s,%s)."),
-          offset, bitSize, totalLookahead)
+          offset,
+          bitSize,
+          totalLookahead,
+        )
       }
       val mark = dis.markPos
       dis.skip(offset, pstate)
@@ -273,15 +334,14 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath])
   }
 }
 
-
-case class DFDLXDoubleFromRawLong(recipes: CompiledDPath, argType: NodeInfo.Kind )
+case class DFDLXDoubleFromRawLong(recipes: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipes, argType) {
   override def computeValue(value: DataValuePrimitive, dstate: DState): DataValueDouble = {
     JDouble.longBitsToDouble(value.getLong)
   }
 }
 
-case class DFDLXDoubleToRawLong(recipes: CompiledDPath, argType: NodeInfo.Kind )
+case class DFDLXDoubleToRawLong(recipes: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipes, argType) {
   override def computeValue(value: DataValuePrimitive, dstate: DState): DataValueLong = {
     JDouble.doubleToRawLongBits(value.getDouble)

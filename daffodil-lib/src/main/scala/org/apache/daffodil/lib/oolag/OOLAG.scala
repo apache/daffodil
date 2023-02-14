@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.lib.oolag
 
+import scala.collection.mutable
+
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.WithDiagnostics
 import org.apache.daffodil.lib.exceptions.Assert
@@ -26,8 +28,6 @@ import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util._
-
-import scala.collection.mutable
 
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars
@@ -86,8 +86,8 @@ object OOLAG {
    */
   abstract class OOLAGHostImpl private (
     oolagContextArg: OOLAGHost,
-    final override val nArgs: Args)
-    extends OOLAGHost {
+    final override val nArgs: Args,
+  ) extends OOLAGHost {
 
     def this(oolagContext: OOLAGHost) = this(oolagContext, OneArg)
     def this() = this(null, ZeroArgs)
@@ -134,9 +134,7 @@ object OOLAG {
    * is similar, but the evaluations only occur if the object is marked as active
    * via setRequiredEvaluationsActive().
    */
-  trait OOLAGHost
-    extends WithDiagnostics
-    with NamedMixinBase {
+  trait OOLAGHost extends WithDiagnostics with NamedMixinBase {
 
     protected def oolagContextViaArgs: Option[OOLAGHost] = None
     protected def nArgs: Args = OneArg
@@ -144,7 +142,10 @@ object OOLAG {
     private var oolagContextViaSet: Option[OOLAGHost] = None
 
     final def setOOLAGContext(oolagContextArg: OOLAGHost): Unit = {
-      Assert.usage(nArgs == ZeroArgs, "Cannot set oolag context if it was provided as a constructor arg.")
+      Assert.usage(
+        nArgs == ZeroArgs,
+        "Cannot set oolag context if it was provided as a constructor arg.",
+      )
       if (oolagContextViaSet != None)
         Assert.usageError("Cannot set oolag context more than once.")
       oolagContextViaSet = Option(oolagContextArg) // Option since Option(null) is None
@@ -190,7 +191,10 @@ object OOLAG {
      */
     final lazy val optOolagContext = nArgs match {
       case ZeroArgs => {
-        Assert.usage(oolagContextViaSet != None, "Must call setOOLAGContext before accessing when OOLAGHost is constructed with no args.")
+        Assert.usage(
+          oolagContextViaSet != None,
+          "Must call setOOLAGContext before accessing when OOLAGHost is constructed with no args.",
+        )
         oolagContextViaSet
       }
       case OneArg => {
@@ -279,8 +283,10 @@ object OOLAG {
     private var requiredEvalCount = 0 // used to generate unique names.
     private val requiredEvalName = Misc.getNameFromClass(this) + "_requiredEvaluation_"
 
-    private var requiredEvalFunctions: List[OOLAGValueBase] = Nil // for evaluation unconditionally
-    private var requiredEvalIfActivatedFunctions: List[OOLAGValueBase] = Nil // for evaluation only if activated.
+    private var requiredEvalFunctions: List[OOLAGValueBase] =
+      Nil // for evaluation unconditionally
+    private var requiredEvalIfActivatedFunctions: List[OOLAGValueBase] =
+      Nil // for evaluation only if activated.
 
     /**
      * Used to force evaluation for error checking unconditionally.
@@ -292,7 +298,7 @@ object OOLAG {
      * Rather, upon construction we know we positively ARE adding them to the AST.
      */
     protected final def requiredEvaluationsAlways(arg: => Any): Unit = {
-        requiredEvaluationsAlways(thunk(arg))
+      requiredEvaluationsAlways(thunk(arg))
     }
 
     /**
@@ -306,12 +312,12 @@ object OOLAG {
         else
           this
       accumPoint.requiredEvalFunctions +:= lv
-   }
+    }
 
     /**
      * Wraps an LV around an expression that is a non LV
      */
-    private def thunk(arg: => Any) : OOLAGValueBase = {
+    private def thunk(arg: => Any): OOLAGValueBase = {
       val lv = LV(Symbol(requiredEvalName + requiredEvalCount)) {
         arg
       }
@@ -330,13 +336,15 @@ object OOLAG {
         // If the context is now available centralize the required eval functions that are always
         // to be evaluated.
         //
-        oolagRoot.requiredEvalFunctions = this.requiredEvalFunctions ::: oolagRoot.requiredEvalFunctions
+        oolagRoot.requiredEvalFunctions =
+          this.requiredEvalFunctions ::: oolagRoot.requiredEvalFunctions
         this.requiredEvalFunctions = Nil
         //
         // If this object is activated, then also centralize the conditional eval functions.
         //
         if (requiredEvalStatus eq Active) {
-          oolagRoot.requiredEvalFunctions = this.requiredEvalIfActivatedFunctions ::: oolagRoot.requiredEvalFunctions
+          oolagRoot.requiredEvalFunctions =
+            this.requiredEvalIfActivatedFunctions ::: oolagRoot.requiredEvalFunctions
           this.requiredEvalIfActivatedFunctions = Nil
         }
       }
@@ -365,7 +373,7 @@ object OOLAG {
      * in which case they will be evaluated later when checkErrors is called.
      */
     protected final def requiredEvaluationsIfActivated(arg: => Any): Unit = {
-        requiredEvaluationsIfActivated(thunk(arg))
+      requiredEvaluationsIfActivated(thunk(arg))
     }
 
     /**
@@ -380,8 +388,7 @@ object OOLAG {
           requiredEvalIfActivatedFunctions +:= lv // active, but no root yet. Accumulate locally.
       else
         requiredEvalIfActivatedFunctions +:= lv // not active. Accumulate locally.
-  }
-
+    }
 
     /**
      * Call to activate an object so that deferred requiredEvaluationsIfActivated
@@ -504,7 +511,8 @@ object OOLAG {
   sealed abstract class OOLAGValueBase(
     val oolagContext: OOLAGHost,
     nameArg: String,
-    body: => Any) {
+    body: => Any,
+  ) {
 
     Assert.usage(oolagContext != null)
 
@@ -551,7 +559,9 @@ object OOLAG {
       Assert.invariant(!hasValue)
       th match {
         case le: scala.Error => { // note that Exception does NOT inherit from Error
-          Logger.log.trace(s" " * indent + s"${thisThing} has no value due to ${le}") // tell us which lazy attribute it was
+          Logger.log.trace(
+            s" " * indent + s"${thisThing} has no value due to ${le}",
+          ) // tell us which lazy attribute it was
           toss(le)
         }
         //
@@ -561,7 +571,9 @@ object OOLAG {
         //
         case ue @ (_: IllegalArgumentException | _: UnsuppressableException) => {
           val ex = ue
-          Logger.log.trace(" " * indent + s"${this.getClass.getName} has no value due to ${ex}") // tell us which lazy attribute it was
+          Logger.log.trace(
+            " " * indent + s"${this.getClass.getName} has no value due to ${ex}",
+          ) // tell us which lazy attribute it was
           toss(ex)
         }
         //
@@ -569,7 +581,9 @@ object OOLAG {
         // ErrorAlreadyHandled means we are headed back to some top-level that
         // can tolerate errors and go on with compilation.
         case eah: ErrorAlreadyHandled => {
-          Logger.log.trace(s" " * indent + s"${thisThing} has no value due to ${eah}") // tell us which lazy attribute it was
+          Logger.log.trace(
+            s" " * indent + s"${thisThing} has no value due to ${eah}",
+          ) // tell us which lazy attribute it was
           toss(eah)
         }
         //
@@ -696,12 +710,13 @@ object OOLAG {
         if (hasValue) Some(value_.get)
         else None
       } else {
-        val res = try {
-          val v = valueAsAny
-          Some(v)
-        } catch {
-          case e: OOLAGRethrowException => None
-        }
+        val res =
+          try {
+            val v = valueAsAny
+            Some(v)
+          } catch {
+            case e: OOLAGRethrowException => None
+          }
         res
       }
     }
@@ -785,7 +800,10 @@ private[oolag] case object AssumptionFailed extends OOLAGRethrowException {
   def cause1: Option[Throwable] = None
 }
 
-final case class CircularDefinition(val lv: OOLAG.OOLAGValueBase, list: Seq[OOLAG.OOLAGValueBase]) extends Exception {
+final case class CircularDefinition(
+  val lv: OOLAG.OOLAGValueBase,
+  list: Seq[OOLAG.OOLAGValueBase],
+) extends Exception {
   override def getMessage() = {
     "OOLAG Cycle (of " + list.length + ") through " + list.mkString(", ")
   }

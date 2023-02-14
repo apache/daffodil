@@ -17,19 +17,19 @@
 
 package org.apache.daffodil.lib.util
 
-import org.apache.daffodil.lib.exceptions.UnsuppressableException
-
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.Executors
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
- object Coroutine {
-   /**
+import org.apache.daffodil.lib.exceptions.UnsuppressableException
+
+object Coroutine {
+
+  /**
     * This execution context should be used when creating Coroutine threads to
     * improve performance. Creating threads has high overhead, but getting
     * threads from a thread pool we reduce some of that overhead.
@@ -43,17 +43,17 @@ import scala.util.Try
     * hopefully unlikely that a user will create enough parallel SAX unparse
     * calls to cause issues.
     */
-   val executionContext = new ExecutionContext {
-     private val threadPool = Executors.newCachedThreadPool()
-     def execute(runnable: Runnable): Unit = threadPool.submit(runnable)
+  val executionContext = new ExecutionContext {
+    private val threadPool = Executors.newCachedThreadPool()
+    def execute(runnable: Runnable): Unit = threadPool.submit(runnable)
 
-     //$COVERAGE-OFF$
-     def reportFailure(t: Throwable): Unit = {} //do nothing
-     //$COVERAGE-ON$
-   }
- }
+    // $COVERAGE-OFF$
+    def reportFailure(t: Throwable): Unit = {} // do nothing
+    // $COVERAGE-ON$
+  }
+}
 
- /**
+/**
   * General purpose Co-routines.
   *
   * Some design concerns: if these are used along with lazy vals and other things
@@ -72,14 +72,14 @@ import scala.util.Try
   * This T type parameter does not need to be the same for both coroutines, allowing
   * two coroutines to send and receive different types of data from one another.
   */
- trait Coroutine[T] {
+trait Coroutine[T] {
 
-   private val queueCapacity: Int = 1
-   private val inboundQueue = new ArrayBlockingQueue[T](queueCapacity)
+  private val queueCapacity: Int = 1
+  private val inboundQueue = new ArrayBlockingQueue[T](queueCapacity)
 
-   private val self = this
+  private val self = this
 
-   /**
+  /**
     * Override this in the main thread to be
     *
     * `override final def isMain = true`
@@ -87,20 +87,20 @@ import scala.util.Try
     * This suppresses creation of a thread for when the main
     * thread is itself one of the co-routines.
     */
-   protected def isMain: Boolean = false
+  protected def isMain: Boolean = false
 
-   private var thread_ : Option[Future[Unit]] = None
+  private var thread_ : Option[Future[Unit]] = None
 
-   private final def init(): Unit = {
-     if (!isMain && thread_.isEmpty) {
-       val thr = Future {
-         self.run()
-       } (Coroutine.executionContext)
-       thread_ = Some(thr)
-     }
-   }
+  private final def init(): Unit = {
+    if (!isMain && thread_.isEmpty) {
+      val thr = Future {
+        self.run()
+      }(Coroutine.executionContext)
+      thread_ = Some(thr)
+    }
+  }
 
-   /**
+  /**
     * Call when a co-routine resumes another (to provide a result of some sort)
     * and then terminates. The coroutine calling this must return from the run()
     * method immediately after calling this.
@@ -109,12 +109,12 @@ import scala.util.Try
     *           not be the same type as the kind transmitted back to this calling
     *           coroutine.
     */
-   final def resumeFinal[R](coroutine: Coroutine[R], in: R): Unit = {
-     coroutine.init()
-     coroutine.inboundQueue.put(in) // allows other to run final
-   }
+  final def resumeFinal[R](coroutine: Coroutine[R], in: R): Unit = {
+    coroutine.init()
+    coroutine.inboundQueue.put(in) // allows other to run final
+  }
 
-   /**
+  /**
     * Call when one co-routine wants to resume another, transmitting a
     * argument value to it.
     *
@@ -123,35 +123,35 @@ import scala.util.Try
     *           not be the same type as the kind transmitted back to this calling
     *           coroutine.
     */
-   final def resume[R](coroutine: Coroutine[R], in: R): T = {
-     resumeFinal(coroutine, in)
-     val res = waitForResume() // blocks until it is resumed
-     res
-   }
+  final def resume[R](coroutine: Coroutine[R], in: R): T = {
+    resumeFinal(coroutine, in)
+    val res = waitForResume() // blocks until it is resumed
+    res
+  }
 
-   final def waitForResume(): T = {
-     inboundQueue.take()
-   }
+  final def waitForResume(): T = {
+    inboundQueue.take()
+  }
 
-   protected def run(): Unit
- }
+  protected def run(): Unit
+}
 
- /**
+/**
   * Convenience class, since many Coroutines systems have this as
   * the main coroutine definition
   * @tparam T The value type returned to this main coroutine when it is
   *           resumed by other coroutines.
   */
- class MainCoroutine[T] extends Coroutine[T] {
-   final override def isMain = true
-   // $COVERAGE-OFF$
-   override protected def run(): Unit = {
-     throw new Error("Main thread co-routine run method should not be called.")
-   }
-   // $COVERAGE-ON$
- }
+class MainCoroutine[T] extends Coroutine[T] {
+  final override def isMain = true
+  // $COVERAGE-OFF$
+  override protected def run(): Unit = {
+    throw new Error("Main thread co-routine run method should not be called.")
+  }
+  // $COVERAGE-ON$
+}
 
- /**
+/**
   * Convert something that has callbacks (e.g., SAX-like parser that calls back on events)
   * into a pull-style API aka Iterator.
   *
@@ -171,14 +171,12 @@ import scala.util.Try
   * https://scalaenthusiast.wordpress.com/2013/06/12/transform-a-callback-function-to-an-iteratorlist-in-scala/
   */
 
- final class InvertControl[S](body: => Unit)
-   extends MainCoroutine[Try[S]]
-     with Iterator[S] {
+final class InvertControl[S](body: => Unit) extends MainCoroutine[Try[S]] with Iterator[S] {
 
-   private object EndMarker extends Throwable
-   private val EndOfData = Failure(EndMarker)
+  private object EndMarker extends Throwable
+  private val EndOfData = Failure(EndMarker)
 
-   /**
+  /**
     * The producer will run the body function, and from within it,
     * calls to setNext() will
     * produce the values for the consumer. The consumer (main thread)
@@ -187,53 +185,56 @@ import scala.util.Try
     * After the last value is produced, the consumer is resumed with EndOfData
     * and the producer terminates.
     */
-   class Producer(val consumer: Coroutine[Try[S]]) extends Coroutine[Try[S]] {
-     override final def run(): Unit = {
-       try {
-         waitForResume()
-         body
-         resumeFinal(consumer, EndOfData)
-       } catch {
-         case s: scala.util.control.ControlThrowable => throw s
-         case u: UnsuppressableException => throw u
-         case e: Exception => resumeFinal(consumer, Failure(e))
-       }
-     }
+  class Producer(val consumer: Coroutine[Try[S]]) extends Coroutine[Try[S]] {
+    override final def run(): Unit = {
+      try {
+        waitForResume()
+        body
+        resumeFinal(consumer, EndOfData)
+      } catch {
+        case s: scala.util.control.ControlThrowable => throw s
+        case u: UnsuppressableException => throw u
+        case e: Exception => resumeFinal(consumer, Failure(e))
+      }
+    }
 
-     final def setNext(e: S): Unit = {
-       resume(consumer, Success(e))
-     }
-   }
+    final def setNext(e: S): Unit = {
+      resume(consumer, Success(e))
+    }
+  }
 
-   def setNext(s: S): Unit =
-     producer.setNext(s)
+  def setNext(s: S): Unit =
+    producer.setNext(s)
 
-   private val producer = new Producer(this)
+  private val producer = new Producer(this)
 
-   private var failed = false
+  private var failed = false
 
-   private val dummy: Try[S] = Success(null.asInstanceOf[S])
+  private val dummy: Try[S] = Success(null.asInstanceOf[S])
 
-   private def gen: Stream[S] = {
-     val x = resume(producer, dummy) // producer isn't sent anything. It's just resumed to get another value.
-     x match {
-       case EndOfData => Stream.Empty
-       case Success(v) => v #:: gen
-       case Failure(e) => {
-         failed = true
-         throw e
-       }
-     }
-   }
+  private def gen: Stream[S] = {
+    val x = resume(
+      producer,
+      dummy,
+    ) // producer isn't sent anything. It's just resumed to get another value.
+    x match {
+      case EndOfData => Stream.Empty
+      case Success(v) => v #:: gen
+      case Failure(e) => {
+        failed = true
+        throw e
+      }
+    }
+  }
 
-   private lazy val iterator = gen.toIterator
+  private lazy val iterator = gen.toIterator
 
-   override def hasNext: Boolean = {
-     !failed && iterator.hasNext
-   }
-   override def next(): S = {
-     if (failed) throw new IllegalStateException()
-     else iterator.next()
-   }
+  override def hasNext: Boolean = {
+    !failed && iterator.hasNext
+  }
+  override def next(): S = {
+    if (failed) throw new IllegalStateException()
+    else iterator.next()
+  }
 
- }
+}

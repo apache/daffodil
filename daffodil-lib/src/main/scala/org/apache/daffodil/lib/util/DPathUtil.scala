@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.lib.util
 
-
 object DPathUtil {
 
   /**

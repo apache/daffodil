@@ -17,25 +17,25 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.io.BacktrackingException
 import org.apache.daffodil.lib.api.DataLocation
 import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.Processor
-import org.apache.daffodil.runtime1.processors.RuntimeData
-import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.io.BacktrackingException
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.Evaluatable
+import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.processors.CombinatorProcessor
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.PrimProcessor
-import org.apache.daffodil.runtime1.processors.TextProcessor
 import org.apache.daffodil.runtime1.processors.PrimProcessorNoData
+import org.apache.daffodil.runtime1.processors.Processor
+import org.apache.daffodil.runtime1.processors.RuntimeData
+import org.apache.daffodil.runtime1.processors.Success
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.TextProcessor
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
@@ -43,29 +43,51 @@ import org.apache.daffodil.runtime1.processors.PrimProcessorNoData
  * A parser can have sub-parsers. See also PrimParser which is a parser with no sub-parsers,
  * and CombinatorParser, which is a parser with sub parsers.
  */
-sealed trait Parser
-  extends Processor {
+sealed trait Parser extends Processor {
 
   def isEmpty = false // override in NadaParser
 
   protected lazy val parserName = Misc.getNameFromClass(this)
 
   def PE(pstate: PState, s: String, args: Any*) = {
-    pstate.setFailed(new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*))
+    pstate.setFailed(
+      new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*),
+    )
   }
 
-  def PE(pstate: PState, sfl: SchemaFileLocation, dataLoc: DataLocation, s: String, args: Any*) = {
+  def PE(
+    pstate: PState,
+    sfl: SchemaFileLocation,
+    dataLoc: DataLocation,
+    s: String,
+    args: Any*,
+  ) = {
     pstate.setFailed(new ParseError(One(sfl), One(dataLoc), s, args: _*))
   }
 
   def PENotEnoughBits(pstate: PState, neededBits: Long, remainingBits: MaybeULong) = {
-    val remainingStr = if (remainingBits.isDefined) s" but found only ${remainingBits.get} available" else ""
+    val remainingStr =
+      if (remainingBits.isDefined) s" but found only ${remainingBits.get} available" else ""
     PE(pstate, "Insufficient bits in data. Needed %d bit(s)%s.", neededBits, remainingStr)
   }
 
-  def PENotEnoughBits(pstate: PState, sfl:SchemaFileLocation, dataLoc: DataLocation, neededBits: Long, remainingBits: MaybeULong) = {
-    val remainingStr = if (remainingBits.isDefined) s" but found only ${remainingBits.get} available" else ""
-    PE(pstate, sfl, dataLoc, "Insufficient bits in data. Needed %d bit(s)%s.", neededBits, remainingStr)
+  def PENotEnoughBits(
+    pstate: PState,
+    sfl: SchemaFileLocation,
+    dataLoc: DataLocation,
+    neededBits: Long,
+    remainingBits: MaybeULong,
+  ) = {
+    val remainingStr =
+      if (remainingBits.isDefined) s" but found only ${remainingBits.get} available" else ""
+    PE(
+      pstate,
+      sfl,
+      dataLoc,
+      "Insufficient bits in data. Needed %d bit(s)%s.",
+      neededBits,
+      remainingStr,
+    )
   }
 
   def processingError(state: PState, str: String, args: Any*) =
@@ -106,7 +128,8 @@ sealed trait Parser
        * ProcessingError it throws a new SDE.
        * */
       case pe: ParseError => pstate.setFailed(pe)
-      case be: BacktrackingException => pstate.SDE("Attempted to backtrack too far: " + be.getMessage())
+      case be: BacktrackingException =>
+        pstate.SDE("Attempted to backtrack too far: " + be.getMessage())
     } finally {
       pstate.resetFormatInfoCaches()
       if (pstate.dataProc.isDefined) pstate.dataProc.get.after(pstate, this)
@@ -119,25 +142,19 @@ sealed trait Parser
  * A PrimParser is a parser that contains no child parsers.
  * Combinators are NOT PrimParser
  */
-trait PrimParser
-  extends PrimProcessor
-  with Parser
+trait PrimParser extends PrimProcessor with Parser
 
 /**
  * A parser which is "primitive" no sub-parsers, but which doesn't
  * parses any data. Evaluates expressions, binds variables, evaluates
  * asserts, etc.
  */
-trait PrimParserNoData
-  extends PrimProcessorNoData
-  with Parser
+trait PrimParserNoData extends PrimProcessorNoData with Parser
 
 /**
  * Mixed in as a marker for parsers that only operate on text.
  */
-trait TextPrimParser
-  extends PrimParser
-  with TextProcessor
+trait TextPrimParser extends PrimParser with TextProcessor
 
 /**
  * Parser which does "Nada" (Nothing in Spanish)
@@ -145,8 +162,7 @@ trait TextPrimParser
  * Used for optionality in some cases, but is usually recognized and
  * optimized out.
  */
-final class NadaParser(override val context: RuntimeData)
-  extends PrimParserNoData {
+final class NadaParser(override val context: RuntimeData) extends PrimParserNoData {
   override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
   override def isEmpty = true
@@ -159,7 +175,8 @@ final class NadaParser(override val context: RuntimeData)
 }
 
 abstract class CombinatorParser(override val context: RuntimeData)
-  extends Parser with CombinatorProcessor
+  extends Parser
+  with CombinatorProcessor
 
 final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser])
   extends CombinatorParser(context) {
@@ -183,9 +200,7 @@ final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser]
 
 }
 
-class ChoiceParser(
-  ctxt: RuntimeData,
-  val childParsers: Vector[Parser])
+class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])
   extends CombinatorParser(ctxt) {
   override lazy val runtimeDependencies = Vector()
   override lazy val childProcessors = childParsers
@@ -197,7 +212,7 @@ class ChoiceParser(
     var diagnostics: Seq[Diagnostic] = Nil
     var i = 0
     val numAlternatives = childParsers.length
-    
+
     var successfullyParsedChildBranch = false
 
     while (!successfullyParsedChildBranch && i < numAlternatives) {
@@ -206,7 +221,6 @@ class ChoiceParser(
       i += 1
 
       pstate.withPointOfUncertainty("ChoiceParser", ctxt) { pou =>
-
         parser.parse1(pstate)
 
         if (pstate.processorStatus eq Success) {
@@ -228,7 +242,8 @@ class ChoiceParser(
           // Failed to parse this branch alternative. Create diagnostic and
           // check if anything resolved the associated point of uncertainty
 
-          val diag = new ChoiceBranchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
+          val diag =
+            new ChoiceBranchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
           diagnostics = diag +: diagnostics
 
           if (pstate.isPointOfUncertaintyResolved(pou)) {
@@ -251,18 +266,19 @@ class ChoiceParser(
     }
 
     if (!successfullyParsedChildBranch) {
-      val allDiags = new EntireChoiceFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
+      val allDiags =
+        new EntireChoiceFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
       pstate.setFailed(allDiags)
     }
   }
 
 }
 
-case class DummyParser(override val context: TermRuntimeData)
-  extends PrimParserNoData {
+case class DummyParser(override val context: TermRuntimeData) extends PrimParserNoData {
   override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
-  def parse(pstate: PState): Unit = pstate.SDE("Parser for " + context + " is not yet implemented.")
+  def parse(pstate: PState): Unit =
+    pstate.SDE("Parser for " + context + " is not yet implemented.")
 
   override def childProcessors = Vector()
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
@@ -275,7 +291,11 @@ case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoDa
     // We can't use state.SDE because that needs the infoset to determine the
     // context. No infoset will exist when this is called, so we'll manually
     // create an SDE and toss it
-    val rsde = new RuntimeSchemaDefinitionError(context.schemaFileLocation, state, "This schema was compiled without parse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property.")
+    val rsde = new RuntimeSchemaDefinitionError(
+      context.schemaFileLocation,
+      state,
+      "This schema was compiled without parse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property.",
+    )
     context.toss(rsde)
   }
 

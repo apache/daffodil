@@ -17,18 +17,16 @@
 
 package org.apache.daffodil.validation.schematron
 
-import org.apache.daffodil.lib.api.ValidationException
-
-import java.io.InputStream
-
-import org.apache.daffodil.lib.api.ValidationFailure
-import org.apache.daffodil.lib.api.ValidationResult
-import org.apache.daffodil.lib.api.Validator
-
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.nio.file.Path
 import scala.util.Try
 import scala.xml.XML
+
+import org.apache.daffodil.lib.api.ValidationException
+import org.apache.daffodil.lib.api.ValidationFailure
+import org.apache.daffodil.lib.api.ValidationResult
+import org.apache.daffodil.lib.api.Validator
 
 /**
  * Daffodil Validator implementation for ISO schematron
@@ -36,9 +34,10 @@ import scala.xml.XML
 final class SchematronValidator(engine: Schematron, svrlPath: Option[Path]) extends Validator {
   def validateXML(document: InputStream): ValidationResult = {
     val svrl = XML.loadString(engine.validate(document))
-    val valErr: Seq[ValidationFailure] = for(f @ <svrl:failed-assert>{ msg @ _* }</svrl:failed-assert> <- svrl.child) yield {
-      SchematronValidationError(msg.text.trim, { f \\ "@location" }.text)
-    }
+    val valErr: Seq[ValidationFailure] =
+      for (f @ <svrl:failed-assert>{msg @ _*}</svrl:failed-assert> <- svrl.child) yield {
+        SchematronValidationError(msg.text.trim, { f \\ "@location" }.text)
+      }
 
     val svrlString = svrl.mkString
     val svrlOutputFailure = svrlPath.flatMap { path =>

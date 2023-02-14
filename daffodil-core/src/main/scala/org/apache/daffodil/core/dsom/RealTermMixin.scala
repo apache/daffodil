@@ -17,20 +17,22 @@
 
 package org.apache.daffodil.core.dsom
 
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.runtime1.dsom._
 
-import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
-
 trait PropertyReferencedElementInfosMixin {
-  protected final type F = ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]
+  protected final type F =
+    ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]
 
   /**
    * Convenience method to make gathering up all elements referenced in expressions
    * easier.
    */
-  protected final def propExprElts(rawProp: PropertyLookupResult,
+  protected final def propExprElts(
+    rawProp: PropertyLookupResult,
     evArg: => ContentValueReferencedElementInfoMixin,
-    f: F): Set[DPathElementCompileInfo] = {
+    f: F,
+  ): Set[DPathElementCompileInfo] = {
     lazy val ev = evArg
     if (rawProp.isDefined) f(ev) else Set()
   }
@@ -51,4 +53,3 @@ trait PropertyReferencedElementInfosMixin {
   protected def calcValueUnparserReferencedElementInfos = ReferencedElementInfos.None
 
 }
-

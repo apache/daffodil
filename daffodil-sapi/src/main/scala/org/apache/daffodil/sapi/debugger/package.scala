@@ -42,4 +42,3 @@ package org.apache.daffodil.sapi
  */
 
 package object debugger
-

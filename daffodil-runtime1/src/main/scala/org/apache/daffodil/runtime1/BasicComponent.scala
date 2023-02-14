@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.runtime1
 
-import org.apache.daffodil.lib.xml.ResolvesQNames
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHost
-import org.apache.daffodil.runtime1.processors.HasTunable
+import org.apache.daffodil.lib.xml.ResolvesQNames
 import org.apache.daffodil.runtime1.dsom.ImplementsThrowsOrSavesSDE
+import org.apache.daffodil.runtime1.processors.HasTunable
 
 /**
  * Base trait shared by all component families in Daffodil

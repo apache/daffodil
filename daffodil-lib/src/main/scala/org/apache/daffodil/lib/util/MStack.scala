@@ -18,12 +18,14 @@
 package org.apache.daffodil.lib.util
 
 import org.apache.daffodil.lib.exceptions.Assert
+
 import Maybe._
 
 object MStack {
   final case class Mark(val v: Int) extends AnyVal
   val nullMark = Mark(0)
 }
+
 /**
  * Avoid boxing and unboxing of primitive types by using these
  *
@@ -31,7 +33,8 @@ object MStack {
  * catches improper initialization. These were not initializing properly,
  * so the idiom evolved to use the scala initializers.
  */
-final class MStackOfBoolean private () extends MStack[Boolean]((n: Int) => new Array[Boolean](n), false)
+final class MStackOfBoolean private ()
+  extends MStack[Boolean]((n: Int) => new Array[Boolean](n), false)
 
 object MStackOfBoolean {
   def apply() = {
@@ -114,8 +117,8 @@ final class MStackOfMaybe[T <: AnyRef] {
   @inline final def isEmpty = delegate.isEmpty
 
   def clear() = delegate.clear()
-  def toListMaybe = delegate.toList.map {
-    x: AnyRef => Maybe(x) // Scala compiler bug without this cast
+  def toListMaybe = delegate.toList.map { x: AnyRef =>
+    Maybe(x) // Scala compiler bug without this cast
   }
 }
 
@@ -132,8 +135,7 @@ final class MStackOfMaybe[T <: AnyRef] {
  * an object reference or null, and call Maybe(thing) explicitly outside the
  * iteration. Maybe(null) is Nope, and Maybe(thing) is One(thing) if thing is not null.
  */
-final class MStackOf[T <: AnyRef]
-  extends Serializable {
+final class MStackOf[T <: AnyRef] extends Serializable {
 
   override def toString = delegate.toString
 
@@ -161,9 +163,8 @@ final class MStackOf[T <: AnyRef]
 
 }
 
-private[util] final class MStackOfAnyRef private () extends MStack[AnyRef](
-  (n: Int) => new Array[AnyRef](n),
-  null.asInstanceOf[AnyRef])
+private[util] final class MStackOfAnyRef private ()
+  extends MStack[AnyRef]((n: Int) => new Array[AnyRef](n), null.asInstanceOf[AnyRef])
 
 object MStackOfAnyRef {
   def apply() = {
@@ -182,7 +183,9 @@ object MStackOfAnyRef {
  * things.
  */
 protected abstract class MStack[@specialized T] private[util] (
-  arrayAllocator: (Int) => Array[T], nullValue: T) {
+  arrayAllocator: (Int) => Array[T],
+  nullValue: T,
+) {
 
   private var index = 0
   private var table: Array[T] = null
@@ -277,7 +280,6 @@ protected abstract class MStack[@specialized T] private[util] (
     table(index - 1) = x
   }
 
-
   /**
    * View the top element of the stack.
    *
@@ -340,7 +342,6 @@ protected abstract class MStack[@specialized T] private[util] (
 
 }
 
-abstract class ResettableIterator[@specialized T]
-  extends Iterator[T] {
+abstract class ResettableIterator[@specialized T] extends Iterator[T] {
   def reset(): Unit
 }

@@ -17,7 +17,10 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.math.{BigInteger => JBigInt}
+import java.math.{ BigInteger => JBigInt }
+
+import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.runtime1.processors.DelimiterParseEv
 import org.apache.daffodil.runtime1.processors.EscapeSchemeParseEv
@@ -25,11 +28,8 @@ import org.apache.daffodil.runtime1.processors.RangeBound
 import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.lib.util.Maybe
 
-class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
-  extends CombinatorParser(rd) {
+class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser) extends CombinatorParser(rd) {
   override def nom = "ComplexType"
 
   override lazy val runtimeDependencies = Vector()
@@ -53,8 +53,9 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
  */
 class DelimiterStackParser(
   delimiters: Array[DelimiterParseEv],
-  ctxt: RuntimeData, bodyParser: Parser)
-  extends CombinatorParser(ctxt) {
+  ctxt: RuntimeData,
+  bodyParser: Parser,
+) extends CombinatorParser(ctxt) {
 
   override lazy val childProcessors = Vector(bodyParser)
 
@@ -74,7 +75,7 @@ class DelimiterStackParser(
       }
 
       // parse
-        bodyParser.parse1(start)
+      bodyParser.parse1(start)
     } finally {
       // pop delimiters
       start.mpstate.delimiters.reduceToSize(start.mpstate.delimitersLocalIndexStack.pop)
@@ -94,8 +95,9 @@ class DelimiterStackParser(
  */
 class DynamicEscapeSchemeParser(
   escapeScheme: EscapeSchemeParseEv,
-  ctxt: TermRuntimeData, bodyParser: Parser)
-  extends CombinatorParser(ctxt) {
+  ctxt: TermRuntimeData,
+  bodyParser: Parser,
+) extends CombinatorParser(ctxt) {
 
   override lazy val childProcessors = Vector(bodyParser)
 
@@ -123,13 +125,12 @@ class DynamicEscapeSchemeParser(
  * So we have a special empty branch parser that does nothing and always
  * succeeds, but gives the ChoiceCombinatorParsers something that they can use.
  */
-class ChoiceBranchEmptyParser(val context: RuntimeData)
-  extends PrimParserNoData {
+class ChoiceBranchEmptyParser(val context: RuntimeData) extends PrimParserNoData {
 
   override lazy val runtimeDependencies = Vector()
 
   def parse(state: PState): Unit = {
-    //do nothing
+    // do nothing
   }
 }
 
@@ -137,16 +138,18 @@ class ChoiceBranchEmptyParser(val context: RuntimeData)
  * dispatchBranchKeyMap: choiceBranchKey -> (Parser, hasRepresentation)
  */
 
-abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData, 
-                                                  dispatchBranchKeyMap: Map[String, (Parser, Boolean)], 
-                                                  dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)])
-  extends CombinatorParser(rd) {
+abstract class ChoiceDispatchCombinatorParserBase(
+  rd: TermRuntimeData,
+  dispatchBranchKeyMap: Map[String, (Parser, Boolean)],
+  dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)],
+) extends CombinatorParser(rd) {
 
   override def nom = "ChoiceDispatch"
 
   override lazy val runtimeDependencies = Vector()
 
-  override def childProcessors = dispatchBranchKeyMap.values.map(_._1).toVector ++ dispatchKeyRangeMap.map(_._3)
+  override def childProcessors =
+    dispatchBranchKeyMap.values.map(_._1).toVector ++ dispatchKeyRangeMap.map(_._3)
 
   /*
    * Returns a value if pstate.processorStatus eq Success
@@ -155,25 +158,24 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
 
   def parse(pstate: PState): Unit = {
     pstate.withPointOfUncertainty("ChoiceDispatchCombinator", rd) { pou =>
-
       val maybeKey = computeDispatchKey(pstate)
 
       if (pstate.processorStatus eq Success) {
         val key = maybeKey.get
 
         val parserOpt1 = dispatchBranchKeyMap.get(key)
-        val parserOpt2 = 
+        val parserOpt2 =
           if (parserOpt1.isDefined) {
             parserOpt1
-          } else{
+          } else {
             if (!dispatchKeyRangeMap.isEmpty) {
               try {
                 val keyAsBigInt = new JBigInt(key)
-                val optAns1= dispatchKeyRangeMap.find { case (min, max, _, _) =>
+                val optAns1 = dispatchKeyRangeMap.find { case (min, max, _, _) =>
                   min.testAsLower(keyAsBigInt) && max.testAsUpper(keyAsBigInt)
                 }
-                optAns1.map { case (_ ,_ ,parser, isRepresented) =>
-                  (parser,isRepresented)
+                optAns1.map { case (_, _, parser, isRepresented) =>
+                  (parser, isRepresented)
                 }
               } catch {
                 case _: NumberFormatException => None
@@ -182,8 +184,8 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
               None
             }
           }
-        
-        val parserOpt: Option[(Parser,Boolean)] = parserOpt2
+
+        val parserOpt: Option[(Parser, Boolean)] = parserOpt2
         if (parserOpt.isEmpty) {
           val diag = new ChoiceDispatchNoMatch(context.schemaFileLocation, pstate, key)
           pstate.setFailed(diag)
@@ -219,7 +221,8 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
 
           } else {
             Logger.log.debug(s"Choice dispatch failed: ${parser}")
-            val diag = new ChoiceDispatchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
+            val diag =
+              new ChoiceDispatchFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
             pstate.setFailed(diag)
           }
         }
@@ -229,9 +232,13 @@ abstract class ChoiceDispatchCombinatorParserBase(rd: TermRuntimeData,
   }
 }
 
-class ChoiceDispatchCombinatorParser(rd: TermRuntimeData, dispatchKeyEv: ChoiceDispatchKeyEv, 
-  dispatchBranchKeyMap: Map[String, (Parser, Boolean)], dispatchKeyRangeMap:Vector[(RangeBound,RangeBound,Parser, Boolean)])
-  extends ChoiceDispatchCombinatorParserBase(rd, dispatchBranchKeyMap, dispatchKeyRangeMap) {
-  override def computeDispatchKey(pstate: PState): Maybe[String] = Maybe(dispatchKeyEv.evaluate(pstate))
+class ChoiceDispatchCombinatorParser(
+  rd: TermRuntimeData,
+  dispatchKeyEv: ChoiceDispatchKeyEv,
+  dispatchBranchKeyMap: Map[String, (Parser, Boolean)],
+  dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)],
+) extends ChoiceDispatchCombinatorParserBase(rd, dispatchBranchKeyMap, dispatchKeyRangeMap) {
+  override def computeDispatchKey(pstate: PState): Maybe[String] = Maybe(
+    dispatchKeyEv.evaluate(pstate),
+  )
 }
-

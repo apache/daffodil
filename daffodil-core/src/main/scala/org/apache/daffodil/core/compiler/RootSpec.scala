@@ -38,11 +38,13 @@ case class RootSpec(ns: Option[NS], name: String) {
 }
 
 object RootSpec {
-  def makeRootSpec(optName: Option[String], optNamespace:Option[String]) = {
-    val ns = optNamespace.map{ NS(_) }
+  def makeRootSpec(optName: Option[String], optNamespace: Option[String]) = {
+    val ns = optNamespace.map { NS(_) }
     if (optNamespace.isDefined && optName.isEmpty)
-      Assert.usageError("Cannot specify only a namespace without a name. Namespace argument was: "
-        + (if (ns eq NoNamespace) "\"\" " + ns else ns))
-    optName.map{ RootSpec(ns, _) }
+      Assert.usageError(
+        "Cannot specify only a namespace without a name. Namespace argument was: "
+          + (if (ns eq NoNamespace) "\"\" " + ns else ns),
+      )
+    optName.map { RootSpec(ns, _) }
   }
 }

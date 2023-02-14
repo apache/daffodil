@@ -23,13 +23,15 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * X-DFDL-US-ASCII-7-BIT-PACKED occupies only 7 bits with each
  * code unit.
  */
-object BitsCharsetUSASCII7BitPacked extends {
-  override val name = "X-DFDL-US-ASCII-7-BIT-PACKED"
-  override val bitWidthOfACodeUnit = 7
-  override val decodeString = (0 to 127).map { _.toChar }.mkString
-  override val replacementCharCode = 0x3F
-  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetUSASCII7BitPacked
+  extends {
+    override val name = "X-DFDL-US-ASCII-7-BIT-PACKED"
+    override val bitWidthOfACodeUnit = 7
+    override val decodeString = (0 to 127).map { _.toChar }.mkString
+    override val replacementCharCode = 0x3f
+    override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
 final class BitsCharsetUSASCII7BitPackedDefinition
   extends BitsCharsetDefinition(BitsCharsetUSASCII7BitPacked)

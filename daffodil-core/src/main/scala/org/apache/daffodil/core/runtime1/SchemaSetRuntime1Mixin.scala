@@ -17,17 +17,17 @@
 
 package org.apache.daffodil.core.runtime1
 
-import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.core.dsom.SchemaSet
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.core.grammar.VariableMapFactory
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData
 import org.apache.daffodil.runtime1.processors.VariableMap
 import org.apache.daffodil.runtime1.processors.parsers.NotParsableParser
 import org.apache.daffodil.runtime1.processors.unparsers.NotUnparsableUnparser
-import org.apache.daffodil.lib.util.Logger
 
 trait SchemaSetRuntime1Mixin {
   self: SchemaSet =>
@@ -41,9 +41,8 @@ trait SchemaSetRuntime1Mixin {
    * for type calculations where those simpleTypeDefs do not have
    * a corresponding element of that type.
    */
-  requiredEvaluationsAlways(typeCalcMap.foreach {
-    case (_, typeCalculator) =>
-      typeCalculator.initialize()
+  requiredEvaluationsAlways(typeCalcMap.foreach { case (_, typeCalculator) =>
+    typeCalculator.initialize()
   })
 
   override lazy val variableMap: VariableMap = LV('variableMap) {
@@ -62,32 +61,31 @@ trait SchemaSetRuntime1Mixin {
   }.value
 
   lazy val unparser = LV('unparser) {
-    val unp = if (generateUnparser) root.document.unparser else new NotUnparsableUnparser(root.erd)
+    val unp =
+      if (generateUnparser) root.document.unparser else new NotUnparsableUnparser(root.erd)
     Processor.initialize(unp)
     unp
   }.value
 
   def onPath(xpath: String): DFDL.DataProcessor = {
     Assert.usage(!isError)
-    if (xpath != "/") root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
+    if (xpath != "/")
+      root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
     val rootERD = root.elementRuntimeData
     root.schemaDefinitionUnless(
       !rootERD.dpathElementCompileInfo.isOutputValueCalc,
-      "The root element cannot have the dfdl:outputValueCalc property.")
+      "The root element cannot have the dfdl:outputValueCalc property.",
+    )
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null
-    val ssrd = new SchemaSetRuntimeData(
-      p,
-      u,
-      this.diagnostics,
-      rootERD,
-      variableMap,
-      typeCalcMap)
+    val ssrd =
+      new SchemaSetRuntimeData(p, u, this.diagnostics, rootERD, variableMap, typeCalcMap)
     if (root.numComponents > root.numUniqueComponents)
-      Logger.log.debug(s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.")
+      Logger.log.debug(
+        s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.",
+      )
     val dataProc = new DataProcessor(ssrd, tunable, variableMap.copy())
-    if (dataProc.isError) {
-    } else {
+    if (dataProc.isError) {} else {
       Logger.log.debug(s"Parser = ${ssrd.parser.toString}.")
       Logger.log.debug(s"Unparser = ${ssrd.unparser.toString}.")
       Logger.log.debug(s"Compilation (DataProcesor) completed with no errors.")

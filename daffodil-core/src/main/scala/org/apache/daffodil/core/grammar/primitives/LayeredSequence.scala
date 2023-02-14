@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.grammar.Terminal
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.layers.LayerCompileInfo
 import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
-import org.apache.daffodil.runtime1.processors.parsers.{Parser => DaffodilParser}
-import org.apache.daffodil.runtime1.processors.unparsers.{Unparser => DaffodilUnparser}
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.parsers.LayeredSequenceParser
+import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
+import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
 import org.apache.daffodil.unparsers.runtime1.LayeredSequenceUnparser
-import org.apache.daffodil.lib.util.Maybe
 
 case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
   extends Terminal(sq, true) {
@@ -42,8 +42,9 @@ case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
       Maybe.toMaybe(sq.optionLayerLengthKind),
       sq.maybeLayerLengthEv,
       Maybe.toMaybe(sq.optionLayerLengthUnits),
-      sq.maybeLayerBoundaryMarkEv
-    ))
+      sq.maybeLayerBoundaryMarkEv,
+    ),
+  )
 
   private val layerTransformerFactory = {
     val layerCompiler = sq.layerCompiler
@@ -65,7 +66,7 @@ case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
   lazy val layerRuntimeInfo = layerCompileInfo.layerRuntimeInfo
 
   override lazy val parser: DaffodilParser =
-    new LayeredSequenceParser(srd, layerTransformerFactory,  layerRuntimeInfo, bodyParser)
+    new LayeredSequenceParser(srd, layerTransformerFactory, layerRuntimeInfo, bodyParser)
 
   override lazy val unparser: DaffodilUnparser = {
     new LayeredSequenceUnparser(srd, layerTransformerFactory, layerRuntimeInfo, bodyUnparser)

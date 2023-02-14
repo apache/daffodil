@@ -19,14 +19,15 @@ package org.apache.daffodil.runtime1.infoset
 
 import java.nio.charset.StandardCharsets
 
-import com.fasterxml.jackson.core.io.JsonStringEncoder
-
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.util.MStackOfBoolean
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+
+import com.fasterxml.jackson.core.io.JsonStringEncoder
 
 class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
-  extends InfosetOutputter with Indentable {
+  extends InfosetOutputter
+  with Indentable {
 
   def this(os: java.io.OutputStream, pretty: Boolean) = {
     this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty)
@@ -91,14 +92,15 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
     if (pretty) outputIndentation(writer)
   }
 
-
   override def startSimple(simple: DISimple): Unit = {
     startNode()
     startElement(simple)
     if (!isNilled(simple) && simple.hasValue) {
       val text =
         if (simple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
-          new String(stringEncoder.quoteAsString(simple.dataValueAsString)) // escapes according to Json spec
+          new String(
+            stringEncoder.quoteAsString(simple.dataValueAsString),
+          ) // escapes according to Json spec
         } else {
           simple.dataValueAsString
         }

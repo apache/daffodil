@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
+import org.apache.daffodil.io.processors.charset.BitsCharset
+import org.apache.daffodil.io.processors.charset.CharsetUtils
+import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.io.processors.charset.BitsCharset
-import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
 import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.io.processors.charset.CharsetUtils
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
 
 /**
  * To eliminate circularities between RuntimeData objects and the
@@ -77,7 +77,9 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
     }
   }
 
-  final lazy val knownEncodingWidthInBits = encodingMinimumCodePointWidthInBits(knownEncodingCharset)
+  final lazy val knownEncodingWidthInBits = encodingMinimumCodePointWidthInBits(
+    knownEncodingCharset,
+  )
 
   final def encodingMinimumCodePointWidthInBits(cs: BitsCharset) = {
     val res = cs match {
@@ -115,8 +117,10 @@ final class EncodingRuntimeData(
   val isKnownEncoding: Boolean,
   val isScannable: Boolean,
   override val knownEncodingAlignmentInBits: Int,
-  val hasTextAlignment: Boolean)
-  extends KnownEncodingMixin with ImplementsThrowsSDE with Serializable {
+  val hasTextAlignment: Boolean,
+) extends KnownEncodingMixin
+  with ImplementsThrowsSDE
+  with Serializable {
 
   lazy val runtimeDependencies = Vector(charsetEv)
 

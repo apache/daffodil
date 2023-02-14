@@ -17,23 +17,34 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import org.apache.daffodil.runtime1.dsom.walker._
-
-import java.lang.{ Integer => JInt }
 import java.lang.{ Byte => JByte }
 import java.lang.{ Double => JDouble }
-import java.lang.{ Short => JShort }
-import java.lang.{ Long => JLong }
 import java.lang.{ Float => JFloat }
-import java.math.{ BigInteger => JBigInt }
+import java.lang.{ Integer => JInt }
+import java.lang.{ Long => JLong }
+import java.lang.{ Short => JShort }
 import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInt }
 import java.net.URI
 import java.net.URISyntaxException
+
 import org.apache.daffodil.lib.calendar.DFDLCalendar
 import org.apache.daffodil.lib.calendar.DFDLDateConversion
 import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.lib.calendar.DFDLTimeConversion
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Delay
+import org.apache.daffodil.lib.util.Enum
+import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.Numbers.asBigDecimal
+import org.apache.daffodil.lib.util.Numbers.asBigInt
+import org.apache.daffodil.lib.xml.GlobalQName
+import org.apache.daffodil.lib.xml.NoNamespace
+import org.apache.daffodil.lib.xml.QName
+import org.apache.daffodil.lib.xml.RefQName
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dsom.walker._
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigDecimal
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBool
@@ -50,19 +61,9 @@ import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueShort
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueTime
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueURI
-import org.apache.daffodil.lib.util.Delay
-import org.apache.daffodil.lib.util.Enum
-import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.util.Numbers.asBigInt
-import org.apache.daffodil.lib.util.Numbers.asBigDecimal
-import org.apache.daffodil.lib.xml.GlobalQName
-import org.apache.daffodil.lib.xml.NoNamespace
-import org.apache.daffodil.lib.xml.QName
-import org.apache.daffodil.lib.xml.RefQName
-import org.apache.daffodil.lib.xml.XMLUtils
 
 object TypeNode
+
 /**
  * We need to have a data structure that lets us represent a type, and
  * its relationship (conversion, subtyping) to other types.
@@ -76,19 +77,22 @@ object TypeNode
  * that points back at this.
  */
 sealed abstract class TypeNode private (
-  parentsDelay:  Delay[Seq[NodeInfo.Kind]],
-  childrenDelay: Delay[Seq[NodeInfo.Kind]])
-  extends Serializable
+  parentsDelay: Delay[Seq[NodeInfo.Kind]],
+  childrenDelay: Delay[Seq[NodeInfo.Kind]],
+) extends Serializable
   with NodeInfo.Kind {
 
   def this(sym: Symbol, parents: => Seq[NodeInfo.Kind], children: => Seq[NodeInfo.Kind]) =
-    this(Delay(sym, TypeNode , parents), Delay(sym, TypeNode, children))
+    this(Delay(sym, TypeNode, parents), Delay(sym, TypeNode, children))
 
   def this(sym: Symbol, parentArg: NodeInfo.Kind, childrenArg: => Seq[NodeInfo.Kind]) =
     this(Delay(sym, TypeNode, Seq(parentArg)), Delay(sym, TypeNode, childrenArg))
 
   def this(sym: Symbol, parentArg: => NodeInfo.Kind) =
-    this(Delay(sym, TypeNode, Seq(parentArg)), Delay(sym, TypeNode, Seq[NodeInfo.Kind](NodeInfo.Nothing)))
+    this(
+      Delay(sym, TypeNode, Seq(parentArg)),
+      Delay(sym, TypeNode, Seq[NodeInfo.Kind](NodeInfo.Nothing)),
+    )
 
   /**
    * Cyclic structures require an initialization
@@ -96,7 +100,7 @@ sealed abstract class TypeNode private (
   lazy val initialize: Unit = {
     parents
     children // demand their value
-    parents.foreach{ p =>
+    parents.foreach { p =>
       // if this fails, it is because cyclic graph construction of the types
       // has failed. For some reason, this doesn't cause a stack overflow, but
       // you just get null as the value of one of the case object type nodes.
@@ -113,13 +117,18 @@ sealed abstract class TypeNode private (
  * deal with just the primitive types exclusive of all the abstract
  * types (like AnyAtomic, or AnyDateTimeType) that surround them.
  */
-sealed abstract class PrimTypeNode(sym: Symbol, parent: NodeInfo.Kind, childrenArg: => Seq[NodeInfo.Kind])
-  extends TypeNode(sym, parent, childrenArg) with NodeInfo.PrimType {
+sealed abstract class PrimTypeNode(
+  sym: Symbol,
+  parent: NodeInfo.Kind,
+  childrenArg: => Seq[NodeInfo.Kind],
+) extends TypeNode(sym, parent, childrenArg)
+  with NodeInfo.PrimType {
 
   def this(sym: Symbol, parent: NodeInfo.Kind) = this(sym, parent, Seq(NodeInfo.Nothing))
 }
 
-class InvalidPrimitiveDataException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
+class InvalidPrimitiveDataException(msg: String, cause: Throwable = null)
+  extends Exception(msg, cause)
 
 /**
  * A NodeInfo.Kind describes what kind of result we want from the expression.
@@ -163,14 +172,14 @@ object NodeInfo extends Enum {
    * Cyclic structures require initialization
    */
   lazy val initialize: Boolean = {
-    allTypes.foreach{
-      _.initialize }
+    allTypes.foreach {
+      _.initialize
+    }
     true
   }
 
   // Primitives are not "global" because they don't appear in any schema document
-  sealed trait PrimType
-    extends AnyAtomic.Kind {
+  sealed trait PrimType extends AnyAtomic.Kind {
 
     def globalQName: GlobalQName
 
@@ -219,7 +228,9 @@ object NodeInfo extends Enum {
     final lazy val isHead: Boolean = parents.isEmpty
     final lazy val lcaseName = name.toLowerCase()
 
-    final lazy val selfAndAllParents: Set[Kind] = parents.flatMap { _.selfAndAllParents }.toSet ++ parents
+    final lazy val selfAndAllParents: Set[Kind] = parents.flatMap {
+      _.selfAndAllParents
+    }.toSet ++ parents
 
     // names in lower case
     lazy val parentList: List[String] = {
@@ -231,12 +242,13 @@ object NodeInfo extends Enum {
       else selfAndAllParents.contains(other)
 
     def doesParentListContain(typeName: String): Boolean = {
-      val list = parentList.filter(n =>
-        n.toLowerCase() == typeName.toLowerCase())
+      val list = parentList.filter(n => n.toLowerCase() == typeName.toLowerCase())
       list.size > 0
     }
 
-    private val xsScope = <xs:documentation xmlns:xs={ XMLUtils.XSD_NAMESPACE.uri.toString() }/>.scope
+    private val xsScope = <xs:documentation xmlns:xs={
+      XMLUtils.XSD_NAMESPACE.uri.toString()
+    }/>.scope
 
     // FIXME: this scope has xs prefix bound, but what if that's not the binding
     // the user has in their DFDL schema? What if they use "xsd" or just "x" or
@@ -319,7 +331,9 @@ object NodeInfo extends Enum {
    * types except some special singleton types like ArrayType.
    */
   protected sealed trait AnyTypeKind extends NodeInfo.Kind
-  case object AnyType extends TypeNode('AnyType, Nil, Seq(AnySimpleType, Complex, Exists)) with AnyTypeKind {
+  case object AnyType
+    extends TypeNode('AnyType, Nil, Seq(AnySimpleType, Complex, Exists))
+    with AnyTypeKind {
     sealed trait Kind extends AnyTypeKind
   }
 
@@ -329,7 +343,8 @@ object NodeInfo extends Enum {
    * It is the return type of the dfdlx:error() function. It's a subtype of
    * every type (except some special singletons like ArrayType).
    */
-  lazy val Nothing = new TypeNode('Nothing,
+  lazy val Nothing = new TypeNode(
+    'Nothing,
     Seq(
       Boolean,
       Complex,
@@ -345,9 +360,10 @@ object NodeInfo extends Enum {
       HexBinary,
       AnyURI,
       String,
-      NonEmptyString),
-    Nil)
-    with Boolean.Kind
+      NonEmptyString,
+    ),
+    Nil,
+  ) with Boolean.Kind
     with Complex.Kind
     with Array.Kind
     with ArrayIndex.Kind
@@ -389,27 +405,41 @@ object NodeInfo extends Enum {
    * where AnyAtomic does not?
    */
   protected sealed trait AnySimpleTypeKind extends AnyType.Kind
-  case object AnySimpleType extends TypeNode('AnySimpleType, AnyType, Seq(AnyAtomic)) with AnySimpleTypeKind {
+  case object AnySimpleType
+    extends TypeNode('AnySimpleType, AnyType, Seq(AnyAtomic))
+    with AnySimpleTypeKind {
     type Kind = AnySimpleTypeKind
   }
 
   protected sealed trait AnyAtomicKind extends AnySimpleType.Kind
-  case object AnyAtomic extends TypeNode('AnyAtomic, AnySimpleType, Seq(String, Numeric, Boolean, Opaque, AnyDateTime, AnyURI)) with AnyAtomicKind {
+  case object AnyAtomic
+    extends TypeNode(
+      'AnyAtomic,
+      AnySimpleType,
+      Seq(String, Numeric, Boolean, Opaque, AnyDateTime, AnyURI),
+    )
+    with AnyAtomicKind {
     type Kind = AnyAtomicKind
   }
 
   protected sealed trait NumericKind extends AnyAtomic.Kind
-  case object Numeric extends TypeNode('Numeric, AnyAtomic, Seq(SignedNumeric, UnsignedNumeric)) with NumericKind {
+  case object Numeric
+    extends TypeNode('Numeric, AnyAtomic, Seq(SignedNumeric, UnsignedNumeric))
+    with NumericKind {
     type Kind = NumericKind
   }
 
   protected sealed trait SignedNumericKind extends Numeric.Kind
-  case object SignedNumeric extends TypeNode('SignedNumeric, Numeric, Seq(Float, Double, Decimal)) with SignedNumericKind {
+  case object SignedNumeric
+    extends TypeNode('SignedNumeric, Numeric, Seq(Float, Double, Decimal))
+    with SignedNumericKind {
     type Kind = SignedNumericKind
   }
 
   protected sealed trait UnsignedNumericKind extends Numeric.Kind
-  case object UnsignedNumeric extends TypeNode('UnsignedNumeric, Numeric, Seq(NonNegativeInteger)) with UnsignedNumericKind {
+  case object UnsignedNumeric
+    extends TypeNode('UnsignedNumeric, Numeric, Seq(NonNegativeInteger))
+    with UnsignedNumericKind {
     type Kind = UnsignedNumericKind
   }
 
@@ -434,7 +464,9 @@ object NodeInfo extends Enum {
   }
 
   protected sealed trait AnyDateTimeKind extends AnyAtomicKind
-  case object AnyDateTime extends TypeNode('AnyDateTime, AnyAtomic, Seq(Date, Time, DateTime)) with AnyDateTimeKind {
+  case object AnyDateTime
+    extends TypeNode('AnyDateTime, AnyAtomic, Seq(Date, Time, DateTime))
+    with AnyDateTimeKind {
     type Kind = AnyDateTimeKind
   }
 
@@ -487,7 +519,8 @@ object NodeInfo extends Enum {
     Boolean,
     DateTime,
     Date,
-    Time)
+    Time,
+  )
 
   /**
    * The PrimType objects are a child enum within the overall NodeInfo
@@ -516,20 +549,26 @@ object NodeInfo extends Enum {
           fromString(s)
         } catch {
           case iae: IllegalArgumentException =>
-            throw new InvalidPrimitiveDataException("Value '%s' is not a valid %s: %s".format(s, this.globalQName, iae.getMessage))
+            throw new InvalidPrimitiveDataException(
+              "Value '%s' is not a valid %s: %s".format(s, this.globalQName, iae.getMessage),
+            )
           case uri: URISyntaxException =>
-            throw new InvalidPrimitiveDataException("Value '%s' is not a valid %s: %s".format(s, this.globalQName, uri.getMessage))
+            throw new InvalidPrimitiveDataException(
+              "Value '%s' is not a valid %s: %s".format(s, this.globalQName, uri.getMessage),
+            )
         }
       }
     }
 
     trait PrimNumeric { self: Numeric.Kind =>
-      def width:MaybeInt
+      def width: MaybeInt
       def isValid(n: Number): Boolean
       protected def fromNumberNoCheck(n: Number): DataValueNumber
       def fromNumber(n: Number): DataValueNumber = {
         if (!isValid(n))
-          throw new InvalidPrimitiveDataException("Value '%s' is out of range for type: %s".format(n, this.globalQName))
+          throw new InvalidPrimitiveDataException(
+            "Value '%s' is out of range for type: %s".format(n, this.globalQName),
+          )
         val num = fromNumberNoCheck(n)
         num
       }
@@ -537,15 +576,20 @@ object NodeInfo extends Enum {
       protected def fromString(s: String): DataValueNumber
       def fromXMLString(s: String): DataValueNumber = {
         val st = s.trim
-        val num = try {
-          fromString(st)
-        } catch {
-          case nfe: NumberFormatException =>
-            throw new InvalidPrimitiveDataException("Value '%s' is not a valid %s".format(st, this.globalQName))
-        }
+        val num =
+          try {
+            fromString(st)
+          } catch {
+            case nfe: NumberFormatException =>
+              throw new InvalidPrimitiveDataException(
+                "Value '%s' is not a valid %s".format(st, this.globalQName),
+              )
+          }
 
         if (!isValid(num.getNumber))
-          throw new InvalidPrimitiveDataException("Value '%s' is out of range for type: %s".format(st, this.globalQName))
+          throw new InvalidPrimitiveDataException(
+            "Value '%s' is out of range for type: %s".format(st, this.globalQName),
+          )
 
         num
       }
@@ -608,7 +652,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait FloatKind extends SignedNumeric.Kind
-    case object Float extends PrimTypeNode('Float, SignedNumeric) with FloatKind with PrimNumericFloat with FloatView {
+    case object Float
+      extends PrimTypeNode('Float, SignedNumeric)
+      with FloatKind
+      with PrimNumericFloat
+      with FloatView {
       type Kind = FloatKind
       protected override def fromString(s: String) = {
         val f: JFloat = s match {
@@ -626,7 +674,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait DoubleKind extends SignedNumeric.Kind
-    case object Double extends PrimTypeNode('Double, SignedNumeric) with DoubleKind with PrimNumericFloat with DoubleView {
+    case object Double
+      extends PrimTypeNode('Double, SignedNumeric)
+      with DoubleKind
+      with PrimNumericFloat
+      with DoubleView {
       type Kind = DoubleKind
       protected override def fromString(s: String): DataValueDouble = {
         val d: JDouble = s match {
@@ -644,7 +696,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait DecimalKind extends SignedNumeric.Kind
-    case object Decimal extends PrimTypeNode('Decimal, SignedNumeric, List(Integer)) with DecimalKind with PrimNumeric with DecimalView {
+    case object Decimal
+      extends PrimTypeNode('Decimal, SignedNumeric, List(Integer))
+      with DecimalKind
+      with PrimNumeric
+      with DecimalView {
       type Kind = DecimalKind
       protected override def fromString(s: String): DataValueBigDecimal = new JBigDecimal(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigDecimal = asBigDecimal(n)
@@ -656,8 +712,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait IntegerKind extends Decimal.Kind
-    case object Integer extends PrimTypeNode('Integer, Decimal, List(Long, NonNegativeInteger)) with IntegerKind with PrimNumeric
-        with IntegerView {
+    case object Integer
+      extends PrimTypeNode('Integer, Decimal, List(Long, NonNegativeInteger))
+      with IntegerKind
+      with PrimNumeric
+      with IntegerView {
       type Kind = IntegerKind
       protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
@@ -669,7 +728,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait LongKind extends Integer.Kind
-    case object Long extends PrimTypeNode('Long, Integer, List(Int)) with LongKind with PrimNumericInteger with LongView {
+    case object Long
+      extends PrimTypeNode('Long, Integer, List(Int))
+      with LongKind
+      with PrimNumericInteger
+      with LongView {
       type Kind = LongKind
       protected override def fromString(s: String): DataValueLong = s.toLong
       protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
@@ -679,7 +742,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait IntKind extends Long.Kind
-    case object Int extends PrimTypeNode('Int, Long, List(Short)) with IntKind with PrimNumericInteger with IntView {
+    case object Int
+      extends PrimTypeNode('Int, Long, List(Short))
+      with IntKind
+      with PrimNumericInteger
+      with IntView {
       type Kind = IntKind
       protected override def fromString(s: String): DataValueInt = s.toInt
       protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
@@ -689,7 +756,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait ShortKind extends Int.Kind
-    case object Short extends PrimTypeNode('Short, Int, List(Byte)) with ShortKind with PrimNumericInteger with ShortView {
+    case object Short
+      extends PrimTypeNode('Short, Int, List(Byte))
+      with ShortKind
+      with PrimNumericInteger
+      with ShortView {
       type Kind = ShortKind
       protected override def fromString(s: String): DataValueShort = s.toShort
       protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
@@ -699,7 +770,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait ByteKind extends Short.Kind
-    case object Byte extends PrimTypeNode('Byte, Short) with ByteKind with PrimNumericInteger with ByteView {
+    case object Byte
+      extends PrimTypeNode('Byte, Short)
+      with ByteKind
+      with PrimNumericInteger
+      with ByteView {
       type Kind = ByteKind
       protected override def fromString(s: String): DataValueByte = s.toByte
       protected override def fromNumberNoCheck(n: Number): DataValueByte = n.byteValue
@@ -709,8 +784,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait NonNegativeIntegerKind extends Integer.Kind
-    case object NonNegativeInteger extends PrimTypeNode('NonNegativeInteger, Integer, List(UnsignedLong)) with NonNegativeIntegerKind with PrimNumeric
-        with NonNegativeIntegerView {
+    case object NonNegativeInteger
+      extends PrimTypeNode('NonNegativeInteger, Integer, List(UnsignedLong))
+      with NonNegativeIntegerKind
+      with PrimNumeric
+      with NonNegativeIntegerView {
       type Kind = NonNegativeIntegerKind
       protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
@@ -726,8 +804,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait UnsignedLongKind extends NonNegativeInteger.Kind
-    case object UnsignedLong extends PrimTypeNode('UnsignedLong, NonNegativeInteger, List(UnsignedInt)) with UnsignedLongKind with PrimNumeric
-        with UnsignedLongView {
+    case object UnsignedLong
+      extends PrimTypeNode('UnsignedLong, NonNegativeInteger, List(UnsignedInt))
+      with UnsignedLongKind
+      with PrimNumeric
+      with UnsignedLongView {
       type Kind = UnsignedLongKind
       protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
@@ -736,7 +817,7 @@ object NodeInfo extends Enum {
         case bi: JBigInt => bi.signum >= 0 && bi.compareTo(max) <= 0
         case _ => n.longValue >= 0
       }
-      val max = new JBigInt(1, scala.Array.fill(8)(0xFF.toByte))
+      val max = new JBigInt(1, scala.Array.fill(8)(0xff.toByte))
       val maxBD = new JBigDecimal(max)
       override val width: MaybeInt = MaybeInt(64)
 
@@ -744,46 +825,62 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait UnsignedIntKind extends UnsignedLong.Kind
-    case object UnsignedInt extends PrimTypeNode('UnsignedInt, UnsignedLong, List(UnsignedShort, ArrayIndex)) with UnsignedIntKind with PrimNumericInteger
-        with UnsignedIntView {
+    case object UnsignedInt
+      extends PrimTypeNode('UnsignedInt, UnsignedLong, List(UnsignedShort, ArrayIndex))
+      with UnsignedIntKind
+      with PrimNumericInteger
+      with UnsignedIntView {
       type Kind = UnsignedIntKind
       protected override def fromString(s: String): DataValueLong = s.toLong
       protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
       override val min = 0L
-      override val max = 0xFFFFFFFFL
+      override val max = 0xffffffffL
       override val width: MaybeInt = MaybeInt(32)
     }
 
     protected sealed trait UnsignedShortKind extends UnsignedInt.Kind
-    case object UnsignedShort extends PrimTypeNode('UnsignedShort, UnsignedInt, List(UnsignedByte)) with UnsignedShortKind with PrimNumericInteger
-        with UnsignedShortView {
+    case object UnsignedShort
+      extends PrimTypeNode('UnsignedShort, UnsignedInt, List(UnsignedByte))
+      with UnsignedShortKind
+      with PrimNumericInteger
+      with UnsignedShortView {
       type Kind = UnsignedShortKind
       protected override def fromString(s: String): DataValueInt = s.toInt
       protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
       override val min = 0L
-      override val max = 0xFFFFL
+      override val max = 0xffffL
       override val width: MaybeInt = MaybeInt(16)
     }
 
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
-    case object UnsignedByte extends PrimTypeNode('UnsignedByte, UnsignedShort) with UnsignedByteKind with PrimNumericInteger
-        with UnsignedByteView {
+    case object UnsignedByte
+      extends PrimTypeNode('UnsignedByte, UnsignedShort)
+      with UnsignedByteKind
+      with PrimNumericInteger
+      with UnsignedByteView {
       type Kind = UnsignedByteKind
       protected override def fromString(s: String): DataValueShort = s.toShort
       protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
       override val min = 0L
-      override val max = 0xFFL
+      override val max = 0xffL
       override val width: MaybeInt = MaybeInt(8)
     }
 
     protected sealed trait StringKind extends AnyAtomic.Kind
-    case object String extends PrimTypeNode('String, AnyAtomic, List(NonEmptyString)) with StringKind with StringView {
+    case object String
+      extends PrimTypeNode('String, AnyAtomic, List(NonEmptyString))
+      with StringKind
+      with StringView {
       type Kind = StringKind
       override def fromXMLString(s: String) = s
     }
 
     protected sealed trait BooleanKind extends AnySimpleType.Kind
-    case object Boolean extends PrimTypeNode('Boolean, AnyAtomic) with BooleanKind with PrimNonNumeric with BooleanView {
+    case object Boolean
+      extends PrimTypeNode('Boolean, AnyAtomic)
+      with BooleanKind
+      with PrimNonNumeric
+      with BooleanView {
       type Kind = BooleanKind
       protected override def fromString(s: String): DataValueBool = {
         s match {
@@ -795,19 +892,31 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait AnyURIKind extends AnySimpleType.Kind
-    case object AnyURI extends PrimTypeNode('AnyURI, AnyAtomic) with AnyURIKind with PrimNonNumeric with AnyURIView {
+    case object AnyURI
+      extends PrimTypeNode('AnyURI, AnyAtomic)
+      with AnyURIKind
+      with PrimNonNumeric
+      with AnyURIView {
       type Kind = AnyURIKind
       protected override def fromString(s: String): DataValueURI = new URI(s)
     }
 
     protected sealed trait HexBinaryKind extends Opaque.Kind
-    case object HexBinary extends PrimTypeNode('HexBinary, Opaque) with HexBinaryKind with PrimNonNumeric with HexBinaryView {
+    case object HexBinary
+      extends PrimTypeNode('HexBinary, Opaque)
+      with HexBinaryKind
+      with PrimNonNumeric
+      with HexBinaryView {
       type Kind = HexBinaryKind
       protected override def fromString(s: String): DataValueByteArray = Misc.hex2Bytes(s)
     }
 
     protected sealed trait DateKind extends AnyDateTimeKind
-    case object Date extends PrimTypeNode('Date, AnyDateTime) with DateKind with PrimNonNumeric with DateView {
+    case object Date
+      extends PrimTypeNode('Date, AnyDateTime)
+      with DateKind
+      with PrimNonNumeric
+      with DateView {
       type Kind = DateKind
       protected override def fromString(s: String): DataValueDate = {
         DFDLDateConversion.fromXMLString(s)
@@ -815,7 +924,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait DateTimeKind extends AnyDateTimeKind
-    case object DateTime extends PrimTypeNode('DateTime, AnyDateTime) with DateTimeKind with PrimNonNumeric with DateTimeView {
+    case object DateTime
+      extends PrimTypeNode('DateTime, AnyDateTime)
+      with DateTimeKind
+      with PrimNonNumeric
+      with DateTimeView {
       type Kind = DateTimeKind
       protected override def fromString(s: String): DataValueDateTime = {
         DFDLDateTimeConversion.fromXMLString(s)
@@ -823,7 +936,11 @@ object NodeInfo extends Enum {
     }
 
     protected sealed trait TimeKind extends AnyDateTimeKind
-    case object Time extends PrimTypeNode('Time, AnyDateTime) with TimeKind with PrimNonNumeric with TimeView {
+    case object Time
+      extends PrimTypeNode('Time, AnyDateTime)
+      with TimeKind
+      with PrimNonNumeric
+      with TimeView {
       type Kind = TimeKind
       protected override def fromString(s: String): DataValueTime = {
         DFDLTimeConversion.fromXMLString(s)
@@ -836,19 +953,51 @@ object NodeInfo extends Enum {
   // list and the definition of these type objects above.
   //
   private lazy val allAbstractTypes = List(
-    AnyType, AnySimpleType, AnyAtomic, AnyDateTime, AnyURI, Exists,
-    Numeric, SignedNumeric, UnsignedNumeric,
+    AnyType,
+    AnySimpleType,
+    AnyAtomic,
+    AnyDateTime,
+    AnyURI,
+    Exists,
+    Numeric,
+    SignedNumeric,
+    UnsignedNumeric,
     // There is no UnsignedInteger because the concrete type
     // NonNegativeInteger plays that role.
-    Opaque, AnyDateTime)
+    Opaque,
+    AnyDateTime,
+  )
   private lazy val allDFDLTypes = List(
-    Float, Double, Decimal, Integer, Long, Int, Short, Byte,
-    NonNegativeInteger, UnsignedLong, UnsignedInt, UnsignedShort, UnsignedByte,
-    String, Boolean, HexBinary, AnyURI,
-    Date, Time, DateTime)
+    Float,
+    Double,
+    Decimal,
+    Integer,
+    Long,
+    Int,
+    Short,
+    Byte,
+    NonNegativeInteger,
+    UnsignedLong,
+    UnsignedInt,
+    UnsignedShort,
+    UnsignedByte,
+    String,
+    Boolean,
+    HexBinary,
+    AnyURI,
+    Date,
+    Time,
+    DateTime,
+  )
 
   lazy val allTypes =
-    allDFDLTypes ++ List(Complex, Array, ArrayIndex, NonEmptyString, Nothing) ++ allAbstractTypes
+    allDFDLTypes ++ List(
+      Complex,
+      Array,
+      ArrayIndex,
+      NonEmptyString,
+      Nothing,
+    ) ++ allAbstractTypes
 
   initialize // initialize self - creates all cyclic structures
 }

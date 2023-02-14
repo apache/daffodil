@@ -17,22 +17,20 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.TextTruncationType
-import org.apache.daffodil.runtime1.processors.CharsetEv
-import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
-import org.apache.daffodil.lib.util.MaybeJULong
-import org.apache.daffodil.runtime1.processors.LengthEv
-import org.apache.daffodil.runtime1.processors.Evaluatable
-
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
 
-sealed abstract class StringSpecifiedLengthUnparserBase(
-  val erd: ElementRuntimeData)
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.MaybeJULong
+import org.apache.daffodil.runtime1.processors.CharsetEv
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.Evaluatable
+import org.apache.daffodil.runtime1.processors.LengthEv
+import org.apache.daffodil.runtime1.processors.TextTruncationType
+import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
+import org.apache.daffodil.runtime1.processors.unparsers._
+
+sealed abstract class StringSpecifiedLengthUnparserBase(val erd: ElementRuntimeData)
   extends TextPrimUnparser {
 
   override def context = erd
@@ -45,8 +43,7 @@ sealed abstract class StringSpecifiedLengthUnparserBase(
 
 }
 
-class StringNoTruncateUnparser(
-  erd: ElementRuntimeData)
+class StringNoTruncateUnparser(erd: ElementRuntimeData)
   extends StringSpecifiedLengthUnparserBase(erd) {
 
   override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
@@ -54,12 +51,17 @@ class StringNoTruncateUnparser(
   override def unparse(state: UState): Unit = {
     val dos = state.dataOutputStream
     val valueToWrite = contentString(state)
-    val nCharsWritten = try {
-      dos.putString(valueToWrite, state)
-    } catch {
-      case m: MalformedInputException => { UE(state, "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
-      case u: UnmappableCharacterException => { UE(state, "%s - UnmappableCharacterException: \n%s", nom, u.getMessage()) }
-    }
+    val nCharsWritten =
+      try {
+        dos.putString(valueToWrite, state)
+      } catch {
+        case m: MalformedInputException => {
+          UE(state, "%s - MalformedInputException: \n%s", nom, m.getMessage())
+        }
+        case u: UnmappableCharacterException => {
+          UE(state, "%s - UnmappableCharacterException: \n%s", nom, u.getMessage())
+        }
+      }
     Assert.invariant(nCharsWritten == valueToWrite.length)
   }
 
@@ -67,8 +69,8 @@ class StringNoTruncateUnparser(
 
 sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
   stringTruncationType: TextTruncationType.Type,
-  erd: ElementRuntimeData)
-  extends StringSpecifiedLengthUnparserBase(erd) {
+  erd: ElementRuntimeData,
+) extends StringSpecifiedLengthUnparserBase(erd) {
 
   Assert.usage(stringTruncationType ne TextTruncationType.None)
 
@@ -76,7 +78,11 @@ sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
    * We only truncate strings, and only if textStringJustification is left or
    * right, and only if truncateSpecifiedLengthString is yes.
    */
-  protected final def truncateByJustification(ustate: UState, str: String, nChars: Long): String = {
+  protected final def truncateByJustification(
+    ustate: UState,
+    str: String,
+    nChars: Long,
+  ): String = {
     Assert.invariant(erd.optTruncateSpecifiedLengthString.isDefined)
     val nCharsToTrim = str.length - nChars.toInt
     val result = stringTruncationType match {
@@ -89,7 +95,10 @@ sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
       case TextTruncationType.ErrorIfNeeded => {
         // justification type was "center", which cannot be truncated, so
         // should be an error
-        UE(ustate, "Truncation required but disallowed when dfdl:truncateSpecifiedLengthString=\"yes\" and dfdl:textStringJustification=\"center\"")
+        UE(
+          ustate,
+          "Truncation required but disallowed when dfdl:truncateSpecifiedLengthString=\"yes\" and dfdl:textStringJustification=\"center\"",
+        )
       }
       case TextTruncationType.None => {
         Assert.invariantFailed("cannot be TextTruncationType.None")
@@ -98,6 +107,7 @@ sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
     result
   }
 }
+
 /**
  * Truncates strings to the right length measured in bits.
  * LengthUnits is Bits, but we still don't know whether the encoding
@@ -107,10 +117,8 @@ class StringMaybeTruncateBitsUnparser(
   targetLengthInBitsEv: UnparseTargetLengthInBitsEv,
   stringTruncationType: TextTruncationType.Type,
   erd: ElementRuntimeData,
-  charsetEv: CharsetEv)
-  extends StringSpecifiedLengthUnparserTruncateBase(
-    stringTruncationType,
-    erd) {
+  charsetEv: CharsetEv,
+) extends StringSpecifiedLengthUnparserTruncateBase(stringTruncationType, erd) {
 
   override lazy val runtimeDependencies = Vector(targetLengthInBitsEv, charsetEv)
 
@@ -153,11 +161,10 @@ class StringMaybeTruncateBitsUnparser(
         // we could put temp space for this in the UState and just directly
         // reuse it.
         //
-        state.withByteArrayOutputStream {
-          case (_, dos) =>
-            val nChars = dos.putString(str, state)
-            val nBits = dos.relBitPos0b.toLong
-            (nBits, nChars)
+        state.withByteArrayOutputStream { case (_, dos) =>
+          val nChars = dos.putString(str, state)
+          val nBits = dos.relBitPos0b.toLong
+          (nBits, nChars)
         }
 
       }
@@ -212,14 +219,17 @@ class StringMaybeTruncateBitsUnparser(
         // padChar must be a minimum-width char
         val nCharsToTrim = nBitsToTrim / minBitsPerChar // positive if we need to truncate.
         Assert.invariant(nCharsToTrim <= nChars)
-        val truncatedValue = truncateByJustification(state, valueString, nChars - nCharsToTrim.toInt)
+        val truncatedValue =
+          truncateByJustification(state, valueString, nChars - nCharsToTrim.toInt)
         Assert.invariant(truncatedValue.length <= valueString.length)
         truncatedValue
       }
     }
 
     val nCharsWritten = dos.putString(valueToWrite, state)
-    Assert.invariant(nCharsWritten == valueToWrite.length) // assertion because we figured this out above based on available space.
+    Assert.invariant(
+      nCharsWritten == valueToWrite.length,
+    ) // assertion because we figured this out above based on available space.
     //
     // Filling of unused bits is done elsewhere now
     //
@@ -244,10 +254,8 @@ class StringMaybeTruncateBitsUnparser(
 class StringMaybeTruncateCharactersUnparser(
   lengthInCharactersEv: LengthEv,
   stringTruncationType: TextTruncationType.Type,
-  erd: ElementRuntimeData)
-  extends StringSpecifiedLengthUnparserTruncateBase(
-    stringTruncationType,
-    erd) {
+  erd: ElementRuntimeData,
+) extends StringSpecifiedLengthUnparserTruncateBase(stringTruncationType, erd) {
 
   override lazy val runtimeDependencies = Vector(lengthInCharactersEv)
 
@@ -266,7 +274,8 @@ class StringMaybeTruncateCharactersUnparser(
         val nChars = valueString.length.toLong
         val nCharsToTrim = nChars - targetLengthInCharacters
         Assert.invariant(nCharsToTrim <= nChars)
-        val truncatedValue = truncateByJustification(state, valueString, nChars - nCharsToTrim.toInt)
+        val truncatedValue =
+          truncateByJustification(state, valueString, nChars - nCharsToTrim.toInt)
         Assert.invariant(truncatedValue.length <= valueString.length)
         truncatedValue
       }

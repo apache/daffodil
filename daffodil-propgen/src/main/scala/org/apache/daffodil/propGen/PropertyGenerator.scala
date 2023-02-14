@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.propGen
 
-import scala.xml._
-import java.io.FileNotFoundException
 import java.io.FileInputStream
+import java.io.FileNotFoundException
 import java.io.InputStream
+import scala.xml._
 
 /**
  * Reads the XSD which describes DFDL annotations and properties. Generates scala source code text for
@@ -53,14 +53,16 @@ class PropertyGenerator(arg: Node) {
     "TunableParseUnparsePolicyTunable",
     "TunableSuppressSchemaDefinitionWarnings",
     "TunableUnqualifiedPathStepPolicy",
-    "dafint:daffodilAG")
+    "dafint:daffodilAG",
+  )
 
   val excludedAttributes = List(
     "EmptyElementParsePolicy",
     "SeparatorSuppressionPolicy",
     "TextNumberBase",
     "TextOutputMinLength",
-    "TextStandardExponentRep")
+    "TextStandardExponentRep",
+  )
 
   def excludeType(name: String) = {
     excludedTypes.exists { _.toUpperCase == name.toUpperCase() }
@@ -117,8 +119,10 @@ class PropertyGenerator(arg: Node) {
     val subAgs = e \\ "attributeGroup"
     val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None) // the "ref" attributeGroups
     // val subNames = subRefAgs.map(ag => stripSuffix("AG", stripDFDLPrefix(attr(ag, "ref"))))
-    val subNames = subRefAgs.map(ag => stripDFDLPrefix(attr(ag, "ref").get)) // leave AG suffix on.
-    val res = generatePropertyGroup(name + "_Annotation", Nil, elementType :: subNames.toList, Nil)
+    val subNames =
+      subRefAgs.map(ag => stripDFDLPrefix(attr(ag, "ref").get)) // leave AG suffix on.
+    val res =
+      generatePropertyGroup(name + "_Annotation", Nil, elementType :: subNames.toList, Nil)
     val block = comment(e) + res + sep
     block
   }
@@ -152,7 +156,8 @@ class PropertyGenerator(arg: Node) {
         // there were no enumerations for this type.
         // decide what to generate based on the base type.
         val baseTypeNameNodeSeq = (st \ "restriction" \ "@base")
-        val baseTypeName = if (baseTypeNameNodeSeq.length >= 1) baseTypeNameNodeSeq(0).text else "not recognized"
+        val baseTypeName =
+          if (baseTypeNameNodeSeq.length >= 1) baseTypeNameNodeSeq(0).text else "not recognized"
 
         baseTypeName match {
           case "xsd:int" => generateIntProperty(name)
@@ -165,19 +170,35 @@ class PropertyGenerator(arg: Node) {
   }
 
   def isScalaKeyword(s: String) = {
-    val scalaKeywords = List("type", "implicit", "class", "val", "extends", "with", "if", "else", "trait", "abstract")
+    val scalaKeywords = List(
+      "type",
+      "implicit",
+      "class",
+      "val",
+      "extends",
+      "with",
+      "if",
+      "else",
+      "trait",
+      "abstract",
+    )
     val res = scalaKeywords.contains(s)
     res
   }
 
   def genAttributeGroup(ag: Node): String = {
     // val name = stripSuffix("AG", attr(ag, "name"))
-    val name = attr(ag, "name").get // let's try leaving AG suffix in place so we can distinguish generated type mixins from AG mixins.
+    val name =
+      attr(
+        ag,
+        "name",
+      ).get // let's try leaving AG suffix in place so we can distinguish generated type mixins from AG mixins.
     if (excludeType(name)) return ""
     val subAgs = ag \ "attributeGroup"
     val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None)
     // val subNames = subRefAgs.map(ag => stripSuffix("AG", stripDFDLPrefix(attr(ag, "ref"))))
-    val subNames = subRefAgs.map(ag => stripDFDLPrefix(attr(ag, "ref").get)) // leave AG suffix on.
+    val subNames =
+      subRefAgs.map(ag => stripDFDLPrefix(attr(ag, "ref").get)) // leave AG suffix on.
     assert(subAgs.length == subRefAgs.length) // "nested attributeGroup was not a reference"
     val attribs = ag \ "attribute"
     //
@@ -195,8 +216,9 @@ class PropertyGenerator(arg: Node) {
           None
         } else {
           val refWithoutPrefix = stripPrefix("dfdlx:", rawRef.get)
-          val dafAttrNode = (PropertyGenerator.daffodilExtensionsXML \ "attribute").find { node =>
-            attr(node, "name").get == refWithoutPrefix
+          val dafAttrNode = (PropertyGenerator.daffodilExtensionsXML \ "attribute").find {
+            node =>
+              attr(node, "name").get == refWithoutPrefix
           }.get
           Some(dafAttrNode)
         }
@@ -215,7 +237,8 @@ class PropertyGenerator(arg: Node) {
         val qualifiedTypeName = attr(attrNode, "type").get
         val rawName = attr(attrNode, "name").get
         val rawNameWithoutTextPrefix = stripPrefix("text", rawName)
-        val nameIsInTypeName = qualifiedTypeName.toLowerCase.contains(rawNameWithoutTextPrefix.toLowerCase)
+        val nameIsInTypeName =
+          qualifiedTypeName.toLowerCase.contains(rawNameWithoutTextPrefix.toLowerCase)
         val endsInEnum = qualifiedTypeName.endsWith("Enum")
         val res = endsInEnum && nameIsInTypeName
         res
@@ -238,8 +261,13 @@ class PropertyGenerator(arg: Node) {
       //
       // exclude certain attribute names that aren't format properties
       // We don't want properties for these.
-      val notFormatProperties = List("ref", "type", "name", "test", "defaultValue", "message", "baseFormat")
-      val notScopedFormatProperties = List("inputValueCalc", "outputValueCalc", "hiddenGroupRef") // do these by-hand since they are not scoped.
+      val notFormatProperties =
+        List("ref", "type", "name", "test", "defaultValue", "message", "baseFormat")
+      val notScopedFormatProperties = List(
+        "inputValueCalc",
+        "outputValueCalc",
+        "hiddenGroupRef",
+      ) // do these by-hand since they are not scoped.
       val excludedBecauseDoneByHand =
         List(
           "runtimeProperties",
@@ -249,7 +277,8 @@ class PropertyGenerator(arg: Node) {
           "textStandardExponentCharacter",
           "textStandardExponentRep",
         )
-      val exclusions = notFormatProperties ++ notScopedFormatProperties ++ excludedBecauseDoneByHand
+      val exclusions =
+        notFormatProperties ++ notScopedFormatProperties ++ excludedBecauseDoneByHand
       if (exclusions.contains(rawName)) {
         Nil
       } else {
@@ -276,14 +305,20 @@ class PropertyGenerator(arg: Node) {
 
   def genComplexTypeWithName(ct: Node, name: String): String = {
     if (excludeType(name)) return ""
-    val baseNames = (ct \\ "extension" \ "@base").map { base => stripDFDLPrefix(base.text) }.filterNot { _.startsWith("xsd:") }
+    val baseNames =
+      (ct \\ "extension" \ "@base").map { base => stripDFDLPrefix(base.text) }.filterNot {
+        _.startsWith("xsd:")
+      }
     val subAgs = ct \\ "attributeGroup"
-    val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None && !(excludeType(attr(ag, "ref").get)))
+    val subRefAgs =
+      subAgs.filter(ag => attr(ag, "ref") != None && !(excludeType(attr(ag, "ref").get)))
     // val subNames = subRefAgs.map(ag => stripSuffix("AG", stripDFDLPrefix(attr(ag, "ref"))))
-    val subNames = subRefAgs.map(ag => stripDFDLPrefix(attr(ag, "ref").get)) // leave AG suffix on.
+    val subNames =
+      subRefAgs.map(ag => stripDFDLPrefix(attr(ag, "ref").get)) // leave AG suffix on.
 
     val attribs = ct \\ "attribute"
-    val attribNames = attribs.map(a => (attr(a, "name").get, stripDFDLPrefix(attr(a, "type").get)))
+    val attribNames =
+      attribs.map(a => (attr(a, "name").get, stripDFDLPrefix(attr(a, "type").get)))
     val res = generatePropertyGroup(name, attribNames, baseNames ++ subNames, Nil)
     val block = comment(ct) + res + sep
     block
@@ -401,22 +436,35 @@ trait CurrencyMixin extends PropertyMixin {
    */
   def excludeRuntimeProperties(propName: String) = {
     val runtimeValuedProperties = List(
-      "byteOrder", "encoding",
-      "initiator", "terminator",
+      "byteOrder",
+      "encoding",
+      "initiator",
+      "terminator",
       "outputNewLine",
       "length",
-      "escapeCharacter", "escapeEscapeCharacter",
-      "textStandardDecimalSeparator", "textStandardGroupingSeparator", "textStandardExponentRep",
+      "escapeCharacter",
+      "escapeEscapeCharacter",
+      "textStandardDecimalSeparator",
+      "textStandardGroupingSeparator",
+      "textStandardExponentRep",
       "binaryFloatRep",
-      "textBooleanTrueRep", "textBooleanFalseRep",
+      "textBooleanTrueRep",
+      "textBooleanFalseRep",
       "separator",
       "occursCount",
-      "inputValueCalc", "outputValueCalc",
-      "textStandardInfinityRep", "textStandardNaNRep", "textStandardZeroRep",
+      "inputValueCalc",
+      "outputValueCalc",
+      "textStandardInfinityRep",
+      "textStandardNaNRep",
+      "textStandardZeroRep",
       "nilValue",
-      "textStringPadCharacter", "textNumberPadCharacter", "textBooleanPadCharacter", "textCalendarPadCharacter",
+      "textStringPadCharacter",
+      "textNumberPadCharacter",
+      "textBooleanPadCharacter",
+      "textCalendarPadCharacter",
       "calendarLanguage",
-      "choiceDispatchKey")
+      "choiceDispatchKey",
+    )
     val res = runtimeValuedProperties.contains(propName)
     res
   }
@@ -470,14 +518,16 @@ object Currency {
   def generateStringProperty(pname: String) = {
     val traitName = initialUpperCase(pname)
     val propName = initialLowerCase(pname)
-    val res = stringPropertyTemplate.replaceAll("Currency", traitName).replaceAll("currency", propName)
+    val res =
+      stringPropertyTemplate.replaceAll("Currency", traitName).replaceAll("currency", propName)
     res
   }
 
   def generateIntProperty(pname: String) = {
     val traitName = initialUpperCase(pname)
     val propName = initialLowerCase(pname)
-    val res = intPropertyTemplate.replaceAll("Currency", traitName).replaceAll("currency", propName)
+    val res =
+      intPropertyTemplate.replaceAll("Currency", traitName).replaceAll("currency", propName)
     res
   }
 
@@ -532,18 +582,25 @@ object Currency {
     str.startsWith("dfdl:") && str.endsWith("Enum")
   }
 
-  def generatePropertyGroup(pgName: String, pgList: Seq[(String, String)], agList: Seq[String], enumList: Seq[String]) = {
+  def generatePropertyGroup(
+    pgName: String,
+    pgList: Seq[(String, String)],
+    agList: Seq[String],
+    enumList: Seq[String],
+  ) = {
     val traitName = initialUpperCase(pgName)
     val traitNames = (enumList ++ agList).map(initialUpperCase(_) + "Mixin")
     val extendsClause = "extends PropertyMixin" + traitNames.foldLeft("")(_ + "\n  with " + _)
     val mixinName = traitName + "Mixin"
     val start = "trait " + mixinName + " " + extendsClause + " {\n"
-    val (_ /* enumAttrList */ , nonEnumAttrList) = pgList.partition {
+    val (_ /* enumAttrList */, nonEnumAttrList) = pgList.partition {
       case (attrName, _) => {
         isEnumQName(attrName)
       }
     }
-    val (primAttrList, nonPrimAttrList) = nonEnumAttrList.partition { case (attrName, attrTypeName) => isXSDTypeName(attrTypeName) }
+    val (primAttrList, nonPrimAttrList) = nonEnumAttrList.partition {
+      case (attrName, attrTypeName) => isXSDTypeName(attrTypeName)
+    }
     val primAttribsList = primAttrList.map {
       case (attrName, attrTypeName) => {
         val propName = initialLowerCase(attrName)
@@ -560,17 +617,17 @@ object Currency {
         res
       }
     }
-    val initToStringFuncs = nonEnumAttrList.map {
-      case (attrName, attrTypeName) =>
-        val propName = initialLowerCase(attrName)
-        generateNonEnumStringPropInit(propName)
+    val initToStringFuncs = nonEnumAttrList.map { case (attrName, attrTypeName) =>
+      val propName = initialLowerCase(attrName)
+      generateNonEnumStringPropInit(propName)
 
     }
     val nonEnumInit = generateNonEnumStringInit(pgName, initToStringFuncs)
 
     val end = "}\n\n"
     val res = start + ( // enumAttribsList ++ // those are done via mixins now.
-      primAttribsList ++ nonPrimAttribsList).foldLeft("")(_ + _) + nonEnumInit + end
+      primAttribsList ++ nonPrimAttribsList
+    ).foldLeft("")(_ + _) + nonEnumInit + end
     res
   }
 
@@ -615,7 +672,9 @@ object Currency {
 
   def stripQuotes(s: String) = {
     val stripFirst = if (s.startsWith("\"")) s.substring(1) else s
-    val stripLast = if (stripFirst.endsWith("\"")) stripFirst.substring(0, stripFirst.length - 1) else stripFirst
+    val stripLast =
+      if (stripFirst.endsWith("\"")) stripFirst.substring(0, stripFirst.length - 1)
+      else stripFirst
     stripLast
   }
 
@@ -630,10 +689,12 @@ object Currency {
 } // end trait
 
 object PropertyGenerator {
-  val dfdlSchemasForDFDLAnnotations = List("/org/apache/daffodil/xsd/DFDL_part1_simpletypes.xsd",
+  val dfdlSchemasForDFDLAnnotations = List(
+    "/org/apache/daffodil/xsd/DFDL_part1_simpletypes.xsd",
     "/org/apache/daffodil/xsd/DFDL_part2_attributes.xsd",
     "/org/apache/daffodil/xsd/DFDL_part3_model.xsd",
-    "/org/apache/daffodil/xsd/dfdlx.xsd")
+    "/org/apache/daffodil/xsd/dfdlx.xsd",
+  )
 
   val daffodilConfigXML = getSchemaAsNode("/org/apache/daffodil/xsd/dafext.xsd")
   val daffodilExtensionsXML = getSchemaAsNode("/org/apache/daffodil/xsd/dfdlx.xsd")
@@ -706,7 +767,8 @@ import org.apache.daffodil.lib.exceptions.ThrowsSDE
 
     val thunks = generateThunks()
 
-    val generatedCodePath = getGeneratedFilePath(args(0), generatedCodePackage, generatedCodeFilename)
+    val generatedCodePath =
+      getGeneratedFilePath(args(0), generatedCodePackage, generatedCodeFilename)
     writeGeneratedCode(thunks, new java.io.FileWriter(generatedCodePath))
     System.out.println(generatedCodePath)
 

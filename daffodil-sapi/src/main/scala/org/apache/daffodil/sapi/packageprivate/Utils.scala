@@ -24,13 +24,14 @@ package org.apache.daffodil.sapi.packageprivate
 // anything in the sapi.packageprivate package. So anything that should be package
 // private should go in this package.
 
-import org.apache.daffodil.sapi._
-import org.apache.daffodil.sapi.debugger._
 import org.apache.daffodil.lib.api.{ ValidationMode => SValidationMode }
 import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import org.apache.daffodil.runtime1.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
-
+import org.apache.daffodil.runtime1.debugger.{
+  InteractiveDebuggerRunner => SInteractiveDebuggerRunner,
+}
 import org.apache.daffodil.runtime1.infoset.{ XMLTextEscapeStyle => SXMLTextEscapeStyle }
+import org.apache.daffodil.sapi._
+import org.apache.daffodil.sapi.debugger._
 import org.apache.daffodil.sapi.infoset._
 
 private[sapi] object ValidationConversions {
@@ -72,7 +73,7 @@ private[sapi] object XMLTextEscapeStyleConversions {
  * their own debugger in java.
  */
 private[sapi] class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
-    extends SInteractiveDebuggerRunner {
+  extends SInteractiveDebuggerRunner {
   def init(id: SInteractiveDebugger): Unit = dr.init
   def getCommand: String = dr.getCommand
   def lineOutput(line: String): Unit = dr.lineOutput(line)

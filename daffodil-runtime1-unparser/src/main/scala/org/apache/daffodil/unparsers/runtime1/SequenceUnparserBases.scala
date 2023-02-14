@@ -16,16 +16,15 @@
  */
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
-import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 abstract class OrderedSequenceUnparserBase(
   srd: SequenceRuntimeData,
-  childUnparsers: Vector[Unparser])
-  extends CombinatorUnparser(srd) {
+  childUnparsers: Vector[Unparser],
+) extends CombinatorUnparser(srd) {
 
   override def nom = "Sequence"
 

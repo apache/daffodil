@@ -24,15 +24,18 @@ trait DaffodilTunablesStaticMixin {
   final def tunablesMap(node: scala.xml.Node): Map[String, String] = {
     val trimmed = scala.xml.Utility.trim(node).headOption
     val tunablesMap =
-      trimmed.map{
-        _.child.map { n => (n.label, n.text) }.toMap
-      }.getOrElse(Map.empty)
+      trimmed
+        .map {
+          _.child.map { n => (n.label, n.text) }.toMap
+        }
+        .getOrElse(Map.empty)
     tunablesMap
   }
 
   final def configPlusMoreTunablesMap(
     tunablesMap: Map[String, String],
-    optDafConfig: Option[DaffodilConfig]): Map[String, String] = {
+    optDafConfig: Option[DaffodilConfig],
+  ): Map[String, String] = {
     val configFileTunablesMap = optDafConfig.map { _.tunablesMap }.getOrElse(Map.empty)
     // Note, ++ on Maps replaces any key/value pair from the left with that on the
     // right, so key/value pairs defined in tunables overrule those defiend in

@@ -18,18 +18,11 @@
 package org.apache.daffodil.runtime1.dsom
 
 import scala.runtime.ScalaRunTime.stringOf
+
 import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.runtime1.dpath.DState
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.lib.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
-import org.apache.daffodil.runtime1.infoset.DataValue
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.Suspension
-import org.apache.daffodil.runtime1.processors.TypeCalculatorCompiler.TypeCalcMap
-import org.apache.daffodil.runtime1.processors.VariableMap
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeULong
@@ -39,6 +32,14 @@ import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.NoNamespace
 import org.apache.daffodil.lib.xml.StepQName
+import org.apache.daffodil.runtime1.dpath.DState
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.infoset.DataValue
+import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
+import org.apache.daffodil.runtime1.processors.Suspension
+import org.apache.daffodil.runtime1.processors.TypeCalculatorCompiler.TypeCalcMap
+import org.apache.daffodil.runtime1.processors.VariableMap
 
 trait ContentValueReferencedElementInfoMixin {
 
@@ -67,10 +68,9 @@ trait ContentValueReferencedElementInfoMixin {
  *
  * TODO: provide enough scope information for this to optimize.
  */
-abstract class CompiledExpression[+T <: AnyRef](
-  val qName: NamedQName,
-  value: AnyRef)
-  extends ContentValueReferencedElementInfoMixin with Serializable {
+abstract class CompiledExpression[+T <: AnyRef](val qName: NamedQName, value: AnyRef)
+  extends ContentValueReferencedElementInfoMixin
+  with Serializable {
 
   DataValue.assertValueIsNotDataValue(value)
 
@@ -125,7 +125,10 @@ abstract class CompiledExpression[+T <: AnyRef](
    * The whereBlockedLocation is modified via its block(...) method to indicate where the
    * expression blocked (for forward progress checking).
    */
-  def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T]
+  def evaluateForwardReferencing(
+    state: ParseOrUnparseState,
+    whereBlockedLocation: Suspension,
+  ): Maybe[T]
 
   override def toString(): String = "CompiledExpression(" + value.toString + ")"
 
@@ -137,10 +140,8 @@ object ReferencedElementInfos {
 
 }
 
-final case class ConstantExpression[+T <: AnyRef](
-  qn: NamedQName,
-  kind: NodeInfo.Kind,
-  value: T) extends CompiledExpression[T](qn, value) {
+final case class ConstantExpression[+T <: AnyRef](qn: NamedQName, kind: NodeInfo.Kind, value: T)
+  extends CompiledExpression[T](qn, value) {
 
   def targetType = kind
 
@@ -155,7 +156,10 @@ final case class ConstantExpression[+T <: AnyRef](
 
   override def run(dstate: DState) = dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
 
-  final def evaluateForwardReferencing(state: ParseOrUnparseState, whereBlockedLocation: Suspension): Maybe[T] = {
+  final def evaluateForwardReferencing(
+    state: ParseOrUnparseState,
+    whereBlockedLocation: Suspension,
+  ): Maybe[T] = {
     // whereBlockedLocation is ignored since a constant expression cannot block.
     whereBlockedLocation.setDone
     Maybe(evaluate(state))
@@ -205,7 +209,6 @@ final case class ConstantExpression[+T <: AnyRef](
  * into "passes".
  */
 class DPathCompileInfo(
-
   // parentsDelay is a transient due to serialization order issues causing
   // stack overflows. There is no delay/lazy/by-name involvement here. See the
   // lazy val parents scaladoc for a detailed explanation.
@@ -215,10 +218,10 @@ class DPathCompileInfo(
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
-  typeCalcMapArg: TypeCalcMap)
-  extends ImplementsThrowsSDE
-    with PreSerialization
-    with HasSchemaFileLocation {
+  typeCalcMapArg: TypeCalcMap,
+) extends ImplementsThrowsSDE
+  with PreSerialization
+  with HasSchemaFileLocation {
 
   def initialize: Unit = {
     parents
@@ -253,12 +256,13 @@ class DPathCompileInfo(
 
     // Set the parents field via reflection so that it can be a val rather than a var
     val clazz = this.getClass
-    val parentsField = try {
-      clazz.getDeclaredField("parents")
-    } catch {
-      case e: java.lang.NoSuchFieldException =>
-        clazz.getSuperclass.getDeclaredField("parents")
-    }
+    val parentsField =
+      try {
+        clazz.getDeclaredField("parents")
+      } catch {
+        case e: java.lang.NoSuchFieldException =>
+          clazz.getSuperclass.getDeclaredField("parents")
+      }
     parentsField.setAccessible(true)
     parentsField.set(this, deserializedParents) // set the value to the deserialized value
     parentsField.setAccessible(false)
@@ -317,7 +321,7 @@ class DPathCompileInfo(
       case e: DPathElementCompileInfo => Seq(e)
       case d: DPathCompileInfo => {
         val eci = d.parents
-        eci flatMap { ci => ci.elementCompileInfos }
+        eci.flatMap { ci => ci.elementCompileInfos }
       }
     }
   }.map(identity)
@@ -336,13 +340,11 @@ class DPathCompileInfo(
  * (first), and kept on this object, and then subsequently ERD data
  * structures are created which reference these.
  */
-class DPathElementCompileInfo
-(
+class DPathElementCompileInfo(
   // parentsDelay is a transient due to serialization order issues causing
   // stack overflows. There is no delay/lazy/by-name involvement here. See the
   // lazy val parents scaladoc for a detailed explanation.
   @TransientParam parentsDelay: Delay[Seq[DPathElementCompileInfo]],
-
   variableMap: VariableMap,
   // This next arg must be a Delay as we're creating a circular
   // structure here. Element's compile info points down to their children. Children
@@ -362,12 +364,16 @@ class DPathElementCompileInfo
   override val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
   typeCalcMap: TypeCalcMap,
   val sscd: String,
-  val isOutputValueCalc: Boolean)
-  extends DPathCompileInfo(
+  val isOutputValueCalc: Boolean,
+) extends DPathCompileInfo(
     parentsDelay.asInstanceOf[Delay[Seq[DPathCompileInfo]]],
-    variableMap, namespaces, path, sfl,
+    variableMap,
+    namespaces,
+    path,
+    sfl,
     unqualifiedPathStepPolicy,
-    typeCalcMap) {
+    typeCalcMap,
+  ) {
 
   /**
    * Cyclic objects require initialization
@@ -449,7 +455,8 @@ class DPathElementCompileInfo
    */
   final def findNamedChild(
     step: StepQName,
-    expr: ImplementsThrowsOrSavesSDE): DPathElementCompileInfo = {
+    expr: ImplementsThrowsOrSavesSDE,
+  ): DPathElementCompileInfo = {
     val matches = findNamedMatches(step, elementChildrenCompileInfo, expr)
     indicateReferencedByExpression(matches)
     matches(0)
@@ -457,20 +464,26 @@ class DPathElementCompileInfo
 
   final def findRoot(
     step: StepQName,
-    expr: ImplementsThrowsOrSavesSDE): DPathElementCompileInfo = {
+    expr: ImplementsThrowsOrSavesSDE,
+  ): DPathElementCompileInfo = {
     val matches = findNamedMatches(step, Seq(this), expr)
     indicateReferencedByExpression(matches)
     matches(0)
   }
 
-  private def findNamedMatches(step: StepQName, possibles: Seq[DPathElementCompileInfo],
-    expr: ImplementsThrowsOrSavesSDE): Seq[DPathElementCompileInfo] = {
+  private def findNamedMatches(
+    step: StepQName,
+    possibles: Seq[DPathElementCompileInfo],
+    expr: ImplementsThrowsOrSavesSDE,
+  ): Seq[DPathElementCompileInfo] = {
     val matchesERD: Seq[DPathElementCompileInfo] = step.findMatches(possibles)
 
     val retryMatchesERD =
-      if (matchesERD.isEmpty &&
+      if (
+        matchesERD.isEmpty &&
         unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
-        step.prefix.isEmpty && step.namespace != NoNamespace) {
+        step.prefix.isEmpty && step.namespace != NoNamespace
+      ) {
         // we failed to find a match with the default namespace. Since the
         // default namespace was assumed but didn't match, the unqualified path
         // step policy allows us to try to match NoNamespace elements.
@@ -488,12 +501,17 @@ class DPathElementCompileInfo
     retryMatchesERD
   }
 
-  final def findNamedChildren(step: StepQName, possibles: Seq[DPathElementCompileInfo]): Seq[DPathElementCompileInfo] = {
+  final def findNamedChildren(
+    step: StepQName,
+    possibles: Seq[DPathElementCompileInfo],
+  ): Seq[DPathElementCompileInfo] = {
     val matchesERD = step.findMatches(possibles)
     val retryMatchesERD =
-      if (matchesERD.isEmpty &&
+      if (
+        matchesERD.isEmpty &&
         unqualifiedPathStepPolicy == UnqualifiedPathStepPolicy.PreferDefaultNamespace &&
-        step.prefix.isEmpty && step.namespace != NoNamespace) {
+        step.prefix.isEmpty && step.namespace != NoNamespace
+      ) {
         // we failed to find a match with the default namespace. Since the
         // default namespace was assumed but didn't match, the unqualified path
         // step policy allows us to try to match NoNamespace elements.
@@ -512,7 +530,8 @@ class DPathElementCompileInfo
    */
   final def noMatchError(
     step: StepQName,
-    possibles: Seq[DPathElementCompileInfo] = this.elementChildrenCompileInfo) = {
+    possibles: Seq[DPathElementCompileInfo] = this.elementChildrenCompileInfo,
+  ) = {
     //
     // didn't find a exact match.
     // So all the rest of this is about providing a meaningful
@@ -523,9 +542,10 @@ class DPathElementCompileInfo
     val localOnlyERDMatches = {
       val localName = step.local
       if (step.namespace == NoNamespace) Nil
-      else possibles.map { _.namedQName }.collect {
-        case localMatch if localMatch.local == localName => localMatch
-      }
+      else
+        possibles.map { _.namedQName }.collect {
+          case localMatch if localMatch.local == localName => localMatch
+        }
     }
     //
     // If the local name matched, then perhaps the user just forgot
@@ -547,7 +567,9 @@ class DPathElementCompileInfo
     if (interestingCandidates.length > 0) {
       SDE(
         "No element corresponding to step %s found,\nbut elements with the same local name were found (%s).\nPerhaps a prefix is incorrect or missing on the step name?",
-        step.toPrettyString, interestingCandidates)
+        step.toPrettyString,
+        interestingCandidates,
+      )
     } else {
       //
       // There weren't even any local name matches.
@@ -556,17 +578,24 @@ class DPathElementCompileInfo
       if (interestingCandidates != "")
         SDE(
           "No element corresponding to step %s found. Possibilities for this step include: %s.",
-          step.toPrettyString, interestingCandidates)
+          step.toPrettyString,
+          interestingCandidates,
+        )
       else
-        SDE(
-          "No element corresponding to step %s found.",
-          step.toPrettyString)
+        SDE("No element corresponding to step %s found.", step.toPrettyString)
     }
   }
 
-  final def queryMatchWarning(step: StepQName, matches: Seq[DPathElementCompileInfo],
-    expr: ImplementsThrowsOrSavesSDE) = {
-    expr.SDW(WarnID.QueryStylePathExpression, "Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
-      step, matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""))
+  final def queryMatchWarning(
+    step: StepQName,
+    matches: Seq[DPathElementCompileInfo],
+    expr: ImplementsThrowsOrSavesSDE,
+  ) = {
+    expr.SDW(
+      WarnID.QueryStylePathExpression,
+      "Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
+      step,
+      matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""),
+    )
   }
 }

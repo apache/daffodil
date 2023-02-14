@@ -25,8 +25,7 @@ import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
  * hiddenGroupRefs, we'll increment the counter, call the group's parser, and as
  * we unwind from the refs, we'll decrement.
  */
-class HiddenGroupCombinatorParser(
-  ctxt: ModelGroupRuntimeData, bodyParser: Parser)
+class HiddenGroupCombinatorParser(ctxt: ModelGroupRuntimeData, bodyParser: Parser)
   extends CombinatorParser(ctxt) {
 
   override lazy val childProcessors = Vector(bodyParser)

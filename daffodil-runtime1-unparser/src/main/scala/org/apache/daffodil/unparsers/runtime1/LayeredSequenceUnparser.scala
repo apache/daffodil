@@ -17,17 +17,17 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
 import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
 import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers._
 
-class LayeredSequenceUnparser(ctxt: SequenceRuntimeData,
+class LayeredSequenceUnparser(
+  ctxt: SequenceRuntimeData,
   layerTransformerFactory: LayerTransformerFactory,
   layerRuntimeInfo: LayerRuntimeInfo,
-  childUnparser: SequenceChildUnparser)
-  extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
+  childUnparser: SequenceChildUnparser,
+) extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
 
   override lazy val runtimeDependencies =
     layerRuntimeInfo.evaluatables.toVector
@@ -100,4 +100,3 @@ class LayeredSequenceUnparser(ctxt: SequenceRuntimeData,
   }
 
 }
-

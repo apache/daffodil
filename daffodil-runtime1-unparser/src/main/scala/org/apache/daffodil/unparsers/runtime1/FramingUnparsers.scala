@@ -17,16 +17,13 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
+import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.runtime1.processors.SuspendableOperation
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.TextProcessor
 import org.apache.daffodil.runtime1.processors.unparsers._
 
-import org.apache.daffodil.runtime1.processors.SuspendableOperation
-import org.apache.daffodil.runtime1.processors.TextProcessor
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.lib.util.Logger
-
-class SkipRegionUnparser(
-  skipInBits: Int,
-  override val context: TermRuntimeData)
+class SkipRegionUnparser(skipInBits: Int, override val context: TermRuntimeData)
   extends AlignmentPrimUnparser {
 
   override def runtimeDependencies = Vector()
@@ -45,7 +42,9 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
   def test(ustate: UState) = {
     val dos = ustate.dataOutputStream
     if (dos.maybeAbsBitPos0b.isEmpty) {
-      Logger.log.debug(s"${this} ${ustate} Unable to align to ${alignmentInBits} bits because there is no absolute bit position.")
+      Logger.log.debug(
+        s"${this} ${ustate} Unable to align to ${alignmentInBits} bits because there is no absolute bit position.",
+      )
     }
     dos.maybeAbsBitPos0b.isDefined
   }
@@ -66,25 +65,20 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
 
 class AlignmentFillUnparserSuspendableOperation(
   override val alignmentInBits: Int,
-  override val rd: TermRuntimeData)
-  extends SuspendableOperation
+  override val rd: TermRuntimeData,
+) extends SuspendableOperation
   with AlignmentFillUnparserSuspendableMixin
 
-class AlignmentFillUnparser(
-  alignmentInBits: Int,
-  override val context: TermRuntimeData)
+class AlignmentFillUnparser(alignmentInBits: Int, override val context: TermRuntimeData)
   extends AlignmentPrimUnparser
   with SuspendableUnparser {
 
   override def runtimeDependencies = Vector()
 
   override def suspendableOperation =
-    new AlignmentFillUnparserSuspendableOperation(
-      alignmentInBits, context)
+    new AlignmentFillUnparserSuspendableOperation(alignmentInBits, context)
 }
 
-class MandatoryTextAlignmentUnparser(
-  alignmentInBits: Int,
-  e: TermRuntimeData)
+class MandatoryTextAlignmentUnparser(alignmentInBits: Int, e: TermRuntimeData)
   extends AlignmentFillUnparser(alignmentInBits, e)
   with TextProcessor

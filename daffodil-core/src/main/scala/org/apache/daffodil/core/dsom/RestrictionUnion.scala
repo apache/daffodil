@@ -17,31 +17,30 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.runtime1.dsom._
-
-import java.math.{ BigInteger => JBigInt }
 import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInt }
+import scala.collection.mutable.Queue
+import scala.xml.Node
+
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
-
-import scala.xml.Node
 import org.apache.daffodil.lib.xml.QName
+import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import com.ibm.icu.text.SimpleDateFormat
-
-import scala.collection.mutable.Queue
-import org.apache.daffodil.lib.exceptions.Assert
-import com.ibm.icu.util.GregorianCalendar
-import com.ibm.icu.util.TimeZone
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.processors.RepValueSetCompiler
 import org.apache.daffodil.runtime1.dsom.FacetTypes.ElemFacets
 import org.apache.daffodil.runtime1.dsom.FacetTypes.FacetValue
-import org.apache.daffodil.runtime1.processors.RepValueSet
-import org.apache.daffodil.runtime1.processors.RangeBound
+import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
-import org.apache.daffodil.lib.xml.RefQName
+import org.apache.daffodil.runtime1.processors.RangeBound
+import org.apache.daffodil.runtime1.processors.RepValueSet
+import org.apache.daffodil.runtime1.processors.RepValueSetCompiler
+
+import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.GregorianCalendar
+import com.ibm.icu.util.TimeZone
 
 object Restriction {
   def apply(xmlArg: Node, simpleTypeDef: SimpleTypeDefBase) = {
@@ -50,6 +49,7 @@ object Restriction {
     r
   }
 }
+
 /**
  * A schema component for simple type restrictions
  */
@@ -74,16 +74,16 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
    * Defined if the restriction is derived from a union
    */
   lazy val optUnion: Option[Union] = {
-    optBaseTypeDef.flatMap { _.optUnion }.orElse(
-      optBaseTypeDef.flatMap { _.optRestriction.flatMap { _.optUnion } })
+    optBaseTypeDef
+      .flatMap { _.optUnion }
+      .orElse(optBaseTypeDef.flatMap { _.optRestriction.flatMap { _.optUnion } })
   }
 
   lazy val derivationBaseRestrictions: Seq[Restriction] = {
     val obt = optBaseTypeDef.toSeq
-    val res = obt.flatMap {
-      bt =>
-        val res = bt.restrictions
-        res
+    val res = obt.flatMap { bt =>
+      val res = bt.restrictions
+      res
     }
     res
   }
@@ -94,10 +94,12 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
   }
 
   lazy val baseQName: RefQName = {
-    val tryBaseQName = QName.resolveRef(baseQNameString, xml.scope,
-      tunable.unqualifiedPathStepPolicy)
-    schemaDefinitionUnless(tryBaseQName.isSuccess,
-      "Failed to resolve base property reference for xs:restriction: " + tryBaseQName.failed.get.getMessage)
+    val tryBaseQName =
+      QName.resolveRef(baseQNameString, xml.scope, tunable.unqualifiedPathStepPolicy)
+    schemaDefinitionUnless(
+      tryBaseQName.isSuccess,
+      "Failed to resolve base property reference for xs:restriction: " + tryBaseQName.failed.get.getMessage,
+    )
     tryBaseQName.get
   }
 
@@ -111,7 +113,8 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
         (Some(optPT.get.typeNode), None)
       else {
         val optFactory = schemaSet.getGlobalSimpleTypeDef(baseQName)
-        val bType = optFactory.getOrElse(schemaDefinitionError("No type found for base: " + baseQName))
+        val bType =
+          optFactory.getOrElse(schemaDefinitionError("No type found for base: " + baseQName))
         (None, Some(bType))
       }
     res
@@ -120,15 +123,33 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
   lazy val localBaseFacets: ElemFacets = {
     val myFacets: Queue[FacetValue] = Queue.empty // val not var - it's a mutable collection
     if (localPatternValue.length > 0) { myFacets.enqueue((Facet.pattern, localPatternValue)) }
-    if (localMinLengthValue.length > 0) { myFacets.enqueue((Facet.minLength, localMinLengthValue)) }
-    if (localMaxLengthValue.length > 0) { myFacets.enqueue((Facet.maxLength, localMaxLengthValue)) }
-    if (localMinInclusiveValue.length > 0) { myFacets.enqueue((Facet.minInclusive, localMinInclusiveValue)) }
-    if (localMaxInclusiveValue.length > 0) { myFacets.enqueue((Facet.maxInclusive, localMaxInclusiveValue)) }
-    if (localMinExclusiveValue.length > 0) { myFacets.enqueue((Facet.minExclusive, localMinExclusiveValue)) }
-    if (localMaxExclusiveValue.length > 0) { myFacets.enqueue((Facet.maxExclusive, localMaxExclusiveValue)) }
-    if (localTotalDigitsValue.length > 0) { myFacets.enqueue((Facet.totalDigits, localTotalDigitsValue)) }
-    if (localFractionDigitsValue.length > 0) { myFacets.enqueue((Facet.fractionDigits, localFractionDigitsValue)) }
-    if (localEnumerationValue.length > 0) { myFacets.enqueue((Facet.enumeration, localEnumerationValue)) }
+    if (localMinLengthValue.length > 0) {
+      myFacets.enqueue((Facet.minLength, localMinLengthValue))
+    }
+    if (localMaxLengthValue.length > 0) {
+      myFacets.enqueue((Facet.maxLength, localMaxLengthValue))
+    }
+    if (localMinInclusiveValue.length > 0) {
+      myFacets.enqueue((Facet.minInclusive, localMinInclusiveValue))
+    }
+    if (localMaxInclusiveValue.length > 0) {
+      myFacets.enqueue((Facet.maxInclusive, localMaxInclusiveValue))
+    }
+    if (localMinExclusiveValue.length > 0) {
+      myFacets.enqueue((Facet.minExclusive, localMinExclusiveValue))
+    }
+    if (localMaxExclusiveValue.length > 0) {
+      myFacets.enqueue((Facet.maxExclusive, localMaxExclusiveValue))
+    }
+    if (localTotalDigitsValue.length > 0) {
+      myFacets.enqueue((Facet.totalDigits, localTotalDigitsValue))
+    }
+    if (localFractionDigitsValue.length > 0) {
+      myFacets.enqueue((Facet.fractionDigits, localFractionDigitsValue))
+    }
+    if (localEnumerationValue.length > 0) {
+      myFacets.enqueue((Facet.enumeration, localEnumerationValue))
+    }
 
     val res: ElemFacets = myFacets.toSeq
     res
@@ -189,39 +210,40 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
     }
   }.value
 
-  lazy val enumerations: Seq[EnumerationDef] = (xml \ "enumeration").map(new EnumerationDef(_, simpleTypeDef))
+  lazy val enumerations: Seq[EnumerationDef] =
+    (xml \ "enumeration").map(new EnumerationDef(_, simpleTypeDef))
 
   lazy val facetValueSet: RepValueSet = {
-    val initAns: (RangeBound, RangeBound) = (new RangeBound(DataValue.NoValue, false), new RangeBound(DataValue.NoValue, false))
-    val range = combinedBaseFacets.foldLeft(initAns)({
-      case (acc, (facetType, facetValue)) =>
-        lazy val valueAsBigInt: DataValueBigInt = new JBigInt(facetValue)
-        val (maybeBound, isMax, isInclusive) = facetType match {
-          case Facet.maxExclusive => (valueAsBigInt, true, false)
-          case Facet.maxInclusive => (valueAsBigInt, true, true)
-          case Facet.minExclusive => (valueAsBigInt, false, false)
-          case Facet.minInclusive => (valueAsBigInt, false, true)
-          case _ => (DataValue.NoValue, false, false)
-        }
-        if (maybeBound.isEmpty) {
-          acc
-        } else {
-          if (isMax) {
-            val oldMax = acc._2
-            if (!oldMax.isEmpty) {
-              SDE("Cannot define multiple max bounds on restriction")
-            }
-            val newMax = new RangeBound(maybeBound, isInclusive)
-            (acc._1, newMax)
-          } else {
-            val oldMin = acc._1
-            if (!oldMin.isEmpty) {
-              SDE("Cannot define multiple min bounds on restriction")
-            }
-            val newMin = new RangeBound(maybeBound, isInclusive)
-            (newMin, acc._2)
+    val initAns: (RangeBound, RangeBound) =
+      (new RangeBound(DataValue.NoValue, false), new RangeBound(DataValue.NoValue, false))
+    val range = combinedBaseFacets.foldLeft(initAns)({ case (acc, (facetType, facetValue)) =>
+      lazy val valueAsBigInt: DataValueBigInt = new JBigInt(facetValue)
+      val (maybeBound, isMax, isInclusive) = facetType match {
+        case Facet.maxExclusive => (valueAsBigInt, true, false)
+        case Facet.maxInclusive => (valueAsBigInt, true, true)
+        case Facet.minExclusive => (valueAsBigInt, false, false)
+        case Facet.minInclusive => (valueAsBigInt, false, true)
+        case _ => (DataValue.NoValue, false, false)
+      }
+      if (maybeBound.isEmpty) {
+        acc
+      } else {
+        if (isMax) {
+          val oldMax = acc._2
+          if (!oldMax.isEmpty) {
+            SDE("Cannot define multiple max bounds on restriction")
           }
+          val newMax = new RangeBound(maybeBound, isInclusive)
+          (acc._1, newMax)
+        } else {
+          val oldMin = acc._1
+          if (!oldMin.isEmpty) {
+            SDE("Cannot define multiple min bounds on restriction")
+          }
+          val newMin = new RangeBound(maybeBound, isInclusive)
+          (newMin, acc._2)
         }
+      }
     })
     RepValueSetCompiler.compile(Seq(), Seq(range.asInstanceOf[(RangeBound, RangeBound)]))
   }
@@ -235,7 +257,7 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
     if (enumerations.length > 0) {
       fromEnums
     } else {
-      //We are some form of identity mapping, so our facetValues are also our repValues
+      // We are some form of identity mapping, so our facetValues are also our repValues
       facetValueSet
     }
   }
@@ -248,12 +270,13 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
     if (enumerations.length > 0) {
       fromEnums
     } else {
-      //We are some form of identity mapping, so our facetValues are also our repValues
+      // We are some form of identity mapping, so our facetValues are also our repValues
       facetValueSet
     }
   }
 
-  lazy val optLogicalValueSet: Option[RepValueSet] = if (logicalValueSet.isEmpty) None else Some(logicalValueSet)
+  lazy val optLogicalValueSet: Option[RepValueSet] =
+    if (logicalValueSet.isEmpty) None else Some(logicalValueSet)
 }
 
 object Union {
@@ -291,7 +314,8 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
         "All types in a simple type union must have the same primitive type." +
           "The first type's primitive type '%s' does not match: %s.",
         fmpt.globalQName.toQNameString,
-        nonMatch.map { _.primType.globalQName.toQNameString }.mkString(", "))
+        nonMatch.map { _.primType.globalQName.toQNameString }.mkString(", "),
+      )
       fmpt
     }
   }
@@ -311,52 +335,86 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
     strings
   }
   private lazy val namedTypeQNames = namedTypeQNameStrings.map { qns => resolveQName(qns) }
-  private lazy val namedTypes: Seq[GlobalSimpleTypeDef] = namedTypeQNames.map {
-    qn => schemaSet.getGlobalSimpleTypeDef(qn).get
+  private lazy val namedTypes: Seq[GlobalSimpleTypeDef] = namedTypeQNames.map { qn =>
+    schemaSet.getGlobalSimpleTypeDef(qn).get
   }
   private lazy val directMemberTypes: Seq[SimpleTypeDefBase] = namedTypes ++ immediateTypes
 
   lazy val unionMemberTypes: Seq[SimpleTypeDefBase] = {
-    schemaDefinitionUnless(directMemberTypes.length > 0, "A simpleType union must have 2 or more member types. Only %d were found.", directMemberTypes.length)
+    schemaDefinitionUnless(
+      directMemberTypes.length > 0,
+      "A simpleType union must have 2 or more member types. Only %d were found.",
+      directMemberTypes.length,
+    )
     directMemberTypes
   }
 }
 
 sealed trait TypeChecks { self: Restriction =>
-  protected def dateToBigDecimal(date: String, format: String, dateType: String, context: ThrowsSDE): JBigDecimal = {
+  protected def dateToBigDecimal(
+    date: String,
+    format: String,
+    dateType: String,
+    context: ThrowsSDE,
+  ): JBigDecimal = {
     val df = new SimpleDateFormat(format)
     df.setCalendar(new GregorianCalendar())
     df.setTimeZone(TimeZone.GMT_ZONE)
-    val bd = try {
-      val dt = df.parse(date)
-      new JBigDecimal(dt.getTime())
-    } catch {
-      case s: scala.util.control.ControlThrowable => throw s
-      case u: UnsuppressableException => throw u
-      case e1: Exception => {
-        try {
-          // Could already be a BigDecimal
-          new JBigDecimal(date)
-        } catch {
-          case s: scala.util.control.ControlThrowable => throw s
-          case u: UnsuppressableException => throw u
-          case e2: Exception => context.SDE("Failed to parse (%s) to %s (%s) due to %s (after %s).", date, dateType, format, e2.getMessage(), e1.getMessage())
+    val bd =
+      try {
+        val dt = df.parse(date)
+        new JBigDecimal(dt.getTime())
+      } catch {
+        case s: scala.util.control.ControlThrowable => throw s
+        case u: UnsuppressableException => throw u
+        case e1: Exception => {
+          try {
+            // Could already be a BigDecimal
+            new JBigDecimal(date)
+          } catch {
+            case s: scala.util.control.ControlThrowable => throw s
+            case u: UnsuppressableException => throw u
+            case e2: Exception =>
+              context.SDE(
+                "Failed to parse (%s) to %s (%s) due to %s (after %s).",
+                date,
+                dateType,
+                format,
+                e2.getMessage(),
+                e1.getMessage(),
+              )
+          }
         }
       }
-    }
     bd
   }
 
-  private def convertStringToBigDecimal(value: String, primType: PrimType, context: ThrowsSDE): JBigDecimal = {
+  private def convertStringToBigDecimal(
+    value: String,
+    primType: PrimType,
+    context: ThrowsSDE,
+  ): JBigDecimal = {
     primType match {
-      case PrimType.DateTime => dateToBigDecimal(value, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString(), context)
-      case PrimType.Date => dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
-      case PrimType.Time => dateToBigDecimal(value, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
+      case PrimType.DateTime =>
+        dateToBigDecimal(
+          value,
+          "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx",
+          PrimType.DateTime.toString(),
+          context,
+        )
+      case PrimType.Date =>
+        dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
+      case PrimType.Time =>
+        dateToBigDecimal(value, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
       case _ => new JBigDecimal(value)
     }
   }
 
-  def checkRangeReturnsValue(value: String, primType: PrimType, theContext: ThrowsSDE): (Boolean, Option[JBigDecimal]) = {
+  def checkRangeReturnsValue(
+    value: String,
+    primType: PrimType,
+    theContext: ThrowsSDE,
+  ): (Boolean, Option[JBigDecimal]) = {
     // EmptyString is only valid for hexBinary and String
     if ((value == null | value.length() == 0)) {
       return primType match {
@@ -377,7 +435,8 @@ sealed trait TypeChecks { self: Restriction =>
     (value.toLowerCase(), primType) match {
       case ("true", PrimType.Boolean) => (true, Some(JBigDecimal.ONE))
       case ("false", PrimType.Boolean) => (true, Some(JBigDecimal.ZERO))
-      case (x, PrimType.Boolean) => theContext.SDE("%s is not a valid Boolean value. Expected 'true' or 'false'.", x)
+      case (x, PrimType.Boolean) =>
+        theContext.SDE("%s is not a valid Boolean value. Expected 'true' or 'false'.", x)
       case (_, _) => {
         // Perform conversions once
         val theValue = convertStringToBigDecimal(value, primType, theContext)
@@ -401,7 +460,8 @@ sealed trait TypeChecks { self: Restriction =>
           case PrimType.Time => true
           case PrimType.Boolean => Assert.impossibleCase // Handled earlier, shouldn't get here
           case PrimType.Decimal => true // Unbounded Decimal
-          case PrimType.HexBinary => Assert.impossibleCase // Handled earlier, shouldn't get here
+          case PrimType.HexBinary =>
+            Assert.impossibleCase // Handled earlier, shouldn't get here
           case PrimType.String => Assert.impossibleCase // Handled earlier, shouldn't get here
           case PrimType.AnyURI => Assert.impossibleCase // Handled earlier, shouldn't get here
           case PrimType.NonNegativeInteger => isInNonNegativeIntegerRange(theValue)
@@ -415,8 +475,10 @@ sealed trait TypeChecks { self: Restriction =>
         }
         primType match {
           case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
-            PrimType.Integer | PrimType.UnsignedInt | PrimType.UnsignedByte | PrimType.UnsignedShort |
-            PrimType.UnsignedLong => if (!isValueWhole) theContext.SDE("checkRange - Value (%s) must be a whole number.", value)
+              PrimType.Integer | PrimType.UnsignedInt | PrimType.UnsignedByte |
+              PrimType.UnsignedShort | PrimType.UnsignedLong =>
+            if (!isValueWhole)
+              theContext.SDE("checkRange - Value (%s) must be a whole number.", value)
           case _ => // OK
         }
         (res, Some(theValue))
@@ -429,8 +491,7 @@ sealed trait TypeChecks { self: Restriction =>
     boolResult
   }
 
-  protected def isNumInRange(num: JBigDecimal, min: JBigDecimal,
-    max: JBigDecimal): Boolean = {
+  protected def isNumInRange(num: JBigDecimal, min: JBigDecimal, max: JBigDecimal): Boolean = {
     val checkMin = num.compareTo(min)
     if (checkMin < 0) { return false } // num less than min
     val checkMax = num.compareTo(max)
@@ -502,7 +563,11 @@ sealed trait TypeChecks { self: Restriction =>
     val isNegative = value.signum == -1
     if (!isNegative) context.SDE("Expected a negative integer for this value.")
     val checkMin = value.compareTo(min)
-    if (checkMin < 0) context.SDE("Value (%s) was found to be more negative than allowed by Int.MinValue.", value.intValue())
+    if (checkMin < 0)
+      context.SDE(
+        "Value (%s) was found to be more negative than allowed by Int.MinValue.",
+        value.intValue(),
+      )
     true
   }
   protected def isInNonNegativeIntegerRange(value: JBigDecimal): Boolean = {
@@ -511,7 +576,11 @@ sealed trait TypeChecks { self: Restriction =>
     if (isNegative) return false
     true
   }
-  protected def isInUnsignedXXXRange(value: JBigDecimal, numBits: Int, typeName: String): Boolean = {
+  protected def isInUnsignedXXXRange(
+    value: JBigDecimal,
+    numBits: Int,
+    typeName: String,
+  ): Boolean = {
     Assert.usage(numBits <= 64, "isInUnsignedXXXRange: numBits must be <= 64.")
     val max = new JBigDecimal(JBigInt.ONE.shiftLeft(numBits)).subtract(new JBigDecimal(1))
     val isNegative = value.signum == -1

@@ -19,10 +19,10 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import java.nio.ByteBuffer
 
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.LengthInBitsEv
 import org.apache.daffodil.runtime1.processors.Processor
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 
 sealed abstract class HexBinaryLengthParser(override val context: ElementRuntimeData)
   extends PrimParser
@@ -39,8 +39,12 @@ sealed abstract class HexBinaryLengthParser(override val context: ElementRuntime
     if (nBytes == 0) {
       currentElement.setDataValue(zeroLengthArray)
     } else if (nBytes > start.tunable.maxHexBinaryLengthInBytes) {
-      PE(start, "Length for xs:hexBinary exceeds maximum of %s bytes: %s",
-        start.tunable.maxHexBinaryLengthInBytes, nBytes)
+      PE(
+        start,
+        "Length for xs:hexBinary exceeds maximum of %s bytes: %s",
+        start.tunable.maxHexBinaryLengthInBytes,
+        nBytes,
+      )
     } else if (nBytes <= start.tunable.blobChunkSizeInBytes) {
       // For small hex binary that can fit in a single chunk, don't bother
       // chunking so we avoid the overhead of reading a chunk to one array only
@@ -96,10 +100,10 @@ final class HexBinaryLengthPrefixedParser(
   override val prefixedLengthParser: Parser,
   override val prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends HexBinaryLengthParser(erd)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends HexBinaryLengthParser(erd)
   with PrefixedLengthParserMixin {
-  
+
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
   override val runtimeDependencies = Vector()
 

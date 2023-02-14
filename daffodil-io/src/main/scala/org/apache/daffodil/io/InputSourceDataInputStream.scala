@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 import java.io.InputStream
-import java.math.{BigInteger => JBigInt}
+import java.math.{ BigInteger => JBigInt }
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.LongBuffer
@@ -60,8 +60,7 @@ object InputSourceDataInputStream {
 /**
  * The state that must be saved and restored by mark/reset calls
  */
-final class MarkState()
-  extends DataStreamCommonState with DataInputStream.Mark {
+final class MarkState() extends DataStreamCommonState with DataInputStream.Mark {
 
   override def equals(other: Any) = other match {
     case ar: AnyRef => this eq ar // only if the same object
@@ -94,7 +93,7 @@ private[io] class MarkPool() extends Pool[MarkState] {
  *
  * Underlying representation is an InputSource containing all input data.
  */
-final class InputSourceDataInputStream private(val inputSource: InputSource)
+final class InputSourceDataInputStream private (val inputSource: InputSource)
   extends DataInputStreamImplMixin {
 
   import DataInputStream._
@@ -155,7 +154,8 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
 
   def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo): Array[Byte] = {
     // threadCheck()
-    if (!isDefinedForLength(bitLengthFrom1)) throw DataInputStream.NotEnoughDataException(bitLengthFrom1)
+    if (!isDefinedForLength(bitLengthFrom1))
+      throw DataInputStream.NotEnoughDataException(bitLengthFrom1)
 
     val arraySize = (bitLengthFrom1 + 7) / 8
     val array = new Array[Byte](arraySize)
@@ -213,7 +213,11 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
    * caller to be aware of the length of the data and to know which bits are
    * data vs padding based on bitOrder/byteOrder
    */
-  private def fillByteArray(array: Array[Byte], bitLengthFrom1: Int, finfo: FormatInfo): Unit = {
+  private def fillByteArray(
+    array: Array[Byte],
+    bitLengthFrom1: Int,
+    finfo: FormatInfo,
+  ): Unit = {
     val isUnaligned = !isAligned(8)
     val fragmentBits = bitLengthFrom1 % 8
     val bytesToFill = (bitLengthFrom1 + 7) / 8
@@ -239,7 +243,8 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
 
       // Determine if we need an overflow byte and read it if so
       val bytesToRead = (bitLengthFrom1 + bitOffset0b + 7) / 8
-      val arrayOverflow = if (bytesToRead > bytesToFill) Bits.asUnsignedByte(inputSource.get()) else 0
+      val arrayOverflow =
+        if (bytesToRead > bytesToFill) Bits.asUnsignedByte(inputSource.get()) else 0
 
       // Determine the masks and shifts needed to create a new byte based on
       // the bitOrder
@@ -249,7 +254,7 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
         else
           Bits.maskL(8 - bitOffset0b)
 
-      val nxtBitMask = ~curBitMask & 0xFF
+      val nxtBitMask = ~curBitMask & 0xff
       val curShift = bitOffset0b
       val nxtShift = 8 - bitOffset0b
 
@@ -386,7 +391,8 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
     Assert.usage(bitLengthFrom1To64 >= 1)
     Assert.usage(bitLengthFrom1To64 <= 64)
 
-    if (!isDefinedForLength(bitLengthFrom1To64)) throw DataInputStream.NotEnoughDataException(bitLengthFrom1To64)
+    if (!isDefinedForLength(bitLengthFrom1To64))
+      throw DataInputStream.NotEnoughDataException(bitLengthFrom1To64)
 
     val numBytes = (bitLengthFrom1To64 + 7) / 8
 
@@ -456,7 +462,8 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
   private def adjustBigIntArrayWithFragmentByte(
     array: Array[Byte],
     fragmentLength: Int,
-    finfo: FormatInfo): Unit = {
+    finfo: FormatInfo,
+  ): Unit = {
 
     if (finfo.byteOrder == ByteOrder.LittleEndian) {
       if (finfo.bitOrder == BitOrder.MostSignificantBitFirst) {
@@ -678,7 +685,8 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
         regexMatchBitPositionBuffer.position(regexMatchBitPositionBuffer.limit())
         regexMatchBitPositionBuffer.limit(regexMatchBufferLimit)
 
-        val numDecoded = finfo.decoder.decode(this, finfo, regexMatchBuffer, regexMatchBitPositionBuffer)
+        val numDecoded =
+          finfo.decoder.decode(this, finfo, regexMatchBuffer, regexMatchBitPositionBuffer)
         val potentiallyMoreData = regexMatchBuffer.position() == regexMatchBuffer.limit()
 
         regexMatchBuffer.flip
@@ -703,7 +711,8 @@ final class InputSourceDataInputStream private(val inputSource: InputSource)
               // consumed too much data, just give up
               keepMatching = false
             } else {
-              regexMatchBufferLimit = Math.min(regexMatchBufferLimit * 2, regexMatchBuffer.capacity)
+              regexMatchBufferLimit =
+                Math.min(regexMatchBufferLimit * 2, regexMatchBuffer.capacity)
             }
           } else {
             // no more data could affect the match result, so exit the loop and
@@ -823,7 +832,8 @@ class InputSourceDataInputStreamCharIteratorState {
   }
 }
 
-class InputSourceDataInputStreamCharIterator(dis: InputSourceDataInputStream) extends DataInputStream.CharIterator {
+class InputSourceDataInputStreamCharIterator(dis: InputSourceDataInputStream)
+  extends DataInputStream.CharIterator {
 
   private var finfo: FormatInfo = null
 

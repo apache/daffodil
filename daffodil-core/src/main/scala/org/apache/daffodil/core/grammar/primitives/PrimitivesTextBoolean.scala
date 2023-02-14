@@ -19,11 +19,10 @@ package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.unparsers.runtime1.ConvertTextBooleanUnparser
 import org.apache.daffodil.runtime1.processors.parsers.ConvertTextBooleanParser
+import org.apache.daffodil.unparsers.runtime1.ConvertTextBooleanUnparser
 
-case class ConvertTextBooleanPrim(e: ElementBase)
-  extends Terminal(e, true) {
+case class ConvertTextBooleanPrim(e: ElementBase) extends Terminal(e, true) {
 
   override def toString = "to(xs:boolean)"
 
@@ -31,11 +30,12 @@ case class ConvertTextBooleanPrim(e: ElementBase)
     e.elementRuntimeData,
     e.textBooleanTrueRepEv,
     e.textBooleanFalseRepEv,
-    e.ignoreCaseBool)
+    e.ignoreCaseBool,
+  )
 
   override lazy val unparser = new ConvertTextBooleanUnparser(
     e.elementRuntimeData,
     e.textBooleanTrueRepEv,
-    e.textBooleanFalseRepEv)
+    e.textBooleanFalseRepEv,
+  )
 }
-

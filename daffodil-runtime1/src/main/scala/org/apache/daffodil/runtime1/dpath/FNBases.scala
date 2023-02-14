@@ -23,7 +23,6 @@ import java.lang.{ Integer => JInt }
 import java.lang.{ Long => JLong }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
-
 import scala.collection.mutable.ListBuffer
 import scala.xml.NodeSeq.seqToNodeSeq
 
@@ -36,6 +35,7 @@ trait CompareOpBase {
 }
 
 trait NumberCompareOp extends CompareOpBase {
+
   /**
    * It is such a pain that there is no scala.math.Number base class above
    * all the numeric types.
@@ -44,6 +44,7 @@ trait NumberCompareOp extends CompareOpBase {
 }
 
 trait StringCompareOp extends CompareOpBase {
+
   /**
    * According to Scala spec the compare method
    * returns x where:
@@ -53,11 +54,11 @@ trait StringCompareOp extends CompareOpBase {
    *
    * This mimics the fn:compare method closely.
    */
-  def compare(v1: DataValuePrimitive, v2: DataValuePrimitive): Int = v1.getString.compare(v2.getString)
+  def compare(v1: DataValuePrimitive, v2: DataValuePrimitive): Int =
+    v1.getString.compare(v2.getString)
 }
 
-abstract class CompareOp
-  extends RecipeOp with BinaryOpMixin {
+abstract class CompareOp extends RecipeOp with BinaryOpMixin {
 
   override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
@@ -75,15 +76,18 @@ abstract class CompareOp
 }
 
 case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
-  extends RecipeOp with BinaryOpMixin {
+  extends RecipeOp
+  with BinaryOpMixin {
   override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
     left.run(dstate)
     val leftValue = dstate.currentValue.getBoolean
 
     val result =
-      if ((op == "and" && leftValue == false) ||
-        (op == "or" && leftValue == true)) {
+      if (
+        (op == "and" && leftValue == false) ||
+        (op == "or" && leftValue == true)
+      ) {
         leftValue
       } else {
         dstate.setCurrentNode(savedNode)
@@ -109,7 +113,7 @@ case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe
     dstate.setCurrentValue(value)
   }
 
-  override def toXML: scala.xml.Node = <Negate>{ recipe.toXML }</Negate>
+  override def toXML: scala.xml.Node = <Negate>{recipe.toXML}</Negate>
 }
 
 abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
@@ -125,8 +129,7 @@ abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
   def computeValue(str: DataValuePrimitive, dstate: DState): DataValuePrimitive
 }
 
-abstract class FNTwoArgs(recipes: List[CompiledDPath])
-  extends RecipeOpWithSubRecipes(recipes) {
+abstract class FNTwoArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState): Unit = {
 
     val recipe1 = recipes(0)
@@ -142,11 +145,15 @@ abstract class FNTwoArgs(recipes: List[CompiledDPath])
     val arg2 = dstate.currentValue.getNonNullable
 
     val res = computeValue(arg1, arg2, dstate)
-    
+
     dstate.setCurrentValue(res)
   }
 
-  def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive
+  def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValuePrimitive
 
   override def toXML = toXML(recipes.map { _.toXML })
 }
@@ -170,12 +177,17 @@ abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
     dstate.setCurrentValue(computeValue(arg1, arg2, dstate))
   }
 
-  def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValuePrimitive
+  def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValuePrimitive
 
   override def toXML = toXML(recipes.map { _.toXML })
 }
 
-abstract class FNThreeArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
+abstract class FNThreeArgs(recipes: List[CompiledDPath])
+  extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState): Unit = {
 
     val recipe1 = recipes(0)
@@ -196,12 +208,18 @@ abstract class FNThreeArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSub
     dstate.setCurrentValue(computeValue(arg1, arg2, arg3, dstate))
   }
 
-  def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, arg3: DataValuePrimitive, dstate: DState): DataValuePrimitive
+  def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    arg3: DataValuePrimitive,
+    dstate: DState,
+  ): DataValuePrimitive
 
   override def toXML = toXML(recipes.map { _.toXML })
 }
 
-abstract class FNArgsList(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
+abstract class FNArgsList(recipes: List[CompiledDPath])
+  extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState): Unit = {
 
     val savedNode = dstate.currentNode

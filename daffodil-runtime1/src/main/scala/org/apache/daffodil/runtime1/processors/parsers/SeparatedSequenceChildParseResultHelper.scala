@@ -67,8 +67,7 @@ object SeparatedSequenceChildBehavior {
   case object NonPositional extends Type
 }
 
-trait SeparatedSequenceChildParseResultHelper
-  extends SequenceChildParseResultHelper {
+trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHelper {
   import SeparatedSequenceChildBehavior._
 
   def separatedSequenceChildBehavior: SeparatedSequenceChildBehavior
@@ -86,7 +85,8 @@ trait SeparatedSequenceChildParseResultHelper
     prevBitPosBeforeChild: Long,
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     ParseAttemptStatus.MissingSeparator
   }
 
@@ -94,15 +94,21 @@ trait SeparatedSequenceChildParseResultHelper
    * Define this as final here so we aren't creating proliferation of
    * traits/classes just for this one little issue.
    */
-  final override def finalChecks(parser: SequenceChildParser, pstate: PState, resultOfTry: ParseAttemptStatus,
-    priorResultOfTry: ParseAttemptStatus): Unit = {
+  final override def finalChecks(
+    parser: SequenceChildParser,
+    pstate: PState,
+    resultOfTry: ParseAttemptStatus,
+    priorResultOfTry: ParseAttemptStatus,
+  ): Unit = {
 
     if ((sscb eq PositionalTrailingStrict)) {
       val resultToTest = priorResultOfTry
       resultToTest match {
-        case ParseAttemptStatus.AbsentRep |
-          ParseAttemptStatus.EmptyRep =>
-          parser.PE(pstate, "Empty trailing optional elements are not allowed when dfdl:separatorSuppressionPolicy='trailingEmptyStrict'")
+        case ParseAttemptStatus.AbsentRep | ParseAttemptStatus.EmptyRep =>
+          parser.PE(
+            pstate,
+            "Empty trailing optional elements are not allowed when dfdl:separatorSuppressionPolicy='trailingEmptyStrict'",
+          )
         case _ => // ok
       }
     }
@@ -121,7 +127,9 @@ trait PositionalLikeElementSeparatedSequenceChildParseResultMixin
 
   final override protected def anyTypeElementFailedParseAttemptStatus(
     pstate: PState,
-    isZL: Boolean, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    isZL: Boolean,
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     requiredOptional match {
       case _: RequiredOptionalStatus.Optional if isZL => {
         //
@@ -155,8 +163,8 @@ class PositionalScalarElementSeparatedSequenceChildParseResultHelper(
   override val isSimpleDelimited: Boolean,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean)
-  extends ScalarElementSeparatedSequenceChildParseResultHelper
+  override val isEmptyRepNonZeroLength: Boolean,
+) extends ScalarElementSeparatedSequenceChildParseResultHelper
   with ScalarElementSequenceChildParseResultHelper
   with PositionalLikeElementSeparatedSequenceChildParseResultMixin
 
@@ -166,8 +174,8 @@ class NonPositionalScalarElementSeparatedSequenceChildParseResultHelper(
   override val isSimpleDelimited: Boolean,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean)
-  extends ScalarElementSeparatedSequenceChildParseResultHelper
+  override val isEmptyRepNonZeroLength: Boolean,
+) extends ScalarElementSeparatedSequenceChildParseResultHelper
   with NonPositionalLikeElementSequenceChildParseResultMixin
 
 class PositionalTrailingScalarElementSeparatedSequenceChildParseResultHelper(
@@ -176,8 +184,8 @@ class PositionalTrailingScalarElementSeparatedSequenceChildParseResultHelper(
   override val isSimpleDelimited: Boolean,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean)
-  extends ScalarElementSeparatedSequenceChildParseResultHelper
+  override val isEmptyRepNonZeroLength: Boolean,
+) extends ScalarElementSeparatedSequenceChildParseResultHelper
   with PositionalLikeElementSeparatedSequenceChildParseResultMixin
 
 trait RepElementSeparatedSequenceChildParseResultHelper
@@ -190,10 +198,15 @@ class PositionalTrailingRepElementSeparatedSequenceChildParseResultHelper(
   override val isSimpleDelimited: Boolean,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean)
-  extends PositionalRepElementSeparatedSequenceChildParseResultHelper(
-    separatedSequenceChildBehavior, erd, isSimpleDelimited, emptyElementParsePolicy,
-    isEmptyRepZeroLength, isEmptyRepNonZeroLength)
+  override val isEmptyRepNonZeroLength: Boolean,
+) extends PositionalRepElementSeparatedSequenceChildParseResultHelper(
+    separatedSequenceChildBehavior,
+    erd,
+    isSimpleDelimited,
+    emptyElementParsePolicy,
+    isEmptyRepZeroLength,
+    isEmptyRepNonZeroLength,
+  )
 
 class PositionalRepElementSeparatedSequenceChildParseResultHelper(
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
@@ -201,11 +214,9 @@ class PositionalRepElementSeparatedSequenceChildParseResultHelper(
   override val isSimpleDelimited: Boolean,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean)
-  extends RepElementSeparatedSequenceChildParseResultHelper
-  with PositionalLikeElementSeparatedSequenceChildParseResultMixin {
-
-}
+  override val isEmptyRepNonZeroLength: Boolean,
+) extends RepElementSeparatedSequenceChildParseResultHelper
+  with PositionalLikeElementSeparatedSequenceChildParseResultMixin {}
 
 class NonPositionalRepElementSeparatedSequenceChildParseResultHelper(
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
@@ -213,8 +224,8 @@ class NonPositionalRepElementSeparatedSequenceChildParseResultHelper(
   override val isSimpleDelimited: Boolean,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean)
-  extends RepElementSeparatedSequenceChildParseResultHelper
+  override val isEmptyRepNonZeroLength: Boolean,
+) extends RepElementSeparatedSequenceChildParseResultHelper
   with NonPositionalLikeElementSequenceChildParseResultMixin
 
 trait GroupSeparatedSequenceChildParseResultHelper
@@ -236,7 +247,8 @@ trait PositionalLikeGroupSequenceChildParseResultMixin
     pstate: PState,
     isZL: Boolean,
     mgrd: ModelGroupRuntimeData,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     Assert.invariant(pstate.isSuccess)
     checkModelGroupZL(pstate, isZL)
     if (isZL)
@@ -250,17 +262,15 @@ class PositionalGroupSeparatedSequenceChildParseResultHelper(
   override val mgrd: ModelGroupRuntimeData,
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
   override val isModelGroupRepPossiblyZeroLength: Boolean,
-  override val isModelGroupRepNonZeroLength: Boolean)
-  extends GroupSeparatedSequenceChildParseResultHelper
-  with PositionalLikeGroupSequenceChildParseResultMixin {
-
-}
+  override val isModelGroupRepNonZeroLength: Boolean,
+) extends GroupSeparatedSequenceChildParseResultHelper
+  with PositionalLikeGroupSequenceChildParseResultMixin {}
 class PositionalTrailingGroupSeparatedSequenceChildParseResultHelper(
   override val mgrd: ModelGroupRuntimeData,
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
   override val isModelGroupRepPossiblyZeroLength: Boolean,
-  override val isModelGroupRepNonZeroLength: Boolean)
-  extends GroupSeparatedSequenceChildParseResultHelper
+  override val isModelGroupRepNonZeroLength: Boolean,
+) extends GroupSeparatedSequenceChildParseResultHelper
   with PositionalLikeGroupSequenceChildParseResultMixin {
 
   final override def computeFailedSeparatorParseAttemptStatus(
@@ -268,7 +278,8 @@ class PositionalTrailingGroupSeparatedSequenceChildParseResultHelper(
     prevBitPosBeforeChild: Long,
     pstate: PState,
     isZL: Boolean,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
 
     // When we're parsing a separated sequence, and we're positional trailing
     // and we don't find a separator, the child never even gets attempted to parse
@@ -276,8 +287,10 @@ class PositionalTrailingGroupSeparatedSequenceChildParseResultHelper(
     //
     // This allows it to be skipped, but also ends the sequence.
     //
-    if (isModelGroupRepPossiblyZeroLength &&
-      !isModelGroupRepNonZeroLength) {
+    if (
+      isModelGroupRepPossiblyZeroLength &&
+      !isModelGroupRepNonZeroLength
+    ) {
       pstate.setSuccess()
       ParseAttemptStatus.AbsentRep
     } else
@@ -290,8 +303,8 @@ class NonPositionalGroupSeparatedSequenceChildParseResultHelper(
   override val mgrd: ModelGroupRuntimeData,
   override val separatedSequenceChildBehavior: SeparatedSequenceChildBehavior,
   override val isModelGroupRepPossiblyZeroLength: Boolean,
-  override val isModelGroupRepNonZeroLength: Boolean)
-  extends GroupSeparatedSequenceChildParseResultHelper {
+  override val isModelGroupRepNonZeroLength: Boolean,
+) extends GroupSeparatedSequenceChildParseResultHelper {
 
   /**
    * Called directly sometimes.
@@ -302,12 +315,14 @@ class NonPositionalGroupSeparatedSequenceChildParseResultHelper(
     pstate: PState,
     isZL: Boolean,
     mgrd: ModelGroupRuntimeData,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     if (pstate.isSuccess) {
       val maybeElem = pstate.infosetLastChild
       Assert.invariant(maybeElem.isDefined)
       val elem = maybeElem.get
-      val maybeIsNilled = elem.maybeIsNilled // can't just call isNilled because that throws exceptions on not defined
+      val maybeIsNilled =
+        elem.maybeIsNilled // can't just call isNilled because that throws exceptions on not defined
       if (maybeIsNilled.isDefined && maybeIsNilled.get) {
         ParseAttemptStatus.NilRep
       } else {

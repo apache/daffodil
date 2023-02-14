@@ -17,17 +17,15 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
   extends PrimUnparser {
@@ -48,7 +46,8 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
         One(state.currentLocation),
         "Length of xs:hexBinary exceeds maximum of %s bytes: %s",
         state.tunable.maxHexBinaryLengthInBytes,
-        valueLengthInBytes)
+        valueLengthInBytes,
+      )
     }
 
     val lengthInBits = getLengthInBits(state)
@@ -60,7 +59,8 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
         One(state.currentLocation),
         "Length of xs:hexBinary exceeds calculated length of %s bits: %s",
         valueLengthInBytes * 8,
-        lengthInBits)
+        lengthInBits,
+      )
     }
 
     val bitsFromValueToPut =
@@ -80,7 +80,12 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
     if (bitsFromValueToPut > 0) {
       val ret = dos.putByteArray(value, bitsFromValueToPut, state)
       if (!ret) {
-        UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "Failed to write %d hexBinary bits", bitsFromValueToPut)
+        UnparseError(
+          One(context.schemaFileLocation),
+          One(state.currentLocation),
+          "Failed to write %d hexBinary bits",
+          bitsFromValueToPut,
+        )
       }
     }
 
@@ -105,19 +110,22 @@ class HexBinaryMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRunt
   }
 }
 
-final class HexBinarySpecifiedLengthUnparser(erd: ElementRuntimeData, val lengthEv: UnparseTargetLengthInBitsEv)
-  extends HexBinaryUnparserBase(erd) {
+final class HexBinarySpecifiedLengthUnparser(
+  erd: ElementRuntimeData,
+  val lengthEv: UnparseTargetLengthInBitsEv,
+) extends HexBinaryUnparserBase(erd) {
 
   override def getLengthInBits(state: UState): Long = {
-    val l: Long = try {
-      lengthEv.evaluate(state).getULong.toLong
-    } catch {
-      case e: RetryableException => {
-        val bytes = state.currentInfosetNode.asSimple.dataValue.getByteArray
-        val len = bytes.length.toLong * 8
-        len
+    val l: Long =
+      try {
+        lengthEv.evaluate(state).getULong.toLong
+      } catch {
+        case e: RetryableException => {
+          val bytes = state.currentInfosetNode.asSimple.dataValue.getByteArray
+          val len = bytes.length.toLong * 8
+          len
+        }
       }
-    }
     l
   }
 }
@@ -128,8 +136,8 @@ final class HexBinaryLengthPrefixedUnparser(
   override val prefixedLengthERD: ElementRuntimeData,
   minLengthInBytes: Long,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends HexBinaryMinLengthInBytesUnparser(minLengthInBytes, erd)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends HexBinaryMinLengthInBytesUnparser(minLengthInBytes, erd)
   with KnownPrefixedLengthUnparserMixin {
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)

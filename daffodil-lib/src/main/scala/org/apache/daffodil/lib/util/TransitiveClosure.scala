@@ -28,7 +28,7 @@ abstract class TransitiveClosure[T] {
   private val items = new mutable.Queue[T]
 
   def apply(start: Seq[T]): mutable.LinkedHashSet[T] = {
-    start.foreach{ items.enqueue(_) }
+    start.foreach { items.enqueue(_) }
     tclose()
   }
 
@@ -36,7 +36,7 @@ abstract class TransitiveClosure[T] {
    * Breadth first traversal.
    */
   private def tclose() = {
-    while(!items.isEmpty) {
+    while (!items.isEmpty) {
       val hd = items.dequeue
       if (!processed.contains(hd)) {
         processed += hd

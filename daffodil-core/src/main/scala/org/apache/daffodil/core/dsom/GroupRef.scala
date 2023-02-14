@@ -18,9 +18,10 @@
 package org.apache.daffodil.core.dsom
 
 import scala.xml.Node
+
 import org.apache.daffodil.core.dsom.walker.GroupRefView
-import org.apache.daffodil.lib.xml.HasRefMixin
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
+import org.apache.daffodil.lib.xml.HasRefMixin
 
 trait GroupRef extends GroupRefView { self: ModelGroup =>
 
@@ -43,14 +44,16 @@ trait GroupRef extends GroupRefView { self: ModelGroup =>
 
   override protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:group>{ contents @ _* }</dfdl:group> => Some(new DFDLGroup(node, this))
+      case <dfdl:group>{contents @ _*}</dfdl:group> => Some(new DFDLGroup(node, this))
       case _ => annotationFactoryForDFDLStatement(node, self)
     }
   }
 
-  override protected final lazy val emptyFormatFactory: DFDLFormatAnnotation = new DFDLGroup(newDFDLAnnotationXML("group"), this)
+  override protected final lazy val emptyFormatFactory: DFDLFormatAnnotation =
+    new DFDLGroup(newDFDLAnnotationXML("group"), this)
 
-  override protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLAnnotation]
+  override protected final def isMyFormatAnnotation(a: DFDLAnnotation) =
+    a.isInstanceOf[DFDLAnnotation]
 
 }
 
@@ -67,7 +70,12 @@ trait GroupRef extends GroupRefView { self: ModelGroup =>
  */
 object GroupRefFactory {
 
-  def apply(refXML: Node, refLexicalParent: SchemaComponent, position: Int, isHidden: Boolean) = {
+  def apply(
+    refXML: Node,
+    refLexicalParent: SchemaComponent,
+    position: Int,
+    isHidden: Boolean,
+  ) = {
     val f = new GroupRefFactory(refXML, refLexicalParent, position, isHidden)
     f.groupRef
   }
@@ -82,8 +90,12 @@ object GroupRefFactory {
  *
  * Private constructor insures it must be constructed by way of apply method of companion object.
  */
-final class GroupRefFactory private (refXML: Node, val refLexicalParent: SchemaComponent, position: Int, isHidden: Boolean)
-  extends SchemaComponentImpl(refXML, refLexicalParent)
+final class GroupRefFactory private (
+  refXML: Node,
+  val refLexicalParent: SchemaComponent,
+  position: Int,
+  isHidden: Boolean,
+) extends SchemaComponentImpl(refXML, refLexicalParent)
   with NestingLexicalMixin
   with HasRefMixin {
 
@@ -94,8 +106,10 @@ final class GroupRefFactory private (refXML: Node, val refLexicalParent: SchemaC
       SDE("Referenced group definition not found: %s", this.ref)
     }
     val gref = gdef match {
-      case gd: GlobalSequenceGroupDef => SequenceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
-      case gd: GlobalChoiceGroupDef => ChoiceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
+      case gd: GlobalSequenceGroupDef =>
+        SequenceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
+      case gd: GlobalChoiceGroupDef =>
+        ChoiceGroupRef(gd, refXML, refLexicalParent, position, isHidden)
     }
     gref
   }
@@ -107,8 +121,10 @@ object SequenceGroupRef {
     refXML: Node,
     refLexicalParent: SchemaComponent,
     positionArg: Int,
-    isHidden: Boolean) = {
-    val sgr = new SequenceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
+    isHidden: Boolean,
+  ) = {
+    val sgr =
+      new SequenceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
     sgr.initialize()
     sgr
   }
@@ -119,8 +135,8 @@ final class SequenceGroupRef private (
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
-  override val isHidden: Boolean)
-  extends SequenceGroupTermBase(refXML, refLexicalParent, positionArg)
+  override val isHidden: Boolean,
+) extends SequenceGroupTermBase(refXML, refLexicalParent, positionArg)
   with GroupRef {
 
   private lazy val globalGroupDef = globalGroupDefArg // once only
@@ -145,8 +161,10 @@ object ChoiceGroupRef {
     refXML: Node,
     refLexicalParent: SchemaComponent,
     positionArg: Int,
-    isHidden: Boolean) = {
-    val cgr = new ChoiceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
+    isHidden: Boolean,
+  ) = {
+    val cgr =
+      new ChoiceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
     cgr.initialize()
     cgr
   }
@@ -157,15 +175,15 @@ final class ChoiceGroupRef private (
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
-  override val isHidden: Boolean)
-  extends ChoiceTermBase(refXML, Option(refLexicalParent), positionArg)
+  override val isHidden: Boolean,
+) extends ChoiceTermBase(refXML, Option(refLexicalParent), positionArg)
   with GroupRef {
 
   requiredEvaluationsIfActivated(groupDef)
 
   private lazy val globalGroupDef = globalGroupDefArg // once only
 
-  override lazy val groupDef = LV('cgrGroupDef){ globalGroupDef }.value
+  override lazy val groupDef = LV('cgrGroupDef) { globalGroupDef }.value
 
   private lazy val cgd = groupDef.asInstanceOf[GlobalChoiceGroupDef]
 

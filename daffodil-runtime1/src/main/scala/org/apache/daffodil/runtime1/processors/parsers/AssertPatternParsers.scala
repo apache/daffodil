@@ -19,11 +19,11 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import java.util.regex.Matcher
 
+import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
+import org.apache.daffodil.lib.util.OnStack
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
 import org.apache.daffodil.runtime1.processors._
-import org.apache.daffodil.lib.util.OnStack
-import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 
 trait AssertParserMixin {
   def messageExpr: CompiledExpression[AnyRef]
@@ -70,8 +70,8 @@ class AssertPatternParser(
   override val discrim: Boolean,
   testPattern: String,
   override val messageExpr: CompiledExpression[AnyRef],
-  override val failureType: FailureType)
-  extends PrimParser
+  override val failureType: FailureType,
+) extends PrimParser
   with AssertParserMixin {
   override lazy val runtimeDependencies = Vector()
 
@@ -80,7 +80,8 @@ class AssertPatternParser(
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
   }
 
-  lazy val pattern = ("(?s)" + testPattern).r.pattern // imagine a really big expensive pattern to compile.
+  lazy val pattern =
+    ("(?s)" + testPattern).r.pattern // imagine a really big expensive pattern to compile.
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 
   final def parse(start: PState): Unit = {

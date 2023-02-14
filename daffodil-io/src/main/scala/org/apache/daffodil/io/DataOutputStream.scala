@@ -17,13 +17,15 @@
 
 package org.apache.daffodil.io
 
-import passera.unsigned.ULong
+import java.io.File
+import java.math.{ BigInteger => JBigInt }
 import java.nio.CharBuffer
 import java.nio.file.Path
-import java.io.File
-import org.apache.daffodil.lib.util.MaybeULong
+
 import org.apache.daffodil.lib.util.Maybe
-import java.math.{BigInteger => JBigInt}
+import org.apache.daffodil.lib.util.MaybeULong
+
+import passera.unsigned.ULong
 
 sealed abstract class ZeroLengthStatus
 object ZeroLengthStatus {
@@ -134,7 +136,10 @@ trait DataOutputStream extends DataStreamCommon {
   /**
    * sets, but also maintains the absolute bit limit, if that is defined.
    */
-  protected def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong, reset: Boolean = false): Boolean
+  protected def setMaybeRelBitLimit0b(
+    newMaybeRelBitLimit0b: MaybeULong,
+    reset: Boolean = false,
+  ): Boolean
 
   def resetMaybeRelBitLimit0b(savedBitLimit0b: MaybeULong): Unit
 
@@ -175,7 +180,12 @@ trait DataOutputStream extends DataStreamCommon {
    * It is a usage error if bitLengthFrom1 is not greater than or equal to 1.
    *
    */
-  def putBigInt(bigInt: JBigInt, bitLengthFrom1: Int, signed: Boolean, finfo: FormatInfo): Boolean
+  def putBigInt(
+    bigInt: JBigInt,
+    bitLengthFrom1: Int,
+    signed: Boolean,
+    finfo: FormatInfo,
+  ): Boolean
 
   /**
    * If bitLengthFrom1 bits are available to be written before bitLimit0b (if
@@ -194,7 +204,12 @@ trait DataOutputStream extends DataStreamCommon {
    * It is a usage error if bitLengthFrom1 is not greater than or equal to 1.
    *
    */
-  def putByteArray(ba: Array[Byte], bitLengthFrom1: Long, finfo: FormatInfo, ignoreByteOrder: Boolean = false): Boolean
+  def putByteArray(
+    ba: Array[Byte],
+    bitLengthFrom1: Long,
+    finfo: FormatInfo,
+    ignoreByteOrder: Boolean = false,
+  ): Boolean
 
   /**
    * Float and Double

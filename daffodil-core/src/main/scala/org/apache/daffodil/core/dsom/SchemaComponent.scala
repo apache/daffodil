@@ -17,26 +17,26 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.runtime1.dsom._
-
 import scala.xml.Node
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.xml.NS
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.processors.VariableMap
-import org.apache.daffodil.lib.xml.ResolvesQNames
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.xml.GetAttributesMixin
-import org.apache.daffodil.lib.schema.annotation.props.PropTypes
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.runtime1.BasicComponent
+
 import org.apache.daffodil.core.runtime1.SchemaComponentRuntime1Mixin
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.PropTypes
 import org.apache.daffodil.lib.util.Delay
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.xml.GetAttributesMixin
+import org.apache.daffodil.lib.xml.NS
+import org.apache.daffodil.lib.xml.ResolvesQNames
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.BasicComponent
+import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.processors.VariableMap
 
 abstract class SchemaComponentImpl(
   final override val xml: Node,
-  final override val optLexicalParent: Option[SchemaComponent])
-  extends SchemaComponent {
+  final override val optLexicalParent: Option[SchemaComponent],
+) extends SchemaComponent {
 
   def this(xml: Node, lexicalParent: SchemaComponent) =
     this(xml, Option(lexicalParent))
@@ -82,7 +82,8 @@ trait SchemaComponent
       path,
       schemaFileLocation,
       tunable.unqualifiedPathStepPolicy,
-      schemaSet.typeCalcMap)
+      schemaSet.typeCalcMap,
+    )
   }
 
   /**
@@ -133,11 +134,15 @@ trait SchemaComponent
     val res = ec.flatMap { sc =>
       sc match {
         case t: Term => Seq(t)
-        case sd: SchemaDocument => Assert.invariantFailed("enclosing component should never be a schema document for " + this)
-        case other => other.enclosingComponents.map { _.encloser }.flatMap {
-          case t: Term => Seq(t)
-          case x => x.enclosingTerms
-        }
+        case sd: SchemaDocument =>
+          Assert.invariantFailed(
+            "enclosing component should never be a schema document for " + this,
+          )
+        case other =>
+          other.enclosingComponents.map { _.encloser }.flatMap {
+            case t: Term => Seq(t)
+            case x => x.enclosingTerms
+          }
       }
     }
     res.distinct
@@ -169,17 +174,25 @@ trait SchemaComponent
     val list = scPath.filter { isComponentForSSCD(_) }
     val sscdStrings = list.map { sc =>
       sc match {
-        case er: AbstractElementRef => "er" + (if (er.position > 1) er.position else "") + "=" + er.refQName.toQNameString
-        case e: ElementBase => "e" + (if (e.position > 1) e.position else "") + "=" +
-          e.namedQName.toQNameString
+        case er: AbstractElementRef =>
+          "er" + (if (er.position > 1) er.position else "") + "=" + er.refQName.toQNameString
+        case e: ElementBase =>
+          "e" + (if (e.position > 1) e.position else "") + "=" +
+            e.namedQName.toQNameString
         case ed: GlobalElementDecl => "e=" + ed.namedQName.toQNameString
         case ct: GlobalComplexTypeDef => "ct=" + ct.namedQName.toQNameString
         case ct: ComplexTypeBase => "ct"
         case st: SimpleTypeDefBase => "st=" + st.namedQName.toQNameString
         case st: SimpleTypeBase => "st=" + st.primType.globalQName.toQNameString
-        case cgr: ChoiceGroupRef => "cgr" + (if (cgr.isHidden) "h" else "") + (if (cgr.position > 1) cgr.position else "") + "=" + cgr.groupDef.namedQName.toQNameString
+        case cgr: ChoiceGroupRef =>
+          "cgr" + (if (cgr.isHidden) "h" else "") + (if (cgr.position > 1) cgr.position
+                                                     else
+                                                       "") + "=" + cgr.groupDef.namedQName.toQNameString
         case cgd: GlobalChoiceGroupDef => "cgd=" + cgd.namedQName.toQNameString
-        case sgr: SequenceGroupRef => "sgr" + (if (sgr.isHidden) "h" else "") + (if (sgr.position > 1) sgr.position else "") + "=" + sgr.groupDef.namedQName.toQNameString
+        case sgr: SequenceGroupRef =>
+          "sgr" + (if (sgr.isHidden) "h" else "") + (if (sgr.position > 1) sgr.position
+                                                     else
+                                                       "") + "=" + sgr.groupDef.namedQName.toQNameString
         case sgd: GlobalSequenceGroupDef => "sgd=" + sgd.namedQName.toQNameString
         case cg: Choice => "c" + (if (cg.position > 1) cg.position else "")
         case sg: LocalSequence => "s" + (if (sg.position > 1) sg.position else "")
@@ -235,7 +248,8 @@ trait SchemaComponent
     // Which applies to this element and what is inside it only.
     // So we're indifferent to what the surrounding context might be using for namespace bindings.
     //
-    val dfdlBinding = new scala.xml.NamespaceBinding("dfdl", XMLUtils.DFDL_NAMESPACE.toString, xml.scope)
+    val dfdlBinding =
+      new scala.xml.NamespaceBinding("dfdl", XMLUtils.DFDL_NAMESPACE.toString, xml.scope)
     scala.xml.Elem("dfdl", label, emptyXMLMetadata, dfdlBinding, true)
   }
 }
@@ -255,8 +269,11 @@ object Schema {
  * same target namespace, and in that case all those schema documents make up
  * the 'schema'.
  */
-final class Schema private (val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet)
-  extends SchemaComponentImpl(<fake/>, Option(schemaSetArg)) {
+final class Schema private (
+  val namespace: NS,
+  schemaDocs: Seq[SchemaDocument],
+  schemaSetArg: SchemaSet,
+) extends SchemaComponentImpl(<fake/>, Option(schemaSetArg)) {
 
   override def targetNamespace: NS = namespace
 
@@ -271,13 +288,15 @@ final class Schema private (val namespace: NS, schemaDocs: Seq[SchemaDocument], 
       case s => {
         schemaSet.schemaDefinitionError(
           "More than one definition for name: %s. Defined in following locations:\n%s",
-          name, s.map { thing =>
+          name,
+          s.map { thing =>
             thing match {
               case df: DFDLDefiningAnnotation => df.asAnnotation.locationDescription
               case sc: SchemaComponent => sc.locationDescription
               case _ => Assert.impossibleCase(thing)
             }
-          }.mkString("\n"))
+          }.mkString("\n"),
+        )
       }
     }
   }
@@ -289,22 +308,27 @@ final class Schema private (val namespace: NS, schemaDocs: Seq[SchemaDocument], 
    */
   def getGlobalElementDecl(name: String) = {
     val sds = schemaDocuments
-    val res = sds.flatMap {
-      sd =>
-        {
-          val ged = sd.getGlobalElementDecl(name)
-          ged
-        }
+    val res = sds.flatMap { sd =>
+      {
+        val ged = sd.getGlobalElementDecl(name)
+        ged
+      }
     }
     noneOrOne(res, name)
   }
-  def getGlobalSimpleTypeDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalSimpleTypeDef(name) }, name)
-  def getGlobalComplexTypeDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalComplexTypeDef(name) }, name)
-  def getGlobalGroupDef(name: String) = noneOrOne(schemaDocuments.flatMap { _.getGlobalGroupDef(name) }, name)
-  def getDefineFormat(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineFormat(name) }, name)
+  def getGlobalSimpleTypeDef(name: String) =
+    noneOrOne(schemaDocuments.flatMap { _.getGlobalSimpleTypeDef(name) }, name)
+  def getGlobalComplexTypeDef(name: String) =
+    noneOrOne(schemaDocuments.flatMap { _.getGlobalComplexTypeDef(name) }, name)
+  def getGlobalGroupDef(name: String) =
+    noneOrOne(schemaDocuments.flatMap { _.getGlobalGroupDef(name) }, name)
+  def getDefineFormat(name: String) =
+    noneOrOne(schemaDocuments.flatMap { _.getDefineFormat(name) }, name)
   def getDefineFormats() = schemaDocuments.flatMap { _.defineFormats }
-  def getDefineVariable(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
-  def getDefineEscapeScheme(name: String) = noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
+  def getDefineVariable(name: String) =
+    noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
+  def getDefineEscapeScheme(name: String) =
+    noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
   def getDefaultFormat = schemaDocuments.flatMap { x => Some(x.getDefaultFormat) }
 
   // used for bulk checking of uniqueness

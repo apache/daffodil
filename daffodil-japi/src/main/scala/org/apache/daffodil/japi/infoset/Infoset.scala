@@ -17,30 +17,39 @@
 
 package org.apache.daffodil.japi.infoset
 
+import org.apache.daffodil.japi.packageprivate._
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.infoset.{ InfosetOutputter => SInfosetOutputter }
-import org.apache.daffodil.runtime1.infoset.{ InfosetInputter => SInfosetInputter }
-import org.apache.daffodil.runtime1.infoset.{ ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter }
-import org.apache.daffodil.runtime1.infoset.{ XMLTextInfosetOutputter => SXMLTextInfosetOutputter }
-import org.apache.daffodil.runtime1.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputter }
-import org.apache.daffodil.runtime1.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
-import org.apache.daffodil.runtime1.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
-import org.apache.daffodil.runtime1.infoset.{ W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter }
-import org.apache.daffodil.runtime1.infoset.{ ScalaXMLInfosetInputter => SScalaXMLInfosetInputter }
-import org.apache.daffodil.runtime1.infoset.{ XMLTextInfosetInputter => SXMLTextInfosetInputter }
-import org.apache.daffodil.runtime1.infoset.{ JsonInfosetInputter => SJsonInfosetInputter }
-import org.apache.daffodil.runtime1.infoset.{ JDOMInfosetInputter => SJDOMInfosetInputter }
-import org.apache.daffodil.runtime1.infoset.{ W3CDOMInfosetInputter => SW3CDOMInfosetInputter }
 import org.apache.daffodil.lib.util.MaybeBoolean
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.DIArray
+import org.apache.daffodil.runtime1.infoset.DIComplex
 // TODO: Not sure about the access to internal infoset implementation details.
 // Should API users have this deep access to our internal infoset?
 import org.apache.daffodil.runtime1.infoset.DISimple
-import org.apache.daffodil.runtime1.infoset.DIComplex
-import org.apache.daffodil.runtime1.infoset.DIArray
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-
-import org.apache.daffodil.japi.packageprivate._
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
+import org.apache.daffodil.runtime1.infoset.{ InfosetInputter => SInfosetInputter }
+import org.apache.daffodil.runtime1.infoset.{ InfosetOutputter => SInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ JDOMInfosetInputter => SJDOMInfosetInputter }
+import org.apache.daffodil.runtime1.infoset.{ JDOMInfosetOutputter => SJDOMInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ JsonInfosetInputter => SJsonInfosetInputter }
+import org.apache.daffodil.runtime1.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
+import org.apache.daffodil.runtime1.infoset.{
+  ScalaXMLInfosetInputter => SScalaXMLInfosetInputter,
+}
+import org.apache.daffodil.runtime1.infoset.{
+  ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter,
+}
+import org.apache.daffodil.runtime1.infoset.{ W3CDOMInfosetInputter => SW3CDOMInfosetInputter }
+import org.apache.daffodil.runtime1.infoset.{
+  W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter,
+}
+import org.apache.daffodil.runtime1.infoset.{
+  XMLTextInfosetInputter => SXMLTextInfosetInputter,
+}
+import org.apache.daffodil.runtime1.infoset.{
+  XMLTextInfosetOutputter => SXMLTextInfosetOutputter,
+}
 
 /**
  * Abstract class used to determine how the infoset representation should be
@@ -51,6 +60,7 @@ import org.apache.daffodil.japi.packageprivate._
  * the information after a call to advance/inspect.
  **/
 abstract class InfosetInputter extends SInfosetInputter {
+
   /**
    * Return the current infoset inputter event type
    */
@@ -77,7 +87,10 @@ abstract class InfosetInputter extends SInfosetInputter {
    * NonTextFoundInSimpleContentException. If the element does not have any
    * simple content, this should return either null or the empty string.
    */
-  def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String,String]): String =
+  def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String =
     getSimpleText(primType)
 
   /**
@@ -213,14 +226,12 @@ abstract class InfosetOutputter extends SInfosetOutputter {
  * classes, we can document these classes and have a small and clean javadoc.
  */
 
-
 /**
  * [[InfosetOutputter]] to build an infoset represented as a scala.xml.Node
  *
  * @param showFormatInfo add additional properties to each scala.xml.Node for debug purposes
  */
-class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false)
-  extends InfosetOutputterProxy {
+class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetOutputterProxy {
 
   override val infosetOutputter = new SScalaXMLInfosetOutputter(showFormatInfo)
 
@@ -246,8 +257,13 @@ class XMLTextInfosetOutputter private (outputter: SXMLTextInfosetOutputter)
    *               insert indentation and newlines where it will not affect the
    *               content of the XML.
    */
-  def this(os: java.io.OutputStream, pretty: Boolean) = this(new SXMLTextInfosetOutputter(os,
-    pretty, XMLTextEscapeStyleConversions.styleToScala(XMLTextEscapeStyle.Standard)))
+  def this(os: java.io.OutputStream, pretty: Boolean) = this(
+    new SXMLTextInfosetOutputter(
+      os,
+      pretty,
+      XMLTextEscapeStyleConversions.styleToScala(XMLTextEscapeStyle.Standard),
+    ),
+  )
 
   /**
    * Output the infoset as XML Text, written to a java.io.OutputStream
@@ -260,8 +276,18 @@ class XMLTextInfosetOutputter private (outputter: SXMLTextInfosetOutputter)
    *                       xs:string in CDATA tags in order to preserve
    *                       whitespace.
    */
-  def this(os: java.io.OutputStream, pretty: Boolean, xmlTextEscapeStyle: XMLTextEscapeStyle) = {
-    this(new SXMLTextInfosetOutputter(os, pretty, XMLTextEscapeStyleConversions.styleToScala(xmlTextEscapeStyle)))
+  def this(
+    os: java.io.OutputStream,
+    pretty: Boolean,
+    xmlTextEscapeStyle: XMLTextEscapeStyle,
+  ) = {
+    this(
+      new SXMLTextInfosetOutputter(
+        os,
+        pretty,
+        XMLTextEscapeStyleConversions.styleToScala(xmlTextEscapeStyle),
+      ),
+    )
   }
 
   override val infosetOutputter = outputter
@@ -281,7 +307,8 @@ class JsonInfosetOutputter private (outputter: SJsonInfosetOutputter)
    *               insert indentation and newlines where it will not affect the
    *               content of the json.
    */
-  def this(os: java.io.OutputStream, pretty: Boolean) = this(new SJsonInfosetOutputter(os, pretty))
+  def this(os: java.io.OutputStream, pretty: Boolean) =
+    this(new SJsonInfosetOutputter(os, pretty))
 
   override val infosetOutputter = outputter
 }
@@ -289,8 +316,7 @@ class JsonInfosetOutputter private (outputter: SJsonInfosetOutputter)
 /**
  * [[InfosetOutputter]] to build an infoset represented as an org.jdom2.Document
  */
-class JDOMInfosetOutputter()
-  extends InfosetOutputterProxy {
+class JDOMInfosetOutputter() extends InfosetOutputterProxy {
 
   override val infosetOutputter = new SJDOMInfosetOutputter()
 
@@ -305,8 +331,7 @@ class JDOMInfosetOutputter()
 /**
  * [[InfosetOutputter]] to build an infoset represented as an org.w3c.dom.Document
  */
-class W3CDOMInfosetOutputter()
-  extends InfosetOutputterProxy {
+class W3CDOMInfosetOutputter() extends InfosetOutputterProxy {
 
   override val infosetOutputter = new SW3CDOMInfosetOutputter()
 
@@ -322,20 +347,17 @@ class W3CDOMInfosetOutputter()
  * [[InfosetOutputter]] that does not build an infoset represention, ignoring
  * all [[InfosetOutputter]] events
  */
-class NullInfosetOutputter()
-  extends InfosetOutputterProxy {
+class NullInfosetOutputter() extends InfosetOutputterProxy {
 
   override val infosetOutputter = new SNullInfosetOutputter()
 }
-
 
 /**
  * [[InfosetInputter]] to read an infoset represented as a scala.xml.Node
  *
  * @param node the scala.xml.Node infoset
  */
-class ScalaXMLInfosetInputter(node: scala.xml.Node)
-  extends InfosetInputterProxy {
+class ScalaXMLInfosetInputter(node: scala.xml.Node) extends InfosetInputterProxy {
 
   override val infosetInputter = new SScalaXMLInfosetInputter(node)
 }
@@ -377,8 +399,7 @@ class JsonInfosetInputter private (inputter: SJsonInfosetInputter)
  *
  * @param document the org.jdom2.Document infoset
  */
-class JDOMInfosetInputter(document: org.jdom2.Document)
-  extends InfosetInputterProxy {
+class JDOMInfosetInputter(document: org.jdom2.Document) extends InfosetInputterProxy {
 
   override val infosetInputter = new SJDOMInfosetInputter(document)
 }
@@ -393,8 +414,7 @@ class JDOMInfosetInputter(document: org.jdom2.Document)
  *                 not read or written by other threads while the
  *                 W3CDOMInfosetInputter has access to it.
  */
-class W3CDOMInfosetInputter(document: org.w3c.dom.Document)
-  extends InfosetInputterProxy {
+class W3CDOMInfosetInputter(document: org.w3c.dom.Document) extends InfosetInputterProxy {
 
   override val infosetInputter = new SW3CDOMInfosetInputter(document)
 }
@@ -412,13 +432,16 @@ abstract class InfosetInputterProxy extends InfosetInputter {
   override def getEventType() = infosetInputter.getEventType()
   override def getLocalName() = infosetInputter.getLocalName()
   override def getNamespaceURI() = infosetInputter.getNamespaceURI()
-  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String,String]): String = {
+  override def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String = {
     infosetInputter.getSimpleText(primType, runtimeProperties)
   }
   override def getSimpleText(primType: NodeInfo.Kind) = {
-    //$COVERAGE-OFF$
+    // $COVERAGE-OFF$
     Assert.impossible()
-    //$COVERAGE-ON$
+    // $COVERAGE-ON$
   }
   override def hasNext() = infosetInputter.hasNext()
   override def isNilled() = infosetInputter.isNilled()
@@ -443,7 +466,8 @@ abstract class InfosetOutputterProxy extends InfosetOutputter {
   override def endDocument(): Unit = infosetOutputter.endDocument()
   override def startSimple(diSimple: DISimple): Unit = infosetOutputter.startSimple(diSimple)
   override def endSimple(diSimple: DISimple): Unit = infosetOutputter.endSimple(diSimple)
-  override def startComplex(diComplex: DIComplex): Unit = infosetOutputter.startComplex(diComplex)
+  override def startComplex(diComplex: DIComplex): Unit =
+    infosetOutputter.startComplex(diComplex)
   override def endComplex(diComplex: DIComplex): Unit = infosetOutputter.endComplex(diComplex)
   override def startArray(diArray: DIArray): Unit = infosetOutputter.startArray(diArray)
   override def endArray(diArray: DIArray): Unit = infosetOutputter.endArray(diArray)

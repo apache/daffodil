@@ -18,6 +18,7 @@
 package org.apache.daffodil.runtime1.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
+
 import org.apache.daffodil.lib.util.MaybeChar
 
 /**
@@ -54,8 +55,7 @@ object CreateFieldDFA {
   /**
    * Constructs a DFAField object with EscapeSchemeKind.Character
    */
-  def apply(
-    EC: Char, EEC: MaybeChar): DFAField = {
+  def apply(EC: Char, EEC: MaybeChar): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
@@ -73,8 +73,7 @@ object CreateFieldDFA {
   /**
    * Constructs a DFAField object with EscpaeSchemeKind.Block
    */
-  def apply(blockEnd: DFADelimiter,
-    EEC: MaybeChar): DFAField = {
+  def apply(blockEnd: DFADelimiter, EEC: MaybeChar): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 

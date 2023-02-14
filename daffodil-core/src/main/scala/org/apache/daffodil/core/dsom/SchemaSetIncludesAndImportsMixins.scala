@@ -18,8 +18,8 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.dsom.IIUtils._
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.xml.XMLUtils
 
 /**
  * Mixin for SchemaSet
@@ -39,14 +39,21 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
     // Any time we synthesize xml we have to grab the namespace definitions and
     // make sure we drag them along onto the new structures.
     val fakeImportStatementsXML =
-      <xs:import schemaLocation={ schemaSource.uriForLoading.toString } xmlns:xs={ xsd }/>
+      <xs:import schemaLocation={schemaSource.uriForLoading.toString} xmlns:xs={xsd}/>
 
     val fakeSchemaDocXML =
-      <xs:schema xmlns:xs={ xsd }>{ fakeImportStatementsXML }</xs:schema>
+      <xs:schema xmlns:xs={xsd}>{fakeImportStatementsXML}</xs:schema>
 
     val initialEmptyIIMap: IIMap = IIUtils.emptyIIMap
 
-    val fakeSD = XMLSchemaDocument(fakeSchemaDocXML, self, None, None, initialEmptyIIMap, isBootStrapSD = true)
+    val fakeSD = XMLSchemaDocument(
+      fakeSchemaDocXML,
+      self,
+      None,
+      None,
+      initialEmptyIIMap,
+      isBootStrapSD = true,
+    )
     fakeSD
   }
 
@@ -55,24 +62,32 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
   }
 
   lazy val allSchemaFiles = {
-    val fd = fakeXMLSchemaDocument //bootstrap
+    val fd = fakeXMLSchemaDocument // bootstrap
     val sa = fd.seenAfter
     val first = sa.value.head._2
     val sfl = sa.value.flatMap {
       case (_, ii) => {
-        val sf = ii.iiSchemaFileMaybe // maybe not if we've already seen this file for the same namespace.
+        val sf =
+          ii.iiSchemaFileMaybe // maybe not if we've already seen this file for the same namespace.
         // Require the first schema file to have a DFDL namespace. Other included or imported schemas can be
         // standard XSD schemas but emit a warning that the schema is being ignored.
         sf.filter { f =>
           if (f.isDFDLSchemaFile) {
             true
           } else if (f eq first) {
-            f.SDE("Non-DFDL Schema file. Does not have DFDL namespace definition on schema root element.\n" +
-              "Add xmlns:dfdl='%s' to the root element.", XMLUtils.DFDL_NAMESPACE)
+            f.SDE(
+              "Non-DFDL Schema file. Does not have DFDL namespace definition on schema root element.\n" +
+                "Add xmlns:dfdl='%s' to the root element.",
+              XMLUtils.DFDL_NAMESPACE,
+            )
             false
           } else {
-            f.SDW(WarnID.IgnoreImport, "Non-DFDL Schema file ignored. Does not have DFDL namespace definition on schema root element.\n" +
-              "Add xmlns:dfdl='%s' to the root element if this file must be part of the DFDL schema.", XMLUtils.DFDL_NAMESPACE)
+            f.SDW(
+              WarnID.IgnoreImport,
+              "Non-DFDL Schema file ignored. Does not have DFDL namespace definition on schema root element.\n" +
+                "Add xmlns:dfdl='%s' to the root element if this file must be part of the DFDL schema.",
+              XMLUtils.DFDL_NAMESPACE,
+            )
             false
           }
         }

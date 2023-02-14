@@ -26,29 +26,16 @@ import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-
 import scala.collection.mutable.ArrayBuffer
 import scala.xml.SAXParser
 
-import com.siemens.ct.exi.core.EXIFactory
-import com.siemens.ct.exi.core.helpers.DefaultEXIFactory
-import com.siemens.ct.exi.grammars.GrammarFactory
-import com.siemens.ct.exi.main.api.sax.EXIResult
-import com.siemens.ct.exi.main.api.sax.EXISource
-
-import org.apache.commons.io.IOUtils
-
-import org.xml.sax.Attributes
-import org.xml.sax.ContentHandler
-import org.xml.sax.InputSource
-import org.xml.sax.XMLReader
-import org.xml.sax.Locator
-import org.xml.sax.helpers.AttributesImpl
-import org.xml.sax.helpers.DefaultHandler
-
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.xml.DFDLCatalogResolver
+import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.runtime1.api.DFDL.DataProcessor
 import org.apache.daffodil.runtime1.api.DFDL.DaffodilUnparseErrorSAXException
+import org.apache.daffodil.runtime1.api.DFDL.DataProcessor
 import org.apache.daffodil.runtime1.api.DFDL.ParseResult
 import org.apache.daffodil.runtime1.api.DFDL.UnparseResult
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
@@ -65,11 +52,21 @@ import org.apache.daffodil.runtime1.infoset.W3CDOMInfosetInputter
 import org.apache.daffodil.runtime1.infoset.W3CDOMInfosetOutputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetInputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.runtime1.processors.DaffodilParseOutputStreamContentHandler
-import org.apache.daffodil.lib.xml.DFDLCatalogResolver
-import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
-import org.apache.daffodil.lib.xml.XMLUtils
+
+import com.siemens.ct.exi.core.EXIFactory
+import com.siemens.ct.exi.core.helpers.DefaultEXIFactory
+import com.siemens.ct.exi.grammars.GrammarFactory
+import com.siemens.ct.exi.main.api.sax.EXIResult
+import com.siemens.ct.exi.main.api.sax.EXISource
+import org.apache.commons.io.IOUtils
+import org.xml.sax.Attributes
+import org.xml.sax.ContentHandler
+import org.xml.sax.InputSource
+import org.xml.sax.Locator
+import org.xml.sax.XMLReader
+import org.xml.sax.helpers.AttributesImpl
+import org.xml.sax.helpers.DefaultHandler
 
 object InfosetType extends Enumeration {
   type Type = Value
@@ -105,7 +102,8 @@ object InfosetType extends Enumeration {
     infosetType: InfosetType.Type,
     dataProcessor: DFDL.DataProcessor,
     schemaUri: Option[URI],
-    forPerformance: Boolean): InfosetHandler = {
+    forPerformance: Boolean,
+  ): InfosetHandler = {
 
     infosetType match {
       case InfosetType.EXI => EXIInfosetHandler(dataProcessor)
@@ -123,7 +121,7 @@ object InfosetType extends Enumeration {
 
 sealed trait InfosetHandler {
 
-   /**
+  /**
     * Parse data from the InputSourceDataInputStream with the provided
     * DataProcessor and return a new InfosetParseResult instance. Depending on
     * the provided InfosetType, may or may not write an infoset instance to the
@@ -202,7 +200,10 @@ sealed trait InfosetHandler {
   /**
    * Helper function to parse data using the Daffodil InfosetOutputter API
    */
-  final protected def parseWithInfosetOutputter(input: InputSourceDataInputStream, output: InfosetOutputter): ParseResult = {
+  final protected def parseWithInfosetOutputter(
+    input: InputSourceDataInputStream,
+    output: InfosetOutputter,
+  ): ParseResult = {
     output.setBlobAttributes(Main.blobDir, null, Main.blobSuffix)
     val pr = dataProcessor.parse(input, output)
     pr
@@ -211,7 +212,10 @@ sealed trait InfosetHandler {
   /**
    * Helper function to unparse data using the Daffodil InfosetInputter API
    */
-  final protected def unparseWithInfosetInputter(input: InfosetInputter, output: DFDL.Output): UnparseResult = {
+  final protected def unparseWithInfosetInputter(
+    input: InfosetInputter,
+    output: DFDL.Output,
+  ): UnparseResult = {
     val ur = dataProcessor.unparse(input, output)
     ur
   }
@@ -219,7 +223,10 @@ sealed trait InfosetHandler {
   /**
    * Helper function to parse data using the Daffodil SAX API
    */
-  final protected def parseWithSax(input: InputSourceDataInputStream, contentHandler: ContentHandler): ParseResult = {
+  final protected def parseWithSax(
+    input: InputSourceDataInputStream,
+    contentHandler: ContentHandler,
+  ): ParseResult = {
     val xmlReader = dataProcessor.newXMLReaderInstance
     // SAX_NAMESPACE_PREFIXES_FEATURE is needed to preserve nil attributes with EXI
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
@@ -227,14 +234,19 @@ sealed trait InfosetHandler {
     xmlReader.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, Main.blobSuffix)
     xmlReader.setContentHandler(contentHandler)
     xmlReader.parse(input)
-    val pr = xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr =
+      xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     pr
   }
 
   /**
    * Helper function to unparse data using the Daffodil SAX API
    */
-  final protected def unparseWithSax(xmlReader: XMLReader, input: InputStream, output: DFDL.Output): UnparseResult = {
+  final protected def unparseWithSax(
+    xmlReader: XMLReader,
+    input: InputStream,
+    output: DFDL.Output,
+  ): UnparseResult = {
     val contentHandler = dataProcessor.newContentHandlerInstance(output)
     xmlReader.setContentHandler(contentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
@@ -268,12 +280,10 @@ sealed class InfosetParseResult(val parseResult: ParseResult) {
   def write(os: OutputStream): Unit = {}
 }
 
-
 /**
  * InfosetType.XML
  */
-case class XMLTextInfosetHandler(dataProcessor: DataProcessor)
-  extends InfosetHandler {
+case class XMLTextInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new XMLTextInfosetOutputter(os, pretty = true)
@@ -299,8 +309,7 @@ case class XMLTextInfosetHandler(dataProcessor: DataProcessor)
 /**
  * InfosetType.JSON
  */
-case class JsonInfosetHandler(dataProcessor: DataProcessor)
-  extends InfosetHandler {
+case class JsonInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new JsonInfosetOutputter(os, pretty = true)
@@ -326,8 +335,7 @@ case class JsonInfosetHandler(dataProcessor: DataProcessor)
 /**
  * InfosetType.JDOM
  */
-case class JDOMInfosetHandler(dataProcessor: DataProcessor)
-  extends InfosetHandler {
+case class JDOMInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new JDOMInfosetOutputter()
@@ -368,8 +376,7 @@ class JDOMInfosetParseResult(parseResult: ParseResult, output: JDOMInfosetOutput
 /**
  * InfosetType.SCALA_XML
  */
-case class ScalaXMLInfosetHandler(dataProcessor: DataProcessor)
-  extends InfosetHandler {
+case class ScalaXMLInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new ScalaXMLInfosetOutputter()
@@ -411,8 +418,7 @@ class ScalaXMLInfosetParseResult(parseResult: ParseResult, output: ScalaXMLInfos
 /**
  * InfosetType.W3CDOM
  */
-case class W3CDOMInfosetHandler(dataProcessor: DataProcessor)
-  extends InfosetHandler {
+case class W3CDOMInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new W3CDOMInfosetOutputter()
@@ -463,8 +469,7 @@ class W3CDOMInfosetParseResult(parseResult: ParseResult, output: W3CDOMInfosetOu
 /**
  * InfosetType.NULL
  */
-case class NULLInfosetHandler(dataProcessor: DataProcessor)
-  extends InfosetHandler {
+case class NULLInfosetHandler(dataProcessor: DataProcessor) extends InfosetHandler {
 
   def parse(input: InputSourceDataInputStream, os: OutputStream): InfosetParseResult = {
     val output = new NullInfosetOutputter()
@@ -498,7 +503,7 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
       if (forPerformance) {
         new DefaultHandler() // ignores all SAX events
       } else {
-        new DaffodilParseOutputStreamContentHandler(os, pretty=true)
+        new DaffodilParseOutputStreamContentHandler(os, pretty = true)
       }
 
     val pr = parseWithSax(input, contentHandler)
@@ -546,7 +551,8 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
   class ReplayingXmlReader(events: Array[SaxEvent]) extends XMLReader {
     private var _contentHandler: ContentHandler = _
 
-    override def setContentHandler(contentHandler: ContentHandler): Unit = _contentHandler = contentHandler
+    override def setContentHandler(contentHandler: ContentHandler): Unit = _contentHandler =
+      contentHandler
 
     override def parse(source: InputSource): Unit = {
       for (event <- events) event.replay(_contentHandler)
@@ -555,7 +561,7 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
     // these functions will never be called by the Daffodil XMLReader used for
     // unparsing with the SAX API, or if they are used it doesn't change how we
     // replay the events. Just leave them unimplemented or no-ops
-    //$COVERAGE-OFF$
+    // $COVERAGE-OFF$
     override def getContentHandler(): org.xml.sax.ContentHandler = ???
     override def getDTDHandler(): org.xml.sax.DTDHandler = ???
     override def getEntityResolver(): org.xml.sax.EntityResolver = ???
@@ -568,7 +574,7 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
     override def setErrorHandler(handler: org.xml.sax.ErrorHandler): Unit = {}
     override def setFeature(name: String, value: Boolean): Unit = {}
     override def setProperty(name: String, value: Any): Unit = {}
-    //$COVERAGE-ON$
+    // $COVERAGE-ON$
   }
 
   class SavingContentHandler extends ContentHandler {
@@ -598,7 +604,12 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
     override def startDocument(): Unit =
       events += SaxEventStartDocument()
 
-    override def startElement(uri: String, localName: String, qName: String, atts: Attributes): Unit =
+    override def startElement(
+      uri: String,
+      localName: String,
+      qName: String,
+      atts: Attributes,
+    ): Unit =
       events += SaxEventStartElement(uri, localName, qName, new AttributesImpl(atts))
 
     override def startPrefixMapping(prefix: String, uri: String): Unit =
@@ -619,7 +630,8 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
     def replay(h: ContentHandler): Unit = h.endDocument()
   }
 
-  case class SaxEventEndElement(uri: String, localName: String, qName: String) extends SaxEvent {
+  case class SaxEventEndElement(uri: String, localName: String, qName: String)
+    extends SaxEvent {
     def replay(h: ContentHandler): Unit = h.endElement(uri, localName, qName)
   }
 
@@ -627,7 +639,8 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
     def replay(h: ContentHandler): Unit = h.endPrefixMapping(prefix)
   }
 
-  case class SaxEventIgnorableWhitespace(ch: Array[Char], start: Int, length: Int) extends SaxEvent {
+  case class SaxEventIgnorableWhitespace(ch: Array[Char], start: Int, length: Int)
+    extends SaxEvent {
     def replay(h: ContentHandler): Unit = h.ignorableWhitespace(ch, start, length)
   }
 
@@ -643,7 +656,12 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
     def replay(h: ContentHandler): Unit = h.startDocument()
   }
 
-  case class SaxEventStartElement(uri: String, localName: String, qName: String, atts: Attributes) extends SaxEvent {
+  case class SaxEventStartElement(
+    uri: String,
+    localName: String,
+    qName: String,
+    atts: Attributes,
+  ) extends SaxEvent {
     def replay(h: ContentHandler): Unit = h.startElement(uri, localName, qName, atts)
   }
 
@@ -651,7 +669,6 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
     def replay(h: ContentHandler): Unit = h.startPrefixMapping(prefix, uri)
   }
 }
-
 
 /**
  * InfosetType.EXI and InfosetType.EXISA
@@ -674,7 +691,8 @@ object EXIInfosetHandler {
     val exiFactory = DefaultEXIFactory.newInstance
     if (optSchema.isDefined) {
       val grammarFactory = GrammarFactory.newInstance
-      val grammar = grammarFactory.createGrammars(optSchema.get.toString, DFDLCatalogResolver.get)
+      val grammar =
+        grammarFactory.createGrammars(optSchema.get.toString, DFDLCatalogResolver.get)
       exiFactory.setGrammars(grammar)
     }
     exiFactory

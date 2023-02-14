@@ -17,46 +17,41 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
 import java.lang.{ Long => JLong }
 import java.math.{ BigInteger => JBigInteger }
 
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.util.DecimalUtils
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.parsers.HasKnownLengthInBits
 import org.apache.daffodil.runtime1.processors.parsers.HasRuntimeExplicitLength
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.lib.util.DecimalUtils
+import org.apache.daffodil.runtime1.processors.unparsers._
 
-abstract class BCDIntegerBaseUnparser(
-  e: ElementRuntimeData)
+abstract class BCDIntegerBaseUnparser(e: ElementRuntimeData)
   extends PackedBinaryIntegerBaseUnparser(e) {
 
-  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] = DecimalUtils.bcdFromBigInteger(bigInt, nBits)
+  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
+    DecimalUtils.bcdFromBigInteger(bigInt, nBits)
 }
 
-class BCDIntegerKnownLengthUnparser(
-  e: ElementRuntimeData,
-  override val lengthInBits: Int)
+class BCDIntegerKnownLengthUnparser(e: ElementRuntimeData, override val lengthInBits: Int)
   extends BCDIntegerBaseUnparser(e)
-  with HasKnownLengthInBits {
-}
+  with HasKnownLengthInBits {}
 
 class BCDIntegerRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits)
-  extends BCDIntegerBaseUnparser(e)
+  val lengthUnits: LengthUnits,
+) extends BCDIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
   override lazy val runtimeDependencies = Vector(lengthEv)
 }
 
-final class BCDIntegerDelimitedUnparser(
-  e: ElementRuntimeData)
+final class BCDIntegerDelimitedUnparser(e: ElementRuntimeData)
   extends BCDIntegerBaseUnparser(e) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
@@ -67,8 +62,8 @@ final class BCDIntegerPrefixedLengthUnparser(
   override val prefixedLengthUnparser: Unparser,
   override val prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends BCDIntegerBaseUnparser(e)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends BCDIntegerBaseUnparser(e)
   with KnownPrefixedLengthUnparserMixin {
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
@@ -77,7 +72,7 @@ final class BCDIntegerPrefixedLengthUnparser(
   override def getBitLength(s: ParseOrUnparseState): Int = {
     val number = getNumberToPut(s.asInstanceOf[UState])
     val absBigIntStr = number.asInstanceOf[JBigInteger].abs.toString
-    val (byteLength, _) =  DecimalUtils.bcdFromBigIntegerLength(absBigIntStr, 0)
+    val (byteLength, _) = DecimalUtils.bcdFromBigIntegerLength(absBigIntStr, 0)
     byteLength * 8
   }
 
@@ -87,36 +82,32 @@ final class BCDIntegerPrefixedLengthUnparser(
   }
 }
 
-abstract class BCDDecimalBaseUnparser(
-  e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int)
+abstract class BCDDecimalBaseUnparser(e: ElementRuntimeData, binaryDecimalVirtualPoint: Int)
   extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
-  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] = DecimalUtils.bcdFromBigInteger(bigInt, nBits)
+  override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
+    DecimalUtils.bcdFromBigInteger(bigInt, nBits)
 }
 
 class BCDDecimalKnownLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  override val lengthInBits: Int)
-  extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
-  with HasKnownLengthInBits {
-}
+  override val lengthInBits: Int,
+) extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
+  with HasKnownLengthInBits {}
 
 class BCDDecimalRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits)
-  extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
+  val lengthUnits: LengthUnits,
+) extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
   override lazy val runtimeDependencies = Vector(lengthEv)
 }
 
-final class BCDDecimalDelimitedUnparser(
-  e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int)
+final class BCDDecimalDelimitedUnparser(e: ElementRuntimeData, binaryDecimalVirtualPoint: Int)
   extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
@@ -128,8 +119,8 @@ final class BCDDecimalPrefixedLengthUnparser(
   override val prefixedLengthERD: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with KnownPrefixedLengthUnparserMixin {
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
@@ -138,7 +129,7 @@ final class BCDDecimalPrefixedLengthUnparser(
   override def getBitLength(s: ParseOrUnparseState): Int = {
     val number = getNumberToPut(s.asInstanceOf[UState])
     val absBigIntStr = number.asInstanceOf[JBigInteger].abs.toString
-    val (byteLength, _) =  DecimalUtils.bcdFromBigIntegerLength(absBigIntStr, 0)
+    val (byteLength, _) = DecimalUtils.bcdFromBigIntegerLength(absBigIntStr, 0)
     byteLength * 8
   }
 

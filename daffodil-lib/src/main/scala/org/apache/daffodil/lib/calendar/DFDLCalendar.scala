@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.lib.calendar
 
-import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.TimeZone
-
 import java.math.{ BigDecimal => JBigDecimal }
 
 import org.apache.daffodil.lib.exceptions.Assert
+
+import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.TimeZone
 
 object DFDLCalendarOrder extends Enumeration {
   type DFDLCalendarOrder = Value
@@ -34,7 +34,8 @@ object DFDLCalendarOrder extends Enumeration {
     Calendar.DAY_OF_MONTH,
     Calendar.HOUR_OF_DAY,
     Calendar.MINUTE,
-    Calendar.SECOND)
+    Calendar.SECOND,
+  )
 }
 
 trait OrderedCalendar { self: DFDLCalendar =>
@@ -156,7 +157,8 @@ trait OrderedCalendar { self: DFDLCalendar =>
 }
 
 trait ToDateTimeMixin { self: DFDLCalendar =>
-  def toDateTime(): DFDLDateTime = DFDLDateTime(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
+  def toDateTime(): DFDLDateTime =
+    DFDLDateTime(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
 }
 
 trait ToTimeMixin { self: DFDLCalendar =>
@@ -175,7 +177,7 @@ case class DFDLDate(calendar: Calendar, override val hasTimeZone: Boolean)
   override def toString(): String = DFDLDateConversion.toXMLString(this)
 
   override def equals(other: Any): Boolean = other match {
-    case that: DFDLDate => this.toDateTimeWithReference equals that.toDateTimeWithReference
+    case that: DFDLDate => this.toDateTimeWithReference.equals(that.toDateTimeWithReference)
     case _ => Assert.invariantFailed("xs:date can only ever be compared with an xs:date.")
   }
 
@@ -213,7 +215,7 @@ case class DFDLTime(calendar: Calendar, override val hasTimeZone: Boolean)
   override def toString(): String = DFDLTimeConversion.toXMLString(this)
 
   override def equals(other: Any): Boolean = other match {
-    case that: DFDLTime => this.toDateTimeWithReference equals that.toDateTimeWithReference
+    case that: DFDLTime => this.toDateTimeWithReference.equals(that.toDateTimeWithReference)
     case _ => Assert.invariantFailed("xs:time can only ever be compared with xs:time")
   }
 
@@ -291,8 +293,10 @@ case class DFDLDateTime(calendar: Calendar, override val hasTimeZone: Boolean)
 
     // TimeZone.UNKNOWN_ZONE behaves like GMT/UTC
     //
-    if (cal.getTimeZone() == TimeZone.GMT_ZONE ||
-      cal.getTimeZone() == TimeZone.UNKNOWN_ZONE) { return newCal }
+    if (
+      cal.getTimeZone() == TimeZone.GMT_ZONE ||
+      cal.getTimeZone() == TimeZone.UNKNOWN_ZONE
+    ) { return newCal }
 
     // Need to multiply the offset by -1 to get the right
     // sign to 'add' to the millisecond field
@@ -385,8 +389,7 @@ case class DFDLDateTime(calendar: Calendar, override val hasTimeZone: Boolean)
  * TimeZone.UNKNOWN_ZONE, but allows the calendar object to somewhat represent
  * 'no time zone'.
  */
-abstract class DFDLCalendar
-  extends OrderedCalendar with Serializable {
+abstract class DFDLCalendar extends OrderedCalendar with Serializable {
 
   // Ensure the calendar does not have a timezone set if the hasTimeZone flag
   // has not been set
@@ -398,4 +401,3 @@ abstract class DFDLCalendar
 
   final def toJBigDecimal: JBigDecimal = new JBigDecimal(calendar.getTimeInMillis())
 }
-

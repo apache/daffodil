@@ -23,22 +23,23 @@ import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 import com.fasterxml.jackson.core.JsonFactory
+import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.JsonToken
-import com.fasterxml.jackson.core.JsonParseException
 
 object JsonInfosetInputter {
   lazy val jsonFactory = new JsonFactory()
 }
 
-class JsonInfosetInputter(input: java.io.InputStream)
-  extends InfosetInputter {
+class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
 
   private lazy val jsp = {
     val j = JsonInfosetInputter.jsonFactory.createParser(input)
     val tok = getNextToken(j)
     if (tok != JsonToken.START_OBJECT) {
-      throw new IllegalContentWhereEventExpected("Expected json content beginning with '{' but got '" + j.getText + "'")
+      throw new IllegalContentWhereEventExpected(
+        "Expected json content beginning with '{' but got '" + j.getText + "'",
+      )
     }
     objectDepth += 1
     j
@@ -67,11 +68,12 @@ class JsonInfosetInputter(input: java.io.InputStream)
   private var objectDepth = 0
 
   private def getNextToken(j: JsonParser) = {
-    val tok = try {
-      j.nextToken()
-    } catch {
-      case e: JsonParseException => throw new IllegalContentWhereEventExpected(e.getMessage)
-    }
+    val tok =
+      try {
+        j.nextToken()
+      } catch {
+        case e: JsonParseException => throw new IllegalContentWhereEventExpected(e.getMessage)
+      }
     tok
   }
 
@@ -112,7 +114,10 @@ class JsonInfosetInputter(input: java.io.InputStream)
     null
   }
 
-  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
+  override def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String = {
     if (jsp.getCurrentToken() == JsonToken.VALUE_NULL) {
       null
     } else {
@@ -174,7 +179,10 @@ class JsonInfosetInputter(input: java.io.InputStream)
           case JsonToken.FIELD_NAME =>
 
           case _ =>
-            throw new IllegalContentWhereEventExpected("Unexpected json token '" + jsp.getText() + "' on line " + jsp.getTokenLocation().getLineNr())
+            throw new IllegalContentWhereEventExpected(
+              "Unexpected json token '" + jsp
+                .getText() + "' on line " + jsp.getTokenLocation().getLineNr(),
+            )
         }
       }
 

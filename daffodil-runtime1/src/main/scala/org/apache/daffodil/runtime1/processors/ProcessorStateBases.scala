@@ -19,44 +19,45 @@ package org.apache.daffodil.runtime1.processors
 
 import java.nio.CharBuffer
 import java.nio.LongBuffer
-import org.apache.daffodil.runtime1.api.DFDL
+
+import org.apache.daffodil.io.DataStreamCommon
+import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.io.LocalBufferMixin
+import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.io.processors.charset.CoderInfo
+import org.apache.daffodil.io.processors.charset.DecoderInfo
+import org.apache.daffodil.io.processors.charset.EncoderDecoderMixin
+import org.apache.daffodil.io.processors.charset.EncoderInfo
 import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.DataLocation
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.lib.util.MStackOfLong
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dpath.DState
+import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionWarning
 import org.apache.daffodil.runtime1.dsom.ValidationError
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.io.DataStreamCommon
-import org.apache.daffodil.io.LocalBufferMixin
-import org.apache.daffodil.lib.util.MStackOfLong
-import org.apache.daffodil.lib.util.Maybe.Nope
-import org.apache.daffodil.lib.util.Maybe.One
-import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.io.processors.charset.EncoderDecoderMixin
-import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset._
-import org.apache.daffodil.io.processors.charset.EncoderInfo
-import org.apache.daffodil.io.processors.charset.DecoderInfo
-import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
-import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.io.processors.charset.CoderInfo
-import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
-import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
-import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.dfa.Registers
 import org.apache.daffodil.runtime1.processors.dfa.RegistersPool
-import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -86,8 +87,8 @@ case class TupleForDebugger(
   val variableMapForDebugger: VariableMap,
   val delimitedParseResult: Maybe[dfa.ParseResult],
   val withinHiddenNest: Boolean,
-  val suspensions: Seq[Suspension])
-  extends StateForDebugger
+  val suspensions: Seq[Suspension],
+) extends StateForDebugger
 
 trait SetProcessorMixin {
   private var maybeProcessor_ : Maybe[Processor] = Nope
@@ -117,6 +118,7 @@ trait SetProcessorMixin {
 trait HasTunable {
   def tunable: DaffodilTunables
 }
+
 /**
  * A parser takes a state, and returns an updated state
  *
@@ -132,7 +134,8 @@ abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
   var diagnostics: List[Diagnostic],
   var dataProc: Maybe[DataProcessor],
-  val tunable: DaffodilTunables) extends DFDL.State
+  val tunable: DaffodilTunables,
+) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE
   with SavesErrorsAndWarnings
@@ -141,7 +144,12 @@ abstract class ParseOrUnparseState protected (
   with FormatInfo
   with SetProcessorMixin {
 
-  def this(vmap: VariableMap, diags: List[Diagnostic], dataProc: Maybe[DataProcessor], tunable: DaffodilTunables) =
+  def this(
+    vmap: VariableMap,
+    diags: List[Diagnostic],
+    dataProc: Maybe[DataProcessor],
+    tunable: DaffodilTunables,
+  ) =
     this(new VariableBox(vmap), diags, dataProc, tunable)
 
   def infoset: DIElement
@@ -218,11 +226,14 @@ abstract class ParseOrUnparseState protected (
       val res = processor match {
         case txtProc: TextProcessor =>
           encoder.bitsCharset.requiredBitOrder
-        case _ => processor.context match {
-          case trd: TermRuntimeData => trd.defaultBitOrder
-          case ntrd: NonTermRuntimeData =>
-            Assert.usageError("Cannot ask for bitOrder for non-terms - NonTermRuntimeData: " + ntrd)
-        }
+        case _ =>
+          processor.context match {
+            case trd: TermRuntimeData => trd.defaultBitOrder
+            case ntrd: NonTermRuntimeData =>
+              Assert.usageError(
+                "Cannot ask for bitOrder for non-terms - NonTermRuntimeData: " + ntrd,
+              )
+          }
       }
       bitOrderCache = res
       checkBitOrder()
@@ -279,7 +290,9 @@ abstract class ParseOrUnparseState protected (
   }
 
   final def maybeCharWidthInBits: MaybeInt = { coderEntry.maybeCharWidthInBits }
-  final def encodingMandatoryAlignmentInBits: Int = { coderEntry.encodingMandatoryAlignmentInBits }
+  final def encodingMandatoryAlignmentInBits: Int = {
+    coderEntry.encodingMandatoryAlignmentInBits
+  }
   final def maybeUTF16Width: Maybe[UTF16Width] = termRuntimeData.encodingInfo.maybeUTF16Width
 
   final def fillByte: Byte = {
@@ -365,7 +378,11 @@ abstract class ParseOrUnparseState protected (
     variableMap.setFirstInstanceInitialValues()
   }
 
-  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE): Unit
+  def setVariable(
+    vrd: VariableRuntimeData,
+    newValue: DataValuePrimitive,
+    referringContext: ThrowsSDE,
+  ): Unit
 
   def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive
 
@@ -434,7 +451,8 @@ abstract class ParseOrUnparseState protected (
 
   def currentNode: Maybe[DINode]
 
-  private val maybeSsrd = if (dataProc.isDefined) { One(dataProc.get.ssrd) } else Maybe.Nope
+  private val maybeSsrd = if (dataProc.isDefined) { One(dataProc.get.ssrd) }
+  else Maybe.Nope
 
   private val _dState = new DState(maybeSsrd, tunable, One(this))
 
@@ -472,7 +490,8 @@ abstract class ParseOrUnparseState protected (
   final def bytePos0b = bitPos0b >> 3
   final def bytePos1b = (bitPos0b >> 3) + 1
   final def bitPos1b = bitPos0b + 1
-  final def bitLimit1b = if (bitLimit0b.isDefined) MaybeULong(bitLimit0b.get + 1) else MaybeULong.Nope
+  final def bitLimit1b =
+    if (bitLimit0b.isDefined) MaybeULong(bitLimit0b.get + 1) else MaybeULong.Nope
   final def whichBit0b = bitPos0b % 8
 
   // TODO: many off-by-one errors due to not keeping strong separation of
@@ -547,7 +566,8 @@ abstract class ParseOrUnparseState protected (
   final def SDW(warnID: WarnID, str: String, args: Any*) = {
     if (tunable.notSuppressedWarning(warnID)) {
       val ctxt = getContext()
-      val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
+      val rsdw =
+        new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
       diagnostics = rsdw :: diagnostics
     }
   }
@@ -578,8 +598,11 @@ abstract class ParseOrUnparseState protected (
  *  inconsistent with constant-value are attempted to be extracted from the state. By "blow up" it throws
  *  a structured set of exceptions, typically children of InfosetException or VariableException.
  */
-final class CompileState(tci: DPathCompileInfo, maybeDataProc: Maybe[DataProcessor], tunable: DaffodilTunables)
-  extends ParseOrUnparseState(tci.variableMap, Nil, maybeDataProc, tunable) {
+final class CompileState(
+  tci: DPathCompileInfo,
+  maybeDataProc: Maybe[DataProcessor],
+  tunable: DaffodilTunables,
+) extends ParseOrUnparseState(tci.variableMap, Nil, maybeDataProc, tunable) {
 
   def arrayPos: Long = 1L
   def bitLimit0b: MaybeULong = MaybeULong.Nope
@@ -597,12 +620,14 @@ final class CompileState(tci: DPathCompileInfo, maybeDataProc: Maybe[DataProcess
     if (infoset_.isDefined)
       infoset_.value
     else
-      throw new InfosetNoInfosetException(One(tci)) // for expressions evaluated in debugger, default expressions for top-level variable decls.
+      throw new InfosetNoInfosetException(
+        One(tci),
+      ) // for expressions evaluated in debugger, default expressions for top-level variable decls.
 
   def currentNode = Maybe(infoset.asInstanceOf[DINode])
 
   def notifyDebugging(flag: Boolean): Unit = {
-    //do nothing
+    // do nothing
   }
   private val occursBoundsStack_ = MStackOfLong()
 
@@ -612,17 +637,23 @@ final class CompileState(tci: DPathCompileInfo, maybeDataProc: Maybe[DataProcess
   def currentLocation: DataLocation = Assert.usageError("Not to be used.")
 
   protected def checkBitOrder(): Unit = {
-    //do nothing
+    // do nothing
   }
 
   def regexMatchBuffer: CharBuffer = Assert.usageError("Not to be used.")
   def regexMatchBitPositionBuffer: LongBuffer = Assert.usageError("Not to be used.")
 
-
   // $COVERAGE-OFF$
-  override def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE): Unit = Assert.usageError("Not to be used.")
-  override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE) = Assert.usageError("Not to be used.")
-  override def newVariableInstance(vrd: VariableRuntimeData) = Assert.usageError("Not to be used.")
-  override def removeVariableInstance(vrd: VariableRuntimeData): Unit = Assert.usageError("Not to be used.")
+  override def setVariable(
+    vrd: VariableRuntimeData,
+    newValue: DataValuePrimitive,
+    referringContext: ThrowsSDE,
+  ): Unit = Assert.usageError("Not to be used.")
+  override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE) =
+    Assert.usageError("Not to be used.")
+  override def newVariableInstance(vrd: VariableRuntimeData) =
+    Assert.usageError("Not to be used.")
+  override def removeVariableInstance(vrd: VariableRuntimeData): Unit =
+    Assert.usageError("Not to be used.")
   // $COVERAGE-ON$
 }

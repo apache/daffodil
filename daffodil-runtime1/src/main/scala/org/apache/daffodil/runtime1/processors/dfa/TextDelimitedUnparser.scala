@@ -18,15 +18,16 @@
 package org.apache.daffodil.runtime1.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
+
+import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
-import org.apache.daffodil.runtime1.processors.unparsers.UState
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.lib.equality._
-import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.runtime1.processors.AllDelimiterIterator
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers.UState
+import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 /**
  * When 'escapeCharacter': On unparsing a single character of the data
@@ -47,36 +48,43 @@ import org.apache.daffodil.runtime1.processors.AllDelimiterIterator
  * dfdl:escapeBlockEnd then first character of each appearance of the
  * dfdl:escapeBlockEnd is escaped by the dfdl:escapeEscapeCharacter.
  */
-class TextDelimitedUnparser(override val context: TermRuntimeData)
-  extends DelimitedUnparser {
+class TextDelimitedUnparser(override val context: TermRuntimeData) extends DelimitedUnparser {
 
   lazy val name: String = "TextDelimitedUnparser"
   lazy val info: String = ""
 
-  def escape(input: DataInputStream,
+  def escape(
+    input: DataInputStream,
     field: DFAField,
     delims: Array[DFADelimiter],
     blockEndDFA: DFADelimiter,
     escapeEscapeChar: MaybeChar,
     blockStart: String,
     blockEnd: String,
-    generateEscapeBlock: Boolean, state: UState): (String, Boolean) = {
+    generateEscapeBlock: Boolean,
+    state: UState,
+  ): (String, Boolean) = {
 
-    val (resultString, shouldGenerateEscapeBlock) = escapeBlock(input, field, delims, blockEndDFA, escapeEscapeChar, state)
+    val (resultString, shouldGenerateEscapeBlock) =
+      escapeBlock(input, field, delims, blockEndDFA, escapeEscapeChar, state)
 
-    val result = if (generateEscapeBlock || shouldGenerateEscapeBlock) blockStart + resultString + blockEnd else resultString
+    val result =
+      if (generateEscapeBlock || shouldGenerateEscapeBlock) blockStart + resultString + blockEnd
+      else resultString
     (result, shouldGenerateEscapeBlock)
   }
 
   /**
    * Performs escaping for escapeSchemeKind Block for unparsing.
    */
-  final def escapeBlock(input: DataInputStream,
+  final def escapeBlock(
+    input: DataInputStream,
     field: DFAField,
     delims: Array[DFADelimiter],
     blockEnd: DFADelimiter,
     escapeEscapeChar: MaybeChar,
-    state: UState): (String, Boolean) = {
+    state: UState,
+  ): (String, Boolean) = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
 
@@ -140,12 +148,14 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                 One(context.schemaFileLocation),
                 One(state.currentLocation),
                 "escapeEscapeCharacter was not defined but the escapeBlockEnd (%s) was present in the data.",
-                blockEnd.lookingFor)
+                blockEnd.lookingFor,
+              )
             }
             case StateKind.Succeeded => {
               // Found an escapeEnd, that means we must insert an escapeEscapeChar
 
-              val afterBlockEnd = input.markPos // save position immediately after the blockEnd we found.
+              val afterBlockEnd =
+                input.markPos // save position immediately after the blockEnd we found.
               //
               // note. The appendToField code assumes that a character needs to be read from
               // the input. However, the input has already been advanced past the blockEnd
@@ -206,7 +216,9 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                 // matched a delimiter, need to handle escaping it
                 val (_, matchedReg) = longestMatch(successes).get
                 val delim = matchedReg.delimString
-                fieldReg.appendToField(delim) // the delim just becomes field content, because we already had an escape block start.
+                fieldReg.appendToField(
+                  delim,
+                ) // the delim just becomes field content, because we already had an escape block start.
                 successes.foreach { case (d, r) => state.dfaRegistersPool.returnToPool(r) }
                 successes.clear
                 shouldGenerateEscapeBlock = true
@@ -240,16 +252,24 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
    * Performs escaping appropriate when escapeSchemeKind is Character for
    * unparsing.
    */
-  def escapeCharacter(input: DataInputStream,
+  def escapeCharacter(
+    input: DataInputStream,
     field: DFAField,
     delims: Array[DFADelimiter],
     hasEscCharAsDelimiter: Boolean,
     escapeChar: Char,
-    escapeEscapeChar: MaybeChar, state: UState): (String, Boolean) = {
+    escapeEscapeChar: MaybeChar,
+    state: UState,
+  ): (String, Boolean) = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
     if (hasEscCharAsDelimiter)
-      UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "The dfdl:terminator and dfdl:separator may not begin with the dfdl:escapeCharacter: '%s'.", escapeChar)
+      UnparseError(
+        One(context.schemaFileLocation),
+        One(state.currentLocation),
+        "The dfdl:terminator and dfdl:separator may not begin with the dfdl:escapeCharacter: '%s'.",
+        escapeChar,
+      )
 
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     val fieldReg: Registers = state.dfaRegistersPool.getFromPool("escapeCharacter1")
@@ -322,11 +342,18 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           } else {
             // matched a delimiter, need to handle escaping it
             val (matchedDelim, matchedReg) = longestMatch(successes).get
-            if (matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) =#= escapeChar) {
+            if (
+              matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) =#= escapeChar
+            ) {
               if (escapeEscapeChar.isDefined)
                 fieldReg.appendToField(escapeEscapeChar.get)
               else
-                UnparseError(One(context.schemaFileLocation), One(state.currentLocation), "escapeEscapeCharacter was not defined but the escapeCharacter (%s) was present in the data.", escapeChar)
+                UnparseError(
+                  One(context.schemaFileLocation),
+                  One(state.currentLocation),
+                  "escapeEscapeCharacter was not defined but the escapeCharacter (%s) was present in the data.",
+                  escapeChar,
+                )
             } else { fieldReg.appendToField(escapeChar) }
 
             val delim = matchedReg.delimString

@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.lib.exceptions
 
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.api.WarnID
 
 /**
  * ThrowsSDE has *only* termination semantics. I.e., SDE just throws. This
@@ -55,7 +55,8 @@ trait ThrowsSDE {
     throw th // good place for a breakpoint
   }
 
-  final def schemaDefinitionError(str: String, args: Any*): Nothing = SDE(str, args: _*) // long form synonym
+  final def schemaDefinitionError(str: String, args: Any*): Nothing =
+    SDE(str, args: _*) // long form synonym
 
   /**
    * *
@@ -64,11 +65,20 @@ trait ThrowsSDE {
    * would cause expensive object allocation, even when the
    * test would be true and even when the function was inlined
    */
-  final def schemaDefinitionUnless(testThatWillThrowIfFalse: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionUnlessMacro
+  final def schemaDefinitionUnless(
+    testThatWillThrowIfFalse: Boolean,
+    str: String,
+    args: Any*,
+  ): Unit = macro SDEMacros.schemaDefinitionUnlessMacro
 
-  final def schemaDefinitionWhen(testThatWillThrowIfTrue: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWhenMacro
+  final def schemaDefinitionWhen(
+    testThatWillThrowIfTrue: Boolean,
+    str: String,
+    args: Any*,
+  ): Unit = macro SDEMacros.schemaDefinitionWhenMacro
 
-  final def notYetImplemented(msg: String, args: Any*): Nothing = SDE("Feature not yet implemented: " + msg, args: _*)
+  final def notYetImplemented(msg: String, args: Any*): Nothing =
+    SDE("Feature not yet implemented: " + msg, args: _*)
 
 }
 
@@ -90,7 +100,8 @@ trait SavesErrorsAndWarnings {
   def SDW(warnID: WarnID, str: String, args: Any*): Unit
   def SDEButContinue(str: String, args: Any*): Unit
 
-  def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit = SDEButContinue(str, args: _*)
+  def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit =
+    SDEButContinue(str, args: _*)
 
   /*
    * These functions are now macros as the original code:
@@ -102,12 +113,22 @@ trait SavesErrorsAndWarnings {
   /**
    * Conditionally issue a warning. The WarnID allows warning suppression.
    */
-  def schemaDefinitionWarningUnless(warnID: WarnID, testThatWillWarnIfFalse: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningUnlessSuppressMacro
+  def schemaDefinitionWarningUnless(
+    warnID: WarnID,
+    testThatWillWarnIfFalse: Boolean,
+    str: String,
+    args: Any*,
+  ): Unit = macro SDEMacros.schemaDefinitionWarningUnlessSuppressMacro
 
   /**
    * Conditionally issue a warning. The WarnID allows warning suppression.
    */
-  def schemaDefinitionWarningWhen(warnID: WarnID, testThatWillWarnIfTrue: Boolean, str: String, args: Any*): Unit = macro SDEMacros.schemaDefinitionWarningWhenSuppressMacro
+  def schemaDefinitionWarningWhen(
+    warnID: WarnID,
+    testThatWillWarnIfTrue: Boolean,
+    str: String,
+    args: Any*,
+  ): Unit = macro SDEMacros.schemaDefinitionWarningWhenSuppressMacro
 
   /**
    * SDE special case when we're blaming the error on the value of a property.
@@ -120,7 +141,9 @@ trait SavesErrorsAndWarnings {
     propertyValue: String,
     propertyLocation: LookupLocation,
     otherPropertyLocation: LookupLocation,
-    str: String, args: Any*): Nothing = {
+    str: String,
+    args: Any*,
+  ): Nothing = {
     //
     // only if there is more than one location to discuss, do we
     // output that information as well.

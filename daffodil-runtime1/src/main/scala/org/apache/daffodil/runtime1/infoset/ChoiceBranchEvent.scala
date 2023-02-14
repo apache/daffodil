@@ -17,12 +17,13 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import org.apache.daffodil.lib.xml.NamedQName
-import org.apache.daffodil.lib.util.UniquenessCache
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.UniquenessCache
+import org.apache.daffodil.lib.xml.NamedQName
 
-object ChoiceBranchEvent extends UniquenessCache[NamedQName, (ChoiceBranchStartEvent, ChoiceBranchEndEvent)] {
+object ChoiceBranchEvent
+  extends UniquenessCache[NamedQName, (ChoiceBranchStartEvent, ChoiceBranchEndEvent)] {
 
   override def apply(nqn: NamedQName) = {
     Assert.usage(nqn != null)

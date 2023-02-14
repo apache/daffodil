@@ -18,9 +18,10 @@
 package org.apache.daffodil.runtime1.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
+
 import org.apache.daffodil.runtime1.processors.Delimiter
-import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
 
 object CreatePaddingDFA {
 
@@ -38,7 +39,12 @@ object CreatePaddingDFA {
 
     allStates.insert(0, startState)
 
-    new DFADelimiterImpl(DelimiterTextType.Other, allStates.toArray, padChar.toString(), rd.schemaFileLocation)
+    new DFADelimiterImpl(
+      DelimiterTextType.Other,
+      allStates.toArray,
+      padChar.toString(),
+      rd.schemaFileLocation,
+    )
   }
 
   /**
@@ -60,6 +66,12 @@ object CreatePaddingDFA {
 
     val unparseValue = d.delimBuf.map { _.unparseValue("") }.mkString
 
-    new DFADelimiterImplUnparse(DelimiterTextType.Other, allStates.toArray, padChar.toString(), unparseValue, rd.schemaFileLocation)
+    new DFADelimiterImplUnparse(
+      DelimiterTextType.Other,
+      allStates.toArray,
+      padChar.toString(),
+      unparseValue,
+      rd.schemaFileLocation,
+    )
   }
 }

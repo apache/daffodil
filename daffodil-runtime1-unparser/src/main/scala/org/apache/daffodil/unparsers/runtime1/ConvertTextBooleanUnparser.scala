@@ -17,17 +17,17 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
+import java.lang.Boolean.{ FALSE => JFalse, TRUE => JTrue }
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.processors._
-import java.lang.Boolean.{ TRUE => JTrue, FALSE => JFalse }
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 case class ConvertTextBooleanUnparser(
   erd: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,
-  textBooleanFalseRepEv: TextBooleanFalseRepEv)
-  extends TextPrimUnparser {
+  textBooleanFalseRepEv: TextBooleanFalseRepEv,
+) extends TextPrimUnparser {
 
   override def context = erd
 

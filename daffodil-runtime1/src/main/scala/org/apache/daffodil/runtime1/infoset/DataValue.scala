@@ -16,17 +16,28 @@
  */
 package org.apache.daffodil.runtime1.infoset
 
-import java.lang.{ Boolean => JBoolean, Number => JNumber, Long => JLong, Double => JDouble, String => JString, Float => JFloat, Byte => JByte, Integer => JInt, Short => JShort }
+import java.lang.{
+  Boolean => JBoolean,
+  Byte => JByte,
+  Double => JDouble,
+  Float => JFloat,
+  Integer => JInt,
+  Long => JLong,
+  Number => JNumber,
+  Short => JShort,
+  String => JString,
+}
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
-import org.apache.daffodil.lib.calendar.DFDLCalendar
-import org.apache.daffodil.lib.calendar.DFDLDateTime
-import org.apache.daffodil.lib.calendar.DFDLDate
-import org.apache.daffodil.lib.calendar.DFDLTime
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Maybe.One
-import org.apache.daffodil.lib.util.Maybe.Nope
 import java.net.URI
+
+import org.apache.daffodil.lib.calendar.DFDLCalendar
+import org.apache.daffodil.lib.calendar.DFDLDate
+import org.apache.daffodil.lib.calendar.DFDLDateTime
+import org.apache.daffodil.lib.calendar.DFDLTime
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 
 /*
  * These traits are used for the phantom type X. When considering the type of a
@@ -57,7 +68,9 @@ sealed trait DataValuePrimitiveType
  * allow for automatic upcasting between these types where appropriate.
  *
  */
-final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends AnyVal with Serializable {
+final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T)
+  extends AnyVal
+  with Serializable {
   @inline def isEmpty = DataValue.NoValue.v eq v
   @inline def isDefined = !isEmpty
   @inline def value = v
@@ -82,8 +95,8 @@ final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends Any
   @inline def getString = v.asInstanceOf[JString]
   @inline def getURI = v.asInstanceOf[URI]
 
-  @inline def getNonNullable:DataValue[T, X with NonNullable] = new DataValue(v)
-  @inline def getNullablePrimitive:DataValue.DataValuePrimitiveNullable = new DataValue(v)
+  @inline def getNonNullable: DataValue[T, X with NonNullable] = new DataValue(v)
+  @inline def getNullablePrimitive: DataValue.DataValuePrimitiveNullable = new DataValue(v)
 
   @inline def getOptionAnyRef = {
     if (isEmpty) {
@@ -103,17 +116,20 @@ final class DataValue[+T <: AnyRef, +X <: AnyRef] private (val v: T) extends Any
 }
 
 object DataValue {
+
   /** All values which are legal for DPath and infoset data values. Note that this incudes
    *  DINodes, which is legal for DPath, but not infoset data values.
    *  Also note that at any given time, the infoset may have no value, which is not directly 
    *  representable by this type. 
    */
   type DataValuePrimitive = DataValue[AnyRef, NonNullable with DataValuePrimitiveType]
+
   /** A (set-theoretic) extension of DataValuePrimitive adjoining a NULL element refered to as NoValue.
    * Since this just adjoins NoValue, we can think of it as a nullable varient of DataValuePrimitive.
    * See https://en.wikipedia.org/wiki/Nullable_type
    */
   type DataValuePrimitiveNullable = DataValue[AnyRef, Nullable with DataValuePrimitiveType]
+
   /** All values of DataValuePrimitiveNullable, plus a sentinal UseNilForDefault value.
    * Used only by the default field of ElementRuntimeData.
    */
@@ -176,7 +192,7 @@ object DataValue {
     } else {
       NoValue
     }
-  }  
+  }
   @inline def unsafeFromOptionAnyRef(v: Option[AnyRef]) = {
     if (v.isDefined) {
       new DataValue(v.get)
@@ -186,7 +202,7 @@ object DataValue {
   }
 
   val NoValue: DataValueEmpty = new DataValue(null)
-  
+
   /** Used as a sentinal value for Element's defaultValue, when said element
    *  is nillable and has dfdl:useNilForDefault set to true, 
    */
@@ -199,28 +215,28 @@ object DataValue {
   @inline def assertValueIsNotDataValue(v: AnyRef): Unit = {
 
     /*
-   *
-   * In our CompileExpressions classes, we use type variables declared as T <: AnyRef
-   *
-   * Ideally, we would have declared T <: DataValuePrimitive
-   * However, we need to be able to refer to something of the form Maybe[T].
-   * In theory, it should be possible to take a T <: DataValuePrimitive,
-   * and construct a T' <: DataValuePrimitiveNullable, such that T <: T'
-   * In practice, it does not appear to be easy to tell Scala's type system what we want to do,
-   * so we instead punt on this issue and require the caller to translate to/from AnyRef at the boundary.
-   *
-   * In theory, if a caller forgets to do so, and instead passes in a DataValue instead of AnyRef,
-   * the compiler would issue a type error because DataValue is an AnyVal type, and so does not inherit from AnyRef.
-   *
-   * In practice, Scala will "helpfully" box the DataValue for us, which causes all sorts of problems. For instance,
-   * x.asInstanceOf[String] does not work when x is a DataValueString (even though an unboxed DataValueString is literally just a String at runtime).
-   *
-   * To make matters worse, the Scala compiler, does not seem to realize the implications of this autoboxing,
-   * and so believes that is impossible for an AnyRef to ever be an instance of DataValue.
-   * As such, is issues a warning on the naive typecheck since it can "never" fail. We silence this warning,
-   * by first casting to Any.
-   *
-   */
+     *
+     * In our CompileExpressions classes, we use type variables declared as T <: AnyRef
+     *
+     * Ideally, we would have declared T <: DataValuePrimitive
+     * However, we need to be able to refer to something of the form Maybe[T].
+     * In theory, it should be possible to take a T <: DataValuePrimitive,
+     * and construct a T' <: DataValuePrimitiveNullable, such that T <: T'
+     * In practice, it does not appear to be easy to tell Scala's type system what we want to do,
+     * so we instead punt on this issue and require the caller to translate to/from AnyRef at the boundary.
+     *
+     * In theory, if a caller forgets to do so, and instead passes in a DataValue instead of AnyRef,
+     * the compiler would issue a type error because DataValue is an AnyVal type, and so does not inherit from AnyRef.
+     *
+     * In practice, Scala will "helpfully" box the DataValue for us, which causes all sorts of problems. For instance,
+     * x.asInstanceOf[String] does not work when x is a DataValueString (even though an unboxed DataValueString is literally just a String at runtime).
+     *
+     * To make matters worse, the Scala compiler, does not seem to realize the implications of this autoboxing,
+     * and so believes that is impossible for an AnyRef to ever be an instance of DataValue.
+     * As such, is issues a warning on the naive typecheck since it can "never" fail. We silence this warning,
+     * by first casting to Any.
+     *
+     */
     Assert.invariant(!v.asInstanceOf[Any].isInstanceOf[DataValue[AnyRef, AnyRef]])
 
     // Ideally, we could compare against our DataValueAny type alias. However, Scala (correctly) points out,

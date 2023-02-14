@@ -33,7 +33,8 @@ trait SchemaComponentRuntime1Mixin { self: SchemaComponent =>
    *
    * There is also VariableRuntimeData and SchemaSetRuntimeData.
    */
-  lazy val runtimeData: RuntimeData = nonTermRuntimeData // overrides in ModelGroup, ElementBase, SimpleTypes
+  lazy val runtimeData: RuntimeData =
+    nonTermRuntimeData // overrides in ModelGroup, ElementBase, SimpleTypes
 
   final lazy val nonTermRuntimeData = LV('nonTermRuntimeData) {
     new NonTermRuntimeData(
@@ -42,7 +43,8 @@ trait SchemaComponentRuntime1Mixin { self: SchemaComponent =>
       diagnosticDebugName,
       path,
       namespaces,
-      tunable.unqualifiedPathStepPolicy)
+      tunable.unqualifiedPathStepPolicy,
+    )
   }.value
 
 }

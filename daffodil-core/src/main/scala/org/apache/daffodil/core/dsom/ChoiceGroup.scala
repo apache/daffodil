@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.core.dsom.walker.ChoiceView
-
 import scala.xml.Node
-import org.apache.daffodil.lib.schema.annotation.props.gen.Choice_AnnotationMixin
-import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceAGMixin
+
+import org.apache.daffodil.core.dsom.walker.ChoiceView
 import org.apache.daffodil.core.grammar.ChoiceGrammarMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceAGMixin
+import org.apache.daffodil.lib.schema.annotation.props.gen.Choice_AnnotationMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 
 /**
@@ -59,28 +59,27 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
  *
  */
 
-trait ChoiceDefMixin
-  extends AnnotatedSchemaComponent
-  with GroupDefLike {
+trait ChoiceDefMixin extends AnnotatedSchemaComponent with GroupDefLike {
 
   protected def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
 
   protected override def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:choice>{ contents @ _* }</dfdl:choice> => Some(new DFDLChoice(node, this))
+      case <dfdl:choice>{contents @ _*}</dfdl:choice> => Some(new DFDLChoice(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
-  protected def emptyFormatFactory: DFDLFormatAnnotation = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
+  protected def emptyFormatFactory: DFDLFormatAnnotation =
+    new DFDLChoice(newDFDLAnnotationXML("choice"), this)
 
   lazy val xmlChildren = xml match {
-    case <choice>{ c @ _* }</choice> => c
-    case <group>{ _* }</group> => {
+    case <choice>{c @ _*}</choice> => c
+    case <group>{_*}</group> => {
       val ch = this match {
         case cgd: GlobalChoiceGroupDef => cgd.xml \ "choice"
       }
-      val <choice>{ c @ _* }</choice> = ch(0)
+      val <choice>{c @ _*}</choice> = ch(0)
       c
     }
   }
@@ -89,8 +88,8 @@ trait ChoiceDefMixin
 abstract class ChoiceTermBase(
   final override val xml: Node,
   final override val optLexicalParent: Option[SchemaComponent],
-  final override val position: Int)
-  extends ModelGroup(position)
+  final override val position: Int,
+) extends ModelGroup(position)
   with Choice_AnnotationMixin
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
   with ChoiceGrammarMixin
@@ -100,10 +99,11 @@ abstract class ChoiceTermBase(
   requiredEvaluationsIfActivated(branchesAreNonOptional)
   requiredEvaluationsIfActivated(branchesAreNotIVCElements)
 
-  final protected lazy val optionChoiceDispatchKeyRaw = findPropertyOption("choiceDispatchKey", expressionAllowed  = true)
+  final protected lazy val optionChoiceDispatchKeyRaw =
+    findPropertyOption("choiceDispatchKey", expressionAllowed = true)
   final protected lazy val choiceDispatchKeyRaw = requireProperty(optionChoiceDispatchKeyRaw)
 
-  final lazy val isDirectDispatch =  {
+  final lazy val isDirectDispatch = {
     val isDD = optionChoiceDispatchKeyRaw.isDefined
     if (isDD && initiatedContent == YesNo.Yes) {
       SDE("dfdl:initiatedContent must not equal 'yes' when dfdl:choiceDispatchKey is defined")
@@ -156,7 +156,7 @@ abstract class ChoiceTermBase(
    * have to be executed for side-effect.
    */
   final lazy val branchesAreNonOptional = LV('branchesAreNonOptional) {
-    val branchesOk = groupMembers map { branch =>
+    val branchesOk = groupMembers.map { branch =>
       val realBranch = branch match {
         case impliedSeq: ChoiceBranchImpliedSequence => impliedSeq.groupMembers(0)
         case regular => regular
@@ -170,9 +170,11 @@ abstract class ChoiceTermBase(
   }.value
 
   final lazy val branchesAreNotIVCElements = LV('branchesAreNotIVCElements) {
-    val branchesOk = groupMembers map { branch =>
+    val branchesOk = groupMembers.map { branch =>
       if (!branch.isRepresented) {
-        branch.schemaDefinitionErrorButContinue("Branch of choice cannot have the dfdl:inputValueCalc property.")
+        branch.schemaDefinitionErrorButContinue(
+          "Branch of choice cannot have the dfdl:inputValueCalc property.",
+        )
         false
       } else true
     }
@@ -201,6 +203,7 @@ final class Choice private (xmlArg: Node, lexicalParent: SchemaComponent, positi
         val finalTerm =
           if (term.isScalar) term
           else {
+
             /**
              * If this choice branch is a non-scalar, then we need to encapsulate
              * it with a ChoiceBranchImpliedSequence, which is a kind of Sequence

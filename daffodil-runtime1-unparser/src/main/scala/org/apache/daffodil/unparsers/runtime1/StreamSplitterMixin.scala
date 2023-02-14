@@ -16,24 +16,28 @@
  */
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-import org.apache.daffodil.io.DataOutputStream
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.Processor
-import org.apache.daffodil.runtime1.processors.SuspendableOperation
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Maybe
 import scala.collection.mutable.Buffer
 
+import org.apache.daffodil.io.DataOutputStream
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.processors.Processor
+import org.apache.daffodil.runtime1.processors.SuspendableOperation
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers._
+
 trait StreamSplitter {
+
   /**
    * Given two DataOutputStream, determine the set of data output streams starting from the first,
    * and in chain until (and including) we reach the second.
    *
    * If the two are the same DataOutputStream, we get back a sequence of just the one DOS.
    */
-  def getDOSFromAtoB(beforeDOS: DataOutputStream, afterDOS: DataOutputStream): Seq[DataOutputStream] = {
+  def getDOSFromAtoB(
+    beforeDOS: DataOutputStream,
+    afterDOS: DataOutputStream,
+  ): Seq[DataOutputStream] = {
     val buf = Buffer[DataOutputStream]()
     var maybeNext = Maybe(beforeDOS)
     while (maybeNext.isDefined && (maybeNext.get ne afterDOS)) {
@@ -78,7 +82,7 @@ trait StreamSplitter {
  * data output streams so that we can use the data output streams to measure the
  * length (zero/non-zero) of unparsed data.
  */
-class RegionSplitUnparser (override val context: TermRuntimeData)
+class RegionSplitUnparser(override val context: TermRuntimeData)
   extends PrimUnparser
   with SuspendableUnparser {
 

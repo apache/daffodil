@@ -17,25 +17,27 @@
 
 package org.apache.daffodil.io.processors.charset
 
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.io.InputSourceDataInputStream
 
-object BitsCharsetISO88591 extends {
-  override val name = "ISO-8859-1"
-} with BitsCharsetJava {
+object BitsCharsetISO88591
+  extends {
+    override val name = "ISO-8859-1"
+  }
+  with BitsCharsetJava {
 
   override def newDecoder() = new BitsCharsetDecoderISO88591()
 }
 
+class BitsCharsetDecoderISO88591 extends BitsCharsetDecoderByteSize {
 
-class BitsCharsetDecoderISO88591
-  extends BitsCharsetDecoderByteSize {
-
-  protected override def decodeOneChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
+  protected override def decodeOneChar(
+    dis: InputSourceDataInputStream,
+    finfo: FormatInfo,
+  ): Char = {
     val byte = getByte(dis, 0)
     byte.toChar
   }
 }
 
-final class BitsCharsetISO88591Definition
-  extends BitsCharsetDefinition(BitsCharsetISO88591)
+final class BitsCharsetISO88591Definition extends BitsCharsetDefinition(BitsCharsetISO88591)

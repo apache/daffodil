@@ -17,37 +17,42 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.{ Long => JLong, Boolean => JBoolean }
-
-import passera.unsigned.ULong
+import java.lang.{ Boolean => JBoolean, Long => JLong }
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.Evaluatable
-import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Numbers
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.Evaluatable
+import org.apache.daffodil.runtime1.processors.Processor
+
+import passera.unsigned.ULong
 
 abstract class BinaryBooleanParserBase(
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
-  lengthUnits: LengthUnits)
-  extends PrimParser {
+  lengthUnits: LengthUnits,
+) extends PrimParser {
 
   def getBitLength(state: PState): Int
 
   lazy val toBits = lengthUnits match {
     case LengthUnits.Bits => 1
     case LengthUnits.Bytes => 8
-    case _ => context.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
+    case _ =>
+      context.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
   }
 
   override def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     if (nBits < 1 || nBits > 32) {
-      PE(start, "Number of bits %d out of range for xs:boolean, must be between 1 and 32 bits.", nBits)
+      PE(
+        start,
+        "Number of bits %d out of range for xs:boolean, must be between 1 and 32 bits.",
+        nBits,
+      )
       return
     }
 
@@ -80,15 +85,14 @@ abstract class BinaryBooleanParserBase(
   }
 }
 
-
 class BinaryBooleanParser(
   override val context: ElementRuntimeData,
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
   lengthEv: Evaluatable[JLong],
   lengthUnits: LengthUnits,
-  lengthKind: LengthKind)
-  extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits) {
+  lengthKind: LengthKind,
+) extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits) {
 
   override lazy val runtimeDependencies = Vector(lengthEv)
 
@@ -102,7 +106,6 @@ class BinaryBooleanParser(
   }
 }
 
-
 class BinaryBooleanPrefixedLengthParser(
   override val context: ElementRuntimeData,
   override val prefixedLengthParser: Parser,
@@ -110,10 +113,10 @@ class BinaryBooleanPrefixedLengthParser(
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits)
   with PrefixedLengthParserMixin {
-  
+
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
   override val runtimeDependencies = Vector()
 

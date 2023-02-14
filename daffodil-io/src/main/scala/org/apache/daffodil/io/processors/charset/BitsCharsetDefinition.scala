@@ -24,6 +24,6 @@ package org.apache.daffodil.io.processors.charset
  */
 abstract class BitsCharsetDefinition(charset: BitsCharset, alias: Option[String] = None) {
   final def name(): String = alias.getOrElse(charset.name).toUpperCase()
-  
+
   final def charset(): BitsCharset = charset
 }

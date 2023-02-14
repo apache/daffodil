@@ -25,10 +25,9 @@ trait SimpleTypeRuntime1Mixin { self: SimpleTypeDefBase =>
   /**
    * Initialize cyclic structure
    */
-  requiredEvaluationsIfActivated(
-    simpleTypeRuntimeData.typeCalculator.map{ tc =>
-      tc.initialize
-    })
+  requiredEvaluationsIfActivated(simpleTypeRuntimeData.typeCalculator.map { tc =>
+    tc.initialize
+  })
 
   lazy val simpleTypeRuntimeData: SimpleTypeRuntimeData = {
     val strd =
@@ -50,12 +49,15 @@ trait SimpleTypeRuntime1Mixin { self: SimpleTypeDefBase =>
         optRestriction.flatMap { r => toOpt(r.hasMaxExclusive, r.maxExclusiveValue) },
         optRestriction.flatMap { r => toOpt(r.hasTotalDigits, r.totalDigitsValue) },
         optRestriction.flatMap { r => toOpt(r.hasFractionDigits, r.fractionDigitsValue) },
-        optUnion.orElse(optRestriction.flatMap { _.optUnion }).toSeq.flatMap { _.unionMemberTypes.map { _.simpleTypeRuntimeData } },
+        optUnion.orElse(optRestriction.flatMap { _.optUnion }).toSeq.flatMap {
+          _.unionMemberTypes.map { _.simpleTypeRuntimeData }
+        },
         tunable.unqualifiedPathStepPolicy,
         optRepTypeDef.map(_.simpleTypeRuntimeData),
         optRepValueSet,
         optTypeCalculator,
-        optRepType.map(_.primType))
+        optRepType.map(_.primType),
+      )
     strd
   }
   override lazy val runtimeData = simpleTypeRuntimeData

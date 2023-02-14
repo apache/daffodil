@@ -17,18 +17,17 @@
 
 package org.apache.daffodil.runtime1.processors.unparsers
 
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.exceptions.Assert;
+object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.processors.PrimProcessor
-import org.apache.daffodil.runtime1.processors.ToBriefXMLImpl
 import org.apache.daffodil.runtime1.processors.Processor
+import org.apache.daffodil.runtime1.processors.ToBriefXMLImpl
+import org.apache.daffodil.runtime1.processors._
 
-sealed trait Unparser
-  extends Processor {
+sealed trait Unparser extends Processor {
 
   def isEmpty = false
 
@@ -64,7 +63,10 @@ sealed trait Unparser
             ustate.bitOrder // asking for bitOrder checks bit order changes.
             // this splits DOS on bitOrder changes if absoluteBitPos not known
           }
-          case rd: RuntimeData => Assert.invariantFailed("Primitive unparser " + u + " has non-Term runtime data: " + rd)
+          case rd: RuntimeData =>
+            Assert.invariantFailed(
+              "Primitive unparser " + u + " has non-Term runtime data: " + rd,
+            )
         }
       }
       case _ => // ok
@@ -94,9 +96,7 @@ sealed trait Unparser
  * computed, one then unparses the item, and the right values are present for runtime-evaluated
  * things, as they've been cached (on the Infoset Element)
  */
-trait PrimUnparser
-  extends Unparser
-  with PrimProcessor
+trait PrimUnparser extends Unparser with PrimProcessor
 
 /**
  * A marker trait for the unparsers that perform alignment.
@@ -114,22 +114,18 @@ trait AlignmentPrimUnparser extends PrimUnparser
  * to a data stream (buffered or real), so alignment, bitOrder, etc. cannot
  * apply to it.
  */
-trait PrimUnparserNoData
-  extends Unparser
-  with PrimProcessorNoData
+trait PrimUnparserNoData extends Unparser with PrimProcessorNoData
 
 /**
  * Text primitive unparsers - primitive and textual only.
  */
-trait TextPrimUnparser
-  extends PrimUnparser
-  with TextProcessor
+trait TextPrimUnparser extends PrimUnparser with TextProcessor
 
 abstract class CombinatorUnparser(override val context: RuntimeData)
-  extends Unparser with CombinatorProcessor
+  extends Unparser
+  with CombinatorProcessor
 
-trait SuspendableUnparser
-  extends PrimUnparser {
+trait SuspendableUnparser extends PrimUnparser {
 
   protected def suspendableOperation: SuspendableOperation
 
@@ -140,7 +136,8 @@ trait SuspendableUnparser
   }
 }
 
-final class ErrorUnparser(override val context: TermRuntimeData = null) extends PrimUnparserNoData {
+final class ErrorUnparser(override val context: TermRuntimeData = null)
+  extends PrimUnparserNoData {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -173,7 +170,7 @@ final class SeqCompUnparser(context: RuntimeData, val childUnparsers: Vector[Unp
   }
 
   override def toString: String = {
-    val strings = childUnparsers map { _.toString }
+    val strings = childUnparsers.map { _.toString }
     strings.mkString(" ~ ")
   }
 }
@@ -186,20 +183,27 @@ case class DummyUnparser(primitiveName: String) extends PrimUnparserNoData {
 
   override def isEmpty = true
 
-  def unparse(state: UState): Unit = state.SDE("Unparser (%s) is not yet implemented.", primitiveName)
+  def unparse(state: UState): Unit =
+    state.SDE("Unparser (%s) is not yet implemented.", primitiveName)
 
   override lazy val childProcessors = Vector()
-  override def toBriefXML(depthLimit: Int = -1) = "<dummy primitive=\"%s\"/>".format(primitiveName)
+  override def toBriefXML(depthLimit: Int = -1) =
+    "<dummy primitive=\"%s\"/>".format(primitiveName)
   override def toString = "DummyUnparser (%s)".format(primitiveName)
 }
 
-case class NotUnparsableUnparser(override val context: ElementRuntimeData) extends PrimUnparserNoData {
+case class NotUnparsableUnparser(override val context: ElementRuntimeData)
+  extends PrimUnparserNoData {
 
   def unparse(state: UState): Unit = {
     // We can't use state.SDE because that needs the infoset to determine the
     // context. No infoset will exist when this is called, so we'll manually
     // create an SDE and toss it
-    val rsde = new RuntimeSchemaDefinitionError(context.schemaFileLocation, state, "This schema was compiled without unparse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property.")
+    val rsde = new RuntimeSchemaDefinitionError(
+      context.schemaFileLocation,
+      state,
+      "This schema was compiled without unparse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property.",
+    )
     context.toss(rsde)
   }
 

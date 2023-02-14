@@ -17,22 +17,20 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.ProcessingError
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Accessor
+import org.apache.daffodil.lib.util.CursorImplMixin
+import org.apache.daffodil.lib.util.MStackOfAnyRef
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeBoolean
-import org.apache.daffodil.lib.util.Accessor
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.CursorImplMixin
-import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
-import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.ErrorERD
-import org.apache.daffodil.lib.util.MStackOfAnyRef
-
+import org.apache.daffodil.runtime1.processors.ProcessingError
+import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 class InfosetError(kind: String, args: String*)
   extends ProcessingError("Infoset", Nope, Nope, kind, args: _*)
@@ -121,7 +119,10 @@ abstract class InfosetInputter
    * NonTextFoundInSimpleContentException. If the element does not have any
    * simple content, this should return either null or the empty string.
    */
-  def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String,String]): String
+  def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String
 
   /**
    * Determine if the current event is nilled. This will only be called when
@@ -178,11 +179,19 @@ abstract class InfosetInputter
 
     try {
       if (!hasNext() || getEventType() != InfosetInputterEventType.StartDocument) {
-        UnparseError(One(infoStack.top.erd.schemaFileLocation), Nope, "Infoset does not start with StartDocument event")
+        UnparseError(
+          One(infoStack.top.erd.schemaFileLocation),
+          Nope,
+          "Infoset does not start with StartDocument event",
+        )
       }
     } catch {
       case e: InvalidInfosetException =>
-        UnparseError(One(infoStack.top.erd.schemaFileLocation), Nope, "Infoset does not start with StartDocument event: " + e.getMessage)
+        UnparseError(
+          One(infoStack.top.erd.schemaFileLocation),
+          Nope,
+          "Infoset does not start with StartDocument event: " + e.getMessage,
+        )
     }
 
     this.pushTRD(rootElementInfo) // TRD stack holds TRDs of model groups
@@ -296,7 +305,8 @@ abstract class InfosetInputter
     getEventType() match {
       case StartElement => handleStartElement()
       case EndElement => handleEndElement()
-      case StartDocument => Assert.impossible() // should never happen due to the call to next() above
+      case StartDocument =>
+        Assert.impossible() // should never happen due to the call to next() above
       case EndDocument => // ok. Just fall through
     }
 
@@ -333,9 +343,13 @@ abstract class InfosetInputter
       val optNilled = c.maybeIsNilled
       if (optNilled.isDefined && optNilled.get) {
         // cannot add content to a nilled complex element
-        UnparseError(One(c.erd.schemaFileLocation), Nope, "Nilled complex element %s has content %s.",
+        UnparseError(
+          One(c.erd.schemaFileLocation),
+          Nope,
+          "Nilled complex element %s has content %s.",
           c.erd.namedQName.toExtendedSyntax,
-          erd.namedQName.toExtendedSyntax)
+          erd.namedQName.toExtendedSyntax,
+        )
       }
       if (erd.isArray) {
         // start of child which is an array
@@ -352,9 +366,13 @@ abstract class InfosetInputter
     } else if (top.isSimpleElement) {
       // If a simple element is top of stack, we can't start another simple element
       // because that would be nesting them. We need an end-element first, which would pop the stack.
-      UnparseError(One(top.erd.schemaFileLocation), Nope, "Simple type element %s cannot have children elements %s.",
+      UnparseError(
+        One(top.erd.schemaFileLocation),
+        Nope,
+        "Simple type element %s cannot have children elements %s.",
         top.erd.namedQName.toExtendedSyntax,
-        node.erd.namedQName.toExtendedSyntax)
+        node.erd.namedQName.toExtendedSyntax,
+      )
     } else {
       // Top of stack indicates an array
       Assert.invariant(top.isArrayERD)
@@ -390,7 +408,8 @@ abstract class InfosetInputter
     }
   }
 
-  private def nextElementErd() = nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
+  private def nextElementErd() =
+    nextElement(getLocalName(), getNamespaceURI(), supportsNamespaces)
 
   private def createElement(erd: ERD) = {
     val elem = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd)
@@ -399,7 +418,12 @@ abstract class InfosetInputter
 
     if (optNilled.isDefined) {
       if (!erd.isNillable) {
-        UnparseError(One(elem.erd.schemaFileLocation), Nope, "Element %s defines nil property, but is not nillable", erd.namedQName.toExtendedSyntax)
+        UnparseError(
+          One(elem.erd.schemaFileLocation),
+          Nope,
+          "Element %s defines nil property, but is not nillable",
+          erd.namedQName.toExtendedSyntax,
+        )
       }
       if (optNilled.get) {
         elem.setNilled()
@@ -416,16 +440,22 @@ abstract class InfosetInputter
         }
       if (optNilled.isDefined && optNilled.get) {
         if (txt != null && txt != "") {
-          UnparseError(One(elem.erd.schemaFileLocation), Nope, "Nilled simple element %s has content", erd.namedQName.toExtendedSyntax)
+          UnparseError(
+            One(elem.erd.schemaFileLocation),
+            Nope,
+            "Nilled simple element %s has content",
+            erd.namedQName.toExtendedSyntax,
+          )
         }
       } else if (!erd.dpathElementCompileInfo.isOutputValueCalc) {
         val primType = elem.erd.optPrimType.get
-        val obj = try {
-          primType.fromXMLString(txt)
-        } catch {
-          case ipd: InvalidPrimitiveDataException =>
-            UnparseError(One(elem.erd.schemaFileLocation), Nope, ipd.getMessage)
-        }
+        val obj =
+          try {
+            primType.fromXMLString(txt)
+          } catch {
+            case ipd: InvalidPrimitiveDataException =>
+              UnparseError(One(elem.erd.schemaFileLocation), Nope, ipd.getMessage)
+          }
         elem.asInstanceOf[DISimple].setDataValue(obj)
       }
     }
@@ -562,9 +592,7 @@ object InfosetEventKind {
  * The advance/inspect change the state of the infoset inputter itself, but have no side-effects
  * on the Unparser's UState infoset.
  */
-class InfosetAccessor private (
-  var kind: InfosetEventKind,
-  var info: Info)
+class InfosetAccessor private (var kind: InfosetEventKind, var info: Info)
   extends Accessor[InfosetAccessor] {
 
   def erd = info.erd

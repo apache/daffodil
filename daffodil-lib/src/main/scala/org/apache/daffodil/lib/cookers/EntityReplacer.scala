@@ -17,17 +17,17 @@
 
 package org.apache.daffodil.lib.cookers
 
+import java.lang.{ Byte => JByte, Character => JChar }
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.equality._
-import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.xml.XMLUtils
-
 import scala.collection.mutable.ListBuffer
-import java.lang.{Character => JChar, Byte => JByte}
+
+import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.xml.XMLUtils
 
 class EntitySyntaxException(msg: String) extends Exception(msg)
 
@@ -43,11 +43,13 @@ class EntitySyntaxException(msg: String) extends Exception(msg)
  */
 final class EntityReplacer {
 
-  val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
+  val dfdlEntityName =
+    "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
   val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+|ES"
 
   val entityCharacterUnicode: List[(String, String, Matcher)] =
-    List(("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE).matcher("")),
+    List(
+      ("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE).matcher("")),
       ("SOH", "\u0001", Pattern.compile("%" + "SOH" + ";", Pattern.MULTILINE).matcher("")),
       ("STX", "\u0002", Pattern.compile("%" + "STX" + ";", Pattern.MULTILINE).matcher("")),
       ("ETX", "\u0003", Pattern.compile("%" + "ETX" + ";", Pattern.MULTILINE).matcher("")),
@@ -83,21 +85,28 @@ final class EntityReplacer {
       ("DEL", "\u007F", Pattern.compile("%" + "DEL" + ";", Pattern.MULTILINE).matcher("")),
       ("NBSP", "\u00A0", Pattern.compile("%" + "NBSP" + ";", Pattern.MULTILINE).matcher("")),
       ("NEL", "\u0085", Pattern.compile("%" + "NEL" + ";", Pattern.MULTILINE).matcher("")),
-      ("LS", "\u2028", Pattern.compile("%" + "LS" + ";", Pattern.MULTILINE).matcher("")))
+      ("LS", "\u2028", Pattern.compile("%" + "LS" + ";", Pattern.MULTILINE).matcher("")),
+    )
 
   val charClassReplacements: List[(String, String, Matcher)] =
-    List(("WSP", "\u0020", Pattern.compile("%" + "WSP" + ";", Pattern.MULTILINE).matcher("")),
+    List(
+      ("WSP", "\u0020", Pattern.compile("%" + "WSP" + ";", Pattern.MULTILINE).matcher("")),
       ("WSP*", "", Pattern.compile("%" + "WSP\\*" + ";", Pattern.MULTILINE).matcher("")),
       ("WSP+", "\u0020", Pattern.compile("%" + "WSP\\+" + ";", Pattern.MULTILINE).matcher("")),
-      ("ES", "", Pattern.compile("%" + "ES" + ";", Pattern.MULTILINE).matcher("")))
+      ("ES", "", Pattern.compile("%" + "ES" + ";", Pattern.MULTILINE).matcher("")),
+    )
 
-  val escapeReplacements: List[(String, String, Matcher)] = List(("%", "\u0025", Pattern.compile("%%", Pattern.MULTILINE).matcher("")))
+  val escapeReplacements: List[(String, String, Matcher)] = List(
+    ("%", "\u0025", Pattern.compile("%%", Pattern.MULTILINE).matcher("")),
+  )
 
-  val charEntityPattern = Pattern.compile("%(" + dfdlEntityName + ");", Pattern.MULTILINE).matcher("")
+  val charEntityPattern =
+    Pattern.compile("%(" + dfdlEntityName + ");", Pattern.MULTILINE).matcher("")
   val hexPattern = Pattern.compile("%#x[0-9a-fA-F]+;", Pattern.MULTILINE).matcher("")
   val decPattern = Pattern.compile("%#[0-9]+;", Pattern.MULTILINE).matcher("")
   val bytePattern = Pattern.compile("%#r[0-9a-fA-F]{2};", Pattern.MULTILINE).matcher("")
-  val charClassEntityPattern = Pattern.compile("%(" + dfdlCharClassEntityName + ");", Pattern.MULTILINE).matcher("")
+  val charClassEntityPattern =
+    Pattern.compile("%(" + dfdlCharClassEntityName + ");", Pattern.MULTILINE).matcher("")
 
   val charEntityRegex = ("(%(?:" + dfdlEntityName + ");)(.*)").r
   val hexRegex = "(%#x[0-9a-fA-F]+;)(.*)".r
@@ -107,11 +116,13 @@ final class EntityReplacer {
   val dfdlEntityRegex = "(%[^%]*?;)(.*)".r
 
   def hasDfdlEntity(input: String): Boolean = {
-    if (hasDfdlCharEntity(input) ||
+    if (
+      hasDfdlCharEntity(input) ||
       hasDecimalCodePoint(input) ||
       hasHexCodePoint(input) ||
       hasByteCodePoint(input) ||
-      hasDfdlCharClassEntity(input)) {
+      hasDfdlCharClassEntity(input)
+    ) {
       return true
     }
     false
@@ -245,7 +256,8 @@ final class EntityReplacer {
 
   // double percent, but not triple (or longer). Must be viewed as pairs So that %%%CR; is %% followed by %CR;
   private val DPMatcher = Pattern.compile("(?<!%)%%", Pattern.MULTILINE).matcher("")
-  private val markerForDPMatcher = Pattern.compile(markerForDoublePercent, Pattern.MULTILINE).matcher("")
+  private val markerForDPMatcher =
+    Pattern.compile(markerForDoublePercent, Pattern.MULTILINE).matcher("")
 
   private val NLMatcher = Pattern.compile("%NL;", Pattern.MULTILINE).matcher("")
   private val markerForNLMatcher = Pattern.compile(markerForNL, Pattern.MULTILINE).matcher("")
@@ -269,11 +281,14 @@ final class EntityReplacer {
     val forUnp = replaceAll(dpMarked, None, true)
     NLMatcher.reset(forUnp)
     val nlMarked = NLMatcher.replaceAll(markerForNL)
-    val s2 = nlMarked.replaceAll(markerForDoublePercent, "%") // put back double percents. Leaving the markers for NL
+    val s2 = nlMarked.replaceAll(
+      markerForDoublePercent,
+      "%",
+    ) // put back double percents. Leaving the markers for NL
     s2
   }
 
-  private def stripLeadingPercent(s: String) = if (s.startsWith("%")) s substring (1) else s
+  private def stripLeadingPercent(s: String) = if (s.startsWith("%")) s.substring(1) else s
 
   /**
    * forUnparse controls whether the character class entities are replaced by their unparse-time equivalents.
@@ -283,8 +298,13 @@ final class EntityReplacer {
    * allowByteEntity controls whether the raw byte entity ie., %#rHH; is allowed or not. Several DFDL properties disallow
    * this form, but allow the others.
    */
-  private def replaceEntity(proposedEntity: String, orig: String, context: Option[ThrowsSDE], forUnparse: Boolean,
-    allowByteEntity: Boolean): String = {
+  private def replaceEntity(
+    proposedEntity: String,
+    orig: String,
+    context: Option[ThrowsSDE],
+    forUnparse: Boolean,
+    allowByteEntity: Boolean,
+  ): String = {
     val result = proposedEntity match {
       case charClassEntityRegex(_, _) => {
         if (forUnparse) {
@@ -300,7 +320,9 @@ final class EntityReplacer {
         else {
           val msg = "DFDL Byte Entity (%%%s) is not allowed, but was found in \"%s\""
           context.map { _.SDE(msg, stripLeadingPercent(proposedEntity), orig) }.getOrElse {
-            throw new EntitySyntaxException(msg.format(stripLeadingPercent(proposedEntity), orig))
+            throw new EntitySyntaxException(
+              msg.format(stripLeadingPercent(proposedEntity), orig),
+            )
           }
         }
       }
@@ -319,14 +341,22 @@ final class EntityReplacer {
     result
   }
 
-  private def errBadEntityLonePercent(ent: String, orig: String, context: Maybe[ThrowsSDE]): Unit = {
-    val msg = "Invalid DFDL Entity (%s) found in \"%s\". If a single percent was intended instead of a DFDL Entity, it must be self escaped (%%%%).".format(ent, orig)
+  private def errBadEntityLonePercent(
+    ent: String,
+    orig: String,
+    context: Maybe[ThrowsSDE],
+  ): Unit = {
+    val msg =
+      "Invalid DFDL Entity (%s) found in \"%s\". If a single percent was intended instead of a DFDL Entity, it must be self escaped (%%%%)."
+        .format(ent, orig)
     if (context.isDefined) context.get.SDE(msg)
     else throw new EntitySyntaxException(msg)
   }
 
   private def errBadEntityNoSemi(ent: String, orig: String, context: Maybe[ThrowsSDE]): Unit = {
-    val msg = "Invalid DFDL Entity (%%%s) found in \"%s\". Missing semicolon at end of entity name?".format(stripLeadingPercent(ent), orig)
+    val msg =
+      "Invalid DFDL Entity (%%%s) found in \"%s\". Missing semicolon at end of entity name?"
+        .format(stripLeadingPercent(ent), orig)
     if (context.isDefined) context.get.SDE(msg)
     else throw new EntitySyntaxException(msg)
   }
@@ -334,8 +364,13 @@ final class EntityReplacer {
   /**
    * There are no '%%' in the input
    */
-  private def process(input: String, orig: String, context: Option[ThrowsSDE], forUnparse: Boolean,
-    allowByteEntities: Boolean = true): String = {
+  private def process(
+    input: String,
+    orig: String,
+    context: Option[ThrowsSDE],
+    forUnparse: Boolean,
+    allowByteEntities: Boolean = true,
+  ): String = {
     Assert.usage(!input.contains("%%"))
     if (!input.contains("%")) { return input }
 
@@ -359,7 +394,13 @@ final class EntityReplacer {
       val possibleEntityName = tok.substring(0, semiPos)
       val afterEntity = tok.substring(semiPos + 1)
       // Now replace the entity appropriately. This will throw errors on malformed entities.
-      val newEntity = replaceEntity("%" + possibleEntityName + ";", orig, context, forUnparse, allowByteEntities)
+      val newEntity = replaceEntity(
+        "%" + possibleEntityName + ";",
+        orig,
+        context,
+        forUnparse,
+        allowByteEntities,
+      )
       val res = newEntity + afterEntity
       res
     })
@@ -386,8 +427,12 @@ final class EntityReplacer {
    * For unparse, we can just replace everything, including the %% by %. The resulting string contains
    * no entities at all.
    */
-  def replaceAll(input: String, context: Option[ThrowsSDE] = None, forUnparse: Boolean = false,
-    allowByteEntities: Boolean = true): String = {
+  def replaceAll(
+    input: String,
+    context: Option[ThrowsSDE] = None,
+    forUnparse: Boolean = false,
+    allowByteEntities: Boolean = true,
+  ): String = {
     if (!input.contains("%")) { return input } // No entities, no replacement.
 
     val startOfPossibleEntity = input.indexOf("%")
@@ -396,7 +441,8 @@ final class EntityReplacer {
 
     if (!inputWithPossibleEntity.contains("%%")) {
       // No escaped percents, just process
-      val processedInput = process(inputWithPossibleEntity, input, context, forUnparse, allowByteEntities)
+      val processedInput =
+        process(inputWithPossibleEntity, input, context, forUnparse, allowByteEntities)
       val fullResult = inputUntilPossibleEntity + processedInput
       return fullResult
     }
@@ -404,7 +450,8 @@ final class EntityReplacer {
     // We have escaped percent literals, we need to also determine if we ended
     // in an escaped percent.  If so, we'll need to append it to the result.
     val endedWithDoublePercent = hasDoublePercentEnding(inputWithPossibleEntity)
-    val splitByDoublePercent = inputWithPossibleEntity.split("%%") // Effectively removes escaped percents
+    val splitByDoublePercent =
+      inputWithPossibleEntity.split("%%") // Effectively removes escaped percents
 
     // Below we process each token and at the end call mkString to add back in
     // the escaped % literals if necessary. This works automatically except in the case where a
@@ -415,7 +462,10 @@ final class EntityReplacer {
     val replacementForDoublePercents =
       if (forUnparse) "%" else "%%"
     val recomposedWithLiteralPercents =
-      inputUntilPossibleEntity + replaced.mkString(replacementForDoublePercents) + (if (endedWithDoublePercent) replacementForDoublePercents else "")
+      inputUntilPossibleEntity + replaced
+        .mkString(replacementForDoublePercents) + (if (endedWithDoublePercent)
+                                                     replacementForDoublePercents
+                                                   else "")
     recomposedWithLiteralPercents
   }
 
@@ -491,10 +541,11 @@ abstract class UpperCaseToken(propNameArg: String = null)
  *
  *  This is the kind of string literal you can use within an expression.
  */
-sealed abstract class StringLiteralBase(propNameArg: String,
-  protected val allowByteEntities: Boolean)
-  extends AutoPropNameBase(propNameArg)
-    with StringLiteralCookerMixin {
+sealed abstract class StringLiteralBase(
+  propNameArg: String,
+  protected val allowByteEntities: Boolean,
+) extends AutoPropNameBase(propNameArg)
+  with StringLiteralCookerMixin {
 
   /**
    * Thawed means XML entities have been replaced. So &amp; is &, etc.
@@ -508,23 +559,30 @@ sealed abstract class StringLiteralBase(propNameArg: String,
       case whitespaceMatcher(_) => true
       case _ => false
     }
-    context.schemaDefinitionWhen(hasWhitespace, "For %s, the string (%s) must not contain any whitespace. Use DFDL Entities for whitespace characters.", propName, raw)
+    context.schemaDefinitionWhen(
+      hasWhitespace,
+      "For %s, the string (%s) must not contain any whitespace. Use DFDL Entities for whitespace characters.",
+      propName,
+      raw,
+    )
     testRaw(raw, context)
     val thawed = thaw(raw)
     testThawed(thawed, context)
-    val cooked = EntityReplacer { e => e.replaceAll(thawed, Some(context), forUnparse, allowByteEntities) }
+    val cooked = EntityReplacer { e =>
+      e.replaceAll(thawed, Some(context), forUnparse, allowByteEntities)
+    }
     testCooked(cooked, context)
     cooked
   }
 
   protected def testRaw(raw: String, context: ThrowsSDE): Unit = {
-    //do nothing
+    // do nothing
   }
   protected def testThawed(thawed: String, context: ThrowsSDE): Unit = {
-    //do nothing
+    // do nothing
   }
   protected def testCooked(cooked: String, context: ThrowsSDE): Unit = {
-    //do nothing
+    // do nothing
   }
 }
 
@@ -541,13 +599,18 @@ sealed trait NonEmptyMixin { self: StringLiteralBase =>
 sealed trait SingleCharacterMixin { self: StringLiteralBase =>
 
   override protected def testCooked(cooked: String, context: ThrowsSDE): Unit = {
-    context.schemaDefinitionUnless(cooked.length == 1 ||
-      cooked =:= "%%", "For property dfdl:%s the length of string must be exactly 1 character.", propName)
+    context.schemaDefinitionUnless(
+      cooked.length == 1 ||
+        cooked =:= "%%",
+      "For property dfdl:%s the length of string must be exactly 1 character.",
+      propName,
+    )
   }
 }
 
 class SingleCharacterLiteral(pn: String, allowByteEntities: Boolean)
-  extends StringLiteralBase(pn, allowByteEntities) with SingleCharacterMixin
+  extends StringLiteralBase(pn, allowByteEntities)
+  with SingleCharacterMixin
 
 trait DisallowedCharClassEntitiesMixin {
 
@@ -571,12 +634,13 @@ trait DisallowedCharClassEntitiesMixin {
   }
 
   protected def testRaw(raw: String, context: ThrowsSDE): Unit = {
-    val matchedGroups = disallowedRegex.findAllMatchIn(raw).map {_.group(1)}
+    val matchedGroups = disallowedRegex.findAllMatchIn(raw).map { _.group(1) }
     context.schemaDefinitionUnless(
       matchedGroups.isEmpty,
-      "Property dfdl:%s contains disallowed character class(es): %s" ,
+      "Property dfdl:%s contains disallowed character class(es): %s",
       propName,
-      matchedGroups.mkString(", "))
+      matchedGroups.mkString(", "),
+    )
   }
 }
 
@@ -586,7 +650,7 @@ class StringLiteralNoCharClassEntities(pn: String, allowByteEntities: Boolean)
 
   override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
   override def testRaw(raw: String, context: ThrowsSDE) =
-    super[DisallowedCharClassEntitiesMixin].testRaw(raw,context)
+    super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
 }
 
 class SingleCharacterLiteralNoCharClassEntities(pn: String, allowByteEntities: Boolean)
@@ -608,7 +672,8 @@ class StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities(pn: String = null)
   override def testRaw(raw: String, context: ThrowsSDE) =
     super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
 
-  override protected def testCooked(cooked: String, context: ThrowsSDE) = super[NonEmptyMixin].testCooked(cooked, context)
+  override protected def testCooked(cooked: String, context: ThrowsSDE) =
+    super[NonEmptyMixin].testCooked(cooked, context)
 }
 
 class StringLiteralNoCharClassEntitiesNoByteEntities(pn: String = null)
@@ -634,19 +699,24 @@ class SingleCharacterLiteralESEntityWithByteEntities(pn: String = null)
   with SingleCharacterMixin
 
 class SingleCharacterLiteralOrEmptyString(pn: String, allowByteEntities: Boolean)
-  extends StringLiteralBase(pn, allowByteEntities) with SingleCharacterMixin
+  extends StringLiteralBase(pn, allowByteEntities)
+  with SingleCharacterMixin
 
 sealed abstract class AutoPropNameBase(propNameArg: String) extends Serializable {
 
-  private lazy val autoPropName = Misc.stripSuffix(Misc.toInitialLowerCaseUnlessAllUpperCase(Misc.getNameFromClass(this)), "Cooker")
+  private lazy val autoPropName = Misc.stripSuffix(
+    Misc.toInitialLowerCaseUnlessAllUpperCase(Misc.getNameFromClass(this)),
+    "Cooker",
+  )
 
   final protected lazy val propName: String =
     if (propNameArg eq null) autoPropName else propNameArg
 }
 
-sealed abstract class ListOfStringLiteralBase(propNameArg: String,
-  protected val allowByteEntities: Boolean)
-  extends AutoPropNameBase(propNameArg)
+sealed abstract class ListOfStringLiteralBase(
+  propNameArg: String,
+  protected val allowByteEntities: Boolean,
+) extends AutoPropNameBase(propNameArg)
   with ListStringLiteralCookerMixin {
 
   private lazy val olc = oneLiteralCooker
@@ -656,8 +726,13 @@ sealed abstract class ListOfStringLiteralBase(propNameArg: String,
       val ws = if (raw.head.isWhitespace) raw.head else raw.last
       val wsVisible = Misc.remapCodepointToVisibleGlyph(ws.toChar).toChar
       val hexCodePoint = "%04x".format(ws.toInt)
-      context.SDE("The property '%s' cannot start or end with the string \"%s\"(Unicode hex code point U+%s), or consist entirely of whitespace."
-        + "\nDid you mean to use character entities like '%%SP;' or '%%NL;' to indicate whitespace in the data format instead?", propName, wsVisible, hexCodePoint)
+      context.SDE(
+        "The property '%s' cannot start or end with the string \"%s\"(Unicode hex code point U+%s), or consist entirely of whitespace."
+          + "\nDid you mean to use character entities like '%%SP;' or '%%NL;' to indicate whitespace in the data format instead?",
+        propName,
+        wsVisible,
+        hexCodePoint,
+      )
     }
 
     val rawList = raw.split("\\s+").toList
@@ -677,36 +752,47 @@ sealed abstract class ListOfStringLiteralBase(propNameArg: String,
   protected def oneLiteralCooker: StringLiteralBase
 
   protected def testCooked(cooked: List[String], context: ThrowsSDE): Unit = {
-    //do nothing
+    // do nothing
   }
 }
 
 sealed trait ListOfSingleCharacterMixin { self: ListOfStringLiteralBase =>
 
-  def cookCharacters(raw: String, context: ThrowsSDE, forUnparse: Boolean) = cook(raw, context, forUnparse).map { s => JChar.valueOf(s(0)) }
+  def cookCharacters(raw: String, context: ThrowsSDE, forUnparse: Boolean) =
+    cook(raw, context, forUnparse).map { s => JChar.valueOf(s(0)) }
 }
 
 class ListOfStringLiteral(pn: String, allowByteEntities: Boolean)
   extends ListOfStringLiteralBase(pn, allowByteEntities) {
 
-  override protected val oneLiteralCooker: StringLiteralBase = new StringLiteral(propName, allowByteEntities)
+  override protected val oneLiteralCooker: StringLiteralBase =
+    new StringLiteral(propName, allowByteEntities)
 }
 
 class NonEmptyListOfStringLiteral(pn: String, allowByteEntities: Boolean)
   extends ListOfStringLiteral(pn, allowByteEntities) {
 
   override def testCooked(cookedList: List[String], context: ThrowsSDE) = {
-    context.schemaDefinitionUnless(cookedList.exists { _.length > 0 }, "Property dfdl:%s cannot be empty string. Use dfdl:nilValue='%%ES;' for empty string as nil value.", propName)
+    context.schemaDefinitionUnless(
+      cookedList.exists { _.length > 0 },
+      "Property dfdl:%s cannot be empty string. Use dfdl:nilValue='%%ES;' for empty string as nil value.",
+      propName,
+    )
   }
 }
 
 class ListOfString1OrMoreLiteral(pn: String, allowByteEntities: Boolean)
   extends ListOfStringLiteralBase(pn, allowByteEntities) {
 
-  override protected val oneLiteralCooker: StringLiteralBase = new StringLiteral(propName, allowByteEntities)
+  override protected val oneLiteralCooker: StringLiteralBase =
+    new StringLiteral(propName, allowByteEntities)
 
   override protected def testCooked(cooked: List[String], context: ThrowsSDE): Unit = {
-    context.schemaDefinitionUnless(cooked.length > 0, "Property %s cannot be empty string.", propName)
+    context.schemaDefinitionUnless(
+      cooked.length > 0,
+      "Property %s cannot be empty string.",
+      propName,
+    )
   }
 }
 
@@ -714,14 +800,16 @@ class ListOfSingleCharacterLiteral(pn: String, allowByteEntities: Boolean)
   extends ListOfStringLiteralBase(pn, allowByteEntities)
   with ListOfSingleCharacterMixin {
 
-  override protected val oneLiteralCooker = new SingleCharacterLiteral(propName, allowByteEntities)
+  override protected val oneLiteralCooker =
+    new SingleCharacterLiteral(propName, allowByteEntities)
 }
 
 class ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities(pn: String = null)
   extends ListOfStringLiteralBase(pn, false)
   with ListOfSingleCharacterMixin {
 
-  override protected val oneLiteralCooker = new SingleCharacterLiteralNoCharClassEntitiesNoByteEntities(propName)
+  override protected val oneLiteralCooker =
+    new SingleCharacterLiteralNoCharClassEntitiesNoByteEntities(propName)
 }
 
 class StringLiteralNonEmpty(pn: String, allowByteEntities: Boolean)
@@ -737,7 +825,8 @@ class ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities(pn: String = 
   extends ListOfStringLiteralBase(pn, false) {
 
   override protected val oneLiteralCooker =
-    new StringLiteralNonEmpty(propName, allowByteEntities = false) with DisallowedCharClassEntitiesMixin {
+    new StringLiteralNonEmpty(propName, allowByteEntities = false)
+      with DisallowedCharClassEntitiesMixin {
 
       override val disallowedCharClassEntities = Seq("NL", "ES", "WSP", "WSP+", "WSP*")
       override def testRaw(raw: String, context: ThrowsSDE) =
@@ -749,7 +838,8 @@ class ListOfStringLiteralNoCharClass_NL_ES_EntitiesNoByteEntities(pn: String = n
   extends ListOfStringLiteralBase(pn, false) {
 
   override protected val oneLiteralCooker =
-    new StringLiteral(propName, allowByteEntities = false) with DisallowedCharClassEntitiesMixin {
+    new StringLiteral(propName, allowByteEntities = false)
+      with DisallowedCharClassEntitiesMixin {
 
       override val disallowedCharClassEntities = Seq("NL", "ES")
       override def testRaw(raw: String, context: ThrowsSDE) =
@@ -758,7 +848,8 @@ class ListOfStringLiteralNoCharClass_NL_ES_EntitiesNoByteEntities(pn: String = n
 }
 
 class SingleCharacterLineEndingOrCRLF_NoCharClassEntitiesNoByteEntities(pn: String = null)
-  extends StringLiteral(pn, allowByteEntities = false) with DisallowedCharClassEntitiesMixin {
+  extends StringLiteral(pn, allowByteEntities = false)
+  with DisallowedCharClassEntitiesMixin {
 
   private val validNLs: List[Char] = List('\u000A', '\u000D', '\u0085', '\u2028')
 
@@ -770,10 +861,17 @@ class SingleCharacterLineEndingOrCRLF_NoCharClassEntitiesNoByteEntities(pn: Stri
    * Check that length is 1 (single char) except for CRLF case, and that it's a line ending char.
    */
   override protected def testCooked(cooked: String, context: ThrowsSDE): Unit = {
-    context.schemaDefinitionUnless(cooked.length == 1 || cooked =:= "\r\n",
-      "For property dfdl:%s, the length of string must be exactly 1 character, except for CRLF case when it can be 2 characters.", propName)
-    context.schemaDefinitionUnless(validNLs.contains(cooked(0)),
-      "'%s' is not a valid new line character for dfdl:%s", cooked, propName)
+    context.schemaDefinitionUnless(
+      cooked.length == 1 || cooked =:= "\r\n",
+      "For property dfdl:%s, the length of string must be exactly 1 character, except for CRLF case when it can be 2 characters.",
+      propName,
+    )
+    context.schemaDefinitionUnless(
+      validNLs.contains(cooked(0)),
+      "'%s' is not a valid new line character for dfdl:%s",
+      cooked,
+      propName,
+    )
   }
 }
 
@@ -781,7 +879,8 @@ class NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities(pn: String)
   extends ListOfStringLiteralBase(pn, true) {
 
   override protected val oneLiteralCooker =
-    new StringLiteral(propName, allowByteEntities = true) with DisallowedCharClassEntitiesMixin {
+    new StringLiteral(propName, allowByteEntities = true)
+      with DisallowedCharClassEntitiesMixin {
 
       override val disallowedCharClassEntities = Seq("NL", "WSP", "WSP+", "WSP*")
       override def testRaw(raw: String, context: ThrowsSDE) =
@@ -789,7 +888,11 @@ class NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities(pn: String)
     }
 
   override def testCooked(cookedList: List[String], context: ThrowsSDE) = {
-    context.schemaDefinitionUnless(cookedList.exists { _.length > 0 }, "Property dfdl:%s cannot be empty string. Use dfdl:nilValue='%%ES;' for empty string as nil value.", propName)
+    context.schemaDefinitionUnless(
+      cookedList.exists { _.length > 0 },
+      "Property dfdl:%s cannot be empty string. Use dfdl:nilValue='%%ES;' for empty string as nil value.",
+      propName,
+    )
   }
 }
 
@@ -802,7 +905,11 @@ class DelimiterCookerNoES(pn: String) extends ListOfString1OrMoreLiteral(pn, tru
       // the only value in the string raw
       override val disallowedCharClassEntities = Seq("ES")
       override def testRaw(raw: String, context: ThrowsSDE) = {
-        context.schemaDefinitionUnless(raw != "%WSP*;", """For dfdl:%s the WSP* entity cannot appear on it's own when dfdl:lengthKind="delimited".""", propName)
+        context.schemaDefinitionUnless(
+          raw != "%WSP*;",
+          """For dfdl:%s the WSP* entity cannot appear on it's own when dfdl:lengthKind="delimited".""",
+          propName,
+        )
         super[DisallowedCharClassEntitiesMixin].testRaw(raw, context)
       }
     }
@@ -813,10 +920,18 @@ class DelimiterCookerNoSoleES(pn: String) extends ListOfString1OrMoreLiteral(pn,
   override val oneLiteralCooker: StringLiteralBase =
     new StringLiteralBase(propName, true) {
 
-     override def testRaw(raw: String, context: ThrowsSDE): Unit = {
+      override def testRaw(raw: String, context: ThrowsSDE): Unit = {
         // "Neither %ES or %WSP*;" can appear on their own when lenghtKind is delimited.
-        context.schemaDefinitionUnless(raw != "%ES;", """For dfdl:%s the ES entity cannot appear on its own when dfdl:lengthKind="delimited".""", propName)
-        context.schemaDefinitionUnless(raw != "%WSP*;", """For dfdl:%s the WSP* entity cannot appear on its own when dfdl:lengthKind="delimited".""", propName)
+        context.schemaDefinitionUnless(
+          raw != "%ES;",
+          """For dfdl:%s the ES entity cannot appear on its own when dfdl:lengthKind="delimited".""",
+          propName,
+        )
+        context.schemaDefinitionUnless(
+          raw != "%WSP*;",
+          """For dfdl:%s the WSP* entity cannot appear on its own when dfdl:lengthKind="delimited".""",
+          propName,
+        )
       }
     }
 }
@@ -825,15 +940,28 @@ class DelimiterCooker(pn: String) extends ListOfStringLiteralBase(pn, true) {
   private val constantCooker = new ListOfStringLiteral(propName, true) // zero length allowed
   private val runtimeCooker = new ListOfString1OrMoreLiteral(propName, true)
 
-  override def convertRuntime(b: String, context: ThrowsSDE, forUnparse: Boolean): List[String] =
+  override def convertRuntime(
+    b: String,
+    context: ThrowsSDE,
+    forUnparse: Boolean,
+  ): List[String] =
     runtimeCooker.convertRuntime(b, context, forUnparse)
 
-  override def convertConstant(b: String, context: ThrowsSDE, forUnparse: Boolean): List[String] =
+  override def convertConstant(
+    b: String,
+    context: ThrowsSDE,
+    forUnparse: Boolean,
+  ): List[String] =
     constantCooker.convertConstant(b, context, forUnparse)
 
   /**
    * Overriding as def since this is a usage error to call.
    */
-  override protected def oneLiteralCooker: StringLiteralBase = Assert.usageError("not to be used.")
-  override protected def cook(raw: String, context: ThrowsSDE, forUnparse: Boolean): List[String] = Assert.usageError("not to be used")
+  override protected def oneLiteralCooker: StringLiteralBase =
+    Assert.usageError("not to be used.")
+  override protected def cook(
+    raw: String,
+    context: ThrowsSDE,
+    forUnparse: Boolean,
+  ): List[String] = Assert.usageError("not to be used")
 }

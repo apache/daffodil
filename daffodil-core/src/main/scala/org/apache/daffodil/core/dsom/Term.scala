@@ -17,20 +17,19 @@
 
 package org.apache.daffodil.core.dsom
 
+import java.lang.{ Integer => JInt }
 import java.util.UUID
 
-import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.core.dsom.walker.TermView
 import org.apache.daffodil.core.grammar.TermGrammarMixin
-import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
-import java.lang.{ Integer => JInt }
-
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.core.dsom.walker.TermView
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 
 /**
  * Mixin for objects that are shared, but have consistency checks to be run
@@ -117,27 +116,34 @@ trait Term
   final lazy val checkUnusedProperties: Unit = {
     // Get the properties defined on this term and what it refers to
     val localProps = formatAnnotation.justThisOneProperties
-    val refProps = optReferredToComponent.map { _.formatAnnotation.justThisOneProperties }.getOrElse(Map.empty)
+    val refProps = optReferredToComponent
+      .map { _.formatAnnotation.justThisOneProperties }
+      .getOrElse(Map.empty)
 
     // If a term references a global simple type, we need to inspect the
     // propCache of the simple type in addition to this terms propCache. This
     // is because some property lookup results are cached on the global simple
     // type, like in the case of type calc properties
-    val optSimpleTypeCached = optReferredToComponent.collect { case gstd: GlobalSimpleTypeDef => gstd.propCache }
+    val optSimpleTypeCached = optReferredToComponent.collect { case gstd: GlobalSimpleTypeDef =>
+      gstd.propCache
+    }
     val usedProperties = propCache ++ optSimpleTypeCached.getOrElse(Map.empty)
 
-    localProps.foreach {
-      case (prop, (value, _)) =>
-        if (!usedProperties.contains(prop)) {
-          SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
-        }
+    localProps.foreach { case (prop, (value, _)) =>
+      if (!usedProperties.contains(prop)) {
+        SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
+      }
     }
 
-    refProps.foreach {
-      case (prop, (value, _)) =>
-        if (!usedProperties.contains(prop)) {
-          optReferredToComponent.get.SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
-        }
+    refProps.foreach { case (prop, (value, _)) =>
+      if (!usedProperties.contains(prop)) {
+        optReferredToComponent.get.SDW(
+          WarnID.IgnoreDFDLProperty,
+          "DFDL property was ignored: %s=\"%s\"",
+          prop,
+          value,
+        )
+      }
     }
 
     termChildren.foreach { _.checkUnusedProperties }
@@ -215,7 +221,7 @@ trait Term
    */
   lazy val couldHaveText = hasDelimiters
 
-  //TODO: if we add recursive types capability to DFDL this will have to change
+  // TODO: if we add recursive types capability to DFDL this will have to change
   // but so will many of these compiler passes up and down through the DSOM objects.
 
   /**
@@ -255,17 +261,19 @@ trait Term
    * and sequenceKind='unordered' on others of the group refs.
    */
   final lazy val isEverInUnorderedSequence: Boolean = {
-    optLexicalParent.map {
-      case s: SequenceTermBase => !s.isOrdered
-      case gsd: GlobalSequenceGroupDef => {
-        gsd.schemaSet.root.groupRefsTo(gsd).exists {
-          case sgr: SequenceGroupRef => !sgr.isOrdered
+    optLexicalParent
+      .map {
+        case s: SequenceTermBase => !s.isOrdered
+        case gsd: GlobalSequenceGroupDef => {
+          gsd.schemaSet.root.groupRefsTo(gsd).exists { case sgr: SequenceGroupRef =>
+            !sgr.isOrdered
+          }
         }
+        case c: ChoiceDefMixin => false
+        case ct: ComplexTypeBase => false
+        case x => Assert.invariantFailed("Unexpected lexical parent: " + x)
       }
-      case c: ChoiceDefMixin => false
-      case ct: ComplexTypeBase => false
-      case x => Assert.invariantFailed("Unexpected lexical parent: " + x)
-    }.getOrElse(false)
+      .getOrElse(false)
   }
 
   final lazy val immediatelyEnclosingGroupDef: Option[GroupDefLike] = {
@@ -287,7 +295,10 @@ trait Term
         case ctd: ComplexTypeBase => None
         case rt: RepTypeQuasiElementDecl => rt.immediatelyEnclosingGroupDef
         case std: SimpleTypeBase => None
-        case _ => Assert.invariantFailed("immediatelyEnclosingModelGroup called on " + this + " with lexical parent " + lexicalParent)
+        case _ =>
+          Assert.invariantFailed(
+            "immediatelyEnclosingModelGroup called on " + this + " with lexical parent " + lexicalParent,
+          )
       }
       res
     }
@@ -415,30 +426,33 @@ trait Term
     this match {
       case e: ElementBase => {
         lazy val allowsZeroOccurs = e.minOccurs == 0
-        lazy val minOccursNotZeroButDeclaredLast = !e.isScalar && e.minOccurs > 0 && e.isLastDeclaredRepresentedInSequence
+        lazy val minOccursNotZeroButDeclaredLast =
+          !e.isScalar && e.minOccurs > 0 && e.isLastDeclaredRepresentedInSequence
         lazy val hasAllowedOCK = (e.occursCountKind eq OccursCountKind.Implicit) ||
           (e.occursCountKind eq OccursCountKind.Parsed)
         lazy val hasAllowedLengthKind = e.lengthKind eq LengthKind.Delimited
-        lazy val hasNoDiscriminators = !statements.exists { s => s.isInstanceOf[DFDLDiscriminator] }
+        lazy val hasNoDiscriminators = !statements.exists { s =>
+          s.isInstanceOf[DFDLDiscriminator]
+        }
         val res =
           isRepresented &&
             (allowsZeroOccurs ||
               minOccursNotZeroButDeclaredLast) &&
-              hasAllowedOCK &&
-              hasAllowedLengthKind &&
-              hasNoDiscriminators
+            hasAllowedOCK &&
+            hasAllowedLengthKind &&
+            hasNoDiscriminators
         res
       }
       case m: ModelGroup => {
         lazy val seqIsNotSSPNever = m match {
           case s: SequenceTermBase =>
             s.hasSeparator &&
-              (s.separatorSuppressionPolicy match {
-                case TrailingEmpty => true
-                case TrailingEmptyStrict => true
-                case AnyEmpty => true
-                case Never => false
-              })
+            (s.separatorSuppressionPolicy match {
+              case TrailingEmpty => true
+              case TrailingEmptyStrict => true
+              case AnyEmpty => true
+              case Never => false
+            })
           case _ => true
         }
         lazy val hasNoStatements = statements.length == 0
