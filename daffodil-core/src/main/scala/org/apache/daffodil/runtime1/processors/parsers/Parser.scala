@@ -227,26 +227,40 @@ abstract class CombinatorParser(override val context: RuntimeData)
   extends Parser
   with CombinatorProcessor
 
-final class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
-  extends CombinatorParser(context) {
+final class SeqCompParser(
+  context: RuntimeData,
+  val childParsers: Array[Parser],
+  testAssert: Array[Parser]
+) extends CombinatorParser(context) {
   override def runtimeDependencies = Vector()
   override def childProcessors = childParsers.toVector
 
   override def nom = "seq"
 
-  val numChildParsers = childParsers.size
+  val optDiscrimParser = childParsers.collectFirst {
+    case ae: AssertExpressionEvaluationParser if (ae.discrim) => ae
+  }
+  val nonDiscrimChildren = childParsers.diff(optDiscrimParser.toSeq)
 
   def parse(pstate: PState): Unit = {
-    var i: Int = 0
-    while (i < numChildParsers) {
-      val parser = childParsers(i)
-      parser.parse1(pstate)
-      if (pstate.processorStatus ne Success)
-        return
+    var i = 0
+    val numNonDiscrimChildren = nonDiscrimChildren.size
+
+    // Handle all non discriminator child parsers first
+    while ((i < numNonDiscrimChildren) && (pstate.processorStatus eq Success)) {
+      nonDiscrimChildren(i).parse1(pstate)
       i += 1
     }
-  }
 
+    // If a discriminator statement exists always parse it, even if there was a prior failure.
+    // See section 9.5.2 of the DFDL specification.
+    if (optDiscrimParser.isDefined) {
+      if (pstate.processorStatus eq Success)
+        optDiscrimParser.get.parse1(pstate)
+      else
+        pstate.withTempSuccess(optDiscrimParser.get.parse1)
+    }
+  }
 }
 
 class ChoiceParser(ctxt: RuntimeData, val childParsers: Array[Parser])
