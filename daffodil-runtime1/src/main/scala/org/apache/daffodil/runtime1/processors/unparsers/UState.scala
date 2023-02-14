@@ -20,15 +20,29 @@ package org.apache.daffodil.runtime1.processors.unparsers
 import java.io.ByteArrayOutputStream
 import java.nio.CharBuffer
 import java.nio.LongBuffer
-import org.apache.daffodil.runtime1.api.DFDL
+
+import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
+import org.apache.daffodil.io.StringDataInputStreamForUnparse
+import org.apache.daffodil.io.processors.charset.BitsCharset
+import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.DataLocation
 import org.apache.daffodil.lib.api.Diagnostic
-import org.apache.daffodil.runtime1.dpath.UnparserBlocking
 import org.apache.daffodil.lib.equality.EqualitySuppressUnusedImportWarning
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.util.Cursor
+import org.apache.daffodil.lib.util.LocalStack
+import org.apache.daffodil.lib.util.MStackOf
+import org.apache.daffodil.lib.util.MStackOfLong
+import org.apache.daffodil.lib.util.MStackOfMaybe
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.dpath.UnparserBlocking
 import org.apache.daffodil.runtime1.infoset.DIArray
 import org.apache.daffodil.runtime1.infoset.DIDocument
 import org.apache.daffodil.runtime1.infoset.DIElement
@@ -36,8 +50,6 @@ import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.InfosetAccessor
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
-import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
-import org.apache.daffodil.io.StringDataInputStreamForUnparse
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.DelimiterStackUnparseNode
@@ -53,18 +65,7 @@ import org.apache.daffodil.runtime1.processors.VariableBox
 import org.apache.daffodil.runtime1.processors.VariableInstance
 import org.apache.daffodil.runtime1.processors.VariableMap
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
-import org.apache.daffodil.io.processors.charset.BitsCharset
-import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
-import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.runtime1.processors.dfa.DFADelimiter
-import org.apache.daffodil.lib.util.Cursor
-import org.apache.daffodil.lib.util.LocalStack
-import org.apache.daffodil.lib.util.MStackOf
-import org.apache.daffodil.lib.util.MStackOfLong
-import org.apache.daffodil.lib.util.MStackOfMaybe
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe.Nope
-import org.apache.daffodil.lib.util.Maybe.One
 
 object ENoWarn { EqualitySuppressUnusedImportWarning() }
 
@@ -73,12 +74,17 @@ abstract class UState(
   diagnosticsArg: List[Diagnostic],
   dataProcArg: Maybe[DataProcessor],
   tunable: DaffodilTunables,
-  areDebugging: Boolean)
-  extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
-  with Cursor[InfosetAccessor] with ThrowsSDE with SavesErrorsAndWarnings {
+  areDebugging: Boolean,
+) extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
+  with Cursor[InfosetAccessor]
+  with ThrowsSDE
+  with SavesErrorsAndWarnings {
 
-
-  final override def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE) =
+  final override def setVariable(
+    vrd: VariableRuntimeData,
+    newValue: DataValuePrimitive,
+    referringContext: ThrowsSDE,
+  ) =
     vbox.vmap.setVariable(vrd, newValue, referringContext, this)
 
   /**
@@ -88,12 +94,17 @@ abstract class UState(
    * @param referringContext Where to place blame if there is an error.
    * @return The data value of the variable, or throws exceptions if there is no value.
    */
-  final override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive =
+  final override def getVariable(
+    vrd: VariableRuntimeData,
+    referringContext: ThrowsSDE,
+  ): DataValuePrimitive =
     vbox.vmap.readVariable(vrd, referringContext, this)
 
-  final override def newVariableInstance(vrd: VariableRuntimeData): VariableInstance = variableMap.newVariableInstance(vrd)
+  final override def newVariableInstance(vrd: VariableRuntimeData): VariableInstance =
+    variableMap.newVariableInstance(vrd)
 
-  final override def removeVariableInstance(vrd: VariableRuntimeData): Unit = variableMap.removeVariableInstance(vrd)
+  final override def removeVariableInstance(vrd: VariableRuntimeData): Unit =
+    variableMap.removeVariableInstance(vrd)
 
   /**
    * Push onto the dynamic TRD context stack
@@ -112,7 +123,9 @@ abstract class UState(
   def popTRD(trd: TermRuntimeData): TermRuntimeData
 
   override def toString = {
-    val elt = if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString else ""
+    val elt =
+      if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString
+      else ""
     "UState(" + elt + " DOS=" + dataOutputStream.toString() + ")"
   }
 
@@ -123,7 +136,8 @@ abstract class UState(
   def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper]
 
   def withUnparserDataInputStream: LocalStack[StringDataInputStreamForUnparse]
-  def withByteArrayOutputStream: LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)]
+  def withByteArrayOutputStream
+    : LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)]
 
   def allTerminatingMarkup: List[DFADelimiter]
   def localDelimiters: DelimiterStackUnparseNode
@@ -185,7 +199,9 @@ abstract class UState(
 
   lazy val unparseResult = new UnparseResult(dataProc.get, this)
 
-  def bitPos0b = if (dataOutputStream.maybeAbsBitPos0b.isDefined) dataOutputStream.maybeAbsBitPos0b.get else 0L
+  def bitPos0b = if (dataOutputStream.maybeAbsBitPos0b.isDefined)
+    dataOutputStream.maybeAbsBitPos0b.get
+  else 0L
 
   def bitLimit0b = dataOutputStream.maybeRelBitLimit0b
 
@@ -300,7 +316,9 @@ abstract class UState(
    *  the DOS are collapsed together, and the check for byte boundary occurs
    *  at that time.
    */
-  private def splitOnUknownByteAlignmentBitOrderChange(dos: DirectOrBufferedDataOutputStream): Unit = {
+  private def splitOnUknownByteAlignmentBitOrderChange(
+    dos: DirectOrBufferedDataOutputStream,
+  ): Unit = {
     val mabp = dos.maybeAbsBitPos0b
     val mabpDefined = mabp.isDefined
     val isSplitNeeded: Boolean = {
@@ -322,11 +340,17 @@ abstract class UState(
         // and the bit order is changing.
         // Error: bit order change on non-byte boundary
         val bp1b = mabp.get + 1
-        SDE("Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s. Should be 1 mod 8, was %s (mod 8)", bp1b, bp1b % 8)
+        SDE(
+          "Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s. Should be 1 mod 8, was %s (mod 8)",
+          bp1b,
+          bp1b % 8,
+        )
       }
     }
     if (isSplitNeeded) {
-      Assert.invariant(dos.isBuffering) // Direct DOS always has absolute position, so has to be buffering.
+      Assert.invariant(
+        dos.isBuffering,
+      ) // Direct DOS always has absolute position, so has to be buffering.
       //
       // Just splitting to start a new bitOrder on a byte boundary in a new
       // buffered DOS
@@ -354,7 +378,10 @@ abstract class UState(
       // setFinished.
       val finfo = this match {
         case m: UStateMain => m.cloneForSuspension(dos)
-        case _ => Assert.invariantFailed("State must be a UStateMain when splitting for bit order change")
+        case _ =>
+          Assert.invariantFailed(
+            "State must be a UStateMain when splitting for bit order change",
+          )
       }
 
       val newDOS = dos.addBuffered
@@ -390,15 +417,16 @@ final class UStateForSuspension(
   escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
   delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
   tunable: DaffodilTunables,
-  areDebugging: Boolean)
-  extends UState(vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
+  areDebugging: Boolean,
+) extends UState(vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
   dState.setCurrentNode(thisElement.asInstanceOf[DINode])
   dState.setContextNode(thisElement.asInstanceOf[DINode])
   dState.setErrorOrWarn(this)
 
-  private def die = Assert.invariantFailed("Function should never be needed in UStateForSuspension")
+  private def die =
+    Assert.invariantFailed("Function should never be needed in UStateForSuspension")
 
   override def getDecoder(cs: BitsCharset): BitsCharsetDecoder = mainUState.getDecoder(cs)
   override def getEncoder(cs: BitsCharset): BitsCharsetEncoder = mainUState.getEncoder(cs)
@@ -441,7 +469,8 @@ final class UStateForSuspension(
     }.toList
   }
 
-  override def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] = escapeSchemeEVCacheMaybe.get
+  override def escapeSchemeEVCache: MStackOfMaybe[EscapeSchemeUnparserHelper] =
+    escapeSchemeEVCacheMaybe.get
 
   override def pushTRD(trd: TermRuntimeData): Unit = die
   override def maybeTopTRD() = die
@@ -449,9 +478,12 @@ final class UStateForSuspension(
 
   override def documentElement = mainUState.documentElement
 
-  override def incrementHiddenDef = Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
-  override def decrementHiddenDef = Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
-  override def withinHiddenNest = Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def incrementHiddenDef =
+    Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def decrementHiddenDef =
+    Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
+  override def withinHiddenNest =
+    Assert.usageError("Unparser suspended UStates need not be aware of hidden contexts")
 }
 
 final class UStateMain private (
@@ -461,8 +493,8 @@ final class UStateMain private (
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
   tunable: DaffodilTunables,
-  areDebugging: Boolean)
-  extends UState(vbox, diagnosticsArg, One(dataProcArg), tunable, areDebugging) {
+  areDebugging: Boolean,
+) extends UState(vbox, diagnosticsArg, One(dataProcArg), tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
 
@@ -473,9 +505,17 @@ final class UStateMain private (
     diagnosticsArg: List[Diagnostic],
     dataProcArg: DataProcessor,
     tunable: DaffodilTunables,
-    areDebugging: Boolean) =
-    this(inputter, outputStream, new VariableBox(vmap), diagnosticsArg, dataProcArg,
-      tunable, areDebugging)
+    areDebugging: Boolean,
+  ) =
+    this(
+      inputter,
+      outputStream,
+      new VariableBox(vmap),
+      diagnosticsArg,
+      dataProcArg,
+      tunable,
+      areDebugging,
+    )
 
   override var dataOutputStream: DirectOrBufferedDataOutputStream = {
     val out = DirectOrBufferedDataOutputStream(
@@ -484,7 +524,8 @@ final class UStateMain private (
       isLayer = false,
       tunable.outputStreamChunkSizeInBytes,
       tunable.maxByteArrayOutputStreamBufferSizeInBytes,
-      tunable.tempFilePath)
+      tunable.tempFilePath,
+    )
     out
   }
 
@@ -522,31 +563,38 @@ final class UStateMain private (
       es,
       ds,
       tunable,
-      areDebugging)
+      areDebugging,
+    )
 
     clone.setProcessor(processor)
 
     clone
   }
 
-  override lazy val withUnparserDataInputStream = new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
-  override lazy val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
-    {
-      val baos = new ByteArrayOutputStream() // TODO: PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
-      val dos = DirectOrBufferedDataOutputStream(
-        baos,
-        null,
-        false,
-        tunable.outputStreamChunkSizeInBytes,
-        tunable.maxByteArrayOutputStreamBufferSizeInBytes,
-        tunable.tempFilePath)
-      (baos, dos)
-    },
-    pair => pair match {
-      case (baos, dos) =>
-        baos.reset()
-        dos.resetAllBitPos()
-    })
+  override lazy val withUnparserDataInputStream =
+    new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
+  override lazy val withByteArrayOutputStream =
+    new LocalStack[(ByteArrayOutputStream, DirectOrBufferedDataOutputStream)](
+      {
+        val baos =
+          new ByteArrayOutputStream() // TODO: PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
+        val dos = DirectOrBufferedDataOutputStream(
+          baos,
+          null,
+          false,
+          tunable.outputStreamChunkSizeInBytes,
+          tunable.maxByteArrayOutputStreamBufferSizeInBytes,
+          tunable.tempFilePath,
+        )
+        (baos, dos)
+      },
+      pair =>
+        pair match {
+          case (baos, dos) =>
+            baos.reset()
+            dos.resetAllBitPos()
+        },
+    )
 
   override def advance: Boolean = inputter.advance
   override def advanceAccessor: InfosetAccessor = inputter.advanceAccessor
@@ -561,13 +609,19 @@ final class UStateMain private (
    */
   override def inspectOrError = {
     val m = inspectMaybe
-    if (m.isEmpty) Assert.invariantFailed("An InfosetEvent was required for unparsing, but no InfosetEvent was available.")
+    if (m.isEmpty)
+      Assert.invariantFailed(
+        "An InfosetEvent was required for unparsing, but no InfosetEvent was available.",
+      )
     m.get
   }
 
   override def advanceOrError = {
     val m = advanceMaybe
-    if (m.isEmpty) Assert.invariantFailed("An InfosetEvent was required for unparsing, but no InfosetEvent was available.")
+    if (m.isEmpty)
+      Assert.invariantFailed(
+        "An InfosetEvent was required for unparsing, but no InfosetEvent was available.",
+      )
     m.get
   }
 
@@ -630,9 +684,7 @@ final class UStateMain private (
    * need to add any.
    */
   private val suspensionTracker =
-    new SuspensionTracker(
-      tunable.unparseSuspensionWaitYoung,
-      tunable.unparseSuspensionWaitOld)
+    new SuspensionTracker(tunable.unparseSuspensionWaitYoung, tunable.unparseSuspensionWaitOld)
 
   def addSuspension(se: Suspension): Unit = {
     suspensionTracker.trackSuspension(se)
@@ -661,9 +713,11 @@ final class UStateMain private (
   final override def documentElement = inputter.documentElement
 
   override def toString = {
-    val elt = if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString else ""
+    val elt =
+      if (this.currentInfosetNodeMaybe.isDefined) "node=" + this.currentInfosetNode.toString
+      else ""
     val hidden = if (withinHiddenNest) " hidden" else ""
-    "UState(" + elt +  hidden + " DOS=" + dataOutputStream.toString() + ")"
+    "UState(" + elt + hidden + " DOS=" + dataOutputStream.toString() + ")"
   }
 }
 
@@ -673,7 +727,8 @@ object UState {
     outStream: java.io.OutputStream,
     dataProc: DFDL.DataProcessor,
     inputter: InfosetInputter,
-    areDebugging: Boolean): UStateMain = {
+    areDebugging: Boolean,
+  ): UStateMain = {
     Assert.invariant(inputter.isInitialized)
 
     /**
@@ -684,13 +739,14 @@ object UState {
 
     val diagnostics = Nil
     val newState = new UStateMain(
-        inputter,
-        outStream,
-        variables,
-        diagnostics,
-        dataProc.asInstanceOf[DataProcessor],
-        dataProc.tunables,
-        areDebugging)
+      inputter,
+      outStream,
+      variables,
+      diagnostics,
+      dataProc.asInstanceOf[DataProcessor],
+      dataProc.tunables,
+      areDebugging,
+    )
     newState
   }
 }

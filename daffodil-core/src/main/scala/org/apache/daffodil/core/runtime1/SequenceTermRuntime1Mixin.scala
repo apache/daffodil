@@ -19,10 +19,10 @@ package org.apache.daffodil.core.runtime1
 
 import org.apache.daffodil.core.dsom.ChoiceBranchImpliedSequence
 import org.apache.daffodil.core.dsom.SequenceTermBase
-import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.FillByteUseNotAllowedEv
-import org.apache.daffodil.lib.util.Delay
+import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
 trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
 
@@ -31,7 +31,7 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
   lazy val sequenceRuntimeData = {
     new SequenceRuntimeData(
       position,
-      Delay('SequencePartialNextElementResolver, this ,partialNextElementResolver),
+      Delay('SequencePartialNextElementResolver, this, partialNextElementResolver),
       schemaSet.variableMap,
       encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
@@ -48,7 +48,8 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
       optIgnoreCase,
       fillByteEv,
       maybeCheckByteAndBitOrderEv,
-      maybeCheckBitOrderAndCharsetEv)
+      maybeCheckBitOrderAndCharsetEv,
+    )
   }
 
 }
@@ -60,7 +61,11 @@ trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequen
   override lazy val sequenceRuntimeData: SequenceRuntimeData = {
     new SequenceRuntimeData(
       position,
-      Delay('ChoiceBranchImpliedSequencePartialNextElementResolver, this, partialNextElementResolver),
+      Delay(
+        'ChoiceBranchImpliedSequencePartialNextElementResolver,
+        this,
+        partialNextElementResolver,
+      ),
       schemaSet.variableMap,
       encodingInfo,
       schemaFileLocation,
@@ -76,7 +81,8 @@ trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequen
       None,
       FillByteUseNotAllowedEv,
       Maybe.Nope,
-      Maybe.Nope)
+      Maybe.Nope,
+    )
   }
 
 }

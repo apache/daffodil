@@ -30,8 +30,10 @@ object DelimiterStackUnparseNode {
   def apply(
     initiator: Array[DFADelimiter],
     separator: Array[DFADelimiter],
-    terminator: Array[DFADelimiter]): DelimiterStackUnparseNode = {
-    if (initiator.length == 0 && terminator.length == 0 && separator.length == 0) EmptyDelimiterStackUnparseNode()
+    terminator: Array[DFADelimiter],
+  ): DelimiterStackUnparseNode = {
+    if (initiator.length == 0 && terminator.length == 0 && separator.length == 0)
+      EmptyDelimiterStackUnparseNode()
     else new DelimiterStackUnparseNode(initiator, separator, terminator)
   }
 
@@ -40,6 +42,5 @@ object DelimiterStackUnparseNode {
 class DelimiterStackUnparseNode(
   val initiator: Array[DFADelimiter],
   val separator: Array[DFADelimiter],
-  val terminator: Array[DFADelimiter]) {
-
-}
+  val terminator: Array[DFADelimiter],
+) {}

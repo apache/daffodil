@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.api.Diagnostic
- 
+import org.apache.daffodil.lib.util.Misc
+
 /**
  * The resulting state after invoking a Processor
  */

@@ -17,10 +17,11 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.math.{ BigInteger => JBigInt, BigDecimal => JBigDecimal }
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValueByteArray
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValueByteArray
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 
 trait HexBinaryKind {
 
@@ -40,9 +41,12 @@ trait HexBinaryKind {
       case l: Long => HexBinaryConversions.toByteArray(l)
       case bi: JBigInt if (bi.bitLength <= 63) => reduce(bi.longValue())
       case bi: JBigInt => bi.toByteArray()
-      case bd: JBigDecimal if (try { bd.toBigIntegerExact(); true } catch { case e: ArithmeticException => false }) => reduce(bd.toBigIntegerExact())
+      case bd: JBigDecimal if (try { bd.toBigIntegerExact(); true }
+          catch { case e: ArithmeticException => false }) =>
+        reduce(bd.toBigIntegerExact())
       case str: String => Misc.hex2Bytes(str)
-      case _ => throw new NumberFormatException("%s could not fit into a long".format(numeric.toString))
+      case _ =>
+        throw new NumberFormatException("%s could not fit into a long".format(numeric.toString))
     }
     res
   }
@@ -53,7 +57,7 @@ trait HexBinaryKind {
   protected def bytesToHexString(bytes: Array[Byte]): String = {
     val sb = new StringBuilder
     for (b <- bytes) {
-      sb.append("%02X".format(b & 0xFF))
+      sb.append("%02X".format(b & 0xff))
     }
     return sb.toString
   }

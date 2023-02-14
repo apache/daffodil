@@ -20,7 +20,6 @@ package org.apache.daffodil.runtime1.processors
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.nio.charset.StandardCharsets
-
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.lib.exceptions.Assert
@@ -28,6 +27,7 @@ import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MStackOfBoolean
 import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.xml.sax.Attributes
 import org.xml.sax.ContentHandler
 import org.xml.sax.Locator
@@ -42,18 +42,22 @@ import org.xml.sax.Locator
  * @param pretty boolean to pretty print XML if true, or not if false
  */
 class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean = false)
-  extends ContentHandler with Indentable {
+  extends ContentHandler
+  with Indentable {
   private val writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)
+
   /**
    * represents the currently active prefix mappings (i.e all mappings include from parent element),
    * which is usefully for doing lookups
    */
   private var activePrefixMapping: NamespaceBinding = null
+
   /**
    * represents only the prefix mapping of the current element. We use this to generate the prefix mappings
    * when outputting the element tag
    */
   private var currentElementPrefixMapping: NamespaceBinding = null
+
   /**
    * used to maintain the correct scope of activePrefixMapping throughout processing. It is also used
    * to reset the activePrefixMapping after processing each element.
@@ -78,7 +82,7 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
     currentElementPrefixMapping = null
     activePrefixMappingContextStack.clear()
     outputNewlineStack.clear()
-    outputNewlineStack.push(false) //to match initialization state
+    outputNewlineStack.push(false) // to match initialization state
     writer.write("""<?xml version="1.0" encoding="UTF-8"?>""")
   }
 
@@ -172,7 +176,7 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
             writer.write(attr)
           } else {
             // if an attribute has a URI, we must have a prefix, even if it is null
-           Assert.invariantFailed("Cannot have URI with no prefix mapping")
+            Assert.invariantFailed("Cannot have URI with no prefix mapping")
           }
         } else {
           // non prefixed attribute don't exist in Daffodil
@@ -184,7 +188,11 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
   }
 
   override def startElement(
-    uri: String, localName: String, qName: String, atts: Attributes): Unit = {
+    uri: String,
+    localName: String,
+    qName: String,
+    atts: Attributes,
+  ): Unit = {
     // the pop/true removes whatever is on the stack which is our previous guess for whether we
     // would need a newline after the previous end tag. As we are currently at the start of a new
     // tag, we want to correct that assumption (in case it was false)

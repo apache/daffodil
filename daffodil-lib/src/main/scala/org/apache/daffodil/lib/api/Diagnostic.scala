@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.lib.api
 
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Misc
 
 /**
  * Base class for all "thin" (no stack trace) diagnostic objects.
@@ -31,16 +31,18 @@ abstract class ThinDiagnostic(
   dataContext: Maybe[DataLocation],
   maybeCause: Maybe[Throwable],
   maybeFormatString: Maybe[String],
-  args: Any*)
-  extends Diagnostic(
+  args: Any*,
+) extends Diagnostic(
     false, // thin, i.e., not isThick
     schemaContext,
     dataContext,
     maybeCause,
     maybeFormatString,
-    args: _*) {
+    args: _*,
+  ) {
   Assert.invariant(maybeCause.isDefined || maybeFormatString.isDefined)
 }
+
 /**
  * Base class for all thick or thin error, warning, info, and other sorts of objects
  * that capture diagnostic information. Such as Schema Definition Errors/Warnings.
@@ -53,12 +55,13 @@ abstract class Diagnostic protected (
   private val dataContext: Maybe[DataLocation],
   private val maybeCause: Maybe[Throwable],
   private val maybeFormatString: Maybe[String],
-  private val args: Any*)
-  extends Exception(
+  private val args: Any*,
+) extends Exception(
     null,
     (if (maybeCause.isDefined) maybeCause.get else null),
     isThick,
-    isThick) {
+    isThick,
+  ) {
 
   /**
    * Constructor for Thick diagnostics (with stack trace).
@@ -69,9 +72,15 @@ abstract class Diagnostic protected (
     dataContext: Maybe[DataLocation],
     maybeCause: Maybe[Throwable],
     maybeFormatString: Maybe[String],
-    args: Any*) = this(
+    args: Any*,
+  ) = this(
     true, // isThick
-    schemaContext, dataContext, maybeCause, maybeFormatString, args: _*)
+    schemaContext,
+    dataContext,
+    maybeCause,
+    maybeFormatString,
+    args: _*,
+  )
 
   final def toss =
     throw this // good place for a breakpoint.
@@ -84,15 +93,16 @@ abstract class Diagnostic protected (
    */
   override def equals(b: Any): Boolean = {
     b match {
-      case other: Diagnostic => (this eq other) || {
-        schemaContext == other.schemaContext &&
+      case other: Diagnostic =>
+        (this eq other) || {
+          schemaContext == other.schemaContext &&
           dataContext == other.dataContext &&
           maybeCause == other.maybeCause &&
           maybeFormatString == other.maybeFormatString &&
           args == other.args &&
           isError == other.isError &&
           modeName == other.modeName
-      }
+        }
       case _ => false
     }
   }
@@ -157,15 +167,18 @@ abstract class Diagnostic protected (
 
   private def init(): Unit = {
     Assert.invariant(maybeCause.isDefined ^ maybeFormatString.isDefined)
-    Assert.invariant(maybeCause.isEmpty || args.length == 0) // if there is a cause, there can't be args.
+    Assert.invariant(
+      maybeCause.isEmpty || args.length == 0,
+    ) // if there is a cause, there can't be args.
   }
 
   private def schemaLocationsString = {
     val strings = getLocationsInSchemaFiles.map { _.locationDescription }
-    val res = if (strings.length > 0)
-      " " + strings.mkString(", ")
-    else
-      " (no schema file location)"
+    val res =
+      if (strings.length > 0)
+        " " + strings.mkString(", ")
+      else
+        " (no schema file location)"
     res
   }
 
@@ -194,7 +207,10 @@ abstract class Diagnostic protected (
           maybeFormatString.get.format(args: _*)
         } catch {
           case e: IllegalArgumentException =>
-            Assert.abort(e.getMessage() + """\nFormat string "%s" did not accept these arguments: %s.""".format(maybeFormatString.get, args.mkString(", ")))
+            Assert.abort(
+              e.getMessage() + """\nFormat string "%s" did not accept these arguments: %s."""
+                .format(maybeFormatString.get, args.mkString(", ")),
+            )
         }
       } else maybeFormatString.get
     m

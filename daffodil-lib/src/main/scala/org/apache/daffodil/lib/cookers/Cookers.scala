@@ -21,13 +21,16 @@ import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 
-object TextStandardInfinityRepCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+object TextStandardInfinityRepCooker
+  extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object TextStandardNaNRepCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
-object TextStandardZeroRepCooker extends ListOfStringLiteralNoCharClass_NL_ES_EntitiesNoByteEntities()
+object TextStandardZeroRepCooker
+  extends ListOfStringLiteralNoCharClass_NL_ES_EntitiesNoByteEntities()
 
-class TextPadCharacterCookerBase extends SingleCharacterLiteralNoCharClassEntitiesWithByteEntities()
+class TextPadCharacterCookerBase
+  extends SingleCharacterLiteralNoCharClassEntitiesWithByteEntities()
 
 object TextNumberPadCharacterCooker extends TextPadCharacterCookerBase
 
@@ -37,11 +40,16 @@ object TextBooleanPadCharacterCooker extends TextPadCharacterCookerBase
 
 object TextCalendarPadCharacterCooker extends TextPadCharacterCookerBase
 
-object NilValueLiteralCharacterCooker extends SingleCharacterLiteralNoCharClassEntitiesWithByteEntities("nilValue")
+object NilValueLiteralCharacterCooker
+  extends SingleCharacterLiteralNoCharClassEntitiesWithByteEntities("nilValue")
 
-object NilValueLogicalValueCooker extends NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities("nilValue") // Note. Same as LiteralValue Binary
+object NilValueLogicalValueCooker
+  extends NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities(
+    "nilValue",
+  ) // Note. Same as LiteralValue Binary
 
-object NilValueLiteralValueBinaryCooker extends NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities("nilValue")
+object NilValueLiteralValueBinaryCooker
+  extends NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities("nilValue")
 
 object NilValueLiteralValueTextCooker extends NonEmptyListOfStringLiteral("nilValue", true)
 
@@ -49,13 +57,15 @@ object NilValueRawListCooker extends ListOfStringLiteral("nilValue", true)
 
 object EscapeCharacterCooker extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
 
-object EscapeEscapeCharacterCooker extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+object EscapeEscapeCharacterCooker
+  extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
 
 object EscapeBlockStartCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object EscapeBlockEndCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
-object ExtraEscapedCharactersCooker extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+object ExtraEscapedCharactersCooker
+  extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
 
 object FillByteCooker extends SingleCharacterLiteralNoCharClassEntitiesWithByteEntities()
 
@@ -67,30 +77,40 @@ object TerminatorDelimitedCooker extends DelimiterCookerNoSoleES("terminator")
 
 object SeparatorCooker extends DelimiterCookerNoES("separator")
 
-object TextStandardDecimalSeparatorCooker extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+object TextStandardDecimalSeparatorCooker
+  extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
 
-object TextStandardGroupingSeparatorCooker extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+object TextStandardGroupingSeparatorCooker
+  extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
 
 object TextStandardExponentRepCooker extends StringLiteralNoCharClassEntitiesNoByteEntities()
 
-object OutputNewLineCooker extends SingleCharacterLineEndingOrCRLF_NoCharClassEntitiesNoByteEntities()
+object OutputNewLineCooker
+  extends SingleCharacterLineEndingOrCRLF_NoCharClassEntitiesNoByteEntities()
 
-object TextBooleanTrueRepCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+object TextBooleanTrueRepCooker
+  extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
-object TextBooleanFalseRepCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+object TextBooleanFalseRepCooker
+  extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object EncodingCooker extends UpperCaseToken()
 
 object ChoiceDispatchKeyCooker extends StringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
-object ChoiceBranchKeyCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
+object ChoiceBranchKeyCooker
+  extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object RepValueCooker extends ListOfStringLiteralNonEmptyNoCharClassEntitiesNoByteEntities()
 
 object UpperCaseTokenCooker extends UpperCaseToken
 
 object IntRangeCooker extends Converter[String, Seq[(JBigInt, JBigInt)]] {
-  protected def convert(input: String, context: ThrowsSDE, forUnparse: Boolean): Seq[(JBigInt, JBigInt)] = {
+  protected def convert(
+    input: String,
+    context: ThrowsSDE,
+    forUnparse: Boolean,
+  ): Seq[(JBigInt, JBigInt)] = {
     def run(xs: Seq[String]): Seq[(JBigInt, JBigInt)] = {
       xs match {
         case Seq() => Seq()
@@ -105,7 +125,7 @@ object IntRangeCooker extends Converter[String, Seq[(JBigInt, JBigInt)]] {
       }
     }
     val asSeq = input.split("\\s+").toSeq.filter(!_.isEmpty)
-    if(asSeq.length % 2 != 0){
+    if (asSeq.length % 2 != 0) {
       context.SDE("Integer range sets must specify an even number of endpoints")
     }
     run(asSeq)

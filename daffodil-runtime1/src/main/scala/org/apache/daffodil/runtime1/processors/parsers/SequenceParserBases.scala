@@ -16,18 +16,17 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
-
-import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.Success
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe.Nope
-import org.apache.daffodil.lib.util.Maybe.One
 
 /**
  * Base class for all sequence parsers, which are the combinators that coordinate
@@ -36,22 +35,23 @@ import org.apache.daffodil.lib.util.Maybe.One
 abstract class SequenceParserBase(
   srd: SequenceRuntimeData,
   childParsers: Vector[Parser],
-  isOrdered: Boolean)
-  extends CombinatorParser(srd) {
+  isOrdered: Boolean,
+) extends CombinatorParser(srd) {
   override def nom = "Sequence"
 
   override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
   override lazy val childProcessors = childParsers
 
-  import ParseAttemptStatus._
   import ArrayIndexStatus._
+  import ParseAttemptStatus._
 
   final protected def checkN(pstate: PState, childParser: SequenceChildParser): Unit = {
     if (pstate.arrayPos > pstate.tunable.maxOccursBounds) {
       throw new TunableLimitExceededError(
         childParser.trd.schemaFileLocation,
         "Array occurrences excceeds the maxOccursBounds tunable limit of %s",
-        pstate.tunable.maxOccursBounds)
+        pstate.tunable.maxOccursBounds,
+      )
     }
   }
 
@@ -60,10 +60,14 @@ abstract class SequenceParserBase(
     parser: RepeatingChildParser,
     currentPos: Long,
     priorPos: Long,
-    ais: ArrayIndexStatus): ArrayIndexStatus = {
+    ais: ArrayIndexStatus,
+  ): ArrayIndexStatus = {
     Assert.invariant(currentPos >= priorPos)
     if (currentPos == priorPos && pstate.groupPos > 1) {
-      parser.PE(pstate, "Array element parsed succesfully, but consumed no data and is stuck in an infinite loop as it is unbounded.")
+      parser.PE(
+        pstate,
+        "Array element parsed succesfully, but consumed no data and is stuck in an infinite loop as it is unbounded.",
+      )
       Done
     } else {
       ais
@@ -142,10 +146,12 @@ abstract class SequenceParserBase(
             resultOfTry = ParseAttemptStatus.Uninitialized
 
             var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
-            while ((ais ne Done) && { // check ais for Done in case it was assigned
-              ais = parser.arrayIndexStatus(min, max, pstate)
-              (pstate.isSuccess) && (ais ne Done) // check ais for done from min/max computation
-            }) {
+            while (
+              (ais ne Done) && { // check ais for Done in case it was assigned
+                ais = parser.arrayIndexStatus(min, max, pstate)
+                (pstate.isSuccess) && (ais ne Done) // check ais for done from min/max computation
+              }
+            ) {
               val roStatus = ais.asInstanceOf[RequiredOptionalStatus]
 
               val priorPos = pstate.bitPos0b
@@ -161,12 +167,13 @@ abstract class SequenceParserBase(
                 resultOfTry = nextResultOfTry
               }
               val currentPos = pstate.bitPos0b
-              if (pstate.isSuccess && !isBounded && (
-                resultOfTry match {
+              if (
+                pstate.isSuccess && !isBounded && (resultOfTry match {
                   case ParseAttemptStatus.AbsentRep => true
                   case _: ParseAttemptStatus.SuccessParseAttemptStatus => true
                   case _ => false
-                })) {
+                })
+              ) {
                 //
                 // result of try could be missing if we just ended an array
                 // by speculation.
@@ -187,9 +194,11 @@ abstract class SequenceParserBase(
                 pstate.mpstate.moveOverOneArrayIndexOnly()
               }
 
-              if (currentPos > priorPos ||
+              if (
+                currentPos > priorPos ||
                 ((resultOfTry eq AbsentRep) && pstate.isSuccess) ||
-                  resultOfTry.isInstanceOf[SuccessParseAttemptStatus]) {
+                resultOfTry.isInstanceOf[SuccessParseAttemptStatus]
+              ) {
                 // If we consumed some bits, then we moved past something, and so
                 // we're definitely not first in the group any more.
                 //
@@ -302,7 +311,6 @@ abstract class SequenceParserBase(
               // anything special, the end of this loop will increment to the
               // next child.
               case _: FailedParseAttemptStatus if (!isOrdered) => // no-op
-
               case _ => {
                 if (isOrdered) {
                   // Successfully parsed a scalar ordered sequence element,
@@ -398,7 +406,8 @@ abstract class SequenceParserBase(
   private def parseOneInstance(
     parser: SequenceChildParser,
     pstate: PState,
-    roStatus: RequiredOptionalStatus): (ArrayIndexStatus, ParseAttemptStatus) = {
+    roStatus: RequiredOptionalStatus,
+  ): (ArrayIndexStatus, ParseAttemptStatus) = {
 
     // Determine if we need a PoU. Note that we only have a point of
     // uncertainty if the sequence child parser has points of uncertainty (e.g.
@@ -408,11 +417,11 @@ abstract class SequenceParserBase(
     // this PoU lets us know if a discriminator tells us to stop trying more
     // unordered sequence children
     val needsPoU =
-      !isOrdered || 
-      (
-        (parser.pouStatus eq PoUStatus.HasPoU) &&
-        !roStatus.isInstanceOf[RequiredOptionalStatus.Required]
-      )
+      !isOrdered ||
+        (
+          (parser.pouStatus eq PoUStatus.HasPoU) &&
+            !roStatus.isInstanceOf[RequiredOptionalStatus.Required]
+        )
 
     if (needsPoU) {
       val ans = pstate.withPointOfUncertainty("SequenceParserBase", parser.context) { pou =>
@@ -428,7 +437,8 @@ abstract class SequenceParserBase(
     parser: SequenceChildParser,
     pstate: PState,
     roStatus: RequiredOptionalStatus,
-    maybePoU: Maybe[PState.Mark]): (ArrayIndexStatus, ParseAttemptStatus) = {
+    maybePoU: Maybe[PState.Mark],
+  ): (ArrayIndexStatus, ParseAttemptStatus) = {
 
     var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
 
@@ -447,8 +457,10 @@ abstract class SequenceParserBase(
     // Now we handle the result of the parse attempt.
     //
     // check for consistency - failure comes with a PE in the PState.
-    Assert.invariant((pstate.processorStatus eq Success) ||
-      resultOfTry.isInstanceOf[FailedParseAttemptStatus])
+    Assert.invariant(
+      (pstate.processorStatus eq Success) ||
+        resultOfTry.isInstanceOf[FailedParseAttemptStatus],
+    )
 
     resultOfTry match {
       case _: SuccessParseAttemptStatus => { // ok
@@ -457,7 +469,9 @@ abstract class SequenceParserBase(
       case AbsentRep => {
         if (maybePoU.isDefined) {
           Assert.invariant(!isPoUResolved) // impossible for an absent rep to resolve the PoU
-          pstate.resetToPointOfUncertainty(maybePoU.get) // back out any side effects of the attempt to parse
+          pstate.resetToPointOfUncertainty(
+            maybePoU.get,
+          ) // back out any side effects of the attempt to parse
         }
         pstate.dataInputStream.setBitPos0b(currentPos) // skip syntax such as a separator
       }
@@ -480,8 +494,10 @@ abstract class SequenceParserBase(
             // acted on appropriately
             pstate.resetToPointOfUncertainty(maybePoU.get)
           }
-        } else if (maybePoU.isDefined && !isPoUResolved &&
-          (roStatus.isInstanceOf[RequiredOptionalStatus.Optional])) {
+        } else if (
+          maybePoU.isDefined && !isPoUResolved &&
+          (roStatus.isInstanceOf[RequiredOptionalStatus.Optional])
+        ) {
           // we back up and finish the array at the prior element if any.
           pstate.resetToPointOfUncertainty(maybePoU.get)
           Assert.invariant(pstate.isSuccess)
@@ -489,8 +505,13 @@ abstract class SequenceParserBase(
           parser.trd match {
             case erd: ElementRuntimeData if (erd.isArray) => {
               val cause = pstate.processorStatus.asInstanceOf[Failure].cause
-              parser.PE(pstate, "Failed to populate %s[%s]. Cause: %s",
-                erd.prefixedName, pstate.mpstate.arrayPos, cause)
+              parser.PE(
+                pstate,
+                "Failed to populate %s[%s]. Cause: %s",
+                erd.prefixedName,
+                pstate.mpstate.arrayPos,
+                cause,
+              )
             }
             case _ => // ok
           }

@@ -17,22 +17,22 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import javax.xml.XMLConstants
+
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
+import org.w3c.dom.Comment
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import org.w3c.dom.NodeList
-import org.w3c.dom.Text
-import org.w3c.dom.ProcessingInstruction
-import org.w3c.dom.Comment
 import org.w3c.dom.Node
-import javax.xml.XMLConstants
+import org.w3c.dom.NodeList
+import org.w3c.dom.ProcessingInstruction
+import org.w3c.dom.Text
 
-class W3CDOMInfosetInputter(doc: Document)
-  extends InfosetInputter {
+class W3CDOMInfosetInputter(doc: Document) extends InfosetInputter {
 
   /**
    * This stack represents the stack of elements that have been visited. Each
@@ -84,7 +84,10 @@ class W3CDOMInfosetInputter(doc: Document)
 
   override def getNamespaceURI(): String = stack.top._1.getNamespaceURI
 
-  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
+  override def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String = {
     val text =
       if (stack.top._2.hasNext) {
         val child = stack.top._2.next
@@ -119,7 +122,9 @@ class W3CDOMInfosetInputter(doc: Document)
       } else if (nilAttrValue == "false" || nilAttrValue == "0") {
         MaybeBoolean(false)
       } else {
-        throw new InvalidInfosetException("xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.getNodeName)
+        throw new InvalidInfosetException(
+          "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.getNodeName,
+        )
       }
     res
   }

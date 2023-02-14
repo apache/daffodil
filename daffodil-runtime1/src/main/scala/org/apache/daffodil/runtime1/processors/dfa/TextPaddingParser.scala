@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.runtime1.processors.dfa
 
+import scala.collection.mutable.ArrayBuffer
+
+import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.DelimiterIterator
-import org.apache.daffodil.io.DataInputStream
-import scala.collection.mutable.ArrayBuffer
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.parsers.PState
 
-class TextPaddingParser(val padChar: Char,
-  override val context: TermRuntimeData)
+class TextPaddingParser(val padChar: Char, override val context: TermRuntimeData)
   extends DFAParser {
 
   override lazy val name: String = "TextPaddingParser"
@@ -34,7 +34,11 @@ class TextPaddingParser(val padChar: Char,
 
   val paddingDFA = CreatePaddingDFA(padChar, context)
 
-  def parse(state: PState, input: DataInputStream, delimIter: DelimiterIterator): Maybe[ParseResult] = {
+  def parse(
+    state: PState,
+    input: DataInputStream,
+    delimIter: DelimiterIterator,
+  ): Maybe[ParseResult] = {
 
     val paddingReg: Registers = state.dfaRegistersPool.getFromPool("TextPaddingParser1")
 

@@ -17,29 +17,31 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.exceptions._
-import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.io.Utils
-import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.DataOutputStream
-import org.apache.daffodil.runtime1.processors.unparsers.UState
-import org.apache.daffodil.io.DataDumper
-import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.io.Utils
 import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.processors.parsers.PState
+import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 class DataLoc(
   val bitPos1b: Long,
   bitLimit1b: MaybeULong,
   eitherStream: Either[DataOutputStream, DataInputStream],
-  val maybeERD: Maybe[ElementRuntimeData]) extends DataLocation {
+  val maybeERD: Maybe[ElementRuntimeData],
+) extends DataLocation {
 
   // override def toString = "DataLoc(bitPos1b='%s', bitLimit1b='%s')".format(bitPos1b, bitLimit1b)
   override def toString() = {
-    "byte " + bitPos1b / 8 + (if (bitLimit1b.isDefined) " limit(bytes) " + bitLimit1b.get / 8 else "")
+    "byte " + bitPos1b / 8 + (if (bitLimit1b.isDefined) " limit(bytes) " + bitLimit1b.get / 8
+                              else "")
   }
 
   private val Dump = new DataDumper
@@ -50,7 +52,8 @@ class DataLoc(
   Assert.usage(bitPos1b >= 1)
 
   val bitPos0b: Long = bitPos1b - 1
-  val bitLimit0b: MaybeULong = if (bitLimit1b.isDefined) MaybeULong(bitLimit1b.get - 1) else MaybeULong.Nope
+  val bitLimit0b: MaybeULong =
+    if (bitLimit1b.isDefined) MaybeULong(bitLimit1b.get - 1) else MaybeULong.Nope
   val lengthInBits: Long = if (bitLimit0b.isDefined) (bitLimit0b.get - bitPos0b) else 256L
 
   // The dump region is the identified data for this data loc
@@ -74,34 +77,49 @@ class DataLoc(
   private lazy val (regionStartBytePos0b, regionLengthInBytes, regionEndBytePos0b) =
     Dump.convertBitsToBytesUnits(regionStartBitPos0b, regionLengthInBits)
 
-  def dump(rep: Option[Representation], prestate: DataLocation, state: ParseOrUnparseState): String = {
+  def dump(
+    rep: Option[Representation],
+    prestate: DataLocation,
+    state: ParseOrUnparseState,
+  ): String = {
 
     val maybeEncodingName = optERD.flatMap { erd =>
       if (erd.encodingInfo.isKnownEncoding) {
-        if (erd.encodingInfo.knownEncodingAlignmentInBits != 8) None // non byte aligned encoding
+        if (erd.encodingInfo.knownEncodingAlignmentInBits != 8)
+          None // non byte aligned encoding
         else Some(erd.encodingInfo.knownEncodingName) // byte-aligned encoding
       } else None
     }
     val optEncodingName = maybeEncodingName.toScalaOption
 
-    def binary: Dump.Kind = optERD.map { erd =>
-      val bitOrder: BitOrder = erd.defaultBitOrder
-      bitOrder match {
-        case BitOrder.MostSignificantBitFirst => Dump.MixedHexLTR(optEncodingName)
-        case BitOrder.LeastSignificantBitFirst => Dump.MixedHexRTL(None)
+    def binary: Dump.Kind = optERD
+      .map { erd =>
+        val bitOrder: BitOrder = erd.defaultBitOrder
+        bitOrder match {
+          case BitOrder.MostSignificantBitFirst => Dump.MixedHexLTR(optEncodingName)
+          case BitOrder.LeastSignificantBitFirst => Dump.MixedHexRTL(None)
+        }
       }
-    }.getOrElse(Dump.MixedHexLTR(optEncodingName))
+      .getOrElse(Dump.MixedHexLTR(optEncodingName))
 
     dumpStream(binary, prestate, state) // for now. Let's require the hex+text dumps always.
   }
 
-  private def dumpStream(dumpKind: Dump.Kind, prestate: DataLocation, state: ParseOrUnparseState): String = {
+  private def dumpStream(
+    dumpKind: Dump.Kind,
+    prestate: DataLocation,
+    state: ParseOrUnparseState,
+  ): String = {
 
     val startOfInterestRegionBits0b = prestate.bitPos1b - 1
     val endOfInterestRegionBits0b = state.bitPos0b
-    val lengthOfInterestRegionInBits = math.min(math.max(endOfInterestRegionBits0b - startOfInterestRegionBits0b, 0),
-      state.tunable.maxDataDumpSizeInBytes)
-    val regionSpecifier = Some((startOfInterestRegionBits0b, lengthOfInterestRegionInBits.toInt))
+    val lengthOfInterestRegionInBits = math.min(
+      math.max(endOfInterestRegionBits0b - startOfInterestRegionBits0b, 0),
+      state.tunable.maxDataDumpSizeInBytes,
+    )
+    val regionSpecifier = Some(
+      (startOfInterestRegionBits0b, lengthOfInterestRegionInBits.toInt),
+    )
 
     val s = (eitherStream, prestate, state) match {
       //
@@ -112,10 +130,14 @@ class DataLoc(
         val pastBBuf = os.pastData(howFarIntoPastData.toInt)
         val howMuchPast = pastBBuf.remaining()
         if (pastBBuf.remaining == 0) return "No data yet"
-        val pastDump = Dump.dump(dumpKind,
-          dumpStartBitPos0b, howMuchPast.toInt * 8, pastBBuf,
+        val pastDump = Dump.dump(
+          dumpKind,
+          dumpStartBitPos0b,
+          howMuchPast.toInt * 8,
+          pastBBuf,
           includeHeadingLine = true,
-          indicatorInfo = regionSpecifier)
+          indicatorInfo = regionSpecifier,
+        )
         pastDump.mkString("\n")
       }
       //
@@ -123,16 +145,25 @@ class DataLoc(
       //
       case (Right(vis: DataInputStream), prestate: DataLocation, state: PState) => {
         // Parser
-        val howFarIntoPastData = math.min(bytePos0b - dumpStartBytePos0b, state.tunable.maxDataDumpSizeInBytes)
+        val howFarIntoPastData =
+          math.min(bytePos0b - dumpStartBytePos0b, state.tunable.maxDataDumpSizeInBytes)
         val pastBBuf = vis.pastData(howFarIntoPastData.toInt)
-        val howFarIntoFutureData = math.min((dumpEndBytePos0b + 1) - bytePos0b, state.tunable.maxDataDumpSizeInBytes)
+        val howFarIntoFutureData =
+          math.min((dumpEndBytePos0b + 1) - bytePos0b, state.tunable.maxDataDumpSizeInBytes)
         Assert.invariant(howFarIntoFutureData >= 0)
         val futureBBuf = vis.futureData(howFarIntoFutureData.toInt)
         val allDataBBuf = Utils.concatByteBuffers(pastBBuf, futureBBuf)
         val dataLength = allDataBBuf.remaining
-        val dump = Dump.dump(dumpKind, dumpStartBitPos0b, dataLength * 8, allDataBBuf,
-          includeHeadingLine = true,
-          indicatorInfo = regionSpecifier).mkString("\n")
+        val dump = Dump
+          .dump(
+            dumpKind,
+            dumpStartBitPos0b,
+            dataLength * 8,
+            allDataBBuf,
+            includeHeadingLine = true,
+            indicatorInfo = regionSpecifier,
+          )
+          .mkString("\n")
         dump
       }
       case _ => Assert.invariantFailed("No other case possible.")

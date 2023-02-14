@@ -16,6 +16,7 @@
  */
 
 package org.apache.daffodil.sapi.infoset
+
 /**
  * XMLTextEscapeStyle determines how to wrap values of elements of type xs:string
  *

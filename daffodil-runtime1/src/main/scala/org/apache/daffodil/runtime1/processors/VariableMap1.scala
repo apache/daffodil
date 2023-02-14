@@ -21,16 +21,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Map
 
 import org.apache.daffodil.lib.api.ThinDiagnostic
-import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.externalvars.Binding
-import org.apache.daffodil.runtime1.infoset.DataValue
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
-import org.apache.daffodil.runtime1.infoset.RetryableException
-import org.apache.daffodil.runtime1.processors.parsers.PState
-import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
@@ -38,6 +31,13 @@ import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.UnspecifiedNamespace
+import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.runtime1.infoset.DataValue
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.runtime1.infoset.RetryableException
+import org.apache.daffodil.runtime1.processors.parsers.PState
+import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 sealed abstract class VariableState extends Serializable
 
@@ -95,8 +95,7 @@ object VariableInstance {
 /**
  * See documentation for object VariableInstance
  */
-class VariableInstance private (val rd: VariableRuntimeData)
-  extends Serializable {
+class VariableInstance private (val rd: VariableRuntimeData) extends Serializable {
 
   var state: VariableState = VariableUndefined
   var value: DataValuePrimitiveNullable = DataValue.NoValue
@@ -115,50 +114,68 @@ class VariableInstance private (val rd: VariableRuntimeData)
 
   /* This is used to set a default value with the appropriate state */
   def setDefaultValue(v: DataValuePrimitiveNullable) = {
-    Assert.invariant((this.state == VariableUndefined || this.state == VariableInProcess) && v.isDefined)
+    Assert.invariant(
+      (this.state == VariableUndefined || this.state == VariableInProcess) && v.isDefined,
+    )
     this.state = VariableDefined
     this.value = v
   }
 
-  override def toString: String = "VariableInstance(%s,%s,%s,%s)".format(
-                                                    state,
-                                                    value,
-                                                    rd,
-                                                    rd.maybeDefaultValueExpr)
+  override def toString: String =
+    "VariableInstance(%s,%s,%s,%s)".format(state, value, rd, rd.maybeDefaultValueExpr)
 
   def copy(
     state: VariableState = state,
     value: DataValuePrimitiveNullable = value,
-    rd: VariableRuntimeData = rd) = {
-      val inst = new VariableInstance(rd)
-      inst.state = state
-      inst.value = value
-      inst
+    rd: VariableRuntimeData = rd,
+  ) = {
+    val inst = new VariableInstance(rd)
+    inst.state = state
+    inst.value = value
+    inst
   }
 
 }
 
 object VariableUtils {
 
-  def setExternalVariables(currentVMap: VariableMap, bindings: Seq[Binding], referringContext: ThrowsSDE) = {
-    bindings.foreach { b => currentVMap.setExtVariable(b.varQName, b.varValue, referringContext) }
+  def setExternalVariables(
+    currentVMap: VariableMap,
+    bindings: Seq[Binding],
+    referringContext: ThrowsSDE,
+  ) = {
+    bindings.foreach { b =>
+      currentVMap.setExtVariable(b.varQName, b.varValue, referringContext)
+    }
   }
 
 }
 
-abstract class VariableException(val qname: NamedQName, val context: VariableRuntimeData, msg: String)
-  extends ThinDiagnostic(Maybe(context.schemaFileLocation), Nope, Nope, Maybe(msg)) {
+abstract class VariableException(
+  val qname: NamedQName,
+  val context: VariableRuntimeData,
+  msg: String,
+) extends ThinDiagnostic(Maybe(context.schemaFileLocation), Nope, Nope, Maybe(msg)) {
   def isError = true
 
   def modeName = "Variable"
 }
 
-class VariableHasNoValue(qname: NamedQName, context: VariableRuntimeData) extends VariableException(qname, context,
-  "Variable map (runtime): variable %s has no value. It was not set, and has no default value.".format(qname))
+class VariableHasNoValue(qname: NamedQName, context: VariableRuntimeData)
+  extends VariableException(
+    qname,
+    context,
+    "Variable map (runtime): variable %s has no value. It was not set, and has no default value."
+      .format(qname),
+  )
   with RetryableException
 
-class VariableSuspended(qname: NamedQName, context: VariableRuntimeData) extends VariableException(qname, context,
-  "Variable map (runtime): variable %s is currently suspended".format(qname))
+class VariableSuspended(qname: NamedQName, context: VariableRuntimeData)
+  extends VariableException(
+    qname,
+    context,
+    "Variable map (runtime): variable %s is currently suspended".format(qname),
+  )
   with RetryableException
 
 /**
@@ -166,8 +183,13 @@ class VariableSuspended(qname: NamedQName, context: VariableRuntimeData) extends
  * expressions in a defineVariable are circular, or later during parsing if
  * newVariableInstance contains a circular expression
  */
-class VariableCircularDefinition(qname: NamedQName, context: VariableRuntimeData) extends VariableException(qname, context,
-  "Variable map (runtime): variable %s is part of a circular definition with other variables".format(qname))
+class VariableCircularDefinition(qname: NamedQName, context: VariableRuntimeData)
+  extends VariableException(
+    qname,
+    context,
+    "Variable map (runtime): variable %s is part of a circular definition with other variables"
+      .format(qname),
+  )
 
 /**
  * Provides one more indirection to the variable map.
@@ -214,16 +236,15 @@ final class VariableBox(initialVMap: VariableMap) {
  * stack, as they allow for easy serialization unlike the custom MStack classes
  * we use elsewhere. Scala's mutable Stack is deprecated in 2.12
  */
-class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]])
+class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]])
   extends Serializable {
 
   def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
-    this(Map(topLevelVRDs.map {
-      vrd =>
-        val variab = vrd.createVariableInstance()
-        val variableInstances = new ArrayBuffer[VariableInstance]
-        variableInstances += variab
-        (vrd.globalQName, variableInstances)
+    this(Map(topLevelVRDs.map { vrd =>
+      val variab = vrd.createVariableInstance()
+      val variableInstances = new ArrayBuffer[VariableInstance]
+      variableInstances += variab
+      (vrd.globalQName, variableInstances)
     }: _*))
 
   override def toString(): String = {
@@ -235,20 +256,24 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
    * VariableInstances are mutable and cannot safely be shared across threads
    */
   def copy(): VariableMap = {
-    val table = vTable.map { case (k: GlobalQName, variableInstances: ArrayBuffer[VariableInstance]) => {
-      val newBuf = variableInstances.map { _.copy() }
-      (k, newBuf)
-    }}
+    val table = vTable.map {
+      case (k: GlobalQName, variableInstances: ArrayBuffer[VariableInstance]) => {
+        val newBuf = variableInstances.map { _.copy() }
+        (k, newBuf)
+      }
+    }
 
     new VariableMap(table)
   }
 
   def topLevelInstances(): VariableMap = {
-    val table = vTable.map { case (k: GlobalQName, variableInstances: ArrayBuffer[VariableInstance]) => {
-      val newBuf = new ArrayBuffer[VariableInstance]()
-      newBuf.append(variableInstances.last)
-      (k, newBuf)
-    }}
+    val table = vTable.map {
+      case (k: GlobalQName, variableInstances: ArrayBuffer[VariableInstance]) => {
+        val newBuf = new ArrayBuffer[VariableInstance]()
+        newBuf.append(variableInstances.last)
+        (k, newBuf)
+      }
+    }
 
     new VariableMap(table)
   }
@@ -259,18 +284,23 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
   // must also ensure that the expressions only reference other variables that
   // have default value expressions or are defined externally.
   def forceExpressionEvaluations(state: ParseOrUnparseState): Unit = {
-    vTable.foreach { case (_, variableInstances) => { variableInstances.foreach { inst => {
-      (inst.state, inst.rd.maybeDefaultValueExpr.isDefined) match {
-        // Evaluate defineVariable statements with non-constant default value expressions
-        case (VariableUndefined, true) => {
-          val res = inst.rd.maybeDefaultValueExpr.get.evaluate(state)
-          inst.setDefaultValue(DataValue.unsafeFromAnyRef(res))
+    vTable.foreach {
+      case (_, variableInstances) => {
+        variableInstances.foreach { inst =>
+          {
+            (inst.state, inst.rd.maybeDefaultValueExpr.isDefined) match {
+              // Evaluate defineVariable statements with non-constant default value expressions
+              case (VariableUndefined, true) => {
+                val res = inst.rd.maybeDefaultValueExpr.get.evaluate(state)
+                inst.setDefaultValue(DataValue.unsafeFromAnyRef(res))
+              }
+              case (_, _) => // Do nothing
+            }
+          }
         }
-        case (_, _) => // Do nothing
       }
-    }}}}
+    }
   }
-
 
   /**
    * This function is called immediately after forceExpressionEvaluations in
@@ -280,9 +310,11 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
    * expression
    */
   def setFirstInstanceInitialValues(): Unit = {
-    vTable.foreach { case (_, variableInstances) => {
-      variableInstances(0).firstInstanceInitialValue = variableInstances(0).value
-    }}
+    vTable.foreach {
+      case (_, variableInstances) => {
+        variableInstances(0).firstInstanceInitialValue = variableInstances(0).value
+      }
+    }
   }
 
   def find(qName: GlobalQName): Option[VariableInstance] = {
@@ -329,13 +361,25 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
    * Returns the value of a variable and sets the state of the variable to be
    * VariableRead.
    */
-  def readVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE, state: ParseOrUnparseState): DataValuePrimitive = {
+  def readVariable(
+    vrd: VariableRuntimeData,
+    referringContext: ThrowsSDE,
+    state: ParseOrUnparseState,
+  ): DataValuePrimitive = {
     val varQName = vrd.globalQName
     vrd.direction match {
       case VariableDirection.ParseOnly if (!state.isInstanceOf[PState]) =>
-        state.SDE("Attempting to read variable %s which is marked as parseOnly during unparsing".format(varQName))
+        state.SDE(
+          "Attempting to read variable %s which is marked as parseOnly during unparsing".format(
+            varQName,
+          ),
+        )
       case VariableDirection.UnparseOnly if (!state.isInstanceOf[UState]) =>
-        state.SDE("Attempting to read variable %s which is marked as unparseOnly during parsing".format(varQName))
+        state.SDE(
+          "Attempting to read variable %s which is marked as unparseOnly during parsing".format(
+            varQName,
+          ),
+        )
       case _ => // Do nothing
     }
 
@@ -355,7 +399,8 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
         // have a defined value
         case VariableUndefined if (variable.rd.maybeDefaultValueExpr.isDefined) => {
           variable.setState(VariableBeingDefined)
-          val res = DataValue.unsafeFromAnyRef(variable.rd.maybeDefaultValueExpr.get.evaluate(state))
+          val res =
+            DataValue.unsafeFromAnyRef(variable.rd.maybeDefaultValueExpr.get.evaluate(state))
 
           // Need to update the variable's value with the result of the
           // expression
@@ -369,30 +414,47 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
         case _ => throw new VariableHasNoValue(varQName, vrd)
       }
     } else
-      referringContext.SDE("Variable map (compilation): unknown variable %s", varQName) // Fix DFDL-766
+      referringContext.SDE(
+        "Variable map (compilation): unknown variable %s",
+        varQName,
+      ) // Fix DFDL-766
   }
 
   /**
    * Assigns a variable and sets the variables state to VariableSet
    */
-  def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE, pstate: ParseOrUnparseState) = {
+  def setVariable(
+    vrd: VariableRuntimeData,
+    newValue: DataValuePrimitive,
+    referringContext: ThrowsSDE,
+    pstate: ParseOrUnparseState,
+  ) = {
     val varQName = vrd.globalQName
     val variableInstances = vTable.get(varQName)
     if (variableInstances.isDefined) {
       val variable = variableInstances.get.last
       variable.state match {
         case VariableSet => {
-          referringContext.SDE("Cannot set variable %s twice. State was: %s. Existing value: %s",
-          variable.rd.globalQName, VariableSet, variable.value)
+          referringContext.SDE(
+            "Cannot set variable %s twice. State was: %s. Existing value: %s",
+            variable.rd.globalQName,
+            VariableSet,
+            variable.value,
+          )
         }
 
         case VariableRead => {
+
           /**
            * TODO: This should be an SDE, but due to a bug (DAFFODIL-1443) in
            * the way we evaluate escapeSchemes it could lead us to setting the
            * variable read too early */
-          pstate.SDW("Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
-          variable.rd.globalQName, VariableSet, variable.value)
+          pstate.SDW(
+            "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
+            variable.rd.globalQName,
+            VariableSet,
+            variable.value,
+          )
           variable.setValue(newValue)
           variable.setState(VariableSet)
         }
@@ -406,10 +468,14 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
              * setVariable statements or a default value when unparsing a
              * variable.
              */
-            case VariableDirection.UnparseOnly | VariableDirection.Both if (vrd.maybeDefaultValueExpr.isDefined && variableInstances.get.size > 1) => {
+            case VariableDirection.UnparseOnly | VariableDirection.Both
+                if (vrd.maybeDefaultValueExpr.isDefined && variableInstances.get.size > 1) => {
               // Variable has an unparse direction, a default value, and a
               // newVariableInstance
-              pstate.SDE("Variable %s has an unparse direction and a default value, setting the variable may cause race conditions when combined with a forward referencing expression.", varQName)
+              pstate.SDE(
+                "Variable %s has an unparse direction and a default value, setting the variable may cause race conditions when combined with a forward referencing expression.",
+                varQName,
+              )
             }
             case _ => // Do nothing
           }
@@ -463,9 +529,9 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
           case 0 => None
           case 1 => Some(candidates.head._2)
           case _ => {
-            val msg = "External variable binding %s is ambiguous. A namespace is required to resolve the ambiguity. Found variables: %s".format(
-              bindingQName,
-              candidates.keys.map(_.toString).mkString(", "))
+            val msg =
+              "External variable binding %s is ambiguous. A namespace is required to resolve the ambiguity. Found variables: %s"
+                .format(bindingQName, candidates.keys.map(_.toString).mkString(", "))
             throw new ExternalVariableException(msg)
           }
         }
@@ -474,7 +540,8 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
       }
 
     optVariableInstances match {
-      case None => throw new ExternalVariableException("Variable definition not found: " + bindingQName)
+      case None =>
+        throw new ExternalVariableException("Variable definition not found: " + bindingQName)
       case Some(variableInstances) => {
         // This array of VariableInstances comes from the VariableMap that is
         // part of the DataProcessor before being copied to pstate/ustate when
@@ -483,7 +550,9 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
         Assert.invariant(variableInstances.size == 1)
         val variable = variableInstances(0)
         if (!variable.rd.external) {
-          throw new ExternalVariableException("Variable cannot be set externally: " + variable.rd.globalQName)
+          throw new ExternalVariableException(
+            "Variable cannot be set externally: " + variable.rd.globalQName,
+          )
         }
         variable.state match {
           case VariableDefined | VariableUndefined => {
@@ -495,16 +564,17 @@ class VariableMap private(vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]
                   val msg = "Value for variable %s is not a valid %s: %s".format(
                     variable.rd.globalQName,
                     variable.rd.primType.globalQName,
-                    newValue)
+                    newValue,
+                  )
                   throw new ExternalVariableException(msg)
                 }
               }
             variable.setValue(value)
             variable.setState(VariableDefined)
           }
-          //$COVERAGE-OFF$
+          // $COVERAGE-OFF$
           case _ => Assert.impossible()
-          //$COVERAGE-ON$
+          // $COVERAGE-ON$
         }
       }
     }

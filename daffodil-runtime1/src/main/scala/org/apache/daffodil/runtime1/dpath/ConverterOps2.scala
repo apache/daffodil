@@ -23,12 +23,12 @@ import org.apache.daffodil.lib.calendar.DFDLDateTime
 import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.lib.calendar.DFDLTime
 import org.apache.daffodil.lib.calendar.DFDLTimeConversion
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueByteArray
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueDate
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueDateTime
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueTime
-import org.apache.daffodil.lib.util.Misc
 
 case object AnyAtomicToString extends ToString {
   val name = "AnyAtomicToString"
@@ -42,7 +42,10 @@ case object StringToDate extends Converter {
       case cal: DFDLDateTime => cal.toDate
       case cal: DFDLDate => cal
       case str: String => DFDLDateConversion.fromXMLString(str)
-      case _ => throw new NumberFormatException("xs:date only accepts String, Date or DateTime objects.")
+      case _ =>
+        throw new NumberFormatException(
+          "xs:date only accepts String, Date or DateTime objects.",
+        )
     }
     result
   }
@@ -56,7 +59,10 @@ case object StringToDateTime extends Converter {
       case cal: DFDLDateTime => cal
       case cal: DFDLDate => cal.toDateTime
       case str: String => DFDLDateTimeConversion.fromXMLString(str)
-      case _ => throw new NumberFormatException("xs:dateTime only accepts String, Date or DateTime objects.")
+      case _ =>
+        throw new NumberFormatException(
+          "xs:dateTime only accepts String, Date or DateTime objects.",
+        )
     }
     result
   }
@@ -70,7 +76,10 @@ case object StringToTime extends Converter {
       case cal: DFDLDateTime => cal.toTime
       case cal: DFDLTime => cal
       case str: String => DFDLTimeConversion.fromXMLString(str)
-      case _ => throw new NumberFormatException("xs:time only accepts String, DateTime or Time objects.")
+      case _ =>
+        throw new NumberFormatException(
+          "xs:time only accepts String, DateTime or Time objects.",
+        )
     }
     result
   }
@@ -83,7 +92,11 @@ case object StringToHexBinary extends Converter with HexBinaryKind {
     val result = a.getAnyRef match {
       case s: String => Misc.hex2Bytes(s)
       case hb: Array[Byte] => hb
-      case x => throw new NumberFormatException("%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String or HexBinary.".format(x.toString))
+      case x =>
+        throw new NumberFormatException(
+          "%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String or HexBinary."
+            .format(x.toString),
+        )
     }
     result
   }

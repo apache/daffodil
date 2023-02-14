@@ -17,19 +17,18 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-
-import org.apache.daffodil.runtime1.dsom._
+import java.lang.{ Boolean => JBoolean, Long => JLong }
+import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.core.dpath._
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import scala.xml.NamespaceBinding
-import org.apache.daffodil.lib.xml.NamedQName
-import java.lang.{ Long => JLong, Boolean => JBoolean }
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.util.DPathUtil
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
+import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.BasicComponent
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 
 object ExpressionCompilers extends ExpressionCompilerClass {
   override val String = new ExpressionCompiler[String]
@@ -62,7 +61,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,
-    compileInfo: DPathCompileInfo): CompiledExpression[T] = {
+    compileInfo: DPathCompileInfo,
+  ): CompiledExpression[T] = {
 
     compileInfo.initialize
     compileInfoWhereExpressionWasLocated.initialize
@@ -77,7 +77,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           compileInfoWhereExpressionWasLocated,
           isEvaluatedAbove,
           host,
-          compileInfo)
+          compileInfo,
+        )
       } else {
         convertLiteralToConstant(
           qn,
@@ -85,7 +86,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           exprOrLiteral,
           namespaces,
           compileInfoWhereExpressionWasLocated,
-          isEvaluatedAbove)
+          isEvaluatedAbove,
+        )
       }
     res
   }
@@ -110,7 +112,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     property: Found,
     host: BasicComponent,
     compileInfo: DPathCompileInfo,
-    isEvaluatedAbove: Boolean = false): CompiledExpression[T] = {
+    isEvaluatedAbove: Boolean = false,
+  ): CompiledExpression[T] = {
 
     compileExpression(
       qn,
@@ -120,7 +123,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       compileInfo,
       isEvaluatedAbove,
       host,
-      compileInfo)
+      compileInfo,
+    )
   }
 
   /**
@@ -148,7 +152,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     runtimeNodeInfoKind: NodeInfo.Kind,
     property: Found,
     host: BasicComponent,
-    compileInfo: DPathCompileInfo): CompiledExpression[T] = {
+    compileInfo: DPathCompileInfo,
+  ): CompiledExpression[T] = {
 
     val isEvaluatedAbove = false
     val exprOrLiteral = property.value
@@ -162,7 +167,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       compileInfoWhereExpressionWasLocated,
       isEvaluatedAbove,
       host,
-      compileInfo)
+      compileInfo,
+    )
 
     if (compiled1.isConstant || (staticNodeInfoKind == runtimeNodeInfoKind)) {
       compiled1
@@ -175,7 +181,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
         compileInfoWhereExpressionWasLocated,
         isEvaluatedAbove,
         host,
-        compileInfo)
+        compileInfo,
+      )
       compiled2
     }
   }
@@ -206,13 +213,15 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,
-    compileInfo: DPathCompileInfo): CompiledExpression[T] = {
+    compileInfo: DPathCompileInfo,
+  ): CompiledExpression[T] = {
 
     // Treat this as an expression--validate and compile it
 
     val expr = exprOrLiteral.trim
     if (!expr.endsWith("}")) {
-      val msg = "'%s' is an unterminated expression. Add missing closing brace, or escape opening brace with another opening brace."
+      val msg =
+        "'%s' is an unterminated expression. Add missing closing brace, or escape opening brace with another opening brace."
       compileInfoWhereExpressionWasLocated.SDE(msg, exprOrLiteral)
     }
 
@@ -222,7 +231,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       namespaces,
       compileInfo,
       isEvaluatedAbove,
-      host)
+      host,
+    )
     val compiledDPath = compiler.compile(expr)
     compiledDPath
   }
@@ -233,7 +243,8 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     exprOrLiteral: String,
     namespaces: NamespaceBinding,
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean): CompiledExpression[T] = {
+    isEvaluatedAbove: Boolean,
+  ): CompiledExpression[T] = {
 
     // This string is not a real expression, we need to convert it to it's
     // logical type and set it as a constant expression. Not compilation
@@ -252,14 +263,20 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       if (exprOrLiteral.startsWith("{{")) exprOrLiteral.tail
       else exprOrLiteral
 
-    val logical:DataValuePrimitive = try {
-      maybePrimType.get.fromXMLString(literal)
-    } catch {
-      case e: Exception => {
-        val msg = "Unable to convert logical value \"%s\" to %s: %s"
-        compileInfoWhereExpressionWasLocated.SDE(msg, exprOrLiteral, nodeInfoKind, e.getMessage)
+    val logical: DataValuePrimitive =
+      try {
+        maybePrimType.get.fromXMLString(literal)
+      } catch {
+        case e: Exception => {
+          val msg = "Unable to convert logical value \"%s\" to %s: %s"
+          compileInfoWhereExpressionWasLocated.SDE(
+            msg,
+            exprOrLiteral,
+            nodeInfoKind,
+            e.getMessage,
+          )
+        }
       }
-    }
 
     new ConstantExpression[T](qn, nodeInfoKind, logical.getAnyRef.asInstanceOf[T])
   }

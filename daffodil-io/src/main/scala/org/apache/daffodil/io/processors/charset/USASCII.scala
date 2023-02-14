@@ -17,24 +17,25 @@
 
 package org.apache.daffodil.io.processors.charset
 
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.io.InputSourceDataInputStream
 
-object BitsCharsetUSASCII extends {
-  override val name = "US-ASCII"
-} with BitsCharsetJava {
+object BitsCharsetUSASCII
+  extends {
+    override val name = "US-ASCII"
+  }
+  with BitsCharsetJava {
 
   override def newDecoder() = new BitsCharsetDecoderUSASCII()
 }
 
-class BitsCharsetDecoderUSASCII
-  extends BitsCharsetDecoderByteSize {
+class BitsCharsetDecoderUSASCII extends BitsCharsetDecoderByteSize {
 
   override def decodeOneChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
     val byte = getByte(dis, 0)
     if (byte >= 128) {
       throw new BitsCharsetDecoderMalformedException(8)
-    } 
+    }
     byte.toChar
   }
 }
@@ -42,5 +43,4 @@ class BitsCharsetDecoderUSASCII
 final class BitsCharsetASCIIDefinition
   extends BitsCharsetDefinition(BitsCharsetUSASCII, Some("ASCII"))
 
-final class BitsCharsetUSASCIIDefinition
-  extends BitsCharsetDefinition(BitsCharsetUSASCII)
+final class BitsCharsetUSASCIIDefinition extends BitsCharsetDefinition(BitsCharsetUSASCII)

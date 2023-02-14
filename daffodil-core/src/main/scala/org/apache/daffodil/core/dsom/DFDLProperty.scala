@@ -20,8 +20,8 @@ package org.apache.daffodil.core.dsom
 import scala.xml.Node
 import scala.xml.NodeSeq
 
-import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.NS
+import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -47,9 +47,10 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
    * property name. The propertyNamespace above can be used to determine if
    * this property was defined as an extension or not.
    */
-  override val name =  super.name.stripPrefix("dfdlx:")
+  override val name = super.name.stripPrefix("dfdlx:")
 
-  override lazy val namedQName: NamedQName = QName.createGlobal(name, propertyNamespace, xml.scope)
+  override lazy val namedQName: NamedQName =
+    QName.createGlobal(name, propertyNamespace, xml.scope)
 
   override lazy val path = formatAnnotation.path + "::" + diagnosticDebugName
 
@@ -64,8 +65,8 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
     val values: Option[NodeSeq] = xml match {
       case <dfdl:property/> => None
       case <daf:property/> => None
-      case <dfdl:property>{ valueNodes @ _* }</dfdl:property> => Some(valueNodes)
-      case <daf:property>{ valueNodes @ _* }</daf:property> => Some(valueNodes)
+      case <dfdl:property>{valueNodes @ _*}</dfdl:property> => Some(valueNodes)
+      case <daf:property>{valueNodes @ _*}</daf:property> => Some(valueNodes)
     }
 
     values match {
@@ -96,7 +97,8 @@ final class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
             }
             case scala.xml.Comment(_) => None
             case scala.xml.EntityRef(_) => Some(valueNode)
-            case _: scala.xml.Atom[_] => Some(valueNode) // &lt; comes through as this... should be EntityRef
+            case _: scala.xml.Atom[_] =>
+              Some(valueNode) // &lt; comes through as this... should be EntityRef
           }
         }
         val res = values.map { _.text }.mkString

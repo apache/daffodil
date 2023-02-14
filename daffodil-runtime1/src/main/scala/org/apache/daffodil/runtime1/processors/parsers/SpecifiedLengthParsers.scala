@@ -20,23 +20,21 @@ package org.apache.daffodil.runtime1.processors.parsers
 import java.lang.{ Long => JLong }
 import java.util.regex.Matcher
 
-import passera.unsigned.ULong
-
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.ChoiceRuntimeData
-import org.apache.daffodil.runtime1.processors.RuntimeData
-import org.apache.daffodil.runtime1.processors.Evaluatable
-import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.lib.util.OnStack
+import org.apache.daffodil.runtime1.processors.ChoiceRuntimeData
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.Evaluatable
+import org.apache.daffodil.runtime1.processors.RuntimeData
+import org.apache.daffodil.runtime1.processors.Success
 
-sealed abstract class SpecifiedLengthParserBase(
-  eParser: Parser,
-  erd: RuntimeData)
+import passera.unsigned.ULong
+
+sealed abstract class SpecifiedLengthParserBase(eParser: Parser, erd: RuntimeData)
   extends CombinatorParser(erd)
   with CaptureParsingValueLength {
 
@@ -44,7 +42,9 @@ sealed abstract class SpecifiedLengthParserBase(
 
   override lazy val childProcessors = Vector(eParser)
 
-  override def charsetEv = Assert.invariantFailed("Specified Length parsers should not capture value length using the charset")
+  override def charsetEv = Assert.invariantFailed(
+    "Specified Length parsers should not capture value length using the charset",
+  )
 
   /**
    * Computes number of bits in length. If an error occurs this should
@@ -56,13 +56,13 @@ sealed abstract class SpecifiedLengthParserBase(
 
     val maybeNBits = getBitLength(pState)
 
-    if (pState.processorStatus _ne_ Success) return
+    if (pState.processorStatus._ne_(Success)) return
     val nBits = maybeNBits.get
     val dis = pState.dataInputStream
 
     val shouldCheckDefinedForLength = erd match {
-      case erd : ElementRuntimeData => !erd.isComplexType
-      case _ : ChoiceRuntimeData => false
+      case erd: ElementRuntimeData => !erd.isComplexType
+      case _: ChoiceRuntimeData => false
       case _ => true
     }
 
@@ -89,7 +89,9 @@ sealed abstract class SpecifiedLengthParserBase(
 
     Assert.invariant(dis eq pState.dataInputStream)
     val bitsToSkip = finalEndPos0b - dis.bitPos0b
-    Assert.invariant(bitsToSkip >= 0) // if this is < 0, then the parsing of children went past the limit, which it isn't supposed to.
+    Assert.invariant(
+      bitsToSkip >= 0,
+    ) // if this is < 0, then the parsing of children went past the limit, which it isn't supposed to.
     if (bitsToSkip > 0) {
       // skip left over bits
       val skipSuccess = dis.skip(bitsToSkip, pState)
@@ -103,8 +105,8 @@ sealed abstract class SpecifiedLengthParserBase(
 class SpecifiedLengthPatternParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  pattern: java.util.regex.Pattern)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  pattern: java.util.regex.Pattern,
+) extends SpecifiedLengthParserBase(eParser, erd) {
 
   object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 
@@ -130,8 +132,8 @@ class SpecifiedLengthExplicitParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   lengthEv: Evaluatable[JLong],
-  toBits: Int)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  toBits: Int,
+) extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): MaybeULong = {
     val nBytesAsAny = lengthEv.evaluate(s)
@@ -140,10 +142,7 @@ class SpecifiedLengthExplicitParser(
   }
 }
 
-class SpecifiedLengthChoiceParser(
-  eParser: Parser,
-  erd: RuntimeData,
-  choiceLengthInBits: JLong)
+class SpecifiedLengthChoiceParser(eParser: Parser, erd: RuntimeData, choiceLengthInBits: JLong)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): MaybeULong = {
@@ -151,10 +150,7 @@ class SpecifiedLengthChoiceParser(
   }
 }
 
-class SpecifiedLengthImplicitParser(
-  eParser: Parser,
-  erd: ElementRuntimeData,
-  nBits: Long)
+class SpecifiedLengthImplicitParser(eParser: Parser, erd: ElementRuntimeData, nBits: Long)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   final override def getBitLength(s: PState): MaybeULong = MaybeULong(nBits)
@@ -166,8 +162,8 @@ class SpecifiedLengthPrefixedParser(
   override val prefixedLengthParser: Parser,
   override val prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends SpecifiedLengthParserBase(eParser, erd)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends SpecifiedLengthParserBase(eParser, erd)
   with PrefixedLengthParserMixin {
 
   override lazy val childProcessors = Vector(eParser, prefixedLengthParser)
@@ -192,8 +188,8 @@ class SpecifiedLengthPrefixedParser(
  */
 sealed abstract class SpecifiedLengthCharactersParserBase(
   eParser: Parser,
-  erd: ElementRuntimeData)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  erd: ElementRuntimeData,
+) extends SpecifiedLengthParserBase(eParser, erd) {
 
   private def maybeBitPosAfterNChars(start: PState, nChars: Long): MaybeULong = {
     val dis = start.dataInputStream
@@ -223,8 +219,13 @@ sealed abstract class SpecifiedLengthCharactersParserBase(
     //
     val mBitLimit = maybeBitPosAfterNChars(s, nChars)
     if (!mBitLimit.isDefined) {
-      PE(s, "%s - %s - Parse failed.  Failed to find exactly %s characters.",
-        this.toString(), erd.name, nChars)
+      PE(
+        s,
+        "%s - %s - Parse failed.  Failed to find exactly %s characters.",
+        this.toString(),
+        erd.name,
+        nChars,
+      )
       MaybeULong.Nope
     } else {
       val bitLength = mBitLimit.get - s.bitPos0b
@@ -236,8 +237,8 @@ sealed abstract class SpecifiedLengthCharactersParserBase(
 final class SpecifiedLengthImplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  nChars: Long)
-  extends SpecifiedLengthCharactersParserBase(eParser, erd) {
+  nChars: Long,
+) extends SpecifiedLengthCharactersParserBase(eParser, erd) {
 
   override def getCharLength(s: PState) = nChars
 
@@ -246,8 +247,8 @@ final class SpecifiedLengthImplicitCharactersParser(
 final class SpecifiedLengthExplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  lengthEv: Evaluatable[JLong])
-  extends SpecifiedLengthCharactersParserBase(eParser, erd) {
+  lengthEv: Evaluatable[JLong],
+) extends SpecifiedLengthCharactersParserBase(eParser, erd) {
 
   def getCharLength(s: PState): Long = {
     val nChars = lengthEv.evaluate(s)
@@ -261,14 +262,14 @@ final class SpecifiedLengthPrefixedCharactersParser(
   erd: ElementRuntimeData,
   override val prefixedLengthParser: Parser,
   override val prefixedLengthERD: ElementRuntimeData,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends SpecifiedLengthCharactersParserBase(eParser, erd)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends SpecifiedLengthCharactersParserBase(eParser, erd)
   with PrefixedLengthParserMixin {
 
   override lazy val childProcessors = Vector(eParser, prefixedLengthParser)
- 
+
   override lazy val lengthUnits = LengthUnits.Characters
-   
+
   def getCharLength(s: PState): Long = {
     val nChars = getPrefixedLengthInUnits(s)
     nChars

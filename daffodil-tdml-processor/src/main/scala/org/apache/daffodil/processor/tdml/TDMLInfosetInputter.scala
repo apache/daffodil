@@ -17,19 +17,22 @@
 
 package org.apache.daffodil.processor.tdml
 
-import org.apache.daffodil.tdml.TDMLException
-
 import java.net.URI
 import java.net.URISyntaxException
-import org.apache.daffodil.runtime1.infoset.InfosetInputter
-import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
-import org.apache.daffodil.runtime1.infoset.JsonInfosetInputter
+
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.InfosetInputter
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
+import org.apache.daffodil.runtime1.infoset.JsonInfosetInputter
+import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.tdml.TDMLException
 
-class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Seq[InfosetInputter]) extends InfosetInputter {
+class TDMLInfosetInputter(
+  val scalaInputter: ScalaXMLInfosetInputter,
+  others: Seq[InfosetInputter],
+) extends InfosetInputter {
 
   private def implString: String = "daffodil"
 
@@ -66,7 +69,10 @@ class TDMLInfosetInputter(val scalaInputter: ScalaXMLInfosetInputter, others: Se
     res
   }
 
-  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
+  override def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String = {
     val res = scalaInputter.getSimpleText(primType, runtimeProperties)
     val resIsEmpty = res == null || res == ""
     val otherStrings = others.map { i =>

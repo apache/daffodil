@@ -17,30 +17,30 @@
 
 package org.apache.daffodil.core.runtime1
 
+import org.apache.daffodil.core.dsom.ComplexTypeBase
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.PrefixLengthQuasiElementDecl
+import org.apache.daffodil.core.dsom.PrimitiveType
+import org.apache.daffodil.core.dsom.SimpleTypeDefBase
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
-import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
-import org.apache.daffodil.runtime1.processors.RuntimeData
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.core.dsom.SimpleTypeDefBase
-import org.apache.daffodil.core.dsom.ComplexTypeBase
-import org.apache.daffodil.core.dsom.PrimitiveType
+import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.RuntimeData
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 
 trait ElementBaseRuntime1Mixin { self: ElementBase =>
 
   // initialize cyclic structure
   requiredEvaluationsIfActivated(
-    dpathElementCompileInfo.initialize
+    dpathElementCompileInfo.initialize,
   )
 
   // initialize cyclic structure
   requiredEvaluationsIfActivated(
-    elementRuntimeData.initialize
+    elementRuntimeData.initialize,
   )
 
   /**
@@ -156,7 +156,8 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       tunable.unqualifiedPathStepPolicy,
       schemaSet.typeCalcMap,
       shortSchemaComponentDesignator,
-      isOutputValueCalc)
+      isOutputValueCalc,
+    )
     eci
   }
 
@@ -215,12 +216,12 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv,
       isQuasiElement,
-      runtimeProperties)
+      runtimeProperties,
+    )
     newERD
   }.value
 
-  private lazy val (optSimpleTypeRuntimeData,
-    optComplexTypeModelGroupRuntimeData) =
+  private lazy val (optSimpleTypeRuntimeData, optComplexTypeModelGroupRuntimeData) =
     typeDef match {
       case _: PrimitiveType => (None, None)
       case ctb: ComplexTypeBase => (None, Some(ctb.modelGroup.modelGroupRuntimeData))

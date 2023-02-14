@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-
 /**
  * Ignores all infoset events, outputting nothing
  */

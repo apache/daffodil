@@ -18,6 +18,7 @@
 package org.apache.daffodil.lib
 
 import scala.annotation.implicitNotFound
+
 import org.apache.daffodil.lib.exceptions.Assert
 
 /**

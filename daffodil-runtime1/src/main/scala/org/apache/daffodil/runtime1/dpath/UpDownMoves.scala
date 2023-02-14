@@ -18,10 +18,10 @@
 package org.apache.daffodil.runtime1.dpath
 
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.infoset.DIArray
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.InfosetNoSuchChildElementException
-import org.apache.daffodil.lib.xml.NamedQName
 
 /**
  * Moves to above the root element so that an absolute path
@@ -94,10 +94,15 @@ case class DownArrayOccurrence(nqn: NamedQName, indexRecipe: CompiledDPath)
     // necessary since one of the following functions could throw, leaving the
     // current node to null. And future calls depend on a current node to be set
     dstate.setCurrentNode(savedCurrentElement)
-    val childArrayElementERD = 
-      dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(nqn, dstate.tunable).asInstanceOf[DIArray].erd)
-    val arr = dstate.withRetryIfBlocking(savedCurrentElement.getChildArray(childArrayElementERD, dstate.tunable))
-    val occurrence = dstate.withRetryIfBlocking(arr.getOccurrence(index)) // will throw on out of bounds
+    val childArrayElementERD =
+      dstate.withRetryIfBlocking(
+        savedCurrentElement.getChildArray(nqn, dstate.tunable).asInstanceOf[DIArray].erd,
+      )
+    val arr = dstate.withRetryIfBlocking(
+      savedCurrentElement.getChildArray(childArrayElementERD, dstate.tunable),
+    )
+    val occurrence =
+      dstate.withRetryIfBlocking(arr.getOccurrence(index)) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
 

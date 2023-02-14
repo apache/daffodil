@@ -17,42 +17,68 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.runtime1.dsom._
-
 import java.math.BigInteger
 import scala.xml.Node
+
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.dsom._
 
 trait Facets { self: Restriction =>
   import org.apache.daffodil.runtime1.dsom.FacetTypes._
 
-  private def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet.Type): String = {
+  private def retrieveFacetValueFromRestrictionBase(
+    xml: Node,
+    facetName: Facet.Type,
+  ): String = {
     val res = xml \\ "restriction" \ facetName.toString() \ "@value"
     if (res.length > 0) res.head.text else ""
   }
 
-  private def retrieveFacetValuesFromRestrictionBase(xml: Node, facetName: Facet.Type): Seq[String] = {
+  private def retrieveFacetValuesFromRestrictionBase(
+    xml: Node,
+    facetName: Facet.Type,
+  ): Seq[String] = {
     val res = xml \\ "restriction" \ facetName.toString() \\ "@value"
     val ret = if (res.length > 0) res.map(n => n.text).toList else List.empty
     ret
   }
-  private def enumeration(xml: Node): Seq[String] = { retrieveFacetValuesFromRestrictionBase(xml, Facet.enumeration) }
-  private def fractionDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.fractionDigits) }
-  private def maxExclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxExclusive) }
-  private def maxInclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxInclusive) }
-  private def maxLength(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxLength) }
-  private def minExclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minExclusive) }
-  private def minInclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minInclusive) }
-  private def minLength(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minLength) }
+  private def enumeration(xml: Node): Seq[String] = {
+    retrieveFacetValuesFromRestrictionBase(xml, Facet.enumeration)
+  }
+  private def fractionDigits(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.fractionDigits)
+  }
+  private def maxExclusive(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.maxExclusive)
+  }
+  private def maxInclusive(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.maxInclusive)
+  }
+  private def maxLength(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.maxLength)
+  }
+  private def minExclusive(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.minExclusive)
+  }
+  private def minInclusive(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.minInclusive)
+  }
+  private def minLength(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.minLength)
+  }
   private def pattern(xml: Node): Seq[String] = {
     // Patterns are OR'd locally, AND'd remotely
     val res = retrieveFacetValuesFromRestrictionBase(xml, Facet.pattern).map(p => p)
     res
   }
-  private def totalDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.totalDigits) }
-  private def whitespace(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.whiteSpace) }
+  private def totalDigits(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.totalDigits)
+  }
+  private def whitespace(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.whiteSpace)
+  }
 
   final lazy val localPatternValue: String = {
     // Patterns within a type are OR'd
@@ -109,19 +135,31 @@ trait Facets { self: Restriction =>
     sb.toString()
   }
 
-  final lazy val hasEnumeration: Boolean = (localEnumerationValue.length > 0) || (getRemoteFacetValues(Facet.enumeration).size > 0)
-  final lazy val hasPattern: Boolean = (localPatternValue.length > 0) || (getRemoteFacetValues(Facet.pattern).size > 0)
-  final lazy val hasMinLength: Boolean = (localMinLengthValue != "") || (getRemoteFacetValues(Facet.minLength).size > 0)
-  final lazy val hasMaxLength: Boolean = (localMaxLengthValue != "") || (getRemoteFacetValues(Facet.maxLength).size > 0)
-  final lazy val hasMinInclusive: Boolean = (localMinInclusiveValue != "") || (getRemoteFacetValues(Facet.minInclusive).size > 0)
-  final lazy val hasMaxInclusive: Boolean = (localMaxInclusiveValue != "") || (getRemoteFacetValues(Facet.maxInclusive).size > 0)
-  final lazy val hasMinExclusive: Boolean = (localMinExclusiveValue != "") || (getRemoteFacetValues(Facet.minExclusive).size > 0)
-  final lazy val hasMaxExclusive: Boolean = (localMaxExclusiveValue != "") || (getRemoteFacetValues(Facet.maxExclusive).size > 0)
-  final lazy val hasTotalDigits: Boolean = (localTotalDigitsValue != "") || (getRemoteFacetValues(Facet.totalDigits).size > 0)
-  final lazy val hasFractionDigits: Boolean = (localFractionDigitsValue != "") || (getRemoteFacetValues(Facet.fractionDigits).size > 0)
+  final lazy val hasEnumeration: Boolean =
+    (localEnumerationValue.length > 0) || (getRemoteFacetValues(Facet.enumeration).size > 0)
+  final lazy val hasPattern: Boolean =
+    (localPatternValue.length > 0) || (getRemoteFacetValues(Facet.pattern).size > 0)
+  final lazy val hasMinLength: Boolean =
+    (localMinLengthValue != "") || (getRemoteFacetValues(Facet.minLength).size > 0)
+  final lazy val hasMaxLength: Boolean =
+    (localMaxLengthValue != "") || (getRemoteFacetValues(Facet.maxLength).size > 0)
+  final lazy val hasMinInclusive: Boolean =
+    (localMinInclusiveValue != "") || (getRemoteFacetValues(Facet.minInclusive).size > 0)
+  final lazy val hasMaxInclusive: Boolean =
+    (localMaxInclusiveValue != "") || (getRemoteFacetValues(Facet.maxInclusive).size > 0)
+  final lazy val hasMinExclusive: Boolean =
+    (localMinExclusiveValue != "") || (getRemoteFacetValues(Facet.minExclusive).size > 0)
+  final lazy val hasMaxExclusive: Boolean =
+    (localMaxExclusiveValue != "") || (getRemoteFacetValues(Facet.maxExclusive).size > 0)
+  final lazy val hasTotalDigits: Boolean =
+    (localTotalDigitsValue != "") || (getRemoteFacetValues(Facet.totalDigits).size > 0)
+  final lazy val hasFractionDigits: Boolean =
+    (localFractionDigitsValue != "") || (getRemoteFacetValues(Facet.fractionDigits).size > 0)
 
   final lazy val patternValues: Seq[FacetValueR] = {
-    val values: Seq[(Facet.Type, Values)] = combinedBaseFacets.filter { case (f, _) => f == Facet.pattern }
+    val values: Seq[(Facet.Type, Values)] = combinedBaseFacets.filter { case (f, _) =>
+      f == Facet.pattern
+    }
     if (values.size > 0) {
       val res: Seq[FacetValueR] = values.map {
         case (f, v: String) => {
@@ -173,14 +211,22 @@ trait Facets { self: Restriction =>
   // TODO: Tidy up.  Can likely replace getFacetValue with a similar call to combinedBaseFacets
   // as combinedBaseFacets should contain the 'narrowed' values.
   //
-  final lazy val minLengthValue: java.math.BigDecimal = getFacetValue(localMinLengthValue, Facet.minLength, hasMinLength)
-  final lazy val maxLengthValue: java.math.BigDecimal = getFacetValue(localMaxLengthValue, Facet.maxLength, hasMaxLength)
-  final lazy val minInclusiveValue: java.math.BigDecimal = getFacetValue(localMinInclusiveValue, Facet.minInclusive, hasMinInclusive)
-  final lazy val maxInclusiveValue: java.math.BigDecimal = getFacetValue(localMaxInclusiveValue, Facet.maxInclusive, hasMaxInclusive)
-  final lazy val minExclusiveValue: java.math.BigDecimal = getFacetValue(localMinExclusiveValue, Facet.minExclusive, hasMinExclusive)
-  final lazy val maxExclusiveValue: java.math.BigDecimal = getFacetValue(localMaxExclusiveValue, Facet.maxExclusive, hasMaxExclusive)
-  final lazy val totalDigitsValue: java.math.BigDecimal = getFacetValue(localTotalDigitsValue, Facet.totalDigits, hasTotalDigits)
-  final lazy val fractionDigitsValue: java.math.BigDecimal = getFacetValue(localFractionDigitsValue, Facet.fractionDigits, hasFractionDigits)
+  final lazy val minLengthValue: java.math.BigDecimal =
+    getFacetValue(localMinLengthValue, Facet.minLength, hasMinLength)
+  final lazy val maxLengthValue: java.math.BigDecimal =
+    getFacetValue(localMaxLengthValue, Facet.maxLength, hasMaxLength)
+  final lazy val minInclusiveValue: java.math.BigDecimal =
+    getFacetValue(localMinInclusiveValue, Facet.minInclusive, hasMinInclusive)
+  final lazy val maxInclusiveValue: java.math.BigDecimal =
+    getFacetValue(localMaxInclusiveValue, Facet.maxInclusive, hasMaxInclusive)
+  final lazy val minExclusiveValue: java.math.BigDecimal =
+    getFacetValue(localMinExclusiveValue, Facet.minExclusive, hasMinExclusive)
+  final lazy val maxExclusiveValue: java.math.BigDecimal =
+    getFacetValue(localMaxExclusiveValue, Facet.maxExclusive, hasMaxExclusive)
+  final lazy val totalDigitsValue: java.math.BigDecimal =
+    getFacetValue(localTotalDigitsValue, Facet.totalDigits, hasTotalDigits)
+  final lazy val fractionDigitsValue: java.math.BigDecimal =
+    getFacetValue(localFractionDigitsValue, Facet.fractionDigits, hasFractionDigits)
 
   //  private def errorOnLocalLessThanBaseFacet(local: Long, base: Long, theFacetType: Facet.Type) = {
   //    if (local < base) SDE("SimpleTypes: The local %s (%s) was less than the base %s (%s) ", theFacetType, local, theFacetType, base)
@@ -190,35 +236,63 @@ trait Facets { self: Restriction =>
   //  }
   private def errorOnLocalLessThanBaseFacet(
     local: BigInteger,
-    base: BigInteger, theFacetType: Facet.Type) = {
+    base: BigInteger,
+    theFacetType: Facet.Type,
+  ) = {
     val res = local.compareTo(base)
-    if (res < 0) SDE(
-      "SimpleTypes: The local %s (%s) was less than the base %s (%s) ",
-      theFacetType, local, theFacetType, base)
+    if (res < 0)
+      SDE(
+        "SimpleTypes: The local %s (%s) was less than the base %s (%s) ",
+        theFacetType,
+        local,
+        theFacetType,
+        base,
+      )
   }
   private def errorOnLocalGreaterThanBaseFacet(
     local: BigInteger,
-    base: BigInteger, theFacetType: Facet.Type) = {
+    base: BigInteger,
+    theFacetType: Facet.Type,
+  ) = {
     val res = local.compareTo(base)
-    if (res > 0) SDE(
-      "SimpleTypes: The local %s (%s) was greater than the base %s (%s) ",
-      theFacetType, local, theFacetType, base)
+    if (res > 0)
+      SDE(
+        "SimpleTypes: The local %s (%s) was greater than the base %s (%s) ",
+        theFacetType,
+        local,
+        theFacetType,
+        base,
+      )
   }
   private def errorOnLocalLessThanBaseFacet(
     local: java.math.BigDecimal,
-    base: java.math.BigDecimal, theFacetType: Facet.Type) = {
+    base: java.math.BigDecimal,
+    theFacetType: Facet.Type,
+  ) = {
     val res = local.compareTo(base)
-    if (res < 0) SDE(
-      "SimpleTypes: The local %s (%s) was less than the base %s (%s) ",
-      theFacetType, local, theFacetType, base)
+    if (res < 0)
+      SDE(
+        "SimpleTypes: The local %s (%s) was less than the base %s (%s) ",
+        theFacetType,
+        local,
+        theFacetType,
+        base,
+      )
   }
   private def errorOnLocalGreaterThanBaseFacet(
     local: java.math.BigDecimal,
-    base: java.math.BigDecimal, theFacetType: Facet.Type) = {
+    base: java.math.BigDecimal,
+    theFacetType: Facet.Type,
+  ) = {
     val res = local.compareTo(base)
-    if (res > 0) SDE(
-      "SimpleTypes: The local %s (%s) was greater than the base %s (%s) ",
-      theFacetType, local, theFacetType, base)
+    if (res > 0)
+      SDE(
+        "SimpleTypes: The local %s (%s) was greater than the base %s (%s) ",
+        theFacetType,
+        local,
+        theFacetType,
+        base,
+      )
   }
 
   //  private def getRemoteFacets(theFacetType: Facet.Type): Seq[FacetValueR] = {
@@ -244,7 +318,12 @@ trait Facets { self: Restriction =>
     "" // Indicates the facet doesn't exist
   }
 
-  private def getFacetValue(theLocalValue: String, theRemoteValue: String, theType: Facet.Type, exists: Boolean): java.math.BigDecimal = {
+  private def getFacetValue(
+    theLocalValue: String,
+    theRemoteValue: String,
+    theType: Facet.Type,
+    exists: Boolean,
+  ): java.math.BigDecimal = {
     if (!exists) SDE("The facet %s was not found.", theType)
     else if (theLocalValue != "" && theRemoteValue != "") {
       val resFacet = doNumericFacetNarrowing(theLocalValue, theRemoteValue, theType)
@@ -256,7 +335,11 @@ trait Facets { self: Restriction =>
     }
   }
 
-  private def getFacetValue(theLocalValue: String, theType: Facet.Type, exists: Boolean): java.math.BigDecimal = {
+  private def getFacetValue(
+    theLocalValue: String,
+    theType: Facet.Type,
+    exists: Boolean,
+  ): java.math.BigDecimal = {
     val remoteFacets = getRemoteFacetValues(theType)
     if (!exists) SDE("The facet %s was not found.", theType)
     else if (theLocalValue != "" && remoteFacets.size > 0) {
@@ -271,10 +354,15 @@ trait Facets { self: Restriction =>
     }
   }
 
-  private def narrowNonNegativeFacets(localFacet: String, remoteFacet: String, facetType: Facet.Type): String = {
+  private def narrowNonNegativeFacets(
+    localFacet: String,
+    remoteFacet: String,
+    facetType: Facet.Type,
+  ): String = {
     val theLocalFacet = new BigInteger(localFacet)
     val theRemoteFacet = new BigInteger(remoteFacet)
-    if (theLocalFacet.signum() != 1) SDE("The %s facet must be a non-negative integer.", facetType)
+    if (theLocalFacet.signum() != 1)
+      SDE("The %s facet must be a non-negative integer.", facetType)
     facetType match {
       case Facet.minLength => {
         errorOnLocalLessThanBaseFacet(theLocalFacet, theRemoteFacet, facetType)
@@ -291,10 +379,15 @@ trait Facets { self: Restriction =>
     }
   }
 
-  private def narrowPositiveIntegerFacets(localFacet: String, remoteFacet: String, facetType: Facet.Type): String = {
+  private def narrowPositiveIntegerFacets(
+    localFacet: String,
+    remoteFacet: String,
+    facetType: Facet.Type,
+  ): String = {
     val theLocalFacet = new BigInteger(localFacet)
     val theRemoteFacet = new BigInteger(remoteFacet)
-    if ((theLocalFacet.signum() != 1) || (theLocalFacet.compareTo(BigInteger.ZERO) == 0)) SDE("The %s facet must be a positive integer.", facetType)
+    if ((theLocalFacet.signum() != 1) || (theLocalFacet.compareTo(BigInteger.ZERO) == 0))
+      SDE("The %s facet must be a positive integer.", facetType)
     facetType match {
       case Facet.totalDigits => {
         errorOnLocalGreaterThanBaseFacet(theLocalFacet, theRemoteFacet, facetType)
@@ -307,18 +400,32 @@ trait Facets { self: Restriction =>
     }
   }
 
-  private def narrowValueSpaceFacets(localFacet: String, remoteFacet: String, facetType: Facet.Type) = {
-    val (theLocalFacet, theRemoteFacet) = checkValueSpaceFacetRange(localFacet, remoteFacet, facetType)
+  private def narrowValueSpaceFacets(
+    localFacet: String,
+    remoteFacet: String,
+    facetType: Facet.Type,
+  ) = {
+    val (theLocalFacet, theRemoteFacet) =
+      checkValueSpaceFacetRange(localFacet, remoteFacet, facetType)
 
     // Made it here so range checks were successful
     // Now just validate/compare local and base/remote facet
     facetType match {
-      case Facet.minInclusive => { errorOnLocalLessThanBaseFacet(theLocalFacet, theRemoteFacet, facetType) }
-      case Facet.maxInclusive => { errorOnLocalGreaterThanBaseFacet(theLocalFacet, theRemoteFacet, facetType) }
-      case Facet.minExclusive => { errorOnLocalLessThanBaseFacet(theLocalFacet, theRemoteFacet, facetType) }
-      case Facet.maxExclusive => { errorOnLocalGreaterThanBaseFacet(theLocalFacet, theRemoteFacet, facetType) }
+      case Facet.minInclusive => {
+        errorOnLocalLessThanBaseFacet(theLocalFacet, theRemoteFacet, facetType)
+      }
+      case Facet.maxInclusive => {
+        errorOnLocalGreaterThanBaseFacet(theLocalFacet, theRemoteFacet, facetType)
+      }
+      case Facet.minExclusive => {
+        errorOnLocalLessThanBaseFacet(theLocalFacet, theRemoteFacet, facetType)
+      }
+      case Facet.maxExclusive => {
+        errorOnLocalGreaterThanBaseFacet(theLocalFacet, theRemoteFacet, facetType)
+      }
       case _ => {
-        val errMsg = "Unrecognized facet type (%s) for narrowing of value-space facets.".format(facetType)
+        val errMsg =
+          "Unrecognized facet type (%s) for narrowing of value-space facets.".format(facetType)
         Assert.usageError(errMsg)
       }
     }
@@ -327,22 +434,33 @@ trait Facets { self: Restriction =>
 
   private def convertFacetToBigDecimal(facet: String): java.math.BigDecimal = {
     self.primType match {
-      case PrimType.DateTime => dateToBigDecimal(facet, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString(), this)
-      case PrimType.Date => dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString(), this)
-      case PrimType.Time => dateToBigDecimal(facet, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), this)
+      case PrimType.DateTime =>
+        dateToBigDecimal(
+          facet,
+          "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx",
+          PrimType.DateTime.toString(),
+          this,
+        )
+      case PrimType.Date =>
+        dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString(), this)
+      case PrimType.Time =>
+        dateToBigDecimal(facet, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), this)
       case _ => new java.math.BigDecimal(facet)
     }
   }
 
-  private def checkValueSpaceFacetRange(localFacet: String, facetType: Facet.Type): java.math.BigDecimal = {
+  private def checkValueSpaceFacetRange(
+    localFacet: String,
+    facetType: Facet.Type,
+  ): java.math.BigDecimal = {
     // Necessary for min/max Inclusive/Exclusive Facets
 
     // Perform conversions once
     val theLocalFacet = convertFacetToBigDecimal(localFacet)
 
     facetType match {
-      case Facet.maxExclusive | Facet.maxInclusive |
-        Facet.minExclusive | Facet.minInclusive | Facet.enumeration => {
+      case Facet.maxExclusive | Facet.maxInclusive | Facet.minExclusive | Facet.minInclusive |
+          Facet.enumeration => {
         // Here we're just doing range checking for the
         // specified primitive type
         primType match {
@@ -350,28 +468,36 @@ trait Facets { self: Restriction =>
             if (!isFacetInIntRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of Int range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.Byte => {
             if (!isFacetInByteRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of Byte range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.Short => {
             if (!isFacetInShortRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of Short range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.Long => {
             if (!isFacetInLongRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of Long range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.Integer => {
@@ -379,49 +505,63 @@ trait Facets { self: Restriction =>
             if (!isFacetInIntegerRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of Integer range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.UnsignedInt => {
             if (!isFacetInUnsignedIntRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of unsigned int range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.UnsignedByte => {
             if (!isFacetInUnsignedByteRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of unsigned byte range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.UnsignedShort => {
             if (!isFacetInUnsignedShortRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of unsigned short range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.UnsignedLong => {
             if (!isFacetInUnsignedLongRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of unsigned long range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.Double => {
             if (!isFacetInDoubleRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of Double range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.Float => {
             if (!isFacetInFloatRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of Float range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.NonNegativeInteger => {
@@ -429,7 +569,9 @@ trait Facets { self: Restriction =>
             if (!isFacetInNonNegativeIntegerRange(theLocalFacet)) {
               SDE(
                 "%s facet value (%s) was found to be outside of NonNegativeInteger range.",
-                facetType, localFacet)
+                facetType,
+                localFacet,
+              )
             }
           }
           case PrimType.Decimal => { /* Nothing to do here */ }
@@ -439,7 +581,10 @@ trait Facets { self: Restriction =>
           case PrimType.Boolean => notYetImplemented("checkValueSpaceFacetRange - Boolean")
           case PrimType.HexBinary => { /* Nothing to do here */ }
           case PrimType.String => { /* Nothing to do here */ }
-          case _ => Assert.usageError("checkValueSpaceFacetRange - Unrecognized primitive type: " + primType.name)
+          case _ =>
+            Assert.usageError(
+              "checkValueSpaceFacetRange - Unrecognized primitive type: " + primType.name,
+            )
         }
       }
       case _ => { /* Nothing to do */ }
@@ -449,7 +594,9 @@ trait Facets { self: Restriction =>
 
   private def checkValueSpaceFacetRange(
     localFacet: String,
-    remoteFacet: String, facetType: Facet.Type): (java.math.BigDecimal, java.math.BigDecimal) = {
+    remoteFacet: String,
+    facetType: Facet.Type,
+  ): (java.math.BigDecimal, java.math.BigDecimal) = {
     // Neccessary for min/max Inclusive/Exclusive Facets
 
     // TODO: I think the performance here can be improved.
@@ -466,20 +613,27 @@ trait Facets { self: Restriction =>
     (theLocalFacet, theRemoteFacet)
   }
 
-  private def isFacetInByteRange(facet: java.math.BigDecimal): Boolean = self.isInByteRange(facet)
+  private def isFacetInByteRange(facet: java.math.BigDecimal): Boolean =
+    self.isInByteRange(facet)
 
-  private def isFacetInShortRange(facet: java.math.BigDecimal): Boolean = self.isInShortRange(facet)
+  private def isFacetInShortRange(facet: java.math.BigDecimal): Boolean =
+    self.isInShortRange(facet)
   private def isFacetInIntRange(facet: java.math.BigDecimal): Boolean = self.isInIntRange(facet)
-  private def isFacetInIntegerRange(facet: java.math.BigDecimal): Boolean = self.isInIntegerRange(facet)
-  private def isFacetInLongRange(facet: java.math.BigDecimal): Boolean = self.isInLongRange(facet)
-  private def isFacetInDoubleRange(facet: java.math.BigDecimal): Boolean = self.isInDoubleRange(facet)
-  private def isFacetInFloatRange(facet: java.math.BigDecimal): Boolean = self.isInFloatRange(facet)
+  private def isFacetInIntegerRange(facet: java.math.BigDecimal): Boolean =
+    self.isInIntegerRange(facet)
+  private def isFacetInLongRange(facet: java.math.BigDecimal): Boolean =
+    self.isInLongRange(facet)
+  private def isFacetInDoubleRange(facet: java.math.BigDecimal): Boolean =
+    self.isInDoubleRange(facet)
+  private def isFacetInFloatRange(facet: java.math.BigDecimal): Boolean =
+    self.isInFloatRange(facet)
   //  private def isFacetInDecimalRange(facet: java.math.BigDecimal): Boolean = {
   //     BigDecimal is unbounded? So nothing outside of its range?
   //    true
   //  }
   //  private def isFacetInNegativeIntegerRange(facet: java.math.BigDecimal): Boolean = self.isInNonNegativeIntegerRange(facet)
-  private def isFacetInNonNegativeIntegerRange(facet: java.math.BigDecimal): Boolean = self.isInNonNegativeIntegerRange(facet)
+  private def isFacetInNonNegativeIntegerRange(facet: java.math.BigDecimal): Boolean =
+    self.isInNonNegativeIntegerRange(facet)
   private def isFacetInUnsignedLongRange(facet: java.math.BigDecimal): Boolean =
     isInUnsignedLongRange(facet)
 
@@ -492,7 +646,11 @@ trait Facets { self: Restriction =>
   private def isFacetInUnsignedByteRange(facet: java.math.BigDecimal): Boolean =
     isInUnsignedByteRange(facet)
 
-  protected def doNumericFacetNarrowing(localFacet: String, remoteFacet: String, facetType: Facet.Type) = {
+  protected def doNumericFacetNarrowing(
+    localFacet: String,
+    remoteFacet: String,
+    facetType: Facet.Type,
+  ) = {
     // Assumes both local and remote facets exist
     // Only for Numeric facets
     //
@@ -506,7 +664,8 @@ trait Facets { self: Restriction =>
         // Non-negative Integers.  BigInt
         narrowNonNegativeFacets(localFacet, remoteFacet, facetType)
       }
-      case Facet.minInclusive | Facet.maxInclusive | Facet.minExclusive | Facet.maxExclusive => {
+      case Facet.minInclusive | Facet.maxInclusive | Facet.minExclusive |
+          Facet.maxExclusive => {
         // In value-space of base type.  BigDecimal?
         narrowValueSpaceFacets(localFacet, remoteFacet, facetType)
       }
@@ -514,7 +673,8 @@ trait Facets { self: Restriction =>
         // Positive Integer (value greater than 0). BigInt
         narrowPositiveIntegerFacets(localFacet, remoteFacet, facetType)
       }
-      case _ => Assert.usageError("Call to 'doNumericFacetNarrowing' only valid for Numeric Facets.")
+      case _ =>
+        Assert.usageError("Call to 'doNumericFacetNarrowing' only valid for Numeric Facets.")
     }
   }
 
@@ -537,7 +697,8 @@ trait Facets { self: Restriction =>
     val lValue = getLocalValue(Facet.enumeration)
     val rValue = getRemoteFacetValue(Facet.enumeration)
     lValue.foreach(e => {
-      if (rValue.length() > 0 && !rValue.contains(e)) SDE("Local enumerations must be a subset of base enumerations.")
+      if (rValue.length() > 0 && !rValue.contains(e))
+        SDE("Local enumerations must be a subset of base enumerations.")
     })
     if (lValue.length() > 0) { lValue }
     else { rValue }

@@ -17,15 +17,16 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 case class SimpleNilOrValueUnparser(
   ctxt: ElementRuntimeData,
-  nilUnparser: Unparser, valueUnparser: Unparser) extends CombinatorUnparser(ctxt) {
+  nilUnparser: Unparser,
+  valueUnparser: Unparser,
+) extends CombinatorUnparser(ctxt) {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -41,14 +42,17 @@ case class SimpleNilOrValueUnparser(
     // suspends, this call to isNilled will throw a InfosetNoDataException
     // because _isNilled has not been set yet. Rather than having to deal with
     // suspending, only check isNilled for non-OVC elements.
-    if (!ctxt.dpathElementCompileInfo.isOutputValueCalc && inode.isNilled) nilUnparser.unparse1(state)
+    if (!ctxt.dpathElementCompileInfo.isOutputValueCalc && inode.isNilled)
+      nilUnparser.unparse1(state)
     else valueUnparser.unparse1(state)
   }
 }
 
 case class ComplexNilOrContentUnparser(
   ctxt: ElementRuntimeData,
-  nilUnparser: Unparser, contentUnparser: Unparser) extends CombinatorUnparser(ctxt) {
+  nilUnparser: Unparser,
+  contentUnparser: Unparser,
+) extends CombinatorUnparser(ctxt) {
 
   override lazy val runtimeDependencies = Vector()
 

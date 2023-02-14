@@ -49,10 +49,7 @@ object Tak {
   def tak(x: Int, y: Int, z: Int): Int = {
     callCount += 1
     if (y < x)
-      tak(
-        tak(x - 1, y, z),
-        tak(y - 1, z, x),
-        tak(z - 1, x, y))
+      tak(tak(x - 1, y, z), tak(y - 1, z, x), tak(z - 1, x, y))
     else
       z
   }
@@ -63,7 +60,9 @@ object Tak {
     val nanos = Timer.getTimeNS { tak(21, 3, 21) }
     println("tak call count = " + callCount + " in " + nanos + "ns")
     takeons = (1.0 * nanos) / callCount
-    println("Under current load, 1 CPU of this system executes " + takeons + " nanoseconds per tak call.")
+    println(
+      "Under current load, 1 CPU of this system executes " + takeons + " nanoseconds per tak call.",
+    )
     println("So on this system, currently, 1 takeon = " + takeons + "ns")
     println("Done calibrating")
   }

@@ -17,13 +17,18 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import org.apache.daffodil.lib.util.Numbers._
 import java.lang.{ Double => JDouble }
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
+
+import org.apache.daffodil.lib.util.Numbers._
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueDouble
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 
 case class MATHPow(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
-  override def computeValue(arg1: DataValuePrimitive, arg2: DataValuePrimitive, dstate: DState): DataValueDouble = {
+  override def computeValue(
+    arg1: DataValuePrimitive,
+    arg2: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueDouble = {
     val base = asDouble(arg1.getAnyRef).doubleValue()
     val exp = asDouble(arg2.getAnyRef).doubleValue()
     if (exp.isInfinite && (base == 1 || base == -1)) {

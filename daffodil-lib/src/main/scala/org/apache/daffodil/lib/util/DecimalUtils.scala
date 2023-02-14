@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.lib.util
 
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInteger }
+
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryNumberCheckPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextZonedSignStyle
-
-import java.math.{ BigInteger => JBigInteger, BigDecimal => JBigDecimal }
 
 object PackedSignCodes {
   def apply(signCodes: String, policy: BinaryNumberCheckPolicy) = {
@@ -29,22 +29,22 @@ object PackedSignCodes {
     val chars = str.toCharArray()
     Assert.invariant(chars.length == 4)
 
-    //We can convert hex to an integer value simply by subtracting 55
+    // We can convert hex to an integer value simply by subtracting 55
     val positive = policy match {
       case BinaryNumberCheckPolicy.Strict => List(chars(0) - 55)
-      case BinaryNumberCheckPolicy.Lax => List(chars(0) - 55, 0xA, 0xC, 0xE, 0xF)
+      case BinaryNumberCheckPolicy.Lax => List(chars(0) - 55, 0xa, 0xc, 0xe, 0xf)
     }
     val negative = policy match {
       case BinaryNumberCheckPolicy.Strict => List(chars(1) - 55)
-      case BinaryNumberCheckPolicy.Lax => List(chars(1) - 55, 0xB, 0xD)
+      case BinaryNumberCheckPolicy.Lax => List(chars(1) - 55, 0xb, 0xd)
     }
     val unsigned = policy match {
       case BinaryNumberCheckPolicy.Strict => List(chars(2) - 55)
-      case BinaryNumberCheckPolicy.Lax => List(chars(2) - 55, 0xF)
+      case BinaryNumberCheckPolicy.Lax => List(chars(2) - 55, 0xf)
     }
     val zero_sign = policy match {
       case BinaryNumberCheckPolicy.Strict => List(chars(3) - 55)
-      case BinaryNumberCheckPolicy.Lax => List(chars(3) - 55, 0xA, 0xC, 0xE, 0xF, 0x0)
+      case BinaryNumberCheckPolicy.Lax => List(chars(3) - 55, 0xa, 0xc, 0xe, 0xf, 0x0)
     }
 
     new PackedSignCodes(positive, negative, unsigned, zero_sign)
@@ -55,28 +55,30 @@ case class PackedSignCodes(
   positive: List[Int],
   negative: List[Int],
   unsigned: List[Int],
-  zero_sign: List[Int]
+  zero_sign: List[Int],
 ) {}
 
 object DecimalUtils {
 
   def packedToBigInteger(num: Array[Byte], signCodes: PackedSignCodes): JBigInteger = {
-    val numDigits = num.size * 2  // 2 digits stored per byte
-    val outputData = new Array[Char](numDigits-1)
+    val numDigits = num.size * 2 // 2 digits stored per byte
+    val outputData = new Array[Char](numDigits - 1)
     var outputPos = 0
     var offset = 0
 
     // Parse and validate the last (sign) bit
-    val signNibble = (num(offset +  num.size - 1) & 0x0F)
+    val signNibble = (num(offset + num.size - 1) & 0x0f)
     val negative = signCodes.negative.contains(signNibble)
-    if (!negative && !signCodes.positive.contains(signNibble) &&
-      !signCodes.unsigned.contains(signNibble) && !signCodes.zero_sign.contains(signNibble)) {
+    if (
+      !negative && !signCodes.positive.contains(signNibble) &&
+      !signCodes.unsigned.contains(signNibble) && !signCodes.zero_sign.contains(signNibble)
+    ) {
       throw new NumberFormatException("Invalid sign nibble: " + signNibble)
     }
 
     while (outputPos < outputData.size - 1) {
       // Parse high nibble
-      val highNibble = (num(offset) & 0xFF) >>> 4
+      val highNibble = (num(offset) & 0xff) >>> 4
       if (highNibble > 0x09) {
         throw new NumberFormatException("Invalid high nibble: " + highNibble)
       }
@@ -85,7 +87,7 @@ object DecimalUtils {
       outputPos = outputPos + 1
 
       // Parse low nibble
-      val lowNibble = (num(offset) & 0x0F)
+      val lowNibble = (num(offset) & 0x0f)
       if (lowNibble > 0x09) {
         throw new NumberFormatException("Invalid low nibble: " + lowNibble)
       }
@@ -96,7 +98,7 @@ object DecimalUtils {
     }
 
     // Parse last digit
-    val lastNibble = (num(offset) & 0xFF) >>> 4
+    val lastNibble = (num(offset) & 0xff) >>> 4
     if (lastNibble > 0x09) {
       throw new NumberFormatException("Invalid high nibble: " + lastNibble)
     }
@@ -111,21 +113,34 @@ object DecimalUtils {
 
   }
 
-  def packedToBigDecimal(num: Array[Byte], scale: Int, signCodes: PackedSignCodes): JBigDecimal = {
+  def packedToBigDecimal(
+    num: Array[Byte],
+    scale: Int,
+    signCodes: PackedSignCodes,
+  ): JBigDecimal = {
     new JBigDecimal(packedToBigInteger(num, signCodes), scale)
   }
 
-  def packedFromBigIntegerLength(absBigIntAsString: String, minLengthInBits: Int): (Int, Int) = {
+  def packedFromBigIntegerLength(
+    absBigIntAsString: String,
+    minLengthInBits: Int,
+  ): (Int, Int) = {
     Assert.invariant(absBigIntAsString(0) != '-')
     val numDigits = absBigIntAsString.length
-    val requiredBitLen = if (numDigits % 2 == 0) ((numDigits + 2) * 4) else ((numDigits + 1) * 4)
+    val requiredBitLen =
+      if (numDigits % 2 == 0) ((numDigits + 2) * 4) else ((numDigits + 1) * 4)
     val bitLen = scala.math.max(minLengthInBits, requiredBitLen)
     val numBytes = bitLen / 8
-    val leadingZeros = if (numDigits % 2 == 0) (bitLen/4 - numDigits - 1) else (bitLen/4 - numDigits)
+    val leadingZeros =
+      if (numDigits % 2 == 0) (bitLen / 4 - numDigits - 1) else (bitLen / 4 - numDigits)
     (numBytes, leadingZeros)
   }
 
-  def packedFromBigInteger(bigInt: JBigInteger, minLengthInBits: Int, signCodes: PackedSignCodes): Array[Byte] = {
+  def packedFromBigInteger(
+    bigInt: JBigInteger,
+    minLengthInBits: Int,
+    signCodes: PackedSignCodes,
+  ): Array[Byte] = {
     val negative = (bigInt.signum != 1)
     val inChars = bigInt.abs.toString
     val numDigits = inChars.length
@@ -144,15 +159,15 @@ object DecimalUtils {
 
     // Need odd number of digits, pad with 0x0 if necessary
     if (numDigits % 2 == 0) {
-      outArray(offset) = (((0x0 & 0x000F) << 4) + (inChars(inPos) & 0x000F)).asInstanceOf[Byte]
+      outArray(offset) = (((0x0 & 0x000f) << 4) + (inChars(inPos) & 0x000f)).asInstanceOf[Byte]
       inPos = inPos + 1
       offset = offset + 1
     }
 
     while (inPos < numDigits - 1) {
-      val firstNibble = (inChars(inPos) & 0x000F) << 4
+      val firstNibble = (inChars(inPos) & 0x000f) << 4
       inPos = inPos + 1
-      val secondNibble = inChars(inPos) & 0x000F
+      val secondNibble = inChars(inPos) & 0x000f
       inPos = inPos + 1
       outArray(offset) = (firstNibble + secondNibble).asInstanceOf[Byte]
       offset = offset + 1
@@ -160,28 +175,29 @@ object DecimalUtils {
 
     // Write out the last digit and sign code
 
-    val lastNibble = (inChars(inPos) & 0x000F) << 4
-    val signNibble = if (negative) (signCodes.negative(0) & 0x000F) else (signCodes.positive(0) & 0x000F)
+    val lastNibble = (inChars(inPos) & 0x000f) << 4
+    val signNibble =
+      if (negative) (signCodes.negative(0) & 0x000f) else (signCodes.positive(0) & 0x000f)
     outArray(offset) = (lastNibble + signNibble).asInstanceOf[Byte]
 
     outArray
   }
 
   def bcdToBigInteger(bcdNum: Array[Byte]): JBigInteger = {
-    val numDigits = bcdNum.size * 2  // 2 digits stored per byte
+    val numDigits = bcdNum.size * 2 // 2 digits stored per byte
     val outputData = new Array[Char](numDigits)
     var outputPos = 0
     var offset = 0
 
     while (offset < bcdNum.size) {
-      val highNibble = (bcdNum(offset) & 0xFF) >>> 4
+      val highNibble = (bcdNum(offset) & 0xff) >>> 4
       if (highNibble > 0x09)
         throw new NumberFormatException("Invalid high nibble: " + highNibble)
 
       outputData(outputPos) = (highNibble | 0x0030).toChar
       outputPos = outputPos + 1
 
-      val lowNibble = (bcdNum(offset) & 0x0F)
+      val lowNibble = (bcdNum(offset) & 0x0f)
       if (lowNibble > 0x09) {
         throw new NumberFormatException("Invalid low nibble: " + lowNibble)
       }
@@ -204,14 +220,14 @@ object DecimalUtils {
     val requiredBitLen = if (numDigits % 2 == 0) (numDigits * 4) else ((numDigits + 1) * 4)
     val bitLen = scala.math.max(minLengthInBits, requiredBitLen)
     val numBytes = (bitLen / 8)
-    val leadingZeros = bitLen/4 - numDigits
+    val leadingZeros = bitLen / 4 - numDigits
     (numBytes, leadingZeros)
   }
 
   def bcdFromBigInteger(bigInt: JBigInteger, minLengthInBits: Int): Array[Byte] = {
     val inChars = bigInt.toString
     val numDigits = inChars.length
-    
+
     val (numBytes, leadingZeros) = bcdFromBigIntegerLength(inChars, minLengthInBits)
     val outArray = new Array[Byte](numBytes)
 
@@ -226,15 +242,15 @@ object DecimalUtils {
 
     // Need even number of digits, pad with a single 0 if necessary
     if (inChars.length % 2 != 0) {
-      outArray(offset) = (((0x0 & 0x000F) << 4) + (inChars(inPos) & 0x000F)).asInstanceOf[Byte]
+      outArray(offset) = (((0x0 & 0x000f) << 4) + (inChars(inPos) & 0x000f)).asInstanceOf[Byte]
       offset = offset + 1
       inPos = inPos + 1
     }
 
     while (inPos < inChars.length) {
-      val firstNibble = (inChars(inPos) & 0x000F) << 4
+      val firstNibble = (inChars(inPos) & 0x000f) << 4
       inPos = inPos + 1
-      val secondNibble = inChars(inPos) & 0x000F
+      val secondNibble = inChars(inPos) & 0x000f
       inPos = inPos + 1
       outArray(offset) = (firstNibble + secondNibble).asInstanceOf[Byte]
       offset = offset + 1
@@ -244,7 +260,7 @@ object DecimalUtils {
   }
 
   def ibm4690ToBigInteger(num: Array[Byte]): JBigInteger = {
-    val numDigits = num.size * 2  // 2 digits stored per byte
+    val numDigits = num.size * 2 // 2 digits stored per byte
     val outputData = new Array[Char](numDigits)
     var outputPos = 0
     var offset = 0
@@ -254,13 +270,13 @@ object DecimalUtils {
 
     while (offset < num.size) {
       // Parse high nibble
-      val highNibble = (num(offset) & 0xFF) >>> 4
+      val highNibble = (num(offset) & 0xff) >>> 4
       if (highNibble > 0x09) {
         outputData(outputPos) = '0'
-        if ((highNibble == 0xD) && !inDigits) {
+        if ((highNibble == 0xd) && !inDigits) {
           negative = true
           inDigits = true
-        } else if ((highNibble != 0xF) || inDigits) {
+        } else if ((highNibble != 0xf) || inDigits) {
           throw new NumberFormatException("Invalid high nibble: " + highNibble)
         }
 
@@ -274,14 +290,14 @@ object DecimalUtils {
       }
 
       // Parse low nibble
-      val lowNibble = (num(offset) & 0x0F)
+      val lowNibble = (num(offset) & 0x0f)
       if (lowNibble > 0x09) {
         outputData(outputPos) = '0'
         outputPos = outputPos + 1
-        if (lowNibble == 0xD && !inDigits) {
+        if (lowNibble == 0xd && !inDigits) {
           negative = true
           inDigits = true
-        } else if ((lowNibble != 0xF) || inDigits) {
+        } else if ((lowNibble != 0xf) || inDigits) {
           throw new NumberFormatException("Invalid low nibble: " + lowNibble)
         }
       }
@@ -305,14 +321,19 @@ object DecimalUtils {
     new JBigDecimal(ibm4690ToBigInteger(num), scale)
   }
 
-  def ibm4690FromBigIntegerLength(absBigIntAsString: String, minLengthInBits: Int, negative: Boolean): (Int, Int) = {
+  def ibm4690FromBigIntegerLength(
+    absBigIntAsString: String,
+    minLengthInBits: Int,
+    negative: Boolean,
+  ): (Int, Int) = {
     Assert.invariant(absBigIntAsString(0) != '-')
     val numDigits = if (negative) absBigIntAsString.length + 1 else absBigIntAsString.length
     val requiredBitLen = if (numDigits % 2 == 0) (numDigits * 4) else ((numDigits + 1) * 4)
     val bitLen = scala.math.max(minLengthInBits, requiredBitLen)
     val numBytes = bitLen / 8
-    val leadingZeros = if (numDigits % 2 == 0) (bitLen/4 - numDigits) else (bitLen/4 - (numDigits + 1))
-    (numBytes, leadingZeros) 
+    val leadingZeros =
+      if (numDigits % 2 == 0) (bitLen / 4 - numDigits) else (bitLen / 4 - (numDigits + 1))
+    (numBytes, leadingZeros)
   }
 
   def ibm4690FromBigInteger(bigInt: JBigInteger, minLengthInBits: Int): Array[Byte] = {
@@ -320,7 +341,8 @@ object DecimalUtils {
     val inChars = bigInt.abs.toString
     val numDigits = if (negative) inChars.length + 1 else inChars.length
 
-    val (numBytes, leadingZeros) = ibm4690FromBigIntegerLength(inChars, minLengthInBits, negative)
+    val (numBytes, leadingZeros) =
+      ibm4690FromBigIntegerLength(inChars, minLengthInBits, negative)
     val outArray = new Array[Byte](numBytes)
 
     var wrote_negative = false
@@ -329,19 +351,19 @@ object DecimalUtils {
 
     // Add leading double zeros if necessary
     while ((offset * 2) < (leadingZeros - 1)) {
-      outArray(offset) = 0xFF.asInstanceOf[Byte]
+      outArray(offset) = 0xff.asInstanceOf[Byte]
       offset = offset + 1
     }
 
     // Need even number of digits, pad with 0xF if necessary
     if (numDigits % 2 != 0) {
-      val padNibble = (0xF & 0x000F) << 4
+      val padNibble = (0xf & 0x000f) << 4
       val signNibble = if (negative) {
         wrote_negative = true
-        0xD & 0x000F
+        0xd & 0x000f
       } else {
         inPos = inPos + 1
-        inChars(inPos-1) & 0x000F
+        inChars(inPos - 1) & 0x000f
       }
       outArray(offset) = (padNibble + signNibble).asInstanceOf[Byte]
       offset = offset + 1
@@ -350,12 +372,12 @@ object DecimalUtils {
     while (inPos < numDigits - 1) {
       val firstNibble = if (negative && !wrote_negative) {
         wrote_negative = true
-        (0xD & 0x000F) << 4
+        (0xd & 0x000f) << 4
       } else {
         inPos = inPos + 1
-        (inChars(inPos-1) & 0x000F) << 4
+        (inChars(inPos - 1) & 0x000f) << 4
       }
-      val secondNibble = inChars(inPos) & 0x000F
+      val secondNibble = inChars(inPos) & 0x000f
       inPos = inPos + 1
       outArray(offset) = (firstNibble + secondNibble).asInstanceOf[Byte]
       offset = offset + 1
@@ -446,7 +468,11 @@ object DecimalUtils {
     val Start, End, None = Value
   }
 
-  def zonedToNumber(num: String, zonedStyle: TextZonedSignStyle, opl: OverpunchLocation.Value): String = {
+  def zonedToNumber(
+    num: String,
+    zonedStyle: TextZonedSignStyle,
+    opl: OverpunchLocation.Value,
+  ): String = {
     val opindex = opl match {
       case OverpunchLocation.Start => 0
       case OverpunchLocation.End => num.length - 1
@@ -459,9 +485,12 @@ object DecimalUtils {
       } else {
         val (digit, opneg) = zonedStyle match {
           case TextZonedSignStyle.AsciiStandard => convertFromAsciiStandard(num(opindex))
-          case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertFromAsciiTranslatedEBCDIC(num(opindex))
-          case TextZonedSignStyle.AsciiCARealiaModified => convertFromAsciiCARealiaModified(num(opindex))
-          case TextZonedSignStyle.AsciiTandemModified => convertFromAsciiTandemModified(num(opindex))
+          case TextZonedSignStyle.AsciiTranslatedEBCDIC =>
+            convertFromAsciiTranslatedEBCDIC(num(opindex))
+          case TextZonedSignStyle.AsciiCARealiaModified =>
+            convertFromAsciiCARealiaModified(num(opindex))
+          case TextZonedSignStyle.AsciiTandemModified =>
+            convertFromAsciiTandemModified(num(opindex))
         }
 
         val convertedNum = (opneg, opl) match {
@@ -479,7 +508,11 @@ object DecimalUtils {
     decodedValue
   }
 
-  def zonedFromNumber(num: String, zonedStyle: TextZonedSignStyle, opl: OverpunchLocation.Value): String = {
+  def zonedFromNumber(
+    num: String,
+    zonedStyle: TextZonedSignStyle,
+    opl: OverpunchLocation.Value,
+  ): String = {
     val positive = (num.charAt(0) != '-')
     val inStr = positive match {
       case true => num
@@ -497,10 +530,14 @@ object DecimalUtils {
         inStr
       } else {
         val digit = zonedStyle match {
-          case TextZonedSignStyle.AsciiStandard => convertToAsciiStandard(inStr(opindex), positive)
-          case TextZonedSignStyle.AsciiTranslatedEBCDIC => convertToAsciiTranslatedEBCDIC(inStr(opindex), positive)
-          case TextZonedSignStyle.AsciiCARealiaModified => convertToAsciiCARealiaModified(inStr(opindex), positive)
-          case TextZonedSignStyle.AsciiTandemModified => convertToAsciiTandemModified(inStr(opindex), positive)
+          case TextZonedSignStyle.AsciiStandard =>
+            convertToAsciiStandard(inStr(opindex), positive)
+          case TextZonedSignStyle.AsciiTranslatedEBCDIC =>
+            convertToAsciiTranslatedEBCDIC(inStr(opindex), positive)
+          case TextZonedSignStyle.AsciiCARealiaModified =>
+            convertToAsciiCARealiaModified(inStr(opindex), positive)
+          case TextZonedSignStyle.AsciiTandemModified =>
+            convertToAsciiTandemModified(inStr(opindex), positive)
         }
 
         val convertedNum = opl match {

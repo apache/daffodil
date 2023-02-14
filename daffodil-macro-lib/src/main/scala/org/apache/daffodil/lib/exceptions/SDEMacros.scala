@@ -21,7 +21,11 @@ import scala.reflect.macros.blackbox.Context
 
 object SDEMacros {
 
-  def schemaDefinitionUnlessMacro(c: Context)(testThatWillThrowIfFalse: c.Expr[Boolean], str: c.Expr[String], args: c.Expr[Any]*): c.Expr[Unit] = {
+  def schemaDefinitionUnlessMacro(c: Context)(
+    testThatWillThrowIfFalse: c.Expr[Boolean],
+    str: c.Expr[String],
+    args: c.Expr[Any]*,
+  ): c.Expr[Unit] = {
     import c.universe._
 
     val selfExp = c.prefix
@@ -35,7 +39,11 @@ object SDEMacros {
     """)
   }
 
-  def schemaDefinitionWhenMacro(c: Context)(testThatWillThrowIfTrue: c.Expr[Boolean], str: c.Expr[String], args: c.Expr[Any]*): c.Expr[Unit] = {
+  def schemaDefinitionWhenMacro(c: Context)(
+    testThatWillThrowIfTrue: c.Expr[Boolean],
+    str: c.Expr[String],
+    args: c.Expr[Any]*,
+  ): c.Expr[Unit] = {
     import c.universe._
 
     val selfExp = c.prefix
@@ -49,7 +57,11 @@ object SDEMacros {
     """)
   }
 
-  def schemaDefinitionWarningUnlessMacro(c: Context)(testThatWillWarnIfFalse: c.Expr[Boolean], str: c.Expr[String], args: c.Expr[Any]*): c.Expr[Unit] = {
+  def schemaDefinitionWarningUnlessMacro(c: Context)(
+    testThatWillWarnIfFalse: c.Expr[Boolean],
+    str: c.Expr[String],
+    args: c.Expr[Any]*,
+  ): c.Expr[Unit] = {
     import c.universe._
 
     val selfExp = c.prefix
@@ -63,7 +75,12 @@ object SDEMacros {
     """)
   }
 
-  def schemaDefinitionWarningUnlessSuppressMacro(c: Context)(warnID: c.Tree, testThatWillWarnIfFalse: c.Expr[Boolean], str: c.Expr[String], args: c.Expr[Any]*): c.Expr[Unit] = {
+  def schemaDefinitionWarningUnlessSuppressMacro(c: Context)(
+    warnID: c.Tree,
+    testThatWillWarnIfFalse: c.Expr[Boolean],
+    str: c.Expr[String],
+    args: c.Expr[Any]*,
+  ): c.Expr[Unit] = {
     import c.universe._
 
     val selfExp = c.prefix
@@ -77,7 +94,11 @@ object SDEMacros {
     """)
   }
 
-  def schemaDefinitionWarningWhenMacro(c: Context)(testThatWillWarnIfTrue: c.Expr[Boolean], str: c.Expr[String], args: c.Expr[Any]*): c.Expr[Unit] = {
+  def schemaDefinitionWarningWhenMacro(c: Context)(
+    testThatWillWarnIfTrue: c.Expr[Boolean],
+    str: c.Expr[String],
+    args: c.Expr[Any]*,
+  ): c.Expr[Unit] = {
     import c.universe._
 
     val selfExp = c.prefix
@@ -91,7 +112,12 @@ object SDEMacros {
     """)
   }
 
-  def schemaDefinitionWarningWhenSuppressMacro(c: Context)(warnID: c.Tree, testThatWillWarnIfTrue: c.Expr[Boolean], str: c.Expr[String], args: c.Expr[Any]*): c.Expr[Unit] = {
+  def schemaDefinitionWarningWhenSuppressMacro(c: Context)(
+    warnID: c.Tree,
+    testThatWillWarnIfTrue: c.Expr[Boolean],
+    str: c.Expr[String],
+    args: c.Expr[Any]*,
+  ): c.Expr[Unit] = {
     import c.universe._
 
     val selfExp = c.prefix

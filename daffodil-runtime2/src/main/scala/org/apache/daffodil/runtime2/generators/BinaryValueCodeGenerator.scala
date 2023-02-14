@@ -28,12 +28,26 @@ trait BinaryValueCodeGenerator {
 
   // Generate C code for a primitive value element differently depending on how many times the element occurs.
   // Intended to be called by other traits which extend this trait, not directly by Runtime2CodeGenerator.
-  def binaryValueGenerateCode(e: ElementBase, addField: String => Unit, validateFixed: String => Unit, cgState: CodeGeneratorState): Unit = {
+  def binaryValueGenerateCode(
+    e: ElementBase,
+    addField: String => Unit,
+    validateFixed: String => Unit,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     // For the time being this is a very limited back end.
     // So there are some restrictions to enforce.
-    e.schemaDefinitionUnless(e.bitOrder eq BitOrder.MostSignificantBitFirst, "Only dfdl:bitOrder 'mostSignificantBitFirst' is supported.")
-    e.schemaDefinitionUnless(e.maybeByteOrderEv == Nope || e.byteOrderEv.isConstant, "Runtime dfdl:byteOrder expressions not supported.")
-    e.schemaDefinitionUnless(e.lengthKind == LengthKind.Prefixed || e.elementLengthInBitsEv.isConstant, "Runtime dfdl:length expressions not supported.")
+    e.schemaDefinitionUnless(
+      e.bitOrder eq BitOrder.MostSignificantBitFirst,
+      "Only dfdl:bitOrder 'mostSignificantBitFirst' is supported.",
+    )
+    e.schemaDefinitionUnless(
+      e.maybeByteOrderEv == Nope || e.byteOrderEv.isConstant,
+      "Runtime dfdl:byteOrder expressions not supported.",
+    )
+    e.schemaDefinitionUnless(
+      e.lengthKind == LengthKind.Prefixed || e.elementLengthInBitsEv.isConstant,
+      "Runtime dfdl:length expressions not supported.",
+    )
 
     // Call the given partially applied function values with their remaining unbound argument (deref)
     val deref = if (cgState.hasArray) "[i]" else ""
@@ -45,7 +59,13 @@ trait BinaryValueCodeGenerator {
 
   // Generate C code to initialize, parse, and unparse a primitive value element.  Will be replaced by
   // more specialized functions in other traits for boolean and hexBinary elements.
-  protected def valueAddField(e: ElementBase, lengthInBits: Long, primType: String, deref: String, cgState: CodeGeneratorState): Unit = {
+  protected def valueAddField(
+    e: ElementBase,
+    lengthInBits: Long,
+    primType: String,
+    deref: String,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local
@@ -65,7 +85,11 @@ trait BinaryValueCodeGenerator {
 
   // Generate C code to validate a primitive element against its fixed value.  Will be replaced by
   // a more specialized function in another trait for hexBinary elements.
-  protected def valueValidateFixed(e: ElementBase, deref: String, cgState: CodeGeneratorState): Unit = {
+  protected def valueValidateFixed(
+    e: ElementBase,
+    deref: String,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
     val localName = e.namedQName.local

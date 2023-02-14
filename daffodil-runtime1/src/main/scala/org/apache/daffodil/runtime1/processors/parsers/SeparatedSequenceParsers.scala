@@ -16,8 +16,8 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.runtime1.processors._
 
 trait Separated { self: SequenceChildParser =>
 
@@ -25,7 +25,7 @@ trait Separated { self: SequenceChildParser =>
   def spos: SeparatorPosition
   def trd: TermRuntimeData
   def parseResultHelper: SeparatedSequenceChildParseResultHelper
- 
+
   override def childProcessors: Vector[Processor] = Vector(self.childParser) :+ sep
 
   import SeparatorPosition._
@@ -33,18 +33,26 @@ trait Separated { self: SequenceChildParser =>
   protected final val separatorHelper = spos match {
     case Prefix => new PrefixSeparatorHelper(sep, childParser, this)
     case Infix => new InfixSeparatorHelper(sep, childParser, this)
-    case Postfix => new PostfixSeparatorHelper(sep, childParser, this,
-      parseResultHelper.isSimpleDelimited)
+    case Postfix =>
+      new PostfixSeparatorHelper(sep, childParser, this, parseResultHelper.isSimpleDelimited)
   }
 
   final def isPositional: Boolean =
-    parseResultHelper.separatedSequenceChildBehavior.isInstanceOf[SeparatedSequenceChildBehavior.PositionalLike]
+    parseResultHelper.separatedSequenceChildBehavior
+      .isInstanceOf[SeparatedSequenceChildBehavior.PositionalLike]
 
-  final def parseOne(pstate: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+  final def parseOne(
+    pstate: PState,
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
     separatorHelper.parseOneWithSeparator(pstate, requiredOptional)
   }
 
-  final override def finalChecks(pstate: PState, resultOfTry: ParseAttemptStatus, priorResultOfTry: ParseAttemptStatus): Unit =
+  final override def finalChecks(
+    pstate: PState,
+    resultOfTry: ParseAttemptStatus,
+    priorResultOfTry: ParseAttemptStatus,
+  ): Unit =
     parseResultHelper.finalChecks(self, pstate, resultOfTry, priorResultOfTry)
 
 }
@@ -55,8 +63,8 @@ sealed abstract class ScalarOrderedSeparatedSequenceChildParser(
   trd: TermRuntimeData,
   override val sep: Parser,
   override val spos: SeparatorPosition,
-  override val parseResultHelper: SeparatedSequenceChildParseResultHelper)
-  extends SequenceChildParser(childParser, srd, trd)
+  override val parseResultHelper: SeparatedSequenceChildParseResultHelper,
+) extends SequenceChildParser(childParser, srd, trd)
   with Separated
   with NonRepeatingSequenceChildParser
 
@@ -66,8 +74,8 @@ final class ScalarOrderedElementSeparatedSequenceChildParser(
   trd: TermRuntimeData,
   sep: Parser,
   spos: SeparatorPosition,
-  prh: SeparatedSequenceChildParseResultHelper)
-  extends ScalarOrderedSeparatedSequenceChildParser(childParser, srd, trd, sep, spos, prh)
+  prh: SeparatedSequenceChildParseResultHelper,
+) extends ScalarOrderedSeparatedSequenceChildParser(childParser, srd, trd, sep, spos, prh)
 
 final class GroupSeparatedSequenceChildParser(
   childParser: Parser,
@@ -75,8 +83,8 @@ final class GroupSeparatedSequenceChildParser(
   val mrd: ModelGroupRuntimeData,
   sep: Parser,
   spos: SeparatorPosition,
-  prh: SeparatedSequenceChildParseResultHelper)
-  extends ScalarOrderedSeparatedSequenceChildParser(childParser, srd, mrd, sep, spos, prh)
+  prh: SeparatedSequenceChildParseResultHelper,
+) extends ScalarOrderedSeparatedSequenceChildParser(childParser, srd, mrd, sep, spos, prh)
 
 final class RepOrderedExactlyNSeparatedSequenceChildParser(
   childParser: Parser,
@@ -84,8 +92,8 @@ final class RepOrderedExactlyNSeparatedSequenceChildParser(
   erd: ElementRuntimeData,
   override val sep: Parser,
   override val spos: SeparatorPosition,
-  override val parseResultHelper: SeparatedSequenceChildParseResultHelper)
-  extends OccursCountExactParser(childParser, srd, erd)
+  override val parseResultHelper: SeparatedSequenceChildParseResultHelper,
+) extends OccursCountExactParser(childParser, srd, erd)
   with Separated
 
 final class RepOrderedExpressionOccursCountSeparatedSequenceChildParser(
@@ -95,8 +103,8 @@ final class RepOrderedExpressionOccursCountSeparatedSequenceChildParser(
   erd: ElementRuntimeData,
   override val sep: Parser,
   override val spos: SeparatorPosition,
-  override val parseResultHelper: SeparatedSequenceChildParseResultHelper)
-  extends OccursCountExpressionParser(childParser, srd, erd, ocEv)
+  override val parseResultHelper: SeparatedSequenceChildParseResultHelper,
+) extends OccursCountExpressionParser(childParser, srd, erd, ocEv)
   with Separated
 
 final class RepOrderedWithMinMaxSeparatedSequenceChildParser(
@@ -105,16 +113,16 @@ final class RepOrderedWithMinMaxSeparatedSequenceChildParser(
   erd: ElementRuntimeData,
   override val sep: Parser,
   override val spos: SeparatorPosition,
-  override val parseResultHelper: SeparatedSequenceChildParseResultHelper)
-  extends OccursCountMinMaxParser(childParser, srd, erd)
+  override val parseResultHelper: SeparatedSequenceChildParseResultHelper,
+) extends OccursCountMinMaxParser(childParser, srd, erd)
   with Separated
 
 final class OrderedSeparatedSequenceParser(
   rd: SequenceRuntimeData,
   spos: SeparatorPosition,
   sep: Parser,
-  childrenArg: Vector[SequenceChildParser])
-  extends SequenceParserBase(rd, childrenArg, isOrdered = true) {
+  childrenArg: Vector[SequenceChildParser],
+) extends SequenceParserBase(rd, childrenArg, isOrdered = true) {
 
   override lazy val childProcessors = (sep +: childrenArg.asInstanceOf[Seq[Parser]]).toVector
 }
@@ -123,8 +131,8 @@ final class UnorderedSeparatedSequenceParser(
   rd: SequenceRuntimeData,
   spos: SeparatorPosition,
   sep: Parser,
-  childrenArg: Vector[SequenceChildParser])
-  extends SequenceParserBase(rd, childrenArg, isOrdered = false) {
+  childrenArg: Vector[SequenceChildParser],
+) extends SequenceParserBase(rd, childrenArg, isOrdered = false) {
 
   override lazy val childProcessors = (sep +: childrenArg.asInstanceOf[Seq[Parser]]).toVector
 }

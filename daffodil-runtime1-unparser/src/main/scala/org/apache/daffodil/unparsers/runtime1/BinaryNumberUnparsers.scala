@@ -17,24 +17,23 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
+import java.lang.{ Long => JLong, Number => JNumber }
 
-import java.lang.{ Number => JNumber, Long => JLong }
-
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.Numbers._
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.parsers.HasKnownLengthInBits
 import org.apache.daffodil.runtime1.processors.parsers.HasRuntimeExplicitLength
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.util.Numbers._
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData)
   extends PrimUnparser {
@@ -46,7 +45,12 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
-  protected def putNumber(dos: DataOutputStream, number: JNumber, nBits: Int, finfo: FormatInfo): Boolean
+  protected def putNumber(
+    dos: DataOutputStream,
+    number: JNumber,
+    nBits: Int,
+    finfo: FormatInfo,
+  ): Boolean
 
   def unparse(state: UState): Unit = {
     val nBits = getBitLength(state)
@@ -61,8 +65,14 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
 
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)
-      UnparseError(One(state.schemaFileLocation), One(state.currentLocation), "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
-        context.dpathElementCompileInfo.namedQName.toPrettyString, nBits, dos.maybeRelBitLimit0b.get)
+      UnparseError(
+        One(state.schemaFileLocation),
+        One(state.currentLocation),
+        "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
+        context.dpathElementCompileInfo.namedQName.toPrettyString,
+        nBits,
+        dos.maybeRelBitLimit0b.get,
+      )
     }
   }
 
@@ -71,7 +81,12 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
 abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
   extends BinaryNumberBaseUnparser(e) {
 
-  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
+  override def putNumber(
+    dos: DataOutputStream,
+    value: JNumber,
+    nBits: Int,
+    finfo: FormatInfo,
+  ): Boolean = {
     if (nBits > 64) {
       dos.putBigInt(asBigInt(value), nBits, signed, finfo)
     } else {
@@ -80,16 +95,23 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
   }
 }
 
-class BinaryIntegerKnownLengthUnparser(e: ElementRuntimeData, signed: Boolean, override val lengthInBits: Int)
-  extends BinaryIntegerBaseUnparser(e, signed)
+class BinaryIntegerKnownLengthUnparser(
+  e: ElementRuntimeData,
+  signed: Boolean,
+  override val lengthInBits: Int,
+) extends BinaryIntegerBaseUnparser(e, signed)
   with HasKnownLengthInBits {
 
   override lazy val runtimeDependencies = Vector()
 
 }
 
-class BinaryIntegerRuntimeLengthUnparser(val e: ElementRuntimeData, signed: Boolean, val lengthEv: Evaluatable[JLong], val lengthUnits: LengthUnits)
-  extends BinaryIntegerBaseUnparser(e, signed)
+class BinaryIntegerRuntimeLengthUnparser(
+  val e: ElementRuntimeData,
+  signed: Boolean,
+  val lengthEv: Evaluatable[JLong],
+  val lengthUnits: LengthUnits,
+) extends BinaryIntegerBaseUnparser(e, signed)
   with HasRuntimeExplicitLength {
 
   override val runtimeDependencies = Vector(lengthEv)
@@ -102,8 +124,8 @@ class BinaryIntegerPrefixedLengthUnparser(
   maybeNBits: MaybeInt,
   signed: Boolean,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
   with KnownPrefixedLengthUnparserMixin {
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
@@ -129,41 +151,58 @@ class BinaryIntegerPrefixedLengthUnparser(
   }
 }
 
-class BinaryFloatUnparser(e: ElementRuntimeData)
-  extends BinaryNumberBaseUnparser(e) {
+class BinaryFloatUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnparser(e) {
 
   override lazy val runtimeDependencies = Vector()
 
   override def getBitLength(s: ParseOrUnparseState) = 32
 
-  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
+  override def putNumber(
+    dos: DataOutputStream,
+    value: JNumber,
+    nBits: Int,
+    finfo: FormatInfo,
+  ): Boolean = {
     dos.putBinaryFloat(asFloat(value), finfo)
   }
 
 }
 
-class BinaryDoubleUnparser(e: ElementRuntimeData)
-  extends BinaryNumberBaseUnparser(e) {
+class BinaryDoubleUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnparser(e) {
 
   override lazy val runtimeDependencies = Vector()
 
   override def getBitLength(s: ParseOrUnparseState) = 64
 
-  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
+  override def putNumber(
+    dos: DataOutputStream,
+    value: JNumber,
+    nBits: Int,
+    finfo: FormatInfo,
+  ): Boolean = {
     dos.putBinaryDouble(asDouble(value), finfo)
   }
 }
 
-class BinaryDecimalKnownLengthUnparser(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthInBits: Int)
-  extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
+class BinaryDecimalKnownLengthUnparser(
+  e: ElementRuntimeData,
+  signed: YesNo,
+  binaryDecimalVirtualPoint: Int,
+  val lengthInBits: Int,
+) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 
   override lazy val runtimeDependencies = Vector()
 
 }
 
-class BinaryDecimalRuntimeLengthUnparser(val e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int, val lengthEv: Evaluatable[JLong], val lengthUnits: LengthUnits)
-  extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
+class BinaryDecimalRuntimeLengthUnparser(
+  val e: ElementRuntimeData,
+  signed: YesNo,
+  binaryDecimalVirtualPoint: Int,
+  val lengthEv: Evaluatable[JLong],
+  val lengthUnits: LengthUnits,
+) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
   override val runtimeDependencies = Vector(lengthEv)
@@ -176,8 +215,8 @@ class BinaryDecimalPrefixedLengthUnparser(
   signed: YesNo,
   binaryDecimalVirtualPoint: Int,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with KnownPrefixedLengthUnparserMixin {
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
@@ -198,8 +237,11 @@ class BinaryDecimalPrefixedLengthUnparser(
   }
 }
 
-abstract class BinaryDecimalUnparserBase(e: ElementRuntimeData, signed: YesNo, binaryDecimalVirtualPoint: Int)
-  extends BinaryNumberBaseUnparser(e) {
+abstract class BinaryDecimalUnparserBase(
+  e: ElementRuntimeData,
+  signed: YesNo,
+  binaryDecimalVirtualPoint: Int,
+) extends BinaryNumberBaseUnparser(e) {
 
   override def getNumberToPut(state: UState): JNumber = {
     val node = state.currentInfosetNode.asSimple
@@ -214,12 +256,18 @@ abstract class BinaryDecimalUnparserBase(e: ElementRuntimeData, signed: YesNo, b
     // also failed here.
     //
     val bigInt =
-      if (binaryDecimalVirtualPoint != 0) bigDec.scaleByPowerOfTen(binaryDecimalVirtualPoint).toBigInteger()
+      if (binaryDecimalVirtualPoint != 0)
+        bigDec.scaleByPowerOfTen(binaryDecimalVirtualPoint).toBigInteger()
       else bigDec.toBigInteger()
     bigInt
   }
 
-  override def putNumber(dos: DataOutputStream, value: JNumber, nBits: Int, finfo: FormatInfo): Boolean = {
+  override def putNumber(
+    dos: DataOutputStream,
+    value: JNumber,
+    nBits: Int,
+    finfo: FormatInfo,
+  ): Boolean = {
     dos.putBigInt(asBigInt(value), nBits, signed == YesNo.Yes, finfo)
   }
 }

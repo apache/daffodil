@@ -17,43 +17,41 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.core.dsom._
-
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-
-import org.apache.daffodil.core.grammar._
-import org.apache.daffodil.runtime1.dsom._
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.xml.GlobalQName
-import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
-import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.parsers.NewVariableInstanceStartParser
-import org.apache.daffodil.runtime1.processors.parsers.AssertExpressionEvaluationParser
-import org.apache.daffodil.core.dsom.ElementBase
-import org.apache.daffodil.runtime1.processors.parsers.NewVariableInstanceEndParser
-import org.apache.daffodil.runtime1.processors.parsers.SetVariableParser
-import org.apache.daffodil.runtime1.processors.parsers.IVCParser
-import org.apache.daffodil.runtime1.processors.parsers.NadaParser
-import org.apache.daffodil.unparsers.runtime1.SetVariableUnparser
-import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceEndUnparser
-import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceStartUnparser
-import org.apache.daffodil.unparsers.runtime1.NadaUnparser
 import org.apache.daffodil.core.compiler.ForParser
-import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.core.dsom.DFDLNewVariableInstance
+import org.apache.daffodil.core.dsom.DFDLSetVariable
+import org.apache.daffodil.core.dsom.ElementBase
+import org.apache.daffodil.core.dsom.ExpressionCompilers
+import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.grammar._
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
-import org.apache.daffodil.core.dsom.ExpressionCompilers
-import org.apache.daffodil.core.dsom.DFDLSetVariable
-import org.apache.daffodil.core.dsom.DFDLNewVariableInstance
+import org.apache.daffodil.lib.xml.GlobalQName
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.processors.parsers.AssertExpressionEvaluationParser
 import org.apache.daffodil.runtime1.processors.parsers.AssertPatternParser
-import org.apache.daffodil.runtime1.processors.parsers.TypeValueCalcParser
-import org.apache.daffodil.unparsers.runtime1.TypeValueCalcUnparser
-import org.apache.daffodil.runtime1.processors.parsers.InitiatedContentDiscrimOnIndexGreaterThanMinParser
-import org.apache.daffodil.runtime1.processors.parsers.InitiatedContentDiscrimChoiceParser
+import org.apache.daffodil.runtime1.processors.parsers.IVCParser
 import org.apache.daffodil.runtime1.processors.parsers.InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser
 import org.apache.daffodil.runtime1.processors.parsers.InitiatedContentDiscrimChoiceOnlyOnFirstIndexParser
+import org.apache.daffodil.runtime1.processors.parsers.InitiatedContentDiscrimChoiceParser
+import org.apache.daffodil.runtime1.processors.parsers.InitiatedContentDiscrimOnIndexGreaterThanMinParser
+import org.apache.daffodil.runtime1.processors.parsers.NadaParser
+import org.apache.daffodil.runtime1.processors.parsers.NewVariableInstanceEndParser
+import org.apache.daffodil.runtime1.processors.parsers.NewVariableInstanceStartParser
+import org.apache.daffodil.runtime1.processors.parsers.SetVariableParser
+import org.apache.daffodil.runtime1.processors.parsers.TypeValueCalcParser
+import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
+import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
+import org.apache.daffodil.unparsers.runtime1.NadaUnparser
+import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceEndUnparser
+import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceStartUnparser
+import org.apache.daffodil.unparsers.runtime1.SetVariableUnparser
+import org.apache.daffodil.unparsers.runtime1.TypeValueCalcUnparser
 
 abstract class AssertBase(
   decl: AnnotatedSchemaComponent,
@@ -63,8 +61,8 @@ abstract class AssertBase(
   msgOpt: Option[String],
   discrim: Boolean, // are we a discriminator or not.
   assertKindName: String,
-  failureType: FailureType)
-  extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
+  failureType: FailureType,
+) extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
 
   def this(
     decl: AnnotatedSchemaComponent,
@@ -72,8 +70,18 @@ abstract class AssertBase(
     msgOpt: Option[String],
     discrim: Boolean, // are we a discriminator or not.
     assertKindName: String,
-    failureType: FailureType) =
-    this(decl, foundProp.value, foundProp.location.namespaces, decl, msgOpt, discrim, assertKindName, failureType)
+    failureType: FailureType,
+  ) =
+    this(
+      decl,
+      foundProp.value,
+      foundProp.location.namespaces,
+      decl,
+      msgOpt,
+      discrim,
+      assertKindName,
+      failureType,
+    )
 
   override val baseName = assertKindName
   override lazy val exprText = exprWithBraces
@@ -87,7 +95,14 @@ abstract class AssertBase(
     if (msgOpt.isDefined) {
       ExpressionCompilers.String.compileExpression(
         qn,
-        NodeInfo.String, msgOpt.get, exprNamespaces, exprComponent.dpathCompileInfo, false, this, exprComponent.dpathCompileInfo)
+        NodeInfo.String,
+        msgOpt.get,
+        exprNamespaces,
+        exprComponent.dpathCompileInfo,
+        false,
+        this,
+        exprComponent.dpathCompileInfo,
+      )
     } else {
       val typeString = if (discrim) "Discriminator" else "Assertion"
       val defaultMessage = s"$typeString expression failed: $exprWithBraces"
@@ -95,7 +110,8 @@ abstract class AssertBase(
     }
   }
 
-  lazy val parser: DaffodilParser = new AssertExpressionEvaluationParser(msgExpr, discrim, decl.runtimeData, expr, failureType)
+  lazy val parser: DaffodilParser =
+    new AssertExpressionEvaluationParser(msgExpr, discrim, decl.runtimeData, expr, failureType)
 
   override def unparser: DaffodilUnparser = hasNoUnparser
 
@@ -105,27 +121,27 @@ abstract class AssertBooleanPrimBase(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase,
   discrim: Boolean, // are we a discriminator or not.
-  assertKindName: String) extends AssertBase(decl, Found(stmt.testTxt, stmt, "test", false), stmt.messageAttrib, discrim, assertKindName, stmt.failureType)
+  assertKindName: String,
+) extends AssertBase(
+    decl,
+    Found(stmt.testTxt, stmt, "test", false),
+    stmt.messageAttrib,
+    discrim,
+    assertKindName,
+    stmt.failureType,
+  )
 
-case class AssertBooleanPrim(
-  decl: AnnotatedSchemaComponent,
-  stmt: DFDLAssertionBase)
-  extends AssertBooleanPrimBase(decl, stmt, false, "assert") {
-}
+case class AssertBooleanPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
+  extends AssertBooleanPrimBase(decl, stmt, false, "assert") {}
 
-case class DiscriminatorBooleanPrim(
-  decl: AnnotatedSchemaComponent,
-  stmt: DFDLAssertionBase)
+case class DiscriminatorBooleanPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
   extends AssertBooleanPrimBase(decl, stmt, true, "discriminator")
 
 // TODO: performance wise, initiated content is supposed to be faster
 // than evaluating an expression. There should be a better way to say
 // "resolve this point of uncertainty" without having to introduce
 // an XPath evaluator that runs fn:true() expression.
-case class InitiatedContent(
-  mg: ModelGroup,
-  t: Term)
-  extends Terminal(t, true) {
+case class InitiatedContent(mg: ModelGroup, t: Term) extends Terminal(t, true) {
 
   override val forWhat = ForParser
 
@@ -134,7 +150,7 @@ case class InitiatedContent(
     // after an initiator parser. So they can all assume that the previous
     // initiator was successfully parsed and thus resolve points of uncertainty
     // appropriately
- 
+
     t match {
       case eb: ElementBase if eb.isArray => {
         (mg, eb.optPoUMinOccurs) match {
@@ -202,12 +218,16 @@ case class SetVariable(stmt: DFDLSetVariable, override val term: Term)
   }
 }
 
-abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
-  extends Terminal(decl, true) {
-}
+abstract class NewVariableInstanceBase(
+  decl: AnnotatedSchemaComponent,
+  stmt: DFDLNewVariableInstance,
+) extends Terminal(decl, true) {}
 
-case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance, override val term: Term)
-  extends NewVariableInstanceBase(decl, stmt) {
+case class NewVariableInstanceStart(
+  decl: AnnotatedSchemaComponent,
+  stmt: DFDLNewVariableInstance,
+  override val term: Term,
+) extends NewVariableInstanceBase(decl, stmt) {
 
   lazy val parser: DaffodilParser = {
     if (stmt.defv.runtimeData.direction == VariableDirection.UnparseOnly)
@@ -224,8 +244,11 @@ case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNe
   }
 }
 
-case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance, override val term: Term)
-  extends NewVariableInstanceBase(decl, stmt) {
+case class NewVariableInstanceEnd(
+  decl: AnnotatedSchemaComponent,
+  stmt: DFDLNewVariableInstance,
+  override val term: Term,
+) extends NewVariableInstanceBase(decl, stmt) {
 
   lazy val parser: DaffodilParser = {
     if (stmt.defv.runtimeData.direction == VariableDirection.UnparseOnly)
@@ -270,20 +293,25 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   lazy val expr = LV('expr) {
     ExpressionCompilers.AnyRef.compileExpression(
       qn,
-      nodeKind, exprText, exprNamespaces, exprComponent.dpathCompileInfo, false, this, exprComponent.dpathCompileInfo)
+      nodeKind,
+      exprText,
+      exprNamespaces,
+      exprComponent.dpathCompileInfo,
+      false,
+      this,
+      exprComponent.dpathCompileInfo,
+    )
   }.value
 }
 
-abstract class ValueCalcBase(
-  e: ElementBase,
-  property: PropertyLookupResult)
+abstract class ValueCalcBase(e: ElementBase, property: PropertyLookupResult)
   extends ExpressionEvaluatorBase(e) {
 
   override lazy val exprText = exprProp.value
   override lazy val exprNamespaces = exprProp.location.namespaces
   override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
 
-  lazy val pt = e.primType //.typeRuntimeData
+  lazy val pt = e.primType // .typeRuntimeData
   override lazy val nodeKind = pt
   lazy val ptn = pt.name
 
@@ -291,9 +319,7 @@ abstract class ValueCalcBase(
 
 }
 
-case class InputValueCalc(
-  e: ElementBase,
-  property: PropertyLookupResult)
+case class InputValueCalc(e: ElementBase, property: PropertyLookupResult)
   extends ValueCalcBase(e, property) {
 
   override def baseName = "inputValueCalc"
@@ -305,26 +331,38 @@ case class InputValueCalc(
   override lazy val unparser = Assert.usageError("Not to be called on InputValueCalc class.")
 }
 
-case class TypeValueCalc(e: ElementBase)
-  extends Terminal(e, e.hasRepType) {
+case class TypeValueCalc(e: ElementBase) extends Terminal(e, e.hasRepType) {
 
   private lazy val simpleTypeDefBase = e.simpleType.asInstanceOf[SimpleTypeDefBase]
   private lazy val typeCalculator = simpleTypeDefBase.optTypeCalculator.get
-  private lazy val repTypeRuntimeData = simpleTypeDefBase.optRepTypeElement.get.elementRuntimeData
-  private lazy val repTypeParser = simpleTypeDefBase.optRepTypeElement.get.enclosedElement.parser
-  private lazy val repTypeUnparser = simpleTypeDefBase.optRepTypeElement.get.enclosedElement.unparser
+  private lazy val repTypeRuntimeData =
+    simpleTypeDefBase.optRepTypeElement.get.elementRuntimeData
+  private lazy val repTypeParser =
+    simpleTypeDefBase.optRepTypeElement.get.enclosedElement.parser
+  private lazy val repTypeUnparser =
+    simpleTypeDefBase.optRepTypeElement.get.enclosedElement.unparser
 
   override lazy val parser: DaffodilParser = {
     if (!typeCalculator.supportsParse) {
       SDE("Parsing not defined by typeValueCalc")
     }
-    new TypeValueCalcParser(typeCalculator, repTypeParser, e.elementRuntimeData, repTypeRuntimeData)
+    new TypeValueCalcParser(
+      typeCalculator,
+      repTypeParser,
+      e.elementRuntimeData,
+      repTypeRuntimeData,
+    )
   }
   override lazy val unparser: DaffodilUnparser = {
     if (!typeCalculator.supportsUnparse) {
       SDE("Unparsing not defined by typeValueCalc")
     }
-    new TypeValueCalcUnparser(typeCalculator, repTypeUnparser, e.elementRuntimeData, repTypeRuntimeData)
+    new TypeValueCalcUnparser(
+      typeCalculator,
+      repTypeUnparser,
+      e.elementRuntimeData,
+      repTypeRuntimeData,
+    )
   }
 
 }
@@ -355,9 +393,16 @@ abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discri
 
   override val forWhat = ForParser
 
-  lazy val parser: DaffodilParser = new AssertPatternParser(decl.termRuntimeData, discrim, testPattern, msgExpr, stmt.failureType)
+  lazy val parser: DaffodilParser = new AssertPatternParser(
+    decl.termRuntimeData,
+    discrim,
+    testPattern,
+    msgExpr,
+    stmt.failureType,
+  )
 
-  override def unparser: DaffodilUnparser = Assert.invariantFailed("should not request unparser for asserts/discriminators")
+  override def unparser: DaffodilUnparser =
+    Assert.invariantFailed("should not request unparser for asserts/discriminators")
 }
 
 case class AssertPatternPrim(override val term: Term, stmt: DFDLAssert)

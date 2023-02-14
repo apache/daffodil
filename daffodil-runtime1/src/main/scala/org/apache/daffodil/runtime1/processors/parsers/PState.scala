@@ -22,20 +22,37 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import scala.collection.mutable
-import org.apache.daffodil.runtime1.api.DFDL
+
+import org.apache.daffodil.io.DataInputStream
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.DataLocation
 import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.util.MStack
+import org.apache.daffodil.lib.util.MStackOf
+import org.apache.daffodil.lib.util.MStackOfInt
+import org.apache.daffodil.lib.util.MStackOfLong
+import org.apache.daffodil.lib.util.MStackOfMaybe
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Pool
+import org.apache.daffodil.lib.util.Poolable
+import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.infoset.DIComplex
+import org.apache.daffodil.runtime1.infoset.DIComplexState
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DISimple
+import org.apache.daffodil.runtime1.infoset.DISimpleState
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.Infoset
 import org.apache.daffodil.runtime1.infoset.InfosetDocument
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.infoset.InfosetWalker
-import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -45,27 +62,11 @@ import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.ProcessorResult
 import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.VariableInstance
 import org.apache.daffodil.runtime1.processors.VariableMap
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
-import org.apache.daffodil.runtime1.processors.VariableInstance
 import org.apache.daffodil.runtime1.processors.dfa
 import org.apache.daffodil.runtime1.processors.dfa.DFADelimiter
-import org.apache.daffodil.lib.util.MStack
-import org.apache.daffodil.lib.util.MStackOfInt
-import org.apache.daffodil.lib.util.MStackOfLong
-import org.apache.daffodil.lib.util.MStackOfMaybe
-import org.apache.daffodil.lib.util.MStackOf
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe.Nope
-import org.apache.daffodil.lib.util.Maybe.One
-import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.lib.util.Pool
-import org.apache.daffodil.lib.util.Poolable
-import org.apache.daffodil.runtime1.infoset.DIComplexState
-import org.apache.daffodil.runtime1.infoset.DISimpleState
-import org.apache.daffodil.lib.exceptions.Abort
-import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 
 object MPState {
 
@@ -159,7 +160,8 @@ final class PState private (
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult],
   var blobPaths: Seq[Path],
-  tunable: DaffodilTunables) // Runtime tunables obtained from DataProcessor)
+  tunable: DaffodilTunables,
+) // Runtime tunables obtained from DataProcessor)
   extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable) {
 
   override def currentNode = Maybe(infoset)
@@ -355,12 +357,19 @@ final class PState private (
     }
   }
 
-  override def setVariable(vrd: VariableRuntimeData, newValue: DataValuePrimitive, referringContext: ThrowsSDE): Unit = {
+  override def setVariable(
+    vrd: VariableRuntimeData,
+    newValue: DataValuePrimitive,
+    referringContext: ThrowsSDE,
+  ): Unit = {
     changingVariable()
     variableMap.setVariable(vrd, newValue, referringContext, this)
   }
 
-  override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive = {
+  override def getVariable(
+    vrd: VariableRuntimeData,
+    referringContext: ThrowsSDE,
+  ): DataValuePrimitive = {
     // Skip the call to changingVariable if this variable has already been
     // read, which means another read will not actually change the state. This
     // potentially avoids an expensive deep copy if we've read a variable,
@@ -399,7 +408,9 @@ final class PState private (
    * It is recommend to keep the func body as small as possible and avoid
    * things like reflection that could cause breakage.
    */
-  def withPointOfUncertainty[B](pouID: String, context: RuntimeData)(func: PState.Mark => B): B =
+  def withPointOfUncertainty[B](pouID: String, context: RuntimeData)(
+    func: PState.Mark => B,
+  ): B =
     macro PointOfUncertaintyMacros.withPointOfUncertainty[PState.Mark, B]
 
   /**
@@ -461,7 +472,6 @@ final class PState private (
     pointsOfUncertainty.isEmpty || pointsOfUncertainty.top != pou
   }
 
-
   def addBlobPath(path: Path): Unit = {
     blobPaths = path +: blobPaths
   }
@@ -497,7 +507,10 @@ final class PState private (
         case trd: TermRuntimeData => {
           val mcboc = trd.maybeCheckBitOrderAndCharsetEv
           val mcbbo = trd.maybeCheckByteAndBitOrderEv
-          if (mcboc.isDefined) mcboc.get.evaluate(this) // Expressions must be evaluated on the element, not before it is created.
+          if (mcboc.isDefined)
+            mcboc.get.evaluate(
+              this,
+            ) // Expressions must be evaluated on the element, not before it is created.
           if (mcbbo.isDefined) mcbbo.get.evaluate(this)
         }
         case _ => // ok
@@ -505,7 +518,10 @@ final class PState private (
 
       dis.cst.setPriorBitOrder(this.bitOrder)
       if (!dis.isAligned(8))
-        SDE("Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s.", dis.bitPos1b)
+        SDE(
+          "Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s.",
+          dis.bitPos1b,
+        )
     }
   }
 
@@ -520,7 +536,8 @@ final class PState private (
     }
   }
 
-  override lazy val (regexMatchBuffer, regexMatchBitPositionBuffer) = dataProcArg.regexMatchState.get
+  override lazy val (regexMatchBuffer, regexMatchBitPositionBuffer) =
+    dataProcArg.regexMatchState.get
 
   /**
    * Verify that the state is left where we expect it to be after
@@ -539,7 +556,7 @@ final class PState private (
     try {
       if (optThrown.isEmpty) {
         Assert.invariant(this.pointsOfUncertainty.length == 0)
-        Assert.invariant(!this.withinHiddenNest) //ensure we are not in hidden nest
+        Assert.invariant(!this.withinHiddenNest) // ensure we are not in hidden nest
         mpstate.verifyFinalState()
       }
       // These we check regardless of throw or not.
@@ -570,9 +587,18 @@ object PState {
 
     override def toString() = {
       if (disMark ne null)
-        "bitPos: %s, context: %s [%s] (%s)".format(bitPos0b.toString, context.toString, context.locationDescription, poolDebugLabel)
+        "bitPos: %s, context: %s [%s] (%s)".format(
+          bitPos0b.toString,
+          context.toString,
+          context.locationDescription,
+          poolDebugLabel,
+        )
       else
-        "bitPos: (uninitialized), context: %s [%s] (%s)".format(context.toString, context.locationDescription, poolDebugLabel)
+        "bitPos: (uninitialized), context: %s [%s] (%s)".format(
+          context.toString,
+          context.locationDescription,
+          poolDebugLabel,
+        )
     }
 
     def bitPos0b = disMark.bitPos0b
@@ -679,7 +705,8 @@ object PState {
     dis: InputSourceDataInputStream,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
-    areDebugging: Boolean): PState = {
+    areDebugging: Boolean,
+  ): PState = {
 
     val tunables = dataProc.tunables
     val doc = Infoset.newDocument(root).asInstanceOf[DIElement]
@@ -689,7 +716,8 @@ object PState {
       dis,
       output,
       dataProc,
-      areDebugging)
+      areDebugging,
+    )
   }
 
   /**
@@ -701,7 +729,8 @@ object PState {
     dis: InputSourceDataInputStream,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
-    areDebugging: Boolean): PState = {
+    areDebugging: Boolean,
+  ): PState = {
 
     /**
      * This is a full deep copy as variableMap is mutable. Reusing
@@ -719,7 +748,8 @@ object PState {
       ignoreBlocks = false,
       releaseUnneededInfoset = !areDebugging && tunables.releaseUnneededInfoset,
       walkSkipMin = tunables.infosetWalkerSkipMin,
-      walkSkipMax = tunables.infosetWalkerSkipMax)
+      walkSkipMax = tunables.infosetWalkerSkipMax,
+    )
 
     dis.cst.setPriorBitOrder(root.defaultBitOrder)
     val newState = new PState(
@@ -733,7 +763,8 @@ object PState {
       dataProc.asInstanceOf[DataProcessor],
       Nope,
       Seq.empty,
-      tunables)
+      tunables,
+    )
     newState
   }
 
@@ -745,7 +776,8 @@ object PState {
     data: String,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
-    areDebugging: Boolean): PState = {
+    areDebugging: Boolean,
+  ): PState = {
     val in = InputSourceDataInputStream(data.getBytes(StandardCharsets.UTF_8))
     createInitialPState(root, in, output, dataProc, areDebugging)
   }
@@ -758,7 +790,8 @@ object PState {
     input: java.nio.channels.ReadableByteChannel,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
-    areDebugging: Boolean): PState = {
+    areDebugging: Boolean,
+  ): PState = {
     val dis = InputSourceDataInputStream(Channels.newInputStream(input))
     createInitialPState(root, dis, output, dataProc, areDebugging)
   }

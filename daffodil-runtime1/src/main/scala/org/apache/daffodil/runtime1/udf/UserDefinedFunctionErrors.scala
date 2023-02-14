@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.runtime1.udf
 
-import org.apache.daffodil.lib.exceptions.Abort
-import org.apache.daffodil.runtime1.processors.ProcessingError
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.exceptions.Abort
+import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.processors.ProcessingError
 
 /**
  * User Defined Function Exception class to wrap processing errors from the UDF
@@ -33,15 +33,19 @@ case class UserDefinedFunctionProcessingErrorException(
   schemaContext: Maybe[SchemaFileLocation],
   dataContext: Maybe[DataLocation],
   errorCause: Maybe[Throwable],
-  errorStr: Maybe[String])
-  extends ProcessingError(errorInfo, schemaContext, dataContext, errorCause, errorStr)
+  errorStr: Maybe[String],
+) extends ProcessingError(errorInfo, schemaContext, dataContext, errorCause, errorStr)
 
 /**
  * User Defined Function Exception class to wrap fatal errors from the UDF
  * into Daffodil Aborts
  */
-case class UserDefinedFunctionFatalErrorException(description: String = "", cause: Throwable, udfOfInterest: String = "", providerOfInterest: String = "")
-  extends Abort(description + ". Cause: " + cause.toString) {
+case class UserDefinedFunctionFatalErrorException(
+  description: String = "",
+  cause: Throwable,
+  udfOfInterest: String = "",
+  providerOfInterest: String = "",
+) extends Abort(description + ". Cause: " + cause.toString) {
 
   /*
    * This will replace the stacktrace of the fatal error with just the UDF relevant
@@ -52,7 +56,8 @@ case class UserDefinedFunctionFatalErrorException(description: String = "", caus
   val classesOfInterest = List(udfOfInterest, providerOfInterest).filterNot(Misc.isNullOrBlank)
   if (classesOfInterest.nonEmpty) {
     val curStackTrace = cause.getStackTrace
-    val indexLastUdfEntry = curStackTrace.lastIndexWhere(ste => classesOfInterest.exists(_ == ste.getClassName))
+    val indexLastUdfEntry =
+      curStackTrace.lastIndexWhere(ste => classesOfInterest.exists(_ == ste.getClassName))
     val finalStackTrace =
       if (indexLastUdfEntry >= 0) curStackTrace.slice(0, indexLastUdfEntry + 1)
       else curStackTrace

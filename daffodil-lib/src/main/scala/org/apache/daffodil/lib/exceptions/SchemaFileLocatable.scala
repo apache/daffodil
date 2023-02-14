@@ -18,6 +18,7 @@
 package org.apache.daffodil.lib.exceptions
 
 import java.net.URLDecoder
+
 import org.apache.daffodil.lib.api.LocationInSchemaFile
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 
@@ -33,13 +34,14 @@ trait HasSchemaFileLocation extends LookupLocation {
 }
 
 object SchemaFileLocation {
-  def apply(context:SchemaFileLocatable) =
+  def apply(context: SchemaFileLocatable) =
     new SchemaFileLocation(
       context.lineNumber,
       context.columnNumber,
       context.uriString,
       context.toString,
-      context.diagnosticDebugName)
+      context.diagnosticDebugName,
+    )
 }
 
 class SchemaFileLocation private (
@@ -47,9 +49,9 @@ class SchemaFileLocation private (
   val columnNumber: Option[String],
   val uriString: String,
   contextToString: String,
-  val diagnosticDebugName: String)
-  extends LocationInSchemaFile
-    with Serializable {
+  val diagnosticDebugName: String,
+) extends LocationInSchemaFile
+  with Serializable {
 
   override def lineDescription = lineNumber match {
     case Some(num) => " line " + num
@@ -73,8 +75,7 @@ class SchemaFileLocation private (
   }
 }
 
-trait SchemaFileLocatable extends LocationInSchemaFile
-  with HasSchemaFileLocation {
+trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocation {
   def lineAttribute: Option[String]
   def columnAttribute: Option[String]
   def fileAttribute: Option[String]
@@ -140,4 +141,3 @@ trait SchemaFileLocatable extends LocationInSchemaFile
 
   override lazy val schemaFileLocation = SchemaFileLocation(this)
 }
-

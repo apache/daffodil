@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-
 /**
  * Receive infoset events and forward them to one or more InfosetOutputters. A
  * thrown exception from any outputter is not caught and bubbles up resulting
@@ -27,8 +26,7 @@ package org.apache.daffodil.runtime1.infoset
  *
  *    InfosetOutputters to send all events
  */
-class TeeInfosetOutputter(outputters: InfosetOutputter*)
-  extends InfosetOutputter {
+class TeeInfosetOutputter(outputters: InfosetOutputter*) extends InfosetOutputter {
 
   override def reset(): Unit = {
     outputters.foreach { _.reset() }
@@ -37,7 +35,7 @@ class TeeInfosetOutputter(outputters: InfosetOutputter*)
   override def startSimple(simple: DISimple): Unit = {
     outputters.foreach { _.startSimple(simple) }
   }
-  
+
   override def endSimple(simple: DISimple): Unit = {
     outputters.foreach { _.endSimple(simple) }
   }

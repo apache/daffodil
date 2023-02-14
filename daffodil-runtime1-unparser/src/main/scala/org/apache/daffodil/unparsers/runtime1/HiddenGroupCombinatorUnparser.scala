@@ -17,9 +17,8 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
 import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 /**
  * The purpose of this combinator is to increment/decrement the depth counter
@@ -27,8 +26,7 @@ import org.apache.daffodil.runtime1.processors.ModelGroupRuntimeData
  * hiddenGroupRefs, we'll increment the counter, call the group's unparser, and as
  * we unwind from the refs, we'll decrement.
  */
-class HiddenGroupCombinatorUnparser(
-  ctxt: ModelGroupRuntimeData, bodyUnparser: Unparser)
+class HiddenGroupCombinatorUnparser(ctxt: ModelGroupRuntimeData, bodyUnparser: Unparser)
   extends CombinatorUnparser(ctxt) {
 
   override lazy val childProcessors = Vector(bodyUnparser)

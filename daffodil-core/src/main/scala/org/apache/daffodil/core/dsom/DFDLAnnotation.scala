@@ -18,6 +18,7 @@
 package org.apache.daffodil.core.dsom
 
 import scala.xml.Node
+
 import org.apache.daffodil.lib.util.Misc
 
 /**

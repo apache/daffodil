@@ -36,17 +36,17 @@ object FastAsciiToUnicodeConverter {
 
     val bLong = bb.asLongBuffer()
     val cbLong = cb.asLongBuffer()
-    1 to bLong.limit() foreach { i =>
+    (1 to bLong.limit()).foreach { i =>
       val bbl = bLong.get()
-      val long1: Int = (bbl >> 32).toInt & 0xFFFFFFFF
-      val long2: Int = bbl.toInt & 0xFFFFFFFF
+      val long1: Int = (bbl >> 32).toInt & 0xffffffff
+      val long2: Int = bbl.toInt & 0xffffffff
       val cbl1 = convertLong(long1)
       val cbl2 = convertLong(long2)
       cbLong.put(cbl1)
       cbLong.put(cbl2)
     }
 
-    1 to numBytesTrailingFragment.toInt foreach { j =>
+    (1 to numBytesTrailingFragment.toInt).foreach { j =>
       val pos = bb.limit() - j
       val byte = bb.get(pos)
       val char = convertByte(byte)
@@ -56,7 +56,8 @@ object FastAsciiToUnicodeConverter {
     cb.asCharBuffer()
   }
 
-  val UnicodeReplacementCharacter = 0xFFFD.toChar
+  val UnicodeReplacementCharacter = 0xfffd.toChar
+
   /**
    * Convert a single byte of ascii to unicode.
    * If the MSBit is set (negative byte) then that's
@@ -71,17 +72,17 @@ object FastAsciiToUnicodeConverter {
 
   @inline
   def convertInt(int: Int) = {
-    val i = int & 0xFF
+    val i = int & 0xff
     if (i > 127) UnicodeReplacementCharacter
     else i.toChar
   }
 
   @inline
   def convertLong(bytes: Int): Long = {
-    val int1 = bytes & 0xFF
-    val int2 = (bytes >> 8) & 0xFF
-    val int3 = (bytes >> 16) & 0xFF
-    val int4 = (bytes >> 24) & 0xFF
+    val int1 = bytes & 0xff
+    val int2 = (bytes >> 8) & 0xff
+    val int3 = (bytes >> 16) & 0xff
+    val int4 = (bytes >> 24) & 0xff
     val char1 = convertInt(int1)
     val char2 = convertInt(int2)
     val char3 = convertInt(int3)

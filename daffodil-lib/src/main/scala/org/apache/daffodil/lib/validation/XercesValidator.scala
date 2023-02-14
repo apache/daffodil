@@ -18,12 +18,11 @@
 package org.apache.daffodil.lib.validation
 
 import java.net.URI
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigValueFactory
-
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
+import scala.collection.JavaConverters._
+import scala.xml.SAXException
+
 import org.apache.daffodil.lib.api.ValidationException
 import org.apache.daffodil.lib.api.ValidationFailure
 import org.apache.daffodil.lib.api.ValidationResult
@@ -33,11 +32,12 @@ import org.apache.daffodil.lib.api.ValidatorFactory
 import org.apache.daffodil.lib.validation.XercesValidator.XercesValidatorImpl
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
+
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigValueFactory
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXParseException
-
-import scala.collection.JavaConverters._
-import scala.xml.SAXException
 
 /**
  * Provides a XercesValidator instance
@@ -54,7 +54,7 @@ class XercesValidatorFactory extends ValidatorFactory {
 object XercesValidatorFactory {
   def makeValidator(config: Config): Validator = {
     val schemaFiles =
-      if(config.hasPath(XercesValidator.name))
+      if (config.hasPath(XercesValidator.name))
         config.getStringList(XercesValidator.name).asScala
       else Seq.empty
     XercesValidator.fromFiles(schemaFiles)
@@ -71,8 +71,7 @@ object XercesValidatorFactory {
  * to do a validation pass on the TDML expected Infoset w.r.t. the model and to
  * do a validation pass on the actual result w.r.t. the model as an XML document.
  */
-class XercesValidator(schemaSources: Seq[javax.xml.transform.Source])
-  extends Validator {
+class XercesValidator(schemaSources: Seq[javax.xml.transform.Source]) extends Validator {
 
   private val factory = new org.apache.xerces.jaxp.validation.XMLSchemaFactory()
   private val resolver = DFDLCatalogResolver.get
@@ -88,9 +87,7 @@ class XercesValidator(schemaSources: Seq[javax.xml.transform.Source])
   def validateXML(document: java.io.InputStream): ValidationResult =
     validateXML(document, new XercesErrorHandler)
 
-  def validateXML(
-    document: java.io.InputStream,
-    eh: ErrorHandler): ValidationResult = {
+  def validateXML(document: java.io.InputStream, eh: ErrorHandler): ValidationResult = {
 
     val documentSource = new StreamSource(document)
 
@@ -122,7 +119,10 @@ class XercesValidator(schemaSources: Seq[javax.xml.transform.Source])
     }
   }
 
-  private def initializeValidator(validator: XercesValidatorImpl, resolver: DFDLCatalogResolver): XercesValidatorImpl = {
+  private def initializeValidator(
+    validator: XercesValidatorImpl,
+    resolver: DFDLCatalogResolver,
+  ): XercesValidatorImpl = {
     validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
     validator.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
     validator.setFeature("http://xml.org/sax/features/validation", true)
@@ -137,13 +137,14 @@ object XercesValidator {
   private type XercesValidatorImpl = javax.xml.validation.Validator
   val name = "xerces"
 
-  def fromURIs(schemaURIs: Seq[URI]) = new XercesValidator(
-    schemaURIs.map { uri =>
-      val is = uri.toURL.openStream()
-      val stream = new StreamSource(is)
-      stream.setSystemId(uri.toString) // must set this so that relative URIs will be created for import/include files.
-      stream
-    })
+  def fromURIs(schemaURIs: Seq[URI]) = new XercesValidator(schemaURIs.map { uri =>
+    val is = uri.toURL.openStream()
+    val stream = new StreamSource(is)
+    stream.setSystemId(
+      uri.toString,
+    ) // must set this so that relative URIs will be created for import/include files.
+    stream
+  })
 
   def fromFiles(schemaFileNames: Seq[String]) =
     fromURIs(schemaFileNames.map { new URI(_) })
@@ -156,11 +157,19 @@ private class XercesErrorHandler extends ErrorHandler {
   def errors: Seq[ValidationFailure] = e
   def warnings: Seq[ValidationWarning] = w
 
-  override def warning(spe: SAXParseException): Unit =  w :+= SaxValidationWarning(spe)
+  override def warning(spe: SAXParseException): Unit = w :+= SaxValidationWarning(spe)
   override def error(spe: SAXParseException): Unit = e :+= SaxValidationError(spe)
   override def fatalError(spe: SAXParseException): Unit = e :+= SaxValidationError(spe)
 }
 
-sealed abstract class SaxValidationResult(e: SAXException) extends Exception(e) with ValidationException
-case class SaxValidationError(e: SAXException) extends SaxValidationResult(e) with ValidationFailure with ValidationException
-case class SaxValidationWarning(e: SAXException) extends SaxValidationResult(e) with  ValidationWarning with ValidationException
+sealed abstract class SaxValidationResult(e: SAXException)
+  extends Exception(e)
+  with ValidationException
+case class SaxValidationError(e: SAXException)
+  extends SaxValidationResult(e)
+  with ValidationFailure
+  with ValidationException
+case class SaxValidationWarning(e: SAXException)
+  extends SaxValidationResult(e)
+  with ValidationWarning
+  with ValidationException

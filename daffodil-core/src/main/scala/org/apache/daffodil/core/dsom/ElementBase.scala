@@ -17,29 +17,27 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.runtime1.dsom._
-
 import java.lang.{ Integer => JInt }
-
 import scala.xml.NamespaceBinding
 
-import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.core.dsom.walker.ElementBaseView
+import org.apache.daffodil.core.grammar.ElementBaseGrammarMixin
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.core.grammar.ElementBaseGrammarMixin
-import org.apache.daffodil.runtime1.infoset.DataValue
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
-import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.lib.schema.annotation.props._
 import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.runtime1.infoset.DataValue
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveOrUseNilForDefaultOrNull
+import org.apache.daffodil.runtime1.processors._
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -99,13 +97,23 @@ trait ElementBase
 
   override def name: String
 
-  final lazy val inputValueCalcOption = findPropertyOption("inputValueCalc", expressionAllowed = true)
+  final lazy val inputValueCalcOption =
+    findPropertyOption("inputValueCalc", expressionAllowed = true)
 
   final lazy val outputValueCalcOption: PropertyLookupResult = {
     val optOVC = findPropertyOption("outputValueCalc", expressionAllowed = true)
-    schemaDefinitionWhen(optOVC.isDefined && isOptional, "dfdl:outputValueCalc cannot be defined on optional elements.")
-    schemaDefinitionWhen(optOVC.isDefined && isArray, "dfdl:outputValueCalc cannot be defined on array elements.")
-    schemaDefinitionWhen(optOVC.isDefined && isComplexType, "dfdl:outputValueCalc cannot be defined on complexType elements.")
+    schemaDefinitionWhen(
+      optOVC.isDefined && isOptional,
+      "dfdl:outputValueCalc cannot be defined on optional elements.",
+    )
+    schemaDefinitionWhen(
+      optOVC.isDefined && isArray,
+      "dfdl:outputValueCalc cannot be defined on array elements.",
+    )
+    schemaDefinitionWhen(
+      optOVC.isDefined && isComplexType,
+      "dfdl:outputValueCalc cannot be defined on complexType elements.",
+    )
     // This should be an SDE, but is very useful for unit tests to be able to specify OVC on a single global element
     // self.schemaDefinitionWhen(optOVC.isDefined && self.isInstanceOf[GlobalElementDecl], "dfdl:outputValueCalc cannot be defined on global elements.")
 
@@ -189,7 +197,8 @@ trait ElementBase
   /**
    * None for complex types, Some(primType) for simple types.
    */
-  final lazy val optPrimType: Option[PrimType] = Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
+  final lazy val optPrimType: Option[PrimType] =
+    Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
 
   /**
    * An array element is required if its index is less than the minOccurs of the
@@ -206,69 +215,74 @@ trait ElementBase
     }
   }
 
-  private lazy val thisElementsRequiredNamespaceBindings: Set[(String, NS)] = LV('thisElementsRequiredNamespaceBindings) {
-    val childrenRequiredNSBindings =
-      this.elementChildren.flatMap { _.thisElementsRequiredNamespaceBindings }.toSet
+  private lazy val thisElementsRequiredNamespaceBindings: Set[(String, NS)] =
+    LV('thisElementsRequiredNamespaceBindings) {
+      val childrenRequiredNSBindings =
+        this.elementChildren.flatMap { _.thisElementsRequiredNamespaceBindings }.toSet
 
-    val myRequiredNSBinding = Set((this.namespaces.getPrefix(namedQName.namespace), namedQName.namespace))
-    val nilNSBinding = {
-      if (!isNillable) Set()
-      else {
-        //
-        // Nillable, so we need a binding for xsi:nil='true' case.
-        //
-        val xsiNS = XMLUtils.XSI_NAMESPACE
-        val xsiPrefix = namespaces.getPrefix(xsiNS.toString)
-        if (xsiPrefix != null) {
-          Set((xsiPrefix, xsiNS))
-        } else {
-          Set(("xsi", xsiNS))
+      val myRequiredNSBinding =
+        Set((this.namespaces.getPrefix(namedQName.namespace), namedQName.namespace))
+      val nilNSBinding = {
+        if (!isNillable) Set()
+        else {
+          //
+          // Nillable, so we need a binding for xsi:nil='true' case.
+          //
+          val xsiNS = XMLUtils.XSI_NAMESPACE
+          val xsiPrefix = namespaces.getPrefix(xsiNS.toString)
+          if (xsiPrefix != null) {
+            Set((xsiPrefix, xsiNS))
+          } else {
+            Set(("xsi", xsiNS))
+          }
         }
       }
-    }
-    val allBindings = childrenRequiredNSBindings ++ myRequiredNSBinding ++ nilNSBinding
+      val allBindings = childrenRequiredNSBindings ++ myRequiredNSBinding ++ nilNSBinding
 
-    // allBindings now contains bindings for this element and its children. The
-    // purpose of this is to kindof bubble up required namespace bindings. For
-    // example, we need the xsi namespace if an element is nillable, but we do
-    // not want to redefine that namespace on every nillable element. By adding
-    // the required namespaces of the children, we can bubble up such bindings
-    // so that they are only declared once at the top of an infoset. However,
-    // there is an issues with bubbling up. That is, children could have
-    // conflicting namespace bindings either with each other or with this
-    // element. So after all namespace bindings are combined, we need to filter
-    // out conflicting namespace bindings.
-    //
-    // Note however, that if myRequiredNSBinding conflicts with a child, then it
-    // (along with anything it conflicts with) would be filtered out. But it is
-    // required for this element, so we need to add it back in.
+      // allBindings now contains bindings for this element and its children. The
+      // purpose of this is to kindof bubble up required namespace bindings. For
+      // example, we need the xsi namespace if an element is nillable, but we do
+      // not want to redefine that namespace on every nillable element. By adding
+      // the required namespaces of the children, we can bubble up such bindings
+      // so that they are only declared once at the top of an infoset. However,
+      // there is an issues with bubbling up. That is, children could have
+      // conflicting namespace bindings either with each other or with this
+      // element. So after all namespace bindings are combined, we need to filter
+      // out conflicting namespace bindings.
+      //
+      // Note however, that if myRequiredNSBinding conflicts with a child, then it
+      // (along with anything it conflicts with) would be filtered out. But it is
+      // required for this element, so we need to add it back in.
 
-    // Creates a Map[prefix, Set[NS]]. Duplicate NS's will be removed from the
-    // Set, since it's a Set
-    val bindingsGroupedByPrefix = allBindings.groupBy { _._1 }.mapValues { _.map { _._2 } }
+      // Creates a Map[prefix, Set[NS]]. Duplicate NS's will be removed from the
+      // Set, since it's a Set
+      val bindingsGroupedByPrefix = allBindings.groupBy { _._1 }.mapValues { _.map { _._2 } }
 
-    // Any Set with size > 1 has different namespaces for the same prefix, filter them out
-    val bindingsNoConflictsMap = bindingsGroupedByPrefix.filter { case (prefix, bindings) => bindings.size == 1 }
+      // Any Set with size > 1 has different namespaces for the same prefix, filter them out
+      val bindingsNoConflictsMap = bindingsGroupedByPrefix.filter { case (prefix, bindings) =>
+        bindings.size == 1
+      }
 
-    // Create a Map[prefix, NS] now that conflicts are removed
-    val bindingsSingleNSMap = bindingsNoConflictsMap.mapValues { _.head }
+      // Create a Map[prefix, NS] now that conflicts are removed
+      val bindingsSingleNSMap = bindingsNoConflictsMap.mapValues { _.head }
 
-    // Convert back to a set
-    val bindings = bindingsSingleNSMap.toSet
+      // Convert back to a set
+      val bindings = bindingsSingleNSMap.toSet
 
-    // Add back in myRequiredNSBinding. This is a Set, so if it already exist
-    // the duplicate will just be ignored
-    val res = bindings ++ myRequiredNSBinding
+      // Add back in myRequiredNSBinding. This is a Set, so if it already exist
+      // the duplicate will just be ignored
+      val res = bindings ++ myRequiredNSBinding
 
-    res
-  }.value
+      res
+    }.value
 
   private lazy val emptyNSPairs: Set[(String, NS)] = nsBindingsToSet(scala.xml.TopScope)
 
   private lazy val myOwnNSPairs: Set[(String, NS)] = thisElementsRequiredNamespaceBindings
 
   private lazy val myParentNSPairs: Set[(String, NS)] = LV('myParentNSPairs) {
-    val ee: Option[ElementBase] = enclosingElements.headOption // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
+    val ee: Option[ElementBase] =
+      enclosingElements.headOption // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
     ee match {
       case None => emptyNSPairs
       case Some(ee) => ee.myOwnNSPairs
@@ -276,12 +290,16 @@ trait ElementBase
   }.value
 
   private lazy val myUniquePairs: Set[(String, NS)] = {
-    val res = myOwnNSPairs -- myParentNSPairs // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
+    val res =
+      myOwnNSPairs -- myParentNSPairs // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
     res
   }
 
   // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
-  private def pairsToNSBinding(pairs: List[(String, NS)], parentNS: NamespaceBinding): NamespaceBinding = {
+  private def pairsToNSBinding(
+    pairs: List[(String, NS)],
+    parentNS: NamespaceBinding,
+  ): NamespaceBinding = {
     if (pairs.isEmpty) parentNS
     else {
       val (pre, ns) = pairs.head
@@ -294,7 +312,8 @@ trait ElementBase
   }
 
   private lazy val parentMinimizedScope = LV('parentMinimizedScope) {
-    val ee = enclosingElements.headOption // FIXME: bug DAFFODIL-2282 doesn't work unless all are same.
+    val ee =
+      enclosingElements.headOption // FIXME: bug DAFFODIL-2282 doesn't work unless all are same.
     val res =
       if (ee.isEmpty)
         scala.xml.TopScope
@@ -315,12 +334,11 @@ trait ElementBase
         // the root because if a child has xmlns="", that implies the parent
         // had set the default namespace to something else, so we need to keep
         // the child xmlns="" to override that.
-        myUniquePairs.filterNot {
-          case (prefix, ns) =>
-            val res =
-              prefix == null &&
-                ns.isNoNamespace
-            res
+        myUniquePairs.filterNot { case (prefix, ns) =>
+          val res =
+            prefix == null &&
+              ns.isNoNamespace
+          res
         }
       } else {
         myUniquePairs
@@ -363,12 +381,13 @@ trait ElementBase
           // will work.
           //
           val str = defaultValueAsString
-          val value = try {
-            primType.fromXMLString(str)
-          } catch {
-            case ipd: InvalidPrimitiveDataException =>
-              SDE("Invalid default value: %s", ipd.getMessage)
-          }
+          val value =
+            try {
+              primType.fromXMLString(str)
+            } catch {
+              case ipd: InvalidPrimitiveDataException =>
+                SDE("Invalid default value: %s", ipd.getMessage)
+            }
           value
         }
       dv
@@ -395,12 +414,13 @@ trait ElementBase
         // will work.
         //
         val str = fixedValueAsString
-        val value = try {
-          primType.fromXMLString(str)
-        } catch {
-          case ipd: InvalidPrimitiveDataException =>
-            SDE("Invalid fixed value: %s", ipd.getMessage)
-        }
+        val value =
+          try {
+            primType.fromXMLString(str)
+          } catch {
+            case ipd: InvalidPrimitiveDataException =>
+              SDE("Invalid fixed value: %s", ipd.getMessage)
+          }
         value
       }
       fv
@@ -421,7 +441,7 @@ trait ElementBase
     unparserInfosetElementDefaultingBehavior !=:= MustExist
   }
 
-  def isQuasiElement: Boolean = false //overriden by RepTypeQuasiElementDecl
+  def isQuasiElement: Boolean = false // overriden by RepTypeQuasiElementDecl
 
   final protected lazy val optTruncateSpecifiedLengthString =
     Option(truncateSpecifiedLengthString =:= YesNo.Yes)
@@ -463,10 +483,11 @@ trait ElementBase
       primType match {
         case PrimType.HexBinary => Representation.Binary
         case PrimType.String => Representation.Text
-        case PrimType.AnyURI => objectKind match {
-          case ObjectKindType.Bytes => Representation.Binary
-          case ObjectKindType.Chars => Representation.Text
-        }
+        case PrimType.AnyURI =>
+          objectKind match {
+            case ObjectKindType.Bytes => Representation.Binary
+            case ObjectKindType.Chars => Representation.Text
+          }
         case _ => representation
       }
     } else {
@@ -474,7 +495,8 @@ trait ElementBase
     }
     rep match {
       case Representation.Binary =>
-        if (isComplexType || (primType != PrimType.HexBinary && primType != PrimType.AnyURI)) byteOrderEv // ensure defined
+        if (isComplexType || (primType != PrimType.HexBinary && primType != PrimType.AnyURI))
+          byteOrderEv // ensure defined
       case _ =>
         encodingRaw // ensure defined
     }
@@ -483,8 +505,8 @@ trait ElementBase
 
   final override lazy val couldHaveText: Boolean = {
     hasDelimiters ||
-      (isSimpleType && impliedRepresentation == Representation.Text) ||
-      (isComplexType && complexType.group.couldHaveText)
+    (isSimpleType && impliedRepresentation == Representation.Text) ||
+    (isComplexType && complexType.group.couldHaveText)
   }
 
   final override lazy val termChildren: Seq[Term] = {
@@ -502,12 +524,18 @@ trait ElementBase
     }
   }
 
-  private def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {
+  private def getImplicitAlignmentInBits(
+    thePrimType: PrimType,
+    theRepresentation: Representation,
+  ): Int = {
     (theRepresentation, thePrimType) match {
-      case (Representation.Text, PrimType.AnyURI) => this.subsetError("Property value objectKind='chars' is not supported.")
-      case (Representation.Text, PrimType.HexBinary) => Assert.impossible("type xs:hexBinary with representation='text'")
+      case (Representation.Text, PrimType.AnyURI) =>
+        this.subsetError("Property value objectKind='chars' is not supported.")
+      case (Representation.Text, PrimType.HexBinary) =>
+        Assert.impossible("type xs:hexBinary with representation='text'")
       case (Representation.Text, _) => knownEncodingAlignmentInBits
-      case (Representation.Binary, PrimType.String) => Assert.impossible("type xs:string with representation='binary'")
+      case (Representation.Binary, PrimType.String) =>
+        Assert.impossible("type xs:string with representation='binary'")
       // Boolean, Float, Double, and HexBinary do not require binaryNumberRep to be defined
       case (Representation.Binary, PrimType.Float | PrimType.Boolean) => 32
       case (Representation.Binary, PrimType.Double) => 64
@@ -532,19 +560,28 @@ trait ElementBase
           case _ => 16
         }
       // Handle 8 bit types
-      case (Representation.Binary, PrimType.Integer | PrimType.Decimal | PrimType.Byte |
-        PrimType.UnsignedByte | PrimType.NonNegativeInteger) => 8
+      case (
+            Representation.Binary,
+            PrimType.Integer | PrimType.Decimal | PrimType.Byte | PrimType.UnsignedByte |
+            PrimType.NonNegativeInteger,
+          ) =>
+        8
       // Handle date types
       case (Representation.Binary, PrimType.DateTime | PrimType.Date | PrimType.Time) =>
         binaryCalendarRep match {
           case BinaryCalendarRep.BinaryMilliseconds => 64
           case BinaryCalendarRep.BinarySeconds => 32
-          case _ => schemaDefinitionError("Implicit Alignment: binaryCalendarRep was %s but we expected BinarySeconds or BinaryMilliseconds.", binaryCalendarRep)
+          case _ =>
+            schemaDefinitionError(
+              "Implicit Alignment: binaryCalendarRep was %s but we expected BinarySeconds or BinaryMilliseconds.",
+              binaryCalendarRep,
+            )
         }
     }
   }
 
-  private lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType, impliedRepresentation)
+  private lazy val implicitAlignmentInBits: Int =
+    getImplicitAlignmentInBits(primType, impliedRepresentation)
 
   final lazy val alignmentValueInBits: JInt = {
     if (alignmentKindDefaulted == AlignmentKind.Manual) 1 // disable automatic alignment.
@@ -553,19 +590,19 @@ trait ElementBase
       // get the alignment, measured in bits based on the alignment property, units, and type (when applicable)
       //
       val alignInBits: JInt =
-      alignment match {
-        case AlignmentType.Implicit => {
-          if (this.isComplexType) this.complexType.modelGroup.alignmentValueInBits
-          else implicitAlignmentInBits
-        }
-        case align: JInt => {
-          val alignInBits: JInt = this.alignmentUnits match {
-            case AlignmentUnits.Bits => align
-            case AlignmentUnits.Bytes => 8 * align
+        alignment match {
+          case AlignmentType.Implicit => {
+            if (this.isComplexType) this.complexType.modelGroup.alignmentValueInBits
+            else implicitAlignmentInBits
           }
-          alignInBits
+          case align: JInt => {
+            val alignInBits: JInt = this.alignmentUnits match {
+              case AlignmentUnits.Bits => align
+              case AlignmentUnits.Bytes => 8 * align
+            }
+            alignInBits
+          }
         }
-      }
       //
       // Do checking of interactions of alignment with the rest of the representation
       //
@@ -583,23 +620,32 @@ trait ElementBase
             if (isRepresented && (alignInBits % implicitAlignmentInBits) != 0)
               SDE(
                 "The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
-                alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
+                alignInBits,
+                implicitAlignmentInBits,
+                primType.name,
+                this.knownEncodingName,
+              )
           }
           case Representation.Binary => {
             //
             // if they have binary representation we must worry about packed digits, which require 4-bit alignment.
             //
             primType match {
-              case PrimType.Float | PrimType.Double | PrimType.Boolean | PrimType.HexBinary => /* Non textual data, no need to compare alignment to encoding's expected alignment */
-              case _ => binaryNumberRep match {
-                case BinaryNumberRep.Packed | BinaryNumberRep.Bcd | BinaryNumberRep.Ibm4690Packed => {
-                  if ((alignInBits % 4) != 0)
-                    SDE(
-                      "The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
-                      alignInBits, primType.name)
+              case PrimType.Float | PrimType.Double | PrimType.Boolean |
+                  PrimType.HexBinary => /* Non textual data, no need to compare alignment to encoding's expected alignment */
+              case _ =>
+                binaryNumberRep match {
+                  case BinaryNumberRep.Packed | BinaryNumberRep.Bcd |
+                      BinaryNumberRep.Ibm4690Packed => {
+                    if ((alignInBits % 4) != 0)
+                      SDE(
+                        "The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
+                        alignInBits,
+                        primType.name,
+                      )
+                  }
+                  case _ => /* Since this is non-textual data, no need to compare alignment to encoding's expected alignment */
                 }
-                case _ => /* Since this is non-textual data, no need to compare alignment to encoding's expected alignment */
-              }
             }
           }
         }
@@ -619,7 +665,9 @@ trait ElementBase
             WarnID.AlignmentAndInitiatorTextAlignmentNotCompatible,
             "Initiator text may leave the element incorrectly aligned. The text encoding of initiator characters is %s bits, " +
               "but the element alignment requires %s bits. Suggest consider whether both dfdl:initiator and dfdl:alignment should be specified for this element.",
-            textAlign, alignInBits)
+            textAlign,
+            alignInBits,
+          )
       }
       //
       // Having done the checks, just return the answer
@@ -638,7 +686,7 @@ trait ElementBase
    */
   final lazy val isFixedLength = {
     (lengthKind =:= LengthKind.Explicit && lengthEv.isConstant) ||
-      isImplicitLengthString
+    isImplicitLengthString
     // FIXME: there are lots of other cases where things are fixed length
     // e.g., implicit length hexBinary uses maxLength for length in bytes
     // e.g., implicit length fixed-precision binary numbers (byte, short, int, long and unsigned thereof)
@@ -646,7 +694,8 @@ trait ElementBase
     // Also, things like packed and zoned decimal are usually fixed length, sometimes delimited.
   }
 
-  final lazy val isImplicitLengthString = isSimpleType && primType =:= PrimType.String && lengthKind =:= LengthKind.Implicit
+  final lazy val isImplicitLengthString =
+    isSimpleType && primType =:= PrimType.String && lengthKind =:= LengthKind.Implicit
 
   final lazy val fixedLengthValue: Long = {
     // FIXME: this calculation only good for string type.
@@ -660,7 +709,10 @@ trait ElementBase
     else {
       Assert.invariant(repElement.lengthKind =:= LengthKind.Implicit)
       // it's a string with implicit length. get from facets
-      schemaDefinitionUnless(repElement.hasMaxLength, "String with dfdl:lengthKind='implicit' must have an XSD maxLength facet value.")
+      schemaDefinitionUnless(
+        repElement.hasMaxLength,
+        "String with dfdl:lengthKind='implicit' must have an XSD maxLength facet value.",
+      )
       val ml = repElement.maxLength
       ml.longValue()
     }
@@ -702,7 +754,8 @@ trait ElementBase
       val bitsMultiplier = repElement.lengthUnits match {
         case LengthUnits.Bits => 1
         case LengthUnits.Bytes => 8
-        case LengthUnits.Characters => if (knownEncodingIsFixedWidth) knownEncodingWidthInBits else -1
+        case LengthUnits.Characters =>
+          if (knownEncodingIsFixedWidth) knownEncodingWidthInBits else -1
       }
       if (bitsMultiplier > 0) {
         MaybeULong(repElement.fixedLengthValue * bitsMultiplier)
@@ -737,8 +790,10 @@ trait ElementBase
   private def NVDP = NilValueDelimiterPolicy
   private def EVDP = EmptyValueDelimiterPolicy
 
-  protected final lazy val hasNilValueInitiator = hasNonEmptyDelimiter(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
-  protected final lazy val hasNilValueTerminator = hasNonEmptyDelimiter(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
+  protected final lazy val hasNilValueInitiator =
+    hasNonEmptyDelimiter(initiatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
+  protected final lazy val hasNilValueTerminator =
+    hasNonEmptyDelimiter(terminatorParseEv, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
   /**
    * We need the nil values in raw form for diagnostic messages.
@@ -780,13 +835,24 @@ trait ElementBase
       // cause a nil value to be created.
       (isDefinedNilValue && (isSimpleType && (simpleType.primType =:= PrimType.String || simpleType.primType =:= PrimType.HexBinary) && !hasESNilValue)))
 
-  final lazy val hasEmptyValueInitiator = hasNonEmptyDelimiter(initiatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
-  final lazy val hasEmptyValueTerminator = hasNonEmptyDelimiter(terminatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
+  final lazy val hasEmptyValueInitiator =
+    hasNonEmptyDelimiter(initiatorParseEv, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
+  final lazy val hasEmptyValueTerminator = hasNonEmptyDelimiter(
+    terminatorParseEv,
+    emptyValueDelimiterPolicy,
+    EVDP.Both,
+    EVDP.Terminator,
+  )
 
   // See how this function takes the prop: => Any that is pass by name (aka lazy pass).
   // That allows us to not require the property to exist at all if
   // expr.isConstantEmptyString turns out to be true.
-  private def hasNonEmptyDelimiter(expr: DelimiterParseEv, prop: => Any, true1: Any, true2: Any): Boolean = {
+  private def hasNonEmptyDelimiter(
+    expr: DelimiterParseEv,
+    prop: => Any,
+    true1: Any,
+    true2: Any,
+  ): Boolean = {
     // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for
     // prop's value at all unless the first test is false.
     if (expr.isConstantEmptyString)
@@ -814,7 +880,8 @@ trait ElementBase
     else if (this.isLengthAlwaysNonZero) false
     else if (isSimpleType) {
       primType match {
-        case NodeInfo.String | NodeInfo.HexBinary => true // can be zero-length so empty, regardless of EVDP and init/term
+        case NodeInfo.String | NodeInfo.HexBinary =>
+          true // can be zero-length so empty, regardless of EVDP and init/term
         case _ => {
           // for other simple types, they can be empty only if they are defaultable
           // because otherwise they always require some representation.
@@ -858,12 +925,15 @@ trait ElementBase
 
   final lazy val patternValues: Seq[FacetValueR] = {
     Assert.invariant(hasPattern)
-    typeDef.optRestriction.map { r =>
-      schemaDefinitionUnless(
-        r.primType == PrimType.String,
-        "Pattern is only allowed to be applied to string and types derived from string.")
-      r.patternValues
-    }.getOrElse(Nil)
+    typeDef.optRestriction
+      .map { r =>
+        schemaDefinitionUnless(
+          r.primType == PrimType.String,
+          "Pattern is only allowed to be applied to string and types derived from string.",
+        )
+        r.patternValues
+      }
+      .getOrElse(Nil)
   }
 
   private lazy val enumerationValues: Option[String] = {
@@ -875,21 +945,26 @@ trait ElementBase
    * Compute minLength and maxLength together to share error-checking
    * and case dispatch that would otherwise have to be repeated.
    */
-  final lazy val (minLength: java.math.BigDecimal, maxLength: java.math.BigDecimal) = computeMinMaxLength
+  final lazy val (minLength: java.math.BigDecimal, maxLength: java.math.BigDecimal) =
+    computeMinMaxLength
   // TODO: why are we using java.math.BigDecimal, when scala has a much
   // nicer decimal class?
   private val zeroBD = new java.math.BigDecimal(0)
   private val unbBD = new java.math.BigDecimal(-1) // TODO: should this be a tunable limit?
 
   private def computeMinMaxLength: (java.math.BigDecimal, java.math.BigDecimal) = {
-    schemaDefinitionUnless(isSimpleType, "Facets minLength and maxLength are allowed only on types string and hexBinary.")
+    schemaDefinitionUnless(
+      isSimpleType,
+      "Facets minLength and maxLength are allowed only on types string and hexBinary.",
+    )
     typeDef match {
       case prim: PrimitiveType => {
         val pt = prim.primType
         schemaDefinitionWhen(
           (pt == PrimType.String || pt == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
           "Facets minLength and maxLength must be defined for type %s with lengthKind='implicit'",
-          pt.name)
+          pt.name,
+        )
         //
         // We handle text numbers by getting a stringValue first, then
         // we convert to the number type.
@@ -897,7 +972,8 @@ trait ElementBase
         // This means we cannot check and SDE here on incorrect simple type.
         (zeroBD, unbBD)
       }
-      case st: SimpleTypeDefBase if st.optRepTypeElement.isDefined => (st.optRepTypeElement.get.minLength, st.optRepTypeElement.get.maxLength)
+      case st: SimpleTypeDefBase if st.optRepTypeElement.isDefined =>
+        (st.optRepTypeElement.get.minLength, st.optRepTypeElement.get.maxLength)
       case st: SimpleTypeDefBase if st.optRestriction.isDefined => {
         val r = st.optRestriction.get
         val pt = st.primType
@@ -905,13 +981,17 @@ trait ElementBase
         schemaDefinitionWhen(
           !typeOK && (hasMinLength || hasMaxLength),
           "Facets minLength and maxLength are not allowed on types derived from type %s.\nThey are allowed only on typed derived from string and hexBinary.",
-          pt.name)
+          pt.name,
+        )
         val res = (hasMinLength, hasMaxLength, lengthKind) match {
           case (true, true, LengthKind.Implicit) => {
             schemaDefinitionUnless(
               r.minLengthValue.compareTo(r.maxLengthValue) == 0,
               "The minLength and maxLength must be equal for type %s with lengthKind='implicit'. Values were minLength of %s, maxLength of %s.",
-              pt.name, r.minLengthValue, r.maxLengthValue)
+              pt.name,
+              r.minLengthValue,
+              r.maxLengthValue,
+            )
             (r.minLengthValue, r.maxLengthValue)
           }
           case (true, true, _) => {
@@ -919,10 +999,15 @@ trait ElementBase
               r.minLengthValue.compareTo(r.maxLengthValue) > 0,
               // always true, so we don't bother to specify the type in the message.
               "The minLength facet value must be less than or equal to the maxLength facet value. Values were minLength of %s, maxLength of %s.",
-              r.minLengthValue, r.maxLengthValue)
+              r.minLengthValue,
+              r.maxLengthValue,
+            )
             (r.minLengthValue, r.maxLengthValue)
           }
-          case (_, _, LengthKind.Implicit) => SDE("When lengthKind='implicit', both minLength and maxLength facets must be specified.")
+          case (_, _, LengthKind.Implicit) =>
+            SDE(
+              "When lengthKind='implicit', both minLength and maxLength facets must be specified.",
+            )
           case (false, true, _) => (zeroBD, r.maxLengthValue)
           case (false, false, _) => (zeroBD, unbBD)
           case (true, false, _) => (r.minLengthValue, unbBD)
@@ -945,14 +1030,25 @@ trait ElementBase
   private lazy val minInclusive: java.math.BigDecimal = {
     Assert.usage(hasMinInclusive)
     typeDef.optRestriction.map { r =>
-      if (r.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
+      if (r.hasMinExclusive)
+        SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
       if (r.hasMaxExclusive) {
         val res = r.minInclusiveValue.compareTo(r.maxExclusiveValue)
-        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s).", r.minInclusiveValue, r.maxExclusiveValue)
+        if (res > 0)
+          SDE(
+            "MinInclusive(%s) must be less than or equal to MaxExclusive(%s).",
+            r.minInclusiveValue,
+            r.maxExclusiveValue,
+          )
       }
       if (r.hasMaxInclusive) {
         val res = r.minInclusiveValue.compareTo(r.maxInclusiveValue)
-        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s).", r.minInclusiveValue, r.maxInclusiveValue)
+        if (res > 0)
+          SDE(
+            "MinInclusive(%s) must be less than or equal to MaxInclusive(%s).",
+            r.minInclusiveValue,
+            r.maxInclusiveValue,
+          )
       }
       r.minInclusiveValue
     }.get
@@ -961,14 +1057,25 @@ trait ElementBase
   private lazy val maxInclusive: java.math.BigDecimal = {
     Assert.usage(hasMaxInclusive)
     typeDef.optRestriction.map { r =>
-      if (r.hasMaxExclusive) SDE("MaxInclusive and MaxExclusive cannot be specified for the same simple type.")
+      if (r.hasMaxExclusive)
+        SDE("MaxInclusive and MaxExclusive cannot be specified for the same simple type.")
       if (r.hasMinExclusive) {
         val res = r.minExclusiveValue.compareTo(r.maxInclusiveValue)
-        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", r.minExclusiveValue, r.maxInclusiveValue)
+        if (res > 0)
+          SDE(
+            "MinExclusive(%s) must be less than or equal to MaxInclusive(%s)",
+            r.minExclusiveValue,
+            r.maxInclusiveValue,
+          )
       }
       if (r.hasMinInclusive) {
         val res = r.minInclusiveValue.compareTo(r.maxInclusiveValue)
-        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxInclusive(%s)", r.minInclusiveValue, r.maxInclusiveValue)
+        if (res > 0)
+          SDE(
+            "MinInclusive(%s) must be less than or equal to MaxInclusive(%s)",
+            r.minInclusiveValue,
+            r.maxInclusiveValue,
+          )
       }
       r.maxInclusiveValue
     }.get
@@ -977,14 +1084,25 @@ trait ElementBase
   private lazy val minExclusive: java.math.BigDecimal = {
     Assert.usage(hasMinExclusive)
     typeDef.optRestriction.map { r =>
-      if (r.hasMinInclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
+      if (r.hasMinInclusive)
+        SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
       if (r.hasMaxInclusive) {
         val res = r.minExclusiveValue.compareTo(r.maxInclusiveValue)
-        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxInclusive(%s)", r.minExclusiveValue, r.maxInclusiveValue)
+        if (res > 0)
+          SDE(
+            "MinExclusive(%s) must be less than or equal to MaxInclusive(%s)",
+            r.minExclusiveValue,
+            r.maxInclusiveValue,
+          )
       }
       if (r.hasMaxExclusive) {
         val res = r.minExclusiveValue.compareTo(r.maxExclusiveValue)
-        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", r.minExclusiveValue, r.maxExclusiveValue)
+        if (res > 0)
+          SDE(
+            "MinExclusive(%s) must be less than or equal to MaxExclusive(%s)",
+            r.minExclusiveValue,
+            r.maxExclusiveValue,
+          )
       }
       r.minExclusiveValue
     }.get
@@ -993,14 +1111,25 @@ trait ElementBase
   private lazy val maxExclusive: java.math.BigDecimal = {
     Assert.invariant(hasMaxExclusive)
     typeDef.optRestriction.map { r =>
-      if (r.hasMaxInclusive) SDE("MaxExclusive and MaxInclusive cannot be specified for the same simple type.")
+      if (r.hasMaxInclusive)
+        SDE("MaxExclusive and MaxInclusive cannot be specified for the same simple type.")
       if (r.hasMinInclusive) {
         val res = r.minInclusiveValue.compareTo(r.maxExclusiveValue)
-        if (res > 0) SDE("MinInclusive(%s) must be less than or equal to MaxExclusive(%s)", r.minInclusiveValue, r.maxExclusiveValue)
+        if (res > 0)
+          SDE(
+            "MinInclusive(%s) must be less than or equal to MaxExclusive(%s)",
+            r.minInclusiveValue,
+            r.maxExclusiveValue,
+          )
       }
       if (r.hasMinExclusive) {
         val res = r.minExclusiveValue.compareTo(r.maxExclusiveValue)
-        if (res > 0) SDE("MinExclusive(%s) must be less than or equal to MaxExclusive(%s)", r.minExclusiveValue, r.maxExclusiveValue)
+        if (res > 0)
+          SDE(
+            "MinExclusive(%s) must be less than or equal to MaxExclusive(%s)",
+            r.minExclusiveValue,
+            r.maxExclusiveValue,
+          )
       }
       r.maxExclusiveValue
     }.get
@@ -1016,7 +1145,10 @@ trait ElementBase
       val isDerivedFromInteger = st.primType.isSubtypeOf(NodeInfo.Integer)
       if (isDerivedFromDecimal || isDerivedFromInteger) r.totalDigitsValue
       else {
-        SDE("TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s", st.primType.name)
+        SDE(
+          "TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s",
+          st.primType.name,
+        )
       }
     }.get
   }
@@ -1033,7 +1165,10 @@ trait ElementBase
         }
         r.fractionDigitsValue
       } else {
-        SDE("FractionDigits facet can only be applied to decimal. Restriction base is %s", r.primType.name)
+        SDE(
+          "FractionDigits facet can only be applied to decimal. Restriction base is %s",
+          r.primType.name,
+        )
       }
     }.get
   }
@@ -1065,25 +1200,36 @@ trait ElementBase
       else if (!hasDefaultValue) false
       else {
         if (!isEmptyAnObservableConcept)
-          SDW(WarnID.NoEmptyDefault, "Element with no empty representation. XSD default='%s' can only be used when unparsing.", defaultValueAsString)
-        schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
+          SDW(
+            WarnID.NoEmptyDefault,
+            "Element with no empty representation. XSD default='%s' can only be used when unparsing.",
+            defaultValueAsString,
+          )
+        schemaDefinitionWhen(
+          isOptional,
+          "Optional elements cannot have default values but default='%s' was found.",
+          defaultValueAsString,
+        )
         if (isArray && !isArrayWithAtLeastOneRequiredArrayElement) {
           (minOccurs, occursCountKind) match {
-            case (_, OccursCountKind.Parsed) |
-              (_, OccursCountKind.StopValue) =>
+            case (_, OccursCountKind.Parsed) | (_, OccursCountKind.StopValue) =>
               SDE(
                 "XSD default='%s' can never be used since an element with dfdl:occursCountKind='%s' has no required occurrences.",
-                defaultValueAsString, occursCountKind)
-            case (0, _) => SDE(
-              "XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
-              defaultValueAsString)
+                defaultValueAsString,
+                occursCountKind,
+              )
+            case (0, _) =>
+              SDE(
+                "XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
+                defaultValueAsString,
+              )
             case _ => // ok
           }
         }
         Assert.invariant(hasDefaultValue)
         !isOptional &&
-          (isScalar ||
-            isArrayWithAtLeastOneRequiredArrayElement)
+        (isScalar ||
+          isArrayWithAtLeastOneRequiredArrayElement)
       }
     } else {
       // TODO: Implement complex element defaulting
@@ -1100,7 +1246,8 @@ trait ElementBase
     }
   }.value
 
-  final lazy val defaultParseUnparsePolicy = optionParseUnparsePolicy.getOrElse(ParseUnparsePolicy.Both)
+  final lazy val defaultParseUnparsePolicy =
+    optionParseUnparsePolicy.getOrElse(ParseUnparsePolicy.Both)
 
   /**
    * This function ensures that all children have a compatable
@@ -1113,15 +1260,28 @@ trait ElementBase
    * user (e.g. a tunable), rather than by using the default value of the root
    * element
    */
-  final def checkParseUnparsePolicyCompatibility(context: Option[ElementBase], policy: ParseUnparsePolicy): Unit = {
+  final def checkParseUnparsePolicyCompatibility(
+    context: Option[ElementBase],
+    policy: ParseUnparsePolicy,
+  ): Unit = {
     elementChildren.foreach { child =>
       val childPolicy = child.defaultParseUnparsePolicy
       val isCompatible = policy == childPolicy || childPolicy == ParseUnparsePolicy.Both
       if (!isCompatible) {
         if (context.isDefined) {
-          context.get.SDE("Child element '%s' with dfdlx:parseUnparsePolicy='%s' is not compatible with root elements dfdlx:parseUnparsePolicy='%s'", child, childPolicy, policy)
+          context.get.SDE(
+            "Child element '%s' with dfdlx:parseUnparsePolicy='%s' is not compatible with root elements dfdlx:parseUnparsePolicy='%s'",
+            child,
+            childPolicy,
+            policy,
+          )
         } else {
-          SDE("Element '%s' with dfdlx:parseUnparsePolicy='%s' is not compatible with user supplied dfdlx:parseUnparsePolicy='%s'", child, childPolicy, policy)
+          SDE(
+            "Element '%s' with dfdlx:parseUnparsePolicy='%s' is not compatible with user supplied dfdlx:parseUnparsePolicy='%s'",
+            child,
+            childPolicy,
+            policy,
+          )
         }
       }
 
@@ -1152,8 +1312,14 @@ trait ElementBase
       this.laterSiblings.filterNot(m => m == this).foreach { that =>
         val isSame = this.alignmentValueInBits == that.alignmentValueInBits
         if (!isSame) {
-          this.SDW(WarnID.AlignmentNotSame, "%s is an optional element or a variable-occurrence array and its alignment (%s) is not the same as %s's alignment (%s).",
-            this.toString, this.alignmentValueInBits, that.toString, that.alignmentValueInBits)
+          this.SDW(
+            WarnID.AlignmentNotSame,
+            "%s is an optional element or a variable-occurrence array and its alignment (%s) is not the same as %s's alignment (%s).",
+            this.toString,
+            this.alignmentValueInBits,
+            that.toString,
+            that.alignmentValueInBits,
+          )
         }
       }
     }
@@ -1161,11 +1327,14 @@ trait ElementBase
 
   private lazy val optionFloating = findPropertyOption("floating")
 
-  private lazy val checkFloating = (optionFloating.isDefined, tunable.requireFloatingProperty) match {
-    case (false, false) => SDW(WarnID.FloatingError, "Property 'dfdl:floating' is required but not defined.")
-    case (false, true) => floating
-    case (_, _) => this.subset((floating eq YesNo.No), "Property value floating='yes' is not supported.")
-  }
+  private lazy val checkFloating =
+    (optionFloating.isDefined, tunable.requireFloatingProperty) match {
+      case (false, false) =>
+        SDW(WarnID.FloatingError, "Property 'dfdl:floating' is required but not defined.")
+      case (false, true) => floating
+      case (_, _) =>
+        this.subset((floating eq YesNo.No), "Property value floating='yes' is not supported.")
+    }
 
   final lazy val quasiElementChildren: Seq[QuasiElementDeclBase] = {
     val res =
@@ -1192,16 +1361,24 @@ trait ElementBase
    * some potential asJava overhead, but is still easily usable in the Scala
    * API
    */
-  lazy val runtimeProperties: java.util.Map[String,String] = findPropertyOption("runtimeProperties").toOption match {
+  lazy val runtimeProperties: java.util.Map[String, String] = findPropertyOption(
+    "runtimeProperties",
+  ).toOption match {
     case None => java.util.Collections.emptyMap()
     case Some(value) => {
-      schemaDefinitionUnless(isSimpleType, "dfdlx:runtimeProperties is only valid on simple types")
-      val map = new java.util.HashMap[String,String]()
+      schemaDefinitionUnless(
+        isSimpleType,
+        "dfdlx:runtimeProperties is only valid on simple types",
+      )
+      val map = new java.util.HashMap[String, String]()
       value.split("\\s+").filter(_ != "").foreach { v =>
         val kv = v.split("=")
         // DFDL schema validation should ensure that this is valid syntax, but double check to be safe
-        schemaDefinitionUnless(kv.length == 2 && kv(0).length > 0 && kv(1).length > 0,
-          "dfdlx:runtimeProperties must be a space-separated list of \"key=value\" pairs: \"%s\" is invalid", v)
+        schemaDefinitionUnless(
+          kv.length == 2 && kv(0).length > 0 && kv(1).length > 0,
+          "dfdlx:runtimeProperties must be a space-separated list of \"key=value\" pairs: \"%s\" is invalid",
+          v,
+        )
         map.put(kv(0), kv(1))
       }
       map

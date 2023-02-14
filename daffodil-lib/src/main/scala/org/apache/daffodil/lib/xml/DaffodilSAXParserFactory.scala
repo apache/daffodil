@@ -17,14 +17,13 @@
 
 package org.apache.daffodil.lib.xml
 
-import org.apache.xerces.jaxp.SAXParserFactoryImpl
-
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
 import scala.xml.SAXParser
 
-class DaffodilSAXParserFactory private ()
-  extends SAXParserFactoryImpl() {
+import org.apache.xerces.jaxp.SAXParserFactoryImpl
+
+class DaffodilSAXParserFactory private () extends SAXParserFactoryImpl() {
 
   override def newSAXParser(): SAXParser = {
     val parser = super.newSAXParser()

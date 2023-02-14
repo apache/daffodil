@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.dpath.SuspendableExpression
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
@@ -32,20 +32,22 @@ import org.apache.daffodil.runtime1.processors.NonTermRuntimeData
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TypeCalculator
-import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 import org.apache.daffodil.runtime1.processors.VariableInProcess
 import org.apache.daffodil.runtime1.processors.VariableInstance
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.runtime1.processors.VariableRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 final class SetVariableSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],
   override val rd: VariableRuntimeData,
-  referencingContext: NonTermRuntimeData)
-  extends SuspendableExpression {
+  referencingContext: NonTermRuntimeData,
+) extends SuspendableExpression {
 
-  override protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit = {
-      ustate.setVariable(rd, v, referencingContext)
+  override protected def processExpressionResult(
+    ustate: UState,
+    v: DataValuePrimitive,
+  ): Unit = {
+    ustate.setVariable(rd, v, referencingContext)
   }
 
   override protected def maybeKnownLengthInBits(ustate: UState) = MaybeULong(0)
@@ -64,16 +66,15 @@ final class SetVariableSuspendableExpression(
 final class SetVariableUnparser(
   val expr: CompiledExpression[AnyRef],
   override val context: VariableRuntimeData,
-  referencingContext: NonTermRuntimeData)
-  extends PrimUnparserNoData {
+  referencingContext: NonTermRuntimeData,
+) extends PrimUnparserNoData {
 
   override lazy val runtimeDependencies = Vector()
 
   override lazy val childProcessors = Vector()
 
   def suspendableExpression =
-    new SetVariableSuspendableExpression(
-      expr, context, referencingContext)
+    new SetVariableSuspendableExpression(expr, context, referencingContext)
 
   override def unparse(state: UState): Unit = {
     suspendableExpression.run(state)
@@ -84,10 +85,13 @@ final class SetVariableUnparser(
 final class NewVariableInstanceDefaultValueSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],
   override val rd: VariableRuntimeData,
-  nvi: VariableInstance)
-  extends SuspendableExpression {
+  nvi: VariableInstance,
+) extends SuspendableExpression {
 
-  override protected def processExpressionResult(ustate: UState, v: DataValuePrimitive): Unit = {
+  override protected def processExpressionResult(
+    ustate: UState,
+    v: DataValuePrimitive,
+  ): Unit = {
     nvi.setDefaultValue(v) // This also sets variable state to VariableDefined
   }
 
@@ -110,7 +114,8 @@ class NewVariableInstanceStartUnparser(vrd: VariableRuntimeData, trd: TermRuntim
     if (vrd.maybeDefaultValueExpr.isDefined) {
       val dve = vrd.maybeDefaultValueExpr.get
       nvi.setState(VariableInProcess)
-      val suspendableExpression = new NewVariableInstanceDefaultValueSuspendableExpression(dve, vrd, nvi)
+      val suspendableExpression =
+        new NewVariableInstanceDefaultValueSuspendableExpression(dve, vrd, nvi)
       suspendableExpression.run(state)
     } else if (nvi.firstInstanceInitialValue.isDefined) {
       // The NVI will inherit the default value of the original variable instance
@@ -131,8 +136,12 @@ class NewVariableInstanceEndUnparser(vrd: VariableRuntimeData, trd: TermRuntimeD
   override def unparse(state: UState) = state.removeVariableInstance(vrd)
 }
 
-class TypeValueCalcUnparser(typeCalculator: TypeCalculator, repTypeUnparser: Unparser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)
-  extends CombinatorUnparser(e) {
+class TypeValueCalcUnparser(
+  typeCalculator: TypeCalculator,
+  repTypeUnparser: Unparser,
+  e: ElementRuntimeData,
+  repTypeRuntimeData: ElementRuntimeData,
+) extends CombinatorUnparser(e) {
 
   override def childProcessors: Vector[Unparser] = Vector(repTypeUnparser)
 
@@ -146,10 +155,15 @@ class TypeValueCalcUnparser(typeCalculator: TypeCalculator, repTypeUnparser: Unp
 
     val logicalValueNullable = currentSimple.dataValue
     Assert.invariant(logicalValueNullable.isDefined)
-    val logicalValue=logicalValueNullable.getNonNullable
+    val logicalValue = logicalValueNullable.getNonNullable
     val logicalValueType = currentSimple.erd.optPrimType.get
     val repTypeValue: DataValuePrimitiveNullable = {
-      val ans = typeCalculator.outputTypeCalcUnparse(ustate, e, logicalValue.getNonNullable, logicalValueType)
+      val ans = typeCalculator.outputTypeCalcUnparse(
+        ustate,
+        e,
+        logicalValue.getNonNullable,
+        logicalValueType,
+      )
       ans
     }
 

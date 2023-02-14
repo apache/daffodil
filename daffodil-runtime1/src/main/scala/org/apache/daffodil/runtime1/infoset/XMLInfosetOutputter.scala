@@ -17,14 +17,14 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.equality._
-
 
 trait XMLInfosetOutputter {
 
-  def remapped(dataValueAsString: String) = XMLUtils.remapXMLIllegalCharactersToPUA(dataValueAsString)
+  def remapped(dataValueAsString: String) =
+    XMLUtils.remapXMLIllegalCharactersToPUA(dataValueAsString)
 
   /**
    * String suitable for use in the text of a Processing Instruction.
@@ -41,7 +41,11 @@ trait XMLInfosetOutputter {
     Maybe(if (puxml =:= "") null else puxml)
   }
 
-  final def addFmtInfo(diTerm: DITerm, elem: scala.xml.Elem, showFormatInfo: Boolean): scala.xml.Elem = {
+  final def addFmtInfo(
+    diTerm: DITerm,
+    elem: scala.xml.Elem,
+    showFormatInfo: Boolean,
+  ): scala.xml.Elem = {
     if (!showFormatInfo) return elem
     val maybeFI = fmtInfo(diTerm)
     val res =

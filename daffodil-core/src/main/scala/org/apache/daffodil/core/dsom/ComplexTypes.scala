@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.core.dsom
 
-import scala.xml.Node
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.core.dsom.walker.ComplexTypeView
-
-import scala.xml.Text
 import scala.xml.Comment
+import scala.xml.Node
+import scala.xml.Text
+
+import org.apache.daffodil.core.dsom.walker.ComplexTypeView
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   extends SchemaComponentImpl(xmlArg, parentArg)
@@ -43,43 +43,47 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
   final def sequence = group.asInstanceOf[LocalSequence]
   final def choice = group.asInstanceOf[Choice]
 
-  private lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
+  private lazy val <complexType>{xmlChildren @ _*}</complexType> = xml
 
   final lazy val Seq(modelGroup) = {
     val s = smg
-    schemaDefinitionUnless(s.length == 1, "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.")
+    schemaDefinitionUnless(
+      s.length == 1,
+      "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.",
+    )
     s
   }
 
   private lazy val smg = {
-    childrenForTerms.map {
-      xmlChild =>
-        ModelGroupFactory(xmlChild, this, 1, false)
+    childrenForTerms.map { xmlChild =>
+      ModelGroupFactory(xmlChild, this, 1, false)
     }
   }
 
   private lazy val childrenForTerms = {
-    xmlChildren.flatMap {
-      xmlChild =>
-        {
-          xmlChild match {
-            case <annotation>{ annotationChildren @ _* }</annotation> => {
-              val dais = annotationChildren.find { ai =>
-                ai.attribute("source") match {
-                  case Some(n) => n.text.contains("ogf") && n.text.contains("dfdl")
-                  case _ => false
-                }
+    xmlChildren.flatMap { xmlChild =>
+      {
+        xmlChild match {
+          case <annotation>{annotationChildren @ _*}</annotation> => {
+            val dais = annotationChildren.find { ai =>
+              ai.attribute("source") match {
+                case Some(n) => n.text.contains("ogf") && n.text.contains("dfdl")
+                case _ => false
               }
-              if (dais != None) {
-                this.SDW(WarnID.InvalidAnnotationPoint, "complexType is not a valid annotation point. Annotation ignored.")
-              }
-              None
             }
-            case textNode: Text => None
-            case _: Comment => None
-            case _ => Some(xmlChild)
+            if (dais != None) {
+              this.SDW(
+                WarnID.InvalidAnnotationPoint,
+                "complexType is not a valid annotation point. Annotation ignored.",
+              )
+            }
+            None
           }
+          case textNode: Text => None
+          case _: Comment => None
+          case _ => Some(xmlChild)
         }
+      }
     }
   }
 }
@@ -92,9 +96,7 @@ object GlobalComplexTypeDef {
   }
 }
 
-final class GlobalComplexTypeDef private (
-  xmlArg: Node,
-  schemaDocumentArg: SchemaDocument)
+final class GlobalComplexTypeDef private (xmlArg: Node, schemaDocumentArg: SchemaDocument)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalNonElementComponentMixin
   with NestingLexicalMixin {

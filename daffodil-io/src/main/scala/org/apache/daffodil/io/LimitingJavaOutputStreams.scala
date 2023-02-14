@@ -18,9 +18,11 @@ package org.apache.daffodil.io
 
 import java.nio.charset.Charset
 
-class LayerBoundaryMarkInsertingJavaOutputStream(jos: java.io.OutputStream, boundaryMark: String,
-  charset: Charset)
-  extends java.io.FilterOutputStream(jos) {
+class LayerBoundaryMarkInsertingJavaOutputStream(
+  jos: java.io.OutputStream,
+  boundaryMark: String,
+  charset: Charset,
+) extends java.io.FilterOutputStream(jos) {
 
   private var closed = false
 

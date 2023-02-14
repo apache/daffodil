@@ -18,9 +18,9 @@
 package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.runtime1.processors.dfa.DFAField
-import org.apache.daffodil.runtime1.processors.dfa.CreateFieldDFA
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
+import org.apache.daffodil.runtime1.processors.dfa.CreateFieldDFA
+import org.apache.daffodil.runtime1.processors.dfa.DFAField
 
 class FieldDFAParseEv(val escapeSchemeEv: Maybe[EscapeSchemeParseEv], ci: DPathCompileInfo)
   extends Evaluatable[DFAField](ci)

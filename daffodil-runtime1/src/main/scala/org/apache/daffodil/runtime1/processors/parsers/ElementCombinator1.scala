@@ -19,18 +19,17 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.ValidationMode
-import org.apache.daffodil.runtime1.dpath.DFDLCheckConstraintsFunction
-import org.apache.daffodil.runtime1.dpath.DFDLCheckConstraintsFunction
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.runtime1.dpath.DFDLCheckConstraintsFunction
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe.Nope
-import org.apache.daffodil.lib.util.Maybe.One
 
 abstract class ElementParserBase(
   rd: TermRuntimeData,
@@ -43,8 +42,8 @@ abstract class ElementParserBase(
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser],
-  eRepTypeParser: Maybe[Parser])
-  extends CombinatorParser(rd) {
+  eRepTypeParser: Maybe[Parser],
+) extends CombinatorParser(rd) {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -63,7 +62,8 @@ abstract class ElementParserBase(
     eRepTypeParser.toSeq).toVector
 
   override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
+    if (depthLimit == 0) "..."
+    else
       "<Element name='" + name + "'>" +
         childProcessors.map { _.toBriefXML(depthLimit - 1) }.mkString +
         "</Element>"
@@ -82,10 +82,14 @@ abstract class ElementParserBase(
         pstate // Success, do not mutate state.
       } else {
         val failureMessage = ccfResult.errMsg
-        Logger.log.debug("Validation failed for ${context.toString} due to ${failureMessage}. The element was ${currentElement.namedQName}.")
+        Logger.log.debug(
+          "Validation failed for ${context.toString} due to ${failureMessage}. The element was ${currentElement.namedQName}.",
+        )
         pstate.validationError(
           "%s failed facet checks due to: %s",
-          context.toString, failureMessage)
+          context.toString,
+          failureMessage,
+        )
         currentElement.setValid(false)
         pstate
       }
@@ -212,8 +216,8 @@ class ElementParser(
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser],
-  eRepTypeParser: Maybe[Parser])
-  extends ElementParserBase(
+  eRepTypeParser: Maybe[Parser],
+) extends ElementParserBase(
     erd,
     name,
     patDiscrim,
@@ -224,7 +228,8 @@ class ElementParser(
     eBeforeParser,
     eParser,
     eAfterParser,
-    eRepTypeParser) {
+    eRepTypeParser,
+  ) {
 
   def move(start: PState): Unit = {
     start.mpstate.moveOverOneElementChildOnly
@@ -292,8 +297,8 @@ class ElementParserInputValueCalc(
   testAssert: Array[Parser],
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
-  eAfterParser: Maybe[Parser])
-  extends ElementParser(
+  eAfterParser: Maybe[Parser],
+) extends ElementParser(
     erd,
     name,
     patDiscrim,
@@ -304,7 +309,8 @@ class ElementParserInputValueCalc(
     eBeforeParser,
     eParser,
     eAfterParser,
-    Maybe.Nope) {
+    Maybe.Nope,
+  ) {
 
   // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
   // but we don't create anything new as far as the group is concerned, and we don't want

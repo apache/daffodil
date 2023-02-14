@@ -18,15 +18,15 @@
 package org.apache.daffodil.core.dsom
 
 import scala.xml.Node
+
 import org.apache.daffodil.core.grammar.Gram
 
 /**
  * Base class for assertions, variable assignments, etc
  */
-abstract class DFDLStatement(node: Node,
-  annotatedSCArg: AnnotatedSchemaComponent)
+abstract class DFDLStatement(node: Node, annotatedSCArg: AnnotatedSchemaComponent)
   extends DFDLAnnotation(node, annotatedSCArg)
-  with NestingLexicalMixin 
+  with NestingLexicalMixin
   with HasTermCheck {
 
   def gram(term: Term): Gram

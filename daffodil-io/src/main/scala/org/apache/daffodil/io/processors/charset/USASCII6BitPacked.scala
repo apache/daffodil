@@ -23,27 +23,36 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * X-DFDL-US-ASCII-6-BIT-PACKED occupies only 6 bits with each
  * code unit.
  */
-object BitsCharsetUSASCII6BitPackedLSBF extends {
-  override val name = "X-DFDL-US-ASCII-6-BIT-PACKED-LSB-FIRST"
-  override val bitWidthOfACodeUnit = 6
-  override val decodeString = """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?"""
-  override val replacementCharCode = 0x1F
-  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetUSASCII6BitPackedLSBF
+  extends {
+    override val name = "X-DFDL-US-ASCII-6-BIT-PACKED-LSB-FIRST"
+    override val bitWidthOfACodeUnit = 6
+    override val decodeString =
+      """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?"""
+    override val replacementCharCode = 0x1f
+    override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
 final class BitsCharsetUSASCII6BitPackedLSBFDefinition
   extends BitsCharsetDefinition(BitsCharsetUSASCII6BitPackedLSBF)
 
 final class BitsCharsetUSASCII6BitPackedDefinition
-  extends BitsCharsetDefinition(BitsCharsetUSASCII6BitPackedLSBF, Some("X-DFDL-US-ASCII-6-BIT-PACKED"))
+  extends BitsCharsetDefinition(
+    BitsCharsetUSASCII6BitPackedLSBF,
+    Some("X-DFDL-US-ASCII-6-BIT-PACKED"),
+  )
 
-object BitsCharsetUSASCII6BitPackedMSBF extends {
-  override val name = "X-DFDL-US-ASCII-6-BIT-PACKED-MSB-FIRST"
-  override val bitWidthOfACodeUnit = 6
-  override val decodeString = """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?"""
-  override val replacementCharCode = 0x1F
-  override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetUSASCII6BitPackedMSBF
+  extends {
+    override val name = "X-DFDL-US-ASCII-6-BIT-PACKED-MSB-FIRST"
+    override val bitWidthOfACodeUnit = 6
+    override val decodeString =
+      """@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_ !"#$%&'()*+,-./0123456789:;<=>?"""
+    override val replacementCharCode = 0x1f
+    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
 final class BitsCharsetUSASCII6BitPackedMSBFDefinition
   extends BitsCharsetDefinition(BitsCharsetUSASCII6BitPackedMSBF)

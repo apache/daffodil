@@ -22,6 +22,7 @@ import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
 
 trait EscapeSchemeRefMixin { self: Term =>
+
   /**
    * Changed to use findProperty, and to resolve the namespace properly.
    *
@@ -46,8 +47,10 @@ trait EscapeSchemeRefMixin { self: Term =>
     val er = self.findPropertyOption("escapeSchemeRef")
     er match {
       case _: NotFound => {
-        SDW(WarnID.EscapeSchemeRefUndefined,
-          "Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.")
+        SDW(
+          WarnID.EscapeSchemeRefUndefined,
+          "Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.",
+        )
         None
       }
       case Found("", _, _, _) => None // empty string means no escape scheme

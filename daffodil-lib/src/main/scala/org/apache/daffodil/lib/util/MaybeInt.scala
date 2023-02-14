@@ -19,31 +19,31 @@ package org.apache.daffodil.lib.util
 
 /*
  * Performance Note:
- * 
- * These exist for perforance reasons, to avoid boxing objects just to 
- * get Maybe[T]/Option[T] behavior. 
- * 
+ *
+ * These exist for perforance reasons, to avoid boxing objects just to
+ * get Maybe[T]/Option[T] behavior.
+ *
  * Everything (pretty much) inlines on these classes. So their overhead is
  * presumably zero.
- * 
- * Maybe[T] already is just a performance optimization on Option[T] 
+ *
+ * Maybe[T] already is just a performance optimization on Option[T]
  * because it is a value class (i.e., AnyVal), not an object like Option[T].
- * 
+ *
  * These specialized versions like MaybeInt
  * aren't @specialized(Int) versions of Maybe[Int], because value classes
  * cannot be derived from a base. (At least in Scala 2.12).
- * 
- * Using Maybe[Int] with specialization would require that the Maybe[T] 
+ *
+ * Using Maybe[Int] with specialization would require that the Maybe[T]
  * class took a parameter which is the specialized reserved undef value,
  * and the "underlying type", which for MaybeInt, is a Long. You can't
  * derive one value class (AnyVal) from another because then you'd have the
  * possibility of polymorphism (overloaded methods) which AnyVal non-objects
- * cannot support. 
- * 
+ * cannot support.
+ *
  * So it's really not a good idea to try to "clean up" this stuff using
- * Scala 2.12 specialization of generic types. Maybe in the future 
- * Scala will have a kind of specialization and AnyVal support that is up 
- * to the job. 
+ * Scala 2.12 specialization of generic types. Maybe in the future
+ * Scala will have a kind of specialization and AnyVal support that is up
+ * to the job.
  */
 
 /**
@@ -52,7 +52,7 @@ package org.apache.daffodil.lib.util
  */
 final case class MaybeInt private (__v: Long) extends AnyVal {
   @inline final def get: Int = if (isDefined) __v.toInt else noneGet
-  //@inline final def getOrElse(alternate: Int): Int = if (isDefined) get else alternate
+  // @inline final def getOrElse(alternate: Int): Int = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __v != MaybeInt.undefValue
   @inline final def isEmpty = !isDefined
@@ -104,7 +104,7 @@ object MaybeInt {
  */
 final class MaybeJInt(mi: MaybeInt) {
   @inline final def get: Int = mi.get
-  //@inline final def getOrElse(alternate: Int): Int = mi.getOrElse(alternate)
+  // @inline final def getOrElse(alternate: Int): Int = mi.getOrElse(alternate)
   @inline final def isDefined = mi.isDefined
   @inline final def isEmpty = !isDefined
   override def toString = mi.toString
@@ -119,7 +119,7 @@ object MaybeJInt {
 
 final case class MaybeChar private (__v: Int) extends AnyVal {
   @inline final def get: Char = if (isDefined) __v.toChar else noneGet
-  //@inline final def getOrElse(alternate: Char): Char = if (isDefined) get else alternate
+  // @inline final def getOrElse(alternate: Char): Char = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __v != MaybeChar.undefValue
   @inline final def isEmpty = !isDefined
@@ -142,7 +142,7 @@ object MaybeChar {
 
 final class MaybeBoolean private (val __v: Int) extends AnyVal {
   @inline final def get: Boolean = if (isEmpty) noneGet else __v == 1
-  //@inline final def getOrElse(alternate: Boolean): Boolean = if (isDefined) get else alternate
+  // @inline final def getOrElse(alternate: Boolean): Boolean = if (isDefined) get else alternate
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __v != MaybeBoolean.undefValue
   @inline final def isEmpty = !isDefined
@@ -163,5 +163,5 @@ object MaybeBoolean {
   val Nope = new MaybeBoolean(undefValue)
   val True = new MaybeBoolean(1)
   val False = new MaybeBoolean(0)
-  
+
 }

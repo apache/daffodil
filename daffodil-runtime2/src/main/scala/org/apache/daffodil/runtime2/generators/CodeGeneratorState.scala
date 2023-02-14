@@ -17,17 +17,17 @@
 
 package org.apache.daffodil.runtime2.generators
 
-import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import scala.collection.mutable
+
 import org.apache.daffodil.core.dsom.Choice
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.GlobalComplexTypeDef
 import org.apache.daffodil.core.dsom.GlobalElementDecl
 import org.apache.daffodil.core.dsom.SchemaComponent
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.cookers.ChoiceBranchKeyCooker
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
-
-import scala.collection.mutable
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 
 /**
  * Builds up the state of generated code.
@@ -54,8 +54,9 @@ class CodeGeneratorState(private val root: ElementBase) {
     // Generate a choice statement case if the element is in a choice element
     if (hasChoice) {
       val position = context.position
-      structs.top.initChoiceStatements ++= ChoiceBranchKeyCooker.convertConstant(
-        context.choiceBranchKey, context, forUnparse = false).map { key => s"    case $key:" }
+      structs.top.initChoiceStatements ++= ChoiceBranchKeyCooker
+        .convertConstant(context.choiceBranchKey, context, forUnparse = false)
+        .map { key => s"    case $key:" }
       structs.top.initChoiceStatements += s"        instance->_choice = $position;"
       structs.top.parserStatements += s"    case $position:"
       structs.top.unparserStatements += s"    case $position:"
@@ -201,7 +202,8 @@ class CodeGeneratorState(private val root: ElementBase) {
            |    0, NULL, NULL, NULL, NULL, {NULL}
            |};
            |""".stripMargin
-      val offsetComputation = s"    (const char *)&${C}_compute_offsets._choice - (const char *)&${C}_compute_offsets"
+      val offsetComputation =
+        s"    (const char *)&${C}_compute_offsets._choice - (const char *)&${C}_compute_offsets"
       val erdComputation = s"    &_choice_$erd"
       val initChoiceStatement =
         s"""    static Error error = {ERR_CHOICE_KEY, {0}};
@@ -273,7 +275,11 @@ class CodeGeneratorState(private val root: ElementBase) {
   }
 
   // Adds C statements to initialize, parse, and unparse a primitive value element
-  def addSimpleTypeStatements(initERDStatement: String, parseStatement: String, unparseStatement: String): Unit = {
+  def addSimpleTypeStatements(
+    initERDStatement: String,
+    parseStatement: String,
+    unparseStatement: String,
+  ): Unit = {
     if (initERDStatement.nonEmpty) {
       if (hasChoice)
         structs.top.initChoiceStatements += initERDStatement
@@ -390,8 +396,9 @@ class CodeGeneratorState(private val root: ElementBase) {
     val qNameInit = defineQNameInit(context)
     val numChildren = if (hasChoice) 2 else count
     val initChoice = if (hasChoice) s"(InitChoiceRD)&${C}_initChoice" else "NULL"
-    val complexERD = if (numChildren > 0)
-      s"""static const $C ${C}_compute_offsets;
+    val complexERD =
+      if (numChildren > 0)
+        s"""static const $C ${C}_compute_offsets;
          |
          |static const size_t ${C}_offsets[$count] = {
          |$offsetComputations
@@ -412,8 +419,8 @@ class CodeGeneratorState(private val root: ElementBase) {
          |    {$initChoice} // initChoice
          |};
          |""".stripMargin
-    else
-      s"""static const ERD $erd = {
+      else
+        s"""static const ERD $erd = {
          |$qNameInit
          |    COMPLEX, // typeCode
          |    $numChildren, // numChildren
@@ -448,32 +455,36 @@ class CodeGeneratorState(private val root: ElementBase) {
     val C = cStructName(context)
     val initERDStatements = structs.top.initERDStatements.mkString("\n")
     val initChoiceStatements = structs.top.initChoiceStatements.mkString("\n")
-    val parserStatements = if (structs.top.parserStatements.nonEmpty)
-      structs.top.parserStatements.mkString("\n")
-    else
-      s"""    // Empty struct, but need to prevent compiler warnings
+    val parserStatements =
+      if (structs.top.parserStatements.nonEmpty)
+        structs.top.parserStatements.mkString("\n")
+      else
+        s"""    // Empty struct, but need to prevent compiler warnings
          |    UNUSED(instance);
          |    UNUSED(pstate);""".stripMargin
-    val unparserStatements = if (structs.top.unparserStatements.nonEmpty)
-      structs.top.unparserStatements.mkString("\n")
-    else
-      s"""    // Empty struct, but need to prevent compiler warnings
+    val unparserStatements =
+      if (structs.top.unparserStatements.nonEmpty)
+        structs.top.unparserStatements.mkString("\n")
+      else
+        s"""    // Empty struct, but need to prevent compiler warnings
          |    UNUSED(instance);
          |    UNUSED(ustate);""".stripMargin
-    val prototypeInitChoice = if (hasChoice)
-      s"static const Error *${C}_initChoice($C *instance);\n"
-    else
-      ""
-    val implementInitChoice = if (hasChoice)
-      s"""
+    val prototypeInitChoice =
+      if (hasChoice)
+        s"static const Error *${C}_initChoice($C *instance);\n"
+      else
+        ""
+    val implementInitChoice =
+      if (hasChoice)
+        s"""
          |static const Error *
          |${C}_initChoice($C *instance)
          |{
          |$initChoiceStatements
          |}
          |""".stripMargin
-    else
-      ""
+      else
+        ""
     val prototypeFunctions =
       s"""${prototypeInitChoice}static void ${C}_parseSelf($C *instance, PState *pstate);
          |static void ${C}_unparseSelf(const $C *instance, UState *ustate);""".stripMargin
@@ -569,8 +580,10 @@ class CodeGeneratorState(private val root: ElementBase) {
     structs.top.declarations += declaration
 
     // Add an array member to store a fixed length hexBinary element if needed
-    if (child.isSimpleType && child.isFixedLength && child.optPrimType.get == PrimType.HexBinary
-        && child.maybeFixedLengthInBits.get > 0) {
+    if (
+      child.isSimpleType && child.isFixedLength && child.optPrimType.get == PrimType.HexBinary
+      && child.maybeFixedLengthInBits.get > 0
+    ) {
       val fixedLength = child.maybeFixedLengthInBits.get / 8
       val declaration2 = s"$indent    uint8_t     _a_$e$arrayDef[$fixedLength];"
       structs.top.declarations += declaration2
@@ -585,7 +598,8 @@ class CodeGeneratorState(private val root: ElementBase) {
     val arrayName = s"array_${cStructName(child)}$C"
     val erd = if (hasArray) s"${arrayName}ERD" else erdName(child)
     val deref = if (hasArray) "[0]" else ""
-    val offsetComputation = s"    (const char *)&${C}_compute_offsets.$e$deref - (const char *)&${C}_compute_offsets"
+    val offsetComputation =
+      s"    (const char *)&${C}_compute_offsets.$e$deref - (const char *)&${C}_compute_offsets"
     val erdComputation = s"    &$erd"
     structs.top.offsetComputations += offsetComputation
     structs.top.erdComputations += erdComputation
@@ -627,14 +641,15 @@ class CodeGeneratorState(private val root: ElementBase) {
     erds += arrayERD
 
     // Add the array's initERD, parseSelf, unparseSelf, getArraySize functions
-    val initERDStatements = if (structs.top.initERDStatements.nonEmpty)
-      s"""    UNUSED(parent);
+    val initERDStatements =
+      if (structs.top.initERDStatements.nonEmpty)
+        s"""    UNUSED(parent);
          |    for (size_t i = 0; i < $maxOccurs; i++)
          |    {
          |${structs.top.initERDStatements.mkString("\n")}
          |    }""".stripMargin
-    else
-      s"""    UNUSED(instance);
+      else
+        s"""    UNUSED(instance);
          |    UNUSED(parent);""".stripMargin
     val parserStatements =
       s"""    const size_t arraySize = ${arrayName}_getArraySize(instance);
@@ -730,7 +745,9 @@ class CodeGeneratorState(private val root: ElementBase) {
     val local = context.namedQName.local
     val nsUri = context.namedQName.namespace.toStringOrNullIfNoNS
     // Optimize away ns declaration if possible, although this approach may not be entirely correct
-    val parentNsUri = context.enclosingElements.headOption.map(_.namedQName.namespace.toStringOrNullIfNoNS).getOrElse("no-ns")
+    val parentNsUri = context.enclosingElements.headOption
+      .map(_.namedQName.namespace.toStringOrNullIfNoNS)
+      .getOrElse("no-ns")
     val ns = if (nsUri == null || nsUri == parentNsUri) "NULL" else s""""$nsUri""""
     val qNameInit =
       s"""    {
@@ -750,44 +767,43 @@ class CodeGeneratorState(private val root: ElementBase) {
           case n if n <= 32 => PrimType.Boolean
           case _ => e.SDE("Boolean lengths longer than 32 bits are not supported.")
         }
-      case PrimType.Double
-           | PrimType.Float =>
+      case PrimType.Double | PrimType.Float =>
         lengthInBits match {
           case 32 => PrimType.Float
           case 64 => PrimType.Double
-          case _ =>  e.SDE("Floating point lengths other than 32 or 64 bits are not supported.")
+          case _ => e.SDE("Floating point lengths other than 32 or 64 bits are not supported.")
         }
       case PrimType.HexBinary => PrimType.HexBinary
-      case PrimType.Byte
-         | PrimType.Short
-         | PrimType.Int
-         | PrimType.Long
-         | PrimType.Integer =>
+      case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer =>
         lengthInBits match {
-          case n if n <= 8 =>  PrimType.Byte
+          case n if n <= 8 => PrimType.Byte
           case n if n <= 16 => PrimType.Short
           case n if n <= 32 => PrimType.Int
           case n if n <= 64 => PrimType.Long
-          case _ =>  e.SDE("Integer lengths longer than 64 bits are not supported.")
+          case _ => e.SDE("Integer lengths longer than 64 bits are not supported.")
         }
-      case PrimType.UnsignedByte
-         | PrimType.UnsignedShort
-         | PrimType.UnsignedInt
-         | PrimType.UnsignedLong
-         | PrimType.NonNegativeInteger =>
+      case PrimType.UnsignedByte | PrimType.UnsignedShort | PrimType.UnsignedInt |
+          PrimType.UnsignedLong | PrimType.NonNegativeInteger =>
         lengthInBits match {
-          case n if n <= 8 =>  PrimType.UnsignedByte
+          case n if n <= 8 => PrimType.UnsignedByte
           case n if n <= 16 => PrimType.UnsignedShort
           case n if n <= 32 => PrimType.UnsignedInt
           case n if n <= 64 => PrimType.UnsignedLong
-          case _ =>  e.SDE("Unsigned integer lengths longer than 64 bits are not supported.")
+          case _ => e.SDE("Unsigned integer lengths longer than 64 bits are not supported.")
         }
       case p => e.SDE("PrimType %s is not supported in C code generator.", p.toString)
     }
-    if (primType != e.optPrimType.get
+    if (
+      primType != e.optPrimType.get
       && e.optPrimType.get != PrimType.Integer
-      && e.optPrimType.get != PrimType.NonNegativeInteger) {
-      e.SDW(WarnID.IgnoreDFDLProperty, "Ignoring PrimType %s, using %s", e.optPrimType.get.toString, primType.toString)
+      && e.optPrimType.get != PrimType.NonNegativeInteger
+    ) {
+      e.SDW(
+        WarnID.IgnoreDFDLProperty,
+        "Ignoring PrimType %s, using %s",
+        e.optPrimType.get.toString,
+        primType.toString,
+      )
     }
     primType
   }
@@ -802,8 +818,13 @@ class CodeGeneratorState(private val root: ElementBase) {
       case OccursCountKind.Fixed if e.maxOccurs == 1 => 0
       case OccursCountKind.Implicit if e.minOccurs == 1 && e.maxOccurs == 1 => 0
       case OccursCountKind.Expression if e.maxOccurs > 0 => e.maxOccurs
-      case _ => e.SDE("occursCountKind %s minOccurs %d maxOccurs %d is not supported in C code generator",
-        e.occursCountKind.toString, e.minOccurs, e.maxOccurs)
+      case _ =>
+        e.SDE(
+          "occursCountKind %s minOccurs %d maxOccurs %d is not supported in C code generator",
+          e.occursCountKind.toString,
+          e.minOccurs,
+          e.maxOccurs,
+        )
     }
     arrayMaxOccurs
   }
@@ -818,7 +839,12 @@ class CodeGeneratorState(private val root: ElementBase) {
            |    return ${e.maxOccurs};""".stripMargin
       case OccursCountKind.Expression =>
         // Extract expression from {...} in element's occursCount attribute
-        val expr = e.occursCountExpr.prettyExpr.filterNot(_.isWhitespace).stripPrefix("{").stripSuffix("}").stripPrefix("xs:long(").stripSuffix(")")
+        val expr = e.occursCountExpr.prettyExpr
+          .filterNot(_.isWhitespace)
+          .stripPrefix("{")
+          .stripSuffix("}")
+          .stripPrefix("xs:long(")
+          .stripSuffix(")")
         // Convert expression to a C struct field access, stripping the first up
         // path (if any) because an occursCount's parent is the same struct while
         // a choiceDispatchKey's parent is an enclosing struct.
@@ -829,8 +855,13 @@ class CodeGeneratorState(private val root: ElementBase) {
         else
           s"""    UNUSED(instance);
              |    return $fieldAccess;""".stripMargin
-      case _ => e.SDE("getArraySize %s minOccurs %d maxOccurs %d is not supported in C code generator",
-        e.occursCountKind.toString, e.minOccurs, e.maxOccurs)
+      case _ =>
+        e.SDE(
+          "getArraySize %s minOccurs %d maxOccurs %d is not supported in C code generator",
+          e.occursCountKind.toString,
+          e.minOccurs,
+          e.maxOccurs,
+        )
     }
     occursCount
   }
@@ -879,7 +910,10 @@ class CodeGeneratorState(private val root: ElementBase) {
     if (e.optPrimType.get == PrimType.HexBinary)
       0
     else {
-      e.schemaDefinitionUnless(e.elementLengthInBitsEv.isConstant, "Runtime dfdl:length expressions are not supported.")
+      e.schemaDefinitionUnless(
+        e.elementLengthInBitsEv.isConstant,
+        "Runtime dfdl:length expressions are not supported.",
+      )
       e.elementLengthInBitsEv.constValue.get
     }
   }

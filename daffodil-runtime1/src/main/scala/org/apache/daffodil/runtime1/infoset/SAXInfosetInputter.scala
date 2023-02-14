@@ -20,19 +20,19 @@ package org.apache.daffodil.runtime1.infoset
 import java.net.URI
 import java.net.URISyntaxException
 
-import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartElement
-import org.apache.daffodil.runtime1.processors.DaffodilUnparseContentHandlerImpl
 import org.apache.daffodil.lib.util.Coroutine
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartElement
+import org.apache.daffodil.runtime1.processors.DaffodilUnparseContentHandlerImpl
 
 /**
  * The SAXInfosetInputter worker coroutine receives batches of SAXInfosetEvent
@@ -53,8 +53,9 @@ class SAXInfosetInputter(
   unparseContentHandler: DaffodilUnparseContentHandlerImpl,
   dp: DFDL.DataProcessor,
   output: DFDL.Output,
-  resolveRelativeInfosetBlobURIs: Boolean)
-  extends InfosetInputter with Coroutine[Array[SAXInfosetEvent]] {
+  resolveRelativeInfosetBlobURIs: Boolean,
+) extends InfosetInputter
+  with Coroutine[Array[SAXInfosetEvent]] {
 
   /**
    * The index into the batchedInfosetEvents array that the InfosetInputter is
@@ -75,14 +76,16 @@ class SAXInfosetInputter(
   @inline
   private def currentEvent = batchedInfosetEvents(currentIndex)
 
-
   override def getEventType(): InfosetInputterEventType = currentEvent.eventType.get
 
   override def getLocalName(): String = currentEvent.localName.get
 
   override def getNamespaceURI(): String = currentEvent.namespaceURI.orNull
 
-  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
+  override def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String = {
     val res = if (currentEvent.simpleText.isDefined) {
       currentEvent.simpleText.get
     } else {
@@ -91,7 +94,9 @@ class SAXInfosetInputter(
     if (primType eq NodeInfo.String) {
       val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(res)
       remapped
-    } else if (resolveRelativeInfosetBlobURIs && (primType eq NodeInfo.AnyURI) && res.nonEmpty) {
+    } else if (
+      resolveRelativeInfosetBlobURIs && (primType eq NodeInfo.AnyURI) && res.nonEmpty
+    ) {
       val absUri = resolveRelativeBlobURIs(res)
       absUri
     } else {
@@ -107,8 +112,10 @@ class SAXInfosetInputter(
       } else if (nilValue == "false" || nilValue == "0") {
         MaybeBoolean(false)
       } else {
-        throw new InvalidInfosetException("xsi:nil property is not a valid boolean: '" + nilValue +
-          "' for element " + getLocalName())
+        throw new InvalidInfosetException(
+          "xsi:nil property is not a valid boolean: '" + nilValue +
+            "' for element " + getLocalName(),
+        )
       }
     } else {
       MaybeBoolean.Nope
@@ -231,11 +238,11 @@ class SAXInfosetEvent() {
 
   def isEmpty: Boolean = {
     localName.isEmpty &&
-      simpleText.isEmpty &&
-      namespaceURI.isEmpty &&
-      eventType.isEmpty &&
-      nilValue.isEmpty &&
-      mixedContent.isEmpty
+    simpleText.isEmpty &&
+    namespaceURI.isEmpty &&
+    eventType.isEmpty &&
+    nilValue.isEmpty &&
+    mixedContent.isEmpty
   }
 
   override def toString: String = {

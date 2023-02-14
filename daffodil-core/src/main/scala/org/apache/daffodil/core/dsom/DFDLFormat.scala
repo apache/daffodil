@@ -49,15 +49,12 @@ final class DFDLGroup(node: Node, decl: ModelGroup)
 abstract class DFDLModelGroup(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLNonDefaultFormatAnnotation(node, decl)
 
-final class DFDLSequence(node: Node, decl: SequenceDefMixin)
-  extends DFDLModelGroup(node, decl)
+final class DFDLSequence(node: Node, decl: SequenceDefMixin) extends DFDLModelGroup(node, decl)
 
-final class DFDLChoice(node: Node, decl: ChoiceDefMixin)
-  extends DFDLModelGroup(node, decl)
+final class DFDLChoice(node: Node, decl: ChoiceDefMixin) extends DFDLModelGroup(node, decl)
 
 final class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
-  extends DFDLNonDefaultFormatAnnotation(node, decl) {
-}
+  extends DFDLNonDefaultFormatAnnotation(node, decl) {}
 
 final class DFDLEnumerationFactory(node: Node, decl: EnumerationDef)
   extends DFDLFormatAnnotation(node, decl)

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.core.dsom
 
-import scala.xml.UnprefixedAttribute
-import scala.xml.Null
 import scala.xml.Elem
+import scala.xml.Null
+import scala.xml.UnprefixedAttribute
+
 import org.apache.daffodil.runtime1.processors.RepValueSet
 
 /*
@@ -31,7 +32,13 @@ trait HasOptRepTypeMixinImpl extends SchemaComponent with HasOptRepTypeMixin {
 
   override lazy val optRepTypeElement: Option[RepTypeQuasiElementDecl] =
     optRepTypeDef.map(repType => {
-      val xmlElem = Elem(null, "QuasiElementForTypeCalc", new UnprefixedAttribute("type", repType.namedQName.toAttributeNameString, Null), namespaces, true)
+      val xmlElem = Elem(
+        null,
+        "QuasiElementForTypeCalc",
+        new UnprefixedAttribute("type", repType.namedQName.toAttributeNameString, Null),
+        namespaces,
+        true,
+      )
       RepTypeQuasiElementDecl(xmlElem, this)
     })
 

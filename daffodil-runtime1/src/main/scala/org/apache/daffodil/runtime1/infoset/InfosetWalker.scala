@@ -19,8 +19,8 @@ package org.apache.daffodil.runtime1.infoset
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.util.MStackOfInt
 import org.apache.daffodil.lib.util.MStackOf
+import org.apache.daffodil.lib.util.MStackOfInt
 
 object InfosetWalker {
 
@@ -77,7 +77,8 @@ object InfosetWalker {
     ignoreBlocks: Boolean,
     releaseUnneededInfoset: Boolean,
     walkSkipMin: Int = 32,
-    walkSkipMax: Int = 2048): InfosetWalker = {
+    walkSkipMax: Int = 2048,
+  ): InfosetWalker = {
 
     // Determine the container of the root node and the index in which it
     // appears in that node
@@ -105,7 +106,8 @@ object InfosetWalker {
       ignoreBlocks,
       releaseUnneededInfoset,
       walkSkipMin,
-      walkSkipMax)
+      walkSkipMax,
+    )
   }
 
 }
@@ -178,7 +180,8 @@ class InfosetWalker private (
   ignoreBlocks: Boolean,
   releaseUnneededInfoset: Boolean,
   walkSkipMin: Int,
-  walkSkipMax: Int) {
+  walkSkipMax: Int,
+) {
 
   /**
    * These two pieces of mutable state are all that is needed to keep track of
@@ -275,20 +278,19 @@ class InfosetWalker private (
       // no more skips or this is the last walk, so try to take a step
       var canTakeAnotherStep = maybeDoStep()
 
-      walkSkipSize =
-        if (canTakeAnotherStep) {
-          // we've skipped walkSkipSize calls to walk() and we were able to
-          // make progress taking a step. Let's set the skip size to skip min
-          // to ensure we try to take steps in future calls to walk() more
-          // frequently
-          walkSkipMin
-        } else {
-          // we've skipped skip size calls to walk() and still failed to take
-          // a single step. Most likely we have an early unresolved point of
-          // uncertainty, so double the walkSkipSize to give more time for that
-          // PoU to get resolved before actually trying to take more steps
-          Math.min(walkSkipSize << 2, walkSkipMax)
-        }
+      walkSkipSize = if (canTakeAnotherStep) {
+        // we've skipped walkSkipSize calls to walk() and we were able to
+        // make progress taking a step. Let's set the skip size to skip min
+        // to ensure we try to take steps in future calls to walk() more
+        // frequently
+        walkSkipMin
+      } else {
+        // we've skipped skip size calls to walk() and still failed to take
+        // a single step. Most likely we have an early unresolved point of
+        // uncertainty, so double the walkSkipSize to give more time for that
+        // PoU to get resolved before actually trying to take more steps
+        Math.min(walkSkipSize << 2, walkSkipMax)
+      }
 
       // set the remaining number of skips to the adjusted size so the next
       // time walk is called we start skipping again
@@ -311,7 +313,9 @@ class InfosetWalker private (
     val containerNode = containerNodeStack.top
     val containerIndex = containerIndexStack.top
 
-    if ((containerNode ne startingContainerNode) || (containerIndex == startingContainerIndex)) {
+    if (
+      (containerNode ne startingContainerNode) || (containerIndex == startingContainerIndex)
+    ) {
       // The containerNode is either some child of the starting node (container
       // node != starting container code) or we are exactly on the starting
       // node (container node == starting container node && top of index stack
@@ -506,12 +510,16 @@ class InfosetWalker private (
         // now we can remove this simple element to free up memory
         containerNode.freeChildIfNoLongerNeeded(containerIndex, releaseUnneededInfoset)
         moveToNextSibling()
-      } else  {
+      } else {
         // must be complex or array, exact same logic for both
         if (!child.isHidden || walkHidden) {
           if (child.isComplex) {
             val complex = child.asInstanceOf[DIComplex]
-            doOutputter(outputter.startComplex(complex), "start infoset complex element", complex.erd)
+            doOutputter(
+              outputter.startComplex(complex),
+              "start infoset complex element",
+              complex.erd,
+            )
           } else {
             val array = child.asInstanceOf[DIArray]
             doOutputter(outputter.startArray(array), "start infoset array", array.erd)
@@ -547,7 +555,10 @@ class InfosetWalker private (
       // memory associated with this container, and then move to the next
       // sibling of this container
       moveToContainer()
-      containerNodeStack.top.freeChildIfNoLongerNeeded(containerIndexStack.top, releaseUnneededInfoset)
+      containerNodeStack.top.freeChildIfNoLongerNeeded(
+        containerIndexStack.top,
+        releaseUnneededInfoset,
+      )
       moveToNextSibling()
     }
   }

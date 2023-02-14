@@ -17,27 +17,30 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-
 import scala.xml.Node
 import scala.xml.Utility
-import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
+
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.NotFound
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeKind
-import org.apache.daffodil.runtime1.processors.EscapeSchemeParseEv
-import org.apache.daffodil.runtime1.processors.EscapeSchemeBlockParseEv
-import org.apache.daffodil.runtime1.processors.EscapeSchemeCharParseEv
-import org.apache.daffodil.runtime1.processors.EscapeSchemeUnparseEv
-import org.apache.daffodil.runtime1.processors.EscapeSchemeBlockUnparseEv
-import org.apache.daffodil.runtime1.processors.EscapeSchemeCharUnparseEv
+import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.EscapeCharEv
 import org.apache.daffodil.runtime1.processors.EscapeEscapeCharEv
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.lib.schema.annotation.props.NotFound
-import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.runtime1.processors.EscapeSchemeBlockParseEv
+import org.apache.daffodil.runtime1.processors.EscapeSchemeBlockUnparseEv
+import org.apache.daffodil.runtime1.processors.EscapeSchemeCharParseEv
+import org.apache.daffodil.runtime1.processors.EscapeSchemeCharUnparseEv
+import org.apache.daffodil.runtime1.processors.EscapeSchemeParseEv
+import org.apache.daffodil.runtime1.processors.EscapeSchemeUnparseEv
 
-final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
-  extends DFDLFormatAnnotation(node, decl)
+final class DFDLEscapeScheme(
+  node: Node,
+  decl: AnnotatedSchemaComponent,
+  defES: DFDLDefineEscapeScheme,
+) extends DFDLFormatAnnotation(node, decl)
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 
@@ -58,7 +61,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
         // XML library lets your code be the one doing the DTD resolving, so they can't do it for you.
         //
         nodeseq match {
-          case Nil => Found("", this, pname, false) // we want to hand back the empty string as a value.
+          case Nil =>
+            Found("", this, pname, false) // we want to hand back the empty string as a value.
           case _ => Found(nodeseq.toString, this, pname, false)
         }
       }
@@ -81,8 +85,13 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final lazy val escapeCharacterEv = LV('escapeCharacterEv) {
     val qn = this.qNameForProperty("escapeCharacter")
-    val expr = ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, escapeCharacterRaw, this,
-      defES.pointOfUse.dpathCompileInfo)
+    val expr = ExpressionCompilers.String.compileProperty(
+      qn,
+      NodeInfo.NonEmptyString,
+      escapeCharacterRaw,
+      this,
+      defES.pointOfUse.dpathCompileInfo,
+    )
     val ev = new EscapeCharEv(expr, ci)
     ev.compile(tunable)
     ev
@@ -96,7 +105,14 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
         val typeIfStaticallyKnown = NodeInfo.String
         val typeIfRuntimeKnown = NodeInfo.NonEmptyString
         val ci = defES.pointOfUse.dpathCompileInfo
-        val expr = ExpressionCompilers.String.compileDelimiter(qn, typeIfStaticallyKnown, typeIfRuntimeKnown, found, this, ci)
+        val expr = ExpressionCompilers.String.compileDelimiter(
+          qn,
+          typeIfStaticallyKnown,
+          typeIfRuntimeKnown,
+          found,
+          this,
+          ci,
+        )
         val ev = new EscapeEscapeCharEv(expr, ci)
         ev.compile(tunable)
         One(ev)
@@ -113,8 +129,15 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final lazy val escapeSchemeParseEv: EscapeSchemeParseEv = {
     val espev = escapeKind match {
-      case EscapeKind.EscapeBlock => new EscapeSchemeBlockParseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, ci)
-      case EscapeKind.EscapeCharacter => new EscapeSchemeCharParseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, ci)
+      case EscapeKind.EscapeBlock =>
+        new EscapeSchemeBlockParseEv(
+          escapeBlockStart,
+          escapeBlockEnd,
+          optionEscapeEscapeCharacterEv,
+          ci,
+        )
+      case EscapeKind.EscapeCharacter =>
+        new EscapeSchemeCharParseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, ci)
     }
     espev.compile(tunable)
     espev
@@ -122,8 +145,22 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
 
   final lazy val escapeSchemeUnparseEv: EscapeSchemeUnparseEv = {
     val esuev = escapeKind match {
-      case EscapeKind.EscapeBlock => new EscapeSchemeBlockUnparseEv(escapeBlockStart, escapeBlockEnd, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, generateEscapeBlock, ci)
-      case EscapeKind.EscapeCharacter => new EscapeSchemeCharUnparseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, optionExtraEscapedCharacters, ci)
+      case EscapeKind.EscapeBlock =>
+        new EscapeSchemeBlockUnparseEv(
+          escapeBlockStart,
+          escapeBlockEnd,
+          optionEscapeEscapeCharacterEv,
+          optionExtraEscapedCharacters,
+          generateEscapeBlock,
+          ci,
+        )
+      case EscapeKind.EscapeCharacter =>
+        new EscapeSchemeCharUnparseEv(
+          escapeCharacterEv,
+          optionEscapeEscapeCharacterEv,
+          optionExtraEscapedCharacters,
+          ci,
+        )
     }
     esuev.compile(tunable)
     esuev
@@ -151,6 +188,7 @@ object DFDLDefineEscapeScheme {
     des
   }
 }
+
 /**
  * Escape scheme definitions
  *
@@ -162,9 +200,11 @@ object DFDLDefineEscapeScheme {
  * has its own expression compilation for these properties, as it would for any regular expression-valued
  * property like byteOrder or encoding or a delimiter.
  */
-final class DFDLDefineEscapeScheme private (node: Node, decl: SchemaDocument,
-  val pointOfUse: SchemaComponent)
-  extends DFDLDefiningAnnotation(node, decl) { // Note: defineEscapeScheme isn't a format annotation itself.
+final class DFDLDefineEscapeScheme private (
+  node: Node,
+  decl: SchemaDocument,
+  val pointOfUse: SchemaComponent,
+) extends DFDLDefiningAnnotation(node, decl) { // Note: defineEscapeScheme isn't a format annotation itself.
 
   requiredEvaluationsAlways(escapeScheme)
 
@@ -181,7 +221,9 @@ final class DFDLDefineEscapeScheme private (node: Node, decl: SchemaDocument,
   lazy val escapeScheme = {
     val des = Utility.trim(node)
     val res = des match {
-      case <dfdl:defineEscapeScheme>{ e @ <dfdl:escapeScheme>{ contents @ _* }</dfdl:escapeScheme> }</dfdl:defineEscapeScheme> =>
+      case <dfdl:defineEscapeScheme>{
+            e @ <dfdl:escapeScheme>{contents @ _*}</dfdl:escapeScheme>
+          }</dfdl:defineEscapeScheme> =>
         new DFDLEscapeScheme(e, decl, this)
       case _ => SDE("The content of %s is not complete.", des.label)
     }

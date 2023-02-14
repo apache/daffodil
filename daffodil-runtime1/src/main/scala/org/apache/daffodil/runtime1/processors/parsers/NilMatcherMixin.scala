@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import scala.collection.mutable.Queue
-import java.util.regex.Pattern
-import org.apache.daffodil.runtime1.processors.Delimiter
-import org.apache.daffodil.lib.util.OnStack
 import java.util.regex.Matcher
+import java.util.regex.Pattern
+import scala.collection.mutable.Queue
+
+import org.apache.daffodil.lib.util.OnStack
+import org.apache.daffodil.runtime1.processors.Delimiter
 
 trait NilMatcherMixin {
 
@@ -57,11 +58,12 @@ trait NilMatcherMixin {
     val wspStarByItself = delimList.filter(s => s == "%WSP*;")
     val wspPlusByItself = delimList.filter(s => s == "%WSP+;")
 
-    val filteredDelimList = (delimList -- (wspStarByItself union wspPlusByItself))
+    val filteredDelimList = (delimList -- (wspStarByItself.union(wspPlusByItself)))
 
-    val multiCharUnboundedLength = filteredDelimList.filter(s => (s.contains("%WSP*;") || s.contains("%WSP+;")))
+    val multiCharUnboundedLength =
+      filteredDelimList.filter(s => (s.contains("%WSP*;") || s.contains("%WSP+;")))
     val multiChar = (filteredDelimList -- multiCharUnboundedLength).filter(s => s.length() > 1)
-    val singleChar = filteredDelimList -- (multiChar union multiCharUnboundedLength)
+    val singleChar = filteredDelimList -- (multiChar.union(multiCharUnboundedLength))
 
     val sortedUnbounded = multiCharUnboundedLength.toArray[String]
     val sortedMultiChar = multiChar.toArray[String]
@@ -69,14 +71,18 @@ trait NilMatcherMixin {
     scala.util.Sorting.quickSort(sortedUnbounded)
     scala.util.Sorting.quickSort(sortedMultiChar)
 
-    val orderedResultSeq: Seq[String] = sortedUnbounded.reverse.toSeq ++ wspPlusByItself ++ wspStarByItself ++ sortedMultiChar.reverse.toSeq ++ singleChar
+    val orderedResultSeq: Seq[String] =
+      sortedUnbounded.reverse.toSeq ++ wspPlusByItself ++ wspStarByItself ++ sortedMultiChar.reverse.toSeq ++ singleChar
     orderedResultSeq
   }
 
   /**
    * Combines the delimiters into a single alternation
    */
-  private def combineDelimitersRegex(sepsRegex: Array[String], termsRegex: Array[String]): String = {
+  private def combineDelimitersRegex(
+    sepsRegex: Array[String],
+    termsRegex: Array[String],
+  ): String = {
     val sb = new StringBuilder()
     sepsRegex.foreach(x => {
       sb.append(x)
@@ -127,7 +133,8 @@ trait NilMatcherMixin {
   }
 
   object withFieldNilMatcher extends OnStack[Matcher](newMatcher(), (m: Matcher) => m.reset(""))
-  object withFieldNilLiteralCharacterMatcher extends OnStack[Matcher](newLiteralCharacterMatcher(), (m: Matcher) => m.reset(""))
+  object withFieldNilLiteralCharacterMatcher
+    extends OnStack[Matcher](newLiteralCharacterMatcher(), (m: Matcher) => m.reset(""))
 
   // TODO: does this handle %ES; or do we have to have outside separate checks for that?
   // There is a separate check right now in LiteralNilDelimitedOrEndOfData.

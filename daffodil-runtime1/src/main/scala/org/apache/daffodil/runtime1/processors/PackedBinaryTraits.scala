@@ -21,17 +21,18 @@ import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInteger }
 import java.nio.charset.StandardCharsets
 
+import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
 import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.TextJustificationType
-import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
 import org.apache.daffodil.runtime1.processors.dfa
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.MaybeChar
+
 import passera.unsigned.ULong
 
 trait PackedBinaryConversion {
@@ -41,8 +42,8 @@ trait PackedBinaryConversion {
 
 abstract class PackedBinaryDecimalBaseParser(
   override val context: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int)
-  extends PrimParser
+  binaryDecimalVirtualPoint: Int,
+) extends PrimParser
   with PackedBinaryConversion {
   override lazy val runtimeDependencies = Vector()
 
@@ -69,8 +70,8 @@ abstract class PackedBinaryDecimalBaseParser(
 
 abstract class PackedBinaryIntegerBaseParser(
   override val context: ElementRuntimeData,
-  signed: Boolean = false)
-  extends PrimParser
+  signed: Boolean = false,
+) extends PrimParser
   with PackedBinaryConversion {
   override lazy val runtimeDependencies = Vector()
 
@@ -102,14 +103,24 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
   e: ElementRuntimeData,
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
-  isDelimRequired: Boolean)
-  extends StringDelimitedParser(e, TextJustificationType.None, MaybeChar.Nope, textParser, fieldDFAEv, isDelimRequired)
+  isDelimRequired: Boolean,
+) extends StringDelimitedParser(
+    e,
+    TextJustificationType.None,
+    MaybeChar.Nope,
+    textParser,
+    fieldDFAEv,
+    isDelimRequired,
+  )
   with PackedBinaryConversion {
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
-    Assert.invariant(e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1)
+    Assert.invariant(
+      e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1,
+    )
 
-    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), e.diagnosticDebugName)
+    if (!parseResult.isDefined)
+      this.PE(state, "%s - %s - Parse failed.", this.toString(), e.diagnosticDebugName)
     else {
       val result = parseResult.get
       val field = if (result.field.isDefined) result.field.get else ""
@@ -123,7 +134,8 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
           val num = toBigInteger(fieldBytes)
           state.simpleElement.setDataValue(num)
         } catch {
-          case n: NumberFormatException => PE(state, "Error in packed data: \n%s", n.getMessage())
+          case n: NumberFormatException =>
+            PE(state, "Error in packed data: \n%s", n.getMessage())
         }
 
         if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
@@ -138,8 +150,15 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
-  binaryDecimalVirtualPoint: Int)
-  extends StringDelimitedParser(e, TextJustificationType.None, MaybeChar.Nope, textParser, fieldDFAEv, isDelimRequired)
+  binaryDecimalVirtualPoint: Int,
+) extends StringDelimitedParser(
+    e,
+    TextJustificationType.None,
+    MaybeChar.Nope,
+    textParser,
+    fieldDFAEv,
+    isDelimRequired,
+  )
   with PackedBinaryConversion {
 
   /**
@@ -155,9 +174,12 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
    */
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
-    Assert.invariant(e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1)
+    Assert.invariant(
+      e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1,
+    )
 
-    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), e.diagnosticDebugName)
+    if (!parseResult.isDefined)
+      this.PE(state, "%s - %s - Parse failed.", this.toString(), e.diagnosticDebugName)
     else {
       val result = parseResult.get
       val field = if (result.field.isDefined) result.field.get else ""
@@ -171,7 +193,8 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
           val num = toBigDecimal(fieldBytes, binaryDecimalVirtualPoint)
           state.simpleElement.setDataValue(num)
         } catch {
-          case n: NumberFormatException => PE(state, "Error in packed data: \n%s", n.getMessage())
+          case n: NumberFormatException =>
+            PE(state, "Error in packed data: \n%s", n.getMessage())
         }
 
         if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)

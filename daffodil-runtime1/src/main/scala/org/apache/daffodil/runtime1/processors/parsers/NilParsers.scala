@@ -17,12 +17,11 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.TextJustificationType
-import org.apache.daffodil.lib.util.MaybeChar
 
-abstract class LiteralNilOfSpecifiedLengthParserBase(
-  erd: ElementRuntimeData)
+abstract class LiteralNilOfSpecifiedLengthParserBase(erd: ElementRuntimeData)
   extends TextPrimParser
   with StringOfSpecifiedLengthMixin
   with NilMatcherMixin {
@@ -74,8 +73,8 @@ final class LiteralValueNilOfSpecifiedLengthParser(
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
   override val ignoreCase: Boolean,
-  erd: ElementRuntimeData)
-  extends LiteralNilOfSpecifiedLengthParserBase(erd) {
+  erd: ElementRuntimeData,
+) extends LiteralNilOfSpecifiedLengthParserBase(erd) {
 
   private val eName = erd.name
 
@@ -98,8 +97,8 @@ final class LiteralCharacterNilOfSpecifiedLengthParser(
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
   override val ignoreCase: Boolean,
-  erd: ElementRuntimeData)
-  extends LiteralNilOfSpecifiedLengthParserBase(erd) {
+  erd: ElementRuntimeData,
+) extends LiteralNilOfSpecifiedLengthParserBase(erd) {
 
   private val eName = erd.name
 

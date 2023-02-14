@@ -19,12 +19,12 @@ package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.api.ThinDiagnostic
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.infoset.RetryableException
-import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.infoset.RetryableException
+import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 /**
  * SuspendableOperation is used for suspending and retrying things that aren't
@@ -34,12 +34,12 @@ import org.apache.daffodil.lib.util.Misc
  * This has to be suspended and retried later, but it's not an expression
  * being evaluated that has forward references.
  */
-trait SuspendableOperation
-  extends Suspension {
+trait SuspendableOperation extends Suspension {
 
   override def rd: RuntimeData
 
-  override def toString = "%s for %s".format(Misc.getNameFromClass(this), rd.diagnosticDebugName)
+  override def toString =
+    "%s for %s".format(Misc.getNameFromClass(this), rd.diagnosticDebugName)
 
   /**
    * Returns true if continuation can be run.
@@ -67,13 +67,17 @@ trait SuspendableOperation
           setDone
         } else {
           Logger.log.debug(s"test() of ${this} ${tst} failed")
-          val nodeOpt = if (ustate.currentInfosetNodeMaybe.isDefined) ustate.currentInfosetNodeMaybe.get else "No Node"
+          val nodeOpt =
+            if (ustate.currentInfosetNodeMaybe.isDefined) ustate.currentInfosetNodeMaybe.get
+            else "No Node"
           block(nodeOpt, ustate.dataOutputStream, 0, this)
         }
       } catch {
         case e: RetryableException => {
           Logger.log.debug(s"test() of ${this} threw ${e}")
-          val nodeOpt = if (ustate.currentInfosetNodeMaybe.isDefined) ustate.currentInfosetNodeMaybe.get else "No Node"
+          val nodeOpt =
+            if (ustate.currentInfosetNodeMaybe.isDefined) ustate.currentInfosetNodeMaybe.get
+            else "No Node"
           block(nodeOpt, ustate.dataOutputStream, 0, e)
         }
       }

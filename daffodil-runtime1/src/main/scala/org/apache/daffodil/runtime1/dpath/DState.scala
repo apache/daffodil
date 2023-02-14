@@ -21,6 +21,9 @@ import org.apache.daffodil.lib.calendar.DFDLCalendar
 import org.apache.daffodil.lib.equality.EqualitySuppressUnusedImportWarning
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.infoset.DIArray
 import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.infoset.DIElement
@@ -31,12 +34,11 @@ import org.apache.daffodil.runtime1.infoset.FakeDINode
 import org.apache.daffodil.runtime1.infoset.InfosetNoNextSiblingException
 import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe.Nope
-import org.apache.daffodil.lib.util.Maybe.One; object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
-import java.math.{BigDecimal => JBigDecimal}
-import java.math.{BigInteger => JBigInt}
+import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData;
+object EqualityNoWarn2 { EqualitySuppressUnusedImportWarning() }
+import java.math.{ BigDecimal => JBigDecimal }
+import java.math.{ BigInteger => JBigInt }
+
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.DataLocation
 import org.apache.daffodil.lib.api.WarnID
@@ -114,7 +116,8 @@ case object UnparserNonBlocking extends EvalMode
 case class DState(
   val maybeSsrd: Maybe[SchemaSetRuntimeData],
   tunable: DaffodilTunables,
-  val parseOrUnparseState: Maybe[ParseOrUnparseState]) {
+  val parseOrUnparseState: Maybe[ParseOrUnparseState],
+) {
   import org.apache.daffodil.lib.util.Numbers._
 
   var isCompile = false
@@ -237,9 +240,16 @@ case class DState(
     if (!currentNode.isInstanceOf[DIArray]) {
       Assert.invariant(errorOrWarn.isDefined)
       if (currentNode.isInstanceOf[DIElement]) {
-        errorOrWarn.get.SDW(WarnID.PathNotToArray, "The specified path to element %s is not to an array. Suggest using fn:exists instead.", currentElement.name)
+        errorOrWarn.get.SDW(
+          WarnID.PathNotToArray,
+          "The specified path to element %s is not to an array. Suggest using fn:exists instead.",
+          currentElement.name,
+        )
       } else {
-        errorOrWarn.get.SDW(WarnID.PathNotToArray, "The specified path is not to an array. Suggest using fn:exists instead.")
+        errorOrWarn.get.SDW(
+          WarnID.PathNotToArray,
+          "The specified path is not to an array. Suggest using fn:exists instead.",
+        )
       }
       false
     } else {
@@ -302,10 +312,13 @@ case class DState(
   def nextSibling = {
     val contents = currentElement.parent.asInstanceOf[DIComplex].contents
 
-    //TOOD, currentNode should really know this
+    // TOOD, currentNode should really know this
     val i = contents.indexOf(currentNode)
     if (i == contents.length - 1) {
-      throw new InfosetNoNextSiblingException(currentNode.asSimple, currentNode.erd.dpathElementCompileInfo)
+      throw new InfosetNoNextSiblingException(
+        currentNode.asSimple,
+        currentNode.erd.dpathElementCompileInfo,
+      )
     } else {
       contents(i + 1)
     }
@@ -360,7 +373,6 @@ case class DState(
     _arrayPos = arrayPos1b
   }
 
-
   def SDE(formatString: String, args: Any*) = {
     if (isCompile) {
       compileInfo.SDE(formatString, args: _*)
@@ -379,10 +391,10 @@ case class DState(
   // is always a constant (false) because at constant folding time, hey, nothing
   // exists... this hook lets us change behavior for constant folding to throw.
   def selfMove(): Unit = {
-    //do nothing
+    // do nothing
   }
   def fnExists(): Unit = {
-    //do nothing
+    // do nothing
   }
 
   // @inline // TODO: Performance maybe this won't allocate a closure if this is inline? If not replace with macro
@@ -426,7 +438,8 @@ object DState {
 
 class DStateForConstantFolding(
   override val compileInfo: DPathCompileInfo,
-  tunable: DaffodilTunables) extends DState(Nope, tunable, Nope) {
+  tunable: DaffodilTunables,
+) extends DState(Nope, tunable, Nope) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
   override def currentSimple = currentNode.asInstanceOf[DISimple]

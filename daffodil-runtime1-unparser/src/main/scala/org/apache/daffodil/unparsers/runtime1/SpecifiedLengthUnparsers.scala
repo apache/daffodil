@@ -17,11 +17,13 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.MaybeJULong
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.Infoset
@@ -33,11 +35,8 @@ import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInCharactersEv
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util.MaybeJULong
+import org.apache.daffodil.runtime1.processors.unparsers._
+
 import passera.unsigned.ULong
 
 /**
@@ -50,16 +49,14 @@ import passera.unsigned.ULong
  * Truncation of strings - the only case where we truncate, and only when
  * dfdl:truncateSpecifiedLengthString is 'yes', is handled elsewhere.
  */
-sealed abstract class SpecifiedLengthUnparserBase(
-  eUnparser: Unparser,
-  erd: ElementRuntimeData)
+sealed abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser, erd: ElementRuntimeData)
 
 final class SpecifiedLengthExplicitImplicitUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
   targetLengthInBitsEv: UnparseTargetLengthInBitsEv,
-  maybeTargetLengthInCharactersEv: Maybe[UnparseTargetLengthInCharactersEv])
-  extends CombinatorUnparser(erd) {
+  maybeTargetLengthInCharactersEv: Maybe[UnparseTargetLengthInCharactersEv],
+) extends CombinatorUnparser(erd) {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -164,7 +161,10 @@ final class SpecifiedLengthExplicitImplicitUnparser(
     state.schemaDefinitionUnless(
       erd.isSimpleType,
       "Variable width character encoding '%s', dfdl:lengthKind '%s' and dfdl:lengthUnits '%s' are not supported for complex types.",
-      getCharset(state).name, lengthKind.toString, lengthUnits.toString)
+      getCharset(state).name,
+      lengthKind.toString,
+      lengthUnits.toString,
+    )
 
     Assert.invariant(erd.isSimpleType)
     Assert.invariant(this.maybeTargetLengthInCharactersEv.isDefined)
@@ -204,18 +204,19 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   }
 
   private def getMaybeTL(state: UState, TLEv: Evaluatable[MaybeJULong]): MaybeJULong = {
-    val maybeTLBits = try {
-      val tlRes = TLEv.evaluate(state)
-      Assert.invariant(tlRes.isDefined) // otherwise we shouldn't be in this method at all
-      tlRes
-    } catch {
-      case e: RetryableException => {
-        //
-        // TargetLength expression couldn't be evaluated.
-        //
-        MaybeJULong.Nope
+    val maybeTLBits =
+      try {
+        val tlRes = TLEv.evaluate(state)
+        Assert.invariant(tlRes.isDefined) // otherwise we shouldn't be in this method at all
+        tlRes
+      } catch {
+        case e: RetryableException => {
+          //
+          // TargetLength expression couldn't be evaluated.
+          //
+          MaybeJULong.Nope
+        }
       }
-    }
     maybeTLBits
   }
 
@@ -369,7 +370,8 @@ trait CalculatedPrefixedLengthUnparserMixin {
       case LengthUnits.Bits => elem.valueLength.lengthInBits
       case LengthUnits.Bytes => elem.valueLength.lengthInBytes
       case LengthUnits.Characters => {
-        val maybeFixedWidth = elem.erd.encInfo.getEncoderInfo(state).coder.bitsCharset.maybeFixedWidth
+        val maybeFixedWidth =
+          elem.erd.encInfo.getEncoderInfo(state).coder.bitsCharset.maybeFixedWidth
         val lengthInChars =
           if (maybeFixedWidth.isDefined) {
             val fixedWidth = maybeFixedWidth.get
@@ -379,7 +381,8 @@ trait CalculatedPrefixedLengthUnparserMixin {
             // This is checked for statically, so should not get here.
             // $COVERAGE-OFF$
             Assert.invariantFailed(
-              "Not supported: prefixed length with variable-width or non-constant encoding.")
+              "Not supported: prefixed length with variable-width or non-constant encoding.",
+            )
             // $COVERAGE-ON$
           }
         ULong(lengthInChars)
@@ -396,8 +399,8 @@ class SpecifiedLengthPrefixedUnparser(
   prefixedLengthUnparser: Unparser,
   prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long)
-  extends CombinatorUnparser(erd)
+  override val prefixedLengthAdjustmentInUnits: Long,
+) extends CombinatorUnparser(erd)
   with CaptureUnparsingValueLength
   with CalculatedPrefixedLengthUnparserMixin {
 
@@ -440,7 +443,13 @@ class SpecifiedLengthPrefixedUnparser(
       // element is determined. Once determined, it will set the value of the
       // prefix length element, ultimately allowing the prefix length element
       // suspension to resume and unparse the value
-      val suspension = new PrefixLengthSuspendableOperation(erd, elem, plElem, lengthUnits, prefixedLengthAdjustmentInUnits)
+      val suspension = new PrefixLengthSuspendableOperation(
+        erd,
+        elem,
+        plElem,
+        lengthUnits,
+        prefixedLengthAdjustmentInUnits,
+      )
 
       // Run the suspension--we know the suspension will not be able to succeed
       // since maybeLengthInBits is not defined, but this performs various

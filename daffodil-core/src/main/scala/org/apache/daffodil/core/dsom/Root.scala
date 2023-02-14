@@ -19,30 +19,36 @@ package org.apache.daffodil.core.dsom
 
 import scala.xml.Node
 import scala.xml.UnprefixedAttribute
+
 import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.core.grammar.RootGrammarMixin
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.XMLUtils
 
 object Root {
-  def apply(defXML: Node,
+  def apply(
+    defXML: Node,
     parentArg: SchemaDocument,
     namedQNameArg: NamedQName,
-    globalElementDecl: GlobalElementDecl) = {
+    globalElementDecl: GlobalElementDecl,
+  ) = {
     val r = new Root(defXML, parentArg, namedQNameArg, globalElementDecl)
     r.initialize()
     r
   }
 }
+
 /**
  * Root is a special kind of ElementRef that has no enclosing group.
  *
  * This is the entity that is compiled by the schema compiler.
  */
-final class Root private (defXML: Node, parentArg: SchemaDocument,
+final class Root private (
+  defXML: Node,
+  parentArg: SchemaDocument,
   namedQNameArg: NamedQName,
-  globalElementDecl: GlobalElementDecl)
-  extends AbstractElementRef(null, parentArg, 1)
+  globalElementDecl: GlobalElementDecl,
+) extends AbstractElementRef(null, parentArg, 1)
   with RootGrammarMixin
   with RootView {
 
@@ -84,9 +90,8 @@ final class Root private (defXML: Node, parentArg: SchemaDocument,
 
   private def refsTo(g: GlobalComponent): Seq[SchemaComponent] =
     refMap.get(g).toSeq.flatMap { refSpec =>
-      refSpec.flatMap {
-        case (_, seqRS) =>
-          seqRS.map { rs: RefSpec => rs.from }
+      refSpec.flatMap { case (_, seqRS) =>
+        seqRS.map { rs: RefSpec => rs.from }
       }
     }
 
@@ -94,8 +99,8 @@ final class Root private (defXML: Node, parentArg: SchemaDocument,
    * Used in unit testing
    */
   private[dsom] lazy val refPairsMap: Map[GlobalComponent, Seq[String]] = {
-    refMap.toSeq.map {
-      case (to, seq: Seq[(String, _)]) => (to, seq.map { case (sscd, _) => sscd }.toSeq)
+    refMap.toSeq.map { case (to, seq: Seq[(String, _)]) =>
+      (to, seq.map { case (sscd, _) => sscd }.toSeq)
     }.toMap
   }
 
@@ -136,21 +141,27 @@ final class Root private (defXML: Node, parentArg: SchemaDocument,
     }.flatten
   }
 
-  lazy val allERefs = allComponents.filter {
-    case er: ElementRef => true
-    case _ => false
-  }.map { _.shortSchemaComponentDesignator }.distinct
+  lazy val allERefs = allComponents
+    .filter {
+      case er: ElementRef => true
+      case _ => false
+    }
+    .map { _.shortSchemaComponentDesignator }
+    .distinct
 
-  lazy val allGRefs = allComponents.filter {
-    case _: GroupRef => true
-    case _ => false
-  }.map { _.shortSchemaComponentDesignator }.distinct
+  lazy val allGRefs = allComponents
+    .filter {
+      case _: GroupRef => true
+      case _ => false
+    }
+    .map { _.shortSchemaComponentDesignator }
+    .distinct
 
   lazy val allCTRefs = {
     val cts = allComponents.collect {
-      case e: ElementDeclMixin if (
-        e.optComplexType.isDefined &&
-        e.complexType.isInstanceOf[GlobalComplexTypeDef]) =>
+      case e: ElementDeclMixin
+          if (e.optComplexType.isDefined &&
+            e.complexType.isInstanceOf[GlobalComplexTypeDef]) =>
         e.complexType
     }
     val ctsIDs = cts.map { _.shortSchemaComponentDesignator }.distinct

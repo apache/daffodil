@@ -17,24 +17,22 @@
 
 package org.apache.daffodil.core.dpath
 
-import org.apache.daffodil.runtime1.dpath._
-
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
-
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.CharSequenceReader
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.runtime1.dsom.CompiledExpression
-import org.apache.daffodil.runtime1.dsom.ConstantExpression
-import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.QNameRegex
 import org.apache.daffodil.runtime1.BasicComponent
+import org.apache.daffodil.runtime1.dpath._
+import org.apache.daffodil.runtime1.dsom.CompiledExpression
+import org.apache.daffodil.runtime1.dsom.ConstantExpression
+import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 
 /**
  * Parses DPath expressions. Most real analysis is done later. This is
@@ -56,21 +54,27 @@ class DFDLPathExpressionParser[T <: AnyRef](
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
   isEvaluatedAbove: Boolean,
-  host: BasicComponent) extends RegexParsers {
+  host: BasicComponent,
+) extends RegexParsers {
 
   def compile(expr: String): CompiledExpression[T] = {
     val tree = getExpressionTree(expr)
 
-    val recipe = try {
-      tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
-    } catch {
-      case e: PathExpressionNoContextError => {
-        host.SDW(WarnID.ExpressionCompilationSkipped, s"Expression compilation skipped due to path expression in unreferenced group or complex type: $expr")
-        new CompiledDPath(RuntimeAbortOp(expr))
+    val recipe =
+      try {
+        tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
+      } catch {
+        case e: PathExpressionNoContextError => {
+          host.SDW(
+            WarnID.ExpressionCompilationSkipped,
+            s"Expression compilation skipped due to path expression in unreferenced group or complex type: $expr",
+          )
+          new CompiledDPath(RuntimeAbortOp(expr))
+        }
       }
-    }
 
-    val value = recipe.runExpressionForConstant(context.schemaFileLocation, context, host.tunable)
+    val value =
+      recipe.runExpressionForConstant(context.schemaFileLocation, context, host.tunable)
     val res: CompiledExpression[T] = value.getOptionAnyRef match {
       case Some(constantValue) => {
         Assert.invariant(constantValue != null)
@@ -80,8 +84,16 @@ class DFDLPathExpressionParser[T <: AnyRef](
       case None => {
         val contentReferencedElementInfos = tree.contentReferencedElementInfos
         val valueReferencedElementInfos = tree.valueReferencedElementInfos
-        new RuntimeExpressionDPath[T](qn, nodeInfoKind, recipe, expr, context, isEvaluatedAbove,
-          contentReferencedElementInfos, valueReferencedElementInfos)
+        new RuntimeExpressionDPath[T](
+          qn,
+          nodeInfoKind,
+          recipe,
+          expr,
+          context,
+          isEvaluatedAbove,
+          contentReferencedElementInfos,
+          valueReferencedElementInfos,
+        )
       }
     }
     res
@@ -124,12 +136,13 @@ class DFDLPathExpressionParser[T <: AnyRef](
 
   override def log[T](p: => Parser[T])(name: String): Parser[T] =
     if (!verboseParse) p
-    else Parser { in =>
-      Logger.log.trace(s"trying $name at $in")
-      val r = p(in)
-      Logger.log.trace(s"end $name --> $in")
-      r
-    }
+    else
+      Parser { in =>
+        Logger.log.trace(s"trying $name at $in")
+        val r = p(in)
+        Logger.log.trace(s"end $name --> $in")
+        r
+      }
 
   def getExpressionTree(expr: String): WholeExpression = {
     // This wrapping of phrase() prevents a memory leak in the scala parser
@@ -175,7 +188,11 @@ class DFDLPathExpressionParser[T <: AnyRef](
           nextRdr = nextRdr.rest
           i += 1
         }
-        context.SDE("Unable to parse expression. Message: %s\nNext: %s.", msg, nextString.toString())
+        context.SDE(
+          "Unable to parse expression. Message: %s\nNext: %s.",
+          msg,
+          nextString.toString(),
+        )
       }
     }
   }
@@ -183,7 +200,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
   def wrapAsSuccess[T](p: => Parser[T]): Parser[ParseResult[T]] = Parser { in =>
     p(in) match {
       case ns: NoSuccess => Success(ns, in)
-      case _@ s => Success(s, in)
+      case _ @s => Success(s, in)
     }
   }
 
@@ -198,9 +215,10 @@ class DFDLPathExpressionParser[T <: AnyRef](
   def AbbrevReverseStep = ".."
 
   def SupportedForwardAxis = (("child" <~ "::") | ("self" <~ "::"))
-  def UnsupportedForwardAxis = (("descendant" <~ "::") | ("attribute" <~ "::") | ("descendant-or-self" <~ "::") |
-    ("following-sibling" <~ "::") | ("following" <~ "::") |
-    ("namespace" <~ "::"))
+  def UnsupportedForwardAxis =
+    (("descendant" <~ "::") | ("attribute" <~ "::") | ("descendant-or-self" <~ "::") |
+      ("following-sibling" <~ "::") | ("following" <~ "::") |
+      ("namespace" <~ "::"))
   def SupportedReverseAxis = ("parent" <~ "::")
   def UnsupportedReverseAxis = (("ancestor" <~ "::") |
     ("preceding-sibling" <~ "::") | ("preceding" <~ "::") |
@@ -219,8 +237,8 @@ class DFDLPathExpressionParser[T <: AnyRef](
   def Expr: Parser[Expression] = ExprSingle
   def ExprSingle: Parser[Expression] = IfExpr | OrExpr
 
-  def IfExpr: Parser[Expression] = log(
-    "if" ~> "(" ~> (Expr <~ ")") ~ ("then" ~> ExprSingle) ~ ("else" ~> ExprSingle) ^^ {
+  def IfExpr: Parser[Expression] =
+    log("if" ~> "(" ~> (Expr <~ ")") ~ ("then" ~> ExprSingle) ~ ("else" ~> ExprSingle) ^^ {
       case tst ~ th ~ els =>
         IfExpression(List(tst, th, els))
     })("if")
@@ -228,17 +246,15 @@ class DFDLPathExpressionParser[T <: AnyRef](
   // I think structuring the grammar rules this way implements proper
   // operator precedence for XPath (and DPath is the same).
   //
-  def OrExpr: Parser[Expression] = log(
-    AndExpr ~ ("or" ~> AndExpr).* ^^ {
-      case a1 ~ Nil => a1
-      case a1 ~ aMore => aMore.foldLeft(a1) { case (a, b) => OrExpression(List(a, b)) }
-    })("or")
+  def OrExpr: Parser[Expression] = log(AndExpr ~ ("or" ~> AndExpr).* ^^ {
+    case a1 ~ Nil => a1
+    case a1 ~ aMore => aMore.foldLeft(a1) { case (a, b) => OrExpression(List(a, b)) }
+  })("or")
 
-  def AndExpr: Parser[Expression] = log(
-    ComparisonExpr ~ ("and" ~> ComparisonExpr).* ^^ {
-      case a1 ~ Nil => a1
-      case a1 ~ aMore => aMore.foldLeft(a1) { case (a, b) => AndExpression(List(a, b)) }
-    })("and")
+  def AndExpr: Parser[Expression] = log(ComparisonExpr ~ ("and" ~> ComparisonExpr).* ^^ {
+    case a1 ~ Nil => a1
+    case a1 ~ aMore => aMore.foldLeft(a1) { case (a, b) => AndExpression(List(a, b)) }
+  })("and")
 
   def ComparisonExpr = log(AdditiveExpr ~ (Comp ~ AdditiveExpr).? ^^ { x =>
     x match {
@@ -247,42 +263,54 @@ class DFDLPathExpressionParser[T <: AnyRef](
     }
   })("compare")
 
-  def AdditiveExpr: Parser[Expression] = log(
-    MultiplicativeExpr ~ (("+" | "-") ~ MultiplicativeExpr).* ^^ {
-      case m1 ~ mMore => mMore.foldLeft(m1) { case (a, op ~ b) => AdditiveExpression(op, List(a, b)) }
+  def AdditiveExpr: Parser[Expression] =
+    log(MultiplicativeExpr ~ (("+" | "-") ~ MultiplicativeExpr).* ^^ { case m1 ~ mMore =>
+      mMore.foldLeft(m1) { case (a, op ~ b) => AdditiveExpression(op, List(a, b)) }
     })("add")
 
-  def MultiplicativeExpr: Parser[Expression] = log(
-    UnaryExpr ~ (("*" | "div" | "idiv" | "mod") ~ UnaryExpr).* ^^ {
-      case u1 ~ uMore => uMore.foldLeft(u1) { case (a, op ~ b) => MultiplicativeExpression(op, List(a, b)) }
+  def MultiplicativeExpr: Parser[Expression] =
+    log(UnaryExpr ~ (("*" | "div" | "idiv" | "mod") ~ UnaryExpr).* ^^ { case u1 ~ uMore =>
+      uMore.foldLeft(u1) { case (a, op ~ b) => MultiplicativeExpression(op, List(a, b)) }
     })("mult")
 
-  def UnaryExpr: Parser[Expression] = log(
-    ("-" | "+").? ~ ValueExpr ^^ {
-      case Some(op) ~ v => UnaryExpression(op, v)
-      case None ~ v => v
-    })("unary")
+  def UnaryExpr: Parser[Expression] = log(("-" | "+").? ~ ValueExpr ^^ {
+    case Some(op) ~ v => UnaryExpression(op, v)
+    case None ~ v => v
+  })("unary")
 
   def ValueExpr = log(PrimaryExpr | PathExpr)("value")
 
   def PathExpr: Parser[PathExpression] = log(
-    ("//" ~> RelativePathExpr) ^^ { _ => context.SDE("'//' is unsupported in DFDL Expression Syntax.") } |
+    ("//" ~> RelativePathExpr) ^^ { _ =>
+      context.SDE("'//' is unsupported in DFDL Expression Syntax.")
+    } |
       ("/" ~> RelativePathExpr) ^^ { r => RootPathExpression(Some(r)) } |
       ("/") ^^ { r => RootPathExpression(None) } |
-      RelativePathExpr)("path")
+      RelativePathExpr,
+  )("path")
 
   def RelativePathExpr: Parser[RelativePathExpression] = log(
-    StepExpr ~ ("/" ~> StepExpr).* ^^ { case s1 ~ moreSteps => RelativePathExpression(s1 :: moreSteps, isEvaluatedAbove) } |
-      StepExpr ~ ("//" ~> StepExpr).* ^^ { _ => context.SDE("'//' is unsupported in DFDL Expression Syntax.") })("relativePath")
+    StepExpr ~ ("/" ~> StepExpr).* ^^ { case s1 ~ moreSteps =>
+      RelativePathExpression(s1 :: moreSteps, isEvaluatedAbove)
+    } |
+      StepExpr ~ ("//" ~> StepExpr).* ^^ { _ =>
+        context.SDE("'//' is unsupported in DFDL Expression Syntax.")
+      },
+  )("relativePath")
 
-  def StepExpr: Parser[StepExpression] = log(AxisStep | VarRef ^^ { varRef => this.context.SDE("Variables cannot be used in path expressions.  Error: $%s", varRef.qnameString) })("step")
+  def StepExpr: Parser[StepExpression] = log(AxisStep | VarRef ^^ { varRef =>
+    this.context
+      .SDE("Variables cannot be used in path expressions.  Error: $%s", varRef.qnameString)
+  })("step")
 
   def AxisStep: Parser[StepExpression] =
     Reverse | Forward
 
   def Reverse = AbbrevReverseStep ~> Predicate.? ^^ { Up(_) } |
     (SupportedReverseAxis ~> NodeTest) ~ Predicate.? ^^ { case qn ~ p => { Up2(qn, p) } } |
-    (UnsupportedReverseAxis ~ NodeTest) ~ Predicate.? ^^ { case name ~ _ => context.SDE("'%s::' is an unsupported axis in DFDL Expression Syntax.", name) }
+    (UnsupportedReverseAxis ~ NodeTest) ~ Predicate.? ^^ { case name ~ _ =>
+      context.SDE("'%s::' is an unsupported axis in DFDL Expression Syntax.", name)
+    }
 
   def Forward = ContextItemExpr ~> Predicate.? ^^ { Self(_) } |
     SupportedForwardAxis ~ NodeTest ~ Predicate.? ^^ {
@@ -292,14 +320,17 @@ class DFDLPathExpressionParser[T <: AnyRef](
       case _ => Assert.impossible()
       // $COVERAGE-ON$
     } |
-    UnsupportedForwardAxis ~ Predicate.? ^^ { case name ~ _ => context.SDE("'%s::' is an unsupported axis in DFDL Expression Syntax.", name) } |
+    UnsupportedForwardAxis ~ Predicate.? ^^ { case name ~ _ =>
+      context.SDE("'%s::' is an unsupported axis in DFDL Expression Syntax.", name)
+    } |
     NodeTest ~ Predicate.? ^^ { case qn ~ p => { NamedStep(qn, p) } }
 
-  def Predicate: Parser[PredicateExpression] = log(
-    "[" ~> Expr <~ "]" ^^ { PredicateExpression(_) })("predicate")
+  def Predicate: Parser[PredicateExpression] = log("[" ~> Expr <~ "]" ^^ {
+    PredicateExpression(_)
+  })("predicate")
 
-  def PrimaryExpr: Parser[PrimaryExpression] = log(
-    FunctionCall | Literal | VarRef | ParenthesizedExpr)("primary")
+  def PrimaryExpr: Parser[PrimaryExpression] =
+    log(FunctionCall | Literal | VarRef | ParenthesizedExpr)("primary")
 
   def Literal = log((StringLiteral | NumericLiteral) ^^ { LiteralExpression(_) })("literal")
 
@@ -309,28 +340,47 @@ class DFDLPathExpressionParser[T <: AnyRef](
 
   def ParenthesizedExpr = "(" ~> Expr <~ ")" ^^ { ParenthesizedExpression(_) }
 
-  def FunctionCall: Parser[FunctionCallExpression] = log(
-    (RefName ~ ArgList) ^^ {
-      case qn ~ arglist => FunctionCallExpression(qn, arglist)
-    })("functionCall")
+  def FunctionCall: Parser[FunctionCallExpression] = log((RefName ~ ArgList) ^^ {
+    case qn ~ arglist => FunctionCallExpression(qn, arglist)
+  })("functionCall")
 
   def ArgList = log(
     "(" ~ ")" ^^ { _ => Nil } |
-      "(" ~> (ExprSingle ~ (("," ~> ExprSingle).*)) <~ ")" ^^ { case e1 ~ moreEs => e1 :: moreEs })("argList")
+      "(" ~> (ExprSingle ~ (("," ~> ExprSingle).*)) <~ ")" ^^ { case e1 ~ moreEs =>
+        e1 :: moreEs
+      },
+  )("argList")
 
-  def StepName = log(QualifiedName |
-    Wildcard ^^ { wc => context.SDE("Wildcard is unsupported in DFDL Expression Syntax. Offending value was '%s'.", wc) })("stepName")
+  def StepName = log(
+    QualifiedName |
+      Wildcard ^^ { wc =>
+        context.SDE(
+          "Wildcard is unsupported in DFDL Expression Syntax. Offending value was '%s'.",
+          wc,
+        )
+      },
+  )("stepName")
 
   def Wildcard = "*" |
     (QNameRegex.NCName ~ ":" ~ "*") ^^ { case ncname ~ c ~ wc => ncname + c + wc } |
     ("*" ~ ":" ~ QNameRegex.NCName) ^^ { case wc ~ c ~ ncname => wc + c + ncname }
   def NodeTest = KindTest | NameTest
   def NameTest = StepName // aka QName | Wildcard
-  def KindTest = log(ProcessingInstructionTest | CommentTest | TextTest | AnyKindTest)("kindTest")
-  def ProcessingInstructionTest = log("processing-instruction" ~ "(" ~ StringLiteral.? ~ ")" ^^ { _ => context.SDE("Use of processing-instruction() is unsupported in DFDL Expression Syntax.") })("processingInstructionTest")
-  def CommentTest = log("comment" ~ "(" ~ ")" ^^ { _ => context.SDE("Use of comment() is unsupported in DFDL Expression Syntax.") })("commentTest")
-  def TextTest = log("text" ~ "(" ~ ")" ^^ { _ => context.SDE("Use of text() is unsupported in DFDL Expression Syntax.") })("textTest")
-  def AnyKindTest = log("node" ~ "(" ~ ")" ^^ { _ => context.SDE("Use of node() is unsupported in DFDL Expression Syntax.") })("anyKindTest")
+  def KindTest =
+    log(ProcessingInstructionTest | CommentTest | TextTest | AnyKindTest)("kindTest")
+  def ProcessingInstructionTest =
+    log("processing-instruction" ~ "(" ~ StringLiteral.? ~ ")" ^^ { _ =>
+      context.SDE("Use of processing-instruction() is unsupported in DFDL Expression Syntax.")
+    })("processingInstructionTest")
+  def CommentTest = log("comment" ~ "(" ~ ")" ^^ { _ =>
+    context.SDE("Use of comment() is unsupported in DFDL Expression Syntax.")
+  })("commentTest")
+  def TextTest = log("text" ~ "(" ~ ")" ^^ { _ =>
+    context.SDE("Use of text() is unsupported in DFDL Expression Syntax.")
+  })("textTest")
+  def AnyKindTest = log("node" ~ "(" ~ ")" ^^ { _ =>
+    context.SDE("Use of node() is unsupported in DFDL Expression Syntax.")
+  })("anyKindTest")
 
   def RefName = log(QualifiedName)("refName")
 
@@ -348,16 +398,17 @@ class DFDLPathExpressionParser[T <: AnyRef](
 
   val DecimalLiteral: Parser[java.math.BigDecimal] =
     ("." ~> Digits) ^^ { case dig => new JBigDecimal("0." + dig) } |
-      (Digits ~ ("." ~> optDigits)) ^^ { case digit ~ optDig => new JBigDecimal(digit + "." + optDig) }
-
-  val DoubleLiteral: Parser[Double] = (
-    "." ~> Digits ~ Expon ^^ {
-      case fraction ~ exp => {
-        "0." + fraction + exp
+      (Digits ~ ("." ~> optDigits)) ^^ { case digit ~ optDig =>
+        new JBigDecimal(digit + "." + optDig)
       }
-    } |
-    Digits ~ (("." ~> optDigits).?) ~ Expon ^^ {
-      case intPart ~ fraction ~ exp => intPart + "." + fraction.getOrElse("0") + exp
+
+  val DoubleLiteral: Parser[Double] = ("." ~> Digits ~ Expon ^^ {
+    case fraction ~ exp => {
+      "0." + fraction + exp
+    }
+  } |
+    Digits ~ (("." ~> optDigits).?) ~ Expon ^^ { case intPart ~ fraction ~ exp =>
+      intPart + "." + fraction.getOrElse("0") + exp
     }) ^^ { str => java.lang.Double.parseDouble(str) }
 
   /**

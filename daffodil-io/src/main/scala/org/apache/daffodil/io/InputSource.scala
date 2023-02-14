@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.io
 
+import java.io.InputStream
 import java.nio.ByteBuffer
 import scala.collection.mutable.ArrayBuffer
+
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThinException
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
-
-import java.io.InputStream
 
 /**
  * There is a finite limit to the distance one can backtrack which is given by
@@ -52,7 +52,11 @@ import java.io.InputStream
  * bucket that has already been released.
  */
 case class BacktrackingException(position: Long, maxBacktrackLength: Int)
-  extends ThinException("Attempted to backtrack to byte %d, which exceeds maximum backtrack length of %d", position, maxBacktrackLength)
+  extends ThinException(
+    "Attempted to backtrack to byte %d, which exceeds maximum backtrack length of %d",
+    position,
+    maxBacktrackLength,
+  )
 
 /**
  * Thrown in the specific case where a java.io.InputStream is not properly
@@ -67,13 +71,11 @@ case class BacktrackingException(position: Long, maxBacktrackLength: Int)
  * @param inputStream The stream that is misbehaving.
  */
 class InputStreamReadZeroError(inputStream: InputStream)
-extends UnsuppressableException(
-  s"""InputStream ${ inputStream.toString } illegally
+  extends UnsuppressableException(s"""InputStream ${inputStream.toString} illegally
   | returned 0 from a call to read(buf, off, len).
   | This is illegal behavior from a java.io.InputStream instance, as InputStream is a blocking API.
   | This is not a Daffodil bug, but a problem with the InputStream supplied
-  | to Daffodil as a data source.""".stripMargin){
-}
+  | to Daffodil as a data source.""".stripMargin) {}
 
 /**
  * The InputSource class is really just a mechanism to provide bytes an
@@ -207,12 +209,12 @@ abstract class InputSource {
  * @param inputStream the java.io.Inputstream to read data from
  * @param bucketSize the size of each individual bucket
  * @param maxCacheSizeInBytes the max memory allowed to be used for bucket storage (num buckets * bucketSize)
- */ 
+ */
 class BucketingInputSource(
   inputStream: java.io.InputStream,
   bucketSize: Int = 1 << 13,
-  maxCacheSizeInBytes: Int = 256 * (1 << 20))
-  extends InputSource {
+  maxCacheSizeInBytes: Int = 256 * (1 << 20),
+) extends InputSource {
 
   private class Bucket {
     var refCount = 0
@@ -281,7 +283,6 @@ class BucketingInputSource(
   override def hasReachedEndOfData: Boolean =
     !hasMoreData
 
-
   /**
    * Adds new buckets to the buckets array until either we run out of data or
    * we fill up to byteIndex bytes in the bucketIndex. This modifies
@@ -293,7 +294,8 @@ class BucketingInputSource(
   private def fillBucketsToIndex(goalBucketIndex: Long, bytesNeededInBucket: Long): Boolean = {
     var lastBucketIndex = buckets.length - 1
 
-    var needsMoreData = goalBucketIndex > lastBucketIndex || (goalBucketIndex == lastBucketIndex && bytesNeededInBucket > bytesFilledInLastBucket)
+    var needsMoreData =
+      goalBucketIndex > lastBucketIndex || (goalBucketIndex == lastBucketIndex && bytesNeededInBucket > bytesFilledInLastBucket)
 
     while (needsMoreData && hasMoreData) {
       // Try to fill the rest of this bucket, regardless of how many bytes are
@@ -310,7 +312,8 @@ class BucketingInputSource(
         inputStream.read(
           buckets(lastBucketIndex).bytes,
           bytesFilledInLastBucket,
-          emptyBytesInLastBucket)
+          emptyBytesInLastBucket,
+        )
 
       // check for bad inputStream behavior. It's not our fault!
       if (bytesRead == 0)
@@ -339,9 +342,11 @@ class BucketingInputSource(
           }
         }
 
-        if (( lastBucketIndex == goalBucketIndex &&
-              bytesNeededInBucket <= bytesFilledInLastBucket) ||
-              lastBucketIndex > goalBucketIndex) {
+        if (
+          (lastBucketIndex == goalBucketIndex &&
+            bytesNeededInBucket <= bytesFilledInLastBucket) ||
+          lastBucketIndex > goalBucketIndex
+        ) {
           // Filled data at least to the target byte in the target bucket
           // We are done
           needsMoreData = false
@@ -390,11 +395,11 @@ class BucketingInputSource(
   /**
    * Calculate how many bytes are currently buffered starting from the current
    * position
-   */ 
+   */
   def bytesAvailable(): Long = {
     var available = 0L
     val (curBucketIndex, curByteIndex) = bytePositionToIndicies(curBytePosition0b)
-    
+
     var i = curBucketIndex
     while (i < buckets.length) {
       val startByteIndex = if (i == curBucketIndex) curByteIndex else 0
@@ -424,7 +429,7 @@ class BucketingInputSource(
 
       val byte = buckets(bucketIndex.toInt).bytes(byteIndex.toInt)
       curBytePosition0b += 1
-      byte & 0xFF
+      byte & 0xff
     }
   }
 
@@ -444,12 +449,19 @@ class BucketingInputSource(
       var bytesStillToGet = len
       var destOffset = off
       while (bytesStillToGet > 0) {
-        val bytesToGetFromCurrentBucket = Math.min(bucketSize - byteIndex, bytesStillToGet).toInt
+        val bytesToGetFromCurrentBucket =
+          Math.min(bucketSize - byteIndex, bytesStillToGet).toInt
 
         if ((bucketIndex < 0) || (buckets(bucketIndex.toInt) == null))
           throw new BacktrackingException(curBytePosition0b, maxCacheSizeInBytes)
 
-        Array.copy(buckets(bucketIndex.toInt).bytes, byteIndex.toInt, dest, destOffset, bytesToGetFromCurrentBucket)
+        Array.copy(
+          buckets(bucketIndex.toInt).bytes,
+          byteIndex.toInt,
+          dest,
+          destOffset,
+          bytesToGetFromCurrentBucket,
+        )
 
         destOffset += bytesToGetFromCurrentBucket
         bytesStillToGet -= bytesToGetFromCurrentBucket
@@ -505,7 +517,7 @@ class BucketingInputSource(
       val (curBucketIndex, _) = bytePositionToIndicies(curBytePosition0b)
       while (oldestBucketIndex < curBucketIndex && buckets(oldestBucketIndex).refCount == 0) {
         buckets(oldestBucketIndex) = null
-        oldestBucketIndex += 1 
+        oldestBucketIndex += 1
       }
     }
   }
@@ -527,8 +539,6 @@ class BucketingInputSource(
   }
 }
 
-
-
 /**
  * Wraps a java.nio.ByteBuffer in a InputSource
  *
@@ -539,9 +549,8 @@ class BucketingInputSource(
  * the ByteBuffer is considered the end of data.
  */
 
-class ByteBufferInputSource(byteBuffer: ByteBuffer)
-  extends InputSource {
-  
+class ByteBufferInputSource(byteBuffer: ByteBuffer) extends InputSource {
+
   private val bb = byteBuffer.asReadOnlyBuffer
 
   private val positionOffset = bb.position()
@@ -558,7 +567,7 @@ class ByteBufferInputSource(byteBuffer: ByteBuffer)
     if (!areBytesAvailable(1)) {
       -1
     } else {
-      bb.get() & 0xFF
+      bb.get() & 0xff
     }
   }
 

@@ -17,27 +17,27 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import java.util.Iterator
+
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+
+import org.jdom2.Comment
+import org.jdom2.Content
+import org.jdom2.DocType
 import org.jdom2.Document
 import org.jdom2.Element
-import org.jdom2.Text
-import org.jdom2.Content
 import org.jdom2.Namespace
 import org.jdom2.ProcessingInstruction
-import org.jdom2.Comment
-import org.jdom2.DocType
-
-import java.util.Iterator
+import org.jdom2.Text
 
 object JDOMInfosetInputter {
   protected val JDOM_XSI_NAMESPACE = Namespace.getNamespace(XMLUtils.XSI_NAMESPACE)
 }
 
-class JDOMInfosetInputter(doc: Document)
-  extends InfosetInputter {
+class JDOMInfosetInputter(doc: Document) extends InfosetInputter {
 
   /**
    * This stack represents the stack of elements that have been visited. Each
@@ -81,7 +81,10 @@ class JDOMInfosetInputter(doc: Document)
 
   override def getNamespaceURI(): String = stack.top._1.getNamespace.getURI
 
-  override def getSimpleText(primType: NodeInfo.Kind, runtimePropertes: java.util.Map[String, String]): String = {
+  override def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimePropertes: java.util.Map[String, String],
+  ): String = {
     val text =
       if (stack.top._2.hasNext) {
         val child = stack.top._2.next
@@ -91,7 +94,8 @@ class JDOMInfosetInputter(doc: Document)
 
         val text = child match {
           case t: Text => t.getText()
-          case _ => throw new NonTextFoundInSimpleContentException(stack.top._1.getQualifiedName)
+          case _ =>
+            throw new NonTextFoundInSimpleContentException(stack.top._1.getQualifiedName)
         }
         if (primType.isInstanceOf[NodeInfo.String.Kind]) {
           XMLUtils.remapPUAToXMLIllegalCharacters(text)
@@ -116,7 +120,9 @@ class JDOMInfosetInputter(doc: Document)
       } else if (nilAttrValue == "false" || nilAttrValue == "0") {
         MaybeBoolean(false)
       } else {
-        throw new InvalidInfosetException("xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.getQualifiedName)
+        throw new InvalidInfosetException(
+          "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.getQualifiedName,
+        )
       }
     res
   }

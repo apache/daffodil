@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.propGen
 
-
 class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xml.Node) {
 
   val top = """
@@ -118,42 +117,48 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
   val tunablesRoot = (schemaRootConfig \ "element").find(_ \@ "name" == "tunables").get
   val tunableNodes = tunablesRoot \\ "all" \ "element"
 
-  val excludedSimpleTypes = Seq(
-    "TunableEmptyElementParsePolicy",
-    "TunableSuppressSchemaDefinitionWarnings")
+  val excludedSimpleTypes =
+    Seq("TunableEmptyElementParsePolicy", "TunableSuppressSchemaDefinitionWarnings")
   val tunableSimpleTypeNodes = (schemaRootConfig \ "simpleType")
     .filter { st => (st \@ "name").startsWith("Tunable") }
     .filter { st => !excludedSimpleTypes.contains(st \@ "name") }
 
   def writeGeneratedCode(w: java.io.FileWriter): Unit = {
     val tunables =
-      tunableNodes.map { tunableNode =>
-        val schemaName = tunableNode \@ "name"
-        val schemaType =
-          if (tunableNode \@ "type" != "") tunableNode \@ "type"
-          else tunableNode \\ "restriction" \@ "base"
-        val schemaDefault = tunableNode \@ "default"
+      tunableNodes
+        .map { tunableNode =>
+          val schemaName = tunableNode \@ "name"
+          val schemaType =
+            if (tunableNode \@ "type" != "") tunableNode \@ "type"
+            else tunableNode \\ "restriction" \@ "base"
+          val schemaDefault = tunableNode \@ "default"
 
-        if (schemaName == "") throw new Exception("Tunable missing mandatory name attribute: " + tunableNode)
-        if (schemaType == "") throw new Exception("Tunable missing mandatory type or restriction base attribute: " + schemaName)
-        if (schemaDefault == "") throw new Exception("Tunable missing mandatory default attribute: " + schemaName)
+          if (schemaName == "")
+            throw new Exception("Tunable missing mandatory name attribute: " + tunableNode)
+          if (schemaType == "")
+            throw new Exception(
+              "Tunable missing mandatory type or restriction base attribute: " + schemaName,
+            )
+          if (schemaDefault == "")
+            throw new Exception("Tunable missing mandatory default attribute: " + schemaName)
 
-        val tunable =
-          if (schemaName == "suppressSchemaDefinitionWarnings") {
-            // special case, list of enums
-            new EnumListTunable(schemaName, schemaType, schemaDefault, "WarnID")
-          } else if (!schemaType.startsWith("xs:")) {
-            // non-primitive type, assume a single enum
-            new EnumTunable(schemaName, schemaType, schemaDefault)
-          } else if (schemaName == "tempFilePath") {
-            // special case, creates actual file object instead of string
-            new FileTunable("tempFilePath", """System.getProperty("java.io.tmpdir")""")
-          } else {
-            // primitive type
-            new PrimitiveTunable(schemaName, schemaType, schemaDefault, tunableNode)
-          }
-        tunable
-      }.sortBy(_.name)
+          val tunable =
+            if (schemaName == "suppressSchemaDefinitionWarnings") {
+              // special case, list of enums
+              new EnumListTunable(schemaName, schemaType, schemaDefault, "WarnID")
+            } else if (!schemaType.startsWith("xs:")) {
+              // non-primitive type, assume a single enum
+              new EnumTunable(schemaName, schemaType, schemaDefault)
+            } else if (schemaName == "tempFilePath") {
+              // special case, creates actual file object instead of string
+              new FileTunable("tempFilePath", """System.getProperty("java.io.tmpdir")""")
+            } else {
+              // primitive type
+              new PrimitiveTunable(schemaName, schemaType, schemaDefault, tunableNode)
+            }
+          tunable
+        }
+        .sortBy(_.name)
 
     val definitionString =
       tunables
@@ -163,8 +168,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     val conversionString =
       tunables
         .map { tunable =>
-          tunable
-            .scalaConversion
+          tunable.scalaConversion
             .split("\n")
             .filter(_.trim.length > 0)
             .mkString("      ", "\n      ", "")
@@ -204,8 +208,8 @@ class PrimitiveTunable(
   override val name: String,
   schemaType: String,
   schemaDefault: String,
-  node: scala.xml.Node)
-  extends TunableBase {
+  node: scala.xml.Node,
+) extends TunableBase {
 
   private val scalaType = schemaType match {
     case "xs:boolean" => "Boolean"
@@ -250,10 +254,7 @@ class PrimitiveTunable(
     """.trim.stripMargin
 }
 
-class FileTunable(
-  override val name: String,
-  default: String)
-  extends TunableBase {
+class FileTunable(override val name: String, default: String) extends TunableBase {
 
   override val scalaDefinition = s"""val ${name}: java.io.File = new java.io.File(${default})"""
   override val scalaConversion = s"""
@@ -263,10 +264,7 @@ class FileTunable(
     """.trim.stripMargin
 }
 
-class EnumTunable(
-  override val name: String,
-  schemaType: String,
-  schemaDefault: String)
+class EnumTunable(override val name: String, schemaType: String, schemaDefault: String)
   extends TunableBase {
 
   private val scalaType = schemaType.stripPrefix("daf:Tunable")
@@ -286,15 +284,16 @@ class EnumListTunable(
   override val name: String,
   schemaType: String,
   schemaDefault: String,
-  listType: String)
-  extends TunableBase {
+  listType: String,
+) extends TunableBase {
 
   val scalaDefault = {
     val trimmedDefault = schemaDefault.trim
     if (trimmedDefault == "") {
       "Nil"
     } else {
-      val defaultSeq = trimmedDefault.split("\\s+").map(d => s"${listType}.${d.head.toUpper + d.tail}")
+      val defaultSeq =
+        trimmedDefault.split("\\s+").map(d => s"${listType}.${d.head.toUpper + d.tail}")
       s"""Seq(${defaultSeq.mkString(", ")})"""
     }
 
@@ -312,7 +311,11 @@ class EnumListTunable(
     """.trim.stripMargin
 }
 
-class TunableEnumDefinition(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xml.Node, simpleTypeNode: scala.xml.Node) {
+class TunableEnumDefinition(
+  schemaRootConfig: scala.xml.Node,
+  schemaRootExt: scala.xml.Node,
+  simpleTypeNode: scala.xml.Node,
+) {
   private val nodeName = (simpleTypeNode \@ "name").stripPrefix("Tunable")
   private val scalaType = nodeName.head.toUpper + nodeName.tail
 

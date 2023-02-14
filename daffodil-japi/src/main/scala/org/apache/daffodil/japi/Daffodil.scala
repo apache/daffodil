@@ -17,14 +17,55 @@
 
 package org.apache.daffodil.japi
 
-
 import java.io.File
 import java.net.URI
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-
 import scala.collection.JavaConverters._
 
+import org.apache.daffodil.core.compiler.{ Compiler => SCompiler }
+import org.apache.daffodil.core.compiler.{ InvalidParserException => SInvalidParserException }
+import org.apache.daffodil.core.compiler.{ ProcessorFactory => SProcessorFactory }
+import org.apache.daffodil.core.dsom.ExpressionCompilers
+import org.apache.daffodil.core.dsom.walker.RootView
+import org.apache.daffodil.japi.debugger._
+import org.apache.daffodil.japi.infoset._
+import org.apache.daffodil.japi.io.InputSourceDataInputStream
+import org.apache.daffodil.japi.packageprivate._
+import org.apache.daffodil.lib.api.URISchemaSource
+import org.apache.daffodil.lib.api.Validator
+import org.apache.daffodil.lib.api.{ DataLocation => SDataLocation }
+import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
+import org.apache.daffodil.lib.api.{ LocationInSchemaFile => SLocationInSchemaFile }
+import org.apache.daffodil.lib.api.{ WithDiagnostics => SWithDiagnostics }
+import org.apache.daffodil.lib.xml.DFDLCatalogResolver
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.api.DFDL.{
+  DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException,
+}
+import org.apache.daffodil.runtime1.api.DFDL.{
+  DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler,
+}
+import org.apache.daffodil.runtime1.api.DFDL.{
+  DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException,
+}
+import org.apache.daffodil.runtime1.debugger.Debugger
+import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
+import org.apache.daffodil.runtime1.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
+import org.apache.daffodil.runtime1.processors.{
+  DaffodilParseXMLReader => SDaffodilParseXMLReader,
+}
+import org.apache.daffodil.runtime1.processors.{ DataProcessor => SDataProcessor }
+import org.apache.daffodil.runtime1.processors.{
+  ExternalVariableException => SExternalVariableException,
+}
+import org.apache.daffodil.runtime1.processors.{
+  InvalidUsageException => SInvalidUsageException,
+}
+import org.apache.daffodil.runtime1.processors.{ ParseResult => SParseResult }
+import org.apache.daffodil.runtime1.processors.{ UnparseResult => SUnparseResult }
+
+import org.xml.sax.Attributes
 import org.xml.sax.ContentHandler
 import org.xml.sax.DTDHandler
 import org.xml.sax.EntityResolver
@@ -33,37 +74,6 @@ import org.xml.sax.InputSource
 import org.xml.sax.Locator
 import org.xml.sax.SAXException
 import org.xml.sax.XMLReader
-import org.xml.sax.Attributes
-
-import org.apache.daffodil.runtime1.api.DFDL.{ DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException }
-import org.apache.daffodil.runtime1.api.DFDL.{ DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException }
-import org.apache.daffodil.runtime1.api.DFDL.{ DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler }
-import org.apache.daffodil.lib.api.URISchemaSource
-import org.apache.daffodil.lib.api.Validator
-import org.apache.daffodil.lib.api.{ DataLocation => SDataLocation }
-import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
-import org.apache.daffodil.lib.api.{ LocationInSchemaFile => SLocationInSchemaFile }
-import org.apache.daffodil.lib.api.{ WithDiagnostics => SWithDiagnostics }
-import org.apache.daffodil.core.compiler.{ Compiler => SCompiler }
-import org.apache.daffodil.core.compiler.{ InvalidParserException => SInvalidParserException }
-import org.apache.daffodil.core.compiler.{ ProcessorFactory => SProcessorFactory }
-import org.apache.daffodil.runtime1.debugger.Debugger
-import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import org.apache.daffodil.runtime1.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
-import org.apache.daffodil.core.dsom.ExpressionCompilers
-import org.apache.daffodil.core.dsom.walker.RootView
-import org.apache.daffodil.japi.debugger._
-import org.apache.daffodil.japi.infoset._
-import org.apache.daffodil.japi.io.InputSourceDataInputStream
-import org.apache.daffodil.japi.packageprivate._
-import org.apache.daffodil.runtime1.processors.{ DaffodilParseXMLReader => SDaffodilParseXMLReader }
-import org.apache.daffodil.runtime1.processors.{ DataProcessor => SDataProcessor }
-import org.apache.daffodil.runtime1.processors.{ ExternalVariableException => SExternalVariableException }
-import org.apache.daffodil.runtime1.processors.{ InvalidUsageException => SInvalidUsageException }
-import org.apache.daffodil.runtime1.processors.{ ParseResult => SParseResult }
-import org.apache.daffodil.runtime1.processors.{ UnparseResult => SUnparseResult }
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 
 /**
  * API Suitable for Java programmers to use.
@@ -96,6 +106,7 @@ object Daffodil {
 class Compiler private[japi] (private var sCompiler: SCompiler) {
 
   private def copy(sCompiler: SCompiler = sCompiler) = new Compiler(sCompiler)
+
   /**
    * Compile DFDL schema file into a [[ProcessorFactory]]
    *
@@ -108,7 +119,6 @@ class Compiler private[japi] (private var sCompiler: SCompiler) {
    */
   @throws(classOf[java.io.IOException])
   def compileFile(schemaFile: File): ProcessorFactory = compileFile(schemaFile, null, null)
-
 
   /**
    * Compile DFDL schema file into a [[ProcessorFactory]]
@@ -123,9 +133,11 @@ class Compiler private[japi] (private var sCompiler: SCompiler) {
    * @throws java.io.IOException if an I/O error occurs while reading the schemaFile
    */
   @throws(classOf[java.io.IOException])
-  def compileFile(schemaFile: File,
+  def compileFile(
+    schemaFile: File,
     rootName: String,
-    rootNamespace: String): ProcessorFactory = {
+    rootNamespace: String,
+  ): ProcessorFactory = {
 
     val pf = sCompiler.compileFile(schemaFile, Option(rootName), Option(rootNamespace))
     pf.isError
@@ -152,9 +164,7 @@ class Compiler private[japi] (private var sCompiler: SCompiler) {
    * @throws java.io.IOException if an I/O error occurs while reading the uri
    */
   @throws(classOf[java.io.IOException])
-  def compileSource(uri: URI,
-    rootName: String,
-    rootNamespace: String): ProcessorFactory = {
+  def compileSource(uri: URI, rootName: String, rootNamespace: String): ProcessorFactory = {
     val source = URISchemaSource(uri)
     val pf = sCompiler.compileSource(source, Option(rootName), Option(rootNamespace))
     new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
@@ -278,8 +288,7 @@ class ProcessorFactory private[japi] (private var pf: SProcessorFactory)
  * functions in [[WithDiagnostics]], is invalid and will result in an
  * Exception.
  */
-abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics)
-  extends Serializable {
+abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics) extends Serializable {
 
   /**
    * Determine if any errors occurred in the creation of the parent object.
@@ -293,7 +302,8 @@ abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics)
    *
    * @return list of [[Diagnostic]]'s. May contain errors or warnings, and so may be non-empty even if [[WithDiagnostics#isError]] is false.
    */
-  def getDiagnostics: java.util.List[Diagnostic] = wd.getDiagnostics.map(new Diagnostic(_)).asJava
+  def getDiagnostics: java.util.List[Diagnostic] =
+    wd.getDiagnostics.map(new Diagnostic(_)).asJava
 }
 
 /**
@@ -317,7 +327,8 @@ class Diagnostic private[japi] (d: SDiagnostic) {
    *
    * @return list of [[DataLocation]]'s related to this diagnostic
    */
-  def getDataLocations: java.util.List[DataLocation] = d.getDataLocations.map(new DataLocation(_)).asJava
+  def getDataLocations: java.util.List[DataLocation] =
+    d.getDataLocations.map(new DataLocation(_)).asJava
 
   /**
    * Get schema location information relevant to this diagnostic object.
@@ -376,6 +387,7 @@ class DataLocation private[japi] (dl: SDataLocation) {
  * Information related to locations in DFDL schema files
  */
 class LocationInSchemaFile private[japi] (lsf: SLocationInSchemaFile) {
+
   /**
    * Get the description of the location file, for example, containing file and line number information
    */
@@ -453,7 +465,9 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    * @param validator validator instance
    */
   def withValidator(validator: Validator): DataProcessor =
-    copy(dp = dp.withValidationMode(org.apache.daffodil.lib.api.ValidationMode.Custom(validator)))
+    copy(dp =
+      dp.withValidationMode(org.apache.daffodil.lib.api.ValidationMode.Custom(validator)),
+    )
 
   /**
    * Obtain a new [[DataProcessor]] with external variables read from a Daffodil configuration file
@@ -466,7 +480,9 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
   @throws(classOf[ExternalVariableException])
   def withExternalVariables(extVars: File): DataProcessor = {
     try { copy(dp = dp.withExternalVariables(extVars)) }
-    catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
+    catch {
+      case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage)
+    }
   }
 
   /**
@@ -481,9 +497,11 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    * @throws ExternalVariableException if an error occurs while setting an external variable
    */
   @throws(classOf[ExternalVariableException])
-  def withExternalVariables(extVars: java.util.AbstractMap[String, String]): DataProcessor  = {
+  def withExternalVariables(extVars: java.util.AbstractMap[String, String]): DataProcessor = {
     try { copy(dp = dp.withExternalVariables(extVars.asScala.toMap)) }
-    catch { case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage) }
+    catch {
+      case e: SExternalVariableException => throw new ExternalVariableException(e.getMessage)
+    }
   }
 
   /**
@@ -500,7 +518,9 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    *  Obtain a new [[DaffodilParseXMLReader]] from the current [[DataProcessor]].
    */
   def newXMLReaderInstance: DaffodilParseXMLReader =
-    new DaffodilParseXMLReader(xmlrdr = dp.newXMLReaderInstance.asInstanceOf[SDaffodilParseXMLReader])
+    new DaffodilParseXMLReader(xmlrdr =
+      dp.newXMLReaderInstance.asInstanceOf[SDaffodilParseXMLReader],
+    )
 
   /**
    *  Obtain a new [[DaffodilUnparseContentHandler]] from the current [[DataProcessor]].
@@ -537,8 +557,7 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
  * Result of calling [[DataProcessor#parse(InputSourceDataInputStream, InfosetOutputter)]], containing
  * the diagnostic information, and the final data location
  */
-class ParseResult private[japi] (pr: SParseResult)
-  extends WithDiagnostics(pr) {
+class ParseResult private[japi] (pr: SParseResult) extends WithDiagnostics(pr) {
 
   /**
    * Get the [[DataLocation]] where the parse completed
@@ -570,21 +589,23 @@ class ParseResult private[japi] (pr: SParseResult)
  * Result of calling [[DataProcessor#unparse(InfosetInputter, java.nio.channels.WritableByteChannel)]],
  * containing diagnostic information
  */
-class UnparseResult private[japi] (ur: SUnparseResult)
-  extends WithDiagnostics(ur) {
-}
+class UnparseResult private[japi] (ur: SUnparseResult) extends WithDiagnostics(ur) {}
 
 /**
  * This exception will be thrown as a result of attempting to reload a saved parser
  * that is invalid (not a parser file, corrupt, etc.) or
  * is not in the GZIP format.
  */
-class InvalidParserException private[japi] (cause: org.apache.daffodil.core.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())
+class InvalidParserException private[japi] (
+  cause: org.apache.daffodil.core.compiler.InvalidParserException,
+) extends Exception(cause.getMessage(), cause.getCause())
 
 /**
  * This exception will be thrown as a result of an invalid usage of the Daffodil API
  */
-class InvalidUsageException private[japi] (cause: org.apache.daffodil.runtime1.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())
+class InvalidUsageException private[japi] (
+  cause: org.apache.daffodil.runtime1.processors.InvalidUsageException,
+) extends Exception(cause.getMessage(), cause.getCause())
 
 /**
  * This exception will be thrown if an error occurs when setting an external variable. Example of errors include:
@@ -601,8 +622,9 @@ class ExternalVariableException private[japi] (message: String) extends Exceptio
  * caught, the DaffodilUnparseContentHandler.getUnparseResult function can be
  * used to get the UnparseResult and error diagnostics
  */
-class DaffodilUnparseErrorSAXException private[japi] (exception: SDaffodilUnparseErrorSAXException)
-  extends SAXException(exception.getMessage)
+class DaffodilUnparseErrorSAXException private[japi] (
+  exception: SDaffodilUnparseErrorSAXException,
+) extends SAXException(exception.getMessage)
 
 /**
  * This exception is thrown when and unexpected error occurs while unparsing an
@@ -644,6 +666,7 @@ object DaffodilParseXMLReader {
  * org.xml.sax.ContentHandler, based on the org.xml.sax.XMLReader interface
  */
 class DaffodilParseXMLReader private[japi] (xmlrdr: SDaffodilParseXMLReader) extends XMLReader {
+
   /**
    * Get the value of the feature flag
    * @param name feature flag whose value is to be retrieved
@@ -769,8 +792,9 @@ class DaffodilParseXMLReader private[japi] (xmlrdr: SDaffodilParseXMLReader) ext
 /**
  * Accepts SAX callback events from any SAX XMLReader for unparsing
  */
-class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnparseContentHandler)
-  extends ContentHandler {
+class DaffodilUnparseContentHandler private[japi] (
+  sContentHandler: SDaffodilUnparseContentHandler,
+) extends ContentHandler {
 
   /**
    * Returns the result of the SAX unparse containing diagnostic information. In the case of an
@@ -790,7 +814,7 @@ class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnp
       sContentHandler.startDocument()
     } catch {
       case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
-      case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
+      case e: SDaffodilUnhandledSAXException => throw new DaffodilUnhandledSAXException(e)
     }
 
   override def endDocument(): Unit =
@@ -798,7 +822,7 @@ class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnp
       sContentHandler.endDocument()
     } catch {
       case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
-      case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
+      case e: SDaffodilUnhandledSAXException => throw new DaffodilUnhandledSAXException(e)
     }
 
   override def startPrefixMapping(prefix: String, uri: String): Unit =
@@ -806,12 +830,17 @@ class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnp
   override def endPrefixMapping(prefix: String): Unit =
     sContentHandler.endPrefixMapping(prefix)
 
-  override def startElement(uri: String, localName: String, qName: String, atts: Attributes): Unit =
+  override def startElement(
+    uri: String,
+    localName: String,
+    qName: String,
+    atts: Attributes,
+  ): Unit =
     try {
       sContentHandler.startElement(uri, localName, qName, atts)
     } catch {
       case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
-      case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
+      case e: SDaffodilUnhandledSAXException => throw new DaffodilUnhandledSAXException(e)
     }
 
   override def endElement(uri: String, localName: String, qName: String): Unit =
@@ -819,7 +848,7 @@ class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnp
       sContentHandler.endElement(uri, localName, qName)
     } catch {
       case e: SDaffodilUnparseErrorSAXException => throw new DaffodilUnparseErrorSAXException(e)
-      case e: SDaffodilUnhandledSAXException => throw  new DaffodilUnhandledSAXException(e)
+      case e: SDaffodilUnhandledSAXException => throw new DaffodilUnhandledSAXException(e)
     }
 
   override def characters(ch: Array[Char], start: Int, length: Int): Unit =
@@ -853,6 +882,7 @@ class DaffodilUnparseContentHandler private[japi] (sContentHandler: SDaffodilUnp
  */
 object DaffodilXMLEntityResolver {
   def getEntityResolver: org.xml.sax.EntityResolver = DFDLCatalogResolver.get
-  def getXMLEntityResolver: org.apache.xerces.xni.parser.XMLEntityResolver = DFDLCatalogResolver.get
+  def getXMLEntityResolver: org.apache.xerces.xni.parser.XMLEntityResolver =
+    DFDLCatalogResolver.get
   def getLSResourceResolver: org.w3c.dom.ls.LSResourceResolver = DFDLCatalogResolver.get
 }

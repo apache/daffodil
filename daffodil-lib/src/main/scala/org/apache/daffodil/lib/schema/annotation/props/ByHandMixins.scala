@@ -71,7 +71,11 @@ object AlignmentType extends Enum[AnyRef] { // Note: Was using AlignmentUnits mi
       try {
         str.toInt
       } catch {
-        case e: NumberFormatException => self.schemaDefinitionError("For property 'alignment', value must be 'implicit' or an integer. Found: %s", str)
+        case e: NumberFormatException =>
+          self.schemaDefinitionError(
+            "For property 'alignment', value must be 'implicit' or an integer. Found: %s",
+            str,
+          )
       }
     if (allowedAlignmentValues.contains(i)) {
       //     val au = alignmentUnits
@@ -80,7 +84,10 @@ object AlignmentType extends Enum[AnyRef] { // Note: Was using AlignmentUnits mi
       //       case AlignmentUnits.Bytes => i // * Units.bytes
       //     }
       JInt.valueOf(i)
-    } else self.schemaDefinitionError("For property 'alignment', value must be a power of 2 (and fit in a 32 bit integer). Found: " + str)
+    } else
+      self.schemaDefinitionError(
+        "For property 'alignment', value must be a power of 2 (and fit in a 32 bit integer). Found: " + str,
+      )
   }
 }
 
@@ -96,7 +103,11 @@ object TextNumberBase {
       case "8" => 8
       case "10" => 10
       case "16" => 16
-      case _ => self.schemaDefinitionError("For property textStandardBase, value must be 2, 8, 10, or 16. Found: %s", str)
+      case _ =>
+        self.schemaDefinitionError(
+          "For property textStandardBase, value must be 2, 8, 10, or 16. Found: %s",
+          str,
+        )
     }
   }
 }
@@ -119,7 +130,10 @@ trait TextStandardBaseMixin extends PropertyMixin {
       if (tunable.requireTextStandardBaseProperty || optionTextStandardBase.isDefined) {
         getProperty("textStandardBase")
       } else {
-        SDW(WarnID.TextStandardBaseUndefined, "dfdl:textStandardBase property is undefined. Defaulting to 10.")
+        SDW(
+          WarnID.TextStandardBaseUndefined,
+          "dfdl:textStandardBase property is undefined. Defaulting to 10.",
+        )
         "10"
       }
     TextNumberBase(numStr, this)
@@ -134,7 +148,8 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
   case object AnyEmpty extends SeparatorSuppressionPolicy
   override lazy val values = Array(Never, TrailingEmpty, TrailingEmptyStrict, AnyEmpty)
 
-  def apply(name: String, self: ThrowsSDE): SeparatorSuppressionPolicy = stringToEnum("separatorSuppressionPolicy", name, self)
+  def apply(name: String, self: ThrowsSDE): SeparatorSuppressionPolicy =
+    stringToEnum("separatorSuppressionPolicy", name, self)
 }
 
 /**
@@ -145,8 +160,7 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
  * by propgen. Nor is SeparatorPolicyMixin
  */
 trait SeparatorPolicyMixin
-trait SeparatorSuppressionPolicyMixin
-  extends PropertyMixin {
+trait SeparatorSuppressionPolicyMixin extends PropertyMixin {
 
   /**
    * FIXME: really we need to either eliminate separatorPolicy (deprecated name)
@@ -164,7 +178,10 @@ trait SeparatorSuppressionPolicyMixin
     val ssp = getPropertyOption("separatorSuppressionPolicy")
     (sp, ssp) match {
       case (Some(spValue), Some(sspStr)) => {
-        SDW(WarnID.DeprecatedPropertySeparatorPolicy, "Both separatorPolicy(deprecated) and separatorSuppressionPolicy are defined. The separatorPolicy will be ignored.")
+        SDW(
+          WarnID.DeprecatedPropertySeparatorPolicy,
+          "Both separatorPolicy(deprecated) and separatorSuppressionPolicy are defined. The separatorPolicy will be ignored.",
+        )
         SeparatorSuppressionPolicy(sspStr, this)
       }
       case (None, Some(sspStr)) => SeparatorSuppressionPolicy(sspStr, this)
@@ -173,7 +190,10 @@ trait SeparatorSuppressionPolicyMixin
         Assert.impossible("Above is going to SDE")
       }
       case (Some(spString), None) => {
-        SDW(WarnID.DeprecatedPropertySeparatorPolicy, "Property separatorPolicy is deprecated. Use separatorSuppressionPolicy instead.")
+        SDW(
+          WarnID.DeprecatedPropertySeparatorPolicy,
+          "Property separatorPolicy is deprecated. Use separatorSuppressionPolicy instead.",
+        )
         spString match {
           case "required" => SeparatorSuppressionPolicy.Never
           case "suppressed" => SeparatorSuppressionPolicy.AnyEmpty
@@ -182,7 +202,10 @@ trait SeparatorSuppressionPolicyMixin
           case _ => Assert.invariantFailed("illegal string for separatorPolicy")
         }
       }
-      case _ => Assert.invariantFailed("combination of separatorPolicy and separatorSuppressionPolicy not understood")
+      case _ =>
+        Assert.invariantFailed(
+          "combination of separatorPolicy and separatorSuppressionPolicy not understood",
+        )
     }
   }
 }
@@ -208,8 +231,7 @@ trait TextNumberFormatMixin extends PropertyMixin { self: OOLAGHost =>
   }
 }
 
-trait StringTextMixin extends PropertyMixin
-  with LengthUnitsMixin { self: OOLAGHost =>
+trait StringTextMixin extends PropertyMixin with LengthUnitsMixin { self: OOLAGHost =>
 
   lazy val textStringPadCharacterRaw = getProperty("textStringPadCharacter")
 
@@ -225,14 +247,14 @@ trait StringTextMixin extends PropertyMixin
       case LengthUnits.Characters => {
         // TODO: must be a fixed-width encoding
       }
-      case LengthUnits.Bits => this.schemaDefinitionError("textStringPadCharacter lengthUnits cannot be Bits.")
+      case LengthUnits.Bits =>
+        this.schemaDefinitionError("textStringPadCharacter lengthUnits cannot be Bits.")
     }
     cooked
   }
 }
 
-trait NumberTextMixin extends PropertyMixin
-  with LengthUnitsMixin {
+trait NumberTextMixin extends PropertyMixin with LengthUnitsMixin {
 
   lazy val textNumberPadCharacterRaw = getProperty("textNumberPadCharacter")
 
@@ -249,15 +271,15 @@ trait NumberTextMixin extends PropertyMixin
       case LengthUnits.Characters => {
         // TODO: must be a fixed-width encoding
       }
-      case LengthUnits.Bits => this.schemaDefinitionError("textNumberPadCharacter lengthUnits cannot be Bits.")
+      case LengthUnits.Bits =>
+        this.schemaDefinitionError("textNumberPadCharacter lengthUnits cannot be Bits.")
     }
 
     cooked
   }
 }
 
-trait BooleanTextMixin extends PropertyMixin
-  with LengthUnitsMixin {
+trait BooleanTextMixin extends PropertyMixin with LengthUnitsMixin {
 
   lazy val textBooleanPadCharacterRaw = getProperty("textBooleanPadCharacter")
 
@@ -273,15 +295,15 @@ trait BooleanTextMixin extends PropertyMixin
       case LengthUnits.Characters => {
         // TODO: must be a fixed-width encoding
       }
-      case LengthUnits.Bits => this.schemaDefinitionError("textBooleanPadCharacter lengthUnits cannot be Bits.")
+      case LengthUnits.Bits =>
+        this.schemaDefinitionError("textBooleanPadCharacter lengthUnits cannot be Bits.")
     }
 
     cooked
   }
 }
 
-trait CalendarTextMixin extends PropertyMixin
-  with LengthUnitsMixin {
+trait CalendarTextMixin extends PropertyMixin with LengthUnitsMixin {
 
   lazy val textCalendarPadCharacterRaw = getProperty("textCalendarPadCharacter")
 
@@ -296,7 +318,8 @@ trait CalendarTextMixin extends PropertyMixin
       case LengthUnits.Characters => {
         // TODO: must be a fixed-width encoding
       }
-      case LengthUnits.Bits => this.schemaDefinitionError("textCalendarPadCharacter lengthUnits cannot be Bits.")
+      case LengthUnits.Bits =>
+        this.schemaDefinitionError("textCalendarPadCharacter lengthUnits cannot be Bits.")
     }
     cooked
   }
@@ -306,7 +329,8 @@ trait ImpliedRepresentationMixin extends RepresentationMixin {
   def impliedRepresentation: Representation
 }
 
-trait NillableMixin extends PropertyMixin
+trait NillableMixin
+  extends PropertyMixin
   with NilKindMixin
   with NilValueDelimiterPolicyMixin
   with ImpliedRepresentationMixin {
@@ -361,10 +385,18 @@ object BinaryBooleanTrueRepType {
         try {
           str.toInt
         } catch {
-          case e: NumberFormatException => element.schemaDefinitionError("For property 'binaryBooleanTrueRep', value must be an empty string or a non-negative integer. Found: %s", str)
+          case e: NumberFormatException =>
+            element.schemaDefinitionError(
+              "For property 'binaryBooleanTrueRep', value must be an empty string or a non-negative integer. Found: %s",
+              str,
+            )
         }
 
-      if (i < 0) element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be an empty string or a non-negative integer. Found: %d", i)
+      if (i < 0)
+        element.schemaDefinitionError(
+          "For property 'binaryBooleanFalseRep', value must be an empty string or a non-negative integer. Found: %d",
+          i,
+        )
       MaybeULong(i)
     }
   }
@@ -377,10 +409,18 @@ object BinaryBooleanFalseRepType {
       try {
         str.toInt
       } catch {
-        case e: NumberFormatException => element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be an integer. Found: %s", str)
+        case e: NumberFormatException =>
+          element.schemaDefinitionError(
+            "For property 'binaryBooleanFalseRep', value must be an integer. Found: %s",
+            str,
+          )
       }
 
-    if (i < 0) element.schemaDefinitionError("For property 'binaryBooleanFalseRep', value must be a non-negative integer. Found: %d", i)
+    if (i < 0)
+      element.schemaDefinitionError(
+        "For property 'binaryBooleanFalseRep', value must be a non-negative integer. Found: %d",
+        i,
+      )
     ULong(i)
   }
 }
@@ -395,19 +435,29 @@ object BinaryBooleanFalseRepType {
 trait TextStandardExponentCharacterMixin
 
 trait TextStandardExponentRepMixin extends PropertyMixin {
-  protected final lazy val optionTextStandardExponentRepRaw = findPropertyOption("textStandardExponentRep", expressionAllowed = true)
-  protected final lazy val textStandardExponentRepRaw = requireProperty(optionTextStandardExponentRepRaw)
+  protected final lazy val optionTextStandardExponentRepRaw =
+    findPropertyOption("textStandardExponentRep", expressionAllowed = true)
+  protected final lazy val textStandardExponentRepRaw = requireProperty(
+    optionTextStandardExponentRepRaw,
+  )
 
   // Deprecated textStandardExponentCharacter
-  protected final lazy val optionTextStandardExponentCharacterRaw = findPropertyOption("textStandardExponentCharacter")
-  protected final lazy val textStandardExponentCharacterRaw = requireProperty(optionTextStandardExponentCharacterRaw)
+  protected final lazy val optionTextStandardExponentCharacterRaw = findPropertyOption(
+    "textStandardExponentCharacter",
+  )
+  protected final lazy val textStandardExponentCharacterRaw = requireProperty(
+    optionTextStandardExponentCharacterRaw,
+  )
 
   lazy val textStandardExponentRep: Found = {
     val tsec = getPropertyOption("textStandardExponentCharacter")
     val tser = getPropertyOption("textStandardExponentRep")
     (tsec, tser) match {
       case (Some(tsecStr), Some(tserStr)) => {
-        SDW(WarnID.DeprecatedPropertySeparatorPolicy, "Both textStandardExponentCharacter(deprecated) and textStandardExponentRep are defined. The textStandardExponentCharacter will be ignored.")
+        SDW(
+          WarnID.DeprecatedPropertySeparatorPolicy,
+          "Both textStandardExponentCharacter(deprecated) and textStandardExponentRep are defined. The textStandardExponentCharacter will be ignored.",
+        )
         textStandardExponentRepRaw
       }
       case (None, Some(tserStr)) => textStandardExponentRepRaw
@@ -416,10 +466,16 @@ trait TextStandardExponentRepMixin extends PropertyMixin {
         Assert.impossible("Above is going to SDE")
       }
       case (Some(tsecStr), None) => {
-        SDW(WarnID.DeprecatedPropertySeparatorPolicy, "Property textStandardExponentCharacter is deprecated. Use textStandardExponentRep instead.")
+        SDW(
+          WarnID.DeprecatedPropertySeparatorPolicy,
+          "Property textStandardExponentCharacter is deprecated. Use textStandardExponentRep instead.",
+        )
         textStandardExponentCharacterRaw
       }
-      case _ => Assert.invariantFailed("combination of textStandardExponentCharacter and textStandardExponentRep not understood")
+      case _ =>
+        Assert.invariantFailed(
+          "combination of textStandardExponentCharacter and textStandardExponentRep not understood",
+        )
     }
   }
 }
@@ -434,9 +490,11 @@ object EmptyElementParsePolicy extends Enum[EmptyElementParsePolicy] {
   case object TreatAsEmpty extends EmptyElementParsePolicy
   case object TreatAsAbsent extends EmptyElementParsePolicy
 
-  override lazy val values = Array(TreatAsMissing, TreatAsEmpty, TreatAsAbsent) // deprecated: TreatAsMissing
+  override lazy val values =
+    Array(TreatAsMissing, TreatAsEmpty, TreatAsAbsent) // deprecated: TreatAsMissing
 
-  def apply(name: String, context: ThrowsSDE): EmptyElementParsePolicy = stringToEnum("emptyElementParsePolicy", name, context)
+  def apply(name: String, context: ThrowsSDE): EmptyElementParsePolicy =
+    stringToEnum("emptyElementParsePolicy", name, context)
 }
 trait EmptyElementParsePolicyMixin extends PropertyMixin {
 
@@ -473,7 +531,8 @@ trait EmptyElementParsePolicyMixin extends PropertyMixin {
       SDW(
         WarnID.EmptyElementParsePolicyError,
         "Property 'dfdl:emptyElementParsePolicy' is required but not defined, using tunable '%s' by default.",
-        defaultEmptyElementParsePolicy)
+        defaultEmptyElementParsePolicy,
+      )
       defaultEmptyElementParsePolicy
     }
   }

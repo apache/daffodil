@@ -16,18 +16,18 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.processors.Evaluatable
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.Success
-import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.lib.api.ValidationMode
-import org.apache.daffodil.runtime1.processors.OccursCountEv
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.Evaluatable
+import org.apache.daffodil.runtime1.processors.OccursCountEv
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Processor
-import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+import org.apache.daffodil.runtime1.processors.Success
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
 
 /**
  * Enables various sub-kinds of success/failure of a parse to be distinguished
@@ -47,6 +47,7 @@ object ParseAttemptStatus {
   sealed trait FailedParseAttemptStatus extends Type {
     override def isSuccess = false
   }
+
   /**
    * State that we initialize the variable to. Only exists until the first
    * parse attempt.
@@ -196,14 +197,15 @@ object PoUStatus {
 abstract class SequenceChildParser(
   val childParser: Parser,
   val srd: SequenceRuntimeData,
-  val trd: TermRuntimeData)
-  extends CombinatorParser(trd) {
+  val trd: TermRuntimeData,
+) extends CombinatorParser(trd) {
 
   override def childProcessors: Vector[Processor] = Vector(childParser)
 
   override def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
 
-  final override def parse(pstate: PState): Unit = Assert.usageError("Not to be called on sequence child parsers")
+  final override def parse(pstate: PState): Unit =
+    Assert.usageError("Not to be called on sequence child parsers")
 
   def parseOne(pstate: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus
 
@@ -213,7 +215,11 @@ abstract class SequenceChildParser(
 
   def pouStatus: PoUStatus
 
-  def finalChecks(pstate: PState, resultOfTry: ParseAttemptStatus, priorResultOfTry: ParseAttemptStatus): Unit = {
+  def finalChecks(
+    pstate: PState,
+    resultOfTry: ParseAttemptStatus,
+    priorResultOfTry: ParseAttemptStatus,
+  ): Unit = {
     // does nothing by default.
     // overridden in separated sequence child parsers in some cases
   }
@@ -239,8 +245,8 @@ trait NonRepeatingSequenceChildParser { self: SequenceChildParser =>
 final class NonRepresentedSequenceChildParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
-  trd: TermRuntimeData)
-  extends SequenceChildParser(childParser, srd, trd) {
+  trd: TermRuntimeData,
+) extends SequenceChildParser(childParser, srd, trd) {
 
   def pouStatus = PoUStatus.NoPoU
 
@@ -269,8 +275,8 @@ abstract class RepeatingChildParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
   val erd: ElementRuntimeData,
-  baseName: String)
-  extends SequenceChildParser(childParser, srd, erd)
+  baseName: String,
+) extends SequenceChildParser(childParser, srd, erd)
   with MinMaxRepeatsMixin
   with EndArrayChecksMixin {
 
@@ -282,8 +288,7 @@ abstract class RepeatingChildParser(
    * NOTE: must be stateless. State must be passed in, and returned for
    * assignment to a loop var, or held in pstate.
    */
-  def arrayIndexStatus(minRepeats: Long, maxRepeats: Long,
-    pstate: PState): ArrayIndexStatus = {
+  def arrayIndexStatus(minRepeats: Long, maxRepeats: Long, pstate: PState): ArrayIndexStatus = {
     import ArrayIndexStatus._
     Assert.invariant(pstate.processorStatus eq Success)
     val apos = pstate.arrayPos
@@ -304,7 +309,8 @@ abstract class RepeatingChildParser(
   override def toString = "Rep" + baseName + "(" + childParser.toString + ")"
 
   override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
+    if (depthLimit == 0) "..."
+    else
       "<Rep" + baseName + " name='" + erd.name + "'>" + childParser.toBriefXML(depthLimit - 1) +
         "</Rep" + baseName + ">"
   }
@@ -369,6 +375,7 @@ object ArrayIndexStatus {
   trait Type extends ArrayIndexStatus
 
   case object Uninitialized extends Type
+
   /**
    * Indicates that we are done iterating, and should stop parsing more
    * array. Used to indicate that the end of the array was identified
@@ -411,8 +418,8 @@ object ArrayIndexStatus {
 abstract class OccursCountExactParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
-  erd: ElementRuntimeData)
-  extends RepeatingChildParser(childParser, srd, erd, "ExactN") {
+  erd: ElementRuntimeData,
+) extends RepeatingChildParser(childParser, srd, erd, "ExactN") {
 
   final override def isBoundedMax = true
 
@@ -436,8 +443,8 @@ abstract class OccursCountExpressionParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
-  val occursCountEv: OccursCountEv)
-  extends RepeatingChildParser(childParser, srd, erd, "Expression") {
+  val occursCountEv: OccursCountEv,
+) extends RepeatingChildParser(childParser, srd, erd, "Expression") {
 
   final override def pouStatus = PoUStatus.NoPoU
 
@@ -522,15 +529,24 @@ trait EndArrayChecksMixin {
         val occurrence = actualOccurs - 1
 
         if (isUnbounded && occurrence < minO)
-          state.validationError("%s occurred '%s' times when it was expected to be a " +
-            "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.diagnosticDebugName,
-            occurrence, minO)
+          state.validationError(
+            "%s occurred '%s' times when it was expected to be a " +
+              "minimum of '%s' and a maximum of 'UNBOUNDED' times.",
+            erd.diagnosticDebugName,
+            occurrence,
+            minO,
+          )
         else if (!isUnbounded && (occurrence < minO || occurrence > maxO))
-          state.validationError("%s occurred '%s' times when it was expected to be a " +
-            "minimum of '%s' and a maximum of '%s' times.", erd.diagnosticDebugName,
-            occurrence, minO, maxO)
+          state.validationError(
+            "%s occurred '%s' times when it was expected to be a " +
+              "minimum of '%s' and a maximum of '%s' times.",
+            erd.diagnosticDebugName,
+            occurrence,
+            minO,
+            maxO,
+          )
         else {
-          //ok
+          // ok
         }
       }
     }
@@ -547,13 +563,15 @@ trait EndArrayChecksMixin {
 abstract class OccursCountMinMaxParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
-  erd: ElementRuntimeData)
-  extends RepeatingChildParser(childParser, srd, erd, "MinMax") {
+  erd: ElementRuntimeData,
+) extends RepeatingChildParser(childParser, srd, erd, "MinMax") {
 
   Assert.invariant(erd.maybeOccursCountKind.isDefined)
 
-  Assert.invariant(ock == OccursCountKind.Implicit ||
-    ock == OccursCountKind.Parsed)
+  Assert.invariant(
+    ock == OccursCountKind.Implicit ||
+      ock == OccursCountKind.Parsed,
+  )
 
   final override def pouStatus = PoUStatus.HasPoU
 }

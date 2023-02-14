@@ -20,8 +20,8 @@ package org.apache.daffodil.core.dsom
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.IIUtils.IIMap
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.XMLUtils
 
 /**
@@ -45,13 +45,16 @@ import org.apache.daffodil.lib.xml.XMLUtils
  */
 
 object XMLSchemaDocument {
-  def apply(xmlArg: Node,
+  def apply(
+    xmlArg: Node,
     schemaSetArg: SchemaSet,
     ii: Option[IIBase],
     sfArg: Option[DFDLSchemaFile],
     seenBeforeArg: IIMap,
-    isBootStrapSD: Boolean) = {
-    val xsd = new XMLSchemaDocument(xmlArg, schemaSetArg, ii, sfArg, seenBeforeArg, isBootStrapSD)
+    isBootStrapSD: Boolean,
+  ) = {
+    val xsd =
+      new XMLSchemaDocument(xmlArg, schemaSetArg, ii, sfArg, seenBeforeArg, isBootStrapSD)
     xsd.initialize()
     xsd
   }
@@ -77,8 +80,8 @@ final class XMLSchemaDocument private (
    * this flag lets us import into a bootstrap 'fake' document
    * even though it does not have a namespace
    */
-  override val isBootStrapSD: Boolean)
-  extends SchemaComponentImpl(xmlArg, sfArg.getOrElse(schemaSetArg))
+  override val isBootStrapSD: Boolean,
+) extends SchemaComponentImpl(xmlArg, sfArg.getOrElse(schemaSetArg))
   with SchemaDocIncludesAndImportsMixin {
 
   requiredEvaluationsAlways(checkUnsupportedAttributes)
@@ -120,10 +123,26 @@ final class XMLSchemaDocument private (
     val hasBlockDefault = (xml \ "@blockDefault").text != ""
     val hasFinalDefault = (xml \ "@finalDefault").text != ""
     val hasAttributeFormDefault = (xml \ "@attributeFormDefault").text != ""
-    schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeSchemaLocation, !hasSchemaLocation, "schemaLocation is ignored.")
-    schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeBlockDefault, !hasBlockDefault, "blockDefault is ignored")
-    schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeFinalDefault, !hasFinalDefault, "finalDefault is ignored")
-    schemaDefinitionWarningUnless(WarnID.UnsupportedAttributeFormDefault, !hasAttributeFormDefault, "attributeFormDefault is not part of DFDL and will be ignored")
+    schemaDefinitionWarningUnless(
+      WarnID.UnsupportedAttributeSchemaLocation,
+      !hasSchemaLocation,
+      "schemaLocation is ignored.",
+    )
+    schemaDefinitionWarningUnless(
+      WarnID.UnsupportedAttributeBlockDefault,
+      !hasBlockDefault,
+      "blockDefault is ignored",
+    )
+    schemaDefinitionWarningUnless(
+      WarnID.UnsupportedAttributeFinalDefault,
+      !hasFinalDefault,
+      "finalDefault is ignored",
+    )
+    schemaDefinitionWarningUnless(
+      WarnID.UnsupportedAttributeFormDefault,
+      !hasAttributeFormDefault,
+      "attributeFormDefault is not part of DFDL and will be ignored",
+    )
     val res = hasSchemaLocation | hasBlockDefault | hasFinalDefault | hasAttributeFormDefault
     res
   }.value
@@ -170,12 +189,13 @@ final class XMLSchemaDocument private (
 }
 
 object SchemaDocument {
-  def apply (xmlSDoc: XMLSchemaDocument) = {
+  def apply(xmlSDoc: XMLSchemaDocument) = {
     val sd = new SchemaDocument(xmlSDoc)
     sd.initialize()
     sd
   }
 }
+
 /**
  * Handles only things specific to DFDL about schema documents.
  *
@@ -202,10 +222,12 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
 
   protected def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     val res = node match {
-      case <dfdl:format>{ content @ _* }</dfdl:format> => DFDLFormat(node, this)
-      case <dfdl:defineFormat>{ content @ _* }</dfdl:defineFormat> => DFDLDefineFormat(node, this)
-      case <dfdl:defineEscapeScheme>{ content @ _* }</dfdl:defineEscapeScheme> => DFDLDefineEscapeSchemeFactory(node, this)
-      case <dfdl:defineVariable>{ content @ _* }</dfdl:defineVariable> => DFDLDefineVariable(node, this)
+      case <dfdl:format>{content @ _*}</dfdl:format> => DFDLFormat(node, this)
+      case <dfdl:defineFormat>{content @ _*}</dfdl:defineFormat> => DFDLDefineFormat(node, this)
+      case <dfdl:defineEscapeScheme>{content @ _*}</dfdl:defineEscapeScheme> =>
+        DFDLDefineEscapeSchemeFactory(node, this)
+      case <dfdl:defineVariable>{content @ _*}</dfdl:defineVariable> =>
+        DFDLDefineVariable(node, this)
       case _ => {
         val prefix =
           if (node.prefix == null || node.prefix == "") ""
@@ -231,7 +253,9 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
   lazy val defaultFormat = formatAnnotation.asInstanceOf[DFDLFormat]
 
   lazy val defineFormats = annotationObjs.collect { case df: DFDLDefineFormat => df }
-  lazy val defineEscapeSchemes = annotationObjs.collect { case des: DFDLDefineEscapeSchemeFactory => des }
+  lazy val defineEscapeSchemes = annotationObjs.collect {
+    case des: DFDLDefineEscapeSchemeFactory => des
+  }
   lazy val defineVariables = annotationObjs.collect { case dv: DFDLDefineVariable => dv }
 
   /**
@@ -246,11 +270,10 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
   def getGlobalComplexTypeDef(name: String) = globalComplexTypeDefs.find { _.name == name }
   def getGlobalGroupDef(name: String) = globalGroupDefs.find { _.name == name }
 
-  def getDefineFormat(name: String) = defineFormats.find {
-    df =>
-      val dfName = df.namedQName.local
-      val res = dfName == name
-      res
+  def getDefineFormat(name: String) = defineFormats.find { df =>
+    val dfName = df.namedQName.local
+    val res = dfName == name
+    res
   }
   def getDefineVariable(name: String) = {
     val res = defineVariables.find { _.name == name }

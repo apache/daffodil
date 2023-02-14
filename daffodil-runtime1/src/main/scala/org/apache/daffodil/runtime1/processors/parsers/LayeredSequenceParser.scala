@@ -17,19 +17,19 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.layers.LayerExecutionException
 import org.apache.daffodil.runtime1.layers.LayerNotEnoughDataException
 import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
 import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
-import org.apache.daffodil.lib.util.MaybeULong
 
 class LayeredSequenceParser(
   rd: SequenceRuntimeData,
   layerTransformerFactory: LayerTransformerFactory,
   layerRuntimeInfo: LayerRuntimeInfo,
-  bodyParser: SequenceChildParser)
-  extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
+  bodyParser: SequenceChildParser,
+) extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
 
   override lazy val runtimeDependencies =
@@ -42,8 +42,11 @@ class LayeredSequenceParser(
 
     val isAligned = savedDIS.align(layerTransformer.mandatoryLayerAlignmentInBits, state)
     if (!isAligned)
-      PE(state, "Unable to align to the mandatory layer alignment of %s(bits)",
-        layerTransformer.mandatoryLayerAlignmentInBits)
+      PE(
+        state,
+        "Unable to align to the mandatory layer alignment of %s(bits)",
+        layerTransformer.mandatoryLayerAlignmentInBits,
+      )
 
     try {
       val newDIS = layerTransformer.addLayer(savedDIS, state)
@@ -54,9 +57,18 @@ class LayeredSequenceParser(
       layerTransformer.removeLayer(newDIS)
     } catch {
       case le: LayerNotEnoughDataException =>
-        PENotEnoughBits(state, le.schemaFileLocation, le.dataLocation, le.nBytesRequired * 8, MaybeULong.Nope)
+        PENotEnoughBits(
+          state,
+          le.schemaFileLocation,
+          le.dataLocation,
+          le.nBytesRequired * 8,
+          MaybeULong.Nope,
+        )
       case e: Exception =>
-        throw LayerExecutionException(s"Unexpected exception in layer transformer '${layerTransformer.layerName}': $e", e)
+        throw LayerExecutionException(
+          s"Unexpected exception in layer transformer '${layerTransformer.layerName}': $e",
+          e,
+        )
     } finally {
       state.dataInputStream = savedDIS
     }

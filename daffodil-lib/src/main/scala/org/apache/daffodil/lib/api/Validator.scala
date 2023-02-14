@@ -36,6 +36,7 @@ trait Validator {
  * The factory implementations are expected to be thread safe
  */
 trait ValidatorFactory {
+
   /**
    * Unique name of this Validator service
    * @return registered name of the validator factory
@@ -61,6 +62,7 @@ trait ValidationResult {
 }
 
 object ValidationResult {
+
   /**
    * an empty [[org.apache.daffodil.lib.api.ValidationResult]]
    */
@@ -68,7 +70,7 @@ object ValidationResult {
 
   def apply(w: Seq[ValidationWarning], e: Seq[ValidationFailure]): ValidationResult = {
     import scala.collection.JavaConverters.asJavaCollectionConverter
-    new ValidationResult{
+    new ValidationResult {
       val warnings: java.util.Collection[ValidationWarning] = w.asJavaCollection
       val errors: java.util.Collection[ValidationFailure] = e.asJavaCollection
     }

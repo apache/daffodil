@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.lib.util
 
-import org.apache.daffodil.lib.exceptions.Assert
 import java.nio.ByteBuffer
+
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
 object Bits {
@@ -40,7 +41,7 @@ object Bits {
    * Convert signed Byte type to Int that is the unsigned equivalent.
    */
   def asUnsignedByte(b: Byte): Int = if (b < 0) 256 + b else b
-  def asUnsignedByte(b: Long): Int = (b & 0xFF).toInt
+  def asUnsignedByte(b: Long): Int = (b & 0xff).toInt
 
   def asSignedByte(i: Long): Byte = {
     Assert.usage(i >= 0)
@@ -138,11 +139,11 @@ object Bits {
     var curByte = asUnsignedByte(ba(0))
     while (i < ba.size - 1) {
       val nextByte = asUnsignedByte(ba(i + 1))
-      ba(i) = asSignedByte(((curByte << curShift) & 0xFF) | (nextByte >>> nextShift))
+      ba(i) = asSignedByte(((curByte << curShift) & 0xff) | (nextByte >>> nextShift))
       curByte = nextByte
       i += 1
     }
-    ba(i) = asSignedByte((curByte << curShift) & 0xFF)
+    ba(i) = asSignedByte((curByte << curShift) & 0xff)
   }
 
   /**
@@ -165,7 +166,7 @@ object Bits {
       val rightBits = (leftBits >>> 8) & mask
       val b = asUnsignedByte(bb.get(i))
       leftBits = (b << n)
-      val shiftedByte = (leftBits | rightBits) & 0xFF
+      val shiftedByte = (leftBits | rightBits) & 0xff
       bb.put(i, asSignedByte(shiftedByte))
       i = i - 1
     }
@@ -181,12 +182,12 @@ object Bits {
     if (n == 0) return // nothing to do
     var rightBits: Int = 0
     var i: Int = 0
-    val mask = ((1 << n) - 1) & 0xFF
+    val mask = ((1 << n) - 1) & 0xff
     while (i < bb.remaining) {
       val leftBits = rightBits << (8 - n)
       val b = asUnsignedByte(bb.get(i))
       rightBits = b & mask
-      val v = ((b >>> n) | leftBits) & 0xFF
+      val v = ((b >>> n) | leftBits) & 0xff
       bb.put(i, asSignedByte(v))
       i = i + 1
     }
@@ -253,7 +254,6 @@ object Bits {
     else bytePos0b + 1
   }
 
-
   /**
    * From DFDL Spec. Sept 2013 draft 1.0.4, Section 13.7.1.4
    *
@@ -272,7 +272,8 @@ object Bits {
     val bitPosInByte = ((bitPosition - 1) % 8) + 1
     val widthOfActiveBitsInByte =
       if (bitPosition <= numBitsInWholeBytes)
-        8 else numBitsInFinalPartialByte
+        8
+      else numBitsInFinalPartialByte
     val placeValueExponentOfBitInByte = widthOfActiveBitsInByte - bitPosInByte
     val bitValueInByte = 1 << placeValueExponentOfBitInByte
     val byteNumZeroBased = (bitPosition - 1) / 8

@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.core.runtime1.LocalElementDeclBaseRuntime1Mixin
-
 import scala.xml.Node
 import scala.xml.TopScope
+
+import org.apache.daffodil.core.runtime1.LocalElementDeclBaseRuntime1Mixin
 
 sealed abstract class LocalElementDeclBase(
   final override val xml: Node,
   final override val optLexicalParent: Option[SchemaComponent],
-  final override val position: Int)
-  extends ElementBase
+  final override val position: Int,
+) extends ElementBase
   with LocalElementComponentMixin
   with ElementDeclMixin
   with NestingLexicalMixin
@@ -43,10 +43,7 @@ object LocalElementDecl {
     led
   }
 }
-class LocalElementDecl private (
-  xml: Node,
-  lexicalParent: SchemaComponent,
-  position: Int)
+class LocalElementDecl private (xml: Node, lexicalParent: SchemaComponent, position: Int)
   extends LocalElementDeclBase(xml, Option(lexicalParent), position)
 
 /**
@@ -58,9 +55,7 @@ class LocalElementDecl private (
  * quasi-element is used as a place where properties related to the
  * prefix simple type can be accessed.
  */
-sealed abstract class QuasiElementDeclBase(
-  xml: Node,
-  lexicalParent: SchemaComponent)
+sealed abstract class QuasiElementDeclBase(xml: Node, lexicalParent: SchemaComponent)
   extends LocalElementDeclBase(xml, Option(lexicalParent), -1) {
 
   override lazy val minimizedScope = TopScope
@@ -76,23 +71,16 @@ object PrefixLengthQuasiElementDecl {
   }
 }
 
-class PrefixLengthQuasiElementDecl private (
-  xml: Node,
-  lexicalParent: SchemaComponent)
-  extends QuasiElementDeclBase(xml, lexicalParent) {
-}
+class PrefixLengthQuasiElementDecl private (xml: Node, lexicalParent: SchemaComponent)
+  extends QuasiElementDeclBase(xml, lexicalParent) {}
 
 object RepTypeQuasiElementDecl {
-  def apply(xml:Node, lexicalParent: SchemaComponent) = {
+  def apply(xml: Node, lexicalParent: SchemaComponent) = {
     val rt = new RepTypeQuasiElementDecl(xml, lexicalParent)
     rt.initialize()
     rt
   }
 }
 
-class RepTypeQuasiElementDecl private (
-  xml: Node,
-  lexicalParent: SchemaComponent)
-  extends QuasiElementDeclBase(xml, lexicalParent) {
-
-}
+class RepTypeQuasiElementDecl private (xml: Node, lexicalParent: SchemaComponent)
+  extends QuasiElementDeclBase(xml, lexicalParent) {}

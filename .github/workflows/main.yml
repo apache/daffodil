@@ -163,6 +163,10 @@ jobs:
 
       - name: Run OSGI Check
         run: $SBT osgiCheck
+        
+      - name: Run scalafmt Check
+        if: runner.os == 'Linux'
+        run: $SBT scalafmtCheck
 
       - name: Run Unit Tests
         run: $SBT test

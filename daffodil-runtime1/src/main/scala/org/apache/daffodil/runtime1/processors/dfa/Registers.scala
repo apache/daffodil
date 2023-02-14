@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.runtime1.processors.dfa
 
-import org.apache.daffodil.lib.equality.ViewEqual
 import org.apache.daffodil.io.DataInputStream
-import org.apache.daffodil.runtime1.processors.DelimiterIterator
+import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.lib.equality.ViewEqual
 import org.apache.daffodil.lib.util.Pool
 import org.apache.daffodil.lib.util.Poolable
-import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.runtime1.processors.DelimiterIterator
 
 class RegistersPool() extends Pool[Registers] {
   override def allocate = new Registers()
@@ -41,11 +41,12 @@ class Registers() extends Poolable with Serializable {
   var matchStartPos: Int = 0
   var matchedAtLeastOnce: Boolean = false // WSPStar WSPPlus
 
-  var charIterator: DataInputStream.CharIterator = null //dataInputStream.asIteratorChar
+  var charIterator: DataInputStream.CharIterator = null // dataInputStream.asIteratorChar
 
   var actionNum: Int = 0
   var state: Int = -1
-  var nextState: Int = -1 // used to determine the next state to go to, should only be used when status == StateKind.Parsing
+  var nextState: Int =
+    -1 // used to determine the next state to go to, should only be used when status == StateKind.Parsing
   var status: StateKind.Value = StateKind.Parsing
   var delimitersIter: DelimiterIterator = null
 
@@ -58,7 +59,12 @@ class Registers() extends Poolable with Serializable {
    * and then reset before first use. I.e.,
    * reset() is also init().
    */
-  def reset(finfo: FormatInfo, input: DataInputStream, delimIter: DelimiterIterator, m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos): Unit = {
+  def reset(
+    finfo: FormatInfo,
+    input: DataInputStream,
+    delimIter: DelimiterIterator,
+    m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos,
+  ): Unit = {
     dataInputStream = input
     if (m !=#= DataInputStream.MarkPos.NoMarkPos)
       dataInputStream.resetPos(m)
@@ -172,7 +178,11 @@ class Registers() extends Poolable with Serializable {
   def incCharsDropped(incr: Int = 1): Unit = numCharsDropped += incr
 
   override def toString(): String = {
-    "<Registers field='%s' delimiter='%s' numCharsRead='%d' />".format(resultString.toString, delimString.toString, numCharsRead)
+    "<Registers field='%s' delimiter='%s' numCharsRead='%d' />".format(
+      resultString.toString,
+      delimString.toString,
+      numCharsRead,
+    )
   }
 
 }

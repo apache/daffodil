@@ -17,20 +17,22 @@
 
 package org.apache.daffodil.runtime1.processors
 
+import java.lang.{ Long => JLong }
+
 import org.apache.daffodil.runtime1.dsom._
 
-import java.lang.{Long => JLong}
-
-final class LayerEncodingEv(override val expr: CompiledExpression[String], tci: DPathCompileInfo)
-  extends EncodingEvBase(expr, tci)
+final class LayerEncodingEv(
+  override val expr: CompiledExpression[String],
+  tci: DPathCompileInfo,
+) extends EncodingEvBase(expr, tci)
 
 final class LayerCharsetEv(layerEncodingEv: LayerEncodingEv, override val ci: DPathCompileInfo)
   extends CharsetEvBase(layerEncodingEv, ci)
 
-final class LayerLengthEv(override val expr: CompiledExpression[JLong], override val ci: DPathCompileInfo)
-  extends EvaluatableExpression[JLong](
-    expr,
-    ci)
+final class LayerLengthEv(
+  override val expr: CompiledExpression[JLong],
+  override val ci: DPathCompileInfo,
+) extends EvaluatableExpression[JLong](expr, ci)
   with NoCacheEvaluatable[JLong] {
   override lazy val runtimeDependencies = Vector()
 
@@ -43,10 +45,10 @@ final class LayerLengthEv(override val expr: CompiledExpression[JLong], override
   }
 }
 
-final class LayerBoundaryMarkEv(override val expr: CompiledExpression[String], override val ci: DPathCompileInfo)
-  extends EvaluatableExpression[String](
-    expr,
-    ci)
+final class LayerBoundaryMarkEv(
+  override val expr: CompiledExpression[String],
+  override val ci: DPathCompileInfo,
+) extends EvaluatableExpression[String](expr, ci)
   with NoCacheEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
 }

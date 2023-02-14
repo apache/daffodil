@@ -24,13 +24,15 @@ import org.apache.daffodil.lib.util.MaybeInt
  * X-DFDL-5-BIT-PACKED-LSBF occupies only 5 bits with each
  * code unit.
  */
-object BitsCharset5BitPackedLSBF extends {
-  override val name = "X-DFDL-5-BIT-PACKED-LSBF"
-  override val bitWidthOfACodeUnit = 5
-  override val decodeString = """01234567ABCDEFGHJKLMNPQRSTUVWXYZ"""
-  override val replacementCharCode = 0x1D
-  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-} with BitsCharsetNonByteSize {
+object BitsCharset5BitPackedLSBF
+  extends {
+    override val name = "X-DFDL-5-BIT-PACKED-LSBF"
+    override val bitWidthOfACodeUnit = 5
+    override val decodeString = """01234567ABCDEFGHJKLMNPQRSTUVWXYZ"""
+    override val replacementCharCode = 0x1d
+    override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize {
 
   override def charToCode(char: Char) = {
     if (char == 'I') MaybeInt(1)

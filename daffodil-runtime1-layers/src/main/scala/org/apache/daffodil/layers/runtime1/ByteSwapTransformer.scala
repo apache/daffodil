@@ -17,37 +17,42 @@
 
 package org.apache.daffodil.layers.runtime1
 
-import org.apache.daffodil.runtime1.layers._
-
-import java.io.OutputStream
 import java.io.InputStream
+import java.io.OutputStream
 import java.util.ArrayDeque
 import java.util.Deque
+
+import org.apache.daffodil.io.ExplicitLengthLimitingStream
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.io.ExplicitLengthLimitingStream
+import org.apache.daffodil.runtime1.layers._
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 
-final class FourByteSwapLayerCompiler
-  extends LayerCompiler("fourbyteswap") {
+final class FourByteSwapLayerCompiler extends LayerCompiler("fourbyteswap") {
 
   override def compileLayer(layerCompileInfo: LayerCompileInfo): LayerTransformerFactory = {
 
     layerCompileInfo.optLayerLengthKind match {
       case Some(LayerLengthKind.Explicit) => // ok
-      case None => layerCompileInfo.SDE("The property dfdlx:layerLengthKind must be defined and have value 'explicit'.")
-      case Some(other) => layerCompileInfo.SDE("The property dfdlx:layerLengthKind must be 'explicit' but was '$other'.")
+      case None =>
+        layerCompileInfo.SDE(
+          "The property dfdlx:layerLengthKind must be defined and have value 'explicit'.",
+        )
+      case Some(other) =>
+        layerCompileInfo.SDE(
+          "The property dfdlx:layerLengthKind must be 'explicit' but was '$other'.",
+        )
     }
 
     layerCompileInfo.SDEUnless(
-    layerCompileInfo.optLayerLengthOptConstantValue.isDefined,
-      "The property dfdlx:layerLength must be defined.")
+      layerCompileInfo.optLayerLengthOptConstantValue.isDefined,
+      "The property dfdlx:layerLength must be defined.",
+    )
 
     val xformer = new ByteSwapTransformerFactory(4, name)
     xformer
   }
 }
-
 
 /**
  * LayerTransformerFactory for ByteSwapTransformer instances.
@@ -57,7 +62,8 @@ final class FourByteSwapLayerCompiler
 final class ByteSwapTransformerFactory(wordsize: Int, name: String)
   extends LayerTransformerFactory(name) {
 
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= new ByteSwapTransformer(wordsize, name, layerRuntimeInfo)
+  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo) =
+    new ByteSwapTransformer(wordsize, name, layerRuntimeInfo)
 }
 
 /**
@@ -69,8 +75,7 @@ final class ByteSwapTransformerFactory(wordsize: Int, name: String)
  * order 4 3 2 1 8 7 6 5 10 9.  If wordsize were 2 then the bytes from the
  * wrapped input stream are returned in the order 2 1 4 3 6 5 8 7 10 9.
  */
-class ByteSwapInputStream(wordsize: Int, jis: InputStream)
-  extends InputStream {
+class ByteSwapInputStream(wordsize: Int, jis: InputStream) extends InputStream {
 
   object State extends org.apache.daffodil.lib.util.Enum {
     abstract sealed trait Type extends EnumValueType
@@ -154,8 +159,7 @@ class ByteSwapInputStream(wordsize: Int, jis: InputStream)
  * order 4 3 2 1 8 7 6 5 10 9.  If wordsize were 2 then the bytes are written
  * to the wrapped output stream in the order 2 1 4 3 6 5 8 7 10 9.
  */
-class ByteSwapOutputStream(wordsize: Int, jos: OutputStream)
-  extends OutputStream {
+class ByteSwapOutputStream(wordsize: Int, jos: OutputStream) extends OutputStream {
 
   private val stack: Deque[Byte] = new ArrayDeque[Byte](wordsize)
   private var closed = false
@@ -204,13 +208,12 @@ class ByteSwapTransformer(wordsize: Int, name: String, layerRuntimeInfo: LayerRu
     s
   }
 
-  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(
+    state: ParseOrUnparseState,
+    jos: java.io.OutputStream,
+  ) = {
     jos // just return jos. The way the length will be used/stored is by way of
     // taking the content length of the enclosing element. That will measure the
     // length relative to the "ultimate" data output stream.
   }
 }
-
-
-
-

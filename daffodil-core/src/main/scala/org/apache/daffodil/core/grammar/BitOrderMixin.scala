@@ -31,5 +31,6 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderAnalysisMixin { self: Ter
     bitOrd
   }
 
-  final lazy val defaultBitOrder = optDefaultBitOrder.getOrElse(BitOrder.MostSignificantBitFirst)
+  final lazy val defaultBitOrder =
+    optDefaultBitOrder.getOrElse(BitOrder.MostSignificantBitFirst)
 }

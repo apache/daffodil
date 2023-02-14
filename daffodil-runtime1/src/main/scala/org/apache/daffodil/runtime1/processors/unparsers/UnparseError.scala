@@ -17,25 +17,42 @@
 
 package org.apache.daffodil.runtime1.processors.unparsers
 import org.apache.daffodil.lib.api._
-import org.apache.daffodil.runtime1.processors._
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.runtime1.processors._
 
-class UnparseAlternativeFailed(rd: TermRuntimeData, loc: DataLocation, val errors: Seq[Diagnostic])
-  extends UnparseError(One(rd.schemaFileLocation), One(loc), Maybe.Nope, Maybe("Alternative failed. Reason(s): %s"), errors)
+class UnparseAlternativeFailed(
+  rd: TermRuntimeData,
+  loc: DataLocation,
+  val errors: Seq[Diagnostic],
+) extends UnparseError(
+    One(rd.schemaFileLocation),
+    One(loc),
+    Maybe.Nope,
+    Maybe("Alternative failed. Reason(s): %s"),
+    errors,
+  )
 
 object UnparseError {
-  def apply(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], formatString: String, args: Any*) = {
+  def apply(
+    rd: Maybe[SchemaFileLocation],
+    loc: Maybe[DataLocation],
+    formatString: String,
+    args: Any*,
+  ) = {
     val ue = new UnparseError(rd, loc, Maybe.Nope, Maybe(formatString), args: _*)
     ue.toss
   }
 }
 
-class UnparseError(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], causedBy: Maybe[Throwable], kind: Maybe[String], args: Any*)
-  extends ProcessingError("Unparse", rd, loc, causedBy, kind, args: _*) {
+class UnparseError(
+  rd: Maybe[SchemaFileLocation],
+  loc: Maybe[DataLocation],
+  causedBy: Maybe[Throwable],
+  kind: Maybe[String],
+  args: Any*,
+) extends ProcessingError("Unparse", rd, loc, causedBy, kind, args: _*) {
   def this(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], causedBy: Throwable) =
     this(rd, loc, Maybe(causedBy), Maybe.Nope)
 }

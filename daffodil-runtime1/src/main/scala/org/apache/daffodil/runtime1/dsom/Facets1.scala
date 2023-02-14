@@ -16,8 +16,9 @@
  */
 
 package org.apache.daffodil.runtime1.dsom
-import org.apache.daffodil.lib.util.Enum
 import scala.util.matching.Regex
+
+import org.apache.daffodil.lib.util.Enum
 
 object Facet extends Enum {
   sealed abstract trait Type extends EnumValueType

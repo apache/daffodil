@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.validation.schematron
 
+import java.util
+import scala.collection.JavaConverters.asJavaCollectionConverter
+
 import org.apache.daffodil.lib.api.ValidationFailure
 import org.apache.daffodil.lib.api.ValidationResult
 import org.apache.daffodil.lib.api.ValidationWarning
-
-import java.util
-import scala.collection.JavaConverters.asJavaCollectionConverter
 
 /**
  * Captures the output of Schematron validation as a Daffodil ValidationResult
@@ -31,11 +31,17 @@ import scala.collection.JavaConverters.asJavaCollectionConverter
  * @param errors   Schematron errors parsed into ValidationFailure objects
  * @param svrl     Full SVRL output
  */
-case class SchematronResult(warnings: util.Collection[ValidationWarning],
-                            errors: util.Collection[ValidationFailure],
-                            svrl: String) extends ValidationResult
+case class SchematronResult(
+  warnings: util.Collection[ValidationWarning],
+  errors: util.Collection[ValidationFailure],
+  svrl: String,
+) extends ValidationResult
 
 object SchematronResult {
-  def apply(w: Seq[ValidationWarning], e: Seq[ValidationFailure], svrl: String): SchematronResult =
+  def apply(
+    w: Seq[ValidationWarning],
+    e: Seq[ValidationFailure],
+    svrl: String,
+  ): SchematronResult =
     SchematronResult(w.asJavaCollection, e.asJavaCollection, svrl)
 }

@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.propGen
 
-
 class WarnIDGenerator(schema: scala.xml.Node) {
 
   val top = """
@@ -64,7 +63,8 @@ class WarnIDGenerator(schema: scala.xml.Node) {
     |}
     """.trim.stripMargin
 
-  val ssdwNode = (schema \ "simpleType").find( _ \@ "name" == "TunableSuppressSchemaDefinitionWarnings").get
+  val ssdwNode =
+    (schema \ "simpleType").find(_ \@ "name" == "TunableSuppressSchemaDefinitionWarnings").get
   val enumerationNodes = (ssdwNode \\ "enumeration")
 
   def writeGeneratedCode(w: java.io.FileWriter): Unit = {

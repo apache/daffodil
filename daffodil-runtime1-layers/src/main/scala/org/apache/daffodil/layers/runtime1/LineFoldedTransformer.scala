@@ -17,19 +17,17 @@
 
 package org.apache.daffodil.layers.runtime1
 
-import org.apache.daffodil.runtime1.layers._
-
-import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
-
-import java.nio.charset.StandardCharsets
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
-
-import java.io.OutputStream
 import java.io.InputStream
+import java.io.OutputStream
+import java.nio.charset.StandardCharsets
+
+import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
+import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.schema.annotation.props.Enum
-import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
+import org.apache.daffodil.runtime1.layers._
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 
 /*
@@ -80,29 +78,40 @@ import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 sealed abstract class LineFoldedLayerCompiler(mode: LineFoldMode)
   extends LayerCompiler(mode.transformName) {
 
-  override def compileLayer(layerCompileInfo: LayerCompileInfo): LineFoldedTransformerFactory = {
+  override def compileLayer(
+    layerCompileInfo: LayerCompileInfo,
+  ): LineFoldedTransformerFactory = {
 
     layerCompileInfo.optLayerLengthKind match {
       case Some(LayerLengthKind.BoundaryMark) =>
         layerCompileInfo.SDEUnless(
           layerCompileInfo.optLayerBoundaryMarkOptConstantValue.isDefined,
-          "Property dfdlx:layerBoundaryMark was not defined.")
+          "Property dfdlx:layerBoundaryMark was not defined.",
+        )
       case Some(LayerLengthKind.Implicit) => // ok
-      case Some(other) => layerCompileInfo.SDE(s"Property dfdlx:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '$other'.")
-      case None => layerCompileInfo.SDE(s"Property dfdlx:layerLengthKind must be 'implicit' or 'boundaryMark'.")
+      case Some(other) =>
+        layerCompileInfo.SDE(
+          s"Property dfdlx:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '$other'.",
+        )
+      case None =>
+        layerCompileInfo.SDE(
+          s"Property dfdlx:layerLengthKind must be 'implicit' or 'boundaryMark'.",
+        )
     }
 
     //
     // This layer assumes an ascii-family encoding.
     //
 
-    val xformer = new LineFoldedTransformerFactory(mode, layerCompileInfo.optLayerLengthKind.get)
+    val xformer =
+      new LineFoldedTransformerFactory(mode, layerCompileInfo.optLayerLengthKind.get)
     xformer
   }
 }
 
 final class LineFoldedIMFLayerCompiler extends LineFoldedLayerCompiler(LineFoldMode.IMF)
-final class LineFoldedICalendarLayerCompiler extends LineFoldedLayerCompiler(LineFoldMode.iCalendar)
+final class LineFoldedICalendarLayerCompiler
+  extends LineFoldedLayerCompiler(LineFoldMode.iCalendar)
 
 final class LineFoldedTransformerFactory(mode: LineFoldMode, layerLengthKind: LayerLengthKind)
   extends LayerTransformerFactory(mode.transformName) {
@@ -116,7 +125,10 @@ final class LineFoldedTransformerFactory(mode: LineFoldMode, layerLengthKind: La
         case LayerLengthKind.Implicit => {
           new LineFoldedTransformerImplicit(mode, layerRuntimeInfo)
         }
-        case _ => Assert.invariantFailed("Should already have checked that it is only one of BoundaryMark or Implicit")
+        case _ =>
+          Assert.invariantFailed(
+            "Should already have checked that it is only one of BoundaryMark or Implicit",
+          )
       }
     xformer
   }
@@ -132,7 +144,8 @@ object LineFoldMode extends Enum[LineFoldMode] {
   case object iCalendar extends LineFoldMode
   override lazy val values = Array(IMF, iCalendar)
 
-  override def apply(name: String, context: ThrowsSDE): LineFoldMode = stringToEnum("lineFoldMode", name, context)
+  override def apply(name: String, context: ThrowsSDE): LineFoldMode =
+    stringToEnum("lineFoldMode", name, context)
 }
 
 /**
@@ -141,24 +154,34 @@ object LineFoldMode extends Enum[LineFoldMode] {
  * inserting/removing CRLF+Space (or CRLF+TAB). A CRLF not followed by space or tab
  * is ALWAYS the actual "delimiter". There's no means of supplying a specific delimiter.
  */
-final class LineFoldedTransformerDelimited(mode: LineFoldMode, layerRuntimeInfo: LayerRuntimeInfo)
-  extends LayerTransformer(mode.transformName, layerRuntimeInfo) {
+final class LineFoldedTransformerDelimited(
+  mode: LineFoldMode,
+  layerRuntimeInfo: LayerRuntimeInfo,
+) extends LayerTransformer(mode.transformName, layerRuntimeInfo) {
 
-  override protected def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
+  override protected def wrapLimitingStream(
+    state: ParseOrUnparseState,
+    jis: java.io.InputStream,
+  ) = {
     // regex means CRLF not followed by space or tab.
     // NOTE: this regex cannot contain ANY capturing groups (per scaladoc on RegexLimitingStream)
-    val s = new RegexLimitingStream(jis, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", StandardCharsets.ISO_8859_1)
+    val s =
+      new RegexLimitingStream(jis, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", StandardCharsets.ISO_8859_1)
     s
   }
 
-  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(
+    state: ParseOrUnparseState,
+    jos: java.io.OutputStream,
+  ) = {
     //
     // Q: How do we insert a CRLF "not followed by tab or space" when we don't
     // control what follows?
     // A: We don't. This is nature of the format. If what follows could begin
     // with a space or tab, then the format can't use a line-folded layer.
     //
-    val newJOS = new LayerBoundaryMarkInsertingJavaOutputStream(jos, "\r\n", StandardCharsets.ISO_8859_1)
+    val newJOS =
+      new LayerBoundaryMarkInsertingJavaOutputStream(jos, "\r\n", StandardCharsets.ISO_8859_1)
     newJOS
   }
 
@@ -181,11 +204,17 @@ final class LineFoldedTransformerDelimited(mode: LineFoldMode, layerRuntimeInfo:
 class LineFoldedTransformerImplicit(mode: LineFoldMode, layerRuntimeInfo: LayerRuntimeInfo)
   extends LayerTransformer(mode.transformName, layerRuntimeInfo) {
 
-  override protected def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
+  override protected def wrapLimitingStream(
+    state: ParseOrUnparseState,
+    jis: java.io.InputStream,
+  ) = {
     jis // no limiting - just pull input until EOF.
   }
 
-  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(
+    state: ParseOrUnparseState,
+    jos: java.io.OutputStream,
+  ) = {
     jos // no limiting - just write output until EOF.
   }
 
@@ -204,8 +233,7 @@ class LineFoldedTransformerImplicit(mode: LineFoldMode, layerRuntimeInfo: LayerR
  *
  * This is a state machine, so of course must be used only on a single thread.
  */
-class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream)
-  extends InputStream {
+class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream) extends InputStream {
 
   object State extends org.apache.daffodil.lib.util.Enum {
     abstract sealed trait Type extends EnumValueType
@@ -339,8 +367,7 @@ class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream)
   }
 }
 
-class LineFoldedOutputStream(mode: LineFoldMode, jos: OutputStream)
-  extends OutputStream {
+class LineFoldedOutputStream(mode: LineFoldMode, jos: OutputStream) extends OutputStream {
 
   private val (lineLength, breaker) = mode match {
     case LineFoldMode.IMF => (78, "\r\n".getBytes("ascii"))
@@ -375,23 +402,21 @@ class LineFoldedOutputStream(mode: LineFoldMode, jos: OutputStream)
       // there's room for more on the line
       b match {
         case '\r' => line += b
-        case '\n' if !lastCharWas('\r') =>
-          {
-            // isolated \n. Output both \r and \n
-            // and flush the line
-            line += '\r'
-            line += '\n'
-            jos.write(lineBytes)
-            line.clear()
-          }
-        case '\n' if lastCharWas('\r') =>
-          {
-            // newline after a CR, regular CRLF case.
-            // add and output
-            line += '\n'
-            jos.write(lineBytes)
-            line.clear()
-          }
+        case '\n' if !lastCharWas('\r') => {
+          // isolated \n. Output both \r and \n
+          // and flush the line
+          line += '\r'
+          line += '\n'
+          jos.write(lineBytes)
+          line.clear()
+        }
+        case '\n' if lastCharWas('\r') => {
+          // newline after a CR, regular CRLF case.
+          // add and output
+          line += '\n'
+          jos.write(lineBytes)
+          line.clear()
+        }
         case c if lastCharWas('\r') => {
           // isolated CR. Output CRLF
           line += '\n'

@@ -17,20 +17,20 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.OutputNewLineEv
-import org.apache.daffodil.runtime1.processors.InfosetCachedEvaluatable
-import org.apache.daffodil.runtime1.processors.Evaluatable
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.cookers.EntityReplacer
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
+import org.apache.daffodil.runtime1.processors.Evaluatable
+import org.apache.daffodil.runtime1.processors.InfosetCachedEvaluatable
+import org.apache.daffodil.runtime1.processors.OutputNewLineEv
+import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 
 class NilStringLiteralForUnparserEv(
   tci: DPathCompileInfo,
   maybeOutputNewLineEv: Maybe[OutputNewLineEv],
-  stringLiteralRaw: String)
-  extends Evaluatable[String](tci)
+  stringLiteralRaw: String,
+) extends Evaluatable[String](tci)
   with InfosetCachedEvaluatable[String] {
 
   override lazy val runtimeDependencies = maybeOutputNewLineEv.toList
@@ -63,7 +63,8 @@ class NilStringLiteralForUnparserEv(
       } else {
         tci.schemaDefinitionUnless(
           maybeOutputNewLineEv.isDefined,
-          "Property dfdl:outputNewLine is required, but it is not defined.")
+          "Property dfdl:outputNewLine is required, but it is not defined.",
+        )
         val nl = maybeOutputNewLineEv.get.evaluate(state)
         val sl = chunks.mkString(nl)
         sl

@@ -17,29 +17,33 @@
 
 package org.apache.daffodil.io.processors.charset
 
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.io.InputSourceDataInputStream
 
-object BitsCharsetUTF32LE extends {
-  override val name = "UTF-32LE"
-} with BitsCharsetJava {
+object BitsCharsetUTF32LE
+  extends {
+    override val name = "UTF-32LE"
+  }
+  with BitsCharsetJava {
 
   override def newDecoder() = new BitsCharsetDecoderUTF32LE()
 }
 
-class BitsCharsetDecoderUTF32LE
-  extends BitsCharsetDecoderCreatesSurrogates {
+class BitsCharsetDecoderUTF32LE extends BitsCharsetDecoderCreatesSurrogates {
 
-  protected override def decodeOneUnicodeChar(dis: InputSourceDataInputStream, finfo: FormatInfo): Char = {
+  protected override def decodeOneUnicodeChar(
+    dis: InputSourceDataInputStream,
+    finfo: FormatInfo,
+  ): Char = {
     val byte4 = getByte(dis, 0)
     val byte3 = getByte(dis, 8)
     val byte2 = getByte(dis, 16)
     val byte1 = getByte(dis, 24)
 
     val cp = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4
-    if (cp >= 0 && cp <= 0xFFFF) {
+    if (cp >= 0 && cp <= 0xffff) {
       cp.toChar
-    } else if (cp <= 0x10FFFF) {
+    } else if (cp <= 0x10ffff) {
       val high = Character.highSurrogate(cp)
       setLowSurrogate(Character.lowSurrogate(cp))
       high
@@ -49,5 +53,4 @@ class BitsCharsetDecoderUTF32LE
   }
 }
 
-final class BitsCharsetUTF32LEDefinition
-  extends BitsCharsetDefinition(BitsCharsetUTF32LE)
+final class BitsCharsetUTF32LEDefinition extends BitsCharsetDefinition(BitsCharsetUTF32LE)

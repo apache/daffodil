@@ -18,19 +18,17 @@
 package org.apache.daffodil.runtime1.infoset
 
 import java.io.InputStream
-
 import scala.collection.mutable.ArrayBuffer
-
 import scala.xml.Elem
 import scala.xml.SAXParser
 import scala.xml.Text
 import scala.xml.XML
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType._
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType._
 
 object NullInfosetInputter {
 
@@ -73,11 +71,14 @@ object NullInfosetInputter {
     val namespaceURI = elem.namespace
     val (simpleText, isNilled) = if (isSimple) {
       val text = XMLUtils.remapPUAToXMLIllegalCharacters(elem.text)
-      val isNilled = elem.attribute(XMLUtils.XSI_NAMESPACE, "nil").map { attrs =>
-        val str = attrs.head.toString
-        val value = str == "true" || str == "1"
-        MaybeBoolean(value)
-      }.getOrElse(MaybeBoolean.Nope)
+      val isNilled = elem
+        .attribute(XMLUtils.XSI_NAMESPACE, "nil")
+        .map { attrs =>
+          val str = attrs.head.toString
+          val value = str == "true" || str == "1"
+          MaybeBoolean(value)
+        }
+        .getOrElse(MaybeBoolean.Nope)
       (text, isNilled)
     } else {
       (null, MaybeBoolean.Nope)
@@ -106,7 +107,10 @@ class NullInfosetInputter(events: Array[NullInfosetInputter.Event]) extends Info
   def getEventType(): InfosetInputterEventType = curEvent.eventType
   def getLocalName(): String = curEvent.localName
   def getNamespaceURI(): String = curEvent.namespaceURI
-  def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String,String]): String = curEvent.simpleText
+  def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String = curEvent.simpleText
   def isNilled(): MaybeBoolean = curEvent.isNilled
 
   def hasNext(): Boolean = curIndex + 1 < events.length

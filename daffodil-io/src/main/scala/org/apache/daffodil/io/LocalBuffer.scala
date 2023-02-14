@@ -17,12 +17,13 @@
 
 package org.apache.daffodil.io
 
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.LocalStack
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
-import java.nio.CharBuffer
-import java.nio.ByteBuffer
-import org.apache.daffodil.lib.util.LocalStack
 
 abstract class LocalBuffer[T <: java.nio.Buffer] {
   protected def allocate(length: Long): T
@@ -46,7 +47,7 @@ abstract class LocalBuffer[T <: java.nio.Buffer] {
  * class this will end up sharing the local stack object across threads, which
  * is a very bad idea (not thread safe).
  */
- // move to common state shared by everything
+// move to common state shared by everything
 trait LocalBufferMixin {
 
   /**

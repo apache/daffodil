@@ -19,27 +19,27 @@ package org.apache.daffodil.core.dsom
 
 import scala.xml.Elem
 import scala.xml.Node
-import org.apache.daffodil.lib.schema.annotation.props.gen.Sequence_AnnotationMixin
-import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicyMixin
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
-import org.apache.daffodil.lib.api.WarnID
+
 import org.apache.daffodil.core.dsom.walker.SequenceView
 import org.apache.daffodil.core.grammar.SequenceGrammarMixin
+import org.apache.daffodil.core.runtime1.ChoiceBranchImpliedSequenceRuntime1Mixin
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.FindPropertyMixin
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
-import org.apache.daffodil.runtime1.processors.SeparatorParseEv
+import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicyMixin
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
-import org.apache.daffodil.runtime1.processors.SeparatorUnparseEv
-import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
+import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.Sequence_AnnotationMixin
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.layers.LayerCompiler
 import org.apache.daffodil.runtime1.layers.LayerCompilerRegistry
-import org.apache.daffodil.core.runtime1.ChoiceBranchImpliedSequenceRuntime1Mixin
-import org.apache.daffodil.lib.schema.annotation.props.FindPropertyMixin
-
+import org.apache.daffodil.runtime1.processors.SeparatorParseEv
+import org.apache.daffodil.runtime1.processors.SeparatorUnparseEv
 
 /**
  * Base for anything sequence-like.
@@ -50,8 +50,8 @@ import org.apache.daffodil.lib.schema.annotation.props.FindPropertyMixin
 abstract class SequenceTermBase(
   final override val xml: Node,
   final override val optLexicalParent: Option[SchemaComponent],
-  final override val position: Int)
-  extends ModelGroup(position)
+  final override val position: Int,
+) extends ModelGroup(position)
   with SequenceGrammarMixin {
 
   def separatorSuppressionPolicy: SeparatorSuppressionPolicy
@@ -77,10 +77,7 @@ abstract class SequenceTermBase(
  * has the sequence properties. So actual sequences, group refs to them,
  * but NOT implied sequences inside choice branches.
  */
-abstract class SequenceGroupTermBase(
-  xml: Node,
-  lexicalParent: SchemaComponent,
-  position: Int)
+abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, position: Int)
   extends SequenceTermBase(xml, Option(lexicalParent), position)
   with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
@@ -170,8 +167,9 @@ abstract class SequenceGroupTermBase(
 
   private lazy val checkMembersHaveValidOccursCountKind: Unit = {
     val validChildren: Seq[ElementBase] =
-      groupMembers.filter { m => m.isInstanceOf[LocalElementDecl] || m.isInstanceOf[ElementRef]
-      }.map(_.asInstanceOf[ElementBase])
+      groupMembers
+        .filter { m => m.isInstanceOf[LocalElementDecl] || m.isInstanceOf[ElementRef] }
+        .map(_.asInstanceOf[ElementBase])
 
     val invalidChild = validChildren.find(e => {
       if (e.minOccurs == 0 | !e.isScalar) {
@@ -182,14 +180,18 @@ abstract class SequenceGroupTermBase(
       } else false
     })
     if (invalidChild.isDefined) {
-      invalidChild.get.SDE("Member of an unordered sequence that is an optional or array element must have dfdl:occursCountKind='parsed'")
+      invalidChild.get.SDE(
+        "Member of an unordered sequence that is an optional or array element must have dfdl:occursCountKind='parsed'",
+      )
     }
   }
 
   private lazy val checkMembersAreAllElementOrElementRef: Unit = {
     val invalidChild = groupMembers.find(!_.isInstanceOf[ElementBase])
     if (invalidChild.isDefined) {
-      invalidChild.get.SDE("Member of an unordered sequence must be an element declaration or element reference")
+      invalidChild.get.SDE(
+        "Member of an unordered sequence must be an element declaration or element reference",
+      )
     }
   }
 
@@ -202,7 +204,9 @@ abstract class SequenceGroupTermBase(
     }
     childrenGroupedByQName.foreach { case (qname, children) =>
       if (children.length > 1) {
-        children.head.SDE("Two or more members of an unordered sequence have the same name and the same namespace")
+        children.head.SDE(
+          "Two or more members of an unordered sequence have the same name and the same namespace",
+        )
       }
     }
   }
@@ -212,7 +216,15 @@ abstract class SequenceGroupTermBase(
     case SequenceKind.Unordered => false
   }
 
-  private val layeredSequenceAllowedProps = Set("ref", "layerTransform", "layerEncoding", "layerLengthKind", "layerLength", "layerLengthUnits", "layerBoundaryMark")
+  private val layeredSequenceAllowedProps = Set(
+    "ref",
+    "layerTransform",
+    "layerEncoding",
+    "layerLengthKind",
+    "layerLength",
+    "layerLengthUnits",
+    "layerBoundaryMark",
+  )
 
   private lazy val optionLayerTransform = findPropertyOption("layerTransform").toOption
 
@@ -223,7 +235,10 @@ abstract class SequenceGroupTermBase(
     val localKeys = localProps.keySet
     val disallowedKeys = localKeys.filterNot(k => layeredSequenceAllowedProps.contains(k))
     if (disallowedKeys.size > 0)
-      SDE("Sequence has dfdlx:layerTransform specified, so cannot have non-layering properties: %s", disallowedKeys.mkString(", "))
+      SDE(
+        "Sequence has dfdlx:layerTransform specified, so cannot have non-layering properties: %s",
+        disallowedKeys.mkString(", "),
+      )
 
     optionLayerTransform.map { xformName =>
       LayerCompilerRegistry.find(xformName, this)
@@ -250,14 +265,14 @@ trait SequenceDefMixin
 
   protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
-      case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => Some(new DFDLSequence(node, this))
+      case <dfdl:sequence>{contents @ _*}</dfdl:sequence> => Some(new DFDLSequence(node, this))
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
   protected def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
 
-  final lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = (xml \\ "sequence")(0)
+  final lazy val <sequence>{apparentXMLChildren @ _*}</sequence> = (xml \\ "sequence")(0)
 
   def xmlChildren = apparentXMLChildren
 
@@ -268,7 +283,6 @@ trait SequenceDefMixin
   final lazy val hiddenGroupRefOption = LV('hiddenGroupRefOption) {
     findPropertyOption("hiddenGroupRef")
   }.value
-
 
   override lazy val optReferredToComponent = None
 
@@ -285,7 +299,7 @@ trait SequenceDefMixin
     // synthesize a group reference here.
     val contextScope = xml.asInstanceOf[Elem].scope
     val hgr = {
-      (<xs:group xmlns:xs={ XMLUtils.xsdURI } ref={ qname }/>).copy(scope = contextScope)
+      (<xs:group xmlns:xs={XMLUtils.xsdURI} ref={qname}/>).copy(scope = contextScope)
     }
     hgr
   }.value
@@ -299,6 +313,7 @@ object LocalSequence {
     ls
   }
 }
+
 /**
  * Represents a local sequence definition.
  */
@@ -314,6 +329,7 @@ object ChoiceBranchImpliedSequence {
     cbis
   }
 }
+
 /**
  * For the case when a choice branch happens to be a local element decl or element ref
  * with varying or multiple occurrences. In that case we encapsulate them
@@ -331,7 +347,8 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
 
   override final protected lazy val groupMembersDef: Seq[Term] = Seq(rawGM)
 
-  override def separatorSuppressionPolicy: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
+  override def separatorSuppressionPolicy: SeparatorSuppressionPolicy =
+    SeparatorSuppressionPolicy.TrailingEmptyStrict
 
   override def sequenceKind: SequenceKind = SequenceKind.Ordered
 
@@ -343,15 +360,21 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
   override lazy val hasTerminator = false
   override lazy val hasInitiator = false
 
-  override def separatorParseEv: SeparatorParseEv = Assert.usageError("Not to be called on choice branches.")
+  override def separatorParseEv: SeparatorParseEv =
+    Assert.usageError("Not to be called on choice branches.")
 
-  override def separatorUnparseEv: SeparatorUnparseEv = Assert.usageError("Not to be called on choice branches.")
+  override def separatorUnparseEv: SeparatorUnparseEv =
+    Assert.usageError("Not to be called on choice branches.")
 
-  override def layerLengthUnits: LayerLengthUnits = Assert.usageError("Not to be called for choice branches.")
+  override def layerLengthUnits: LayerLengthUnits =
+    Assert.usageError("Not to be called for choice branches.")
 
   override def isOrdered = true
 
-  override def findPropertyOption(pname: String, expressionAllowed: Boolean = false): PropertyLookupResult =
+  override def findPropertyOption(
+    pname: String,
+    expressionAllowed: Boolean = false,
+  ): PropertyLookupResult =
     rawGM.findPropertyOption(pname, expressionAllowed)
 
   /**

@@ -17,13 +17,17 @@
 
 package org.apache.daffodil.lib.util
 
-import org.apache.daffodil.lib.exceptions.Assert
 import scala.collection.mutable.HashMap
+
+import org.apache.daffodil.lib.exceptions.Assert
 
 trait PreSerialization extends Serializable {
 
   val me = this.getClass()
-  Assert.usage(PreSerialization.classHasWriteObjectMethod(me), String.format("Class %s does not implement the method writeObject.", me.getName()))
+  Assert.usage(
+    PreSerialization.classHasWriteObjectMethod(me),
+    String.format("Class %s does not implement the method writeObject.", me.getName()),
+  )
 
   /**
    * If this is overridden by a def, there's a chance we call it
@@ -45,8 +49,8 @@ trait PreSerialization extends Serializable {
   // painful, but you must explicitly put a private version of this in each
   // class that you want to have call the preSerialization hook and have
   // be tracable, and have this catch, etc.
-  // 
-  // This is because the serialization algorithm will call this for every 
+  //
+  // This is because the serialization algorithm will call this for every
   // class in the inheritance hierarchy of a serializable class.
   // Hence, it is private since it only deals with fields of that one class.
   @throws(classOf[java.io.IOException])
@@ -58,7 +62,12 @@ trait PreSerialization extends Serializable {
       out.defaultWriteObject()
     } catch {
       case ns: java.io.NotSerializableException => {
-        Assert.abort("Could not serialize member of class %s, found within class %s".format(ns.getMessage(), Misc.getNameFromClass(this)))
+        Assert.abort(
+          "Could not serialize member of class %s, found within class %s".format(
+            ns.getMessage(),
+            Misc.getNameFromClass(this),
+          ),
+        )
       }
     }
   }

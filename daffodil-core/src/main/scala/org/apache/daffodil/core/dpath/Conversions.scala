@@ -43,7 +43,11 @@ object Conversion {
    * to convert the type. ST is the start type, the type the recipe has as its
    * output type. TT is the target type desired.
    */
-  def conversionOps(st: NodeInfo.Kind, tt: NodeInfo.Kind, context: Expression): List[RecipeOp] = {
+  def conversionOps(
+    st: NodeInfo.Kind,
+    tt: NodeInfo.Kind,
+    context: Expression,
+  ): List[RecipeOp] = {
     import NodeInfo._
     val ops: List[RecipeOp] = (st, tt) match {
       case (_, Array) => Nil
@@ -98,11 +102,13 @@ object Conversion {
       case (Double, Decimal) => List(DoubleToDecimal)
       case (Double, Float) => List(DoubleToFloat)
       case (Double, Integer) => DoubleToDecimal +: conversionOps(Decimal, tt, context)
-      case (Double, NonNegativeInteger) => DoubleToDecimal +: conversionOps(Decimal, tt, context)
+      case (Double, NonNegativeInteger) =>
+        DoubleToDecimal +: conversionOps(Decimal, tt, context)
       case (Double, Long) => List(DoubleToLong)
       case (Double, UnsignedLong) => DoubleToUnsignedLong +: conversionOps(Long, tt, context)
       case (Double, i: Int.Kind) => DoubleToLong +: conversionOps(Long, tt, context)
-      case (Double, ui: UnsignedInt.Kind) => DoubleToUnsignedLong +: UnsignedLongToLong +: conversionOps(Long, tt, context)
+      case (Double, ui: UnsignedInt.Kind) =>
+        DoubleToUnsignedLong +: UnsignedLongToLong +: conversionOps(Long, tt, context)
 
       case (Float, n: Numeric.Kind) => FloatToDouble +: conversionOps(Double, tt, context)
 
@@ -118,15 +124,17 @@ object Conversion {
       case (Decimal, Byte) => List(DecimalToLong, LongToByte)
       case (Decimal, UnsignedByte) => List(DecimalToLong, LongToUnsignedByte)
 
-      case (Integer, n: NodeInfo.Numeric.Kind) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
+      case (Integer, n: NodeInfo.Numeric.Kind) =>
+        IntegerToDecimal +: conversionOps(Decimal, tt, context)
 
-      case (NonNegativeInteger, n: Numeric.Kind) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
+      case (NonNegativeInteger, n: Numeric.Kind) =>
+        IntegerToDecimal +: conversionOps(Decimal, tt, context)
       // Commented these out because these are illegal conversions for XPath functions.
       // I cannot pass a DateTime as a Date argument to an XPath function.
       //
-      //case (DateTime, Date) => List(DateTimeToDate)
-      //case (DateTime, Time) => List(DateTimeToTime)
-      //case (Time, DateTime) => List(TimeToDateTime)
+      // case (DateTime, Date) => List(DateTimeToDate)
+      // case (DateTime, Time) => List(DateTimeToTime)
+      // case (Time, DateTime) => List(TimeToDateTime)
       case (String, Double) => List(StringToDouble)
       case (String, Decimal) => List(StringToDecimal)
       case (String, Float) => List(StringToDouble, DoubleToFloat)
@@ -174,7 +182,8 @@ object Conversion {
       case (UnsignedInt, Decimal) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Float) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Integer) => UnsignedIntToLong +: conversionOps(Long, tt, context)
-      case (UnsignedInt, NonNegativeInteger) => UnsignedIntToLong +: conversionOps(Long, tt, context)
+      case (UnsignedInt, NonNegativeInteger) =>
+        UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Long) => List(UnsignedIntToLong)
       case (UnsignedInt, UnsignedLong) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Int) => UnsignedIntToLong +: conversionOps(Long, tt, context)
@@ -186,18 +195,22 @@ object Conversion {
       case (UnsignedLong, Decimal) => UnsignedLongToLong +: conversionOps(Long, tt, context)
       case (UnsignedLong, Float) => UnsignedLongToLong +: conversionOps(Long, tt, context)
       case (UnsignedLong, Integer) => UnsignedLongToLong +: conversionOps(Long, tt, context)
-      case (UnsignedLong, NonNegativeInteger) => UnsignedLongToLong +: conversionOps(Long, tt, context)
+      case (UnsignedLong, NonNegativeInteger) =>
+        UnsignedLongToLong +: conversionOps(Long, tt, context)
       case (UnsignedLong, Long) => List(UnsignedLongToLong)
       case (UnsignedLong, Int) => UnsignedLongToLong +: conversionOps(Long, tt, context)
       case (UnsignedLong, Short) => UnsignedLongToLong +: conversionOps(Long, tt, context)
-      case (UnsignedLong, UnsignedShort) => UnsignedLongToLong +: conversionOps(Long, tt, context)
+      case (UnsignedLong, UnsignedShort) =>
+        UnsignedLongToLong +: conversionOps(Long, tt, context)
       case (UnsignedLong, Byte) => UnsignedLongToLong +: conversionOps(Long, tt, context)
-      case (UnsignedLong, UnsignedByte) => UnsignedLongToLong +: conversionOps(Long, tt, context)
+      case (UnsignedLong, UnsignedByte) =>
+        UnsignedLongToLong +: conversionOps(Long, tt, context)
 
       case (ArrayIndex, Decimal) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Float) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Integer) => ArrayIndexToLong +: conversionOps(Long, tt, context)
-      case (ArrayIndex, NonNegativeInteger) => ArrayIndexToLong +: conversionOps(Long, tt, context)
+      case (ArrayIndex, NonNegativeInteger) =>
+        ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Long) => List(ArrayIndexToLong)
       case (ArrayIndex, UnsignedLong) => ArrayIndexToLong +: conversionOps(Long, tt, context)
       case (ArrayIndex, Int) => ArrayIndexToLong +: conversionOps(Long, tt, context)
@@ -222,14 +235,18 @@ object Conversion {
       case (UnsignedShort, Decimal) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Float) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Integer) => UnsignedShortToLong +: conversionOps(Long, tt, context)
-      case (UnsignedShort, NonNegativeInteger) => UnsignedShortToLong +: conversionOps(Long, tt, context)
+      case (UnsignedShort, NonNegativeInteger) =>
+        UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Long) => List(UnsignedShortToLong)
-      case (UnsignedShort, UnsignedLong) => UnsignedShortToLong +: conversionOps(Long, tt, context)
+      case (UnsignedShort, UnsignedLong) =>
+        UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Int) => UnsignedShortToLong +: conversionOps(Long, tt, context)
-      case (UnsignedShort, UnsignedInt) => UnsignedShortToLong +: conversionOps(Long, tt, context)
+      case (UnsignedShort, UnsignedInt) =>
+        UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Short) => UnsignedShortToLong +: conversionOps(Long, tt, context)
       case (UnsignedShort, Byte) => UnsignedShortToLong +: conversionOps(Long, tt, context)
-      case (UnsignedShort, UnsignedByte) => UnsignedShortToLong +: conversionOps(Long, tt, context)
+      case (UnsignedShort, UnsignedByte) =>
+        UnsignedShortToLong +: conversionOps(Long, tt, context)
 
       case (Byte, Decimal) => ByteToLong +: conversionOps(Long, tt, context)
       case (Byte, Float) => ByteToLong +: conversionOps(Long, tt, context)
@@ -246,13 +263,16 @@ object Conversion {
       case (UnsignedByte, Decimal) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Float) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Integer) => UnsignedByteToLong +: conversionOps(Long, tt, context)
-      case (UnsignedByte, NonNegativeInteger) => UnsignedByteToLong +: conversionOps(Long, tt, context)
+      case (UnsignedByte, NonNegativeInteger) =>
+        UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Long) => List(UnsignedByteToLong)
-      case (UnsignedByte, UnsignedLong) => UnsignedByteToLong +: conversionOps(Long, tt, context)
+      case (UnsignedByte, UnsignedLong) =>
+        UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Int) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, UnsignedInt) => UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Short) => UnsignedByteToLong +: conversionOps(Long, tt, context)
-      case (UnsignedByte, UnsignedShort) => UnsignedByteToLong +: conversionOps(Long, tt, context)
+      case (UnsignedByte, UnsignedShort) =>
+        UnsignedByteToLong +: conversionOps(Long, tt, context)
       case (UnsignedByte, Byte) => UnsignedByteToLong +: conversionOps(Long, tt, context)
 
       // Note: These are explicitly not allowed
@@ -273,7 +293,8 @@ object Conversion {
           "In expression %s, the type %s cannot be converted to %s.",
           context.wholeExpressionText,
           st.globalQName.toQNameString,
-          tt.globalQName.toQNameString)
+          tt.globalQName.toQNameString,
+        )
       }
     }
     ops

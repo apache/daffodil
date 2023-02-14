@@ -34,26 +34,23 @@ import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
-
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.xml.InputSource
 import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
 
-import org.apache.xerces.jaxp.validation.XMLSchemaFactory
-import org.apache.xerces.xni.parser.XMLInputSource
-
-import org.apache.xml.resolver.Catalog
-import org.apache.xml.resolver.CatalogManager
-
-import org.w3c.dom.ls.LSInput
-
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.validation.XercesValidator
+
+import org.apache.xerces.jaxp.validation.XMLSchemaFactory
+import org.apache.xerces.xni.parser.XMLInputSource
+import org.apache.xml.resolver.Catalog
+import org.apache.xml.resolver.CatalogManager
+import org.w3c.dom.ls.LSInput
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -157,19 +154,20 @@ class DFDLCatalogResolver private ()
       }
     }
     val prior = alreadyResolvingXSD
-    val res = try {
-      alreadyResolvingXSD = (ns == XMLUtils.XSD_NAMESPACE)
-      val optURI = resolveCommon(nsString, literalSysId, baseURIString)
-      optURI match {
-        case None => null
-        case Some(uri) => {
-          val xis = new XMLInputSource(null, uri.toString, null)
-          xis
+    val res =
+      try {
+        alreadyResolvingXSD = (ns == XMLUtils.XSD_NAMESPACE)
+        val optURI = resolveCommon(nsString, literalSysId, baseURIString)
+        optURI match {
+          case None => null
+          case Some(uri) => {
+            val xis = new XMLInputSource(null, uri.toString, null)
+            xis
+          }
         }
+      } finally {
+        alreadyResolvingXSD = prior
       }
-    } finally {
-      alreadyResolvingXSD = prior
-    }
     res
   }
 
@@ -182,7 +180,11 @@ class DFDLCatalogResolver private ()
     }
   }
 
-  private def resolveCommon(nsURI: String, systemId: String, baseURIString: String): Option[URI] = {
+  private def resolveCommon(
+    nsURI: String,
+    systemId: String,
+    baseURIString: String,
+  ): Option[URI] = {
     init
     if (nsURI == null && systemId == null && baseURIString == null) return None
 
@@ -207,7 +209,11 @@ class DFDLCatalogResolver private ()
     val resolvedId = {
       if (resolvedSystem != null && resolvedSystem != resolvedUri) {
         resolvedSystem
-      } else if (resolvedUri != null && ((systemId == null) || (systemId != null && resolvedUri.endsWith(systemId)))) {
+      } else if (
+        resolvedUri != null && ((systemId == null) || (systemId != null && resolvedUri.endsWith(
+          systemId,
+        )))
+      ) {
         resolvedUri
       } else
         null // We were unable to resolve the file based on the URI or systemID, so we will return null.
@@ -225,30 +231,31 @@ class DFDLCatalogResolver private ()
         //
         None
       }
-      case (null, sysId) =>
-        {
-          // We did not get a catalog resolution of the nsURI, nor
-          // a straight file resolution of the systemId, so we
-          // use the systemId (which comes from the schemaLocation attribute)
-          // and the classpath.
-          val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
-          val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
-          optURI match {
-            case Some(uri) => Logger.log.debug(s"Found on classpath: ${uri}.")
-            case None => {
-              //
-              // We have to explicitly throw this, because returning with
-              // a no-resolve does not cause Xerces to report an error.
-              // Instead you just get later errors about symbols that can't
-              // be resolved, but it never mentions that an include/import didn't
-              // work.
-              val e = new SAXParseException(
-                s"""DaffodilXMLLoader: Unable to resolve schemaLocation='$systemId'.""", null)
-              throw e
-            }
+      case (null, sysId) => {
+        // We did not get a catalog resolution of the nsURI, nor
+        // a straight file resolution of the systemId, so we
+        // use the systemId (which comes from the schemaLocation attribute)
+        // and the classpath.
+        val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
+        val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
+        optURI match {
+          case Some(uri) => Logger.log.debug(s"Found on classpath: ${uri}.")
+          case None => {
+            //
+            // We have to explicitly throw this, because returning with
+            // a no-resolve does not cause Xerces to report an error.
+            // Instead you just get later errors about symbols that can't
+            // be resolved, but it never mentions that an include/import didn't
+            // work.
+            val e = new SAXParseException(
+              s"""DaffodilXMLLoader: Unable to resolve schemaLocation='$systemId'.""",
+              null,
+            )
+            throw e
           }
-          optURI
         }
+        optURI
+      }
       case (resolved, _) => {
         Logger.log.debug(s"Found via XML Catalog: ${resolved}.")
         Some(new URI(resolved))
@@ -257,7 +264,13 @@ class DFDLCatalogResolver private ()
     result
   }
 
-  def resolveResource(type_ : String, nsURI: String, publicId: String, systemId: String, baseURIString: String): LSInput = {
+  def resolveResource(
+    type_ : String,
+    nsURI: String,
+    publicId: String,
+    systemId: String,
+    baseURIString: String,
+  ): LSInput = {
     val optURI = resolveCommon(nsURI, systemId, baseURIString)
     optURI match {
       case None => null
@@ -359,19 +372,19 @@ class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: Inpu
   def getStringData = null
 
   def setByteStream(byteStream: InputStream) = {
-    //do nothing
+    // do nothing
   }
   def setCertifiedText(certifiedText: Boolean) = {
-    //do nothing
+    // do nothing
   }
   def setCharacterStream(characterStream: Reader) = {
-    //do nothing
+    // do nothing
   }
   def setEncoding(encoding: String) = {
-    //do nothing
+    // do nothing
   }
   def setStringData(stringData: String) = {
-    //do nothing
+    // do nothing
   }
 }
 
@@ -567,7 +580,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     f.setNamespaceAware(true)
     f.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
     f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
-    f.setValidating(false)// according to javadoc, just controls DTD validation
+    f.setValidating(false) // according to javadoc, just controls DTD validation
     f.setFeature("http://xml.org/sax/features/validation", true)
     // not recognized by SAXParserFactory
     // f.setFeature("http://xml.org/sax/features/validation/dynamic", true)
@@ -613,9 +626,11 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    *                              Defaults to false.
    * @return an scala.xml.Node (Element actually) which is the document element of the source.
    */
-  def load(source: DaffodilSchemaSource,
+  def load(
+    source: DaffodilSchemaSource,
     optSchemaURI: Option[URI],
-    addPositionAttributes: Boolean = false): scala.xml.Node =
+    addPositionAttributes: Boolean = false,
+  ): scala.xml.Node =
     load(source, optSchemaURI, addPositionAttributes, normalizeCRLFtoLF = true)
 
   /**
@@ -629,17 +644,18 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    *                          but some special case situations may require preservation of CRLF/CR.
    * @return an scala.xml.Node (Element actually) which is the document element of the source.
    */
-  private [xml] def load(source: DaffodilSchemaSource,
+  private[xml] def load(
+    source: DaffodilSchemaSource,
     optSchemaURI: Option[URI],
     addPositionAttributes: Boolean,
-    normalizeCRLFtoLF: Boolean): scala.xml.Node = {
+    normalizeCRLFtoLF: Boolean,
+  ): scala.xml.Node = {
     //
     // First we invoke the validator to explicitly validate the XML against
     // the XML Schema (not necessarily a DFDL schema), via the
     // javax.xml.validation.Validator's validate method.
     //
     optSchemaURI.foreach { schemaURI =>
-
       val validator = XercesValidator.fromURIs(Seq(schemaURI))
       val inputStream = source.uriForLoading.toURL.openStream()
       validator.validateXML(inputStream, errorHandler)
@@ -666,23 +682,28 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
         // Regular Xerces doesn't report that as an error.
         case spe: SAXParseException => errorHandler.error(spe)
       }
-      // no result, as the errors are reported separately
+    // no result, as the errors are reported separately
     }
     //
     // To get reliable xml nodes including conversion of CDATA syntax into
     // PCData nodes, we have to use a different loader.
     //
     val constructingLoader =
-      new DaffodilConstructingLoader(source.uriForLoading,
-        errorHandler, addPositionAttributes, normalizeCRLFtoLF)
-    val res = try {
-      constructingLoader.load() // construct the XML objects for us.
-    } catch {
-      case e: SAXParseException => // fatal. We can't successfully load.
-        throw e // good place for a breakpoint
-    } finally {
-      constructingLoader.input.close()
-    }
+      new DaffodilConstructingLoader(
+        source.uriForLoading,
+        errorHandler,
+        addPositionAttributes,
+        normalizeCRLFtoLF,
+      )
+    val res =
+      try {
+        constructingLoader.load() // construct the XML objects for us.
+      } catch {
+        case e: SAXParseException => // fatal. We can't successfully load.
+          throw e // good place for a breakpoint
+      } finally {
+        constructingLoader.input.close()
+      }
     res
   }
 }
@@ -709,8 +730,10 @@ class BasicErrorHandler extends org.xml.sax.ErrorHandler {
 }
 
 abstract class DFDLSchemaValidationException(cause: Throwable) extends Exception(cause)
-case class DFDLSchemaValidationWarning(cause: Throwable) extends DFDLSchemaValidationException(cause)
-case class DFDLSchemaValidationError(cause: Throwable) extends DFDLSchemaValidationException(cause)
+case class DFDLSchemaValidationWarning(cause: Throwable)
+  extends DFDLSchemaValidationException(cause)
+case class DFDLSchemaValidationError(cause: Throwable)
+  extends DFDLSchemaValidationException(cause)
 
 object RethrowSchemaErrorHandler extends org.xml.sax.ErrorHandler {
   def warning(exception: SAXParseException) = {

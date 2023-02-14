@@ -18,8 +18,8 @@
 package org.apache.daffodil.runtime1.dpath
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.infoset.InfosetNoInfosetException
 import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.runtime1.infoset.InfosetNoInfosetException
 
 case class FNCount(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends RecipeOpWithSubRecipes(recipe)
@@ -70,7 +70,6 @@ case object FNExactlyOne extends RecipeOp {
     //    dstate.setCurrentNode(item)
     //  }
     //  else { throw new Exception("fn:exactly-one called with a sequence containing zero or more than one item.") }
-
 
     // The reason queries are needed is that without them, well, the answer to this has to be true, as
     // there are no functions which return zero nor more than one node.

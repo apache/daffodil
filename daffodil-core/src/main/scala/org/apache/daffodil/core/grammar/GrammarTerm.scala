@@ -17,15 +17,15 @@
 
 package org.apache.daffodil.core.grammar
 
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.core.dsom.SchemaComponent
-import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
-import org.apache.daffodil.core.compiler.ParserOrUnparser
 import org.apache.daffodil.core.compiler.BothParserAndUnparser
-import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.core.runtime1.GramRuntime1Mixin
-import org.apache.daffodil.runtime1.BasicComponent
+import org.apache.daffodil.core.compiler.ParserOrUnparser
+import org.apache.daffodil.core.dsom.SchemaComponent
 import org.apache.daffodil.core.dsom.Term
+import org.apache.daffodil.core.runtime1.GramRuntime1Mixin
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
+import org.apache.daffodil.runtime1.BasicComponent
 
 /**
  * Gram - short for "Grammar Term"
@@ -61,7 +61,8 @@ abstract class Gram(contextArg: SchemaComponent)
 
   final override def SDE(str: String, args: Any*): Nothing = context.SDE(str, args: _*)
 
-  final override def SDW(warnID: WarnID, str: String, args: Any*): Unit = context.SDW(warnID, str, args: _*)
+  final override def SDW(warnID: WarnID, str: String, args: Any*): Unit =
+    context.SDW(warnID, str, args: _*)
 
   val forWhat: ParserOrUnparser = BothParserAndUnparser
 
@@ -83,7 +84,8 @@ abstract class Gram(contextArg: SchemaComponent)
 
   override lazy val path = context.path + "%" + diagnosticDebugName
 
-  def isEmpty = false // they are by default not empty. Overridden in the cases where they could be.
+  def isEmpty =
+    false // they are by default not empty. Overridden in the cases where they could be.
 
   /**
    * Sequential composition operator in the grammar.

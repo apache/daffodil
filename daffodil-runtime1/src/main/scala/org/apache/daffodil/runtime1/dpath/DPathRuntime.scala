@@ -17,15 +17,17 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import java.lang.{Number => JNumber}
+import java.lang.{ Number => JNumber }
 import scala.xml.NodeSeq.seqToNodeSeq
+
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
-import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
-import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
+import org.apache.daffodil.runtime1.dsom.SchemaDefinitionDiagnosticBase
+import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.infoset.DINode
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
@@ -38,7 +40,6 @@ import org.apache.daffodil.runtime1.processors.ProcessingError
 import org.apache.daffodil.runtime1.processors.VariableException
 import org.apache.daffodil.runtime1.processors.VariableHasNoValue
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
-import org.apache.daffodil.lib.util.Misc
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -47,7 +48,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   override def toString =
     toXML.toString
 
-  def toXML = <CompiledDPath>{ ops.map { _.toXML } }</CompiledDPath>
+  def toXML = <CompiledDPath>{ops.map { _.toXML }}</CompiledDPath>
 
   /**
    * For parsing or for backward-referencing expressions when unparsing.
@@ -82,7 +83,8 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   def runExpressionForConstant(
     sfl: SchemaFileLocation,
     compileInfo: DPathCompileInfo,
-    tunable: DaffodilTunables): DataValuePrimitiveNullable = {
+    tunable: DaffodilTunables,
+  ): DataValuePrimitiveNullable = {
 
     //
     // we use a special dummy dstate here that errors out via throw
@@ -111,14 +113,19 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
         // all the pieces are constant, but evaluating will throw NumberFormatException
         // or dfdl:length='{ 5 / 0 }' - contrived yes, but in larger expressions misakes like this
         // are typically typographical errors so it is good to pick them up here.
-        case e: java.lang.ArithmeticException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
-        case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
-        case e: InvalidPrimitiveDataException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
+        case e: java.lang.ArithmeticException =>
+          throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
+        case e: java.lang.NumberFormatException =>
+          throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
+        case e: InvalidPrimitiveDataException =>
+          throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
         case e: java.lang.IndexOutOfBoundsException => false
         case e: java.lang.IllegalArgumentException => false
         case e: FNErrorException => false
-        case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
-        case e: ProcessingError => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
+        case e: SchemaDefinitionDiagnosticBase =>
+          throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
+        case e: ProcessingError =>
+          throw new SchemaDefinitionError(Some(sfl), None, e.getMessage())
       }
     val res =
       if (isConstant) dstate.currentValue else DataValue.NoValue
@@ -144,8 +151,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   }
 }
 
-abstract class RecipeOp
-  extends Serializable {
+abstract class RecipeOp extends Serializable {
 
   def run(dstate: DState): Unit
 
@@ -157,7 +163,14 @@ abstract class RecipeOp
 
   protected def toXML(children: scala.xml.NodeSeq): scala.xml.Node = {
     val name = Misc.getNameFromClass(this)
-    scala.xml.Elem(null, name, scala.xml.Null, scala.xml.TopScope, children.isEmpty, children: _*)
+    scala.xml.Elem(
+      null,
+      name,
+      scala.xml.Null,
+      scala.xml.TopScope,
+      children.isEmpty,
+      children: _*,
+    )
   }
 
   /**
@@ -177,11 +190,10 @@ abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends Reci
 
 }
 
-case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE)
-  extends RecipeOp {
+case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE) extends RecipeOp {
 
   override def run(dstate: DState): Unit = {
-    if(dstate.parseOrUnparseState.isEmpty) throw new VariableHasNoValue(vrd.globalQName, vrd)
+    if (dstate.parseOrUnparseState.isEmpty) throw new VariableHasNoValue(vrd.globalQName, vrd)
     val value = dstate.parseOrUnparseState.get.getVariable(vrd, context)
     dstate.setCurrentValue(value)
   }
@@ -198,8 +210,11 @@ case class Literal(v: DataValuePrimitive) extends RecipeOp {
 
 }
 
-case class IF(predRecipe: CompiledDPath, thenPartRecipe: CompiledDPath, elsePartRecipe: CompiledDPath)
-  extends RecipeOpWithSubRecipes(predRecipe, thenPartRecipe, elsePartRecipe) {
+case class IF(
+  predRecipe: CompiledDPath,
+  thenPartRecipe: CompiledDPath,
+  elsePartRecipe: CompiledDPath,
+) extends RecipeOpWithSubRecipes(predRecipe, thenPartRecipe, elsePartRecipe) {
 
   override def run(dstate: DState): Unit = {
     val savedNode = dstate.currentNode
@@ -218,9 +233,9 @@ case class IF(predRecipe: CompiledDPath, thenPartRecipe: CompiledDPath, elsePart
 
   override def toXML =
     <if>
-      <pred>{ predRecipe.toXML }</pred>
-      <then>{ thenPartRecipe.toXML }</then>
-      <else>{ elsePartRecipe.toXML }</else>
+      <pred>{predRecipe.toXML}</pred>
+      <then>{thenPartRecipe.toXML}</then>
+      <else>{elsePartRecipe.toXML}</else>
     </if>
 }
 
@@ -234,7 +249,8 @@ trait BinaryOpMixin { self: RecipeOp =>
 }
 
 case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: CompiledDPath)
-  extends RecipeOp with BinaryOpMixin {
+  extends RecipeOp
+  with BinaryOpMixin {
 
   override def op = Misc.getNameFromClass(cop)
 
@@ -251,7 +267,8 @@ case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: Compi
 }
 
 case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledDPath)
-  extends RecipeOp with BinaryOpMixin {
+  extends RecipeOp
+  with BinaryOpMixin {
 
   override def op = Misc.getNameFromClass(nop)
 
@@ -298,7 +315,14 @@ abstract class Converter extends RecipeOp {
           val msg =
             if (e.getMessage() != null && e.getMessage() != "") e.getMessage()
             else "No other details are available."
-          val err = new NumberFormatException("Cannot convert '%s' from %s type to %s (%s).".format(arg.getAnyRef.toString, fromTypeName, toTypeName, msg))
+          val err = new NumberFormatException(
+            "Cannot convert '%s' from %s type to %s (%s).".format(
+              arg.getAnyRef.toString,
+              fromTypeName,
+              toTypeName,
+              msg,
+            ),
+          )
           throw err
         }
       }
@@ -309,9 +333,9 @@ abstract class Converter extends RecipeOp {
 }
 
 trait ToString extends Converter {
-  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueString = a.getAnyRef.toString
+  override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueString =
+    a.getAnyRef.toString
 }
-
 
 /**
  * In some cases, expressions that are never used lack context and so cannot be compiled.
@@ -332,7 +356,10 @@ case class RuntimeAbortOp(expr: String) extends RecipeOp {
   override def run(dstate: DState): Unit = {
     dstate match {
       case _: DStateForConstantFolding => throw new java.lang.IllegalStateException
-      case _ => Assert.invariantFailed(s"Expression should not have been evaluated during runtime: $expr")
+      case _ =>
+        Assert.invariantFailed(
+          s"Expression should not have been evaluated during runtime: $expr",
+        )
     }
   }
 }

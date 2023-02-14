@@ -16,14 +16,15 @@
  */
 package org.apache.daffodil.io.processors.charset
 
-import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.lib.exceptions.Assert
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
 import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
-import java.nio.charset.{ CharsetEncoder => JavaCharsetEncoder }
 import java.nio.charset.{ Charset => JavaCharset }
-import java.nio.CharBuffer
-import java.nio.ByteBuffer
+import java.nio.charset.{ CharsetEncoder => JavaCharsetEncoder }
+
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.MaybeInt
 
 /**
@@ -66,7 +67,10 @@ trait BitsCharset extends Serializable {
     else {
       this match {
         case StandardBitsCharsets.UTF_8 => 8
-        case _ => Assert.invariantFailed("Getting pad char width for unsupported variable-width charset: " + name)
+        case _ =>
+          Assert.invariantFailed(
+            "Getting pad char width for unsupported variable-width charset: " + name,
+          )
       }
     }
   }
@@ -74,6 +78,7 @@ trait BitsCharset extends Serializable {
 
 trait IsResetMixin {
   private final var isReset_ : Boolean = true
+
   /**
    * True if the decoder has not decoded anything since the last reset call.
    * False if decodeLoop has been called.
@@ -82,6 +87,7 @@ trait IsResetMixin {
    * decoder.
    */
   final def isReset = isReset_
+
   /**
    * Allow assignment to isReset only in derived classes
    */
@@ -101,17 +107,17 @@ trait BitsCharsetJava extends BitsCharset {
     if (avg == max) MaybeInt(avg.toInt * 8)
     else MaybeInt.Nope
   }
-  
-  override def newEncoder() = new BitsCharsetWrappingJavaCharsetEncoder(this, javaCharset.newEncoder())
+
+  override def newEncoder() =
+    new BitsCharsetWrappingJavaCharsetEncoder(this, javaCharset.newEncoder())
 
   override def bitWidthOfACodeUnit: Int = 8
-  override def requiredBitOrder = BitOrder.MostSignificantBitFirst // really none, as these are mandatory aligned to byte boundary.
+  override def requiredBitOrder =
+    BitOrder.MostSignificantBitFirst // really none, as these are mandatory aligned to byte boundary.
   override def mandatoryBitAlignment = 8
 }
 
-
-abstract class BitsCharsetEncoder
-  extends IsResetMixin {
+abstract class BitsCharsetEncoder extends IsResetMixin {
   def bitsCharset: BitsCharset
   def averageBytesPerChar(): Float
   def maxBytesPerChar(): Float
@@ -142,14 +148,16 @@ abstract class BitsCharsetEncoder
 /**
  * Implements BitsCharsetEncoder by encapsulating a standard JavaCharsetEncoder
  */
-final class BitsCharsetWrappingJavaCharsetEncoder(override val bitsCharset: BitsCharsetJava, enc: JavaCharsetEncoder)
-  extends BitsCharsetEncoder {
+final class BitsCharsetWrappingJavaCharsetEncoder(
+  override val bitsCharset: BitsCharsetJava,
+  enc: JavaCharsetEncoder,
+) extends BitsCharsetEncoder {
 
   def setInitialBitOffset(offset: Int): Unit = Assert.usageError("Not to be called.")
   def averageBytesPerChar() = enc.averageBytesPerChar()
-  def averageBitsPerChar() = averageBytesPerChar() / 8.0F
+  def averageBitsPerChar() = averageBytesPerChar() / 8.0f
   def maxBytesPerChar() = enc.maxBytesPerChar()
-  def maxBitsPerChar() = maxBytesPerChar() / 8.0F
+  def maxBitsPerChar() = maxBytesPerChar() / 8.0f
   def replacement() = enc.replacement()
   def replaceWith(newReplacement: Array[Byte]) = {
     Assert.usage(isReset)

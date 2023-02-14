@@ -55,9 +55,13 @@ trait AbstractTDMLDFDLProcessorFactory {
 
   def withTunables(tunables: Map[String, String]): R
 
-  def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean,
-    optRootName: Option[String] = None, optRootNamespace: Option[String] = None,
-    tunables: Map[String, String]): TDML.CompileResult
+  def getProcessor(
+    schemaSource: DaffodilSchemaSource,
+    useSerializedProcessor: Boolean,
+    optRootName: Option[String] = None,
+    optRootNamespace: Option[String] = None,
+    tunables: Map[String, String],
+  ): TDML.CompileResult
 }
 
 /**

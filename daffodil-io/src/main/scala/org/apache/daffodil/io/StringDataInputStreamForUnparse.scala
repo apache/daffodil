@@ -29,8 +29,7 @@ import org.apache.daffodil.lib.util.Misc
  * the data that need to be escaped, so we need to treat the
  * string data being unparsed as a DataInputStream.
  */
-final class StringDataInputStreamForUnparse
-  extends DataInputStreamImplMixin {
+final class StringDataInputStreamForUnparse extends DataInputStreamImplMixin {
   import DataInputStream._
 
   override final protected val cst = new AnyRef with DataStreamCommonState
@@ -55,13 +54,16 @@ final class StringDataInputStreamForUnparse
   override def bitLimit0b = dis.bitLimit0b
   override def bitPos0b: Long = dis.bitPos0b
   override def discard(mark: DataInputStream.Mark): Unit = dis.discard(mark)
-  override def lookingAt(matcher: java.util.regex.Matcher, finfo: FormatInfo): Boolean = dis.lookingAt(matcher, finfo)
+  override def lookingAt(matcher: java.util.regex.Matcher, finfo: FormatInfo): Boolean =
+    dis.lookingAt(matcher, finfo)
   override def markPos = dis.markPos
   override def mark(requestorID: String): DataInputStream.Mark = dis.mark(requestorID)
   override def reset(mark: DataInputStream.Mark): Unit = dis.reset(mark)
   override def resetPos(m: MarkPos) = dis.resetPos(m)
-  override def skipChars(nChars: Long, finfo: FormatInfo): Boolean = dis.skipChars(nChars, finfo)
-  override def getSomeString(nChars: Long,finfo: FormatInfo): Maybe[String] = dis.getSomeString(nChars, finfo)
+  override def skipChars(nChars: Long, finfo: FormatInfo): Boolean =
+    dis.skipChars(nChars, finfo)
+  override def getSomeString(nChars: Long, finfo: FormatInfo): Maybe[String] =
+    dis.getSomeString(nChars, finfo)
 
   // $COVERAGE-OFF$ Nothing should be calling these.
   private def doNotUse = Assert.usageError("Not to be called on " + Misc.getNameFromClass(this))
@@ -71,9 +73,13 @@ final class StringDataInputStreamForUnparse
   override def getSignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): JBigInt = doNotUse
   override def getSignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): Long = doNotUse
   override def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): JBigInt = doNotUse
-  override def getUnsignedLong(bitLengthFrom1To64: Int, finfo: FormatInfo): passera.unsigned.ULong = doNotUse
+  override def getUnsignedLong(
+    bitLengthFrom1To64: Int,
+    finfo: FormatInfo,
+  ): passera.unsigned.ULong = doNotUse
   override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo): Array[Byte] = doNotUse
-  override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo, array: Array[Byte]): Unit = doNotUse
+  override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo, array: Array[Byte]): Unit =
+    doNotUse
   override def pastData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = doNotUse
   override def setDebugging(setting: Boolean): Unit = doNotUse

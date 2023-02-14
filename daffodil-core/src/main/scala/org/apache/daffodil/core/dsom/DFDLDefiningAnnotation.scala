@@ -35,4 +35,3 @@ abstract class DFDLDefiningAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSch
   final lazy val asAnnotation = self
 
 }
-

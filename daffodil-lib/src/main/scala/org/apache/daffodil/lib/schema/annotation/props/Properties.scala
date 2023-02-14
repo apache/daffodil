@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.lib.schema.annotation.props
 
+import org.apache.daffodil.lib.cookers.Converter
 import org.apache.daffodil.lib.exceptions._
 import org.apache.daffodil.lib.util.Misc._
 import org.apache.daffodil.lib.util._
-import org.apache.daffodil.lib.cookers.Converter
 
 /**
  * Enum class as basis for our DFDL properties
@@ -92,7 +92,9 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
         //
         // Special case for CalendarFirstDayOfWeek
         //
-        case "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" => cn
+        case "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" |
+            "Saturday" =>
+          cn
         case _ => Misc.toInitialLowerCaseUnlessAllUpperCase(cn)
       }
       en
@@ -126,7 +128,8 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
     None
   }
 
-  override protected def convert(b: String, context: ThrowsSDE, forUnparse: Boolean): A = apply(b, context)
+  override protected def convert(b: String, context: ThrowsSDE, forUnparse: Boolean): A =
+    apply(b, context)
 
   def apply(name: String, context: ThrowsSDE): A
 } // end class
@@ -135,10 +138,7 @@ abstract class Enum[A] extends EnumBase with Converter[String, A] {
  * base mixin for traits representing collections of DFDL properties
  *
  */
-trait PropertyMixin
-  extends FindPropertyMixin
-  with ThrowsSDE
-  with SavesErrorsAndWarnings {
+trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with SavesErrorsAndWarnings {
 
   /**
    * Properties will push their toString function onto this list
@@ -153,8 +153,12 @@ trait PropertyMixin
    */
   def verboseToString = {
     val className = getNameFromClass(this)
-    val props = toStringFunctionList.map { f => f.apply() }.foldLeft(className +
-      "(")(_ + _)
+    val props = toStringFunctionList
+      .map { f => f.apply() }
+      .foldLeft(
+        className +
+          "(",
+      )(_ + _)
     val suffix = ")"
     val str = props + suffix
     str

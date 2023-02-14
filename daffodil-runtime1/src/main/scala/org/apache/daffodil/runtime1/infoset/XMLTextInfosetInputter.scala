@@ -27,12 +27,12 @@ import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.XMLStreamWriter
 import javax.xml.stream.util.XMLEventAllocator
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType._
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType._
 
 object XMLTextInfoset {
   lazy val xmlInputFactory = {
@@ -141,28 +141,25 @@ object XMLTextInfoset {
   def writeXMLStreamEvent(xsr: XMLStreamReader, xsw: XMLStreamWriter): Unit = {
     xsr.getEventType() match {
       case START_ELEMENT => {
-        xsw.writeStartElement(
-          xsr.getPrefix(),
-          xsr.getLocalName(),
-          xsr.getNamespaceURI())
+        xsw.writeStartElement(xsr.getPrefix(), xsr.getLocalName(), xsr.getNamespaceURI())
         for (i <- 0 until xsr.getNamespaceCount()) {
-          xsw.writeNamespace(
-            xsr.getNamespacePrefix(i),
-            xsr.getNamespaceURI(i))
+          xsw.writeNamespace(xsr.getNamespacePrefix(i), xsr.getNamespaceURI(i))
         }
         for (i <- 0 until xsr.getAttributeCount()) {
           xsw.writeAttribute(
             xsr.getAttributePrefix(i),
             xsr.getAttributeNamespace(i),
             xsr.getAttributeLocalName(i),
-            xsr.getAttributeValue(i))
+            xsr.getAttributeValue(i),
+          )
         }
       }
       case END_ELEMENT => xsw.writeEndElement()
       case CHARACTERS => xsw.writeCharacters(xsr.getText())
       case COMMENT => xsw.writeComment(xsr.getText())
       case CDATA => xsw.writeCData(xsr.getText())
-      case PROCESSING_INSTRUCTION => xsw.writeProcessingInstruction(xsr.getPITarget(), xsr.getPIData())
+      case PROCESSING_INSTRUCTION =>
+        xsw.writeProcessingInstruction(xsr.getPITarget(), xsr.getPIData())
       case END_DOCUMENT => xsw.writeEndDocument()
       case DTD => {
         // even though we disable DTD in the XMLInputFactory, we still get DTD
@@ -188,8 +185,7 @@ object XMLTextInfoset {
   }
 }
 
-class XMLTextInfosetInputter(input: java.io.InputStream)
-  extends InfosetInputter {
+class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
 
   /**
    * evAlloc is only to be used for diagnostic messages. It lets us easily
@@ -257,19 +253,24 @@ class XMLTextInfosetInputter(input: java.io.InputStream)
 
     // we should now be at the START_ELEMENT event for the wrapper element.
     // We need to skip it. Error if that's not the case.
-    if (xsr.getEventType() != START_ELEMENT || xsr.getLocalName() != XMLTextInfoset.stringAsXml) {
+    if (
+      xsr.getEventType() != START_ELEMENT || xsr.getLocalName() != XMLTextInfoset.stringAsXml
+    ) {
       throw new XMLStreamException("Expected start of " + XMLTextInfoset.stringAsXml)
     }
     xsr.next()
-   
+
     // we are now at the first event inside the wrapper element. Convert this
     // and all following events we see to a string until we find the closing
     // wrapper tag. We trim the result to remove whitespace that the outputter
     // may have written with pretty mode enabled.
     val sw = new StringWriter()
-    val xsw = XMLTextInfoset.xmlOutputFactory.createXMLStreamWriter(sw, StandardCharsets.UTF_8.toString)
+    val xsw =
+      XMLTextInfoset.xmlOutputFactory.createXMLStreamWriter(sw, StandardCharsets.UTF_8.toString)
     xsw.writeStartDocument()
-    while (xsr.getEventType() != END_ELEMENT || xsr.getLocalName() != XMLTextInfoset.stringAsXml) {
+    while (
+      xsr.getEventType() != END_ELEMENT || xsr.getLocalName() != XMLTextInfoset.stringAsXml
+    ) {
       XMLTextInfoset.writeXMLStreamEvent(xsr, xsw)
       xsr.next()
     }
@@ -281,32 +282,46 @@ class XMLTextInfosetInputter(input: java.io.InputStream)
 
     // should now be at the END_ELEMENT for our simple type
     if (xsr.getEventType() != END_ELEMENT) {
-      throw new XMLStreamException("Expected end of element following end of " + XMLTextInfoset.stringAsXml)
+      throw new XMLStreamException(
+        "Expected end of element following end of " + XMLTextInfoset.stringAsXml,
+      )
     }
 
     xmlString
   }
 
-  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
+  override def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String = {
 
     val txt =
-      if (primType == NodeInfo.String && runtimeProperties.get(XMLTextInfoset.stringAsXml) == "true") {
+      if (
+        primType == NodeInfo.String && runtimeProperties.get(
+          XMLTextInfoset.stringAsXml,
+        ) == "true"
+      ) {
         try {
           gatherXmlAsString()
         } catch {
           case xse: XMLStreamException => {
             val lineNum = evAlloc.allocate(xsr).getLocation.getLineNumber
-            throw new InvalidInfosetException("Error on line " + lineNum + ": " + xse.getMessage)
+            throw new InvalidInfosetException(
+              "Error on line " + lineNum + ": " + xse.getMessage,
+            )
           }
         }
       } else {
-        val elementText = try {
-          xsr.getElementText()
-        } catch {
-          case xse: XMLStreamException => {
-            throw new NonTextFoundInSimpleContentException("Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber)
+        val elementText =
+          try {
+            xsr.getElementText()
+          } catch {
+            case xse: XMLStreamException => {
+              throw new NonTextFoundInSimpleContentException(
+                "Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber,
+              )
+            }
           }
-        }
         if (primType == NodeInfo.String) {
           XMLUtils.remapPUAToXMLIllegalCharacters(elementText)
         } else {
@@ -336,7 +351,12 @@ class XMLTextInfosetInputter(input: java.io.InputStream)
       } else if (nilAttrValue == "false" || nilAttrValue == "0") {
         MaybeBoolean(false)
       } else {
-        throw new InvalidInfosetException("xsi:nil property is not a valid boolean: '" + nilAttrValue + "' on line " + evAlloc.allocate(xsr).getLocation.getLineNumber)
+        throw new InvalidInfosetException(
+          "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' on line " + evAlloc
+            .allocate(xsr)
+            .getLocation
+            .getLineNumber,
+        )
       }
     res
   }
@@ -381,7 +401,9 @@ class XMLTextInfosetInputter(input: java.io.InputStream)
           xsr.next()
         } catch {
           case xse: XMLStreamException => {
-            val details = "Error: " + Misc.getSomeMessage(xse).get + " on line " + evAlloc.allocate(xsr).getLocation.getLineNumber
+            val details = "Error: " + Misc
+              .getSomeMessage(xse)
+              .get + " on line " + evAlloc.allocate(xsr).getLocation.getLineNumber
             throw new IllegalContentWhereEventExpected(details)
           }
         }
@@ -391,9 +413,16 @@ class XMLTextInfosetInputter(input: java.io.InputStream)
         case CDATA if xsr.isWhiteSpace() => // skip whitespace
         case SPACE | PROCESSING_INSTRUCTION | COMMENT => // skip these too
         case DTD =>
-          throw new IllegalContentWhereEventExpected("DOCTYPE/DTD Not supported. Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber)
+          throw new IllegalContentWhereEventExpected(
+            "DOCTYPE/DTD Not supported. Error on line " + evAlloc
+              .allocate(xsr)
+              .getLocation
+              .getLineNumber,
+          )
         case other =>
-          throw new IllegalContentWhereEventExpected("Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber + " : " + other)
+          throw new IllegalContentWhereEventExpected(
+            "Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber + " : " + other,
+          )
       }
     }
     result

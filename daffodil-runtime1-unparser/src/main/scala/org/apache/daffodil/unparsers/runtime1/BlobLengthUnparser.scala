@@ -17,19 +17,16 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-
 import java.nio.file.Files
 import java.nio.file.Paths
 
+import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.runtime1.processors.unparsers._
 
-abstract class BlobUnparserBase(override val context: ElementRuntimeData)
-  extends PrimUnparser {
+abstract class BlobUnparserBase(override val context: ElementRuntimeData) extends PrimUnparser {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -50,21 +47,25 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData)
       UnparseError(
         One(context.schemaFileLocation),
         One(state.currentLocation),
-        "Blob URI must be a file: %s", value.toString)
+        "Blob URI must be a file: %s",
+        value.toString,
+      )
     }
 
     val path = Paths.get(value)
 
-    val fileSizeInBytes = try {
-      Files.size(path)
-    } catch {
-      case e: Exception => 
-        UnparseError(
-          One(context.schemaFileLocation),
-          One(state.currentLocation),
-          "Unable to open blob for reading: %s",
-          value.toString)
-    }
+    val fileSizeInBytes =
+      try {
+        Files.size(path)
+      } catch {
+        case e: Exception =>
+          UnparseError(
+            One(context.schemaFileLocation),
+            One(state.currentLocation),
+            "Unable to open blob for reading: %s",
+            value.toString,
+          )
+      }
 
     if (fileSizeInBytes > lengthInBytes) {
       UnparseError(
@@ -72,7 +73,8 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData)
         One(state.currentLocation),
         "Blob length (%d bits) exceeds explicit length value: %d bits",
         fileSizeInBytes * 8,
-        lengthInBits)
+        lengthInBits,
+      )
     }
 
     // This adds two new buffered DataOutputStreams. The first is specific to a
@@ -87,26 +89,30 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData)
     // second data output stream will then be delivered, finally making it the
     // direct stream.
     val dos = state.dataOutputStream
-    val newStream = dos.addBufferedBlob(path, lengthInBits, state.tunable.blobChunkSizeInBytes, state)
+    val newStream =
+      dos.addBufferedBlob(path, lengthInBits, state.tunable.blobChunkSizeInBytes, state)
     state.dataOutputStream = newStream
     dos.setFinished(state)
   }
 }
 
-final class BlobSpecifiedLengthUnparser(erd: ElementRuntimeData, val lengthEv: UnparseTargetLengthInBitsEv)
-  extends BlobUnparserBase(erd) {
+final class BlobSpecifiedLengthUnparser(
+  erd: ElementRuntimeData,
+  val lengthEv: UnparseTargetLengthInBitsEv,
+) extends BlobUnparserBase(erd) {
 
   override def getLengthInBits(state: UState): Long = {
-    val l: Long = try {
-      lengthEv.evaluate(state).getULong.toLong
-    } catch {
-      case e: RetryableException => {
-        val uri = state.currentInfosetNode.asSimple.dataValue.getURI
-        val path = Paths.get(uri)
-        val len = Files.size(path) * 8
-        len
+    val l: Long =
+      try {
+        lengthEv.evaluate(state).getULong.toLong
+      } catch {
+        case e: RetryableException => {
+          val uri = state.currentInfosetNode.asSimple.dataValue.getURI
+          val path = Paths.get(uri)
+          val len = Files.size(path) * 8
+          len
+        }
       }
-    }
     l
   }
 }

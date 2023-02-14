@@ -26,12 +26,13 @@ package org.apache.daffodil.japi.packageprivate
 
 import org.apache.daffodil.japi._
 import org.apache.daffodil.japi.debugger._
+import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.lib.api.{ ValidationMode => SValidationMode }
 import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import org.apache.daffodil.runtime1.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
-
+import org.apache.daffodil.runtime1.debugger.{
+  InteractiveDebuggerRunner => SInteractiveDebuggerRunner,
+}
 import org.apache.daffodil.runtime1.infoset.{ XMLTextEscapeStyle => SXMLTextEscapeStyle }
-import org.apache.daffodil.japi.infoset._
 
 private[japi] object ValidationConversions {
 
@@ -51,7 +52,11 @@ private[japi] object XMLTextEscapeStyleConversions {
     val sxmlTextEscapeStyle: SXMLTextEscapeStyle.Value = style match {
       case XMLTextEscapeStyle.Standard => SXMLTextEscapeStyle.Standard
       case XMLTextEscapeStyle.CDATA => SXMLTextEscapeStyle.CDATA
-      case _ => throw new Exception("Unrecognized value: %s for parameter: xmlTextEscapeStyle. Must be 'Standard' or 'CDATA'.".format(style))
+      case _ =>
+        throw new Exception(
+          "Unrecognized value: %s for parameter: xmlTextEscapeStyle. Must be 'Standard' or 'CDATA'."
+            .format(style),
+        )
     }
     sxmlTextEscapeStyle
   }
@@ -62,7 +67,7 @@ private[japi] object XMLTextEscapeStyleConversions {
  * their own debugger in java.
  */
 private[japi] class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
-    extends SInteractiveDebuggerRunner {
+  extends SInteractiveDebuggerRunner {
   def init(id: SInteractiveDebugger): Unit = dr.init
   def getCommand: String = dr.getCommand
   def lineOutput(line: String): Unit = dr.lineOutput(line)

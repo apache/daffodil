@@ -21,9 +21,9 @@ import java.io.StringReader
 import java.nio.charset.StandardCharsets
 import javax.xml.stream.XMLStreamConstants._
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Indentable
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 /**
  * Writes the infoset to a java.io.Writer as XML text.
@@ -34,12 +34,19 @@ import org.apache.daffodil.lib.util.Indentable
  * @param xmlTextEscapeStyle Determine whether to wrap values of elements of type
  *        xs:string in CDATA tags in order to preserve whitespace.
  */
-class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean,
-  xmlTextEscapeStyle: XMLTextEscapeStyle.Value)
-  extends InfosetOutputter with Indentable with XMLInfosetOutputter {
+class XMLTextInfosetOutputter private (
+  writer: java.io.Writer,
+  pretty: Boolean,
+  xmlTextEscapeStyle: XMLTextEscapeStyle.Value,
+) extends InfosetOutputter
+  with Indentable
+  with XMLInfosetOutputter {
 
-  def this(os: java.io.OutputStream, pretty: Boolean,
-    xmlTextEscapeStyle: XMLTextEscapeStyle.Value = XMLTextEscapeStyle.Standard) = {
+  def this(
+    os: java.io.OutputStream,
+    pretty: Boolean,
+    xmlTextEscapeStyle: XMLTextEscapeStyle.Value = XMLTextEscapeStyle.Standard,
+  ) = {
     this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty, xmlTextEscapeStyle)
   }
 
@@ -126,7 +133,10 @@ class XMLTextInfosetOutputter private (writer: java.io.Writer, pretty: Boolean,
     // not written in the middle of our XML infoset
     val sr = new StringReader(str)
     val xsr = XMLTextInfoset.xmlInputFactory.createXMLStreamReader(sr)
-    val xsw = XMLTextInfoset.xmlOutputFactory.createXMLStreamWriter(writer, StandardCharsets.UTF_8.toString)
+    val xsw = XMLTextInfoset.xmlOutputFactory.createXMLStreamWriter(
+      writer,
+      StandardCharsets.UTF_8.toString,
+    )
     Assert.invariant(xsr.getEventType() == START_DOCUMENT)
     while (xsr.hasNext()) {
       xsr.next()

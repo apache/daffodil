@@ -18,6 +18,7 @@
 package org.apache.daffodil.tdml
 
 import java.nio.file.Paths
+
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.lib.util.Misc
 
@@ -38,27 +39,40 @@ import org.apache.daffodil.lib.util.Misc
  * defaultRoundTripDefaultDefault
  */
 object Runner {
-  def apply(dir: String, file: String,
+  def apply(
+    dir: String,
+    file: String,
     tdmlImplementation: TDMLImplementation = TDMLImplementation.Daffodil,
     validateTDMLFile: Boolean = true,
     validateDFDLSchemas: Boolean = true,
     compileAllTopLevel: Boolean = false,
     defaultRoundTripDefault: RoundTrip = defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = defaultValidationDefaultDefault,
-    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault): Runner = {
+    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault,
+  ): Runner = {
 
     // Prepend forward slash to turn dir/file into classpath resource
-    val resourceDir = if (dir.startsWith("/"))
-      dir
-    else
-      "/" + dir
-    val resourcePath = if (resourceDir.endsWith("/"))
-      resourceDir + file
-    else
-      resourceDir + "/" + file
+    val resourceDir =
+      if (dir.startsWith("/"))
+        dir
+      else
+        "/" + dir
+    val resourcePath =
+      if (resourceDir.endsWith("/"))
+        resourceDir + file
+      else
+        resourceDir + "/" + file
 
-    new Runner(Right(resourcePath), Some(tdmlImplementation), validateTDMLFile, validateDFDLSchemas,
-      compileAllTopLevel, defaultRoundTripDefault, defaultValidationDefault, defaultImplementationsDefault)
+    new Runner(
+      Right(resourcePath),
+      Some(tdmlImplementation),
+      validateTDMLFile,
+      validateDFDLSchemas,
+      compileAllTopLevel,
+      defaultRoundTripDefault,
+      defaultValidationDefault,
+      defaultImplementationsDefault,
+    )
   }
 
   // Scala 2 allows only one apply method to have default arguments,
@@ -81,7 +95,7 @@ object Runner {
 
   def apply(elem: scala.xml.Elem, validateTDMLFile: Boolean): Runner =
     new Runner(Left(elem), validateTDMLFile = validateTDMLFile)
-  
+
   // Yes, that's a lot of defaults.....
   // but really it is 3-tiers deep:
   // roundTrip - on test case
@@ -134,7 +148,8 @@ class Runner private (
   compileAllTopLevel: Boolean = false,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
-  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault) {
+  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
+) {
 
   /**
    * Create a runner for the path. This constructor requires this path be on
@@ -144,7 +159,7 @@ class Runner private (
   def this(path: String) =
     this(
       if (path.startsWith("/")) Right(path)
-      else Right("/" + path)
+      else Right("/" + path),
     )
 
   /**
@@ -157,7 +172,7 @@ class Runner private (
   def this(dir: String, file: String) =
     this(
       if (dir.endsWith("/")) dir + file
-      else dir + "/" + file
+      else dir + "/" + file,
     )
 
   /**
@@ -178,7 +193,6 @@ class Runner private (
   def this(elem: scala.xml.Elem) =
     this(Left(elem))
 
-
   private var ts: DFDLTestSuite = null
 
   // This Runner should only ever have a single DFDLTestSuite associated with
@@ -191,7 +205,8 @@ class Runner private (
     if (ts == null) {
       val elemOrURI: Any = source match {
         case Left(l) => l
-        case Right(r) => if (r.startsWith("/")) Misc.getRequiredResource(r) else new java.net.URI(r)
+        case Right(r) =>
+          if (r.startsWith("/")) Misc.getRequiredResource(r) else new java.net.URI(r)
       }
       ts = new DFDLTestSuite(
         elemOrURI,
@@ -203,7 +218,8 @@ class Runner private (
         defaultValidationDefault,
         defaultImplementationsDefault,
         Runner.defaultShouldDoErrorComparisonOnCrossTests,
-        Runner.defaultShouldDoWarningComparisonOnCrossTests)
+        Runner.defaultShouldDoWarningComparisonOnCrossTests,
+      )
     }
     ts
   }

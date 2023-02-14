@@ -17,12 +17,13 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.runtime1.dsom._
+import org.apache.daffodil.lib.cookers.Converter
 import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.runtime1.dsom._
+
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
-import org.apache.daffodil.lib.cookers.Converter
 
 object LocaleConverter extends Converter[String, ULocale] {
 
@@ -37,16 +38,23 @@ object LocaleConverter extends Converter[String, ULocale] {
       val l = new ULocale(canonicalCalLang)
       l
     } else {
-      context.schemaDefinitionError("dfdl:calendarLanguage property syntax error. Must match '%s' (ex: 'en_us' or 'de_1996'), but was '%s'.", regex, b)
+      context.schemaDefinitionError(
+        "dfdl:calendarLanguage property syntax error. Must match '%s' (ex: 'en_us' or 'de_1996'), but was '%s'.",
+        regex,
+        b,
+      )
     }
   }
 }
 
-class CalendarLanguageEv(calendarLanguageExpr: CompiledExpression[String], eci: DPathElementCompileInfo)
-  extends EvaluatableConvertedExpression[String, ULocale](
+class CalendarLanguageEv(
+  calendarLanguageExpr: CompiledExpression[String],
+  eci: DPathElementCompileInfo,
+) extends EvaluatableConvertedExpression[String, ULocale](
     calendarLanguageExpr,
     LocaleConverter,
-    eci)
+    eci,
+  )
   with InfosetCachedEvaluatable[ULocale] {
   override lazy val runtimeDependencies = Vector()
 }
@@ -57,8 +65,8 @@ class CalendarEv(
   firstDay: Int,
   calendarDaysInFirstWeek: Int,
   calendarCheckPolicy: Boolean,
-  eci: DPathElementCompileInfo)
-  extends Evaluatable[Calendar](eci)
+  eci: DPathElementCompileInfo,
+) extends Evaluatable[Calendar](eci)
   with InfosetCachedEvaluatable[Calendar] {
 
   override lazy val runtimeDependencies = Seq(localeEv)

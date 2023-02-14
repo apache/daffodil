@@ -25,14 +25,16 @@ trait HasStatementsGrammarMixin extends GrammarMixin { self: Term =>
   // are not testKind="pattern"
   private lazy val lowPriorityStatementGrams = lowPriorityStatements.map { _.gram(self) }
 
-  final lazy val dfdlLowPriorityStatementEvaluations = prod("dfdlStatementEvaluations", lowPriorityStatementGrams.length > 0) {
-    lowPriorityStatementGrams.fold(mt) { _ ~ _ }
-  }
+  final lazy val dfdlLowPriorityStatementEvaluations =
+    prod("dfdlStatementEvaluations", lowPriorityStatementGrams.length > 0) {
+      lowPriorityStatementGrams.fold(mt) { _ ~ _ }
+    }
 
   // assert/discriminator statements with testKind="pattern"
   private lazy val patternStatementGrams = patternStatements.map { _.gram(self) }
 
-  final lazy val dfdlPatternStatementEvaluations = prod("dfdlPatternStatementEvaluations", patternStatementGrams.length > 0) {
-    patternStatementGrams.fold(mt) { _ ~ _ }
-  }
+  final lazy val dfdlPatternStatementEvaluations =
+    prod("dfdlPatternStatementEvaluations", patternStatementGrams.length > 0) {
+      patternStatementGrams.fold(mt) { _ ~ _ }
+    }
 }

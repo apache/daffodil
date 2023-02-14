@@ -17,41 +17,43 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import com.ibm.icu.text.DecimalFormat
-import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.lib.cookers.EntityReplacer
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.core.dsom._
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.runtime1.processors.Delimiter
-import org.apache.daffodil.runtime1.processors.parsers.ConvertTextCombinatorParser
-import org.apache.daffodil.runtime1.processors.parsers.ConvertTextStandardNumberParser
-import org.apache.daffodil.runtime1.processors.parsers.Parser
-import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
-import org.apache.daffodil.unparsers.runtime1.ConvertTextCombinatorUnparser
-import org.apache.daffodil.unparsers.runtime1.ConvertTextNumberUnparser
-import org.apache.daffodil.runtime1.processors.unparsers.Unparser
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.cookers.EntityReplacer
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeDouble
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.processors.Delimiter
+import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
+import org.apache.daffodil.runtime1.processors.parsers.ConvertTextCombinatorParser
+import org.apache.daffodil.runtime1.processors.parsers.ConvertTextStandardNumberParser
+import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser
+import org.apache.daffodil.unparsers.runtime1.ConvertTextCombinatorUnparser
+import org.apache.daffodil.unparsers.runtime1.ConvertTextNumberUnparser
+
+import com.ibm.icu.text.DecimalFormat
 
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
 
-  lazy val parser = new ConvertTextCombinatorParser(e.termRuntimeData, value.parser, converter.parser)
+  lazy val parser =
+    new ConvertTextCombinatorParser(e.termRuntimeData, value.parser, converter.parser)
 
-  override lazy val unparser = new ConvertTextCombinatorUnparser(e.termRuntimeData, value.unparser, converter.unparser)
+  override lazy val unparser =
+    new ConvertTextCombinatorUnparser(e.termRuntimeData, value.unparser, converter.unparser)
 }
 
 /**
  * This is a separate object so that we can easily unit test these subtle regular
  * expressions.
  */
-private[primitives]
-object TextNumberPatternUtils {
+private[primitives] object TextNumberPatternUtils {
 
   //  DFDL v1.0 Spec says
   //  It is a Schema Definition Error if any symbols other than "0", "1" through "9" or #
@@ -89,28 +91,27 @@ object TextNumberPatternUtils {
    */
   val negVNumberChars = """#|#+|#*[0-9]+(?:V[0-9]+)?"""
 
-
   /**
    * A regex which matches textNumberPatterns that legally use the V
    * (implied decimal point) character.
    */
   lazy val vRegexStandard = {
 
-     //
-     // Each of the capture groups is defined here in order
-     //
-     val posPrefix = s"""($prefixChars)"""
-     val posBeforeV = s"""($beforeVChars)"""
-     val posAfterV = s"""($afterVChars)"""
-     val posSuffix = posPrefix
-     val negPrefix = posPrefix
-     val negNumber = s"""($negVNumberChars)"""
-     val negSuffix = posPrefix
-     // don't forget the ^ and $ (start of data, end of data) because we want
-     // the match to consume all the characters, starting at the beginning.
-    val vPattern=
-     s"""^${posPrefix}${posBeforeV}V${posAfterV}${posSuffix}""" +
-       s"""(?:;${negPrefix}${negNumber}${negSuffix})?$$"""
+    //
+    // Each of the capture groups is defined here in order
+    //
+    val posPrefix = s"""($prefixChars)"""
+    val posBeforeV = s"""($beforeVChars)"""
+    val posAfterV = s"""($afterVChars)"""
+    val posSuffix = posPrefix
+    val negPrefix = posPrefix
+    val negNumber = s"""($negVNumberChars)"""
+    val negSuffix = posPrefix
+    // don't forget the ^ and $ (start of data, end of data) because we want
+    // the match to consume all the characters, starting at the beginning.
+    val vPattern =
+      s"""^${posPrefix}${posBeforeV}V${posAfterV}${posSuffix}""" +
+        s"""(?:;${negPrefix}${negNumber}${negSuffix})?$$"""
     val re = vPattern.r
     re
   }
@@ -156,7 +157,7 @@ object TextNumberPatternUtils {
     // don't forget the ^ and $ (start of data, end of data) because we want
     // the match to consume all the characters, starting at the beginning.
     val vPattern =
-    s"""^${posPrefix}$posPs${posAfterP}${posSuffix}(?:;${negPrefix}${negPNumber}${negSuffix})?$$"""
+      s"""^${posPrefix}$posPs${posAfterP}${posSuffix}(?:;${negPrefix}${negPNumber}${negSuffix})?$$"""
     val re = vPattern.r
     re
   }
@@ -179,12 +180,12 @@ object TextNumberPatternUtils {
     // don't forget the ^ and $ (start of data, end of data) because we want
     // the match to consume all the characters, starting at the beginning.
     val vPattern =
-    s"""^${posPrefix}${posBeforeP}$posPs${posSuffix}(?:;${negPrefix}${negPNumber}${negSuffix})?$$"""
+      s"""^${posPrefix}${posBeforeP}$posPs${posSuffix}(?:;${negPrefix}${negPNumber}${negSuffix})?$$"""
     val re = vPattern.r
     re
   }
 
-  lazy val vRegexZoned= {
+  lazy val vRegexZoned = {
     // Note: for zoned, can only have a positive pattern
     // Prefix or suffix can only be '+' character, to
     // indicate leading or trailing sign, and can only
@@ -202,7 +203,8 @@ object TextNumberPatternUtils {
     val beforeV = s"""($aroundVChars)"""
     val afterV = beforeV
     val suffix = prefix
-    val vPattern = s"""^${prefix}${beforeV}V${afterV}${suffix}$$""" // only positive pattern allowed
+    val vPattern =
+      s"""^${prefix}${beforeV}V${afterV}${suffix}$$""" // only positive pattern allowed
     val re = vPattern.r
     re
   }
@@ -278,9 +280,10 @@ object TextNumberPatternUtils {
    * @param pattern the textNumberPattern string
    * @return the pattern string with all unquoted P and unquoted V removed.
    */
-  def removeUnquotedPV(pattern: String) : String = {
+  def removeUnquotedPV(pattern: String): String = {
     val regex = "'.*?'|.".r
-    val res = regex.findAllIn(pattern)
+    val res = regex
+      .findAllIn(pattern)
       .filterNot(_ == "P")
       .filterNot(_ == "V")
       .mkString("")
@@ -392,8 +395,7 @@ trait ConvertTextNumberMixin {
     if (hasV || hasP) {
       val patternWithoutPV = TextNumberPatternUtils.removeUnquotedPV(pattern)
       patternWithoutPV
-    }
-    else pattern
+    } else pattern
   }
 
   final protected def checkPatternWithICU(e: ElementBase) = {
@@ -418,7 +420,9 @@ trait ConvertTextNumberMixin {
           e.SDE(
             """Invalid textNumberPattern.
               | The errors are about the pattern with the P (decimal scaling position)
-              | and V (virtual decimal point) characters removed: %s""".stripMargin, ex)
+              | and V (virtual decimal point) characters removed: %s""".stripMargin,
+            ex,
+          )
         } else {
           e.SDE("Invalid textNumberPattern: %s", ex)
         }
@@ -429,7 +433,6 @@ trait ConvertTextNumberMixin {
 case class ConvertTextStandardNumberPrim(e: ElementBase)
   extends Terminal(e, true)
   with ConvertTextNumberMixin {
-
 
   final override protected lazy val textDecimalVirtualPointFromPattern: Int = {
     if (hasV) {
@@ -444,8 +447,11 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
             s"""The dfdl:textNumberPattern '%s' contains 'V' (virtual decimal point).
                | Other than the sign indicators, it can contain only
                | '#', then digits 0-9 then 'V' then digits 0-9.
-               | The positive part of the dfdl:textNumberPattern is mandatory.""".stripMargin('|'),
-            pattern)
+               | The positive part of the dfdl:textNumberPattern is mandatory.""".stripMargin(
+              '|',
+            ),
+            pattern,
+          )
       }
     } else if (hasP) {
       val rr = TextNumberPatternUtils.pOnRightRegexStandard
@@ -453,11 +459,13 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       val rightMatch = rr.findFirstMatchIn(patternWithoutEscapedChars)
       val leftMatch = rl.findFirstMatchIn(patternWithoutEscapedChars)
       (leftMatch, rightMatch) match {
-        case (None, None) => e.SDE(
-          """The dfdl:textNumberPattern '%s' contains 'P' (virtual decimal point positioners).
+        case (None, None) =>
+          e.SDE(
+            """The dfdl:textNumberPattern '%s' contains 'P' (virtual decimal point positioners).
             |However, it did not match the allowed syntax which allows the sign indicator
             |plus digits on only one side of the P symbols.""".stripMargin,
-          pattern)
+            pattern,
+          )
         case (Some(rl(_, ps, digits, _, negPre, negNum, _)), None) => {
           checkPosNegNumPartSyntax(ps + digits, negNum)
           ps.length + digits.length
@@ -466,7 +474,10 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
           checkPosNegNumPartSyntax(digits + ps, negNum)
           -ps.length // negate value.
         }
-        case _ => Assert.invariantFailed("Should not match both left P and right P regular expressions.")
+        case _ =>
+          Assert.invariantFailed(
+            "Should not match both left P and right P regular expressions.",
+          )
       }
     } else {
       0 // there is no V nor P, so there is no virtual decimal point scaling involved.
@@ -479,22 +490,25 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
    * @param posNum positive number pattern part (combined ps and digits on left or right)
    * @param negNum negative number pattern part
    */
-  private def checkPosNegNumPartSyntax(
-    posNum: String,
-    negNum: String): Unit = {
+  private def checkPosNegNumPartSyntax(posNum: String, negNum: String): Unit = {
     if (negNum ne null) {
       // there is a negative part
       if (negNum.length == 1) {
-        Assert.invariant(negNum.matches("#|[0-9]")) // must be # or digit or wouldn't have matched.
+        Assert.invariant(
+          negNum.matches("#|[0-9]"),
+        ) // must be # or digit or wouldn't have matched.
         // do nothing. This is ok. (The negNum is ignored anyway)
       } else {
         // we issue a warning if there is a negNum pattern part and it is not
         // identical to the positive part.
-        e.schemaDefinitionWarningUnless(WarnID.TextNumberPatternWarning, posNum == negNum,
-        s"""The negative numeric part of the textNumberPattern: '${negNum}' is being ignored.
+        e.schemaDefinitionWarningUnless(
+          WarnID.TextNumberPatternWarning,
+          posNum == negNum,
+          s"""The negative numeric part of the textNumberPattern: '${negNum}' is being ignored.
              | It should either be just '#' or should exactly
              | match the numeric part of the positive pattern,
-             | which is '${posNum}'.""".stripMargin)
+             | which is '${posNum}'.""".stripMargin,
+        )
       }
     }
   }
@@ -517,28 +531,37 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
     val primNumeric = e.primType.asInstanceOf[PrimType.PrimNumeric]
 
     if (textDecimalVirtualPoint > 0) {
-      e.schemaDefinitionUnless(!primNumeric.isInteger,
+      e.schemaDefinitionUnless(
+        !primNumeric.isInteger,
         "The dfdl:textNumberPattern has a virtual decimal point 'V', but the type is an integer-only type: %s." ++
           "The type must be xs:decimal, xs:double, or xs:float",
-        e.primType.globalQName.toPrettyString)
+        e.primType.globalQName.toPrettyString,
+      )
 
-      e.schemaDefinitionUnless(e.textStandardBase == 10,
+      e.schemaDefinitionUnless(
+        e.textStandardBase == 10,
         "The dfdl:textNumberPattern 'V' (virtual decimal point) requires that " +
           "dfdl:textStandardBase is 10, but its value was %s",
-        e.textStandardBase)
+        e.textStandardBase,
+      )
     }
 
-    e.schemaDefinitionWhen(pattern.startsWith(";"), "The positive part of the dfdl:textNumberPattern is required. The dfdl:textNumberPattern cannot begin with ';'.")
+    e.schemaDefinitionWhen(
+      pattern.startsWith(";"),
+      "The positive part of the dfdl:textNumberPattern is required. The dfdl:textNumberPattern cannot begin with ';'.",
+    )
     checkPatternWithICU(e)
 
     val (roundingIncrement: MaybeDouble, roundingMode) =
       e.textNumberRounding match {
-        case TextNumberRounding.Explicit => (MaybeDouble(e.textNumberRoundingIncrement), One(e.textNumberRoundingMode))
+        case TextNumberRounding.Explicit =>
+          (MaybeDouble(e.textNumberRoundingIncrement), One(e.textNumberRoundingMode))
         case TextNumberRounding.Pattern => (MaybeDouble.Nope, Nope)
       }
 
     val (infRep, nanRep) = e.primType match {
-      case PrimType.Double | PrimType.Float => (One(e.textStandardInfinityRep), One(e.textStandardNaNRep))
+      case PrimType.Double | PrimType.Float =>
+        (One(e.textStandardInfinityRep), One(e.textStandardNaNRep))
       case _ => (Nope, Nope)
     }
 
@@ -552,8 +575,8 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
     // since ICU will use them even if the pattern does not specify them.
     val requireDecGroupSeps =
       patternWithoutEscapedChars.contains(",") || patternWithoutEscapedChars.contains(".") ||
-      patternWithoutEscapedChars.contains("E") || patternWithoutEscapedChars.contains("@") ||
-      !primNumeric.isInteger
+        patternWithoutEscapedChars.contains("E") || patternWithoutEscapedChars.contains("@") ||
+        !primNumeric.isInteger
 
     val decSep =
       if (requireDecGroupSeps) {
@@ -583,14 +606,25 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       roundingIncrement,
       zeroRepsRaw,
       primNumeric.isInteger,
-      e.primType)
+      e.primType,
+    )
     ev.compile(tunable)
     ev
   }
 
   lazy val parser: Parser =
-    new ConvertTextStandardNumberParser(textNumberFormatEv, zeroRepsRegex, e.elementRuntimeData, textDecimalVirtualPoint)
+    new ConvertTextStandardNumberParser(
+      textNumberFormatEv,
+      zeroRepsRegex,
+      e.elementRuntimeData,
+      textDecimalVirtualPoint,
+    )
 
   override lazy val unparser: Unparser =
-    new ConvertTextNumberUnparser(textNumberFormatEv, zeroRepUnparse, e.elementRuntimeData, textDecimalVirtualPoint)
+    new ConvertTextNumberUnparser(
+      textNumberFormatEv,
+      zeroRepUnparse,
+      e.elementRuntimeData,
+      textDecimalVirtualPoint,
+    )
 }

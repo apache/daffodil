@@ -20,4 +20,3 @@ package org.apache.daffodil.runtime1.debugger
 import org.apache.daffodil.runtime1.events.EventHandler
 
 trait Debugger extends EventHandler
-

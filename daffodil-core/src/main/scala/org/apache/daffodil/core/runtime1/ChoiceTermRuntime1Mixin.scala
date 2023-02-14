@@ -17,21 +17,21 @@
 
 package org.apache.daffodil.core.runtime1
 
-import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.core.dsom.ChoiceTermBase
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.core.dsom.Term
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.core.grammar.Gram
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Delay
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.ChoiceBranchEndEvent
 import org.apache.daffodil.runtime1.infoset.ChoiceBranchEvent
 import org.apache.daffodil.runtime1.infoset.ChoiceBranchStartEvent
 import org.apache.daffodil.runtime1.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.runtime1.processors.ChoiceRuntimeData
-import org.apache.daffodil.lib.util.Delay
 
 trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
@@ -46,7 +46,13 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
 
   final protected lazy val choiceDispatchKeyExpr = {
     val qn = this.qNameForProperty("choiceDispatchKey")
-    ExpressionCompilers.String.compileProperty(qn, NodeInfo.NonEmptyString, choiceDispatchKeyRaw, this, dpathCompileInfo)
+    ExpressionCompilers.String.compileProperty(
+      qn,
+      NodeInfo.NonEmptyString,
+      choiceDispatchKeyRaw,
+      this,
+      dpathCompileInfo,
+    )
   }
 
   final lazy val choiceDispatchKeyEv = {
@@ -70,11 +76,8 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
       alt.context match {
         case t: Term => {
           val poss = t.identifyingEventsForChoiceBranch
-          poss.pnes.flatMap {
-            case PNE(e, ovr) =>
-              Seq((
-                ChoiceBranchStartEvent(e.namedQName).asInstanceOf[ChoiceBranchEvent],
-                t))
+          poss.pnes.flatMap { case PNE(e, ovr) =>
+            Seq((ChoiceBranchStartEvent(e.namedQName).asInstanceOf[ChoiceBranchEvent], t))
           }
         }
         case _ => Assert.invariantFailed("must be a term")
@@ -95,7 +98,10 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
           ies.pnes.isEmpty // empty event list makes it the default, not simply isOpen
         }
         if (emptyBranches.length > 1)
-          SDW(WarnID.MultipleChoiceBranches, "Multiple choice branches with no required elements detected and the infoset does not specify a branch, selecting the first branch for unparsing")
+          SDW(
+            WarnID.MultipleChoiceBranches,
+            "Multiple choice branches with no required elements detected and the infoset does not specify a branch, selecting the first branch for unparsing",
+          )
         emptyBranches.headOption
       }
       val optOpen: Option[Term] =
@@ -109,17 +115,19 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
         optOpen.orElse {
           groupMembers.find {
             _.canUnparseIfHidden
-          } //optional, defaultable or OVC
+          } // optional, defaultable or OVC
         }
       optDefault
     }
 
     // converts a sequence of tuples into a multi-map
-    val eventMap = eventTuples.groupBy {
-      _._1
-    }.mapValues {
-      _.map(_._2)
-    }
+    val eventMap = eventTuples
+      .groupBy {
+        _._1
+      }
+      .mapValues {
+        _.map(_._2)
+      }
 
     // Now we examine the event map looking for cases where a given input event corresponds to
     // more than one branch.
@@ -128,20 +136,22 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
       case (event, terms) => {
         Assert.invariant(terms.length > 0)
         if (terms.length > 1) {
-          if (terms.exists { term =>
-            term match {
-              // any element children in any of the trds?
-              // because if so, we have a true ambiguity here.
-              case sg: SequenceTermBase => {
-                val nonOVCEltChildren = sg.groupMembers.filter {
-                  case eb: ElementBase => !eb.isOutputValueCalc
-                  case _ => false
+          if (
+            terms.exists { term =>
+              term match {
+                // any element children in any of the trds?
+                // because if so, we have a true ambiguity here.
+                case sg: SequenceTermBase => {
+                  val nonOVCEltChildren = sg.groupMembers.filter {
+                    case eb: ElementBase => !eb.isOutputValueCalc
+                    case _ => false
+                  }
+                  nonOVCEltChildren.length > 0
                 }
-                nonOVCEltChildren.length > 0
+                case _ => false
               }
-              case _ => false
             }
-          }) {
+          ) {
             // Possibly due to presence of a element with dfdl:outputValueCalc, XML Schema's
             // UPA check may not catch this ambiguity. However, we need a real element
             // with unique name, to unambiguously identify a branch.
@@ -152,7 +162,12 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
                 "Note that choice branches with entirely optional content are not allowed.\n" +
                 "The offending choice branches are:\n%s",
               event.qname,
-              terms.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
+              terms
+                .map { trd =>
+                  "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription)
+                }
+                .mkString("\n"),
+            )
           } else {
             val eventType = event match {
               case _: ChoiceBranchEndEvent => "end"
@@ -166,8 +181,14 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
                 "Note that choice branches with entirely optional content are not allowed.\n" +
                 "The offending choice branches are:\n%s\n" +
                 "The first branch will be used during unparsing when an infoset ambiguity exists.",
-              eventType, event.qname,
-              terms.map { trd => "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription) }.mkString("\n"))
+              eventType,
+              event.qname,
+              terms
+                .map { trd =>
+                  "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription)
+                }
+                .mkString("\n"),
+            )
           }
         }
         (event, terms(0))
@@ -177,9 +198,6 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
   }
 
   final lazy val modelGroupRuntimeData = choiceRuntimeData
-
-
-
 
   final lazy val choiceRuntimeData = {
     new ChoiceRuntimeData(
@@ -201,6 +219,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
       optIgnoreCase,
       fillByteEv,
       maybeCheckByteAndBitOrderEv,
-      maybeCheckBitOrderAndCharsetEv)
+      maybeCheckBitOrderAndCharsetEv,
+    )
   }
 }

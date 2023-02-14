@@ -92,16 +92,18 @@ final class Delay[T] private (private var box: Delay.Box[T], sym: Symbol)
    * For creating a delay object purely to satisfy a type requirement
    * when you know the argument does not actually need to be delayed.
    */
-  def force : Delay[T] = { value; this }
+  def force: Delay[T] = { value; this }
 
   /**
    * Create a string representation. Does not force the value to be computed.
    */
   override def toString = {
     val bodyString = if (hasValue) ", " + value.toString else ""
-    val objString = if (hasValue) "" else {
-      box
-    }
+    val objString =
+      if (hasValue) ""
+      else {
+        box
+      }
     "Delay(" + sym + ", " + objString + bodyString + ")"
   }
 
@@ -109,7 +111,7 @@ final class Delay[T] private (private var box: Delay.Box[T], sym: Symbol)
     if (!hasValue) {
       Assert.invariant(box ne null)
       val msg = s"No value for delay. Containing object not initialized? ID Symbol:$sym " +
-      s"object ${box}"
+        s"object ${box}"
       Assert.invariantFailed(msg)
     }
     super.preSerialization
@@ -120,6 +122,7 @@ final class Delay[T] private (private var box: Delay.Box[T], sym: Symbol)
 }
 
 object Delay {
+
   /**
    * Create a delayed expression object.
    *

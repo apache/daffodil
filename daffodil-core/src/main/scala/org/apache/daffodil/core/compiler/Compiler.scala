@@ -22,28 +22,27 @@ import java.io.FileInputStream
 import java.io.InvalidClassException
 import java.io.ObjectInputStream
 import java.io.StreamCorruptedException
+import java.net.URI
 import java.nio.channels.Channels
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
-
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml.Node
 
-import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.core.dsom.SchemaSet
+import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.api.UnitTestSchemaSource
-import org.apache.daffodil.core.dsom.SchemaSet
-import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.externalvars.Binding
-import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml._
-import java.net.URI
+import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.processors.DataProcessor
 
 /**
  * Some grammar rules need to be conditional based on whether we're trying
@@ -61,32 +60,46 @@ object ForParser extends ParserOrUnparser
 object ForUnparser extends ParserOrUnparser
 object BothParserAndUnparser extends ParserOrUnparser
 
-final class ProcessorFactory private(
+final class ProcessorFactory private (
   private val optRootSpec: Option[RootSpec],
   schemaSource: DaffodilSchemaSource,
   val validateDFDLSchemas: Boolean,
   checkAllTopLevel: Boolean,
   tunables: DaffodilTunables,
-  optSchemaSet: Option[SchemaSet])
-  extends DFDL.ProcessorFactory {
+  optSchemaSet: Option[SchemaSet],
+) extends DFDL.ProcessorFactory {
 
-  def this(optRootName: Option[String],
+  def this(
+    optRootName: Option[String],
     optRootNamespace: Option[String],
     schemaSource: DaffodilSchemaSource,
     validateDFDLSchemas: Boolean,
     checkAllTopLevel: Boolean,
-    tunables: DaffodilTunables) =
+    tunables: DaffodilTunables,
+  ) =
     this(
       RootSpec.makeRootSpec(optRootName, optRootNamespace), // compute root-spec object
-      schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables, None)
+      schemaSource,
+      validateDFDLSchemas,
+      checkAllTopLevel,
+      tunables,
+      None,
+    )
 
-  private def copy(
-    optRootSpec: Option[RootSpec] = optRootSpec): ProcessorFactory =
-      new ProcessorFactory(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables, Some(sset))
+  private def copy(optRootSpec: Option[RootSpec] = optRootSpec): ProcessorFactory =
+    new ProcessorFactory(
+      optRootSpec,
+      schemaSource,
+      validateDFDLSchemas,
+      checkAllTopLevel,
+      tunables,
+      Some(sset),
+    )
 
   lazy val sset: SchemaSet =
     optSchemaSet.getOrElse(
-      SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables))
+      SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables),
+    )
 
   lazy val rootView: RootView = sset.root
 
@@ -105,14 +118,19 @@ final class ProcessorFactory private(
     // requirements to become clearer
     val className = language match {
       case "c" => "org.apache.daffodil.runtime2.Runtime2CodeGenerator"
-      case _ => throw new InvalidParserException(s"code generator; source language $language is not supported")
+      case _ =>
+        throw new InvalidParserException(
+          s"code generator; source language $language is not supported",
+        )
     }
     import scala.language.existentials // Needed to make next line compile
     val clazz = Try(Class.forName(className))
     val constructor = clazz.map { _.getDeclaredConstructor(sset.root.getClass) }
-    val tryInstance = constructor.map { _.newInstance(sset.root).asInstanceOf[DFDL.CodeGenerator] }
-    val codeGenerator = tryInstance.recover {
-      case ex => throw new InvalidParserException(s"Error creating $className", ex)
+    val tryInstance = constructor.map {
+      _.newInstance(sset.root).asInstanceOf[DFDL.CodeGenerator]
+    }
+    val codeGenerator = tryInstance.recover { case ex =>
+      throw new InvalidParserException(s"Error creating $className", ex)
     }.get
 
     codeGenerator
@@ -120,7 +138,7 @@ final class ProcessorFactory private(
 
   override def isError = sset.isError
 
-  def withDistinguishedRootNode(name: String, namespace: String) : ProcessorFactory = {
+  def withDistinguishedRootNode(name: String, namespace: String): ProcessorFactory = {
     Assert.usage(name ne null)
     copy(optRootSpec = RootSpec.makeRootSpec(Option(name), Option(namespace)))
   }
@@ -128,8 +146,9 @@ final class ProcessorFactory private(
 
 class InvalidParserException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 
-class Compiler private (val validateDFDLSchemas: Boolean,
-  val tunables : DaffodilTunables,
+class Compiler private (
+  val validateDFDLSchemas: Boolean,
+  val tunables: DaffodilTunables,
 
   /**
    * checkAllTopLevel should normally be true. There are some schemas where
@@ -143,26 +162,30 @@ class Compiler private (val validateDFDLSchemas: Boolean,
    * Compiling a schema with that sort of element in it and compileAllTopLevel true
    * causes an SDE about "relative path past root".
    */
-  private val checkAllTopLevel : Boolean,
+  private val checkAllTopLevel: Boolean,
   private val optRootName: Option[String],
-  private val optRootNamespace: Option[String])
-  extends DFDL.Compiler {
+  private val optRootNamespace: Option[String],
+) extends DFDL.Compiler {
 
   private def this(validateDFDLSchemas: Boolean = true) =
-    this(validateDFDLSchemas,
+    this(
+      validateDFDLSchemas,
       tunables = DaffodilTunables(),
       checkAllTopLevel = true,
       optRootName = None,
-      optRootNamespace = None)
+      optRootNamespace = None,
+    )
 
-  private def copy(validateDFDLSchemas: Boolean = validateDFDLSchemas,
-    tunables : DaffodilTunables = tunables,
-    checkAllTopLevel : Boolean = checkAllTopLevel,
+  private def copy(
+    validateDFDLSchemas: Boolean = validateDFDLSchemas,
+    tunables: DaffodilTunables = tunables,
+    checkAllTopLevel: Boolean = checkAllTopLevel,
     optRootName: Option[String] = optRootName,
-    optRootNamespace: Option[String] = optRootNamespace) =
+    optRootNamespace: Option[String] = optRootNamespace,
+  ) =
     new Compiler(validateDFDLSchemas, tunables, checkAllTopLevel, optRootName, optRootNamespace)
 
-  def withDistinguishedRootNode(name: String, namespace: String) : Compiler = {
+  def withDistinguishedRootNode(name: String, namespace: String): Compiler = {
     Assert.usage(name ne null)
     copy(optRootName = Option(name), optRootNamespace = Option(namespace))
   }
@@ -202,7 +225,7 @@ class Compiler private (val validateDFDLSchemas: Boolean,
   def reload(savedParser: File) = reload(new FileInputStream(savedParser))
 
   def reload(savedParser: java.nio.channels.ReadableByteChannel): DFDL.DataProcessor =
-     reload(Channels.newInputStream(savedParser))
+    reload(Channels.newInputStream(savedParser))
 
   def reload(schemaSource: DaffodilSchemaSource): DFDL.DataProcessor =
     reload(schemaSource.uriForLoading)
@@ -217,7 +240,10 @@ class Compiler private (val validateDFDLSchemas: Boolean,
 
       val requiredDataPrefix = "DAFFODIL "
       requiredDataPrefix.foreach { c =>
-        if (is.read() != c.toInt) throw new InvalidParserException("The saved parser is only compatible with an older version of Daffodil")
+        if (is.read() != c.toInt)
+          throw new InvalidParserException(
+            "The saved parser is only compatible with an older version of Daffodil",
+          )
       }
 
       val ab = new ArrayBuffer[Byte]()
@@ -231,7 +257,9 @@ class Compiler private (val validateDFDLSchemas: Boolean,
       val curVersion = Misc.getDaffodilVersion
       val savedVersion = new String(ab.toArray, "utf-8")
       if (savedVersion != curVersion) {
-        throw new InvalidParserException("The saved parser is only compatible with Daffodil " + savedVersion + ". Current version is " + curVersion)
+        throw new InvalidParserException(
+          "The saved parser is only compatible with Daffodil " + savedVersion + ". Current version is " + curVersion,
+        )
       }
 
       // Decompress and deserilize the rest of the file using java object deserializtion
@@ -273,8 +301,11 @@ class Compiler private (val validateDFDLSchemas: Boolean,
         // figure out the issue.
         val cls = Class.forName(ex.classname)
         val src = cls.getProtectionDomain.getCodeSource
-        val dependencyStr = if (src != null) (new File(src.getLocation().getFile)).getName else "a dependency"
-        throw new InvalidParserException("The saved parser was created with a different version of " + dependencyStr + " with incompatible class: " + ex.classname)
+        val dependencyStr =
+          if (src != null) (new File(src.getLocation().getFile)).getName else "a dependency"
+        throw new InvalidParserException(
+          "The saved parser was created with a different version of " + dependencyStr + " with incompatible class: " + ex.classname,
+        )
       }
       //
       case ex @ (_: ClassNotFoundException | _: NoClassDefFoundError) => {
@@ -289,7 +320,9 @@ class Compiler private (val validateDFDLSchemas: Boolean,
         // when reloading a schema, and dependencies are just missing, or if a
         // user switches depenency versions and the new version completely
         // removes a class.
-        throw new InvalidParserException("The saved parser was created with a different set of dependencies containing a class no longer on the classpath: " + ex.getMessage)
+        throw new InvalidParserException(
+          "The saved parser was created with a different set of dependencies containing a class no longer on the classpath: " + ex.getMessage,
+        )
       }
     }
   }
@@ -298,9 +331,11 @@ class Compiler private (val validateDFDLSchemas: Boolean,
    * Compilation returns a parser factory, which must be interrogated for diagnostics
    * to see if compilation was successful or not.
    */
-  def compileFile(file: File,
+  def compileFile(
+    file: File,
     optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None): ProcessorFactory = {
+    optRootNamespace: Option[String] = None,
+  ): ProcessorFactory = {
     val source = URISchemaSource(file.toURI)
     compileSource(source, optRootName, optRootNamespace)
   }
@@ -317,27 +352,38 @@ class Compiler private (val validateDFDLSchemas: Boolean,
   def compileSource(
     schemaSource: DaffodilSchemaSource,
     optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None): ProcessorFactory = {
+    optRootNamespace: Option[String] = None,
+  ): ProcessorFactory = {
     Compiler.compileSourceSynchronizer(this, schemaSource, optRootName, optRootNamespace)
   }
 
   private def compileSourceInternal(
     schemaSource: DaffodilSchemaSource,
     optRootNameArg: Option[String],
-    optRootNamespaceArg: Option[String]): ProcessorFactory = {
+    optRootNamespaceArg: Option[String],
+  ): ProcessorFactory = {
 
     val pf: ProcessorFactory = {
-      val rootName = optRootNameArg.orElse(optRootName) // arguments override things set with setters
+      val rootName =
+        optRootNameArg.orElse(optRootName) // arguments override things set with setters
       val rootNamespace = optRootNamespaceArg.orElse(optRootNamespace)
       new ProcessorFactory(
-        rootName, rootNamespace, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables)
+        rootName,
+        rootNamespace,
+        schemaSource,
+        validateDFDLSchemas,
+        checkAllTopLevel,
+        tunables,
+      )
     }
 
     val err = pf.isError
     val diags = pf.getDiagnostics // might be warnings even if not isError
     if (err) {
       Assert.invariant(diags.nonEmpty)
-      Logger.log.debug(s"Compilation (ProcessorFactory) produced ${diags.length} errors/warnings.")
+      Logger.log.debug(
+        s"Compilation (ProcessorFactory) produced ${diags.length} errors/warnings.",
+      )
     } else {
       if (diags.nonEmpty) {
         Logger.log.debug(s"Compilation (ProcessorFactory) produced ${diags.length} warnings.")
@@ -356,7 +402,8 @@ class Compiler private (val validateDFDLSchemas: Boolean,
     xml: Node,
     optTmpDir: Option[File] = None,
     optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None): ProcessorFactory = {
+    optRootNamespace: Option[String] = None,
+  ): ProcessorFactory = {
     compileSource(UnitTestSchemaSource(xml, "anon", optTmpDir), optRootName, optRootNamespace)
   }
 
@@ -373,7 +420,8 @@ object Compiler {
     c: Compiler,
     schemaSource: DaffodilSchemaSource,
     optRootName: Option[String],
-    optRootNamespace: Option[String]) : ProcessorFactory = {
+    optRootNamespace: Option[String],
+  ): ProcessorFactory = {
     synchronized {
       c.compileSourceInternal(schemaSource, optRootName, optRootNamespace)
     }

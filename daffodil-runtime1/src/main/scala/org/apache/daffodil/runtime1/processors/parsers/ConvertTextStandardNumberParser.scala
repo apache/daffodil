@@ -17,14 +17,15 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import com.ibm.icu.math.{BigDecimal => ICUBigDecimal}
-import com.ibm.icu.text.DecimalFormat
-
+import java.lang.{ Double => JDouble, Float => JFloat, Long => JLong, Number => JNumber }
+import java.math.MathContext
+import java.math.{ BigDecimal => JBigDecimal }
 import java.text.ParsePosition
 import scala.util.matching.Regex
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueNumber
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -32,15 +33,14 @@ import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
 
-import java.lang.{Float => JFloat, Number => JNumber, Long => JLong, Double => JDouble}
-import java.math.MathContext
-import java.math.{BigDecimal => JBigDecimal}
+import com.ibm.icu.math.{ BigDecimal => ICUBigDecimal }
+import com.ibm.icu.text.DecimalFormat
 
 case class ConvertTextCombinatorParser(
   rd: TermRuntimeData,
   valueParser: Parser,
-  converterParser: Parser)
-  extends CombinatorParser(rd) {
+  converterParser: Parser,
+) extends CombinatorParser(rd) {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -58,7 +58,8 @@ case class ConvertTextCombinatorParser(
 trait TextDecimalVirtualPointMixin {
   def textDecimalVirtualPoint: Int
 
-  final protected lazy val virtualPointScaleFactor = scala.math.pow(10.0, textDecimalVirtualPoint)
+  final protected lazy val virtualPointScaleFactor =
+    scala.math.pow(10.0, textDecimalVirtualPoint)
 
   final protected def applyTextDecimalVirtualPointForParse(num1: JNumber): JNumber = {
     if (textDecimalVirtualPoint == 0) num1
@@ -85,13 +86,11 @@ trait TextDecimalVirtualPointMixin {
 
   // $COVERAGE-OFF$
   private def badType(num1: AnyRef) = {
-    Assert.invariantFailed(
-      s"""Number cannot be scaled for virtual decimal point,
+    Assert.invariantFailed(s"""Number cannot be scaled for virtual decimal point,
          |because it is not a decimal, float, or double.
          |The type is ${num1.getClass.getSimpleName}.""".stripMargin)
   }
   // $COVERAGE-ON$
-
 
   /**
    * Always creates an integer from a JFloat, JDouble, or JBigDecimal
@@ -107,7 +106,7 @@ trait TextDecimalVirtualPointMixin {
    * @param valueAsAnyRef value to be scaled. Should be a JNumber. Aborts otherwise.
    * @return a JNumber of the same concrete type as the argument.
    */
-  final protected def applyTextDecimalVirtualPointForUnparse(valueAsAnyRef: AnyRef) : JNumber = {
+  final protected def applyTextDecimalVirtualPointForUnparse(valueAsAnyRef: AnyRef): JNumber = {
     val res: JNumber = valueAsAnyRef match {
       case jn: JNumber if (textDecimalVirtualPoint == 0) => jn
       // This is not perfectly symmetrical with the parse side equivalent.
@@ -128,7 +127,8 @@ trait TextDecimalVirtualPointMixin {
       case f: JFloat => (f * virtualPointScaleFactor).round.toFloat
       case d: JDouble if d.isNaN || d.isInfinite => d
       case d: JDouble => (d * virtualPointScaleFactor).round.toDouble
-      case bd: JBigDecimal => bd.scaleByPowerOfTen(textDecimalVirtualPoint).round(MathContext.UNLIMITED)
+      case bd: JBigDecimal =>
+        bd.scaleByPowerOfTen(textDecimalVirtualPoint).round(MathContext.UNLIMITED)
       case n: JNumber =>
         // $COVERAGE-OFF$ // both badType and the next case are coverage-off
         badType(n)
@@ -145,8 +145,8 @@ case class ConvertTextStandardNumberParser(
   textNumberFormatEv: TextNumberFormatEv,
   zeroRepsRegex: List[Regex],
   override val context: ElementRuntimeData,
-  override val textDecimalVirtualPoint: Int)
-  extends TextPrimParser
+  override val textDecimalVirtualPoint: Int,
+) extends TextPrimParser
   with TextDecimalVirtualPointMixin {
 
   override lazy val runtimeDependencies = Vector(textNumberFormatEv)
@@ -175,7 +175,12 @@ case class ConvertTextStandardNumberParser(
         val pos = new ParsePosition(0)
         val icuNum: Number = df.parse(strCheckPolicy, pos) match {
           case null => {
-            PE(start, "Unable to parse %s from text: %s", context.optPrimType.get.globalQName, str)
+            PE(
+              start,
+              "Unable to parse %s from text: %s",
+              context.optPrimType.get.globalQName,
+              str,
+            )
             return
           }
           case d: JDouble if primNumeric.isInteger => {
@@ -186,7 +191,12 @@ case class ConvertTextStandardNumberParser(
             // So just create the same PE as if it failed to parse it, which is what
             // we really want ICU to do
             Assert.invariant(d.isNaN || d.isInfinite)
-            PE(start, "Unable to parse %s from text: %s", context.optPrimType.get.globalQName, str)
+            PE(
+              start,
+              "Unable to parse %s from text: %s",
+              context.optPrimType.get.globalQName,
+              str,
+            )
             return
           }
           case bd: ICUBigDecimal => {
@@ -198,7 +208,6 @@ case class ConvertTextStandardNumberParser(
           }
           case num: Number => num
         }
-
 
         // Verify that what was parsed was what was passed exactly in byte count.
         // Use pos to verify all characters consumed & check for errors!
@@ -219,22 +228,27 @@ case class ConvertTextStandardNumberParser(
               false
             }
           if (!isValid) {
-            PE(start, "Unable to parse %s from text: %s",
-              context.optPrimType.get.globalQName, str)
+            PE(
+              start,
+              "Unable to parse %s from text: %s",
+              context.optPrimType.get.globalQName,
+              str,
+            )
             return
           }
         }
 
         val num: JNumber = applyTextDecimalVirtualPointForParse(icuNum)
 
-        val numValue: DataValueNumber = try {
-          primNumeric.fromNumber(num)
-        } catch {
-          case e: InvalidPrimitiveDataException => {
-            PE(start, "%s", e.getMessage)
-            return
+        val numValue: DataValueNumber =
+          try {
+            primNumeric.fromNumber(num)
+          } catch {
+            case e: InvalidPrimitiveDataException => {
+              PE(start, "%s", e.getMessage)
+              return
+            }
           }
-        }
         numValue
       }
     }

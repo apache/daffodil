@@ -16,8 +16,8 @@
  */
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.Success
 
@@ -37,13 +37,15 @@ object SeparatorParseStatus {
 sealed abstract class SeparatorParseHelper(
   protected val sep: Parser,
   protected val childParser: Parser,
-  scParserArg: Separated)
-  extends Serializable {
-
+  scParserArg: Separated,
+) extends Serializable {
 
   protected val scParser = scParserArg.asInstanceOf[SequenceChildParser with Separated]
 
-  def parseOneWithSeparator(state: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus
+  def parseOneWithSeparator(
+    state: PState,
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus
 
   /**
    * Sets PState status to failure when separator is not found.
@@ -52,8 +54,14 @@ sealed abstract class SeparatorParseHelper(
     val cause = pstate.processorStatus.asInstanceOf[Failure].cause
     scParser.trd match {
       case erd: ElementRuntimeData if (erd.isArray) =>
-        sep.PE(pstate, "Failed to populate %s[%s]. Missing %s separator. Cause: %s",
-          erd.prefixedName, pstate.mpstate.arrayPos, kind, cause)
+        sep.PE(
+          pstate,
+          "Failed to populate %s[%s]. Missing %s separator. Cause: %s",
+          erd.prefixedName,
+          pstate.mpstate.arrayPos,
+          kind,
+          cause,
+        )
       case _ =>
         sep.PE(pstate, "Failed to parse %s separator. Cause: %s.", kind, cause)
     }
@@ -66,7 +74,10 @@ final class PrefixSeparatorHelper(sep: Parser, childParser: Parser, scParserArg:
 
   override def kind = "prefix"
 
-  override def parseOneWithSeparator(pstate: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus =
+  override def parseOneWithSeparator(
+    pstate: PState,
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus =
     parseOneWithInfixOrPrefixSeparator(true, pstate, requiredOptional)
 }
 
@@ -76,7 +87,10 @@ final class InfixSeparatorHelper(sep: Parser, childParser: Parser, scParserArg: 
 
   override def kind = "infix"
 
-  override def parseOneWithSeparator(pstate: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+  override def parseOneWithSeparator(
+    pstate: PState,
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
 
     val infixSepShouldBePresent =
       pstate.mpstate.groupPos > 1
@@ -92,7 +106,8 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
   final protected def parseOneWithInfixOrPrefixSeparator(
     shouldParseTheSep: Boolean,
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
 
     val sepStatus =
       if (shouldParseTheSep) {
@@ -102,7 +117,10 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
         requiredOptional match {
           case _: RequiredOptionalStatus.Optional => {
             // Create a point of uncertainty with which to reset if we find errors
-            pstate.withPointOfUncertainty("parseOneWithInfixOrPrefixSeparator",childParser.context) { pou =>
+            pstate.withPointOfUncertainty(
+              "parseOneWithInfixOrPrefixSeparator",
+              childParser.context,
+            ) { pou =>
               sep.parse1(pstate)
 
               val rv = if (pstate.processorStatus eq Success) {
@@ -135,8 +153,10 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
         val pas =
           scParser.parseResultHelper.computeParseAttemptStatus(
             scParser,
-            prevBitPosBeforeChild, pstate,
-            requiredOptional)
+            prevBitPosBeforeChild,
+            pstate,
+            requiredOptional,
+          )
         pas
       }
       case _ => {
@@ -148,26 +168,33 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
         }
         scParser.parseResultHelper.computeFailedSeparatorParseAttemptStatus(
           scParser,
-          prevBitPosBeforeChild, pstate,
+          prevBitPosBeforeChild,
+          pstate,
           isZL = true,
-          requiredOptional)
+          requiredOptional,
+        )
       }
     }
   }
 
 }
 
-final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Separated,
-  isSimpleDelimited: Boolean)
-  extends SeparatorParseHelper(sep, child, scParserArg) {
+final class PostfixSeparatorHelper(
+  sep: Parser,
+  child: Parser,
+  scParserArg: Separated,
+  isSimpleDelimited: Boolean,
+) extends SeparatorParseHelper(sep, child, scParserArg) {
   import ParseAttemptStatus._
 
-  override def parseOneWithSeparator(pstate: PState, requiredOptional: RequiredOptionalStatus): ParseAttemptStatus = {
+  override def parseOneWithSeparator(
+    pstate: PState,
+    requiredOptional: RequiredOptionalStatus,
+  ): ParseAttemptStatus = {
 
     val prevBitPosBeforeChild = pstate.bitPos0b
 
     pstate.withPointOfUncertainty("PostfixSeparatorHelper", childParser.context) { pou =>
-      
       childParser.parse1(pstate)
       val childSuccessful = pstate.processorStatus eq Success
       val childFailure = !childSuccessful // just makes later logic easier to read
@@ -182,7 +209,10 @@ final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Sepa
         val dataOnlyRep =
           prh.computeParseAttemptStatus(
             scParser,
-            prevBitPosBeforeChild, pstate, requiredOptional)
+            prevBitPosBeforeChild,
+            pstate,
+            requiredOptional,
+          )
         sep.parse1(pstate)
         if (pstate.processorStatus eq Success) {
           // we got the postfix sep after successful parse of the data item
@@ -202,7 +232,13 @@ final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Sepa
 
           pstate.setFailed(failure.cause)
           failedSeparator(pstate, "postfix")
-          prh.computeFailedSeparatorParseAttemptStatus(scParser, prevBitPosBeforeChild, pstate, hasZLChildAttempt, requiredOptional)
+          prh.computeFailedSeparatorParseAttemptStatus(
+            scParser,
+            prevBitPosBeforeChild,
+            pstate,
+            hasZLChildAttempt,
+            requiredOptional,
+          )
         }
       } else {
         Assert.invariant(childFailure)
@@ -236,8 +272,10 @@ final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Sepa
             val pas =
               prh.computeParseAttemptStatus(
                 scParser,
-                prevBitPosBeforeChild, pstate,
-                requiredOptional)
+                prevBitPosBeforeChild,
+                pstate,
+                requiredOptional,
+              )
             val res = pas match {
               case AbsentRep => {
                 pstate.dataInputStream.setBitPos0b(posAfterSep)
@@ -250,7 +288,13 @@ final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Sepa
             // the separator failed on ZL data
             // so no chance on a ZL representation here.
             val isZL = false
-            prh.computeFailedSeparatorParseAttemptStatus(scParser, prevBitPosBeforeChild, pstate, isZL, requiredOptional)
+            prh.computeFailedSeparatorParseAttemptStatus(
+              scParser,
+              prevBitPosBeforeChild,
+              pstate,
+              isZL,
+              requiredOptional,
+            )
           }
         } else {
           // not simple delimited. We really have no way of knowing
@@ -258,7 +302,13 @@ final class PostfixSeparatorHelper(sep: Parser, child: Parser, scParserArg: Sepa
           // (ex: the child could be failing because it is fixed length, with asserts that check the value
           // that fail.)
           val isZL = false
-          prh.computeFailedParseAttemptStatus(scParser, prevBitPosBeforeChild, pstate, isZL, requiredOptional)
+          prh.computeFailedParseAttemptStatus(
+            scParser,
+            prevBitPosBeforeChild,
+            pstate,
+            isZL,
+            requiredOptional,
+          )
         }
       }
 

@@ -19,7 +19,6 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import scala.reflect.macros.blackbox.Context
 
-
 object PointOfUncertaintyMacros {
 
   /**
@@ -37,10 +36,12 @@ object PointOfUncertaintyMacros {
    * discarded, reset to, or resovled, this pou will then be discarded,
    * ensuring that Marks are always cleaned up appropriately.
    */
-  def withPointOfUncertainty[A, B](c: Context)(pouID: c.Expr[String], context: c.Tree)(func: c.Expr[A => B]) = {
+  def withPointOfUncertainty[A, B](
+    c: Context,
+  )(pouID: c.Expr[String], context: c.Tree)(func: c.Expr[A => B]) = {
 
     import c.universe._
-    
+
     val state = TermName(c.freshName("state"))
     val id = TermName(c.freshName("id"))
     val pou = TermName(c.freshName("pou"))

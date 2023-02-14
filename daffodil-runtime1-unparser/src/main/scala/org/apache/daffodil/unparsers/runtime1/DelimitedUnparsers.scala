@@ -17,30 +17,28 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
 
 import org.apache.daffodil.lib.equality.ViewEqual
+import org.apache.daffodil.lib.schema.annotation.props.gen.GenerateEscape
+import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe.Nope
+import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.EscapeSchemeBlockUnparserHelper
 import org.apache.daffodil.runtime1.processors.EscapeSchemeCharUnparserHelper
 import org.apache.daffodil.runtime1.processors.EscapeSchemeUnparseEv
 import org.apache.daffodil.runtime1.processors.dfa.CreateFieldDFA
 import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedUnparser
-import org.apache.daffodil.lib.schema.annotation.props.gen.GenerateEscape
-import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe.Nope
-import org.apache.daffodil.lib.util.Maybe.One
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 sealed class StringDelimitedUnparser(
   override val context: ElementRuntimeData,
   escapeScheme: Maybe[EscapeSchemeUnparseEv],
-  isDelimRequired: Boolean)
-  extends TextPrimUnparser {
+  isDelimRequired: Boolean,
+) extends TextPrimUnparser {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -69,10 +67,19 @@ sealed class StringDelimitedUnparser(
             val (result, _) = {
               if (scheme.isInstanceOf[EscapeSchemeCharUnparserHelper]) {
                 val theScheme = scheme.asInstanceOf[EscapeSchemeCharUnparserHelper]
-                val hasEscCharAsDelimiter = terminatingMarkup.exists(d => d.lookingFor(0) =#= theScheme.ec)
+                val hasEscCharAsDelimiter =
+                  terminatingMarkup.exists(d => d.lookingFor(0) =#= theScheme.ec)
                 val thingsToEscape = (terminatingMarkup ++ scheme.lookingFor).toArray
 
-                textUnparser.escapeCharacter(dis, fieldDFA, thingsToEscape, hasEscCharAsDelimiter, theScheme.ec, theScheme.eec, state)
+                textUnparser.escapeCharacter(
+                  dis,
+                  fieldDFA,
+                  thingsToEscape,
+                  hasEscCharAsDelimiter,
+                  theScheme.ec,
+                  theScheme.eec,
+                  state,
+                )
               } else {
                 val theScheme = scheme.asInstanceOf[EscapeSchemeBlockUnparserHelper]
 
@@ -85,14 +92,25 @@ sealed class StringDelimitedUnparser(
                   false
                 }
 
-                val generateEscapeBlock = (theScheme.generateEscapeBlock == GenerateEscape.Always) ||
-                  valueString.startsWith(theScheme.blockStart) || hasInscopeTerminatingDelimiters()
+                val generateEscapeBlock =
+                  (theScheme.generateEscapeBlock == GenerateEscape.Always) ||
+                    valueString.startsWith(
+                      theScheme.blockStart,
+                    ) || hasInscopeTerminatingDelimiters()
 
                 val thingsToEscape = theScheme.lookingFor // blockEnd and extraEscapedCharacters
 
-                textUnparser.escape(dis, fieldDFA, thingsToEscape, theScheme.blockEndDFA,
-                  theScheme.eec, theScheme.blockStart, theScheme.blockEnd,
-                  generateEscapeBlock, state)
+                textUnparser.escape(
+                  dis,
+                  fieldDFA,
+                  thingsToEscape,
+                  theScheme.blockEndDFA,
+                  theScheme.eec,
+                  theScheme.blockStart,
+                  theScheme.blockEnd,
+                  generateEscapeBlock,
+                  state,
+                )
               }
             }
 
@@ -102,8 +120,13 @@ sealed class StringDelimitedUnparser(
 
       val outStream = state.dataOutputStream
       val nCharsWritten = outStream.putString(escapedValue, state)
-      if (nCharsWritten != escapedValue.length) UE(state, "%s - Too many bits in field: IndexOutOfBounds. Insufficient space to write %s characters.",
-        nom, escapedValue.length)
+      if (nCharsWritten != escapedValue.length)
+        UE(
+          state,
+          "%s - Too many bits in field: IndexOutOfBounds. Insufficient space to write %s characters.",
+          nom,
+          escapedValue.length,
+        )
       Logger.log.debug(s"Ended at bit position ${outStream.relBitPos0b}")
     } catch {
       // Characters in infoset element cannot be encoded without error.
@@ -111,8 +134,12 @@ sealed class StringDelimitedUnparser(
       // This won't actually be thrown until encodingErrorPolicy='error' is
       // implemented.
       //
-      case m: MalformedInputException => { UE(state, "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
-      case u: UnmappableCharacterException => { UE(state, "%s - UnmappableCharacterException: \n%s", nom, u.getMessage()) }
+      case m: MalformedInputException => {
+        UE(state, "%s - MalformedInputException: \n%s", nom, m.getMessage())
+      }
+      case u: UnmappableCharacterException => {
+        UE(state, "%s - UnmappableCharacterException: \n%s", nom, u.getMessage())
+      }
     }
   }
 
@@ -121,8 +148,8 @@ sealed class StringDelimitedUnparser(
 class LiteralNilDelimitedEndOfDataUnparser(
   erd: ElementRuntimeData,
   slForUnparserEv: NilStringLiteralForUnparserEv,
-  isDelimRequired: Boolean)
-  extends StringDelimitedUnparser(erd, Nope, isDelimRequired) {
+  isDelimRequired: Boolean,
+) extends StringDelimitedUnparser(erd, Nope, isDelimRequired) {
 
   final override def theString(ustate: UState) = slForUnparserEv.evaluate(ustate)
 

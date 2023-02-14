@@ -17,19 +17,21 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
 import java.nio.charset.MalformedInputException
 import java.nio.charset.UnmappableCharacterException
+
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
+import org.apache.daffodil.runtime1.processors.unparsers._
 
-class DelimiterTextUnparser(override val context: TermRuntimeData, delimiterType: DelimiterTextType.Type)
-  extends TextPrimUnparser {
+class DelimiterTextUnparser(
+  override val context: TermRuntimeData,
+  delimiterType: DelimiterTextType.Type,
+) extends TextPrimUnparser {
 
   private def erd = context
 
@@ -48,7 +50,9 @@ class DelimiterTextUnparser(override val context: TermRuntimeData, delimiterType
 
   def unparse(state: UState): Unit = {
 
-    Logger.log.debug(s"Unparsing starting at bit position: ${state.dataOutputStream.maybeAbsBitPos0b}")
+    Logger.log.debug(
+      s"Unparsing starting at bit position: ${state.dataOutputStream.maybeAbsBitPos0b}",
+    )
 
     val localDelimNode = state.localDelimiters
 
@@ -58,7 +62,10 @@ class DelimiterTextUnparser(override val context: TermRuntimeData, delimiterType
       else localDelimNode.terminator
     }
 
-    if (delimDFAs.length == 0) Assert.invariantFailed("Expected a delimiter of type " + delimiterType + " on the stack, but was not found.")
+    if (delimDFAs.length == 0)
+      Assert.invariantFailed(
+        "Expected a delimiter of type " + delimiterType + " on the stack, but was not found.",
+      )
 
     val delimDFA = delimDFAs(0)
 
@@ -68,16 +75,36 @@ class DelimiterTextUnparser(override val context: TermRuntimeData, delimiterType
       val outStream = state.dataOutputStream
       val nCharsWritten = outStream.putString(valueString, state)
       if (nCharsWritten != valueString.length)
-        UE(state, "%s - Too many bits in delimiter: IndexOutOfBounds. Insufficient space to write delimiter '%s'.",
-          nom, Misc.remapStringToVisibleGlyphs(valueString))
+        UE(
+          state,
+          "%s - Too many bits in delimiter: IndexOutOfBounds. Insufficient space to write delimiter '%s'.",
+          nom,
+          Misc.remapStringToVisibleGlyphs(valueString),
+        )
     } catch {
       // Characters in infoset element cannot be encoded without error.
       //
       // This won't actually be thrown until encodingErrorPolicy='error' is
       // implemented.
       //
-      case m: MalformedInputException => { UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
-      case u: UnmappableCharacterException => { UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "%s - UnmappableCharacterException: \n%s", nom, u.getMessage()) }
+      case m: MalformedInputException => {
+        UnparseError(
+          One(erd.schemaFileLocation),
+          One(state.currentLocation),
+          "%s - MalformedInputException: \n%s",
+          nom,
+          m.getMessage(),
+        )
+      }
+      case u: UnmappableCharacterException => {
+        UnparseError(
+          One(erd.schemaFileLocation),
+          One(state.currentLocation),
+          "%s - UnmappableCharacterException: \n%s",
+          nom,
+          u.getMessage(),
+        )
+      }
     }
   }
 

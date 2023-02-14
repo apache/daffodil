@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.processors
 import org.apache.daffodil.lib.util._
 
 object Processor {
+
   /**
    * This initialize routine is really part of compiling the DFDL schema so should be called from there.
    * This insures that it is not, for example, being multi-threaded. If called from the runtime module, compilation might
@@ -46,9 +47,7 @@ object Processor {
 /**
  * Captures common members for any processor, parser or unparser.
  */
-trait Processor
-  extends ToBriefXMLImpl
-  with Serializable {
+trait Processor extends ToBriefXMLImpl with Serializable {
   // things common to both unparser and parser go here.
   def context: RuntimeData
   override def childProcessors: Vector[Processor]
@@ -143,17 +142,17 @@ trait ToBriefXMLImpl {
 
   // TODO: make this create a DOM tree, not a single string (because of size limits)
   def toBriefXML(depthLimit: Int = -1): String = {
-    val eltStartText = nom + (if (briefXMLAttributes == "") "" else " " + briefXMLAttributes + " ")
+    val eltStartText =
+      nom + (if (briefXMLAttributes == "") "" else " " + briefXMLAttributes + " ")
     if (depthLimit == 0) "..."
     else if (childProcessors.length == 0) "<" + eltStartText + "/>"
     else {
       val lessDepth = depthLimit - 1
       val sb = new StringBuilder
-      childProcessors.foreach {
-        cp =>
-          val s = cp.toBriefXML(lessDepth)
-          if (sb.size < 3000) sb.append(s) // hack!
-          else sb.append("...")
+      childProcessors.foreach { cp =>
+        val s = cp.toBriefXML(lessDepth)
+        if (sb.size < 3000) sb.append(s) // hack!
+        else sb.append("...")
       }
       "<" + eltStartText + ">" + sb + "</" + nom + ">"
     }

@@ -22,20 +22,21 @@ import scala.xml.MetaData
 import scala.xml.Null
 import scala.xml.UnprefixedAttribute
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 
-
-class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: Boolean = false) extends InfosetOutputter
-    with XMLInfosetOutputter {
+class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: Boolean = false)
+  extends InfosetOutputter
+  with XMLInfosetOutputter {
 
   protected val stack = new MStackOf[ListBuffer[scala.xml.Node]]
   private var resultNode: Maybe[scala.xml.Node] = Maybe.Nope
 
-  def reset(): Unit = {// call to reuse these. When first constructed no reset call is necessary.
+  def reset()
+    : Unit = { // call to reuse these. When first constructed no reset call is necessary.
     resultNode = Maybe.Nope
     stack.clear
   }
@@ -56,7 +57,8 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
       if (showFreedInfo) {
         val selfFreed = diElem.wouldHaveBeenFreed
         val arrayFreed =
-          if (diElem.erd.isArray) diElem.diParent.children.find { _.erd eq diElem.erd }.get.wouldHaveBeenFreed
+          if (diElem.erd.isArray)
+            diElem.diParent.children.find { _.erd eq diElem.erd }.get.wouldHaveBeenFreed
           else false
         if (selfFreed || arrayFreed) {
           val freedAttrVal =
@@ -97,14 +99,14 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
         attributes,
         diSimple.erd.minimizedScope,
         minimizeEmpty = true,
-        children: _*)
+        children: _*,
+      )
 
     val elemWithFmt = addFmtInfo(diSimple, elem, showFormatInfo)
     stack.top.append(elemWithFmt)
   }
 
-  def endSimple(diSimple: DISimple): Unit = {
-  }
+  def endSimple(diSimple: DISimple): Unit = {}
 
   def startComplex(diComplex: DIComplex): Unit = {
     stack.push(new ListBuffer())
@@ -122,7 +124,8 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
         attributes,
         diComplex.erd.minimizedScope,
         minimizeEmpty = true,
-        children: _*)
+        children: _*,
+      )
 
     val elemWithFmt = addFmtInfo(diComplex, elem, showFormatInfo)
     stack.top.append(elemWithFmt)
@@ -131,11 +134,13 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
   def startArray(diArray: DIArray): Unit = {
     // Array elements are started individually
   }
-  def endArray(diArray: DIArray): Unit = {
-  }
+  def endArray(diArray: DIArray): Unit = {}
 
   def getResult(): scala.xml.Node = {
-    Assert.usage(resultNode.isDefined, "No result to get. Must check isError parse result before calling getResult")
+    Assert.usage(
+      resultNode.isDefined,
+      "No result to get. Must check isError parse result before calling getResult",
+    )
     resultNode.get
   }
 }

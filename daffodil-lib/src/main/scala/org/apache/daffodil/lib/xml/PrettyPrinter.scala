@@ -18,6 +18,7 @@
 package org.apache.daffodil.lib.xml
 
 import scala.xml._
+
 import org.apache.daffodil.lib.exceptions.Assert
 
 /**
@@ -34,7 +35,7 @@ class PrettyPrinter(step: Int) {
   }
 
   private def allAreLeaves(ns: Seq[Node]): Boolean = {
-    ns forall isLeaf
+    ns.forall(isLeaf)
   }
 
   /**
@@ -109,7 +110,9 @@ class PrettyPrinter(step: Int) {
     n match {
       case e: Elem => {
         val nScopeList = scopeToList(e.scope)
-        val newNScopeList = nScopeList.filter { x => !nbs.exists(nb => nb.prefix == x.prefix && nb.uri == x.uri) } // scope without anything defined in nbs
+        val newNScopeList = nScopeList.filter { x =>
+          !nbs.exists(nb => nb.prefix == x.prefix && nb.uri == x.uri)
+        } // scope without anything defined in nbs
         val newNScope = listToScope(newNScopeList)
         val combinedNScopeList = newNScopeList ++ nbs
         val minimizedChildren = e.child.map { minimizeScopes1(_, combinedNScopeList) }
@@ -151,7 +154,10 @@ class PrettyPrinter(step: Int) {
       }
       case pi: ProcInstr => sb.append(n.toString)
       case co: Comment => sb.append(n.toString)
-      case _ => Assert.invariantFailed("XML infoset node did not contain only other elements, PI or comments: " + n)
+      case _ =>
+        Assert.invariantFailed(
+          "XML infoset node did not contain only other elements, PI or comments: " + n,
+        )
     }
   }
 
@@ -193,5 +199,5 @@ class PrettyPrinter(step: Int) {
    *  @param sb     the string buffer to which to append to
    */
   def formatNodes(nodes: Seq[Node], sb: StringBuilder): Unit =
-    nodes foreach (n => sb append format(n))
+    nodes.foreach(n => sb.append(format(n)))
 }

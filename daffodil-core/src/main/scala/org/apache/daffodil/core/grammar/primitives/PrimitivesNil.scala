@@ -19,45 +19,54 @@ package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.runtime1.processors.parsers.LiteralValueNilOfSpecifiedLengthParser
-import org.apache.daffodil.runtime1.processors.parsers.LiteralCharacterNilOfSpecifiedLengthParser
-import org.apache.daffodil.unparsers.runtime1.LiteralValueNilOfSpecifiedLengthUnparser
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.unparsers.runtime1.NilLiteralCharacterUnparser
+import org.apache.daffodil.runtime1.processors.parsers.LiteralCharacterNilOfSpecifiedLengthParser
+import org.apache.daffodil.runtime1.processors.parsers.LiteralValueNilOfSpecifiedLengthParser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
+import org.apache.daffodil.unparsers.runtime1.LiteralValueNilOfSpecifiedLengthUnparser
+import org.apache.daffodil.unparsers.runtime1.NilLiteralCharacterUnparser
 
 case class LiteralValueNilOfSpecifiedLength(e: ElementBase)
   extends Terminal(e, true)
   with Padded {
 
-  override lazy val parser = new LiteralValueNilOfSpecifiedLengthParser(e.cookedNilValuesForParse, parsingPadChar,
+  override lazy val parser = new LiteralValueNilOfSpecifiedLengthParser(
+    e.cookedNilValuesForParse,
+    parsingPadChar,
     justificationTrim,
     e.ignoreCaseBool,
-    e.elementRuntimeData)
+    e.elementRuntimeData,
+  )
 
   override lazy val unparser = new LiteralValueNilOfSpecifiedLengthUnparser(
     e.elementRuntimeData,
     e.nilStringLiteralForUnparserEv,
-    e.lengthKind == LengthKind.Pattern)
+    e.lengthKind == LengthKind.Pattern,
+  )
 }
 
 case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
   extends Terminal(e, true)
   with Padded {
 
-  override lazy val parser = new LiteralCharacterNilOfSpecifiedLengthParser(e.cookedNilValuesForParse, parsingPadChar,
+  override lazy val parser = new LiteralCharacterNilOfSpecifiedLengthParser(
+    e.cookedNilValuesForParse,
+    parsingPadChar,
     justificationTrim,
     e.ignoreCaseBool,
-    e.elementRuntimeData)
+    e.elementRuntimeData,
+  )
 
   private lazy val nilLitCharacter = e.cookedNilValuesForUnparse.head(0)
 
   override lazy val unparser: Unparser =
-    new NilLiteralCharacterUnparser(e.erd,
+    new NilLiteralCharacterUnparser(
+      e.erd,
       e.maybeUnparseTargetLengthInBitsEv.get,
       e.maybeLengthEv,
       e.maybeCharsetEv,
-      nilLitCharacter)
+      nilLitCharacter,
+    )
 }
 
 case class LogicalNilValue(e: ElementBase) extends UnimplementedPrimitive(e, e.isNillable)

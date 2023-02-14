@@ -19,12 +19,12 @@ package org.apache.daffodil.runtime1.dpath
 
 import org.apache.daffodil.lib.calendar.DFDLCalendarConversion
 import org.apache.daffodil.lib.cookers.EntityReplacer
-import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBool
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValueString
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueShort
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValueString
 
 case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState): Unit = {
@@ -39,47 +39,50 @@ case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRe
   }
 }
 
-case class DFDLDecodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: DataValuePrimitive, dstate: DState):DataValueString = {
+case class DFDLDecodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
+  override def computeValue(str: DataValuePrimitive, dstate: DState): DataValueString = {
     val dfdlString = EntityReplacer { _.replaceAll(str.getString, None) }
     dfdlString
   }
 }
 
-case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: DataValuePrimitive, dstate: DState):DataValueString = constructLiteral(str.getString)
+case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
+  override def computeValue(str: DataValuePrimitive, dstate: DState): DataValueString =
+    constructLiteral(str.getString)
 
   def constructLiteral(s: String) = {
     val sb = new StringBuilder
     s.foreach(c => {
       c match {
         case '%' => sb.append("%%") // \u0025
-        case '\u0000' | 0xE000 => sb.append("%NUL;")
-        case '\u0001' | 0xE001 => sb.append("%SOH;")
-        case '\u0002' | 0xE002 => sb.append("%STX;")
-        case '\u0003' | 0xE003 => sb.append("%ETX;")
-        case '\u0004' | 0xE004 => sb.append("%EOT;")
-        case '\u0005' | 0xE005 => sb.append("%ENQ;")
-        case '\u0006' | 0xE006 => sb.append("%ACK;")
-        case '\u0007' | 0xE007 => sb.append("%BEL;")
-        case '\u0008' | 0xE008 => sb.append("%BS;")
+        case '\u0000' | 0xe000 => sb.append("%NUL;")
+        case '\u0001' | 0xe001 => sb.append("%SOH;")
+        case '\u0002' | 0xe002 => sb.append("%STX;")
+        case '\u0003' | 0xe003 => sb.append("%ETX;")
+        case '\u0004' | 0xe004 => sb.append("%EOT;")
+        case '\u0005' | 0xe005 => sb.append("%ENQ;")
+        case '\u0006' | 0xe006 => sb.append("%ACK;")
+        case '\u0007' | 0xe007 => sb.append("%BEL;")
+        case '\u0008' | 0xe008 => sb.append("%BS;")
         case '\u0009' => sb.append("%HT;") // OK, not remapped
         case '\u000A' => sb.append("%LF;") // OK, not remapped
-        case '\u000B' | 0xE00B => sb.append("%VT;")
-        case '\u000C' | 0xE00C => sb.append("%FF;")
+        case '\u000B' | 0xe00b => sb.append("%VT;")
+        case '\u000C' | 0xe00c => sb.append("%FF;")
         case '\u000D' => sb.append("%CR;") // OK, not remapped
-        case '\u000E' | 0xE00E => sb.append("%SO;")
-        case '\u000F' | 0xE00F => sb.append("%SI;")
-        case '\u0010' | 0xE010 => sb.append("%DLE;")
-        case '\u0011' | 0xE011 => sb.append("%DC1;")
-        case '\u0012' | 0xE012 => sb.append("%DC2;")
-        case '\u0013' | 0xE013 => sb.append("%DC3;")
-        case '\u0014' | 0xE014 => sb.append("%DC4;")
-        case '\u0015' | 0xE015 => sb.append("%NAK;")
-        case '\u0016' | 0xE016 => sb.append("%SYN;")
-        case '\u0017' | 0xE017 => sb.append("%ETB;")
-        case '\u0018' | 0xE018 => sb.append("%CAN;")
-        case '\u0019' | 0xE019 => sb.append("%EM;") // and above remapped to c + 0xE000
+        case '\u000E' | 0xe00e => sb.append("%SO;")
+        case '\u000F' | 0xe00f => sb.append("%SI;")
+        case '\u0010' | 0xe010 => sb.append("%DLE;")
+        case '\u0011' | 0xe011 => sb.append("%DC1;")
+        case '\u0012' | 0xe012 => sb.append("%DC2;")
+        case '\u0013' | 0xe013 => sb.append("%DC3;")
+        case '\u0014' | 0xe014 => sb.append("%DC4;")
+        case '\u0015' | 0xe015 => sb.append("%NAK;")
+        case '\u0016' | 0xe016 => sb.append("%SYN;")
+        case '\u0017' | 0xe017 => sb.append("%ETB;")
+        case '\u0018' | 0xe018 => sb.append("%CAN;")
+        case '\u0019' | 0xe019 => sb.append("%EM;") // and above remapped to c + 0xE000
         case '\u001A' => sb.append("%SUB;")
         case '\u001B' => sb.append("%ESC;")
         case '\u001C' => sb.append("%FS;")
@@ -98,8 +101,9 @@ case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind)
   }
 }
 
-case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: DataValuePrimitive, dstate: DState):DataValueBool =
+case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
+  override def computeValue(str: DataValuePrimitive, dstate: DState): DataValueBool =
     EntityReplacer { x => x.hasDfdlEntity(str.getString) }
 }
 
@@ -116,7 +120,7 @@ case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kin
 case class DFDLTimeZoneFromDFDLCalendar(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
 
-  override def computeValue(value: DataValuePrimitive, dstate: DState):DataValueString = {
+  override def computeValue(value: DataValuePrimitive, dstate: DState): DataValueString = {
     val dfdlcal = value.getCalendar
     DFDLCalendarConversion.timeZonePartToXMLString(dfdlcal)
   }
@@ -139,8 +143,12 @@ case class DFDLTestBit(dataRecipe: CompiledDPath, bitPos1bRecipe: CompiledDPath)
 
   private def checkRange(i: Int) = {
     if (i > 8 || i < 1) {
-      throw new SchemaDefinitionError(None, None,
-        "dfdl:testBit $bitPos must be between 1 and 8 (inclusive). Was %s.", i)
+      throw new SchemaDefinitionError(
+        None,
+        None,
+        "dfdl:testBit $bitPos must be between 1 and 8 (inclusive). Was %s.",
+        i,
+      )
     }
   }
 
@@ -153,7 +161,8 @@ case class DFDLTestBit(dataRecipe: CompiledDPath, bitPos1bRecipe: CompiledDPath)
   }
 }
 
-case class DFDLSetBits(bitRecipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(bitRecipes) {
+case class DFDLSetBits(bitRecipes: List[CompiledDPath])
+  extends RecipeOpWithSubRecipes(bitRecipes) {
 
   override def run(dstate: DState): Unit = {
     var byteVal: Int = 0
@@ -178,7 +187,10 @@ case class DFDLSetBits(bitRecipes: List[CompiledDPath]) extends RecipeOpWithSubR
   }
 
   private def processValue(i: Int): Boolean = {
-    if (i < 0 || i > 1) throw new IllegalArgumentException("dfdl:setBits arguments must each be 0 or 1, but value was: %s.".format(i))
+    if (i < 0 || i > 1)
+      throw new IllegalArgumentException(
+        "dfdl:setBits arguments must each be 0 or 1, but value was: %s.".format(i),
+      )
     if (i == 0) false
     else true
   }

@@ -73,7 +73,9 @@ object DFDLCalendarConversion {
    */
   def datePartFromXMLString(string: String, calendar: Calendar): String = {
     @inline
-    def invalidValue = throw new IllegalArgumentException("Invalid date string: %s".format(string))
+    def invalidValue = throw new IllegalArgumentException(
+      "Invalid date string: %s".format(string),
+    )
 
     if (string.length == 0) invalidValue
 
@@ -127,7 +129,9 @@ object DFDLCalendarConversion {
    */
   def timePartFromXMLString(string: String, calendar: Calendar): String = {
     @inline
-    def invalidValue = throw new IllegalArgumentException("Invalid time string: %s".format(string))
+    def invalidValue = throw new IllegalArgumentException(
+      "Invalid time string: %s".format(string),
+    )
 
     if (string.length < 8) invalidValue
     if (string.charAt(2) != ':') invalidValue
@@ -168,7 +172,7 @@ object DFDLCalendarConversion {
       val msDigits = Math.min(ms.length, 3)
       val msUnscaled = Integer.parseInt(ms.substring(0, msDigits))
       val msScaled =
-        if (msDigits== 1) msUnscaled * 100
+        if (msDigits == 1) msUnscaled * 100
         else if (msDigits == 2) msUnscaled * 10
         else msUnscaled
       calendar.set(Calendar.MILLISECOND, msScaled)
@@ -212,7 +216,9 @@ object DFDLCalendarConversion {
    */
   def timeZonePartFromXMLString(string: String, calendar: Calendar): String = {
     @inline
-    def invalidValue = throw new IllegalArgumentException("Invalid time zone string: %s".format(string))
+    def invalidValue = throw new IllegalArgumentException(
+      "Invalid time zone string: %s".format(string),
+    )
 
     if (string == "") {
       // no timezone
@@ -238,20 +244,21 @@ object DFDLCalendarConversion {
               if (string.charAt(6) != ':') invalidValue
               string.substring(7, 9)
             } else {
-              "00" 
+              "00"
             }
 
-          val offsetInMillis = try {
-            val hi = Integer.parseInt(h)
-            val mi = Integer.parseInt(m)
-            val si = Integer.parseInt(s)
-            if (hi < 0 || hi >= 24) invalidValue
-            if (mi < 0 || mi >= 60) invalidValue
-            if (si < 0 || si >= 60) invalidValue
-            sign * (hi * 60 * 60 +  mi * 60 + si) * 1000
-          } catch {
-            case _: NumberFormatException => invalidValue
-          }
+          val offsetInMillis =
+            try {
+              val hi = Integer.parseInt(h)
+              val mi = Integer.parseInt(m)
+              val si = Integer.parseInt(s)
+              if (hi < 0 || hi >= 24) invalidValue
+              if (mi < 0 || mi >= 60) invalidValue
+              if (si < 0 || si >= 60) invalidValue
+              sign * (hi * 60 * 60 + mi * 60 + si) * 1000
+            } catch {
+              case _: NumberFormatException => invalidValue
+            }
 
           val tz =
             if (offsetInMillis == 0) TimeZone.GMT_ZONE
@@ -261,8 +268,8 @@ object DFDLCalendarConversion {
           (tz, consumed)
         }
 
-        calendar.setTimeZone(timezone)
-        string.substring(endTimeZone)
+      calendar.setTimeZone(timezone)
+      string.substring(endTimeZone)
     }
   }
 }
@@ -271,8 +278,10 @@ trait DFDLCalendarConversion {
   val calendarType: String
 
   @inline
-  final protected def invalidCalendar(string: String): Nothing = { 
-    throw new IllegalArgumentException("Failed to parse %s from string: %s".format(calendarType, string))
+  final protected def invalidCalendar(string: String): Nothing = {
+    throw new IllegalArgumentException(
+      "Failed to parse %s from string: %s".format(calendarType, string),
+    )
   }
 
   protected val emptyCalendar = {
@@ -301,7 +310,7 @@ object DFDLDateTimeConversion extends DFDLCalendarConversion {
 
     try {
       val rem1 = DFDLCalendarConversion.datePartFromXMLString(string, calendar)
-      val rem2 = 
+      val rem2 =
         if (rem1.length > 0 && rem1(0) == 'T') {
           DFDLCalendarConversion.timePartFromXMLString(rem1.substring(1), calendar)
         } else {
@@ -346,7 +355,7 @@ object DFDLDateConversion extends DFDLCalendarConversion {
       val rem2 = DFDLCalendarConversion.timeZonePartFromXMLString(rem1, calendar)
       if (rem2.length > 0) invalidCalendar(string)
       val hasTimeZone = rem1.length > 0
-   
+
       // this causes validation of the fields
       calendar.getTimeInMillis()
 
@@ -392,7 +401,6 @@ object DFDLTimeConversion extends DFDLCalendarConversion {
       case _: IllegalArgumentException => invalidCalendar(string)
     }
   }
-
 
   def toXMLString(t: DFDLTime): String = {
     DFDLCalendarConversion.timePartToXMLString(t) +

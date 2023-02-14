@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.lib.util._
-import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
-import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.lib.schema.annotation.props.PropTypes
-import org.apache.daffodil.lib.schema.annotation.props.NotFound
 import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
+import org.apache.daffodil.lib.schema.annotation.props.NotFound
+import org.apache.daffodil.lib.schema.annotation.props.PropTypes
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.lib.util._
 
 /**
  * Property lookup uses ChainPropProviders containing LeafPropProviders.
@@ -48,15 +48,14 @@ import org.apache.daffodil.lib.schema.annotation.props.Found
  * From this perspective, there are no ref chains connecting
  * format annotations together.
  */
-trait LeafPropProvider
-  extends LookupLocation with PropTypes {
+trait LeafPropProvider extends LookupLocation with PropTypes {
 
   /**
    * for debug/test only
    */
   final lazy val properties: PropMap = justThisOneProperties
 
-  //TODO: optimize by having this object actually check if there
+  // TODO: optimize by having this object actually check if there
   // are any property bindings. if not, this should get removed
   // from any Seq[LeafPropProvider] it is put into.
 
@@ -74,7 +73,9 @@ trait LeafPropProvider
    * Intended for use comparing to see if two prop providers are equivalent
    * in terms of providing the same property values.
    */
-  final lazy val justThisOnePropertyPairsSet = justThisOneProperties.map { case (s1, (s2, _)) => (s1, s2) }.toSet
+  final lazy val justThisOnePropertyPairsSet = justThisOneProperties.map { case (s1, (s2, _)) =>
+    (s1, s2)
+  }.toSet
 
   final def leafFindProperty(pname: String): PropertyLookupResult = {
     val mine = justThisOneProperties.get(pname)
@@ -136,12 +137,15 @@ final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnota
   /*
    * The Override algorithm - first property source with a hit wins.
    */
-  private def lookupPropertyInSources(sources: Seq[LeafPropProvider], pname: String): PropertyLookupResult = {
+  private def lookupPropertyInSources(
+    sources: Seq[LeafPropProvider],
+    pname: String,
+  ): PropertyLookupResult = {
     val allNotFound =
       for { source <- sources } yield {
         val res = source.leafFindProperty(pname)
         res match {
-          case _: Found => return res //found it! return right now.
+          case _: Found => return res // found it! return right now.
           case nf @ NotFound(_, _, _) => nf
         }
       }
@@ -238,16 +242,18 @@ trait OverlapCheckMixin {
     val aLeaves = a.leafProviders
     aLeaves.foreach { aLeaf =>
       val propMap = aLeaf.justThisOneProperties
-      propMap.foreach {
-        case (propName, (_, aLoc)) =>
-          b.chainFindProperty(propName) match {
-            case _: NotFound => // ok
-            case Found(_, bLoc, _, _) => {
-              schemaDefinitionErrorButContinue(
-                "Overlapping properties: %1$s overlaps between %2$s and %3$s. Overlap is not allowed.",
-                propName, aLoc, bLoc)
-            }
+      propMap.foreach { case (propName, (_, aLoc)) =>
+        b.chainFindProperty(propName) match {
+          case _: NotFound => // ok
+          case Found(_, bLoc, _, _) => {
+            schemaDefinitionErrorButContinue(
+              "Overlapping properties: %1$s overlaps between %2$s and %3$s. Overlap is not allowed.",
+              propName,
+              aLoc,
+              bLoc,
+            )
           }
+        }
       }
     }
   }

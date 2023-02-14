@@ -21,6 +21,9 @@ import java.io.File
 import java.net.JarURLConnection
 import java.nio.file.Files
 import java.nio.file.Paths
+import scala.collection.JavaConverters._
+import scala.util.Properties.isWin
+
 import org.apache.daffodil.core.dsom.Root
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Prod
@@ -59,9 +62,6 @@ import org.apache.daffodil.runtime2.generators.BinaryIntegerKnownLengthCodeGener
 import org.apache.daffodil.runtime2.generators.CodeGeneratorState
 import org.apache.daffodil.runtime2.generators.HexBinaryCodeGenerator
 
-import scala.collection.JavaConverters._
-import scala.util.Properties.isWin
-
 /**
  * Generates C source files from a DFDL schema.  Implements
  * DFDL.CodeGenerator trait in order to be called by Daffodil's
@@ -87,7 +87,7 @@ class Runtime2CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     // Get the paths of the output directory and its code subdirectory and
     // recreate the code subdirectory to ensure it has no old files in it
     val outputDir = os.Path(Paths.get(outputDirArg).toAbsolutePath)
-    val codeDir = outputDir/"c"
+    val codeDir = outputDir / "c"
     os.makeDir.all(outputDir)
     os.remove.all(codeDir)
 
@@ -122,9 +122,9 @@ class Runtime2CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     val codeFileText = cgState.generateCodeFile
 
     // Write the generated C code into our code subdirectory
-    val generatedVersionHeader = codeDir/"libcli"/"daffodil_version.h"
-    val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
-    val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
+    val generatedVersionHeader = codeDir / "libcli" / "daffodil_version.h"
+    val generatedCodeHeader = codeDir / "libruntime" / "generated_code.h"
+    val generatedCodeFile = codeDir / "libruntime" / "generated_code.c"
     os.write.over(generatedVersionHeader, versionHeaderText)
     os.write(generatedCodeHeader, codeHeaderText)
     os.write(generatedCodeFile, codeFileText)
@@ -139,7 +139,7 @@ class Runtime2CodeGenerator(root: Root) extends DFDL.CodeGenerator {
    */
   override def compileCode(codeDir: os.Path): os.Path = {
     // Get the path of the executable we will build
-    val exe = if (isWin) codeDir/"daffodil.exe" else codeDir/"daffodil"
+    val exe = if (isWin) codeDir / "daffodil.exe" else codeDir / "daffodil"
 
     try {
       // Assemble the compiler's command line arguments
@@ -152,7 +152,9 @@ class Runtime2CodeGenerator(root: Root) extends DFDL.CodeGenerator {
 
       // Run the compiler within the code directory
       if (compiler.nonEmpty) {
-        val result = os.proc(compiler, cFlags, includes, if (isWin) relFiles else absFiles, libs, "-o", exe).call(cwd = codeDir, stderr = os.Pipe)
+        val result = os
+          .proc(compiler, cFlags, includes, if (isWin) relFiles else absFiles, libs, "-o", exe)
+          .call(cwd = codeDir, stderr = os.Pipe)
         if (result.chunks.nonEmpty) {
           // Report any compiler output as a warning
           warning(result.toString())
@@ -161,7 +163,11 @@ class Runtime2CodeGenerator(root: Root) extends DFDL.CodeGenerator {
     } catch {
       // Report any subprocess termination error as an error
       case e: os.SubprocessException =>
-        error("Error compiling C files: %s wd: %s", Misc.getSomeMessage(e).get, codeDir.toString)
+        error(
+          "Error compiling C files: %s wd: %s",
+          Misc.getSomeMessage(e).get,
+          codeDir.toString,
+        )
     }
 
     // Report any failure to build the executable as an error
@@ -193,8 +199,10 @@ class Runtime2CodeGenerator(root: Root) extends DFDL.CodeGenerator {
       (compiler != null) && {
         val exec = compiler.takeWhile(_ != ' ')
         val exec2 = exec + ".exe"
-        path.exists(dir => Files.isExecutable(Paths.get(dir, exec))
-          || (isWin && Files.isExecutable(Paths.get(dir, exec2))))
+        path.exists(dir =>
+          Files.isExecutable(Paths.get(dir, exec))
+            || (isWin && Files.isExecutable(Paths.get(dir, exec2))),
+        )
       }
     }
     val compiler = compilers.find(inPath)
@@ -250,21 +258,24 @@ object Runtime2CodeGenerator
       case g: BinaryBoolean => binaryBooleanGenerateCode(g.e, cgState)
       case g: BinaryDouble => binaryFloatGenerateCode(g.e, lengthInBits = 64, cgState)
       case g: BinaryFloat => binaryFloatGenerateCode(g.e, lengthInBits = 32, cgState)
-      case g: BinaryIntegerKnownLength => binaryIntegerKnownLengthGenerateCode(g.e, g.lengthInBits, g.signed, cgState)
+      case g: BinaryIntegerKnownLength =>
+        binaryIntegerKnownLengthGenerateCode(g.e, g.lengthInBits, g.signed, cgState)
       case g: CaptureContentLengthEnd => noop(g)
       case g: CaptureContentLengthStart => noop(g)
       case g: CaptureValueLengthEnd => noop(g)
       case g: CaptureValueLengthStart => noop(g)
       case g: ChoiceCombinator => choiceCombinator(g, cgState)
       case g: ElementCombinator => elementCombinator(g, cgState)
-      case g: ElementParseAndUnspecifiedLength => elementParseAndUnspecifiedLengthGenerateCode(g, cgState)
+      case g: ElementParseAndUnspecifiedLength =>
+        elementParseAndUnspecifiedLengthGenerateCode(g, cgState)
       case g: ElementUnused => noop(g)
       case g: HexBinaryLengthPrefixed => hexBinaryLengthPrefixedGenerateCode(g.e, cgState)
       case g: HexBinarySpecifiedLength => hexBinarySpecifiedLengthGenerateCode(g.e, cgState)
       case g: OrderedSequence => orderedSequenceGenerateCode(g, cgState)
       case g: Prod => prod(g, cgState)
       case g: RepOrderedExactlyNSequenceChild => repOrderedExactlyNSequenceChild(g, cgState)
-      case g: RepOrderedExpressionOccursCountSequenceChild => repOrderedExpressionOccursCountSequenceChild(g, cgState)
+      case g: RepOrderedExpressionOccursCountSequenceChild =>
+        repOrderedExpressionOccursCountSequenceChild(g, cgState)
       case g: RightFill => noop(g)
       case g: ScalarOrderedSequenceChild => scalarOrderedSequenceChild(g, cgState)
       case g: SeqComp => seqCompGenerateCode(g, cgState)
@@ -288,7 +299,10 @@ object Runtime2CodeGenerator
     cgState.popElement(g.context)
   }
 
-  private def elementParseAndUnspecifiedLengthGenerateCode(g: ElementParseAndUnspecifiedLength, cgState: CodeGeneratorState): Unit = {
+  private def elementParseAndUnspecifiedLengthGenerateCode(
+    g: ElementParseAndUnspecifiedLength,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     Runtime2CodeGenerator.generateCode(g.eGram, cgState)
   }
 
@@ -296,7 +310,10 @@ object Runtime2CodeGenerator
     g.name // Not generating code, but can use as a breakpoint
   }
 
-  private def orderedSequenceGenerateCode(g: OrderedSequence, cgState: CodeGeneratorState): Unit = {
+  private def orderedSequenceGenerateCode(
+    g: OrderedSequence,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     for (gram <- g.sequenceChildren) {
       Runtime2CodeGenerator.generateCode(gram, cgState)
     }
@@ -306,19 +323,28 @@ object Runtime2CodeGenerator
     if (g.guard) Runtime2CodeGenerator.generateCode(g.gram, cgState)
   }
 
-  private def repOrderedExactlyNSequenceChild(g: RepOrderedExactlyNSequenceChild, cgState: CodeGeneratorState): Unit = {
+  private def repOrderedExactlyNSequenceChild(
+    g: RepOrderedExactlyNSequenceChild,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     cgState.pushArray(g.context)
     Runtime2CodeGenerator.generateCode(g.term.termContentBody, cgState)
     cgState.popArray(g.context)
   }
 
-  private def repOrderedExpressionOccursCountSequenceChild(g: RepOrderedExpressionOccursCountSequenceChild, cgState: CodeGeneratorState): Unit = {
+  private def repOrderedExpressionOccursCountSequenceChild(
+    g: RepOrderedExpressionOccursCountSequenceChild,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     cgState.pushArray(g.context)
     Runtime2CodeGenerator.generateCode(g.term.termContentBody, cgState)
     cgState.popArray(g.context)
   }
 
-  private def scalarOrderedSequenceChild(g: ScalarOrderedSequenceChild, cgState: CodeGeneratorState): Unit = {
+  private def scalarOrderedSequenceChild(
+    g: ScalarOrderedSequenceChild,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     Runtime2CodeGenerator.generateCode(g.term.termContentBody, cgState)
   }
 
@@ -328,11 +354,17 @@ object Runtime2CodeGenerator
     }
   }
 
-  private def specifiedLengthExplicit(g: SpecifiedLengthExplicit, cgState: CodeGeneratorState): Unit = {
+  private def specifiedLengthExplicit(
+    g: SpecifiedLengthExplicit,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     Runtime2CodeGenerator.generateCode(g.eGram, cgState)
   }
 
-  private def specifiedLengthImplicit(g: SpecifiedLengthImplicit, cgState: CodeGeneratorState): Unit = {
+  private def specifiedLengthImplicit(
+    g: SpecifiedLengthImplicit,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     Runtime2CodeGenerator.generateCode(g.eGram, cgState)
   }
 }

@@ -17,17 +17,15 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.runtime1.dsom._
-
 import scala.xml.Node
 
+import org.apache.daffodil.core.grammar.primitives.AssertBase
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
-import org.apache.daffodil.core.grammar.primitives.AssertBase
+import org.apache.daffodil.runtime1.dsom._
 
-trait ResolvesDFDLStatementMixin
-  extends ThrowsSDE
-  with ProvidesDFDLStatementMixin { self: Term =>
+trait ResolvesDFDLStatementMixin extends ThrowsSDE with ProvidesDFDLStatementMixin {
+  self: Term =>
 
   requiredEvaluationsIfActivated(statements)
 
@@ -37,7 +35,8 @@ trait ResolvesDFDLStatementMixin
 
   private def getParserExprReferencedElements(
     s: DFDLStatement,
-    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]) = {
+    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo],
+  ) = {
     s match {
       case a: DFDLAssertionBase if (a.testKind eq TestKind.Expression) => {
         a.gram(self) match {
@@ -51,7 +50,8 @@ trait ResolvesDFDLStatementMixin
 
   private def getUnparserExprReferencedElements(
     s: DFDLStatement,
-    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]) = {
+    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo],
+  ) = {
     s match {
       case sv: DFDLSetVariable => {
         val v = sv.gram(self).expr
@@ -68,11 +68,15 @@ trait ResolvesDFDLStatementMixin
     }
   }
 
-  final protected def creis(rei: ContentValueReferencedElementInfoMixin) = rei.contentReferencedElementInfos
+  final protected def creis(rei: ContentValueReferencedElementInfoMixin) =
+    rei.contentReferencedElementInfos
 
-  final protected def vreis(rei: ContentValueReferencedElementInfoMixin) = rei.valueReferencedElementInfos
+  final protected def vreis(rei: ContentValueReferencedElementInfoMixin) =
+    rei.valueReferencedElementInfos
 
-  private def statementReferencedElementInfos(f: DFDLStatement => Set[DPathElementCompileInfo]) = {
+  private def statementReferencedElementInfos(
+    f: DFDLStatement => Set[DPathElementCompileInfo],
+  ) = {
     val stmtSets: Seq[DPathElementCompileInfo] = {
       val s = resolvedStatements
       val sets = s.flatMap(f)
@@ -101,23 +105,36 @@ trait ResolvesDFDLStatementMixin
  *
  * Factory for creating the corresponding DFDLAnnotation objects.
  */
-trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck { self: AnnotatedSchemaComponent =>
+trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
+  self: AnnotatedSchemaComponent =>
 
-  final def annotationFactoryForDFDLStatement(node: Node, self: AnnotatedSchemaComponent): Option[DFDLAnnotation] = {
+  final def annotationFactoryForDFDLStatement(
+    node: Node,
+    self: AnnotatedSchemaComponent,
+  ): Option[DFDLAnnotation] = {
     val term = self
     node match {
-      case <dfdl:assert>{ content @ _* }</dfdl:assert> => Some(new DFDLAssert(node, term))
-      case <dfdl:discriminator>{ content @ _* }</dfdl:discriminator> => Some(new DFDLDiscriminator(node, term))
-      case <dfdl:setVariable>{ content @ _* }</dfdl:setVariable> => Some(new DFDLSetVariable(node, term))
-      case <dfdl:newVariableInstance>{ content @ _* }</dfdl:newVariableInstance> => Some(new DFDLNewVariableInstance(node, term))
+      case <dfdl:assert>{content @ _*}</dfdl:assert> => Some(new DFDLAssert(node, term))
+      case <dfdl:discriminator>{content @ _*}</dfdl:discriminator> =>
+        Some(new DFDLDiscriminator(node, term))
+      case <dfdl:setVariable>{content @ _*}</dfdl:setVariable> =>
+        Some(new DFDLSetVariable(node, term))
+      case <dfdl:newVariableInstance>{content @ _*}</dfdl:newVariableInstance> =>
+        Some(new DFDLNewVariableInstance(node, term))
       //
       // property element annotations aren't "statements" so we don't want them back from this
       // and in fact can't construct them here without causing trouble (circular definitions)
       //
-      case <dfdl:property>{ _* }</dfdl:property> =>
-        SDE("A dfdl:property annotation element is not allowed without a surrounding dfdl:format, dfdl:element, etc. ")
+      case <dfdl:property>{_*}</dfdl:property> =>
+        SDE(
+          "A dfdl:property annotation element is not allowed without a surrounding dfdl:format, dfdl:element, etc. ",
+        )
       case e: scala.xml.Elem if mismatchedFormatAnnotation(e) =>
-        SDE("DFDL annotation type 'dfdl:%s' invalid. Expected 'dfdl:%s'.", e.label, self.formatAnnotationExpectedName)
+        SDE(
+          "DFDL annotation type 'dfdl:%s' invalid. Expected 'dfdl:%s'.",
+          e.label,
+          self.formatAnnotationExpectedName,
+        )
       case _ => SDE("Invalid DFDL annotation found: %s", node)
     }
   }
@@ -172,24 +189,39 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck { self: Ann
     optReferencedStatementSource.toSeq.flatMap { _.assertStatements } ++ localAssertStatements
 
   private lazy val combinedDiscrims: Seq[DFDLDiscriminator] =
-    optReferencedStatementSource.toSeq.flatMap { _.discriminatorStatements } ++ localDiscriminatorStatements
+    optReferencedStatementSource.toSeq.flatMap {
+      _.discriminatorStatements
+    } ++ localDiscriminatorStatements
 
   final lazy val setVariableStatements: Seq[DFDLSetVariable] = {
-    val combinedSvs = optReferencedStatementSource.toSeq.flatMap { _.setVariableStatements } ++ localSetVariableStatements
+    val combinedSvs = optReferencedStatementSource.toSeq.flatMap {
+      _.setVariableStatements
+    } ++ localSetVariableStatements
     checkDistinctVariableNames(combinedSvs)
   }
 
-  private lazy val patternAsserts: Seq[DFDLAssert] = combinedAsserts.filter{ st => st.testKind == TestKind.Pattern }
-  private lazy val nonPatternAsserts: Seq[DFDLAssert] = combinedAsserts.filter{ st => st.testKind != TestKind.Pattern }
+  private lazy val patternAsserts: Seq[DFDLAssert] = combinedAsserts.filter { st =>
+    st.testKind == TestKind.Pattern
+  }
+  private lazy val nonPatternAsserts: Seq[DFDLAssert] = combinedAsserts.filter { st =>
+    st.testKind != TestKind.Pattern
+  }
 
-  private lazy val patternDiscrims: Seq[DFDLDiscriminator] = combinedDiscrims.filter{ st => st.testKind == TestKind.Pattern }
-  private lazy val nonPatternDiscrims: Seq[DFDLDiscriminator] = combinedDiscrims.filter{ st => st.testKind != TestKind.Pattern }
+  private lazy val patternDiscrims: Seq[DFDLDiscriminator] = combinedDiscrims.filter { st =>
+    st.testKind == TestKind.Pattern
+  }
+  private lazy val nonPatternDiscrims: Seq[DFDLDiscriminator] = combinedDiscrims.filter { st =>
+    st.testKind != TestKind.Pattern
+  }
 
   final lazy val patternStatements: Seq[DFDLStatement] = patternAsserts ++ patternDiscrims
 
-  final lazy val lowPriorityStatements: Seq[DFDLStatement] = setVariableStatements ++ nonPatternAsserts ++ nonPatternDiscrims
+  final lazy val lowPriorityStatements: Seq[DFDLStatement] =
+    setVariableStatements ++ nonPatternAsserts ++ nonPatternDiscrims
 
-  final protected lazy val localStatements = this.annotationObjs.collect { case st: DFDLStatement => st }
+  final protected lazy val localStatements = this.annotationObjs.collect {
+    case st: DFDLStatement => st
+  }
 
   private lazy val localNewVariableInstanceStatements = {
     val nvis = localStatements.collect { case nve: DFDLNewVariableInstance => nve }
@@ -202,25 +234,41 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck { self: Ann
     checkDiscriminatorsAssertsDisjoint(discrims, asserts)
   }
 
-  private def checkDiscriminatorsAssertsDisjoint(discrims: Seq[DFDLDiscriminator], asserts: Seq[DFDLAssert]): (Seq[DFDLDiscriminator], Seq[DFDLAssert]) = {
-    schemaDefinitionUnless(discrims.size <= 1, "At most one discriminator allowed at same location: %s", discrims)
+  private def checkDiscriminatorsAssertsDisjoint(
+    discrims: Seq[DFDLDiscriminator],
+    asserts: Seq[DFDLAssert],
+  ): (Seq[DFDLDiscriminator], Seq[DFDLAssert]) = {
+    schemaDefinitionUnless(
+      discrims.size <= 1,
+      "At most one discriminator allowed at same location: %s",
+      discrims,
+    )
     schemaDefinitionUnless(
       asserts == Nil || discrims == Nil,
-      "Cannot have both dfdl:discriminator annotations and dfdl:assert annotations at the same location.")
+      "Cannot have both dfdl:discriminator annotations and dfdl:assert annotations at the same location.",
+    )
     (discrims, asserts)
   }
 
   private def checkDistinctVariableNames(svs: Seq[DFDLSetVariable]) = {
     val names = svs.map { _.defv.globalQName }
     val areAllDistinct = names.distinct.size == names.size
-    schemaDefinitionUnless(areAllDistinct, "Variables referenced by setVariable must all be distinct at the same location: %s", names.distinct)
+    schemaDefinitionUnless(
+      areAllDistinct,
+      "Variables referenced by setVariable must all be distinct at the same location: %s",
+      names.distinct,
+    )
     svs
   }
 
   private def checkDistinctNewVariableInstances(nvis: Seq[DFDLNewVariableInstance]) = {
     val names = nvis.map { _.defv.globalQName }
     val areAllDistinct = names.distinct.size == names.size
-    schemaDefinitionUnless(areAllDistinct, "Variables referenced by newVariableInstances must all be distinct within the same scope: %s", names.distinct)
+    schemaDefinitionUnless(
+      areAllDistinct,
+      "Variables referenced by newVariableInstances must all be distinct within the same scope: %s",
+      names.distinct,
+    )
     nvis
   }
 

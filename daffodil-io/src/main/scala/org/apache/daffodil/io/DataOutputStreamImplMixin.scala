@@ -18,18 +18,17 @@
 package org.apache.daffodil.io
 
 import java.io.ByteArrayOutputStream
-import java.math.{BigInteger => JBigInt}
+import java.math.{ BigInteger => JBigInt }
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.charset.CoderResult
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import passera.unsigned.ULong
-import org.apache.commons.io.output.TeeOutputStream
+
+import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.util.Bits
@@ -38,12 +37,16 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.MaybeULong
 
+import org.apache.commons.io.output.TeeOutputStream
+import passera.unsigned.ULong
+
 sealed trait DOSState
 private[io] case object Active extends DOSState
 private[io] case object Finished extends DOSState
 private[io] case object Uninitialized extends DOSState
 
-trait DataOutputStreamImplMixin extends DataStreamCommonState
+trait DataOutputStreamImplMixin
+  extends DataStreamCommonState
   with DataOutputStream
   with DataStreamCommonImplMixin
   with LocalBufferMixin {
@@ -173,12 +176,13 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     //
     // there are 3 states
     //
-    if (this.maybeAbsStartingBitPos0b_.isEmpty &&
-      this.maybeAbsolutizedRelativeStartingBitPosInBits_.isEmpty) {
+    if (
+      this.maybeAbsStartingBitPos0b_.isEmpty &&
+      this.maybeAbsolutizedRelativeStartingBitPosInBits_.isEmpty
+    ) {
       this.maybeAbsStartingBitPos0b_ = mv
     } else if (this.maybeAbsStartingBitPos0b_.isDefined) {
-      this.maybeAbsolutizedRelativeStartingBitPosInBits_ =
-        this.maybeAbsStartingBitPos0b_
+      this.maybeAbsolutizedRelativeStartingBitPosInBits_ = this.maybeAbsStartingBitPos0b_
       this.maybeAbsStartingBitPos0b_ = mv
     } else {
       // both are defined
@@ -195,7 +199,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     if (this.maybeLengthInBits_.isDefined && this.maybeNextInChain.isDefined) {
       val nic = this.maybeNextInChain.get.asInstanceOf[DirectOrBufferedDataOutputStream]
       if (nic.maybeAbsBitPos0b.isEmpty) {
-        val nextAbsPos = this.maybeAbsStartingBitPos0b.getULong + this.maybeLengthInBits_.getULong
+        val nextAbsPos =
+          this.maybeAbsStartingBitPos0b.getULong + this.maybeLengthInBits_.getULong
         nic.setAbsStartingBitPos0b(nextAbsPos)
       }
     }
@@ -272,8 +277,13 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    * Returns false if the set was unsuccessful, meaning one is setting a limit that
    * extends past a pre-existing limit.
    */
-  protected def setMaybeRelBitLimit0b(newMaybeRelBitLimit0b: MaybeULong, reset: Boolean = false): Boolean = {
-    Assert.invariant((maybeAbsBitLimit0b.isDefined && maybeRelBitLimit0b.isDefined) || maybeAbsBitLimit0b.isEmpty)
+  protected def setMaybeRelBitLimit0b(
+    newMaybeRelBitLimit0b: MaybeULong,
+    reset: Boolean = false,
+  ): Boolean = {
+    Assert.invariant(
+      (maybeAbsBitLimit0b.isDefined && maybeRelBitLimit0b.isDefined) || maybeAbsBitLimit0b.isEmpty,
+    )
     if (newMaybeRelBitLimit0b.isEmpty) {
       maybeRelBitLimit0b_ = MaybeULong.Nope
       maybeAbsBitLimit0b = MaybeULong.Nope
@@ -282,7 +292,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       // absolute limit doesn't getchanged (it must be undefined)
       Assert.invariant(maybeAbsBitLimit0b.isEmpty)
     } else {
-      val delta = maybeRelBitLimit0b.get - newMaybeRelBitLimit0b.get // this is how much the relative value is changing.
+      val delta =
+        maybeRelBitLimit0b.get - newMaybeRelBitLimit0b.get // this is how much the relative value is changing.
       if (!reset && delta < 0) {
         // we're trying to lengthen past an existing limit. This isn't allowed, unless we are forcing a reset
         return false
@@ -303,7 +314,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   var bitStartOffset0b: Int = 0
 
   final override def remainingBits: MaybeULong = {
-    if (maybeRelBitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(maybeRelBitLimit0b.get - relBitPos0b.toLong)
+    if (maybeRelBitLimit0b.isEmpty) MaybeULong.Nope
+    else MaybeULong(maybeRelBitLimit0b.get - relBitPos0b.toLong)
   }
 
   var debugOutputStream: Maybe[ByteArrayOutputStream] = Nope
@@ -327,7 +339,9 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
 
   def setFragmentLastByte(newFragmentByte: Int, nBitsInUse: Int): Unit = {
     Assert.usage(nBitsInUse >= 0 && nBitsInUse <= 7)
-    Assert.usage(newFragmentByte >= 0 && newFragmentByte <= 255) // no bits above first byte are in use.
+    Assert.usage(
+      newFragmentByte >= 0 && newFragmentByte <= 255,
+    ) // no bits above first byte are in use.
     if (nBitsInUse == 0) {
       Assert.usage(newFragmentByte == 0)
     }
@@ -354,11 +368,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   @inline private[io] final def isReadOnly = { isFinished && isBuffering }
   @inline private[io] final def isWritable = {
     isActive ||
-      // This can happen if merging streams A and B and C, where A, the direct stream) is being setFinished.
-      // if B is finished, then the result of merging A into B is a finished stream (now direct), but we still
-      // want to keep merging B into C, and that involves calling this putBytes call to merge C's data into B's stream.
-      // Hence, the stream could be writable or finished.
-      (isFinished && isDirect)
+    // This can happen if merging streams A and B and C, where A, the direct stream) is being setFinished.
+    // if B is finished, then the result of merging A into B is a finished stream (now direct), but we still
+    // want to keep merging B into C, and that involves calling this putBytes call to merge C's data into B's stream.
+    // Hence, the stream could be writable or finished.
+    (isFinished && isDirect)
   }
   @inline private[io] final def isReadable = { !isDead }
 
@@ -372,7 +386,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     Assert.usage(isWritable)
     super.assignFrom(other)
     this.maybeAbsStartingBitPos0b_ = other.maybeAbsStartingBitPos0b_
-    this.maybeAbsolutizedRelativeStartingBitPosInBits_ = other.maybeAbsolutizedRelativeStartingBitPosInBits_
+    this.maybeAbsolutizedRelativeStartingBitPosInBits_ =
+      other.maybeAbsolutizedRelativeStartingBitPosInBits_
     this.relBitPos0b_ = other.relBitPos0b_
     this.maybeAbsBitLimit0b = other.maybeAbsBitLimit0b
     this.maybeRelBitLimit0b_ = other.maybeRelBitLimit0b_
@@ -401,7 +416,12 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     }
   }
 
-  final override def putBigInt(bigInt: JBigInt, bitLengthFrom1: Int, signed: Boolean, finfo: FormatInfo): Boolean = {
+  final override def putBigInt(
+    bigInt: JBigInt,
+    bitLengthFrom1: Int,
+    signed: Boolean,
+    finfo: FormatInfo,
+  ): Boolean = {
     Assert.usage(isWritable)
     Assert.usage(bitLengthFrom1 > 0)
     Assert.usage(signed || (!signed && bigInt.signum() >= 0))
@@ -456,7 +476,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
               Assert.invariant(bigInt.signum() < 0)
               var i = 0
               while (i < numPaddingBytes) {
-                paddedArray(i) = 0xFF.toByte
+                paddedArray(i) = 0xff.toByte
                 i += 1
               }
             }
@@ -471,7 +491,10 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
               // extending is needed to be checked
               One(array)
             } else {
-              val shifted = array(0) >> (fragBits - 1) // shift off the bits we don't care about (with sign extend shift)
+              val shifted =
+                array(
+                  0,
+                ) >> (fragBits - 1) // shift off the bits we don't care about (with sign extend shift)
               val signBit = shifted & 0x1 // get the most significant bit
               val signExtendedBits = shifted >> 1 // shift off the sign bit
 
@@ -481,7 +504,9 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
               // above our most significant bit, and so this BigInt was too big
               // for the number of bits. If this is the case, result in a Nope
               // which ends up returning false.
-              if ((signBit == 1 && signExtendedBits != -1) || (signBit == 0 && signExtendedBits != 0)) {
+              if (
+                (signBit == 1 && signExtendedBits != -1) || (signBit == 0 && signExtendedBits != 0)
+              ) {
                 // error
                 Nope
               } else {
@@ -509,7 +534,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     array: Array[Byte],
     bitLengthFrom1: Long,
     finfo: FormatInfo,
-    ignoreByteOrder: Boolean = false): Boolean = {
+    ignoreByteOrder: Boolean = false,
+  ): Boolean = {
     // this is to be used for an array generated by getByteArray. Thus, this
     // array is expected by to BigEndian MSBF. It must be transformed into an
     // array that the other putBytes/Bits/etc functions can accept. The length
@@ -519,7 +545,9 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     Assert.usage(isWritable)
 
     val res =
-      if (maybeRelBitLimit0b.isDefined && maybeRelBitLimit0b.get < (relBitPos0b + bitLengthFrom1)) {
+      if (
+        maybeRelBitLimit0b.isDefined && maybeRelBitLimit0b.get < (relBitPos0b + bitLengthFrom1)
+      ) {
         false
       } else {
         // Cannot rely on array.length since it is possible the array is bigger
@@ -532,9 +560,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
         // byte sizes are common and it avoids the byteOrder check and
         // potential array allocation
         val bytes =
-          if (bitLengthFrom1 > 8 &&
+          if (
+            bitLengthFrom1 > 8 &&
             finfo.byteOrder =:= ByteOrder.LittleEndian &&
-            !ignoreByteOrder) {
+            !ignoreByteOrder
+          ) {
             // We need to reverse this array. However, we cannot modify this
             // array since it might come straight from the infoset, which could
             // potentiall affect expressions that reference this data. So
@@ -586,7 +616,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
               Bits.maskR(fragmentLastByteLimit)
             else
               Bits.maskL(fragmentLastByteLimit)
-          val curByteMask = ~fragByteMask & 0xFF
+          val curByteMask = ~fragByteMask & 0xff
           val fragShift = 8 - fragmentLastByteLimit
           val curShift = fragmentLastByteLimit
 
@@ -600,7 +630,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
           // byte or have some leftover.
           val lastIndexCreatesFullByte = {
             val fragmentBitsInArray = bitLengthFrom1 % 8
-            val bitsAvailableInLastByte = if (fragmentBitsInArray == 0) 8 else fragmentBitsInArray
+            val bitsAvailableInLastByte =
+              if (fragmentBitsInArray == 0) 8 else fragmentBitsInArray
             (fragmentLastByteLimit + bitsAvailableInLastByte) >= 8
           }
           val lastIndex = bytesToPutFromArray - 1
@@ -666,8 +697,10 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
 
   private def exceedsBitLimit(lengthInBytes: Long): Boolean = {
     val relEndBitPos0b = relBitPos0b + ULong(lengthInBytes * 8)
-    if (maybeRelBitLimit0b.isDefined &&
-      (relEndBitPos0b > maybeRelBitLimit0b.getULong)) true
+    if (
+      maybeRelBitLimit0b.isDefined &&
+      (relEndBitPos0b > maybeRelBitLimit0b.getULong)
+    ) true
     else false
   }
 
@@ -675,7 +708,12 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    * Returns number of bytes transferred. Stops when the bitLimit is
    * encountered if one is defined.
    */
-  final def putBytes(ba: Array[Byte], byteStartOffset0b: Int, lengthInBytes: Int, finfo: FormatInfo): Long = {
+  final def putBytes(
+    ba: Array[Byte],
+    byteStartOffset0b: Int,
+    lengthInBytes: Int,
+    finfo: FormatInfo,
+  ): Long = {
     Assert.usage(isWritable)
     if (isEndOnByteBoundary) {
       val nBytes =
@@ -700,7 +738,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       var i = 0
       var continue = true
       while ((i < lengthInBytes) && continue) {
-        continue = putLongUnchecked(Bits.asUnsignedByte(ba(i)), 8, finfo) // returns false if we hit the limit.
+        continue = putLongUnchecked(
+          Bits.asUnsignedByte(ba(i)),
+          8,
+          finfo,
+        ) // returns false if we hit the limit.
         if (continue) i += 1
       }
       i
@@ -711,7 +753,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     path: Path,
     lengthInBits: Long,
     chunkSizeInBytes: Int,
-    finfo: FormatInfo): Long = {
+    finfo: FormatInfo,
+  ): Long = {
 
     val fileStream =
       try {
@@ -719,9 +762,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       } catch {
         case e: Exception =>
           throw new FileIOException(
-            "Unable to open file %s for reading: %s".format(
-              path.toString,
-              e.getMessage()))
+            "Unable to open file %s for reading: %s".format(path.toString, e.getMessage()),
+          )
       }
 
     val array = new Array[Byte](chunkSizeInBytes)
@@ -739,11 +781,10 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
         fileHasData = false
       } else {
         val bitsToPut = Math.min(bytesRead * 8, bitsToRead)
-        val ret = putByteArray(array, bitsToPut.toInt, finfo, ignoreByteOrder=true)
+        val ret = putByteArray(array, bitsToPut.toInt, finfo, ignoreByteOrder = true)
         if (!ret) {
           fileStream.close()
-          throw new FileIOException(
-            "Failed to write file data: %s".format(path.toString))
+          throw new FileIOException("Failed to write file data: %s".format(path.toString))
         }
         bitsWritten += bitsToPut
         remainingBitsToPut -= bitsToPut
@@ -762,14 +803,18 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     bitsWritten
   }
 
-
   /**
    * Returns number of bytes transferred. Stops when the bitLimit is
    * encountered if one is defined.
    */
-  private[io] def putBytes(ba: Array[Byte], finfo: FormatInfo): Long = putBytes(ba, 0, ba.length, finfo)
+  private[io] def putBytes(ba: Array[Byte], finfo: FormatInfo): Long =
+    putBytes(ba, 0, ba.length, finfo)
 
-  private[io] def putBitBuffer(bb: java.nio.ByteBuffer, lengthInBits: Long, finfo: FormatInfo): Long = {
+  private[io] def putBitBuffer(
+    bb: java.nio.ByteBuffer,
+    lengthInBits: Long,
+    finfo: FormatInfo,
+  ): Long = {
     Assert.usage(bb.remaining() * 8 >= lengthInBits)
     val nWholeBytes = (lengthInBits / 8).toInt
     val nFragBits = (lengthInBits % 8).toInt
@@ -781,7 +826,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     Assert.usage(bb.remaining() == numBytesForLengthInBits)
 
     if (nFragBits > 0) bb.limit(bb.limit() - 1) // last byte is the frag byte
-    val nBytesWritten = putByteBuffer(bb, finfo) // output all but the frag byte if there is one.
+    val nBytesWritten =
+      putByteBuffer(bb, finfo) // output all but the frag byte if there is one.
     val nBitsWritten = nBytesWritten * 8
     val res = {
       if (nBytesWritten < nWholeBytes) {
@@ -815,7 +861,9 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
         if (isEndOnByteBoundary) {
           val lengthInBytes = bb.remaining
           if (exceedsBitLimit(lengthInBytes)) return 0
-          val chan = Channels.newChannel(realStream) // supposedly, this will not allocate if the outStream is a FileOutputStream
+          val chan = Channels.newChannel(
+            realStream,
+          ) // supposedly, this will not allocate if the outStream is a FileOutputStream
           setRelBitPos0b(relBitPos0b + ULong(lengthInBytes * 8))
           chan.write(bb)
         } else {
@@ -828,7 +876,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
           var continue = true
           val limit = bb.remaining()
           while ((i < limit) && continue) {
-            continue = putLongChecked(Bits.asUnsignedByte(bb.get(i)), 8, finfo) // returns false if we hit the limit.
+            continue = putLongChecked(
+              Bits.asUnsignedByte(bb.get(i)),
+              8,
+              finfo,
+            ) // returns false if we hit the limit.
             if (continue) i += 1
           }
           i
@@ -884,8 +936,9 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       // bit position/limit.
       val cr = finfo.encoder.encode(cb, bb, true)
       cr match {
-        case CoderResult.UNDERFLOW => //ok. Normal termination
-        case CoderResult.OVERFLOW => Assert.invariantFailed("byte buffer wasn't big enough to accomodate the string")
+        case CoderResult.UNDERFLOW => // ok. Normal termination
+        case CoderResult.OVERFLOW =>
+          Assert.invariantFailed("byte buffer wasn't big enough to accomodate the string")
         case _ if cr.isMalformed() => cr.throwException()
         case _ if cr.isUnmappable() => cr.throwException()
       }
@@ -903,7 +956,11 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     res
   }
 
-  protected final def putLongChecked(signedLong: Long, bitLengthFrom1To64: Int, finfo: FormatInfo): Boolean = {
+  protected final def putLongChecked(
+    signedLong: Long,
+    bitLengthFrom1To64: Int,
+    finfo: FormatInfo,
+  ): Boolean = {
     Assert.usage(bitLengthFrom1To64 >= 1 && bitLengthFrom1To64 <= 64)
     Assert.usage(isWritable)
     //
@@ -927,7 +984,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
     signedLong: Long,
     bitLengthFrom1To64: Int,
     finfo: FormatInfo,
-    ignoreByteOrder: Boolean = false): Boolean = {
+    ignoreByteOrder: Boolean = false,
+  ): Boolean = {
     // The order we check bitOrder vs byteOrder here is actually very
     // important, primarily due to how suspensions end up resolved and data
     // output streams (DOS) collapsed. To explain why:
@@ -1010,7 +1068,7 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
    */
   private def fillLong(fillByte: Byte) = {
     var fl: Long = 0L
-    val fb = fillByte.toInt & 0xFF
+    val fb = fillByte.toInt & 0xff
     fl = (fl << 8) + fb
     fl = (fl << 8) + fb
     fl = (fl << 8) + fb
@@ -1051,7 +1109,8 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
       if (fragmentLastByteLimit > 0) {
         // there is a fragment byte.
         val numRemainingFragmentBits = 8 - fragmentLastByteLimit
-        val isInitialFragDone = putLongUnchecked(finfo.fillByte, numRemainingFragmentBits, finfo)
+        val isInitialFragDone =
+          putLongUnchecked(finfo.fillByte, numRemainingFragmentBits, finfo)
         Assert.invariant(isInitialFragDone)
         nBitsRemaining -= numRemainingFragmentBits
         Assert.invariant(fragmentLastByteLimit == 0) // no longer is a fragment byte on the end
@@ -1085,15 +1144,17 @@ trait DataOutputStreamImplMixin extends DataStreamCommonState
   }
 
   final override def pastData(nBytesRequested: Int): ByteBuffer = {
-    Assert.usage(isReadable ||
-      // when unparsing trace/debug wants to access pastData from this DOS
-      // even after it has been closed. This is just a consequence of the
-      // creation and completion of DOS interacting with the DOS being
-      // created on the fly to implement layering, where we allocate a new
-      // DOS for the layer, and then later just drop it when the layer exits.
-      // At that point the layer is closed, but trace/debug still wants to print
-      // pastData from it as part of what it displays.
-      areDebugging)
+    Assert.usage(
+      isReadable ||
+        // when unparsing trace/debug wants to access pastData from this DOS
+        // even after it has been closed. This is just a consequence of the
+        // creation and completion of DOS interacting with the DOS being
+        // created on the fly to implement layering, where we allocate a new
+        // DOS for the layer, and then later just drop it when the layer exits.
+        // At that point the layer is closed, but trace/debug still wants to print
+        // pastData from it as part of what it displays.
+        areDebugging,
+    )
     Assert.usage(nBytesRequested >= 0)
     if (debugOutputStream == Nope) {
       ByteBuffer.allocate(0)

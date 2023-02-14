@@ -20,12 +20,15 @@ package org.apache.daffodil.lib.api
 import org.apache.daffodil.lib.util.Enum
 
 object ValidationMode extends Enum {
-  sealed abstract class Type protected (val mode: Int) extends EnumValueType with Ordered[Type] with Serializable {
+  sealed abstract class Type protected (val mode: Int)
+    extends EnumValueType
+    with Ordered[Type]
+    with Serializable {
     def compare(that: ValidationMode.Type) = this.mode - that.mode
   }
   case object Off extends Type(10)
   case object Limited extends Type(20)
   case object Full extends Type(30)
 
-  case class Custom(v: Validator) extends Type( 100)
+  case class Custom(v: Validator) extends Type(100)
 }

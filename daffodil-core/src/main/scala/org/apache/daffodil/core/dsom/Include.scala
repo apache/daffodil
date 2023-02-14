@@ -41,7 +41,8 @@ final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
     mp
   }.value
 
-  private lazy val slText = schemaLocationProperty.get // include always has a schemaLocation property
+  private lazy val slText =
+    schemaLocationProperty.get // include always has a schemaLocation property
 
   lazy val resolvedNamespaceURI = None // include doesn't have a namespace.
 
@@ -53,14 +54,19 @@ final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         // We use keepGoing here so we can capture diagnostics, but then
         // issue a final summary diagnostic about the target namespace.
         //
-        val ns = OOLAG.keepGoing(
-          schemaDefinitionError("Unable to determine target namespace.")) {
+        val ns =
+          OOLAG.keepGoing(schemaDefinitionError("Unable to determine target namespace.")) {
             xsd.targetNamespace
           }
         Logger.log.debug(s"Included schema from ${rsl} into namespace ${ns}.")
         rsl
       }
-      case None => schemaDefinitionError("Included schema not found at location %s. %s", slText, whereSearched)
+      case None =>
+        schemaDefinitionError(
+          "Included schema not found at location %s. %s",
+          slText,
+          whereSearched,
+        )
     }
   }.value
 

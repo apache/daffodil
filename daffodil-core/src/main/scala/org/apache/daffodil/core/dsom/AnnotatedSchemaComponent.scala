@@ -17,17 +17,18 @@
 
 package org.apache.daffodil.core.dsom
 
-import scala.xml.Node
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.xml.NS
-import org.apache.daffodil.lib.equality._
-import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
-import org.apache.daffodil.lib.schema.annotation.props.NotFound
-import org.apache.daffodil.lib.schema.annotation.props.Found
-import org.apache.daffodil.lib.schema.annotation.props.FindPropertyMixin
-import org.apache.daffodil.lib.api.WarnID
 import scala.collection.mutable
+import scala.xml.Node
+
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.FindPropertyMixin
+import org.apache.daffodil.lib.schema.annotation.props.Found
+import org.apache.daffodil.lib.schema.annotation.props.NotFound
+import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
+import org.apache.daffodil.lib.xml.NS
+import org.apache.daffodil.lib.xml.XMLUtils
 
 /**
  * Only objects from which we generate processors (parsers/unparsers)
@@ -53,6 +54,7 @@ import scala.collection.mutable
  */
 
 object ResolvesProperties {
+
   /**
    * List of properties that when looked up should only be found on the
    * immediate element--properties on a reference or defaults should not be
@@ -65,14 +67,14 @@ object ResolvesProperties {
     "outputTypeCalc",
     "repType",
     "repValueRanges",
-    "repValues")
+    "repValues",
+  )
 }
 
 /**
  * Mixin for non-terms that need to lookup local properties
  */
-trait ResolvesLocalProperties
-  extends FindPropertyMixin { self: AnnotatedSchemaComponent =>
+trait ResolvesLocalProperties extends FindPropertyMixin { self: AnnotatedSchemaComponent =>
 
   /**
    * Does lookup of only local properties
@@ -80,7 +82,8 @@ trait ResolvesLocalProperties
   protected override def lookupProperty(pname: String): PropertyLookupResult = {
     Assert.usage(
       ResolvesProperties.localOnlyProperties.contains(pname),
-      "Property '%s' is not a valid local-only property.".format(pname))
+      "Property '%s' is not a valid local-only property.".format(pname),
+    )
     val fa = formatAnnotation
     val opt = fa.justThisOneProperties.get(pname)
     val optFound = opt.map { case (value, location) => Found(value, location, pname, false) }
@@ -92,8 +95,7 @@ trait ResolvesLocalProperties
 /**
  * Mixin for Term, which can lookup all properties using DFDL scoping rules.
  */
-trait ResolvesScopedProperties
-  extends FindPropertyMixin { self: Term =>
+trait ResolvesScopedProperties extends FindPropertyMixin { self: Term =>
 
   private def findNonDefaultProperty(pname: String): PropertyLookupResult = {
     val sources =
@@ -121,14 +123,19 @@ trait ResolvesScopedProperties
         Found(value, loc, pname, true)
       case NotFound(nd, d, pn) =>
         Assert.invariant(d.isEmpty)
-        NotFound(Seq(), nd, pn) // we want the places we searched shown as default locations searched
+        NotFound(
+          Seq(),
+          nd,
+          pn,
+        ) // we want the places we searched shown as default locations searched
     }
     fixup
   }
 
   private def findPropertyInSources(
     pname: String,
-    sources: Seq[ChainPropProvider]): PropertyLookupResult = {
+    sources: Seq[ChainPropProvider],
+  ): PropertyLookupResult = {
     //
     // Important - use of stream here insures we don't lookup
     // properties down the chain once we have them here.
@@ -191,8 +198,8 @@ trait ResolvesScopedProperties
 /** Convenience class for implemening AnnotatedSchemaComponent trait */
 abstract class AnnotatedSchemaComponentImpl(
   final override val xml: Node,
-  final override val optLexicalParent: Option[SchemaComponent])
-  extends AnnotatedSchemaComponent {
+  final override val optLexicalParent: Option[SchemaComponent],
+) extends AnnotatedSchemaComponent {
 
   def this(xml: Node, lexicalParent: SchemaComponent) =
     this(xml, Option(lexicalParent))
@@ -235,11 +242,10 @@ abstract class AnnotatedSchemaComponentImpl(
 case class PropEnv(
   localProps: Seq[Set[(String, String)]],
   defaultPropSource: Seq[Set[(String, String)]],
-  optNext: Option[scala.xml.Node])
+  optNext: Option[scala.xml.Node],
+)
 
-case class ShareKey(
-  xml: scala.xml.Node,
-  env: PropEnv) {
+case class ShareKey(xml: scala.xml.Node, env: PropEnv) {
 
   /**
    * It is critical here that we perform reference equality on the XML. This is
@@ -334,7 +340,8 @@ trait AnnotatedSchemaComponent
    * in DFDL v1.0. (I consider that a language design bug in DFDL v1.0, but
    * that is the way it's defined.)
    */
-  final protected def refersToForPropertyCombining: Option[AnnotatedSchemaComponent] = optReferredToComponent
+  final protected def refersToForPropertyCombining: Option[AnnotatedSchemaComponent] =
+    optReferredToComponent
 
   def optReferredToComponent: Option[AnnotatedSchemaComponent] // override in ref objects
 
@@ -343,10 +350,13 @@ trait AnnotatedSchemaComponent
       case sd: SchemaDocument => Nil
       case _ => {
         val refTo = refersToForPropertyCombining
-        val chainFromReferredTo = refTo.map { c =>
-          val ndps = c.nonDefaultPropertySources
-          ndps
-        }.toSeq.flatten
+        val chainFromReferredTo = refTo
+          .map { c =>
+            val ndps = c.nonDefaultPropertySources
+            ndps
+          }
+          .toSeq
+          .flatten
         val myNDFC = nonDefaultFormatChain
         val completeNonDefaultFormatChain =
           myNDFC +: chainFromReferredTo
@@ -357,14 +367,15 @@ trait AnnotatedSchemaComponent
     }
   }.value
 
-  final protected lazy val defaultPropertySources: Seq[ChainPropProvider] = LV('defaultPropertySources) {
-    val refTo = refersToForPropertyCombining
-    val chainFromReferredTo = refTo.toSeq.map { _.defaultPropertySources }.distinct.flatten
-    val completeDefaultFormatChain =
-      defaultFormatChain +: chainFromReferredTo
-    val seq = completeDefaultFormatChain.distinct
-    seq
-  }.value
+  final protected lazy val defaultPropertySources: Seq[ChainPropProvider] =
+    LV('defaultPropertySources) {
+      val refTo = refersToForPropertyCombining
+      val chainFromReferredTo = refTo.toSeq.map { _.defaultPropertySources }.distinct.flatten
+      val completeDefaultFormatChain =
+        defaultFormatChain +: chainFromReferredTo
+      val seq = completeDefaultFormatChain.distinct
+      seq
+    }.value
 
   final protected lazy val nonDefaultFormatChain: ChainPropProvider = {
     val fa = formatAnnotation
@@ -409,8 +420,9 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
           case None => {
             // if a child node in the dfdl namespace exists we will provide a warning about using the source property
             ai.child.flatMap(n => Option(n.namespace)).find(isDfdlNamespace).foreach { _ =>
-              SDW(WarnID.AppinfoNoSource,
-              """xs:appinfo without source attribute. Is source="http://www.ogf.org/dfdl/" missing?"""
+              SDW(
+                WarnID.AppinfoNoSource,
+                """xs:appinfo without source attribute. Is source="http://www.ogf.org/dfdl/" missing?""",
               )
             }
             false
@@ -434,8 +446,13 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
             //
             val hasRightSource = (sourceNS =:= officialAppinfoSourceAttributeNS)
             val isAcceptable = isDfdlNamespace(sourceNS.toString)
-            schemaDefinitionWarningWhen(WarnID.AppinfoDFDLSourceWrong, !hasRightSource && isAcceptable,
-              "The xs:appinfo source attribute value '%s' should be '%s'.", sourceNS, officialAppinfoSourceAttributeNS)
+            schemaDefinitionWarningWhen(
+              WarnID.AppinfoDFDLSourceWrong,
+              !hasRightSource && isAcceptable,
+              "The xs:appinfo source attribute value '%s' should be '%s'.",
+              sourceNS,
+              officialAppinfoSourceAttributeNS,
+            )
             (hasRightSource || isAcceptable)
           }
         }
@@ -477,16 +494,21 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
    */
   protected def emptyFormatFactory: DFDLFormatAnnotation
 
-  final lazy val formatAnnotationExpectedName = emptyFormatFactory.xml.asInstanceOf[scala.xml.Elem].label
+  final lazy val formatAnnotationExpectedName =
+    emptyFormatFactory.xml.asInstanceOf[scala.xml.Elem].label
 
   protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
 
   final lazy val formatAnnotation = {
-    val format = annotationObjs.collect { case fa: DFDLFormatAnnotation if isMyFormatAnnotation(fa) => fa }
+    val format = annotationObjs.collect {
+      case fa: DFDLFormatAnnotation if isMyFormatAnnotation(fa) => fa
+    }
     val res = format match {
-      case Seq() => emptyFormatFactory // does make things with the right namespace scopes attached!
+      case Seq() =>
+        emptyFormatFactory // does make things with the right namespace scopes attached!
       case Seq(fa) => fa
-      case _ => schemaDefinitionError("Only one format annotation is allowed at each annotation point.")
+      case _ =>
+        schemaDefinitionError("Only one format annotation is allowed at each annotation point.")
     }
     res
   }

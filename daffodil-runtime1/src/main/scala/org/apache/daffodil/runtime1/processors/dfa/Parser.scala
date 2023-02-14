@@ -18,6 +18,7 @@
 package org.apache.daffodil.runtime1.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
+
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.RuntimeData
 
@@ -38,7 +39,12 @@ class LongestMatchTracker {
   var longestMatchedStartPos: Int = Int.MaxValue
   var longestMatchedString: String = null
 
-  def successfulMatch(matchedStartPos: Int, matchedString: StringBuilder, dfa: DFADelimiter, dfaIndex: Int): Unit = {
+  def successfulMatch(
+    matchedStartPos: Int,
+    matchedString: StringBuilder,
+    dfa: DFADelimiter,
+    dfaIndex: Int,
+  ): Unit = {
     if (longestMatches.isEmpty) {
       // first match, make it the longest
       longestMatchedStartPos = matchedStartPos
@@ -69,7 +75,8 @@ class LongestMatchTracker {
 class ParseResult(
   val field: Maybe[String],
   val matchedDelimiterValue: Maybe[String],
-  val matchedDFAs: ArrayBuffer[DFADelimiter]) {
+  val matchedDFAs: ArrayBuffer[DFADelimiter],
+) {
 
   override def toString(): String = {
 
@@ -80,7 +87,9 @@ class ParseResult(
       if (field.isDefined) " field='%s'".format(field.get)
       else ""
     val matchedDelimStr =
-      if (matchedDelimiterValue.isDefined) " foundDelimiter='%s'".format(matchedDelimiterValue.get) else ""
+      if (matchedDelimiterValue.isDefined)
+        " foundDelimiter='%s'".format(matchedDelimiterValue.get)
+      else ""
     "<DFAParseResult status='%s'%s%s/>".format(status, fieldStr, matchedDelimStr)
   }
 }

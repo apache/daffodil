@@ -17,21 +17,22 @@
 
 package org.apache.daffodil.core.dsom
 
-import scala.xml.Node
-import org.apache.daffodil.lib.exceptions.Assert
-import scala.xml.Text
 import scala.xml.Comment
+import scala.xml.Node
+import scala.xml.Text
+
+import org.apache.daffodil.lib.exceptions.Assert
 
 object GlobalGroupDef {
 
   def apply(defXML: Node, schemaDocument: SchemaDocument) = {
     val trimmedXml = scala.xml.Utility.trim(defXML)
     trimmedXml match {
-      case <group>{ contents @ _* }</group> => {
+      case <group>{contents @ _*}</group> => {
         val list = contents.collect {
-          case groupXML @ <sequence>{ _* }</sequence> =>
+          case groupXML @ <sequence>{_*}</sequence> =>
             GlobalSequenceGroupDef(defXML, groupXML, schemaDocument)
-          case groupXML @ <choice>{ _* }</choice> =>
+          case groupXML @ <choice>{_*}</choice> =>
             GlobalChoiceGroupDef(defXML, groupXML, schemaDocument)
         }
         val res = list(0)
@@ -48,9 +49,7 @@ object GlobalGroupDef {
  * This includes both global group definitions, and local sequence
  * and choice groups.
  */
-trait GroupDefLike
-  extends AnnotatedSchemaComponent
-  with ProvidesDFDLStatementMixin {
+trait GroupDefLike extends AnnotatedSchemaComponent with ProvidesDFDLStatementMixin {
 
   /**
    * Not named groupMembers to avoid confusion with ModelGroup.groupMembers.
@@ -63,7 +62,9 @@ trait GroupDefLike
 
   def xmlChildren: Seq[Node]
 
-  private lazy val goodXmlChildren = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }.value
+  private lazy val goodXmlChildren = LV('goodXMLChildren) {
+    xmlChildren.flatMap { removeNonInteresting(_) }
+  }.value
 
   /** Returns the group members that are elements or model groups. */
   protected lazy val groupMembersDef: Seq[Term] = LV('groupMembers) {
@@ -72,12 +73,12 @@ trait GroupDefLike
 
   // override in Choice
   protected def computeGroupMembers(): Seq[Term] = {
-    val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
-    val pairs = goodXmlChildren zip positions
-    val members = pairs.map {
-      case (n, i) =>
-        val t = TermFactory(n, this, i)
-        t
+    val positions =
+      List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
+    val pairs = goodXmlChildren.zip(positions)
+    val members = pairs.map { case (n, i) =>
+      val t = TermFactory(n, this, i)
+      t
     }
     members
   }
@@ -89,7 +90,7 @@ trait GroupDefLike
     val childElem: Option[Node] = child match {
       case _: Text => None
       case _: Comment => None
-      case <annotation>{ _* }</annotation> => None
+      case <annotation>{_*}</annotation> => None
       case _ => Some(child)
     }
     childElem
@@ -107,8 +108,8 @@ trait GroupDefLike
 sealed abstract class GlobalGroupDef(
   defXML: Node,
   groupXML: Node,
-  schemaDocumentArg: SchemaDocument)
-  extends AnnotatedSchemaComponentImpl(groupXML, schemaDocumentArg)
+  schemaDocumentArg: SchemaDocument,
+) extends AnnotatedSchemaComponentImpl(groupXML, schemaDocumentArg)
   with GroupDefLike
   with GlobalNonElementComponentMixin
   with NestingLexicalMixin
@@ -124,12 +125,16 @@ sealed abstract class GlobalGroupDef(
     // Ensure the model group of a global group def do not define choiceBranchKey.
     val found = findPropertyOption("choiceBranchKey")
     if (found.isDefined) {
-      SDE("dfdl:choiceBranchKey cannot be specified on the choice/sequence child of a global group definition")
+      SDE(
+        "dfdl:choiceBranchKey cannot be specified on the choice/sequence child of a global group definition",
+      )
     }
   }
 
-  final override lazy val name = defXML.attribute("name").map { _.text }.getOrElse(
-    Assert.invariantFailed("Global group def without name attribute."))
+  final override lazy val name = defXML
+    .attribute("name")
+    .map { _.text }
+    .getOrElse(Assert.invariantFailed("Global group def without name attribute."))
 
   override def optReferredToComponent = None
 }
@@ -143,8 +148,10 @@ object GlobalSequenceGroupDef {
 }
 
 final class GlobalSequenceGroupDef private (
-  defXMLArg: Node, seqXML: Node, schemaDocument: SchemaDocument)
-  extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument)
+  defXMLArg: Node,
+  seqXML: Node,
+  schemaDocument: SchemaDocument,
+) extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument)
   with SequenceDefMixin {
 
   requiredEvaluationsIfActivated(checkGroupDefIsNotHiddenSequence)
@@ -156,7 +163,6 @@ final class GlobalSequenceGroupDef private (
   }
 }
 
-
 object GlobalChoiceGroupDef {
   def apply(defXMLArg: Node, xml: Node, schemaDocument: SchemaDocument) = {
     val gsgd = new GlobalChoiceGroupDef(defXMLArg, xml, schemaDocument)
@@ -165,6 +171,8 @@ object GlobalChoiceGroupDef {
   }
 }
 final class GlobalChoiceGroupDef private (
-  defXMLArg: Node, choiceXML: Node, schemaDocument: SchemaDocument)
-  extends GlobalGroupDef(defXMLArg, choiceXML, schemaDocument)
+  defXMLArg: Node,
+  choiceXML: Node,
+  schemaDocument: SchemaDocument,
+) extends GlobalGroupDef(defXMLArg, choiceXML, schemaDocument)
   with ChoiceDefMixin

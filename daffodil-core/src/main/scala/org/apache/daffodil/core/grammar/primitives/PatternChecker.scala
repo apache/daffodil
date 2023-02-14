@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
 import java.util.regex.Pattern
-import org.apache.daffodil.lib.util.Misc
 import java.util.regex.PatternSyntaxException
+
 import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.SavesErrorsAndWarnings
+import org.apache.daffodil.lib.util.Misc
 
 /**
  * The purpose of this checker is to examine a regex and look for a situation
@@ -35,8 +36,7 @@ import org.apache.daffodil.lib.api.WarnID
  * completely legal as a regex, which makes it very very painful to debug.
  */
 object PatternChecker {
-  def checkPattern(pattern: String,
-    context: SavesErrorsAndWarnings): Unit = {
+  def checkPattern(pattern: String, context: SavesErrorsAndWarnings): Unit = {
     try {
       val pat = Pattern.compile(pattern)
       val m1 = pat.matcher("")
@@ -46,9 +46,11 @@ object PatternChecker {
         // This is a flawed pattern for an assert and dubious
         // generally. The pattern should have to match something.
         val needCDATA =
-          if (pattern.startsWith("(?x)") &&
+          if (
+            pattern.startsWith("(?x)") &&
             !pattern.contains("\n") &&
-            pattern.contains("#")) {
+            pattern.contains("#")
+          ) {
             // it's free form regex notation
             // it's all on one line,
             // and it contains a comment (# to end of line)
@@ -56,12 +58,21 @@ object PatternChecker {
             "\nMissing <![CDATA[...]]> around the regular expression." +
               "\nThis is required for free-form regular expression syntax with comments."
           } else ""
-        context.SDW(WarnID.RegexPatternZeroLength, "Regular expression pattern '%s'.\n" +
-          "This pattern will match with zero length, so it can always match.%s", pattern, needCDATA)
+        context.SDW(
+          WarnID.RegexPatternZeroLength,
+          "Regular expression pattern '%s'.\n" +
+            "This pattern will match with zero length, so it can always match.%s",
+          pattern,
+          needCDATA,
+        )
       }
     } catch {
       case e: PatternSyntaxException => {
-        context.SDE("Invalid regular expression pattern '%s'.\nReason: %s.", pattern, Misc.getSomeMessage(e).get)
+        context.SDE(
+          "Invalid regular expression pattern '%s'.\nReason: %s.",
+          pattern,
+          Misc.getSomeMessage(e).get,
+        )
       }
     }
   }

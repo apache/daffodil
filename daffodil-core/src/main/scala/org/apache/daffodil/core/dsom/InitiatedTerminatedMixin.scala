@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.core.grammar._
-import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.core.grammar.GrammarMixin
+import org.apache.daffodil.core.grammar._
 import org.apache.daffodil.core.grammar.primitives.InitiatedContent
-import org.apache.daffodil.core.grammar.primitives.Terminator
 import org.apache.daffodil.core.grammar.primitives.Initiator
+import org.apache.daffodil.core.grammar.primitives.Terminator
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 
 trait InitiatedTerminatedMixin
   extends GrammarMixin
@@ -78,37 +78,49 @@ trait InitiatedTerminatedMixin
   }
 
   private lazy val isInitiatedContentChoice: Boolean = {
-    immediatelyEnclosingModelGroup.map {
-      case c: ChoiceTermBase => c.initiatedContent == YesNo.Yes
-      case _ => false
-    }.getOrElse(false)
+    immediatelyEnclosingModelGroup
+      .map {
+        case c: ChoiceTermBase => c.initiatedContent == YesNo.Yes
+        case _ => false
+      }
+      .getOrElse(false)
   }
 
   private lazy val shouldUseInitiatorDiscriminator: Boolean = {
     parentSaysInitiatedContent &&
-      immediatelyEnclosingGroupDef.map {
+    immediatelyEnclosingGroupDef
+      .map {
         case c: ChoiceTermBase => true
-        case s: SequenceTermBase => (isArray || isOptional) &&
+        case s: SequenceTermBase =>
+          (isArray || isOptional) &&
           isVariableOccurrences
-      }.getOrElse(false)
-  }
-
-  private lazy val initiatorDiscriminator = prod("initiatorDiscriminator", shouldUseInitiatorDiscriminator) {
-    this match {
-      case eb: ElementBase => {
-        if (eb.minOccurs < 1 && isInitiatedContentChoice) {
-          SDE("The minOccurs attribute should not be zero when dfdl:initiatedContent is 'yes'.")
-        }
       }
-      case _ => // ok
-    }
-    InitiatedContent(immediatelyEnclosingModelGroup.get, this)
+      .getOrElse(false)
   }
 
-  lazy val initiatorRegion = prod("initiatorRegion", hasInitiator) { initiatorItself ~ initiatorDiscriminator }
+  private lazy val initiatorDiscriminator =
+    prod("initiatorDiscriminator", shouldUseInitiatorDiscriminator) {
+      this match {
+        case eb: ElementBase => {
+          if (eb.minOccurs < 1 && isInitiatedContentChoice) {
+            SDE(
+              "The minOccurs attribute should not be zero when dfdl:initiatedContent is 'yes'.",
+            )
+          }
+        }
+        case _ => // ok
+      }
+      InitiatedContent(immediatelyEnclosingModelGroup.get, this)
+    }
+
+  lazy val initiatorRegion = prod("initiatorRegion", hasInitiator) {
+    initiatorItself ~ initiatorDiscriminator
+  }
   private lazy val initiatorItself = delimMTA ~ Initiator(this)
 
-  lazy val terminatorRegion = prod("terminatorRegion", hasTerminator) { delimMTA ~ Terminator(this) }
+  lazy val terminatorRegion = prod("terminatorRegion", hasTerminator) {
+    delimMTA ~ Terminator(this)
+  }
 
   /**
    * True if this term has initiator, terminator, or separator that are either statically

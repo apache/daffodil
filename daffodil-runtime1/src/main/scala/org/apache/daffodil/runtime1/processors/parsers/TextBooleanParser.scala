@@ -17,18 +17,19 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.lib.exceptions.Assert
 import java.lang.{ Boolean => JBoolean }
+
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.TextBooleanTrueRepEv
 import org.apache.daffodil.runtime1.processors.TextBooleanFalseRepEv
+import org.apache.daffodil.runtime1.processors.TextBooleanTrueRepEv
 
 case class ConvertTextBooleanParser(
   override val context: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,
   textBooleanFalseRepEv: TextBooleanFalseRepEv,
-  ignoreCase: Boolean)
-  extends TextPrimParser {
+  ignoreCase: Boolean,
+) extends TextPrimParser {
 
   override lazy val runtimeDependencies = Vector(textBooleanTrueRepEv, textBooleanFalseRepEv)
 

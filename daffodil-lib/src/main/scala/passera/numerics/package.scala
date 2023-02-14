@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2011-2013, Nate Nystrom
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice, this
  * list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -30,10 +30,14 @@ import scala.language.implicitConversions
 
 package object numerics {
   implicit def toRicherInt(x: Int): RicherInt = new RicherInt(x)
-  implicit def toRicherInt(x: scala.runtime.RichInt) = new YetRicherInt(x.self.asInstanceOf[Int])
+  implicit def toRicherInt(x: scala.runtime.RichInt) = new YetRicherInt(
+    x.self.asInstanceOf[Int],
+  )
 
   implicit def toRicherLong(x: Long): RicherLong = new RicherLong(x)
-  implicit def toRicherLong(x: scala.runtime.RichLong) = new YetRicherLong(x.self.asInstanceOf[Long])
+  implicit def toRicherLong(x: scala.runtime.RichLong) = new YetRicherLong(
+    x.self.asInstanceOf[Long],
+  )
 
   class RicherInt(x: Int) extends Proxy {
     def self: Any = x
@@ -60,8 +64,8 @@ package object numerics {
     def self: Any = x
     def to(y: Long, step: Long = 1L) = x.toLong to y by step
     def until(y: Long, step: Long = 1L) = x.toLong until y by step
-    def max(y: Long) = x.toLong max y
-    def min(y: Long) = x.toLong min y
+    def max(y: Long) = x.toLong.max(y)
+    def min(y: Long) = x.toLong.min(y)
   }
 
   class RicherLong(x: Long) extends Proxy {

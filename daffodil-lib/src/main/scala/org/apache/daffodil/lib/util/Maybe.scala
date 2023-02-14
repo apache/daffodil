@@ -48,7 +48,7 @@ final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable 
   //  @inline final def iterator: Iterator[T] = if (isEmpty) collection.Iterator.empty else collection.Iterator.single(get)
   @inline final def toList: List[T] = if (isEmpty) List() else new ::(get, Nil)
   @inline final def toSeq: Seq[T] = toList
-  //@inline final def getOrElse[U >: T](default: U): U = if (isEmpty) default else get
+  // @inline final def getOrElse[U >: T](default: U): U = if (isEmpty) default else get
 
   /**
    * This is the back convert
@@ -78,7 +78,8 @@ final class Maybe[+T <: AnyRef](val v: AnyRef) extends AnyVal with Serializable 
   @inline private[util] final def _foreach[U](f: T => U): Unit = if (!isEmpty) f(get)
   //  @inline final def fold[U](ifEmpty: => U)(f: T => U): U = if (isEmpty) ifEmpty else f(get)
   //  @inline final def flatten[U <: AnyRef](implicit ev: T <:< Maybe[U]): Maybe[U] = if (isEmpty) Nope else ev(get)
-  @inline final def toScalaOption: scala.Option[T] = if (isEmpty) scala.None else scala.Some(get)
+  @inline final def toScalaOption: scala.Option[T] =
+    if (isEmpty) scala.None else scala.Some(get)
   override final def toString = if (isEmpty) "Nope" else "One(" + get + ")"
 }
 
@@ -114,7 +115,9 @@ object Maybe {
   final def apply[T <: AnyRef](value: T) = if (value == null) Nope else new Maybe[T](value)
 
   @inline
-  final def fromMaybeAnyRef[T <: AnyRef](anyref: Maybe[AnyRef]) = Maybe(anyref.v.asInstanceOf[T])
+  final def fromMaybeAnyRef[T <: AnyRef](anyref: Maybe[AnyRef]) = Maybe(
+    anyref.v.asInstanceOf[T],
+  )
 
   val Nope = new Maybe[Nothing](NopeValue)
 
@@ -173,12 +176,16 @@ object Maybe {
 
     @inline final def isDefined[T <: AnyRef](thing: T): Boolean = {
       if (thing eq null) false
-      else if (thing eq NopeValue) Assert.usageError("Maybe.WithNulls.isDefined not for use on Maybe[T] objects, but T (or null) objects.")
+      else if (thing eq NopeValue)
+        Assert.usageError(
+          "Maybe.WithNulls.isDefined not for use on Maybe[T] objects, but T (or null) objects.",
+        )
       else true
     }
 
     @inline final def get[T <: AnyRef](thing: T): T = {
-      if (!isDefined(thing)) throw new NoSuchElementException("get on undefined value: " + thing)
+      if (!isDefined(thing))
+        throw new NoSuchElementException("get on undefined value: " + thing)
       else thing
     }
 

@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2011-2013, Nate Nystrom
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice, this
  * list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,9 +26,12 @@
 
 package passera.unsigned
 
-import java.math.{BigInteger => JBigInt}
+import java.math.{ BigInteger => JBigInt }
 
-case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULong, ULong, Long] with Serializable {
+case class ULong(override val longValue: Long)
+  extends AnyVal
+  with Unsigned[ULong, ULong, Long]
+  with Serializable {
   private[unsigned] def rep = longValue
 
   def toUByte = UByte((rep & 0xffffffffL).toByte)
@@ -124,9 +127,9 @@ case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULon
 
     if (d < 0) {
       if (this < x)
-        ULong(0l)
+        ULong(0L)
       else
-        ULong(1l)
+        ULong(1L)
     } else {
       val q = ((n >>> 1) / d) << 1
       val r = n - q * d
@@ -199,7 +202,7 @@ case class ULong(override val longValue: Long) extends AnyVal with Unsigned[ULon
     case _: Number => true
     case _ => false
   }
-  */
+   */
 
   // Here, compare to Int
   // def ==(x: Int) = rep == x && rep >= 0

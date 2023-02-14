@@ -22,7 +22,11 @@ import org.apache.daffodil.core.dsom.ElementBase
 trait BinaryFloatCodeGenerator extends BinaryValueCodeGenerator {
 
   // Called by Runtime2CodeGenerator to generate C code for a float element
-  def binaryFloatGenerateCode(e: ElementBase, lengthInBits: Int, cgState: CodeGeneratorState): Unit = {
+  def binaryFloatGenerateCode(
+    e: ElementBase,
+    lengthInBits: Int,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     val primType = if (lengthInBits == 32) "float" else "double"
     val addField = valueAddField(e, lengthInBits, primType, _, cgState)
     val validateFixed = valueValidateFixed(e, _, cgState)

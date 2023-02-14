@@ -17,10 +17,12 @@
 
 package org.apache.daffodil.lib.util
 
-import org.apache.daffodil.lib.exceptions.Assert
-import Maybe._
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+
+import org.apache.daffodil.lib.exceptions.Assert
+
+import Maybe._
 
 /**
  * Encapsulates Java Maps with get that returns Maybe[V].
@@ -46,7 +48,7 @@ class NonAllocatingMap[K, V <: AnyRef](javaMap: java.util.Map[K, V]) {
   def put(k: K, v: V): Unit = {
     k match {
       case ar: AnyRef => Assert.usage(ar ne null)
-      case _ => //ok
+      case _ => // ok
     }
     Assert.usage(v ne null)
     javaMap.put(k, v)

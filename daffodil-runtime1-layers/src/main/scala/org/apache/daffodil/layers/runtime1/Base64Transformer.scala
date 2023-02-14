@@ -17,46 +17,50 @@
 
 package org.apache.daffodil.layers.runtime1
 
-import org.apache.daffodil.runtime1.layers._
-
 import org.apache.daffodil.io.BoundaryMarkLimitingStream
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
+import org.apache.daffodil.runtime1.layers._
+import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 
-final class Base64MIMELayerCompiler
-  extends LayerCompiler("base64_MIME") {
+final class Base64MIMELayerCompiler extends LayerCompiler("base64_MIME") {
 
-  override def compileLayer(layerCompileInfo: LayerCompileInfo): Base64MIMETransformerFactory = {
+  override def compileLayer(
+    layerCompileInfo: LayerCompileInfo,
+  ): Base64MIMETransformerFactory = {
 
     layerCompileInfo.SDEUnless(
       scala.util.Properties.isJavaAtLeast("1.8"),
-      "Base64 layer support requires Java 8 (aka Java 1.8).")
+      "Base64 layer support requires Java 8 (aka Java 1.8).",
+    )
 
     layerCompileInfo.SDEUnless(
       layerCompileInfo.optLayerBoundaryMarkOptConstantValue.isDefined,
-      "Property dfdlx:layerBoundaryMark was not defined.")
+      "Property dfdlx:layerBoundaryMark was not defined.",
+    )
     layerCompileInfo.SDEUnless(
       layerCompileInfo.optLayerLengthKind.isEmpty ||
         (layerCompileInfo.optLayerLengthKind.get eq LayerLengthKind.BoundaryMark),
       "Only dfdlx:layerLengthKind 'boundaryMark' is supported, but '%s' was specified",
-      layerCompileInfo.optLayerLengthKind.get.toString)
+      layerCompileInfo.optLayerLengthKind.get.toString,
+    )
 
     layerCompileInfo.SDEUnless(
       layerCompileInfo.optLayerJavaCharsetOptConstantValue match {
         case Some(Some(_)) => true
         case _ => false
-      }, "Property dfdlx:layerEncoding must be defined.")
+      },
+      "Property dfdlx:layerEncoding must be defined.",
+    )
 
     val xformer = new Base64MIMETransformerFactory(name)
     xformer
   }
 }
 
-final class Base64MIMETransformerFactory(name: String)
-  extends LayerTransformerFactory(name) {
+final class Base64MIMETransformerFactory(name: String) extends LayerTransformerFactory(name) {
 
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= {
+  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo) = {
     val xformer = new Base64MIMETransformer(name, layerRuntimeInfo)
     xformer
   }
@@ -82,11 +86,14 @@ final class Base64MIMETransformer(name: String, layerRuntimeInfo: LayerRuntimeIn
     b64
   }
 
-  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(
+    state: ParseOrUnparseState,
+    jos: java.io.OutputStream,
+  ) = {
     val javaCharset = layerRuntimeInfo.optLayerCharset(state).get
     val layerBoundaryMark = layerRuntimeInfo.optLayerBoundaryMark(state).get
-    val newJOS = new LayerBoundaryMarkInsertingJavaOutputStream(jos, layerBoundaryMark, javaCharset)
+    val newJOS =
+      new LayerBoundaryMarkInsertingJavaOutputStream(jos, layerBoundaryMark, javaCharset)
     newJOS
   }
 }
-

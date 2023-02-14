@@ -17,18 +17,16 @@
 
 package org.apache.daffodil.core.grammar
 import org.apache.daffodil.core.dsom.Term
-import org.apache.daffodil.core.grammar.primitives._
 import org.apache.daffodil.core.grammar.primitives.MandatoryTextAlignment
+import org.apache.daffodil.core.grammar.primitives._
 import org.apache.daffodil.core.runtime1.TermRuntime1Mixin
 
 /////////////////////////////////////////////////////////////////
 // Common to all Terms (Elements and ModelGroups)
 /////////////////////////////////////////////////////////////////
 
-trait TermGrammarMixin
-  extends AlignedMixin
-  with BitOrderMixin
-  with TermRuntime1Mixin { self: Term =>
+trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1Mixin {
+  self: Term =>
 
   override protected final def grammarContext = this
 
@@ -67,14 +65,14 @@ trait TermGrammarMixin
    * Mandatory text alignment for delimiters
    */
   final lazy val delimMTA = prod(
-    "delimMTA",
-    {
+    "delimMTA", {
       hasDelimiters
-    }) {
-      // This is different from mtaBase because it passes in 'true' for the
-      // last parameter to signify that it is MTA for a delimiter. mtaBase
-      // passes in 'false'
-      MandatoryTextAlignment(this, knownEncodingAlignmentInBits, true)
-    }
+    },
+  ) {
+    // This is different from mtaBase because it passes in 'true' for the
+    // last parameter to signify that it is MTA for a delimiter. mtaBase
+    // passes in 'false'
+    MandatoryTextAlignment(this, knownEncodingAlignmentInBits, true)
+  }
 
 }

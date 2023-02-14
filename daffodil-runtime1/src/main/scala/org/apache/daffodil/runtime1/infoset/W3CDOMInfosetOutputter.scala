@@ -17,24 +17,26 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import javax.xml.parsers.DocumentBuilderFactory
+
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.util.MStackOf
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import org.w3c.dom.Node
-import javax.xml.parsers.DocumentBuilderFactory; 
+import org.w3c.dom.Node;
 
-class W3CDOMInfosetOutputter extends InfosetOutputter
-    with XMLInfosetOutputter {
+class W3CDOMInfosetOutputter extends InfosetOutputter with XMLInfosetOutputter {
 
   private var document: Document = null
   private val stack = new MStackOf[Node]
   private var result: Maybe[Document] = Maybe.Nope
 
-  def reset(): Unit = {// call to reuse these. When first constructed no reset call is necessary.
+  def reset()
+    : Unit = { // call to reuse these. When first constructed no reset call is necessary.
     result = Maybe.Nope
     document = null
     stack.clear
@@ -71,8 +73,7 @@ class W3CDOMInfosetOutputter extends InfosetOutputter
     stack.top.appendChild(elem)
   }
 
-  def endSimple(diSimple: DISimple): Unit = {
-  }
+  def endSimple(diSimple: DISimple): Unit = {}
 
   def startComplex(diComplex: DIComplex): Unit = {
 
@@ -85,13 +86,14 @@ class W3CDOMInfosetOutputter extends InfosetOutputter
     stack.pop
   }
 
-  def startArray(diArray: DIArray): Unit = {
-  }
-  def endArray(diArray: DIArray): Unit = {
-  }
+  def startArray(diArray: DIArray): Unit = {}
+  def endArray(diArray: DIArray): Unit = {}
 
   def getResult(): Document = {
-    Assert.usage(result.isDefined, "No result to get. Must check isError parse result before calling getResult")
+    Assert.usage(
+      result.isDefined,
+      "No result to get. Must check isError parse result before calling getResult",
+    )
     result.get
   }
 
@@ -100,7 +102,7 @@ class W3CDOMInfosetOutputter extends InfosetOutputter
     assert(document != null)
 
     val elem: Element =
-      if(diElement.erd.namedQName.namespace.isNoNamespace) {
+      if (diElement.erd.namedQName.namespace.isNoNamespace) {
         document.createElementNS(null, diElement.erd.name)
       } else {
         document.createElementNS(diElement.erd.namedQName.namespace, diElement.erd.prefixedName)
@@ -114,4 +116,3 @@ class W3CDOMInfosetOutputter extends InfosetOutputter
   }
 
 }
-

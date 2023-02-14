@@ -18,18 +18,25 @@
 package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.dsom.ElementBase
-import org.apache.daffodil.lib.equality.TypeEqual
-import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.core.grammar.EmptyGram
 import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.NamedGram
 import org.apache.daffodil.core.grammar.Terminal
+import org.apache.daffodil.lib.equality.TypeEqual
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
+import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.parsers.CaptureEndOfContentLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.CaptureEndOfValueLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.CaptureStartOfContentLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.CaptureStartOfValueLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.ElementParser
 import org.apache.daffodil.runtime1.processors.parsers.ElementParserInputValueCalc
+import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.runtime1.processors.parsers.Parser
+import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 import org.apache.daffodil.unparsers.runtime1.CaptureEndOfContentLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.CaptureEndOfValueLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.CaptureStartOfContentLengthUnparser
@@ -41,18 +48,11 @@ import org.apache.daffodil.unparsers.runtime1.ElementUnparserInputValueCalc
 import org.apache.daffodil.unparsers.runtime1.ElementUnspecifiedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.ElementUnusedUnparser
 import org.apache.daffodil.unparsers.runtime1.LeftCenteredPaddingUnparser
+import org.apache.daffodil.unparsers.runtime1.NadaUnparser
 import org.apache.daffodil.unparsers.runtime1.OnlyPaddingUnparser
 import org.apache.daffodil.unparsers.runtime1.RightCenteredPaddingUnparser
 import org.apache.daffodil.unparsers.runtime1.RightFillUnparser
 import org.apache.daffodil.unparsers.runtime1.SimpleTypeRetryUnparser
-import org.apache.daffodil.runtime1.processors.unparsers.Unparser
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
-import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.runtime1.processors.parsers.NadaParser
-import org.apache.daffodil.unparsers.runtime1.NadaUnparser
-import org.apache.daffodil.core.grammar.EmptyGram
 
 /**
  * This uber combinator exists because we (currently) do quite different things
@@ -71,15 +71,19 @@ class ElementCombinator(
   eBeforeContent: Gram,
   eValue: Gram,
   eAfterValue: Gram,
-  repTypeElementGram: Gram = EmptyGram
-)
-  extends NamedGram(context)
+  repTypeElementGram: Gram = EmptyGram,
+) extends NamedGram(context)
   with Padded {
 
   override def toString = subComb.toString()
 
-  lazy val subComb = new ElementParseAndUnspecifiedLength(context, eBeforeContent,
-    eValue, eAfterValue, repTypeElementGram)
+  lazy val subComb = new ElementParseAndUnspecifiedLength(
+    context,
+    eBeforeContent,
+    eValue,
+    eAfterValue,
+    repTypeElementGram,
+  )
 
   override lazy val parser: Parser = {
     //
@@ -90,7 +94,8 @@ class ElementCombinator(
     subComb.parser
   }
 
-  private lazy val uSetVars = context.setVariableStatements.map(_.gram(context).unparser).toArray.filterNot { _.isEmpty }
+  private lazy val uSetVars =
+    context.setVariableStatements.map(_.gram(context).unparser).toArray.filterNot { _.isEmpty }
 
   private lazy val eBeforeUnparser: Maybe[Unparser] =
     if (eBeforeContent.isEmpty) Maybe.Nope
@@ -115,11 +120,14 @@ class ElementCombinator(
         eBeforeUnparser,
         eUnparser,
         eAfterUnparser,
-        context.ovcCompiledExpression)
-    } else if ((context.lengthKind _eq_ LengthKind.Explicit) ||
+        context.ovcCompiledExpression,
+      )
+    } else if (
+      (context.lengthKind._eq_(LengthKind.Explicit)) ||
       (context.isSimpleType &&
-        (context.lengthKind _eq_ LengthKind.Implicit) &&
-        (context.impliedRepresentation _eq_ Representation.Text))) {
+        (context.lengthKind._eq_(LengthKind.Implicit)) &&
+        (context.impliedRepresentation._eq_(Representation.Text)))
+    ) {
 
       new ElementSpecifiedLengthUnparser(
         context.erd,
@@ -128,7 +136,7 @@ class ElementCombinator(
         eBeforeUnparser,
         eUnparser,
         eAfterUnparser,
-        eReptypeUnparser
+        eReptypeUnparser,
       )
     } else {
       subComb.unparser
@@ -138,8 +146,11 @@ class ElementCombinator(
 }
 
 case class ElementUnused(ctxt: ElementBase)
-  extends Terminal(ctxt, ctxt.shouldAddFill ||
-    ctxt.shouldCheckExcessLength) {
+  extends Terminal(
+    ctxt,
+    ctxt.shouldAddFill ||
+      ctxt.shouldCheckExcessLength,
+  ) {
   override def parser = new NadaParser(ctxt.erd)
 
   override lazy val unparser: Unparser = new ElementUnusedUnparser(
@@ -147,7 +158,8 @@ case class ElementUnused(ctxt: ElementBase)
     ctxt.maybeUnparseTargetLengthInBitsEv.get,
     ctxt.maybeLengthEv,
     ctxt.maybeCharsetEv,
-    ctxt.maybeLiteralNilEv)
+    ctxt.maybeLiteralNilEv,
+  )
 }
 
 case class OnlyPadding(ctxt: ElementBase)
@@ -165,7 +177,8 @@ case class OnlyPadding(ctxt: ElementBase)
       ctxt.maybeLengthEv,
       ctxt.maybeCharsetEv,
       ctxt.maybeLiteralNilEv,
-      unparsingPadChar)
+      unparsingPadChar,
+    )
   }
 }
 
@@ -181,7 +194,8 @@ case class RightCenteredPadding(ctxt: ElementBase)
       ctxt.maybeLengthEv,
       ctxt.maybeCharsetEv,
       ctxt.maybeLiteralNilEv,
-      unparsingPadChar)
+      unparsingPadChar,
+    )
 }
 
 case class LeftCenteredPadding(ctxt: ElementBase)
@@ -196,12 +210,16 @@ case class LeftCenteredPadding(ctxt: ElementBase)
       ctxt.maybeLengthEv,
       ctxt.maybeCharsetEv,
       ctxt.maybeLiteralNilEv,
-      unparsingPadChar)
+      unparsingPadChar,
+    )
 }
 
 case class RightFill(ctxt: ElementBase)
-  extends Terminal(ctxt, ctxt.shouldAddFill ||
-    ctxt.shouldCheckExcessLength)
+  extends Terminal(
+    ctxt,
+    ctxt.shouldAddFill ||
+      ctxt.shouldCheckExcessLength,
+  )
   with Padded {
   override def parser = new NadaParser(ctxt.erd)
 
@@ -211,11 +229,11 @@ case class RightFill(ctxt: ElementBase)
     ctxt.maybeLengthEv,
     ctxt.maybeCharsetEv,
     ctxt.maybeLiteralNilEv,
-    unparsingPadChar)
+    unparsingPadChar,
+  )
 }
 
-case class SimpleTypeRetry(ctxt: ElementBase, v: Gram)
-  extends Terminal(ctxt, true) {
+case class SimpleTypeRetry(ctxt: ElementBase, v: Gram) extends Terminal(ctxt, true) {
   override def parser = v.parser
 
   // When unparsing, the target length of this simple type might not actually
@@ -232,11 +250,11 @@ case class SimpleTypeRetry(ctxt: ElementBase, v: Gram)
     }
   }
 
-  override def unparser = new SimpleTypeRetryUnparser(ctxt.erd, maybeExactTargetLength, v.unparser)
+  override def unparser =
+    new SimpleTypeRetryUnparser(ctxt.erd, maybeExactTargetLength, v.unparser)
 }
 
-case class CaptureContentLengthStart(ctxt: ElementBase)
-  extends Terminal(ctxt, true) {
+case class CaptureContentLengthStart(ctxt: ElementBase) extends Terminal(ctxt, true) {
   override def parser =
     if (ctxt.shouldCaptureParseContentLength)
       new CaptureStartOfContentLengthParser(ctxt.erd)
@@ -250,8 +268,7 @@ case class CaptureContentLengthStart(ctxt: ElementBase)
       new NadaUnparser(ctxt.erd)
 }
 
-case class CaptureContentLengthEnd(ctxt: ElementBase)
-  extends Terminal(ctxt, true) {
+case class CaptureContentLengthEnd(ctxt: ElementBase) extends Terminal(ctxt, true) {
   override def parser =
     if (ctxt.shouldCaptureParseContentLength)
       new CaptureEndOfContentLengthParser(ctxt.erd)
@@ -265,8 +282,7 @@ case class CaptureContentLengthEnd(ctxt: ElementBase)
       new NadaUnparser(ctxt.erd)
 }
 
-case class CaptureValueLengthStart(ctxt: ElementBase)
-  extends Terminal(ctxt, true) {
+case class CaptureValueLengthStart(ctxt: ElementBase) extends Terminal(ctxt, true) {
   override def parser =
     if (ctxt.shouldCaptureParseValueLength)
       new CaptureStartOfValueLengthParser(ctxt.erd)
@@ -280,8 +296,7 @@ case class CaptureValueLengthStart(ctxt: ElementBase)
       new NadaUnparser(ctxt.erd)
 }
 
-case class CaptureValueLengthEnd(ctxt: ElementBase)
-  extends Terminal(ctxt, true) {
+case class CaptureValueLengthEnd(ctxt: ElementBase) extends Terminal(ctxt, true) {
   override def parser =
     if (ctxt.shouldCaptureParseValueLength)
       new CaptureEndOfValueLengthParser(ctxt.erd)
@@ -295,12 +310,13 @@ case class CaptureValueLengthEnd(ctxt: ElementBase)
       new NadaUnparser(ctxt.erd)
 }
 
-class ElementParseAndUnspecifiedLength(override val context: ElementBase,
-                                       val eBeforeGram: Gram,
-                                       val eGram: Gram,
-                                       val eAfterGram: Gram,
-                                       val repTypeElementGram: Gram)
-  extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram, repTypeElementGram) {
+class ElementParseAndUnspecifiedLength(
+  override val context: ElementBase,
+  val eBeforeGram: Gram,
+  val eGram: Gram,
+  val eAfterGram: Gram,
+  val repTypeElementGram: Gram,
+) extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram, repTypeElementGram) {
 
   lazy val parser: Parser =
     if (context.isRepresented)
@@ -315,7 +331,7 @@ class ElementParseAndUnspecifiedLength(override val context: ElementBase,
         eBeforeParser,
         eParser,
         eAfterParser,
-        eRepTypeParser
+        eRepTypeParser,
       )
     else
       new ElementParserInputValueCalc(
@@ -328,14 +344,28 @@ class ElementParseAndUnspecifiedLength(override val context: ElementBase,
         testAssert,
         eBeforeParser,
         eParser,
-        eAfterParser)
+        eAfterParser,
+      )
 
   override lazy val unparser: Unparser = {
     if (context.isRepresented) {
       if (context.isOutputValueCalc) {
-        new ElementOVCUnspecifiedLengthUnparser(context.erd, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser)
+        new ElementOVCUnspecifiedLengthUnparser(
+          context.erd,
+          uSetVar,
+          eBeforeUnparser,
+          eUnparser,
+          eAfterUnparser,
+        )
       } else {
-        new ElementUnspecifiedLengthUnparser(context.erd, uSetVar, eBeforeUnparser, eUnparser, eAfterUnparser, eRepTypeUnparser)
+        new ElementUnspecifiedLengthUnparser(
+          context.erd,
+          uSetVar,
+          eBeforeUnparser,
+          eUnparser,
+          eAfterUnparser,
+          eRepTypeUnparser,
+        )
       }
     } else {
       // dfdl:inputValueCalc case.
@@ -346,10 +376,16 @@ class ElementParseAndUnspecifiedLength(override val context: ElementBase,
   }
 }
 
-abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eGram: Gram, eGramAfter: Gram, repTypeElementGram: Gram)
-  extends NamedGram(context) {
+abstract class ElementCombinatorBase(
+  context: ElementBase,
+  eGramBefore: Gram,
+  eGram: Gram,
+  eGramAfter: Gram,
+  repTypeElementGram: Gram,
+) extends NamedGram(context) {
 
-  override def toString: String = "<element name='" + name + "'>" + eGram.toString + "</element>"
+  override def toString: String =
+    "<element name='" + name + "'>" + eGram.toString + "</element>"
 
   // The order of things matters in some cases, so to be consistent we'll always use the
   // same order even when it doesn't matter
@@ -371,8 +407,12 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
       pd.head.gram(context).maybeParser
     }
   }
-  lazy val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram(context).parser).toArray
-  lazy val pSetVar = context.setVariableStatements.map(_.gram(context).parser).toArray.filterNot { _.isEmpty }
+  lazy val patAssert = context.assertStatements
+    .filter(_.testKind == TestKind.Pattern)
+    .map(_.gram(context).parser)
+    .toArray
+  lazy val pSetVar =
+    context.setVariableStatements.map(_.gram(context).parser).toArray.filterNot { _.isEmpty }
   lazy val testDiscrim = {
     val td = context.discriminatorStatements.filter(_.testKind == TestKind.Expression)
     Assert.invariant(td.size <= 1)
@@ -382,7 +422,10 @@ abstract class ElementCombinatorBase(context: ElementBase, eGramBefore: Gram, eG
       td.head.gram(context).maybeParser
     }
   }
-  lazy val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram(context).parser).toArray
+  lazy val testAssert = context.assertStatements
+    .filter(_.testKind == TestKind.Expression)
+    .map(_.gram(context).parser)
+    .toArray
 
   lazy val eBeforeParser: Maybe[Parser] = eGramBefore.maybeParser
 

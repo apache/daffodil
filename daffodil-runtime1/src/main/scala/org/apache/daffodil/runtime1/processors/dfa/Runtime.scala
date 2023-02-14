@@ -63,7 +63,11 @@ trait DFA {
    */
   def run(r: Registers): Unit
 
-  final protected def runLoop(r: Registers, terminateLoopOnState: Int, finalStatus: StateKind.StateKind): Unit = {
+  final protected def runLoop(
+    r: Registers,
+    terminateLoopOnState: Int,
+    finalStatus: StateKind.StateKind,
+  ): Unit = {
     Assert.invariant(r.actionNum >= 0)
     r.status = StateKind.Parsing
     while (r.state != terminateLoopOnState) { // Terminates on FinalState
@@ -80,24 +84,27 @@ trait DFA {
 
 }
 
-final class DFADelimiterImpl(override val delimType: DelimiterTextType.Type, val states: Array[State], val lookingFor: String, override val location: SchemaFileLocation)
-  extends DFADelimiter
+final class DFADelimiterImpl(
+  override val delimType: DelimiterTextType.Type,
+  val states: Array[State],
+  val lookingFor: String,
+  override val location: SchemaFileLocation,
+) extends DFADelimiter
   with Serializable {
 
   def unparseValue: String = Assert.invariantFailed("Parser should not ask for unparseValue")
 
 }
-final class DFADelimiterImplUnparse(override val delimType: DelimiterTextType.Type, val states: Array[State], val lookingFor: String, val unparseValue: String, override val location: SchemaFileLocation)
-  extends DFADelimiter
-  with Serializable {
+final class DFADelimiterImplUnparse(
+  override val delimType: DelimiterTextType.Type,
+  val states: Array[State],
+  val lookingFor: String,
+  val unparseValue: String,
+  override val location: SchemaFileLocation,
+) extends DFADelimiter
+  with Serializable {}
 
-}
-
-final class DFAFieldImpl(val states: Array[State])
-  extends DFAField
-  with Serializable {
-
-}
+final class DFAFieldImpl(val states: Array[State]) extends DFAField with Serializable {}
 
 /**
  * Reflects the status of the DFA's State.
@@ -117,6 +124,7 @@ object StateKind extends Enumeration {
 }
 
 trait DFAField extends DFA {
+
   /**
    * Runs the DFA. Terminates when
    * some state has an action that transitions
@@ -129,7 +137,8 @@ trait DFADelimiter extends DFA {
   def delimType: DelimiterTextType.Type
   def lookingFor: String
   def location: SchemaFileLocation
-  override def toString(): String = "<DFA type='%s' lookingFor='%s' />".format(delimType, lookingFor)
+  override def toString(): String =
+    "<DFA type='%s' lookingFor='%s' />".format(delimType, lookingFor)
 
   final override def run(r: Registers): Unit = runLoop(r, DFA.FinalState, StateKind.Succeeded)
 

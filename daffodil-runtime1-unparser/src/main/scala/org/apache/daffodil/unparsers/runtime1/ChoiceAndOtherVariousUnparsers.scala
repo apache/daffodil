@@ -17,19 +17,18 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.RuntimeData
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.runtime1.processors._
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 case class ChoiceBranchMap(
   lookupTable: Map[ChoiceBranchEvent, Unparser],
-  unmappedDefault: Option[Unparser])
-  extends Serializable {
+  unmappedDefault: Option[Unparser],
+) extends Serializable {
 
   def get(cbe: ChoiceBranchEvent): Maybe[Unparser] = {
     val fromTable = lookupTable.get(cbe)
@@ -63,21 +62,20 @@ case class ChoiceBranchMap(
  * does nothing, but gives the ChoiceCombinatorUnparser something that it can
  * use.
  */
-class ChoiceBranchEmptyUnparser(val context: RuntimeData)
-  extends PrimUnparserNoData {
+class ChoiceBranchEmptyUnparser(val context: RuntimeData) extends PrimUnparserNoData {
 
   override lazy val runtimeDependencies = Vector()
 
   def unparse(state: UState): Unit = {
-    //do nothing
+    // do nothing
   }
 }
 
 class ChoiceCombinatorUnparser(
   mgrd: ModelGroupRuntimeData,
   choiceBranchMap: ChoiceBranchMap,
-  choiceLengthInBits: MaybeInt)
-  extends CombinatorUnparser(mgrd)
+  choiceLengthInBits: MaybeInt,
+) extends CombinatorUnparser(mgrd)
   with ToBriefXMLImpl {
   override def nom = "Choice"
 
@@ -106,19 +104,26 @@ class ChoiceCombinatorUnparser(
 
       val maybeChildUnparser = choiceBranchMap.get(key)
       if (maybeChildUnparser.isEmpty) {
-        UnparseError(One(mgrd.schemaFileLocation), One(state.currentLocation),
+        UnparseError(
+          One(mgrd.schemaFileLocation),
+          One(state.currentLocation),
           "Found next element %s, but expected one of %s.",
           key.qname.toExtendedSyntax,
-          choiceBranchMap.keys.map {
-            _.qname.toExtendedSyntax
-          }.mkString(", "))
+          choiceBranchMap.keys
+            .map {
+              _.qname.toExtendedSyntax
+            }
+            .mkString(", "),
+        )
       }
       val childUnparser = maybeChildUnparser.get
       state.popTRD(mgrd)
       state.pushTRD(childUnparser.context.asInstanceOf[TermRuntimeData])
       if (choiceLengthInBits.isDefined) {
-        val suspendableOp = new ChoiceUnusedUnparserSuspendableOperation(mgrd, choiceLengthInBits.get)
-        val choiceUnusedUnparser = new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get, suspendableOp)
+        val suspendableOp =
+          new ChoiceUnusedUnparserSuspendableOperation(mgrd, choiceLengthInBits.get)
+        val choiceUnusedUnparser =
+          new ChoiceUnusedUnparser(mgrd, choiceLengthInBits.get, suspendableOp)
 
         suspendableOp.captureDOSStartForChoiceUnused(state)
         childUnparser.unparse1(state)
@@ -137,12 +142,13 @@ class DelimiterStackUnparser(
   separatorOpt: Maybe[SeparatorUnparseEv],
   terminatorOpt: Maybe[TerminatorUnparseEv],
   ctxt: TermRuntimeData,
-  bodyUnparser: Unparser)
-  extends CombinatorUnparser(ctxt) {
+  bodyUnparser: Unparser,
+) extends CombinatorUnparser(ctxt) {
   override def nom = "DelimiterStack"
 
   override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
+    if (depthLimit == 0) "..."
+    else
       "<DelimiterStack initiator='" + initiatorOpt +
         "' separator='" + separatorOpt +
         "' terminator='" + terminatorOpt + "'>" +
@@ -152,13 +158,20 @@ class DelimiterStackUnparser(
 
   override lazy val childProcessors = Vector(bodyUnparser)
 
-  override lazy val runtimeDependencies = (initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList).toVector
+  override lazy val runtimeDependencies =
+    (initiatorOpt.toList ++ separatorOpt.toList ++ terminatorOpt.toList).toVector
 
   def unparse(state: UState): Unit = {
     // Evaluate Delimiters
-    val init = if (initiatorOpt.isDefined) initiatorOpt.get.evaluate(state) else EmptyDelimiterStackUnparseNode.empty
-    val sep = if (separatorOpt.isDefined) separatorOpt.get.evaluate(state) else EmptyDelimiterStackUnparseNode.empty
-    val term = if (terminatorOpt.isDefined) terminatorOpt.get.evaluate(state) else EmptyDelimiterStackUnparseNode.empty
+    val init =
+      if (initiatorOpt.isDefined) initiatorOpt.get.evaluate(state)
+      else EmptyDelimiterStackUnparseNode.empty
+    val sep =
+      if (separatorOpt.isDefined) separatorOpt.get.evaluate(state)
+      else EmptyDelimiterStackUnparseNode.empty
+    val term =
+      if (terminatorOpt.isDefined) terminatorOpt.get.evaluate(state)
+      else EmptyDelimiterStackUnparseNode.empty
 
     val node = DelimiterStackUnparseNode(init, sep, term)
 
@@ -170,8 +183,11 @@ class DelimiterStackUnparser(
   }
 }
 
-class DynamicEscapeSchemeUnparser(escapeScheme: EscapeSchemeUnparseEv, ctxt: TermRuntimeData, bodyUnparser: Unparser)
-  extends CombinatorUnparser(ctxt) {
+class DynamicEscapeSchemeUnparser(
+  escapeScheme: EscapeSchemeUnparseEv,
+  ctxt: TermRuntimeData,
+  bodyUnparser: Unparser,
+) extends CombinatorUnparser(ctxt) {
   override def nom = "EscapeSchemeStack"
 
   override lazy val childProcessors = Vector(bodyUnparser)

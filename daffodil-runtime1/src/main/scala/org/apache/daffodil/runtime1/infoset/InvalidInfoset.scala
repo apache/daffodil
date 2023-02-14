@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.runtime1.infoset
 
-class InvalidInfosetException(message: String)
-  extends Exception(message)
+class InvalidInfosetException(message: String) extends Exception(message)
 
 class NonTextFoundInSimpleContentException(details: String)
   extends InvalidInfosetException("Illegal content for simple element: " + details)
 
 class IllegalContentWhereEventExpected(details: String)
-  extends InvalidInfosetException("Illegal content where start or end event expected: " + details)
+  extends InvalidInfosetException(
+    "Illegal content where start or end event expected: " + details,
+  )

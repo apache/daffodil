@@ -55,7 +55,6 @@ trait Indentable {
    */
   private var indentLength: Int = 0
 
-
   /**
    * Reset the indentation level to zero.
    */
@@ -66,7 +65,7 @@ trait Indentable {
   /**
    * Increase the indentation level by one.
    */
-  final def incrementIndentation(): Unit = { 
+  final def incrementIndentation(): Unit = {
     indentLength += indentSize
     if (indentString.length < indentLength) {
       // double the size of the indent string if our indentation level got

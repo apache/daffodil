@@ -23,24 +23,26 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * Base 4 aka Quarternary
  */
 
-object BitsCharsetBase4LSBF extends {
-  override val name = "X-DFDL-BASE4-LSBF"
-  override val bitWidthOfACodeUnit = 2
-  override val decodeString = "0123"
-  override val replacementCharCode = 0x0
-  override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetBase4LSBF
+  extends {
+    override val name = "X-DFDL-BASE4-LSBF"
+    override val bitWidthOfACodeUnit = 2
+    override val decodeString = "0123"
+    override val replacementCharCode = 0x0
+    override val requiredBitOrder = BitOrder.LeastSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
-final class BitsCharsetBase4LSBFDefinition
-  extends BitsCharsetDefinition(BitsCharsetBase4LSBF)
+final class BitsCharsetBase4LSBFDefinition extends BitsCharsetDefinition(BitsCharsetBase4LSBF)
 
-object BitsCharsetBase4MSBF extends {
-  override val name = "X-DFDL-BASE4-MSBF"
-  override val bitWidthOfACodeUnit = 2
-  override val decodeString = "0123"
-  override val replacementCharCode = 0x0
-  override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetBase4MSBF
+  extends {
+    override val name = "X-DFDL-BASE4-MSBF"
+    override val bitWidthOfACodeUnit = 2
+    override val decodeString = "0123"
+    override val replacementCharCode = 0x0
+    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
-final class BitsCharsetBase4MSBFDefinition
-  extends BitsCharsetDefinition(BitsCharsetBase4MSBF)
+final class BitsCharsetBase4MSBFDefinition extends BitsCharsetDefinition(BitsCharsetBase4MSBF)

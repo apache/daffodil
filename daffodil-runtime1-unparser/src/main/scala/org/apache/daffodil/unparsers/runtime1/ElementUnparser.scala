@@ -17,11 +17,13 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.Maybe._
+import org.apache.daffodil.lib.util.MaybeBoolean
+import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.dpath.SuspendableExpression
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
@@ -29,10 +31,7 @@ import org.apache.daffodil.runtime1.infoset.RetryableException
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util.MaybeBoolean
-import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 /**
  * Elements that, when unparsing, have no length specified.
@@ -45,14 +44,15 @@ class ElementUnspecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser],
-  eReptypeUnparser: Maybe[Unparser])
-  extends ElementUnparserBase(
+  eReptypeUnparser: Maybe[Unparser],
+) extends ElementUnparserBase(
     erd,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    eReptypeUnparser)
+    eReptypeUnparser,
+  )
   with RegularElementUnparserStartEndStrategy
   with RepMoveMixin {
 
@@ -76,16 +76,8 @@ sealed trait RepMoveMixin {
  * whether to place separators, and there should not be any separator
  * corresponding to an IVC element.
  */
-class ElementUnparserInputValueCalc(
-  erd: ElementRuntimeData,
-  setVarUnparsers: Array[Unparser])
-  extends ElementUnparserBase(
-    erd,
-    setVarUnparsers,
-    Nope,
-    Nope,
-    Nope,
-    Nope)
+class ElementUnparserInputValueCalc(erd: ElementRuntimeData, setVarUnparsers: Array[Unparser])
+  extends ElementUnparserBase(erd, setVarUnparsers, Nope, Nope, Nope, Nope)
   with RegularElementUnparserStartEndStrategy {
 
   override lazy val runtimeDependencies = Vector()
@@ -105,14 +97,15 @@ class ElementOVCUnspecifiedLengthUnparser(
   setVarUnparsers: Array[Unparser],
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
-  eAfterUnparser: Maybe[Unparser])
-  extends ElementUnparserBase(
+  eAfterUnparser: Maybe[Unparser],
+) extends ElementUnparserBase(
     erd,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    Nope)
+    Nope,
+  )
   with OVCStartEndStrategy
   with RepMoveMixin {
 
@@ -133,8 +126,8 @@ sealed abstract class ElementUnparserBase(
   val eBeforeUnparser: Maybe[Unparser],
   val eUnparser: Maybe[Unparser],
   val eAfterUnparser: Maybe[Unparser],
-  val eReptypeUnparser: Maybe[Unparser])
-  extends CombinatorUnparser(erd)
+  val eReptypeUnparser: Maybe[Unparser],
+) extends CombinatorUnparser(erd)
   with RepMoveMixin
   with ElementUnparserStartEndStrategy {
 
@@ -144,12 +137,16 @@ sealed abstract class ElementUnparserBase(
   private val name = erd.name
 
   override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
+    if (depthLimit == 0) "..."
+    else
       "<Element name='" + name + "'>" +
-        (if (eBeforeUnparser.isDefined) eBeforeUnparser.value.toBriefXML(depthLimit - 1) else "") +
-        (if (eReptypeUnparser.isDefined) eReptypeUnparser.value.toBriefXML(depthLimit - 1) else "") +
+        (if (eBeforeUnparser.isDefined) eBeforeUnparser.value.toBriefXML(depthLimit - 1)
+         else "") +
+        (if (eReptypeUnparser.isDefined) eReptypeUnparser.value.toBriefXML(depthLimit - 1)
+         else "") +
         (if (eUnparser.isDefined) eUnparser.value.toBriefXML(depthLimit - 1) else "") +
-        (if (eAfterUnparser.isDefined) eAfterUnparser.value.toBriefXML(depthLimit - 1) else "") +
+        (if (eAfterUnparser.isDefined) eAfterUnparser.value.toBriefXML(depthLimit - 1)
+         else "") +
         setVarUnparsers.map { _.toBriefXML(depthLimit - 1) }.mkString +
         "</Element>"
   }
@@ -290,21 +287,24 @@ class ElementSpecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser],
-  eReptypeUnparser: Maybe[Unparser])
-  extends ElementUnparserBase(
+  eReptypeUnparser: Maybe[Unparser],
+) extends ElementUnparserBase(
     context,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    eReptypeUnparser)
+    eReptypeUnparser,
+  )
   with RegularElementUnparserStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
   override lazy val runtimeDependencies = maybeTargetLengthEv.toList.toVector
 
   override def runContentUnparser(state: UState): Unit = {
-    computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
+    computeTargetLength(
+      state,
+    ) // must happen before run() so that we can take advantage of knowing the length
     super.runContentUnparser(state) // setup unparsing, which will block for no valu
   }
 
@@ -315,12 +315,15 @@ class ElementSpecifiedLengthUnparser(
  */
 class ElementOVCSpecifiedLengthUnparserSuspendableExpression(
   callingUnparser: ElementOVCSpecifiedLengthUnparser,
-  override val expr: CompiledExpression[AnyRef])
-  extends SuspendableExpression {
+  override val expr: CompiledExpression[AnyRef],
+) extends SuspendableExpression {
 
   override def rd = callingUnparser.erd
 
-  override final protected def processExpressionResult(state: UState, v: DataValuePrimitive): Unit = {
+  override final protected def processExpressionResult(
+    state: UState,
+    v: DataValuePrimitive,
+  ): Unit = {
     val diSimple = state.currentInfosetNode.asSimple
 
     diSimple.setDataValue(v)
@@ -343,14 +346,15 @@ class ElementOVCSpecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser],
-  expr: CompiledExpression[AnyRef])
-  extends ElementUnparserBase(
+  expr: CompiledExpression[AnyRef],
+) extends ElementUnparserBase(
     context,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    Nope)
+    Nope,
+  )
   with OVCStartEndStrategy
   with ElementSpecifiedLengthMixin {
 
@@ -362,7 +366,9 @@ class ElementOVCSpecifiedLengthUnparser(
   Assert.invariant(context.dpathElementCompileInfo.isOutputValueCalc)
 
   override def runContentUnparser(state: UState): Unit = {
-    computeTargetLength(state) // must happen before run() so that we can take advantage of knowing the length
+    computeTargetLength(
+      state,
+    ) // must happen before run() so that we can take advantage of knowing the length
     suspendableExpression.run(state) // run the expression. It might or might not have a value.
     super.runContentUnparser(state) // setup unparsing, which will block for no valu
   }
@@ -373,6 +379,7 @@ class ElementOVCSpecifiedLengthUnparser(
  * specifies the way the element will consume infoset events,
  */
 sealed trait ElementUnparserStartEndStrategy {
+
   /**
    * Consumes the required infoset events and changes context so that the
    * element's DIElement node is the context element.
@@ -393,17 +400,17 @@ sealed trait ElementUnparserStartEndStrategy {
   def runtimeDependencies: Vector[Evaluatable[AnyRef]]
 }
 
-sealed trait RegularElementUnparserStartEndStrategy
-  extends ElementUnparserStartEndStrategy {
+sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStartEndStrategy {
+
   /**
    * Consumes the required infoset events and changes context so that the
    * element's DIElement node is the context element.
    */
   final override protected def unparseBegin(state: UState): Unit = {
     if (erd.isQuasiElement) {
-      //Quasi elements are used for TypeValueCalc, and have no corresponding events in the infoset inputter
-      //The parent parser will push a DIElement for us to consume containing the logical value, so we do
-      //not need to do so here
+      // Quasi elements are used for TypeValueCalc, and have no corresponding events in the infoset inputter
+      // The parent parser will push a DIElement for us to consume containing the logical value, so we do
+      // not need to do so here
       Assert.invariant(state.currentInfosetNode.isSimple)
       Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
       ()
@@ -417,8 +424,13 @@ sealed trait RegularElementUnparserStartEndStrategy
           if (!event.isStart || event.erd != erd) {
             // it's not a start element event, or it's a start element event, but for a different element.
             // this indicates that the incoming infoset (as events) doesn't match the schema
-            UnparseError(Nope, One(state.currentLocation), "Expected element start event for %s, but received %s.",
-              erd.namedQName.toExtendedSyntax, event)
+            UnparseError(
+              Nope,
+              One(state.currentLocation),
+              "Expected element start event for %s, but received %s.",
+              erd.namedQName.toExtendedSyntax,
+              event,
+            )
           }
           event.info.element
         } else {
@@ -437,9 +449,13 @@ sealed trait RegularElementUnparserStartEndStrategy
         Assert.invariant(!parentComplex.isFinal)
         if (parentComplex.maybeIsNilled == MaybeBoolean.True) {
           // cannot add content to a nilled complex element
-          UnparseError(One(erd.schemaFileLocation), Nope, "Nilled complex element %s has content from %s",
+          UnparseError(
+            One(erd.schemaFileLocation),
+            Nope,
+            "Nilled complex element %s has content from %s",
             parentComplex.erd.namedQName.toExtendedSyntax,
-            newElem.erd.namedQName.toExtendedSyntax)
+            newElem.erd.namedQName.toExtendedSyntax,
+          )
         }
 
         // We are about to add a child to this complex element. Before we do
@@ -452,7 +468,10 @@ sealed trait RegularElementUnparserStartEndStrategy
           val lastChild = lastChildMaybe.get
           if (lastChild.isArray && (lastChild.erd ne newElem.erd)) {
             lastChild.isFinal = true
-            parentComplex.freeChildIfNoLongerNeeded(parentComplex.numChildren - 1, state.releaseUnneededInfoset)
+            parentComplex.freeChildIfNoLongerNeeded(
+              parentComplex.numChildren - 1,
+              state.releaseUnneededInfoset,
+            )
           }
         }
 
@@ -476,8 +495,8 @@ sealed trait RegularElementUnparserStartEndStrategy
    */
   final override protected def unparseEnd(state: UState): Unit = {
     if (erd.isQuasiElement) {
-      //Quasi elements are used for TypeValueCalc, and have no corresponding events in the infoset inputter
-      //The parent parser will handle pushing and poping the Infoset, so we do not need to do anything here.
+      // Quasi elements are used for TypeValueCalc, and have no corresponding events in the infoset inputter
+      // The parent parser will handle pushing and poping the Infoset, so we do not need to do anything here.
       Assert.invariant(state.currentInfosetNode.isSimple)
       Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
       ()
@@ -489,8 +508,13 @@ sealed trait RegularElementUnparserStartEndStrategy
         if (!event.isEnd || event.erd != erd) {
           // it's not an end-element event, or it's an end element event, but for a different element.
           // this indicates that the incoming infoset (as events) doesn't match the schema
-          UnparseError(Nope, One(state.currentLocation), "Expected element end event for %s, but received %s.",
-            erd.namedQName.toExtendedSyntax, event)
+          UnparseError(
+            Nope,
+            One(state.currentLocation),
+            "Expected element end event for %s, but received %s.",
+            erd.namedQName.toExtendedSyntax,
+            event,
+          )
         }
       }
 
@@ -517,7 +541,10 @@ sealed trait RegularElementUnparserStartEndStrategy
       val curContainer =
         if (cur.erd.isArray) cur.diParent.maybeLastChild.get
         else cur.diParent
-      curContainer.freeChildIfNoLongerNeeded(curContainer.numChildren - 1, state.releaseUnneededInfoset)
+      curContainer.freeChildIfNoLongerNeeded(
+        curContainer.numChildren - 1,
+        state.releaseUnneededInfoset,
+      )
 
       if (state.currentInfosetNodeStack.isEmpty) {
         // If there is nothing else on the infoset stack after popping off the
@@ -535,13 +562,12 @@ sealed trait RegularElementUnparserStartEndStrategy
   }
 
   final override protected def captureRuntimeValuedExpressionValues(ustate: UState): Unit = {
-    //do nothing
+    // do nothing
   }
 
 }
 
-trait OVCStartEndStrategy
-  extends ElementUnparserStartEndStrategy {
+trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
 
   /**
    * For OVC, the behavior w.r.t. consuming infoset events is different.
@@ -590,7 +616,10 @@ trait OVCStartEndStrategy
       val lastChild = lastChildMaybe.get
       if (lastChild.isArray) {
         lastChild.isFinal = true
-        parentComplex.freeChildIfNoLongerNeeded(parentComplex.numChildren - 1, state.releaseUnneededInfoset)
+        parentComplex.freeChildIfNoLongerNeeded(
+          parentComplex.numChildren - 1,
+          state.releaseUnneededInfoset,
+        )
       }
     }
 
@@ -606,7 +635,10 @@ trait OVCStartEndStrategy
     // arrays, so we can directly get the diParent to get the container DINode
     val ovcElem = state.currentInfosetNodeStack.pop
     val ovcContainer = ovcElem.get.diParent
-    ovcContainer.freeChildIfNoLongerNeeded(ovcContainer.numChildren - 1, state.releaseUnneededInfoset)
+    ovcContainer.freeChildIfNoLongerNeeded(
+      ovcContainer.numChildren - 1,
+      state.releaseUnneededInfoset,
+    )
 
     if (state.currentInfosetNodeStack.isEmpty) {
       // If there is nothing else on the infoset stack after popping off the
@@ -684,7 +716,9 @@ trait OVCStartEndStrategy
 
     runtimeDependencies.foreach { dep =>
       try {
-        dep.evaluate(state) // these evaluations will force dependencies of the dependencies. So we just do 1 tier, not a tree walk.
+        dep.evaluate(
+          state,
+        ) // these evaluations will force dependencies of the dependencies. So we just do 1 tier, not a tree walk.
       } catch {
         case _: RetryableException => ()
       }

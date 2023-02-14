@@ -17,19 +17,18 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import scala.xml.Comment
+import scala.xml.Elem
+import scala.xml.Node
+import scala.xml.ProcInstr
+import scala.xml.Text
+
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
-import scala.xml.Elem
-import scala.xml.Text
-import scala.xml.Node
-import scala.xml.ProcInstr
-import scala.xml.Comment
-
-class ScalaXMLInfosetInputter(rootNode: Node)
-  extends InfosetInputter {
+class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
 
   /**
    * This stack represents the stack of elements that have been visited. Each
@@ -73,7 +72,10 @@ class ScalaXMLInfosetInputter(rootNode: Node)
 
   override def getNamespaceURI(): String = stack.top._1.namespace
 
-  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
+  override def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String = {
     val text = {
       val sb = new StringBuilder()
       val iter: Iterator[Node] = stack.top._2
@@ -97,8 +99,7 @@ class ScalaXMLInfosetInputter(rootNode: Node)
             sb.append(atom.text)
           case er: scala.xml.EntityRef =>
             er.text.addString(sb)
-          case x => throw new NonTextFoundInSimpleContentException(
-            stack.top._1.label)
+          case x => throw new NonTextFoundInSimpleContentException(stack.top._1.label)
         }
       }
       val strWithEscapes = sb.toString()
@@ -107,7 +108,7 @@ class ScalaXMLInfosetInputter(rootNode: Node)
     }
     val result = {
       if (primType.isInstanceOf[NodeInfo.String.Kind]) {
-          XMLUtils.remapPUAToXMLIllegalCharacters(text)
+        XMLUtils.remapPUAToXMLIllegalCharacters(text)
       } else {
         text
       }
@@ -124,7 +125,9 @@ class ScalaXMLInfosetInputter(rootNode: Node)
       } else {
         val nilAttrValueSeq = nilAttrValueOpt.get
         if (nilAttrValueSeq.length > 1) {
-          throw new InvalidInfosetException("multiple xsi:nil properties for element " + elem.label)
+          throw new InvalidInfosetException(
+            "multiple xsi:nil properties for element " + elem.label,
+          )
         }
         val nilAttrValue = nilAttrValueSeq.head.toString
         if (nilAttrValue == "true" || nilAttrValue == "1") {
@@ -132,7 +135,9 @@ class ScalaXMLInfosetInputter(rootNode: Node)
         } else if (nilAttrValue == "false" || nilAttrValue == "0") {
           MaybeBoolean(false)
         } else {
-          throw new InvalidInfosetException("xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.label)
+          throw new InvalidInfosetException(
+            "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.label,
+          )
         }
       }
     res

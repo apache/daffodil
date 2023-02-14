@@ -17,17 +17,17 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.io.BitOrderChangeException
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
-import org.apache.daffodil.runtime1.processors.unparsers.UState
-import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
-import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.runtime1.processors.unparsers.UState
+import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
+import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 /**
  * The suspension object keeps track of the state of the task, i.e., whether it
@@ -38,8 +38,7 @@ import org.apache.daffodil.lib.util.MaybeULong
  * Running the suspension again tries again and will either block or complete.
  *
  */
-trait Suspension
-  extends Serializable {
+trait Suspension extends Serializable {
 
   /**
    * Specifies that this suspension does not write to the data output stream.
@@ -130,7 +129,8 @@ trait Suspension
   private def splitDOS(
     ustate: UState,
     maybeKnownLengthInBits: MaybeULong,
-    original: DirectOrBufferedDataOutputStream): Unit = {
+    original: DirectOrBufferedDataOutputStream,
+  ): Unit = {
     Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
 
     val buffered = original.addBuffered
@@ -161,7 +161,9 @@ trait Suspension
         original.setLengthInBits(originalRelBitPos0b + suspensionLength)
       }
     } else {
-      Logger.log.debug(s"Buffered DOS created for ${ustate.currentInfosetNode.erd.diagnosticDebugName} without knowning absolute start bit pos: ${buffered}")
+      Logger.log.debug(
+        s"Buffered DOS created for ${ustate.currentInfosetNode.erd.diagnosticDebugName} without knowning absolute start bit pos: ${buffered}",
+      )
     }
 
     // the main-thread will carry on using the original ustate but unparsing
@@ -252,27 +254,31 @@ trait Suspension
     }
   }
 
-  final def blockedLocation = "BLOCKED\nexc=%s\nnode=%s\ninfo=%s\nindex=%s".format(maybeExc, maybeNodeOrVar, maybeInfo, maybeIndex)
+  final def blockedLocation = "BLOCKED\nexc=%s\nnode=%s\ninfo=%s\nindex=%s".format(
+    maybeExc,
+    maybeNodeOrVar,
+    maybeInfo,
+    maybeIndex,
+  )
 
   private def isBlockedFirstTime: Boolean = {
     isBlocked &&
-      priorNodeOrVar.isEmpty
+    priorNodeOrVar.isEmpty
   }
 
   private def isBlockedSameLocation: Boolean = {
-    val res = isBlocked &&
-      {
-        if (priorNodeOrVar.isEmpty) false
-        else {
-          Assert.invariant(maybeNodeOrVar.isDefined)
-          val res =
-            maybeNodeOrVar.get == priorNodeOrVar.get &&
-              maybeInfo.get == priorInfo.get &&
-              maybeIndex.get == priorIndex.get &&
-              maybeExc.get == priorExc.get
-          res
-        }
+    val res = isBlocked && {
+      if (priorNodeOrVar.isEmpty) false
+      else {
+        Assert.invariant(maybeNodeOrVar.isDefined)
+        val res =
+          maybeNodeOrVar.get == priorNodeOrVar.get &&
+            maybeInfo.get == priorInfo.get &&
+            maybeIndex.get == priorIndex.get &&
+            maybeExc.get == priorExc.get
+        res
       }
+    }
     res
   }
 

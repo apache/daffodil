@@ -17,19 +17,21 @@
 
 package org.apache.daffodil.core.dsom
 
+import java.util.regex.Pattern
+import java.util.regex.PatternSyntaxException
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
-import org.apache.daffodil.lib.exceptions._
-import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
-import com.ibm.icu.impl.UnicodeRegex
-import java.util.regex.PatternSyntaxException
-import java.util.regex.Pattern
-import org.apache.daffodil.core.grammar.primitives.DiscriminatorPatternPrim
-import org.apache.daffodil.core.grammar.primitives.DiscriminatorBooleanPrim
-import org.apache.daffodil.core.grammar.primitives.AssertPatternPrim
+
 import org.apache.daffodil.core.grammar.primitives.AssertBooleanPrim
+import org.apache.daffodil.core.grammar.primitives.AssertPatternPrim
+import org.apache.daffodil.core.grammar.primitives.DiscriminatorBooleanPrim
+import org.apache.daffodil.core.grammar.primitives.DiscriminatorPatternPrim
 import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions._
+import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
+import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
+
+import com.ibm.icu.impl.UnicodeRegex
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
@@ -69,7 +71,10 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
       try {
         UnicodeRegex.compile(thePattern) // Check against ICU
         Pattern.compile(thePattern) // Check against Java
-      } catch { case e: PatternSyntaxException => SDE("The pattern contained invalid syntax: %s", e.getMessage()) }
+      } catch {
+        case e: PatternSyntaxException =>
+          SDE("The pattern contained invalid syntax: %s", e.getMessage())
+      }
     }
     optPattern
   }
@@ -96,8 +101,12 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
       val hasWord = thePattern.contains("\\w")
       val encInfo = term.termRuntimeData.encodingInfo
       if (encInfo.knownEncodingIsUnicode && hasWord)
-        SDW(WarnID.PatternEncodingSlashW, "The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
-          encInfo.knownEncodingName, thePattern)
+        SDW(
+          WarnID.PatternEncodingSlashW,
+          "The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
+          encInfo.knownEncodingName,
+          thePattern,
+        )
     }
   }
 
@@ -117,15 +126,27 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     val rawTxt = (testKind, testBody, testAttrib, testPattern) match {
       case (TestKind.Expression, None, Some(txt), None) => txt
       case (TestKind.Expression, txt, None, None) => txt.get
-      case (TestKind.Pattern, _, _, Some("")) => SDE("The attribute testPattern must not be empty for testKind='pattern'")
+      case (TestKind.Pattern, _, _, Some("")) =>
+        SDE("The attribute testPattern must not be empty for testKind='pattern'")
       case (TestKind.Pattern, None, None, Some(pat)) => pat
-      case (TestKind.Expression, Some(bdy), Some(attrib), _) => SDE("You may not specify both test attribute and a body expression.")
-      case (TestKind.Expression, None, None, _) => SDE("You must specify either a test attribute or a body expression.")
-      case (TestKind.Pattern, Some(bdy), _, Some(txt)) => SDE("You may not specify both testPattern attribute and a body expression.")
-      case (TestKind.Pattern, None, _, None) => SDE("You must specify either a testPattern attribute or a body expression. for testKind='pattern'")
+      case (TestKind.Expression, Some(bdy), Some(attrib), _) =>
+        SDE("You may not specify both test attribute and a body expression.")
+      case (TestKind.Expression, None, None, _) =>
+        SDE("You must specify either a test attribute or a body expression.")
+      case (TestKind.Pattern, Some(bdy), _, Some(txt)) =>
+        SDE("You may not specify both testPattern attribute and a body expression.")
+      case (TestKind.Pattern, None, _, None) =>
+        SDE(
+          "You must specify either a testPattern attribute or a body expression. for testKind='pattern'",
+        )
       case (TestKind.Pattern, Some(bdy), None, None) => bdy // pattern as body of assert element
-      case (TestKind.Pattern, _, Some(tst), _) => SDE("You cannot specify test='%s' for testKind='pattern'", tst)
-      case (TestKind.Expression, _, _, Some(pat)) => SDE("You cannot specify testPattern='%s' for testKind='expression' (which is the default test kind.)", pat)
+      case (TestKind.Pattern, _, Some(tst), _) =>
+        SDE("You cannot specify test='%s' for testKind='pattern'", tst)
+      case (TestKind.Expression, _, _, Some(pat)) =>
+        SDE(
+          "You cannot specify testPattern='%s' for testKind='expression' (which is the default test kind.)",
+          pat,
+        )
       case _ => Assert.invariantFailed("unexpected case.")
     }
     // we need to be sure if it is an expression that it is surrounded by {...}
@@ -133,7 +154,8 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     if (testKind == TestKind.Expression)
       schemaDefinitionUnless(
         rawTxt.startsWith("{") && !rawTxt.startsWith("{{") && rawTxt.endsWith("}"),
-        "Expression must begin with a single '{' and end with a '}'")
+        "Expression must begin with a single '{' and end with a '}'",
+      )
     rawTxt
   }
 }

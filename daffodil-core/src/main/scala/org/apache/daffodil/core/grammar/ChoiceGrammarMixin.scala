@@ -21,15 +21,14 @@ import org.apache.daffodil.core.dsom.ChoiceTermBase
 import org.apache.daffodil.core.grammar.primitives.ChoiceCombinator
 import org.apache.daffodil.core.runtime1.ChoiceTermRuntime1Mixin
 
-trait ChoiceGrammarMixin
-  extends GrammarMixin
-  with ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
+trait ChoiceGrammarMixin extends GrammarMixin with ChoiceTermRuntime1Mixin {
+  self: ChoiceTermBase =>
 
   override lazy val groupContentDef = prod("choiceContent") {
     ChoiceCombinator(this, alternatives)
   }
 
   final protected lazy val alternatives: Seq[Gram] =
-    groupMembers.map{ _.termContentBody }
+    groupMembers.map { _.termContentBody }
 
 }

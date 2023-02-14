@@ -17,6 +17,12 @@
 
 package org.apache.daffodil.processor.tdml
 
+import java.io.FileNotFoundException
+import java.io.InputStream
+import java.io.OutputStream
+import scala.xml.Node
+import scala.xml.XML
+
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.DataLocation
@@ -37,14 +43,9 @@ import org.apache.daffodil.tdml.processor.TDML
 import org.apache.daffodil.tdml.processor.TDMLDFDLProcessor
 import org.apache.daffodil.tdml.processor.TDMLParseResult
 import org.apache.daffodil.tdml.processor.TDMLUnparseResult
+
 import org.xml.sax.SAXParseException
 import os.CommandResult
-
-import java.io.FileNotFoundException
-import java.io.InputStream
-import java.io.OutputStream
-import scala.xml.Node
-import scala.xml.XML
 
 /**
   * A factory called by the TDML runner to create a TDMLDFDL processor.
@@ -118,8 +119,7 @@ final class Runtime2TDMLDFDLProcessorFactory(compiler: Compiler)
  * a given DFDL schema.  Deals with TDML XML infosets, feeding to the
  * executable, returning the output created by the executable, etc.
  */
-final class Runtime2TDMLDFDLProcessor(executable: os.Path)
-  extends TDMLDFDLProcessor {
+final class Runtime2TDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProcessor {
 
   // We don't pass any options to the executable
   override type R = Runtime2TDMLDFDLProcessor
@@ -143,27 +143,33 @@ final class Runtime2TDMLDFDLProcessor(executable: os.Path)
   override def parse(input: InputStream, lengthLimitInBits: Long): TDMLParseResult = {
     // Write the input to an input file to let the executable parse it
     val tempDir = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
-    val infile = tempDir/"infile"
-    val outfile = tempDir/"outfile"
+    val infile = tempDir / "infile"
+    val outfile = tempDir / "outfile"
     os.write(infile, input)
 
     // Verify the input file has the correct size TDML runner said it would
     val inputSizeInBits = os.size(infile) * 8
-    assert(inputSizeInBits == lengthLimitInBits, s"$infile has $inputSizeInBits bits, but needed $lengthLimitInBits bits")
+    assert(
+      inputSizeInBits == lengthLimitInBits,
+      s"$infile has $inputSizeInBits bits, but needed $lengthLimitInBits bits",
+    )
 
     // Parse the input file using the executable and capture its exit status
-    val parseResult = try {
-      // Darwin and MSYS2 support only "daffodil -o outfile parse infile" (all getopt options must come first)
-      val result = os.proc(executable, "-o", outfile, "parse", infile).call(cwd = tempDir, stderr = os.Pipe)
-      new Runtime2TDMLParseResult(result, lengthLimitInBits, outfile, Success)
-    } catch {
-      case e: os.SubprocessException =>
-        val result = e.result
-        val parseError = new ParseError(Nope, Nope, Maybe(e), Nope)
-        new Runtime2TDMLParseResult(result, lengthLimitInBits, outfile, Failure(parseError))
-    } finally {
-      os.remove.all(tempDir)
-    }
+    val parseResult =
+      try {
+        // Darwin and MSYS2 support only "daffodil -o outfile parse infile" (all getopt options must come first)
+        val result = os
+          .proc(executable, "-o", outfile, "parse", infile)
+          .call(cwd = tempDir, stderr = os.Pipe)
+        new Runtime2TDMLParseResult(result, lengthLimitInBits, outfile, Success)
+      } catch {
+        case e: os.SubprocessException =>
+          val result = e.result
+          val parseError = new ParseError(Nope, Nope, Maybe(e), Nope)
+          new Runtime2TDMLParseResult(result, lengthLimitInBits, outfile, Failure(parseError))
+      } finally {
+        os.remove.all(tempDir)
+      }
 
     parseResult
   }
@@ -178,26 +184,29 @@ final class Runtime2TDMLDFDLProcessor(executable: os.Path)
   override def unparse(infosetXML: Node, output: OutputStream): TDMLUnparseResult = {
     // Write the infoset to an input file to let the executable parse it
     val tempDir = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
-    val infile = tempDir/"infile"
-    val outfile = tempDir/"outfile"
+    val infile = tempDir / "infile"
+    val outfile = tempDir / "outfile"
     os.write(infile, infosetXML.toString)
 
     // Unparse the infoset using the executable, capture its exit status, and return the data
-    val unparseResult = try {
-      // Darwin and MSYS2 support only "daffodil -o outfile parse infile" (all getopt options must come first)
-      val result = os.proc(executable, "-o", outfile, "unparse", infile).call(cwd = tempDir, stderr = os.Pipe)
-      os.read.stream(outfile).writeBytesTo(output)
-      val finalBitPos0b = os.size(outfile) * 8
-      new Runtime2TDMLUnparseResult(result, finalBitPos0b, Success)
-    } catch {
-      case e: os.SubprocessException =>
-        val result = e.result
+    val unparseResult =
+      try {
+        // Darwin and MSYS2 support only "daffodil -o outfile parse infile" (all getopt options must come first)
+        val result = os
+          .proc(executable, "-o", outfile, "unparse", infile)
+          .call(cwd = tempDir, stderr = os.Pipe)
+        os.read.stream(outfile).writeBytesTo(output)
         val finalBitPos0b = os.size(outfile) * 8
-        val unparseError = new UnparseError(Nope, Nope, Maybe(e), Nope)
-        new Runtime2TDMLUnparseResult(result, finalBitPos0b, Failure(unparseError))
-    } finally {
-      os.remove.all(tempDir)
-    }
+        new Runtime2TDMLUnparseResult(result, finalBitPos0b, Success)
+      } catch {
+        case e: os.SubprocessException =>
+          val result = e.result
+          val finalBitPos0b = os.size(outfile) * 8
+          val unparseError = new UnparseError(Nope, Nope, Maybe(e), Nope)
+          new Runtime2TDMLUnparseResult(result, finalBitPos0b, Failure(unparseError))
+      } finally {
+        os.remove.all(tempDir)
+      }
 
     unparseResult
   }
@@ -234,12 +243,13 @@ final class Runtime2TDMLParseResult(
   // method will delete outFile before returning the parse result, but we must prevent
   // loadFile errors from interrupting the parse result's construction
   override val getResult: Node = {
-    val elem = try {
-      XML.loadFile(outfile.toIO)
-    } catch {
-      case _: FileNotFoundException => <noFile></noFile>
-      case _: SAXParseException => <parseError></parseError>
-    }
+    val elem =
+      try {
+        XML.loadFile(outfile.toIO)
+      } catch {
+        case _: FileNotFoundException => <noFile></noFile>
+        case _: SAXParseException => <parseError></parseError>
+      }
     elem
   }
 

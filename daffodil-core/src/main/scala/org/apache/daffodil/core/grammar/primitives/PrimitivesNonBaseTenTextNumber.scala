@@ -17,26 +17,18 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.grammar.Terminal
+import org.apache.daffodil.runtime1.processors.parsers.ConvertNonBaseTenTextNumberParser
 import org.apache.daffodil.runtime1.processors.parsers.Parser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
-import org.apache.daffodil.runtime1.processors.parsers.ConvertNonBaseTenTextNumberParser
 import org.apache.daffodil.unparsers.runtime1.ConvertNonBaseTenTextNumberUnparser
 
-
-
-case class ConvertNonBaseTenTextNumberPrim(e: ElementBase)
-  extends Terminal(e, true) {
+case class ConvertNonBaseTenTextNumberPrim(e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser: Parser =
-    new ConvertNonBaseTenTextNumberParser(
-      e.elementRuntimeData,
-      e.textStandardBaseDefaulted)
+    new ConvertNonBaseTenTextNumberParser(e.elementRuntimeData, e.textStandardBaseDefaulted)
 
   override lazy val unparser: Unparser =
-    new ConvertNonBaseTenTextNumberUnparser(
-    e.elementRuntimeData,
-    e.textStandardBaseDefaulted)
+    new ConvertNonBaseTenTextNumberUnparser(e.elementRuntimeData, e.textStandardBaseDefaulted)
 }

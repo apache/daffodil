@@ -21,10 +21,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.runtime1.dsom._
 
 class BinaryFloatRepEv(expr: CompiledExpression[String], eci: DPathElementCompileInfo)
-  extends EvaluatableConvertedExpression[String, BinaryFloatRep](
-    expr,
-    BinaryFloatRep,
-    eci)
+  extends EvaluatableConvertedExpression[String, BinaryFloatRep](expr, BinaryFloatRep, eci)
   with InfosetCachedEvaluatable[BinaryFloatRep] {
 
   override lazy val runtimeDependencies = Vector()

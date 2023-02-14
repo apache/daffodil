@@ -21,6 +21,7 @@ package org.apache.daffodil.sapi.debugger
  * Abstract debugger runner, which can be implemented to create a custom debugger runner
  */
 abstract class DebuggerRunner {
+
   /**
    * Called once at the beginning of a parse, allowing one to perform any
    * initialization steps that may be necessary.
@@ -53,7 +54,7 @@ abstract class DebuggerRunner {
   def fini(): Unit
 }
 
-/* 
+/*
  * The below class is empty and is not ever actually used. It is just a place
  * holder. Whenever the Java API uses it, it is translated to the appropriate
  * Scala debugger runner. It is marked final so that it cannot be extended,
@@ -67,14 +68,13 @@ abstract class DebuggerRunner {
  */
 final class TraceDebuggerRunner extends DebuggerRunner {
   def init(): Unit = {
-    //do nothing
+    // do nothing
   }
   def getCommand(): String = ""
   def lineOutput(line: String) = {
-    //do nothing
+    // do nothing
   }
   def fini(): Unit = {
-    //do nothing
+    // do nothing
   }
 }
-

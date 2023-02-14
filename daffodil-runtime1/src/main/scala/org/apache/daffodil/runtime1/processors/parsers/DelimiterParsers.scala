@@ -17,24 +17,26 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import scala.collection.mutable.ArrayBuffer
+
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.dfa.TextParser
-import org.apache.daffodil.runtime1.processors.dfa.DFADelimiter
 import org.apache.daffodil.lib.util.Enum
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.LocalTypedDelimiterIterator
-import org.apache.daffodil.runtime1.processors.RemoteTerminatingMarkupAndLocalTypedDelimiterIterator
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.Misc
-import scala.collection.mutable.ArrayBuffer
+import org.apache.daffodil.runtime1.processors.LocalTypedDelimiterIterator
+import org.apache.daffodil.runtime1.processors.RemoteTerminatingMarkupAndLocalTypedDelimiterIterator
+import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.dfa.DFADelimiter
+import org.apache.daffodil.runtime1.processors.dfa.TextParser
 
 object DelimiterTextType extends Enum {
   abstract sealed trait Type extends EnumValueType
   case object Initiator extends Type
   case object Separator extends Type
   case object Terminator extends Type
-  case object Other extends Type /* for DelimiterDFAs that are things like escapes that we have other ways of tracking what they are */
+  case object Other
+    extends Type /* for DelimiterDFAs that are things like escapes that we have other ways of tracking what they are */
 }
 
 class DelimiterTextParser(
@@ -42,15 +44,18 @@ class DelimiterTextParser(
   textParser: TextParser,
   delimiterType: DelimiterTextType.Type,
   isDelimited: Boolean,
-  mustMatchNonZeroData: Boolean)
-  extends TextPrimParser {
+  mustMatchNonZeroData: Boolean,
+) extends TextPrimParser {
 
   override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
   override def context = rd
 
   override val nom = delimiterType.toString
 
-  private def containsLocalMatch(matchedDelimiters: ArrayBuffer[DFADelimiter], state: PState): Boolean = {
+  private def containsLocalMatch(
+    matchedDelimiters: ArrayBuffer[DFADelimiter],
+    state: PState,
+  ): Boolean = {
     val localIndexStart = state.mpstate.delimitersLocalIndexStack.top
     val inScopeDelimiters = state.mpstate.delimiters
 
@@ -72,9 +77,23 @@ class DelimiterTextParser(
 
     val maybeDelimIter =
       if (delimiterType == DelimiterTextType.Terminator && !isDelimited) {
-        Maybe(new LocalTypedDelimiterIterator(delimiterType, start.mpstate.delimiters, start.mpstate.delimitersLocalIndexStack.top))
-      } else if (delimiterType == DelimiterTextType.Initiator || !start.delimitedParseResult.isDefined) {
-        Maybe(new RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(delimiterType, start.mpstate.delimiters, start.mpstate.delimitersLocalIndexStack.top))
+        Maybe(
+          new LocalTypedDelimiterIterator(
+            delimiterType,
+            start.mpstate.delimiters,
+            start.mpstate.delimitersLocalIndexStack.top,
+          ),
+        )
+      } else if (
+        delimiterType == DelimiterTextType.Initiator || !start.delimitedParseResult.isDefined
+      ) {
+        Maybe(
+          new RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(
+            delimiterType,
+            start.mpstate.delimiters,
+            start.mpstate.delimitersLocalIndexStack.top,
+          ),
+        )
       } else {
         Nope
       }
@@ -89,9 +108,12 @@ class DelimiterTextParser(
     if (foundDelimiter.isDefined) {
       if (!containsLocalMatch(foundDelimiter.get.matchedDFAs, start)) {
         // It was a remote delimiter but we should have found a local one.
-        PE(start, "Found out of scope delimiter: '%s' '%s'",
+        PE(
+          start,
+          "Found out of scope delimiter: '%s' '%s'",
           foundDelimiter.get.matchedDFAs(0).lookingFor,
-          Misc.remapStringToVisibleGlyphs(foundDelimiter.get.matchedDelimiterValue.get))
+          Misc.remapStringToVisibleGlyphs(foundDelimiter.get.matchedDelimiterValue.get),
+        )
         return
       }
 
@@ -99,7 +121,9 @@ class DelimiterTextParser(
       // a non-zero number of bits and throw a runtime SDE if necessary
       val nChars = foundDelimiter.get.matchedDelimiterValue.get.length
       if (mustMatchNonZeroData && nChars == 0) {
-        start.SDE("The initiator must match non-zero length data when dfdl:initiatedContent is 'yes'.")
+        start.SDE(
+          "The initiator must match non-zero length data when dfdl:initiatedContent is 'yes'.",
+        )
       }
       val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars, start)
       Assert.invariant(wasDelimiterTextSkipped)

@@ -17,18 +17,17 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
 import java.lang.{ Long => JLong }
 import java.lang.{ Number => JNumber }
 import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 case class ConvertNonBaseTenTextNumberUnparser(
   override val context: ElementRuntimeData,
-  base: Int)
-  extends TextPrimUnparser {
+  base: Int,
+) extends TextPrimUnparser {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -40,14 +39,24 @@ case class ConvertNonBaseTenTextNumberUnparser(
     val baseStr = value.getNumber match {
       case bi: JBigInt => {
         if (bi.compareTo(JBigInt.ZERO) < 0) {
-          UE(state, "Unable to unparse negative values when dfdl:textStandardBase=\"%d\": %s", base, bi.toString)
+          UE(
+            state,
+            "Unable to unparse negative values when dfdl:textStandardBase=\"%d\": %s",
+            base,
+            bi.toString,
+          )
         }
         bi.toString(base)
       }
       case n: JNumber => {
         val l = n.longValue
         if (l < 0) {
-          UE(state, "Unable to unparse negative values when dfdl:textStandardBase=\"%d\": %s", base, l.toString)
+          UE(
+            state,
+            "Unable to unparse negative values when dfdl:textStandardBase=\"%d\": %s",
+            base,
+            l.toString,
+          )
         }
         base match {
           case 2 => JLong.toBinaryString(l)

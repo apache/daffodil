@@ -18,8 +18,9 @@
 package org.apache.daffodil.lib.externalvars
 
 import scala.xml.Node
-import org.apache.daffodil.lib.xml._
+
 import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
+import org.apache.daffodil.lib.xml._
 
 /**
  * Represents a variable binding expressed in a config file as a bind element, or specified
@@ -34,7 +35,11 @@ import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
  * that do not in fact connect to anything. It is the caller/user of these objects in the runtime
  * system or schema compiler that decides if these names actually refer to any variables.
  */
-class Binding(val varQName: RefQName, val varValue: String, scope: scala.xml.NamespaceBinding = null) {
+class Binding(
+  val varQName: RefQName,
+  val varValue: String,
+  scope: scala.xml.NamespaceBinding = null,
+) {
 
   override def toString() = {
     "<binding name='" + varQName + "'>" + varValue + "</binding>"
@@ -90,7 +95,8 @@ object Binding {
     // Variable names are always resolved like names which may refer to a default namespace
     // if one is defined.
     //
-    val rqn = RefQNameFactory.resolveRef(name, scope, UnqualifiedPathStepPolicy.DefaultNamespace)
+    val rqn =
+      RefQNameFactory.resolveRef(name, scope, UnqualifiedPathStepPolicy.DefaultNamespace)
     new Binding(rqn.get, value)
   }
 

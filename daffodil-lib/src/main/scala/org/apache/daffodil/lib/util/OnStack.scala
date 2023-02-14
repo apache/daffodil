@@ -17,12 +17,10 @@
 
 package org.apache.daffodil.lib.util
 
-import scala.collection.mutable
 import java.util.regex.Matcher
+import scala.collection.mutable
 
-sealed abstract class LocalStackBase[T](
-    constructorFunc: => T,
-    optionalResetFunc: (T => Unit)) {
+sealed abstract class LocalStackBase[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) {
 
   protected def stack: mutable.ArrayStack[T]
 
@@ -53,9 +51,8 @@ sealed abstract class LocalStackBase[T](
  * It's a stack, so that we can even use it in recursive programs
  * (which the DFDL compiler IS most definitely)
  */
-class OnStack[T](
-    constructorFunc: => T,
-    optionalResetFunc: (T => Unit)) extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
+class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit))
+  extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
 
   /**
    * Can specify just the allocator, or you can
@@ -87,9 +84,8 @@ class OnStack[T](
  * a data member. In many cases however, that hash lookup is more expensive than
  * what you want to do with the local object.
  */
-class LocalStack[T](
-    constructorFunc: => T,
-    optionalResetFunc: (T => Unit)) extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
+class LocalStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit))
+  extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
 
   /**
    * Can specify just the allocator, or you can
@@ -103,6 +99,7 @@ class LocalStack[T](
 }
 
 private[util] object An_example_of_OnStack_use {
+
   /**
    * In this example, we have a regex pattern
    * that we want to compile, and then we have

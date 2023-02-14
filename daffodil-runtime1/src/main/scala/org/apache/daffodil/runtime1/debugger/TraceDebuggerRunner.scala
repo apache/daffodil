@@ -27,10 +27,11 @@ class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebu
     "display info data",
     "display info infoset",
     "display info diff",
-    "trace").iterator
+    "trace",
+  ).iterator
 
   def init(id: InteractiveDebugger): Unit = {
-    //do nothing
+    // do nothing
   }
 
   def getCommand: String = {
@@ -50,6 +51,6 @@ class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebu
   }
 
   def fini(): Unit = {
-    //do nothing
+    // do nothing
   }
 }

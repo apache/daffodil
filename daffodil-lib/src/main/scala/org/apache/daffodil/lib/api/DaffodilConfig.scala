@@ -16,15 +16,15 @@
  */
 package org.apache.daffodil.lib.api
 
-import org.apache.daffodil.lib.externalvars.Binding
-import org.apache.daffodil.lib.xml.DaffodilXMLLoader
-import org.apache.daffodil.lib.xml.NS
-import org.apache.daffodil.lib.xml.XMLUtils
-
 import java.io.File
 import java.net.URI
 import scala.xml.Elem
 import scala.xml.Node
+
+import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.xml.DaffodilXMLLoader
+import org.apache.daffodil.lib.xml.NS
+import org.apache.daffodil.lib.xml.XMLUtils
 
 object DaffodilConfig {
 
@@ -38,9 +38,11 @@ object DaffodilConfig {
    */
   def fromXML(xml: Node) = {
     val optBindingsNode = (xml \ "externalVariableBindings").headOption
-    val extVarBindings = optBindingsNode.map{ Binding.getBindings(_) }.getOrElse(Seq())
-    val optTunablesXML = (xml \ "tunables").headOption /* had to add trim here to get rid of #PCDATA */
-    val tunablesMap = optTunablesXML.map{ DaffodilTunables.tunablesMap(_) }.getOrElse(Map.empty)
+    val extVarBindings = optBindingsNode.map { Binding.getBindings(_) }.getOrElse(Seq())
+    val optTunablesXML =
+      (xml \ "tunables").headOption /* had to add trim here to get rid of #PCDATA */
+    val tunablesMap =
+      optTunablesXML.map { DaffodilTunables.tunablesMap(_) }.getOrElse(Map.empty)
     new DaffodilConfig(extVarBindings, tunablesMap)
   }
 
@@ -49,15 +51,18 @@ object DaffodilConfig {
     try {
       var node = loader.load(source, None) // might not be daf:dfdlConfig, so don't validate.
       val rootElem = node.asInstanceOf[Elem]
-      if (rootElem.label == "dfdlConfig" &&
-          NS(rootElem.namespace) == XMLUtils.EXT_NS_APACHE ) {
+      if (
+        rootElem.label == "dfdlConfig" &&
+        NS(rootElem.namespace) == XMLUtils.EXT_NS_APACHE
+      ) {
         // it's a daf:dfdlConfig element, so reload with validation
         // which will cause it to throw validation errors
         node = loader.load(source, Some(XMLUtils.dafextURI))
       }
-     fromXML(node)
+      fromXML(node)
     } catch {
-      case e: org.xml.sax.SAXParseException => throw DaffodilConfigException(s"Unable to load configuration: $e", e)
+      case e: org.xml.sax.SAXParseException =>
+        throw DaffodilConfigException(s"Unable to load configuration: $e", e)
     }
   }
 
@@ -75,7 +80,8 @@ object DaffodilConfig {
  */
 final class DaffodilConfig private (
   val externalVariableBindings: Seq[Binding],
-  val tunablesMap: Map[String, String]) {
+  val tunablesMap: Map[String, String],
+) {
   // no methods
 }
 
@@ -84,4 +90,5 @@ final class DaffodilConfig private (
  * @param message used in the Exception
  * @param cause the exception thrown while trying to parse
  */
-final case class DaffodilConfigException(message: String, cause: Exception) extends Exception(message, cause)
+final case class DaffodilConfigException(message: String, cause: Exception)
+  extends Exception(message, cause)

@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.lib.xml
 
+import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
 
 /**
  * Element references and Group References use this.
@@ -57,8 +57,7 @@ object ResolvesQNames {
   }
 }
 
-trait ResolvesQNames
-  extends ThrowsSDE {
+trait ResolvesQNames extends ThrowsSDE {
 
   def namespaces: scala.xml.NamespaceBinding
   def unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
@@ -74,7 +73,8 @@ trait ResolvesQNames
     res
   }
 
-  def qNameForProperty(local: String, ns: NS = XMLUtils.DFDL_NAMESPACE) = ResolvesQNames.qNameForProperty(local, ns, namespaces)
+  def qNameForProperty(local: String, ns: NS = XMLUtils.DFDL_NAMESPACE) =
+    ResolvesQNames.qNameForProperty(local, ns, namespaces)
 
   /**
    * Just chop off the prefix.
@@ -82,7 +82,8 @@ trait ResolvesQNames
   def removePrefix(prefixedValue: String): String = {
     prefixedValue match {
       case QNameRegex.QName(pre, local) => local
-      case _ => Assert.usageError("The argument was not in QName syntax: '%s'".format(prefixedValue))
+      case _ =>
+        Assert.usageError("The argument was not in QName syntax: '%s'".format(prefixedValue))
     }
   }
 }

@@ -22,9 +22,14 @@ import org.apache.daffodil.core.dsom.ElementBase
 trait BinaryIntegerKnownLengthCodeGenerator extends BinaryValueCodeGenerator {
 
   // Called by Runtime2CodeGenerator to generate C code for an integer element
-  def binaryIntegerKnownLengthGenerateCode(e: ElementBase, lengthInBits: Long, signed: Boolean, cgState: CodeGeneratorState): Unit = {
+  def binaryIntegerKnownLengthGenerateCode(
+    e: ElementBase,
+    lengthInBits: Long,
+    signed: Boolean,
+    cgState: CodeGeneratorState,
+  ): Unit = {
     val cLengthInBits = lengthInBits match {
-      case n if n <= 8  => 8
+      case n if n <= 8 => 8
       case n if n <= 16 => 16
       case n if n <= 32 => 32
       case n if n <= 64 => 64

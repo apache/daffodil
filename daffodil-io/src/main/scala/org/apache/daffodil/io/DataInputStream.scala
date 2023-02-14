@@ -169,8 +169,7 @@ object DataInputStream {
 
 }
 
-trait DataInputStream
-  extends DataStreamCommon {
+trait DataInputStream extends DataStreamCommon {
   import DataInputStream._
 
   /**
@@ -198,7 +197,8 @@ trait DataInputStream
    * If bitLimit0b is defined, then there IS that much data available at least.
    */
   def bitLimit0b: MaybeULong
-  final def bitLimit1b: MaybeULong = if (bitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(bitLimit0b.get + 1)
+  final def bitLimit1b: MaybeULong =
+    if (bitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(bitLimit0b.get + 1)
 
   def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit
 
@@ -548,5 +548,6 @@ trait DataInputStream
    * Note that length limits in lengthUnits Characters are not implemented
    * this way. See fillCharBuffer(cb) method.
    */
-  final def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = macro IOMacros.withBitLengthLimitMacroForInput
+  final def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean =
+    macro IOMacros.withBitLengthLimitMacroForInput
 }

@@ -19,7 +19,6 @@ package org.apache.daffodil.lib.xml
 
 import java.io.BufferedInputStream
 import java.net.URI
-
 import scala.io.Source
 import scala.xml._
 import scala.xml.include.sax.EncodingHeuristics
@@ -38,12 +37,15 @@ import org.apache.daffodil.lib.exceptions.Assert
  * Note that if scala ever changes thes values, line/column numbers will be off
  */
 object Position {
+
   /** Number of bits used to encode the line number */
   final val LINE_BITS = 20
+
   /** Number of bits used to encode the column number */
   final val COLUMN_BITS = 31 - LINE_BITS // no negatives => 31
   /** Mask to decode the line number */
   final val LINE_MASK = (1 << LINE_BITS) - 1
+
   /** Mask to decode the column number */
   final val COLUMN_MASK = (1 << COLUMN_BITS) - 1
 
@@ -94,26 +96,32 @@ object Position {
  *                          as not normalizing CRLFs is non-standard for XML.
  *
  */
-class DaffodilConstructingLoader private[xml] (uri: URI,
+class DaffodilConstructingLoader private[xml] (
+  uri: URI,
   errorHandler: org.xml.sax.ErrorHandler,
   addPositionAttributes: Boolean,
-  normalizeCRLFtoLF: Boolean)
-  extends ConstructingParser({
-    // Note: we must open the XML carefully since it might be in some non
-    // default encoding (we have tests that have UTF-16 for example)
+  normalizeCRLFtoLF: Boolean,
+) extends ConstructingParser(
+    {
+      // Note: we must open the XML carefully since it might be in some non
+      // default encoding (we have tests that have UTF-16 for example)
 
-    // must be buffered to support mark(), needed by heuristics
-    val is = new BufferedInputStream(uri.toURL.openStream())
-    val enc = EncodingHeuristics.readEncodingFromStream(is)
-    Source.fromInputStream(is, enc)
-  }, true) {
+      // must be buffered to support mark(), needed by heuristics
+      val is = new BufferedInputStream(uri.toURL.openStream())
+      val enc = EncodingHeuristics.readEncodingFromStream(is)
+      Source.fromInputStream(is, enc)
+    },
+    true,
+  ) {
 
   /**
    * Public constructor insists on normalizingCRLFtoLF behavior.
    */
-  def this (uri: URI,
+  def this(
+    uri: URI,
     errorHandler: org.xml.sax.ErrorHandler,
-    addPositionAttributes: Boolean = false) =
+    addPositionAttributes: Boolean = false,
+  ) =
     this(uri, errorHandler, addPositionAttributes, normalizeCRLFtoLF = true)
 
   /**
@@ -154,7 +162,6 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
   // at last our line numbers are correct.
   lookahead()
 
-
   private def makeSAXParseException(pos: Int, msg: String) = {
     val line = Position.line(pos)
     val col = Position.column(pos)
@@ -188,15 +195,17 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
     attrs: MetaData,
     scope: NamespaceBinding,
     empty: Boolean,
-    nodes: NodeSeq): NodeSeq = {
+    nodes: NodeSeq,
+  ): NodeSeq = {
 
     val nsURI = NS(scope.getURI(pre))
-    val isFileRootNode = (local.equalsIgnoreCase("schema") && nsURI == XMLUtils.XSD_NAMESPACE) ||
-      (local.equalsIgnoreCase("testSuite") && nsURI == XMLUtils.TDML_NAMESPACE)
+    val isFileRootNode =
+      (local.equalsIgnoreCase("schema") && nsURI == XMLUtils.XSD_NAMESPACE) ||
+        (local.equalsIgnoreCase("testSuite") && nsURI == XMLUtils.TDML_NAMESPACE)
     val alreadyHasLineCol = attrs.exists {
       case PrefixedAttribute(XMLUtils.INT_PREFIX, attr, _, _) => {
         attr.equalsIgnoreCase(XMLUtils.COLUMN_ATTRIBUTE_NAME) ||
-          attr.equalsIgnoreCase(XMLUtils.LINE_ATTRIBUTE_NAME)
+        attr.equalsIgnoreCase(XMLUtils.LINE_ATTRIBUTE_NAME)
       }
       case _ => false
     }
@@ -205,12 +214,27 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
       if (addPositionAttributes && !alreadyHasLineCol) {
         val withFile: MetaData =
           if (isFileRootNode) {
-            new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, uri.toString, attrs)
+            new PrefixedAttribute(
+              XMLUtils.INT_PREFIX,
+              XMLUtils.FILE_ATTRIBUTE_NAME,
+              uri.toString,
+              attrs,
+            )
           } else {
             attrs
           }
-        val withCol: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Position.column(pos).toString, withFile)
-        val withLine: MetaData = new PrefixedAttribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Position.line(pos).toString, withCol)
+        val withCol: MetaData = new PrefixedAttribute(
+          XMLUtils.INT_PREFIX,
+          XMLUtils.COLUMN_ATTRIBUTE_NAME,
+          Position.column(pos).toString,
+          withFile,
+        )
+        val withLine: MetaData = new PrefixedAttribute(
+          XMLUtils.INT_PREFIX,
+          XMLUtils.LINE_ATTRIBUTE_NAME,
+          Position.line(pos).toString,
+          withCol,
+        )
         withLine
       } else {
         attrs
@@ -222,7 +246,9 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
     val newScope = if (addPositionAttributes && intPrefix == null) {
       NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
     } else {
-      Assert.usage(intPrefix == null || intPrefix == XMLUtils.INT_PREFIX) // can't deal with some other binding for dafint
+      Assert.usage(
+        intPrefix == null || intPrefix == XMLUtils.INT_PREFIX,
+      ) // can't deal with some other binding for dafint
       scope
     }
 
@@ -236,11 +262,9 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
    * This is optional controlled by a constructor parameter.
    */
   override def text(pos: Int, txt: String): Text = {
-    val newText:String = {
+    val newText: String = {
       if (normalizeCRLFtoLF && txt.contains("\r")) {
-        txt.
-          replaceAll("\r\n", "\n").
-          replaceAll("\r", "\n")
+        txt.replaceAll("\r\n", "\n").replaceAll("\r", "\n")
       } else {
         txt
       }
@@ -307,7 +331,9 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
     null
   }
 
-  private def parseXMLPrologAttributes(m: MetaData): (Option[String], Option[String], Option[Boolean]) = {
+  private def parseXMLPrologAttributes(
+    m: MetaData,
+  ): (Option[String], Option[String], Option[Boolean]) = {
 
     var info_ver: Option[String] = None
     var info_enc: Option[String] = None
@@ -343,7 +369,8 @@ class DaffodilConstructingLoader private[xml] (uri: URI,
 
     if (m.length - n != 0) {
       reportSyntaxError(
-        "only 'version', 'encoding', and 'standalone' attributes are expected in xml prolog. Found: " + m)
+        "only 'version', 'encoding', and 'standalone' attributes are expected in xml prolog. Found: " + m,
+      )
     }
 
     (info_ver, info_enc, info_stdl)

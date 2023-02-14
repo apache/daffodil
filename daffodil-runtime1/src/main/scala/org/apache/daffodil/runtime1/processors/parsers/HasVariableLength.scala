@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.processors.Evaluatable
-import org.apache.daffodil.lib.util.Numbers
 import java.lang.{ Long => JLong }
+
+import org.apache.daffodil.lib.util.Numbers
+import org.apache.daffodil.runtime1.processors.Evaluatable
 
 trait HasVariableLength { self: PrimParser =>
   def lengthEv: Evaluatable[JLong]

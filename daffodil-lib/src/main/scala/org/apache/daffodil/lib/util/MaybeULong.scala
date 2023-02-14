@@ -18,6 +18,7 @@
 package org.apache.daffodil.lib.util
 
 import org.apache.daffodil.lib.exceptions.Assert
+
 import passera.unsigned.ULong
 
 /**
@@ -31,8 +32,8 @@ import passera.unsigned.ULong
 final class MaybeULong private (val __rep: Long) extends AnyVal {
   @inline final def get: Long = if (isDefined) __rep else noneGet
   @inline final def getULong: ULong = ULong(__rep)
-  //@inline final def getOrElse(alternate: Long): Long = if (isDefined) get else alternate
-  //@inline final def getULongOrElse(alternate: ULong): ULong = ULong(getOrElse(alternate.toLong))
+  // @inline final def getOrElse(alternate: Long): Long = if (isDefined) get else alternate
+  // @inline final def getULongOrElse(alternate: ULong): ULong = ULong(getOrElse(alternate.toLong))
   private def noneGet = throw new NoSuchElementException("Nope.get")
   @inline final def isDefined = __rep != MaybeULong.undefValue
   @inline final def isEmpty = !isDefined
@@ -44,7 +45,8 @@ final class MaybeULong private (val __rep: Long) extends AnyVal {
   // The work-around: write an if-then-else like if (foo.isDefined) foo.get else MaybeULong.Nope
   // verbose but known-to-be-fast
 
-  @inline def toMaybeJULong = if (isEmpty) MaybeJULong.Nope else new MaybeJULong(MaybeULong(__rep))
+  @inline def toMaybeJULong =
+    if (isEmpty) MaybeJULong.Nope else new MaybeJULong(MaybeULong(__rep))
 }
 
 object MaybeULong {
@@ -68,12 +70,11 @@ object MaybeULong {
  * This reduces boxing. You get one object with an unboxed MaybeULong
  * stored within it.
  */
-final class MaybeJULong(mi: MaybeULong)
-    extends Serializable {
+final class MaybeJULong(mi: MaybeULong) extends Serializable {
   @inline final def get: Long = mi.get
   @inline final def getULong = mi.getULong
-  //@inline final def getOrElse(alternate: Long): Long = mi.getOrElse(alternate)
-  //@inline final def getULongOrElse(alternate: ULong): ULong = mi.getULongOrElse(alternate)
+  // @inline final def getOrElse(alternate: Long): Long = mi.getOrElse(alternate)
+  // @inline final def getULongOrElse(alternate: ULong): ULong = mi.getULongOrElse(alternate)
   @inline final def isDefined = mi.isDefined
   @inline final def isEmpty = !isDefined
   override def toString = mi.toString

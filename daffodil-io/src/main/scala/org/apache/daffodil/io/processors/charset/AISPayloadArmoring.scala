@@ -37,13 +37,16 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
  * dfdl:encodingErrorPolicy='error' would check this (once implemented), otherwise
  * where this is used the checking needs to be done separately somehow.
  */
-object BitsCharsetAISPayloadArmoring extends {
-  override val name = "X-DAFFODIL-AIS-PAYLOAD-ARMORING"
-  override val bitWidthOfACodeUnit = 6
-  override val decodeString = """0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVW'abcdefghijklmnopqrstuvw"""
-  override val replacementCharCode = 0x30
-  override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-} with BitsCharsetNonByteSize
+object BitsCharsetAISPayloadArmoring
+  extends {
+    override val name = "X-DAFFODIL-AIS-PAYLOAD-ARMORING"
+    override val bitWidthOfACodeUnit = 6
+    override val decodeString =
+      """0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVW'abcdefghijklmnopqrstuvw"""
+    override val replacementCharCode = 0x30
+    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
 final class BitsCharsetAISPayloadArmoringDefinition
   extends BitsCharsetDefinition(BitsCharsetAISPayloadArmoring)

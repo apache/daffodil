@@ -44,7 +44,7 @@ trait CharacterSetRemapper {
    *         value negated, which signals that curr+next was remapped to a single character.
    *         Such as is needed if CRLF is remapped to just LF.
    */
-  protected def remap (prev: Char, curr: Char, next: Char): Int
+  protected def remap(prev: Char, curr: Char, next: Char): Int
 
   /**
    * Remaps the string. Returns the original string object if no remapping is required.

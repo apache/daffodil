@@ -17,12 +17,10 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.processors.TextProcessor
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
+import org.apache.daffodil.runtime1.processors.TextProcessor
 
-class SkipRegionParser(
-  skipInBits: Int,
-  override val context: TermRuntimeData)
+class SkipRegionParser(skipInBits: Int, override val context: TermRuntimeData)
   extends PrimParser {
 
   override lazy val runtimeDependencies = Vector()
@@ -33,9 +31,7 @@ class SkipRegionParser(
   }
 }
 
-class AlignmentFillParser(
-  alignmentInBits: Int,
-  override val context: TermRuntimeData)
+class AlignmentFillParser(alignmentInBits: Int, override val context: TermRuntimeData)
   extends PrimParser {
 
   override lazy val runtimeDependencies = Vector()
@@ -47,8 +43,6 @@ class AlignmentFillParser(
   }
 }
 
-class MandatoryTextAlignmentParser(
-  alignmentInBits: Int,
-  override val context: TermRuntimeData)
+class MandatoryTextAlignmentParser(alignmentInBits: Int, override val context: TermRuntimeData)
   extends AlignmentFillParser(alignmentInBits, context)
   with TextProcessor

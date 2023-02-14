@@ -17,8 +17,12 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.{Long => JLong}
+import java.lang.{ Long => JLong }
+
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.runtime1.infoset.DIComplex
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.Infoset
@@ -26,9 +30,6 @@ import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Success
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
-import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.lib.util.Numbers
 
 trait HasKnownLengthInBits {
   def lengthInBits: Int
@@ -47,7 +48,8 @@ trait HasRuntimeExplicitLength {
   lazy val toBits = lengthUnits match {
     case LengthUnits.Bits => 1
     case LengthUnits.Bytes => 8
-    case _ => Assert.invariantFailed("Binary Numbers should never have length units of Bits or Bytes.")
+    case _ =>
+      Assert.invariantFailed("Binary Numbers should never have length units of Bits or Bytes.")
   }
 
   def getBitLength(s: ParseOrUnparseState): Int = {
@@ -80,24 +82,29 @@ trait PrefixedLengthParserMixin {
 
     state.infoset = plElement
 
-    val parsedLen: JLong = try {
-      prefixedLengthParser.parse1(state)
-      // Return zero if there was an error parsing, the caller of this
-      // evaluatable should check the processorStatus to see if anything
-      // failed and ignore this zero. If there was no error, return the value
-      // as a long.
-      if (state.processorStatus ne Success) 0 else Numbers.asLong(plElement.dataValue.getAnyRef)
-    } finally {
-      // reset back to the original infoset and throw away the detatched
-      // element
-      state.infoset = savedInfoset
-    }
+    val parsedLen: JLong =
+      try {
+        prefixedLengthParser.parse1(state)
+        // Return zero if there was an error parsing, the caller of this
+        // evaluatable should check the processorStatus to see if anything
+        // failed and ignore this zero. If there was no error, return the value
+        // as a long.
+        if (state.processorStatus ne Success) 0
+        else Numbers.asLong(plElement.dataValue.getAnyRef)
+      } finally {
+        // reset back to the original infoset and throw away the detatched
+        // element
+        state.infoset = savedInfoset
+      }
     if (parsedLen < 0) {
       state.SDE("Prefixed length result must be non-negative, but was: %d", parsedLen)
     }
     val adjustedLen = parsedLen - prefixedLengthAdjustmentInUnits
     if (adjustedLen < 0) {
-      state.SDE("Prefixed length result must be non-negative after dfdl:prefixIncludesPrefixLength adjustment , but was: %d", adjustedLen)
+      state.SDE(
+        "Prefixed length result must be non-negative after dfdl:prefixIncludesPrefixLength adjustment , but was: %d",
+        adjustedLen,
+      )
     }
     adjustedLen
   }
@@ -114,7 +121,10 @@ trait PrefixedLengthParserMixin {
       case LengthUnits.Bytes => lenInUnits * 8
       case LengthUnits.Characters => {
         val mfw = state.encoder.bitsCharset.maybeFixedWidth
-        Assert.invariant(mfw.isDefined, "Prefixed length for text data in non-fixed width encoding.")
+        Assert.invariant(
+          mfw.isDefined,
+          "Prefixed length for text data in non-fixed width encoding.",
+        )
         lenInUnits * mfw.get
       }
     }

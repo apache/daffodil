@@ -20,7 +20,8 @@ package org.apache.daffodil.io
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MaybeULong
 
-trait DataInputStreamImplMixin extends DataInputStream
+trait DataInputStreamImplMixin
+  extends DataInputStream
   with DataStreamCommonImplMixin
   with LocalBufferMixin {
 

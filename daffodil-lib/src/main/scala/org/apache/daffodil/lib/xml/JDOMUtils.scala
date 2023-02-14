@@ -18,6 +18,7 @@
 package org.apache.daffodil.lib.xml
 
 import scala.xml._
+
 import org.apache.daffodil.lib.exceptions.Assert
 
 object JDOMUtils {
@@ -35,7 +36,9 @@ object JDOMUtils {
     elem2Element(scalaXML)
   }
 
-  def elem2Element(nodes: scala.xml.NodeSeq): Seq[org.jdom2.Element] = nodes.map { elem => elem2Element(elem) }
+  def elem2Element(nodes: scala.xml.NodeSeq): Seq[org.jdom2.Element] = nodes.map { elem =>
+    elem2Element(elem)
+  }
 
   def elem2Element(node: scala.xml.Node): org.jdom2.Element = {
     val jdomNode = new org.jdom2.Element(node.label, node.prefix, node.namespace)
@@ -44,8 +47,10 @@ object JDOMUtils {
     XMLUtils.namespaceBindings(nsBinding).foreach { ns =>
       {
         val prefix = ns.prefix
-        if (prefix != null && prefix != ""
-          && jdomNode.getNamespace(prefix) == null)
+        if (
+          prefix != null && prefix != ""
+          && jdomNode.getNamespace(prefix) == null
+        )
           jdomNode.addNamespaceDeclaration(org.jdom2.Namespace.getNamespace(ns.prefix, ns.uri))
       }
     }
@@ -67,7 +72,9 @@ object JDOMUtils {
           //
           case ("xsi", null) | ("xsi", "") => xsiNS
           case (_, null) | (_, "") => {
-            Assert.invariantFailed("attribute with prefix '%s', but no associated namespace".format(prefix))
+            Assert.invariantFailed(
+              "attribute with prefix '%s', but no associated namespace".format(prefix),
+            )
           }
           case ("", uri) => org.jdom2.Namespace.getNamespace(uri)
           case (pre, uri) => org.jdom2.Namespace.getNamespace(pre, uri)

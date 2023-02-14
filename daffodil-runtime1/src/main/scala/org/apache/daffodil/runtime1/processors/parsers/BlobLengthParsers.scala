@@ -20,9 +20,9 @@ package org.apache.daffodil.runtime1.processors.parsers
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 
+import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.LengthInBitsEv
-import org.apache.daffodil.lib.util.MaybeULong
 
 trait ByteChunkWriter { self: PrimParser =>
 
@@ -33,7 +33,9 @@ trait ByteChunkWriter { self: PrimParser =>
    * that array that should be written. The chunk size is defined by the
    * blobChunkSizeInBytes tunable.
    */
-  def writeBitsInChunks(start: PState, nBits: Long)(writeChunk: (Array[Byte], Int) => Unit): Unit = {
+  def writeBitsInChunks(start: PState, nBits: Long)(
+    writeChunk: (Array[Byte], Int) => Unit,
+  ): Unit = {
     val dis = start.dataInputStream
     var remainingBitsToGet = nBits
 
@@ -67,7 +69,6 @@ trait ByteChunkWriter { self: PrimParser =>
 
 }
 
-
 sealed abstract class BlobLengthParser(override val context: ElementRuntimeData)
   extends PrimParser
   with ByteChunkWriter {
@@ -75,13 +76,14 @@ sealed abstract class BlobLengthParser(override val context: ElementRuntimeData)
   protected def getLengthInBits(pstate: PState): Long
 
   override final def parse(start: PState): Unit = {
-    val blobPath = try {
-      val blobDir = start.output.getBlobDirectory
-      Files.createDirectories(blobDir)
-      Files.createTempFile(blobDir, start.output.getBlobPrefix, start.output.getBlobSuffix)
-    } catch {
-      case e: Exception => start.SDE("Unable to create blob file: ", e.getMessage)
-    }
+    val blobPath =
+      try {
+        val blobDir = start.output.getBlobDirectory
+        Files.createDirectories(blobDir)
+        Files.createTempFile(blobDir, start.output.getBlobPrefix, start.output.getBlobSuffix)
+      } catch {
+        case e: Exception => start.SDE("Unable to create blob file: ", e.getMessage)
+      }
 
     val blobStream = Files.newOutputStream(blobPath, StandardOpenOption.WRITE)
 

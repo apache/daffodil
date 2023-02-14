@@ -176,7 +176,6 @@ trait InfosetOutputter {
    */
   final def getBlobPaths(): Seq[Path] = blobPaths
 
-
   final def getBlobDirectory(): Path = blobDirectory
   final def getBlobPrefix(): String = blobPrefix
   final def getBlobSuffix(): String = blobSuffix

@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.core.dsom
 
+import java.lang.{ Integer => JInt }
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.core.grammar.ModelGroupGrammarMixin
 
-import java.lang.{ Integer => JInt }
 import org.apache.daffodil.core.dsom.walker.ModelGroupView
+import org.apache.daffodil.core.grammar.ModelGroupGrammarMixin
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
@@ -42,13 +42,20 @@ object ModelGroupFactory {
    * Non Model Group types are/should be handled by the caller.
    *
    */
-  def apply(child: Node, lexicalParent: SchemaComponent, position: Int, isHidden: Boolean,
-    nodesAlreadyTrying: Set[Node] = Set()): ModelGroup = {
+  def apply(
+    child: Node,
+    lexicalParent: SchemaComponent,
+    position: Int,
+    isHidden: Boolean,
+    nodesAlreadyTrying: Set[Node] = Set(),
+  ): ModelGroup = {
     if (nodesAlreadyTrying.contains(child)) {
       //
       // We are chasing our tail. Circular reference among named model groups/terms.
       //
-      lexicalParent.schemaDefinitionError("Model group circular definitions. Group references, or hidden group references form a loop.")
+      lexicalParent.schemaDefinitionError(
+        "Model group circular definitions. Group references, or hidden group references form a loop.",
+      )
     } else {
       val moreNodesAlreadyTrying = nodesAlreadyTrying + child
       val res =
@@ -57,10 +64,15 @@ object ModelGroupFactory {
     }
   }
 
-  private def makeModelGroup(child: Node, lexicalParent: SchemaComponent, position: JInt, isHidden: Boolean,
-    nodesAlreadyTrying: Set[Node]): ModelGroup = {
+  private def makeModelGroup(
+    child: Node,
+    lexicalParent: SchemaComponent,
+    position: JInt,
+    isHidden: Boolean,
+    nodesAlreadyTrying: Set[Node],
+  ): ModelGroup = {
     val childModelGroup: ModelGroup = child match {
-      case <sequence>{ _* }</sequence> => {
+      case <sequence>{_*}</sequence> => {
         // throwaway just so we can grab local properties to check for hidden, without
         // special-case code
         val seq = LocalSequence(child, lexicalParent, position)
@@ -74,13 +86,19 @@ object ModelGroupFactory {
           // but set flag so it will be hidden.
           //
           val hgrXML = seq.hiddenGroupRefXML
-          ModelGroupFactory(hgrXML, lexicalParent, position, isHidden = true, nodesAlreadyTrying)
+          ModelGroupFactory(
+            hgrXML,
+            lexicalParent,
+            position,
+            isHidden = true,
+            nodesAlreadyTrying,
+          )
         } else {
           LocalSequence(child, lexicalParent, position)
         }
       }
-      case <choice>{ _* }</choice> => Choice(child, lexicalParent, position)
-      case <group>{ _* }</group> => {
+      case <choice>{_*}</choice> => Choice(child, lexicalParent, position)
+      case <group>{_*}</group> => {
         val pos: Int = lexicalParent match {
           case ct: ComplexTypeBase => 1
           case mg: ModelGroup => position
@@ -90,7 +108,9 @@ object ModelGroupFactory {
         groupRef.asModelGroup
       }
       case _ => {
-        Assert.invariantFailed("Unrecognized construct %s should be handled by caller.".format(child))
+        Assert.invariantFailed(
+          "Unrecognized construct %s should be handled by caller.".format(child),
+        )
       }
     }
     childModelGroup
@@ -108,9 +128,14 @@ object TermFactory {
    * Non Term/Model Group elements are/should be taken care of by the caller.
    *
    */
-  def apply(child: Node, lexicalParent: GroupDefLike, position: Int, nodesAlreadyTrying: Set[Node] = Set()) = {
+  def apply(
+    child: Node,
+    lexicalParent: GroupDefLike,
+    position: Int,
+    nodesAlreadyTrying: Set[Node] = Set(),
+  ) = {
     val childTerm: Term = child match {
-      case <element>{ _* }</element> => {
+      case <element>{_*}</element> => {
         val refProp = child.attribute("ref").map { _.text }
         // must get an unprefixed attribute name, i.e. ref='foo:bar', and not
         // be tripped up by dfdl:ref="fmt:fooey" which is a format reference.
@@ -159,8 +184,8 @@ abstract class ModelGroup protected (index: Int)
 
   final lazy val hasStaticallyRequiredOccurrencesInDataRepresentation = {
     hasFraming ||
-      // or if all arms of the choice have statically required instances.
-      groupMembers.forall { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
+    // or if all arms of the choice have statically required instances.
+    groupMembers.forall { _.hasStaticallyRequiredOccurrencesInDataRepresentation }
   }
 
   /**
@@ -212,14 +237,16 @@ abstract class ModelGroup protected (index: Int)
 
   override lazy val alignmentValueInBits: JInt = {
     this.alignment match {
-      case AlignmentType.Implicit => this.alignmentUnits match {
-        case AlignmentUnits.Bits => 1
-        case AlignmentUnits.Bytes => 8
-      }
-      case align: JInt => this.alignmentUnits match {
-        case AlignmentUnits.Bits => align
-        case AlignmentUnits.Bytes => 8 * align
-      }
+      case AlignmentType.Implicit =>
+        this.alignmentUnits match {
+          case AlignmentUnits.Bits => 1
+          case AlignmentUnits.Bytes => 8
+        }
+      case align: JInt =>
+        this.alignmentUnits match {
+          case AlignmentUnits.Bits => align
+          case AlignmentUnits.Bytes => 8 * align
+        }
     }
   }
 
@@ -252,27 +279,28 @@ abstract class ModelGroup protected (index: Int)
    */
   lazy val potentialLastChildren: (Seq[Term], Boolean) = {
     val (potentialLast, allOptional) = this match {
-        //
-        // All the choice children are potentially last, depending on which branch is active. Could be
-        // any of them.
-        //
-        // We say false for whether they can all be absent, because for any choice one of the the branches
-        // must be present.
-        //
-      case ch: ChoiceTermBase => (ch.groupMembers, false) // false - one of the choice branches must be used.
-        //
-        // An unordered sequence so any group member could be last.
-        //
-        // Conservatively, we'll return true indicating that all members could in fact be optional.
-        // This will be ok, because it will just cause the caller to take one further case into consideration
-        // which is that possibly none of the contents of the group could be present.
-        //
-        // This is fine if we are computing something like the ending alignment approximation of a term.
-        // We're just going to take one more case into the approximation.
-        //
-        // We could be more precise if we searched the children to see if any are scalars. But
-        // not bothering for now.
-        //
+      //
+      // All the choice children are potentially last, depending on which branch is active. Could be
+      // any of them.
+      //
+      // We say false for whether they can all be absent, because for any choice one of the the branches
+      // must be present.
+      //
+      case ch: ChoiceTermBase =>
+        (ch.groupMembers, false) // false - one of the choice branches must be used.
+      //
+      // An unordered sequence so any group member could be last.
+      //
+      // Conservatively, we'll return true indicating that all members could in fact be optional.
+      // This will be ok, because it will just cause the caller to take one further case into consideration
+      // which is that possibly none of the contents of the group could be present.
+      //
+      // This is fine if we are computing something like the ending alignment approximation of a term.
+      // We're just going to take one more case into the approximation.
+      //
+      // We could be more precise if we searched the children to see if any are scalars. But
+      // not bothering for now.
+      //
       case sq: SequenceTermBase if !sq.isOrdered => (sq.groupMembers, true)
 
       case sq: SequenceTermBase => {
@@ -323,7 +351,7 @@ abstract class ModelGroup protected (index: Int)
       }
     }
     if (potentialLastRepresented.isEmpty) {
-      //If there are no children, by definition, all children are optional.
+      // If there are no children, by definition, all children are optional.
       (Seq(), true)
     } else {
       (potentialLastRepresented, allOptional)
@@ -359,10 +387,14 @@ abstract class ModelGroup protected (index: Int)
           case impliedSequence: ChoiceBranchImpliedSequence => impliedSequence.groupMembers(0)
           case regular => regular
         }
-        term.schemaDefinitionUnless(term.hasInitiator,
-          "Enclosing group has initiatedContent='yes', but initiator is not defined.")
-        term.schemaDefinitionUnless(term.hasNonZeroLengthInitiator,
-          "Enclosing group has initiatedContent='yes', but initiator can match zero-length data.")
+        term.schemaDefinitionUnless(
+          term.hasInitiator,
+          "Enclosing group has initiatedContent='yes', but initiator is not defined.",
+        )
+        term.schemaDefinitionUnless(
+          term.hasNonZeroLengthInitiator,
+          "Enclosing group has initiatedContent='yes', but initiator can match zero-length data.",
+        )
       }
     }
   }

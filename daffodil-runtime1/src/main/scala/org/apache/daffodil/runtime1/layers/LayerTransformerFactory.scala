@@ -25,10 +25,7 @@ package org.apache.daffodil.runtime1.layers
  *
  * This must be implmented as part of implementation of a daffodil layer.
  */
-abstract class LayerTransformerFactory(val name: String)
-  extends Serializable {
+abstract class LayerTransformerFactory(val name: String) extends Serializable {
 
   def newInstance(layerRuntimeInfo: LayerRuntimeInfo): LayerTransformer
 }
-
-

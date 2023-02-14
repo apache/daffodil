@@ -19,15 +19,16 @@ package org.apache.daffodil.runtime1.dpath
 
 import java.lang.{ Long => JLong }
 
+import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueLong
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.LengthState
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 
 import passera.unsigned.ULong
 
-sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[CompiledDPath]) extends FNTwoArgsNodeAndValue(recipes) {
+sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[CompiledDPath])
+  extends FNTwoArgsNodeAndValue(recipes) {
 
   protected def lengthState(elt: DIElement): LengthState
 
@@ -50,7 +51,10 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
             // code point width.
             //
             val nyi = new IllegalArgumentException(
-              "dfdl:%sLength's second argument of 'characters' is not yet supported.".format(kind))
+              "dfdl:%sLength's second argument of 'characters' is not yet supported.".format(
+                kind,
+              ),
+            )
             elt.erd.SDE(nyi)
             // lengthState(elt).lengthInCharacters
           }
@@ -59,16 +63,30 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
     len
   }
 
-  override def computeValue(anyNode: DataValuePrimitive, str: DataValuePrimitive, dstate: DState): DataValueLong = {
+  override def computeValue(
+    anyNode: DataValuePrimitive,
+    str: DataValuePrimitive,
+    dstate: DState,
+  ): DataValueLong = {
 
     val elt = anyNode.getAnyRef match {
       case e: DIElement => e
-      case _ => throw new IllegalArgumentException("dfdl:%sLength's first argument must be an Infoset Element. Argument was: %s".format(kind, anyNode))
+      case _ =>
+        throw new IllegalArgumentException(
+          "dfdl:%sLength's first argument must be an Infoset Element. Argument was: %s".format(
+            kind,
+            anyNode,
+          ),
+        )
     }
 
     val units = str.getAnyRef match {
       case s: String => LengthUnits(s, elt.runtimeData)
-      case _ => throw new IllegalArgumentException("dfdl:%sLength's second argument must be one of the strings 'bits', 'bytes', or 'characters', but was: %s.".format(kind, str))
+      case _ =>
+        throw new IllegalArgumentException(
+          "dfdl:%sLength's second argument must be one of the strings 'bits', 'bytes', or 'characters', but was: %s."
+            .format(kind, str),
+        )
     }
 
     val jLen: JLong = getLength(elt, units, dstate).longValue

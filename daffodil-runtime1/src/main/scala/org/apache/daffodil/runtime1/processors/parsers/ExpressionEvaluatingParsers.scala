@@ -17,10 +17,13 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
+import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.runtime1.dpath.ParserDiscriminatorNonBlocking
 import org.apache.daffodil.runtime1.dpath.ParserNonBlocking
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
@@ -33,17 +36,14 @@ import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.TypeCalculator
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
-import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
-import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.lib.util.Maybe.Nope
 
 /**
  * Common parser base class for any parser that evaluates an expression.
  */
 abstract class ExpressionEvaluationParser(
   expr: CompiledExpression[AnyRef],
-  override val context: RuntimeData)
-  extends PrimParserNoData {
+  override val context: RuntimeData,
+) extends PrimParserNoData {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -80,7 +80,11 @@ class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
  * Additionally, the dataValue of the element the parser parsed will be returned
  */
 trait WithDetachedParser {
-  def runDetachedParser(pstate: PState, detachedParser: Parser, erd: ElementRuntimeData): DataValuePrimitiveNullable = {
+  def runDetachedParser(
+    pstate: PState,
+    detachedParser: Parser,
+    erd: ElementRuntimeData,
+  ): DataValuePrimitiveNullable = {
     /*
      * The parse1 being called here is that of ElementCombinator1, which expects to begin and end in the parent
      * of whatever element it is parsing. parse1 will create the new element and append it to the end of the
@@ -110,12 +114,11 @@ trait WithDetachedParser {
     // This isn't actually a point of uncertainty, we just use the logic to
     // allow resetting the infoset after we create the detached parser
     val ans = pstate.withPointOfUncertainty("WithDetachedParser", erd) { pou =>
-    
       detachedParser.parse1(pstate)
 
       val res: DataValuePrimitiveNullable = pstate.processorStatus match {
         case Success => pstate.infoset.children.last.asSimple.dataValue
-        case _       => DataValue.NoValue
+        case _ => DataValue.NoValue
       }
 
       // Restore the infoset. withPointOfUncertainty will discard the pou when
@@ -131,19 +134,29 @@ trait WithDetachedParser {
   }
 }
 
-class TypeValueCalcParser(typeCalculator: TypeCalculator, repTypeParser: Parser, e: ElementRuntimeData, repTypeRuntimeData: ElementRuntimeData)
-  extends CombinatorParser(e)
+class TypeValueCalcParser(
+  typeCalculator: TypeCalculator,
+  repTypeParser: Parser,
+  e: ElementRuntimeData,
+  repTypeRuntimeData: ElementRuntimeData,
+) extends CombinatorParser(e)
   with WithDetachedParser {
   override lazy val childProcessors = Vector(repTypeParser)
   override lazy val runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
-  
+
   override def parse(pstate: PState): Unit = {
-    val repValue: DataValuePrimitiveNullable = runDetachedParser(pstate, repTypeParser, repTypeRuntimeData)
+    val repValue: DataValuePrimitiveNullable =
+      runDetachedParser(pstate, repTypeParser, repTypeRuntimeData)
     val repValueType = repTypeRuntimeData.optPrimType.get
     pstate.dataProc.get.ssrd
     if (pstate.processorStatus == Success) {
       Assert.invariant(repValue.isDefined)
-      val logicalValue: DataValuePrimitiveNullable = typeCalculator.inputTypeCalcParse(pstate, context, repValue.getNonNullable, repValueType)
+      val logicalValue: DataValuePrimitiveNullable = typeCalculator.inputTypeCalcParse(
+        pstate,
+        context,
+        repValue.getNonNullable,
+        repValueType,
+      )
       if (pstate.processorStatus == Success) {
         Assert.invariant(logicalValue.isDefined)
         pstate.simpleElement.setDataValue(logicalValue)
@@ -153,8 +166,11 @@ class TypeValueCalcParser(typeCalculator: TypeCalculator, repTypeParser: Parser,
 
 }
 
-final class SetVariableParser(expr: CompiledExpression[AnyRef], decl: VariableRuntimeData, trd: TermRuntimeData)
-  extends ExpressionEvaluationParser(expr, decl) {
+final class SetVariableParser(
+  expr: CompiledExpression[AnyRef],
+  decl: VariableRuntimeData,
+  trd: TermRuntimeData,
+) extends ExpressionEvaluationParser(expr, decl) {
 
   override val context = trd
 
@@ -180,7 +196,7 @@ final class NewVariableInstanceStartParser(vrd: VariableRuntimeData, trd: TermRu
       val dve = vrd.maybeDefaultValueExpr.get
       val res = DataValue.unsafeFromAnyRef(dve.evaluate(start))
       nvi.setDefaultValue(res)
-    } else if (nvi.firstInstanceInitialValue.isDefined){
+    } else if (nvi.firstInstanceInitialValue.isDefined) {
       // The NVI will inherit the default value of the original variable instance
       // This will also inherit any externally provided bindings.
       nvi.setDefaultValue(nvi.firstInstanceInitialValue)
@@ -204,8 +220,8 @@ final class AssertExpressionEvaluationParser(
   override val discrim: Boolean, // are we a discriminator or not.
   decl: RuntimeData,
   expr: CompiledExpression[AnyRef],
-  override val failureType: FailureType)
-  extends ExpressionEvaluationParser(expr, decl)
+  override val failureType: FailureType,
+) extends ExpressionEvaluationParser(expr, decl)
   with AssertParserMixin {
 
   def parse(start: PState): Unit = {
@@ -215,14 +231,14 @@ final class AssertExpressionEvaluationParser(
     // evaluation via side-effect on the start state passed here.
     //
     val res =
-    try {
-      if (discrim) {
-        start.dState.setMode(ParserDiscriminatorNonBlocking)
+      try {
+        if (discrim) {
+          start.dState.setMode(ParserDiscriminatorNonBlocking)
+        }
+        eval(start)
+      } finally {
+        start.dState.setMode(ParserNonBlocking)
       }
-      eval(start)
-    } finally {
-      start.dState.setMode(ParserNonBlocking)
-    }
     //
     // a PE during evaluation of an assertion is a PE
     //

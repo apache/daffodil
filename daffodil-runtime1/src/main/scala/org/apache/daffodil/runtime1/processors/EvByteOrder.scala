@@ -17,19 +17,16 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.schema.annotation.props.gen._
-import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.runtime1.dsom._
 
 /**
  * Runtime valued properties that are enums would all work like ByteOrder here.
  */
 class ByteOrderEv(override val expr: CompiledExpression[String], eci: DPathElementCompileInfo)
-  extends EvaluatableConvertedExpression[String, ByteOrder](
-    expr,
-    ByteOrder,
-    eci)
+  extends EvaluatableConvertedExpression[String, ByteOrder](expr, ByteOrder, eci)
   with InfosetCachedEvaluatable[ByteOrder] {
   override lazy val runtimeDependencies = Vector()
 
@@ -44,9 +41,11 @@ class Ok private () extends Serializable {
 }
 object Ok extends Ok()
 
-class CheckByteAndBitOrderEv(t: DPathCompileInfo, bitOrder: BitOrder,
-  maybeByteOrderEv: Maybe[ByteOrderEv])
-  extends Evaluatable[Ok](t)
+class CheckByteAndBitOrderEv(
+  t: DPathCompileInfo,
+  bitOrder: BitOrder,
+  maybeByteOrderEv: Maybe[ByteOrderEv],
+) extends Evaluatable[Ok](t)
   with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 
   override lazy val runtimeDependencies = Vector()
@@ -61,7 +60,10 @@ class CheckByteAndBitOrderEv(t: DPathCompileInfo, bitOrder: BitOrder,
             case BitOrder.MostSignificantBitFirst => // ok
             case BitOrder.LeastSignificantBitFirst =>
               if (byteOrder =:= ByteOrder.BigEndian) {
-                t.schemaDefinitionError("Bit order 'leastSignificantBitFirst' requires byte order 'littleEndian', but byte order was '%s'.", byteOrder)
+                t.schemaDefinitionError(
+                  "Bit order 'leastSignificantBitFirst' requires byte order 'littleEndian', but byte order was '%s'.",
+                  byteOrder,
+                )
               }
           }
         }
@@ -88,14 +90,20 @@ class CheckBitOrderAndCharsetEv(t: DPathCompileInfo, bitOrder: BitOrder, charset
     // and the character encoding uses say, MSBF, but we were left
     // off at a LSBF bit position. Or vice versa.
     //
-    if (bitsCharset.mandatoryBitAlignment != 8
+    if (
+      bitsCharset.mandatoryBitAlignment != 8
       && (bitsCharset.requiredBitOrder !=:= bitOrder)
       && state.bitPos1b % 8 != 1 // real runtime check
       // we check that last because the others might fail at compile time for this Ev
       // which would mean no possible error message at runtime, and
       // therefore faster speed for this Ev.
-      ) {
-      t.schemaDefinitionError("Encoding '%s' requires bit order '%s', but bit order was '%s'.", bitsCharset.name, bitsCharset.requiredBitOrder, bitOrder)
+    ) {
+      t.schemaDefinitionError(
+        "Encoding '%s' requires bit order '%s', but bit order was '%s'.",
+        bitsCharset.name,
+        bitsCharset.requiredBitOrder,
+        bitOrder,
+      )
     }
     Ok
   }

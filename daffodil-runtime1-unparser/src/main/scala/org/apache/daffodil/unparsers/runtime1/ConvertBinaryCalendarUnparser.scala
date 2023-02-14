@@ -17,16 +17,15 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.processors.unparsers._
-
-import org.apache.daffodil.lib.calendar.DFDLCalendar
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.lib.calendar.DFDLCalendar
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.unparsers._
 
 import com.ibm.icu.util.Calendar
 
@@ -35,15 +34,20 @@ case class ConvertBinaryCalendarSecMilliUnparser(
   binCalRep: BinaryCalendarRep,
   epochTimeMillis: Long,
   lengthInBits: Int,
-  hasTZ: Boolean)
-  extends PrimUnparser {
+  hasTZ: Boolean,
+) extends PrimUnparser {
 
   /**
    * Primitive unparsers must override runtimeDependencies
    */
   override lazy val runtimeDependencies = Vector()
 
-  protected def putNumber(dos: DataOutputStream, value: Long, nBits: Int, finfo: FormatInfo): Boolean = {
+  protected def putNumber(
+    dos: DataOutputStream,
+    value: Long,
+    nBits: Int,
+    finfo: FormatInfo,
+  ): Boolean = {
     dos.putLong(value, nBits, finfo)
   }
 
@@ -53,7 +57,13 @@ case class ConvertBinaryCalendarSecMilliUnparser(
 
     val calValue = node.dataValue.getAnyRef match {
       case dc: DFDLCalendar => dc.calendar
-      case x => Assert.invariantFailed("ConvertBinaryCalendar received unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)))
+      case x =>
+        Assert.invariantFailed(
+          "ConvertBinaryCalendar received unsupported type. %s of type %s.".format(
+            x,
+            Misc.getNameFromClass(x),
+          ),
+        )
     }
 
     // Adjust the time based on time zone - if a time zone wasn't specified, Calendar will assume the default
@@ -79,8 +89,14 @@ case class ConvertBinaryCalendarSecMilliUnparser(
 
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)
-      UnparseError(One(state.schemaFileLocation), One(state.currentLocation), "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
-        context.dpathElementCompileInfo.namedQName.toPrettyString, lengthInBits, dos.maybeRelBitLimit0b.get)
+      UnparseError(
+        One(state.schemaFileLocation),
+        One(state.currentLocation),
+        "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
+        context.dpathElementCompileInfo.namedQName.toPrettyString,
+        lengthInBits,
+        dos.maybeRelBitLimit0b.get,
+      )
     }
   }
 }
