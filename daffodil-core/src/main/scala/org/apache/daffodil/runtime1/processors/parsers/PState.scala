@@ -564,6 +564,24 @@ final class PState private (
     }
   }
 
+  /**
+   * This function is used for cases where a parse must be performed after there
+   * has already been a failed parse of an enclosing element/sequence. Most
+   * common example of this would be a choice branch containing a sequence with
+   * an annotated assert expression. According to 9.5.2 of the DFDL spec this
+   * assert expression needs to be parsed regardless of whether or not the
+   * enclosing sequence content parses or not as the assert expression may be
+   * used as a discriminator for the choice branch.
+   */
+  def withTempSuccess(func: (PState) => Unit): ProcessorResult = {
+    val priorProcessorStatus = processorStatus
+    setSuccess()
+    func(this)
+    val funcStatus = processorStatus
+    _processorStatus = priorProcessorStatus
+    funcStatus
+  }
+
   def suspensions = Seq.empty
 }
 

@@ -50,8 +50,10 @@ trait ModelGroupGrammarMixin
     // See 9.5 Evaluation Order for Statement Annotations
     dfdlPatternStatementEvaluations ~ // Assert and Discriminator statements with testKind="pattern"
       dfdlScopeBegin ~ // newVariableInstance
-      dfdlLowPriorityStatementEvaluations ~ // setVariable and the rest of the Assert and Discriminator statements
-      groupLeftFraming ~ groupContentWithInitiatorTerminator ~ groupRightFraming ~ dfdlScopeEnd
+      dfdlSetVariableStatements ~
+      groupLeftFraming ~ groupContentWithInitiatorTerminator ~ groupRightFraming ~
+      dfdlAssertDiscrimExpressionStatementEvaluations ~ // The rest of the Assert and Discriminator statements
+      dfdlScopeEnd
   }
 
   private lazy val groupContentWithInitiatorTerminator =

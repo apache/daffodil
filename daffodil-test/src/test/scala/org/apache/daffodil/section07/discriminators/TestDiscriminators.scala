@@ -67,7 +67,11 @@ class TestDiscriminator extends TdmlTests {
   @Test def discrimExpression_03 = test
 
   // DAFFODIL-1971
-  @Ignore @Test def discrimExpression_04 = test
+  @Test def discrimExpression_04 = test
+  @Test def discrimExpression_05 = test
+  @Test def discrimExpression_06 = test
+  @Test def discrimExpression_07 = test
+  @Test def discrimExpression_08 = test
 
   @Test def discrimFailStopsFollowingAssert1 = test
   @Test def discrimPEnotSDE1 = test
