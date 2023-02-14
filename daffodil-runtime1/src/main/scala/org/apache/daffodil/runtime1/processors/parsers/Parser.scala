@@ -178,7 +178,7 @@ abstract class CombinatorParser(override val context: RuntimeData)
   extends Parser
   with CombinatorProcessor
 
-final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser])
+final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser], testAssert: Vector[Parser])
   extends CombinatorParser(context) {
   override lazy val runtimeDependencies = Vector()
   override def childProcessors = childParsers
@@ -192,8 +192,14 @@ final class SeqCompParser(context: RuntimeData, val childParsers: Vector[Parser]
     while (i < numChildParsers) {
       val parser = childParsers(i)
       parser.parse1(pstate)
-      if (pstate.processorStatus ne Success)
+      if (pstate.processorStatus ne Success) {
+        if (testAssert.nonEmpty) {
+          testAssert.foreach { ap =>
+            pstate.withTempSuccess(ap.parse1)
+          }
+        }
         return
+      }
       i += 1
     }
   }
