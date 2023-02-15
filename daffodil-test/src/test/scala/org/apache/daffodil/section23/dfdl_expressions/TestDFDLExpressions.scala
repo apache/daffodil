@@ -1503,6 +1503,10 @@ class TestDFDLExpressions {
   @Test def test_valueLength_4(): Unit = { runner2.runOneTest("valueLength_4") }
   @Test def test_valueLength_5(): Unit = { runner2.runOneTest("valueLength_5") }
   @Test def test_valueLength_6(): Unit = { runner2.runOneTest("valueLength_6") }
+  @Test def test_valueLength_14(): Unit = { runner2.runOneTest("valueLength_14") }
+  // DAFFODIL-2795
+  // @Test def test_valueLength_15(): Unit = { runner2.runOneTest("valueLength_15") }
+  @Test def test_valueLength_16(): Unit = { runner2.runOneTest("valueLength_16") }
   @Test def test_valueLength_sde(): Unit = { runner2.runOneTest("valueLength_sde") }
   @Test def test_valueLength_unparse_0(): Unit = { runner2.runOneTest("valueLength_unparse_0") }
   // DFDL-1516:dfdl:contentLength & dfdl:valueLength specifying lengthUnits 'characters' and variable-width encodings
@@ -1514,6 +1518,10 @@ class TestDFDLExpressions {
   @Test def test_contentLength_0(): Unit = { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1(): Unit = { runner2.runOneTest("contentLength_1") }
   @Test def test_contentLength_2(): Unit = { runner2.runOneTest("contentLength_2") }
+  @Test def test_contentLength_4(): Unit = { runner2.runOneTest("contentLength_4") }
+  // DAFFODIL-2795
+  // @Test def test_contentLength_5(): Unit = { runner2.runOneTest("contentLength_5") }
+  @Test def test_contentLength_6(): Unit = { runner2.runOneTest("contentLength_6") }
 
   @Test def test_valueContentLength1(): Unit = { runner2.runOneTest("valueContentLength1") }
   @Test def test_valueContentLength2(): Unit = { runner2.runOneTest("valueContentLength2") }

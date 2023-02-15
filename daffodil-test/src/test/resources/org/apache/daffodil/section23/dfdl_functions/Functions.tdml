@@ -459,6 +459,37 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="valueLength14">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%WSP;">
+          <xs:element name="first" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="other" type="xs:string" dfdl:lengthKind="delimited" maxOccurs="unbounded"/>
+          <xs:element name="len" type="xs:unsignedInt" dfdl:inputValueCalc='{dfdl:valueLength(../ex:other, "bytes")}'/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="valueLength15" type="xs:unsignedInt" dfdl:inputValueCalc='{dfdl:valueLength("three", "bytes")}'/>
+
+    <xs:element name="valueLength16">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ dfdl:valueLength(., 'bytes') eq 3 }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="v1" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="contentLength">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -494,7 +525,38 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
+    <xs:element name="contentLength4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="%WSP;">
+          <xs:element name="first" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="other" type="xs:string" dfdl:lengthKind="delimited" maxOccurs="unbounded"/>
+          <xs:element name="len" type="xs:unsignedInt" dfdl:inputValueCalc='{dfdl:contentLength(../ex:other, "bytes")}'/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="contentLength5" type="xs:unsignedInt" dfdl:inputValueCalc='{dfdl:contentLength("three", "bytes")}'/>
+
+    <xs:element name="contentLength6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert message="{ dfdl:contentLength(., 'bytes') }">{ dfdl:contentLength(., 'bytes') eq 3 }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="v1" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="e_concat">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -959,8 +1021,6 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
-
   </tdml:defineSchema>
 
 <!--
@@ -3898,6 +3958,77 @@
   </tdml:parserTestCase>
 
 <!--
+    Test Name: valueLength_14
+       Schema: Functions.dfdl.xsd
+         Root: valueLength14
+      Purpose: This test demonstrates that it is an error to get the
+               valueLength of an array
+-->
+  <tdml:parserTestCase name="valueLength_14" root="valueLength14"
+                       model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text">one two three</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>cannot be a path to an array</tdml:error>
+      <tdml:error>dfdl:valueLength</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_15
+       Schema: Functions.dfdl.xsd
+         Root: valueLength15
+      Purpose: This test demonstrates that it is an error to get the
+               valueLength of a literal
+-->
+  <tdml:parserTestCase name="valueLength_15" root="valueLength15"
+                       model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text">one two three</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>expected a path expression</tdml:error>
+      <tdml:error>xs:string</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: valueLength_16
+       Schema: Functions.dfdl.xsd
+         Root: valueLength16
+      Purpose: This test demonstrates a valueLength on a complexType using
+               a path to self
+-->
+
+  <tdml:parserTestCase name="valueLength_16" root="valueLength16"
+                       model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text">ABC,DEF,GHI</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <valueLength16>
+          <e1>
+            <v1>ABC</v1>
+          </e1>
+          <e1>
+            <v1>DEF</v1>
+          </e1>
+          <e1>
+            <v1>GHI</v1>
+          </e1>
+        </valueLength16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
     Test Name: valueLength_unparse_0
        Schema: Functions.dfdl.xsd
          Root: valueLength5
@@ -4091,6 +4222,77 @@
       <tdml:error>Content length unknown</tdml:error>
       <tdml:error>ex:x</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: contentLength_4
+         Schema: Functions.dfdl.xsd
+           Root: contentLength4
+        Purpose: This test demonstrates that it is an error to get the
+                 contentLength of an array
+  -->
+  <tdml:parserTestCase name="contentLength_4" root="contentLength4"
+                       model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text">one two three</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>cannot be a path to an array</tdml:error>
+      <tdml:error>dfdl:contentLength</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: contentLength_5
+         Schema: Functions.dfdl.xsd
+           Root: contentLength5
+        Purpose: This test demonstrates that it is an error to get the
+                 contentLength of a literal
+  -->
+  <tdml:parserTestCase name="contentLength_5" root="contentLength5"
+                       model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text">one two three</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Expected a path expression</tdml:error>
+      <tdml:error>xs:string</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test Name: contentLength_6
+       Schema: Functions.dfdl.xsd
+         Root: contentLength6
+      Purpose: This test demonstrates a contentLength on a complexType using
+               a path to self
+-->
+
+  <tdml:parserTestCase name="contentLength_6" root="contentLength6"
+                       model="Functions.dfdl.xsd" description="Section 23 " roundTrip="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text">ABC,DEF,GHI</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <contentLength6>
+          <e1>
+            <v1>ABC</v1>
+          </e1>
+          <e1>
+            <v1>DEF</v1>
+          </e1>
+          <e1>
+            <v1>GHI</v1>
+          </e1>
+        </contentLength6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--

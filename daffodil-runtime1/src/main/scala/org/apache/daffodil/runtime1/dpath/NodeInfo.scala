@@ -387,7 +387,7 @@ object NodeInfo extends Enum {
   }
 
   /**
-   * For things like fn:exists, fn:empty, dfdl:contenLength
+   * For things like fn:exists, fn:empty, dfdl:contentLength
    */
   protected sealed trait ExistsKind extends AnyType.Kind
   case object Exists extends TypeNode('Exists, AnyType) with AnyTypeKind {
