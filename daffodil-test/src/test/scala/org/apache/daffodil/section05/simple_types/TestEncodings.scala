@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section05.simple_types
 
-import org.junit.Test
-import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
+
+import org.junit.AfterClass
+import org.junit.Test
 
 object TestEncodings {
   private val testDir = "/org/apache/daffodil/section05/simple_types/"

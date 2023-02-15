@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section15.choice_groups
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestHiddenChoices {
 
@@ -37,20 +38,37 @@ class TestHiddenChoices {
 
   import TestHiddenChoices._
 
-
   @Test def test_parseHiddenGroupRef(): Unit = { runner.runOneTest("parseHiddenGroupRef") }
   @Test def test_parseRegularGroupRef(): Unit = { runner.runOneTest("parseRegularGroupRef") }
-  @Test def test_parseSeqOfHiddenAndRegularRef(): Unit = { runner.runOneTest("parseSeqOfHiddenAndRegularRef") }
-  @Test def test_parseNestedHiddenAndRegularRef(): Unit = { runner.runOneTest("parseNestedHiddenAndRegularRef") }
-  @Test def test_parseNestedHiddenGroupRefs(): Unit = { runner.runOneTest("parseNestedHiddenGroupRefs") }
+  @Test def test_parseSeqOfHiddenAndRegularRef(): Unit = {
+    runner.runOneTest("parseSeqOfHiddenAndRegularRef")
+  }
+  @Test def test_parseNestedHiddenAndRegularRef(): Unit = {
+    runner.runOneTest("parseNestedHiddenAndRegularRef")
+  }
+  @Test def test_parseNestedHiddenGroupRefs(): Unit = {
+    runner.runOneTest("parseNestedHiddenGroupRefs")
+  }
 
   @Test def test_unparseHiddenGroupRef(): Unit = { runner.runOneTest("unparseHiddenGroupRef") }
-  @Test def test_unparseRegularGroupRef(): Unit = { runner.runOneTest("unparseRegularGroupRef") }
-  @Test def test_unparseSeqOfHiddenAndRegularRef(): Unit = { runner.runOneTest("unparseSeqOfHiddenAndRegularRef") }
-  @Test def test_unparseNestedHiddenAndRegularRef(): Unit = { runner.runOneTest("unparseNestedHiddenAndRegularRef") }
-  @Test def test_unparseNestedRegularAndHiddenRef(): Unit = { runner.runOneTest("unparseNestedRegularAndHiddenRef") }
-  @Test def test_unparseNestedHiddenGroupRefs(): Unit = { runner.runOneTest("unparseNestedHiddenGroupRefs") }
+  @Test def test_unparseRegularGroupRef(): Unit = {
+    runner.runOneTest("unparseRegularGroupRef")
+  }
+  @Test def test_unparseSeqOfHiddenAndRegularRef(): Unit = {
+    runner.runOneTest("unparseSeqOfHiddenAndRegularRef")
+  }
+  @Test def test_unparseNestedHiddenAndRegularRef(): Unit = {
+    runner.runOneTest("unparseNestedHiddenAndRegularRef")
+  }
+  @Test def test_unparseNestedRegularAndHiddenRef(): Unit = {
+    runner.runOneTest("unparseNestedRegularAndHiddenRef")
+  }
+  @Test def test_unparseNestedHiddenGroupRefs(): Unit = {
+    runner.runOneTest("unparseNestedHiddenGroupRefs")
+  }
   @Test def test_noOVCinHiddenContext(): Unit = { runner.runOneTest("noOVCinHiddenContext") }
-  @Test def test_nestedNoOVCinHiddenContext(): Unit = { runner.runOneTest("nestedNoOVCinHiddenContext") }
+  @Test def test_nestedNoOVCinHiddenContext(): Unit = {
+    runner.runOneTest("nestedNoOVCinHiddenContext")
+  }
 
 }

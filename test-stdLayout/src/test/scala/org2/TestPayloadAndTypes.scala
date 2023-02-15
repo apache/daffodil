@@ -17,9 +17,10 @@
 
 package org2
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestPayloadAndTypes {
   val runner = Runner("org2", "testPayloadAndTypes.tdml")

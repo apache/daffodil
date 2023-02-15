@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section10.representation_properties
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestRepProps2 {
   val testDir = "/org/apache/daffodil/section10/representation_properties/"
@@ -32,7 +33,7 @@ object TestRepProps2 {
 
 class TestRepProps2 {
   import TestRepProps2._
-  
+
   @Test def test_ebcdic1() = { runner.runOneTest("ebcdic1") }
   @Test def test_bits1() = { runner.runOneTest("bits1") }
   @Test def test_bits1a() = { runner.runOneTest("bits1a") }
@@ -44,14 +45,20 @@ class TestRepProps2 {
   // fails Left-over data byte 1 limit(bytes) 2
   @Test def test_bitsTerm2() = { runner.runOneTest("bitsTerm2") }
   @Test def test_bitsTerm3() = { runner.runOneTest("bitsTerm3") }
-  
+
   @Test def test_fiveBitDFI1661DUI001() = { runner.runOneTest("fiveBitDFI1661DUI001") }
-  @Test def test_fiveBitDFI1661DUI001_roundTrip() = { runner.runOneTest("fiveBitDFI1661DUI001_roundTrip") }
+  @Test def test_fiveBitDFI1661DUI001_roundTrip() = {
+    runner.runOneTest("fiveBitDFI1661DUI001_roundTrip")
+  }
 
   @Test def test_sixBit1() = { runner.runOneTest("sixBit1") }
 
-  @Test def test_iso88591msbbitsmisaligned() = { runner.runOneTest("iso88591msbbitsmisaligned") }  
-  @Test def test_iso88591lsbbitsmisaligned() = { runner.runOneTest("iso88591lsbbitsmisaligned") }
+  @Test def test_iso88591msbbitsmisaligned() = {
+    runner.runOneTest("iso88591msbbitsmisaligned")
+  }
+  @Test def test_iso88591lsbbitsmisaligned() = {
+    runner.runOneTest("iso88591lsbbitsmisaligned")
+  }
 
   @Test def test_unalignedCharsetWithMandatory8BitAlignment() = {
     runner.runOneTest("unalignedCharsetWithMandatory8BitAlignment")

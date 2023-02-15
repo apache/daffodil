@@ -17,16 +17,27 @@
 
 package org.apache.daffodil.section02.processing_errors
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestProcessingErrorsUnparse {
   val testDir = "/org/apache/daffodil/section02/processing_errors/"
 
-  val runner02 = Runner(testDir, "ProcessingErrorsUnparse.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
-  val runner02Validate = Runner(testDir, "ProcessingErrorsUnparse.tdml", validateTDMLFile = true, validateDFDLSchemas = true,
-    compileAllTopLevel = true)
+  val runner02 = Runner(
+    testDir,
+    "ProcessingErrorsUnparse.tdml",
+    validateTDMLFile = false,
+    validateDFDLSchemas = false,
+  )
+  val runner02Validate = Runner(
+    testDir,
+    "ProcessingErrorsUnparse.tdml",
+    validateTDMLFile = true,
+    validateDFDLSchemas = true,
+    compileAllTopLevel = true,
+  )
 
   @AfterClass def shutDown(): Unit = {
     runner02.reset
@@ -39,12 +50,22 @@ class TestProcessingErrorsUnparse {
 
   import TestProcessingErrorsUnparse._
 
-  @Test def test_roundTripErrorHalfwayThrough(): Unit = { runner02Validate.runOneTest("roundTripErrorHalfwayThrough") }
+  @Test def test_roundTripErrorHalfwayThrough(): Unit = {
+    runner02Validate.runOneTest("roundTripErrorHalfwayThrough")
+  }
 
-  @Test def test_upaInvalidSchemaUnparse(): Unit = { runner02Validate.runOneTest("upaInvalidSchemaUnparse") }
-  @Test def test_upaInvalidSchemaUnparse2(): Unit = { runner02Validate.runOneTest("upaInvalidSchemaUnparse2") }
-  @Test def test_missingNamespacePrefixUnparse(): Unit = { runner02.runOneTest("missingNamespacePrefixUnparse") }
+  @Test def test_upaInvalidSchemaUnparse(): Unit = {
+    runner02Validate.runOneTest("upaInvalidSchemaUnparse")
+  }
+  @Test def test_upaInvalidSchemaUnparse2(): Unit = {
+    runner02Validate.runOneTest("upaInvalidSchemaUnparse2")
+  }
+  @Test def test_missingNamespacePrefixUnparse(): Unit = {
+    runner02.runOneTest("missingNamespacePrefixUnparse")
+  }
 
-  @Test def test_incorrectNamespaceUnparse(): Unit = { runner02.runOneTest("incorrectNamespaceUnparse") }
+  @Test def test_incorrectNamespaceUnparse(): Unit = {
+    runner02.runOneTest("incorrectNamespaceUnparse")
+  }
 
 }

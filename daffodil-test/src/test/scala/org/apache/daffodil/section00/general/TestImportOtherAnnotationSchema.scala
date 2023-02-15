@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section00.general
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestImportOtherAnnotationSchema {
   val testDir = "/org/apache/daffodil/section00/general/"
@@ -34,8 +35,12 @@ class TestImportOtherAnnotationSchema {
 
   import TestImportOtherAnnotationSchema._
 
-  //DFDL-1907
-  @Test def test_importOtherAnnotationSchema1(): Unit = { runner.runOneTest("importOtherAnnotationSchema1") }
-  @Test def test_importOtherAnnotationSchema2(): Unit = { runner.runOneTest("importOtherAnnotationSchema2") }
+  // DFDL-1907
+  @Test def test_importOtherAnnotationSchema1(): Unit = {
+    runner.runOneTest("importOtherAnnotationSchema1")
+  }
+  @Test def test_importOtherAnnotationSchema2(): Unit = {
+    runner.runOneTest("importOtherAnnotationSchema2")
+  }
 
 }

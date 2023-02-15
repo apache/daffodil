@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.processor.tdml
 
+import org.apache.daffodil.lib.xml.NS.implicitNStoString
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.Runner
 
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.junit.Test
-import org.apache.daffodil.lib.xml.NS.implicitNStoString
 
 class TestTDMLRunnerTutorial {
 
@@ -34,7 +34,9 @@ class TestTDMLRunnerTutorial {
   val xhtml = XMLUtils.XHTML_NAMESPACE
 
   val tdmlWithTutorial =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } xmlns={ xhtml } xmlns:ex={ example }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+      dfdl
+    } xmlns:xs={xsd} xmlns:xsi={xsi} xmlns={xhtml} xmlns:ex={example}>
       <tdml:tutorial>
         <p>1</p>
       </tdml:tutorial>

@@ -17,20 +17,18 @@
 
 package org.apache.daffodil.processor.tdml
 
+import java.io.File
+
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.Implicits.using
+import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml._
 
-import org.apache.daffodil.tdml.Runner
-
-import org.apache.daffodil.tdml.Runner
-
-import java.io.File
-import org.apache.daffodil.lib.Implicits.using
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.apache.daffodil.lib.util._
 import org.junit.Test
-import org.apache.daffodil.lib.Implicits._
 
 class TestTDMLRunner {
 
@@ -51,7 +49,9 @@ class TestTDMLRunner {
     // processor. So the two tests, although they use the same schema, should
     // use different processors.
 
-    val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <testSuite xmlns={tdml} suiteName="theSuiteName" xmlns:xs={xsd} xmlns:dfdl={
+      dfdl
+    } xmlns:tns={example}>
                       <defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -61,7 +61,7 @@ class TestTDMLRunner {
                         <document>37</document>
                         <infoset>
                           <dfdlInfoset>
-                            <data xmlns={ example }>37</data>
+                            <data xmlns={example}>37</data>
                           </dfdlInfoset>
                         </infoset>
                       </parserTestCase>
@@ -69,7 +69,7 @@ class TestTDMLRunner {
                         <document>37</document>
                         <infoset>
                           <dfdlInfoset>
-                            <data xmlns={ example }>37</data>
+                            <data xmlns={example}>37</data>
                           </dfdlInfoset>
                         </infoset>
                       </parserTestCase>
@@ -92,7 +92,9 @@ class TestTDMLRunner {
 
   @Test def testTDMLParseSuccess(): Unit = {
 
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -102,7 +104,7 @@ class TestTDMLRunner {
                         <ts:document>37</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example }>37</data>
+                            <data xmlns={example}>37</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
                       </ts:parserTestCase>
@@ -114,7 +116,9 @@ class TestTDMLRunner {
 
   @Test def testTDMLParseDetectsErrorWithSpecificMessage(): Unit = {
 
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -135,7 +139,9 @@ class TestTDMLRunner {
 
   @Test def testTDMLParseDetectsErrorWithPartMessage(): Unit = {
 
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -159,7 +165,9 @@ class TestTDMLRunner {
 
   @Test def testTDMLParseDetectsErrorAnyMessage(): Unit = {
 
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -179,7 +187,9 @@ class TestTDMLRunner {
 
   @Test def testTDMLParseDetectsNoError(): Unit = {
 
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -201,8 +211,10 @@ class TestTDMLRunner {
   }
 
   @Test def testTDMLParseDetectsNoWarning(): Unit = {
-  
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -212,7 +224,7 @@ class TestTDMLRunner {
                         <ts:document>37</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example }>37</data>
+                            <data xmlns={example}>37</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
                         <ts:warnings>
@@ -229,7 +241,9 @@ class TestTDMLRunner {
   }
 
   @Test def testTDMLParseRunAll(): Unit = {
-    val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <testSuite xmlns={tdml} suiteName="theSuiteName" xmlns:xs={xsd} xmlns:dfdl={
+      dfdl
+    } xmlns:tns={example}>
                       <defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -246,7 +260,9 @@ class TestTDMLRunner {
                       <parserTestCase name="testTDMLParseRunAll2" root="data" model="mySchema">
                         <document>92</document>
                         <infoset>
-                          <dfdlInfoset xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+                          <dfdlInfoset xmlns:tns={example} xmlns:dfdl={dfdl} xmlns:xsd={
+      xsd
+    } xmlns:xsi={xsi}>
                             <tns:data>92</tns:data>
                           </dfdlInfoset>
                         </infoset>
@@ -258,7 +274,9 @@ class TestTDMLRunner {
   }
 
   @Test def testInfosetFromFile(): Unit = {
-    val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
+    val xml = <testSuite xmlns={
+      tdml
+    } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>
                     <documentPart type="file">test/tdml/test.bin</documentPart>
@@ -281,20 +299,22 @@ class TestTDMLRunner {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>)
+      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>,
+    )
 
     val tmpSchemaFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
-    using(new java.io.FileWriter(tmpSchemaFile)) {
-      fileWriter =>
-        fileWriter.write(testSchema.toString())
+    using(new java.io.FileWriter(tmpSchemaFile)) { fileWriter =>
+      fileWriter.write(testSchema.toString())
     }
 
-    val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
-                      <parserTestCase name="testRunModelFile" root="data" model={ tmpSchemaFile.toURI.toString }>
+    val testSuite = <testSuite xmlns={tdml} suiteName="theSuiteName">
+                      <parserTestCase name="testRunModelFile" root="data" model={
+      tmpSchemaFile.toURI.toString
+    }>
                         <document>37</document>
                         <infoset>
                           <dfdlInfoset>
-                            <data xmlns={ example }>37</data>
+                            <data xmlns={example}>37</data>
                           </dfdlInfoset>
                         </infoset>
                       </parserTestCase>
@@ -313,20 +333,22 @@ class TestTDMLRunner {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>)
+      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>,
+    )
 
     val tmpSchemaFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
-    using(new java.io.FileWriter(tmpSchemaFile)) {
-      fileWriter =>
-        fileWriter.write(testSchema.toString())
+    using(new java.io.FileWriter(tmpSchemaFile)) { fileWriter =>
+      fileWriter.write(testSchema.toString())
     }
 
-    val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
-                      <parserTestCase name="testRunTDMLFileReferencingModelFile" root="data" model={ tmpSchemaFile.toURI.toString }>
+    val testSuite = <testSuite xmlns={tdml} suiteName="theSuiteName">
+                      <parserTestCase name="testRunTDMLFileReferencingModelFile" root="data" model={
+      tmpSchemaFile.toURI.toString
+    }>
                         <document>37</document>
                         <infoset>
                           <dfdlInfoset>
-                            <data xmlns={ example }>37</data>
+                            <data xmlns={example}>37</data>
                           </dfdlInfoset>
                         </infoset>
                       </parserTestCase>
@@ -334,13 +356,11 @@ class TestTDMLRunner {
 
     val tmpTDMLFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
     try {
-      using(new java.io.FileWriter(tmpSchemaFile)) {
-        fw =>
-          fw.write(testSchema.toString())
+      using(new java.io.FileWriter(tmpSchemaFile)) { fw =>
+        fw.write(testSchema.toString())
       }
-      using(new java.io.FileWriter(tmpTDMLFile)) {
-        fw =>
-          fw.write(testSuite.toString())
+      using(new java.io.FileWriter(tmpTDMLFile)) { fw =>
+        fw.write(testSuite.toString())
       }
       val runner = new Runner(tmpTDMLFile)
       runner.runAllTests()
@@ -355,17 +375,19 @@ class TestTDMLRunner {
   }
 
   val tdmlWithEmbeddedSchema =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+      dfdl
+    } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
       </tdml:defineSchema>
-      <parserTestCase xmlns={ tdml } name="testEmbeddedSchemaWorks" root="data" model="mySchema">
+      <parserTestCase xmlns={tdml} name="testEmbeddedSchemaWorks" root="data" model="mySchema">
         <document>37</document>
         <infoset>
           <dfdlInfoset>
-            <data xmlns={ example }>37</data>
+            <data xmlns={example}>37</data>
           </dfdlInfoset>
         </infoset>
       </parserTestCase>
@@ -382,9 +404,8 @@ class TestTDMLRunner {
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = tdmlWithEmbeddedSchema
     try {
-      using(new java.io.FileWriter(tmpTDMLFileName)) {
-        fw =>
-          fw.write(testSuite.toString())
+      using(new java.io.FileWriter(tmpTDMLFileName)) { fw =>
+        fw.write(testSuite.toString())
       }
       val runner = new Runner(new java.io.File(tmpTDMLFileName))
       runner.runAllTests()
@@ -396,17 +417,21 @@ class TestTDMLRunner {
   }
 
   val tdmlWithUnicode2028 =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+      dfdl
+    } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <xsd:element name="data" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="delimited" dfdl:terminator="!"/>
       </tdml:defineSchema>
-      <parserTestCase xmlns={ tdml } name="testMultiByteUnicodeWorks" root="data" model="mySchema">
+      <parserTestCase xmlns={
+      tdml
+    } name="testMultiByteUnicodeWorks" root="data" model="mySchema">
         <document>a&#x2028;!</document>
         <infoset>
           <dfdlInfoset>
-            <data xmlns={ tns }>a&#x2028;</data>
+            <data xmlns={tns}>a&#x2028;</data>
           </dfdlInfoset>
         </infoset>
       </parserTestCase>
@@ -420,17 +445,21 @@ class TestTDMLRunner {
   }
 
   val tdmlWithUnicode5E74AndCDATA =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+      dfdl
+    } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <xsd:element name="data" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="delimited" dfdl:terminator=""/>
       </tdml:defineSchema>
-      <parserTestCase xmlns={ tdml } name="testMultiByteUnicodeWithCDATAWorks" root="data" model="mySchema">
+      <parserTestCase xmlns={
+      tdml
+    } name="testMultiByteUnicodeWithCDATAWorks" root="data" model="mySchema">
         <document><documentPart type="text"><![CDATA[a年]]></documentPart></document>
         <infoset>
           <dfdlInfoset>
-            <data xmlns={ tns }>a&#x5E74;</data>
+            <data xmlns={tns}>a&#x5E74;</data>
           </dfdlInfoset>
         </infoset>
       </parserTestCase>
@@ -445,13 +474,15 @@ class TestTDMLRunner {
 
   @Test def testNilCompare() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" nilKind="literalValue" nilValueDelimiterPolicy="terminator"/>
           <xsd:element name="data" type="xsd:int" nillable="true" dfdl:lengthKind="delimited" dfdl:nilValue="nil" dfdl:terminator=";"/>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testNilCompare" root="data" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testNilCompare" root="data" model="mySchema">
           <tdml:document>nil;</tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
@@ -468,13 +499,15 @@ class TestTDMLRunner {
 
   @Test def testNilCompare2() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" nilKind="literalValue" nilValueDelimiterPolicy="terminator"/>
           <xsd:element name="data" type="xsd:int" nillable="true" dfdl:lengthKind="delimited" dfdl:nilValue="nil" dfdl:terminator=";"/>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testNilCompare" root="data" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testNilCompare" root="data" model="mySchema">
           <tdml:document>0;</tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
@@ -499,13 +532,17 @@ class TestTDMLRunner {
    */
   @Test def testAllBytesISO8859() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1"/>
           <dfdl:format ref="tns:GeneralFormat"/>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testAllBytesISO8859" root="data" model="mySchema">
+        <tdml:parserTestCase xmlns={
+        tdml
+      } name="testAllBytesISO8859" root="data" model="mySchema">
           <tdml:document>
             <!-- leave out the characters for &, ", < and > because they cause us trouble in constructing the expected string result. -->
             <tdml:documentPart type="byte"><![CDATA[
@@ -552,13 +589,15 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
    */
   @Test def testISO8859_FF_Byte() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1"/>
           <dfdl:format ref="tns:GeneralFormat"/>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testNilCompare" root="data" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testNilCompare" root="data" model="mySchema">
           <tdml:document>
             <tdml:documentPart type="byte"><![CDATA[
 31 32 33 ff ff ff 34 35 36
@@ -598,9 +637,10 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertTrue(msgs.contains("Unable to resolve"))
   }
 
-
   @Test def testTDMLHexBinaryTypeAwareSuccess_01(): Unit = {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -613,7 +653,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                            <data xmlns={example} xmlns:xsi={xsi} xmlns:xs={xsd}
                               xsi:type="xs:hexBinary">a1b2c3d4</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
@@ -624,7 +664,9 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
   }
 
   @Test def testTDMLHexBinaryTypeAwareSuccess_02(): Unit = {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -637,7 +679,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                            <data xmlns={example} xmlns:xsi={xsi} xmlns:xs={xsd}
                               xsi:type="xs:hexBinary">A1B2C3D4</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
@@ -648,7 +690,9 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
   }
 
   @Test def testTDMLHexBinaryTypeAwareFailure(): Unit = {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -661,7 +705,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         </ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example }>a1b2c3d4</data>
+                            <data xmlns={example}>a1b2c3d4</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
                       </ts:parserTestCase>
@@ -676,10 +720,10 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertTrue(msg.contains("A1B2C3D4"))
   }
 
-
-
   @Test def testTDMLDateTimeTypeAwareSuccess_01(): Unit = {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -692,7 +736,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                            <data xmlns={example} xmlns:xsi={xsi} xmlns:xs={xsd}
                               xsi:type="xs:dateTime">1995-03-24T01:30:00Z</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
@@ -703,7 +747,9 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
   }
 
   @Test def testTDMLDateTimeTypeAwareSuccess_02(): Unit = {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -716,7 +762,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                            <data xmlns={example} xmlns:xsi={xsi} xmlns:xs={xsd}
                               xsi:type="xs:dateTime">1995-03-24T01:30:00+00:00</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
@@ -727,7 +773,9 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
   }
 
   @Test def testTDMLDateTimeTypeAwareSuccess_03(): Unit = {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -740,7 +788,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                            <data xmlns={example} xmlns:xsi={xsi} xmlns:xs={xsd}
                               xsi:type="xs:dateTime">1995-03-24T01:30:00.000+00:00</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
@@ -751,7 +799,9 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
   }
 
   @Test def testTDMLDateTimeTypeAwareSuccess_04(): Unit = {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -764,7 +814,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example } xmlns:xsi={ xsi } xmlns:xs={ xsd }
+                            <data xmlns={example} xmlns:xsi={xsi} xmlns:xs={xsd}
                               xsi:type="xs:dateTime">1995-03-24T01:30:00.000000Z</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
@@ -775,7 +825,9 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
   }
 
   @Test def testTDMLDateTimeTypeAwareFailure(): Unit = {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } suiteName="theSuiteName" xmlns:xs={ xsd } xmlns:dfdl={ dfdl } xmlns:tns={ example }>
+    val testSuite = <ts:testSuite xmlns:ts={tdml} suiteName="theSuiteName" xmlns:xs={
+      xsd
+    } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -788,7 +840,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
                         <ts:document>1995-03-24T01:30:00.000000+00:00</ts:document>
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example }>1995-03-24T01:30:00Z</data>
+                            <data xmlns={example}>1995-03-24T01:30:00Z</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
                       </ts:parserTestCase>
@@ -830,7 +882,9 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
 
   @Test def testDuplicateDefineSchema(): Unit = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="dupSchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
@@ -841,11 +895,11 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
           <dfdl:format ref="tns:GeneralFormat"/>
           <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
         </tdml:defineSchema>
-        <parserTestCase xmlns={ tdml } name="testCase" root="data" model="dupSchema">
+        <parserTestCase xmlns={tdml} name="testCase" root="data" model="dupSchema">
           <document>37</document>
           <infoset>
             <dfdlInfoset>
-              <data xmlns={ example }>37</data>
+              <data xmlns={example}>37</data>
             </dfdlInfoset>
           </infoset>
         </parserTestCase>
@@ -855,30 +909,34 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
       runner.runOneTest("testCase")
     }
     runner.reset
-    assertTrue(exc.getMessage().contains("Duplicate definitions found for defineSchema: dupSchema"))
+    assertTrue(
+      exc.getMessage().contains("Duplicate definitions found for defineSchema: dupSchema"),
+    )
   }
 
   @Test def testDuplicateTestCase(): Unit = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
           <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
         </tdml:defineSchema>
-        <parserTestCase xmlns={ tdml } name="dupTestCase" root="data" model="mySchema">
+        <parserTestCase xmlns={tdml} name="dupTestCase" root="data" model="mySchema">
           <document>37</document>
           <infoset>
             <dfdlInfoset>
-              <data xmlns={ example }>37</data>
+              <data xmlns={example}>37</data>
             </dfdlInfoset>
           </infoset>
         </parserTestCase>
-        <unparserTestCase xmlns={ tdml } name="dupTestCase" root="data" model="mySchema">
+        <unparserTestCase xmlns={tdml} name="dupTestCase" root="data" model="mySchema">
           <document>37</document>
           <infoset>
             <dfdlInfoset>
-              <data xmlns={ example }>37</data>
+              <data xmlns={example}>37</data>
             </dfdlInfoset>
           </infoset>
         </unparserTestCase>
@@ -888,12 +946,18 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
       runner.runOneTest("testCase")
     }
     runner.reset
-    assertTrue(exc.getMessage().contains("Duplicate definitions found for parser or unparser test cases: dupTestCase"))
+    assertTrue(
+      exc
+        .getMessage()
+        .contains("Duplicate definitions found for parser or unparser test cases: dupTestCase"),
+    )
   }
 
   @Test def testDuplicateDefineConfig(): Unit = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
@@ -901,11 +965,13 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
         </tdml:defineSchema>
         <tdml:defineConfig name="dupConfig" />
         <tdml:defineConfig name="dupConfig" />
-        <parserTestCase xmlns={ tdml } name="testCase" root="data" model="mySchema" config="dupConfig">
+        <parserTestCase xmlns={
+        tdml
+      } name="testCase" root="data" model="mySchema" config="dupConfig">
           <document>37</document>
           <infoset>
             <dfdlInfoset>
-              <data xmlns={ example }>37</data>
+              <data xmlns={example}>37</data>
             </dfdlInfoset>
           </infoset>
         </parserTestCase>
@@ -915,19 +981,21 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
       runner.runOneTest("testCase")
     }
     runner.reset
-    assertTrue(exc.getMessage().contains("Duplicate definitions found for defineConfig: dupConfig"))
+    assertTrue(
+      exc.getMessage().contains("Duplicate definitions found for defineConfig: dupConfig"),
+    )
   }
 
   @Test def testNonXSDModelNegativeBadCompiledFile(): Unit = {
     val testSuite =
-       <tdml:testSuite suiteName="theSuiteName"
-                       xmlns:tns={ tns }
-                       xmlns:tdml={ tdml }
-                       xmlns:dfdl={ dfdl }
-                       xmlns:xsd={ xsd }
-                       xmlns:xs={ xsd }
-                       xmlns:xsi={ xsi }>
-         <parserTestCase xmlns={ tdml } name="testCase" root="data"
+      <tdml:testSuite suiteName="theSuiteName"
+                       xmlns:tns={tns}
+                       xmlns:tdml={tdml}
+                       xmlns:dfdl={dfdl}
+                       xmlns:xsd={xsd}
+                       xmlns:xs={xsd}
+                       xmlns:xsi={xsi}>
+         <parserTestCase xmlns={tdml} name="testCase" root="data"
                          model="test/tdml/fake-precompiled-dfdl-schema.bin" >
            <document/>
            <infoset><dfdlInfoset><data/></dfdlInfoset></infoset>

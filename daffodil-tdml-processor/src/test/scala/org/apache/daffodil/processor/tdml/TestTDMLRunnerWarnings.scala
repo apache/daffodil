@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.processor.tdml
 
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.Test
 import org.junit.AfterClass
-import org.apache.daffodil.lib.Implicits._
 import org.junit.Assert.fail
+import org.junit.Test
 
 object TestTDMLRunnerWarnings {
   val runner = Runner("/test/tdml/", "testWarnings.tdml")
@@ -36,10 +36,18 @@ class TestTDMLRunnerWarnings {
   import TestTDMLRunnerWarnings._
 
   // DAFFODIL-1583
-  @Test def test_warningWhenExpectingSuccess() = { runner.runOneTest("warningWhenExpectingSuccess") }
-  @Test def test_warningWhenExpectingError() = { runner.runOneTest("warningWhenExpectingError") }
-  @Test def test_unparserWarningWhenExpectingSuccess() = { runner.runOneTest("unparserWarningWhenExpectingSuccess") }
-  @Test def test_unparserWarningWhenExpectingError() = { runner.runOneTest("unparserWarningWhenExpectingError") }
+  @Test def test_warningWhenExpectingSuccess() = {
+    runner.runOneTest("warningWhenExpectingSuccess")
+  }
+  @Test def test_warningWhenExpectingError() = {
+    runner.runOneTest("warningWhenExpectingError")
+  }
+  @Test def test_unparserWarningWhenExpectingSuccess() = {
+    runner.runOneTest("unparserWarningWhenExpectingSuccess")
+  }
+  @Test def test_unparserWarningWhenExpectingError() = {
+    runner.runOneTest("unparserWarningWhenExpectingError")
+  }
 
   /*
    * These tests insure that the TDML runner is actually testing the warnings.

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.lib
 
+import org.apache.daffodil.lib.Implicits._
+
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.lib.Implicits._
 
 /**
  * Scala Unit Testing Notes:
@@ -49,7 +50,7 @@ class HowToUseJUnit {
 
   @Test def testOfInterceptToTestExpectedThrows(): Unit = {
     intercept[NumberFormatException] {
-      //println("here we are")
+      // println("here we are")
       somethingThatThrows()
     }
   }
@@ -57,7 +58,7 @@ class HowToUseJUnit {
   // @Test
   def testOfInterceptReturnedValue(): Unit = {
     val nfe = intercept[NumberFormatException] {
-      //println("here we are")
+      // println("here we are")
       somethingThatThrows()
     }
     if (!nfe.getClass().getName().contains("NumberFormatException"))
@@ -67,12 +68,12 @@ class HowToUseJUnit {
   // @Test
   //  def testOfInterceptToTestExpectedThrowsButItThrewSomethingElse() {
   //   val e = intercept[JUnitTestFailedError] { // FIXME: Not right exception to catch...
-  //      intercept[NumberFormatException] { // won't get this one, so it will throw 
+  //      intercept[NumberFormatException] { // won't get this one, so it will throw
   //        //println("there we go")
   //        throw new Exception("foobar")
   //      }
   //    }
-  //   if (!e.getMessage().contains("foobar")) 
+  //   if (!e.getMessage().contains("foobar"))
   //     fail("didn't propagate unintercepted throw properly.")
   //  }
 

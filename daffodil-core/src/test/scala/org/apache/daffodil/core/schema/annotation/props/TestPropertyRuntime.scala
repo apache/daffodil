@@ -17,18 +17,19 @@
 
 package org.apache.daffodil.core.schema.annotation.props
 
+import org.apache.daffodil.core.dsom.NestingLexicalMixin
+import org.apache.daffodil.core.dsom.SchemaComponentImpl
+import org.apache.daffodil.core.util.Fakes
+import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.schema.annotation.props._
 
 import org.junit.Assert._
-import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.junit.Test
-import org.apache.daffodil.core.dsom.SchemaComponentImpl
-import org.apache.daffodil.core.util.Fakes
-import org.apache.daffodil.core.dsom.NestingLexicalMixin
 
 sealed trait MyPropType extends MyProp.Value
-object MyProp extends Enum[MyPropType] // with ThrowsSDE
-{
+object MyProp
+  extends Enum[MyPropType] // with ThrowsSDE
+  {
   lazy val context = Fakes.fakeElem
   //  lazy val schemaComponent = context
   case object PropVal1 extends MyPropType
@@ -75,7 +76,8 @@ class TestPropertyRuntime {
 
 }
 
-class HasMixin extends SchemaComponentImpl(<foo/>, None)
+class HasMixin
+  extends SchemaComponentImpl(<foo/>, None)
   with TheExamplePropMixin
   with NestingLexicalMixin {
 
@@ -92,11 +94,11 @@ object TheExampleProp extends Enum[TheExampleProp] {
   case object Center extends TheExampleProp
   override lazy val values = Array(Left, Right, Center)
 
-  def apply(name: String, self: ThrowsSDE): TheExampleProp = stringToEnum("theExampleProp", name, self)
+  def apply(name: String, self: ThrowsSDE): TheExampleProp =
+    stringToEnum("theExampleProp", name, self)
 }
 
-trait TheExamplePropMixin
-  extends PropertyMixin { self: HasMixin =>
+trait TheExamplePropMixin extends PropertyMixin { self: HasMixin =>
 
   /**
    * get property value, or fail trying. Use this if you need

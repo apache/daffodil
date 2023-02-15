@@ -19,12 +19,13 @@ package org.apache.daffodil.core.dsom
 
 import scala.xml.Elem
 
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.junit.Assert._
-import org.junit.Test
 import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.junit.Assert._
+import org.junit.Test
 
 /**
  * Tests that verify that Daffodil works properly with other
@@ -41,16 +42,18 @@ class TestAppinfoSyntax {
   @Test def testAppinfoWithNonNativeAttributes(): Unit = {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
-    val sc = <xs:schema xmlns:xs={ xsd } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={ nnURI }>
+    val sc = <xs:schema xmlns:xs={
+      xsd
+    } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI}>
                <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <xs:annotation>
-                 <xs:appinfo source={ dfdl } foo:nonNativeAttribute1={ expected }>
+                 <xs:appinfo source={dfdl} foo:nonNativeAttribute1={expected}>
                    <dfdl:format ref="GeneralFormat"/>
                  </xs:appinfo>
                </xs:annotation>
                <xs:element name="root" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1">
                  <xs:annotation>
-                   <xs:appinfo source={ dfdl }>
+                   <xs:appinfo source={dfdl}>
                      <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
                    </xs:appinfo>
                  </xs:annotation>
@@ -75,22 +78,24 @@ class TestAppinfoSyntax {
   @Test def testMultipleAppinfos(): Unit = {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
-    val sc = <xs:schema xmlns:xs={ xsd } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={ nnURI }>
+    val sc = <xs:schema xmlns:xs={
+      xsd
+    } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI}>
                <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <xs:annotation>
-                 <xs:appinfo source={ dfdl } foo:nonNativeAttribute1={ expected }>
+                 <xs:appinfo source={dfdl} foo:nonNativeAttribute1={expected}>
                    <dfdl:format ref="GeneralFormat"/>
                  </xs:appinfo>
                </xs:annotation>
                <xs:element name="root" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1">
                  <xs:annotation>
-                   <xs:appinfo source={ dfdl }>
+                   <xs:appinfo source={dfdl}>
                      <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
                    </xs:appinfo>
                  </xs:annotation>
                </xs:element>
                <xs:annotation>
-                 <xs:appinfo source={ dfdl } foo:nonNativeAttribute2={ expected }>
+                 <xs:appinfo source={dfdl} foo:nonNativeAttribute2={expected}>
                    <dfdl:format ref="GeneralFormat"/>
                  </xs:appinfo>
                </xs:annotation>
@@ -120,17 +125,19 @@ class TestAppinfoSyntax {
   @Test def testMixedAnnotationElementsInsideDFDLAppinfo(): Unit = {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
-    val sc = <xs:schema xmlns:xs={ xsd } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={ nnURI }>
+    val sc = <xs:schema xmlns:xs={
+      xsd
+    } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI}>
                <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <xs:annotation>
-                 <xs:appinfo source={ dfdl } foo:nonNativeAttribute1={ expected }>
+                 <xs:appinfo source={dfdl} foo:nonNativeAttribute1={expected}>
                    <dfdl:format ref="GeneralFormat"/>
                    <foo:anotherAnnotationElementAdjacentToDFDLAnnotation/>
                  </xs:appinfo>
                </xs:annotation>
                <xs:element name="root" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1">
                  <xs:annotation>
-                   <xs:appinfo source={ dfdl }>
+                   <xs:appinfo source={dfdl}>
                      <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
                    </xs:appinfo>
                  </xs:annotation>
@@ -156,26 +163,28 @@ class TestAppinfoSyntax {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
     val nnURI2 = "urn:anotherNonNativeURI"
-    val sc = <xs:schema xmlns:xs={ xsd } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={ nnURI } xmlns:bar={ nnURI2 }>
+    val sc = <xs:schema xmlns:xs={
+      xsd
+    } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI} xmlns:bar={nnURI2}>
                <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <xs:annotation>
-                 <xs:appinfo source={ nnURI } foo:nonNativeAttribute1={ expected }>
+                 <xs:appinfo source={nnURI} foo:nonNativeAttribute1={expected}>
                    <!-- since the source is not DFDL's, this should be completely ignored. -->
                    <foo:thisIsAnAnnotationElement/>
                  </xs:appinfo>
-                 <xs:appinfo source={ dfdl } foo:nonNativeAttribute1={ expected }>
+                 <xs:appinfo source={dfdl} foo:nonNativeAttribute1={expected}>
                    <dfdl:format ref="GeneralFormat"/>
                  </xs:appinfo>
                </xs:annotation>
                <xs:element name="root" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1">
                  <xs:annotation>
-                   <xs:appinfo source={ dfdl }>
+                   <xs:appinfo source={dfdl}>
                      <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
                    </xs:appinfo>
                  </xs:annotation>
                </xs:element>
                <xs:annotation>
-                 <xs:appinfo source={ nnURI2 } bar:nonNativeAttribute2={ expected }>
+                 <xs:appinfo source={nnURI2} bar:nonNativeAttribute2={expected}>
                    <bar:anotherAppinfoAnnotationElement/>
                  </xs:appinfo>
                </xs:annotation>
@@ -199,13 +208,15 @@ class TestAppinfoSyntax {
   @Test def testAppinfoWithComments(): Unit = {
     val expected = "this is a non-native attribute"
     val nnURI = "urn:nonNativeAttributeNamespaceURN"
-    val sc = <xs:schema xmlns:xs={ xsd } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={ nnURI }>
+    val sc = <xs:schema xmlns:xs={
+      xsd
+    } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI}>
                <!-- This is a comment -->
                <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <!-- This is a comment -->
                <xs:annotation>
                  <!-- This is a comment -->
-                 <xs:appinfo source={ dfdl } foo:nonNativeAttribute1={ expected }>
+                 <xs:appinfo source={dfdl} foo:nonNativeAttribute1={expected}>
                    <!-- This is a comment -->
                    <dfdl:format ref="GeneralFormat"/>
                    <!-- This is a comment -->
@@ -217,7 +228,7 @@ class TestAppinfoSyntax {
                  <!-- This is a comment -->
                  <xs:annotation>
                    <!-- This is a comment -->
-                   <xs:appinfo source={ dfdl }>
+                   <xs:appinfo source={dfdl}>
                      <!-- This is a comment -->
                      <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
                      <!-- This is a comment -->

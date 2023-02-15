@@ -17,16 +17,16 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import org.junit.Assert._
-
 import java.io._
-import org.junit.Test
-import org.apache.daffodil.io.RegexLimitingStream
-
 import java.nio.charset.StandardCharsets
-import org.apache.daffodil.lib.util.Misc
-import org.apache.commons.io.IOUtils
+
 import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
+import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.lib.util.Misc
+
+import org.apache.commons.io.IOUtils
+import org.junit.Assert._
+import org.junit.Test
 
 /**
  * AISPayloadArmoring Stream unit tests
@@ -62,17 +62,20 @@ class TestAISPayloadArmoringStreams {
     }
     baos.close()
     val result = baos.toByteArray()
-    val expected = Misc.bits2Bytes("000001 000100 101101 010111 011100 001010 010000 000000 000000 000000 110111 001000 110111 100001 101000 011100 011101 110010 011111 101011 110000 110101 010111 010000 000000 001000 011000 011011 ")
+    val expected = Misc.bits2Bytes(
+      "000001 000100 101101 010111 011100 001010 010000 000000 000000 000000 110111 001000 110111 100001 101000 011100 011101 110010 011111 101011 110000 110101 010111 010000 000000 001000 011000 011011 ",
+    )
     assertEquals(expected.length, result.length)
-    val pairs = expected zip result
-    pairs.foreach {
-      case (exp, act) =>
-        assertEquals(exp, act)
+    val pairs = expected.zip(result)
+    pairs.foreach { case (exp, act) =>
+      assertEquals(exp, act)
     }
   }
 
   @Test def testAISPayloadArmoringEncode() = {
-    val dataBytes = Misc.bits2Bytes("000001 000100 101101 010111 011100 001010 010000 000000 000000 000000 110111 001000 110111 100001 101000 011100 011101 110010 011111 101011 110000 110101 010111 010000 000000 001000 011000 011011 ")
+    val dataBytes = Misc.bits2Bytes(
+      "000001 000100 101101 010111 011100 001010 010000 000000 000000 000000 110111 001000 110111 100001 101000 011100 011101 110010 011111 101011 110000 110101 010111 010000 000000 001000 011000 011011 ",
+    )
     val bais = new ByteArrayInputStream(dataBytes)
     val baos = new ByteArrayOutputStream()
     val lbmijos = new LayerBoundaryMarkInsertingJavaOutputStream(baos, ",", iso8859)
@@ -82,9 +85,8 @@ class TestAISPayloadArmoringStreams {
     val result = baos.toByteArray()
     val expected = "14eGL:@000o8oQ'LMjOchmG@08HK,".getBytes(iso8859)
     assertEquals(expected.length, result.length)
-    (expected zip result).foreach {
-      case (exp, act) =>
-        assertEquals(exp, act)
+    (expected.zip(result)).foreach { case (exp, act) =>
+      assertEquals(exp, act)
     }
   }
 

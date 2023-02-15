@@ -17,24 +17,23 @@
 
 package org.apache.daffodil.lib.oolag
 
-import org.junit.Assert._
-import org.apache.daffodil.lib.oolag.OOLAG._
-import org.junit.Test
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.exceptions.Abort
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.oolag.OOLAG._
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 
-class MyException(msg: String)
-  extends Diagnostic(Nope, Nope, Nope, Maybe(msg)) {
+import org.junit.Assert._
+import org.junit.Test
+
+class MyException(msg: String) extends Diagnostic(Nope, Nope, Nope, Maybe(msg)) {
   override def isError = true
   override def modeName = "Parse"
 }
 
-abstract class MyBase(parentArg: MyBase)
-  extends OOLAGHostImpl(parentArg) {
+abstract class MyBase(parentArg: MyBase) extends OOLAGHostImpl(parentArg) {
 
   def a1 = a1_.value
   lazy val a1_ = LV('a1) {
@@ -57,8 +56,7 @@ abstract class MyBase(parentArg: MyBase)
 
 }
 
-class MySubHost(name: String, parent: MyBase)
-  extends MyBase(parent) {
+class MySubHost(name: String, parent: MyBase) extends MyBase(parent) {
   requiredEvaluationsAlways(a1)
 }
 

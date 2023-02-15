@@ -18,44 +18,44 @@
 package org.apache.daffodil.lib.util
 
 import java.io.File
-import scala.xml.InputSource
-import scala.xml.SAXParseException
-import scala.xml.parsing.NoBindingFactoryAdapter
-import scala.xml.Elem
-import scala.xml.Node
-import org.apache.xerces.xni.parser.XMLInputSource
-import org.apache.xml.resolver.Catalog
-import org.apache.xml.resolver.CatalogManager
-import org.junit.Test
-import org.apache.daffodil.lib.util.Implicits.using
-
+import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParser
-import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
-
-import scala.xml.NamespaceBinding
-import scala.xml.MetaData
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
-
-import scala.xml.Null
-import scala.xml.Attribute
-import scala.xml.Text
+import scala.collection.mutable
 import scala.language.reflectiveCalls
+import scala.xml.Attribute
+import scala.xml.Elem
+import scala.xml.InputSource
+import scala.xml.MetaData
+import scala.xml.NamespaceBinding
+import scala.xml.Node
+import scala.xml.Null
+import scala.xml.SAXParseException
+import scala.xml.Text
+import scala.xml.parsing.NoBindingFactoryAdapter
+
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Implicits.using
+import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.NS.implicitNStoString
 import org.apache.daffodil.lib.xml.XMLUtils
 
-import scala.collection.mutable
-import javax.xml.XMLConstants
+import org.apache.xerces.xni.parser.XMLInputSource
+import org.apache.xml.resolver.Catalog
+import org.apache.xml.resolver.CatalogManager
+import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Test
 
 object Implicits {
+
   /**
    * Used for reading/writing to database, files, etc.
    * Code From the book "Beginning Scala"
    * http://www.amazon.com/Beginning-Scala-David-Pollak/dp/1430219890
    */
   def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
-    try { f(param) } finally { param.close() }
+    try { f(param) }
+    finally { param.close() }
 
 }
 
@@ -102,34 +102,36 @@ class TestXMLCatalogAndValidate {
     val tmpDataFileName = tempFileName("_data.xml")
     val tmpCatalogFileName = tempFileName("_cat.catalog.xml")
 
-    //This version doesn't seem to read a catalog this way
+    // This version doesn't seem to read a catalog this way
     System.setProperty("xml.catalog.files", tmpCatalogFileName.getAbsolutePath())
-    System.setProperty("xml.catalog.ignoreMissing", "true") // silence warning about missing Catalog.properties
+    System.setProperty(
+      "xml.catalog.ignoreMissing",
+      "true",
+    ) // silence warning about missing Catalog.properties
     // System.setProperty("xml.catalog.verbosity", "4") // has no effect... grr
 
     val testSchema =
-      <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+      <schema xmlns={xsd} targetNamespace={example} xmlns:tns={example} xmlns:xsd={
+        xsd
+      } xmlns:xsi={xsi}>
         <element name="data" type="xsd:int"/>
       </schema>
 
-    val testSuite = <data xmlns={ example }>abc</data>
+    val testSuite = <data xmlns={example}>abc</data>
 
     val testCatalog = <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-                        <uri name={ example } uri={ tmpSchemaFileName.toURI().toString() }/>
+                        <uri name={example} uri={tmpSchemaFileName.toURI().toString()}/>
                       </catalog>
 
     try {
-      using(new java.io.FileWriter(tmpSchemaFileName)) {
-        fw =>
-          fw.write(testSchema.toString())
+      using(new java.io.FileWriter(tmpSchemaFileName)) { fw =>
+        fw.write(testSchema.toString())
       }
-      using(new java.io.FileWriter(tmpDataFileName)) {
-        fw =>
-          fw.write(testSuite.toString())
+      using(new java.io.FileWriter(tmpDataFileName)) { fw =>
+        fw.write(testSuite.toString())
       }
-      using(new java.io.FileWriter(tmpCatalogFileName)) {
-        fw =>
-          fw.write(testCatalog.toString())
+      using(new java.io.FileWriter(tmpCatalogFileName)) { fw =>
+        fw.write(testCatalog.toString())
       }
 
       val loader = XMLLoaderFactory()
@@ -167,41 +169,37 @@ class TestXMLCatalogAndValidate {
     // System.setProperty("xml.catalog.verbosity", "4") // has no effect... grr
 
     val testSchema1 =
-      <schema xmlns={ xsd } targetNamespace={ ex1 } xmlns:ex2={ ex2 }>
-        <import namespace={ ex2 }/>
+      <schema xmlns={xsd} targetNamespace={ex1} xmlns:ex2={ex2}>
+        <import namespace={ex2}/>
         <element name="data" type="ex2:dataType"/>
       </schema>
     val testSchema2 =
-      <schema xmlns={ xsd } targetNamespace={ ex2 } xmlns:xsd={ xsd }>
+      <schema xmlns={xsd} targetNamespace={ex2} xmlns:xsd={xsd}>
         <simpleType name="dataType">
           <restriction base="xsd:int"/>
         </simpleType>
       </schema>
     System.setProperty("xml.catalog.files", tmpCatalogFileName.getAbsolutePath())
 
-    val testSuite = <data xmlns={ ex1 }>abc</data>
+    val testSuite = <data xmlns={ex1}>abc</data>
 
     val testCatalog = <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-                        <uri name={ ex1 } uri={ tmpSchema1FileName.toURI().toString() }/>
-                        <uri name={ ex2 } uri={ tmpSchema2FileName.toURI().toString() }/>
+                        <uri name={ex1} uri={tmpSchema1FileName.toURI().toString()}/>
+                        <uri name={ex2} uri={tmpSchema2FileName.toURI().toString()}/>
                       </catalog>
 
     try {
-      using(new java.io.FileWriter(tmpSchema1FileName)) {
-        fw =>
-          fw.write(testSchema1.toString())
+      using(new java.io.FileWriter(tmpSchema1FileName)) { fw =>
+        fw.write(testSchema1.toString())
       }
-      using(new java.io.FileWriter(tmpSchema2FileName)) {
-        fw =>
-          fw.write(testSchema2.toString())
+      using(new java.io.FileWriter(tmpSchema2FileName)) { fw =>
+        fw.write(testSchema2.toString())
       }
-      using(new java.io.FileWriter(tmpDataFileName)) {
-        fw =>
-          fw.write(testSuite.toString())
+      using(new java.io.FileWriter(tmpDataFileName)) { fw =>
+        fw.write(testSuite.toString())
       }
-      using(new java.io.FileWriter(tmpCatalogFileName)) {
-        fw =>
-          fw.write(testCatalog.toString())
+      using(new java.io.FileWriter(tmpCatalogFileName)) { fw =>
+        fw.write(testCatalog.toString())
       }
 
       val loader = XMLLoaderFactory()
@@ -236,15 +234,14 @@ class TestXMLCatalogAndValidate {
     // lets make sure we're not using files that would naturally be on the classpath
     System.setProperty("xml.catalog.ignoreMissing", "true")
 
-    val testSuite = <schema xmlns={ xsd } targetNamespace={ ex1 }>
+    val testSuite = <schema xmlns={xsd} targetNamespace={ex1}>
                       <foobar/>
                     </schema>
 
     val tmpDataFileName = tempFileName("_data.xml")
     try {
-      using(new java.io.FileWriter(tmpDataFileName)) {
-        fw =>
-          fw.write(testSuite.toString())
+      using(new java.io.FileWriter(tmpDataFileName)) { fw =>
+        fw.write(testSuite.toString())
       }
 
       val loader = XMLLoaderFactory()
@@ -264,7 +261,9 @@ class TestXMLCatalogAndValidate {
     // lets make sure we're not using files that would naturally be on the classpath
     System.setProperty("xml.catalog.ignoreMissing", "true")
 
-    val testSuite = <schema xmlns={ xsd } targetNamespace={ ex1 } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+    val testSuite = <schema xmlns={xsd} targetNamespace={
+      ex1
+    } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
                       <annotation><appinfo source="http://www.ogf.org/dfdl/">
                                     <dfdl:format foobar="quuxly"/>
                                   </appinfo></annotation>
@@ -272,9 +271,8 @@ class TestXMLCatalogAndValidate {
 
     val tmpDataFileName = tempFileName("_data.xml")
     try {
-      using(new java.io.FileWriter(tmpDataFileName)) {
-        fw =>
-          fw.write(testSuite.toString())
+      using(new java.io.FileWriter(tmpDataFileName)) { fw =>
+        fw.write(testSuite.toString())
       }
 
       val loader = XMLLoaderFactory()
@@ -307,8 +305,7 @@ object XMLLoaderFactory {
 
 // From http://stackoverflow.com/questions/1627111/how-does-one-validate-the-schema-of-an-xml-file-using-scala
 
-class SchemaAwareFactoryAdapter()
-  extends NoBindingFactoryAdapter {
+class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
 
   var fileName: String = ""
 
@@ -336,7 +333,13 @@ class SchemaAwareFactoryAdapter()
   var elementStartLocator: Locator = _
 
   // create node then uses it.
-  override def createNode(pre: String, label: String, attrs: MetaData, scope: NamespaceBinding, children: List[Node]): Elem = {
+  override def createNode(
+    pre: String,
+    label: String,
+    attrs: MetaData,
+    scope: NamespaceBinding,
+    children: List[Node],
+  ): Elem = {
 
     // If we're the xs:schema node, then append attribute for _file_ as well.
     val nsURI = scope.getURI(pre)
@@ -350,8 +353,10 @@ class SchemaAwareFactoryAdapter()
     // for root nodes (to avoid clutter with the long xmlns:dafint="big uri")
     // and only if it isn't already there.
     val scopeWithDafInt =
-      if (scope.getPrefix(XMLUtils.INT_NS) == null
-        && isFileRootNode)
+      if (
+        scope.getPrefix(XMLUtils.INT_NS) == null
+        && isFileRootNode
+      )
         NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
       else scope
 
@@ -359,23 +364,38 @@ class SchemaAwareFactoryAdapter()
 
     val asIs = super.createNode(pre, label, attrs, scopeWithDafInt, children)
 
-    val alreadyHasFile = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.FILE_ATTRIBUTE_NAME) != None
+    val alreadyHasFile =
+      attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.FILE_ATTRIBUTE_NAME) != None
 
     // If there is already a _line_ attribute, then we're reloading something
     // that was probably converted back into a string and written out.
     // The original line numbers are therefore the ones wanted, not any new
     // line numbers, so we don't displace any line numbers that already existed.
 
-    val alreadyHasLine = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.LINE_ATTRIBUTE_NAME) != None
-    val alreadyHasCol = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.COLUMN_ATTRIBUTE_NAME) != None
+    val alreadyHasLine =
+      attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.LINE_ATTRIBUTE_NAME) != None
+    val alreadyHasCol =
+      attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.COLUMN_ATTRIBUTE_NAME) != None
     Assert.invariant(alreadyHasLine == alreadyHasCol)
 
     val lineAttr =
       if (alreadyHasLine) Null
-      else Attribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Text(elementStartLocator.line.toString), Null)
+      else
+        Attribute(
+          XMLUtils.INT_PREFIX,
+          XMLUtils.LINE_ATTRIBUTE_NAME,
+          Text(elementStartLocator.line.toString),
+          Null,
+        )
     val colAttr =
       if (alreadyHasCol) Null
-      else Attribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Text(elementStartLocator.col.toString), Null)
+      else
+        Attribute(
+          XMLUtils.INT_PREFIX,
+          XMLUtils.COLUMN_ATTRIBUTE_NAME,
+          Text(elementStartLocator.col.toString),
+          Null,
+        )
     val fileAttr =
       if (alreadyHasFile || !haveFileName) Null
       else {
@@ -390,9 +410,19 @@ class SchemaAwareFactoryAdapter()
     res
   }
 
-  override def startElement(uri: String, _localName: String, qname: String, attributes: org.xml.sax.Attributes): Unit = {
+  override def startElement(
+    uri: String,
+    _localName: String,
+    qname: String,
+    attributes: org.xml.sax.Attributes,
+  ): Unit = {
     // System.err.println("startElement")
-    val loc = Locator(saxLocator.getLineNumber, saxLocator.getColumnNumber, saxLocator.getSystemId, saxLocator.getPublicId)
+    val loc = Locator(
+      saxLocator.getLineNumber,
+      saxLocator.getColumnNumber,
+      saxLocator.getSystemId,
+      saxLocator.getPublicId,
+    )
     locatorStack.push(loc)
     super.startElement(uri, _localName, qname, attributes)
   }
@@ -403,9 +433,9 @@ class SchemaAwareFactoryAdapter()
     super.endElement(uri, _localName, qname)
   }
 
-  //System.err.println("Creating " + getClass().getName())
+  // System.err.println("Creating " + getClass().getName())
   val res = new MyResolver()
-  //System.err.println("Creating parser")
+  // System.err.println("Creating parser")
   val f = DaffodilSAXParserFactory()
   f.setNamespaceAware(true)
   f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
@@ -419,9 +449,7 @@ class SchemaAwareFactoryAdapter()
   val xr = p.getXMLReader()
   xr.setContentHandler(this)
   xr.setEntityResolver(res) // older API??
-  xr.setProperty(
-    "http://apache.org/xml/properties/internal/entity-resolver",
-    res)
+  xr.setProperty("http://apache.org/xml/properties/internal/entity-resolver", res)
   //
 
   override lazy val parser: SAXParser = p
@@ -494,15 +522,19 @@ class MyResolver()
     // println("resolveEntity1")
     val resolvedId = delegate.resolveURI(ri.getNamespace())
     val res = if (resolvedId != null) {
-      new XMLInputSource(ri.getPublicId(),
-        resolvedId,
-        ri.getBaseSystemId())
+      new XMLInputSource(ri.getPublicId(), resolvedId, ri.getBaseSystemId())
     } else null
     // println("resolved to " + resolvedId)
     res
   }
 
-  def resolveResource(type_ : String, nsURI: String, publicId: String, systemId: String, baseURI: String) = {
+  def resolveResource(
+    type_ : String,
+    nsURI: String,
+    publicId: String,
+    systemId: String,
+    baseURI: String,
+  ) = {
     //    println("resolveResource nsURI = %s, baseURI = %s".format(nsURI, baseURI))
     //    val resource = delegate.resolveURI(nsURI) // (type_, nsURI, publicId, systemId, baseURI)
     //    println("resolveResource = " + resource)

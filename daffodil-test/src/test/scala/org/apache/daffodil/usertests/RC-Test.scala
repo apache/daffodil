@@ -19,6 +19,7 @@ package org.apache.daffodil.usertests
 
 // import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 
 object RCTest {
@@ -33,7 +34,7 @@ object RCTest {
 
 class RCTest {
 
-  //import RCTest._
+  // import RCTest._
 
   // DAFFODIL-2217
   // @Test def test6() { runner6.runOneTest("parse-test-6") }

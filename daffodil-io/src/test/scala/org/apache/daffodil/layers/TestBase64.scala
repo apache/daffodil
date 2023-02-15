@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.io.layers
 
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.exceptions.Assert
+
+import org.apache.commons.io.IOUtils
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.lib.Implicits._
-import org.apache.commons.io.IOUtils
-import org.apache.daffodil.lib.exceptions.Assert
 
 /**
  * There are 3 variations of base64 we care about.
@@ -60,7 +61,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
     val expected = b64Text
     val encoded = java.util.Base64.getMimeEncoder.encodeToString(input.getBytes("ascii"))
     assertEquals(expected.length, encoded.length)
-    val pairs = expected zip encoded
+    val pairs = expected.zip(encoded)
     var i = 0
     var failed = false
     pairs.foreach {
@@ -196,7 +197,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
   def compare(input: String, expected: String) = {
     val encoded = java.util.Base64.getMimeEncoder.encodeToString(input.getBytes("ascii"))
     assertEquals(expected.length, encoded.length)
-    val pairs = expected zip encoded
+    val pairs = expected.zip(encoded)
     var i = 0
     var failed = false
     pairs.foreach {

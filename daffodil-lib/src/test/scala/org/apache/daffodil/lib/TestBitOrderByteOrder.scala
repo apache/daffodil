@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.lib
 
+import org.apache.daffodil.lib.util._
+
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.apache.daffodil.lib.util._
 
 class TestByteOrder {
 
@@ -51,8 +52,8 @@ class TestBitOrder {
   @Test def testAsLSBitFirst() = {
     assertEquals(0x20, Bits.asLSBitFirst(0x04))
     assertEquals(0x80, Bits.asLSBitFirst(1))
-    assertEquals(0xA5, Bits.asLSBitFirst(0xA5))
-    assertEquals(0xCC, Bits.asLSBitFirst(0x33))
+    assertEquals(0xa5, Bits.asLSBitFirst(0xa5))
+    assertEquals(0xcc, Bits.asLSBitFirst(0x33))
   }
 
 }

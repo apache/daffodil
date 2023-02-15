@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.lib.testEquality
 
-import org.junit.Test
-import org.junit.Assert._
 import org.apache.daffodil.lib.equality._
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestEqualityOperators {
 

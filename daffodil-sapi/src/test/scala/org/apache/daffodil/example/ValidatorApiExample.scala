@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.example
 
-import org.junit.Test
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class ValidatorApiExample extends ValidatorExamplesSupport {
   @Test
@@ -29,7 +29,7 @@ class ValidatorApiExample extends ValidatorExamplesSupport {
         val res = dp.withValidator(Always.passes).parse(input, `/dev/null`)
         assertFalse(res.isValidationError())
       }
-  }
+    }
 
   @Test
   def testAlwaysFail(): Unit =

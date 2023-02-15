@@ -18,12 +18,11 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.util._
-
-import org.junit.Test
-import org.apache.daffodil.lib.Implicits._;
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.junit.Assert._
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.junit.Assert._
 import org.junit.Test
 
 class TestPolymorphicUpwardRelativeExpressions {
@@ -139,7 +138,8 @@ class TestPolymorphicUpwardRelativeExpressions {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
     val e = intercept[Exception] {
       TestUtils.testString(testSchema, "e2;1961-02-01;6;", areTracing = false)
     }
@@ -249,7 +249,8 @@ class TestPolymorphicUpwardRelativeExpressions {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
     val (_, actual) = TestUtils.testString(testSchema, "e2;5;6;", areTracing = false)
     val expected =
       <ex:r>

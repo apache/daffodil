@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section15.choice_groups
 
-import org.junit.Test
-import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
+
+import org.junit.AfterClass
+import org.junit.Test
 
 object TestUnparseChoice {
   val testDir = "/org/apache/daffodil/section15/choice_groups/"

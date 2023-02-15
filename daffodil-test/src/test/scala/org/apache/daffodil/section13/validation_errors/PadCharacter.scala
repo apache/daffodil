@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.section13.validation_errors
 
-import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.tdml.Runner
+
 import org.junit.Test
 
 class PadCharacter {
@@ -33,7 +34,7 @@ class PadCharacter {
     // in the short form of the pad character's property binding syntax
     val testSuite =
       <tdml:testSuite suiteName="PadCharTests" description="Section 13 - Pad Character Tests"
-                      xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:tns={ tns }>
+                      xmlns:tdml={tdml} xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:tns={tns}>
         <tdml:defineSchema name="padCharSchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
           <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
@@ -61,7 +62,7 @@ class PadCharacter {
     // in the attribute (long) form of the pad character's property binding syntax
     val testSuite =
       <tdml:testSuite suiteName="PadCharTests" description="Section 13 - Pad Character Tests"
-                      xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:tns={ tns }>
+                      xmlns:tdml={tdml} xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:tns={tns}>
         <tdml:defineSchema name="padCharSchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
           <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
@@ -96,7 +97,7 @@ class PadCharacter {
     // syntax but internal validation logic will throw an error
     val testSuite =
       <tdml:testSuite suiteName="PadCharTests" description="Section 13 - Pad Character Tests"
-                      xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:tns={ tns }>
+                      xmlns:tdml={tdml} xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:tns={tns}>
         <tdml:defineSchema name="padCharSchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
           <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />

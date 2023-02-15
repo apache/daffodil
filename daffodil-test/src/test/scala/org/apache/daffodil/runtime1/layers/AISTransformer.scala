@@ -17,67 +17,74 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.io.processors.charset.BitsCharsetAISPayloadArmoring
-
+import java.io._
 import java.nio._
 import java.nio.charset._
-import java.io._
-import org.apache.commons.io.IOUtils
-import org.apache.daffodil.lib.exceptions.Assert
+
 import org.apache.daffodil.io.BoundaryMarkLimitingStream
-import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
+import org.apache.daffodil.io.processors.charset.BitsCharsetAISPayloadArmoring
+import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
+import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
-import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 
-final class AISPayloadArmoringLayerCompiler
-extends LayerCompiler("aisPayloadArmor") {
+import org.apache.commons.io.IOUtils
 
-  override def compileLayer(layerCompileInfo: LayerCompileInfo): AISPayloadArmoringTransformerFactory = {
+final class AISPayloadArmoringLayerCompiler extends LayerCompiler("aisPayloadArmor") {
+
+  override def compileLayer(
+    layerCompileInfo: LayerCompileInfo,
+  ): AISPayloadArmoringTransformerFactory = {
 
     layerCompileInfo.optLayerBoundaryMarkOptConstantValue match {
       case Some(Some(",")) => // ok
       case None => // ok
       case Some(Some(nonComma)) =>
         layerCompileInfo.SDE(
-          "Property dfdlx:layerBoundaryMark was defined as '$nonComma'. It must be ',' or left undefined.")
+          "Property dfdlx:layerBoundaryMark was defined as '$nonComma'. It must be ',' or left undefined.",
+        )
       case Some(None) =>
         layerCompileInfo.SDE(
-          "Property dfdlx:layerBoundaryMark was defined as an expression. It must be omitted, or defined to be ','.")
+          "Property dfdlx:layerBoundaryMark was defined as an expression. It must be omitted, or defined to be ','.",
+        )
     }
     layerCompileInfo.optLayerLengthKind match {
       case Some(LayerLengthKind.BoundaryMark) => // ok
-      case Some(other) => layerCompileInfo.SDE(
-        s"Only dfdlx:layerLengthKind 'boundaryMark' is supported, but '$other' was specified")
+      case Some(other) =>
+        layerCompileInfo.SDE(
+          s"Only dfdlx:layerLengthKind 'boundaryMark' is supported, but '$other' was specified",
+        )
       case None => // ok
     }
     layerCompileInfo.optLayerJavaCharsetOptConstantValue match {
       case Some(Some(_)) => // ok
       case None => // ok
-      case _ => layerCompileInfo.SDE("Property dfdlx:layerEncoding must be defined, and must be an ordinary 8-bit wide encoding. ")
+      case _ =>
+        layerCompileInfo.SDE(
+          "Property dfdlx:layerEncoding must be defined, and must be an ordinary 8-bit wide encoding. ",
+        )
     }
     val xformer = new AISPayloadArmoringTransformerFactory(name)
     xformer
   }
 }
 
+class AISPayloadArmoringTransformerFactory(name: String) extends LayerTransformerFactory(name) {
 
-class AISPayloadArmoringTransformerFactory(name: String)
-  extends LayerTransformerFactory(name) {
-
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= {
-     val xformer = new AISPayloadArmoringTransformer(name, layerRuntimeInfo)
+  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo) = {
+    val xformer = new AISPayloadArmoringTransformer(name, layerRuntimeInfo)
     xformer
   }
 }
@@ -90,6 +97,7 @@ class AISPayloadArmoringTransformer(name: String, layerRuntimeInfo: LayerRuntime
   extends LayerTransformer(name, layerRuntimeInfo) {
 
   import AISPayloadArmoringTransformer._
+
   /**
    * Decoding AIS payload armoring is encoding the ASCII text into the
    * underlying binary data.
@@ -108,15 +116,17 @@ class AISPayloadArmoringTransformer(name: String, layerRuntimeInfo: LayerRuntime
     new AISPayloadArmoringOutputStream(jos)
   }
 
-  override protected def wrapLimitingStream(state: ParseOrUnparseState, jos: java.io.OutputStream) = {
+  override protected def wrapLimitingStream(
+    state: ParseOrUnparseState,
+    jos: java.io.OutputStream,
+  ) = {
     val layerBoundaryMark = ","
     val newJOS = new LayerBoundaryMarkInsertingJavaOutputStream(jos, layerBoundaryMark, iso8859)
     newJOS
   }
 }
 
-class AISPayloadArmoringInputStream(jis: InputStream)
-  extends InputStream {
+class AISPayloadArmoringInputStream(jis: InputStream) extends InputStream {
   import AISPayloadArmoringTransformer._
 
   private lazy val enc = BitsCharsetAISPayloadArmoring.newEncoder()
@@ -144,8 +154,7 @@ class AISPayloadArmoringInputStream(jis: InputStream)
   }
 }
 
-class AISPayloadArmoringOutputStream(jos: java.io.OutputStream)
-  extends OutputStream {
+class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputStream {
   import AISPayloadArmoringTransformer._
 
   private lazy val dec = BitsCharsetAISPayloadArmoring.newDecoder()
@@ -193,4 +202,3 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream)
   }
 
 }
-

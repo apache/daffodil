@@ -18,7 +18,8 @@
 package org.apache.daffodil.section13.boolean
 
 import org.apache.daffodil.tdml.Runner
-import org.junit.{AfterClass, Test}
+
+import org.junit.{ AfterClass, Test }
 
 object TestBoolean {
   val runner = Runner("/org/apache/daffodil/section13/boolean/", "boolean.tdml")
@@ -32,5 +33,7 @@ class TestBoolean {
   @Test def test_booleanDefault(): Unit = { runner.runOneTest("booleanDefault") }
   @Test def test_booleanDefaultSDE(): Unit = { runner.runOneTest("booleanDefaultSDE") }
   @Test def test_booleanInputValueCalc(): Unit = { runner.runOneTest("booleanInputValueCalc") }
-  @Test def test_booleanInputValueCalcError(): Unit = { runner.runOneTest("booleanInputValueCalcError") }
+  @Test def test_booleanInputValueCalcError(): Unit = {
+    runner.runOneTest("booleanInputValueCalcError")
+  }
 }

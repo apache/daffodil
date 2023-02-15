@@ -17,19 +17,24 @@
 
 package org.apache.daffodil.section06.namespaces
 
-import org.junit.Test
-import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
+
+import org.junit.AfterClass
+import org.junit.Test
 
 object TestNamespaces {
   val testDir = "/org/apache/daffodil/section06/namespaces/"
 
-  val runner = Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
-  val runnerV = Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+  val runner =
+    Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+  val runnerV =
+    Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
 
-  val runner2 = Runner(testDir, "multiFile.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner2 =
+    Runner(testDir, "multiFile.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
   val runner3 = Runner(testDir, "includeImport.tdml")
-  val runnerWithSchemaValidation = Runner(testDir, "multiFile.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+  val runnerWithSchemaValidation =
+    Runner(testDir, "multiFile.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
@@ -43,15 +48,23 @@ class TestNamespaces {
 
   import TestNamespaces._
 
-  @Test def test_schemaNoGlobalElems_01(): Unit = { runner.runOneTest("schemaNoGlobalElems_01") }
-  @Test def test_schemaNoGlobalElems_02(): Unit = { runner.runOneTest("schemaNoGlobalElems_02") }
-  @Test def test_schemaNoGlobalElems_03(): Unit = { runner.runOneTest("schemaNoGlobalElems_03") }
+  @Test def test_schemaNoGlobalElems_01(): Unit = {
+    runner.runOneTest("schemaNoGlobalElems_01")
+  }
+  @Test def test_schemaNoGlobalElems_02(): Unit = {
+    runner.runOneTest("schemaNoGlobalElems_02")
+  }
+  @Test def test_schemaNoGlobalElems_03(): Unit = {
+    runner.runOneTest("schemaNoGlobalElems_03")
+  }
 
   @Test def test_schemaSameDir_01(): Unit = { runner.runOneTest("schemaSameDir_01") }
   @Test def test_schemaSameDir_02(): Unit = { runner.runOneTest("schemaSameDir_02") }
   @Test def test_schemaSameDir_03(): Unit = { runner.runOneTest("schemaSameDir_03") }
 
-  @Test def test_schemaSameDirClasspath_01(): Unit = { runner.runOneTest("schemaSameDirClasspath_01") }
+  @Test def test_schemaSameDirClasspath_01(): Unit = {
+    runner.runOneTest("schemaSameDirClasspath_01")
+  }
 
   // See comments in related bug. JIRA-549
   // This test is looking for a specific file to be mentioned in an error message
@@ -61,8 +74,12 @@ class TestNamespaces {
   @Test def test_combinations_02(): Unit = { runnerV.runOneTest("combinations_02") }
   @Test def test_errorLocations_01(): Unit = { runner.runOneTest("errorLocations_01") }
 
-  @Test def test_defaultNamespaceInExpression(): Unit = { runner.runOneTest("defaultNamespaceInExpression") }
-  @Test def test_defaultNamespaceInExpression2(): Unit = { runner.runOneTest("defaultNamespaceInExpression2") }
+  @Test def test_defaultNamespaceInExpression(): Unit = {
+    runner.runOneTest("defaultNamespaceInExpression")
+  }
+  @Test def test_defaultNamespaceInExpression2(): Unit = {
+    runner.runOneTest("defaultNamespaceInExpression2")
+  }
 
   @Test def test_namespaces_qnames(): Unit = { runner.runOneTest("namespaces_qnames") }
   @Test def test_namespaces_qnames2(): Unit = { runner.runOneTest("namespaces_qnames2") }
@@ -75,21 +92,29 @@ class TestNamespaces {
   // DFDL-1204 - this test no longer works. New loader won't accept character U+00B7 as a character
   // in a prefix name.
   // @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
-  @Test def test_namespaceSpecialChars2(): Unit = { runnerV.runOneTest("namespaceSpecialChars2") }
+  @Test def test_namespaceSpecialChars2(): Unit = {
+    runnerV.runOneTest("namespaceSpecialChars2")
+  }
   @Test def test_namespaceRules1(): Unit = { runner.runOneTest("namespaceRules1") }
   @Test def test_namespaceRules2(): Unit = { runnerV.runOneTest("namespaceRules2") }
 
   @Test def testSimpleIncludeOfFormat(): Unit = { runner2.runOneTest("simpleInclude") }
   @Test def testSimpleImportOfFormat(): Unit = { runner2.runOneTest("simpleImport") }
   @Test def testIncludeNoNamespace(): Unit = { runner2.runOneTest("includeNoNamespace") }
-  @Test def testImportWithOverlappingNSPrefixes1(): Unit = { runner2.runOneTest("importWithOverlappingNSPrefixes1") }
+  @Test def testImportWithOverlappingNSPrefixes1(): Unit = {
+    runner2.runOneTest("importWithOverlappingNSPrefixes1")
+  }
 
   @Test def test_tdml_schema_import(): Unit = { runner.runOneTest("tdml_schema_import") }
   @Test def test_tdml_schema_include(): Unit = { runner.runOneTest("tdml_schema_include") }
-  @Test def test_multifile_choice_embed(): Unit = { runner.runOneTest("multifile_choice_embed") }
+  @Test def test_multifile_choice_embed(): Unit = {
+    runner.runOneTest("multifile_choice_embed")
+  }
 
   @Test def test_Lesson2_no_namespace(): Unit = { runner.runOneTest("Lesson2_no_namespace") }
-  @Test def test_Lesson2_include_schema(): Unit = { runner.runOneTest("Lesson2_include_schema") }
+  @Test def test_Lesson2_include_schema(): Unit = {
+    runner.runOneTest("Lesson2_include_schema")
+  }
   @Test def test_Lesson2_import_schema(): Unit = { runner.runOneTest("Lesson2_import_schema") }
 
   @Test def test_multifile_cyclical(): Unit = { runner.runOneTest("multifile_cyclical") }
@@ -149,17 +174,37 @@ class TestNamespaces {
 
   @Test def test_no_namespace_temp(): Unit = { runnerV.runOneTest("no_namespace_temp") }
 
-  @Test def test_lion_eater_ambiguity_01(): Unit = { runner.runOneTest("lion_eater_ambiguity_01") }
-  @Test def test_lion_eater_ambiguity_01b(): Unit = { runnerV.runOneTest("lion_eater_ambiguity_01b") }
-  @Test def test_lion_eater_ambiguity_02(): Unit = { runner.runOneTest("lion_eater_ambiguity_02") }
-  @Test def test_lion_eater_ambiguity_03(): Unit = { runner.runOneTest("lion_eater_ambiguity_03") }
-  @Test def test_lion_eater_ambiguity_04(): Unit = { runner.runOneTest("lion_eater_ambiguity_04") }
-  @Test def test_lion_eater_ambiguity_05(): Unit = { runner.runOneTest("lion_eater_ambiguity_05") }
+  @Test def test_lion_eater_ambiguity_01(): Unit = {
+    runner.runOneTest("lion_eater_ambiguity_01")
+  }
+  @Test def test_lion_eater_ambiguity_01b(): Unit = {
+    runnerV.runOneTest("lion_eater_ambiguity_01b")
+  }
+  @Test def test_lion_eater_ambiguity_02(): Unit = {
+    runner.runOneTest("lion_eater_ambiguity_02")
+  }
+  @Test def test_lion_eater_ambiguity_03(): Unit = {
+    runner.runOneTest("lion_eater_ambiguity_03")
+  }
+  @Test def test_lion_eater_ambiguity_04(): Unit = {
+    runner.runOneTest("lion_eater_ambiguity_04")
+  }
+  @Test def test_lion_eater_ambiguity_05(): Unit = {
+    runner.runOneTest("lion_eater_ambiguity_05")
+  }
 
-  @Test def test_namespace_ultra_uniqueness_01(): Unit = { runner.runOneTest("namespace_ultra_uniqueness_01") }
-  @Test def test_namespace_ultra_uniqueness_02(): Unit = { runner.runOneTest("namespace_ultra_uniqueness_02") }
-  @Test def test_namespace_ultra_uniqueness_03(): Unit = { runner.runOneTest("namespace_ultra_uniqueness_03") }
-  @Test def test_namespace_ultra_uniqueness_04(): Unit = { runner.runOneTest("namespace_ultra_uniqueness_04") }
+  @Test def test_namespace_ultra_uniqueness_01(): Unit = {
+    runner.runOneTest("namespace_ultra_uniqueness_01")
+  }
+  @Test def test_namespace_ultra_uniqueness_02(): Unit = {
+    runner.runOneTest("namespace_ultra_uniqueness_02")
+  }
+  @Test def test_namespace_ultra_uniqueness_03(): Unit = {
+    runner.runOneTest("namespace_ultra_uniqueness_03")
+  }
+  @Test def test_namespace_ultra_uniqueness_04(): Unit = {
+    runner.runOneTest("namespace_ultra_uniqueness_04")
+  }
 
   @Test def test_primTypesPrefixes01(): Unit = { runner.runOneTest("primTypesPrefixes01") }
   @Test def test_typeNameOverlap_01(): Unit = { runner.runOneTest("typeNameOverlap_01") }
@@ -182,11 +227,21 @@ class TestNamespaces {
 
   @Test def test_include01(): Unit = { runner3.runOneTest("include01") }
   @Test def test_include02(): Unit = { runner3.runOneTest("include02") }
-  @Test def test_toplevel_annotation_invalid_01(): Unit = { runner.runOneTest("toplevel_annotation_invalid_01") }
-  @Test def test_toplevel_annotation_invalid_02(): Unit = { runner.runOneTest("toplevel_annotation_invalid_02") }
+  @Test def test_toplevel_annotation_invalid_01(): Unit = {
+    runner.runOneTest("toplevel_annotation_invalid_01")
+  }
+  @Test def test_toplevel_annotation_invalid_02(): Unit = {
+    runner.runOneTest("toplevel_annotation_invalid_02")
+  }
 
-  @Test def test_incorrectAppinfoSource(): Unit = { runner.runOneTest("incorrectAppinfoSource") }
+  @Test def test_incorrectAppinfoSource(): Unit = {
+    runner.runOneTest("incorrectAppinfoSource")
+  }
 
-  @Test def test_complexIncludesNamespaces_01(): Unit = { runner2.runOneTest("complexIncludesNamespaces_01") }
-  @Test def test_complexIncludesNamespaces_02(): Unit = { runner2.runOneTest("complexIncludesNamespaces_02") }
+  @Test def test_complexIncludesNamespaces_01(): Unit = {
+    runner2.runOneTest("complexIncludesNamespaces_01")
+  }
+  @Test def test_complexIncludesNamespaces_02(): Unit = {
+    runner2.runOneTest("complexIncludesNamespaces_02")
+  }
 }

@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.section31.escape_characters
 
-import org.junit.Test
-import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestEscapes {
   val testDir = "/org/apache/daffodil/section31/escape_characters/"

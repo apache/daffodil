@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section23.dfdl_expressions
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestDFDLExpressions2 {
 
@@ -58,23 +59,37 @@ class TestDFDLExpressions2 {
   import TestDFDLExpressions2._
 
   // DFDL-1669
-  @Test def test_dfdl_1669_unsignedLong_conversion(): Unit = { runner5.runOneTest("test_dfdl_1669_unsignedLong_conversion") }
+  @Test def test_dfdl_1669_unsignedLong_conversion(): Unit = {
+    runner5.runOneTest("test_dfdl_1669_unsignedLong_conversion")
+  }
 
-  //DFDL-1657
+  // DFDL-1657
   @Test def test_valueLengthRef1(): Unit = { runner6.runOneTest("valueLengthRef1") }
 
-  //DFDL-1706
+  // DFDL-1706
   @Test def test_valueLengthDfdlLength(): Unit = { runner6.runOneTest("valueLengthDfdlLength") }
-  @Test def test_valueLengthDfdlOccursCount(): Unit = { runner6.runOneTest("valueLengthDfdlOccursCount") }
-  @Test def test_valueLengthDfdlEncoding(): Unit = { runner6.runOneTest("valueLengthDfdlEncoding") }
+  @Test def test_valueLengthDfdlOccursCount(): Unit = {
+    runner6.runOneTest("valueLengthDfdlOccursCount")
+  }
+  @Test def test_valueLengthDfdlEncoding(): Unit = {
+    runner6.runOneTest("valueLengthDfdlEncoding")
+  }
 
   // DAFFODIL-2635
-  @Test def test_valueLengthDelimitedHexBinary1(): Unit = { runner6.runOneTest("valueLengthDelimitedHexBinary1") }
-  @Test def test_valueLengthDelimitedHexBinary2(): Unit = { runner6.runOneTest("valueLengthDelimitedHexBinary2") }
-  @Test def test_valueLengthDelimitedHexBinary3(): Unit = { runner6.runOneTest("valueLengthDelimitedHexBinary3") }
-  @Test def test_valueLengthDelimitedHexBinary4(): Unit = { runner6.runOneTest("valueLengthDelimitedHexBinary4") }
+  @Test def test_valueLengthDelimitedHexBinary1(): Unit = {
+    runner6.runOneTest("valueLengthDelimitedHexBinary1")
+  }
+  @Test def test_valueLengthDelimitedHexBinary2(): Unit = {
+    runner6.runOneTest("valueLengthDelimitedHexBinary2")
+  }
+  @Test def test_valueLengthDelimitedHexBinary3(): Unit = {
+    runner6.runOneTest("valueLengthDelimitedHexBinary3")
+  }
+  @Test def test_valueLengthDelimitedHexBinary4(): Unit = {
+    runner6.runOneTest("valueLengthDelimitedHexBinary4")
+  }
 
-  //DFDL-1691
+  // DFDL-1691
   @Test def test_div01(): Unit = { runner.runOneTest("div01") }
   @Test def test_div02(): Unit = { runner.runOneTest("div02") }
   @Test def test_div03(): Unit = { runner.runOneTest("div03") }

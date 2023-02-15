@@ -17,51 +17,52 @@
 
 package org.apache.daffodil.lib.util
 
-import org.junit.Test
-import org.junit.Assert._
 import java.nio.ByteBuffer
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestBits {
 
   @Test def testShiftLeftByteArray1(): Unit = {
-    val bb = ByteBuffer.wrap(List(0x7C.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0x7c.toByte).toArray)
     Bits.shiftLeft(bb, 3)
-    assertEquals(List(0xE0.toByte), bb.array.toList)
+    assertEquals(List(0xe0.toByte), bb.array.toList)
   }
 
   @Test def testShiftLeftByteArray2(): Unit = {
-    val bb = ByteBuffer.wrap(List(0x7C.toByte, 0x3D.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0x7c.toByte, 0x3d.toByte).toArray)
     Bits.shiftLeft(bb, 3)
-    assertEquals(List(0xE1.toByte, 0xE8.toByte), bb.array.toList)
+    assertEquals(List(0xe1.toByte, 0xe8.toByte), bb.array.toList)
   }
 
   @Test def testShiftLeftByteArray3(): Unit = {
-    val bb = ByteBuffer.wrap(List(0x7C.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0x7c.toByte).toArray)
     Bits.shiftLeft(bb, 0)
     assertEquals(List(0x7c.toByte), bb.array.toList)
   }
 
   @Test def testShiftRightByteArray1(): Unit = {
-    val bb = ByteBuffer.wrap(List(0x7C.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0x7c.toByte).toArray)
     Bits.shiftRight(bb, 3)
-    assertEquals(List(0x0F.toByte), bb.array.toList)
+    assertEquals(List(0x0f.toByte), bb.array.toList)
   }
 
   @Test def testShiftRightByteArray2(): Unit = {
-    val bb = ByteBuffer.wrap(List(0x7C.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0x7c.toByte).toArray)
     Bits.shiftRight(bb, 0)
-    assertEquals(List(0x7C.toByte), bb.array.toList)
+    assertEquals(List(0x7c.toByte), bb.array.toList)
   }
 
   @Test def testShiftRightByteArray3(): Unit = {
-    val bb = ByteBuffer.wrap(List(0x7C.toByte, 0x3D.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0x7c.toByte, 0x3d.toByte).toArray)
     Bits.shiftRight(bb, 3)
-    assertEquals(List(0x0F.toByte, 0x87.toByte), bb.array.toList)
+    assertEquals(List(0x0f.toByte, 0x87.toByte), bb.array.toList)
   }
 
   @Test def testShiftRightByteArray4(): Unit = {
-    val bb = ByteBuffer.wrap(List(0x7C.toByte, 0x3D.toByte, 0x42.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0x7c.toByte, 0x3d.toByte, 0x42.toByte).toArray)
     Bits.shiftRight(bb, 3)
-    assertEquals(List(0x0F.toByte, 0x87.toByte, 0xA8.toByte), bb.array.toList)
+    assertEquals(List(0x0f.toByte, 0x87.toByte, 0xa8.toByte), bb.array.toList)
   }
 }

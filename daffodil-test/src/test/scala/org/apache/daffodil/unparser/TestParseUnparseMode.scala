@@ -17,14 +17,18 @@
 
 package org.apache.daffodil.unparser
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestParseUnparseMode {
   val testDir = "/org/apache/daffodil/unparser/"
-  val runner = Runner(testDir, "parseUnparseModeTest.tdml",
-    validateDFDLSchemas = false) // there are UPA errors in some test schemas
+  val runner = Runner(
+    testDir,
+    "parseUnparseModeTest.tdml",
+    validateDFDLSchemas = false,
+  ) // there are UPA errors in some test schemas
 
   @AfterClass def shutDown(): Unit = {
     runner.reset

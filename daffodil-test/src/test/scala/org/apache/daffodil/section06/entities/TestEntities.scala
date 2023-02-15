@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section06.entities
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestEntities {
   private val testDir = "/org/apache/daffodil/section06/entities/"
@@ -93,15 +94,31 @@ class TestEntities {
   @Test def test_whitespace_10(): Unit = { runner_01.runOneTest("whitespace_10") }
 
   // DAFFODIL-1475
-  @Test def test_emptyStringEntityTermInExpression_01(): Unit = { runner_01.runOneTest("emptyStringEntityTermInExpression_01") }
-  @Test def test_emptyStringEntityTermInExpression_02(): Unit = { runner_01.runOneTest("emptyStringEntityTermInExpression_02") }
-  @Test def test_emptyStringEntityTermInExpressionDelimited_01(): Unit = { runner_01.runOneTest("emptyStringEntityTermInExpressionDelimited_01") }
-  @Test def test_emptyStringEntityTermInComplex_01(): Unit = { runner_01.runOneTest("emptyStringEntityTermInComplex_01") }
-  @Test def test_emptyStringEntityTermInComplex_02(): Unit = { runner_01.runOneTest("emptyStringEntityTermInComplex_02") }
+  @Test def test_emptyStringEntityTermInExpression_01(): Unit = {
+    runner_01.runOneTest("emptyStringEntityTermInExpression_01")
+  }
+  @Test def test_emptyStringEntityTermInExpression_02(): Unit = {
+    runner_01.runOneTest("emptyStringEntityTermInExpression_02")
+  }
+  @Test def test_emptyStringEntityTermInExpressionDelimited_01(): Unit = {
+    runner_01.runOneTest("emptyStringEntityTermInExpressionDelimited_01")
+  }
+  @Test def test_emptyStringEntityTermInComplex_01(): Unit = {
+    runner_01.runOneTest("emptyStringEntityTermInComplex_01")
+  }
+  @Test def test_emptyStringEntityTermInComplex_02(): Unit = {
+    runner_01.runOneTest("emptyStringEntityTermInComplex_02")
+  }
 
-  @Test def test_emptyStringEntityInitiator_01(): Unit = { runner_01.runOneTest("emptyStringEntityInitiator_01") }
-  @Test def test_emptyStringEntityInitiator_02(): Unit = { runner_01.runOneTest("emptyStringEntityInitiator_02") }
-  @Test def test_emptyStringEntityInitiator_03(): Unit = { runner_01.runOneTest("emptyStringEntityInitiator_03") }
+  @Test def test_emptyStringEntityInitiator_01(): Unit = {
+    runner_01.runOneTest("emptyStringEntityInitiator_01")
+  }
+  @Test def test_emptyStringEntityInitiator_02(): Unit = {
+    runner_01.runOneTest("emptyStringEntityInitiator_02")
+  }
+  @Test def test_emptyStringEntityInitiator_03(): Unit = {
+    runner_01.runOneTest("emptyStringEntityInitiator_03")
+  }
 
   @Test def test_entity_fail_01(): Unit = { runnerEntity.runOneTest("entity_fail_01") }
   @Test def test_entity_fail_02(): Unit = { runnerEntity.runOneTest("entity_fail_02") }
@@ -111,13 +128,27 @@ class TestEntities {
   @Test def test_entity_fail_03b(): Unit = { runnerEntity.runOneTest("entity_fail_03b") }
   @Test def test_entity_fail_04(): Unit = { runnerEntity.runOneTest("entity_fail_04") }
 
-  @Test def test_invalid_entity_01(): Unit = { runnerInvalid.runOneTest("text_invalid_entity_name") }
-  @Test def test_invalid_entity_02(): Unit = { runnerInvalid.runOneTest("text_invalid_entity_decimalCodePoint") }
-  @Test def test_invalid_entity_03(): Unit = { runnerInvalid.runOneTest("text_invalid_entity_hexaDecimalCodePoint") }
-  @Test def test_invalid_entity_04(): Unit = { runnerInvalid.runOneTest("text_invalid_entity_rawBytes") }
-  @Test def test_invalid_entity_05(): Unit = { runnerInvalid.runOneTest("text_invalid_entity_among_multiple_valid") }
-  @Test def test_invalid_entity_06(): Unit = { runnerInvalid.runOneTest("text_invalid_entity_among_multiple_valid_combined") }
-  @Test def test_invalid_entity_07(): Unit = { runnerInvalid.runOneTest("text_invalid_entity_escaped") }
+  @Test def test_invalid_entity_01(): Unit = {
+    runnerInvalid.runOneTest("text_invalid_entity_name")
+  }
+  @Test def test_invalid_entity_02(): Unit = {
+    runnerInvalid.runOneTest("text_invalid_entity_decimalCodePoint")
+  }
+  @Test def test_invalid_entity_03(): Unit = {
+    runnerInvalid.runOneTest("text_invalid_entity_hexaDecimalCodePoint")
+  }
+  @Test def test_invalid_entity_04(): Unit = {
+    runnerInvalid.runOneTest("text_invalid_entity_rawBytes")
+  }
+  @Test def test_invalid_entity_05(): Unit = {
+    runnerInvalid.runOneTest("text_invalid_entity_among_multiple_valid")
+  }
+  @Test def test_invalid_entity_06(): Unit = {
+    runnerInvalid.runOneTest("text_invalid_entity_among_multiple_valid_combined")
+  }
+  @Test def test_invalid_entity_07(): Unit = {
+    runnerInvalid.runOneTest("text_invalid_entity_escaped")
+  }
 
   @Test def test_allAsciiHexEntities(): Unit = { runner_01.runOneTest("allAsciiHexEntities") }
   @Test def test_allAsciiDecEntities(): Unit = { runner_01.runOneTest("allAsciiDecEntities") }

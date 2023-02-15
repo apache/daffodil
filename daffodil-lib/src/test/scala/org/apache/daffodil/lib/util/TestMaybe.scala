@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.lib.util
 
-
 class TestMaybe {
 
   type JINT = java.lang.Long

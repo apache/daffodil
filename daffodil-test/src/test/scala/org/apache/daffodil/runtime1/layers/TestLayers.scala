@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.runtime1.layers
 
-
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestLayers {
   val testDir = "/org/apache/daffodil/layers/"
@@ -36,7 +36,9 @@ class TestLayers {
   import TestLayers._
 
   @Test def test_gzipLayer1(): Unit = { runner.runOneTest("gzipLayer1") }
-  @Test def test_foldedIMFBase64Layers1(): Unit = { runner.runOneTest("foldedIMFBase64Layers1") }
+  @Test def test_foldedIMFBase64Layers1(): Unit = {
+    runner.runOneTest("foldedIMFBase64Layers1")
+  }
   @Test def test_foldedIMF1(): Unit = { runner.runOneTest("foldedIMF1") }
   @Test def test_layersErr1(): Unit = { runner.runOneTest("layersErr1") }
   @Test def test_base64GzipLayers1(): Unit = { runner.runOneTest("base64GzipLayers1") }

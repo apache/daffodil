@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.example
 
-import com.typesafe.config.ConfigFactory
 import org.apache.daffodil.lib.validation.Validators
-import org.junit.Test
+
+import com.typesafe.config.ConfigFactory
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 // there is no support for passing validators by name into the dp as of yet
 // so these tests simply load via spi a validator and pass it into the SAPI

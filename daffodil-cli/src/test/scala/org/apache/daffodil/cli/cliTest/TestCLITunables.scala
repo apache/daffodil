@@ -17,152 +17,197 @@
 
 package org.apache.daffodil.cliTest
 
-import org.junit.Test
-import org.apache.daffodil.cli.cliTest.Util._
 import org.apache.daffodil.cli.Main.ExitCode
+import org.apache.daffodil.cli.cliTest.Util._
+
+import org.junit.Test
 
 class TestCLITunables {
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_01(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
     runCLI(args"parse -s $schema -r test_01 -TunqualifiedPathStepPolicy=noNamespace") { cli =>
       cli.send("12", inputDone = true)
       cli.expect("""<c xmlns="">2</c>""")
       cli.expect("""<s xmlns="">1</s>""")
       cli.expect("</test_01>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_02(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
     runCLI(args"parse -s $schema -r test_02 -TunqualifiedPathStepPolicy=noNamespace") { cli =>
       cli.send("12", inputDone = true)
       cli.expectErr("Schema Definition Error")
-    } (ExitCode.UnableToCreateProcessor)
+    }(ExitCode.UnableToCreateProcessor)
   }
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_03(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
     runCLI(args"parse -s $schema -r test_03 -TunqualifiedPathStepPolicy=noNamespace") { cli =>
       cli.send("12", inputDone = true)
       cli.expectErr("Schema Definition Error")
-    } (ExitCode.UnableToCreateProcessor)
+    }(ExitCode.UnableToCreateProcessor)
   }
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_04(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
     runCLI(args"parse -s $schema -r test_04 -TunqualifiedPathStepPolicy=noNamespace") { cli =>
       cli.send("12", inputDone = true)
       cli.expect("""<c xmlns="">2</c>""")
       cli.expect("""<s xmlns="">2</s>""")
       cli.expect("</test_04>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_01(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
-    runCLI(args"parse -s $schema -r test_01 -TunqualifiedPathStepPolicy=defaultNamespace") { cli =>
-      cli.send("12", inputDone = true)
-      cli.expect("""<c xmlns="">2</c>""")
-      cli.expect("""<s xmlns="">1</s>""")
-      cli.expect("</test_01>")
-    } (ExitCode.Success)
+    runCLI(args"parse -s $schema -r test_01 -TunqualifiedPathStepPolicy=defaultNamespace") {
+      cli =>
+        cli.send("12", inputDone = true)
+        cli.expect("""<c xmlns="">2</c>""")
+        cli.expect("""<s xmlns="">1</s>""")
+        cli.expect("</test_01>")
+    }(ExitCode.Success)
   }
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_02(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
-    runCLI(args"parse -s $schema -r test_02 -TunqualifiedPathStepPolicy=defaultNamespace") { cli =>
-      cli.send("12", inputDone = true)
-      cli.expect("""<c xmlns="">2</c>""")
-      cli.expect("""<s xmlns="">1</s>""")
-      cli.expect("</test_02>")
-    } (ExitCode.Success)
+    runCLI(args"parse -s $schema -r test_02 -TunqualifiedPathStepPolicy=defaultNamespace") {
+      cli =>
+        cli.send("12", inputDone = true)
+        cli.expect("""<c xmlns="">2</c>""")
+        cli.expect("""<s xmlns="">1</s>""")
+        cli.expect("</test_02>")
+    }(ExitCode.Success)
   }
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_03(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
-    runCLI(args"parse -s $schema -r test_03 -TunqualifiedPathStepPolicy=defaultNamespace") { cli =>
-      cli.send("12", inputDone = true)
-      cli.expectErr("Schema Definition Error")
-    } (ExitCode.UnableToCreateProcessor)
+    runCLI(args"parse -s $schema -r test_03 -TunqualifiedPathStepPolicy=defaultNamespace") {
+      cli =>
+        cli.send("12", inputDone = true)
+        cli.expectErr("Schema Definition Error")
+    }(ExitCode.UnableToCreateProcessor)
   }
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_04(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
-    runCLI(args"parse -s $schema -r test_04 -TunqualifiedPathStepPolicy=defaultNamespace") { cli =>
-      cli.send("12", inputDone = true)
-      cli.expectErr("Schema Definition Error")
-    } (ExitCode.UnableToCreateProcessor)
+    runCLI(args"parse -s $schema -r test_04 -TunqualifiedPathStepPolicy=defaultNamespace") {
+      cli =>
+        cli.send("12", inputDone = true)
+        cli.expectErr("Schema Definition Error")
+    }(ExitCode.UnableToCreateProcessor)
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_01(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_01()
+    : Unit = {
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
-    runCLI(args"parse -s $schema -r test_01 -TunqualifiedPathStepPolicy=preferDefaultNamespace") { cli =>
+    runCLI(
+      args"parse -s $schema -r test_01 -TunqualifiedPathStepPolicy=preferDefaultNamespace",
+    ) { cli =>
       cli.send("12", inputDone = true)
       cli.expect("""<c xmlns="">2</c>""")
       cli.expect("""<s xmlns="">1</s>""")
       cli.expect("</test_01>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_02(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_02()
+    : Unit = {
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
-    runCLI(args"parse -s $schema -r test_02 -TunqualifiedPathStepPolicy=preferDefaultNamespace") { cli =>
+    runCLI(
+      args"parse -s $schema -r test_02 -TunqualifiedPathStepPolicy=preferDefaultNamespace",
+    ) { cli =>
       cli.send("12", inputDone = true)
       cli.expect("""<c xmlns="">2</c>""")
       cli.expect("""<s xmlns="">1</s>""")
       cli.expect("</test_02>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_03(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_03()
+    : Unit = {
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
-    runCLI(args"parse -s $schema -r test_03 -TunqualifiedPathStepPolicy=preferDefaultNamespace") { cli =>
+    runCLI(
+      args"parse -s $schema -r test_03 -TunqualifiedPathStepPolicy=preferDefaultNamespace",
+    ) { cli =>
       cli.send("12", inputDone = true)
       cli.expectErr("Schema Definition Error")
-    } (ExitCode.UnableToCreateProcessor)
+    }(ExitCode.UnableToCreateProcessor)
   }
 
-  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_04(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd")
+  @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_04()
+    : Unit = {
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+    )
 
-    runCLI(args"parse -s $schema -r test_04 -TunqualifiedPathStepPolicy=preferDefaultNamespace") { cli =>
+    runCLI(
+      args"parse -s $schema -r test_04 -TunqualifiedPathStepPolicy=preferDefaultNamespace",
+    ) { cli =>
       cli.send("12", inputDone = true)
       cli.expect("""<c xmlns="">2</c>""")
       cli.expect("""<s xmlns="">2</s>""")
       cli.expect("</test_04>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   /**
    * Suppresses SDW messages.
    */
   @Test def test_CLI_Parsing_SuppressSDEWarnings1(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd",
+    )
 
     runCLI(args"parse -s $schema -TsuppressSchemaDefinitionWarnings=all") { cli =>
       cli.send("a,b", inputDone = true)
       cli.expect("<s1>a</s1>")
       cli.expect("<s2>b</s2>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   /**
    * Will display SDW warnings. Does not set the tunable that suppresses them.
    */
   @Test def test_CLI_Parsing_SuppressSDEWarnings2(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd",
+    )
 
     runCLI(args"parse -s $schema") { cli =>
       cli.send("a,b", inputDone = true)
@@ -172,7 +217,7 @@ class TestCLITunables {
       cli.expectErr("dfdl:lengthKind")
       cli.expectErr("delimited")
       cli.expectErr("dfdl:length")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   /**
@@ -181,18 +226,20 @@ class TestCLITunables {
    * isn't displayed on a reload of a compiled processor
    */
   @Test def test_CLI_Parsing_ReloadingDoesNotRepeatWarnings(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd",
+    )
 
     withTempFile { parser =>
       runCLI(args"save-parser -s $schema $parser") { cli =>
         cli.expectErr("Schema Definition Warning")
-      } (ExitCode.Success)
+      }(ExitCode.Success)
 
       runCLI(args"parse -P $parser") { cli =>
         cli.send("a,b", inputDone = true)
         cli.expect("<s1>a</s1>")
         cli.expect("<s2>b</s2>")
-      } (ExitCode.Success)
+      }(ExitCode.Success)
     }
   }
 

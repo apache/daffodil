@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section13.nillable
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestNillable2 {
   val testDir = "/org/apache/daffodil/section13/nillable/"

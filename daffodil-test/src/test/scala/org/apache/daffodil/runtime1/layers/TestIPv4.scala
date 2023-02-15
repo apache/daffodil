@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestIPv4 {
 
@@ -46,6 +47,5 @@ class TestIPv4 {
 
   @Test def test_IPv4_1u(): Unit = { runner.runOneTest("IPv4_1u") }
   @Test def test_IPv4_2u(): Unit = { runner.runOneTest("IPv4_2u") }
-
 
 }

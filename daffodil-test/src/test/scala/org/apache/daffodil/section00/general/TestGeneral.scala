@@ -21,11 +21,12 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
-import org.junit.Assert._
-import org.junit.Test
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Assert._
+import org.junit.Test
 
 object TestGeneral {
   val testDir = "/org/apache/daffodil/section00/general/"
@@ -54,7 +55,9 @@ class TestGeneral {
 
   import TestGeneral._
 
-  @Test def test_check_no_namespace_message(): Unit = { runner.runOneTest("check_no_namespace_message") }
+  @Test def test_check_no_namespace_message(): Unit = {
+    runner.runOneTest("check_no_namespace_message")
+  }
 
   @Test def test_capitalization(): Unit = { runner.runOneTest("capitalization") }
 
@@ -94,30 +97,72 @@ class TestGeneral {
     assertTrue(m.toLowerCase.contains("not found"))
   }
 
-  @Test def test_unqualifiedPathStepPolicy_test_01_defaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_defaultNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_01_preferDefaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_preferDefaultNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_01_noNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_noNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_02_defaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_defaultNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_02_preferDefaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_preferDefaultNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_02_noNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_noNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_03_defaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_defaultNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_03_preferDefaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_preferDefaultNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_03_noNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_noNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_04_defaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_defaultNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_04_preferDefaultNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_preferDefaultNamespace") }
-  @Test def test_unqualifiedPathStepPolicy_test_04_noNamespace(): Unit = { tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_noNamespace") }
-  
-  @Test def test_maxOccursBoundsExceeded(): Unit = { tunables_runner.runOneTest("maxOccursBoundsExceeded") }
+  @Test def test_unqualifiedPathStepPolicy_test_01_defaultNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_defaultNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_01_preferDefaultNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_preferDefaultNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_01_noNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_noNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_02_defaultNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_defaultNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_02_preferDefaultNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_preferDefaultNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_02_noNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_noNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_03_defaultNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_defaultNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_03_preferDefaultNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_preferDefaultNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_03_noNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_noNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_04_defaultNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_defaultNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_04_preferDefaultNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_preferDefaultNamespace")
+  }
+  @Test def test_unqualifiedPathStepPolicy_test_04_noNamespace(): Unit = {
+    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_noNamespace")
+  }
+
+  @Test def test_maxOccursBoundsExceeded(): Unit = {
+    tunables_runner.runOneTest("maxOccursBoundsExceeded")
+  }
   @Test def test_textBidiYes(): Unit = { tunables_runner.runOneTest("textBidiYes") }
-  @Test def test_requireTextBidiTrue(): Unit = { tunables_runner.runOneTest("requireTextBidiTrue") }
-  @Test def test_requireTextBidiFalse(): Unit = { tunables_runner.runOneTest("requireTextBidiFalse") }
+  @Test def test_requireTextBidiTrue(): Unit = {
+    tunables_runner.runOneTest("requireTextBidiTrue")
+  }
+  @Test def test_requireTextBidiFalse(): Unit = {
+    tunables_runner.runOneTest("requireTextBidiFalse")
+  }
   @Test def test_floatingYes(): Unit = { tunables_runner.runOneTest("floatingYes") }
-  @Test def test_requireFloatingTrue(): Unit = { tunables_runner.runOneTest("requireFloatingTrue") }
-  @Test def test_requireFloatingFalse(): Unit = { tunables_runner.runOneTest("requireFloatingFalse") }
-  @Test def test_encodingErrorPolicyError(): Unit = { tunables_runner.runOneTest("encodingErrorPolicyError") }
-  @Test def test_requireEncodingErrorPolicyTrue(): Unit = { tunables_runner.runOneTest("requireEncodingErrorPolicyTrue") }
-  @Test def test_requireEncodingErrorPolicyFalse(): Unit = { tunables_runner.runOneTest("requireEncodingErrorPolicyFalse") }
+  @Test def test_requireFloatingTrue(): Unit = {
+    tunables_runner.runOneTest("requireFloatingTrue")
+  }
+  @Test def test_requireFloatingFalse(): Unit = {
+    tunables_runner.runOneTest("requireFloatingFalse")
+  }
+  @Test def test_encodingErrorPolicyError(): Unit = {
+    tunables_runner.runOneTest("encodingErrorPolicyError")
+  }
+  @Test def test_requireEncodingErrorPolicyTrue(): Unit = {
+    tunables_runner.runOneTest("requireEncodingErrorPolicyTrue")
+  }
+  @Test def test_requireEncodingErrorPolicyFalse(): Unit = {
+    tunables_runner.runOneTest("requireEncodingErrorPolicyFalse")
+  }
   @Test def test_maxHexBinaryError(): Unit = { tunables_runner.runOneTest("maxHexBinaryError") }
-  @Test def test_maxHexBinaryUnparseError(): Unit = { tunables_runner.runOneTest("maxHexBinaryUnparseError") }
+  @Test def test_maxHexBinaryUnparseError(): Unit = {
+    tunables_runner.runOneTest("maxHexBinaryUnparseError")
+  }
 
 }

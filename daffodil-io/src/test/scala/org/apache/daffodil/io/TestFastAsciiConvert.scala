@@ -18,6 +18,7 @@
 package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
+
 import org.junit.Assert._
 import org.junit.Test
 
@@ -40,12 +41,12 @@ class TestFastAsciiConvert {
   }
 
   @Test def testConvertLong1(): Unit = {
-    assertEquals(0xFFFDFFFDFFFDFFFDL, cvt.convertLong(-1))
+    assertEquals(0xfffdfffdfffdfffdL, cvt.convertLong(-1))
     assertEquals(0x0L, cvt.convertLong(0))
-    assertEquals(0xFFFDL, cvt.convertLong(128))
-    assertEquals(0xFFFD0000L, cvt.convertLong(0x00008000))
-    assertEquals(0xFFFD00000000L, cvt.convertLong(0x00800000))
-    assertEquals(0xFFFD000000000000L, cvt.convertLong(0x80000000))
+    assertEquals(0xfffdL, cvt.convertLong(128))
+    assertEquals(0xfffd0000L, cvt.convertLong(0x00008000))
+    assertEquals(0xfffd00000000L, cvt.convertLong(0x00800000))
+    assertEquals(0xfffd000000000000L, cvt.convertLong(0x80000000))
     assertEquals(0x002c002c002c002cL, cvt.convertLong(0x2c2c2c2c))
   }
 

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section07.defineFormat
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object defineFormatTests {
   val testDir = "/org/apache/daffodil/section07/defineFormat/"
@@ -37,12 +38,14 @@ class defineFormatTests {
 
   @Test def test_format_with_comment(): Unit = { runner.runOneTest("format_with_comment") }
 
-  //DFDL-478
-  //@Test def test_nameCollision() { runner.runOneTest("nameCollision") }
+  // DFDL-478
+  // @Test def test_nameCollision() { runner.runOneTest("nameCollision") }
 
   @Test def test_defineFormat_01(): Unit = { runner.runOneTest("defineFormat_01") }
   @Test def test_Lesson3_defineFormat(): Unit = { runner.runOneTest("Lesson3_defineFormat") }
-  @Test def test_Lesson3_inherit_defineFormat(): Unit = { runner.runOneTest("Lesson3_inherit_defineFormat") }
+  @Test def test_Lesson3_inherit_defineFormat(): Unit = {
+    runner.runOneTest("Lesson3_inherit_defineFormat")
+  }
   @Test def test_formatOnlyDefine(): Unit = { runner.runOneTest("formatOnlyDefine") }
   @Test def test_circularRef(): Unit = { runner.runOneTest("circularRef") }
   @Test def test_noNameFormat(): Unit = { runner.runOneTest("noNameFormat") }

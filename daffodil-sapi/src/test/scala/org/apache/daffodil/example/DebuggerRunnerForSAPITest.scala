@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.example
 
-import org.apache.daffodil.sapi.debugger._
-
 import scala.collection.mutable.ListBuffer
+
+import org.apache.daffodil.sapi.debugger._
 
 class DebuggerRunnerForSAPITest extends DebuggerRunner {
   val lines = ListBuffer[String]()
@@ -30,14 +30,12 @@ class DebuggerRunnerForSAPITest extends DebuggerRunner {
     "display info data",
     "display eval ..",
     "display info diff",
-    "trace"
+    "trace",
   ).iterator
 
-  def init(): Unit = {
-  }
+  def init(): Unit = {}
 
-  def fini(): Unit = {
-  }
+  def fini(): Unit = {}
 
   def getCommand(): String = {
     val cmd = if (commandsIter.hasNext) {

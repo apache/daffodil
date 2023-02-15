@@ -17,15 +17,16 @@
 
 package org.apache.daffodil.io
 
-import org.junit.Test
-import org.junit.Assert._
-
 import java.io.ByteArrayInputStream
-import java.io.InputStreamReader
 import java.io.File
-import org.apache.commons.io.IOUtils
+import java.io.InputStreamReader
+
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.Maybe
+
+import org.apache.commons.io.IOUtils
+import org.junit.Assert._
+import org.junit.Test
 
 class TestDirectOrBufferedDataOutputStream {
 
@@ -37,12 +38,24 @@ class TestDirectOrBufferedDataOutputStream {
     res
   }
 
-  def newDirectOrBufferedDataOutputStream(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream,
-    bo: BitOrder = BitOrder.MostSignificantBitFirst) = {
-    val os = DirectOrBufferedDataOutputStream(jos, creator, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
+  def newDirectOrBufferedDataOutputStream(
+    jos: java.io.OutputStream,
+    creator: DirectOrBufferedDataOutputStream,
+    bo: BitOrder = BitOrder.MostSignificantBitFirst,
+  ) = {
+    val os = DirectOrBufferedDataOutputStream(
+      jos,
+      creator,
+      false,
+      4096,
+      2000 * (1 << 20),
+      new File("."),
+      Maybe.Nope,
+    )
     os.setPriorBitOrder(bo)
     os
   }
+
   /**
    * Tests that the toString method doesn't throw. Can't even use a debugger
    * if that happens.
@@ -135,7 +148,9 @@ class TestDirectOrBufferedDataOutputStream {
 
     assertTrue(buf1.isFinished)
 
-    layered.setFinished(finfo) // collapses layered into buf1. Since buf1 is finished already, this melds them, outputs everything
+    layered.setFinished(
+      finfo,
+    ) // collapses layered into buf1. Since buf1 is finished already, this melds them, outputs everything
     // and leaves the whole thing finished.
     // leaves layered dead/unusable.
 

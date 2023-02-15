@@ -18,6 +18,7 @@
 package org.apache.daffodil.section13.packed
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -77,14 +78,26 @@ class TestPacked {
 
   @Test def testDelimitedPackedIntSeq(): Unit = { runner.runOneTest("DelimitedPackedIntSeq") }
   @Test def testDelimitedPackedDecSeq(): Unit = { runner.runOneTest("DelimitedPackedDecSeq") }
-  @Test def testDelimitedPackedIntSeqUnparser(): Unit = { runner.runOneTest("DelimitedPackedIntSeqUnparser") }
-  @Test def testDelimitedPackedDecSeqUnparser(): Unit = { runner.runOneTest("DelimitedPackedDecSeqUnparser") }
+  @Test def testDelimitedPackedIntSeqUnparser(): Unit = {
+    runner.runOneTest("DelimitedPackedIntSeqUnparser")
+  }
+  @Test def testDelimitedPackedDecSeqUnparser(): Unit = {
+    runner.runOneTest("DelimitedPackedDecSeqUnparser")
+  }
   @Test def testDelimitedBCDIntSeq(): Unit = { runner.runOneTest("DelimitedBCDIntSeq") }
   @Test def testDelimitedBCDDecSeq(): Unit = { runner.runOneTest("DelimitedBCDDecSeq") }
-  @Test def testDelimitedBCDIntSeqUnparser(): Unit = { runner.runOneTest("DelimitedBCDIntSeqUnparser") }
-  @Test def testDelimitedBCDDecSeqUnparser(): Unit = { runner.runOneTest("DelimitedBCDDecSeqUnparser") }
+  @Test def testDelimitedBCDIntSeqUnparser(): Unit = {
+    runner.runOneTest("DelimitedBCDIntSeqUnparser")
+  }
+  @Test def testDelimitedBCDDecSeqUnparser(): Unit = {
+    runner.runOneTest("DelimitedBCDDecSeqUnparser")
+  }
   @Test def testDelimitedIBM4690IntSeq(): Unit = { runner.runOneTest("DelimitedIBM4690IntSeq") }
   @Test def testDelimitedIBM4690DecSeq(): Unit = { runner.runOneTest("DelimitedIBM4690DecSeq") }
-  @Test def testDelimitedIBM4690IntSeqUnparser(): Unit = { runner.runOneTest("DelimitedIBM4690IntSeqUnparser") }
-  @Test def testDelimitedIBM4690DecSeqUnparser(): Unit = { runner.runOneTest("DelimitedIBM4690DecSeqUnparser") }
+  @Test def testDelimitedIBM4690IntSeqUnparser(): Unit = {
+    runner.runOneTest("DelimitedIBM4690IntSeqUnparser")
+  }
+  @Test def testDelimitedIBM4690DecSeqUnparser(): Unit = {
+    runner.runOneTest("DelimitedIBM4690DecSeqUnparser")
+  }
 }

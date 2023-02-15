@@ -18,9 +18,10 @@
 package org.apache.daffodil.cliTest
 
 import org.apache.daffodil.cli.ValidatorPatterns
-import org.junit.Test
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
+import org.junit.Test
 
 class TestValidatorPatterns {
   @Test def testNoArgsPattern(): Unit = {

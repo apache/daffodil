@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section24.regular_expressions
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestRegularExpressions {
   val testDir = "/org/apache/daffodil/section24/regular_expressions/"
@@ -36,9 +37,15 @@ class TestRegularExpressions {
   import TestRegularExpressions._
 
   @Test def test_entity_in_regex_fail(): Unit = { runner.runOneTest("entity_in_regex_fail") }
-  @Test def test_entity_in_regex_fail_2(): Unit = { runner.runOneTest("entity_in_regex_fail_2") }
-  @Test def test_entity_in_regex_fail_3(): Unit = { runner.runOneTest("entity_in_regex_fail_3") }
-  @Test def test_entity_in_regex_fail_4(): Unit = { runner.runOneTest("entity_in_regex_fail_4") }
+  @Test def test_entity_in_regex_fail_2(): Unit = {
+    runner.runOneTest("entity_in_regex_fail_2")
+  }
+  @Test def test_entity_in_regex_fail_3(): Unit = {
+    runner.runOneTest("entity_in_regex_fail_3")
+  }
+  @Test def test_entity_in_regex_fail_4(): Unit = {
+    runner.runOneTest("entity_in_regex_fail_4")
+  }
 
   @Test def test_testRegEx_01(): Unit = { runner.runOneTest("testRegEx_01") }
   @Test def test_testRegEx_02(): Unit = { runner.runOneTest("testRegEx_02") }

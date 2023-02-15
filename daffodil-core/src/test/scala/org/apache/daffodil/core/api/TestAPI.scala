@@ -17,14 +17,16 @@
 
 package org.apache.daffodil.core.api
 
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util._
-import org.junit.Test
-import org.apache.daffodil.lib.Implicits._; object INoWarn7 { ImplicitsSuppressUnusedImportWarning() }
+
+import org.junit.Test; object INoWarn7 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.util.TestUtils
 
 class TestDFDLParser_New {
 
-  @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs(): Unit = {
+  @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs()
+    : Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -34,13 +36,15 @@ class TestDFDLParser_New {
             <xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited" maxOccurs="4" minOccurs="0" dfdl:occursCountKind="implicit"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val (_, actual) = TestUtils.testString(sch, "5;6;7;8;.")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs2(): Unit = {
+  @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs2()
+    : Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
@@ -50,7 +54,8 @@ class TestDFDLParser_New {
             <xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited" maxOccurs="100" minOccurs="0" dfdl:occursCountKind="implicit"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val (_, actual) = TestUtils.testString(sch, "5;6;7;8!.")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)

@@ -52,6 +52,7 @@ final class TestMaybeInlineForeach {
   def usesIfNull(m: String): Unit = {
     if (m != null) bar(m)
   }
+
   /**
    * Call these enough times that the hotspot optimizer should be inlining
    * whatever it can.
@@ -106,29 +107,33 @@ final class TestMaybeInlineForeach {
     // what we expect if scala can't inline-away the function object allocation
 
     // This will fail if foreach takes less than that much, because that
-    // is telling us the scala compiler is either more aggressively inlining 
+    // is telling us the scala compiler is either more aggressively inlining
     // the functions (so no function being allocated), or it's somehow screwing up
-    // if(x.isDefined)... 
-    // 
+    // if(x.isDefined)...
+    //
     // Either way we have to investigate.
     //
     val ratio = ifDefinedNanos / foreachNanos
     if (ratio > 0.25) {
-      fail("foreach is taking less than 4x longer than if(x.isDefined)... " +
-        "\nMaybe scala compiler is avoiding the function object now? (A good thing!)" +
-        "\nratio ifDefined/foreach time is " + ratio)
+      fail(
+        "foreach is taking less than 4x longer than if(x.isDefined)... " +
+          "\nMaybe scala compiler is avoiding the function object now? (A good thing!)" +
+          "\nratio ifDefined/foreach time is " + ratio,
+      )
     } else {
       println("ratio ifDefined/foreach is " + ratio)
     }
     //
     // Tests that if (x.isDefined) is within 2x speed of if (x eq null)
     //
-    // If that's not the case, then we need to investigate, because it should be 
+    // If that's not the case, then we need to investigate, because it should be
     // roughly as fast.
     val ratio2 = ifNullNanos / ifDefinedNanos
     if (ratio2 < 0.8) {
-      fail("ifDefined is taking a lot longer than ifNull. They should be about the same. " +
-        "\nratio ifNull/ifDefined is " + ratio2)
+      fail(
+        "ifDefined is taking a lot longer than ifNull. They should be about the same. " +
+          "\nratio ifNull/ifDefined is " + ratio2,
+      )
     } else {
       println("ratio ifNull/ifDefined is " + ratio2)
     }

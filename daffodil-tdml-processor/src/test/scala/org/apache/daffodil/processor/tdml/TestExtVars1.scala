@@ -19,8 +19,8 @@ package org.apache.daffodil.processor.tdml
 
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.Test
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestExtVars1 {
   val testDir = "org/apache/daffodil/tdml/"
@@ -35,10 +35,13 @@ class TestExtVars1 {
   import TestExtVars1._
 
   @Test def test_configLittleEndian() = { runner.runOneTest("configLittleEndian") }
-  @Test def test_unparseConfigLittleEndian() = { runner.runOneTest("unparseConfigLittleEndian") }
+  @Test def test_unparseConfigLittleEndian() = {
+    runner.runOneTest("unparseConfigLittleEndian")
+  }
   @Test def test_unparseConfigBigEndian() = { runner.runOneTest("unparseConfigBigEndian") }
   @Test def test_configDefaultBigEndian() = { runner.runOneTest("configDefaultBigEndian") }
-  @Test def test_unparseConfigDefaultBigEndian() = { runner.runOneTest("unparseConfigDefaultBigEndian") }
+  @Test def test_unparseConfigDefaultBigEndian() = {
+    runner.runOneTest("unparseConfigDefaultBigEndian")
+  }
 
 }
-

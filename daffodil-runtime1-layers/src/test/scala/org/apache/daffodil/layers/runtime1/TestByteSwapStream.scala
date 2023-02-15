@@ -17,21 +17,19 @@
 
 package org.apache.daffodil.layers.runtime1
 
-import org.junit.Assert._
-
 import java.io._
-import org.junit.Test
-
 import java.nio.charset.StandardCharsets
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestByteSwapStreams {
 
   val iso8859 = StandardCharsets.ISO_8859_1
 
-  val unswapped32BitData = Array[Byte](0x76, 0x54, 0x32,        0x10,
-                                                   0xBA.toByte, 0x98.toByte)
+  val unswapped32BitData = Array[Byte](0x76, 0x54, 0x32, 0x10, 0xba.toByte, 0x98.toByte)
 
-  val swapped32BitData = Array[Byte](0x10, 0x32, 0x54, 0x76, 0x98.toByte, 0xBA.toByte)
+  val swapped32BitData = Array[Byte](0x10, 0x32, 0x54, 0x76, 0x98.toByte, 0xba.toByte)
 
   @Test def testFourByteSwapInputStream() = {
     val data = unswapped32BitData

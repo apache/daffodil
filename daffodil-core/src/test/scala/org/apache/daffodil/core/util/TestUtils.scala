@@ -17,42 +17,38 @@
 
 package org.apache.daffodil.core.util
 
-import org.apache.daffodil.core.dsom._
-
-import org.apache.daffodil.lib.util._
-
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.InputStream
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
-import org.apache.commons.io.output.NullOutputStream
-import org.junit.Assert.assertEquals
-import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.lib.api._
+import scala.xml._
+
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.runtime1.debugger._
-import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.VariableMapFactory
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.api._
+import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.debugger._
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
+import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.VariableMap
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.xml._
 
-import java.io.ByteArrayInputStream
-import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
-import org.apache.daffodil.io.InputSourceDataInputStream
-
-import java.io.InputStream
-import scala.collection.mutable.ArrayBuffer
-import scala.xml._
-
-
+import org.apache.commons.io.output.NullOutputStream
+import org.junit.Assert.assertEquals
 
 object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -93,12 +89,20 @@ object TestUtils {
     runSchemaOnRBC(testSchema, Misc.stringToReadableByteChannel(data), areTracing)
   }
 
-  def testBinary(testSchema: Node, hexData: String, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
+  def testBinary(
+    testSchema: Node,
+    hexData: String,
+    areTracing: Boolean = false,
+  ): (DFDL.ParseResult, Node) = {
     val b = Misc.hex2Bytes(hexData)
     testBinary(testSchema, b, areTracing)
   }
 
-  def testBinary(testSchema: Node, data: Array[Byte], areTracing: Boolean): (DFDL.ParseResult, Node) = {
+  def testBinary(
+    testSchema: Node,
+    data: Array[Byte],
+    areTracing: Boolean,
+  ): (DFDL.ParseResult, Node) = {
     val rbc = Misc.byteArrayToReadableByteChannel(data)
     runSchemaOnRBC(testSchema, rbc, areTracing)
   }
@@ -109,7 +113,12 @@ object TestUtils {
 
   val useSerializedProcessor = true
 
-  def testUnparsing(testSchema: scala.xml.Elem, infosetXML: Node, unparseTo: String, areTracing: Boolean = false): Seq[Diagnostic] = {
+  def testUnparsing(
+    testSchema: scala.xml.Elem,
+    infosetXML: Node,
+    unparseTo: String,
+    areTracing: Boolean = false,
+  ): Seq[Diagnostic] = {
     val compiler = Compiler().withTunable("allowExternalPathExpressions", "true")
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
@@ -147,7 +156,12 @@ object TestUtils {
     }
   }
 
-  def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte], areTracing: Boolean = false): Unit = {
+  def testUnparsingBinary(
+    testSchema: scala.xml.Elem,
+    infoset: Node,
+    unparseTo: Array[Byte],
+    areTracing: Boolean = false,
+  ): Unit = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) throwDiagnostics(pf.diagnostics)
@@ -169,7 +183,8 @@ object TestUtils {
     }
   }
 
-  private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompilers)
+  private lazy val builtInTracer =
+    new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompilers)
 
   private def saveAndReload(p: DataProcessor): DataProcessor = {
     if (this.useSerializedProcessor) {
@@ -207,16 +222,28 @@ object TestUtils {
     p
   }
 
-  def runSchemaOnRBC(testSchema: Node, data: ReadableByteChannel, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
+  def runSchemaOnRBC(
+    testSchema: Node,
+    data: ReadableByteChannel,
+    areTracing: Boolean = false,
+  ): (DFDL.ParseResult, Node) = {
     runSchemaOnInputStream(testSchema, Channels.newInputStream(data), areTracing)
   }
 
-  def runSchemaOnInputStream(testSchema: Node, is: InputStream, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
+  def runSchemaOnInputStream(
+    testSchema: Node,
+    is: InputStream,
+    areTracing: Boolean = false,
+  ): (DFDL.ParseResult, Node) = {
     val p = compileSchema(testSchema)
     runDataProcessorOnInputStream(p, is, areTracing)
   }
 
-  def runDataProcessorOnInputStream(dp: DataProcessor, is: InputStream, areTracing: Boolean = false): (DFDL.ParseResult, Node) = {
+  def runDataProcessorOnInputStream(
+    dp: DataProcessor,
+    is: InputStream,
+    areTracing: Boolean = false,
+  ): (DFDL.ParseResult, Node) = {
     val p1 =
       if (areTracing) {
         dp.withDebugger(builtInTracer).withDebugging(true)
@@ -248,17 +275,23 @@ object TestUtils {
     contentElements: Seq[Node],
     elementFormDefault: String = "unqualified",
     includeImports: Seq[Node] = defaultIncludeImports,
-    topLevels: Seq[Node] = defaultTopLevels): Root = {
+    topLevels: Seq[Node] = defaultTopLevels,
+  ): Root = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       includeImports,
       topLevels,
       contentElements,
-      elementFormDefault = elementFormDefault)
+      elementFormDefault = elementFormDefault,
+    )
     val sset = SchemaSet(testSchema)
     sset.root
   }
 
-  private def compileAndSave(compiler: Compiler, schemaSource: URISchemaSource, output: WritableByteChannel) = {
+  private def compileAndSave(
+    compiler: Compiler,
+    schemaSource: URISchemaSource,
+    output: WritableByteChannel,
+  ) = {
     Try {
       val pf = compiler.compileSource(schemaSource)
       if (!pf.isError) {
@@ -268,7 +301,8 @@ object TestUtils {
           (pf, dp)
         } else {
           throw new Exception(
-            (dp.getDiagnostics ++ pf.getDiagnostics).map { _.getMessage() }.mkString("\n"))
+            (dp.getDiagnostics ++ pf.getDiagnostics).map { _.getMessage() }.mkString("\n"),
+          )
         }
       } else
         throw new Exception(pf.getDiagnostics.map { _.getMessage() }.mkString("\n"))
@@ -285,6 +319,7 @@ object TestUtils {
     theTry.get
   }
 }
+
 /**
  * We need a schema document and such for unit testing, also our PrimType
  * needs a dummy schema document also so that our invariant, that *everything*
@@ -324,7 +359,8 @@ class Fakes private () {
       <xs:sequence>
         <xs:sequence/>
       </xs:sequence>
-    </xs:group>)
+    </xs:group>,
+  )
   val DummyPrimitiveFactory = null
   val tunables = DaffodilTunables()
   lazy val xsd_sset: SchemaSet = SchemaSet(sch, "http://example.com", "fake")
@@ -332,7 +368,8 @@ class Fakes private () {
   lazy val fakeSD = xsd_schema.schemaDocuments(0)
   lazy val fakeElem = fakeSD.getGlobalElementDecl("fake").get
 
-  lazy val fakeCT = fakeSD.getGlobalElementDecl("fake2").get.typeDef.asInstanceOf[GlobalComplexTypeDef]
+  lazy val fakeCT =
+    fakeSD.getGlobalElementDecl("fake2").get.typeDef.asInstanceOf[GlobalComplexTypeDef]
   lazy val fakeSequence = fakeCT.sequence
   lazy val Seq(fs1, fs2, fs3) = fakeSequence.groupMembers
   lazy val fakeChoiceGroupRef = fs1.asInstanceOf[ChoiceGroupRef]
@@ -342,8 +379,12 @@ class Fakes private () {
 
   class FakeDataProcessor extends DFDL.DataProcessor {
     override def save(output: DFDL.Output): Unit = {}
-    override def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = null
-    override def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = null
+    override def parse(
+      input: InputSourceDataInputStream,
+      output: InfosetOutputter,
+    ): DFDL.ParseResult = null
+    override def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult =
+      null
     override def getDiagnostics: Seq[Diagnostic] = Seq.empty
     override def isError: Boolean = false
 
@@ -353,15 +394,17 @@ class Fakes private () {
 
     override def withExternalVariables(extVars: Seq[Binding]): DFDL.DataProcessor = this
     override def withExternalVariables(extVars: java.io.File): DFDL.DataProcessor = this
-    override def withExternalVariables(extVars: Map[String,String]): DFDL.DataProcessor = this
+    override def withExternalVariables(extVars: Map[String, String]): DFDL.DataProcessor = this
     override def withTunable(tunable: String, value: String): DFDL.DataProcessor = this
-    override def withTunables(tunables: Map[String,String]): DFDL.DataProcessor = this
+    override def withTunables(tunables: Map[String, String]): DFDL.DataProcessor = this
     override def withValidationMode(mode: ValidationMode.Type): DFDL.DataProcessor = this
-    override def withDebugger(dbg:AnyRef): DFDL.DataProcessor = this
+    override def withDebugger(dbg: AnyRef): DFDL.DataProcessor = this
     override def withDebugging(flag: Boolean): DFDL.DataProcessor = this
 
     override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = null
-    override def newContentHandlerInstance(output: DFDL.Output): DFDL.DaffodilUnparseContentHandler = null
+    override def newContentHandlerInstance(
+      output: DFDL.Output,
+    ): DFDL.DaffodilUnparseContentHandler = null
   }
   lazy val fakeDP = new FakeDataProcessor
 
@@ -371,36 +414,42 @@ class Fakes private () {
  * Testing class for streaming message parse behavior
  */
 object StreamParser {
-  case class CompileFailure (diags: Seq[Diagnostic]) extends Exception("DFDL Schema Compile Failure"){
-    override def getMessage() = diags.map{ _.toString }.mkString(",\n")
+  case class CompileFailure(diags: Seq[Diagnostic])
+    extends Exception("DFDL Schema Compile Failure") {
+    override def getMessage() = diags.map { _.toString }.mkString(",\n")
   }
 
   /**
    * Result object for parse calls. Just a tuple.
    */
-  case class Result (message: Node, // document that is the current parse result, or null
-    diags: Seq[Diagnostic],  // diagnostics.
+  case class Result(
+    message: Node, // document that is the current parse result, or null
+    diags: Seq[Diagnostic], // diagnostics.
     isProcessingError: Boolean,
     isValidationError: Boolean,
-    bitPos1b: Long) {
+    bitPos1b: Long,
+  ) {
 
     def toXML: Node = {
       <Result>
-        { message }
-        { if (!diags.isEmpty) {
-        <diagnostics>
-          { diags map { diag => <diagnostic>{ diag.toString} </diagnostic> } }
+        {message}
+        {
+        if (!diags.isEmpty) {
+          <diagnostics>
+          {diags.map { diag => <diagnostic>{diag.toString} </diagnostic> }}
         </diagnostics>
-        }
-      else Null
+        } else Null
       }
       </Result> %
-        (if (isProcessingError) new UnprefixedAttribute("isProcessingError",isProcessingError.toString, Null) else Null) %
-        (if (isValidationError) new UnprefixedAttribute("isValidationError", isValidationError.toString, Null) else Null) %
+        (if (isProcessingError)
+           new UnprefixedAttribute("isProcessingError", isProcessingError.toString, Null)
+         else Null) %
+        (if (isValidationError)
+           new UnprefixedAttribute("isValidationError", isValidationError.toString, Null)
+         else Null) %
         new UnprefixedAttribute("bitPos1b", bitPos1b.toString, Null)
     }
   }
-
 
   def doStreamTest(schema: Node, data: String): Seq[Result] = {
     val mp = new StreamParser(schema)
@@ -408,7 +457,7 @@ object StreamParser {
     mp.setInputStream(is)
     var r: StreamParser.Result = null
     val results = new ArrayBuffer[Result]
-    val resStream = Stream.continually( mp.parse ).takeWhile( r => !r.isProcessingError)
+    val resStream = Stream.continually(mp.parse).takeWhile(r => !r.isProcessingError)
     resStream.toSeq
   }
 }
@@ -424,13 +473,15 @@ class StreamParser(val schema: Node) {
   val pf = c.compileNode(schema)
   val pfDiags = pf.getDiagnostics
   if (pf.isError) throw new StreamParser.CompileFailure(pfDiags)
-  dp = pf.onPath("/")
+  dp = pf
+    .onPath("/")
     .withValidationMode(ValidationMode.Full)
   // .withDebuggerRunner(new TraceDebuggerRunner()) // DAFFODIL-2624 - cannot trace in streaming SAPI
   // .withDebugging(true)
   val dpDiags = dp.getDiagnostics
   if (dp.isError) throw new StreamParser.CompileFailure(dpDiags)
-  val compilationWarnings = if (!pfDiags.isEmpty) pfDiags else dpDiags // dpDiags might be empty. That's ok.
+  val compilationWarnings =
+    if (!pfDiags.isEmpty) pfDiags else dpDiags // dpDiags might be empty. That's ok.
 
   def setInputStream(inputStream: InputStream): Unit = {
     dis = InputSourceDataInputStream(inputStream)
@@ -442,7 +493,8 @@ class StreamParser(val schema: Node) {
    * @return a Result object containing the results of the parse including diagnostic information.
    */
   def parse = {
-    if (dis == null) throw new IllegalStateException("Input stream must be provided by setInputStream() call.")
+    if (dis == null)
+      throw new IllegalStateException("Input stream must be provided by setInputStream() call.")
     val res: DFDL.ParseResult = dp.parse(dis, outputter)
     val procErr = res.isProcessingError
     val validationErr = res.isValidationError

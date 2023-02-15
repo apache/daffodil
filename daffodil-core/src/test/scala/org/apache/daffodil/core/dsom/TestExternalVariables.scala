@@ -18,23 +18,23 @@
 package org.apache.daffodil.core.dsom
 
 import java.nio.channels.Channels
-
 import scala.xml.Node
 
+import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.ns2String
 import org.apache.daffodil.lib.api.UnitTestSchemaSource
-import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
-import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
-import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.runtime1.processors.ExternalVariableException
-import org.apache.daffodil.runtime1.processors.VariableMap
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
+import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
+import org.apache.daffodil.runtime1.processors.ExternalVariableException
+import org.apache.daffodil.runtime1.processors.VariableMap
+
 import org.junit.Assert._
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -67,7 +67,8 @@ class TestExternalVariables {
         <xs:choice>
           <xs:sequence/>
         </xs:choice>
-      </xs:group>)
+      </xs:group>,
+    )
     lazy val xsd_sset = SchemaSet(sch, "http://example.com", "fake")
     lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
     lazy val fakeSD = xsd_schema.schemaDocuments(0)
@@ -90,16 +91,21 @@ class TestExternalVariables {
         <xs:choice>
           <xs:sequence/>
         </xs:choice>
-      </xs:group>)
+      </xs:group>,
+    )
     sch
   }
 
-  def generateTestSchemaWithTarget(topLevelAnnotations: Seq[Node], theTargetNS: String, importSchemaLocation: String,
-    hasDefaultNamespace : Boolean = true) = {
+  def generateTestSchemaWithTarget(
+    topLevelAnnotations: Seq[Node],
+    theTargetNS: String,
+    importSchemaLocation: String,
+    hasDefaultNamespace: Boolean = true,
+  ) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
-      <xs:import schemaLocation={ importSchemaLocation } namespace=""/>
+      <xs:import schemaLocation={importSchemaLocation} namespace=""/>
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="tns:fakeCT"/>
       <xs:complexType name="fakeCT">
@@ -114,7 +120,8 @@ class TestExternalVariables {
         </xs:choice>
       </xs:group>,
       theTargetNS,
-      hasDefaultNamespace = hasDefaultNamespace)
+      hasDefaultNamespace = hasDefaultNamespace,
+    )
     sch
   }
 
@@ -135,7 +142,8 @@ class TestExternalVariables {
           <xs:sequence/>
         </xs:choice>
       </xs:group>,
-      "")
+      "",
+    )
     sch
   }
 
@@ -145,15 +153,19 @@ class TestExternalVariables {
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"
         dfdl:inputValueCalc="{ $ex:var1 }" />,
-      theTargetNS)
+      theTargetNS,
+    )
     sch
   }
 
   def checkResult(vmap: VariableMap, keyToFind: String, expectedValue: String) = {
     import scala.util.{ Success, Failure }
-    val tri = QName.refQNameFromExtendedSyntax(keyToFind).map { _.toGlobalQName }.map { qn => vmap.find(qn) }
+    val tri = QName.refQNameFromExtendedSyntax(keyToFind).map { _.toGlobalQName }.map { qn =>
+      vmap.find(qn)
+    }
     tri match {
-      case Failure(th) => fail("The syntax '" + keyToFind + "' did not parse. Got " + Misc.getSomeMessage(th).get)
+      case Failure(th) =>
+        fail("The syntax '" + keyToFind + "' did not parse. Got " + Misc.getSomeMessage(th).get)
       case Success(None) => fail("Did not find " + keyToFind + " in the VariableMap.")
       case Success(Some(variab)) => {
         // Found var1 but is the value correct?
@@ -177,7 +189,8 @@ class TestExternalVariables {
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2"/>
     }
     val sch_no_ns = generateTestSchemaNoTarget(tla_no_ns)
-    val source_no_ns = UnitTestSchemaSource(sch_no_ns, "test_figures_out_namespace_success_no_ns")
+    val source_no_ns =
+      UnitTestSchemaSource(sch_no_ns, "test_figures_out_namespace_success_no_ns")
 
     val tla = {
       <dfdl:format ref="tns:GeneralFormat"/>
@@ -186,7 +199,11 @@ class TestExternalVariables {
     }
     source_no_ns.uriForLoading.toString
 
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.uriForLoading.toString)
+    val sch = generateTestSchemaWithTarget(
+      tla,
+      XMLUtils.EXAMPLE_NAMESPACE,
+      source_no_ns.uriForLoading.toString,
+    )
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_success")
 
     source.uriForLoading.toString
@@ -194,7 +211,8 @@ class TestExternalVariables {
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
       ("{}var2", "value2"), // NoNamespace
-      ("var3", "value3")) // Figure out the namespace
+      ("var3", "value3"),
+    ) // Figure out the namespace
 
     val variables = ExternalVariablesLoader.mapToBindings(vars)
 
@@ -236,12 +254,17 @@ class TestExternalVariables {
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2.1"/>
     }
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.uriForLoading.toString)
+    val sch = generateTestSchemaWithTarget(
+      tla,
+      XMLUtils.EXAMPLE_NAMESPACE,
+      source_no_ns.uriForLoading.toString,
+    )
     val source = UnitTestSchemaSource(sch, "test_no_namespace_success")
 
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
-      ("{}var2", "value2")) // NoNamespace
+      ("{}var2", "value2"),
+    ) // NoNamespace
 
     val variables = ExternalVariablesLoader.mapToBindings(vars)
 
@@ -275,23 +298,27 @@ class TestExternalVariables {
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.2"/>
     }
     val sch_no_ns = generateTestSchemaNoTarget(tla_no_ns)
-    val source_no_ns = UnitTestSchemaSource(sch_no_ns, "test_figures_out_namespace_failure_no_ns")
+    val source_no_ns =
+      UnitTestSchemaSource(sch_no_ns, "test_figures_out_namespace_failure_no_ns")
 
     val tla = {
       <dfdl:format ref="tns:GeneralFormat"/>
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.1"/>
     }
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.uriForLoading.toString,
-      hasDefaultNamespace = false)
+    val sch = generateTestSchemaWithTarget(
+      tla,
+      XMLUtils.EXAMPLE_NAMESPACE,
+      source_no_ns.uriForLoading.toString,
+      hasDefaultNamespace = false,
+    )
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_failure")
 
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
       ("{}var2", "value2"), // NoNamespace
-      ("var3", "value3")) // Figure out the namespace
-
-
+      ("var3", "value3"),
+    ) // Figure out the namespace
 
     val c = Compiler(validateDFDLSchemas = false)
     val pf = c.compileSource(source)
@@ -333,7 +360,9 @@ class TestExternalVariables {
     val dp2 = pf.onPath("/").withExternalVariables(variables)
 
     val outputter = new ScalaXMLInfosetOutputter()
-    val input = InputSourceDataInputStream(Channels.newInputStream(Misc.stringToReadableByteChannel("")))
+    val input = InputSourceDataInputStream(
+      Channels.newInputStream(Misc.stringToReadableByteChannel("")),
+    )
 
     val res1 = dp1.parse(input, outputter)
     assertTrue(outputter.getResult.toString.contains("default1"))

@@ -17,6 +17,7 @@
 package org.apache.daffodil.extensions
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -43,9 +44,19 @@ class TestLookAhead {
   @Test def test_lookAhead_tooFar_01(): Unit = { runner.runOneTest("lookAhead_tooFar_01") }
   @Test def test_lookAhead_tooFar_02(): Unit = { runner.runOneTest("lookAhead_tooFar_02") }
   @Test def test_lookAhead_tooFar_03(): Unit = { runner.runOneTest("lookAhead_tooFar_03") }
-  @Test def test_lookAhead_negativeOffset_01(): Unit = { runner.runOneTest("lookAhead_negativeOffset_01") }
-  @Test def test_lookAhead_negativeBitsize_01(): Unit = { runner.runOneTest("lookAhead_negativeBitsize_01") }
-  @Test def test_lookAhead_zeroBitsize_01(): Unit = { runner.runOneTest("lookAhead_zeroBitsize_01") }
-  @Test def test_lookAhead_newVariableInstance_01(): Unit = { runner.runOneTest("lookAhead_newVariableInstance_01") }
-  @Test def test_lookAhead_setVariable_01(): Unit = { runner.runOneTest("lookAhead_setVariable_01") }
+  @Test def test_lookAhead_negativeOffset_01(): Unit = {
+    runner.runOneTest("lookAhead_negativeOffset_01")
+  }
+  @Test def test_lookAhead_negativeBitsize_01(): Unit = {
+    runner.runOneTest("lookAhead_negativeBitsize_01")
+  }
+  @Test def test_lookAhead_zeroBitsize_01(): Unit = {
+    runner.runOneTest("lookAhead_zeroBitsize_01")
+  }
+  @Test def test_lookAhead_newVariableInstance_01(): Unit = {
+    runner.runOneTest("lookAhead_newVariableInstance_01")
+  }
+  @Test def test_lookAhead_setVariable_01(): Unit = {
+    runner.runOneTest("lookAhead_setVariable_01")
+  }
 }

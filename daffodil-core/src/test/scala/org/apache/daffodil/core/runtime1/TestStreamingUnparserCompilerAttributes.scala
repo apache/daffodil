@@ -24,12 +24,14 @@ import org.apache.daffodil.core.dsom.LocalElementDecl
 import org.apache.daffodil.core.dsom.LocalSequence
 import org.apache.daffodil.core.dsom.SequenceGroupRef
 import org.apache.daffodil.core.dsom.Term
+
 import org.junit.Test
 
 class TestStreamingUnparserCompilerAttributes {
 
-  import PossibleNextElements._
   import org.apache.daffodil.core.util.TestUtils._
+
+  import PossibleNextElements._
 
   private def poss(t: Term) = t.possibleNextLexicalSiblingStreamingUnparserElements
   type LE = LocalElementDecl
@@ -144,7 +146,9 @@ class TestStreamingUnparserCompilerAttributes {
     val rg: S = r.complexType.sequence
     val Seq(a: LE, b: LE, gr: CGR) = rg.groupMembers
     val Seq(c: LE, d: LE) = gr.groupMembers
-    val Closed(Seq(PNE(`a`, false), PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) = poss(a)
+    val Closed(Seq(PNE(`a`, false), PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) = poss(
+      a,
+    )
     val Closed(Seq(PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) = poss(b)
     val Closed(Seq(PNE(`c`, false), PNE(`d`, false))) = poss(gr)
     val Closed(Seq(PNE(`c`, true))) = poss(c)
@@ -553,10 +557,8 @@ class TestStreamingUnparserCompilerAttributes {
     </xs:group>
 
   @Test def testUnparseHiddenGroupsPresenceFlags6(): Unit = {
-    val r = getRoot(
-      schemaX,
-      topLevels =
-        <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>)
+    val r =
+      getRoot(schemaX, topLevels = <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>)
 
     val rg: S = r.complexType.sequence
     val Seq(ch: C, y: LE) = rg.groupMembers

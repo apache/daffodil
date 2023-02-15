@@ -17,21 +17,24 @@
 
 package org.apache.daffodil.core.grammar
 
-import org.junit.Assert._
-import org.apache.daffodil.lib.Implicits._; object INoWarnG1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.lib.Implicits._
+
+import org.junit.Assert._; object INoWarnG1 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.dsom._
+import org.apache.daffodil.core.util.Fakes
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.processors.parsers.Parser
-import org.junit.Test
-import org.apache.daffodil.core.util.Fakes
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
+
+import org.junit.Test
 
 class TestGrammar extends GrammarMixin {
 
   val fakeDecl =
     GlobalElementDecl(
       <xs:element name="foo" type="xs:int" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>,
-      Fakes.fakeSD)
+      Fakes.fakeSD,
+    )
   val fakeTerm = fakeDecl.asRoot
 
   final override protected def grammarContext = fakeTerm

@@ -19,6 +19,7 @@ package org.apache.daffodil.lib.util
 
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.exceptions.Abort
+
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

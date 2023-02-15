@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.io
 
-import org.junit.Test
-import org.junit.Assert._
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.util.MaybeULong
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestInputSourceDataInputStream2 {
   val tenDigits = "1234567890"

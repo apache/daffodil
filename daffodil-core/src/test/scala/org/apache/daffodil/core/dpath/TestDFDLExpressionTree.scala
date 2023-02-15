@@ -17,20 +17,20 @@
 
 package org.apache.daffodil.core.dpath
 
-import org.apache.daffodil.runtime1.dpath._
+import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
+import scala.util.parsing.combinator.Parsers
 
+import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.xml.StepQName
+import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.dpath._
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.core.compiler._
-import scala.util.parsing.combinator.Parsers
-import org.apache.daffodil.lib.xml._
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.lib.xml.StepQName
-import org.apache.daffodil.lib.Implicits._
-import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 class TestDFDLExpressionTree extends Parsers {
   val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
@@ -38,7 +38,8 @@ class TestDFDLExpressionTree extends Parsers {
   val dummySchema = SchemaUtils.dfdlTestSchema(
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
-    <xs:element name="title" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>)
+    <xs:element name="title" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>,
+  )
 
   def testExpr(testSchema: scala.xml.Elem, expr: String)(body: Expression => Unit): Unit = {
     val schemaCompiler = Compiler()
@@ -49,12 +50,21 @@ class TestDFDLExpressionTree extends Parsers {
     val decl = declf.asRoot
     val erd = decl.elementRuntimeData
 
-    val exprCompiler = new DFDLPathExpressionParser(qn, NodeInfo.String, testSchema.scope, erd.dpathCompileInfo, false, sset)
+    val exprCompiler = new DFDLPathExpressionParser(
+      qn,
+      NodeInfo.String,
+      testSchema.scope,
+      erd.dpathCompileInfo,
+      false,
+      sset,
+    )
     val result = exprCompiler.getExpressionTree(expr)
     body(result)
   }
 
-  def testExpr2(testSchema: scala.xml.Elem, expr: String)(body: (Expression, ElementRuntimeData) => Unit): Unit = {
+  def testExpr2(testSchema: scala.xml.Elem, expr: String)(
+    body: (Expression, ElementRuntimeData) => Unit,
+  ): Unit = {
     val schemaCompiler = Compiler()
     val sset = schemaCompiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
@@ -62,7 +72,14 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.asRoot
     val erd = decl
-    val exprCompiler = new DFDLPathExpressionParser(qn, NodeInfo.AnyType, testSchema.scope, decl.dpathCompileInfo, false, sset)
+    val exprCompiler = new DFDLPathExpressionParser(
+      qn,
+      NodeInfo.AnyType,
+      testSchema.scope,
+      decl.dpathCompileInfo,
+      false,
+      sset,
+    )
     val result = exprCompiler.getExpressionTree(expr)
     body(result, erd.elementRuntimeData)
   }
@@ -82,16 +99,24 @@ class TestDFDLExpressionTree extends Parsers {
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-    </xs:element>)
+    </xs:element>,
+  )
 
   val aSchema = SchemaUtils.dfdlTestSchema(
     <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
-    <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:string(xs:unsignedInt(5)) }"/>)
+    <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:string(xs:unsignedInt(5)) }"/>,
+  )
 
   @Test def test_a() = {
     testExpr2(aSchema, "{ /tns:a }") { (ce, erd) =>
-      val WholeExpression(_, RootPathExpression(Some(RelativePathExpression(steps, _))), _, _, _) = ce
+      val WholeExpression(
+        _,
+        RootPathExpression(Some(RelativePathExpression(steps, _))),
+        _,
+        _,
+        _,
+      ) = ce
       val List(n1: DownStepExpression) = steps
       val n1p @ NamedStep("tns:a", None) = n1;
       assertNotNull(n1p)
@@ -114,11 +139,18 @@ class TestDFDLExpressionTree extends Parsers {
           <xs:element name="a" maxOccurs="2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:string(xs:unsignedInt(5)) }"/>
         </xs:sequence>
       </xs:complexType>
-    </xs:element>)
+    </xs:element>,
+  )
 
   @Test def test_a_pred(): Unit = {
     testExpr2(bSchema, "{ /tns:b/a[/tns:b/i] }") { (ce, erd) =>
-      val w @ WholeExpression(_, RootPathExpression(Some(RelativePathExpression(steps, _))), _, _, _) = ce
+      val w @ WholeExpression(
+        _,
+        RootPathExpression(Some(RelativePathExpression(steps, _))),
+        _,
+        _,
+        _,
+      ) = ce
       val List(b, a) = steps
       val bp @ NamedStep("tns:b", None) = b; assertNotNull(bp)
       val NamedStep("a", Some(PredicateExpression(i))) = a
@@ -149,7 +181,8 @@ class TestDFDLExpressionTree extends Parsers {
       val WholeExpression(_, RelativePathExpression(steps, _), _, _, _) = actual
       val List(n1, n2, n3) = steps
       val u @ Up(None) = n1; assertNotNull(u)
-      val u2 @ Up(Some(PredicateExpression(LiteralExpression(two: JBigInt)))) = n2; assertNotNull(u2)
+      val u2 @ Up(Some(PredicateExpression(LiteralExpression(two: JBigInt)))) = n2;
+      assertNotNull(u2)
       assertEquals(JBigInt.valueOf(2), two)
       val n3p @ NamedStep("bookstore", None) = n3; assertNotNull(n3p)
     }
@@ -176,7 +209,13 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_absolutePath() = {
     testExpr2(testSchema, "{ /tns:bookstore/book/title }") { (actual, erd) =>
-      val WholeExpression(_, RootPathExpression(Some(RelativePathExpression(steps, _))), _, _, _) = actual
+      val WholeExpression(
+        _,
+        RootPathExpression(Some(RelativePathExpression(steps, _))),
+        _,
+        _,
+        _,
+      ) = actual
       val List(n1, n2, n3) = steps.asInstanceOf[List[NamedStep]]
       val n1p @ NamedStep("tns:bookstore", None) = n1; assertNotNull(n1p)
       assertTrue(n1.isFirstStep)
@@ -219,7 +258,13 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_pathNoSuchElement1(): Unit = {
     testExpr2(testSchema, "{ /thereIsNoElementWithThisName }") { (actual, erd) =>
-      val WholeExpression(_, RootPathExpression(Some(RelativePathExpression(List(step: NamedStep), _))), _, _, _) = actual
+      val WholeExpression(
+        _,
+        RootPathExpression(Some(RelativePathExpression(List(step: NamedStep), _))),
+        _,
+        _,
+        _,
+      ) = actual
       val exc = intercept[Exception] {
         step.stepElements
       }
@@ -233,7 +278,13 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def test_predPath() = {
     testExpr(dummySchema, "{ /bookstore[$i]/book/title }") { actual =>
-      val WholeExpression(_, RootPathExpression(Some(RelativePathExpression(steps, _))), _, _, _) = actual
+      val WholeExpression(
+        _,
+        RootPathExpression(Some(RelativePathExpression(steps, _))),
+        _,
+        _,
+        _,
+      ) = actual
       val List(n1, n2, n3) = steps
       val NamedStep("bookstore", pred) = n1
       // println(pred)
@@ -246,7 +297,16 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def testAddConstants(): Unit = {
     testExpr(dummySchema, "{ 1 + 2 }") { actual =>
-      val a @ WholeExpression(_, AdditiveExpression("+", List(LiteralExpression(one: JBigInt), LiteralExpression(two: JBigInt))), _, _, _) = actual; assertNotNull(a)
+      val a @ WholeExpression(
+        _,
+        AdditiveExpression(
+          "+",
+          List(LiteralExpression(one: JBigInt), LiteralExpression(two: JBigInt)),
+        ),
+        _,
+        _,
+        _,
+      ) = actual; assertNotNull(a)
       assertEquals(JBigInt.valueOf(1), one)
       assertEquals(JBigInt.valueOf(2), two)
     }
@@ -254,25 +314,37 @@ class TestDFDLExpressionTree extends Parsers {
 
   @Test def testFnTrue(): Unit = {
     testExpr(dummySchema, "{ fn:true() }") { actual =>
-      val a @ WholeExpression(_, FunctionCallExpression("fn:true", Nil), _, _, _) = actual; assertNotNull(a)
+      val a @ WholeExpression(_, FunctionCallExpression("fn:true", Nil), _, _, _) = actual;
+      assertNotNull(a)
     }
   }
 
   @Test def test_numbers1() = {
     testExpr(dummySchema, "{ 0. }") { actual: Expression =>
       val res = JBigDecimal.ZERO
-      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigDecimal), _, _, _) = actual; assertNotNull(a)
+      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigDecimal), _, _, _) = actual;
+      assertNotNull(a)
       assertEquals(res, actualRes)
     }
   }
 
   @Test def test_numbers() = {
 
-    testExpr(dummySchema, "{ 5.0E2 }") { case WholeExpression(_, LiteralExpression(500.0), _, _, _) => /* ok */ ; }
-    testExpr(dummySchema, "{ 5E2 }") { case WholeExpression(_, LiteralExpression(500.0), _, _, _) => /* ok */ ; }
-    testExpr(dummySchema, "{ .2E2 }") { case WholeExpression(_, LiteralExpression(20.0), _, _, _) => /* ok */ ; }
-    testExpr(dummySchema, "{ .2E-3 }") { case WholeExpression(_, LiteralExpression(0.0002), _, _, _) => /* ok */ ; }
-    testExpr(dummySchema, "{ .2E+3 }") { case WholeExpression(_, LiteralExpression(200.0), _, _, _) => /* ok */ ; }
+    testExpr(dummySchema, "{ 5.0E2 }") {
+      case WholeExpression(_, LiteralExpression(500.0), _, _, _) => /* ok */ ;
+    }
+    testExpr(dummySchema, "{ 5E2 }") {
+      case WholeExpression(_, LiteralExpression(500.0), _, _, _) => /* ok */ ;
+    }
+    testExpr(dummySchema, "{ .2E2 }") {
+      case WholeExpression(_, LiteralExpression(20.0), _, _, _) => /* ok */ ;
+    }
+    testExpr(dummySchema, "{ .2E-3 }") {
+      case WholeExpression(_, LiteralExpression(0.0002), _, _, _) => /* ok */ ;
+    }
+    testExpr(dummySchema, "{ .2E+3 }") {
+      case WholeExpression(_, LiteralExpression(200.0), _, _, _) => /* ok */ ;
+    }
 
     //    testExpr(dummySchema, "0.") { actual =>
     //      val res = new JBigDecimal("0.0")
@@ -282,21 +354,28 @@ class TestDFDLExpressionTree extends Parsers {
       val res = new JBigDecimal("0.1")
       val a @ WholeExpression(_, LiteralExpression(`res`), _, _, _) = actual; assertNotNull(a)
     }
-    testExpr(dummySchema, "{ 982304892038409234982304892038409234.0909808908982304892038409234 }") { actual =>
-      val res = new JBigDecimal("982304892038409234982304892038409234.0909808908982304892038409234")
+    testExpr(
+      dummySchema,
+      "{ 982304892038409234982304892038409234.0909808908982304892038409234 }",
+    ) { actual =>
+      val res =
+        new JBigDecimal("982304892038409234982304892038409234.0909808908982304892038409234")
       val WholeExpression(_, LiteralExpression(r: JBigDecimal), _, _, _) = actual
       assertEquals(res, r)
     }
 
     testExpr(dummySchema, "{ 0 }") { actual =>
       val res = JBigInt.ZERO
-      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _) = actual; assertNotNull(a)
+      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _) = actual;
+      assertNotNull(a)
       assertEquals(res, actualRes)
     }
-    testExpr(dummySchema, "{ 9817239872193792873982173948739879128370982398723897921370 }") { actual =>
-      val res = new JBigInt("9817239872193792873982173948739879128370982398723897921370")
-      val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _) = actual; assertNotNull(a)
-      assertEquals(res, actualRes)
+    testExpr(dummySchema, "{ 9817239872193792873982173948739879128370982398723897921370 }") {
+      actual =>
+        val res = new JBigInt("9817239872193792873982173948739879128370982398723897921370")
+        val a @ WholeExpression(_, LiteralExpression(actualRes: JBigInt), _, _, _) = actual;
+        assertNotNull(a)
+        assertEquals(res, actualRes)
     }
 
   }
@@ -332,41 +411,70 @@ class TestDFDLExpressionTree extends Parsers {
     }
 
     testFn("{ fn:true() }") { actual => assertEquals("true", actual.functionQName.local) }
-    testFn("{ fn:concat('a', 'b') }") { actual => assertEquals("concat", actual.functionQName.local) }
+    testFn("{ fn:concat('a', 'b') }") { actual =>
+      assertEquals("concat", actual.functionQName.local)
+    }
 
   }
 
   @Test def test_binaryOps() = {
-    testExpr(dummySchema, """{
+    testExpr(
+      dummySchema,
+      """{
   if (a or b and c gt d)
   then if (c gt d)
     then e + f * g
     else -h
   else +i
-        }""") { actual =>
+        }""",
+    ) { actual =>
       val WholeExpression(_, IfExpression(Seq(pred, thenPart, elsePart)), _, _, _) = actual
       val p @ OrExpression(
-        List(RelativePathExpression(List(NamedStep("a", None)), _),
+        List(
+          RelativePathExpression(List(NamedStep("a", None)), _),
           AndExpression(
-            List(RelativePathExpression(List(NamedStep("b", None)), _),
-              ComparisonExpression("gt",
-                List(RelativePathExpression(List(NamedStep("c", None)), _),
-                  RelativePathExpression(List(NamedStep("d", None)), _)))
-              )))) = pred
+            List(
+              RelativePathExpression(List(NamedStep("b", None)), _),
+              ComparisonExpression(
+                "gt",
+                List(
+                  RelativePathExpression(List(NamedStep("c", None)), _),
+                  RelativePathExpression(List(NamedStep("d", None)), _),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ) = pred
       assertNotNull(p)
       val th @ IfExpression(
-        List(ComparisonExpression("gt",
-          List(RelativePathExpression(List(NamedStep("c", None)), _),
-            RelativePathExpression(List(NamedStep("d", None)), _))),
-          AdditiveExpression("+",
-            List(RelativePathExpression(List(NamedStep("e", None)), _),
-              MultiplicativeExpression("*",
-                List(RelativePathExpression(List(NamedStep("f", None)), _),
-                  RelativePathExpression(List(NamedStep("g", None)), _)))
-              )),
-          UnaryExpression("-", RelativePathExpression(List(NamedStep("h", None)), _)))) = thenPart
+        List(
+          ComparisonExpression(
+            "gt",
+            List(
+              RelativePathExpression(List(NamedStep("c", None)), _),
+              RelativePathExpression(List(NamedStep("d", None)), _),
+            ),
+          ),
+          AdditiveExpression(
+            "+",
+            List(
+              RelativePathExpression(List(NamedStep("e", None)), _),
+              MultiplicativeExpression(
+                "*",
+                List(
+                  RelativePathExpression(List(NamedStep("f", None)), _),
+                  RelativePathExpression(List(NamedStep("g", None)), _),
+                ),
+              ),
+            ),
+          ),
+          UnaryExpression("-", RelativePathExpression(List(NamedStep("h", None)), _)),
+        ),
+      ) = thenPart
       assertNotNull(th)
-      val el @ UnaryExpression("+", RelativePathExpression(List(NamedStep("i", None)), _)) = elsePart
+      val el @ UnaryExpression("+", RelativePathExpression(List(NamedStep("i", None)), _)) =
+        elsePart
       assertNotNull(el)
     }
   }

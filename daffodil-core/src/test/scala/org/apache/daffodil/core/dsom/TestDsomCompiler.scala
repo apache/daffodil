@@ -17,19 +17,18 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.core.util._
-
-import org.junit.Assert._
-import org.junit.Test
-
 import scala.xml.Node
 import scala.xml.Utility
 import scala.xml.XML
 
-import org.apache.daffodil.lib.Implicits._; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.core.util._
+import org.apache.daffodil.lib.Implicits._
+
+import org.junit.Assert._
+import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.URISchemaSource
-import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.lib.schema.annotation.props.AlignmentType
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.gen.AlignmentUnits
@@ -71,7 +70,8 @@ class TestDsomCompiler {
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -94,7 +94,8 @@ class TestDsomCompiler {
             <xs:element name="w" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val compiler = Compiler().withCheckAllTopLevel(true)
     val sset = compiler.compileNode(sch).sset
@@ -113,7 +114,8 @@ class TestDsomCompiler {
     val sch: Node = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="list" type="typeDoesNotExist"/>)
+      <xs:element name="list" type="typeDoesNotExist"/>,
+    )
     val pf = Compiler().compileNode(sch)
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
@@ -123,7 +125,8 @@ class TestDsomCompiler {
 
   // FIXME - convert this test to TDML or drop if there is coverage other places.
   @Test def testTypeReferentialError2(): Unit = {
-    val sch: Node = <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+    val sch: Node =
+      <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
                       <element name="foo" type="bar"/><!-- Illegal: no prefix on name of the type. -->
                       <complexType name="bar">
                         <sequence/>
@@ -146,7 +149,8 @@ class TestDsomCompiler {
             <xs:element name="w" type="xsd:int" dfdl:byteOrder="invalidValue" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val compiler = Compiler().withCheckAllTopLevel(true)
     val sset = Compiler().compileNode(s).sset
     sset.isError // forces compilation
@@ -161,10 +165,9 @@ class TestDsomCompiler {
     val sc = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
-          <xs:appinfo source={ dfdl }>
+          <xs:appinfo source={dfdl}>
             <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
           </xs:appinfo>
         </xs:annotation>
@@ -173,7 +176,8 @@ class TestDsomCompiler {
         <xs:sequence dfdl:separator="">
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
     val sset = Compiler().compileNode(sc).sset
 
@@ -191,10 +195,9 @@ class TestDsomCompiler {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
-          <xs:appinfo source={ dfdl }>
+          <xs:appinfo source={dfdl}>
             <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
           </xs:appinfo>
         </xs:annotation>
@@ -203,7 +206,8 @@ class TestDsomCompiler {
         <xs:sequence dfdl:separatorSuppressionPolicy="never" dfdl:separator="">
           <xs:element name="w" type="xs:int" maxOccurs="1" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:occursCountKind="fixed"/>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
     val w = Utility.trim(testSchema)
 
@@ -228,7 +232,9 @@ class TestDsomCompiler {
     // removed. So for this particular test, use the DaffodilXMLLoader (which
     // does remove comments and what is normally used by Daffodil) to load the
     // XML to a Scala XML Node.
-    val source = URISchemaSource(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"))
+    val source = URISchemaSource(
+      Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"),
+    )
     val loader = new DaffodilXMLLoader(null)
     val testSchema = loader.load(source, None)
 
@@ -247,13 +253,17 @@ class TestDsomCompiler {
     val e3 = e3d.asRoot
     assertEquals(
       ByteOrder.BigEndian.toString.toLowerCase(),
-      e1d.formatAnnotation.asInstanceOf[DFDLElement].getPropertyForUnitTest("byteOrder").toLowerCase())
+      e1d.formatAnnotation
+        .asInstanceOf[DFDLElement]
+        .getPropertyForUnitTest("byteOrder")
+        .toLowerCase(),
+    )
     val Seq(_, a2) = e3d.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLAssert]) // second annotation is newVariableInstance
     assertEquals(OccursCountKind.Implicit.toString, e3.getProperty("occursCountKind"))
     // Explore local complex type def
-    val seq = e1.complexType.modelGroup.asInstanceOf[LocalSequence] //... which is a sequence
-    seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
+    val seq = e1.complexType.modelGroup.asInstanceOf[LocalSequence] // ... which is a sequence
+    seq.formatAnnotation.asInstanceOf[DFDLSequence] // ...annotated with...
     assertEquals(YesNo.No, seq.initiatedContent) // initiatedContent="no"
 
     val Seq(e1a: DFDLElement) = e1d.annotationObjs
@@ -262,25 +272,40 @@ class TestDsomCompiler {
     // Explore global simple type defs
     val Seq(st1, _, _, _) = sd.globalSimpleTypeDefs // there are two.
     val Seq(b1, b2, _, b4) = st1.annotationObjs // first one has 4 annotations
-    assertEquals(AlignmentUnits.Bytes.toString.toLowerCase, b1.asInstanceOf[DFDLSimpleType].getPropertyForUnitTest("alignmentUnits")) // first has alignmentUnits
-    assertEquals("tns:myVar1", b2.asInstanceOf[DFDLSetVariable].ref) // second is setVariable with a ref
-    assertEquals("yadda yadda yadda", b4.asInstanceOf[DFDLAssert].messageAttrib.get) // fourth is an assert with yadda message
+    assertEquals(
+      AlignmentUnits.Bytes.toString.toLowerCase,
+      b1.asInstanceOf[DFDLSimpleType].getPropertyForUnitTest("alignmentUnits"),
+    ) // first has alignmentUnits
+    assertEquals(
+      "tns:myVar1",
+      b2.asInstanceOf[DFDLSetVariable].ref,
+    ) // second is setVariable with a ref
+    assertEquals(
+      "yadda yadda yadda",
+      b4.asInstanceOf[DFDLAssert].messageAttrib.get,
+    ) // fourth is an assert with yadda message
 
     // Explore define formats
     val Seq(df1, _) = sd.defineFormats // there are two
     val def1 = df1.asInstanceOf[DFDLDefineFormat]
     assertEquals("def1", def1.name) // first is named "def1"
-    assertEquals(Representation.Text.toString.toLowerCase, def1.formatAnnotation.getPropertyForUnitTest("representation")) // has representation="text"
+    assertEquals(
+      Representation.Text.toString.toLowerCase,
+      def1.formatAnnotation.getPropertyForUnitTest("representation"),
+    ) // has representation="text"
 
     // Explore define variables
     val Seq(dv1, _) = sd.defineVariables // there are two
     assertNotNull(dv1)
-    //assertEquals("2003年08月27日", dv2.asInstanceOf[DFDLDefineVariable].defaultValue) // second has kanji chars in default value
+    // assertEquals("2003年08月27日", dv2.asInstanceOf[DFDLDefineVariable].defaultValue) // second has kanji chars in default value
 
     // Explore define escape schemes
     val Seq(desc1) = sd.defineEscapeSchemes // only one of these
     val es = desc1.forComponent(e1a).escapeScheme.escapeCharacterRaw.asInstanceOf[Found].value
-    assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
+    assertEquals(
+      "%%",
+      es,
+    ) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs
     val Seq(_, root, _*) = sd.globalElementDecls
@@ -292,13 +317,15 @@ class TestDsomCompiler {
     assertEquals("gr", ggd1.namedQName.local)
     assertEquals("hiddenGroup", ggd2.namedQName.local)
 
-    //Explore LocalSimpleTypeDef
-    val Seq(c1: LocalElementDecl, _: LocalElementDecl, c3: LocalElementDecl, rest @ _*) = cgr.groupMembers
-    val ist = c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
+    // Explore LocalSimpleTypeDef
+    val Seq(c1: LocalElementDecl, _: LocalElementDecl, c3: LocalElementDecl, rest @ _*) =
+      cgr.groupMembers
+    val ist =
+      c3.asInstanceOf[LocalElementDecl].immediateType.get.asInstanceOf[LocalSimpleTypeDef]
     val istBase = ist.optRestriction.get.baseQName.toQNameString
     assertEquals("tns:aType", istBase)
 
-    //Explore LocalElementDecl
+    // Explore LocalElementDecl
     assertEquals(1, c1.maxOccurs)
     val Seq(c1a) = c1.annotationObjs
     assertEquals("{ $myVar1 eq (+47 mod 4) }", c1a.asInstanceOf[DFDLDiscriminator].testBody.get)
@@ -312,7 +339,8 @@ class TestDsomCompiler {
   }
 
   @Test def test4(): Unit = {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
+    val testSchema =
+      XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -324,7 +352,8 @@ class TestDsomCompiler {
 
     val Seq(_: ElementRef, cgr: ChoiceGroupRef) = seq1.groupMembers
     val cgd = cgr.groupDef
-    val Seq(_, cd2: LocalElementDecl, rest @ _*) = cgd.groupMembersNotShared // Children nodes of Choice-node, there are 3
+    val Seq(_, cd2: LocalElementDecl, rest @ _*) =
+      cgd.groupMembersNotShared // Children nodes of Choice-node, there are 3
 
     // val Seq(a1: DFDLChoice) = ch1.annotationObjs // Obtain the annotation object that is a child
     // of the group node.
@@ -341,8 +370,12 @@ class TestDsomCompiler {
   @Test def test_named_format_chaining(): Unit = {
     val testSchema =
       XML.load(
-        Misc.getRequiredResource(
-          "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
+        Misc
+          .getRequiredResource(
+            "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml",
+          )
+          .toURL,
+      )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -359,14 +392,20 @@ class TestDsomCompiler {
   @Test def test_simple_types_access_works(): Unit = {
     val testSchema =
       XML.load(
-        Misc.getRequiredResource(
-          "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
+        Misc
+          .getRequiredResource(
+            "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml",
+          )
+          .toURL,
+      )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(_, x, _, _, _, _) = sd.globalElementDecls.map { _.asRoot } // Obtain global element nodes
+    val Seq(_, x, _, _, _, _) = sd.globalElementDecls.map {
+      _.asRoot
+    } // Obtain global element nodes
 
     assertEquals(AlignmentUnits.Bytes, x.alignmentUnits)
   }
@@ -374,14 +413,20 @@ class TestDsomCompiler {
   @Test def test_simple_types_property_combining(): Unit = {
     val testSchema =
       XML.load(
-        Misc.getRequiredResource(
-          "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
+        Misc
+          .getRequiredResource(
+            "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml",
+          )
+          .toURL,
+      )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
-    val Seq(_, ge2, ge3, ge4, ge5, ge6) = sd.globalElementDecls.map { _.asRoot } // Obtain global element nodes
+    val Seq(_, ge2, ge3, ge4, ge5, ge6) = sd.globalElementDecls.map {
+      _.asRoot
+    } // Obtain global element nodes
 
     assertEquals(AlignmentUnits.Bytes, ge2.alignmentUnits)
 
@@ -404,7 +449,8 @@ class TestDsomCompiler {
   }
 
   @Test def test_simpleType_base_combining(): Unit = {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
+    val testSchema =
+      XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -430,14 +476,18 @@ class TestDsomCompiler {
     assertEquals("ex", baseQName.prefix.get)
     assertEquals("aaType", baseQName.local)
 
-    assertTrue(gs1.formatAnnotation.verifyPropValue("alignmentUnits", "bytes")) // SimpleType - Local
+    assertTrue(
+      gs1.formatAnnotation.verifyPropValue("alignmentUnits", "bytes"),
+    ) // SimpleType - Local
 
     assertTrue(e1.verifyPropValue("byteOrder", "bigEndian")) // SimpleType - Base
     assertTrue(e1.verifyPropValue("occursCountKind", "implicit")) // Default Format
     assertTrue(e1.verifyPropValue("representation", "text")) // Define Format - def1
     assertTrue(e1.verifyPropValue("encoding", "UTF-8")) // Define Format - def1
     assertTrue(e1.verifyPropValue("textStandardBase", "10")) // Define Format - def2
-    assertTrue(e1.verifyPropValue("escapeSchemeRef", "tns:quotingScheme")) // Define Format - def2
+    assertTrue(
+      e1.verifyPropValue("escapeSchemeRef", "tns:quotingScheme"),
+    ) // Define Format - def2
 
     val gs3 = gs3f // Global SimpleType - aTypeError - overlapping base props
 
@@ -451,7 +501,8 @@ class TestDsomCompiler {
   }
 
   @Test def test_group_references(): Unit = {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
+    val testSchema =
+      XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -504,7 +555,8 @@ class TestDsomCompiler {
   }
 
   @Test def test_ibm_7132(): Unit = {
-    val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml").toURL)
+    val ibm7132Schema =
+      XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml").toURL)
     // val ibm7132Schema = "test/TestRefChainingIBM7132.dfdl.xml"
     val sset = SchemaSet(ibm7132Schema)
     // val Seq(sch) = sset.schemas
@@ -536,7 +588,8 @@ class TestDsomCompiler {
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
-      </xs:element>)
+      </xs:element>,
+    )
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
@@ -554,7 +607,8 @@ class TestDsomCompiler {
         <dfdl:format initiator=":" alignmentUnits="bits"/>
       </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
-      </xs:element>)
+      </xs:element>,
+    )
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
@@ -596,7 +650,8 @@ class TestDsomCompiler {
             <xs:element name="block" type="xsd:string" maxOccurs="unbounded" dfdl:representation="text" dfdl:separator="," dfdl:terminator="%NL;" dfdl:escapeSchemeRef="cStyleComment"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
@@ -623,7 +678,8 @@ class TestDsomCompiler {
   }
 
   @Test def test_element_references(): Unit = {
-    val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
+    val testSchema =
+      XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -641,8 +697,8 @@ class TestDsomCompiler {
     assertEquals(2, e1r.maxOccurs)
     assertEquals(1, e1r.minOccurs)
     assertEquals(AlignmentUnits.Bytes, e1r.alignmentUnits)
-    //assertEquals(true, e1.nillable) // TODO: e1.nillable doesn't exist?
-    //assertEquals("%ES; %% %#0; %NUL;%ACK; foo%#rF2;%#rF7;bar %WSP*; %#2024;%#xAABB; &amp;&#2023;&#xCCDD; -1", e1.nilValue) // TODO: Do not equal each other!
+    // assertEquals(true, e1.nillable) // TODO: e1.nillable doesn't exist?
+    // assertEquals("%ES; %% %#0; %NUL;%ACK; foo%#rF2;%#rF7;bar %WSP*; %#2024;%#xAABB; &amp;&#2023;&#xCCDD; -1", e1.nilValue) // TODO: Do not equal each other!
     assertEquals(NilKind.LiteralValue, e1r.nilKind)
   }
 
@@ -659,7 +715,8 @@ class TestDsomCompiler {
             <xs:element name="s" type="xs:int"/>
           </xs:sequence>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
@@ -690,13 +747,14 @@ class TestDsomCompiler {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>)
+      <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>,
+    )
     //    val actual = TestUtils.testString(testSchema, "*word")
     //    val actualString = actual.result.toString
     //    assertTrue(actualString.startsWith("<data"))
     //    assertTrue(actualString.endsWith(">word</data>"))
 
-    val infoset = <data xmlns={ example }>word</data>
+    val infoset = <data xmlns={example}>word</data>
     TestUtils.testUnparsing(testSchema, infoset, "*word")
   }
 
@@ -704,13 +762,14 @@ class TestDsomCompiler {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:string" dfdl:terminator="!" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
+      <xs:element name="data" type="xs:string" dfdl:terminator="!" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>,
+    )
     //    val actual = TestUtils.testString(testSchema, "37!")
     //    val actualString = actual.result.toString
     //    assertTrue(actualString.startsWith("<data"))
     //    assertTrue(actualString.endsWith(">37</data>"))
 
-    val infoset = <data xmlns={ example }>37</data>
+    val infoset = <data xmlns={example}>37</data>
     TestUtils.testUnparsing(testSchema, infoset, "37!")
   }
 
@@ -718,13 +777,14 @@ class TestDsomCompiler {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:terminator="! $" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
+      <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:terminator="! $" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>,
+    )
     //    val actual = TestUtils.testString(testSchema, "*37$")
     //    val actualString = actual.result.toString
     //    assertTrue(actualString.startsWith("<data"))
     //    assertTrue(actualString.endsWith(">37</data>"))
 
-    val infoset = <data xmlns={ example }>37</data>
+    val infoset = <data xmlns={example}>37</data>
     TestUtils.testUnparsing(testSchema, infoset, "*37!")
   }
 
@@ -761,10 +821,9 @@ class TestDsomCompiler {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
-          <xs:appinfo source={ dfdl }>
+          <xs:appinfo source={dfdl}>
             <dfdl:element alignmentUnits="bytes"/>
           </xs:appinfo>
         </xs:annotation>
@@ -775,13 +834,16 @@ class TestDsomCompiler {
           <xs:element name="moredata" type="xs:string" dfdl:length="3" dfdl:lengthKind="explicit" dfdl:initiator="%%"/>
           <xs:element name="anddata" type="xs:int" dfdl:length="2" dfdl:lengthKind="explicit"/>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
     //    val actual = TestUtils.testString(testSchema, "50.93^%XYZ^42")
     //    val actualString = actual.result.toString
     //    assertTrue(actualString.startsWith("<list"))
     //    assertTrue(actualString.endsWith("><somedata>50.93</somedata><moredata>XYZ</moredata><anddata>42</anddata></list>"))
 
-    val infoset = <list xmlns={ example }><somedata>50.93</somedata><moredata>XYZ</moredata><anddata>42</anddata></list>
+    val infoset = <list xmlns={
+      example
+    }><somedata>50.93</somedata><moredata>XYZ</moredata><anddata>42</anddata></list>
     TestUtils.testUnparsing(testSchema, infoset, "50.93^%XYZ^42")
   }
 
@@ -989,13 +1051,14 @@ class TestDsomCompiler {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:int" dfdl:representation="binary"/>)
+      <xs:element name="data" type="xs:int" dfdl:representation="binary"/>,
+    )
     //        val actual = TestUtils.testBinary(testSchema, "0000000F")
     //        val actualString = actual.result.toString
     //        assertTrue(actualString.startsWith("<data"))
     //        assertTrue(actualString.endsWith(">15</data>"))
 
-    val infoset = <data xmlns={ example }>15</data>
+    val infoset = <data xmlns={example}>15</data>
     val bytes = List[Byte](0, 0, 0, 15).toArray
     TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
   }
@@ -1004,13 +1067,14 @@ class TestDsomCompiler {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:int" dfdl:representation="binary" dfdl:byteOrder='littleEndian'/>)
+      <xs:element name="data" type="xs:int" dfdl:representation="binary" dfdl:byteOrder='littleEndian'/>,
+    )
     //        val actual = TestUtils.testBinary(testSchema, "0F000000")
     //        val actualString = actual.result.toString
     //        assertTrue(actualString.startsWith("<data"))
     //        assertTrue(actualString.endsWith(">15</data>"))
 
-    val infoset = <data xmlns={ example }>15</data>
+    val infoset = <data xmlns={example}>15</data>
     val bytes = List[Byte](15, 0, 0, 0).toArray
     TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
   }
@@ -1051,7 +1115,8 @@ class TestDsomCompiler {
           <xs:pattern value="2"/>
           <xs:pattern value="3"/>
         </xs:restriction>
-      </xs:simpleType>)
+      </xs:simpleType>,
+    )
 
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -1090,7 +1155,8 @@ class TestDsomCompiler {
           <xs:pattern value="8"/>
           <xs:pattern value="9"/>
         </xs:restriction>
-      </xs:simpleType>)
+      </xs:simpleType>,
+    )
 
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset

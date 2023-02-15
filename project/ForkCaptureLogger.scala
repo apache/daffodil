@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
+import scala.collection.mutable.ArrayBuffer
+
 import sbt.util.Level
 import sbt.util.Logger
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * Logger only to be used in ForkOptions to capture stderr and stdout. Anything

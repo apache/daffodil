@@ -17,14 +17,12 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
-final class IPv4ChecksumLayerCompiler
-  extends LayerCompiler("IPv4Checksum") {
-
+final class IPv4ChecksumLayerCompiler extends LayerCompiler("IPv4Checksum") {
 
   val variablesNamespace = "urn:org.apache.daffodil.layers.IPv4Checksum"
   val variablesPreferredNamespacePrefix = "chksum"
@@ -37,21 +35,31 @@ final class IPv4ChecksumLayerCompiler
       variablesPreferredNamespacePrefix,
       variablesNamespace,
       localNameOfVariableToWrite,
-      outputVariableType)
+      outputVariableType,
+    )
 
     layerCompileInfo.optLayerLengthKind match {
       case Some(LayerLengthKind.Implicit) => // ok
       case None => // ok
-      case Some(other) => layerCompileInfo.SDE(s"The property dfdlx:layerLengthKind must be 'implicit' (or omitted) but was '$other'.")
+      case Some(other) =>
+        layerCompileInfo.SDE(
+          s"The property dfdlx:layerLengthKind must be 'implicit' (or omitted) but was '$other'.",
+        )
     }
     layerCompileInfo.optLayerLengthOptConstantValue match {
-      case Some(_) =>  layerCompileInfo.SDE("The dfdlx:layerLength property should not be supplied, as this layer is fixed length (20 bytes).")
+      case Some(_) =>
+        layerCompileInfo.SDE(
+          "The dfdlx:layerLength property should not be supplied, as this layer is fixed length (20 bytes).",
+        )
       case None => // ok
     }
     layerCompileInfo.optLayerLengthUnits match {
       case Some(LayerLengthUnits.Bytes) => // ok
       case None => // ok
-      case Some(other) => layerCompileInfo.SDE("The property dfdlx:layerLengthKind must be 'bytes' but was '$other'.")
+      case Some(other) =>
+        layerCompileInfo.SDE(
+          "The property dfdlx:layerLengthKind must be 'bytes' but was '$other'.",
+        )
     }
 
     new IPv4ChecksumLayerTransformerFactory(name, outputVar)
@@ -59,9 +67,9 @@ final class IPv4ChecksumLayerCompiler
 }
 
 class IPv4ChecksumLayerTransformerFactory(name: String, outputVar: VariableRuntimeData)
-    extends LayerTransformerFactory(name) {
+  extends LayerTransformerFactory(name) {
 
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= {
+  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo) = {
     val xformer = new IPv4Checksum(name, layerRuntimeInfo, outputVar)
     xformer
   }

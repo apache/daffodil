@@ -19,6 +19,7 @@ package org.apache.daffodil.processor.tdml
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.api.TDMLImplementation
@@ -27,6 +28,7 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime2.Runtime2CodeGenerator
+
 import org.junit.After
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.fail
@@ -54,15 +56,16 @@ class TestDaffodilC {
 
   // Defines a very simple DFDL test schema for all tests to use
   private val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format representation="binary" ref="GeneralFormat"/>,
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <dfdl:format representation="binary" ref="GeneralFormat"/>,
     <xs:element name="e1">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="x" type="xs:int"/>
         </xs:sequence>
       </xs:complexType>
-    </xs:element>)
+    </xs:element>,
+  )
 
   // Checks that processorFactory.forLanguage("c") succeeds
   @Test def test_forLanguage_success(): Unit = {
@@ -97,9 +100,9 @@ class TestDaffodilC {
 
     // Generate code from the test schema successfully
     val codeDir = cg.generateCode(tempDir.toString)
-    val daffodilMain = codeDir/"libcli"/"daffodil_main.c"
-    val generatedCodeHeader = codeDir/"libruntime"/"generated_code.h"
-    val generatedCodeFile = codeDir/"libruntime"/"generated_code.c"
+    val daffodilMain = codeDir / "libcli" / "daffodil_main.c"
+    val generatedCodeHeader = codeDir / "libruntime" / "generated_code.h"
+    val generatedCodeFile = codeDir / "libruntime" / "generated_code.c"
     assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
     assert(os.exists(codeDir))
     assert(os.exists(daffodilMain))
@@ -133,7 +136,10 @@ class TestDaffodilC {
     val b = Misc.hex2Bytes("00000500")
     val input = new ByteArrayInputStream(b)
     val pr = tdp.parse(input, b.length * 8)
-    assert(!pr.isProcessingError && pf.getDiagnostics.isEmpty, pr.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(
+      !pr.isProcessingError && pf.getDiagnostics.isEmpty,
+      pr.getDiagnostics.map(_.getMessage()).mkString("\n"),
+    )
     val expected = <e1><x>1280</x></e1>
     XMLUtils.compareAndReport(expected, pr.getResult)
   }
@@ -168,7 +174,10 @@ class TestDaffodilC {
     val infosetXML = <e1 xmlns="http://example.com"><x>1280</x></e1>
     val output = new ByteArrayOutputStream()
     val ur = tdp.unparse(infosetXML, output)
-    assert(!ur.isProcessingError && pf.getDiagnostics.isEmpty, ur.getDiagnostics.map(_.getMessage()).mkString("\n"))
+    assert(
+      !ur.isProcessingError && pf.getDiagnostics.isEmpty,
+      ur.getDiagnostics.map(_.getMessage()).mkString("\n"),
+    )
     val expected = Misc.hex2Bytes("00000500")
     assertArrayEquals(expected, output.toByteArray)
   }
@@ -193,12 +202,19 @@ class TestDaffodilC {
   // Checks that Runtime2TDMLDFDLProcessorFactory.getProcessor succeeds
   @Test def test_getProcessor_success(): Unit = {
     val processorFactory = new Runtime2TDMLDFDLProcessorFactory()
-    val schemaSource = UnitTestSchemaSource(testSchema, nameHint = "getProcessor", Some(tempDir.toIO))
+    val schemaSource =
+      UnitTestSchemaSource(testSchema, nameHint = "getProcessor", Some(tempDir.toIO))
     val useSerializedProcessor = false
     val optRootName = None
     val optRootNamespace = None
     val tunables = Map.empty[String, String]
-    val cr = processorFactory.getProcessor(schemaSource, useSerializedProcessor, optRootName, optRootNamespace, tunables)
+    val cr = processorFactory.getProcessor(
+      schemaSource,
+      useSerializedProcessor,
+      optRootName,
+      optRootNamespace,
+      tunables,
+    )
     cr match {
       case Left(diagnostics) => fail(s"getProcessor failed: ${diagnostics.mkString}")
       case Right((diagnostics, tdmlDFDLProcessor)) =>

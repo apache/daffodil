@@ -21,19 +21,20 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
+import java.nio.file.Paths
+
+import org.apache.daffodil.core.util.TestUtils.compileSchema
 import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.runtime1.processors.DataProcessor
-import org.junit.Test
-import org.apache.daffodil.tdml.Runner
-import org.apache.daffodil.tdml.TDMLException
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.core.util.TestUtils.compileSchema
+import org.apache.daffodil.runtime1.processors.DataProcessor
+import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.TDMLException
+
 import org.junit.AfterClass
 import org.junit.Assert.assertTrue
+import org.junit.Test
 import org.xml.sax.SAXParseException
-
-import java.nio.file.Paths
 
 object TestDisallowDocType {
   lazy val testDir = "/org/apache/daffodil/section00/general"
@@ -74,7 +75,7 @@ class TestDisallowDocType {
   }
 
   @Test def test_dfdlSchemaMustNotHaveDocType(): Unit = {
-      runner2.runOneTest("dfdlSchemaMustNotHaveDocType")
+    runner2.runOneTest("dfdlSchemaMustNotHaveDocType")
   }
 
   @Test def test_dfdlSchemaMustNotHaveDocTypeViaInclude(): Unit = {
@@ -84,7 +85,6 @@ class TestDisallowDocType {
   @Test def test_dfdlSchemaMustNotHaveDocTypeViaImport(): Unit = {
     runner2.runOneTest("dfdlSchemaMustNotHaveDocTypeViaImport")
   }
-
 
   @Test def test_infosetFileMustNotHaveDocType(): Unit = {
     val e = intercept[TDMLException] {
@@ -100,11 +100,13 @@ class TestDisallowDocType {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
-      <xs:element name="e1" type="xs:string"/>)
+      <xs:element name="e1" type="xs:string"/>,
+    )
     val schString = testSchema.toString()
     var dp: DataProcessor = compileSchema(testSchema)
     val extVarURI = Misc.getRequiredResource(
-      "org/apache/daffodil/section00/general/hasDocType-external-vars.xml")
+      "org/apache/daffodil/section00/general/hasDocType-external-vars.xml",
+    )
     val extVarFile = Paths.get(extVarURI).toFile
     assertTrue(extVarFile.exists)
     val e = intercept[SAXParseException] {

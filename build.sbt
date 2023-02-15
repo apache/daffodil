@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import sbtcc._
-
 import scala.collection.immutable.ListSet
+
+import sbtcc._
 
 // Silence an errant sbt linter warning about unused sbt settings. For some
 // reason, the sbt linter thinks the below settings are set but not used, which
@@ -34,149 +34,199 @@ lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
 lazy val genRuntime2Examples = taskKey[Seq[File]]("Generate runtime2 example files")
 
-lazy val daffodil         = project.in(file(".")).configs(IntegrationTest)
-                              .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
-                              .aggregate(
-                                 cli,
-                                 core,
-                                 io,
-                                 japi,
-                                 lib,
-                                 macroLib,
-                                 propgen,
-                                 runtime1,
-                                 runtime1Layers,
-                                 runtime1Unparser,
-                                 runtime2,
-                                 sapi,
-                                 schematron,
-                                 slf4jLogger,
-                                 tdmlLib,
-                                 tdmlProc,
-                                 test,
-                                 testIBM1,
-                                 testStdLayout,
-                                 tutorials,
-                                 udf,
-                               )
-                              .settings(commonSettings, nopublish, ratSettings, unidocSettings, genRuntime2ExamplesSettings)
+lazy val daffodil = project
+  .in(file("."))
+  .configs(IntegrationTest)
+  .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
+  .aggregate(
+    cli,
+    core,
+    io,
+    japi,
+    lib,
+    macroLib,
+    propgen,
+    runtime1,
+    runtime1Layers,
+    runtime1Unparser,
+    runtime2,
+    sapi,
+    schematron,
+    slf4jLogger,
+    tdmlLib,
+    tdmlProc,
+    test,
+    testIBM1,
+    testStdLayout,
+    tutorials,
+    udf,
+  )
+  .settings(commonSettings, nopublish, ratSettings, unidocSettings, genRuntime2ExamplesSettings)
 
-lazy val macroLib         = Project("daffodil-macro-lib", file("daffodil-macro-lib")).configs(IntegrationTest)
-                              .settings(commonSettings, nopublish)
-                              .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value)
-                              .disablePlugins(OsgiCheckPlugin)
+lazy val macroLib = Project("daffodil-macro-lib", file("daffodil-macro-lib"))
+  .configs(IntegrationTest)
+  .settings(commonSettings, nopublish)
+  .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value)
+  .disablePlugins(OsgiCheckPlugin)
 
-lazy val propgen          = Project("daffodil-propgen", file("daffodil-propgen")).configs(IntegrationTest)
-                              .settings(commonSettings, nopublish)
+lazy val propgen = Project("daffodil-propgen", file("daffodil-propgen"))
+  .configs(IntegrationTest)
+  .settings(commonSettings, nopublish)
 
-lazy val slf4jLogger      = Project("daffodil-slf4j-logger", file("daffodil-slf4j-logger")).configs(IntegrationTest)
-                              .settings(commonSettings)
-                              .settings(libraryDependencies ++= Dependencies.slf4jAPI)
+lazy val slf4jLogger = Project("daffodil-slf4j-logger", file("daffodil-slf4j-logger"))
+  .configs(IntegrationTest)
+  .settings(commonSettings)
+  .settings(libraryDependencies ++= Dependencies.slf4jAPI)
 
-lazy val lib              = Project("daffodil-lib", file("daffodil-lib")).configs(IntegrationTest)
-                              .dependsOn(macroLib % "compile-internal, test-internal", slf4jLogger % "test")
-                              .settings(commonSettings, libManagedSettings, usesMacros)
+lazy val lib = Project("daffodil-lib", file("daffodil-lib"))
+  .configs(IntegrationTest)
+  .dependsOn(macroLib % "compile-internal, test-internal", slf4jLogger % "test")
+  .settings(commonSettings, libManagedSettings, usesMacros)
 
-lazy val io               = Project("daffodil-io", file("daffodil-io")).configs(IntegrationTest)
-                              .dependsOn(lib, macroLib % "compile-internal, test-internal", slf4jLogger % "test")
-                              .settings(commonSettings, usesMacros)
+lazy val io = Project("daffodil-io", file("daffodil-io"))
+  .configs(IntegrationTest)
+  .dependsOn(lib, macroLib % "compile-internal, test-internal", slf4jLogger % "test")
+  .settings(commonSettings, usesMacros)
 
-lazy val runtime1         = Project("daffodil-runtime1", file("daffodil-runtime1")).configs(IntegrationTest)
-                              .dependsOn(io, lib % "test->test", udf, macroLib % "compile-internal, test-internal", slf4jLogger % "test")
-                              .settings(commonSettings, usesMacros)
+lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
+  .configs(IntegrationTest)
+  .dependsOn(
+    io,
+    lib % "test->test",
+    udf,
+    macroLib % "compile-internal, test-internal",
+    slf4jLogger % "test",
+  )
+  .settings(commonSettings, usesMacros)
 
-lazy val runtime1Unparser = Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser")).configs(IntegrationTest)
-                              .dependsOn(runtime1, lib % "test->test", runtime1 % "test->test", runtime1Layers, slf4jLogger % "test")
-                              .settings(commonSettings)
+lazy val runtime1Unparser =
+  Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser"))
+    .configs(IntegrationTest)
+    .dependsOn(
+      runtime1,
+      lib % "test->test",
+      runtime1 % "test->test",
+      runtime1Layers,
+      slf4jLogger % "test",
+    )
+    .settings(commonSettings)
 
-lazy val runtime1Layers = Project("daffodil-runtime1-layers", file("daffodil-runtime1-layers")).configs(IntegrationTest)
-                              .dependsOn(runtime1, lib % "test->test", slf4jLogger % "test")
-                              .settings(commonSettings)
+lazy val runtime1Layers = Project("daffodil-runtime1-layers", file("daffodil-runtime1-layers"))
+  .configs(IntegrationTest)
+  .dependsOn(runtime1, lib % "test->test", slf4jLogger % "test")
+  .settings(commonSettings)
 
-val runtime2CFiles        = Library("libruntime2.a")
-lazy val runtime2         = Project("daffodil-runtime2", file("daffodil-runtime2")).configs(IntegrationTest)
-                              .enablePlugins(CcPlugin)
-                              .dependsOn(core, core % "test->test", slf4jLogger % "test")
-                              .settings(commonSettings)
-                              .settings(
-                                Compile / cCompiler := sys.env.getOrElse("CC", "cc"),
-                                Compile / ccArchiveCommand := sys.env.getOrElse("AR", "ar"),
-                                Compile / ccTargets := ListSet(runtime2CFiles),
-                                Compile / cSources  := Map(
-                                  runtime2CFiles -> ((Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c"
-                                    * GlobFilter("lib*") * GlobFilter("*.c")).get()
-                                ),
-                                Compile / cIncludeDirectories := Map(
-                                  runtime2CFiles -> Seq(
-                                    (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c" / "libcli",
-                                    (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c" / "libruntime",
-                                  )
-                                ),
-                                Compile / cFlags := (Compile / cFlags).value.withDefaultValue(Seq("-Wall", "-Wextra", "-Wpedantic", "-std=gnu11"))
-                              )
+val runtime2CFiles = Library("libruntime2.a")
+lazy val runtime2 = Project("daffodil-runtime2", file("daffodil-runtime2"))
+  .configs(IntegrationTest)
+  .enablePlugins(CcPlugin)
+  .dependsOn(core, core % "test->test", slf4jLogger % "test")
+  .settings(commonSettings)
+  .settings(
+    Compile / cCompiler := sys.env.getOrElse("CC", "cc"),
+    Compile / ccArchiveCommand := sys.env.getOrElse("AR", "ar"),
+    Compile / ccTargets := ListSet(runtime2CFiles),
+    Compile / cSources := Map(
+      runtime2CFiles -> ((Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c"
+        * GlobFilter("lib*") * GlobFilter("*.c")).get(),
+    ),
+    Compile / cIncludeDirectories := Map(
+      runtime2CFiles -> Seq(
+        (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c" / "libcli",
+        (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c" / "libruntime",
+      ),
+    ),
+    Compile / cFlags := (Compile / cFlags).value
+      .withDefaultValue(Seq("-Wall", "-Wextra", "-Wpedantic", "-std=gnu11")),
+  )
 
-lazy val core             = Project("daffodil-core", file("daffodil-core")).configs(IntegrationTest)
-                              .dependsOn(runtime1Unparser, udf, lib % "test->test", runtime1 % "test->test", io % "test->test", slf4jLogger % "test")
-                              .settings(commonSettings)
+lazy val core = Project("daffodil-core", file("daffodil-core"))
+  .configs(IntegrationTest)
+  .dependsOn(
+    runtime1Unparser,
+    udf,
+    lib % "test->test",
+    runtime1 % "test->test",
+    io % "test->test",
+    slf4jLogger % "test",
+  )
+  .settings(commonSettings)
 
-lazy val japi             = Project("daffodil-japi", file("daffodil-japi")).configs(IntegrationTest)
-                              .dependsOn(core, slf4jLogger % "test")
-                              .settings(commonSettings)
+lazy val japi = Project("daffodil-japi", file("daffodil-japi"))
+  .configs(IntegrationTest)
+  .dependsOn(core, slf4jLogger % "test")
+  .settings(commonSettings)
 
-lazy val sapi             = Project("daffodil-sapi", file("daffodil-sapi")).configs(IntegrationTest)
-                              .dependsOn(core, slf4jLogger % "test")
-                              .settings(commonSettings)
+lazy val sapi = Project("daffodil-sapi", file("daffodil-sapi"))
+  .configs(IntegrationTest)
+  .dependsOn(core, slf4jLogger % "test")
+  .settings(commonSettings)
 
-lazy val tdmlLib          = Project("daffodil-tdml-lib", file("daffodil-tdml-lib")).configs(IntegrationTest)
-                              .dependsOn(macroLib % "compile-internal", lib, io, io % "test->test", slf4jLogger % "test")
-                              .settings(commonSettings)
+lazy val tdmlLib = Project("daffodil-tdml-lib", file("daffodil-tdml-lib"))
+  .configs(IntegrationTest)
+  .dependsOn(macroLib % "compile-internal", lib, io, io % "test->test", slf4jLogger % "test")
+  .settings(commonSettings)
 
-lazy val tdmlProc         = Project("daffodil-tdml-processor", file("daffodil-tdml-processor")).configs(IntegrationTest)
-                              .dependsOn(tdmlLib, runtime2, core, slf4jLogger)
-                              .settings(commonSettings)
+lazy val tdmlProc = Project("daffodil-tdml-processor", file("daffodil-tdml-processor"))
+  .configs(IntegrationTest)
+  .dependsOn(tdmlLib, runtime2, core, slf4jLogger)
+  .settings(commonSettings)
 
-lazy val cli              = Project("daffodil-cli", file("daffodil-cli")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc, runtime2, sapi, japi, schematron % Runtime, udf % "it->test", slf4jLogger) // causes runtime2/sapi/japi to be pulled into the helper zip/tar
-                              .settings(commonSettings, nopublish)
-                              .settings(libraryDependencies ++= Dependencies.cli)
-                              .settings(libraryDependencies ++= Dependencies.exi)
+lazy val cli = Project("daffodil-cli", file("daffodil-cli"))
+  .configs(IntegrationTest)
+  .dependsOn(
+    tdmlProc,
+    runtime2,
+    sapi,
+    japi,
+    schematron % Runtime,
+    udf % "it->test",
+    slf4jLogger,
+  ) // causes runtime2/sapi/japi to be pulled into the helper zip/tar
+  .settings(commonSettings, nopublish)
+  .settings(libraryDependencies ++= Dependencies.cli)
+  .settings(libraryDependencies ++= Dependencies.exi)
 
-lazy val udf              = Project("daffodil-udf", file("daffodil-udf")).configs(IntegrationTest)
-                              .dependsOn(slf4jLogger % "test")
-                              .settings(commonSettings)
+lazy val udf = Project("daffodil-udf", file("daffodil-udf"))
+  .configs(IntegrationTest)
+  .dependsOn(slf4jLogger % "test")
+  .settings(commonSettings)
 
-lazy val schematron       = Project("daffodil-schematron", file("daffodil-schematron"))
-                              .dependsOn(lib, sapi % Test, slf4jLogger % "test")
-                              .settings(commonSettings)
-                              .settings(libraryDependencies ++= Dependencies.schematron)
-                              .configs(IntegrationTest)
+lazy val schematron = Project("daffodil-schematron", file("daffodil-schematron"))
+  .dependsOn(lib, sapi % Test, slf4jLogger % "test")
+  .settings(commonSettings)
+  .settings(libraryDependencies ++= Dependencies.schematron)
+  .configs(IntegrationTest)
 
-lazy val test             = Project("daffodil-test", file("daffodil-test")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc % "test", runtime2 % "test->test", udf % "test->test")
-                              .settings(commonSettings, nopublish)
-                              //
-                              // Uncomment the following line to run these tests
-                              // against IBM DFDL using the Cross Tester
-                              //
-                              //.settings(IBMDFDLCrossTesterPlugin.settings)
+lazy val test = Project("daffodil-test", file("daffodil-test"))
+  .configs(IntegrationTest)
+  .dependsOn(tdmlProc % "test", runtime2 % "test->test", udf % "test->test")
+  .settings(commonSettings, nopublish)
+//
+// Uncomment the following line to run these tests
+// against IBM DFDL using the Cross Tester
+//
+//.settings(IBMDFDLCrossTesterPlugin.settings)
 
-lazy val testIBM1         = Project("daffodil-test-ibm1", file("daffodil-test-ibm1")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc % "test")
-                              .settings(commonSettings, nopublish)
-                              //
-                              // Uncomment the following line to run these tests
-                              // against IBM DFDL using the Cross Tester
-                              //
-                              //.settings(IBMDFDLCrossTesterPlugin.settings)
+lazy val testIBM1 = Project("daffodil-test-ibm1", file("daffodil-test-ibm1"))
+  .configs(IntegrationTest)
+  .dependsOn(tdmlProc % "test")
+  .settings(commonSettings, nopublish)
+//
+// Uncomment the following line to run these tests
+// against IBM DFDL using the Cross Tester
+//
+//.settings(IBMDFDLCrossTesterPlugin.settings)
 
-lazy val tutorials        = Project("daffodil-tutorials", file("tutorials")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc % "test")
-                              .settings(commonSettings, nopublish)
+lazy val tutorials = Project("daffodil-tutorials", file("tutorials"))
+  .configs(IntegrationTest)
+  .dependsOn(tdmlProc % "test")
+  .settings(commonSettings, nopublish)
 
-lazy val testStdLayout    = Project("daffodil-test-stdLayout", file("test-stdLayout")).configs(IntegrationTest)
-                              .dependsOn(tdmlProc % "test")
-                              .settings(commonSettings, nopublish)
-
+lazy val testStdLayout = Project("daffodil-test-stdLayout", file("test-stdLayout"))
+  .configs(IntegrationTest)
+  .dependsOn(tdmlProc % "test")
+  .settings(commonSettings, nopublish)
 
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
@@ -197,8 +247,8 @@ lazy val commonSettings = Seq(
   scmInfo := Some(
     ScmInfo(
       browseUrl = url("https://github.com/apache/daffodil"),
-      connection = "scm:git:https://github.com/apache/daffodil"
-    )
+      connection = "scm:git:https://github.com/apache/daffodil",
+    ),
   ),
   licenses := Seq(License.Apache2),
   homepage := Some(url("https://daffodil.apache.org")),
@@ -224,13 +274,14 @@ def buildScalacOptions(scalaVersion: String) = {
     "-Ywarn-inaccessible",
     // "-Ywarn-nullary-unit", // we cannot use this. It interferes with the Uniform Access Principle.
     // See https://stackoverflow.com/questions/7600910/difference-between-function-with-parentheses-and-without.
-    "-Ywarn-unused-import"
+    "-Ywarn-unused-import",
   )
 
   val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
-    case Some((2, 12)) => Seq(
-      "-Ywarn-unused:imports"
-    )
+    case Some((2, 12)) =>
+      Seq(
+        "-Ywarn-unused:imports",
+      )
     case _ => Seq.empty
   }
 
@@ -240,7 +291,7 @@ def buildScalacOptions(scalaVersion: String) = {
     else
       Seq.empty
 
-    commonOptions ++ scalaVersionSpecificOptions ++ javaVersionSpecificOptions
+  commonOptions ++ scalaVersionSpecificOptions ++ javaVersionSpecificOptions
 }
 
 // Workaround issue that some options are valid for javac, not javadoc.
@@ -248,7 +299,7 @@ def buildScalacOptions(scalaVersion: String) = {
 def buildJavacOptions() = {
   val commonOptions = Seq(
     "-Werror",
-    "-Xlint:deprecation"
+    "-Xlint:deprecation",
   )
 
   val javaVersionSpecificOptions =
@@ -264,7 +315,7 @@ lazy val nopublish = Seq(
   publish := {},
   publishLocal := {},
   publishM2 := {},
-  publish / skip := true
+  publish / skip := true,
 )
 
 // "usesMacros" is a list of settings that should be applied only to
@@ -288,7 +339,8 @@ lazy val usesMacros = Seq(
   // Note that for packageBin, we only copy directories and class files--this
   // ignores files such a META-INFA/LICENSE and NOTICE that are duplicated and
   // would otherwise cause a conflict.
-  Compile / packageBin / mappings ++= (macroLib / Compile / packageBin / mappings).value.filter { case (f, _) => f.isDirectory || f.getPath.endsWith(".class") },
+  Compile / packageBin / mappings ++= (macroLib / Compile / packageBin / mappings).value
+    .filter { case (f, _) => f.isDirectory || f.getPath.endsWith(".class") },
   Compile / packageSrc / mappings ++= (macroLib / Compile / packageSrc / mappings).value,
 
   // The .classpath files that the sbt eclipse plugin creates need minor
@@ -305,7 +357,10 @@ lazy val usesMacros = Seq(
     // "classpath" nodes, and appends a new "classpathentry" node as a child
     // referencing the macroLib project. This causes Eclipse to treat macroLib
     // just like any other dependency to allow compilation to work.
-    transformNode("classpath", DefaultTransforms.Append(EclipseClasspathEntry.Project(macroLib.base.toString))),
+    transformNode(
+      "classpath",
+      DefaultTransforms.Append(EclipseClasspathEntry.Project(macroLib.base.toString)),
+    ),
   ),
 )
 
@@ -315,7 +370,7 @@ lazy val libManagedSettings = Seq(
   },
   Compile / genProps := {
     val cp = (propgen / Runtime / dependencyClasspath).value
-    val inSrc = (propgen / Runtime/ sources).value
+    val inSrc = (propgen / Runtime / sources).value
     val inRSrc = (propgen / Compile / resources).value
     val stream = (propgen / streams).value
     val outdir = (Compile / sourceManaged).value
@@ -325,8 +380,8 @@ lazy val libManagedSettings = Seq(
     val cachedFun = FileFunction.cached(stream.cacheDirectory / "propgen") { _ =>
       val forkCaptureLogger = ForkCaptureLogger()
       val forkOpts = ForkOptions()
-                       .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
-                       .withBootJars(cp.files.toVector)
+        .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
+        .withBootJars(cp.files.toVector)
       val ret = Fork.java(forkOpts, args)
       forkCaptureLogger.stderr.foreach { stream.log.error(_) }
       if (ret != 0) {
@@ -344,28 +399,29 @@ lazy val libManagedSettings = Seq(
     val inRSrc = (propgen / Compile / resources).value
     val stream = (propgen / streams).value
     val outdir = (Compile / resourceManaged).value
-    val filesToWatch = inRSrc.filter{_.isFile}.toSet
-    val cachedFun = FileFunction.cached(stream.cacheDirectory / "schemasgen") { (schemas: Set[File]) =>
-      val files = schemas.map { schema =>
-        val out = outdir / "org" / "apache" / "daffodil" / "xsd" / schema.getName
-        IO.copyFile(schema, out)
-        out
+    val filesToWatch = inRSrc.filter { _.isFile }.toSet
+    val cachedFun =
+      FileFunction.cached(stream.cacheDirectory / "schemasgen") { (schemas: Set[File]) =>
+        val files = schemas.map { schema =>
+          val out = outdir / "org" / "apache" / "daffodil" / "xsd" / schema.getName
+          IO.copyFile(schema, out)
+          out
+        }
+        stream.log.info(s"generated ${files.size} XML schemas to $outdir")
+        files
       }
-      stream.log.info(s"generated ${files.size} XML schemas to $outdir")
-      files
-    }
     cachedFun(filesToWatch).toSeq
   },
   Compile / sourceGenerators += (Compile / genProps).taskValue,
-  Compile / resourceGenerators += (Compile / genSchemas).taskValue
+  Compile / resourceGenerators += (Compile / genSchemas).taskValue,
 )
 
 lazy val ratSettings = Seq(
   ratLicenses := Seq(
-    ("BSD2 ", Rat.BSD2_LICENSE_NAME, Rat.LICENSE_TEXT_PASSERA)
+    ("BSD2 ", Rat.BSD2_LICENSE_NAME, Rat.LICENSE_TEXT_PASSERA),
   ),
   ratLicenseFamilies := Seq(
-    Rat.BSD2_LICENSE_NAME
+    Rat.BSD2_LICENSE_NAME,
   ),
   ratExcludes := Rat.excludes,
   ratFailBinaries := true,
@@ -374,21 +430,25 @@ lazy val ratSettings = Seq(
 lazy val unidocSettings = Seq(
   ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(sapi, udf),
   ScalaUnidoc / unidoc / scalacOptions := Seq(
-    "-doc-title", "Apache Daffodil " + version.value + " Scala API",
-    "-doc-root-content", (sapi / baseDirectory).value + "/root-doc.txt"
+    "-doc-title",
+    "Apache Daffodil " + version.value + " Scala API",
+    "-doc-root-content",
+    (sapi / baseDirectory).value + "/root-doc.txt",
   ),
-
   JavaUnidoc / unidoc / unidocProjectFilter := inProjects(japi, udf),
-  JavaUnidoc / unidoc / javacOptions:= Seq(
-    "-windowtitle", "Apache Daffodil " + version.value + " Java API",
-    "-doctitle", "<h1>Apache Daffodil " + version.value + " Java API</h1>",
+  JavaUnidoc / unidoc / javacOptions := Seq(
+    "-windowtitle",
+    "Apache Daffodil " + version.value + " Java API",
+    "-doctitle",
+    "<h1>Apache Daffodil " + version.value + " Java API</h1>",
     "-notimestamp",
     "-quiet",
   ),
-  JavaUnidoc / unidoc / unidocAllSources := (JavaUnidoc / unidoc / unidocAllSources).value.map { sources =>
-    sources.filterNot { source =>
-      source.toString.contains("$") || source.toString.contains("packageprivate")
-    }
+  JavaUnidoc / unidoc / unidocAllSources := (JavaUnidoc / unidoc / unidocAllSources).value.map {
+    sources =>
+      sources.filterNot { source =>
+        source.toString.contains("$") || source.toString.contains("packageprivate")
+      }
   },
 )
 
@@ -402,8 +462,8 @@ lazy val genRuntime2ExamplesSettings = Seq(
     val cachedFun = FileFunction.cached(stream.cacheDirectory / "genRuntime2Examples") { _ =>
       val forkCaptureLogger = ForkCaptureLogger()
       val forkOpts = ForkOptions()
-                       .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
-                       .withBootJars(cp.files.toVector)
+        .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
+        .withBootJars(cp.files.toVector)
       val mainClass = "org.apache.daffodil.runtime2.Runtime2ExamplesGenerator"
       val outdir = (runtime2 / Test / sourceDirectory).value / "c" / "examples"
       val args = Seq(mainClass, outdir.toString)
@@ -412,9 +472,12 @@ lazy val genRuntime2ExamplesSettings = Seq(
       if (ret != 0) {
         sys.error("failed to generate example files")
       }
-      val files = forkCaptureLogger.stdout.filterNot(_.startsWith("WARNING")).map { f =>
-        new File(f)
-      }.toSet
+      val files = forkCaptureLogger.stdout
+        .filterNot(_.startsWith("WARNING"))
+        .map { f =>
+          new File(f)
+        }
+        .toSet
       stream.log.info(s"generated ${files.size} runtime2 examples to $outdir")
       files
     }
@@ -424,5 +487,5 @@ lazy val genRuntime2ExamplesSettings = Seq(
     val res = (Compile / compile).value
     (Compile / genRuntime2Examples).value
     res
-  }
+  },
 )

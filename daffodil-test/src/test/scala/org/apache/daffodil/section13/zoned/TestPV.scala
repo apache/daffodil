@@ -18,6 +18,7 @@
 package org.apache.daffodil.section13.zoned
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -60,7 +61,6 @@ class TestPV {
   @Test def vpattern_bad_03(): Unit = { runner.runOneTest("vpattern_bad_03") }
   @Test def vpattern_warn_04(): Unit = { runner.runOneTest("vpattern_warn_04") }
 
-
   @Test def zoned_vpattern_01(): Unit = { runner.runOneTest("zoned_vpattern_01") }
   @Test def zoned_vpattern_02(): Unit = { runner.runOneTest("zoned_vpattern_02") }
   @Test def zoned_vpattern_03(): Unit = { runner.runOneTest("zoned_vpattern_03") }
@@ -79,7 +79,4 @@ class TestPV {
   @Test def ppattern_01(): Unit = { runner.runOneTest("ppattern_01") }
   @Test def ppattern_02(): Unit = { runner.runOneTest("ppattern_02") }
 
-
 }
-
-

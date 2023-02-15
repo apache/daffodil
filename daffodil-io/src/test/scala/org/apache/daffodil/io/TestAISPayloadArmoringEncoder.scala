@@ -19,10 +19,12 @@ package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
+
+import org.apache.daffodil.io.processors.charset.BitsCharsetAISPayloadArmoring
+import org.apache.daffodil.lib.util.Misc
+
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.io.processors.charset.BitsCharsetAISPayloadArmoring
 
 class TestAISPayloadArmoringEncoder {
 
@@ -48,8 +50,7 @@ class TestAISPayloadArmoringEncoder {
     val expected = "14eGL:@000o8oQ'LMjOchmG@08HK"
 
     val cb = CharBuffer.allocate(expected.length())
-    val bb = ByteBuffer.wrap(Misc.bits2Bytes(
-      """000001 000100 101101 010111
+    val bb = ByteBuffer.wrap(Misc.bits2Bytes("""000001 000100 101101 010111
           011100 001010 010000 000000
           000000 000000 110111 001000
           110111 100001 101000 011100
@@ -84,8 +85,7 @@ class TestAISPayloadArmoringEncoder {
     val actual = "14eGL:@000o8oQ'LMjOchmG@08HK"
 
     val cb = CharBuffer.wrap(actual)
-    val expected = ByteBuffer.wrap(Misc.bits2Bytes(
-      """000001 000100 101101 010111
+    val expected = ByteBuffer.wrap(Misc.bits2Bytes("""000001 000100 101101 010111
           011100 001010 010000 000000
           000000 000000 110111 001000
           110111 100001 101000 011100

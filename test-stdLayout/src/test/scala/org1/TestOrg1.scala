@@ -17,9 +17,10 @@
 
 package org1
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestOrg1 {
   val runner = Runner("org1", "testStdLayout.tdml")
@@ -36,6 +37,8 @@ class TestOrg1 {
   import TestOrg1._
 
   @Test def test_outer_01() = { runner.runOneTest("outer_01") }
-  @Test def test_schemaFilesUnderSrcTest_01() = { runner2.runOneTest("test_schemaFilesUnderSrcTest_01") }
+  @Test def test_schemaFilesUnderSrcTest_01() = {
+    runner2.runOneTest("test_schemaFilesUnderSrcTest_01")
+  }
 
 }

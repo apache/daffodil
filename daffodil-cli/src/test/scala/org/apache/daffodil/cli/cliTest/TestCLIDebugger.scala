@@ -17,18 +17,21 @@
 
 package org.apache.daffodil.cliTest
 
-import org.junit.Test
-
-import java.nio.file.Files
 import java.nio.charset.StandardCharsets.UTF_8
-import net.sf.expectit.matcher.Matchers.regexp
-import org.apache.daffodil.cli.cliTest.Util._
+import java.nio.file.Files
+
 import org.apache.daffodil.cli.Main.ExitCode
+import org.apache.daffodil.cli.cliTest.Util._
+
+import net.sf.expectit.matcher.Matchers.regexp
+import org.junit.Test
 
 class TestCLIdebugger {
 
   @Test def test_3385_CLI_Debugger_invalidExpressions(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -39,7 +42,9 @@ class TestCLIdebugger {
       cli.expect("(debug)")
 
       cli.sendLine("eval (func())")
-      cli.expect("error: expression evaluation failed: Schema Definition Error: Unsupported function:")
+      cli.expect(
+        "error: expression evaluation failed: Schema Definition Error: Unsupported function:",
+      )
       cli.expect("(debug)")
 
       cli.sendLine("eval (/invalid!)")
@@ -55,11 +60,13 @@ class TestCLIdebugger {
       cli.expect("(debug)")
 
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_1591_CLI_Debugger_invalidCommandError(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -67,11 +74,13 @@ class TestCLIdebugger {
       cli.sendLine("garbage")
       cli.expect("error: undefined command: garbage")
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_1335_CLI_Debugger_dataAndWrapLength(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -86,22 +95,26 @@ class TestCLIdebugger {
 
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_982_CLI_Debugger_simpleDebugger(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
       cli.expect("(debug)")
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1326_CLI_Debugger_displaysTesting(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -132,11 +145,13 @@ class TestCLIdebugger {
       cli.sendLine("continue")
       cli.expect("matrix")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1339_CLI_Debugger_removeHidden(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
     runCLI(args"-d parse -s $schema -r e $input") { cli =>
@@ -152,11 +167,13 @@ class TestCLIdebugger {
       cli.sendLine("continue")
       cli.expect("<sneaky>5</sneaky>\n")
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_3268_CLI_Debugger_removeHidden2(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
     runCLI(args"-d parse -s $schema -r e $input") { cli =>
@@ -170,11 +187,13 @@ class TestCLIdebugger {
       val result = cli.expect("</ex:e>").getBefore();
       assert(!result.contains("sneaky"))
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1331_CLI_Debugger_breakpointTesting4(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -219,11 +238,13 @@ class TestCLIdebugger {
       cli.sendLine("continue")
       cli.expect("<tns:cell>3</tns:cell>")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1463_CLI_Debugger_breakOnValueOfElement(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -269,11 +290,13 @@ class TestCLIdebugger {
       cli.expect("</tns:matrix>")
 
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_1338_CLI_Debugger_pointsOfUncertaintyInfo(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input5.txt")
 
     runCLI(args"-d parse -s $schema -r Item2 $input") { cli =>
@@ -294,11 +317,13 @@ class TestCLIdebugger {
       cli.expect("(none)")
 
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_1328_CLI_Debugger_breakpointTesting(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -328,11 +353,13 @@ class TestCLIdebugger {
       cli.sendLine("delete breakpoint 1")
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1329_CLI_Debugger_breakpointTesting2(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -357,11 +384,13 @@ class TestCLIdebugger {
       cli.sendLine("continue")
       cli.expect("<tns:cell>6</tns:cell>")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_CLI_Debugger_SDE_message(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -369,18 +398,22 @@ class TestCLIdebugger {
 
       cli.sendLine("display info infoset")
       cli.sendLine("break cell")
-      cli.sendLine("condition 1 fn:count(../cell) eq 3") // ../cell is wrong. Needs to be ../tns:cell
+      cli.sendLine(
+        "condition 1 fn:count(../cell) eq 3",
+      ) // ../cell is wrong. Needs to be ../tns:cell
 
       cli.sendLine("continue")
       cli.expect("Schema Definition Error")
       cli.expect("{}cell")
       cli.expect("tns:cell")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1330_CLI_Debugger_breakpointTesting3(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -409,11 +442,13 @@ class TestCLIdebugger {
       cli.sendLine("continue")
       cli.expect("<tns:cell>6</tns:cell>")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1333_CLI_Debugger_settingInfosetLines(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -445,11 +480,13 @@ class TestCLIdebugger {
       cli.sendLine("disable breakpoint 1")
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1334_CLI_Debugger_infoBitPosition(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -470,11 +507,13 @@ class TestCLIdebugger {
 
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1337_CLI_Debugger_childIndex(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input4.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -496,11 +535,13 @@ class TestCLIdebugger {
       cli.sendLine("disable breakpoint 1")
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1340_CLI_Debugger_infoPath(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -519,11 +560,13 @@ class TestCLIdebugger {
       cli.expect("""<tns:matrix xmlns:tns="http://www.example.org/example1/">""")
       cli.expect("<tns:cell>2</tns:cell>")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1382_CLI_Debugger_dataAndWrapLength2(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -541,11 +584,13 @@ class TestCLIdebugger {
       cli.sendLine("disable breakpoint 1")
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1863_CLI_Debugger_groupIndex01(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt")
 
     runCLI(args"-d parse -r list -s $schema $input") { cli =>
@@ -567,11 +612,13 @@ class TestCLIdebugger {
       cli.expect("groupIndex: 4")
       cli.sendLine("continue")
       cli.expect("<ex:price>89.99</ex:price>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_1029_CLI_Debugger_validation1(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt")
 
     runCLI(args"-d parse -r list -s $schema $input") { cli =>
@@ -584,11 +631,13 @@ class TestCLIdebugger {
       cli.sendLine("display break")
       cli.expect("error: undefined command: break")
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_3258_CLI_Debugger_infodata(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -604,14 +653,20 @@ class TestCLIdebugger {
       cli.sendLine("continue")
 
       cli.expect("""                                  │                                    │""")
-      cli.expect("""    87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~""")
-      cli.expect("""    00000000: 302c 312c 322c 332c 342c 352c 36         0~,~1~,~2~,~3~,~4~,~5~,~6~      """)
+      cli.expect(
+        """    87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~""",
+      )
+      cli.expect(
+        """    00000000: 302c 312c 322c 332c 342c 352c 36         0~,~1~,~2~,~3~,~4~,~5~,~6~      """,
+      )
       cli.sendLine("continue")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_3264_CLI_Debugger_undefined_command(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -625,11 +680,13 @@ class TestCLIdebugger {
 
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_CLI_Debugger_delimiterStack(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -656,12 +713,16 @@ class TestCLIdebugger {
       cli.expect("local:  , (separator)")
 
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_Debugger_utf16_encoding(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/utf16schema.dfdl.xsd")
-    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/hextest.txt")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/utf16schema.dfdl.xsd",
+    )
+    val input = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/hextest.txt",
+    )
 
     runCLI(args"-d parse -s $schema -r e2 $input") { cli =>
       cli.expect("(debug)")
@@ -670,11 +731,13 @@ class TestCLIdebugger {
       cli.expect("\u240A")
 
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_1337_CLI_Debugger_info_infoset(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -688,11 +751,13 @@ class TestCLIdebugger {
       cli.expect("matrix")
 
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_Debugger_InfoHidden_1(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd",
+    )
 
     withTempFile { input =>
       Files.write(input, "2~3".getBytes(UTF_8))
@@ -718,12 +783,14 @@ class TestCLIdebugger {
         cli.sendLine("continue")
         cli.expect("<f xmlns=\"\">2</f>")
 
-      } (ExitCode.Success)
+      }(ExitCode.Success)
     }
   }
 
   @Test def test_CLI_Debugger_InfoHidden_2(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd",
+    )
 
     withTempFile { input =>
       Files.write(input, "2~3".getBytes(UTF_8))
@@ -749,12 +816,14 @@ class TestCLIdebugger {
         cli.sendLine("continue")
         cli.expect("<f xmlns=\"\">3</f>")
 
-      } (ExitCode.Success)
+      }(ExitCode.Success)
     }
   }
 
   @Test def test_CLI_Debugger_InfoHidden_3(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd",
+    )
 
     withTempFile { input =>
       Files.write(input, "2,3".getBytes(UTF_8))
@@ -787,12 +856,14 @@ class TestCLIdebugger {
         cli.sendLine("continue")
         cli.expect("<a>2</a>")
         cli.expect("<g></g>")
-      } (ExitCode.Success)
+      }(ExitCode.Success)
     }
   }
 
   @Test def test_CLI_Debugger_InfoHidden_4(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd",
+    )
 
     withTempFile { input =>
       Files.write(input, "[6~]9".getBytes(UTF_8))
@@ -853,13 +924,17 @@ class TestCLIdebugger {
 
         cli.sendLine("continue")
         cli.expect("<h></h>")
-      } (ExitCode.Success)
+      }(ExitCode.Success)
     }
   }
 
   @Test def test_3585_CLI_Debugger_simpleDebugger_unparse(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd")
-    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input12.txt")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+    )
+    val input = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input12.txt",
+    )
 
     runCLI(args"-d unparse -s $schema -r e1 $input") { cli =>
       cli.expect("(debug)")
@@ -870,11 +945,13 @@ class TestCLIdebugger {
       cli.sendLine("info data")
       cli.expect("4865 6c6c 6f                             Hello")
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_3585_CLI_Debugger_prefixLength(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/prefixed_length.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/prefixed_length.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/prefix.txt")
 
     runCLI(args"-d parse -s $schema $input") { cli =>
@@ -892,11 +969,13 @@ class TestCLIdebugger {
       cli.expect("<field>abcd</field>")
       cli.sendLine("complete")
       cli.expect("<field>abcd</field>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_CLI_Debugger_info_variables(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -904,11 +983,13 @@ class TestCLIdebugger {
       cli.sendLine("info variables byteOrder")
       cli.expect("byteOrder: bigEndian (default)")
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_Debugger_info_data_text(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -918,11 +999,13 @@ class TestCLIdebugger {
       cli.sendLine("step")
       cli.expect("0~,~1~,~2~")
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_Debugger_info_data_binary(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -932,11 +1015,13 @@ class TestCLIdebugger {
       cli.sendLine("step")
       cli.expect("302c 312c 32")
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_Debugger_info_diff_01(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section07/variables/variables_01.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section07/variables/variables_01.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r c $input") { cli =>
@@ -958,11 +1043,13 @@ class TestCLIdebugger {
       cli.sendLine("step")
       cli.expect("<d>42</d>")
       cli.expect("<e>42</e>")
-    } (ExitCode.LeftOverData)
+    }(ExitCode.LeftOverData)
   }
 
   @Test def test_CLI_Debugger_info_diff_02(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
     runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
@@ -990,11 +1077,13 @@ class TestCLIdebugger {
       cli.expect("foundDelimiter: (no value) -> ,")
       cli.expect("foundField: (no value) -> 1")
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_Debugger_info_diff_03(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
     runCLI(args"-d parse -s $schema -r e $input") { cli =>
@@ -1016,12 +1105,16 @@ class TestCLIdebugger {
       cli.sendLine("step")
       cli.expect("hidden: true -> false")
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_Debugger_info_diff_04(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
+    val input = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml",
+    )
 
     runCLI(args"-d unparse -s $schema -r matrix -o $devNull $input") { cli =>
       cli.expect("(debug)")
@@ -1051,12 +1144,16 @@ class TestCLIdebugger {
       cli.expect(regexp("Suppressable.* for cell"))
       cli.expect(regexp("RegionSplit.* for cell"))
       cli.sendLine("quit")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_Debugger_info_diff_05(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd")
-    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt.xml")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd",
+    )
+    val input = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt.xml",
+    )
 
     runCLI(args"-d unparse -r list -s $schema -o $devNull $input") { cli =>
       cli.expect("(debug)")
@@ -1083,30 +1180,38 @@ class TestCLIdebugger {
       cli.sendLine("step")
       cli.sendLine("step")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_CLI_Debugger_parse_unparser_not_available(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
     runCLI(args"-d parse -s $schema $input") { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("info parser")
-      cli.expect("parser: <Element name='matrix'><DelimiterStackParser>...</DelimiterStackParser></Element>")
+      cli.expect(
+        "parser: <Element name='matrix'><DelimiterStackParser>...</DelimiterStackParser></Element>",
+      )
 
       cli.sendLine("info unparser")
       cli.expect("unparser: not available")
 
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   @Test def test_CLI_Debugger_unparse_parser_not_available(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd")
-    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
+    val input = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml",
+    )
 
     runCLI(args"-d unparse -s $schema $input") { cli =>
       cli.expect("(debug)")
@@ -1119,7 +1224,7 @@ class TestCLIdebugger {
 
       cli.sendLine("continue")
 
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
 }

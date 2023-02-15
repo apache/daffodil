@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.layers.runtime1
 
-import org.junit.Assert._
-
 import java.io._
-import org.junit.Test
+import java.nio.charset.StandardCharsets
+
 import org.apache.daffodil.io.RegexLimitingStream
 
-import java.nio.charset.StandardCharsets
+import org.junit.Assert._
+import org.junit.Test
 
 class TestLengthLimitedLineFoldingStreams {
 
@@ -38,10 +38,14 @@ class TestLengthLimitedLineFoldingStreams {
 minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea\r
 \tcommodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit\r
 esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
-\tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""".replace("\r\r\n", "\r\n")
+\tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""".replace(
+    "\r\r\n",
+    "\r\n",
+  )
 
-  val ipsumLorem1UnfoldedFirstLine = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit,""" +
-    s"""\tsed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
+  val ipsumLorem1UnfoldedFirstLine =
+    s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit,""" +
+      s"""\tsed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
 
   val iso8859 = StandardCharsets.ISO_8859_1
 
@@ -82,7 +86,10 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
 minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea\r
 \t\tcommodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit\r
 esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
-\t\tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""".replace("\r\r\n", "\r\n")
+\t\tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""".replace(
+    "\r\r\n",
+    "\r\n",
+  )
 
   /**
    * Shows that the regex will limit length to just the first line, but unfold will

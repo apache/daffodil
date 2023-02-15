@@ -18,10 +18,9 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.util._
-
-import org.junit.Test;
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.junit.Test
 
 class TestInteriorAlignmentElimination {
@@ -93,11 +92,13 @@ class TestInteriorAlignmentElimination {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
     //
     // in the below hex string, it is the 6666 that is the alignment fill.
     //
-    val (_, actual) = TestUtils.testBinary(testSchema, "00000102000000030405666600000007", areTracing = false)
+    val (_, actual) =
+      TestUtils.testBinary(testSchema, "00000102000000030405666600000007", areTracing = false)
     val expected =
       <ex:r>
         <int3>1</int3>

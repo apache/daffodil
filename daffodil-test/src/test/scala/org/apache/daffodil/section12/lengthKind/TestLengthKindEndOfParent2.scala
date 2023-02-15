@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section12.lengthKind
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestLengthKindEndOfParent2 {
   val testDir = "/org/apache/daffodil/section12/lengthKind/"
@@ -33,8 +34,12 @@ object TestLengthKindEndOfParent2 {
 
 class TestLengthKindEndOfParent2 {
 
-  import TestLengthKindEndOfParent2._ 
+  import TestLengthKindEndOfParent2._
 
-  @Test def test_endOfParent_NYI_ComplexTypes() = { runner.runOneTest("TestEndOfParentNYIComplexTypes") }
-  @Test def test_endOfParent_NYI_SimpleTypes() = { runner.runOneTest("TestEndOfParentNYISimpleTypes") }
+  @Test def test_endOfParent_NYI_ComplexTypes() = {
+    runner.runOneTest("TestEndOfParentNYIComplexTypes")
+  }
+  @Test def test_endOfParent_NYI_SimpleTypes() = {
+    runner.runOneTest("TestEndOfParentNYISimpleTypes")
+  }
 }

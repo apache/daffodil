@@ -17,20 +17,21 @@
 
 package org.apache.daffodil.validation.schematron
 
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.File
+
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.DataProcessor
 import org.apache.daffodil.sapi.Diagnostic
 import org.apache.daffodil.sapi.ParseResult
 import org.apache.daffodil.sapi.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.sapi.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.validation.schematron.SchSource.Xsd
+
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.File
 
 trait EmbeddedTesting {
   case class PR(r: ParseResult) {
@@ -46,13 +47,15 @@ trait EmbeddedTesting {
   case object Always extends PrintInfosetMode
 
   case class Validation(dp: DataProcessor) {
-    def parse(str: String, verbose: PrintInfosetMode = Quiet): PR = withBytes(str.getBytes, verbose)
+    def parse(str: String, verbose: PrintInfosetMode = Quiet): PR =
+      withBytes(str.getBytes, verbose)
 
     def withBytes(bytes: Array[Byte], verbose: PrintInfosetMode = Quiet): PR = {
       val bos = new ByteArrayOutputStream()
       val r1 = dp.parse(
         new InputSourceDataInputStream(new ByteArrayInputStream(bytes)),
-        new XMLTextInfosetOutputter(bos, pretty = true))
+        new XMLTextInfosetOutputter(bos, pretty = true),
+      )
       verbose match {
         case Always | AnyError if r1.isError() => r1.getDiagnostics.foreach(println)
         case Always => println(bos.toString)
@@ -70,7 +73,7 @@ trait EmbeddedTesting {
     val c = Daffodil.compiler()
     val pf = c.compileFile(new File(schema))
 
-    if(pf.isError()) pf.getDiagnostics.foreach(println)
+    if (pf.isError()) pf.getDiagnostics.foreach(println)
     assertFalse("Schema did not compile", pf.isError())
 
     val v = SchematronValidatorFactory.makeValidator(schema.toURL.openStream(), Xsd)

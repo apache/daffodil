@@ -62,17 +62,18 @@ class TestListSerialization {
     val bais = new java.io.ByteArrayInputStream(bytes)
     val ois = new java.io.ObjectInputStream(bais)
 
-    val newA = try {
-      ois.readObject()
-      fail("Expected ClassCastException to be thrown")
-    } catch {
-      case e: ClassCastException => {
-        assertTrue(e.getMessage.contains("List$SerializationProxy"))
-        assertTrue(e.getMessage.contains("scala.collection.Seq"))
-        assertTrue(e.getMessage.contains("Thing"))
+    val newA =
+      try {
+        ois.readObject()
+        fail("Expected ClassCastException to be thrown")
+      } catch {
+        case e: ClassCastException => {
+          assertTrue(e.getMessage.contains("List$SerializationProxy"))
+          assertTrue(e.getMessage.contains("scala.collection.Seq"))
+          assertTrue(e.getMessage.contains("Thing"))
+        }
+        case _: Throwable => fail("Expected ClassCastException to be thrown")
       }
-      case _: Throwable => fail("Expected ClassCastException to be thrown")
-    }
   }
 
   /**

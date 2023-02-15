@@ -17,12 +17,13 @@
 
 package org.apache.daffodil.runtime1.layers
 
+import java.nio.ByteBuffer
+
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
-import passera.unsigned.UShort
 
-import java.nio.ByteBuffer
+import passera.unsigned.UShort
 
 /**
  *  The layer transform computes the checksum of the header data.
@@ -33,12 +34,13 @@ import java.nio.ByteBuffer
 final class IPv4Checksum(
   name: String,
   layerRuntimeInfo: LayerRuntimeInfo,
-  outputVar: VariableRuntimeData)
-extends ByteBufferExplicitLengthLayerTransform[Int](
-  layerRuntimeInfo,
-  name,
-  inputVars = Seq(),
-  outputVar: VariableRuntimeData) {
+  outputVar: VariableRuntimeData,
+) extends ByteBufferExplicitLengthLayerTransform[Int](
+    layerRuntimeInfo,
+    name,
+    inputVars = Seq(),
+    outputVar: VariableRuntimeData,
+  ) {
 
   /**
    * This layer is always exactly 20 bytes long.
@@ -47,7 +49,12 @@ extends ByteBufferExplicitLengthLayerTransform[Int](
 
   private def chksumShortIndex = 5
 
-  override protected def compute(state: ParseOrUnparseState, isUnparse: Boolean, inputs: Seq[Any], byteBuffer: ByteBuffer) = {
+  override protected def compute(
+    state: ParseOrUnparseState,
+    isUnparse: Boolean,
+    inputs: Seq[Any],
+    byteBuffer: ByteBuffer,
+  ) = {
     val shortBuf = byteBuffer.asShortBuffer()
 
     var i = 0
@@ -66,16 +73,16 @@ extends ByteBufferExplicitLengthLayerTransform[Int](
     //
     // now combine the carry bits in the most significant 16 bits into the lower 16 bits.
     //
-    val checksumLow = chksum & 0xFFFF
+    val checksumLow = chksum & 0xffff
     val checksumHigh = chksum >>> 16
     val checksumTotal: Int = checksumLow + checksumHigh
-    Assert.invariant(checksumTotal <= 0xFFFF && checksumTotal >= 0)
+    Assert.invariant(checksumTotal <= 0xffff && checksumTotal >= 0)
     val checksumTotalShort = UShort(checksumTotal.toShort)
     val checksum = checksumTotalShort.toInt
     //
     // take ones complement to get the final checksum
     //
-    val finalChecksum: Int = (~checksum) & 0xFFFF
+    val finalChecksum: Int = (~checksum) & 0xffff
 
     if (isUnparse) {
 

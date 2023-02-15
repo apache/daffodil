@@ -18,6 +18,7 @@
 package org.apache.daffodil.section05.simple_types
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit._
 
 object TestSimpleTypesUnparse {
@@ -55,12 +56,26 @@ class TestSimpleTypesUnparse {
   @Test def test_hexBinary_unparse_18(): Unit = { runner.runOneTest("hexBinary_unparse_18") }
   @Test def test_hexBinary_unparse_19(): Unit = { runner.runOneTest("hexBinary_unparse_19") }
 
-  @Test def test_hexBinary_variable_unparse_01(): Unit = { runner.runOneTest("hexBinary_variable_unparse_01") }
-  @Test def test_hexBinary_variable_unparse_02(): Unit = { runner.runOneTest("hexBinary_variable_unparse_02") }
-  @Test def test_hexBinary_variable_unparse_03(): Unit = { runner.runOneTest("hexBinary_variable_unparse_03") }
-  @Test def test_hexBinary_variable_unparse_04(): Unit = { runner.runOneTest("hexBinary_variable_unparse_04") }
+  @Test def test_hexBinary_variable_unparse_01(): Unit = {
+    runner.runOneTest("hexBinary_variable_unparse_01")
+  }
+  @Test def test_hexBinary_variable_unparse_02(): Unit = {
+    runner.runOneTest("hexBinary_variable_unparse_02")
+  }
+  @Test def test_hexBinary_variable_unparse_03(): Unit = {
+    runner.runOneTest("hexBinary_variable_unparse_03")
+  }
+  @Test def test_hexBinary_variable_unparse_04(): Unit = {
+    runner.runOneTest("hexBinary_variable_unparse_04")
+  }
 
-  @Test def test_float_binary_unparse_01(): Unit = { runner.runOneTest("float_binary_unparse_01") }
-  @Test def test_double_binary_unparse_01(): Unit = { runner.runOneTest("double_binary_unparse_01") }
-  @Test def test_integer_binary_unparse_01(): Unit = { runner.runOneTest("integer_binary_unparse_01") }
+  @Test def test_float_binary_unparse_01(): Unit = {
+    runner.runOneTest("float_binary_unparse_01")
+  }
+  @Test def test_double_binary_unparse_01(): Unit = {
+    runner.runOneTest("double_binary_unparse_01")
+  }
+  @Test def test_integer_binary_unparse_01(): Unit = {
+    runner.runOneTest("integer_binary_unparse_01")
+  }
 }

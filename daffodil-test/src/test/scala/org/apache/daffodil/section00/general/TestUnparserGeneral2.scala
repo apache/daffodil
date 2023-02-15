@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section00.general
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestUnparserGeneral2 {
   val testDir = "/org/apache/daffodil/section00/general/"

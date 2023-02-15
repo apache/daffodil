@@ -17,10 +17,11 @@
 
 package org.apache.daffodil.section12.length_properties
 
+import org.apache.daffodil.tdml.Runner
+
+import org.junit.AfterClass
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.tdml.Runner
-import org.junit.AfterClass
 
 object TestLengthProperties {
   val testDir_02 = "/org/apache/daffodil/section12/length_properties/"
@@ -38,26 +39,50 @@ class TestLengthProperties {
   import TestLengthProperties._
 
   @Test def test_LengthProp_02(): Unit = { runner_02.runOneTest("LengthProp_02") }
-  @Test def test_LengthProp_charVsBytes(): Unit = { runner_02.runOneTest("LengthProp_charVsBytes") }
-  @Test def test_LengthProp_charVsBytes2(): Unit = { runner_02.runOneTest("LengthProp_charVsBytes2") }
-  @Test def test_LengthProp_longByteLength(): Unit = { runner_02.runOneTest("LengthProp_longByteLength") }
+  @Test def test_LengthProp_charVsBytes(): Unit = {
+    runner_02.runOneTest("LengthProp_charVsBytes")
+  }
+  @Test def test_LengthProp_charVsBytes2(): Unit = {
+    runner_02.runOneTest("LengthProp_charVsBytes2")
+  }
+  @Test def test_LengthProp_longByteLength(): Unit = {
+    runner_02.runOneTest("LengthProp_longByteLength")
+  }
 
   @Test def test_LengthProp_04(): Unit = { runner_02.runOneTest("LengthProp_04") }
   @Test def test_LengthProp_05(): Unit = { runner_02.runOneTest("LengthProp_05") }
   @Test def test_LengthProp_06(): Unit = { runner_02.runOneTest("LengthProp_06") }
 
-  @Test def test_LengthProp_sequenceByLength(): Unit = { runner_02.runOneTest("LengthProp_sequenceByLength") }
+  @Test def test_LengthProp_sequenceByLength(): Unit = {
+    runner_02.runOneTest("LengthProp_sequenceByLength")
+  }
 
-  @Test def test_LengthProp_tooShortFailure(): Unit = { runner_02.runOneTest("LengthProp_tooShortFailure") }
-  @Test def test_LengthProp_tooLongFailure(): Unit = { runner_02.runOneTest("LengthProp_tooLongFailure") }
+  @Test def test_LengthProp_tooShortFailure(): Unit = {
+    runner_02.runOneTest("LengthProp_tooShortFailure")
+  }
+  @Test def test_LengthProp_tooLongFailure(): Unit = {
+    runner_02.runOneTest("LengthProp_tooLongFailure")
+  }
 
-  @Test def test_LengthProp_zeroLength(): Unit = { runner_02.runOneTest("LengthProp_zeroLength") }
-  @Test def test_LengthProp_byteLength(): Unit = { runner_02.runOneTest("LengthProp_byteLength") }
-  @Test def test_LengthProp_byteLength_UTF16(): Unit = { runner_02.runOneTest("LengthProp_byteLength_UTF16") }
-  @Test def test_LengthProp_byteLength_UTF16fail(): Unit = { runner_02.runOneTest("LengthProp_byteLength_UTF16fail") }
+  @Test def test_LengthProp_zeroLength(): Unit = {
+    runner_02.runOneTest("LengthProp_zeroLength")
+  }
+  @Test def test_LengthProp_byteLength(): Unit = {
+    runner_02.runOneTest("LengthProp_byteLength")
+  }
+  @Test def test_LengthProp_byteLength_UTF16(): Unit = {
+    runner_02.runOneTest("LengthProp_byteLength_UTF16")
+  }
+  @Test def test_LengthProp_byteLength_UTF16fail(): Unit = {
+    runner_02.runOneTest("LengthProp_byteLength_UTF16fail")
+  }
 
-  @Test def test_LengthProp_longTextLength(): Unit = { runner_02.runOneTest("LengthProp_longTextLength") }
-  @Test def test_LengthProp_lengthExpression1(): Unit = { runner_02.runOneTest("LengthProp_lengthExpression1") }
+  @Test def test_LengthProp_longTextLength(): Unit = {
+    runner_02.runOneTest("LengthProp_longTextLength")
+  }
+  @Test def test_LengthProp_lengthExpression1(): Unit = {
+    runner_02.runOneTest("LengthProp_lengthExpression1")
+  }
 
   @Test def test_LengthProp_bits_01(): Unit = { runner_02.runOneTest("LengthProp_bits_01") }
   @Test def test_LengthProp_bits_02(): Unit = { runner_02.runOneTest("LengthProp_bits_02") }
@@ -75,14 +100,28 @@ class TestLengthProperties {
   @Test def test_bit2(): Unit = { runner_02.runOneTest("bit2") }
   @Test def test_bit3(): Unit = { runner_02.runOneTest("bit3") }
 
-  @Test def test_bitsRepresentedAsText1(): Unit = { runner_02.runOneTest("bitsRepresentedAsText1") }
-  @Test def test_bitsRepresentedAsText2(): Unit = { runner_02.runOneTest("bitsRepresentedAsText2") }
+  @Test def test_bitsRepresentedAsText1(): Unit = {
+    runner_02.runOneTest("bitsRepresentedAsText1")
+  }
+  @Test def test_bitsRepresentedAsText2(): Unit = {
+    runner_02.runOneTest("bitsRepresentedAsText2")
+  }
 
-  @Test def test_lengthGreaterThanEight1(): Unit = { runner_02.runOneTest("lengthGreaterThanEight1") }
-  @Test def test_lengthGreaterThanEight2(): Unit = { runner_02.runOneTest("lengthGreaterThanEight2") }
-  @Test def test_lengthGreaterThanEight3(): Unit = { runner_02.runOneTest("lengthGreaterThanEight3") }
-  @Test def test_lengthGreaterThanEight4(): Unit = { runner_02.runOneTest("lengthGreaterThanEight4") }
-  @Test def test_lengthGreaterThanEight5(): Unit = { runner_02.runOneTest("lengthGreaterThanEight5") }
+  @Test def test_lengthGreaterThanEight1(): Unit = {
+    runner_02.runOneTest("lengthGreaterThanEight1")
+  }
+  @Test def test_lengthGreaterThanEight2(): Unit = {
+    runner_02.runOneTest("lengthGreaterThanEight2")
+  }
+  @Test def test_lengthGreaterThanEight3(): Unit = {
+    runner_02.runOneTest("lengthGreaterThanEight3")
+  }
+  @Test def test_lengthGreaterThanEight4(): Unit = {
+    runner_02.runOneTest("lengthGreaterThanEight4")
+  }
+  @Test def test_lengthGreaterThanEight5(): Unit = {
+    runner_02.runOneTest("lengthGreaterThanEight5")
+  }
 
   @Test def test_littleEndianBits1() = {
     import org.apache.daffodil.lib.util._
@@ -101,14 +140,16 @@ class TestLengthProperties {
   @Test def test_bitUCombo2(): Unit = { runner_02.runOneTest("bitUCombo2") }
 
   @Test def test_LengthProp_bits_bool(): Unit = { runner_02.runOneTest("LengthProp_bits_bool") }
-  @Test def test_LengthProp_bits_bool_false(): Unit = { runner_02.runOneTest("LengthProp_bits_bool_false") }
+  @Test def test_LengthProp_bits_bool_false(): Unit = {
+    runner_02.runOneTest("LengthProp_bits_bool_false")
+  }
 
   @Test def test_LengthProp_leftover1(): Unit = { runner_02.runOneTest("LengthProp_leftover1") }
   @Test def test_LengthProp_leftover2(): Unit = { runner_02.runOneTest("LengthProp_leftover2") }
   @Test def test_LengthProp_leftover3(): Unit = { runner_02.runOneTest("LengthProp_leftover3") }
   @Test def test_LengthProp_leftover4(): Unit = { runner_02.runOneTest("LengthProp_leftover4") }
 
-  //DFDL-460
+  // DFDL-460
   @Test def test_LengthProp_floatBits(): Unit = { runner_02.runOneTest("LengthProp_floatBits") }
 
   @Test def test_bitShort(): Unit = { runner_02.runOneTest("bitShort") }

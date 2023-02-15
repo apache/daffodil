@@ -32,7 +32,7 @@ class TestXMLLiterals {
     //
     val actual = <x><![CDATA[a
 b]]></x>
-    val <x>{ xbody @ _* }</x> = actual
+    val <x>{xbody @ _*}</x> = actual
     assertEquals(1, xbody.length)
     val body = xbody(0)
     val txt = body.text

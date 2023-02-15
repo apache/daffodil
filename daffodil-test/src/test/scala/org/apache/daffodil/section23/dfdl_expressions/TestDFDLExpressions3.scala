@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section23.dfdl_expressions
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestDFDLExpressions3 {
 
@@ -54,7 +55,9 @@ class TestDFDLExpressions3 {
   // DAFFODIL-2594
   // @Test def test_setVariable_neg_line_info_01(): Unit = { runner.runOneTest("setVariable_neg_line_info_01") }
 
-  @Test def test_newVariableInstance_neg_01(): Unit = { runner.runOneTest("newVariableInstance_neg_01") }
+  @Test def test_newVariableInstance_neg_01(): Unit = {
+    runner.runOneTest("newVariableInstance_neg_01")
+  }
 
   // DAFFODIL-2594
   // @Test def test_newVariableInstance_neg_line_info_01(): Unit = { runner.runOneTest("newVariableInstance_neg_line_info_01") }

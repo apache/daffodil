@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.lib.macros
 
-import org.apache.daffodil.lib.exceptions._
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.exceptions._
 
-import org.junit.Test
 import org.junit.Assert._
+import org.junit.Test
 
 class TestAssertMacros {
 

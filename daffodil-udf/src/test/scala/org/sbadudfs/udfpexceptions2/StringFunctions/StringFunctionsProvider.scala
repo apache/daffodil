@@ -16,9 +16,9 @@
  */
 package org.sbadudfs.udfpexceptions2.StringFunctions
 
-import org.apache.daffodil.udf.UserDefinedFunctionProvider
 import org.apache.daffodil.udf.UserDefinedFunction
 import org.apache.daffodil.udf.UserDefinedFunctionIdentification
+import org.apache.daffodil.udf.UserDefinedFunctionProvider
 
 /**
  * UDF Provider for Negative Unit test
@@ -28,8 +28,8 @@ import org.apache.daffodil.udf.UserDefinedFunctionIdentification
 class StringFunctionsProvider extends UserDefinedFunctionProvider {
   case class CustomException(
     private val message: String = "",
-    private val cause: Throwable = None.orNull)
-    extends Exception(message, cause)
+    private val cause: Throwable = None.orNull,
+  ) extends Exception(message, cause)
 
   throw new CustomException("UDFP Error!")
   override def getUserDefinedFunctionClasses = {
@@ -41,9 +41,12 @@ class StringFunctionsProvider extends UserDefinedFunctionProvider {
  * Example User Defined Function in Scala
  *
  */
-@UserDefinedFunctionIdentification(name = "reverse",
-  namespaceURI = "http://example.com/scala/udf")
+@UserDefinedFunctionIdentification(
+  name = "reverse",
+  namespaceURI = "http://example.com/scala/udf",
+)
 class Reverse extends UserDefinedFunction {
+
   /**
    * Reverses the order of chars in a string
    *
@@ -60,9 +63,12 @@ class Reverse extends UserDefinedFunction {
  * Example User Defined Function in Scala
  *
  */
-@UserDefinedFunctionIdentification(name = "rev-words",
-  namespaceURI = "http://example.com/scala/udf")
+@UserDefinedFunctionIdentification(
+  name = "rev-words",
+  namespaceURI = "http://example.com/scala/udf",
+)
 class ReverseWords extends UserDefinedFunction {
+
   /**
    * Reverses the order of words in a sentence
    *

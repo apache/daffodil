@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.layers.runtime1
 
-import org.junit.Assert._
-
 import java.io._
+
+import org.junit.Assert._
 import org.junit.Test
 
 class TestLineFoldingStreams {
@@ -119,7 +119,9 @@ class TestLineFoldingStreams {
       "_very_long_lines_of_things_that_are_too_long_for_the_usual" +
       "_line_length_which_is_78-ish."
 
-    /**/ val ruler = "with_other_very_long_lines_of_things_that_are_too_long_for_the_usual_line_length_which_is_78-ish."
+    /**/
+    val ruler =
+      "with_other_very_long_lines_of_things_that_are_too_long_for_the_usual_line_length_which_is_78-ish."
     //// val roolr = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567"
     //// val rool2 = "         1         2         3         4         5         6         7         8         9       "
 
@@ -141,7 +143,9 @@ class TestLineFoldingStreams {
     val dataString = "With_other_very_long_lines_of_things_that_are_too_long_for_the_usual" +
       "_line\r\n length_which_is_78-ish."
 
-    /**/ val ruler = "With_other_very_long_lines_of_things_that_are_too_long_for_the_usual_line\r\n length_which_is_78-ish."
+    /**/
+    val ruler =
+      "With_other_very_long_lines_of_things_that_are_too_long_for_the_usual_line\r\n length_which_is_78-ish."
     //// val roolr = "12345678901234567890123456789012345678901234567890123456789012345678901234 5 6789012345678901234567"
     //// val rool2 = "         1         2         3         4         5         6         7           8         9       "
 
@@ -163,7 +167,9 @@ class TestLineFoldingStreams {
     val dataString = "With_other_very_long_lines_of_things_that_are_too_long_for_the_usual" +
       "_line \r\nlength_which_is_78-ish."
 
-    /**/ val ruler = "With_other_very_long_lines_of_things_that_are_too_long_for_the_usual_line \r\nlength_which_is_78-ish."
+    /**/
+    val ruler =
+      "With_other_very_long_lines_of_things_that_are_too_long_for_the_usual_line \r\nlength_which_is_78-ish."
     //// val roolr = "123456789012345678901234567890123456789012345678901234567890123456789012345 6 789012345678901234567"
     //// val rool2 = "         1         2         3         4         5         6         7           8         9       "
 
@@ -176,7 +182,8 @@ class TestLineFoldingStreams {
   }
 
   @Test def testLineFoldedInputStreamTab1() = {
-    val dataString = "Here's data containing the line ending we care about\r\n\t followed by other text."
+    val dataString =
+      "Here's data containing the line ending we care about\r\n\t followed by other text."
     val bba = new ByteArrayInputStream(dataString.getBytes("utf-8"))
     val lfs = new LineFoldedInputStream(LineFoldMode.iCalendar, bba)
     val baos = new ByteArrayOutputStream()
@@ -189,12 +196,14 @@ class TestLineFoldingStreams {
     }
     baos.close()
     val resultString = new String(baos.toByteArray())
-    val expected = "Here's data containing the line ending we care about followed by other text."
+    val expected =
+      "Here's data containing the line ending we care about followed by other text."
     assertEquals(expected, resultString)
   }
 
   @Test def testLineFoldedInputStreamIMFSpace1() = {
-    val dataString = "Here's data containing the line ending we care about\r\n followed by other text."
+    val dataString =
+      "Here's data containing the line ending we care about\r\n followed by other text."
     val bba = new ByteArrayInputStream(dataString.getBytes("utf-8"))
     val lfs = new LineFoldedInputStream(LineFoldMode.IMF, bba)
     val baos = new ByteArrayOutputStream()
@@ -207,7 +216,8 @@ class TestLineFoldingStreams {
     }
     baos.close()
     val resultString = new String(baos.toByteArray())
-    val expected = "Here's data containing the line ending we care about followed by other text."
+    val expected =
+      "Here's data containing the line ending we care about followed by other text."
     assertEquals(expected, resultString)
   }
 

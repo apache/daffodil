@@ -18,6 +18,7 @@
 package org.apache.daffodil.section00.general
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -35,5 +36,7 @@ class TestUnparserSAX {
 
   @Test def test_saxUnparseBatchSize_1() = { runner2.runOneTest("test_saxUnparseBatchSize_1") }
   @Test def test_saxUnparseBatchSize_5() = { runner2.runOneTest("test_saxUnparseBatchSize_5") }
-  @Test def test_saxUnparseBatchSize_1000() = { runner2.runOneTest("test_saxUnparseBatchSize_1000") }
+  @Test def test_saxUnparseBatchSize_1000() = {
+    runner2.runOneTest("test_saxUnparseBatchSize_1000")
+  }
 }

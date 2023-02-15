@@ -17,12 +17,14 @@
 
 package org.apache.daffodil.io
 
-import org.junit.Test
-import org.junit.Assert._
-import org.apache.daffodil.lib.xml.XMLUtils
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
+
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestDumpDisplay {
   val dfdl = XMLUtils.DFDL_NAMESPACE
@@ -30,6 +32,7 @@ class TestDumpDisplay {
   val xsd = XMLUtils.XSD_NAMESPACE
   val tns = XMLUtils.EXAMPLE_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
+
   /**
    * This test shows that any byte becomes a character with a glyph.
    *
@@ -40,21 +43,21 @@ class TestDumpDisplay {
 
     // val bytes = 0 to 255 map { _.toByte }
     val bb = ByteBuffer.allocate(256)
-    0 to 255 foreach { n => bb.put(n, n.toByte) }
+    (0 to 255).foreach { n => bb.put(n, n.toByte) }
     val cb = CharBuffer.allocate(256)
     Misc.remapBytesToVisibleGlyphs(bb, cb)
     val res = cb.toString
     val exp =
-      // 
+      //
       // C0 Controls - use unicode control picture characters.
       "␀␁␂␃␄␅␆␇␈␉␊␋␌␍␎␏␐␑␒␓␔␕␖␗␘␙␚␛␜␝␞␟" +
-        "␣" + // space 
+        "␣" + // space
         """!"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~""" + // ascii glyph
         "\u2421" + // DEL
         //
         // C1 controls, which windows 1252 mostly has glyphs for
         // These are the equivalent unicode characters. The ones that windows-1252 has no glyph or are whitespace
-        // are remapped to other characters noted 
+        // are remapped to other characters noted
         "€" +
         "Ɓ" + // 0x81 mapped to Ɓ
         "‚ƒ„…†‡ˆ‰Š‹Œ" +

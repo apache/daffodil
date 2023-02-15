@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.validation.schematron
 
+import java.util.UUID
+
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-
-import java.util.UUID
 
 class TestEmbeddedSchematron extends EmbeddedTesting {
   @Test def variation1(): Unit = withSchema("xsd/embedded-1.dfdl.xsd") { f =>

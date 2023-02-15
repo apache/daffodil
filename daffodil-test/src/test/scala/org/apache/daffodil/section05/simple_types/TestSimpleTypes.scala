@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section05.simple_types
 
-import org.junit._
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit._
 
 object TestSimpleTypes {
 
@@ -41,33 +42,71 @@ class TestSimpleTypes {
   @Test def test_oneBit2(): Unit = { runner.runOneTest("OneBit2") }
 
   @Test def test_nonNegativeInteger(): Unit = { runner.runOneTest("NonNegativeInteger") }
-  @Test def test_nonNegativeInteger_Fail(): Unit = { runner.runOneTest("NonNegativeInteger_Fail") }
+  @Test def test_nonNegativeInteger_Fail(): Unit = {
+    runner.runOneTest("NonNegativeInteger_Fail")
+  }
 
-  @Test def test_hexBinary_rep(): Unit = { runner.runOneTest("hexBinary_rep") } //roundTrip
-  @Test def test_hexBinary_fromString(): Unit = { runner.runOneTest("hexBinary_fromString") } //roundTrip
+  @Test def test_hexBinary_rep(): Unit = { runner.runOneTest("hexBinary_rep") } // roundTrip
+  @Test def test_hexBinary_fromString(): Unit = {
+    runner.runOneTest("hexBinary_fromString")
+  } // roundTrip
 
-  @Test def test_hexBinary_01(): Unit = { runner.runOneTest("hexBinary_01") } //roundTrip
-  @Test def test_hexBinary_01_chunk(): Unit = { runner.runOneTest("hexBinary_01_chunk") } //roundTrip
-  @Test def test_hexBinary_Delimited_01(): Unit = { runner.runOneTest("hexBinary_Delimited_01") } //roundTrip
-  @Test def test_hexBinary_Delimited_01a(): Unit = { runner.runOneTest("hexBinary_Delimited_01a") } //roundTrip
-  @Test def test_hexBinary_Delimited_02(): Unit = { runner.runOneTest("hexBinary_Delimited_02") } //roundTrip
-  @Test def test_hexBinary_Delimited_03(): Unit = { runner.runOneTest("hexBinary_Delimited_03") } //roundTrip
-  @Test def test_hexBinary_Implicit_01(): Unit = { runner.runOneTest("hexBinary_Implicit_01") } //roundTrip
-  @Test def test_hexBinary_Implicit_02(): Unit = { runner.runOneTest("hexBinary_Implicit_02") } //roundTrip
-  @Test def test_hexBinary_Implicit_03(): Unit = { runner.runOneTest("hexBinary_Implicit_03") } //roundTrip
-  @Test def test_hexBinary_Implicit_03b(): Unit = { runner.runOneTest("hexBinary_Implicit_03b") } //roundTrip
-  @Test def test_hexBinary_Implicit_03c(): Unit = { runner.runOneTest("hexBinary_Implicit_03c") } //roundTrip
-  @Test def test_hexBinary_Implicit_04(): Unit = { runner.runOneTest("hexBinary_Implicit_04") } //roundTrip
+  @Test def test_hexBinary_01(): Unit = { runner.runOneTest("hexBinary_01") } // roundTrip
+  @Test def test_hexBinary_01_chunk(): Unit = {
+    runner.runOneTest("hexBinary_01_chunk")
+  } // roundTrip
+  @Test def test_hexBinary_Delimited_01(): Unit = {
+    runner.runOneTest("hexBinary_Delimited_01")
+  } // roundTrip
+  @Test def test_hexBinary_Delimited_01a(): Unit = {
+    runner.runOneTest("hexBinary_Delimited_01a")
+  } // roundTrip
+  @Test def test_hexBinary_Delimited_02(): Unit = {
+    runner.runOneTest("hexBinary_Delimited_02")
+  } // roundTrip
+  @Test def test_hexBinary_Delimited_03(): Unit = {
+    runner.runOneTest("hexBinary_Delimited_03")
+  } // roundTrip
+  @Test def test_hexBinary_Implicit_01(): Unit = {
+    runner.runOneTest("hexBinary_Implicit_01")
+  } // roundTrip
+  @Test def test_hexBinary_Implicit_02(): Unit = {
+    runner.runOneTest("hexBinary_Implicit_02")
+  } // roundTrip
+  @Test def test_hexBinary_Implicit_03(): Unit = {
+    runner.runOneTest("hexBinary_Implicit_03")
+  } // roundTrip
+  @Test def test_hexBinary_Implicit_03b(): Unit = {
+    runner.runOneTest("hexBinary_Implicit_03b")
+  } // roundTrip
+  @Test def test_hexBinary_Implicit_03c(): Unit = {
+    runner.runOneTest("hexBinary_Implicit_03c")
+  } // roundTrip
+  @Test def test_hexBinary_Implicit_04(): Unit = {
+    runner.runOneTest("hexBinary_Implicit_04")
+  } // roundTrip
   @Test def test_hexBinary_func(): Unit = { runner.runOneTest("hexBinary_func") }
   @Test def test_hexBinary_func_neg(): Unit = { runner.runOneTest("hexBinary_func_neg") }
 
-  @Test def test_hexBinary_bits_be_msbf(): Unit = { runner.runOneTest("hexBinary_bits_be_msbf") }
-  @Test def test_hexBinary_bits_le_msbf(): Unit = { runner.runOneTest("hexBinary_bits_le_msbf") }
-  @Test def test_hexBinary_bits_le_lsbf(): Unit = { runner.runOneTest("hexBinary_bits_le_lsbf") }
+  @Test def test_hexBinary_bits_be_msbf(): Unit = {
+    runner.runOneTest("hexBinary_bits_be_msbf")
+  }
+  @Test def test_hexBinary_bits_le_msbf(): Unit = {
+    runner.runOneTest("hexBinary_bits_le_msbf")
+  }
+  @Test def test_hexBinary_bits_le_lsbf(): Unit = {
+    runner.runOneTest("hexBinary_bits_le_lsbf")
+  }
 
-  @Test def test_hexBinary_bits_be_msbf_2(): Unit = { runner.runOneTest("hexBinary_bits_be_msbf_2") }
-  @Test def test_hexBinary_bits_le_msbf_2(): Unit = { runner.runOneTest("hexBinary_bits_le_msbf_2") }
-  @Test def test_hexBinary_bits_le_lsbf_2(): Unit = { runner.runOneTest("hexBinary_bits_le_lsbf_2") }
+  @Test def test_hexBinary_bits_be_msbf_2(): Unit = {
+    runner.runOneTest("hexBinary_bits_be_msbf_2")
+  }
+  @Test def test_hexBinary_bits_le_msbf_2(): Unit = {
+    runner.runOneTest("hexBinary_bits_le_msbf_2")
+  }
+  @Test def test_hexBinary_bits_le_lsbf_2(): Unit = {
+    runner.runOneTest("hexBinary_bits_le_lsbf_2")
+  }
 
   @Test def test_dateTextNumberRep(): Unit = { runner.runOneTest("dateTextNumberRep") }
 
@@ -81,12 +120,24 @@ class TestSimpleTypes {
   @Test def test_dateCalendarLanguage3(): Unit = { runner.runOneTest("dateCalendarLanguage3") }
   @Test def test_dateCalendarLanguage4(): Unit = { runner.runOneTest("dateCalendarLanguage4") }
 
-  @Test def test_dateTimeCalendarDaysInFirstWeek(): Unit = { runner.runOneTest("dateTimeCalendarDaysInFirstWeek") }
-  @Test def test_dateTimeCalendarDaysInFirstWeek2(): Unit = { runner.runOneTest("dateTimeCalendarDaysInFirstWeek2") }
-  @Test def test_dateTimeCalendarDaysInFirstWeek3(): Unit = { runner.runOneTest("dateTimeCalendarDaysInFirstWeek3") }
-  @Test def test_dateTimeCalendarDaysInFirstWeek4(): Unit = { runner.runOneTest("dateTimeCalendarDaysInFirstWeek4") }
-  @Test def test_dateTimeCalendarDaysInFirstWeek5(): Unit = { runner.runOneTest("dateTimeCalendarDaysInFirstWeek5") }
-  @Test def test_dateTimeCalendarDaysInFirstWeek6(): Unit = { runner.runOneTest("dateTimeCalendarDaysInFirstWeek6") }
+  @Test def test_dateTimeCalendarDaysInFirstWeek(): Unit = {
+    runner.runOneTest("dateTimeCalendarDaysInFirstWeek")
+  }
+  @Test def test_dateTimeCalendarDaysInFirstWeek2(): Unit = {
+    runner.runOneTest("dateTimeCalendarDaysInFirstWeek2")
+  }
+  @Test def test_dateTimeCalendarDaysInFirstWeek3(): Unit = {
+    runner.runOneTest("dateTimeCalendarDaysInFirstWeek3")
+  }
+  @Test def test_dateTimeCalendarDaysInFirstWeek4(): Unit = {
+    runner.runOneTest("dateTimeCalendarDaysInFirstWeek4")
+  }
+  @Test def test_dateTimeCalendarDaysInFirstWeek5(): Unit = {
+    runner.runOneTest("dateTimeCalendarDaysInFirstWeek5")
+  }
+  @Test def test_dateTimeCalendarDaysInFirstWeek6(): Unit = {
+    runner.runOneTest("dateTimeCalendarDaysInFirstWeek6")
+  }
 
   @Test def test_dateTimeTrim01(): Unit = { runner.runOneTest("dateTimeTrim01") }
   @Test def test_dateTimeTrim02(): Unit = { runner.runOneTest("dateTimeTrim02") }
@@ -112,14 +163,24 @@ class TestSimpleTypes {
   @Test def test_datePatternChoice(): Unit = { runner.runOneTest("datePatternChoice") }
 
   // DFDL-519
-  //@Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
-  //@Test def test_dateCalendarCenturyStart2() { runner.runOneTest("dateCalendarCenturyStart2") }
+  // @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
+  // @Test def test_dateCalendarCenturyStart2() { runner.runOneTest("dateCalendarCenturyStart2") }
 
-  @Test def test_dateCalendarDaysInFirstWeek(): Unit = { runner.runOneTest("dateCalendarDaysInFirstWeek") }
-  @Test def test_dateCalendarDaysInFirstWeek2(): Unit = { runner.runOneTest("dateCalendarDaysInFirstWeek2") }
-  @Test def test_dateCalendarDaysInFirstWeek3(): Unit =  { runner.runOneTest("dateCalendarDaysInFirstWeek3") }
-  @Test def test_dateCalendarDaysInFirstWeek4(): Unit = { runner.runOneTest("dateCalendarDaysInFirstWeek4") }
-  @Test def test_dateCalendarDaysInFirstWeek5(): Unit =  { runner.runOneTest("dateCalendarDaysInFirstWeek5") }
+  @Test def test_dateCalendarDaysInFirstWeek(): Unit = {
+    runner.runOneTest("dateCalendarDaysInFirstWeek")
+  }
+  @Test def test_dateCalendarDaysInFirstWeek2(): Unit = {
+    runner.runOneTest("dateCalendarDaysInFirstWeek2")
+  }
+  @Test def test_dateCalendarDaysInFirstWeek3(): Unit = {
+    runner.runOneTest("dateCalendarDaysInFirstWeek3")
+  }
+  @Test def test_dateCalendarDaysInFirstWeek4(): Unit = {
+    runner.runOneTest("dateCalendarDaysInFirstWeek4")
+  }
+  @Test def test_dateCalendarDaysInFirstWeek5(): Unit = {
+    runner.runOneTest("dateCalendarDaysInFirstWeek5")
+  }
 
   @Test def test_timeSymbols(): Unit = { runner.runOneTest("timeSymbols") }
   @Test def test_timeSymbols2(): Unit = { runner.runOneTest("timeSymbols2") }
@@ -149,7 +210,9 @@ class TestSimpleTypes {
   @Test def test_timeCalendarTimeZone(): Unit = { runner.runOneTest("timeCalendarTimeZone") }
   @Test def test_timeCalendarTimeZone2(): Unit = { runner.runOneTest("timeCalendarTimeZone2") }
   @Test def test_timeCalendarTimeZone3(): Unit = { runner.runOneTest("timeCalendarTimeZone3") }
-  @Test def test_timeCalendarTimeZone3_unparse(): Unit = { runner.runOneTest("timeCalendarTimeZone3_unparse") }
+  @Test def test_timeCalendarTimeZone3_unparse(): Unit = {
+    runner.runOneTest("timeCalendarTimeZone3_unparse")
+  }
 
   @Test def test_timeZoneFormats(): Unit = { runner.runOneTest("timeZoneFormats") }
   @Test def test_timeZoneFormats2(): Unit = { runner.runOneTest("timeZoneFormats2") }
@@ -161,27 +224,57 @@ class TestSimpleTypes {
   @Test def test_timeZoneFormats7(): Unit = { runner.runOneTest("timeZoneFormats7") }
   @Test def test_timeZoneFormats8(): Unit = { runner.runOneTest("timeZoneFormats8") }
   @Test def test_timeZoneFormats9(): Unit = { runner.runOneTest("timeZoneFormats9") }
-  @Test def test_timeZoneFormats_unparse(): Unit = { runner.runOneTest("timeZoneFormats_unparse") }
-  @Test def test_timeZoneFormats2_unparse(): Unit = { runner.runOneTest("timeZoneFormats2_unparse") }
-  @Test def test_timeZoneFormats3_unparse(): Unit = { runner.runOneTest("timeZoneFormats3_unparse") }
-  @Test def test_timeZoneFormats4_unparse(): Unit = { runner.runOneTest("timeZoneFormats4_unparse") }
-  @Test def test_timeZoneFormats5_unparse(): Unit = { runner.runOneTest("timeZoneFormats5_unparse") }
-  @Test def test_timeZoneFormats6_unparse(): Unit = { runner.runOneTest("timeZoneFormats6_unparse") }
-  @Test def test_timeZoneFormats6_2_unparse(): Unit = { runner.runOneTest("timeZoneFormats6_2_unparse") }
-  @Test def test_timeZoneFormats7_unparse(): Unit = { runner.runOneTest("timeZoneFormats7_unparse") }
-  @Test def test_timeZoneFormats9_unparse(): Unit = { runner.runOneTest("timeZoneFormats9_unparse") }
+  @Test def test_timeZoneFormats_unparse(): Unit = {
+    runner.runOneTest("timeZoneFormats_unparse")
+  }
+  @Test def test_timeZoneFormats2_unparse(): Unit = {
+    runner.runOneTest("timeZoneFormats2_unparse")
+  }
+  @Test def test_timeZoneFormats3_unparse(): Unit = {
+    runner.runOneTest("timeZoneFormats3_unparse")
+  }
+  @Test def test_timeZoneFormats4_unparse(): Unit = {
+    runner.runOneTest("timeZoneFormats4_unparse")
+  }
+  @Test def test_timeZoneFormats5_unparse(): Unit = {
+    runner.runOneTest("timeZoneFormats5_unparse")
+  }
+  @Test def test_timeZoneFormats6_unparse(): Unit = {
+    runner.runOneTest("timeZoneFormats6_unparse")
+  }
+  @Test def test_timeZoneFormats6_2_unparse(): Unit = {
+    runner.runOneTest("timeZoneFormats6_2_unparse")
+  }
+  @Test def test_timeZoneFormats7_unparse(): Unit = {
+    runner.runOneTest("timeZoneFormats7_unparse")
+  }
+  @Test def test_timeZoneFormats9_unparse(): Unit = {
+    runner.runOneTest("timeZoneFormats9_unparse")
+  }
 
-  @Test def test_dateCountDeterminesFormat(): Unit = { runner.runOneTest("dateCountDeterminesFormat") }
+  @Test def test_dateCountDeterminesFormat(): Unit = {
+    runner.runOneTest("dateCountDeterminesFormat")
+  }
   @Test def test_dateNonAlphaChars01(): Unit = { runner.runOneTest("dateNonAlphaChars01") }
   @Test def test_dateTrim01(): Unit = { runner.runOneTest("dateTrim01") }
   @Test def test_dateTrim02(): Unit = { runner.runOneTest("dateTrim02") }
   @Test def test_dateTrim03(): Unit = { runner.runOneTest("dateTrim03") }
 
-  @Test def test_dateCalendarFirstDayOfWeek01(): Unit = { runner.runOneTest("dateCalendarFirstDayOfWeek01") }
-  @Test def test_dateCalendarFirstDayOfWeek02(): Unit = { runner.runOneTest("dateCalendarFirstDayOfWeek02") }
-  @Test def test_dateCalendarFirstDayOfWeek03(): Unit = { runner.runOneTest("dateCalendarFirstDayOfWeek03") }
-  @Test def test_dateCalendarFirstDayOfWeek04(): Unit = { runner.runOneTest("dateCalendarFirstDayOfWeek04") }
-  @Test def test_timeFractionalSeconds01(): Unit = { runner.runOneTest("timeFractionalSeconds01") }
+  @Test def test_dateCalendarFirstDayOfWeek01(): Unit = {
+    runner.runOneTest("dateCalendarFirstDayOfWeek01")
+  }
+  @Test def test_dateCalendarFirstDayOfWeek02(): Unit = {
+    runner.runOneTest("dateCalendarFirstDayOfWeek02")
+  }
+  @Test def test_dateCalendarFirstDayOfWeek03(): Unit = {
+    runner.runOneTest("dateCalendarFirstDayOfWeek03")
+  }
+  @Test def test_dateCalendarFirstDayOfWeek04(): Unit = {
+    runner.runOneTest("dateCalendarFirstDayOfWeek04")
+  }
+  @Test def test_timeFractionalSeconds01(): Unit = {
+    runner.runOneTest("timeFractionalSeconds01")
+  }
   @Test def test_dateText(): Unit = { runner.runOneTest("dateText") }
   @Test def test_dateTextInvalid(): Unit = { runner.runOneTest("dateTextInvalid") }
   @Test def test_timeText(): Unit = { runner.runOneTest("timeText") }
@@ -189,9 +282,13 @@ class TestSimpleTypes {
   @Test def test_dateTimeText(): Unit = { runner.runOneTest("dateTimeText") }
   @Test def test_dateTimeTextInvalid(): Unit = { runner.runOneTest("dateTimeTextInvalid") }
   @Test def test_dateImplicitPattern(): Unit = { runner.runOneTest("dateImplicitPattern") }
-  @Test def test_dateImplicitPatternFail(): Unit = { runner.runOneTest("dateImplicitPatternFail") }
+  @Test def test_dateImplicitPatternFail(): Unit = {
+    runner.runOneTest("dateImplicitPatternFail")
+  }
   @Test def test_timeImplicitPattern(): Unit = { runner.runOneTest("timeImplicitPattern") }
-  @Test def test_timeImplicitPatternFail(): Unit = { runner.runOneTest("timeImplicitPatternFail") }
+  @Test def test_timeImplicitPatternFail(): Unit = {
+    runner.runOneTest("timeImplicitPatternFail")
+  }
   @Test def test_dateTimeBin(): Unit = { runner.runOneTest("dateTimeBin") }
   @Test def test_dateTimeBin2(): Unit = { runner.runOneTest("dateTimeBin2") }
   @Test def test_dateTimeBin3(): Unit = { runner.runOneTest("dateTimeBin3") }
@@ -237,9 +334,15 @@ class TestSimpleTypes {
   @Test def test_dateBinIBM4690Packed(): Unit = { runner.runOneTest("dateBinIBM4690Packed") }
   @Test def test_dateBinIBM4690Packed2(): Unit = { runner.runOneTest("dateBinIBM4690Packed2") }
   @Test def test_dateBinIBM4690Packed3(): Unit = { runner.runOneTest("dateBinIBM4690Packed3") }
-  @Test def test_dateTimeBinIBM4690Packed(): Unit = { runner.runOneTest("dateTimeBinIBM4690Packed") }
-  @Test def test_dateTimeBinIBM4690Packed2(): Unit = { runner.runOneTest("dateTimeBinIBM4690Packed2") }
-  @Test def test_dateTimeBinIBM4690Packed3(): Unit = { runner.runOneTest("dateTimeBinIBM4690Packed3") }
+  @Test def test_dateTimeBinIBM4690Packed(): Unit = {
+    runner.runOneTest("dateTimeBinIBM4690Packed")
+  }
+  @Test def test_dateTimeBinIBM4690Packed2(): Unit = {
+    runner.runOneTest("dateTimeBinIBM4690Packed2")
+  }
+  @Test def test_dateTimeBinIBM4690Packed3(): Unit = {
+    runner.runOneTest("dateTimeBinIBM4690Packed3")
+  }
   @Test def test_timeBinIBM4690Packed(): Unit = { runner.runOneTest("timeBinIBM4690Packed") }
   @Test def test_timeBinIBM4690Packed2(): Unit = { runner.runOneTest("timeBinIBM4690Packed2") }
 
@@ -254,13 +357,27 @@ class TestSimpleTypes {
 
   @Test def test_dateBinInvalid(): Unit = { runner.runOneTest("dateBinInvalid") }
 
-  @Test def test_dateTimeImplicitPattern(): Unit = { runner.runOneTest("dateTimeImplicitPattern") }
-  @Test def test_dateTimeImplicitPatternFail(): Unit = { runner.runOneTest("dateTimeImplicitPatternFail") }
-  @Test def test_dateTimeImplicitPatternFail2(): Unit = { runner.runOneTest("dateTimeImplicitPatternFail2") }
-  @Test def test_dateTimeImplicitPatternFail3(): Unit = { runner.runOneTest("dateTimeImplicitPatternFail3") }
-  @Test def test_dateTimeImplicitPatternFail4(): Unit = { runner.runOneTest("dateTimeImplicitPatternFail4") }
-  @Test def test_dateTimeImplicitPatternFail5(): Unit = { runner.runOneTest("dateTimeImplicitPatternFail5") }
-  @Test def test_dateTimeImplicitPatternFail6(): Unit = { runner.runOneTest("dateTimeImplicitPatternFail6") }
+  @Test def test_dateTimeImplicitPattern(): Unit = {
+    runner.runOneTest("dateTimeImplicitPattern")
+  }
+  @Test def test_dateTimeImplicitPatternFail(): Unit = {
+    runner.runOneTest("dateTimeImplicitPatternFail")
+  }
+  @Test def test_dateTimeImplicitPatternFail2(): Unit = {
+    runner.runOneTest("dateTimeImplicitPatternFail2")
+  }
+  @Test def test_dateTimeImplicitPatternFail3(): Unit = {
+    runner.runOneTest("dateTimeImplicitPatternFail3")
+  }
+  @Test def test_dateTimeImplicitPatternFail4(): Unit = {
+    runner.runOneTest("dateTimeImplicitPatternFail4")
+  }
+  @Test def test_dateTimeImplicitPatternFail5(): Unit = {
+    runner.runOneTest("dateTimeImplicitPatternFail5")
+  }
+  @Test def test_dateTimeImplicitPatternFail6(): Unit = {
+    runner.runOneTest("dateTimeImplicitPatternFail6")
+  }
 
   @Test def test_datePattern01(): Unit = { runner.runOneTest("datePattern01") }
   // DAFFODIL-488
@@ -268,7 +385,9 @@ class TestSimpleTypes {
   @Test def test_timeLaxCheckPolicy01(): Unit = { runner.runOneTest("timeLaxCheckPolicy01") }
   @Test def test_timeLaxCheckPolicy02(): Unit = { runner.runOneTest("timeLaxCheckPolicy02") }
   @Test def test_timeLaxCheckPolicy03(): Unit = { runner.runOneTest("timeLaxCheckPolicy03") }
-  @Test def test_dateTimeLaxCheckPolicy01(): Unit = { runner.runOneTest("dateTimeLaxCheckPolicy01") }
+  @Test def test_dateTimeLaxCheckPolicy01(): Unit = {
+    runner.runOneTest("dateTimeLaxCheckPolicy01")
+  }
   @Test def test_dateLaxCheckPolicy01(): Unit = { runner.runOneTest("dateLaxCheckPolicy01") }
   @Test def test_dateLaxCheckPolicy02(): Unit = { runner.runOneTest("dateLaxCheckPolicy02") }
   @Test def test_dateLaxCheckPolicy03(): Unit = { runner.runOneTest("dateLaxCheckPolicy03") }
@@ -307,87 +426,201 @@ class TestSimpleTypes {
   @Test def test_unsignedInt_01(): Unit = { runner.runOneTest("unsignedInt_01") }
   @Test def test_unsignedInt_02(): Unit = { runner.runOneTest("unsignedInt_02") }
 
-  @Test def test_whiteSpaceBeforeValidInt(): Unit = { runner.runOneTest("whiteSpaceBeforeValidInt") }
-  @Test def test_whiteSpaceBeforeValidInteger(): Unit = { runner.runOneTest("whiteSpaceBeforeValidInteger") }
-  @Test def test_whiteSpaceBeforeValidLong(): Unit = { runner.runOneTest("whiteSpaceBeforeValidLong") }
-  @Test def test_whiteSpaceBeforeValidShort(): Unit = { runner.runOneTest("whiteSpaceBeforeValidShort") }
-  @Test def test_whiteSpaceBeforeValidByte(): Unit = { runner.runOneTest("whiteSpaceBeforeValidByte") }
-  @Test def test_whiteSpaceBeforeValidUnsignedInt(): Unit = { runner.runOneTest("whiteSpaceBeforeValidUnsignedInt") }
-  @Test def test_whiteSpaceBeforeValidUnsignedByte(): Unit = { runner.runOneTest("whiteSpaceBeforeValidUnsignedByte") }
-  @Test def test_whiteSpaceBeforeValidUnsignedLong(): Unit = { runner.runOneTest("whiteSpaceBeforeValidUnsignedLong") }
-  @Test def test_whiteSpaceBeforeValidUnsignedShort(): Unit = { runner.runOneTest("whiteSpaceBeforeValidUnsignedShort") }
+  @Test def test_whiteSpaceBeforeValidInt(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeValidInt")
+  }
+  @Test def test_whiteSpaceBeforeValidInteger(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeValidInteger")
+  }
+  @Test def test_whiteSpaceBeforeValidLong(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeValidLong")
+  }
+  @Test def test_whiteSpaceBeforeValidShort(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeValidShort")
+  }
+  @Test def test_whiteSpaceBeforeValidByte(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeValidByte")
+  }
+  @Test def test_whiteSpaceBeforeValidUnsignedInt(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeValidUnsignedInt")
+  }
+  @Test def test_whiteSpaceBeforeValidUnsignedByte(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeValidUnsignedByte")
+  }
+  @Test def test_whiteSpaceBeforeValidUnsignedLong(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeValidUnsignedLong")
+  }
+  @Test def test_whiteSpaceBeforeValidUnsignedShort(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeValidUnsignedShort")
+  }
 
-  //DFDL-845
-  //@Test def test_whiteSpaceDuringValidShort() { runner.runOneTest("whiteSpaceDuringValidShort") }
-  //@Test def test_whiteSpaceDuringValidInteger() { runner.runOneTest("whiteSpaceDuringValidInteger") }
-  //@Test def test_whiteSpaceDuringValidUnsignedLong() { runner.runOneTest("whiteSpaceDuringValidUnsignedLong") }
-  //@Test def test_whiteSpaceDuringValidUnsignedShort() { runner.runOneTest("whiteSpaceDuringValidUnsignedShort") }
-  //@Test def test_whiteSpaceDuringValidUnsignedByte() { runner.runOneTest("whiteSpaceDuringValidUnsignedByte") }
-  //@Test def test_whiteSpaceDuringValidUnsignedInt() { runner.runOneTest("whiteSpaceDuringValidUnsignedInt") }
-  //@Test def test_whiteSpaceDuringValidInt() { runner.runOneTest("whiteSpaceDuringValidInt") }
-  //@Test def test_whiteSpaceDuringValidLong() { runner.runOneTest("whiteSpaceDuringValidLong") }
-  //@Test def test_whiteSpaceDuringValidByte() { runner.runOneTest("whiteSpaceDuringValidByte") }
+  // DFDL-845
+  // @Test def test_whiteSpaceDuringValidShort() { runner.runOneTest("whiteSpaceDuringValidShort") }
+  // @Test def test_whiteSpaceDuringValidInteger() { runner.runOneTest("whiteSpaceDuringValidInteger") }
+  // @Test def test_whiteSpaceDuringValidUnsignedLong() { runner.runOneTest("whiteSpaceDuringValidUnsignedLong") }
+  // @Test def test_whiteSpaceDuringValidUnsignedShort() { runner.runOneTest("whiteSpaceDuringValidUnsignedShort") }
+  // @Test def test_whiteSpaceDuringValidUnsignedByte() { runner.runOneTest("whiteSpaceDuringValidUnsignedByte") }
+  // @Test def test_whiteSpaceDuringValidUnsignedInt() { runner.runOneTest("whiteSpaceDuringValidUnsignedInt") }
+  // @Test def test_whiteSpaceDuringValidInt() { runner.runOneTest("whiteSpaceDuringValidInt") }
+  // @Test def test_whiteSpaceDuringValidLong() { runner.runOneTest("whiteSpaceDuringValidLong") }
+  // @Test def test_whiteSpaceDuringValidByte() { runner.runOneTest("whiteSpaceDuringValidByte") }
 
-  @Test def test_whiteSpaceAfterValidInt(): Unit = { runner.runOneTest("whiteSpaceAfterValidInt") }
-  @Test def test_whiteSpaceAfterValidLong(): Unit = { runner.runOneTest("whiteSpaceAfterValidLong") }
-  @Test def test_whiteSpaceAfterValidShort(): Unit = { runner.runOneTest("whiteSpaceAfterValidShort") }
-  @Test def test_whiteSpaceAfterValidUnsignedInt(): Unit = { runner.runOneTest("whiteSpaceAfterValidUnsignedInt") }
-  @Test def test_whiteSpaceAfterValidUnsignedShort(): Unit = { runner.runOneTest("whiteSpaceAfterValidUnsignedShort") }
-  @Test def test_whiteSpaceAfterValidUnsignedByte(): Unit = { runner.runOneTest("whiteSpaceAfterValidUnsignedByte") }
-  @Test def test_whiteSpaceAfterValidByte(): Unit = { runner.runOneTest("whiteSpaceAfterValidByte") }
-  @Test def test_whiteSpaceAfterValidUnsignedLong(): Unit = { runner.runOneTest("whiteSpaceAfterValidUnsignedLong") }
-  @Test def test_whiteSpaceAfterValidInteger(): Unit = { runner.runOneTest("whiteSpaceAfterValidInteger") }
+  @Test def test_whiteSpaceAfterValidInt(): Unit = {
+    runner.runOneTest("whiteSpaceAfterValidInt")
+  }
+  @Test def test_whiteSpaceAfterValidLong(): Unit = {
+    runner.runOneTest("whiteSpaceAfterValidLong")
+  }
+  @Test def test_whiteSpaceAfterValidShort(): Unit = {
+    runner.runOneTest("whiteSpaceAfterValidShort")
+  }
+  @Test def test_whiteSpaceAfterValidUnsignedInt(): Unit = {
+    runner.runOneTest("whiteSpaceAfterValidUnsignedInt")
+  }
+  @Test def test_whiteSpaceAfterValidUnsignedShort(): Unit = {
+    runner.runOneTest("whiteSpaceAfterValidUnsignedShort")
+  }
+  @Test def test_whiteSpaceAfterValidUnsignedByte(): Unit = {
+    runner.runOneTest("whiteSpaceAfterValidUnsignedByte")
+  }
+  @Test def test_whiteSpaceAfterValidByte(): Unit = {
+    runner.runOneTest("whiteSpaceAfterValidByte")
+  }
+  @Test def test_whiteSpaceAfterValidUnsignedLong(): Unit = {
+    runner.runOneTest("whiteSpaceAfterValidUnsignedLong")
+  }
+  @Test def test_whiteSpaceAfterValidInteger(): Unit = {
+    runner.runOneTest("whiteSpaceAfterValidInteger")
+  }
 
-  @Test def test_characterDuringValidInt(): Unit = { runner.runOneTest("characterDuringValidInt") }
+  @Test def test_characterDuringValidInt(): Unit = {
+    runner.runOneTest("characterDuringValidInt")
+  }
   @Test def test_int_unparseError(): Unit = { runner.runOneTest("int_unparseError") }
-  @Test def test_whiteSpaceAfterLengthExceededInt(): Unit = { runner.runOneTest("whiteSpaceAfterLengthExceededInt") }
-  @Test def test_whiteSpaceBeforeLengthExceededInt(): Unit = { runner.runOneTest("whiteSpaceBeforeLengthExceededInt") }
-  @Test def test_whiteSpaceDuringLengthExceededInt(): Unit = { runner.runOneTest("whiteSpaceDuringLengthExceededInt") }
-  @Test def test_characterDuringValidInteger(): Unit = { runner.runOneTest("characterDuringValidInteger") }
+  @Test def test_whiteSpaceAfterLengthExceededInt(): Unit = {
+    runner.runOneTest("whiteSpaceAfterLengthExceededInt")
+  }
+  @Test def test_whiteSpaceBeforeLengthExceededInt(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeLengthExceededInt")
+  }
+  @Test def test_whiteSpaceDuringLengthExceededInt(): Unit = {
+    runner.runOneTest("whiteSpaceDuringLengthExceededInt")
+  }
+  @Test def test_characterDuringValidInteger(): Unit = {
+    runner.runOneTest("characterDuringValidInteger")
+  }
   @Test def test_integer_unparseError(): Unit = { runner.runOneTest("integer_unparseError") }
-  @Test def test_whiteSpaceAfterLengthExceededInteger(): Unit = { runner.runOneTest("whiteSpaceAfterLengthExceededInteger") }
-  @Test def test_whiteSpaceBeforeLengthExceededInteger(): Unit = { runner.runOneTest("whiteSpaceBeforeLengthExceededInteger") }
-  @Test def test_whiteSpaceDuringLengthExceededInteger(): Unit = { runner.runOneTest("whiteSpaceDuringLengthExceededInteger") }
-  @Test def test_characterDuringValidLong(): Unit = { runner.runOneTest("characterDuringValidLong") }
+  @Test def test_whiteSpaceAfterLengthExceededInteger(): Unit = {
+    runner.runOneTest("whiteSpaceAfterLengthExceededInteger")
+  }
+  @Test def test_whiteSpaceBeforeLengthExceededInteger(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeLengthExceededInteger")
+  }
+  @Test def test_whiteSpaceDuringLengthExceededInteger(): Unit = {
+    runner.runOneTest("whiteSpaceDuringLengthExceededInteger")
+  }
+  @Test def test_characterDuringValidLong(): Unit = {
+    runner.runOneTest("characterDuringValidLong")
+  }
   @Test def test_long_unparseError(): Unit = { runner.runOneTest("long_unparseError") }
-  @Test def test_whiteSpaceAfterLengthExceededLong(): Unit = { runner.runOneTest("whiteSpaceAfterLengthExceededLong") }
-  @Test def test_whiteSpaceBeforeLengthExceededLong(): Unit = { runner.runOneTest("whiteSpaceBeforeLengthExceededLong") }
-  @Test def test_whiteSpaceDuringLengthExceededLong(): Unit = { runner.runOneTest("whiteSpaceDuringLengthExceededLong") }
+  @Test def test_whiteSpaceAfterLengthExceededLong(): Unit = {
+    runner.runOneTest("whiteSpaceAfterLengthExceededLong")
+  }
+  @Test def test_whiteSpaceBeforeLengthExceededLong(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeLengthExceededLong")
+  }
+  @Test def test_whiteSpaceDuringLengthExceededLong(): Unit = {
+    runner.runOneTest("whiteSpaceDuringLengthExceededLong")
+  }
 
-  @Test def test_characterDuringValidShort(): Unit = { runner.runOneTest("characterDuringValidShort") }
+  @Test def test_characterDuringValidShort(): Unit = {
+    runner.runOneTest("characterDuringValidShort")
+  }
   @Test def test_short_unparseError(): Unit = { runner.runOneTest("short_unparseError") }
-  @Test def test_whiteSpaceAfterLengthExceededShort(): Unit = { runner.runOneTest("whiteSpaceAfterLengthExceededShort") }
-  @Test def test_whiteSpaceBeforeLengthExceededShort(): Unit = { runner.runOneTest("whiteSpaceBeforeLengthExceededShort") }
-  @Test def test_whiteSpaceDuringLengthExceededShort(): Unit = { runner.runOneTest("whiteSpaceDuringLengthExceededShort") }
-  @Test def test_characterDuringValidByte(): Unit = { runner.runOneTest("characterDuringValidByte") }
+  @Test def test_whiteSpaceAfterLengthExceededShort(): Unit = {
+    runner.runOneTest("whiteSpaceAfterLengthExceededShort")
+  }
+  @Test def test_whiteSpaceBeforeLengthExceededShort(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeLengthExceededShort")
+  }
+  @Test def test_whiteSpaceDuringLengthExceededShort(): Unit = {
+    runner.runOneTest("whiteSpaceDuringLengthExceededShort")
+  }
+  @Test def test_characterDuringValidByte(): Unit = {
+    runner.runOneTest("characterDuringValidByte")
+  }
   @Test def test_byte_unparseError(): Unit = { runner.runOneTest("byte_unparseError") }
-  @Test def test_whiteSpaceAfterLengthExceededByte(): Unit = { runner.runOneTest("whiteSpaceAfterLengthExceededByte") }
-  @Test def test_whiteSpaceBeforeLengthExceededByte(): Unit = { runner.runOneTest("whiteSpaceBeforeLengthExceededByte") }
-  @Test def test_whiteSpaceDuringLengthExceededByte(): Unit = { runner.runOneTest("whiteSpaceDuringLengthExceededByte") }
-  @Test def test_characterDuringValidUnsignedInt(): Unit = { runner.runOneTest("characterDuringValidUnsignedInt") }
+  @Test def test_whiteSpaceAfterLengthExceededByte(): Unit = {
+    runner.runOneTest("whiteSpaceAfterLengthExceededByte")
+  }
+  @Test def test_whiteSpaceBeforeLengthExceededByte(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeLengthExceededByte")
+  }
+  @Test def test_whiteSpaceDuringLengthExceededByte(): Unit = {
+    runner.runOneTest("whiteSpaceDuringLengthExceededByte")
+  }
+  @Test def test_characterDuringValidUnsignedInt(): Unit = {
+    runner.runOneTest("characterDuringValidUnsignedInt")
+  }
   @Test def test_negativeUnsignedInt(): Unit = { runner.runOneTest("negativeUnsignedInt") }
-  @Test def test_whiteSpaceAfterLengthExceededUnsignedInt(): Unit = { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedInt") }
-  @Test def test_whiteSpaceBeforeLengthExceededUnsignedInt(): Unit = { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedInt") }
-  @Test def test_whiteSpaceDuringLengthExceededUnsignedInt(): Unit = { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedInt") }
-  @Test def test_characterDuringValidUnsignedByte(): Unit = { runner.runOneTest("characterDuringValidUnsignedByte") }
-  @Test def test_unsignedByte_unparseError(): Unit = { runner.runOneTest("unsignedByte_unparseError") }
+  @Test def test_whiteSpaceAfterLengthExceededUnsignedInt(): Unit = {
+    runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedInt")
+  }
+  @Test def test_whiteSpaceBeforeLengthExceededUnsignedInt(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedInt")
+  }
+  @Test def test_whiteSpaceDuringLengthExceededUnsignedInt(): Unit = {
+    runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedInt")
+  }
+  @Test def test_characterDuringValidUnsignedByte(): Unit = {
+    runner.runOneTest("characterDuringValidUnsignedByte")
+  }
+  @Test def test_unsignedByte_unparseError(): Unit = {
+    runner.runOneTest("unsignedByte_unparseError")
+  }
   @Test def test_negativeUnsignedByte(): Unit = { runner.runOneTest("negativeUnsignedByte") }
-  @Test def test_whiteSpaceAfterLengthExceededUnsignedByte(): Unit = { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedByte") }
-  @Test def test_whiteSpaceBeforeLengthExceededUnsignedByte(): Unit = { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedByte") }
-  @Test def test_whiteSpaceDuringLengthExceededUnsignedByte(): Unit = { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedByte") }
-  @Test def test_characterDuringValidUnsignedLong(): Unit = { runner.runOneTest("characterDuringValidUnsignedLong") }
-  @Test def test_unsignedLong_unparseError(): Unit = { runner.runOneTest("unsignedLong_unparseError") }
+  @Test def test_whiteSpaceAfterLengthExceededUnsignedByte(): Unit = {
+    runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedByte")
+  }
+  @Test def test_whiteSpaceBeforeLengthExceededUnsignedByte(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedByte")
+  }
+  @Test def test_whiteSpaceDuringLengthExceededUnsignedByte(): Unit = {
+    runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedByte")
+  }
+  @Test def test_characterDuringValidUnsignedLong(): Unit = {
+    runner.runOneTest("characterDuringValidUnsignedLong")
+  }
+  @Test def test_unsignedLong_unparseError(): Unit = {
+    runner.runOneTest("unsignedLong_unparseError")
+  }
   @Test def test_negativeUnsignedLong(): Unit = { runner.runOneTest("negativeUnsignedLong") }
-  @Test def test_whiteSpaceAfterLengthExceededUnsignedLong(): Unit = { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedLong") }
-  @Test def test_whiteSpaceBeforeLengthExceededUnsignedLong(): Unit = { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedLong") }
-  @Test def test_whiteSpaceDuringLengthExceededUnsignedLong(): Unit = { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedLong") }
+  @Test def test_whiteSpaceAfterLengthExceededUnsignedLong(): Unit = {
+    runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedLong")
+  }
+  @Test def test_whiteSpaceBeforeLengthExceededUnsignedLong(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedLong")
+  }
+  @Test def test_whiteSpaceDuringLengthExceededUnsignedLong(): Unit = {
+    runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedLong")
+  }
 
-  @Test def test_characterDuringValidUnsignedShort(): Unit = { runner.runOneTest("characterDuringValidUnsignedShort") }
-  @Test def test_unsignedShort_unparseError(): Unit = { runner.runOneTest("unsignedShort_unparseError") }
+  @Test def test_characterDuringValidUnsignedShort(): Unit = {
+    runner.runOneTest("characterDuringValidUnsignedShort")
+  }
+  @Test def test_unsignedShort_unparseError(): Unit = {
+    runner.runOneTest("unsignedShort_unparseError")
+  }
   @Test def test_negativeUnsignedShort(): Unit = { runner.runOneTest("negativeUnsignedShort") }
-  @Test def test_whiteSpaceAfterLengthExceededUnsignedShort(): Unit = { runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedShort") }
-  @Test def test_whiteSpaceBeforeLengthExceededUnsignedShort(): Unit = { runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedShort") }
-  @Test def test_whiteSpaceDuringLengthExceededUnsignedShort(): Unit = { runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedShort") }
+  @Test def test_whiteSpaceAfterLengthExceededUnsignedShort(): Unit = {
+    runner.runOneTest("whiteSpaceAfterLengthExceededUnsignedShort")
+  }
+  @Test def test_whiteSpaceBeforeLengthExceededUnsignedShort(): Unit = {
+    runner.runOneTest("whiteSpaceBeforeLengthExceededUnsignedShort")
+  }
+  @Test def test_whiteSpaceDuringLengthExceededUnsignedShort(): Unit = {
+    runner.runOneTest("whiteSpaceDuringLengthExceededUnsignedShort")
+  }
 
   @Test def test_unsignedShort_01(): Unit = { runner.runOneTest("unsignedShort_01") }
   @Test def test_unsignedByte_01(): Unit = { runner.runOneTest("unsignedByte_01") }
@@ -444,8 +677,12 @@ class TestSimpleTypes {
   @Test def test_int_binary_04(): Unit = { runner.runOneTest("int_binary_04") }
   @Test def test_int_binary_05(): Unit = { runner.runOneTest("int_binary_05") }
 
-  @Test def test_binaryInt_unparseError(): Unit = { runner.runOneTest("binaryInt_unparseError") }
-  @Test def test_hexBinary_unparseError(): Unit = { runner.runOneTest("hexBinary_unparseError") }
+  @Test def test_binaryInt_unparseError(): Unit = {
+    runner.runOneTest("binaryInt_unparseError")
+  }
+  @Test def test_hexBinary_unparseError(): Unit = {
+    runner.runOneTest("hexBinary_unparseError")
+  }
   @Test def test_calendar_unparseError(): Unit = { runner.runOneTest("calendar_unparseError") }
 
   @Test def test_int_implicit(): Unit = { runner.runOneTest("int_implicit") }
@@ -476,19 +713,43 @@ class TestSimpleTypes {
   // Verification that user's test works for DFDL-677
   @Test def test_unsignedInt(): Unit = { runner.runOneTest("TestUnsignedInt") }
 
-  @Test def test_nonNegativeInteger_text(): Unit = { runner.runOneTest("nonNegativeInteger_text") }
-  @Test def test_nonNegativeInteger_text2(): Unit = { runner.runOneTest("nonNegativeInteger_text2") }
-  @Test def test_nonNegativeInteger_text_fail(): Unit = { runner.runOneTest("nonNegativeInteger_text_fail") }
-  @Test def test_nonNegativeInteger_text_fail2(): Unit = { runner.runOneTest("nonNegativeInteger_text_fail2") }
-  @Test def test_nonNegativeInteger_text_fail3(): Unit = { runner.runOneTest("nonNegativeInteger_text_fail3") }
-  @Test def test_nonNegativeInteger_unparseError(): Unit = { runner.runOneTest("nonNegativeInteger_unparseError") }
+  @Test def test_nonNegativeInteger_text(): Unit = {
+    runner.runOneTest("nonNegativeInteger_text")
+  }
+  @Test def test_nonNegativeInteger_text2(): Unit = {
+    runner.runOneTest("nonNegativeInteger_text2")
+  }
+  @Test def test_nonNegativeInteger_text_fail(): Unit = {
+    runner.runOneTest("nonNegativeInteger_text_fail")
+  }
+  @Test def test_nonNegativeInteger_text_fail2(): Unit = {
+    runner.runOneTest("nonNegativeInteger_text_fail2")
+  }
+  @Test def test_nonNegativeInteger_text_fail3(): Unit = {
+    runner.runOneTest("nonNegativeInteger_text_fail3")
+  }
+  @Test def test_nonNegativeInteger_unparseError(): Unit = {
+    runner.runOneTest("nonNegativeInteger_unparseError")
+  }
 
-  @Test def test_nonNegativeInteger_bin(): Unit = { runner.runOneTest("nonNegativeInteger_bin") }
-  @Test def test_nonNegativeInteger_bin2(): Unit = { runner.runOneTest("nonNegativeInteger_bin2") }
-  @Test def test_nonNegativeInteger_bin3(): Unit = { runner.runOneTest("nonNegativeInteger_bin3") }
-  @Test def test_nonNegativeInteger_bin4(): Unit = { runner.runOneTest("nonNegativeInteger_bin4") }
-  @Test def test_nonNegativeInteger_bin5(): Unit = { runner.runOneTest("nonNegativeInteger_bin5") }
-  @Test def test_nonNegativeInteger_bin6(): Unit = { runner.runOneTest("nonNegativeInteger_bin6") }
+  @Test def test_nonNegativeInteger_bin(): Unit = {
+    runner.runOneTest("nonNegativeInteger_bin")
+  }
+  @Test def test_nonNegativeInteger_bin2(): Unit = {
+    runner.runOneTest("nonNegativeInteger_bin2")
+  }
+  @Test def test_nonNegativeInteger_bin3(): Unit = {
+    runner.runOneTest("nonNegativeInteger_bin3")
+  }
+  @Test def test_nonNegativeInteger_bin4(): Unit = {
+    runner.runOneTest("nonNegativeInteger_bin4")
+  }
+  @Test def test_nonNegativeInteger_bin5(): Unit = {
+    runner.runOneTest("nonNegativeInteger_bin5")
+  }
+  @Test def test_nonNegativeInteger_bin6(): Unit = {
+    runner.runOneTest("nonNegativeInteger_bin6")
+  }
 
   @Test def test_integer_binary(): Unit = { runner.runOneTest("integer_binary") }
   @Test def test_integer_binary_01(): Unit = { runner.runOneTest("integer_binary_01") }
@@ -500,7 +761,9 @@ class TestSimpleTypes {
   @Test def test_decimal_text2(): Unit = { runner.runOneTest("decimal_text2") }
   @Test def test_decimal_text3(): Unit = { runner.runOneTest("decimal_text3") }
   @Test def test_decimal_text_fail(): Unit = { runner.runOneTest("decimal_text_fail") }
-  @Test def test_characterDuringValidDecimal(): Unit = { runner.runOneTest("characterDuringValidDecimal") }
+  @Test def test_characterDuringValidDecimal(): Unit = {
+    runner.runOneTest("characterDuringValidDecimal")
+  }
   @Test def test_decimal_unparseError(): Unit = { runner.runOneTest("decimal_unparseError") }
 
   @Test def test_decimal_binary(): Unit = { runner.runOneTest("decimal_binary") }
@@ -510,34 +773,62 @@ class TestSimpleTypes {
   @Test def test_decimal_binary_04(): Unit = { runner.runOneTest("decimal_binary_04") }
   @Test def test_decimal_binary_05(): Unit = { runner.runOneTest("decimal_binary_05") }
   @Test def test_decimal_binary_06(): Unit = { runner.runOneTest("decimal_binary_06") }
-  @Test def test_decimal_binary_fail_01(): Unit = { runner.runOneTest("decimal_binary_fail_01") }
-  @Test def test_decimal_binary_fail_02(): Unit = { runner.runOneTest("decimal_binary_fail_02") }
-  @Test def test_decimal_binary_fail_03(): Unit = { runner.runOneTest("decimal_binary_fail_03") }
-  @Test def test_decimal_binary_fail_04(): Unit = { runner.runOneTest("decimal_binary_fail_04") }
+  @Test def test_decimal_binary_fail_01(): Unit = {
+    runner.runOneTest("decimal_binary_fail_01")
+  }
+  @Test def test_decimal_binary_fail_02(): Unit = {
+    runner.runOneTest("decimal_binary_fail_02")
+  }
+  @Test def test_decimal_binary_fail_03(): Unit = {
+    runner.runOneTest("decimal_binary_fail_03")
+  }
+  @Test def test_decimal_binary_fail_04(): Unit = {
+    runner.runOneTest("decimal_binary_fail_04")
+  }
 
   @Test def test_double_text(): Unit = { runner.runOneTest("double_text") }
   @Test def test_double_text2_parse_ab(): Unit = { runner.runOneTest("double_text2_parse_ab") }
   @Test def test_double_text2_parse_ac(): Unit = { runner.runOneTest("double_text2_parse_ac") }
   @Test def test_double_text2_parse_ub(): Unit = { runner.runOneTest("double_text2_parse_ub") }
   @Test def test_double_text2_parse_uc(): Unit = { runner.runOneTest("double_text2_parse_uc") }
-  @Test def test_double_text2_unparse_ab(): Unit = { runner.runOneTest("double_text2_unparse_ab") }
-  @Test def test_double_text2_unparse_ac(): Unit = { runner.runOneTest("double_text2_unparse_ac") }
-  @Test def test_double_text2_unparse_ub(): Unit = { runner.runOneTest("double_text2_unparse_ub") }
-  @Test def test_double_text2_unparse_uc(): Unit = { runner.runOneTest("double_text2_unparse_uc") }
-  @Test def test_double_text2_unparse_fail_ab(): Unit = { runner.runOneTest("double_text2_unparse_fail_ab") }
-  @Test def test_double_text2_unparse_fail_ac(): Unit = { runner.runOneTest("double_text2_unparse_fail_ac") }
-  @Test def test_double_text2_unparse_fail_ub(): Unit = { runner.runOneTest("double_text2_unparse_fail_ub") }
-  @Test def test_double_text2_unparse_fail_uc(): Unit = { runner.runOneTest("double_text2_unparse_fail_uc") }
+  @Test def test_double_text2_unparse_ab(): Unit = {
+    runner.runOneTest("double_text2_unparse_ab")
+  }
+  @Test def test_double_text2_unparse_ac(): Unit = {
+    runner.runOneTest("double_text2_unparse_ac")
+  }
+  @Test def test_double_text2_unparse_ub(): Unit = {
+    runner.runOneTest("double_text2_unparse_ub")
+  }
+  @Test def test_double_text2_unparse_uc(): Unit = {
+    runner.runOneTest("double_text2_unparse_uc")
+  }
+  @Test def test_double_text2_unparse_fail_ab(): Unit = {
+    runner.runOneTest("double_text2_unparse_fail_ab")
+  }
+  @Test def test_double_text2_unparse_fail_ac(): Unit = {
+    runner.runOneTest("double_text2_unparse_fail_ac")
+  }
+  @Test def test_double_text2_unparse_fail_ub(): Unit = {
+    runner.runOneTest("double_text2_unparse_fail_ub")
+  }
+  @Test def test_double_text2_unparse_fail_uc(): Unit = {
+    runner.runOneTest("double_text2_unparse_fail_uc")
+  }
   @Test def test_double_text3(): Unit = { runner.runOneTest("double_text3") }
   @Test def test_double_text4(): Unit = { runner.runOneTest("double_text4") }
-  @Test def test_characterDuringValidDouble(): Unit = { runner.runOneTest("characterDuringValidDouble") }
+  @Test def test_characterDuringValidDouble(): Unit = {
+    runner.runOneTest("characterDuringValidDouble")
+  }
   @Test def test_double_unparseError(): Unit = { runner.runOneTest("double_unparseError") }
 
   @Test def test_float_text(): Unit = { runner.runOneTest("float_text") }
   @Test def test_float_text2(): Unit = { runner.runOneTest("float_text2") }
   @Test def test_float_text3(): Unit = { runner.runOneTest("float_text3") }
   @Test def test_float_text_fail(): Unit = { runner.runOneTest("float_text_fail") }
-  @Test def test_characterDuringValidFloat(): Unit = { runner.runOneTest("characterDuringValidFloat") }
+  @Test def test_characterDuringValidFloat(): Unit = {
+    runner.runOneTest("characterDuringValidFloat")
+  }
   @Test def test_float_unparseError(): Unit = { runner.runOneTest("float_unparseError") }
   @Test def test_float_binary_01(): Unit = { runner.runOneTest("float_binary_01") }
   @Test def test_float_binary_02(): Unit = { runner.runOneTest("float_binary_02") }
@@ -547,14 +838,28 @@ class TestSimpleTypes {
   @Test def test_float_binary_fail_01(): Unit = { runner.runOneTest("float_binary_fail_01") }
   @Test def test_float_binary_fail_02(): Unit = { runner.runOneTest("float_binary_fail_02") }
   @Test def test_float_binary_fail_03(): Unit = { runner.runOneTest("float_binary_fail_03") }
-  
-  @Test def test_time_calendarTimeZone_EmptyString(): Unit = { runner.runOneTest("time_calendarTimeZone_EmptyString") }
-  @Test def test_time_calendarTimeZone_EST(): Unit = { runner.runOneTest("time_calendarTimeZone_EST") }
-  @Test def test_date_calendarTimeZone_EmptyString(): Unit = { runner.runOneTest("date_calendarTimeZone_EmptyString") }
-  @Test def test_date_calendarTimeZone_EST(): Unit = { runner.runOneTest("date_calendarTimeZone_EST") }
-  @Test def test_dateTime_calendarTimeZone_EmptyString(): Unit = { runner.runOneTest("dateTime_calendarTimeZone_EmptyString") }
-  @Test def test_dateTime_calendarTimeZone_EST(): Unit = { runner.runOneTest("dateTime_calendarTimeZone_EST") }
 
-  @Test def test_hexBinary_specifiedLengthUnaligned(): Unit = { runner.runOneTest("hexBinary_specifiedLengthUnaligned") }
+  @Test def test_time_calendarTimeZone_EmptyString(): Unit = {
+    runner.runOneTest("time_calendarTimeZone_EmptyString")
+  }
+  @Test def test_time_calendarTimeZone_EST(): Unit = {
+    runner.runOneTest("time_calendarTimeZone_EST")
+  }
+  @Test def test_date_calendarTimeZone_EmptyString(): Unit = {
+    runner.runOneTest("date_calendarTimeZone_EmptyString")
+  }
+  @Test def test_date_calendarTimeZone_EST(): Unit = {
+    runner.runOneTest("date_calendarTimeZone_EST")
+  }
+  @Test def test_dateTime_calendarTimeZone_EmptyString(): Unit = {
+    runner.runOneTest("dateTime_calendarTimeZone_EmptyString")
+  }
+  @Test def test_dateTime_calendarTimeZone_EST(): Unit = {
+    runner.runOneTest("dateTime_calendarTimeZone_EST")
+  }
+
+  @Test def test_hexBinary_specifiedLengthUnaligned(): Unit = {
+    runner.runOneTest("hexBinary_specifiedLengthUnaligned")
+  }
 
 }

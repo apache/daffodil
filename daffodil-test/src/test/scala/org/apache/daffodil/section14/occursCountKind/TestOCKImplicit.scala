@@ -21,9 +21,10 @@ package org.apache.daffodil.section14.occursCountKind
  * not related to any specific requirement
  */
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestOCKImplicit {
   val testDir = "/org/apache/daffodil/section14/occursCountKind/"
@@ -63,6 +64,6 @@ class TestOCKImplicit {
   @Test def test_ockImplicit21(): Unit = { runner.runOneTest("ockImplicit21") }
   @Test def test_ockImplicit22(): Unit = { runner.runOneTest("ockImplicit22") }
   @Test def test_ockImplicit23(): Unit = { runner.runOneTest("ockImplicit23") }
-  //DFDL-1662
+  // DFDL-1662
   @Test def test_ockImplicit24(): Unit = { runner.runOneTest("ockImplicit24") }
 }

@@ -17,38 +17,38 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
-
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeULong
 
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
 class TestDataLoc {
 
- @Test def test_no_bitPos_overflow_01() = {
+  @Test def test_no_bitPos_overflow_01() = {
     val dl = new DataLoc(
       Int.MaxValue.toLong + 2,
       MaybeULong.Nope,
       Left(null),
       Maybe.Nope,
     )
-   assertEquals(2147483649L, dl.bitPos1b)
-   assertEquals(2147483648L, dl.bitPos0b)
-   assertEquals(268435457L, dl.bytePos1b)
-   assertEquals(268435456L, dl.bytePos0b)
- }
+    assertEquals(2147483649L, dl.bitPos1b)
+    assertEquals(2147483648L, dl.bitPos0b)
+    assertEquals(268435457L, dl.bytePos1b)
+    assertEquals(268435456L, dl.bytePos0b)
+  }
 
- @Test def test_no_bitPos_overflow_02() = {
+  @Test def test_no_bitPos_overflow_02() = {
     val dl = new DataLoc(
       ((Int.MaxValue.toLong + 1) * 8) + 1,
       MaybeULong.Nope,
       Left(null),
       Maybe.Nope,
     )
-   assertEquals(17179869185L, dl.bitPos1b)
-   assertEquals(17179869184L, dl.bitPos0b)
-   assertEquals(2147483649L, dl.bytePos1b)
-   assertEquals(2147483648L, dl.bytePos0b)
- }
+    assertEquals(17179869185L, dl.bitPos1b)
+    assertEquals(17179869184L, dl.bitPos0b)
+    assertEquals(2147483649L, dl.bytePos1b)
+    assertEquals(2147483648L, dl.bytePos0b)
+  }
 
 }

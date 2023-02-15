@@ -18,6 +18,7 @@
 package org.apache.daffodil.section00.general
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -34,6 +35,8 @@ class TestSchemaWithoutDFDLNamespace {
 
   import TestSchemaWithoutDFDLNamespace._
 
-  @Test def test_schemaWithoutDFDLNamespace(): Unit = { runner.runOneTest("schemaWithoutDFDLNamespace") }
+  @Test def test_schemaWithoutDFDLNamespace(): Unit = {
+    runner.runOneTest("schemaWithoutDFDLNamespace")
+  }
 
 }

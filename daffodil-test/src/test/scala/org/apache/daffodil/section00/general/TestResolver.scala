@@ -21,9 +21,10 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestResolver {
   lazy val testDir = "/org/apache/daffodil/section00/general"
@@ -42,6 +43,6 @@ class TestResolver {
   import TestResolver._
 
   @Test def test_includeWithNonExistingSchemaLocation(): Unit = {
-      runner1.runOneTest("includeWithNonExistingSchemaLocation")
-    }
+    runner1.runOneTest("includeWithNonExistingSchemaLocation")
+  }
 }

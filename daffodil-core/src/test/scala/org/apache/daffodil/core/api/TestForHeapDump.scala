@@ -17,15 +17,13 @@
 
 package org.apache.daffodil.core.api;
 
-import org.apache.daffodil.lib.api._
-
+import scala.xml.NodeSeq
 
 import org.apache.daffodil.core.util.TestUtils.compileSchema
+import org.apache.daffodil.lib.api._
 import org.apache.daffodil.lib.util._
-import org.junit.Assert.fail
-// import org.junit.Test
 
-import scala.xml.NodeSeq
+import org.junit.Assert.fail
 
 /**
  * Test rig that allows capture of heap dumps using jvisualVM, for subsequent
@@ -56,11 +54,12 @@ class TestForHeapDump {
    */
   def getDataProcWithInclude() = {
     val sch = SchemaUtils.dfdlTestSchema(
-        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-        <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       rootElem,
       elementFormDefault = "unqualified",
-      useDefaultNamespace = false)
+      useDefaultNamespace = false,
+    )
     val p = compileSchema(sch).withValidationMode(ValidationMode.Off)
     p
   }
@@ -74,7 +73,7 @@ class TestForHeapDump {
   def getDataProcNoInclude() = {
     val sch = SchemaUtils.dfdlTestSchema(
       NodeSeq.Empty,
-        <dfdl:format
+      <dfdl:format
         alignment="1"
         alignmentUnits="bytes"
         binaryFloatRep="ieee"
@@ -144,7 +143,8 @@ class TestForHeapDump {
         />,
       rootElem,
       elementFormDefault = "unqualified",
-      useDefaultNamespace = false)
+      useDefaultNamespace = false,
+    )
     val p = compileSchema(sch).withValidationMode(ValidationMode.Off)
     p
   }

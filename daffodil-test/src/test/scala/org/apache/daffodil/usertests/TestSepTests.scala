@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.usertests
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestSepTests {
   val testDir = "/org/apache/daffodil/usertests/"
@@ -42,7 +43,9 @@ class TestSepTests {
 
   // DAFFODIL-2217 - trailingEmptyStrict violation not detected when maxOccurs is '3'
   // @Test def test_sep_trailingEmptyStrict_1(): Unit = { runner.runOneTest("test_sep_trailingEmptyStrict_1") }
-  @Test def test_sep_trailingEmptyStrict_2(): Unit = { runner.runOneTest("test_sep_trailingEmptyStrict_2") }
+  @Test def test_sep_trailingEmptyStrict_2(): Unit = {
+    runner.runOneTest("test_sep_trailingEmptyStrict_2")
+  }
 
   // DAFFODIL-2499 - separatorSuppressionPolicy 'never'
   // Note: this test isn't commented out, because it works for IBM DFDL in cross testing
@@ -60,7 +63,9 @@ class TestSepTests {
 
   @Test def test_sep_ssp_never_4_ibm(): Unit = { runner.runOneTest("test_sep_ssp_never_4_ibm") }
 
-  @Test def test_sep_ssp_never_4_daffodil(): Unit = { runner.runOneTest("test_sep_ssp_never_4_daffodil") }
+  @Test def test_sep_ssp_never_4_daffodil(): Unit = {
+    runner.runOneTest("test_sep_ssp_never_4_daffodil")
+  }
 
   @Test def test_sep_ssp_never_5(): Unit = { runner.runOneTest("test_sep_ssp_never_5") }
 

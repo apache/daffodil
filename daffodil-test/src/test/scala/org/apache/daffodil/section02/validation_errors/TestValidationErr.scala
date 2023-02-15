@@ -18,6 +18,7 @@
 package org.apache.daffodil.section02.validation_errors
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -31,64 +32,142 @@ object TestValidationErr {
 }
 class TestValidationErr {
   import TestValidationErr._
-  @Test def test_facetPattern01_validation_off(): Unit = { runner.runOneTest("facetPattern01_validation_off") }
-  @Test def test_facetPattern01_fail_limited(): Unit = { runner.runOneTest("facetPattern01_fail_limited") }
-  @Test def test_facetPattern01_fail_full(): Unit = { runner.runOneTest("facetPattern01_fail_full") }
-  @Test def test_facetPattern01_success_limited(): Unit = { runner.runOneTest("facetPattern01_success_limited") }
-  @Test def test_facetPattern01_success_full(): Unit = { runner.runOneTest("facetPattern01_success_full") }
+  @Test def test_facetPattern01_validation_off(): Unit = {
+    runner.runOneTest("facetPattern01_validation_off")
+  }
+  @Test def test_facetPattern01_fail_limited(): Unit = {
+    runner.runOneTest("facetPattern01_fail_limited")
+  }
+  @Test def test_facetPattern01_fail_full(): Unit = {
+    runner.runOneTest("facetPattern01_fail_full")
+  }
+  @Test def test_facetPattern01_success_limited(): Unit = {
+    runner.runOneTest("facetPattern01_success_limited")
+  }
+  @Test def test_facetPattern01_success_full(): Unit = {
+    runner.runOneTest("facetPattern01_success_full")
+  }
 
-  @Test def test_arrayElements_fail_limited(): Unit = { runner.runOneTest("arrayElements_fail_limited") }
-  @Test def test_arrayElements_fail_full(): Unit = { runner.runOneTest("arrayElements_fail_full") }
+  @Test def test_arrayElements_fail_limited(): Unit = {
+    runner.runOneTest("arrayElements_fail_limited")
+  }
+  @Test def test_arrayElements_fail_full(): Unit = {
+    runner.runOneTest("arrayElements_fail_full")
+  }
 
-  @Test def test_checkMinLength_Fail_Combining_limited(): Unit = { runner.runOneTest("checkMinLength_Fail_Combining_limited") }
-  @Test def test_checkEnumeration_Pass_limited(): Unit = { runner.runOneTest("checkEnumeration_Pass_limited") }
-  @Test def test_checkEnumeration_Fail_limited(): Unit = { runner.runOneTest("checkEnumeration_Fail_limited") }
-  @Test def test_checkEnumeration_Fail_on(): Unit = { runner.runOneTest("checkEnumeration_Fail_on") }
-  @Test def test_checkMaxInclusive_Fail_DateTime_limited(): Unit = { runner.runOneTest("checkMaxInclusive_Fail_DateTime_limited") }
+  @Test def test_checkMinLength_Fail_Combining_limited(): Unit = {
+    runner.runOneTest("checkMinLength_Fail_Combining_limited")
+  }
+  @Test def test_checkEnumeration_Pass_limited(): Unit = {
+    runner.runOneTest("checkEnumeration_Pass_limited")
+  }
+  @Test def test_checkEnumeration_Fail_limited(): Unit = {
+    runner.runOneTest("checkEnumeration_Fail_limited")
+  }
+  @Test def test_checkEnumeration_Fail_on(): Unit = {
+    runner.runOneTest("checkEnumeration_Fail_on")
+  }
+  @Test def test_checkMaxInclusive_Fail_DateTime_limited(): Unit = {
+    runner.runOneTest("checkMaxInclusive_Fail_DateTime_limited")
+  }
 
-  @Test def test_checkMinExclusive_Fail_off(): Unit = { runner.runOneTest("checkMinExclusive_Fail_off") }
-  @Test def test_checkMinExclusive_Fail_limited(): Unit = { runner.runOneTest("checkMinExclusive_Fail_limited") }
-  @Test def test_checkMinExclusive_Fail_on(): Unit = { runner.runOneTest("checkMinExclusive_Fail_on") }
+  @Test def test_checkMinExclusive_Fail_off(): Unit = {
+    runner.runOneTest("checkMinExclusive_Fail_off")
+  }
+  @Test def test_checkMinExclusive_Fail_limited(): Unit = {
+    runner.runOneTest("checkMinExclusive_Fail_limited")
+  }
+  @Test def test_checkMinExclusive_Fail_on(): Unit = {
+    runner.runOneTest("checkMinExclusive_Fail_on")
+  }
 
-  @Test def test_checkCombining_Fail_off(): Unit = { runner.runOneTest("checkCombining_Fail_off") }
-  @Test def test_checkCombining_Fail_limited(): Unit = { runner.runOneTest("checkCombining_Fail_limited") }
-  @Test def test_checkCombining_Fail_on(): Unit = { runner.runOneTest("checkCombining_Fail_on") }
+  @Test def test_checkCombining_Fail_off(): Unit = {
+    runner.runOneTest("checkCombining_Fail_off")
+  }
+  @Test def test_checkCombining_Fail_limited(): Unit = {
+    runner.runOneTest("checkCombining_Fail_limited")
+  }
+  @Test def test_checkCombining_Fail_on(): Unit = {
+    runner.runOneTest("checkCombining_Fail_on")
+  }
 
-  @Test def test_checkMaxLength_Fail_Combining_limited(): Unit = { runner.runOneTest("checkMaxLength_Fail_Combining_limited") }
+  @Test def test_checkMaxLength_Fail_Combining_limited(): Unit = {
+    runner.runOneTest("checkMaxLength_Fail_Combining_limited")
+  }
 
-  @Test def test_checkTotalDigits_Fail_off(): Unit = { runner.runOneTest("checkTotalDigits_Fail_off") }
-  @Test def test_checkTotalDigits_Fail_limited(): Unit = { runner.runOneTest("checkTotalDigits_Fail_limited") }
-  @Test def test_checkTotalDigits_Fail_on(): Unit = { runner.runOneTest("checkTotalDigits_Fail_on") }
+  @Test def test_checkTotalDigits_Fail_off(): Unit = {
+    runner.runOneTest("checkTotalDigits_Fail_off")
+  }
+  @Test def test_checkTotalDigits_Fail_limited(): Unit = {
+    runner.runOneTest("checkTotalDigits_Fail_limited")
+  }
+  @Test def test_checkTotalDigits_Fail_on(): Unit = {
+    runner.runOneTest("checkTotalDigits_Fail_on")
+  }
 
   @Test def test_facetCombos_fail_off(): Unit = { runner.runOneTest("facetCombos_fail_off") }
-  @Test def test_facetCombos_fail_limited(): Unit = { runner.runOneTest("facetCombos_fail_limited") }
+  @Test def test_facetCombos_fail_limited(): Unit = {
+    runner.runOneTest("facetCombos_fail_limited")
+  }
   @Test def test_facetCombos_fail_on(): Unit = { runner.runOneTest("facetCombos_fail_on") }
 
-  @Test def test_facetCombos_fail_off_02(): Unit = { runner.runOneTest("facetCombos_fail_off_02") }
-  @Test def test_facetCombos_fail_limited_02(): Unit = { runner.runOneTest("facetCombos_fail_limited_02") }
-  @Test def test_facetCombos_fail_on_02(): Unit = { runner.runOneTest("facetCombos_fail_on_02") }
+  @Test def test_facetCombos_fail_off_02(): Unit = {
+    runner.runOneTest("facetCombos_fail_off_02")
+  }
+  @Test def test_facetCombos_fail_limited_02(): Unit = {
+    runner.runOneTest("facetCombos_fail_limited_02")
+  }
+  @Test def test_facetCombos_fail_on_02(): Unit = {
+    runner.runOneTest("facetCombos_fail_on_02")
+  }
 
   @Test def test_assert_validation_on(): Unit = { runner.runOneTest("assert_validation_on") }
-  @Test def test_assert_validation_limited(): Unit = { runner.runOneTest("assert_validation_limited") }
+  @Test def test_assert_validation_limited(): Unit = {
+    runner.runOneTest("assert_validation_limited")
+  }
   @Test def test_assert_validation_off(): Unit = { runner.runOneTest("assert_validation_off") }
 
-  @Test def test_minOccurs_notValidationErr_limited(): Unit = { runner.runOneTest("minOccurs_notValidationErr_limited") }
-  @Test def test_choice_ignoreValidationErr_01(): Unit = { runner.runOneTest("choice_ignoreValidationErr_01") }
-  @Test def test_choice_ignoreValidationErr_02(): Unit = { runner.runOneTest("choice_ignoreValidationErr_02") }
-  @Test def test_choice_ignoreValidationErr_03(): Unit = { runner.runOneTest("choice_ignoreValidationErr_03") }
+  @Test def test_minOccurs_notValidationErr_limited(): Unit = {
+    runner.runOneTest("minOccurs_notValidationErr_limited")
+  }
+  @Test def test_choice_ignoreValidationErr_01(): Unit = {
+    runner.runOneTest("choice_ignoreValidationErr_01")
+  }
+  @Test def test_choice_ignoreValidationErr_02(): Unit = {
+    runner.runOneTest("choice_ignoreValidationErr_02")
+  }
+  @Test def test_choice_ignoreValidationErr_03(): Unit = {
+    runner.runOneTest("choice_ignoreValidationErr_03")
+  }
 
-  @Test def test_choice_errorNotSuppressed_01(): Unit = { runner.runOneTest("choice_errorNotSuppressed_01") }
-  @Test def test_choice_errorNotSuppressed_02(): Unit = { runner.runOneTest("choice_errorNotSuppressed_02") }
-  @Test def test_choice_errorNotSuppressed_03(): Unit = { runner.runOneTest("choice_errorNotSuppressed_03") }
-  @Test def test_choice_errorNotSuppressed_04(): Unit = { runner.runOneTest("choice_errorNotSuppressed_04") }
-  @Test def test_choice_errorNotSuppressed_05(): Unit = { runner.runOneTest("choice_errorNotSuppressed_05") }
+  @Test def test_choice_errorNotSuppressed_01(): Unit = {
+    runner.runOneTest("choice_errorNotSuppressed_01")
+  }
+  @Test def test_choice_errorNotSuppressed_02(): Unit = {
+    runner.runOneTest("choice_errorNotSuppressed_02")
+  }
+  @Test def test_choice_errorNotSuppressed_03(): Unit = {
+    runner.runOneTest("choice_errorNotSuppressed_03")
+  }
+  @Test def test_choice_errorNotSuppressed_04(): Unit = {
+    runner.runOneTest("choice_errorNotSuppressed_04")
+  }
+  @Test def test_choice_errorNotSuppressed_05(): Unit = {
+    runner.runOneTest("choice_errorNotSuppressed_05")
+  }
 
   // DFDL-903
   //  @Test def test_choice_errorNotSuppressed_validationErrorCheck() { runner.runOneTest("choice_errorNotSuppressed_validationErrorCheck") }
 
-  @Test def test_validation_inputValueCalc_01(): Unit = { runner.runOneTest("validation_inputValueCalc_01") }
-  @Test def test_validation_inputValueCalc_02(): Unit = { runner.runOneTest("validation_inputValueCalc_02") }
-  @Test def test_validation_inputValueCalc_03(): Unit = { runner.runOneTest("validation_inputValueCalc_03") }
+  @Test def test_validation_inputValueCalc_01(): Unit = {
+    runner.runOneTest("validation_inputValueCalc_01")
+  }
+  @Test def test_validation_inputValueCalc_02(): Unit = {
+    runner.runOneTest("validation_inputValueCalc_02")
+  }
+  @Test def test_validation_inputValueCalc_03(): Unit = {
+    runner.runOneTest("validation_inputValueCalc_03")
+  }
 
   @Test def test_floatExclusiveValid(): Unit = { runner.runOneTest("floatExclusiveValid") }
   @Test def test_floatExclusiveInf(): Unit = { runner.runOneTest("floatExclusiveInf") }

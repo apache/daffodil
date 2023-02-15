@@ -17,11 +17,13 @@
 
 package org.apache.daffodil.io
 
+import java.io.File
+import java.nio.ByteBuffer
+
+import org.apache.daffodil.lib.util.Maybe
+
 import org.junit.Assert._
 import org.junit.Test
-import java.nio.ByteBuffer
-import java.io.File
-import org.apache.daffodil.lib.util.Maybe
 
 class TestDataOutputStream2 {
 
@@ -34,9 +36,17 @@ class TestDataOutputStream2 {
   @Test def testPutBitBufferDirect0_BE_MSBF(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
-    val out = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
+    val out = DirectOrBufferedDataOutputStream(
+      baos,
+      null,
+      false,
+      4096,
+      2000 * (1 << 20),
+      new File("."),
+      Maybe.Nope,
+    )
 
-    val bb = ByteBuffer.wrap(List(0xA5.toByte, 0xBE.toByte, 0xEF.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0xa5.toByte, 0xbe.toByte, 0xef.toByte).toArray)
     bb.position(1)
     out.putBitBuffer(bb, 16, beFinfo)
 
@@ -44,8 +54,8 @@ class TestDataOutputStream2 {
 
     val buf = baos.getBuf()
 
-    assertEquals(0xBE.toByte, buf(0))
-    assertEquals(0xEF.toByte, buf(1))
+    assertEquals(0xbe.toByte, buf(0))
+    assertEquals(0xef.toByte, buf(1))
     if (buf.length > 2)
       assertEquals(0, buf(2))
 
@@ -54,9 +64,17 @@ class TestDataOutputStream2 {
   @Test def testPutBitBufferDirect1_BE_MSBF(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
-    val out = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
+    val out = DirectOrBufferedDataOutputStream(
+      baos,
+      null,
+      false,
+      4096,
+      2000 * (1 << 20),
+      new File("."),
+      Maybe.Nope,
+    )
 
-    val bb = ByteBuffer.wrap(List(0xA5.toByte, 0xBE.toByte, 0xEF.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0xa5.toByte, 0xbe.toByte, 0xef.toByte).toArray)
     bb.position(1)
     out.putBitBuffer(bb, 9, beFinfo)
 
@@ -64,7 +82,7 @@ class TestDataOutputStream2 {
 
     val buf = baos.getBuf()
 
-    assertEquals(0xBE.toByte, buf(0))
+    assertEquals(0xbe.toByte, buf(0))
     assertEquals(0x80.toByte, buf(1))
     if (buf.length > 2)
       assertEquals(0, buf(2))
@@ -74,9 +92,17 @@ class TestDataOutputStream2 {
   @Test def testPutBitBufferDirect7_BE_MSBF(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
-    val out = DirectOrBufferedDataOutputStream(baos, null, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
+    val out = DirectOrBufferedDataOutputStream(
+      baos,
+      null,
+      false,
+      4096,
+      2000 * (1 << 20),
+      new File("."),
+      Maybe.Nope,
+    )
 
-    val bb = ByteBuffer.wrap(List(0xA5.toByte, 0xBE.toByte, 0xEF.toByte).toArray)
+    val bb = ByteBuffer.wrap(List(0xa5.toByte, 0xbe.toByte, 0xef.toByte).toArray)
     bb.position(1)
     out.putBitBuffer(bb, 15, beFinfo)
 
@@ -84,8 +110,8 @@ class TestDataOutputStream2 {
 
     val buf = baos.getBuf()
 
-    assertEquals(0xBE.toByte, buf(0))
-    assertEquals(0xEE.toByte, buf(1))
+    assertEquals(0xbe.toByte, buf(0))
+    assertEquals(0xee.toByte, buf(1))
     if (buf.length > 2)
       assertEquals(0, buf(2))
 

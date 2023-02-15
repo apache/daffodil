@@ -17,29 +17,32 @@
 
 package org.apache.daffodil.core.infoset
 
-import org.apache.daffodil.runtime1.infoset._
-
-import org.junit.Test
-import org.junit.Assert._
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.equality._
-import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.runtime1.processors.DataProcessor
-import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.util.IteratorFromCursor
-import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.ChoiceRuntimeData
+import org.apache.daffodil.runtime1.processors.DataProcessor
+import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.ErrorERD
+import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+
+import org.junit.Assert._
+import org.junit.Test
 
 /**
  * All these tests were written for iterator style.
  * Now that we're doing Cursor style, need an adapter. otherwise we have to edit them all.
  */
 case class Adapter(isrc: InfosetInputter)
-  extends IteratorFromCursor[InfosetAccessor, InfosetAccessor](isrc, (ie: InfosetAccessor) => ie)
+  extends IteratorFromCursor[InfosetAccessor, InfosetAccessor](
+    isrc,
+    (ie: InfosetAccessor) => ie,
+  )
 
 class TestInfosetInputterFromReader {
 
@@ -66,8 +69,9 @@ class TestInfosetInputterFromReader {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
-    val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+    )
+    val infosetXML = <foo xmlns={XMLUtils.EXAMPLE_NAMESPACE}>Hello</foo>
     TestUtils.testUnparsing(sch, infosetXML, "Hello")
   }
 
@@ -75,8 +79,9 @@ class TestInfosetInputterFromReader {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
-    val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+    )
+    val infosetXML = <foo xmlns={XMLUtils.EXAMPLE_NAMESPACE}>Hello</foo>
     val (ii, _, _, _) = infosetInputter(sch, infosetXML)
     val is = ii.toStream.toList
     val List(Start(s: DISimple), End(e: DISimple)) = is
@@ -89,8 +94,11 @@ class TestInfosetInputterFromReader {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>)
-    val infosetXML = <foo xsi:nil="true" xmlns={ XMLUtils.EXAMPLE_NAMESPACE } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }/>
+      <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>,
+    )
+    val infosetXML = <foo xsi:nil="true" xmlns={XMLUtils.EXAMPLE_NAMESPACE} xmlns:xsi={
+      XMLUtils.XSI_NAMESPACE
+    }/>
     val (ii, _, _, _) = infosetInputter(sch, infosetXML)
     val is = ii.toStream.toList
     val List(Start(s: DISimple), End(e: DISimple)) = is
@@ -108,8 +116,9 @@ class TestInfosetInputterFromReader {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={XMLUtils.EXAMPLE_NAMESPACE}><foo>Hello</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Seq(fooERD) = rootERD.childERDs
     val Start(bar_s: DIComplex) = is.next
@@ -139,8 +148,11 @@ class TestInfosetInputterFromReader {
             <xs:element name="baz" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><baz>World</baz></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><foo>Hello</foo><baz>World</baz></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Start(bar_s: DIComplex) = is.next
     val Seq(fooERD, bazERD) = rootERD.childERDs
@@ -187,8 +199,9 @@ class TestInfosetInputterFromReader {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <quux xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>
+      </xs:element>,
+    )
+    val infosetXML = <quux xmlns={XMLUtils.EXAMPLE_NAMESPACE}>
                        <bar1><foo1>Hello</foo1><baz1>World</baz1></bar1>
                        <bar2><foo2>Hello</foo2><baz2>World</baz2></bar2>
                      </quux>
@@ -273,8 +286,11 @@ class TestInfosetInputterFromReader {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><foo>Hello</foo><foo>World</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
@@ -316,8 +332,11 @@ class TestInfosetInputterFromReader {
             <xs:element name="baz" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(fooERD: ElementRuntimeData, bazERD: ElementRuntimeData) = barSeqTRD.groupMembers
@@ -366,8 +385,11 @@ class TestInfosetInputterFromReader {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(bazERD: ElementRuntimeData, fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
@@ -416,8 +438,11 @@ class TestInfosetInputterFromReader {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(bazERD: ElementRuntimeData, fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
@@ -462,8 +487,9 @@ class TestInfosetInputterFromReader {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={XMLUtils.EXAMPLE_NAMESPACE}><foo>Hello</foo></bar>
     val (is, rootERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(barSeqTRD: SequenceRuntimeData) = rootERD.optComplexTypeModelGroupRuntimeData
     val Seq(fooERD: ElementRuntimeData) = barSeqTRD.groupMembers
@@ -508,8 +534,11 @@ class TestInfosetInputterFromReader {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <e xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
+      </xs:element>,
+    )
+    val infosetXML = <e xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
     val (is, eERD, inp, tunable) = infosetInputter(sch, infosetXML)
     val Some(eSeqTRD: SequenceRuntimeData) = eERD.optComplexTypeModelGroupRuntimeData
     val Seq(sERD: ElementRuntimeData) = eSeqTRD.groupMembers
@@ -530,7 +559,7 @@ class TestInfosetInputterFromReader {
     val Start(s2: DIComplex) = is.next; assertNotNull(s2)
     inp.pushTRD(sChoTRD)
     val Start(c2: DISimple) = is.next
-    val End(c2e: DISimple) = is.next; ; assertNotNull(c2e)
+    val End(c2e: DISimple) = is.next;; assertNotNull(c2e)
     inp.popTRD()
     val End(s2e: DIComplex) = is.next; assertNotNull(s2e)
     val EndArray(ase) = is.next

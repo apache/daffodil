@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.core.outputValueCalc
 
-import org.junit.Test
-import org.junit.Assert._
-import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml._
-import org.apache.daffodil.core.util.TestUtils
+
+import org.junit.Assert._
+import org.junit.Test
 
 /*
  * These are all tests of OVC expressions that forward reference
@@ -47,8 +48,10 @@ class TestOutputValueCalcForwardReference {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s2>2</s2></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s2>2</s2></ex:e1>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, "22", areTracing)
   }
@@ -65,8 +68,10 @@ class TestOutputValueCalcForwardReference {
             <xs:element name="s3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s3>3</s3></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s3>3</s3></ex:e1>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, "333", areTracing)
   }
@@ -83,8 +88,10 @@ class TestOutputValueCalcForwardReference {
             <xs:element name="s3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ ../s1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s2>2</s2></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s2>2</s2></ex:e1>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, "222", areTracing)
   }
@@ -101,8 +108,10 @@ class TestOutputValueCalcForwardReference {
             <xs:element name="s3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{ ../s1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}></ex:e1>
     val areTracing = false
 
     try {
@@ -129,8 +138,10 @@ class TestOutputValueCalcForwardReference {
             <xs:element name="afterFoo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:bar xmlns:ex={ example }><afterFoo>fghij</afterFoo></ex:bar>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:bar xmlns:ex={example}><afterFoo>fghij</afterFoo></ex:bar>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, "abcdefghij", areTracing)
   }
@@ -147,10 +158,19 @@ class TestOutputValueCalcForwardReference {
             <xs:element name="afterFoo" dfdl:initiator="afterFoo=" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:bar xmlns:ex={ example }><beforeFoo>12345</beforeFoo><afterFoo>67890</afterFoo></ex:bar>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:bar xmlns:ex={
+      example
+    }><beforeFoo>12345</beforeFoo><afterFoo>67890</afterFoo></ex:bar>
     val areTracing = false
-    TestUtils.testUnparsing(sch, infoset, "beforeFoo=12345, foo=abcde, afterFoo=67890", areTracing)
+    TestUtils.testUnparsing(
+      sch,
+      infoset,
+      "beforeFoo=12345, foo=abcde, afterFoo=67890",
+      areTracing,
+    )
   }
 
   @Test def testMultipleOutputValueCalcAndDefaultablePresent(): Unit = {
@@ -166,10 +186,19 @@ class TestOutputValueCalcForwardReference {
             <xs:element name="afterFoo" dfdl:initiator="afterFoo=" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:bar xmlns:ex={ example }><beforeFoo>12345</beforeFoo><foo2>pqrst</foo2><afterFoo>67890</afterFoo></ex:bar>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:bar xmlns:ex={
+      example
+    }><beforeFoo>12345</beforeFoo><foo2>pqrst</foo2><afterFoo>67890</afterFoo></ex:bar>
     val areTracing = false
-    TestUtils.testUnparsing(sch, infoset, "beforeFoo=12345, foo=abcde, foo2=pqrst!, afterFoo=67890", areTracing)
+    TestUtils.testUnparsing(
+      sch,
+      infoset,
+      "beforeFoo=12345, foo=abcde, foo2=pqrst!, afterFoo=67890",
+      areTracing,
+    )
   }
 
 }

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section10.representation_properties
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestRepProps {
   val testDir = "/org/apache/daffodil/section10/representation_properties/"
@@ -41,8 +42,12 @@ class TestRepProps {
 
   @Test def test_hexBinary_01(): Unit = { runner.runOneTest("hexBinary_01") }
 
-  //These tests are temporary - see DFDL-994
-  @Test def test_temporaryDefaultProps_01(): Unit = { runner.runOneTest("temporaryDefaultProps_01") }
-  @Test def test_temporaryDefaultProps_02(): Unit = { runner.runOneTest("temporaryDefaultProps_02") }
+  // These tests are temporary - see DFDL-994
+  @Test def test_temporaryDefaultProps_01(): Unit = {
+    runner.runOneTest("temporaryDefaultProps_01")
+  }
+  @Test def test_temporaryDefaultProps_02(): Unit = {
+    runner.runOneTest("temporaryDefaultProps_02")
+  }
 
 }

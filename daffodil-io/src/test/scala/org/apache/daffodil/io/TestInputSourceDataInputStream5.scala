@@ -17,11 +17,13 @@
 
 package org.apache.daffodil.io
 
-import org.junit.Test
-import org.junit.Assert._
 import java.nio.ByteBuffer
-import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestInputSourceDataInputStream5 {
   val leFinfo = FormatInfoForUnitTest()

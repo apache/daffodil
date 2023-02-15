@@ -29,8 +29,12 @@ IntegrationTest / parallelExecution := false
 
 // need 'sbt stage' to build the CLI for cli integration tests
 (IntegrationTest / test) := (IntegrationTest / test).dependsOn(Compile / stage).value
-(IntegrationTest / testOnly) := (IntegrationTest / testOnly).dependsOn(Compile / stage).evaluated
-(IntegrationTest / testQuick) := (IntegrationTest / testQuick).dependsOn(Compile / stage).evaluated
+(IntegrationTest / testOnly) := (IntegrationTest / testOnly)
+  .dependsOn(Compile / stage)
+  .evaluated
+(IntegrationTest / testQuick) := (IntegrationTest / testQuick)
+  .dependsOn(Compile / stage)
+  .evaluated
 
 // Add the classes in src/test/ to the IntegrationTest classpath
 // so we can share CLI utliities in Util.scala
@@ -95,7 +99,8 @@ Rpm / version := {
 }
 
 rpmRelease := {
-  val parts = version.value.split("-", 2) // parts(0) is the version, parse(1) is snapshot if it exists
+  val parts =
+    version.value.split("-", 2) // parts(0) is the version, parse(1) is snapshot if it exists
   if (parts.length > 1) "0." + parts(1).toLowerCase else "1"
 }
 
@@ -151,7 +156,8 @@ wixProductUpgradeId := "4C966AFF-585E-4E17-8CC2-059FD70FEC77"
 lightOptions ++= Seq(
   "-sval", // validation does not currently work under Wine, this disables that
   "-sice:ICE61",
-  "-loc", ((Windows / sourceDirectory).value / "Product_en-us.wxl").toString
+  "-loc",
+  ((Windows / sourceDirectory).value / "Product_en-us.wxl").toString,
 )
 
 // Build an RTF version of the license file for display in the license
@@ -195,13 +201,16 @@ wixFiles ++= Seq(
 // before they can invoke Daffodil anyway.
 wixFeatures := {
   val features = wixFeatures.value
-  features.filter { _.id != "AddConfigLinks"}
+  features.filter { _.id != "AddConfigLinks" }
 }
 
 // Make sure that we don't use an MSI installer that is older than
 // version 2.0. It also fixes the comment attribute that hangs
 // out on the Package keyword.
-wixPackageInfo := wixPackageInfo.value.copy(installerVersion = "200", comments = "!(loc.Comments)")
+wixPackageInfo := wixPackageInfo.value.copy(
+  installerVersion = "200",
+  comments = "!(loc.Comments)",
+)
 
 // Fix the XML that is associated with the installable files and directories.
 wixProductConfig := {
@@ -210,19 +219,26 @@ wixProductConfig := {
 
   // Replace the default headline banner and Welcome/Exit screen
   // bitmaps with the custom ones we developed for Daffodil.
-  val banner = <WixVariable Id="WixUIBannerBmp" Value={ ((Windows / sourceDirectory).value / "banner.bmp").toString } />
-  val dialog = <WixVariable Id="WixUIDialogBmp" Value={ ((Windows / sourceDirectory).value / "dialog.bmp").toString } />
+  val banner = <WixVariable Id="WixUIBannerBmp" Value={
+    ((Windows / sourceDirectory).value / "banner.bmp").toString
+  } />
+  val dialog = <WixVariable Id="WixUIDialogBmp" Value={
+    ((Windows / sourceDirectory).value / "dialog.bmp").toString
+  } />
 
   // Reference the Daffodil-specific User Interface (dialog box) sequence.
   val ui = <UI><UIRef Id="WixUI_Daffodil" /></UI>
 
   // Make sure we abort if we are not installing on Windows 95 or later.
-  val osCondition = <Condition Message="!(loc.OS2Old)"><![CDATA[Installed OR (VersionNT >= 400)]]></Condition>
+  val osCondition =
+    <Condition Message="!(loc.OS2Old)"><![CDATA[Installed OR (VersionNT >= 400)]]></Condition>
 
   // Define icons (ID should not be longer than 18 chars and must end with ".exe")
   val icon = Seq(
-    <Icon Id="Daffodil.ico" SourceFile={ ((Windows / sourceDirectory).value / "apache-daffodil.ico").toString } />,
-    <Property Id="ARPPRODUCTICON" Value="Daffodil.ico" />
+    <Icon Id="Daffodil.ico" SourceFile={
+      ((Windows / sourceDirectory).value / "apache-daffodil.ico").toString
+    } />,
+    <Property Id="ARPPRODUCTICON" Value="Daffodil.ico" />,
   )
 
   // String together the additional XML around the generated directory and file lists.
@@ -255,12 +271,18 @@ wixProductConfig := {
       // Fixup for registry key.
       case e: scala.xml.Elem if e.label == "RegistryValue" => {
         val attribs = e.attributes.remove("Key")
-        e % scala.xml.Attribute("", "Key", """Software\Apache\Installed Products\Daffodil""", attribs)
+        e % scala.xml.Attribute(
+          "",
+          "Key",
+          """Software\Apache\Installed Products\Daffodil""",
+          attribs,
+        )
       }
 
       // The WixUI_FeatureTree reference has to be removed so that
       // our custom Daffodil UI can operate properly.
-      case e: scala.xml.Elem if e.label == "UIRef" && (e \ "@Id").text == "WixUI_FeatureTree" => {
+      case e: scala.xml.Elem
+          if e.label == "UIRef" && (e \ "@Id").text == "WixUI_FeatureTree" => {
         scala.xml.NodeSeq.Empty
       }
       case `n` => n

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.charsets
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestCharsets {
 
@@ -31,8 +32,8 @@ object TestCharsets {
   }
 }
 
-class TestCharsets{
-    import TestCharsets._
+class TestCharsets {
+  import TestCharsets._
 
   @Test def parse_loaded_charsets(): Unit = { runner.runOneTest("parse_charsets") }
   @Test def unparse_loaded_charsets(): Unit = { runner.runOneTest("unparse_charsets") }

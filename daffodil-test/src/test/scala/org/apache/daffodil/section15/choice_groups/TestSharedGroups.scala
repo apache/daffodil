@@ -17,6 +17,7 @@
 package org.apache.daffodil.section15.choice_groups
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -35,6 +36,6 @@ class TestSharedGroups {
 
   @Test def testShowsSharedGroupOkFirstUse() = { runner.runOneTest("Ack") }
   // DAFFODIL-2615 - shared groups problem
-  //@Test def testShowsSharedGroupFailsSecondUse() = { runner.runOneTest("Nack") }
+  // @Test def testShowsSharedGroupFailsSecondUse() = { runner.runOneTest("Nack") }
 
 }

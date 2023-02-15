@@ -19,6 +19,7 @@ package org.apache.daffodil.validation.schematron
 
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.api.ValidatorInitializationException
+
 import org.junit.Test
 
 class TestUriResolver {

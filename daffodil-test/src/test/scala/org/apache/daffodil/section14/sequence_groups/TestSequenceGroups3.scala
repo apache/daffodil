@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section14.sequence_groups
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestSequenceGroups3 {
 
@@ -40,11 +41,21 @@ class TestSequenceGroups3 {
 
   @Test def test_lastElts(): Unit = { runner_01.runOneTest("lastElts") }
 
-  @Test def test_hiddenGroupSeqWithRequiredElements(): Unit = { runner_02.runOneTest("hiddenGroupSeqWithRequiredElements") }
-  @Test def test_hiddenGroupChoiceWithAllRequiredBranches(): Unit = { runner_02.runOneTest("hiddenGroupChoiceWithAllRequiredBranches") }
+  @Test def test_hiddenGroupSeqWithRequiredElements(): Unit = {
+    runner_02.runOneTest("hiddenGroupSeqWithRequiredElements")
+  }
+  @Test def test_hiddenGroupChoiceWithAllRequiredBranches(): Unit = {
+    runner_02.runOneTest("hiddenGroupChoiceWithAllRequiredBranches")
+  }
 
-  @Test def test_sequence_group_with_annotation_01(): Unit = { runner_02.runOneTest("sequence_group_with_annotation_01") }
-  @Test def test_choice_group_with_annotation_01(): Unit = { runner_02.runOneTest("choice_group_with_annotation_01") }
+  @Test def test_sequence_group_with_annotation_01(): Unit = {
+    runner_02.runOneTest("sequence_group_with_annotation_01")
+  }
+  @Test def test_choice_group_with_annotation_01(): Unit = {
+    runner_02.runOneTest("choice_group_with_annotation_01")
+  }
 
-  @Test def test_similar_model_groups_01(): Unit = { runner_02.runOneTest("similar_model_groups_01") }
+  @Test def test_similar_model_groups_01(): Unit = {
+    runner_02.runOneTest("similar_model_groups_01")
+  }
 }

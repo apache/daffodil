@@ -20,14 +20,14 @@ package org.apache.daffodil.core.processor
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-
 import scala.xml.SAXParseException
 
 import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.processors.DaffodilParseOutputStreamContentHandler
 import org.apache.daffodil.runtime1.processors.ParseResult
-import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.jdom2.input.sax.BuilderErrorHandler
 import org.jdom2.input.sax.SAXHandler
 import org.junit.Assert.assertEquals
@@ -129,7 +129,7 @@ class TestSAXParseAPI {
     val property: String = XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY
     val propertyVal: AnyRef = "/tmp/i/am/a/directory"
     val sns = intercept[SAXNotSupportedException](
-      xmlReader.setProperty(property, propertyVal)
+      xmlReader.setProperty(property, propertyVal),
     )
     assertTrue(sns.getMessage.contains("Unsupported value for property"))
   }
@@ -140,7 +140,7 @@ class TestSAXParseAPI {
   @Test def testDaffodilParseXMLReader_get_setProperty(): Unit = {
     val xmlReader = dp.newXMLReaderInstance
     val property: String = XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX
-    val propertyVal: AnyRef ="testing-blobs"
+    val propertyVal: AnyRef = "testing-blobs"
     val origValue = xmlReader.getProperty(property)
     assertNotEquals(propertyVal, origValue)
     xmlReader.setProperty(property, propertyVal)
@@ -181,7 +181,7 @@ class TestSAXParseAPI {
     val xmlReader = dp.newXMLReaderInstance
     val input = new InputSource()
     val ioe = intercept[IOException](
-      xmlReader.parse(input)
+      xmlReader.parse(input),
     )
     assertTrue(ioe.getMessage.contains("InputSource must be backed by InputStream"))
   }
@@ -190,13 +190,16 @@ class TestSAXParseAPI {
    * tests that we can parse using an inputSource with a backing inputStream
    */
   @Test def testDaffodilParseXMLReader_parse_inputSource_with_backing_stream(): Unit = {
-    val (xmlReader: DFDL.DaffodilParseXMLReader,
+    val (
+      xmlReader: DFDL.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
-      inArray: Array[Byte]) = setupSAXParserTest(dp, testData)
+      inArray: Array[Byte],
+    ) = setupSAXParserTest(dp, testData)
     val bais = new ByteArrayInputStream(inArray)
     val input = new InputSource(bais)
     xmlReader.parse(input)
-    val pr = xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr =
+      xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     val actualInfoset = scala.xml.XML.loadString(baos.toString)
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, actualInfoset)
@@ -206,12 +209,15 @@ class TestSAXParseAPI {
    * tests that we can parse using an inputStream
    */
   @Test def testDaffodilParseXMLReader_parse_inputStream(): Unit = {
-    val (xmlReader: DFDL.DaffodilParseXMLReader,
+    val (
+      xmlReader: DFDL.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
-      inArray: Array[Byte]) = setupSAXParserTest(dp, testData)
+      inArray: Array[Byte],
+    ) = setupSAXParserTest(dp, testData)
     val bais = new ByteArrayInputStream(inArray)
     xmlReader.parse(bais)
-    val pr = xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr =
+      xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     val actualInfoset = scala.xml.XML.loadString(baos.toString)
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, actualInfoset)
@@ -221,12 +227,15 @@ class TestSAXParseAPI {
    * tests that we can parse using a byte array
    */
   @Test def testDaffodilParseXMLReader_parse_byteArray(): Unit = {
-    val (xmlReader: DFDL.DaffodilParseXMLReader,
+    val (
+      xmlReader: DFDL.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
-      inArray: Array[Byte]) = setupSAXParserTest(dp, testData)
+      inArray: Array[Byte],
+    ) = setupSAXParserTest(dp, testData)
     xmlReader.parse(inArray)
     val actualInfoset = scala.xml.XML.loadString(baos.toString)
-    val pr = xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr =
+      xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, actualInfoset)
   }
@@ -240,9 +249,10 @@ class TestSAXParseAPI {
     val eh = new BuilderErrorHandler
     xmlReader.setErrorHandler(eh)
     val spe = intercept[SAXParseException](
-      xmlReader.parse(inArray)
+      xmlReader.parse(inArray),
     )
-    val pr = xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr =
+      xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     assertTrue(pr.isError)
     assertTrue(spe.getMessage.contains("Insufficient bits in data"))
   }
@@ -253,8 +263,12 @@ class TestSAXParseAPI {
    * with nested elements from different namespaces, including nil elements
    */
   @Test def testDaffodilParseXMLReader_parse_features_prefixes_only1(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpQualifiedWithNestedSchemas, qualifiedWithNestedSchemasData,
-      namespaces = false, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpQualifiedWithNestedSchemas,
+      qualifiedWithNestedSchemasData,
+      namespaces = false,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithNestedSchemasExpectedInfoset, actualInfoset)
   }
@@ -266,8 +280,12 @@ class TestSAXParseAPI {
    * xmlns* and the value contains the associated uri. Regular elements are also provided by attributes
    */
   @Test def testDaffodilParseXMLReader_parse_features_prefixes_only2(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpUnqualifiedNoNamespaces, unqualifiedNoNamespacesData,
-      namespaces = false, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpUnqualifiedNoNamespaces,
+      unqualifiedNoNamespacesData,
+      namespaces = false,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedNoNamespacesExpectedInfoset, actualInfoset)
   }
@@ -278,8 +296,12 @@ class TestSAXParseAPI {
    * with nested elements
    */
   @Test def testDaffodilParseXMLReader_parse_features_prefixes_only3(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpUnqualifiedWithNestedQualified, unqualifiedWithNestedQualifiedData,
-      namespaces = false, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpUnqualifiedWithNestedQualified,
+      unqualifiedWithNestedQualifiedData,
+      namespaces = false,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedWithNestedQualifiedExpectedInfoset, actualInfoset)
   }
@@ -289,8 +311,12 @@ class TestSAXParseAPI {
    * to false and the namespace prefix feature is set to true.
    */
   @Test def testDaffodilParseXMLReader_parse_features_prefixes_only4(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpQualifiedWithDefaultNamespaceSchemas, qualifiedWithDefaultNamespaceData,
-      namespaces = false, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpQualifiedWithDefaultNamespaceSchemas,
+      qualifiedWithDefaultNamespaceData,
+      namespaces = false,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultNamespaceExpectedInfoset, actualInfoset)
   }
@@ -300,8 +326,12 @@ class TestSAXParseAPI {
    * to false and the namespace prefix feature is set to true.
    */
   @Test def testDaffodilParseXMLReader_parse_features_prefixes_only5(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpQualifiedWithDefaultAndNestedSchemas, qualifiedWithDefaultAndNestedSchemasData,
-      namespaces = false, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpQualifiedWithDefaultAndNestedSchemas,
+      qualifiedWithDefaultAndNestedSchemasData,
+      namespaces = false,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultAndNestedSchemasExpectedInfoset, actualInfoset)
   }
@@ -311,8 +341,12 @@ class TestSAXParseAPI {
    * to true and the namespace prefix false is set to false.
    */
   @Test def testDaffodilParseXMLReader_parse_features_namespace_only1(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpQualifiedWithNestedSchemas, qualifiedWithNestedSchemasData,
-      namespaces = true, namespacePrefixes = false)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpQualifiedWithNestedSchemas,
+      qualifiedWithNestedSchemasData,
+      namespaces = true,
+      namespacePrefixes = false,
+    )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithNestedSchemasExpectedInfoset, actualInfoset)
   }
@@ -322,8 +356,11 @@ class TestSAXParseAPI {
    * to true and the namespace prefix is set to false.
    */
   @Test def testDaffodilParseXMLReader_parse_features_namespace_only2(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpUnqualifiedNoNamespaces, unqualifiedNoNamespacesData,
-      namespaces = true, namespacePrefixes = false
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpUnqualifiedNoNamespaces,
+      unqualifiedNoNamespacesData,
+      namespaces = true,
+      namespacePrefixes = false,
     )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedNoNamespacesExpectedInfoset, actualInfoset)
@@ -334,8 +371,12 @@ class TestSAXParseAPI {
    * to true and the namespace prefix false is set to false.
    */
   @Test def testDaffodilParseXMLReader_parse_features_namespace_only3(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpUnqualifiedWithNestedQualified, unqualifiedWithNestedQualifiedData,
-      namespaces = true, namespacePrefixes = false)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpUnqualifiedWithNestedQualified,
+      unqualifiedWithNestedQualifiedData,
+      namespaces = true,
+      namespacePrefixes = false,
+    )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedWithNestedQualifiedExpectedInfoset, actualInfoset)
   }
@@ -345,8 +386,12 @@ class TestSAXParseAPI {
    * to true and the namespace prefix false is set to false.
    */
   @Test def testDaffodilParseXMLReader_parse_features_namespace_only4(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpQualifiedWithDefaultNamespaceSchemas, qualifiedWithDefaultNamespaceData,
-      namespaces = true, namespacePrefixes = false)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpQualifiedWithDefaultNamespaceSchemas,
+      qualifiedWithDefaultNamespaceData,
+      namespaces = true,
+      namespacePrefixes = false,
+    )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultNamespaceExpectedInfoset, actualInfoset)
   }
@@ -356,20 +401,27 @@ class TestSAXParseAPI {
    * to true and the namespace prefix false is set to false.
    */
   @Test def testDaffodilParseXMLReader_parse_features_namespace_only5(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpQualifiedWithDefaultAndNestedSchemas, qualifiedWithDefaultAndNestedSchemasData,
-      namespaces = true, namespacePrefixes = false)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpQualifiedWithDefaultAndNestedSchemas,
+      qualifiedWithDefaultAndNestedSchemasData,
+      namespaces = true,
+      namespacePrefixes = false,
+    )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultAndNestedSchemasExpectedInfoset, actualInfoset)
   }
-
 
   /*
    * tests that the output from the parser is as expected, when the namespaces and the namespace
    * prefix feature is set to true.
    */
   @Test def testDaffodilParseXMLReader_parse_features_both1(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpQualifiedWithNestedSchemas, qualifiedWithNestedSchemasData,
-      namespaces = true, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpQualifiedWithNestedSchemas,
+      qualifiedWithNestedSchemasData,
+      namespaces = true,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithNestedSchemasExpectedInfoset, actualInfoset)
   }
@@ -379,8 +431,12 @@ class TestSAXParseAPI {
    * prefix feature is set to true.
    */
   @Test def testDaffodilParseXMLReader_parse_features_both2(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpUnqualifiedNoNamespaces, unqualifiedNoNamespacesData,
-      namespaces = true, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpUnqualifiedNoNamespaces,
+      unqualifiedNoNamespacesData,
+      namespaces = true,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedNoNamespacesExpectedInfoset, actualInfoset)
   }
@@ -390,8 +446,12 @@ class TestSAXParseAPI {
    * prefix feature is set to true.
    */
   @Test def testDaffodilParseXMLReader_parse_features_both3(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpUnqualifiedWithNestedQualified, unqualifiedWithNestedQualifiedData,
-      namespaces = true, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpUnqualifiedWithNestedQualified,
+      unqualifiedWithNestedQualifiedData,
+      namespaces = true,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedWithNestedQualifiedExpectedInfoset, actualInfoset)
   }
@@ -401,8 +461,12 @@ class TestSAXParseAPI {
    * prefix feature is set to true.
    */
   @Test def testDaffodilParseXMLReader_parse_features_both4(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpQualifiedWithDefaultNamespaceSchemas, qualifiedWithDefaultNamespaceData,
-      namespaces = true, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpQualifiedWithDefaultNamespaceSchemas,
+      qualifiedWithDefaultNamespaceData,
+      namespaces = true,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultNamespaceExpectedInfoset, actualInfoset)
   }
@@ -412,8 +476,12 @@ class TestSAXParseAPI {
    * prefix feature is set to true.
    */
   @Test def testDaffodilParseXMLReader_parse_features_both5(): Unit = {
-    val (pr, actualInfoset) = saxParseWithFeatures(dpQualifiedWithDefaultAndNestedSchemas, qualifiedWithDefaultAndNestedSchemasData,
-      namespaces = true, namespacePrefixes = true)
+    val (pr, actualInfoset) = saxParseWithFeatures(
+      dpQualifiedWithDefaultAndNestedSchemas,
+      qualifiedWithDefaultAndNestedSchemasData,
+      namespaces = true,
+      namespacePrefixes = true,
+    )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultAndNestedSchemasExpectedInfoset, actualInfoset)
   }
@@ -423,8 +491,12 @@ class TestSAXParseAPI {
    * to true and the namespace prefix feature is set to false.
    */
   @Test def testDaffodilParseXMLReader_trace_features_default(): Unit = {
-    val baos = saxTraceParseWithFeatures(dpQualifiedWithNestedSchemas, nillableElementData,
-      namespaces = true, namespacePrefixes = false)
+    val baos = saxTraceParseWithFeatures(
+      dpQualifiedWithNestedSchemas,
+      nillableElementData,
+      namespaces = true,
+      namespacePrefixes = false,
+    )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
     val a02Uri = "http://a02.com"
@@ -468,8 +540,12 @@ class TestSAXParseAPI {
    * to true and the namespace prefix feature is set to true.
    */
   @Test def testDaffodilParseXMLReader_trace_features_namespace_and_prefixes(): Unit = {
-    val baos = saxTraceParseWithFeatures(dpQualifiedWithNestedSchemas, nillableElementData,
-      namespaces = true, namespacePrefixes = true)
+    val baos = saxTraceParseWithFeatures(
+      dpQualifiedWithNestedSchemas,
+      nillableElementData,
+      namespaces = true,
+      namespacePrefixes = true,
+    )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
     val a02Uri = "http://a02.com"
@@ -509,12 +585,16 @@ class TestSAXParseAPI {
   }
 
   /*
-  * tests that the output from the parser is as expected, when the namespaces feature is set
-  * to false and the namespace prefix feature is set to true.
-  */
+   * tests that the output from the parser is as expected, when the namespaces feature is set
+   * to false and the namespace prefix feature is set to true.
+   */
   @Test def testDaffodilParseXMLReader_trace_features_prefixes_only(): Unit = {
-    val baos = saxTraceParseWithFeatures(dpQualifiedWithNestedSchemas, nillableElementData,
-      namespaces = false, namespacePrefixes = true)
+    val baos = saxTraceParseWithFeatures(
+      dpQualifiedWithNestedSchemas,
+      nillableElementData,
+      namespaces = false,
+      namespacePrefixes = true,
+    )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
     val a02Uri = "http://a02.com"
@@ -552,8 +632,12 @@ class TestSAXParseAPI {
    * to true and the namespace prefix feature is set to false.
    */
   @Test def testDaffodilParseXMLReader_trace_features_default_2(): Unit = {
-    val baos = saxTraceParseWithFeatures(dpUnqualifiedNoNamespaces, unqualifiedNoNamespacesData,
-      namespaces = true, namespacePrefixes = false)
+    val baos = saxTraceParseWithFeatures(
+      dpUnqualifiedNoNamespaces,
+      unqualifiedNoNamespacesData,
+      namespaces = true,
+      namespacePrefixes = false,
+    )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
     val expectedOutput =
@@ -583,8 +667,12 @@ class TestSAXParseAPI {
    * to true and the namespace prefix feature is set to true.
    */
   @Test def testDaffodilParseXMLReader_trace_features_namespace_and_prefixes_2(): Unit = {
-    val baos = saxTraceParseWithFeatures(dpUnqualifiedNoNamespaces, unqualifiedNoNamespacesData,
-      namespaces = true, namespacePrefixes = true)
+    val baos = saxTraceParseWithFeatures(
+      dpUnqualifiedNoNamespaces,
+      unqualifiedNoNamespacesData,
+      namespaces = true,
+      namespacePrefixes = true,
+    )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
     val expectedOutput =
@@ -610,12 +698,16 @@ class TestSAXParseAPI {
   }
 
   /*
-  * tests that the output from the parser is as expected, when the namespaces feature is set
-  * to false and the namespace prefix feature is set to true.
-  */
+   * tests that the output from the parser is as expected, when the namespaces feature is set
+   * to false and the namespace prefix feature is set to true.
+   */
   @Test def testDaffodilParseXMLReader_trace_features_prefixes_only_2(): Unit = {
-    val baos = saxTraceParseWithFeatures(dpUnqualifiedNoNamespaces, unqualifiedNoNamespacesData,
-      namespaces = false, namespacePrefixes = true)
+    val baos = saxTraceParseWithFeatures(
+      dpUnqualifiedNoNamespaces,
+      unqualifiedNoNamespacesData,
+      namespaces = false,
+      namespacePrefixes = true,
+    )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
     val expectedOutput =

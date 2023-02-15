@@ -17,8 +17,8 @@
 package org.sgoodudfs.example.StringFunctions
 
 import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.udf.UserDefinedFunctionProvider
 import org.apache.daffodil.udf.UserDefinedFunctionIdentification
+import org.apache.daffodil.udf.UserDefinedFunctionProvider
 
 /**
  * Example User Defined Function Provider in Scala
@@ -34,9 +34,12 @@ class StringFunctionsProvider extends UserDefinedFunctionProvider {
  * Example User Defined Function in Scala
  *
  */
-@UserDefinedFunctionIdentification(name = "rev-words",
-  namespaceURI = "http://example.com/scala/sudfs")
+@UserDefinedFunctionIdentification(
+  name = "rev-words",
+  namespaceURI = "http://example.com/scala/sudfs",
+)
 class ReverseWords extends UserDefinedFunction {
+
   /**
    * Reverses the order of words in a sentence
    *
@@ -54,9 +57,12 @@ class ReverseWords extends UserDefinedFunction {
  * Example User Defined Function in Scala
  *
  */
-@UserDefinedFunctionIdentification(name = "reverse",
-  namespaceURI = "http://example.com/scala/sudfs")
+@UserDefinedFunctionIdentification(
+  name = "reverse",
+  namespaceURI = "http://example.com/scala/sudfs",
+)
 class Reverse extends UserDefinedFunction {
+
   /**
    * Reverses the order of chars in a string
    *
@@ -73,9 +79,12 @@ class Reverse extends UserDefinedFunction {
  * Example User Defined Function in Scala
  *
  */
-@UserDefinedFunctionIdentification(name = "sayHello",
-  namespaceURI = "http://example.com/scala/sudfs")
+@UserDefinedFunctionIdentification(
+  name = "sayHello",
+  namespaceURI = "http://example.com/scala/sudfs",
+)
 class SayHello extends UserDefinedFunction {
+
   /**
    * Return a Hello
    *

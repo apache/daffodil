@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.processor.tdml
 
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.Runner
 
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.apache.daffodil.lib.Implicits._
 
 /**
  * Tests for bug DAFFODIL-1868
@@ -39,12 +39,14 @@ class TestTDMLRunnerConfig {
 
   @Test def testNonsenseDefaultConfig() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi } defaultConfig="nonsense">
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi} defaultConfig="nonsense">
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <xs:element name="dummy" type="xs:string"/>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="test1" root="dummy" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="test1" root="dummy" model="mySchema">
           <tdml:document/>
           <tdml:errors>
             <tdml:error>defaultConfig</tdml:error>
@@ -67,13 +69,17 @@ class TestTDMLRunnerConfig {
 
   @Test def testNonsenseConfig() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
           <xs:element name="dummy" type="xs:string" dfdl:lengthKind="delimited"/>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="test1" root="dummy" model="mySchema" config="nonsense">
+        <tdml:parserTestCase xmlns={
+        tdml
+      } name="test1" root="dummy" model="mySchema" config="nonsense">
           <tdml:document/>
           <tdml:errors>
             <tdml:error>config</tdml:error>
@@ -96,7 +102,11 @@ class TestTDMLRunnerConfig {
 
   @Test def testGoodConfigNonsenseDefaultConfig() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:daf={ daf } xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi } defaultConfig="nonsense">
+      <tdml:testSuite suiteName="theSuiteName" xmlns:daf={daf} xmlns:tns={tns} xmlns:tdml={
+        tdml
+      } xmlns:dfdl={dfdl} xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={
+        xsi
+      } defaultConfig="nonsense">
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
@@ -107,7 +117,9 @@ class TestTDMLRunnerConfig {
             <daf:requireBitOrderProperty>true</daf:requireBitOrderProperty>
           </daf:tunables>
         </tdml:defineConfig>
-        <tdml:parserTestCase xmlns={ tdml } name="test1" root="dummy" model="mySchema" config="myConfig">
+        <tdml:parserTestCase xmlns={
+        tdml
+      } name="test1" root="dummy" model="mySchema" config="myConfig">
           <tdml:document/>
           <tdml:errors>
             <tdml:error>defaultConfig</tdml:error>
@@ -129,7 +141,9 @@ class TestTDMLRunnerConfig {
 
   @Test def testGoodConfigNoBitOrderProp() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:daf={ daf } xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:daf={daf} xmlns:tns={tns} xmlns:tdml={
+        tdml
+      } xmlns:dfdl={dfdl} xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format representation="binary" binaryNumberRep="binary" lengthKind="implicit" lengthUnits="bytes" alignmentUnits="bytes" alignment="implicit" leadingSkip="0" trailingSkip="0" byteOrder="bigEndian" textOutputMinLength="0" initiator="" terminator="" textPadKind="none" encoding="ascii"/>
@@ -140,7 +154,9 @@ class TestTDMLRunnerConfig {
             <daf:requireBitOrderProperty>true</daf:requireBitOrderProperty>
           </daf:tunables>
         </tdml:defineConfig>
-        <tdml:parserTestCase xmlns={ tdml } name="test1" root="dummy" model="mySchema" config="myConfig">
+        <tdml:parserTestCase xmlns={
+        tdml
+      } name="test1" root="dummy" model="mySchema" config="myConfig">
           <tdml:document/>
           <tdml:errors>
             <tdml:error>Schema Definition Error</tdml:error>
@@ -156,7 +172,11 @@ class TestTDMLRunnerConfig {
 
   @Test def testGoodDefaultConfigNoBitOrderProp() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:daf={ daf } xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi } defaultConfig="myConfig">
+      <tdml:testSuite suiteName="theSuiteName" xmlns:daf={daf} xmlns:tns={tns} xmlns:tdml={
+        tdml
+      } xmlns:dfdl={dfdl} xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={
+        xsi
+      } defaultConfig="myConfig">
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format representation="binary" binaryNumberRep="binary" lengthKind="implicit" lengthUnits="bytes" alignmentUnits="bytes" alignment="implicit" leadingSkip="0" trailingSkip="0" byteOrder="bigEndian" textOutputMinLength="0" initiator="" terminator="" textPadKind="none" encoding="ascii"/>
@@ -167,7 +187,7 @@ class TestTDMLRunnerConfig {
             <daf:requireBitOrderProperty>true</daf:requireBitOrderProperty>
           </daf:tunables>
         </tdml:defineConfig>
-        <tdml:parserTestCase xmlns={ tdml } name="test1" root="dummy" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="test1" root="dummy" model="mySchema">
           <tdml:document/>
           <tdml:errors>
             <tdml:error>Schema Definition Error</tdml:error>
@@ -183,7 +203,11 @@ class TestTDMLRunnerConfig {
 
   @Test def testAmbiguousFileAndDefaultConfig() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:daf={ daf } xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi } defaultConfig="testConfigFile.xml">
+      <tdml:testSuite suiteName="theSuiteName" xmlns:daf={daf} xmlns:tns={tns} xmlns:tdml={
+        tdml
+      } xmlns:dfdl={dfdl} xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={
+        xsi
+      } defaultConfig="testConfigFile.xml">
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format representation="binary" binaryNumberRep="binary" lengthKind="implicit" lengthUnits="bytes" alignmentUnits="bytes" alignment="implicit" leadingSkip="0" trailingSkip="0" byteOrder="bigEndian" textOutputMinLength="0" initiator="" terminator="" textPadKind="none" encoding="ascii"/>
@@ -195,7 +219,7 @@ class TestTDMLRunnerConfig {
             <daf:requireBitOrderProperty>true</daf:requireBitOrderProperty>
           </daf:tunables>
         </tdml:defineConfig>
-        <tdml:parserTestCase xmlns={ tdml } name="test1" root="dummy" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="test1" root="dummy" model="mySchema">
           <tdml:document/>
           <tdml:errors>
             <tdml:error>Schema Definition Error</tdml:error>

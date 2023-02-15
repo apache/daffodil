@@ -17,17 +17,18 @@
 
 package org.apache.daffodil.section00.general
 
+import org.apache.daffodil.tdml.Runner
+
+import org.junit.AfterClass
 import org.junit.Test
 import org.junit._
-import org.apache.daffodil.tdml.Runner
-import org.junit.AfterClass
 
 object TestElementFormDefaultGeneral {
-  
+
   val testDir = "/org/apache/daffodil/section00/general/"
   val runner = Runner(testDir, "testElementFormDefault.tdml")
 
-  @AfterClass def shutDown(): Unit = { 
+  @AfterClass def shutDown(): Unit = {
     runner.reset
   }
 
@@ -35,20 +36,44 @@ object TestElementFormDefaultGeneral {
 
 class TestElementFormDefaultGeneral {
   import TestElementFormDefaultGeneral._
- 
-  @Test def test_delimOptPresentQualified01(): Unit = { runner.runOneTest("delimOptPresentQualified01") }
-  @Test def test_delimOptPresentQualified02(): Unit = { runner.runOneTest("delimOptPresentQualified02") }
-  @Test def test_delimOptPresentQualified03(): Unit = { runner.runOneTest("delimOptPresentQualified03") }
-  @Test def test_delimOptPresentQualified04(): Unit = { runner.runOneTest("delimOptPresentQualified04") }
-  @Test def test_delimOptPresentQualified05(): Unit = { runner.runOneTest("delimOptPresentQualified05") }
 
-  @Test def test_delimOptPresentUnqualified01(): Unit = { runner.runOneTest("delimOptPresentUnqualified01") }
-  @Test def test_delimOptPresentUnqualified02(): Unit = { runner.runOneTest("delimOptPresentUnqualified02") }
-  @Test def test_delimOptPresentUnqualified03(): Unit = { runner.runOneTest("delimOptPresentUnqualified03") }
-  @Test def test_delimOptPresentUnqualified04(): Unit = { runner.runOneTest("delimOptPresentUnqualified04") }
-  @Test def test_delimOptPresentMissing(): Unit = { runner.runOneTest("delimOptPresentMissing") }
+  @Test def test_delimOptPresentQualified01(): Unit = {
+    runner.runOneTest("delimOptPresentQualified01")
+  }
+  @Test def test_delimOptPresentQualified02(): Unit = {
+    runner.runOneTest("delimOptPresentQualified02")
+  }
+  @Test def test_delimOptPresentQualified03(): Unit = {
+    runner.runOneTest("delimOptPresentQualified03")
+  }
+  @Test def test_delimOptPresentQualified04(): Unit = {
+    runner.runOneTest("delimOptPresentQualified04")
+  }
+  @Test def test_delimOptPresentQualified05(): Unit = {
+    runner.runOneTest("delimOptPresentQualified05")
+  }
 
-  @Test def test_delimOptPresentGlobalQualified01(): Unit = { runner.runOneTest("delimOptPresentGlobalQualified01") }
-  @Test def test_delimOptPresentGlobalQualified02(): Unit = { runner.runOneTest("delimOptPresentGlobalQualified02") }
+  @Test def test_delimOptPresentUnqualified01(): Unit = {
+    runner.runOneTest("delimOptPresentUnqualified01")
+  }
+  @Test def test_delimOptPresentUnqualified02(): Unit = {
+    runner.runOneTest("delimOptPresentUnqualified02")
+  }
+  @Test def test_delimOptPresentUnqualified03(): Unit = {
+    runner.runOneTest("delimOptPresentUnqualified03")
+  }
+  @Test def test_delimOptPresentUnqualified04(): Unit = {
+    runner.runOneTest("delimOptPresentUnqualified04")
+  }
+  @Test def test_delimOptPresentMissing(): Unit = {
+    runner.runOneTest("delimOptPresentMissing")
+  }
+
+  @Test def test_delimOptPresentGlobalQualified01(): Unit = {
+    runner.runOneTest("delimOptPresentGlobalQualified01")
+  }
+  @Test def test_delimOptPresentGlobalQualified02(): Unit = {
+    runner.runOneTest("delimOptPresentGlobalQualified02")
+  }
 
 }

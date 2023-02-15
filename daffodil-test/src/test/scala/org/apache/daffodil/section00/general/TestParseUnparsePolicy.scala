@@ -21,9 +21,10 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
-import org.junit._
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit._
 
 object TestParseUnparsePolicy {
   val testDir = "/org/apache/daffodil/section00/general/"
@@ -34,21 +35,20 @@ object TestParseUnparsePolicy {
   }
 }
 
-
 class TestParseUnparsePolicy {
   import TestParseUnparsePolicy._
 
-  @Test def test_pb_parse(): Unit =   { runner.runOneTest("pb_parse") }
+  @Test def test_pb_parse(): Unit = { runner.runOneTest("pb_parse") }
   @Test def test_pb_unparse(): Unit = { runner.runOneTest("pb_unparse") }
-  @Test def test_pp_parse(): Unit =   { runner.runOneTest("pp_parse") }
+  @Test def test_pp_parse(): Unit = { runner.runOneTest("pp_parse") }
   @Test def test_pp_unparse(): Unit = { runner.runOneTest("pp_unparse") }
-  @Test def test_pu(): Unit =         { runner.runOneTest("pu") }
+  @Test def test_pu(): Unit = { runner.runOneTest("pu") }
 
-  @Test def test_ub_parse(): Unit =   { runner.runOneTest("ub_parse") }
+  @Test def test_ub_parse(): Unit = { runner.runOneTest("ub_parse") }
   @Test def test_ub_unparse(): Unit = { runner.runOneTest("ub_unparse") }
-  @Test def test_uu_parse(): Unit =   { runner.runOneTest("uu_parse") }
+  @Test def test_uu_parse(): Unit = { runner.runOneTest("uu_parse") }
   @Test def test_uu_unparse(): Unit = { runner.runOneTest("uu_unparse") }
-  @Test def test_up(): Unit =         { runner.runOneTest("up") }
+  @Test def test_up(): Unit = { runner.runOneTest("up") }
 
   @Test def test_bb(): Unit = { runner.runOneTest("bb") }
   @Test def test_bp(): Unit = { runner.runOneTest("bp") }

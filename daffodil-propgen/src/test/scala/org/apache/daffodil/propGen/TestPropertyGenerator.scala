@@ -63,14 +63,18 @@ class TestPropertyGenerator {
       </xsd:attributeGroup>
     val pg = new PropertyGenerator(sch)
     val mx = pg.genAttributeGroup(sch)
-    assertTrue(mx.contains(""" = convertToBoolean(findProperty("prefixIncludesPrefixLength").value)"""))
+    assertTrue(
+      mx.contains(""" = convertToBoolean(findProperty("prefixIncludesPrefixLength").value)"""),
+    )
     assertTrue(mx.contains("""LengthKindMixin"""))
     assertTrue(mx.contains("""def lengthPropertiesAGInit(): Unit = {"""))
-    assertTrue(mx.contains("""registerToStringFunction(()=>{getPropertyOption("lengthPattern") match {
+    assertTrue(
+      mx.contains("""registerToStringFunction(()=>{getPropertyOption("lengthPattern") match {
         case None => ""
         case Some(value) => "lengthPattern='" + value.toString + "'"
       }
-    })"""))
+    })"""),
+    )
   }
 
   /**
@@ -172,7 +176,10 @@ class TestPropertyGenerator {
   @Test def testPropertyGeneratorMain(): Unit = {
     val args = Array(folder.getRoot.getCanonicalPath)
     PropertyGenerator.main(args)
-    val path1 = Paths.get(args(0), "org/apache/daffodil/lib/schema/annotation/props/gen/GeneratedCode.scala")
+    val path1 = Paths.get(
+      args(0),
+      "org/apache/daffodil/lib/schema/annotation/props/gen/GeneratedCode.scala",
+    )
     val path2 = Paths.get(args(0), "org/apache/daffodil/lib/api/DaffodilTunablesGen.scala")
     val path3 = Paths.get(args(0), "org/apache/daffodil/lib/api/WarnIdGen.scala")
     assert(Files.exists(path1), "Expected PropertyGenerator to create a file")

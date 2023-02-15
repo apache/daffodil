@@ -20,11 +20,11 @@ package org.apache.daffodil.io
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 
-import org.junit.Assert._
-import org.junit.Test
-
 import org.apache.daffodil.io.processors.charset.CharsetUtils
 import org.apache.daffodil.lib.util.Misc
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestNonByteSizedCharsetEncoders8Bit {
 
@@ -32,7 +32,9 @@ class TestNonByteSizedCharsetEncoders8Bit {
     val cs = CharsetUtils.getCharset("X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST")
     val encoder = cs.newEncoder()
     val cb = CharBuffer.wrap("01234567")
-    val expectedBytes = Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111").toList
+    val expectedBytes = Misc
+      .bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111")
+      .toList
     val bb = ByteBuffer.allocate(8)
     val res = encoder.encode(cb, bb, false)
     assertTrue(res.isUnderflow())
@@ -45,7 +47,9 @@ class TestNonByteSizedCharsetEncoders8Bit {
     val cs = CharsetUtils.getCharset("X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST")
     val encoder = cs.newEncoder()
     val cb = CharBuffer.wrap("012345677")
-    val expectedBytes = Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111").toList
+    val expectedBytes = Misc
+      .bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111")
+      .toList
     val bb = ByteBuffer.allocate(8) // not enough space for last digit
     val res = encoder.encode(cb, bb, false)
     assertTrue(res.isOverflow())
@@ -58,7 +62,9 @@ class TestNonByteSizedCharsetEncoders8Bit {
     val cs = CharsetUtils.getCharset("X-DFDL-ISO-88591-8-BIT-PACKED-LSB-FIRST")
     val encoder = cs.newEncoder()
     val cb = CharBuffer.wrap("01234567")
-    val expectedBytes = Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111").toList
+    val expectedBytes = Misc
+      .bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111")
+      .toList
     val bb = ByteBuffer.allocate(8)
     val res = encoder.encode(cb, bb, false)
     assertTrue(res.isUnderflow())
@@ -72,7 +78,9 @@ class TestNonByteSizedCharsetEncoders8Bit {
     val encoder = cs.newEncoder()
     assertNotNull(encoder)
     val cb = CharBuffer.wrap("012345677")
-    val expectedBytes = Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111").toList
+    val expectedBytes = Misc
+      .bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111")
+      .toList
     val bb = ByteBuffer.allocate(8) // not enough space for last digit
     val res = encoder.encode(cb, bb, false)
     assertTrue(res.isOverflow())

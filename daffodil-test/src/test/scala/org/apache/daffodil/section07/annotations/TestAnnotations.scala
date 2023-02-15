@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section07.annotations
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestAnnotations {
   val testDir = "/org/apache/daffodil/section07/annotations/"
@@ -34,13 +35,21 @@ class TestAnnotations {
 
   import TestAnnotations._
 
-  @Test def test_annotationInElementPass(): Unit = { runner.runOneTest("annotationInElementPass") }
-  @Test def test_annotationInElementFail(): Unit = { runner.runOneTest("annotationInElementFail") }
+  @Test def test_annotationInElementPass(): Unit = {
+    runner.runOneTest("annotationInElementPass")
+  }
+  @Test def test_annotationInElementFail(): Unit = {
+    runner.runOneTest("annotationInElementFail")
+  }
 
-  //DAFFODIL-2142
-  @Test def test_annotationInComplexTypeWarn(): Unit = { runner.runOneTest("annotationInComplexTypeWarn") }
+  // DAFFODIL-2142
+  @Test def test_annotationInComplexTypeWarn(): Unit = {
+    runner.runOneTest("annotationInComplexTypeWarn")
+  }
   @Test def test_multipleAppsInfosWarn(): Unit = { runner.runOneTest("multipleAppsInfosWarn") }
   @Test def test_noAnnotationsInCTPass(): Unit = { runner.runOneTest("noAnnotationsInCTPass") }
-  @Test def test_noDFDLAnnotationsInCTPass(): Unit = { runner.runOneTest("noAnnotationsInCTPass") }
+  @Test def test_noDFDLAnnotationsInCTPass(): Unit = {
+    runner.runOneTest("noAnnotationsInCTPass")
+  }
 
 }

@@ -18,6 +18,7 @@
 package org.apache.daffodil.section00.general
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.{ AfterClass, Test }
 
 object TestExpressionPropertyWarnings {
@@ -36,6 +37,8 @@ class TestExpressionPropertyWarnings {
 
   import TestExpressionPropertyWarnings._
 
-  @Test def test_expressionPropertyWarning1(): Unit = { runner.runOneTest("expressionPropertyWarning1") }
+  @Test def test_expressionPropertyWarning1(): Unit = {
+    runner.runOneTest("expressionPropertyWarning1")
+  }
 
 }

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section02.schema_definition_errors
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestSDE {
 
@@ -42,8 +43,14 @@ class TestSDE {
 
   @Test def test_schema_line_number(): Unit = { runner.runOneTest("schema_line_number") }
   @Test def test_schema_warning(): Unit = { runner.runOneTest("schema_warning") }
-  @Test def test_missing_appinfo_source(): Unit = { runner.runOneTest("missing_appinfo_source") }
-  @Test def test_missing_appinfo_source_nondfdl(): Unit = { runner.runOneTest("missing_appinfo_source_nondfdl") }
+  @Test def test_missing_appinfo_source(): Unit = {
+    runner.runOneTest("missing_appinfo_source")
+  }
+  @Test def test_missing_appinfo_source_nondfdl(): Unit = {
+    runner.runOneTest("missing_appinfo_source_nondfdl")
+  }
   @Test def test_missing_closing_tag(): Unit = { runner.runOneTest("missing_closing_tag") }
-  @Test def test_ignoreAttributeFormDefault(): Unit = { runner.runOneTest("ignoreAttributeFormDefault") }
+  @Test def test_ignoreAttributeFormDefault(): Unit = {
+    runner.runOneTest("ignoreAttributeFormDefault")
+  }
 }

@@ -17,17 +17,16 @@
 
 package org.apache.daffodil.processor.tdml
 
-import org.apache.daffodil.tdml.Document
-
-import org.apache.daffodil.tdml.Runner
-
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.tdml.Document
+import org.apache.daffodil.tdml.Runner
+
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import org.apache.daffodil.lib.Implicits._
-import org.junit.AfterClass
 
 object TestTDMLRunner2 {
   val runner = Runner("/test/tdml/", "tdmlQuoting.tdml")
@@ -64,7 +63,9 @@ class TestTDMLRunner2 {
    */
   @Test def testValidationOffValidationErrorGivenShouldError() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
@@ -75,7 +76,7 @@ class TestTDMLRunner2 {
             </xsd:sequence>
           </xsd:complexType>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testValidation" root="array" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testValidation" root="array" model="mySchema">
           <tdml:document>
             <tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9]]></tdml:documentPart>
           </tdml:document>
@@ -120,7 +121,9 @@ class TestTDMLRunner2 {
    */
   @Test def testValidationOffValidationErrorGivenButEmptyNotError() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
@@ -131,7 +134,7 @@ class TestTDMLRunner2 {
             </xsd:sequence>
           </xsd:complexType>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testValidation" root="array" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testValidation" root="array" model="mySchema">
           <tdml:document>
             <tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9]]></tdml:documentPart>
           </tdml:document>
@@ -170,7 +173,9 @@ class TestTDMLRunner2 {
    */
   @Test def testValidationOffValidationErrorNotGivenNotError() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
@@ -181,7 +186,7 @@ class TestTDMLRunner2 {
             </xsd:sequence>
           </xsd:complexType>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testValidation" root="array" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testValidation" root="array" model="mySchema">
           <tdml:document>
             <tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9]]></tdml:documentPart>
           </tdml:document>
@@ -220,7 +225,9 @@ class TestTDMLRunner2 {
    */
   @Test def testValidationLimitedValidationErrorNotCapturedShouldThrow() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
@@ -231,7 +238,9 @@ class TestTDMLRunner2 {
             </xsd:sequence>
           </xsd:complexType>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testValidation" root="array" model="mySchema" validation="limited">
+        <tdml:parserTestCase xmlns={
+        tdml
+      } name="testValidation" root="array" model="mySchema" validation="limited">
           <tdml:document>
             <tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9]]></tdml:documentPart>
           </tdml:document>
@@ -282,7 +291,9 @@ abc # a comment
    */
   @Test def testRegexWithFreeFormAndComments1() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
@@ -290,13 +301,13 @@ abc # a comment
             <xsd:annotation>
               <xsd:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
-                  <dfdl:property name="lengthPattern">{ cdata }</dfdl:property>
+                  <dfdl:property name="lengthPattern">{cdata}</dfdl:property>
                 </dfdl:element>
               </xsd:appinfo>
             </xsd:annotation>
           </xsd:element>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testRegex" root="data" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testRegex" root="data" model="mySchema">
           <tdml:document>
             <tdml:documentPart type="text"><![CDATA[abcdef]]></tdml:documentPart>
           </tdml:document>
@@ -315,7 +326,9 @@ abc # a comment
 
   @Test def testRegexWithFreeFormAndComments2() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
@@ -323,12 +336,12 @@ abc # a comment
             <xsd:annotation>
               <xsd:appinfo source="http://www.ogf.org/dfdl/">
                 <!-- This assert passes only if free form works, and comments work. -->
-                <dfdl:assert testKind='pattern'>{ cdata }</dfdl:assert>
+                <dfdl:assert testKind='pattern'>{cdata}</dfdl:assert>
               </xsd:appinfo>
             </xsd:annotation>
           </xsd:element>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testRegex" root="data" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testRegex" root="data" model="mySchema">
           <tdml:document>
             <tdml:documentPart type="text"><![CDATA[abc123]]></tdml:documentPart>
           </tdml:document>
@@ -353,7 +366,9 @@ abc # a comment
    */
   @Test def testRegexWithFreeFormAndComments3() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
@@ -361,12 +376,12 @@ abc # a comment
             <xsd:annotation>
               <xsd:appinfo source="http://www.ogf.org/dfdl/">
                 <!-- This assert passes only if free form works, and comments work. -->
-                <dfdl:assert testKind='pattern'>{ cdata }</dfdl:assert>
+                <dfdl:assert testKind='pattern'>{cdata}</dfdl:assert>
               </xsd:appinfo>
             </xsd:annotation>
           </xsd:element>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testRegex" root="data" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testRegex" root="data" model="mySchema">
           <tdml:document>
             <tdml:documentPart type="text"><![CDATA[abc123]]></tdml:documentPart>
           </tdml:document>
@@ -391,7 +406,9 @@ abc # a comment
 """.replaceAll("\r\n", "\n")
     val cdata = new scala.xml.PCData(cdataText)
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
@@ -399,17 +416,17 @@ abc # a comment
             <xsd:annotation>
               <xsd:appinfo source="http://www.ogf.org/dfdl/">
                 <!-- This assert passes only if free form works, and comments work. -->
-                <dfdl:assert testKind='pattern'>{ cdata }</dfdl:assert>
+                <dfdl:assert testKind='pattern'>{cdata}</dfdl:assert>
               </xsd:appinfo>
             </xsd:annotation>
           </xsd:element>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testRegex" root="data" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="testRegex" root="data" model="mySchema">
           <tdml:document>
             <tdml:documentPart type="text"><![CDATA[abcdef]]></tdml:documentPart>
           </tdml:document>
           <tdml:errors>
-            <tdml:error>{ cdataText.trim }</tdml:error>
+            <tdml:error>{cdataText.trim}</tdml:error>
           </tdml:errors>
         </tdml:parserTestCase>
       </tdml:testSuite>
@@ -435,7 +452,9 @@ abc # a comment
 
   @Test def testTDMLWithInvalidDFDLSchemaEmbedded() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xs={ xsd }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xs={xsd}>
         <!-- This embedded schema has validation errors. -->
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -459,7 +478,9 @@ abc # a comment
   }
 
   @Test def testTDMLUnparse(): Unit = {
-    val testSuite = <ts:testSuite xmlns:ts={ tdml } xmlns:tns={ tns } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } suiteName="theSuiteName">
+    val testSuite = <ts:testSuite xmlns:ts={tdml} xmlns:tns={tns} xmlns:dfdl={dfdl} xmlns:xs={
+      xsd
+    } xmlns:xsi={xsi} suiteName="theSuiteName">
                       <ts:defineSchema name="unparseTestSchema1">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
@@ -468,7 +489,7 @@ abc # a comment
                       <ts:unparserTestCase ID="some identifier" name="testTDMLUnparse" root="data" model="unparseTestSchema1">
                         <ts:infoset>
                           <ts:dfdlInfoset>
-                            <data xmlns={ example }>123456789</data>
+                            <data xmlns={example}>123456789</data>
                           </ts:dfdlInfoset>
                         </ts:infoset>
                         <ts:document>123456789</ts:document>
@@ -487,17 +508,19 @@ abc # a comment
   }
 
   val tdmlWithEmbeddedSchema =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+      dfdl
+    } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
       </tdml:defineSchema>
-      <parserTestCase xmlns={ tdml } name="testEmbeddedSchemaWorks" root="data" model="mySchema">
+      <parserTestCase xmlns={tdml} name="testEmbeddedSchemaWorks" root="data" model="mySchema">
         <document>37</document>
         <infoset>
           <dfdlInfoset>
-            <data xmlns={ example }>37</data>
+            <data xmlns={example}>37</data>
           </dfdlInfoset>
         </infoset>
       </parserTestCase>
@@ -508,9 +531,8 @@ abc # a comment
     val tmpTDMLFileName = getClass.getName() + ".tdml"
     val testSuite = tdmlWithEmbeddedSchema
     try {
-      using(new java.io.FileWriter(tmpTDMLFileName)) {
-        fw =>
-          fw.write(testSuite.toString())
+      using(new java.io.FileWriter(tmpTDMLFileName)) { fw =>
+        fw.write(testSuite.toString())
       }
       val runner = new Runner(new java.io.File(tmpTDMLFileName))
       runner.trace

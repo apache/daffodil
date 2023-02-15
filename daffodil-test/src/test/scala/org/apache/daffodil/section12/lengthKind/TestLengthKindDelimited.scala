@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section12.lengthKind
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestLengthKindDelimited {
   private val testDir = "/org/apache/daffodil/section12/lengthKind/"
@@ -40,11 +41,17 @@ class TestLengthKindDelimited {
 
   import TestLengthKindDelimited._
 
-  @Test def test_delimited_binary_int_seqSep() = { runner.runOneTest("delimited_binary_int_seqSep") }
+  @Test def test_delimited_binary_int_seqSep() = {
+    runner.runOneTest("delimited_binary_int_seqSep")
+  }
 
-  @Test def test_DoubleNewLineTerminator() = { runner.runOneTest("TestDoubleNewLineTerminator") }
+  @Test def test_DoubleNewLineTerminator() = {
+    runner.runOneTest("TestDoubleNewLineTerminator")
+  }
   @Test def test_DoubleNewLineSeparator() = { runner.runOneTest("TestDoubleNewLineSeparator") }
-  @Test def test_DoubleNewLineSeparatorBasic() = { runner.runOneTest("TestDoubleNewLineSeparatorBasic") }
+  @Test def test_DoubleNewLineSeparatorBasic() = {
+    runner.runOneTest("TestDoubleNewLineSeparatorBasic")
+  }
 
   @Test def test_NumSeq_00a() = { runner.runOneTest("NumSeq_00a") }
   @Test def test_NumSeq_00nl() = { runner.runOneTest("NumSeq_00nl") }
@@ -61,10 +68,18 @@ class TestLengthKindDelimited {
   // DAFFODIL-230 dfdl:documentFinalTerminatorCanBeMissing
   //  @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
   @Test def test_delimsCheck(): Unit = { runner.runOneTest("delimsCheck") }
-  @Test def test_lengthKindDelimited_01(): Unit = { runner.runOneTest("lengthKindDelimited_01") }
-  @Test def test_lengthKindDelimited_02(): Unit = { runner.runOneTest("lengthKindDelimited_02") }
-  @Test def test_lengthKindDelimited_03(): Unit = { runner.runOneTest("lengthKindDelimited_03") }
-  @Test def test_lengthKindDelimited_04(): Unit = { runner.runOneTest("lengthKindDelimited_04") }
+  @Test def test_lengthKindDelimited_01(): Unit = {
+    runner.runOneTest("lengthKindDelimited_01")
+  }
+  @Test def test_lengthKindDelimited_02(): Unit = {
+    runner.runOneTest("lengthKindDelimited_02")
+  }
+  @Test def test_lengthKindDelimited_03(): Unit = {
+    runner.runOneTest("lengthKindDelimited_03")
+  }
+  @Test def test_lengthKindDelimited_04(): Unit = {
+    runner.runOneTest("lengthKindDelimited_04")
+  }
   @Test def test_NumSeq_11(): Unit = { runner.runOneTest("NumSeq_11") }
   @Test def test_NumSeq_12(): Unit = { runner.runOneTest("NumSeq_12") }
   @Test def test_NumSeq_13(): Unit = { runner.runOneTest("NumSeq_13") }
@@ -77,8 +92,12 @@ class TestLengthKindDelimited {
   // Tests that initiator is found when on GlobalElmentDecl
   @Test def test_refInitiator2(): Unit = { runner.runOneTest("refInitiator2") }
   @Test def test_binary_delimited_fail(): Unit = { runner.runOneTest("binary_delimited_fail") }
-  @Test def test_Lesson1_lengthKind_delimited(): Unit = { runner.runOneTest("Lesson1_lengthKind_delimited") }
-  @Test def test_Lesson4_delimited_fixed_length(): Unit = { runner.runOneTest("Lesson4_delimited_fixed_length") }
+  @Test def test_Lesson1_lengthKind_delimited(): Unit = {
+    runner.runOneTest("Lesson1_lengthKind_delimited")
+  }
+  @Test def test_Lesson4_delimited_fixed_length(): Unit = {
+    runner.runOneTest("Lesson4_delimited_fixed_length")
+  }
   @Test def test_delimited_construct(): Unit = { runner.runOneTest("delimited_construct") }
 
   @Test def test_AB000(): Unit = { runnerAB.runOneTest("AB000") }

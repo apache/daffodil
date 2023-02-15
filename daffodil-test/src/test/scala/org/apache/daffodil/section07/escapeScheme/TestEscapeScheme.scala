@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section07.escapeScheme
 
-import org.junit._
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit._
 
 object TestEscapeScheme {
   val testDir = "/org/apache/daffodil/section07/escapeScheme/"
@@ -49,7 +50,7 @@ class TestEscapeScheme {
   @Test def test_escapeSchemeFail3(): Unit = { runner.runOneTest("escapeSchemeFail3") }
   @Test def test_escapeSchemeNonEmpty(): Unit = { runner.runOneTest("escapeSchemeNonEmpty") }
   // DAFFODIL-844
-  //@Test def test_escapeSchemeNonUnique() { runner.runOneTest("escapeSchemeNonUnique") }
+  // @Test def test_escapeSchemeNonUnique() { runner.runOneTest("escapeSchemeNonUnique") }
 
   @Test def test_escapeExpressions_01(): Unit = { runner.runOneTest("escapeExpressions_01") }
   @Test def test_escapeExpressions_01b(): Unit = { runner.runOneTest("escapeExpressions_01b") }
@@ -97,7 +98,9 @@ class TestEscapeScheme {
 
   @Test def test_escBlkAllQuotes(): Unit = { runner.runOneTest("escBlkAllQuotes") }
   @Test def test_escBlkEndSame(): Unit = { runner.runOneTest("escBlkEndSame") }
-  //@Test def test_escBlkMultipleEEC() { runner.runOneTest("escBlkMultipleEEC") } // DAFFODIL-1972
+  // @Test def test_escBlkMultipleEEC() { runner.runOneTest("escBlkMultipleEEC") } // DAFFODIL-1972
 
-  @Test def test_escapeScheme_with_comment(): Unit = { runner.runOneTest("escapeScheme_with_comment") }
+  @Test def test_escapeScheme_with_comment(): Unit = {
+    runner.runOneTest("escapeScheme_with_comment")
+  }
 }
