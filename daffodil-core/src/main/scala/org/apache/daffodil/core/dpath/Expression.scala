@@ -745,6 +745,8 @@ abstract class PathExpression() extends Expression {
    */
   lazy val isPathToOneWholeArray: Boolean = {
     if (steps == Nil) false // root is never an array
+    if (steps == Nil) false // root is never an array
+    else if (isSelf) false // self path is never an array
     else
       steps.last.isArray &&
       !steps.last.pred.isDefined && // last cannot have a [N] pred
@@ -757,6 +759,11 @@ abstract class PathExpression() extends Expression {
           else if (step.isArray) step.pred.isDefined
           else true
       }
+  }
+
+  def isSelf = steps match {
+    case List(Self(_)) => true
+    case _ => false
   }
 }
 
@@ -2829,13 +2836,21 @@ sealed abstract class LengthExprBase(
   ) {
 
   protected final def leafReferencedElements = {
-    val arg = args(0).asInstanceOf[PathExpression]
-    val steps = arg.steps
+    val path = args(0) match {
+      case arg: PathExpression => arg
+      case _ => {
+        // $COVERAGE-OFF$
+        Assert.invariantFailed("NodeInfo.Exists, but arg was not a PathExpression.")
+        // $COVERAGE-ON$
+      }
+    }
+    if (path.isPathToOneWholeArray)
+      SDE(s"First argument to ${fnQName} cannot be a path to an array")
+    val steps = path.steps
     val lst = steps.last
     val res = lst.stepElements.toSet
     res
   }
-
 }
 
 case class ContentLengthExpr(
