@@ -26,4 +26,4 @@ import java.io.ByteArrayInputStream
  * @param str - string that is loaded as XML.
  */
 case class StringSchemaSource(str: String)
-extends InputStreamSchemaSource(new ByteArrayInputStream(str.getBytes()), None, "", "")
+  extends InputStreamSchemaSource(new ByteArrayInputStream(str.getBytes()), None, "", "")

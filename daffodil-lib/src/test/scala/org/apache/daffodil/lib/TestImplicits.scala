@@ -17,12 +17,13 @@
 
 package org.apache.daffodil.lib
 
-import org.junit.Test
+import java.io.FileNotFoundException
 
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions._
-import java.io.FileNotFoundException
+
 import org.junit.Assert._
+import org.junit.Test
 
 class TestImplicits {
 
@@ -56,4 +57,3 @@ class TestImplicits {
   }
 
 }
-

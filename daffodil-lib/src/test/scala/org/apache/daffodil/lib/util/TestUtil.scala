@@ -17,10 +17,11 @@
 
 package org.apache.daffodil.lib.util
 
-import org.junit.Assert._
-import org.apache.daffodil.lib.exceptions._
-import org.junit.Test
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.exceptions._
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestUtil {
 

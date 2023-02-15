@@ -17,14 +17,13 @@
 
 package org.apache.daffodil.processor.tdml
 
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml._
 
-import org.apache.daffodil.tdml.Runner
-
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.lib.Implicits._
 
 class TestTDMLRoundTrips {
 
@@ -39,7 +38,9 @@ class TestTDMLRoundTrips {
 
   @Test def testOnePassPass1(): Unit = {
 
-    val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
+    val testSuite = <ts:testSuite xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:ex={example} xmlns:ts={
+      tdml
+    } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="ex:GeneralFormat"/>
@@ -78,7 +79,9 @@ class TestTDMLRoundTrips {
    */
   @Test def testOnePassFail1(): Unit = {
 
-    val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
+    val testSuite = <ts:testSuite xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:ex={example} xmlns:ts={
+      tdml
+    } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="ex:GeneralFormat"/>
@@ -113,7 +116,9 @@ class TestTDMLRoundTrips {
   }
 
   def needsTwoPassesOnlyTDML(passesEnum: String) =
-    <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
+    <ts:testSuite xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:ex={example} xmlns:ts={
+      tdml
+    } suiteName="theSuiteName">
       <ts:defineSchema name="s">
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="ex:GeneralFormat"/>
@@ -126,7 +131,7 @@ class TestTDMLRoundTrips {
           </xs:complexType>
         </xs:element>
       </ts:defineSchema>
-      <ts:parserTestCase ID="test1" name="test1" root="r" model="s" roundTrip={ passesEnum }>
+      <ts:parserTestCase ID="test1" name="test1" root="r" model="s" roundTrip={passesEnum}>
         <ts:infoset>
           <ts:dfdlInfoset>
             <ex:r>
@@ -150,13 +155,16 @@ class TestTDMLRoundTrips {
     runner.runOneTest("test1")
     runner.reset
   }
+
   /**
    * Tests windows style (CRLF) line endings for two pass
    */
   @Test def testTwoPass2(): Unit = {
 
     val testSuite =
-      <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
+      <ts:testSuite xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:ex={example} xmlns:ts={
+        tdml
+      } suiteName="theSuiteName">
         <ts:defineSchema name="s">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="ex:GeneralFormat"/>
@@ -207,7 +215,9 @@ New Line]]></bar>
    */
   @Test def testTwoPass3(): Unit = {
 
-    val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
+    val testSuite = <ts:testSuite xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:ex={example} xmlns:ts={
+      tdml
+    } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="ex:GeneralFormat"/>
@@ -254,7 +264,9 @@ New Line]]></bar>
   }
 
   def nPassNotNeededTDML(passesEnum: String) =
-    <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName">
+    <ts:testSuite xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:ex={example} xmlns:ts={
+      tdml
+    } suiteName="theSuiteName">
       <ts:defineSchema name="s">
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="ex:GeneralFormat"/>
@@ -267,7 +279,7 @@ New Line]]></bar>
           </xs:complexType>
         </xs:element>
       </ts:defineSchema>
-      <ts:parserTestCase ID="test1" name="test1" root="r" model="s" roundTrip={ passesEnum }>
+      <ts:parserTestCase ID="test1" name="test1" root="r" model="s" roundTrip={passesEnum}>
         <ts:infoset>
           <ts:dfdlInfoset>
             <ex:r>
@@ -279,6 +291,7 @@ New Line]]></bar>
         <ts:document>foo,bar</ts:document>
       </ts:parserTestCase>
     </ts:testSuite>
+
   /**
    * A test defined to show that when we say we need two passes, if the
    * unparse data in fact matches the original (i.e., we didn't really need two passes)
@@ -304,7 +317,9 @@ New Line]]></bar>
    * but unparsing that infoset finally does give us matching unparsed data.
    */
   @Test def testThreePass1(): Unit = {
-    val testSuite = <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } xmlns:fn={ fn } xmlns:ex={ example } xmlns:ts={ tdml } xmlns:daf={ daf } suiteName="theSuiteName">
+    val testSuite = <ts:testSuite xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:xsi={xsi} xmlns:fn={
+      fn
+    } xmlns:ex={example} xmlns:ts={tdml} xmlns:daf={daf} suiteName="theSuiteName">
                       <ts:defineSchema name="s" elementFormDefault="unqualified">
                         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"/>

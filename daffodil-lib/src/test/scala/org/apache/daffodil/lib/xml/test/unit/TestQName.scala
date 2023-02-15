@@ -17,24 +17,26 @@
 
 package org.apache.daffodil.lib.xml.test.unit
 
+import java.net.URISyntaxException
+import scala.util.Failure
+import scala.util.Success
+
+import org.apache.daffodil.lib.xml.ExtendedQNameSyntaxException
+import org.apache.daffodil.lib.xml.NoNamespace
+import org.apache.daffodil.lib.xml.QName
+import org.apache.daffodil.lib.xml.QNameRegex
+import org.apache.daffodil.lib.xml.RefQName
+import org.apache.daffodil.lib.xml.UnspecifiedNamespace
+
+import org.junit.Assert._
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.junit.Assert._
-import org.apache.daffodil.lib.xml.QNameRegex
-import org.apache.daffodil.lib.xml.QName
-import org.apache.daffodil.lib.xml.RefQName
-import org.apache.daffodil.lib.xml.NoNamespace
-import scala.util.Success
-import org.apache.daffodil.lib.xml.UnspecifiedNamespace
-import org.apache.daffodil.lib.xml.ExtendedQNameSyntaxException
-import scala.util.Failure
-import java.net.URISyntaxException
 
 class TestQName {
 
   @Test def testQNameLongPrefix(): Unit = {
     val bigPrefix = ("a" * 6000)
-    val data = <xs:element name="one" type={ bigPrefix + ":b" }/>
+    val data = <xs:element name="one" type={bigPrefix + ":b"}/>
     val qntext = (data \ "@type").text
 
     // println("length of type attribute = " + qntext.length)
@@ -74,7 +76,7 @@ class TestQName {
   @Test def testExtQName4(): Unit = {
     val tryrqn = QName.refQNameFromExtendedSyntax("pre:local")
     tryrqn match {
-      case Success(RefQName(Some("pre"), "local", UnspecifiedNamespace)) => //ok
+      case Success(RefQName(Some("pre"), "local", UnspecifiedNamespace)) => // ok
       case _ => fail(tryrqn.toString)
     }
   }

@@ -17,8 +17,8 @@
 
 package org.apache.daffodil.lib.xml.test.unit
 
-import org.junit.Test
 import org.junit.Assert._
+import org.junit.Test
 
 class TestXMLPrettyPrinter {
 
@@ -32,7 +32,7 @@ class TestXMLPrettyPrinter {
     // we force it to have a PCData node by constructing one explicitly here.
     //
     val pcdata = scala.xml.PCData("a\nb")
-    val fragment = <x>{ pcdata }</x>
+    val fragment = <x>{pcdata}</x>
     val pp = new scala.xml.PrettyPrinter(Int.MaxValue, 2)
     val xmlString = pp.format(fragment)
     //
@@ -43,7 +43,9 @@ class TestXMLPrettyPrinter {
     // that it will always put simple types on one line.
     //
     assertTrue(xmlString.contains("<x><![CDATA[a b]]></x>")) // wrong!
-    assertFalse(xmlString.contains("<x><![CDATA[a\nb]]></x>")) // right. Should preserve the newline.
+    assertFalse(
+      xmlString.contains("<x><![CDATA[a\nb]]></x>"),
+    ) // right. Should preserve the newline.
   }
 
   /**
@@ -56,7 +58,7 @@ class TestXMLPrettyPrinter {
     // we force it to have a PCData node by constructing one explicitly here.
     //
     val pcdata = scala.xml.PCData("a\nb")
-    val fragment = <x>{ pcdata }</x>
+    val fragment = <x>{pcdata}</x>
     val pp = new org.apache.daffodil.lib.xml.PrettyPrinter(2)
     val xmlString = pp.format(fragment)
     //
@@ -64,22 +66,27 @@ class TestXMLPrettyPrinter {
     // with PCData nodes.
     //
     assertFalse(xmlString.contains("<x><![CDATA[a b]]></x>")) // wrong!
-    assertTrue(xmlString.contains("<x><![CDATA[a\nb]]></x>")) // right. Should preserve the newline.
+    assertTrue(
+      xmlString.contains("<x><![CDATA[a\nb]]></x>"),
+    ) // right. Should preserve the newline.
   }
 
   @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_text(): Unit = {
 
     val str = """aaaaa
 bbbbb""".replace("\r\n", "\n")
-    val fragment = <xxxxx><yyyyy><zzzzz>{ str }</zzzzz></yyyyy></xxxxx>
+    val fragment = <xxxxx><yyyyy><zzzzz>{str}</zzzzz></yyyyy></xxxxx>
     val pp = new org.apache.daffodil.lib.xml.PrettyPrinter(2)
     val xmlString = pp.format(fragment)
-    assertEquals("""<xxxxx>
+    assertEquals(
+      """<xxxxx>
   <yyyyy>
     <zzzzz>aaaaa
 bbbbb</zzzzz>
   </yyyyy>
-</xxxxx>""".replace("\r\n", "\n"), xmlString)
+</xxxxx>""".replace("\r\n", "\n"),
+      xmlString,
+    )
   }
 
   @Test def test_daffodil_pretty_printer_preserves_whitespace_inside_cdata_properly2(): Unit = {
@@ -88,7 +95,7 @@ bbbbb</zzzzz>
     // we force it to have a PCData node by constructing one explicitly here.
     //
     val pcdata = scala.xml.PCData(" aaaaa\nbbbbb ")
-    val fragment = <xxxxx><yyyyy><zzzzz>{ pcdata }</zzzzz></yyyyy></xxxxx>
+    val fragment = <xxxxx><yyyyy><zzzzz>{pcdata}</zzzzz></yyyyy></xxxxx>
     val pp = new org.apache.daffodil.lib.xml.PrettyPrinter(2)
     val xmlString = pp.format(fragment)
     //
@@ -109,7 +116,7 @@ bbbbb ]]></zzzzz>
     // we force it to have a PCData node by constructing one explicitly here.
 
     val pcdata = scala.xml.PCData(" aaaaa\nbbbbb ")
-    val fragment = <xxxxx><yyyyy><zzzzz>{ pcdata } xyzzy { pcdata }</zzzzz></yyyyy></xxxxx>
+    val fragment = <xxxxx><yyyyy><zzzzz>{pcdata} xyzzy {pcdata}</zzzzz></yyyyy></xxxxx>
     val pp = new org.apache.daffodil.lib.xml.PrettyPrinter(2)
     var xmlString = pp.format(fragment)
     //
@@ -135,17 +142,21 @@ bbbbb ]]>""".replace("\r\n", "\n")
         //
         // the rest must match this chunk
         //
-        assertEquals("""<![CDATA[ aaaaa
+        assertEquals(
+          """<![CDATA[ aaaaa
 bbbbb ]]></zzzzz>
   </yyyyy>
-</xxxxx>""".replace("\r\n", "\n"), rest)
+</xxxxx>""".replace("\r\n", "\n"),
+          rest,
+        )
       }
     }
   }
 
   @Test def test_daffodil_pretty_printer_preserves_simple_values1(): Unit = {
 
-    val fragment = <xxxxx><yyyyy><zzzzz>aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz></yyyyy></xxxxx>
+    val fragment =
+      <xxxxx><yyyyy><zzzzz>aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz></yyyyy></xxxxx>
     val pp = new org.apache.daffodil.lib.xml.PrettyPrinter(2)
     val xmlString = pp.format(fragment)
     val expected = """<xxxxx>
@@ -160,7 +171,8 @@ bbbbb ]]></zzzzz>
 
   @Test def test_daffodil_pretty_printer_removes_redundant_xmlns_bindings(): Unit = {
 
-    val fragment = <xxxxx xmlns="foobar"><yyyyy><zzzzz xmlns="foobar">aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz></yyyyy></xxxxx>
+    val fragment =
+      <xxxxx xmlns="foobar"><yyyyy><zzzzz xmlns="foobar">aaaaa bbbbb ccccc ddddd eeeee fffff ggggg</zzzzz></yyyyy></xxxxx>
     val pp = new org.apache.daffodil.lib.xml.PrettyPrinter(2)
     val xmlString = pp.format(fragment)
     //
@@ -174,7 +186,8 @@ bbbbb ]]></zzzzz>
 
   @Test def test_daffodil_pretty_printer_newlines_and_indents1(): Unit = {
 
-    val fragment = <tns:row2 xmlns:tns="http://example.com"><cell>-9</cell><cell>-2</cell><cell>-8</cell></tns:row2>
+    val fragment =
+      <tns:row2 xmlns:tns="http://example.com"><cell>-9</cell><cell>-2</cell><cell>-8</cell></tns:row2>
     val pp = new org.apache.daffodil.lib.xml.PrettyPrinter(2)
     val xmlString = pp.format(fragment)
     //

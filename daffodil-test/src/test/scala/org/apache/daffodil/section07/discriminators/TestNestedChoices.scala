@@ -18,6 +18,7 @@
 package org.apache.daffodil.section07.discriminators
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 

@@ -17,14 +17,15 @@
 
 package org.apache.daffodil.lib.xml.test.unit
 
+import scala.collection.mutable.ArrayBuffer
+import scala.xml.SAXParseException
+
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.api.StringSchemaSource
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
+
 import org.junit.Assert._
 import org.junit.Test
-
-import scala.collection.mutable.ArrayBuffer
-import scala.xml.SAXParseException
 
 class TestXMLLoader {
 
@@ -105,14 +106,18 @@ class TestXMLLoader {
 
     val data = "<x><![CDATA[a\nb&\"<>]]></x>"
     val node = scala.xml.XML.loadString(data)
-    val <x>{ xbody @ _* }</x> = node
+    val <x>{xbody @ _*}</x> = node
     assertEquals(1, xbody.length)
     val body = xbody(0)
     val txt = body.text
     assertTrue(txt.contains("a"))
     assertTrue(txt.contains("b"))
-    assertFalse(txt.contains("<![CDATA[")) // correct, PCData.text returns only the contents, not the brackets
-    assertFalse(txt.contains("]]>")) // correct, PCData.text returns only the contents, not the brackets
+    assertFalse(
+      txt.contains("<![CDATA["),
+    ) // correct, PCData.text returns only the contents, not the brackets
+    assertFalse(
+      txt.contains("]]>"),
+    ) // correct, PCData.text returns only the contents, not the brackets
     assertTrue(txt.contains("a\nb")) // they preserve the contents
     assertTrue(body.isInstanceOf[scala.xml.PCData])
     assertTrue(txt.contains("""&"<>""")) // They get the right characters in there.
@@ -127,7 +132,7 @@ class TestXMLLoader {
    * Part of fixing DAFFODIL-1422, DAFFODIL-1659.
    */
   @Test
-  def testNoDoctypeAllowed() : Unit = {
+  def testNoDoctypeAllowed(): Unit = {
 
     val data = """<?xml version="1.0" ?>
       <!DOCTYPE root_element [
@@ -151,15 +156,15 @@ class TestXMLLoader {
    * be preserved or normalized by loader options.
    */
   @Test
-  def testDaffodilXMLLoaderCRLFNormalization() : Unit = {
+  def testDaffodilXMLLoaderCRLFNormalization(): Unit = {
     // This data has an embedded CRLF, and an embedded isolated CR
     val xmlTextWithCRLFs =
-    """<?xml version="1.0" ?>""" + "\r\n" +
-    "<data>before" + "\r\n" + // regular CRLF
-      "after" + "\r" + // isolated CR
-      "end<![CDATA[CDATAbefore" + "\r\n" + // CRLF inside CDATA
-      "after" + "\r" + // isolated CR inside CDATA
-      "endCDATA]]></data>" + "\r\n"
+      """<?xml version="1.0" ?>""" + "\r\n" +
+        "<data>before" + "\r\n" + // regular CRLF
+        "after" + "\r" + // isolated CR
+        "end<![CDATA[CDATAbefore" + "\r\n" + // CRLF inside CDATA
+        "after" + "\r" + // isolated CR inside CDATA
+        "endCDATA]]></data>" + "\r\n"
     val loader = new DaffodilXMLLoader()
     val ss = StringSchemaSource(xmlTextWithCRLFs)
     //
@@ -179,22 +184,29 @@ class TestXMLLoader {
       // calling .text on a Node creates a string, but also replaces PCData nodes
       // (all Atoms actually) with their contents. So if we call .text on our loader's
       // Node, it will be the same as the one from the regular scala xml loader.
-      assertEquals(xmlFromDafLoaderNormalized.text, xmlFromScalaLoader.text) // both have LF only
+      assertEquals(
+        xmlFromDafLoaderNormalized.text,
+        xmlFromScalaLoader.text,
+      ) // both have LF only
       assertEquals("before\nafter\nendCDATAbefore\nafter\nendCDATA", xmlFromScalaLoader.text)
     }
 
     assertEquals( // retains CRLF and CR
       "<data>before\r\nafter\rend<![CDATA[CDATAbefore\r\nafter\rendCDATA]]></data>",
-      xmlFromDafLoaderNonNormalized.toString)
+      xmlFromDafLoaderNonNormalized.toString,
+    )
     assertEquals( // Converts CRLF/CR => LF
       "<data>before\nafter\nend<![CDATA[CDATAbefore\nafter\nendCDATA]]></data>",
-      xmlFromDafLoaderNormalized.toString)
+      xmlFromDafLoaderNormalized.toString,
+    )
     assertEquals( // retains CRLF and CR, but eliminates CDATA brackets.
       "before\r\nafter\rendCDATAbefore\r\nafter\rendCDATA",
-      xmlFromDafLoaderNonNormalized.text)
+      xmlFromDafLoaderNonNormalized.text,
+    )
     assertEquals( // Converts CRLF/CR => LF, but elimintes CDATA brackets.
       "before\nafter\nendCDATAbefore\nafter\nendCDATA",
-      xmlFromDafLoaderNormalized.text)
+      xmlFromDafLoaderNormalized.text,
+    )
 
   }
 
@@ -217,7 +229,7 @@ class TestXMLLoader {
 
   @Test def testLoaderToleratesXMLWithPI(): Unit = {
     val xmlText = "    \n" +
-    "<?aProcInstr yadda yadda ?>\n" +
+      "<?aProcInstr yadda yadda ?>\n" +
       "  <!-- a comment -->  \n  <data>foo</data>\n"
     val loader = new DaffodilXMLLoader()
     val ss = StringSchemaSource(xmlText)
@@ -230,12 +242,12 @@ class TestXMLLoader {
       "&AnEntityRef;\n" + // entity refs not allowed
       "random text\n" + // just text not allowed
       "<data>foo</data>\n" +
-    "<!-- comment afterwards --><another>element</another>\n&AnotherEntityRef;\nmore random text\n" // other bad stuff.
+      "<!-- comment afterwards --><another>element</another>\n&AnotherEntityRef;\nmore random text\n" // other bad stuff.
     val teh = new TestErrorHandler()
     val loader = new DaffodilXMLLoader(teh)
     val ss = StringSchemaSource(xmlText)
     val xml = loader.load(ss, None, addPositionAttributes = false)
-    val msgs = teh.exceptions.map{ _.getMessage() }.mkString("\n")
+    val msgs = teh.exceptions.map { _.getMessage() }.mkString("\n")
     println(msgs)
     assertTrue(msgs.contains("non-empty text nodes not allowed"))
     assertTrue(msgs.contains("random text"))

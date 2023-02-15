@@ -17,10 +17,11 @@
 
 package org.apache.daffodil.lib.util
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
 import scala.collection.immutable.ListMap
 import scala.util.Random
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class TestListMap {
 
@@ -35,9 +36,8 @@ class TestListMap {
   @Test def test_listMap() = {
     val orig = Random.shuffle((0 until 1000).toList)
     val mt: ListMap[Int, String] = ListMap.empty
-    val listMap: ListMap[Int, String] = orig.foldLeft(mt) {
-
-      (lm, n) => lm + (n -> n.toString)
+    val listMap: ListMap[Int, String] = orig.foldLeft(mt) { (lm, n) =>
+      lm + (n -> n.toString)
     }
 
     // test that removals still maintain order

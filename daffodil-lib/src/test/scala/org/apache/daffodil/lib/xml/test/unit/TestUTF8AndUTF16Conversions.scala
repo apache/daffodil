@@ -58,7 +58,10 @@ class TestUTF8AndUTF16Conversions {
     val str = data.child.text
     //    println("%x".format(str(0).toInt))
     //    println("%x".format(str(1).toInt))
-    assertEquals(2, str.length) // 2 because that U+1d420 requires two utf-16 codepoints to represent it.
+    assertEquals(
+      2,
+      str.length,
+    ) // 2 because that U+1d420 requires two utf-16 codepoints to represent it.
     val bytes = str.getBytes("utf-8")
     assertEquals(4, bytes.length) // encodes to 4 bytes.
 
@@ -73,7 +76,7 @@ class TestUTF8AndUTF16Conversions {
    */
   @Test def testReadSurrogateCodePointsLikeCharacters(): Unit = {
 
-    val data = <data>&#xd835;&#xdcd0;</data> //technically, this is illegal.
+    val data = <data>&#xd835;&#xdcd0;</data> // technically, this is illegal.
     val str = data.child.text
     assertEquals(2, str.length)
     val d835 = str(0).toInt
@@ -85,18 +88,24 @@ class TestUTF8AndUTF16Conversions {
       // Compatibility with pre-surrogate world.
       // Same U+1d4d0, but represented as a surrogate pair, each surrogate then
       // represented as a 3-byte UTF-8 sequence. (This is an older technique).
-      0xED.toByte, 0xA0.toByte, 0xB5.toByte, 0xED.toByte, 0xB3.toByte, 0x90.toByte)
+      0xed.toByte,
+      0xa0.toByte,
+      0xb5.toByte,
+      0xed.toByte,
+      0xb3.toByte,
+      0x90.toByte,
+    )
     val decodedAlt = new String(alternateOldRep, "utf-8")
     assertEquals(2, decodedAlt.length)
 
-    assertEquals(d835, 0xD835)
-    assertEquals(dcd0, 0xDCD0)
+    assertEquals(d835, 0xd835)
+    assertEquals(dcd0, 0xdcd0)
 
     if (scala.util.Properties.isJavaAtLeast("1.8")) {
       // Java 1.8 removed support for modified UTF-8, and so deocdedAlt is just
       // the two unicode replacement characters
-      assertEquals(0xFFFD, decodedAlt(0).toInt)
-      assertEquals(0xFFFD, decodedAlt(1).toInt)
+      assertEquals(0xfffd, decodedAlt(0).toInt)
+      assertEquals(0xfffd, decodedAlt(1).toInt)
     } else {
       assertEquals(d835, decodedAlt(0).toInt)
       assertEquals(dcd0, decodedAlt(1).toInt)

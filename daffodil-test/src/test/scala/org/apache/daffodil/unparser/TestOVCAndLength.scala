@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.unparser
 
-import org.junit.Test
-import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
+
+import org.junit.AfterClass
+import org.junit.Test
 
 object TestOVCAndLength {
   val runner = Runner("/org/apache/daffodil/unparser/OVCAndLengthTest.tdml")
@@ -31,8 +32,12 @@ object TestOVCAndLength {
 class TestOVCAndLength {
   import TestOVCAndLength._
 
-  @Test def test_ovcContentLengthCycle1(): Unit = { runner.runOneTest("ovcContentLengthCycle1") }
+  @Test def test_ovcContentLengthCycle1(): Unit = {
+    runner.runOneTest("ovcContentLengthCycle1")
+  }
 
-  @Test def test_ovcContentLengthCycle2(): Unit = { runner.runOneTest("ovcContentLengthCycle2") }
+  @Test def test_ovcContentLengthCycle2(): Unit = {
+    runner.runOneTest("ovcContentLengthCycle2")
+  }
 
 }

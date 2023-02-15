@@ -17,26 +17,33 @@
 package org.sgoodudfs.example.SupportedTypesFunctions
 
 import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.udf.UserDefinedFunctionProvider
 import org.apache.daffodil.udf.UserDefinedFunctionIdentification
+import org.apache.daffodil.udf.UserDefinedFunctionProvider
 
 /**
  * UDF Provider for Types Unit testing
  *
  */
 class SupportedTypesFunctionsProvider extends UserDefinedFunctionProvider {
-  override def getUserDefinedFunctionClasses =
-    {
-      Array(
-        classOf[PrimByteFunc], classOf[BoxedByteFunc],
-        classOf[PrimByteArrayFunc],
-        classOf[PrimShortFunc], classOf[BoxedShortFunc],
-        classOf[PrimLongFunc], classOf[BoxedLongFunc],
-        classOf[PrimDoubleFunc], classOf[BoxedDoubleFunc],
-        classOf[PrimFloatFunc], classOf[BoxedFloatFunc],
-        classOf[PrimBooleanFunc], classOf[BoxedBooleanFunc],
-        classOf[JavaBigDecimalFunc], classOf[JavaBigIntegerFunc])
-    }
+  override def getUserDefinedFunctionClasses = {
+    Array(
+      classOf[PrimByteFunc],
+      classOf[BoxedByteFunc],
+      classOf[PrimByteArrayFunc],
+      classOf[PrimShortFunc],
+      classOf[BoxedShortFunc],
+      classOf[PrimLongFunc],
+      classOf[BoxedLongFunc],
+      classOf[PrimDoubleFunc],
+      classOf[BoxedDoubleFunc],
+      classOf[PrimFloatFunc],
+      classOf[BoxedFloatFunc],
+      classOf[PrimBooleanFunc],
+      classOf[BoxedBooleanFunc],
+      classOf[JavaBigDecimalFunc],
+      classOf[JavaBigIntegerFunc],
+    )
+  }
 }
 
 /**
@@ -45,7 +52,8 @@ class SupportedTypesFunctionsProvider extends UserDefinedFunctionProvider {
  */
 @UserDefinedFunctionIdentification(
   name = "primByteFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class PrimByteFunc extends UserDefinedFunction {
   def evaluate(arg: Byte) = {
     arg
@@ -58,7 +66,8 @@ class PrimByteFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "primByteArrayFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class PrimByteArrayFunc extends UserDefinedFunction {
   def evaluate(args: Array[Byte]) = {
     args
@@ -71,7 +80,8 @@ class PrimByteArrayFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "boxedByteFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class BoxedByteFunc extends UserDefinedFunction {
   def evaluate(arg: java.lang.Byte) = {
     arg
@@ -84,7 +94,8 @@ class BoxedByteFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "primShortFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class PrimShortFunc extends UserDefinedFunction {
   def evaluate(arg: Short) = {
     arg
@@ -97,7 +108,8 @@ class PrimShortFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "boxedShortFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class BoxedShortFunc extends UserDefinedFunction {
   def evaluate(arg: java.lang.Short) = {
     arg
@@ -110,7 +122,8 @@ class BoxedShortFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "primLongFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class PrimLongFunc extends UserDefinedFunction {
   def evaluate(arg: Long) = {
     arg
@@ -123,7 +136,8 @@ class PrimLongFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "boxedLongFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class BoxedLongFunc extends UserDefinedFunction {
   def evaluate(arg: java.lang.Long) = {
     arg
@@ -136,7 +150,8 @@ class BoxedLongFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "primDoubleFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class PrimDoubleFunc extends UserDefinedFunction {
   def evaluate(arg: Double) = {
     arg
@@ -149,7 +164,8 @@ class PrimDoubleFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "boxedDoubleFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class BoxedDoubleFunc extends UserDefinedFunction {
   def evaluate(arg: java.lang.Double) = {
     arg
@@ -162,7 +178,8 @@ class BoxedDoubleFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "primFloatFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class PrimFloatFunc extends UserDefinedFunction {
   def evaluate(arg: Float) = {
     arg
@@ -175,7 +192,8 @@ class PrimFloatFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "boxedFloatFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class BoxedFloatFunc extends UserDefinedFunction {
   def evaluate(arg: java.lang.Float) = {
     arg
@@ -188,7 +206,8 @@ class BoxedFloatFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "primBooleanFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class PrimBooleanFunc extends UserDefinedFunction {
   def evaluate(arg: Boolean) = {
     arg
@@ -201,7 +220,8 @@ class PrimBooleanFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "boxedBooleanFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class BoxedBooleanFunc extends UserDefinedFunction {
   def evaluate(arg: java.lang.Boolean) = {
     arg
@@ -214,7 +234,8 @@ class BoxedBooleanFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "javaBigIntegerFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class JavaBigIntegerFunc extends UserDefinedFunction {
   def evaluate(arg: java.math.BigInteger) = {
     arg
@@ -227,7 +248,8 @@ class JavaBigIntegerFunc extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "javaBigDecimalFunc",
-  namespaceURI = "http://example.com/scala/audfs")
+  namespaceURI = "http://example.com/scala/audfs",
+)
 class JavaBigDecimalFunc extends UserDefinedFunction {
   def evaluate(arg: java.math.BigDecimal) = {
     arg

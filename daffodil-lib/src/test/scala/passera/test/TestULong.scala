@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2011-2013, Nate Nystrom
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice, this
  * list of conditions and the following disclaimer in the documentation and/or
  * other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,10 +26,11 @@
 
 package passera.test
 
+import java.math.{ BigInteger => JBigInt }
+
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import passera.unsigned.ULong
-import java.math.{ BigInteger => JBigInt }
 
 class TestULong {
 
@@ -43,20 +44,20 @@ class TestULong {
 
   // DAFFODIL-1714
   @Test def testULongModulus1(): Unit = {
-    for (i <- 0 to 16 ) {
+    for (i <- 0 to 16) {
       val numerator = ULong(i)
       val denominator = ULong(8)
       val remainder = numerator % denominator
-      assertEquals(ULong(i%8), remainder)
+      assertEquals(ULong(i % 8), remainder)
     }
   }
 
   @Test def testULongModulus2(): Unit = {
     val mm1 = ULong(-1L)
     val remainder = mm1 % ULong(65536)
-    assertEquals(ULong(0x0000FFFF), remainder)
+    assertEquals(ULong(0x0000ffff), remainder)
   }
-  
+
   @Test def testULongModulus3(): Unit = {
     val mm1 = ULong(-1L)
     val mm2 = ULong(-2L)
@@ -111,6 +112,9 @@ class TestULong {
   }
 
   @Test def testULongFromHex(): Unit = {
-    assertEquals("7FFFFFFFFFFFFFFF", ULong.fromHexString("7FFFFFFFFFFFFFFF").toHexString.toUpperCase)
+    assertEquals(
+      "7FFFFFFFFFFFFFFF",
+      ULong.fromHexString("7FFFFFFFFFFFFFFF").toHexString.toUpperCase,
+    )
   }
 }

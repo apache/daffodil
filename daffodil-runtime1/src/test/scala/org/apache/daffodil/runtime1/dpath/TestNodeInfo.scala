@@ -20,7 +20,6 @@ package org.apache.daffodil.runtime1.dpath
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-
 class TestNodeInfo {
 
   @Test def test_nodeInfoCanBeConstructed(): Unit = {

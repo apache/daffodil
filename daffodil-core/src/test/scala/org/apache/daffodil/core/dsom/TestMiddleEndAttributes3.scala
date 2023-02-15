@@ -18,17 +18,16 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.junit.Test
+
 import org.junit.Assert._
+import org.junit.Test
 
 class TestMiddleEndAttributes3 {
 
   @Test def testNextParentElements() = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" encoding="US-ASCII"/>,
-
       <xs:group name="IPSrcGrp">
         <xs:sequence>
           <xs:element name="byte1" type="xs:int" dfdl:outputValueCalc="{ ../IPSrc }"/>
@@ -48,7 +47,8 @@ class TestMiddleEndAttributes3 {
             <xs:element name="TransportLayer" type="xs:byte" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../PayloadLength }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -72,9 +72,7 @@ class TestMiddleEndAttributes3 {
   @Test def testNextParentElements2() = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" encoding="US-ASCII"/>,
-
       <xs:group name="IPSrcGrp">
         <xs:sequence>
           <xs:element name="byte1" type="xs:int" dfdl:outputValueCalc="{ ../IPSrc }"/>
@@ -98,7 +96,8 @@ class TestMiddleEndAttributes3 {
             </xs:choice>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas

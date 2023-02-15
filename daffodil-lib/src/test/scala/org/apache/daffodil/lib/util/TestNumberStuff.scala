@@ -22,13 +22,12 @@ import java.math.{ BigInteger => JBigInt }
 import java.text.ParsePosition
 
 import org.apache.daffodil.lib.Implicits.intercept
-import org.junit.Test
 
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
-
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 /**
  * Tests that characterize ICU number parsing specifically with respect
@@ -191,10 +190,11 @@ case class UnsignedLongConverter() extends ConvertTo[JBigInt] {
     }
     case icubd: com.ibm.icu.math.BigDecimal => {
       val ul = icubd.toBigIntegerExact
-      if (ul.compareTo(maxUnsignedLong)>0) throw new Exception("too big for unsignedLong")
+      if (ul.compareTo(maxUnsignedLong) > 0) throw new Exception("too big for unsignedLong")
       if (ul.signum() < 0) throw new Exception("parsed as negative value")
       ul
     }
-    case other => throw new Exception("not a valid unsignedLong: " + other + " : " + other.getClass.getName)
+    case other =>
+      throw new Exception("not a valid unsignedLong: " + other + " : " + other.getClass.getName)
   }
 }

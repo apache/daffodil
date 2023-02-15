@@ -17,26 +17,25 @@
 
 package org.apache.daffodil.core.general
 
-import org.junit.Test
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-
+import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
-import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.core.util.TestUtils
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 /**
  * Test InfosetOutputter that extends the ScalaXMLInfosetOutputter and redacts
  * words specified in the dfdlx:runtimeProperties extension
  */
-class RedactingScalaXMLInfosetOutputter
-  extends ScalaXMLInfosetOutputter {
+class RedactingScalaXMLInfosetOutputter extends ScalaXMLInfosetOutputter {
 
   override def startSimple(diSimple: DISimple): Unit = {
     super.startSimple(diSimple)
@@ -65,7 +64,10 @@ class RedactingScalaXMLInfosetOutputter
 class RedactingScalaXMLInfosetInputter(rootNode: scala.xml.Node)
   extends ScalaXMLInfosetInputter(rootNode) {
 
-  override def getSimpleText(primType: NodeInfo.Kind, runtimeProperties: java.util.Map[String, String]): String = {
+  override def getSimpleText(
+    primType: NodeInfo.Kind,
+    runtimeProperties: java.util.Map[String, String],
+  ): String = {
     var text = super.getSimpleText(primType, runtimeProperties)
 
     val redactions = Option(runtimeProperties.get("redact")).map { value => value.split(",") }
@@ -91,7 +93,7 @@ class TestRuntimeProperties {
           <xs:element name="unFiltered" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
-    </xs:element>
+    </xs:element>,
   )
 
   @Test def testRuntimeProperties_01(): Unit = {
@@ -130,7 +132,7 @@ class TestRuntimeProperties {
     val ur = dp.unparse(inputter, output)
 
     assertFalse(ur.isError)
-    
+
     val actual = output.toString("UTF-8")
     assertEquals(expected, actual)
   }
@@ -145,7 +147,7 @@ class TestRuntimeProperties {
           <xs:element name="unFiltered" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
-    </xs:element>
+    </xs:element>,
   )
 
   @Test def testRuntimeProperties_03(): Unit = {
@@ -169,7 +171,7 @@ class TestRuntimeProperties {
           <xs:element name="unFiltered" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
-    </xs:element>
+    </xs:element>,
   )
 
   @Test def testRuntimeProperties_04(): Unit = {
@@ -204,7 +206,7 @@ class TestRuntimeProperties {
           <xs:element name="unFiltered" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
-    </xs:element>
+    </xs:element>,
   )
 
   @Test def testRuntimeProperties_05(): Unit = {

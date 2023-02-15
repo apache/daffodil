@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section07.discriminators
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestDiscriminators {
   val testDir = "/org/apache/daffodil/section07/discriminators/"
@@ -39,11 +40,21 @@ class TestDiscriminators {
 
   import TestDiscriminators._
 
-  @Test def test_discriminatorGuidesChoice(): Unit = { runner.runOneTest("discriminatorGuidesChoice") }
-  @Test def test_discriminatorGuidesChoice2(): Unit = { runner.runOneTest("discriminatorGuidesChoice2") }
-  @Test def test_discriminatorGuidesChoice3(): Unit = { runner.runOneTest("discriminatorGuidesChoice3") }
-  @Test def test_discriminatorGuidesChoice4(): Unit = { runner.runOneTest("discriminatorGuidesChoice4") }
-  @Test def test_discriminatorGuidesChoice5(): Unit = { runner.runOneTest("discriminatorGuidesChoice5") }
+  @Test def test_discriminatorGuidesChoice(): Unit = {
+    runner.runOneTest("discriminatorGuidesChoice")
+  }
+  @Test def test_discriminatorGuidesChoice2(): Unit = {
+    runner.runOneTest("discriminatorGuidesChoice2")
+  }
+  @Test def test_discriminatorGuidesChoice3(): Unit = {
+    runner.runOneTest("discriminatorGuidesChoice3")
+  }
+  @Test def test_discriminatorGuidesChoice4(): Unit = {
+    runner.runOneTest("discriminatorGuidesChoice4")
+  }
+  @Test def test_discriminatorGuidesChoice5(): Unit = {
+    runner.runOneTest("discriminatorGuidesChoice5")
+  }
 
   @Test def test_discrimPatternPass(): Unit = { runner.runOneTest("discrimPatternPass") }
   @Test def test_discrimPatternFail(): Unit = { runner.runOneTest("discrimPatternFail") }
@@ -70,27 +81,45 @@ class TestDiscriminators {
   // DAFFODIL-1971
   // @Test def test_discrimExpression_04() = { runner.runOneTest("discrimExpression_04") }
 
-  @Test def test_discrimFailStopsFollowingAssert1(): Unit = { runner.runOneTest("discrimFailStopsFollowingAssert1") }
+  @Test def test_discrimFailStopsFollowingAssert1(): Unit = {
+    runner.runOneTest("discrimFailStopsFollowingAssert1")
+  }
   @Test def test_discrimPEnotSDE1(): Unit = { runner.runOneTest("discrimPEnotSDE1") }
   @Test def test_assertSDENotPE1(): Unit = { runner.runOneTest("assertSDENotPE1") }
   @Test def test_occursCountSDENotPE1(): Unit = { runner.runOneTest("occursCountSDENotPE1") }
   @Test def test_discrimPEvalueLength1(): Unit = { runner.runOneTest("discrimPEvalueLength1") }
-  @Test def test_discrimPEvalueLengthEnclosingParent1(): Unit = { runner.runOneTest("discrimPEvalueLengthEnclosingParent1") }
+  @Test def test_discrimPEvalueLengthEnclosingParent1(): Unit = {
+    runner.runOneTest("discrimPEvalueLengthEnclosingParent1")
+  }
 
-  @Test def test_multipleDiscriminators1(): Unit = { runner2.runOneTest("multipleDiscriminators1") }
-  @Test def test_multipleDiscriminators2(): Unit = { runner2.runOneTest("multipleDiscriminators2") }
-  @Test def test_multipleDiscriminators3(): Unit = { runner2.runOneTest("multipleDiscriminators3") }
-  @Test def test_multipleDiscriminators4(): Unit = { runner2.runOneTest("multipleDiscriminators4") }
-  @Test def test_multipleDiscriminators5(): Unit = { runner2.runOneTest("multipleDiscriminators5") }
+  @Test def test_multipleDiscriminators1(): Unit = {
+    runner2.runOneTest("multipleDiscriminators1")
+  }
+  @Test def test_multipleDiscriminators2(): Unit = {
+    runner2.runOneTest("multipleDiscriminators2")
+  }
+  @Test def test_multipleDiscriminators3(): Unit = {
+    runner2.runOneTest("multipleDiscriminators3")
+  }
+  @Test def test_multipleDiscriminators4(): Unit = {
+    runner2.runOneTest("multipleDiscriminators4")
+  }
+  @Test def test_multipleDiscriminators5(): Unit = {
+    runner2.runOneTest("multipleDiscriminators5")
+  }
 
   @Test def test_discrimPlacementSDW(): Unit = { runner.runOneTest("discrimPlacementSDW") }
   @Test def test_assertPlacementSDW(): Unit = { runner.runOneTest("assertPlacementSDW") }
 
   @Test def test_nameDOB_test1(): Unit = { runner3.runOneTest("nameDOB_test1") }
-  @Test def test_nameDOB_test_bad_date_first_row(): Unit = { runner3.runOneTest("nameDOB_test_bad_date_first_row") }
+  @Test def test_nameDOB_test_bad_date_first_row(): Unit = {
+    runner3.runOneTest("nameDOB_test_bad_date_first_row")
+  }
 
   // DAFFODIL-2486 - discriminator bug - interaction with separators
   // @Test def test_nameDOB_test_bad_1(): Unit = { runner3.runOneTest("nameDOB_test_bad_1") }
 
-  @Test def test_nameDOB_test_bad_using_terminators(): Unit = { runner3.runOneTest("nameDOB_test_bad_using_terminators") }
+  @Test def test_nameDOB_test_bad_using_terminators(): Unit = {
+    runner3.runOneTest("nameDOB_test_bad_using_terminators")
+  }
 }

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section23.runtime_properties
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestDynamicSeparator {
 

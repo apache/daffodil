@@ -16,10 +16,11 @@
  */
 package org.sbadudfs.functionclasses2.StringFunctions
 
-import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.udf.UserDefinedFunctionProvider
-import org.apache.daffodil.udf.UserDefinedFunctionIdentification
 import java.io.Serializable
+
+import org.apache.daffodil.udf.UserDefinedFunction
+import org.apache.daffodil.udf.UserDefinedFunctionIdentification
+import org.apache.daffodil.udf.UserDefinedFunctionProvider
 
 /**
  * UDF Provider for Negative Unit test
@@ -36,8 +37,10 @@ class StringFunctionsProvider extends UserDefinedFunctionProvider {
 
   override def createUserDefinedFunction(namespaceURI: String, fName: String) = {
     val udf = s"$namespaceURI:$fName" match {
-      case "http://example.com/scala/udf:get-nonserializable-state" => new GetNonSerializableState(nonSerializable)
-      case "http://example.com/scala/udf:get-serializable-state" => new GetSerializableState(serializable)
+      case "http://example.com/scala/udf:get-nonserializable-state" =>
+        new GetNonSerializableState(nonSerializable)
+      case "http://example.com/scala/udf:get-serializable-state" =>
+        new GetSerializableState(serializable)
     }
     udf
   }
@@ -64,7 +67,8 @@ class SomeSerializableClass extends Serializable {
  */
 @UserDefinedFunctionIdentification(
   name = "get-nonserializable-state",
-  namespaceURI = "http://example.com/scala/udf")
+  namespaceURI = "http://example.com/scala/udf",
+)
 class GetNonSerializableState(state: SomeNonSerializableClass) extends UserDefinedFunction {
 
   def evaluate() = {
@@ -80,7 +84,8 @@ class GetNonSerializableState(state: SomeNonSerializableClass) extends UserDefin
  */
 @UserDefinedFunctionIdentification(
   name = "get-serializable-state",
-  namespaceURI = "http://example.com/scala/udf")
+  namespaceURI = "http://example.com/scala/udf",
+)
 class GetSerializableState(state: SomeSerializableClass) extends UserDefinedFunction {
 
   def evaluate() = {

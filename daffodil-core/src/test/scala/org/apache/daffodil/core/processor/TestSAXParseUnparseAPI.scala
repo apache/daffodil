@@ -19,15 +19,17 @@ package org.apache.daffodil.core.processor
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+
+import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
-import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.runtime1.processors.ParseResult
-import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
-import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -40,13 +42,17 @@ class TestSAXParseUnparseAPI {
    * Tests the case where we use SAX to parse data and SAX unparse to unparse the parsed data
    */
   @Test def test_DaffodilParseXMLReader_parse_DaffodilUnparseContentHandler_unparse(): Unit = {
-    val (parseXMLReader: DFDL.DaffodilParseXMLReader,
-    baosParse: ByteArrayOutputStream,
-    inArray: Array[Byte]) = setupSAXParserTest(dp, testData)
+    val (
+      parseXMLReader: DFDL.DaffodilParseXMLReader,
+      baosParse: ByteArrayOutputStream,
+      inArray: Array[Byte],
+    ) = setupSAXParserTest(dp, testData)
     val baisParse = new ByteArrayInputStream(inArray)
     val inputSourceParse = new InputSource(baisParse)
     parseXMLReader.parse(inputSourceParse)
-    val pr = parseXMLReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr = parseXMLReader
+      .getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT)
+      .asInstanceOf[ParseResult]
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, scala.xml.XML.loadString(baosParse.toString))
     val unparseXMLReader = DaffodilSAXParserFactory().newSAXParser().getXMLReader
@@ -109,13 +115,17 @@ class TestSAXParseUnparseAPI {
     assertTrue(!ur.isError)
     assertEquals(testData, unparsedData)
 
-    val (parseXMLReader: DFDL.DaffodilParseXMLReader,
-    baosParse: ByteArrayOutputStream,
-    inArray: Array[Byte]) = setupSAXParserTest(dp, baosUnparse.toString)
+    val (
+      parseXMLReader: DFDL.DaffodilParseXMLReader,
+      baosParse: ByteArrayOutputStream,
+      inArray: Array[Byte],
+    ) = setupSAXParserTest(dp, baosUnparse.toString)
     val baisParse = new ByteArrayInputStream(inArray)
     val inputSourceParse = new InputSource(baisParse)
     parseXMLReader.parse(inputSourceParse)
-    val pr = parseXMLReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr = parseXMLReader
+      .getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT)
+      .asInstanceOf[ParseResult]
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, scala.xml.XML.loadString(baosParse.toString))
   }
@@ -148,14 +158,18 @@ class TestSAXParseUnparseAPI {
   }
 
   @Test def test_DaffodilParseXMLReader_parse_DataProcessor_unparse(): Unit = {
-    val (parseXMLReader: DFDL.DaffodilParseXMLReader,
-    baosParse: ByteArrayOutputStream,
-    inArray: Array[Byte]) = setupSAXParserTest(dp, testData)
+    val (
+      parseXMLReader: DFDL.DaffodilParseXMLReader,
+      baosParse: ByteArrayOutputStream,
+      inArray: Array[Byte],
+    ) = setupSAXParserTest(dp, testData)
     val baisParse = new ByteArrayInputStream(inArray)
     val inputSourceParse = new InputSource(baisParse)
     parseXMLReader.parse(inputSourceParse)
     val parsedNode = scala.xml.XML.loadString(baosParse.toString)
-    val pr = parseXMLReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr = parseXMLReader
+      .getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT)
+      .asInstanceOf[ParseResult]
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, parsedNode)
 
@@ -176,13 +190,17 @@ class TestSAXParseUnparseAPI {
     assertTrue(!ur.isError)
     assertEquals(testData, baosUnparse.toString)
 
-    val (parseXMLReader: DFDL.DaffodilParseXMLReader,
-    baosParse: ByteArrayOutputStream,
-    inArray: Array[Byte]) = setupSAXParserTest(dp, baosUnparse.toString)
+    val (
+      parseXMLReader: DFDL.DaffodilParseXMLReader,
+      baosParse: ByteArrayOutputStream,
+      inArray: Array[Byte],
+    ) = setupSAXParserTest(dp, baosUnparse.toString)
     val baisParse = new ByteArrayInputStream(inArray)
     val inputSourceParse = new InputSource(baisParse)
     parseXMLReader.parse(inputSourceParse)
-    val pr = parseXMLReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr = parseXMLReader
+      .getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT)
+      .asInstanceOf[ParseResult]
     assertTrue(!pr.isError)
     assertEquals(expectedInfoset, scala.xml.XML.loadString(baosParse.toString))
   }

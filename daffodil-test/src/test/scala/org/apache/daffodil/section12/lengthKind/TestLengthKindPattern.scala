@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section12.lengthKind
 
-import org.junit.Test
-import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
+
+import org.junit.AfterClass
+import org.junit.Test
 
 object TestLengthKindPattern {
 
@@ -48,40 +49,76 @@ class TestLengthKindPattern {
   @Test def test_invalid_pattern3(): Unit = { runner.runOneTest("invalid_pattern3") }
 
   @Test def test_AI000_rev(): Unit = { runner.runOneTest("AI000_rev") } // round trip
-  @Test def test_LengthKindPattern(): Unit = { runner.runOneTest("LengthKindPattern") } // round trip
-  @Test def test_LengthKindPatternCompound(): Unit = { runner.runOneTest("LengthKindPatternCompound") }
-  @Test def test_LengthKindPatternCompound2(): Unit = { runner.runOneTest("LengthKindPatternCompound2") } // round trip
-  @Test def test_lengthKindPattern_01(): Unit = { runner.runOneTest("lengthKindPattern_01") } // round trip
-  @Test def test_lengthKindPattern_02(): Unit = { runner.runOneTest("lengthKindPattern_02") } // round trip
-  @Test def test_lengthKindPattern_03(): Unit = { runner.runOneTest("lengthKindPattern_03") } // round trip
-  @Test def test_lengthKindPattern_04(): Unit = { runner.runOneTest("lengthKindPattern_04") } // round trip
+  @Test def test_LengthKindPattern(): Unit = {
+    runner.runOneTest("LengthKindPattern")
+  } // round trip
+  @Test def test_LengthKindPatternCompound(): Unit = {
+    runner.runOneTest("LengthKindPatternCompound")
+  }
+  @Test def test_LengthKindPatternCompound2(): Unit = {
+    runner.runOneTest("LengthKindPatternCompound2")
+  } // round trip
+  @Test def test_lengthKindPattern_01(): Unit = {
+    runner.runOneTest("lengthKindPattern_01")
+  } // round trip
+  @Test def test_lengthKindPattern_02(): Unit = {
+    runner.runOneTest("lengthKindPattern_02")
+  } // round trip
+  @Test def test_lengthKindPattern_03(): Unit = {
+    runner.runOneTest("lengthKindPattern_03")
+  } // round trip
+  @Test def test_lengthKindPattern_04(): Unit = {
+    runner.runOneTest("lengthKindPattern_04")
+  } // round trip
 
-  @Test def test_LengthPatternIllegalBits_01(): Unit = { runner.runOneTest("LengthPatternIllegalBits_01") }
-  @Test def test_LengthPatternLegalBits_01(): Unit = { runner.runOneTest("LengthPatternLegalBits_01") }
+  @Test def test_LengthPatternIllegalBits_01(): Unit = {
+    runner.runOneTest("LengthPatternIllegalBits_01")
+  }
+  @Test def test_LengthPatternLegalBits_01(): Unit = {
+    runner.runOneTest("LengthPatternLegalBits_01")
+  }
 
   // DFDL-309
-  @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace(): Unit = { runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace") }
+  @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace(): Unit = {
+    runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace")
+  }
   // DFDL-935 dfdl:encodingErrorPolicy='error'
-  //@Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Error() { runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Error") }
+  // @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Error() { runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Error") }
 
-  @Test def test_LengthPatternLegalBits_02(): Unit = { runner.runOneTest("LengthPatternLegalBits_02") } // round trip
+  @Test def test_LengthPatternLegalBits_02(): Unit = {
+    runner.runOneTest("LengthPatternLegalBits_02")
+  } // round trip
   @Test def test_lengthKindPatternFail(): Unit = { runner.runOneTest("lengthKindPatternFail") }
 
-  @Test def test_ComplexWithBinaryChild(): Unit = { runner.runOneTest("ComplexWithBinaryChild") }
+  @Test def test_ComplexWithBinaryChild(): Unit = {
+    runner.runOneTest("ComplexWithBinaryChild")
+  }
 
   @Test def test_AI000(): Unit = { runnerAI.runOneTest("AI000") }
 
-  @Test def test_LengthPatternNil_NoNil(): Unit = { runner.runOneTest("LengthPatternNil_NoNil") } // round trip
-  @Test def test_LengthPatternNil_FindsNil(): Unit = { runner.runOneTest("LengthPatternNil_FindsNil") } // round trip
-  @Test def test_LengthPatternNil_EmptyStringAllowed(): Unit = { runner.runOneTest("LengthPatternNil_EmptyStringAllowed") }
+  @Test def test_LengthPatternNil_NoNil(): Unit = {
+    runner.runOneTest("LengthPatternNil_NoNil")
+  } // round trip
+  @Test def test_LengthPatternNil_FindsNil(): Unit = {
+    runner.runOneTest("LengthPatternNil_FindsNil")
+  } // round trip
+  @Test def test_LengthPatternNil_EmptyStringAllowed(): Unit = {
+    runner.runOneTest("LengthPatternNil_EmptyStringAllowed")
+  }
   @Test def test_nested_patterns(): Unit = { runner.runOneTest("nested_patterns") }
   @Test def test_nested_patterns_01(): Unit = { runner.runOneTest("nested_patterns_01") }
   @Test def test_nested_patterns_02(): Unit = { runner.runOneTest("nested_patterns_02") }
   @Test def test_nested_patterns_03(): Unit = { runner.runOneTest("nested_patterns_03") }
 
-  @Test def test_hexBinaryLengthKindPattern01(): Unit = { runner.runOneTest("hexBinaryLengthKindPattern01") }
+  @Test def test_hexBinaryLengthKindPattern01(): Unit = {
+    runner.runOneTest("hexBinaryLengthKindPattern01")
+  }
 
-  @Test def test_lengthPatternEncodingErrorReplace(): Unit = { runner.runOneTest("lengthPatternEncodingErrorReplace") }
+  @Test def test_lengthPatternEncodingErrorReplace(): Unit = {
+    runner.runOneTest("lengthPatternEncodingErrorReplace")
+  }
 
-  @Test def test_lengthPatternBinaryPatternLimit(): Unit = { runner.runOneTest("lengthPatternBinaryPatternLimit") }
+  @Test def test_lengthPatternBinaryPatternLimit(): Unit = {
+    runner.runOneTest("lengthPatternBinaryPatternLimit")
+  }
 }

@@ -17,12 +17,15 @@
 
 package org.apache.daffodil.section14.sequence_groups
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestSequenceGroupUnparse {
-  val runner = Runner("/org/apache/daffodil/section14/sequence_groups/SequenceGroupUnparse.tdml")
+  val runner = Runner(
+    "/org/apache/daffodil/section14/sequence_groups/SequenceGroupUnparse.tdml",
+  )
   @AfterClass def shutDown(): Unit = {
     runner.reset
   }
@@ -36,6 +39,8 @@ class TestSequenceGroupUnparse {
   @Test def test_seqWithOptionals4(): Unit = { runner.runOneTest("seqWithOptionals4") }
   @Test def test_seqWithOptionals5(): Unit = { runner.runOneTest("seqWithOptionals5") }
 
-  @Test def test_seqWithHiddenGroupContainingComplex(): Unit = { runner.runOneTest("seqWithHiddenGroupContainingComplex") }
+  @Test def test_seqWithHiddenGroupContainingComplex(): Unit = {
+    runner.runOneTest("seqWithHiddenGroupContainingComplex")
+  }
 
 }

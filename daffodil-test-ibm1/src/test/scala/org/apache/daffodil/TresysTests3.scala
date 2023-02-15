@@ -18,21 +18,35 @@
 package org.apache.daffodil
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.{ AfterClass, Test }
 
 object TresysTests3 {
   val testDir = "/test-suite/tresys-contributed/"
 
-  val runnerBF = Runner(testDir, "bitFlagExpression.tdml",
-    compileAllTopLevel = false) // test has elements that have upward paths past root.
+  val runnerBF = Runner(
+    testDir,
+    "bitFlagExpression.tdml",
+    compileAllTopLevel = false,
+  ) // test has elements that have upward paths past root.
 
   val runnerAH = Runner(testDir, "AH.tdml", compileAllTopLevel = true)
 
-  val runnerAM = Runner(testDir, "AM.tdml", validateTDMLFile = true, validateDFDLSchemas = false,
-    compileAllTopLevel = true)
+  val runnerAM = Runner(
+    testDir,
+    "AM.tdml",
+    validateTDMLFile = true,
+    validateDFDLSchemas = false,
+    compileAllTopLevel = true,
+  )
 
-  val runnerAU = Runner(testDir, "AU.tdml", validateTDMLFile = true, validateDFDLSchemas = false,
-    compileAllTopLevel = true)
+  val runnerAU = Runner(
+    testDir,
+    "AU.tdml",
+    validateTDMLFile = true,
+    validateDFDLSchemas = false,
+    compileAllTopLevel = true,
+  )
 
   val runnerBC = Runner(testDir, "BC.tdml")
   val runnerBD = Runner(testDir, "BD.tdml")

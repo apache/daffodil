@@ -20,13 +20,13 @@ package org.apache.daffodil.io
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 
+import org.apache.daffodil.io.processors.charset.CharsetUtils
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.util.Misc
+
 import org.junit.Assert._
 import org.junit.Test
-
-import org.apache.daffodil.io.processors.charset.CharsetUtils
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
 class TestNonByteSizedCharsetDecoders8Bit {
 
@@ -38,12 +38,13 @@ class TestNonByteSizedCharsetDecoders8Bit {
   msbfFinfo.byteOrder = ByteOrder.BigEndian
   msbfFinfo.bitOrder = BitOrder.MostSignificantBitFirst
 
-
   @Test def test8BitMSBF_01(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST")
     val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(8)
-    val bb = ByteBuffer.wrap(Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111"))
+    val bb = ByteBuffer.wrap(
+      Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111"),
+    )
     val dis = InputSourceDataInputStream(bb)
     val res = decoder.decode(dis, msbfFinfo, cb)
     assertEquals(8, res)
@@ -56,9 +57,11 @@ class TestNonByteSizedCharsetDecoders8Bit {
     val cs = CharsetUtils.getCharset("X-DFDL-ISO-88591-8-BIT-PACKED-MSB-FIRST")
     val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(7) // not enough space for last digit
-    val bb = ByteBuffer.wrap(Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111"))
+    val bb = ByteBuffer.wrap(
+      Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111"),
+    )
     val dis = InputSourceDataInputStream(bb)
-    //dis.skip(4, msbfFinfo)
+    // dis.skip(4, msbfFinfo)
     val res = decoder.decode(dis, msbfFinfo, cb)
     assertEquals(7, res)
     cb.flip()
@@ -70,7 +73,9 @@ class TestNonByteSizedCharsetDecoders8Bit {
     val cs = CharsetUtils.getCharset("X-DFDL-ISO-88591-8-BIT-PACKED-LSB-FIRST")
     val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(64)
-    val bb = ByteBuffer.wrap(Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111"))
+    val bb = ByteBuffer.wrap(
+      Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111"),
+    )
     val dis = InputSourceDataInputStream(bb)
     val res = decoder.decode(dis, lsbfFinfo, cb)
     assertEquals(8, res)

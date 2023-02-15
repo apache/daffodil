@@ -17,16 +17,17 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
-import org.junit.Test
-import org.junit.Assert._
-
 import java.nio.ByteBuffer
-import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+
+import org.apache.daffodil.io.processors.charset.BitsCharsetDecoderUnalignedCharDecodeException
+import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.MaybeULong
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestInputSourceDataInputStream6 {
 
@@ -44,20 +45,20 @@ class TestInputSourceDataInputStream6 {
     bb.order(java.nio.ByteOrder.BIG_ENDIAN)
     val fb = bb.asLongBuffer()
     fb.position(0)
-    val data = 0xF102030405060708L
+    val data = 0xf102030405060708L
     fb.put(data)
     val bytes = bb.array()
     val dis = InputSourceDataInputStream(bytes)
     dis.skip(1, beFinfo) // move over one bit
     val arr = dis.getByteArray((8 * 8) - 1, beFinfo)
     assertEquals(8, arr.size)
-    assertEquals(0xE2.toByte, arr(0))
+    assertEquals(0xe2.toByte, arr(0))
     assertEquals(0x04.toByte, arr(1))
     assertEquals(0x06.toByte, arr(2))
     assertEquals(0x08.toByte, arr(3))
-    assertEquals(0x0A.toByte, arr(4))
-    assertEquals(0x0C.toByte, arr(5))
-    assertEquals(0x0E.toByte, arr(6))
+    assertEquals(0x0a.toByte, arr(4))
+    assertEquals(0x0c.toByte, arr(5))
+    assertEquals(0x0e.toByte, arr(6))
     assertEquals(0x10.toByte, arr(7))
     assertEquals(64, dis.bitPos0b)
   }
@@ -67,7 +68,7 @@ class TestInputSourceDataInputStream6 {
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
     fb.position(0)
-    val data = 0xF102030405060708L
+    val data = 0xf102030405060708L
     fb.put(data)
     val bytes = bb.array()
     val dis = InputSourceDataInputStream(bytes)
@@ -75,13 +76,13 @@ class TestInputSourceDataInputStream6 {
     assertEquals(1, dis.bitPos0b)
     val arr = dis.getByteArray((8 * 8) - 1, leFinfo)
     assertEquals(8, arr.size)
-    assertEquals(0xE2.toByte, arr(0))
+    assertEquals(0xe2.toByte, arr(0))
     assertEquals(0x05.toByte, arr(1))
     assertEquals(0x06.toByte, arr(2))
     assertEquals(0x08.toByte, arr(3))
-    assertEquals(0x0A.toByte, arr(4))
-    assertEquals(0x0C.toByte, arr(5))
-    assertEquals(0x0E.toByte, arr(6))
+    assertEquals(0x0a.toByte, arr(4))
+    assertEquals(0x0c.toByte, arr(5))
+    assertEquals(0x0e.toByte, arr(6))
     assertEquals(0x10.toByte, arr(7))
     assertEquals(64, dis.bitPos0b)
   }
@@ -91,7 +92,7 @@ class TestInputSourceDataInputStream6 {
     bb.order(java.nio.ByteOrder.LITTLE_ENDIAN)
     val fb = bb.asLongBuffer()
     fb.position(0)
-    val data = 0x01020304050607F8L
+    val data = 0x01020304050607f8L
     fb.put(data)
     val bytes = bb.array()
     val dis = InputSourceDataInputStream(bytes)
@@ -105,7 +106,7 @@ class TestInputSourceDataInputStream6 {
     assertEquals(0x02.toByte, arr(4))
     assertEquals(0x83.toByte, arr(5))
     assertEquals(0x03.toByte, arr(6))
-    assertEquals(0xFC.toByte, arr(7))
+    assertEquals(0xfc.toByte, arr(7))
     assertEquals(64, dis.bitPos0b)
   }
 
@@ -167,7 +168,9 @@ class TestInputSourceDataInputStream6 {
 
   @Test def testGetSomeStringDataEndsMidByte3(): Unit = {
     val dis = InputSourceDataInputStream("年月日".getBytes("utf-8"))
-    dis.setBitLimit0b(MaybeULong((8 * 6) + 10)) // 1 more byte plus 2 extra bits after first 2 chars
+    dis.setBitLimit0b(
+      MaybeULong((8 * 6) + 10),
+    ) // 1 more byte plus 2 extra bits after first 2 chars
     val ms = dis.getSomeString(3, beFinfo)
     assertTrue(ms.isDefined)
     val s = ms.get
@@ -193,7 +196,9 @@ class TestInputSourceDataInputStream6 {
     val iter = dis.asIteratorChar
     iter.setFormatInfo(beFinfo)
     dis.skip(1, beFinfo)
-    assertTrue(iter.hasNext) // examining a character here requires aligning to mandatory alignment of 8 bit boundary.
+    assertTrue(
+      iter.hasNext,
+    ) // examining a character here requires aligning to mandatory alignment of 8 bit boundary.
     assertEquals(1, dis.bitPos0b)
     assertEquals('年', iter.next)
     assertEquals(32, dis.bitPos0b)
@@ -223,14 +228,19 @@ class TestInputSourceDataInputStream6 {
     val iter = dis.asIteratorChar
     iter.setFormatInfo(beFinfo)
     dis.skip(1, beFinfo)
-    assertTrue(iter.hasNext) // examining a character here requires aligning to mandatory alignment of 8 bit boundary.
+    assertTrue(
+      iter.hasNext,
+    ) // examining a character here requires aligning to mandatory alignment of 8 bit boundary.
     assertEquals(1, dis.bitPos0b)
     dis.skip(1, beFinfo) // this skip should invalidate the character cached by hasNext.
     assertEquals(2, dis.bitPos0b)
     assertTrue(iter.hasNext)
     assertEquals(2, dis.bitPos0b)
     val c = iter.next
-    assertEquals(32, dis.bitPos0b) // has next doesn't cause movement even to align to mandatory.
+    assertEquals(
+      32,
+      dis.bitPos0b,
+    ) // has next doesn't cause movement even to align to mandatory.
     assertEquals('年', c)
     assertTrue(iter.hasNext)
     dis.skip(4, beFinfo)

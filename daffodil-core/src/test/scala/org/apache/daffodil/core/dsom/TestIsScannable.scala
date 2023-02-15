@@ -17,14 +17,12 @@
 
 package org.apache.daffodil.core.dsom
 
+import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dsom._
 
-import org.junit.Test
-import org.apache.daffodil.core.compiler._
-
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.junit.Assert._
-import org.apache.daffodil.lib.util.SchemaUtils
 import org.junit.Test
 
 class TestIsScannable {
@@ -38,7 +36,6 @@ class TestIsScannable {
     val sc = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="utf-8"/>,
-
       <xs:element name="list">
         <xs:complexType>
           <xs:sequence dfdl:separator="">
@@ -52,7 +49,8 @@ class TestIsScannable {
           <xs:element ref="ex:w"/>
           <xs:element name="x" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:choice>
-      </xs:group>)
+      </xs:group>,
+    )
 
     val sset = Compiler().compileNode(sc).sset
 
@@ -69,7 +67,6 @@ class TestIsScannable {
     val sc = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-
       <xs:element name="list">
         <xs:complexType>
           <xs:sequence dfdl:separator="">
@@ -83,7 +80,8 @@ class TestIsScannable {
           <xs:element ref="ex:w"/>
           <xs:element name="x" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:choice>
-      </xs:group>)
+      </xs:group>,
+    )
 
     val sset = Compiler().compileNode(sc).sset
 
@@ -117,7 +115,8 @@ class TestIsScannable {
           <xs:element ref="ex:w"/>
           <xs:element name="x" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:choice>
-      </xs:group>)
+      </xs:group>,
+    )
 
     val sset = Compiler().compileNode(sc).sset
 

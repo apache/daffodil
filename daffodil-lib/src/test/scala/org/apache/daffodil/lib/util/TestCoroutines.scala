@@ -16,9 +16,10 @@
  */
 package org.apache.daffodil.lib.util
 
-import org.junit.Test
-import org.junit.Assert._
 import org.apache.daffodil.lib.Implicits._
+
+import org.junit.Assert._
+import org.junit.Test
 
 private class TestException(e: String) extends Exception(e)
 
@@ -43,7 +44,7 @@ private class TestInvertControl {
    * Note that this library is allowed to be NON THREAD SAFE.
    */
   class NotThreadSafeLibrary[T]() {
-    def doIt(l: Seq[T]) : Unit = {
+    def doIt(l: Seq[T]): Unit = {
       sprintln("NotThreadSafeLibrary running")
       l.foreach { x =>
         sprintln("NotThreadSafeLibrary calling back with " + x)
@@ -54,7 +55,7 @@ private class TestInvertControl {
 
     private var handleEvent: T => Any = _
 
-    def setHandler(f: T => Any) : Unit = {
+    def setHandler(f: T => Any): Unit = {
       handleEvent = f
     }
   }
@@ -62,23 +63,24 @@ private class TestInvertControl {
   /**
    * Illustrates how to use the InvertControl class
    */
-  @Test def test1() : Unit = {
+  @Test def test1(): Unit = {
 
-    val cb = new NotThreadSafeLibrary[JInt]() // some non-safe library that gets a callback handler
+    val cb =
+      new NotThreadSafeLibrary[JInt]() // some non-safe library that gets a callback handler
     //
     // Wrap the initial call that starts the library in the
     // InvertControl class.
     //
     val iter = new InvertControl[JInt](
       // this argument is the code to call to run the library
-      cb.doIt(List(1, 2, 3))
+      cb.doIt(List(1, 2, 3)),
       // not executed until we start iterating
     )
     assertTrue(iter.isMain)
     //
     // define a handler as the library requires
     //
-    def handler(i: JInt) : Unit = {
+    def handler(i: JInt): Unit = {
       // sprintln("handler called on: " + i)
       //
       // handler must call the callback function of the InvertControl
@@ -110,9 +112,10 @@ private class TestInvertControl {
   /**
    * Illustrates exception in generator ends up back on the consumer.
    */
-  @Test def test2() : Unit = {
+  @Test def test2(): Unit = {
 
-    val cb = new NotThreadSafeLibrary[JInt]() // some non-safe library that gets a callback handler
+    val cb =
+      new NotThreadSafeLibrary[JInt]() // some non-safe library that gets a callback handler
     //
     // Wrap the initial call that starts the library in the
     // InvertControl class.
@@ -134,7 +137,7 @@ private class TestInvertControl {
     //
     // define a handler as the library requires
     //
-    def handler(i: JInt) : Unit = {
+    def handler(i: JInt): Unit = {
       sprintln("handler called on: " + i)
       //
       // handler must call the callback function of the InvertControl

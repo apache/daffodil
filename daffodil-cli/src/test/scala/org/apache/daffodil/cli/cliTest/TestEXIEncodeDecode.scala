@@ -17,19 +17,24 @@
 
 package org.apache.daffodil.cliTest
 
-import org.junit.Test
-
-import scala.xml.XML
 import java.nio.file.Paths
-import org.apache.daffodil.cli.cliTest.Util._
+import scala.xml.XML
+
 import org.apache.daffodil.cli.Main.ExitCode
+import org.apache.daffodil.cli.cliTest.Util._
 import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.junit.Test
 
 class TestCLIEncodeDecodeEXI {
 
   @Test def test_CLI_Encode_Decode_EXI_SA(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.dfdl.xsd")
-    val infosetPath = path("daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_Book2.expected.xml")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.dfdl.xsd",
+    )
+    val infosetPath = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_Book2.expected.xml",
+    )
     val infosetXML = XML.loadFile(infosetPath.toFile)
 
     withTempDir { tempDir =>
@@ -37,12 +42,10 @@ class TestCLIEncodeDecodeEXI {
       val tempXML = Paths.get(tempDir.toString, "temp.xml")
 
       // Encode infoset to schema aware EXI
-      runCLI(args"exi -s $schema -o $tempEXI $infosetPath") { cli =>
-      } (ExitCode.Success)
+      runCLI(args"exi -s $schema -o $tempEXI $infosetPath") { cli => }(ExitCode.Success)
 
       // Decode EXI to XML and compare against original XML infoset
-      runCLI(args"exi -d -s $schema -o $tempXML $tempEXI") { cli =>
-      } (ExitCode.Success)
+      runCLI(args"exi -d -s $schema -o $tempXML $tempEXI") { cli => }(ExitCode.Success)
 
       val resultNode = XML.loadFile(tempXML.toFile)
       XMLUtils.compareAndReport(infosetXML, resultNode)
@@ -58,10 +61,9 @@ class TestCLIEncodeDecodeEXI {
 
       runCLI(args"exi -o $tempEXI") { cli =>
         cli.sendLine(inputXML.toString, inputDone = true)
-      } (ExitCode.Success)
+      }(ExitCode.Success)
 
-      runCLI(args"exi -d -o $tempXML $tempEXI") { cli =>
-      } (ExitCode.Success)
+      runCLI(args"exi -d -o $tempXML $tempEXI") { cli => }(ExitCode.Success)
 
       val resultNode = XML.loadFile(tempXML.toFile)
       XMLUtils.compareAndReport(inputXML, resultNode)
@@ -69,42 +71,51 @@ class TestCLIEncodeDecodeEXI {
   }
 
   @Test def test_CLI_EncodeBadFile_EXI(): Unit = {
-    val badXML = path("daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv")
+    val badXML = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv",
+    )
 
     runCLI(args"exi $badXML") { cli =>
       cli.expectErr("Error parsing input XML")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_DecodeBadFile_EXI(): Unit = {
-    val badEXI = path("daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv")
+    val badEXI = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv",
+    )
 
     runCLI(args"exi -d $badEXI") { cli =>
       cli.expectErr("No valid EXI document")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_LoadBadSchema_EXI(): Unit = {
-    val badSchema = path("daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv")
+    val badSchema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv",
+    )
 
     runCLI(args"exi -s $badSchema") { cli =>
       cli.expectErr("Error creating EXI grammar for the supplied schema")
-    } (ExitCode.Failure)
+    }(ExitCode.Failure)
   }
 
   @Test def test_CLI_AttemptDecodeOfSA_EXI(): Unit = {
-    val schema = path("daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.dfdl.xsd")
-    val infosetPath = path("daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_Book2.expected.xml")
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.dfdl.xsd",
+    )
+    val infosetPath = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_Book2.expected.xml",
+    )
 
     withTempFile { tempEXI =>
       // Encode infoset to schema aware EXI
-      runCLI(args"exi -s $schema -o $tempEXI $infosetPath") { cli =>
-      } (ExitCode.Success)
+      runCLI(args"exi -s $schema -o $tempEXI $infosetPath") { cli => }(ExitCode.Success)
 
       // Attempt to decode EXI using schema unaware decoding
       runCLI(args"exi -d $tempEXI") { cli =>
         cli.expectErr("Error decoding EXI input")
-      } (ExitCode.Failure)
+      }(ExitCode.Failure)
     }
   }
 }

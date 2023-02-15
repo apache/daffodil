@@ -21,7 +21,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
 
-import com.typesafe.config.Config
 import org.apache.daffodil.lib.api.ValidationFailure
 import org.apache.daffodil.lib.api.ValidationResult
 import org.apache.daffodil.lib.api.ValidationWarning
@@ -31,6 +30,8 @@ import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.DataProcessor
 import org.apache.daffodil.sapi.infoset.NullInfosetOutputter
 import org.apache.daffodil.sapi.io.InputSourceDataInputStream
+
+import com.typesafe.config.Config
 
 abstract class ValidatorExamplesSupport {
   private def fileFromResource(path: String): File = new File(getClass.getResource(path).toURI)
@@ -88,7 +89,8 @@ object FailingValidator {
   val name = "failing-validator"
 }
 
-class TestingValidatorSPI(w: Seq[ValidationWarning], f: Seq[ValidationFailure]) extends Validator {
+class TestingValidatorSPI(w: Seq[ValidationWarning], f: Seq[ValidationFailure])
+  extends Validator {
   def validateXML(document: InputStream): ValidationResult = ValidationResult(w, f)
 }
 

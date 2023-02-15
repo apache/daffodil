@@ -18,6 +18,7 @@
 package org.apache.daffodil.section07.variables
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -38,6 +39,5 @@ class TestSetVarWithValueLength {
   // DAFFODIL-2629 Runtime SDE
   @Test def testSetVarWithValueLength1() = { runner.runOneTest("setVarWithValueLength1") }
   @Test def testSetVarWithValueLength2() = { runner.runOneTest("setVarWithValueLength2") }
-
 
 }

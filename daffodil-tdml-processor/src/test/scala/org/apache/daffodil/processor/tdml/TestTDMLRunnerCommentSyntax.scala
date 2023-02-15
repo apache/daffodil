@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.processor.tdml
 
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.Runner
 
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.junit.Test
-import org.apache.daffodil.lib.Implicits._
 
 class TestTDMLRunnerCommentSyntax {
   val tdml = XMLUtils.TDML_NAMESPACE
@@ -33,7 +33,9 @@ class TestTDMLRunnerCommentSyntax {
 
   @Test def testCommentsInScalaLiteralXML() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <!-- comment -->
         <tdml:defineSchema name="mySchema">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
@@ -54,7 +56,7 @@ class TestTDMLRunnerCommentSyntax {
           <!-- comment -->
         </tdml:defineSchema>
         <!-- comment -->
-        <tdml:parserTestCase xmlns={ tdml } name="test1" root="array" model="mySchema">
+        <tdml:parserTestCase xmlns={tdml} name="test1" root="array" model="mySchema">
           <!-- comment -->
           <tdml:document>
             <!-- comment -->

@@ -17,12 +17,14 @@
 
 package org.apache.daffodil.io
 
-import org.junit.Test
-import org.junit.Assert._
-import java.nio.charset._
 import java.nio._
+import java.nio.charset._
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestISO8859_1 {
+
   /**
    * Test that shows that scala/java implementations of iso-8859-1 implement all 256 byte values as one-to-one mapping
    * to Unicode code points.
@@ -46,7 +48,8 @@ class TestISO8859_1 {
    * non-whitespace glyph. That transformation does NOT preserve the 256 codepoint values. E.g., all the
    * CO Control characters are mapped to the Unicode CO Control "picture" characters.
    */
-  @Test def test_ISO_8859_1_has256CodepointsIsomorphicToUnicodeCodepointsU0000toU00FF(): Unit = {
+  @Test def test_ISO_8859_1_has256CodepointsIsomorphicToUnicodeCodepointsU0000toU00FF()
+    : Unit = {
     val byteArray = (0 to 255).map { _.toByte }.toArray
     val bb = ByteBuffer.wrap(byteArray)
     val cs = StandardCharsets.ISO_8859_1
@@ -60,7 +63,8 @@ class TestISO8859_1 {
     val cr = decoder.decode(bb, cb, true)
     cr match {
       case CoderResult.UNDERFLOW => // ok. This is the expected exit
-      case CoderResult.OVERFLOW => fail() // somewhere it consumed more than one byte per character
+      case CoderResult.OVERFLOW =>
+        fail() // somewhere it consumed more than one byte per character
       case m if m.isMalformed() => fail()
       case u if u.isUnmappable() => fail()
     }

@@ -17,14 +17,13 @@
 
 package org.apache.daffodil.processor.tdml
 
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml._
 
-import org.apache.daffodil.tdml.Runner
-
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.lib.Implicits._
 
 class TestTDMLCrossTest {
 
@@ -39,7 +38,9 @@ class TestTDMLCrossTest {
   @Test def testUnrecognizedImpl1(): Unit = {
 
     val testSuite =
-      <ts:testSuite xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:ex={ example } xmlns:ts={ tdml } suiteName="theSuiteName" defaultImplementations="notAnImplName">
+      <ts:testSuite xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:ex={example} xmlns:ts={
+        tdml
+      } suiteName="theSuiteName" defaultImplementations="notAnImplName">
         <ts:defineSchema name="s">
           <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="ex:GeneralFormat"/>

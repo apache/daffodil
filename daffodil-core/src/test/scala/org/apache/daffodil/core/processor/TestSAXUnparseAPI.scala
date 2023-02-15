@@ -19,9 +19,11 @@ package org.apache.daffodil.core.processor
 
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -57,12 +59,12 @@ class TestSAXUnparseAPI {
    * invalid tunable is set. Minimum batchsize must be 1.
    */
   @Test def testUnparseContentHandler_unparse_saxUnparseEventBatchSize_0(): Unit = {
-     val e = intercept[java.lang.IllegalArgumentException] {
+    val e = intercept[java.lang.IllegalArgumentException] {
       testDataProcessor(testSchema1, Map("saxUnparseEventBatchSize" -> "0"))
-     }
-     val eMsg = e.getMessage
-     assertTrue(eMsg.contains("saxUnparseEventBatchSize"))
-     assertTrue(eMsg.contains("0"))
+    }
+    val eMsg = e.getMessage
+    assertTrue(eMsg.contains("saxUnparseEventBatchSize"))
+    assertTrue(eMsg.contains("0"))
   }
 
   /**
@@ -105,7 +107,8 @@ class TestSAXUnparseAPI {
    * tests the case of unparsing with the namespace features/prefixes set to
    * false/true, with non-empty prefixes and ignored attributes
    */
-  @Test def testUnparseContentHandler_unparse_namespace_prefix_feature_non_empty_prefix(): Unit = {
+  @Test def testUnparseContentHandler_unparse_namespace_prefix_feature_non_empty_prefix()
+    : Unit = {
     val xmlReader: XMLReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
     val bao = new ByteArrayOutputStream()
     val wbc = java.nio.channels.Channels.newChannel(bao)
@@ -113,7 +116,8 @@ class TestSAXUnparseAPI {
     xmlReader.setContentHandler(unparseContentHandler)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, false)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
-    val infoset = <p:list xmlns:p="http://example.com" ignored="attr"><p:w>9</p:w><p:w>1</p:w><p:w>0</p:w></p:list>
+    val infoset =
+      <p:list xmlns:p="http://example.com" ignored="attr"><p:w>9</p:w><p:w>1</p:w><p:w>0</p:w></p:list>
     val bai = new ByteArrayInputStream(infoset.toString.getBytes)
     xmlReader.parse(new InputSource(bai))
     val ur = unparseContentHandler.getUnparseResult

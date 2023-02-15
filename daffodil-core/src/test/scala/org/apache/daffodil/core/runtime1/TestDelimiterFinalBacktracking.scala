@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.core.runtime1
 
-import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.core.util.StreamParser
-import org.junit.Test
+import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class TestDelimiterFinalBacktracking {
 
@@ -60,7 +61,8 @@ class TestDelimiterFinalBacktracking {
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       schema1,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
 
     //
     // Baseline behavior

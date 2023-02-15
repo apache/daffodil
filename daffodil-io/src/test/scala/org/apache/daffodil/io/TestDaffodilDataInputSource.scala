@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.io
 
+import java.nio.ByteBuffer
+
 import org.junit.Assert.assertEquals
 import org.junit.Test
-
-import java.nio.ByteBuffer
 
 /**
  * This is an input stream that infinitely returns incrementing bytes between 0
@@ -48,7 +48,7 @@ class TestInputStream extends java.io.InputStream {
   def setEOF(n: Int): Unit = {
     _bytesUntilEOF = Some(n)
   }
-  
+
   override def read(): Int = readCurByte
 
   override def read(b: Array[Byte]): Int = read(b, 0, b.length)
@@ -87,7 +87,7 @@ class TestTestInputStream {
       i += 1
     }
   }
-  
+
   @Test def testTestInputStream2(): Unit = {
     val is = new TestInputStream
     val b = new Array[Byte](10)
@@ -98,7 +98,7 @@ class TestTestInputStream {
       i += 1
     }
   }
-  
+
   @Test def testTestInputStream3(): Unit = {
     val is = new TestInputStream
     val b = new Array[Byte](10)
@@ -119,7 +119,7 @@ class TestTestInputStream {
     assertEquals(3, is.read)
     assertEquals(-1, is.read)
   }
-  
+
   @Test def testTestInputStream5(): Unit = {
     val is = new TestInputStream
     val b = new Array[Byte](10)
@@ -161,7 +161,7 @@ class TestBucketingInputSource {
     }
     assertEquals(20, bis.position())
   }
- 
+
   @Test def testBucketingInputSource3(): Unit = {
     val tis = new TestInputStream
     val bis = new BucketingInputSource(tis, 7)
@@ -189,7 +189,7 @@ class TestBucketingInputSource {
     assertEquals(3, bis.get)
     assertEquals(-1, bis.get)
   }
- 
+
   @Test def testBucketingInputSource5(): Unit = {
     val tis = new TestInputStream
     val bis = new BucketingInputSource(tis, 7)
@@ -211,17 +211,17 @@ class TestBucketingInputSource {
     tis.setEOF(17)
     var i = 0
     while (i < 8) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
     bis.compact()
     while (i < 16) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
     bis.compact()
-    assertEquals(i % 10, bis.get) 
-    assertEquals(-1, bis.get) 
+    assertEquals(i % 10, bis.get)
+    assertEquals(-1, bis.get)
   }
 
   @Test def testBucketingInputSource7(): Unit = {
@@ -230,15 +230,15 @@ class TestBucketingInputSource {
     tis.setEOF(17)
     var i = 0
     while (i < 2) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
     bis.lockPosition(2)
     while (i < 17) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
-    assertEquals(-1, bis.get) 
+    assertEquals(-1, bis.get)
     assertEquals(17, bis.position())
 
     bis.compact() // shouldn't do anything since first bucket is locked
@@ -248,7 +248,7 @@ class TestBucketingInputSource {
     bis.compact() // should'nt do anything since cur pos is at the first bucket
     i = 2
     while (i < 15) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
     bis.compact() // should releaes two buckets
@@ -258,12 +258,10 @@ class TestBucketingInputSource {
   }
 }
 
-
 class TestByteBufferInputSource {
 
-  val data = Array[Byte](0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-                         0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-                         0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+  val data = Array[Byte](0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3,
+    4, 5, 6, 7, 8, 9)
 
   @Test def testByteBufferInputSource1(): Unit = {
     val bb = ByteBuffer.wrap(data)
@@ -323,7 +321,7 @@ class TestByteBufferInputSource {
     assertEquals(3, bis.get)
     assertEquals(-1, bis.get)
   }
- 
+
   @Test def testByteBufferInputSource5(): Unit = {
     val bb = ByteBuffer.wrap(data, 0, 4)
     val bis = new ByteBufferInputSource(bb)
@@ -343,17 +341,17 @@ class TestByteBufferInputSource {
     val bis = new ByteBufferInputSource(bb)
     var i = 0
     while (i < 8) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
     bis.compact()
     while (i < 16) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
     bis.compact()
-    assertEquals(i % 10, bis.get) 
-    assertEquals(-1, bis.get) 
+    assertEquals(i % 10, bis.get)
+    assertEquals(-1, bis.get)
   }
 
   @Test def testByteBufferInputSource7(): Unit = {
@@ -361,15 +359,15 @@ class TestByteBufferInputSource {
     val bis = new ByteBufferInputSource(bb)
     var i = 0
     while (i < 2) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
     bis.lockPosition(2)
     while (i < 17) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
-    assertEquals(-1, bis.get) 
+    assertEquals(-1, bis.get)
     assertEquals(17, bis.position())
 
     bis.compact() // shouldn't do anything since first bucket is locked
@@ -379,7 +377,7 @@ class TestByteBufferInputSource {
     bis.compact() // should'nt do anything since cur pos is at the first bucket
     i = 2
     while (i < 15) {
-      assertEquals(i % 10, bis.get) 
+      assertEquals(i % 10, bis.get)
       i += 1
     }
     bis.compact() // should releaes two buckets

@@ -18,15 +18,17 @@
 package org.apache.daffodil.tdml
 
 import java.io.File
-import org.apache.daffodil.lib.Implicits.using
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
-import org.apache.daffodil.lib.util._
-import org.junit.Test
+
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.Implicits.using
+import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Test
 
 class UnitTestTDMLRunner {
 
@@ -113,13 +115,15 @@ class UnitTestTDMLRunner {
   }
 
   @Test def testDocWithTextFile(): Unit = {
-    val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
+    val xml = <testSuite xmlns={
+      tdml
+    } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>
                     <documentPart type="file">test/tdml/test.txt</documentPart>
                   </document>
                   <infoset>
-                    <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+                    <dfdlInfoset xmlns:xs={xsd} xmlns:xsi={xsi}>
                       <byte1 xsi:type="xs:byte">123</byte1>
                     </dfdlInfoset>
                   </infoset>
@@ -138,13 +142,15 @@ class UnitTestTDMLRunner {
   }
 
   @Test def testDocWithBinaryFile(): Unit = {
-    val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
+    val xml = <testSuite xmlns={
+      tdml
+    } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>
                     <documentPart type="file">test/tdml/test.bin</documentPart>
                   </document>
                   <infoset>
-                    <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+                    <dfdlInfoset xmlns:xs={xsd} xmlns:xsi={xsi}>
                       <byte1 xsi:type="xs:byte">123</byte1>
                     </dfdlInfoset>
                   </infoset>
@@ -158,17 +164,19 @@ class UnitTestTDMLRunner {
     val bytes = new Array[Byte](4)
     doc.data.read(bytes)
     val actual = bytes.toList
-    val expected = Vector(0xDE, 0xAD, 0xBE, 0xEF).map { _.toByte }.toList
+    val expected = Vector(0xde, 0xad, 0xbe, 0xef).map { _.toByte }.toList
     assertEquals(expected, actual)
     runner.reset
   }
 
   @Test def test1(): Unit = {
-    val xml = <testSuite xmlns={ tdml } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
+    val xml = <testSuite xmlns={
+      tdml
+    } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
                 <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
                   <document>0123</document>
                   <infoset>
-                    <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+                    <dfdlInfoset xmlns:xs={xsd} xmlns:xsi={xsi}>
                       <byte1>123</byte1>
                     </dfdlInfoset>
                   </infoset>
@@ -195,11 +203,11 @@ class UnitTestTDMLRunner {
   }
 
   @Test def test2(): Unit = {
-    val xml = <testSuite xmlns={ tdml } suiteName="theSuiteName">
+    val xml = <testSuite xmlns={tdml} suiteName="theSuiteName">
                 <parserTestCase ID="some identifier" name="test2" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd">
                   <document>0123</document>
                   <infoset>
-                    <dfdlInfoset xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+                    <dfdlInfoset xmlns:xs={xsd} xmlns:xsi={xsi}>
                       <byte1>123</byte1>
                     </dfdlInfoset>
                   </infoset>
@@ -239,16 +247,20 @@ class UnitTestTDMLRunner {
   }
 
   val tdmlWithEmbeddedSchemaInvalid =
-    <tdml:testSuite suiteName="testEmbeddedSchemaValidates" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="testEmbeddedSchemaValidates" xmlns:tns={tns} xmlns:tdml={
+      tdml
+    } xmlns:dfdl={dfdl} xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
         <dfdl:format ref="tns:GeneralFormat"/>
         <xsd:element name="data" type="xsd:int" dfdl:lengthKind="notAllowed" dfdl:notAProp="{ 2 }"/>
       </tdml:defineSchema>
-      <parserTestCase xmlns={ tdml } name="testEmbeddedSchemaValidates" root="data" model="mySchema">
+      <parserTestCase xmlns={
+      tdml
+    } name="testEmbeddedSchemaValidates" root="data" model="mySchema">
         <document>37</document>
         <infoset>
           <dfdlInfoset>
-            <data xmlns={ example }>37</data>
+            <data xmlns={example}>37</data>
           </dfdlInfoset>
         </infoset>
       </parserTestCase>
@@ -270,9 +282,8 @@ class UnitTestTDMLRunner {
     val tmpTDMLFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
     val testSuite = tdmlWithEmbeddedSchemaInvalid
     try {
-      using(new java.io.FileWriter(tmpTDMLFile)) {
-        fw =>
-          fw.write(testSuite.toString())
+      using(new java.io.FileWriter(tmpTDMLFile)) { fw =>
+        fw.write(testSuite.toString())
       }
 
       val runner = new Runner(tmpTDMLFile)
@@ -288,7 +299,8 @@ class UnitTestTDMLRunner {
   }
 
   @Test def testBits(): Unit = {
-    val doc = new Document(<document><documentPart type="bits">111</documentPart></document>, null)
+    val doc =
+      new Document(<document><documentPart type="bits">111</documentPart></document>, null)
     // val bits = doc.documentParts(0)
     val bytes = doc.documentBytes.toList
     assertEquals(-32, bytes(0))
@@ -312,10 +324,15 @@ class UnitTestTDMLRunner {
     val d = new Document(xml, null)
     val actual = d.documentBytes
     val expected = Vector(
-      'a'.toByte, 'b'.toByte,
-      0x0d.toByte, 0x0a.toByte,
-      0x0d.toByte, 0x0a.toByte,
-      'c'.toByte, 'd'.toByte).toList
+      'a'.toByte,
+      'b'.toByte,
+      0x0d.toByte,
+      0x0a.toByte,
+      0x0d.toByte,
+      0x0a.toByte,
+      'c'.toByte,
+      'd'.toByte,
+    ).toList
     assertEquals(expected, actual.toList)
   }
 
@@ -455,14 +472,14 @@ class UnitTestTDMLRunner {
   }
 
   val tdmlDefineSchemaWithoutDefaultNamespace =
-    <testSuite xmlns:tns={ tns }
-                    xmlns:tdml={ tdml }
-                    xmlns={ tdml }
-                    xmlns:dfdl={ dfdl }
-                    xmlns:xsd={ xsd }
-                    xmlns:xs={ xsd }
-                    xmlns:xsi={ xsi }>
-      <tdml:defineSchema name="mySchema" useDefaultNamespace="false" xmlns={ xsd }>
+    <testSuite xmlns:tns={tns}
+                    xmlns:tdml={tdml}
+                    xmlns={tdml}
+                    xmlns:dfdl={dfdl}
+                    xmlns:xsd={xsd}
+                    xmlns:xs={xsd}
+                    xmlns:xsi={xsi}>
+      <tdml:defineSchema name="mySchema" useDefaultNamespace="false" xmlns={xsd}>
         <dfdl:format ref="tns:GeneralFormat"/>
         <element name="data" type="int" dfdl:lengthKind="delimited"/>
       </tdml:defineSchema>
@@ -470,7 +487,7 @@ class UnitTestTDMLRunner {
         <document>37</document>
         <infoset>
           <dfdlInfoset>
-            <data xmlns={ example }>37</data>
+            <data xmlns={example}>37</data>
           </dfdlInfoset>
         </infoset>
       </parserTestCase>
@@ -481,7 +498,7 @@ class UnitTestTDMLRunner {
     val runner = new Runner(testSuite)
     val ts = runner.getTS
     if (!ts.isTDMLFileValid) {
-      val msgs = ts.loadingExceptions.map{ _.getMessage() } .mkString("\n")
+      val msgs = ts.loadingExceptions.map { _.getMessage() }.mkString("\n")
       fail(msgs)
     }
     val tc = ts.parserTestCases.find(ptc => ptc.tcName == "test1")
@@ -492,7 +509,8 @@ class UnitTestTDMLRunner {
   }
 
   @Test def testCommentBit(): Unit = {
-    val xml = <document bitOrder="LSBFirst"><documentPart type="bits">00000010 //this is a label111</documentPart></document>
+    val xml =
+      <document bitOrder="LSBFirst"><documentPart type="bits">00000010 //this is a label111</documentPart></document>
     val doc = new Document(xml, null)
     val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
     val firstPart = dp(0)
@@ -510,8 +528,8 @@ class UnitTestTDMLRunner {
     assertEquals("0101111", firstPart.bitDigits)
   }
 
-    @Test def testCommentBitJustComments(): Unit = {
-      val xml = <document bitOrder="LSBFirst">
+  @Test def testCommentBitJustComments(): Unit = {
+    val xml = <document bitOrder="LSBFirst">
                   <documentPart type="bits">
                   // this doc part contains no bits
                   // at all. It is just comments.
@@ -525,7 +543,8 @@ class UnitTestTDMLRunner {
   }
 
   @Test def testCommentBitNoLineEnding(): Unit = {
-    val xml = <document bitOrder="LSBFirst"><documentPart type="bits">01011010 // just a comment here no line ending </documentPart>
+    val xml =
+      <document bitOrder="LSBFirst"><documentPart type="bits">01011010 // just a comment here no line ending </documentPart>
               </document>
     val doc = new Document(xml, null)
     val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
@@ -623,14 +642,15 @@ class UnitTestTDMLRunner {
   }
 
   @Test def testCommentByte(): Unit = {
-    val xml = <document><documentPart type="byte">12 3A BC.abc //Label (ABCDEF123456789</documentPart></document>
+    val xml =
+      <document><documentPart type="byte">12 3A BC.abc //Label (ABCDEF123456789</documentPart></document>
     val doc = new Document(xml, null)
     val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
     val hexDigits = dp(0).hexDigits
     assertEquals("123ABCabc", hexDigits)
   }
 
-    @Test def testCommentByteWithNewLine(): Unit = {
+  @Test def testCommentByteWithNewLine(): Unit = {
     val xml = <document><documentPart type="byte">123ABCabc //Label (ABCDEF123456789
       456DEFdef //New Label</documentPart></document>
     val doc = new Document(xml, null)
@@ -649,7 +669,8 @@ class UnitTestTDMLRunner {
   }
 
   @Test def testCommentByteBothCommentFormats(): Unit = {
-    val xml = <document><documentPart type="byte">12AB3C /*Comment ABC123 ** */45D6d//Different style comment</documentPart></document>
+    val xml =
+      <document><documentPart type="byte">12AB3C /*Comment ABC123 ** */45D6d//Different style comment</documentPart></document>
     val doc = new Document(xml, null)
     val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
     val hexDigits = dp(0).hexDigits
@@ -657,7 +678,8 @@ class UnitTestTDMLRunner {
   }
 
   @Test def testByteBadCommentFormatException(): Unit = {
-    val xml = <document><documentPart type="byte">12AB3C Comment ABC123 ** */45D6d//Different style comment</documentPart></document>
+    val xml =
+      <document><documentPart type="byte">12AB3C Comment ABC123 ** */45D6d//Different style comment</documentPart></document>
     val exc = intercept[TDMLException] {
       val doc = new Document(xml, null)
       val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
@@ -685,7 +707,8 @@ class UnitTestTDMLRunner {
   }
 
   @Test def testCommentByteCommentNonGreedy(): Unit = {
-    val xml = <document><documentPart type="byte">0101AB /*Data 1*/ 0101ab /*Data 2*/</documentPart></document>
+    val xml =
+      <document><documentPart type="byte">0101AB /*Data 1*/ 0101ab /*Data 2*/</documentPart></document>
     val doc = new Document(xml, null)
     val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
     val hexDigits = dp(0).hexDigits
@@ -753,7 +776,9 @@ class UnitTestTDMLRunner {
         <documentPart type="bits" byteOrder="RTL">/*GRI for R_ONE*/                   XXXX 0XXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">/*FPI for URN*/                     XXX1 XXXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">/*URN*/ XXXX00000 00000000 00000000 011X XXXX</documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc1bits = doc.documentBits
     doc1bits.length
     val doc2 = new Document(
@@ -761,7 +786,9 @@ class UnitTestTDMLRunner {
         <documentPart type="byte"><![CDATA[
             E3 67 00 80 55 67 92 1A FC 77 00 00 00
          ]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc2bits = doc2.documentBits
     assertEquals(doc2bits, doc1bits)
   }
@@ -791,7 +818,9 @@ class UnitTestTDMLRunner {
         <documentPart type="bits" byteOrder="RTL">XXXX 0XXX                    //GRI for R_ONE </documentPart>
         <documentPart type="bits" byteOrder="RTL">XXX1 XXXX                      //FPI for URN </documentPart>
         <documentPart type="bits" byteOrder="RTL">XXXX00000 00000000 00000000 011X XXXX  //URN </documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc1bits = doc.documentBits
     doc1bits.length
     val doc2 = new Document(
@@ -799,7 +828,9 @@ class UnitTestTDMLRunner {
         <documentPart type="byte"><![CDATA[
             E3 67 00 80 55 67 92 1A FC 77 00 00 00
          ]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc2bits = doc2.documentBits
     assertEquals(doc2bits, doc1bits)
   }

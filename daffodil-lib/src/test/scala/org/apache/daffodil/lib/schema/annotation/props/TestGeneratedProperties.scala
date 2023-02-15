@@ -17,20 +17,22 @@
 
 package org.apache.daffodil.lib.schema.annotation.props
 
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.lib.schema.annotation.props.gen._
+
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
-import org.apache.daffodil.lib.exceptions.SchemaFileLocation
-import org.apache.daffodil.lib.api.WarnID
-import org.apache.daffodil.lib.api.DaffodilTunables
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.
  */
 class TestGeneratedProperties {
 
-  val bagOfProps = <dfdl:format bitOrder="mostSignificantBitFirst" encoding="UTF-8" utf16Width="fixed" byteOrder="bigEndian" ignoreCase="no" outputNewLine="%CR;%LF;" alignment="1" alignmentUnits="bytes" fillByte="0" leadingSkip="0" trailingSkip="0" lengthKind="delimited" lengthUnits="characters" prefixIncludesPrefixLength="no" representation="text" textPadKind="none" textTrimKind="none" escapeSchemeRef="tns:GeneralBlockEscapeScheme" textBidi="no" textBidiTextOrdering="implicit" textBidiSymmetric="yes" textBidiTextShaped="no" textBidiNumeralShapes="nominal" textBidiOrientation="RTL" textStringJustification="left" textStringPadCharacter="%SP;" truncateSpecifiedLengthString="no" textOutputMinLength="0" textNumberJustification="right" textNumberPadCharacter="0" decimalSigned="yes" textNumberCheckPolicy="lax" textNumberRep="standard" textStandardBase="10" textNumberRounding="pattern" textNumberRoundingMode="roundUp" textNumberRoundingIncrement="0.0" textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentRep="E" textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textNumberPattern="#0" textZonedSignStyle="asciiStandard" textBooleanJustification="left" textBooleanPadCharacter="%SP;" textBooleanTrueRep="true" textBooleanFalseRep="false" textCalendarJustification="left" textCalendarPadCharacter="%SP;" calendarPatternKind="implicit" calendarPattern="yyyy-MM-dd'T'HH:mm:ss" calendarCheckPolicy="lax" calendarTimeZone="UTC" calendarObserveDST="yes" calendarFirstDayOfWeek="Monday" calendarDaysInFirstWeek="4" calendarCenturyStart="53" calendarLanguage="en-US" occursCountKind="parsed" sequenceKind="ordered" separator="," separatorSuppressionPolicy="never" separatorPosition="infix" initiatedContent="no" floating="no" choiceLengthKind="implicit" initiator="" terminator="" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none" nilKind="literalValue" useNilForDefault="no" nilValue="NIL" nilValueDelimiterPolicy="none" binaryNumberRep="binary" binaryPackedSignCodes="C D F C" binaryDecimalVirtualPoint="0" binaryNumberCheckPolicy="lax" binaryFloatRep="ieee" binaryCalendarRep="bcd" binaryCalendarEpoch="1970-01-01T00:00:00+00:00" binaryBooleanTrueRep="1" binaryBooleanFalseRep="0">
+  val bagOfProps =
+    <dfdl:format bitOrder="mostSignificantBitFirst" encoding="UTF-8" utf16Width="fixed" byteOrder="bigEndian" ignoreCase="no" outputNewLine="%CR;%LF;" alignment="1" alignmentUnits="bytes" fillByte="0" leadingSkip="0" trailingSkip="0" lengthKind="delimited" lengthUnits="characters" prefixIncludesPrefixLength="no" representation="text" textPadKind="none" textTrimKind="none" escapeSchemeRef="tns:GeneralBlockEscapeScheme" textBidi="no" textBidiTextOrdering="implicit" textBidiSymmetric="yes" textBidiTextShaped="no" textBidiNumeralShapes="nominal" textBidiOrientation="RTL" textStringJustification="left" textStringPadCharacter="%SP;" truncateSpecifiedLengthString="no" textOutputMinLength="0" textNumberJustification="right" textNumberPadCharacter="0" decimalSigned="yes" textNumberCheckPolicy="lax" textNumberRep="standard" textStandardBase="10" textNumberRounding="pattern" textNumberRoundingMode="roundUp" textNumberRoundingIncrement="0.0" textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentRep="E" textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textNumberPattern="#0" textZonedSignStyle="asciiStandard" textBooleanJustification="left" textBooleanPadCharacter="%SP;" textBooleanTrueRep="true" textBooleanFalseRep="false" textCalendarJustification="left" textCalendarPadCharacter="%SP;" calendarPatternKind="implicit" calendarPattern="yyyy-MM-dd'T'HH:mm:ss" calendarCheckPolicy="lax" calendarTimeZone="UTC" calendarObserveDST="yes" calendarFirstDayOfWeek="Monday" calendarDaysInFirstWeek="4" calendarCenturyStart="53" calendarLanguage="en-US" occursCountKind="parsed" sequenceKind="ordered" separator="," separatorSuppressionPolicy="never" separatorPosition="infix" initiatedContent="no" floating="no" choiceLengthKind="implicit" initiator="" terminator="" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none" nilKind="literalValue" useNilForDefault="no" nilValue="NIL" nilValueDelimiterPolicy="none" binaryNumberRep="binary" binaryPackedSignCodes="C D F C" binaryDecimalVirtualPoint="0" binaryNumberCheckPolicy="lax" binaryFloatRep="ieee" binaryCalendarRep="bcd" binaryCalendarEpoch="1970-01-01T00:00:00+00:00" binaryBooleanTrueRep="1" binaryBooleanFalseRep="0">
                    </dfdl:format>
 
   /**
@@ -96,7 +98,8 @@ class TestGeneratedProperties {
           // XML library lets your code be the one doing the DTD resolving, so they can't do it for you.
           //
           nodeseq match {
-            case Nil => Found("", this, pname, false) // we want to hand back the empty string as a value.
+            case Nil =>
+              Found("", this, pname, false) // we want to hand back the empty string as a value.
             case _ => Found(nodeseq.toString, this, pname, false)
           }
         }
@@ -136,7 +139,7 @@ class TestGeneratedProperties {
     comparePropValue(hasProps.textBidiNumeralShapes, "nominal")
     comparePropValue(hasProps.textBidiOrientation, "RTL")
     comparePropValue(hasProps.textStringJustification, "left")
-    //comparePropValue(hasProps.textStringPadCharacter, "%SP;")
+    // comparePropValue(hasProps.textStringPadCharacter, "%SP;")
     comparePropValue(hasProps.truncateSpecifiedLengthString, "no")
     // comparePropValue(hasProps.textOutputMinLength, "0")
     comparePropValue(hasProps.textNumberJustification, "right")
@@ -150,7 +153,7 @@ class TestGeneratedProperties {
     comparePropValue(hasProps.textNumberRoundingIncrement, "0.0")
     //    comparePropValue(hasProps.textStandardDecimalSeparator, ".")
     //    comparePropValue(hasProps.textStandardGroupingSeparator, ",")
-    //comparePropValue(hasProps.textStandardExponentRep, "E")
+    // comparePropValue(hasProps.textStandardExponentRep, "E")
     //    comparePropValue(hasProps.textStandardZeroRep, "0")
     //    comparePropValue(hasProps.textStandardInfinityRep, "Inf")
     //    comparePropValue(hasProps.textStandardNaNRep, "NaN")
@@ -224,7 +227,9 @@ class TestGeneratedProperties {
     h.ignoreCase
     val fl = h.toStringFunctionList
     // System.err.println("There are " + fl.length + " toString functions.")
-    assertTrue(fl.length >= 85) // Note: There are extra print functions for things that won't be requested. like "ref".
+    assertTrue(
+      fl.length >= 85,
+    ) // Note: There are extra print functions for things that won't be requested. like "ref".
     // These tests don't work because we no longer make the printed rep of a object contain a listing of all its props.
     //    val str = h.toString
     //    println(str)

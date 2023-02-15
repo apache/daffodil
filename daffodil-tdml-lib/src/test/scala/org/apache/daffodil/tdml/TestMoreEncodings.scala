@@ -17,9 +17,8 @@
 
 package org.apache.daffodil.tdml
 
-import org.junit.Test
-
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class TestMoreEncodings {
 
@@ -51,7 +50,7 @@ class TestMoreEncodings {
               </document>
     val doc = new Document(xml, null)
     val actual = doc.documentBytes.toList
-    val expected = List(0xAC).map { _.toByte }
+    val expected = List(0xac).map { _.toByte }
     assertEquals(expected, actual)
     assertEquals(8, doc.nBits)
   }
@@ -62,7 +61,7 @@ class TestMoreEncodings {
               </document>
     val doc = new Document(xml, null)
     val actual = doc.documentBytes.toList
-    val expected = List(0xAC, 0x01).map { _.toByte }
+    val expected = List(0xac, 0x01).map { _.toByte }
     assertEquals(expected, actual)
     assertEquals(9, doc.nBits)
   }
@@ -73,7 +72,7 @@ class TestMoreEncodings {
               </document>
     val doc = new Document(xml, null)
     val actual = doc.documentBytes.toList
-    val expected = List(0x3F).map { _.toByte }
+    val expected = List(0x3f).map { _.toByte }
     assertEquals(expected, actual)
     assertEquals(6, doc.nBits)
   }
@@ -84,7 +83,7 @@ class TestMoreEncodings {
               </document>
     val doc = new Document(xml, null)
     val actual = doc.documentBytes.toList
-    val expected = List(0xFF, 0x0F).map { _.toByte }
+    val expected = List(0xff, 0x0f).map { _.toByte }
     assertEquals(expected, actual)
     assertEquals(12, doc.nBits)
   }

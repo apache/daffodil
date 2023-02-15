@@ -18,10 +18,11 @@ package org.apache.daffodil.lib.util
 
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.xml.RemapPUACharDetected
-import org.junit.Assert._
-import org.junit.Test
 import org.apache.daffodil.lib.xml.RemapPUAToXMLIllegalChar
 import org.apache.daffodil.lib.xml.RemapXMLIllegalCharToPUA
+
+import org.junit.Assert._
+import org.junit.Test
 
 object TestPUARemapper {
 
@@ -67,7 +68,7 @@ class TestPUARemapper {
       xmlToPUANoCR2LF.remap(input)
     }
     val msg = e.getMessage
-    assertEquals(0xE001, e.char)
+    assertEquals(0xe001, e.char)
     assertTrue(msg.contains("Pre-existing Private Use Area (PUA) character"))
     assertTrue(msg.contains("U+E001"))
   }

@@ -17,13 +17,13 @@
 
 package org.apache.daffodil.io
 
-
-import org.apache.daffodil.lib.Implicits.intercept
-import org.junit.Assert._
-import org.junit.Test
-
 import java.io.InputStream
 import java.io.OutputStream
+
+import org.apache.daffodil.lib.Implicits.intercept
+
+import org.junit.Assert._
+import org.junit.Test
 
 /**
  * Tests about detecting end-of-data, and

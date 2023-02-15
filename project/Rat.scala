@@ -20,7 +20,6 @@ import sbt._
 object Rat {
 
   lazy val excludes = Seq(
-
     // git files
     file(".git"),
 
@@ -31,7 +30,9 @@ object Rat {
     file("daffodil-sapi/root-doc.txt"),
 
     // UTF-16BE, Apache Rat thinks it is a binary and cannot tell it includes the Apache v2 license
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_09.dfdl.xsd"),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_09.dfdl.xsd",
+    ),
 
     // images used for the windows installer
     file("daffodil-cli/src/windows/apache-daffodil.ico"),
@@ -42,11 +43,21 @@ object Rat {
     file("daffodil-runtime2/src/test/c/examples"),
 
     // Apache Rat thinks these files are binary since the file name contains ".lib"
-    file("daffodil-schematron/src/main/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"),
-    file("daffodil-japi/src/test/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"),
-    file("daffodil-sapi/src/test/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"),
-    file("daffodil-lib/src/main/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"),
-    file("daffodil-lib/src/test/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory"),
+    file(
+      "daffodil-schematron/src/main/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory",
+    ),
+    file(
+      "daffodil-japi/src/test/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory",
+    ),
+    file(
+      "daffodil-sapi/src/test/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory",
+    ),
+    file(
+      "daffodil-lib/src/main/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory",
+    ),
+    file(
+      "daffodil-lib/src/test/resources/META-INF/services/org.apache.daffodil.lib.api.ValidatorFactory",
+    ),
 
     // test files that cannot include the Apache license without breaking tests
     file("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/hextest.txt"),
@@ -101,12 +112,24 @@ object Rat {
     file("daffodil-tdml-lib/src/test/resources/test/tdml/test.txt"),
     file("daffodil-tdml-processor/src/test/resources/test/tdml/test.bin"),
     file("daffodil-tdml-processor/src/test/resources/test/tdml/test.txt"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ISRM_green_to_orange_60000.0.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ISRM_green_to_orange_60000.1.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ISRM_orange_to_green_60002.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_green_to_orange_60004.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_orange_to_green_60006.0.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_orange_to_green_60006.1.dat"),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ISRM_green_to_orange_60000.0.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ISRM_green_to_orange_60000.1.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ISRM_orange_to_green_60002.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_green_to_orange_60004.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_orange_to_green_60006.0.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_orange_to_green_60006.1.dat",
+    ),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/collisions.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.11.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.12.dat"),
@@ -118,46 +141,110 @@ object Rat {
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.18.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.19.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.20.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.111.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.112.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.113.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.114.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.115.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.116.dat"),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.111.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.112.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.113.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.114.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.115.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.116.dat",
+    ),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.aptina.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.camera.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.command.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.limits.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.video.dat"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/ext_file.txt"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/ext_file2.txt"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_01.bin"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_02.bin"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_03.bin"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_04.bin"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_07.bin"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_13a.bin"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_13b.bin"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_13c.bin"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_13d.bin"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/02nine_headers.txt"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_02.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_02.xml"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_03.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_04.xml"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_05.xml"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_06.xml"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_07.xml"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_08.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat.xml"),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/ext_file2.txt",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_01.bin",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_02.bin",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_03.bin",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_04.bin",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_07.bin",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_13a.bin",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_13b.bin",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_13c.bin",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section05/simple_types/blobs/blob_13d.bin",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/02nine_headers.txt",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_02.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_02.xml",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_03.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_04.xml",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_05.xml",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_06.xml",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_07.xml",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_08.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat",
+    ),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat.xml",
+    ),
     file("daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_prefix_separator_as_variable"),
+    file(
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_prefix_separator_as_variable",
+    ),
     file("daffodil-test/src/test/resources/test space/A BTinyData.tdml.dat"),
-    file("daffodil-tdml-processor/src/test/resources/test/tdml/fake-precompiled-dfdl-schema.bin"),
+    file(
+      "daffodil-tdml-processor/src/test/resources/test/tdml/fake-precompiled-dfdl-schema.bin",
+    ),
     file("test-stdLayout/src/test/resources/org1/test-outer-data1.txt"),
     file("test-stdLayout/src/test/resources/org2/test-data1.txt"),
   )
@@ -165,7 +252,7 @@ object Rat {
   lazy val BSD2_LICENSE_NAME = "BSD 2-Clause License"
 
   lazy val LICENSE_TEXT_PASSERA =
-"""
+    """
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
 met:

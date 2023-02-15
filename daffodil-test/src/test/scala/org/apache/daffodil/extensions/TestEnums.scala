@@ -17,15 +17,16 @@
 
 package org.apache.daffodil.extensions
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestEnums {
   val testDir = "/org/apache/daffodil/extensions/enum/"
 
   val runner = Runner(testDir, "enums.tdml")
-  val runner2 = Runner(testDir, "enumInvalid.tdml", validateTDMLFile=false)
+  val runner2 = Runner(testDir, "enumInvalid.tdml", validateTDMLFile = false)
 
   @AfterClass def shutDown(): Unit = {
     runner.reset

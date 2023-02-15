@@ -17,12 +17,14 @@
 
 package org.apache.daffodil.section07.variables
 
-import org.junit.Test
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.Implicits._
 import scala.math.Pi
+
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestVariables {
   val testDir = "/org/apache/daffodil/section07/variables/"
@@ -73,28 +75,42 @@ class TestVariables {
   @Test def test_varDirection_nvi1(): Unit = { runner.runOneTest("varDirection_nvi1") }
   @Test def test_varDirection_nvi2(): Unit = { runner.runOneTest("varDirection_nvi2") }
 
-  @Test def test_defineVariable_nonConstantExpression(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression") }
-  @Test def test_defineVariable_nonConstantExpression_unp(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression_unp") }
-  @Test def test_circular_defineVariable_err(): Unit = { runner.runOneTest("circular_defineVariable_err") }
-  @Test def test_defineVariable_ref_noDefault_err(): Unit = { runner.runOneTest("defineVariable_ref_noDefault_err") }
-  @Test def test_defineVariable_nonConstantExpression_setVar_err(): Unit = { runner.runOneTest("defineVariable_nonConstantExpression_setVar_err") }
+  @Test def test_defineVariable_nonConstantExpression(): Unit = {
+    runner.runOneTest("defineVariable_nonConstantExpression")
+  }
+  @Test def test_defineVariable_nonConstantExpression_unp(): Unit = {
+    runner.runOneTest("defineVariable_nonConstantExpression_unp")
+  }
+  @Test def test_circular_defineVariable_err(): Unit = {
+    runner.runOneTest("circular_defineVariable_err")
+  }
+  @Test def test_defineVariable_ref_noDefault_err(): Unit = {
+    runner.runOneTest("defineVariable_ref_noDefault_err")
+  }
+  @Test def test_defineVariable_nonConstantExpression_setVar_err(): Unit = {
+    runner.runOneTest("defineVariable_nonConstantExpression_setVar_err")
+  }
 
   // DAFFODIL-2444 - This test triggers an unhandled NoSuchElement exception, which if handled then runs into an Assert.invariant
-  //@Test def test_defineVariable_ref_infoset_err(): Unit = { runner.runOneTest("defineVariable_ref_infoset_err") }
+  // @Test def test_defineVariable_ref_infoset_err(): Unit = { runner.runOneTest("defineVariable_ref_infoset_err") }
 
   @Test def test_setVarChoice(): Unit = { runner.runOneTest("setVarChoice") }
   @Test def test_unparse_setVarChoice(): Unit = { runner.runOneTest("unparse_setVarChoice") }
   @Test def test_setVarOnSeqAndElemRef(): Unit = { runner.runOneTest("setVarOnSeqAndElemRef") }
   @Test def test_unparse_setVarOnSeq(): Unit = { runner.runOneTest("unparse_setVarOnSeq") }
   @Test def test_setVarOnGroupRef(): Unit = { runner.runOneTest("setVarOnGroupRef") }
-  @Test def test_unparse_setVarOnGroupRef(): Unit = { runner.runOneTest("unparse_setVarOnGroupRef") }
+  @Test def test_unparse_setVarOnGroupRef(): Unit = {
+    runner.runOneTest("unparse_setVarOnGroupRef")
+  }
   @Test def test_setVarSimpleType(): Unit = { runner.runOneTest("setVarSimpleType") }
 
   @Test def test_setVarValAttribute(): Unit = { runner.runOneTest("setVarValAttribute") }
   @Test def test_setVarValAttribute2(): Unit = { runner.runOneTest("setVarValAttribute2") }
   @Test def test_setVarTypeMismatch(): Unit = { runner.runOneTest("setVarTypeMismatch") }
   @Test def test_setVarCurrVal(): Unit = { runner.runOneTest("setVarCurrVal") }
-  @Test def test_setVarMismatchRelative(): Unit = { runner.runOneTest("setVarMismatchRelative") }
+  @Test def test_setVarMismatchRelative(): Unit = {
+    runner.runOneTest("setVarMismatchRelative")
+  }
   @Test def test_setVarExpression(): Unit = { runner.runOneTest("setVarExpression") }
   @Test def test_setVarExpression2(): Unit = { runner.runOneTest("setVarExpression2") }
   @Test def test_setVarBadScope(): Unit = { runner.runOneTest("setVarBadScope") }
@@ -111,8 +127,12 @@ class TestVariables {
   @Test def test_var_end_path(): Unit = { runner.runOneTest("var_end_path") }
   @Test def test_var_in_path(): Unit = { runner.runOneTest("var_in_path") }
 
-  @Test def test_logical_default_values(): Unit = { runner.runOneTest("logical_default_values") }
-  @Test def test_logical_default_values_err(): Unit = { runner.runOneTest("logical_default_values_err") }
+  @Test def test_logical_default_values(): Unit = {
+    runner.runOneTest("logical_default_values")
+  }
+  @Test def test_logical_default_values_err(): Unit = {
+    runner.runOneTest("logical_default_values_err")
+  }
 
   @Test def test_unsignedIntVarCast(): Unit = { runner.runOneTest("unsignedIntVarCast") }
 
@@ -120,10 +140,14 @@ class TestVariables {
   @Test def test_NVI_with_CDK1(): Unit = { runner.runOneTest("NVI_with_CDK1") }
 
   // DFDL-2374
-  @Test def test_variables_nilled_element(): Unit = { runner.runOneTest("variables_nilled_element") }
+  @Test def test_variables_nilled_element(): Unit = {
+    runner.runOneTest("variables_nilled_element")
+  }
 
   // DFDL-2375
-  @Test def test_multipleBranchesWithNoElementsSetVariableError(): Unit = { runner.runOneTest("multipleBranchesWithNoElementsSetVariableError") }
+  @Test def test_multipleBranchesWithNoElementsSetVariableError(): Unit = {
+    runner.runOneTest("multipleBranchesWithNoElementsSetVariableError")
+  }
 
   @Test def test_doubleSetErr_d(): Unit = { runner_01.runOneTest("doubleSetErr_d") }
   @Test def test_setVar1_d(): Unit = { runner_01.runOneTest("setVar1_d") }
@@ -135,10 +159,11 @@ class TestVariables {
   @Test def test_escapeCharVars_01(): Unit = { runner.runOneTest("escapeCharVars_01") }
   @Test def test_escapeCharVars_02(): Unit = { runner.runOneTest("escapeCharVars_02") }
 
-  @Test def test_multipleVarReadInPoU_01(): Unit = { runner.runOneTest("multipleVarReadInPoU_01") }
+  @Test def test_multipleVarReadInPoU_01(): Unit = {
+    runner.runOneTest("multipleVarReadInPoU_01")
+  }
 
-
-/*****************************************************************/
+  /*****************************************************************/
   val tdmlVal = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
@@ -147,11 +172,13 @@ class TestVariables {
   val tns = example
 
   val variables2 =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdmlVal } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdmlVal} xmlns:dfdl={
+      dfdl
+    } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
-        <dfdl:defineVariable name="pi" type="xs:double" defaultValue={ Pi.toString }/>
+        <dfdl:defineVariable name="pi" type="xs:double" defaultValue={Pi.toString}/>
         <xs:element name="data" type="xs:double" dfdl:inputValueCalc="{ $tns:pi }"/>
       </tdml:defineSchema>
       <tdml:parserTestCase name="variables2" root="data" model="mySchema">
@@ -172,7 +199,9 @@ class TestVariables {
   }
 
   val variables3 =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdmlVal } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdmlVal} xmlns:dfdl={
+      dfdl
+    } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
         <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>

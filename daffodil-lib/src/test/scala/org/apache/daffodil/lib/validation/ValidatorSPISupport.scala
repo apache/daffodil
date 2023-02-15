@@ -19,12 +19,13 @@ package org.apache.daffodil.lib.validation
 
 import java.io.InputStream
 
-import com.typesafe.config.Config
 import org.apache.daffodil.lib.api.ValidationFailure
 import org.apache.daffodil.lib.api.ValidationResult
 import org.apache.daffodil.lib.api.ValidationWarning
 import org.apache.daffodil.lib.api.Validator
 import org.apache.daffodil.lib.api.ValidatorFactory
+
+import com.typesafe.config.Config
 
 class PassingValidatorFactory extends ValidatorFactory {
   def name(): String = PassingValidator.name
@@ -42,7 +43,8 @@ object FailingValidator {
   val name = "failing-validator"
 }
 
-class TestingValidatorSPI(w: Seq[ValidationWarning], f: Seq[ValidationFailure]) extends Validator {
+class TestingValidatorSPI(w: Seq[ValidationWarning], f: Seq[ValidationFailure])
+  extends Validator {
   def validateXML(document: InputStream): ValidationResult = ValidationResult(w, f)
 }
 

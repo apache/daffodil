@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section15.choice_groups
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestChoice {
   val testDir = "/org/apache/daffodil/section15/choice_groups/"
@@ -38,7 +39,7 @@ class TestChoice {
 
   import TestChoice._
 
-  @Test def test_choice_noBranch (): Unit = { runnerCH.runOneTest("choice_noBranch") }
+  @Test def test_choice_noBranch(): Unit = { runnerCH.runOneTest("choice_noBranch") }
 
   @Test def test_optionalChoice01(): Unit = { runnerCH.runOneTest("optionalChoice01") }
   @Test def test_optionalChoice02(): Unit = { runnerCH.runOneTest("optionalChoice02") }
@@ -53,23 +54,47 @@ class TestChoice {
   @Test def test_choice3(): Unit = { runnerCH.runOneTest("choice3") }
   @Test def test_choice4(): Unit = { runnerCH.runOneTest("choice4") }
 
-  @Test def test_choiceWithInitsAndTermsInt(): Unit = { runnerCH.runOneTest("choiceWithInitsAndTermsInt") }
-  @Test def test_choiceWithInitsAndTermsStr(): Unit = { runnerCH.runOneTest("choiceWithInitsAndTermsStr") }
-  @Test def test_choiceWithInitsAndTermsError(): Unit = { runnerCH.runOneTest("choiceWithInitsAndTermsError") }
-  @Test def test_choiceWithInitsAndTermsSeqInt(): Unit = { runnerCH.runOneTest("choiceWithInitsAndTermsSeqInt") }
-  @Test def test_choiceWithInitsAndTermsSeqStr(): Unit = { runnerCH.runOneTest("choiceWithInitsAndTermsSeqStr") }
-  @Test def test_nestedChoiceWithInitsAndTermsNestedInt(): Unit = { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedInt") }
-  @Test def test_nestedChoiceWithInitsAndTermsNestedStr(): Unit = { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedStr") }
-  @Test def test_nestedChoiceWithInitsAndTermsInt(): Unit = { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsInt") }
+  @Test def test_choiceWithInitsAndTermsInt(): Unit = {
+    runnerCH.runOneTest("choiceWithInitsAndTermsInt")
+  }
+  @Test def test_choiceWithInitsAndTermsStr(): Unit = {
+    runnerCH.runOneTest("choiceWithInitsAndTermsStr")
+  }
+  @Test def test_choiceWithInitsAndTermsError(): Unit = {
+    runnerCH.runOneTest("choiceWithInitsAndTermsError")
+  }
+  @Test def test_choiceWithInitsAndTermsSeqInt(): Unit = {
+    runnerCH.runOneTest("choiceWithInitsAndTermsSeqInt")
+  }
+  @Test def test_choiceWithInitsAndTermsSeqStr(): Unit = {
+    runnerCH.runOneTest("choiceWithInitsAndTermsSeqStr")
+  }
+  @Test def test_nestedChoiceWithInitsAndTermsNestedInt(): Unit = {
+    runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedInt")
+  }
+  @Test def test_nestedChoiceWithInitsAndTermsNestedStr(): Unit = {
+    runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedStr")
+  }
+  @Test def test_nestedChoiceWithInitsAndTermsInt(): Unit = {
+    runnerCH.runOneTest("nestedChoiceWithInitsAndTermsInt")
+  }
 
   @Test def test_choiceWithSequence1(): Unit = { runnerCH.runOneTest("choiceWithSequence1") }
   @Test def test_choiceWithSequence2(): Unit = { runnerCH.runOneTest("choiceWithSequence2") }
   @Test def test_choiceWithChoiceInt(): Unit = { runnerCH.runOneTest("choiceWithChoiceInt") }
-  @Test def test_choiceWithChoiceFloat(): Unit = { runnerCH.runOneTest("choiceWithChoiceFloat") }
-  @Test def test_choiceWithChoiceString(): Unit = { runnerCH.runOneTest("choiceWithChoiceString") }
+  @Test def test_choiceWithChoiceFloat(): Unit = {
+    runnerCH.runOneTest("choiceWithChoiceFloat")
+  }
+  @Test def test_choiceWithChoiceString(): Unit = {
+    runnerCH.runOneTest("choiceWithChoiceString")
+  }
   @Test def test_choiceWithArrayInts(): Unit = { runnerCH.runOneTest("choiceWithArrayInts") }
-  @Test def test_choiceWithArrayFloats(): Unit = { runnerCH.runOneTest("choiceWithArrayFloats") }
-  @Test def test_choiceWithArrayString(): Unit = { runnerCH.runOneTest("choiceWithChoiceString") }
+  @Test def test_choiceWithArrayFloats(): Unit = {
+    runnerCH.runOneTest("choiceWithArrayFloats")
+  }
+  @Test def test_choiceWithArrayString(): Unit = {
+    runnerCH.runOneTest("choiceWithChoiceString")
+  }
 
   @Test def test_choice5(): Unit = { runnerCH.runOneTest("choice5") }
   @Test def test_choice6(): Unit = { runnerCH.runOneTest("choice6") }
@@ -83,22 +108,38 @@ class TestChoice {
 
   @Test def test_nestedChoice1(): Unit = { runnerCH.runOneTest("nestedChoice1") }
 
-  @Test def test_nestedChoiceAllString(): Unit = { runnerCH.runOneTest("nestedChoiceAllString") }
+  @Test def test_nestedChoiceAllString(): Unit = {
+    runnerCH.runOneTest("nestedChoiceAllString")
+  }
   @Test def test_nestedChoiceAllFloat(): Unit = { runnerCH.runOneTest("nestedChoiceAllFloat") }
   @Test def test_nestedChoiceAllInt(): Unit = { runnerCH.runOneTest("nestedChoiceAllInt") }
 
-  @Test def test_choiceInSequenceWithSeparators1(): Unit = { runnerCH.runOneTest("choiceInSequenceWithSeparators1") }
-  @Test def test_choiceInSequenceWithSeparators2(): Unit = { runnerCH.runOneTest("choiceInSequenceWithSeparators2") }
+  @Test def test_choiceInSequenceWithSeparators1(): Unit = {
+    runnerCH.runOneTest("choiceInSequenceWithSeparators1")
+  }
+  @Test def test_choiceInSequenceWithSeparators2(): Unit = {
+    runnerCH.runOneTest("choiceInSequenceWithSeparators2")
+  }
 
-  @Test def test_sequenceInChoiceInSequenceWithSeparators1(): Unit = { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators1") }
-  @Test def test_sequenceInChoiceInSequenceWithSeparators2(): Unit = { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators2") }
-  @Test def test_sequenceInChoiceInSequenceWithSameSeparators1(): Unit = { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators1") }
-  @Test def test_sequenceInChoiceInSequenceWithSameSeparators2(): Unit = { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators2") }
+  @Test def test_sequenceInChoiceInSequenceWithSeparators1(): Unit = {
+    runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators1")
+  }
+  @Test def test_sequenceInChoiceInSequenceWithSeparators2(): Unit = {
+    runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators2")
+  }
+  @Test def test_sequenceInChoiceInSequenceWithSameSeparators1(): Unit = {
+    runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators1")
+  }
+  @Test def test_sequenceInChoiceInSequenceWithSameSeparators2(): Unit = {
+    runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators2")
+  }
 
   @Test def test_choice_minOccurs(): Unit = { runnerCH.runOneTest("choice_minOccurs") }
   @Test def test_choice_maxOccurs(): Unit = { runnerCH.runOneTest("choice_maxOccurs") }
 
-  @Test def test_choice_with_inputvaluecalc(): Unit = { runnerCH.runOneTest("choice_with_inputvaluecalc") }
+  @Test def test_choice_with_inputvaluecalc(): Unit = {
+    runnerCH.runOneTest("choice_with_inputvaluecalc")
+  }
 
   // DFDL-641
   @Test def test_direct_dispatch_01(): Unit = { runnerCH.runOneTest("direct_dispatch_01") }
@@ -132,7 +173,9 @@ class TestChoice {
   @Test def test_explicit_08(): Unit = { runnerCE.runOneTest("explicit_08") }
   @Test def test_explicit_09(): Unit = { runnerCE.runOneTest("explicit_09") }
 
-  @Test def test_explicit_multiple_choices(): Unit = { runnerCE.runOneTest("explicit_multiple_choices") }
+  @Test def test_explicit_multiple_choices(): Unit = {
+    runnerCE.runOneTest("explicit_multiple_choices")
+  }
 
   @Test def test_explicit_unparse_01(): Unit = { runnerCE.runOneTest("explicit_unparse_01") }
   @Test def test_explicit_unparse_02(): Unit = { runnerCE.runOneTest("explicit_unparse_02") }

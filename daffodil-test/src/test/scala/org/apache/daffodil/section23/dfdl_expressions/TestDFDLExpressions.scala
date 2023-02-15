@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.section23.dfdl_expressions
 
-import org.junit._
 import org.apache.daffodil.tdml.Runner
+
+import org.junit._
 
 object TestDFDLExpressions {
   val testDir = "/org/apache/daffodil/section23/dfdl_expressions/"
@@ -37,7 +38,12 @@ object TestDFDLExpressions {
   val runner2_utf8 = Runner(testDir2, "Functions_UTF8.tdml")
   val runner2b = Runner(testDir2, "Functions-neg.tdml")
   val runner3 = Runner(testDir, "expression_fail.tdml", validateTDMLFile = false)
-  val runner4 = Runner(testDir4, "runtime-properties.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+  val runner4 = Runner(
+    testDir4,
+    "runtime-properties.tdml",
+    validateTDMLFile = true,
+    validateDFDLSchemas = false,
+  )
   val runner_fun = Runner(testDir, "functions.tdml")
   val runner5 = Runner(testDir, "valueLength.tdml")
 
@@ -80,10 +86,10 @@ class TestDFDLExpressions {
   @Test def test_byteOrderExpr8(): Unit = { runner4.runOneTest("byteOrderExpr8") }
   @Test def test_byteOrderExpr9(): Unit = { runner4.runOneTest("byteOrderExpr9") }
 
-  //DFDL-1111
-  //@Test def test_diagnostics_01() { runner.runOneTest("diagnostics_01") }
-  //@Test def test_diagnostics_02() { runner.runOneTest("diagnostics_02") }
-  //@Test def test_diagnostics_03() { runner.runOneTest("diagnostics_03") }
+  // DFDL-1111
+  // @Test def test_diagnostics_01() { runner.runOneTest("diagnostics_01") }
+  // @Test def test_diagnostics_02() { runner.runOneTest("diagnostics_02") }
+  // @Test def test_diagnostics_03() { runner.runOneTest("diagnostics_03") }
 
   @Test def test_sequenceReturned_01(): Unit = { runner.runOneTest("sequenceReturned_01") }
   @Test def test_sequenceReturned_02(): Unit = { runner.runOneTest("sequenceReturned_02") }
@@ -94,109 +100,285 @@ class TestDFDLExpressions {
   @Test def test_hiddenDataExpression(): Unit = { runner.runOneTest("hiddenDataExpression") }
   @Test def test_hiddenDataExpression2(): Unit = { runner.runOneTest("hiddenDataExpression2") }
 
-  @Test def test_arrayIndexOutOfBounds_01(): Unit = { runner.runOneTest("arrayIndexOutOfBounds_01") }
-  @Test def test_arrayIndexOutOfBounds_02(): Unit = { runner.runOneTest("arrayIndexOutOfBounds_02") }
-  @Test def test_arrayIndexOutOfBounds_03(): Unit = { runner.runOneTest("arrayIndexOutOfBounds_03") }
+  @Test def test_arrayIndexOutOfBounds_01(): Unit = {
+    runner.runOneTest("arrayIndexOutOfBounds_01")
+  }
+  @Test def test_arrayIndexOutOfBounds_02(): Unit = {
+    runner.runOneTest("arrayIndexOutOfBounds_02")
+  }
+  @Test def test_arrayIndexOutOfBounds_03(): Unit = {
+    runner.runOneTest("arrayIndexOutOfBounds_03")
+  }
 
-  @Test def test_arrayIndexOutOfBounds_05(): Unit = { runner.runOneTest("arrayIndexOutOfBounds_05") }
+  @Test def test_arrayIndexOutOfBounds_05(): Unit = {
+    runner.runOneTest("arrayIndexOutOfBounds_05")
+  }
 
   @Test def test_asterisk_01(): Unit = { runner.runOneTest("asterisk_01") }
   @Test def test_asterisk_02(): Unit = { runner.runOneTest("asterisk_02") }
   @Test def test_asterisk_03(): Unit = { runner.runOneTest("asterisk_03") }
 
-  //DFDL-1146
-  //@Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
-  //@Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
-  //@Test def test_attribute_axis_03() { runner.runOneTest("attribute_axis_03") }
+  // DFDL-1146
+  // @Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
+  // @Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
+  // @Test def test_attribute_axis_03() { runner.runOneTest("attribute_axis_03") }
 
-  @Test def test_comparison_operators_01(): Unit = { runner.runOneTest("comparison_operators_01") }
-  @Test def test_comparison_operators_02(): Unit = { runner.runOneTest("comparison_operators_02") }
-  @Test def test_comparison_operators_03(): Unit = { runner.runOneTest("comparison_operators_03") }
-  @Test def test_comparison_operators_04(): Unit = { runner.runOneTest("comparison_operators_04") }
-  @Test def test_comparison_operators_05(): Unit = { runner.runOneTest("comparison_operators_05") }
-  @Test def test_comparison_operators_06(): Unit = { runner.runOneTest("comparison_operators_06") }
-  @Test def test_comparison_operators_07(): Unit = { runner.runOneTest("comparison_operators_07") }
-  @Test def test_comparison_operators_08(): Unit = { runner.runOneTest("comparison_operators_08") }
-  @Test def test_comparison_operators_09(): Unit = { runner.runOneTest("comparison_operators_09") }
-  @Test def test_comparison_operators_10(): Unit = { runner.runOneTest("comparison_operators_10") }
-  @Test def test_comparison_operators_11(): Unit = { runner.runOneTest("comparison_operators_11") }
-  @Test def test_comparison_operators_12(): Unit = { runner.runOneTest("comparison_operators_12") }
-  @Test def test_comparison_operators_13(): Unit = { runner.runOneTest("comparison_operators_13") }
-  @Test def test_comparison_operators_14(): Unit = { runner.runOneTest("comparison_operators_14") }
-  @Test def test_comparison_operators_15(): Unit = { runner.runOneTest("comparison_operators_15") }
-  @Test def test_comparison_operators_16(): Unit = { runner.runOneTest("comparison_operators_16") }
-  @Test def test_comparison_operators_17(): Unit = { runner.runOneTest("comparison_operators_17") }
-  @Test def test_comparison_operators_18(): Unit = { runner.runOneTest("comparison_operators_18") }
-  @Test def test_comparison_operators_19(): Unit = { runner.runOneTest("comparison_operators_19") }
-  @Test def test_comparison_operators_20(): Unit = { runner.runOneTest("comparison_operators_20") }
-  @Test def test_comparison_operators_21(): Unit = { runner.runOneTest("comparison_operators_21") }
-  @Test def test_comparison_operators_22(): Unit = { runner.runOneTest("comparison_operators_22") }
-  @Test def test_comparison_operators_23(): Unit = { runner.runOneTest("comparison_operators_23") }
-  @Test def test_comparison_operators_24(): Unit = { runner.runOneTest("comparison_operators_24") }
-  @Test def test_comparison_operators_25(): Unit = { runner.runOneTest("comparison_operators_25") }
-  @Test def test_comparison_operators_26(): Unit = { runner.runOneTest("comparison_operators_26") }
-  @Test def test_comparison_operators_27(): Unit = { runner.runOneTest("comparison_operators_27") }
-  @Test def test_comparison_operators_28(): Unit = { runner.runOneTest("comparison_operators_28") }
+  @Test def test_comparison_operators_01(): Unit = {
+    runner.runOneTest("comparison_operators_01")
+  }
+  @Test def test_comparison_operators_02(): Unit = {
+    runner.runOneTest("comparison_operators_02")
+  }
+  @Test def test_comparison_operators_03(): Unit = {
+    runner.runOneTest("comparison_operators_03")
+  }
+  @Test def test_comparison_operators_04(): Unit = {
+    runner.runOneTest("comparison_operators_04")
+  }
+  @Test def test_comparison_operators_05(): Unit = {
+    runner.runOneTest("comparison_operators_05")
+  }
+  @Test def test_comparison_operators_06(): Unit = {
+    runner.runOneTest("comparison_operators_06")
+  }
+  @Test def test_comparison_operators_07(): Unit = {
+    runner.runOneTest("comparison_operators_07")
+  }
+  @Test def test_comparison_operators_08(): Unit = {
+    runner.runOneTest("comparison_operators_08")
+  }
+  @Test def test_comparison_operators_09(): Unit = {
+    runner.runOneTest("comparison_operators_09")
+  }
+  @Test def test_comparison_operators_10(): Unit = {
+    runner.runOneTest("comparison_operators_10")
+  }
+  @Test def test_comparison_operators_11(): Unit = {
+    runner.runOneTest("comparison_operators_11")
+  }
+  @Test def test_comparison_operators_12(): Unit = {
+    runner.runOneTest("comparison_operators_12")
+  }
+  @Test def test_comparison_operators_13(): Unit = {
+    runner.runOneTest("comparison_operators_13")
+  }
+  @Test def test_comparison_operators_14(): Unit = {
+    runner.runOneTest("comparison_operators_14")
+  }
+  @Test def test_comparison_operators_15(): Unit = {
+    runner.runOneTest("comparison_operators_15")
+  }
+  @Test def test_comparison_operators_16(): Unit = {
+    runner.runOneTest("comparison_operators_16")
+  }
+  @Test def test_comparison_operators_17(): Unit = {
+    runner.runOneTest("comparison_operators_17")
+  }
+  @Test def test_comparison_operators_18(): Unit = {
+    runner.runOneTest("comparison_operators_18")
+  }
+  @Test def test_comparison_operators_19(): Unit = {
+    runner.runOneTest("comparison_operators_19")
+  }
+  @Test def test_comparison_operators_20(): Unit = {
+    runner.runOneTest("comparison_operators_20")
+  }
+  @Test def test_comparison_operators_21(): Unit = {
+    runner.runOneTest("comparison_operators_21")
+  }
+  @Test def test_comparison_operators_22(): Unit = {
+    runner.runOneTest("comparison_operators_22")
+  }
+  @Test def test_comparison_operators_23(): Unit = {
+    runner.runOneTest("comparison_operators_23")
+  }
+  @Test def test_comparison_operators_24(): Unit = {
+    runner.runOneTest("comparison_operators_24")
+  }
+  @Test def test_comparison_operators_25(): Unit = {
+    runner.runOneTest("comparison_operators_25")
+  }
+  @Test def test_comparison_operators_26(): Unit = {
+    runner.runOneTest("comparison_operators_26")
+  }
+  @Test def test_comparison_operators_27(): Unit = {
+    runner.runOneTest("comparison_operators_27")
+  }
+  @Test def test_comparison_operators_28(): Unit = {
+    runner.runOneTest("comparison_operators_28")
+  }
 
-  @Test def test_comparison_operators_29(): Unit = { runner.runOneTest("comparison_operators_29") }
-  @Test def test_comparison_operators_30(): Unit = { runner.runOneTest("comparison_operators_30") }
-  @Test def test_comparison_operators_31(): Unit = { runner.runOneTest("comparison_operators_31") }
-  @Test def test_comparison_operators_32(): Unit = { runner.runOneTest("comparison_operators_32") }
-  @Test def test_comparison_operators_33(): Unit = { runner.runOneTest("comparison_operators_33") }
-  @Test def test_comparison_operators_34(): Unit = { runner.runOneTest("comparison_operators_34") }
-  @Test def test_comparison_operators_35(): Unit = { runner.runOneTest("comparison_operators_35") }
-  @Test def test_comparison_operators_36(): Unit = { runner.runOneTest("comparison_operators_36") }
-  @Test def test_comparison_operators_37(): Unit = { runner.runOneTest("comparison_operators_37") }
-  @Test def test_comparison_operators_38(): Unit = { runner.runOneTest("comparison_operators_38") }
-  @Test def test_comparison_operators_39(): Unit = { runner.runOneTest("comparison_operators_39") }
-  @Test def test_comparison_operators_40(): Unit = { runner.runOneTest("comparison_operators_40") }
-  @Test def test_comparison_operators_41(): Unit = { runner.runOneTest("comparison_operators_41") }
-  @Test def test_comparison_operators_42(): Unit = { runner.runOneTest("comparison_operators_42") }
-  @Test def test_comparison_operators_43(): Unit = { runner.runOneTest("comparison_operators_43") }
-  @Test def test_comparison_operators_44(): Unit = { runner.runOneTest("comparison_operators_44") }
-  @Test def test_comparison_operators_45(): Unit = { runner.runOneTest("comparison_operators_45") }
-  @Test def test_comparison_operators_46(): Unit = { runner.runOneTest("comparison_operators_46") }
-  @Test def test_comparison_operators_46a(): Unit = { runner.runOneTest("comparison_operators_46a") }
+  @Test def test_comparison_operators_29(): Unit = {
+    runner.runOneTest("comparison_operators_29")
+  }
+  @Test def test_comparison_operators_30(): Unit = {
+    runner.runOneTest("comparison_operators_30")
+  }
+  @Test def test_comparison_operators_31(): Unit = {
+    runner.runOneTest("comparison_operators_31")
+  }
+  @Test def test_comparison_operators_32(): Unit = {
+    runner.runOneTest("comparison_operators_32")
+  }
+  @Test def test_comparison_operators_33(): Unit = {
+    runner.runOneTest("comparison_operators_33")
+  }
+  @Test def test_comparison_operators_34(): Unit = {
+    runner.runOneTest("comparison_operators_34")
+  }
+  @Test def test_comparison_operators_35(): Unit = {
+    runner.runOneTest("comparison_operators_35")
+  }
+  @Test def test_comparison_operators_36(): Unit = {
+    runner.runOneTest("comparison_operators_36")
+  }
+  @Test def test_comparison_operators_37(): Unit = {
+    runner.runOneTest("comparison_operators_37")
+  }
+  @Test def test_comparison_operators_38(): Unit = {
+    runner.runOneTest("comparison_operators_38")
+  }
+  @Test def test_comparison_operators_39(): Unit = {
+    runner.runOneTest("comparison_operators_39")
+  }
+  @Test def test_comparison_operators_40(): Unit = {
+    runner.runOneTest("comparison_operators_40")
+  }
+  @Test def test_comparison_operators_41(): Unit = {
+    runner.runOneTest("comparison_operators_41")
+  }
+  @Test def test_comparison_operators_42(): Unit = {
+    runner.runOneTest("comparison_operators_42")
+  }
+  @Test def test_comparison_operators_43(): Unit = {
+    runner.runOneTest("comparison_operators_43")
+  }
+  @Test def test_comparison_operators_44(): Unit = {
+    runner.runOneTest("comparison_operators_44")
+  }
+  @Test def test_comparison_operators_45(): Unit = {
+    runner.runOneTest("comparison_operators_45")
+  }
+  @Test def test_comparison_operators_46(): Unit = {
+    runner.runOneTest("comparison_operators_46")
+  }
+  @Test def test_comparison_operators_46a(): Unit = {
+    runner.runOneTest("comparison_operators_46a")
+  }
 
   // from XPath Spec Sec 10.4.6.1 Examples
-  @Test def test_comparison_operators_47(): Unit = { runner.runOneTest("comparison_operators_47") }
-  @Test def test_comparison_operators_48(): Unit = { runner.runOneTest("comparison_operators_48") }
-  @Test def test_comparison_operators_49(): Unit = { runner.runOneTest("comparison_operators_49") }
-  @Test def test_comparison_operators_50(): Unit = { runner.runOneTest("comparison_operators_50") }
-  @Test def test_comparison_operators_51(): Unit = { runner.runOneTest("comparison_operators_51") }
-  @Test def test_comparison_operators_52(): Unit = { runner.runOneTest("comparison_operators_52") }
-  @Test def test_comparison_operators_53(): Unit = { runner.runOneTest("comparison_operators_53") }
+  @Test def test_comparison_operators_47(): Unit = {
+    runner.runOneTest("comparison_operators_47")
+  }
+  @Test def test_comparison_operators_48(): Unit = {
+    runner.runOneTest("comparison_operators_48")
+  }
+  @Test def test_comparison_operators_49(): Unit = {
+    runner.runOneTest("comparison_operators_49")
+  }
+  @Test def test_comparison_operators_50(): Unit = {
+    runner.runOneTest("comparison_operators_50")
+  }
+  @Test def test_comparison_operators_51(): Unit = {
+    runner.runOneTest("comparison_operators_51")
+  }
+  @Test def test_comparison_operators_52(): Unit = {
+    runner.runOneTest("comparison_operators_52")
+  }
+  @Test def test_comparison_operators_53(): Unit = {
+    runner.runOneTest("comparison_operators_53")
+  }
 
-  @Test def test_comparison_operators_54(): Unit = { runner.runOneTest("comparison_operators_54") }
-  @Test def test_comparison_operators_55(): Unit = { runner.runOneTest("comparison_operators_55") }
-  @Test def test_comparison_operators_56(): Unit = { runner.runOneTest("comparison_operators_56") }
-  @Test def test_comparison_operators_57(): Unit = { runner.runOneTest("comparison_operators_57") }
-  @Test def test_comparison_operators_58(): Unit = { runner.runOneTest("comparison_operators_58") }
-  @Test def test_comparison_operators_59(): Unit = { runner.runOneTest("comparison_operators_59") }
-  @Test def test_comparison_operators_60(): Unit = { runner.runOneTest("comparison_operators_60") }
-  @Test def test_comparison_operators_61(): Unit = { runner.runOneTest("comparison_operators_61") }
-  @Test def test_comparison_operators_62(): Unit = { runner.runOneTest("comparison_operators_62") }
-  @Test def test_comparison_operators_63(): Unit = { runner.runOneTest("comparison_operators_63") }
-  @Test def test_comparison_operators_64(): Unit = { runner.runOneTest("comparison_operators_64") }
-  @Test def test_comparison_operators_65(): Unit = { runner.runOneTest("comparison_operators_65") }
-  @Test def test_comparison_operators_66(): Unit = { runner.runOneTest("comparison_operators_66") }
-  @Test def test_comparison_operators_67(): Unit = { runner.runOneTest("comparison_operators_67") }
-  @Test def test_comparison_operators_68(): Unit = { runner.runOneTest("comparison_operators_68") }
-  @Test def test_comparison_operators_69(): Unit = { runner.runOneTest("comparison_operators_69") }
-  @Test def test_comparison_operators_70(): Unit = { runner.runOneTest("comparison_operators_70") }
-  @Test def test_comparison_operators_71(): Unit = { runner.runOneTest("comparison_operators_71") }
-  @Test def test_comparison_operators_72(): Unit = { runner.runOneTest("comparison_operators_72") }
-  @Test def test_comparison_operators_73(): Unit = { runner.runOneTest("comparison_operators_73") }
-  @Test def test_comparison_operators_74(): Unit = { runner.runOneTest("comparison_operators_74") }
-  @Test def test_comparison_operators_75(): Unit = { runner.runOneTest("comparison_operators_75") }
-  @Test def test_comparison_operators_76(): Unit = { runner.runOneTest("comparison_operators_76") }
-  @Test def test_comparison_operators_77(): Unit = { runner.runOneTest("comparison_operators_77") }
-  @Test def test_comparison_operators_78(): Unit = { runner.runOneTest("comparison_operators_78") }
-  @Test def test_comparison_operators_79(): Unit = { runner.runOneTest("comparison_operators_79") }
-  @Test def test_comparison_operators_80(): Unit = { runner.runOneTest("comparison_operators_80") }
-  @Test def test_comparison_operators_81(): Unit = { runner.runOneTest("comparison_operators_81") }
-  @Test def test_comparison_operators_82(): Unit = { runner.runOneTest("comparison_operators_82") }
-  @Test def test_comparison_operators_83(): Unit = { runner.runOneTest("comparison_operators_83") }
+  @Test def test_comparison_operators_54(): Unit = {
+    runner.runOneTest("comparison_operators_54")
+  }
+  @Test def test_comparison_operators_55(): Unit = {
+    runner.runOneTest("comparison_operators_55")
+  }
+  @Test def test_comparison_operators_56(): Unit = {
+    runner.runOneTest("comparison_operators_56")
+  }
+  @Test def test_comparison_operators_57(): Unit = {
+    runner.runOneTest("comparison_operators_57")
+  }
+  @Test def test_comparison_operators_58(): Unit = {
+    runner.runOneTest("comparison_operators_58")
+  }
+  @Test def test_comparison_operators_59(): Unit = {
+    runner.runOneTest("comparison_operators_59")
+  }
+  @Test def test_comparison_operators_60(): Unit = {
+    runner.runOneTest("comparison_operators_60")
+  }
+  @Test def test_comparison_operators_61(): Unit = {
+    runner.runOneTest("comparison_operators_61")
+  }
+  @Test def test_comparison_operators_62(): Unit = {
+    runner.runOneTest("comparison_operators_62")
+  }
+  @Test def test_comparison_operators_63(): Unit = {
+    runner.runOneTest("comparison_operators_63")
+  }
+  @Test def test_comparison_operators_64(): Unit = {
+    runner.runOneTest("comparison_operators_64")
+  }
+  @Test def test_comparison_operators_65(): Unit = {
+    runner.runOneTest("comparison_operators_65")
+  }
+  @Test def test_comparison_operators_66(): Unit = {
+    runner.runOneTest("comparison_operators_66")
+  }
+  @Test def test_comparison_operators_67(): Unit = {
+    runner.runOneTest("comparison_operators_67")
+  }
+  @Test def test_comparison_operators_68(): Unit = {
+    runner.runOneTest("comparison_operators_68")
+  }
+  @Test def test_comparison_operators_69(): Unit = {
+    runner.runOneTest("comparison_operators_69")
+  }
+  @Test def test_comparison_operators_70(): Unit = {
+    runner.runOneTest("comparison_operators_70")
+  }
+  @Test def test_comparison_operators_71(): Unit = {
+    runner.runOneTest("comparison_operators_71")
+  }
+  @Test def test_comparison_operators_72(): Unit = {
+    runner.runOneTest("comparison_operators_72")
+  }
+  @Test def test_comparison_operators_73(): Unit = {
+    runner.runOneTest("comparison_operators_73")
+  }
+  @Test def test_comparison_operators_74(): Unit = {
+    runner.runOneTest("comparison_operators_74")
+  }
+  @Test def test_comparison_operators_75(): Unit = {
+    runner.runOneTest("comparison_operators_75")
+  }
+  @Test def test_comparison_operators_76(): Unit = {
+    runner.runOneTest("comparison_operators_76")
+  }
+  @Test def test_comparison_operators_77(): Unit = {
+    runner.runOneTest("comparison_operators_77")
+  }
+  @Test def test_comparison_operators_78(): Unit = {
+    runner.runOneTest("comparison_operators_78")
+  }
+  @Test def test_comparison_operators_79(): Unit = {
+    runner.runOneTest("comparison_operators_79")
+  }
+  @Test def test_comparison_operators_80(): Unit = {
+    runner.runOneTest("comparison_operators_80")
+  }
+  @Test def test_comparison_operators_81(): Unit = {
+    runner.runOneTest("comparison_operators_81")
+  }
+  @Test def test_comparison_operators_82(): Unit = {
+    runner.runOneTest("comparison_operators_82")
+  }
+  @Test def test_comparison_operators_83(): Unit = {
+    runner.runOneTest("comparison_operators_83")
+  }
 
   @Test def test_regexLookahead(): Unit = { runnerNV.runOneTest("regexLookahead") }
   @Test def test_regexLookaheadFail(): Unit = { runnerNV.runOneTest("regexLookaheadFail") }
@@ -221,44 +403,94 @@ class TestDFDLExpressions {
   @Test def test_ocke2(): Unit = { runner.runOneTest("ocke2") }
   @Test def test_ArrayOptElem_01(): Unit = { runner.runOneTest("ArrayOptElem_01") }
   @Test def test_lke2_rel(): Unit = { runner.runOneTest("lke2_rel") }
-  @Test def test_expression_type_error1(): Unit = { runner.runOneTest("expression_type_error1") }
-  @Test def test_expression_type_error2(): Unit = { runner.runOneTest("expression_type_error2") }
-  @Test def test_expression_type_error3(): Unit = { runner.runOneTest("expression_type_error3") }
-  @Test def test_expression_type_error4(): Unit = { runner.runOneTest("expression_type_error4") }
-  @Test def test_expression_type_error5(): Unit = { runner.runOneTest("expression_type_error5") }
-  @Test def test_expression_type_error6(): Unit = { runner.runOneTest("expression_type_error6") }
-  @Test def test_expression_type_error7(): Unit = { runner.runOneTest("expression_type_error7") }
-  @Test def test_expression_unknown_prefix(): Unit = { runner.runOneTest("expression_unknown_prefix") }
+  @Test def test_expression_type_error1(): Unit = {
+    runner.runOneTest("expression_type_error1")
+  }
+  @Test def test_expression_type_error2(): Unit = {
+    runner.runOneTest("expression_type_error2")
+  }
+  @Test def test_expression_type_error3(): Unit = {
+    runner.runOneTest("expression_type_error3")
+  }
+  @Test def test_expression_type_error4(): Unit = {
+    runner.runOneTest("expression_type_error4")
+  }
+  @Test def test_expression_type_error5(): Unit = {
+    runner.runOneTest("expression_type_error5")
+  }
+  @Test def test_expression_type_error6(): Unit = {
+    runner.runOneTest("expression_type_error6")
+  }
+  @Test def test_expression_type_error7(): Unit = {
+    runner.runOneTest("expression_type_error7")
+  }
+  @Test def test_expression_unknown_prefix(): Unit = {
+    runner.runOneTest("expression_unknown_prefix")
+  }
   @Test def test_ocke_rel(): Unit = { runner.runOneTest("ocke_rel") }
   @Test def test_ocke_rel2(): Unit = { runner.runOneTest("ocke_rel2") }
   @Test def test_ocke_rel3(): Unit = { runner.runOneTest("ocke_rel3") }
   @Test def test_ocke_rel4(): Unit = { runner.runOneTest("ocke_rel4") }
   @Test def test_ocke_step_dne(): Unit = { runner.runOneTest("ocke_step_dne") }
-  @Test def test_ocke_array_index_step_dne(): Unit = { runner.runOneTest("ocke_array_index_step_dne") }
+  @Test def test_ocke_array_index_step_dne(): Unit = {
+    runner.runOneTest("ocke_array_index_step_dne")
+  }
   @Test def test_ocke_non_upward(): Unit = { runner.runOneTest("ocke_non_upward") }
   @Test def test_ocke_single_upward(): Unit = { runner.runOneTest("ocke_single_upward") }
-  @Test def test_ocke_optional_separator_01(): Unit = { runner.runOneTest("ocke_optional_separator_01") }
-  @Test def test_ocke_optional_separator_02(): Unit = { runner.runOneTest("ocke_optional_separator_02") }
-  @Test def test_ocke_optional_separator_03(): Unit = { runner.runOneTest("ocke_optional_separator_03") }
-  @Test def test_ocke_optional_separator_04(): Unit = { runner.runOneTest("ocke_optional_separator_04") }
+  @Test def test_ocke_optional_separator_01(): Unit = {
+    runner.runOneTest("ocke_optional_separator_01")
+  }
+  @Test def test_ocke_optional_separator_02(): Unit = {
+    runner.runOneTest("ocke_optional_separator_02")
+  }
+  @Test def test_ocke_optional_separator_03(): Unit = {
+    runner.runOneTest("ocke_optional_separator_03")
+  }
+  @Test def test_ocke_optional_separator_04(): Unit = {
+    runner.runOneTest("ocke_optional_separator_04")
+  }
 
-  @Test def test_internal_space_preserved(): Unit = { runner.runOneTest("internal_space_preserved") }
-  @Test def test_internal_space_preserved2(): Unit = { runner.runOneTest("internal_space_preserved2") }
-  @Test def test_internal_space_preserved3a(): Unit = { runner.runOneTest("internal_space_preserved3a") }
-  @Test def test_internal_space_preserved3b(): Unit = { runner.runOneTest("internal_space_preserved3b") }
-  @Test def test_internal_space_preserved4(): Unit = { runner.runOneTest("internal_space_preserved4") }
-  @Test def test_internal_space_not_preserved1(): Unit = { runner.runOneTest("internal_space_not_preserved1") }
-  @Test def test_internal_space_not_preserved2(): Unit = { runner.runOneTest("internal_space_not_preserved2") }
+  @Test def test_internal_space_preserved(): Unit = {
+    runner.runOneTest("internal_space_preserved")
+  }
+  @Test def test_internal_space_preserved2(): Unit = {
+    runner.runOneTest("internal_space_preserved2")
+  }
+  @Test def test_internal_space_preserved3a(): Unit = {
+    runner.runOneTest("internal_space_preserved3a")
+  }
+  @Test def test_internal_space_preserved3b(): Unit = {
+    runner.runOneTest("internal_space_preserved3b")
+  }
+  @Test def test_internal_space_preserved4(): Unit = {
+    runner.runOneTest("internal_space_preserved4")
+  }
+  @Test def test_internal_space_not_preserved1(): Unit = {
+    runner.runOneTest("internal_space_not_preserved1")
+  }
+  @Test def test_internal_space_not_preserved2(): Unit = {
+    runner.runOneTest("internal_space_not_preserved2")
+  }
 
   @Test def test_whitespace_expression(): Unit = { runner.runOneTest("whitespace_expression") }
-  @Test def test_whitespace_expression2(): Unit = { runner.runOneTest("whitespace_expression2") }
+  @Test def test_whitespace_expression2(): Unit = {
+    runner.runOneTest("whitespace_expression2")
+  }
 
-  @Test def test_expresion_bad_path_to_element(): Unit = { runner.runOneTest("expresion_bad_path_to_element") }
+  @Test def test_expresion_bad_path_to_element(): Unit = {
+    runner.runOneTest("expresion_bad_path_to_element")
+  }
   @Test def test_ArrayOptElem_02(): Unit = { runner.runOneTest("ArrayOptElem_02") }
 
-  @Test def test_dfdlSelfReferencingExpression1(): Unit = { runner.runOneTest("dfdlSelfReferencingExpression1") }
-  @Test def test_dfdlSelfReferencingExpression2(): Unit = { runner.runOneTest("dfdlSelfReferencingExpression2") }
-  @Test def test_dfdlSelfReferencingExpression3(): Unit = { runner.runOneTest("dfdlSelfReferencingExpression3") }
+  @Test def test_dfdlSelfReferencingExpression1(): Unit = {
+    runner.runOneTest("dfdlSelfReferencingExpression1")
+  }
+  @Test def test_dfdlSelfReferencingExpression2(): Unit = {
+    runner.runOneTest("dfdlSelfReferencingExpression2")
+  }
+  @Test def test_dfdlSelfReferencingExpression3(): Unit = {
+    runner.runOneTest("dfdlSelfReferencingExpression3")
+  }
 
   @Test def test_nonFunctionIsDetected() = { runnerNV.runOneTest("nonFunctionIsDetected") }
   @Test def test_constantFunction1(): Unit = { runnerNV.runOneTest("constantFunction1") }
@@ -292,9 +524,9 @@ class TestDFDLExpressions {
   @Test def test_trueFalseTypeCorrect(): Unit = { runner.runOneTest("trueFalseTypeCorrect") }
 
   @Test def test_predicate_01(): Unit = { runner.runOneTest("predicate_01") }
-  //DFDL-1164
-  //@Test def test_predicate_02() { runner.runOneTest("predicate_02") }
-  //@Test def test_predicate_03() { runner.runOneTest("predicate_03") }
+  // DFDL-1164
+  // @Test def test_predicate_02() { runner.runOneTest("predicate_02") }
+  // @Test def test_predicate_03() { runner.runOneTest("predicate_03") }
   @Test def test_predicate_04(): Unit = { runner.runOneTest("predicate_04") }
   @Test def test_predicate_05(): Unit = { runner.runOneTest("predicate_05") }
 
@@ -316,23 +548,31 @@ class TestDFDLExpressions {
   @Test def test_sequential_and_or_06(): Unit = { runner.runOneTest("sequential_and_or_06") }
   @Test def test_sequential_and_or_07(): Unit = { runner.runOneTest("sequential_and_or_07") }
 
-  //DFDL-1059
+  // DFDL-1059
   @Test def test_parent_axis_01(): Unit = { runner.runOneTest("parent_axis_01") }
   @Test def test_child_axis_01(): Unit = { runner.runOneTest("child_axis_01") }
   @Test def test_self_axis_01(): Unit = { runner.runOneTest("self_axis_01") }
-  //@Test def test_multiple_axis_01() { runner.runOneTest("multiple_axis_01") }
+  // @Test def test_multiple_axis_01() { runner.runOneTest("multiple_axis_01") }
 
   @Test def test_attribute_axis_04(): Unit = { runner.runOneTest("attribute_axis_04") }
 
   @Test def test_ancestor_axis_01(): Unit = { runner.runOneTest("ancestor_axis_01") }
-  @Test def test_ancestor_or_self_axis_01(): Unit = { runner.runOneTest("ancestor_or_self_axis_01") }
+  @Test def test_ancestor_or_self_axis_01(): Unit = {
+    runner.runOneTest("ancestor_or_self_axis_01")
+  }
   @Test def test_descendant_axis_01(): Unit = { runner.runOneTest("descendant_axis_01") }
-  @Test def test_descendant_or_self_axis_01(): Unit = { runner.runOneTest("descendant_or_self_axis_01") }
+  @Test def test_descendant_or_self_axis_01(): Unit = {
+    runner.runOneTest("descendant_or_self_axis_01")
+  }
   @Test def test_following_axis_01(): Unit = { runner.runOneTest("following_axis_01") }
-  @Test def test_following_sibling_axis_01(): Unit = { runner.runOneTest("following_sibling_axis_01") }
+  @Test def test_following_sibling_axis_01(): Unit = {
+    runner.runOneTest("following_sibling_axis_01")
+  }
   @Test def test_namespace_axis_01(): Unit = { runner.runOneTest("namespace_axis_01") }
   @Test def test_preceding_axis_01(): Unit = { runner.runOneTest("preceding_axis_01") }
-  @Test def test_preceding_sibling_axis_01(): Unit = { runner.runOneTest("preceding_sibling_axis_01") }
+  @Test def test_preceding_sibling_axis_01(): Unit = {
+    runner.runOneTest("preceding_sibling_axis_01")
+  }
 
   /////////////////////// FUNCTIONS ///////////////////////////
 
@@ -372,11 +612,11 @@ class TestDFDLExpressions {
   @Test def test_not_01(): Unit = { runner2.runOneTest("not_01") }
   @Test def test_not_02(): Unit = { runner2.runOneTest("not_02") }
   @Test def test_not_03(): Unit = { runner2.runOneTest("not_03") }
-  //DFDL-1076
-  //@Test def test_not_04() { runner2.runOneTest("not_04") }
-  //DFDL-1075
-  //@Test def test_not_05() { runner2.runOneTest("not_05") }
-  //@Test def test_not_07() { runner2.runOneTest("not_07") }
+  // DFDL-1076
+  // @Test def test_not_04() { runner2.runOneTest("not_04") }
+  // DFDL-1075
+  // @Test def test_not_05() { runner2.runOneTest("not_05") }
+  // @Test def test_not_07() { runner2.runOneTest("not_07") }
   @Test def test_not_06(): Unit = { runner2.runOneTest("not_06") }
   @Test def test_not_08(): Unit = { runner2.runOneTest("not_08") }
   @Test def test_not_09(): Unit = { runner2.runOneTest("not_09") }
@@ -438,14 +678,30 @@ class TestDFDLExpressions {
   @Test def test_round_18(): Unit = { runner2.runOneTest("round_18") }
   @Test def test_round_19(): Unit = { runner2.runOneTest("round_19") }
 
-  @Test def test_xPathFunc_round_hte_01(): Unit = { runner2.runOneTest("xPathFunc_round_hte_01") }
-  @Test def test_xPathFunc_round_hte_02(): Unit = { runner2.runOneTest("xPathFunc_round_hte_02") }
-  @Test def test_xPathFunc_round_hte_03(): Unit = { runner2.runOneTest("xPathFunc_round_hte_03") }
-  @Test def test_xPathFunc_round_hte_04(): Unit = { runner2.runOneTest("xPathFunc_round_hte_04") }
-  @Test def test_xPathFunc_round_hte_05(): Unit = { runner2.runOneTest("xPathFunc_round_hte_05") }
-  @Test def test_xPathFunc_round_hte_06(): Unit = { runner2.runOneTest("xPathFunc_round_hte_06") }
-  @Test def test_xPathFunc_round_hte_07(): Unit = { runner2.runOneTest("xPathFunc_round_hte_07") }
-  @Test def test_xPathFunc_round_hte_08(): Unit = { runner2.runOneTest("xPathFunc_round_hte_08") }
+  @Test def test_xPathFunc_round_hte_01(): Unit = {
+    runner2.runOneTest("xPathFunc_round_hte_01")
+  }
+  @Test def test_xPathFunc_round_hte_02(): Unit = {
+    runner2.runOneTest("xPathFunc_round_hte_02")
+  }
+  @Test def test_xPathFunc_round_hte_03(): Unit = {
+    runner2.runOneTest("xPathFunc_round_hte_03")
+  }
+  @Test def test_xPathFunc_round_hte_04(): Unit = {
+    runner2.runOneTest("xPathFunc_round_hte_04")
+  }
+  @Test def test_xPathFunc_round_hte_05(): Unit = {
+    runner2.runOneTest("xPathFunc_round_hte_05")
+  }
+  @Test def test_xPathFunc_round_hte_06(): Unit = {
+    runner2.runOneTest("xPathFunc_round_hte_06")
+  }
+  @Test def test_xPathFunc_round_hte_07(): Unit = {
+    runner2.runOneTest("xPathFunc_round_hte_07")
+  }
+  @Test def test_xPathFunc_round_hte_08(): Unit = {
+    runner2.runOneTest("xPathFunc_round_hte_08")
+  }
   @Test def test_round_hte_09(): Unit = { runner2.runOneTest("round_hte_09") }
   @Test def test_round_hte_10(): Unit = { runner2.runOneTest("round_hte_10") }
   @Test def test_round_hte_11(): Unit = { runner2.runOneTest("round_hte_11") }
@@ -457,14 +713,14 @@ class TestDFDLExpressions {
   @Test def test_round_hte_17(): Unit = { runner2.runOneTest("round_hte_17") }
   @Test def test_round_hte_18(): Unit = { runner2.runOneTest("round_hte_18") }
 
-  //DAFFODIL-1080
+  // DAFFODIL-1080
   @Test def test_empty_02(): Unit = { runner2.runOneTest("empty_02") }
   @Test def test_exists_02(): Unit = { runner2.runOneTest("exists_02") }
 
   @Test def test_count_05b(): Unit = { runner2.runOneTest("count_05b") }
 
-  //DFDL-1097
-  //@Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
+  // DFDL-1097
+  // @Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
 
   @Test def test_empty_01(): Unit = { runner2.runOneTest("empty_01") }
   @Test def test_empty_03(): Unit = { runner2.runOneTest("empty_03") }
@@ -489,13 +745,13 @@ class TestDFDLExpressions {
   @Test def test_exists_13(): Unit = { runner2.runOneTest("exists_13") }
   @Test def test_exists_14(): Unit = { runner2.runOneTest("exists_14") }
 
-  //DFDL-1189
-  //@Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
-  //@Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
-  //@Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }
+  // DFDL-1189
+  // @Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
+  // @Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
+  // @Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }
   @Test def test_exactly_one_04(): Unit = { runner2.runOneTest("exactly_one_04") }
-  //@Test def test_exactly_one_05() { runner2.runOneTest("exactly_one_05") }
-  //@Test def test_exactly_one_06() { runner2.runOneTest("exactly_one_06") }
+  // @Test def test_exactly_one_05() { runner2.runOneTest("exactly_one_05") }
+  // @Test def test_exactly_one_06() { runner2.runOneTest("exactly_one_06") }
 
   @Test def test_count_01(): Unit = { runner2.runOneTest("count_01") }
   @Test def test_count_02(): Unit = { runner2.runOneTest("count_02") }
@@ -518,13 +774,13 @@ class TestDFDLExpressions {
   @Test def test_local_name_03(): Unit = { runner2.runOneTest("local_name_03") }
   @Test def test_local_name_04(): Unit = { runner2.runOneTest("local_name_04") }
   @Test def test_local_name_05(): Unit = { runner2.runOneTest("local_name_05") }
-  //DFDL-1151
-  //@Test def test_local_name_07() { runner2.runOneTest("local_name_07") }
+  // DFDL-1151
+  // @Test def test_local_name_07() { runner2.runOneTest("local_name_07") }
 
-  //DFDL-1101
+  // DFDL-1101
   @Test def test_namespace_uri_01(): Unit = { runner2.runOneTest("namespace_uri_01") }
   @Test def test_namespace_uri_02(): Unit = { runner2.runOneTest("namespace_uri_02") }
-  //DFDL-1114
+  // DFDL-1114
   @Test def test_namespace_uri_03(): Unit = { runner2.runOneTest("namespace_uri_03") }
   @Test def test_namespace_uri_04(): Unit = { runner2.runOneTest("namespace_uri_04") }
   @Test def test_namespace_uri_05(): Unit = { runner2.runOneTest("namespace_uri_05") }
@@ -532,7 +788,7 @@ class TestDFDLExpressions {
   @Test def test_namespace_uri_07(): Unit = { runner2.runOneTest("namespace_uri_07") }
   @Test def test_namespace_uri_08(): Unit = { runner2.runOneTest("namespace_uri_08") }
 
-  //DFDL-1233
+  // DFDL-1233
   @Test def test_nilled_02(): Unit = { runner2.runOneTest("nilled_02") }
   @Test def test_nilled_03(): Unit = { runner2.runOneTest("nilled_03") }
 
@@ -621,13 +877,27 @@ class TestDFDLExpressions {
   @Test def test_dayfromdatetime_02(): Unit = { runner2.runOneTest("dayfromdatetime_02") }
   @Test def test_hoursfromdatetime_01(): Unit = { runner2.runOneTest("hoursfromdatetime_01") }
   @Test def test_hoursfromdatetime_02(): Unit = { runner2.runOneTest("hoursfromdatetime_02") }
-  @Test def test_minutesfromdatetime_01(): Unit = { runner2.runOneTest("minutesfromdatetime_01") }
-  @Test def test_minutesfromdatetime_02(): Unit = { runner2.runOneTest("minutesfromdatetime_02") }
-  @Test def test_secondsfromdatetime_01(): Unit = { runner2.runOneTest("secondsfromdatetime_01") }
-  @Test def test_secondsfromdatetime_02(): Unit = { runner2.runOneTest("secondsfromdatetime_02") }
-  @Test def test_secondsfromdatetime_03(): Unit = { runner2.runOneTest("secondsfromdatetime_03") }
-  @Test def test_timezonefromdatetime_01(): Unit = { runner2.runOneTest("timezonefromdatetime_01") }
-  @Test def test_timezonefromdatetime_02(): Unit = { runner2.runOneTest("timezonefromdatetime_02") }
+  @Test def test_minutesfromdatetime_01(): Unit = {
+    runner2.runOneTest("minutesfromdatetime_01")
+  }
+  @Test def test_minutesfromdatetime_02(): Unit = {
+    runner2.runOneTest("minutesfromdatetime_02")
+  }
+  @Test def test_secondsfromdatetime_01(): Unit = {
+    runner2.runOneTest("secondsfromdatetime_01")
+  }
+  @Test def test_secondsfromdatetime_02(): Unit = {
+    runner2.runOneTest("secondsfromdatetime_02")
+  }
+  @Test def test_secondsfromdatetime_03(): Unit = {
+    runner2.runOneTest("secondsfromdatetime_03")
+  }
+  @Test def test_timezonefromdatetime_01(): Unit = {
+    runner2.runOneTest("timezonefromdatetime_01")
+  }
+  @Test def test_timezonefromdatetime_02(): Unit = {
+    runner2.runOneTest("timezonefromdatetime_02")
+  }
 
   @Test def test_xfromdatetime_01(): Unit = { runner2.runOneTest("xfromdatetime_01") }
   @Test def test_xfromdatetime_02(): Unit = { runner2.runOneTest("xfromdatetime_02") }
@@ -685,124 +955,340 @@ class TestDFDLExpressions {
   @Test def test_byte_constructor_03(): Unit = { runner2.runOneTest("byte_constructor_03") }
   @Test def test_byte_constructor_04(): Unit = { runner2.runOneTest("byte_constructor_04") }
 
-  @Test def test_hexBinary_constructor_01(): Unit = { runner2.runOneTest("hexBinary_constructor_01") }
-  @Test def test_hexBinary_constructor_02(): Unit = { runner2.runOneTest("hexBinary_constructor_02") }
-  @Test def test_hexBinary_constructor_03(): Unit = { runner2.runOneTest("hexBinary_constructor_03") }
-  @Test def test_hexBinary_constructor_04(): Unit = { runner2.runOneTest("hexBinary_constructor_04") }
+  @Test def test_hexBinary_constructor_01(): Unit = {
+    runner2.runOneTest("hexBinary_constructor_01")
+  }
+  @Test def test_hexBinary_constructor_02(): Unit = {
+    runner2.runOneTest("hexBinary_constructor_02")
+  }
+  @Test def test_hexBinary_constructor_03(): Unit = {
+    runner2.runOneTest("hexBinary_constructor_03")
+  }
+  @Test def test_hexBinary_constructor_04(): Unit = {
+    runner2.runOneTest("hexBinary_constructor_04")
+  }
 
-  @Test def test_dfdlHexBinary_constructor_01(): Unit = { runner2.runOneTest("dfdlHexBinary_constructor_01") }
-  @Test def test_dfdlHexBinary_constructor_02(): Unit = { runner2.runOneTest("dfdlHexBinary_constructor_02") }
-  @Test def test_dfdlHexBinary_constructor_03(): Unit = { runner2.runOneTest("dfdlHexBinary_constructor_03") }
-  @Test def test_dfdlHexBinary_constructor_04(): Unit = { runner2.runOneTest("dfdlHexBinary_constructor_04") }
-  @Test def test_dfdlHexBinary_constructor_05(): Unit = { runner2.runOneTest("dfdlHexBinary_constructor_05") }
+  @Test def test_dfdlHexBinary_constructor_01(): Unit = {
+    runner2.runOneTest("dfdlHexBinary_constructor_01")
+  }
+  @Test def test_dfdlHexBinary_constructor_02(): Unit = {
+    runner2.runOneTest("dfdlHexBinary_constructor_02")
+  }
+  @Test def test_dfdlHexBinary_constructor_03(): Unit = {
+    runner2.runOneTest("dfdlHexBinary_constructor_03")
+  }
+  @Test def test_dfdlHexBinary_constructor_04(): Unit = {
+    runner2.runOneTest("dfdlHexBinary_constructor_04")
+  }
+  @Test def test_dfdlHexBinary_constructor_05(): Unit = {
+    runner2.runOneTest("dfdlHexBinary_constructor_05")
+  }
 
-  @Test def test_dfdlByte_constructor_01(): Unit = { runner2.runOneTest("dfdlByte_constructor_01") }
-  @Test def test_dfdlByte_constructor_02(): Unit = { runner2.runOneTest("dfdlByte_constructor_02") }
-  @Test def test_dfdlByte_constructor_03(): Unit = { runner2.runOneTest("dfdlByte_constructor_03") }
-  @Test def test_dfdlByte_constructor_04(): Unit = { runner2.runOneTest("dfdlByte_constructor_04") }
-  @Test def test_dfdlByte_constructor_05(): Unit = { runner2.runOneTest("dfdlByte_constructor_05") }
-  @Test def test_dfdlByte_constructor_06(): Unit = { runner2.runOneTest("dfdlByte_constructor_06") }
-  @Test def test_dfdlByte_constructor_07(): Unit = { runner2.runOneTest("dfdlByte_constructor_07") }
-  @Test def test_dfdlByte_constructor_08(): Unit = { runner2.runOneTest("dfdlByte_constructor_08") }
-  @Test def test_dfdlByte_constructor_09(): Unit = { runner2.runOneTest("dfdlByte_constructor_09") }
-  @Test def test_dfdlByte_constructor_10(): Unit = { runner2.runOneTest("dfdlByte_constructor_10") }
-  @Test def test_dfdlByte_constructor_11(): Unit = { runner2.runOneTest("dfdlByte_constructor_11") }
+  @Test def test_dfdlByte_constructor_01(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_01")
+  }
+  @Test def test_dfdlByte_constructor_02(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_02")
+  }
+  @Test def test_dfdlByte_constructor_03(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_03")
+  }
+  @Test def test_dfdlByte_constructor_04(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_04")
+  }
+  @Test def test_dfdlByte_constructor_05(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_05")
+  }
+  @Test def test_dfdlByte_constructor_06(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_06")
+  }
+  @Test def test_dfdlByte_constructor_07(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_07")
+  }
+  @Test def test_dfdlByte_constructor_08(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_08")
+  }
+  @Test def test_dfdlByte_constructor_09(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_09")
+  }
+  @Test def test_dfdlByte_constructor_10(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_10")
+  }
+  @Test def test_dfdlByte_constructor_11(): Unit = {
+    runner2.runOneTest("dfdlByte_constructor_11")
+  }
 
-  @Test def test_dfdlUByte_constructor_01(): Unit = { runner2.runOneTest("dfdlUByte_constructor_01") }
-  @Test def test_dfdlUByte_constructor_02(): Unit = { runner2.runOneTest("dfdlUByte_constructor_02") }
-  @Test def test_dfdlUByte_constructor_03(): Unit = { runner2.runOneTest("dfdlUByte_constructor_03") }
-  @Test def test_dfdlUByte_constructor_04(): Unit = { runner2.runOneTest("dfdlUByte_constructor_04") }
-  @Test def test_dfdlUByte_constructor_05(): Unit = { runner2.runOneTest("dfdlUByte_constructor_05") }
-  @Test def test_dfdlUByte_constructor_06(): Unit = { runner2.runOneTest("dfdlUByte_constructor_06") }
-  @Test def test_dfdlUByte_constructor_07(): Unit = { runner2.runOneTest("dfdlUByte_constructor_07") }
-  @Test def test_dfdlUByte_constructor_08(): Unit = { runner2.runOneTest("dfdlUByte_constructor_08") }
-  @Test def test_dfdlUByte_constructor_09(): Unit = { runner2.runOneTest("dfdlUByte_constructor_09") }
-  @Test def test_dfdlUByte_constructor_11(): Unit = { runner2.runOneTest("dfdlUByte_constructor_11") }
-  @Test def test_dfdlUByte_constructor_12(): Unit = { runner2.runOneTest("dfdlUByte_constructor_12") }
+  @Test def test_dfdlUByte_constructor_01(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_01")
+  }
+  @Test def test_dfdlUByte_constructor_02(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_02")
+  }
+  @Test def test_dfdlUByte_constructor_03(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_03")
+  }
+  @Test def test_dfdlUByte_constructor_04(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_04")
+  }
+  @Test def test_dfdlUByte_constructor_05(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_05")
+  }
+  @Test def test_dfdlUByte_constructor_06(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_06")
+  }
+  @Test def test_dfdlUByte_constructor_07(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_07")
+  }
+  @Test def test_dfdlUByte_constructor_08(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_08")
+  }
+  @Test def test_dfdlUByte_constructor_09(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_09")
+  }
+  @Test def test_dfdlUByte_constructor_11(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_11")
+  }
+  @Test def test_dfdlUByte_constructor_12(): Unit = {
+    runner2.runOneTest("dfdlUByte_constructor_12")
+  }
 
-  @Test def test_dfdlShort_constructor_01(): Unit = { runner2.runOneTest("dfdlShort_constructor_01") }
-  @Test def test_dfdlShort_constructor_02(): Unit = { runner2.runOneTest("dfdlShort_constructor_02") }
-  @Test def test_dfdlShort_constructor_03(): Unit = { runner2.runOneTest("dfdlShort_constructor_03") }
-  @Test def test_dfdlShort_constructor_04(): Unit = { runner2.runOneTest("dfdlShort_constructor_04") }
-  @Test def test_dfdlShort_constructor_05(): Unit = { runner2.runOneTest("dfdlShort_constructor_05") }
-  @Test def test_dfdlShort_constructor_06(): Unit = { runner2.runOneTest("dfdlShort_constructor_06") }
-  @Test def test_dfdlShort_constructor_07(): Unit = { runner2.runOneTest("dfdlShort_constructor_07") }
-  @Test def test_dfdlShort_constructor_08(): Unit = { runner2.runOneTest("dfdlShort_constructor_08") }
-  @Test def test_dfdlShort_constructor_09(): Unit = { runner2.runOneTest("dfdlShort_constructor_09") }
-  @Test def test_dfdlShort_constructor_11(): Unit = { runner2.runOneTest("dfdlShort_constructor_11") }
-  @Test def test_dfdlShort_constructor_12(): Unit = { runner2.runOneTest("dfdlShort_constructor_12") }
+  @Test def test_dfdlShort_constructor_01(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_01")
+  }
+  @Test def test_dfdlShort_constructor_02(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_02")
+  }
+  @Test def test_dfdlShort_constructor_03(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_03")
+  }
+  @Test def test_dfdlShort_constructor_04(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_04")
+  }
+  @Test def test_dfdlShort_constructor_05(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_05")
+  }
+  @Test def test_dfdlShort_constructor_06(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_06")
+  }
+  @Test def test_dfdlShort_constructor_07(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_07")
+  }
+  @Test def test_dfdlShort_constructor_08(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_08")
+  }
+  @Test def test_dfdlShort_constructor_09(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_09")
+  }
+  @Test def test_dfdlShort_constructor_11(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_11")
+  }
+  @Test def test_dfdlShort_constructor_12(): Unit = {
+    runner2.runOneTest("dfdlShort_constructor_12")
+  }
 
-  @Test def test_dfdlUShort_constructor_01(): Unit = { runner2.runOneTest("dfdlUShort_constructor_01") }
-  @Test def test_dfdlUShort_constructor_02(): Unit = { runner2.runOneTest("dfdlUShort_constructor_02") }
-  @Test def test_dfdlUShort_constructor_03(): Unit = { runner2.runOneTest("dfdlUShort_constructor_03") }
-  @Test def test_dfdlUShort_constructor_04(): Unit = { runner2.runOneTest("dfdlUShort_constructor_04") }
-  @Test def test_dfdlUShort_constructor_05(): Unit = { runner2.runOneTest("dfdlUShort_constructor_05") }
-  @Test def test_dfdlUShort_constructor_06(): Unit = { runner2.runOneTest("dfdlUShort_constructor_06") }
-  @Test def test_dfdlUShort_constructor_07(): Unit = { runner2.runOneTest("dfdlUShort_constructor_07") }
-  @Test def test_dfdlUShort_constructor_08(): Unit = { runner2.runOneTest("dfdlUShort_constructor_08") }
-  @Test def test_dfdlUShort_constructor_09(): Unit = { runner2.runOneTest("dfdlUShort_constructor_09") }
-  @Test def test_dfdlUShort_constructor_11(): Unit = { runner2.runOneTest("dfdlUShort_constructor_11") }
-  @Test def test_dfdlUShort_constructor_12(): Unit = { runner2.runOneTest("dfdlUShort_constructor_12") }
+  @Test def test_dfdlUShort_constructor_01(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_01")
+  }
+  @Test def test_dfdlUShort_constructor_02(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_02")
+  }
+  @Test def test_dfdlUShort_constructor_03(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_03")
+  }
+  @Test def test_dfdlUShort_constructor_04(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_04")
+  }
+  @Test def test_dfdlUShort_constructor_05(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_05")
+  }
+  @Test def test_dfdlUShort_constructor_06(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_06")
+  }
+  @Test def test_dfdlUShort_constructor_07(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_07")
+  }
+  @Test def test_dfdlUShort_constructor_08(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_08")
+  }
+  @Test def test_dfdlUShort_constructor_09(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_09")
+  }
+  @Test def test_dfdlUShort_constructor_11(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_11")
+  }
+  @Test def test_dfdlUShort_constructor_12(): Unit = {
+    runner2.runOneTest("dfdlUShort_constructor_12")
+  }
 
-  @Test def test_dfdlInt_constructor_01(): Unit = { runner2.runOneTest("dfdlInt_constructor_01") }
-  @Test def test_dfdlInt_constructor_02(): Unit = { runner2.runOneTest("dfdlInt_constructor_02") }
-  @Test def test_dfdlInt_constructor_03(): Unit = { runner2.runOneTest("dfdlInt_constructor_03") }
-  @Test def test_dfdlInt_constructor_04(): Unit = { runner2.runOneTest("dfdlInt_constructor_04") }
-  @Test def test_dfdlInt_constructor_05(): Unit = { runner2.runOneTest("dfdlInt_constructor_05") }
-  @Test def test_dfdlInt_constructor_06(): Unit = { runner2.runOneTest("dfdlInt_constructor_06") }
-  @Test def test_dfdlInt_constructor_07(): Unit = { runner2.runOneTest("dfdlInt_constructor_07") }
-  @Test def test_dfdlInt_constructor_08(): Unit = { runner2.runOneTest("dfdlInt_constructor_08") }
-  @Test def test_dfdlInt_constructor_09(): Unit = { runner2.runOneTest("dfdlInt_constructor_09") }
-  @Test def test_dfdlInt_constructor_11(): Unit = { runner2.runOneTest("dfdlInt_constructor_11") }
-  @Test def test_dfdlInt_constructor_12(): Unit = { runner2.runOneTest("dfdlInt_constructor_12") }
-  @Test def test_dfdlInt_constructor_13(): Unit = { runner2.runOneTest("dfdlInt_constructor_13") }
-  @Test def test_dfdlInt_constructor_14(): Unit = { runner2.runOneTest("dfdlInt_constructor_14") }
-  @Test def test_dfdlInt_constructor_15(): Unit = { runner2.runOneTest("dfdlInt_constructor_15") }
+  @Test def test_dfdlInt_constructor_01(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_01")
+  }
+  @Test def test_dfdlInt_constructor_02(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_02")
+  }
+  @Test def test_dfdlInt_constructor_03(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_03")
+  }
+  @Test def test_dfdlInt_constructor_04(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_04")
+  }
+  @Test def test_dfdlInt_constructor_05(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_05")
+  }
+  @Test def test_dfdlInt_constructor_06(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_06")
+  }
+  @Test def test_dfdlInt_constructor_07(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_07")
+  }
+  @Test def test_dfdlInt_constructor_08(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_08")
+  }
+  @Test def test_dfdlInt_constructor_09(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_09")
+  }
+  @Test def test_dfdlInt_constructor_11(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_11")
+  }
+  @Test def test_dfdlInt_constructor_12(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_12")
+  }
+  @Test def test_dfdlInt_constructor_13(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_13")
+  }
+  @Test def test_dfdlInt_constructor_14(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_14")
+  }
+  @Test def test_dfdlInt_constructor_15(): Unit = {
+    runner2.runOneTest("dfdlInt_constructor_15")
+  }
 
-  @Test def test_dfdlUInt_constructor_01(): Unit = { runner2.runOneTest("dfdlUInt_constructor_01") }
-  @Test def test_dfdlUInt_constructor_02(): Unit = { runner2.runOneTest("dfdlUInt_constructor_02") }
-  @Test def test_dfdlUInt_constructor_03(): Unit = { runner2.runOneTest("dfdlUInt_constructor_03") }
-  @Test def test_dfdlUInt_constructor_04(): Unit = { runner2.runOneTest("dfdlUInt_constructor_04") }
-  @Test def test_dfdlUInt_constructor_05(): Unit = { runner2.runOneTest("dfdlUInt_constructor_05") }
-  @Test def test_dfdlUInt_constructor_06(): Unit = { runner2.runOneTest("dfdlUInt_constructor_06") }
-  @Test def test_dfdlUInt_constructor_07(): Unit = { runner2.runOneTest("dfdlUInt_constructor_07") }
-  @Test def test_dfdlUInt_constructor_08(): Unit = { runner2.runOneTest("dfdlUInt_constructor_08") }
-  @Test def test_dfdlUInt_constructor_09(): Unit = { runner2.runOneTest("dfdlUInt_constructor_09") }
-  @Test def test_dfdlUInt_constructor_11(): Unit = { runner2.runOneTest("dfdlUInt_constructor_11") }
-  @Test def test_dfdlUInt_constructor_12(): Unit = { runner2.runOneTest("dfdlUInt_constructor_12") }
-  @Test def test_dfdlUInt_constructor_13(): Unit = { runner2.runOneTest("dfdlUInt_constructor_13") }
+  @Test def test_dfdlUInt_constructor_01(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_01")
+  }
+  @Test def test_dfdlUInt_constructor_02(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_02")
+  }
+  @Test def test_dfdlUInt_constructor_03(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_03")
+  }
+  @Test def test_dfdlUInt_constructor_04(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_04")
+  }
+  @Test def test_dfdlUInt_constructor_05(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_05")
+  }
+  @Test def test_dfdlUInt_constructor_06(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_06")
+  }
+  @Test def test_dfdlUInt_constructor_07(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_07")
+  }
+  @Test def test_dfdlUInt_constructor_08(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_08")
+  }
+  @Test def test_dfdlUInt_constructor_09(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_09")
+  }
+  @Test def test_dfdlUInt_constructor_11(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_11")
+  }
+  @Test def test_dfdlUInt_constructor_12(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_12")
+  }
+  @Test def test_dfdlUInt_constructor_13(): Unit = {
+    runner2.runOneTest("dfdlUInt_constructor_13")
+  }
 
-  @Test def test_dfdlLong_constructor_01(): Unit = { runner2.runOneTest("dfdlLong_constructor_01") }
-  @Test def test_dfdlLong_constructor_02(): Unit = { runner2.runOneTest("dfdlLong_constructor_02") }
-  @Test def test_dfdlLong_constructor_03(): Unit = { runner2.runOneTest("dfdlLong_constructor_03") }
-  @Test def test_dfdlLong_constructor_04(): Unit = { runner2.runOneTest("dfdlLong_constructor_04") }
-  @Test def test_dfdlLong_constructor_05(): Unit = { runner2.runOneTest("dfdlLong_constructor_05") }
-  @Test def test_dfdlLong_constructor_06(): Unit = { runner2.runOneTest("dfdlLong_constructor_06") }
-  @Test def test_dfdlLong_constructor_07(): Unit = { runner2.runOneTest("dfdlLong_constructor_07") }
-  @Test def test_dfdlLong_constructor_08(): Unit = { runner2.runOneTest("dfdlLong_constructor_08") }
-  @Test def test_dfdlLong_constructor_09(): Unit = { runner2.runOneTest("dfdlLong_constructor_09") }
-  @Test def test_dfdlLong_constructor_11(): Unit = { runner2.runOneTest("dfdlLong_constructor_11") }
-  @Test def test_dfdlLong_constructor_12(): Unit = { runner2.runOneTest("dfdlLong_constructor_12") }
-  @Test def test_dfdlLong_constructor_13(): Unit = { runner2.runOneTest("dfdlLong_constructor_13") }
+  @Test def test_dfdlLong_constructor_01(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_01")
+  }
+  @Test def test_dfdlLong_constructor_02(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_02")
+  }
+  @Test def test_dfdlLong_constructor_03(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_03")
+  }
+  @Test def test_dfdlLong_constructor_04(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_04")
+  }
+  @Test def test_dfdlLong_constructor_05(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_05")
+  }
+  @Test def test_dfdlLong_constructor_06(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_06")
+  }
+  @Test def test_dfdlLong_constructor_07(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_07")
+  }
+  @Test def test_dfdlLong_constructor_08(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_08")
+  }
+  @Test def test_dfdlLong_constructor_09(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_09")
+  }
+  @Test def test_dfdlLong_constructor_11(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_11")
+  }
+  @Test def test_dfdlLong_constructor_12(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_12")
+  }
+  @Test def test_dfdlLong_constructor_13(): Unit = {
+    runner2.runOneTest("dfdlLong_constructor_13")
+  }
 
-  @Test def test_dfdlULong_constructor_01(): Unit = { runner2.runOneTest("dfdlULong_constructor_01") }
-  @Test def test_dfdlULong_constructor_02(): Unit = { runner2.runOneTest("dfdlULong_constructor_02") }
-  @Test def test_dfdlULong_constructor_03(): Unit = { runner2.runOneTest("dfdlULong_constructor_03") }
-  @Test def test_dfdlULong_constructor_04(): Unit = { runner2.runOneTest("dfdlULong_constructor_04") }
-  @Test def test_dfdlULong_constructor_05(): Unit = { runner2.runOneTest("dfdlULong_constructor_05") }
-  @Test def test_dfdlULong_constructor_06(): Unit = { runner2.runOneTest("dfdlULong_constructor_06") }
-  @Test def test_dfdlULong_constructor_07(): Unit = { runner2.runOneTest("dfdlULong_constructor_07") }
-  @Test def test_dfdlULong_constructor_08(): Unit = { runner2.runOneTest("dfdlULong_constructor_08") }
-  @Test def test_dfdlULong_constructor_09(): Unit = { runner2.runOneTest("dfdlULong_constructor_09") }
-  @Test def test_dfdlULong_constructor_11(): Unit = { runner2.runOneTest("dfdlULong_constructor_11") }
-  @Test def test_dfdlULong_constructor_12(): Unit = { runner2.runOneTest("dfdlULong_constructor_12") }
-  @Test def test_dfdlULong_constructor_13(): Unit = { runner2.runOneTest("dfdlULong_constructor_13") }
+  @Test def test_dfdlULong_constructor_01(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_01")
+  }
+  @Test def test_dfdlULong_constructor_02(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_02")
+  }
+  @Test def test_dfdlULong_constructor_03(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_03")
+  }
+  @Test def test_dfdlULong_constructor_04(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_04")
+  }
+  @Test def test_dfdlULong_constructor_05(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_05")
+  }
+  @Test def test_dfdlULong_constructor_06(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_06")
+  }
+  @Test def test_dfdlULong_constructor_07(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_07")
+  }
+  @Test def test_dfdlULong_constructor_08(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_08")
+  }
+  @Test def test_dfdlULong_constructor_09(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_09")
+  }
+  @Test def test_dfdlULong_constructor_11(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_11")
+  }
+  @Test def test_dfdlULong_constructor_12(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_12")
+  }
+  @Test def test_dfdlULong_constructor_13(): Unit = {
+    runner2.runOneTest("dfdlULong_constructor_13")
+  }
 
-  @Test def test_xsDateTime_constructor_06(): Unit = { runner2.runOneTest("xsDateTime_constructor_06") }
-  @Test def test_xsDateTime_constructor_07(): Unit = { runner2.runOneTest("xsDateTime_constructor_07") }
-  @Test def test_xsDateTime_constructor_08(): Unit = { runner2.runOneTest("xsDateTime_constructor_08") }
-  @Test def test_xsDateTime_constructor_09(): Unit = { runner2.runOneTest("xsDateTime_constructor_09") }
-  @Test def test_xsDateTime_constructor_10(): Unit = { runner2.runOneTest("xsDateTime_constructor_10") }
+  @Test def test_xsDateTime_constructor_06(): Unit = {
+    runner2.runOneTest("xsDateTime_constructor_06")
+  }
+  @Test def test_xsDateTime_constructor_07(): Unit = {
+    runner2.runOneTest("xsDateTime_constructor_07")
+  }
+  @Test def test_xsDateTime_constructor_08(): Unit = {
+    runner2.runOneTest("xsDateTime_constructor_08")
+  }
+  @Test def test_xsDateTime_constructor_09(): Unit = {
+    runner2.runOneTest("xsDateTime_constructor_09")
+  }
+  @Test def test_xsDateTime_constructor_10(): Unit = {
+    runner2.runOneTest("xsDateTime_constructor_10")
+  }
   @Test def test_date_constructor_05(): Unit = { runner2.runOneTest("date_constructor_05") }
   @Test def test_date_constructor_06(): Unit = { runner2.runOneTest("date_constructor_06") }
   @Test def test_date_constructor_07(): Unit = { runner2.runOneTest("date_constructor_07") }
@@ -818,21 +1304,29 @@ class TestDFDLExpressions {
   @Test def test_time_constructor_03(): Unit = { runner2.runOneTest("time_constructor_03") }
   @Test def test_time_constructor_04(): Unit = { runner2.runOneTest("time_constructor_04") }
 
-  //DFDL-1124
-  //@Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
+  // DFDL-1124
+  // @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
   @Test def test_date_constructor_02(): Unit = { runner2.runOneTest("date_constructor_02") }
-  //@Test def test_date_constructor_02a() { runner2.runOneTest("date_constructor_02a") }
+  // @Test def test_date_constructor_02a() { runner2.runOneTest("date_constructor_02a") }
   @Test def test_date_constructor_03(): Unit = { runner2.runOneTest("date_constructor_03") }
-  //@Test def test_date_constructor_03a() { runner2.runOneTest("date_constructor_03a") }
+  // @Test def test_date_constructor_03a() { runner2.runOneTest("date_constructor_03a") }
   @Test def test_date_constructor_04(): Unit = { runner2.runOneTest("date_constructor_04") }
-  //@Test def test_nonNeg_constructor_02a() { runner2.runOneTest("nonNeg_constructor_02a") }
+  // @Test def test_nonNeg_constructor_02a() { runner2.runOneTest("nonNeg_constructor_02a") }
 
-  @Test def test_xsDateTime_constructor_01(): Unit = { runner2.runOneTest("xsDateTime_constructor_01") }
-  @Test def test_xsDateTime_constructor_02(): Unit = { runner2.runOneTest("xsDateTime_constructor_02") }
-  //DFDL-1115
-  //@Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
-  @Test def test_xsDateTime_constructor_04(): Unit = { runner2.runOneTest("xsDateTime_constructor_04") }
-  @Test def test_xsDateTime_constructor_05(): Unit = { runner2.runOneTest("xsDateTime_constructor_05") }
+  @Test def test_xsDateTime_constructor_01(): Unit = {
+    runner2.runOneTest("xsDateTime_constructor_01")
+  }
+  @Test def test_xsDateTime_constructor_02(): Unit = {
+    runner2.runOneTest("xsDateTime_constructor_02")
+  }
+  // DFDL-1115
+  // @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
+  @Test def test_xsDateTime_constructor_04(): Unit = {
+    runner2.runOneTest("xsDateTime_constructor_04")
+  }
+  @Test def test_xsDateTime_constructor_05(): Unit = {
+    runner2.runOneTest("xsDateTime_constructor_05")
+  }
 
   @Test def test_double_constructor_01(): Unit = { runner2.runOneTest("double_constructor_01") }
   @Test def test_double_constructor_02(): Unit = { runner2.runOneTest("double_constructor_02") }
@@ -847,12 +1341,24 @@ class TestDFDLExpressions {
   @Test def test_float_constructor_03(): Unit = { runner2.runOneTest("float_constructor_03") }
   @Test def test_float_constructor_04(): Unit = { runner2.runOneTest("float_constructor_04") }
 
-  @Test def test_decimal_constructor_01(): Unit = { runner2.runOneTest("decimal_constructor_01") }
-  @Test def test_decimal_constructor_02(): Unit = { runner2.runOneTest("decimal_constructor_02") }
-  @Test def test_decimal_constructor_03(): Unit = { runner2.runOneTest("decimal_constructor_03") }
-  @Test def test_decimal_constructor_04(): Unit = { runner2.runOneTest("decimal_constructor_04") }
-  @Test def test_decimal_constructor_05(): Unit = { runner2.runOneTest("decimal_constructor_05") }
-  @Test def test_decimal_constructor_06(): Unit = { runner2.runOneTest("decimal_constructor_06") }
+  @Test def test_decimal_constructor_01(): Unit = {
+    runner2.runOneTest("decimal_constructor_01")
+  }
+  @Test def test_decimal_constructor_02(): Unit = {
+    runner2.runOneTest("decimal_constructor_02")
+  }
+  @Test def test_decimal_constructor_03(): Unit = {
+    runner2.runOneTest("decimal_constructor_03")
+  }
+  @Test def test_decimal_constructor_04(): Unit = {
+    runner2.runOneTest("decimal_constructor_04")
+  }
+  @Test def test_decimal_constructor_05(): Unit = {
+    runner2.runOneTest("decimal_constructor_05")
+  }
+  @Test def test_decimal_constructor_06(): Unit = {
+    runner2.runOneTest("decimal_constructor_06")
+  }
 
   @Test def test_short_constructor_01(): Unit = { runner2.runOneTest("short_constructor_01") }
   @Test def test_short_constructor_02(): Unit = { runner2.runOneTest("short_constructor_02") }
@@ -885,24 +1391,58 @@ class TestDFDLExpressions {
   @Test def test_int_constructor_03(): Unit = { runner2.runOneTest("int_constructor_03") }
   @Test def test_int_constructor_04(): Unit = { runner2.runOneTest("int_constructor_04") }
 
-  @Test def test_fnDateTime_constructor_01(): Unit = { runner2.runOneTest("fnDateTime_constructor_01") }
-  @Test def test_fnDateTime_constructor_02(): Unit = { runner2.runOneTest("fnDateTime_constructor_02") }
-  @Test def test_fnDateTime_constructor_03(): Unit = { runner2.runOneTest("fnDateTime_constructor_03") }
-  @Test def test_fnDateTime_constructor_04(): Unit = { runner2.runOneTest("fnDateTime_constructor_04") }
-  @Test def test_fnDateTime_constructor_05(): Unit = { runner2.runOneTest("fnDateTime_constructor_05") }
-  @Test def test_fnDateTime_constructor_06(): Unit = { runner2.runOneTest("fnDateTime_constructor_06") }
-  @Test def test_fnDateTime_constructor_07(): Unit = { runner2.runOneTest("fnDateTime_constructor_07") }
-  @Test def test_fnDateTime_constructor_08(): Unit = { runner2.runOneTest("fnDateTime_constructor_08") }
-  @Test def test_fnDateTime_constructor_09(): Unit = { runner2.runOneTest("fnDateTime_constructor_09") }
-  @Test def test_fnDateTime_constructor_10(): Unit = { runner2.runOneTest("fnDateTime_constructor_10") }
+  @Test def test_fnDateTime_constructor_01(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_01")
+  }
+  @Test def test_fnDateTime_constructor_02(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_02")
+  }
+  @Test def test_fnDateTime_constructor_03(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_03")
+  }
+  @Test def test_fnDateTime_constructor_04(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_04")
+  }
+  @Test def test_fnDateTime_constructor_05(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_05")
+  }
+  @Test def test_fnDateTime_constructor_06(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_06")
+  }
+  @Test def test_fnDateTime_constructor_07(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_07")
+  }
+  @Test def test_fnDateTime_constructor_08(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_08")
+  }
+  @Test def test_fnDateTime_constructor_09(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_09")
+  }
+  @Test def test_fnDateTime_constructor_10(): Unit = {
+    runner2.runOneTest("fnDateTime_constructor_10")
+  }
 
-  @Test def test_integer_constructor_01(): Unit = { runner2.runOneTest("integer_constructor_01") }
-  @Test def test_integer_constructor_02(): Unit = { runner2.runOneTest("integer_constructor_02") }
-  @Test def test_integer_constructor_03(): Unit = { runner2.runOneTest("integer_constructor_03") }
-  @Test def test_integer_constructor_04(): Unit = { runner2.runOneTest("integer_constructor_04") }
-  @Test def test_integer_constructor_05(): Unit = { runner2.runOneTest("integer_constructor_05") }
-  @Test def test_integer_constructor_06(): Unit = { runner2.runOneTest("integer_constructor_06") }
-  @Test def test_integer_constructor_07(): Unit = { runner2.runOneTest("integer_constructor_07") }
+  @Test def test_integer_constructor_01(): Unit = {
+    runner2.runOneTest("integer_constructor_01")
+  }
+  @Test def test_integer_constructor_02(): Unit = {
+    runner2.runOneTest("integer_constructor_02")
+  }
+  @Test def test_integer_constructor_03(): Unit = {
+    runner2.runOneTest("integer_constructor_03")
+  }
+  @Test def test_integer_constructor_04(): Unit = {
+    runner2.runOneTest("integer_constructor_04")
+  }
+  @Test def test_integer_constructor_05(): Unit = {
+    runner2.runOneTest("integer_constructor_05")
+  }
+  @Test def test_integer_constructor_06(): Unit = {
+    runner2.runOneTest("integer_constructor_06")
+  }
+  @Test def test_integer_constructor_07(): Unit = {
+    runner2.runOneTest("integer_constructor_07")
+  }
 
   @Test def test_testBit_0(): Unit = { runner2.runOneTest("testBit_0") }
   @Test def test_testBit_1(): Unit = { runner2.runOneTest("testBit_1") }
@@ -911,8 +1451,12 @@ class TestDFDLExpressions {
   @Test def test_testBit_4(): Unit = { runner2.runOneTest("testBit_4") }
   @Test def test_testBit_5(): Unit = { runner2.runOneTest("testBit_5") }
 
-  @Test def test_stringLiteralFromString_obsolete(): Unit = { runner2.runOneTest("stringLiteralFromString_obsolete") }
-  @Test def test_containsEntity_obsolete(): Unit = { runner2.runOneTest("containsEntity_obsolete") }
+  @Test def test_stringLiteralFromString_obsolete(): Unit = {
+    runner2.runOneTest("stringLiteralFromString_obsolete")
+  }
+  @Test def test_containsEntity_obsolete(): Unit = {
+    runner2.runOneTest("containsEntity_obsolete")
+  }
 
   @Test def test_encodeDFDLEntities_0(): Unit = { runner2.runOneTest("encodeDFDLEntities_0") }
   @Test def test_encodeDFDLEntities_1(): Unit = { runner2.runOneTest("encodeDFDLEntities_1") }
@@ -924,18 +1468,28 @@ class TestDFDLExpressions {
   @Test def test_setBits_1(): Unit = { runner2.runOneTest("setBits_1") }
   @Test def test_setBits_2(): Unit = { runner2.runOneTest("setBits_2") }
 
-  @Test def test_containsDFDLEntities_0(): Unit = { runner2.runOneTest("containsDFDLEntities_0") }
-  @Test def test_containsDFDLEntities_1(): Unit = { runner2.runOneTest("containsDFDLEntities_1") }
-  @Test def test_containsDFDLEntities_2(): Unit = { runner2.runOneTest("containsDFDLEntities_2") }
-  @Test def test_containsDFDLEntities_3(): Unit = { runner2.runOneTest("containsDFDLEntities_3") }
-  @Test def test_containsDFDLEntities_4(): Unit = { runner2.runOneTest("containsDFDLEntities_4") }
+  @Test def test_containsDFDLEntities_0(): Unit = {
+    runner2.runOneTest("containsDFDLEntities_0")
+  }
+  @Test def test_containsDFDLEntities_1(): Unit = {
+    runner2.runOneTest("containsDFDLEntities_1")
+  }
+  @Test def test_containsDFDLEntities_2(): Unit = {
+    runner2.runOneTest("containsDFDLEntities_2")
+  }
+  @Test def test_containsDFDLEntities_3(): Unit = {
+    runner2.runOneTest("containsDFDLEntities_3")
+  }
+  @Test def test_containsDFDLEntities_4(): Unit = {
+    runner2.runOneTest("containsDFDLEntities_4")
+  }
 
-  //DFDL-1118
-  //@Test def test_more_count_0() { runner2.runOneTest("more_count_0") }
-  //@Test def test_more_count_1() { runner2.runOneTest("more_count_1") }
+  // DFDL-1118
+  // @Test def test_more_count_0() { runner2.runOneTest("more_count_0") }
+  // @Test def test_more_count_1() { runner2.runOneTest("more_count_1") }
   @Test def test_more_count_1b(): Unit = { runner2.runOneTest("more_count_1b") }
-  //@Test def test_more_count_1b_2() { runner2.runOneTest("more_count_1b_2") }
-  //@Test def test_more_count_2() { runner2.runOneTest("more_count_2") }
+  // @Test def test_more_count_1b_2() { runner2.runOneTest("more_count_1b_2") }
+  // @Test def test_more_count_2() { runner2.runOneTest("more_count_2") }
   @Test def test_more_count_3(): Unit = { runner2.runOneTest("more_count_3") }
   @Test def test_more_count_3b(): Unit = { runner2.runOneTest("more_count_3b") }
 
@@ -973,7 +1527,9 @@ class TestDFDLExpressions {
   // schema loading (SAXParse) level and would cause other tests within
   // the same file to fail.
   //
-  @Test def test_no_closing_brace(): Unit = { runner3.runOneTest("no_closing_brace") } // no closing } for expression
+  @Test def test_no_closing_brace(): Unit = {
+    runner3.runOneTest("no_closing_brace")
+  } // no closing } for expression
 
   @Test def test_valueLengthPair1(): Unit = { runner5.runOneTest("valueLengthPair1") }
   @Test def test_valueLengthPair2(): Unit = { runner5.runOneTest("valueLengthPair2") }
@@ -988,9 +1544,11 @@ class TestDFDLExpressions {
   @Test def test_array_index_oob_05(): Unit = { runner.runOneTest("array_index_oob_05") }
 
   // Added from scala-new for DFDL-1660
-  @Test def test_array_index_relative_path_subexpression_01(): Unit = { runner.runOneTest("array_index_relative_path_subexpression_01") }
+  @Test def test_array_index_relative_path_subexpression_01(): Unit = {
+    runner.runOneTest("array_index_relative_path_subexpression_01")
+  }
 
-  //DFDL-1702
+  // DFDL-1702
   @Test def test_mathPow01(): Unit = { runner2.runOneTest("mathPow01") }
   @Test def test_mathPow02(): Unit = { runner2.runOneTest("mathPow02") }
   @Test def test_mathPow03(): Unit = { runner2.runOneTest("mathPow03") }
@@ -1027,7 +1585,9 @@ class TestDFDLExpressions {
   @Test def test_mathPow34(): Unit = { runner2.runOneTest("mathPow34") }
 
   // DFDL-1771
-  @Test def test_expr_path_past_root1(): Unit = { runner7.runOneTest("test_expr_path_past_root1") }
+  @Test def test_expr_path_past_root1(): Unit = {
+    runner7.runOneTest("test_expr_path_past_root1")
+  }
 
   // DFDL-1804
   @Test def test_traceComplex(): Unit = { runner7.runOneTest("traceComplex") }
@@ -1035,23 +1595,27 @@ class TestDFDLExpressions {
   // DFDL-2628
   @Test def test_traceReturnType(): Unit = { runner7.runOneTest("traceReturnType") }
 
-  //DFDL-1076
+  // DFDL-1076
   @Test def test_nilled_01(): Unit = { runner2.runOneTest("nilled_01") }
 
   // DFDL-1617 - should detect errors due to query-style expressions
   @Test def test_query_style_01(): Unit = { runner6.runOneTest("query_style_01") }
   @Test def test_query_style_02(): Unit = { runner6.runOneTest("query_style_02") }
 
-  //DFDL-1221
+  // DFDL-1221
   @Test def test_beyondRoot_01(): Unit = { runner.runOneTest("beyondRoot_01") }
 
-  //DFDL-711
+  // DFDL-711
   @Test def test_short_parent_axis_01(): Unit = { runner.runOneTest("short_parent_axis_01") }
 
-  @Test def test_element_long_form_whitespace(): Unit = { runner.runOneTest("element_long_form_whitespace") }
+  @Test def test_element_long_form_whitespace(): Unit = {
+    runner.runOneTest("element_long_form_whitespace")
+  }
 
   @Test def test_DoubleFromRawLong(): Unit = { runner2.runOneTest("DoubleFromRawLong") }
   @Test def test_DoubleToRawLong(): Unit = { runner2.runOneTest("DoubleToRawLong") }
 
-  @Test def test_unused_path_no_context_01(): Unit = { runner7.runOneTest("unused_path_no_context_01") }
+  @Test def test_unused_path_no_context_01(): Unit = {
+    runner7.runOneTest("unused_path_no_context_01")
+  }
 }

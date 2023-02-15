@@ -30,25 +30,21 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.MessageDigest
 import java.util.concurrent.TimeUnit
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-import com.fasterxml.jackson.core.io.JsonStringEncoder
+import org.apache.daffodil.cli.Main
+import org.apache.daffodil.cli.Main.ExitCode
 
+import com.fasterxml.jackson.core.io.JsonStringEncoder
 import net.sf.expectit.Expect
 import net.sf.expectit.ExpectBuilder
 import net.sf.expectit.Result
 import net.sf.expectit.filter.Filters.replaceInString
 import net.sf.expectit.matcher.Matcher
 import net.sf.expectit.matcher.Matchers.contains
-
 import org.apache.commons.io.FileUtils
-
 import org.junit.Assert.assertEquals
-
-import org.apache.daffodil.cli.Main
-import org.apache.daffodil.cli.Main.ExitCode
 
 object Util {
 
@@ -79,7 +75,7 @@ object Util {
     val buffer = new Array[Byte](8192)
     val stream = Files.newInputStream(path)
     var read = 0
-    while ({read = stream.read(buffer); read} > 0) {
+    while ({ read = stream.read(buffer); read } > 0) {
       md.update(buffer, 0, read)
     }
     val md5sum = md.digest()
@@ -92,7 +88,7 @@ object Util {
    * passing in the Path to that new file, and delete the file when the
    * function returns.
    */
-  def withTempFile(f: (Path) => Unit) : Unit = withTempFile(null, f)
+  def withTempFile(f: (Path) => Unit): Unit = withTempFile(null, f)
 
   /**
    * Create a temporary file in /tmp/daffodil/ with a given suffix, call a user
@@ -174,10 +170,13 @@ object Util {
    * @throws AssertionError if the actual exit code does not match the expected exit code
    * @throws ExpectIOException if a CLITester expect validation operation fails
    */
-  def runCLI
-    (args: Array[String], classpaths: Seq[Path] = Seq(), fork: Boolean = false, timeout: Int = 10, debug: Boolean = false)
-    (testFunc: (CLITester) => Unit)
-    (expectedExitCode: ExitCode.Value): Unit = {
+  def runCLI(
+    args: Array[String],
+    classpaths: Seq[Path] = Seq(),
+    fork: Boolean = false,
+    timeout: Int = 10,
+    debug: Boolean = false,
+  )(testFunc: (CLITester) => Unit)(expectedExitCode: ExitCode.Value): Unit = {
 
     val (toIn, fromOut, fromErr, cliThreadOrProc: Either[CLIThread, Process]) =
       if (classpaths.nonEmpty || fork) {
@@ -322,8 +321,8 @@ object Util {
   private class TestThread(
     testFunc: (CLITester) => Unit,
     tester: CLITester,
-    cli: Either[Thread, Process])
-    extends Thread {
+    cli: Either[Thread, Process],
+  ) extends Thread {
 
     var optException: Option[Throwable] = None
 
@@ -359,7 +358,12 @@ object Util {
    * arguments to use (excluding the daffodil binary) and streams to use for
    * stdin/out/err.
    */
-  private class CLIThread(args: Array[String], in: InputStream, out: OutputStream, err: OutputStream) extends Thread {
+  private class CLIThread(
+    args: Array[String],
+    in: InputStream,
+    out: OutputStream,
+    err: OutputStream,
+  ) extends Thread {
     var exitCode: ExitCode.Value = _
 
     override def run(): Unit = {
@@ -433,7 +437,7 @@ object Util {
       val buffer = new Array[Byte](chunkSize)
       val stream = Files.newInputStream(path)
       var read = 0
-      while ({read = stream.read(buffer); read} > 0) {
+      while ({ read = stream.read(buffer); read } > 0) {
         if (read == chunkSize) {
           expect.sendBytes(buffer)
         } else {
@@ -552,25 +556,26 @@ object Util {
       // space element and drop all the spaces. The following does this by
       // accumulating args until we hit a space and adds that to the
       // final array
-      val (res, lastAccumulated) = buf.foldLeft((mutable.ArrayBuffer[String](), "")) { case ((resArray, accumulated), curVal) =>
-        (accumulated, curVal) match {
-          case ("", " ") => {
-            // curVal is a space, but we have accumulated nothing. This means
-            // there were multiple spaces in a row. Just ignore this curVal
-            (resArray, "")
+      val (res, lastAccumulated) = buf.foldLeft((mutable.ArrayBuffer[String](), "")) {
+        case ((resArray, accumulated), curVal) =>
+          (accumulated, curVal) match {
+            case ("", " ") => {
+              // curVal is a space, but we have accumulated nothing. This means
+              // there were multiple spaces in a row. Just ignore this curVal
+              (resArray, "")
+            }
+            case (_, " ") => {
+              // curVal is a space and we have accumulated an argument. Append
+              // what we have accumulated to the array and reset the accumulated
+              // string--we will start accumulating for the next arg
+              (resArray :+ accumulated, "")
+            }
+            case _ => {
+              // curVal is not a space. Do not modify the array, but concatenate
+              // the curVal to what we've accumulated so far
+              (resArray, accumulated + curVal)
+            }
           }
-          case (_, " ") => {
-            // curVal is a space and we have accumulated an argument. Append
-            // what we have accumulated to the array and reset the accumulated
-            // string--we will start accumulating for the next arg
-            (resArray :+ accumulated, "")
-          }
-          case _ => {
-            // curVal is not a space. Do not modify the array, but concatenate
-            // the curVal to what we've accumulated so far
-            (resArray, accumulated + curVal)
-          }
-        }
       }
       // if non-empty, the last thing we accumulated must be appended to the array
       val args =

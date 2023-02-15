@@ -17,15 +17,6 @@
 
 package org.apache.daffodil.core.api
 
-import org.apache.daffodil.runtime1.api._
-
-import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.io.SocketPairTestRig
-import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.core.util.TestUtils
-import org.junit.Assert._
-import org.junit.Test
-
 import java.io.InputStream
 import java.io.OutputStream
 import scala.concurrent.Await
@@ -35,6 +26,14 @@ import scala.concurrent.TimeoutException
 import scala.concurrent.duration.Duration
 import scala.xml.Node
 
+import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.io.SocketPairTestRig
+import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.runtime1.api._
+
+import org.junit.Assert._
+import org.junit.Test
 
 /**
  * Shows that we can parse exactly 1 message from a TCP network socket
@@ -48,9 +47,10 @@ class TestParseIndividualMessages {
   // DFDL schema for element e1 which occupies exactly 4 bytes.
   //
   val exactly4ByteSch = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:GeneralFormat"/>,
-      <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>)
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:GeneralFormat"/>,
+    <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>,
+  )
 
   /**
    * Test shows that at least for simple fixed-length data, Daffodil parse returns
@@ -88,10 +88,11 @@ class TestParseIndividualMessages {
   // DFDL schema for delimited element.
   //
   private def delimitedSchema(term: String) = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format representation="text" ref="tns:GeneralFormat"/>,
-      <xs:element name="e1" type="xs:string" dfdl:lengthKind="delimited"
-                  dfdl:terminator={ term } />)
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <dfdl:format representation="text" ref="tns:GeneralFormat"/>,
+    <xs:element name="e1" type="xs:string" dfdl:lengthKind="delimited"
+                  dfdl:terminator={term} />,
+  )
 
   /**
    * Helper so we can test various delimiter-oriented scenarios.
@@ -103,7 +104,8 @@ class TestParseIndividualMessages {
   private def testHelperDaffodilParseDelimitedFromNetwork(
     data: String,
     terminator: String,
-    followingDataString: String) = {
+    followingDataString: String,
+  ) = {
     val sptr = new SocketPairTestRig {
       override def test(pos: OutputStream, cis: InputStream): Unit = {
 
@@ -145,7 +147,9 @@ class TestParseIndividualMessages {
     intercept[TimeoutException] {
       testHelperDaffodilParseDelimitedFromNetwork("1234", "$", "$")
     }
-    fail("if we get here, then we intercepted a TimeoutException, which means Daffodil was hung.")
+    fail(
+      "if we get here, then we intercepted a TimeoutException, which means Daffodil was hung.",
+    )
   }
 
   /**
@@ -159,8 +163,7 @@ class TestParseIndividualMessages {
    */
   @Test // DAFFODIL-2504
   def testDaffodilParseFromNetworkDelimited1b(): Unit = {
-    testHelperDaffodilParseDelimitedFromNetwork("1234", "$",
-      "$1234567")
+    testHelperDaffodilParseDelimitedFromNetwork("1234", "$", "$1234567")
   }
 
   /**

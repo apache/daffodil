@@ -18,12 +18,12 @@
 package org.apache.daffodil.core.infoset
 
 import org.apache.daffodil.core.util._
-
-import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util._
-import org.apache.daffodil.lib.Implicits._;
-import org.junit.Test
+import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.junit.Assert._
+import org.junit.Test
 
 object INoWarn8 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -44,7 +44,8 @@ class TestInfoset2 {
             <xs:element minOccurs="0" maxOccurs="unbounded" name="a" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:occursCountKind="expression" dfdl:occursCount="{ ../c }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     try {
       // Debugger.setDebugging(true)

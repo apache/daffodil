@@ -16,9 +16,10 @@
  */
 package org.apache.daffodil.runtime1.layers
 
+import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
-import org.apache.daffodil.tdml.Runner
 
 object TestCheckDigit {
 

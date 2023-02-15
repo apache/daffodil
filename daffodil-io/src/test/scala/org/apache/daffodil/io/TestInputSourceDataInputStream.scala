@@ -17,16 +17,12 @@
 
 package org.apache.daffodil.io
 
+import java.math.{ BigInteger => JBigInt }
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.util.regex.Pattern
-import java.math.{BigInteger => JBigInt}
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
-
+import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
@@ -34,8 +30,12 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Misc
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
 import passera.unsigned.ULong
-import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
 
 class TestInputSourceDataInputStream {
   val tenDigits = "1234567890"
@@ -46,7 +46,8 @@ class TestInputSourceDataInputStream {
   val finfo = FormatInfoForUnitTest()
 
   implicit class ExactTypeEqual[L](left: L) {
-    def assertEqualsTyped[R, D >: L <: R, D2 >: R <: L](right: R): Unit = assertEquals(left, right)
+    def assertEqualsTyped[R, D >: L <: R, D2 >: R <: L](right: R): Unit =
+      assertEquals(left, right)
   }
 
   /**
@@ -59,8 +60,10 @@ class TestInputSourceDataInputStream {
    */
   def assertEqualsTyped[T](left: T, right: T): Unit = assertEquals(left, right)
 
-  def assertEqualsTyped(expected: Float, actual: Float, threshold: Float) = assertEquals(expected, actual, threshold)
-  def assertEqualsTyped(expected: Double, actual: Double, threshold: Double) = assertEquals(expected, actual, threshold)
+  def assertEqualsTyped(expected: Float, actual: Float, threshold: Float) =
+    assertEquals(expected, actual, threshold)
+  def assertEqualsTyped(expected: Double, actual: Double, threshold: Double) =
+    assertEquals(expected, actual, threshold)
 
   @Test def testByteBufferInputSource1(): Unit = {
     val dis = InputSourceDataInputStream(ten)
@@ -70,11 +73,11 @@ class TestInputSourceDataInputStream {
 
   @Test def testBitAndBytePos0(): Unit = {
     val dis = InputSourceDataInputStream(ten)
-    0L assertEqualsTyped (dis.bitPos0b)
-    false assertEqualsTyped (dis.bitLimit0b.isDefined)
-    1L assertEqualsTyped (dis.bitPos1b)
-    false assertEqualsTyped (dis.bitLimit1b.isDefined)
-    0L assertEqualsTyped (dis.bytePos0b)
+    0L.assertEqualsTyped(dis.bitPos0b)
+    false.assertEqualsTyped(dis.bitLimit0b.isDefined)
+    1L.assertEqualsTyped(dis.bitPos1b)
+    false.assertEqualsTyped(dis.bitLimit1b.isDefined)
+    0L.assertEqualsTyped(dis.bytePos0b)
   }
 
   @Test def testBitAndBytePos1(): Unit = {
@@ -227,7 +230,7 @@ class TestInputSourceDataInputStream {
     assertEqualsTyped[Long](1, dis.bitPos0b)
     sl = dis.getSignedLong(9, finfo)
     // those bits are 0110001 00 which is 0x0C4 and sign bit is 0 (positive)
-    assertEqualsTyped[Long](0x0C4L, sl)
+    assertEqualsTyped[Long](0x0c4L, sl)
     assertEqualsTyped[Long](10, dis.bitPos0b)
   }
 
@@ -241,47 +244,57 @@ class TestInputSourceDataInputStream {
   }
 
   @Test def testSignedLong5(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xC0).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(
+      List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xc0).map { _.toByte }.toArray,
+    )
     var ml = dis.getSignedLong(1, finfo)
     assertEqualsTyped[Long](1, dis.bitPos0b)
     assertEqualsTyped[Long](1, ml)
     ml = dis.getSignedLong(64, finfo)
     assertEqualsTyped[Long](65, dis.bitPos0b)
-    assertEqualsTyped[Long]((0xC1C2C3C4C5C6C7C8L << 1) + (0xC9 >>> 7), ml)
+    assertEqualsTyped[Long]((0xc1c2c3c4c5c6c7c8L << 1) + (0xc9 >>> 7), ml)
   }
 
   @Test def testSignedLong6(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xC0).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(
+      List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xc0).map { _.toByte }.toArray,
+    )
     var ml = dis.getSignedLong(1, finfo)
     assertEqualsTyped[Long](1, dis.bitPos0b)
     assertEqualsTyped[Long](1, ml)
     ml = dis.getSignedLong(32, finfo)
     assertEqualsTyped[Long](33, dis.bitPos0b)
-    val expected = (((0xC1C2C3C4C5L >> 7) & 0xFFFFFFFFL) << 32) >> 32 // sign extend
+    val expected = (((0xc1c2c3c4c5L >> 7) & 0xffffffffL) << 32) >> 32 // sign extend
     assertEqualsTyped[Long](expected, ml)
   }
 
   @Test def testSignedLong7(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5).map {
+      _.toByte
+    }.toArray)
     var ml = dis.getSignedLong(2, finfo)
     assertEqualsTyped[Long](2, dis.bitPos0b)
     assertEqualsTyped[Long](-1, ml)
     ml = dis.getSignedLong(32, finfo)
     assertEqualsTyped[Long](34, dis.bitPos0b)
-    val expected = (0xC1C2C3C4C5L >> 6) & 0xFFFFFFFFL // will be positive, no sign extend
+    val expected = (0xc1c2c3c4c5L >> 6) & 0xffffffffL // will be positive, no sign extend
     assertEqualsTyped[Long](expected, ml)
   }
 
   @Test def testUnsignedLong1(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5).map {
+      _.toByte
+    }.toArray)
     val ml = dis.getUnsignedLong(32, finfo)
     assertEqualsTyped[Long](32, dis.bitPos0b)
-    val expected = ULong(0xC1C2C3C4L)
+    val expected = ULong(0xc1c2c3c4L)
     assertEqualsTyped[ULong](expected, ml)
   }
 
   @Test def testUnsignedLong2(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xA5, 0xA5, 0xA5, 0xA5, 0xA5).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(List(0xa5, 0xa5, 0xa5, 0xa5, 0xa5).map {
+      _.toByte
+    }.toArray)
     dis.getSignedLong(1, finfo)
     assertEqualsTyped[Long](1, dis.bitPos0b)
     val ml = dis.getUnsignedLong(32, finfo)
@@ -291,7 +304,7 @@ class TestInputSourceDataInputStream {
   }
 
   @Test def testUnsignedLong3(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xFF).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(List(0xff).map { _.toByte }.toArray)
     val ml = dis.getUnsignedLong(1, finfo)
     assertEqualsTyped[Long](1, dis.bitPos0b)
     val expected = ULong(1)
@@ -299,7 +312,7 @@ class TestInputSourceDataInputStream {
   }
 
   @Test def testSignedBigInt1(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xFF).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(List(0xff).map { _.toByte }.toArray)
     val ml = dis.getSignedBigInt(1, finfo)
     assertEqualsTyped[Long](1, dis.bitPos0b)
     val expected = JBigInt.ONE
@@ -307,15 +320,17 @@ class TestInputSourceDataInputStream {
   }
 
   @Test def testSignedBigInt2(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5).map {
+      _.toByte
+    }.toArray)
     val ml = dis.getSignedBigInt(40, finfo)
     assertEqualsTyped[Long](40, dis.bitPos0b)
-    val expected = JBigInt.valueOf(0xFFFFFFC1C2C3C4C5L)
+    val expected = JBigInt.valueOf(0xffffffc1c2c3c4c5L)
     assertEqualsTyped[JBigInt](expected, ml)
   }
 
   @Test def testUnsignedBigInt1(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xFF).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(List(0xff).map { _.toByte }.toArray)
     val ml = dis.getUnsignedBigInt(2, finfo)
     assertEqualsTyped(2, dis.bitPos0b)
     val expected = JBigInt.valueOf(3)
@@ -323,15 +338,18 @@ class TestInputSourceDataInputStream {
   }
 
   @Test def testUnsignedBigInt2(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5).map {
+      _.toByte
+    }.toArray)
     val ml = dis.getUnsignedBigInt(40, finfo)
     assertEqualsTyped(40, dis.bitPos0b)
-    val expected = JBigInt.valueOf(0xC1C2C3C4C5L)
+    val expected = JBigInt.valueOf(0xc1c2c3c4c5L)
     assertEqualsTyped[JBigInt](expected, ml)
   }
 
   @Test def testUnsignedBigInt3(): Unit = {
-    val dat = "7766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100"
+    val dat =
+      "7766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100"
     val dats = dat.sliding(2, 2).toList.flatMap { Misc.hex2Bytes(_) }.toArray
     val dis = InputSourceDataInputStream(dats)
     val finfo = FormatInfoForUnitTest()
@@ -345,18 +363,26 @@ class TestInputSourceDataInputStream {
   }
 
   @Test def testUnsignedBigInt4(): Unit = {
-    val expectedHex = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff0011223344556677"
+    val expectedHex =
+      "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff0011223344556677"
     assertEqualsTyped(720, expectedHex.length)
     val expected = new JBigInt(expectedHex, 16)
     val valueWithExtraLSByte = expected.shiftLeft(8)
-    assertEqualsTyped[Long](0, (valueWithExtraLSByte.and(JBigInt.valueOf(0xFF))).intValue())
-    assertEqualsTyped[Long](0x77, (valueWithExtraLSByte.toByteArray.dropRight(1).last & 0xFF).toInt)
+    assertEqualsTyped[Long](0, (valueWithExtraLSByte.and(JBigInt.valueOf(0xff))).intValue())
+    assertEqualsTyped[Long](
+      0x77,
+      (valueWithExtraLSByte.toByteArray.dropRight(1).last & 0xff).toInt,
+    )
     val valueWith3BitsInLSByte = valueWithExtraLSByte.shiftRight(3)
-    assertEqualsTyped[Long](0xE0, (valueWith3BitsInLSByte.and(JBigInt.valueOf(0xFF))).intValue())
-    val valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian = valueWith3BitsInLSByte.toByteArray.toList.reverse :+ 0.toByte
+    assertEqualsTyped[Long](
+      0xe0,
+      (valueWith3BitsInLSByte.and(JBigInt.valueOf(0xff))).intValue(),
+    )
+    val valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian =
+      valueWith3BitsInLSByte.toByteArray.toList.reverse :+ 0.toByte
     val dat = valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian.toArray
     assertEqualsTyped[Long](361, dat.length)
-    assertEqualsTyped[Long](0xE0.toByte, dat.head)
+    assertEqualsTyped[Long](0xe0.toByte, dat.head)
     val dis = InputSourceDataInputStream(dat)
     val finfo = FormatInfoForUnitTest()
     finfo.byteOrder = ByteOrder.LittleEndian
@@ -371,7 +397,9 @@ class TestInputSourceDataInputStream {
   }
 
   @Test def testAlignAndSkip1(): Unit = {
-    val dis = InputSourceDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
+    val dis = InputSourceDataInputStream(List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5).map {
+      _.toByte
+    }.toArray)
     assertTrue(dis.isAligned(1))
     assertTrue(dis.isAligned(43))
     dis.getSignedLong(1, finfo)
@@ -420,7 +448,7 @@ class TestInputSourceDataInputStream {
   def unicodeReplacementCharacter = '\uFFFD'
 
   @Test def testGetSomeStringErrors1(): Unit = {
-    val data = List(0xFF.toByte).toArray ++ "年月日".getBytes("utf-8")
+    val data = List(0xff.toByte).toArray ++ "年月日".getBytes("utf-8")
     assertEqualsTyped(10, data.length)
     val dis = InputSourceDataInputStream(data)
     val finfo = FormatInfoForUnitTest()
@@ -437,8 +465,10 @@ class TestInputSourceDataInputStream {
   }
 
   @Test def testGetSomeStringErrors2(): Unit = {
-    val badByte = List(0xFF.toByte).toArray
-    val data = "abc".getBytes("utf-8") ++ badByte ++ "123".getBytes("utf-8") ++ badByte ++ badByte ++ "drm".getBytes("utf-8")
+    val badByte = List(0xff.toByte).toArray
+    val data = "abc".getBytes("utf-8") ++ badByte ++ "123".getBytes(
+      "utf-8",
+    ) ++ badByte ++ badByte ++ "drm".getBytes("utf-8")
     val dis = InputSourceDataInputStream(data)
     val finfo = FormatInfoForUnitTest()
     finfo.encodingErrorPolicy = EncodingErrorPolicy.Replace
@@ -464,7 +494,7 @@ class TestInputSourceDataInputStream {
     assertEqualsTyped[Long](3, s.length)
     assertEqualsTyped("abc", s)
   }
-  */
+   */
 
   @Test def testCharIterator1(): Unit = {
     val dis = InputSourceDataInputStream("年月日".getBytes("utf-8"))
@@ -506,7 +536,7 @@ class TestInputSourceDataInputStream {
     }
     assertEqualsTyped[Long](24, dis.bitPos0b)
   }
-  */
+   */
 
   @Test def testLookingAt1(): Unit = {
     val data = "abc".getBytes("utf-8")
@@ -563,7 +593,9 @@ class TestInputSourceDataInputStream {
     val isMatch = m.lookingAt()
     assertTrue(isMatch)
     val hitEnd = m.hitEnd
-    assertTrue(!hitEnd) // because we matched a b (not a b* or b+) we didn't have to look further so did not hit end.
+    assertTrue(
+      !hitEnd,
+    ) // because we matched a b (not a b* or b+) we didn't have to look further so did not hit end.
     val requireEnd = m.requireEnd()
     assertTrue(!requireEnd)
     val start = m.start
@@ -631,7 +663,7 @@ class TestInputSourceDataInputStream {
   @Test def testLookingAtManyMultibyteCharsAndDecodeError1(): Unit = {
     val dataString1 = "abc年de月fg日"
     val data1 = dataString1.getBytes("utf-8")
-    val badByte = List(0xFF.toByte).toArray
+    val badByte = List(0xff.toByte).toArray
     val dataString3 = "хив"
     val data3 = dataString3.getBytes("utf-8")
     val data = data1 ++ badByte ++ data3
@@ -650,7 +682,7 @@ class TestInputSourceDataInputStream {
   @Test def testLookingAtManyMultibyteCharsAndDecodeError2(): Unit = {
     val dataString1 = "abc年de月fg日"
     val data1 = dataString1.getBytes("utf-8")
-    val badByte = List(0xFF.toByte).toArray
+    val badByte = List(0xff.toByte).toArray
     val dataString3 = "хив"
     val data3 = dataString3.getBytes("utf-8")
     val data = data1 ++ badByte ++ data3
@@ -671,7 +703,7 @@ class TestInputSourceDataInputStream {
     val enc = "utf-16BE"
     val dataString1 = "abc年de月fg日"
     val data1 = dataString1.getBytes(enc)
-    val badByte = List(0xDC.toByte, 0x00.toByte).toArray
+    val badByte = List(0xdc.toByte, 0x00.toByte).toArray
     val dataString3 = "хив"
     val data3 = dataString3.getBytes(enc)
     val data = data1 ++ badByte ++ data3

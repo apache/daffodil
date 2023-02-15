@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.lib.exceptions
 
-import org.junit.Test
-
 import org.apache.daffodil.lib.Implicits._
+
+import org.junit.Test
 
 class TestExceptions {
 

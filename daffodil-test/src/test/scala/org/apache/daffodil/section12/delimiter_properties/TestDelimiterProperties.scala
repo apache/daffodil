@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section12.delimiter_properties
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestDelimiterProperties {
 
@@ -45,8 +46,12 @@ class TestDelimiterProperties {
   @Test def test_DelimProp_05(): Unit = { runner_02.runOneTest("DelimProp_05") }
   @Test def test_DelimProp_06(): Unit = { runner_02.runOneTest("DelimProp_06") }
   @Test def test_DelimProp_07(): Unit = { runner_02.runOneTest("DelimProp_07") }
-  @Test def test_initiatedContentSimple1(): Unit = { runner_02.runOneTest("initiatedContentSimple1") }
-  @Test def test_Lesson4_initiators_terminators(): Unit = { runner_02.runOneTest("Lesson4_initiators_terminators") }
+  @Test def test_initiatedContentSimple1(): Unit = {
+    runner_02.runOneTest("initiatedContentSimple1")
+  }
+  @Test def test_Lesson4_initiators_terminators(): Unit = {
+    runner_02.runOneTest("Lesson4_initiators_terminators")
+  }
 
   @Test def test_DelimProp_10() = { runner_02.runOneTest("DelimProp_10") }
   @Test def test_DelimProp_10_01() = { runner_02.runOneTest("DelimProp_10_01") }

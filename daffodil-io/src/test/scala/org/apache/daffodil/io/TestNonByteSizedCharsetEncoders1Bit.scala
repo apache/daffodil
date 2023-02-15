@@ -20,11 +20,11 @@ package org.apache.daffodil.io
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 
-import org.junit.Assert._
-import org.junit.Test
-
 import org.apache.daffodil.io.processors.charset.CharsetUtils
 import org.apache.daffodil.lib.util.Misc
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestNonByteSizedCharsetEncoders1Bit {
 

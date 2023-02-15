@@ -17,17 +17,19 @@
 
 package org.apache.daffodil.core.layers
 
-import org.apache.daffodil.lib.util._
-import org.junit.Test
-import org.junit.Assert._
-import org.apache.daffodil.core.util.TestUtils
-import java.io.ByteArrayOutputStream
-import org.apache.commons.io.IOUtils
-import java.nio.charset.StandardCharsets
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.InputStreamReader
+import java.nio.charset.StandardCharsets
 import scala.collection.JavaConverters._
+
+import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.apache.commons.io.IOUtils
+import org.junit.Assert._
+import org.junit.Test
 
 class TestLayers {
 
@@ -43,12 +45,14 @@ class TestLayers {
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
 
   @Test def testParseB64Layer1(): Unit = {
     val sch = B64Layer1Schema
     val data = "cGxl!" // encoding of "ple" + "!"
-    val infoset = <ex:e1 xmlns:ex={ example }><s1>ple</s1></ex:e1>
+    val infoset = <ex:e1 xmlns:ex={example}><s1>ple</s1></ex:e1>
     val (_, actual) = TestUtils.testString(sch, data)
     TestUtils.assertEqualsXMLElements(infoset, actual)
 
@@ -66,12 +70,14 @@ class TestLayers {
             <xs:element name="s1" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
 
   @Test def testParseB64Layer2(): Unit = {
     val sch = B64Layer2Schema
     val data = "cGxl!" // encoding of "ple" + "!"
-    val infoset = <ex:e1 xmlns:ex={ example }><s1>ple</s1></ex:e1>
+    val infoset = <ex:e1 xmlns:ex={example}><s1>ple</s1></ex:e1>
     val (_, actual) = TestUtils.testString(sch, data)
     TestUtils.assertEqualsXMLElements(infoset, actual)
 
@@ -92,12 +98,14 @@ class TestLayers {
             <xs:element name="s2" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
 
   @Test def testParseB64Layer3(): Unit = {
     val sch = B64Layer3Schema
     val data = "cGxl" + "!" + "moreDataAfter"
-    val infoset = <ex:e1 xmlns:ex={ example }><s1>ple</s1><s2>moreDataAfter</s2></ex:e1>
+    val infoset = <ex:e1 xmlns:ex={example}><s1>ple</s1><s2>moreDataAfter</s2></ex:e1>
     val (_, actual) = TestUtils.testString(sch, data)
     TestUtils.assertEqualsXMLElements(infoset, actual)
 
@@ -114,7 +122,7 @@ class TestLayers {
     // Java 16+ sets the 9th byte to 0xFF, but previous Java versions set the
     // value to 0x00. Daffodil always unparses with 0xFF regardless of Java
     // version, so force the gzip data to 0xFF to make sure tests round trip
-    data(9) = 0xFF.toByte
+    data(9) = 0xff.toByte
     data
   }
 
@@ -152,7 +160,8 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
 
   def makeGZIPLayer1Data() = {
     val gzipData = makeGZIPData(text)
@@ -170,7 +179,9 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   @Test def testGZIPLayer1(): Unit = {
     val sch = GZIPLayer1Schema
     val (data, dataLength) = makeGZIPLayer1Data()
-    val infoset = <ex:e1 xmlns:ex={ example }><len>{ dataLength }</len><x1><s1>{ text }</s1></x1><s2>afterGzip</s2></ex:e1>
+    val infoset = <ex:e1 xmlns:ex={example}><len>{dataLength}</len><x1><s1>{
+      text
+    }</s1></x1><s2>afterGzip</s2></ex:e1>
     val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
     TestUtils.assertEqualsXMLElements(infoset, actual)
 
@@ -183,8 +194,12 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     <xs:element name="e1" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator={ term }/>
-          <xs:sequence dfdlx:layerTransform="base64_MIME" dfdlx:layerLengthKind="boundaryMark" dfdlx:layerBoundaryMark={ layerTerm }>
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator={
+      term
+    }/>
+          <xs:sequence dfdlx:layerTransform="base64_MIME" dfdlx:layerLengthKind="boundaryMark" dfdlx:layerBoundaryMark={
+      layerTerm
+    }>
             <xs:sequence>
               <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../x1, 'bytes') }"/>
               <xs:element name="x1" dfdl:lengthKind="implicit">
@@ -200,12 +215,19 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
         </xs:sequence>
       </xs:complexType>
     </xs:element>,
-    elementFormDefault = "unqualified")
+    elementFormDefault = "unqualified",
+  )
 
   def toB64(bytes: Array[Byte]) =
     java.util.Base64.getMimeEncoder.encodeToString(bytes)
 
-  def makeB64GZIPData(term: String, layerTerm: String, before: String, after: String, text: String) = {
+  def makeB64GZIPData(
+    term: String,
+    layerTerm: String,
+    before: String,
+    after: String,
+    text: String,
+  ) = {
     val gzipData = makeGZIPData(text)
     val dataLength = gzipData.length
     val baos = new ByteArrayOutputStream()
@@ -235,7 +257,9 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     val after = "afterB64GZip"
     val (data, dataLength) = makeB64GZIPData(term, layerTerm, before, after, text)
     val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
-    val infoset = <ex:e1 xmlns:ex={ example }><s1>{ before }</s1><len>{ dataLength }</len><x1><s2>{ text }</s2></x1><s3>{ after }</s3></ex:e1>
+    val infoset = <ex:e1 xmlns:ex={example}><s1>{before}</s1><len>{dataLength}</len><x1><s2>{
+      text
+    }</s2></x1><s3>{after}</s3></ex:e1>
     TestUtils.assertEqualsXMLElements(infoset, actual)
 
     TestUtils.testUnparsingBinary(sch, infoset, data)
@@ -251,7 +275,9 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "qualified")
+      </xs:element>,
+      elementFormDefault = "qualified",
+    )
 
   /**
    * Has lines folded using IMF conventions.
@@ -266,20 +292,22 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   @Test def testParseLineFoldIMF1(): Unit = {
     val sch = lineFoldLayer1Schema
     val data = ipsumLorem1
-    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem1Unfolded }</s1></e1>
+    val infoset = <e1 xmlns={example}><s1>{ipsumLorem1Unfolded}</s1></e1>
     val (_, actual) = TestUtils.testString(sch, data)
     TestUtils.assertEqualsXMLElements(infoset, actual)
   }
 
-  val ipsumLorem2 = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
+  val ipsumLorem2 =
+    s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
   ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
   /////////////////////          1         2         3         4         5         6         7           8
-  val ipsumLorem2Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
+  val ipsumLorem2Unfolded =
+    s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
 
   @Test def testUnparseLineFoldIMF1(): Unit = {
     val sch = lineFoldLayer1Schema
     val data = ipsumLorem2
-    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem2Unfolded }</s1></e1>
+    val infoset = <e1 xmlns={example}><s1>{ipsumLorem2Unfolded}</s1></e1>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, data, areTracing)
   }
@@ -294,7 +322,9 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "qualified")
+      </xs:element>,
+      elementFormDefault = "qualified",
+    )
 
   /**
    * Has lines folded using IMF conventions.
@@ -309,20 +339,22 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   @Test def testParseLineFoldIMF2(): Unit = {
     val sch = lineFoldLayer2Schema
     val data = ipsumLorem3
-    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem3Unfolded }</s1></e1>
+    val infoset = <e1 xmlns={example}><s1>{ipsumLorem3Unfolded}</s1></e1>
     val (_, actual) = TestUtils.testString(sch, data)
     TestUtils.assertEqualsXMLElements(infoset, actual)
   }
 
-  val ipsumLorem4 = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt\r\n"""
+  val ipsumLorem4 =
+    s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt\r\n"""
   ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
   /////////////////////          1         2         3         4         5         6         7           8
-  val ipsumLorem4Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt\n"""
+  val ipsumLorem4Unfolded =
+    s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt\n"""
 
   @Test def testUnparseLineFoldIMF2(): Unit = {
     val sch = lineFoldLayer2Schema
     val data = ipsumLorem4
-    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem4Unfolded }</s1></e1>
+    val infoset = <e1 xmlns={example}><s1>{ipsumLorem4Unfolded}</s1></e1>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, data, areTracing)
   }
@@ -341,40 +373,47 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "qualified")
+      </xs:element>,
+      elementFormDefault = "qualified",
+    )
 
-  val ipsumLorem5 = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labore et dolore magna aliqua."""
+  val ipsumLorem5 =
+    s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labore et dolore magna aliqua."""
   ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
   /////////////////////          1         2         3         4         5         6         7           8         9         A
 
-  val ipsumLorem5Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""
+  val ipsumLorem5Unfolded =
+    s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""
 
   @Test def testParseLineFoldIMF3(): Unit = {
     val sch = lineFoldLayer3Schema
     val data = ipsumLorem5
-    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem5Unfolded }</s1></e1>
+    val infoset = <e1 xmlns={example}><s1>{ipsumLorem5Unfolded}</s1></e1>
     val (_, actual) = TestUtils.testString(sch, data)
     TestUtils.assertEqualsXMLElements(infoset, actual)
   }
 
-  val ipsumLorem6 = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labor"""
+  val ipsumLorem6 =
+    s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labor"""
   ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
   /////////////////////          1         2         3         4         5         6         7           8         9         A
 
-  val ipsumLorem6Unfolded = s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""
+  val ipsumLorem6Unfolded =
+    s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""
 
   @Test def testUnparseLineFoldIMF3(): Unit = {
     val sch = lineFoldLayer3Schema
     val data = ipsumLorem6
-    val infoset = <e1 xmlns={ example }><s1>{ ipsumLorem6Unfolded }</s1></e1>
+    val infoset = <e1 xmlns={example}><s1>{ipsumLorem6Unfolded}</s1></e1>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, data, areTracing)
   }
 
-  val le32BitData = Array[Byte](0x01,                   // BE MSBF
-                                0x43, 0x33, 0x33, 0x32, // fourbyteswap + LE LSBF (parsed right to left four bytes at a time)
-                                            0x55, 0x54, // fourbyteswap + LE LSBF
-                                0x67)                   // BE MSBF
+  val le32BitData = Array[Byte](0x01, // BE MSBF
+    0x43, 0x33, 0x33,
+    0x32, // fourbyteswap + LE LSBF (parsed right to left four bytes at a time)
+    0x55, 0x54, // fourbyteswap + LE LSBF
+    0x67) // BE MSBF
 
   val le32BitSchema =
     SchemaUtils.dfdlTestSchema(
@@ -399,13 +438,15 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
             <xs:element name="s7" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "qualified")
+      </xs:element>,
+      elementFormDefault = "qualified",
+    )
 
   @Test def testFourByteSwapLayer(): Unit = {
     val sch = le32BitSchema
     val data = le32BitData
     val infoset =
-      <e1 xmlns={ example }>
+      <e1 xmlns={example}>
         <s0>00</s0>
         <s1>10</s1>
         <s2>02</s2>

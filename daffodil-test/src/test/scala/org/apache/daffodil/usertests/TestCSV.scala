@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.usertests
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestCSV {
   val testDir = "/org/apache/daffodil/usertests/"

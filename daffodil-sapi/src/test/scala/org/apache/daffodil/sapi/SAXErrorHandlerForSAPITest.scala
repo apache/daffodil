@@ -17,31 +17,32 @@
 
 package org.apache.daffodil.sapi
 
-import org.apache.daffodil.lib.api.{Diagnostic => SDiagnostic}
+import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
+
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXParseException
 
 class SAXErrorHandlerForSAPITest extends ErrorHandler {
-    private var _diagnostics: Seq[Diagnostic] = Nil
-    private var _isError: Boolean = false
+  private var _diagnostics: Seq[Diagnostic] = Nil
+  private var _isError: Boolean = false
 
-    override def warning(exception: SAXParseException): Unit = {
-      _isError = false
-      val embeddedDiagnostic = new Diagnostic(exception.getCause.asInstanceOf[SDiagnostic])
-      _diagnostics :+= embeddedDiagnostic
-    }
-
-    override def error(exception: SAXParseException): Unit = {
-      _isError = true
-      val embeddedDiagnostic = new Diagnostic(exception.getCause.asInstanceOf[SDiagnostic])
-      _diagnostics :+= embeddedDiagnostic
-    }
-
-    override def fatalError(exception: SAXParseException): Unit = {
-      error(exception)
-    }
-
-    def getDiagnostics: Seq[Diagnostic] = _diagnostics
-
-    def isError: Boolean = _isError
+  override def warning(exception: SAXParseException): Unit = {
+    _isError = false
+    val embeddedDiagnostic = new Diagnostic(exception.getCause.asInstanceOf[SDiagnostic])
+    _diagnostics :+= embeddedDiagnostic
   }
+
+  override def error(exception: SAXParseException): Unit = {
+    _isError = true
+    val embeddedDiagnostic = new Diagnostic(exception.getCause.asInstanceOf[SDiagnostic])
+    _diagnostics :+= embeddedDiagnostic
+  }
+
+  override def fatalError(exception: SAXParseException): Unit = {
+    error(exception)
+  }
+
+  def getDiagnostics: Seq[Diagnostic] = _diagnostics
+
+  def isError: Boolean = _isError
+}

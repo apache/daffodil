@@ -17,15 +17,16 @@
 
 package org.apache.daffodil.core.dpath
 
-import org.junit.Test
-import org.apache.daffodil.lib.Implicits._; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
-import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.Implicits._
+
+import org.junit.Test; object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.lib.util.SchemaUtils
 
 class TestDPath {
 
   val testSchemaNoRef = SchemaUtils.dfdlTestSchemaUnqualified(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
     <xs:element name="a">
       <xs:complexType>
@@ -40,14 +41,15 @@ class TestDPath {
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-    </xs:element>)
+    </xs:element>,
+  )
 
   @Test def test_twoUpwardSteps(): Unit = {
     TestUtils.testString(testSchemaNoRef, "")
   }
 
   val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
     <xs:element name="a">
       <xs:complexType>
@@ -63,14 +65,15 @@ class TestDPath {
           <xs:element name="d" type="xs:int" dfdl:inputValueCalc="{ ../../b }"/>
         </xs:sequence>
       </xs:complexType>
-    </xs:element>)
+    </xs:element>,
+  )
 
   @Test def test_twoUpwardStepsAcrossElementReference(): Unit = {
     TestUtils.testString(testSchema, "")
   }
 
   val testSchema2 = SchemaUtils.dfdlTestSchemaUnqualified(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
     <xs:element name="a">
       <xs:complexType>
@@ -80,7 +83,8 @@ class TestDPath {
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    <xs:element name="c" type="xs:int" dfdl:inputValueCalc="{ ../b }"/>)
+    <xs:element name="c" type="xs:int" dfdl:inputValueCalc="{ ../b }"/>,
+  )
 
   @Test def test_oneUpwardStepsAcrossElementReference(): Unit = {
     TestUtils.testString(testSchema2, "")

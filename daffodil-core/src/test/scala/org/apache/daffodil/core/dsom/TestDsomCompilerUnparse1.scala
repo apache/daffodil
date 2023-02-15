@@ -18,11 +18,11 @@
 package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.util._
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Test
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.util._
-import org.apache.daffodil.lib.Implicits._
 
 class TestDsomCompilerUnparse1 {
 
@@ -42,8 +42,10 @@ class TestDsomCompilerUnparse1 {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s1>1</s1><s2>2</s2></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s1>1</s1><s2>2</s2></ex:e1>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, "12", areTracing)
   }
@@ -62,8 +64,10 @@ class TestDsomCompilerUnparse1 {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s1>1</s1><s2>2</s2></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s1>1</s1><s2>2</s2></ex:e1>
     TestUtils.testUnparsing(sch, infoset, "[1,2]")
   }
 
@@ -81,8 +85,10 @@ class TestDsomCompilerUnparse1 {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s1>1</s1><s2>2</s2></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s1>1</s1><s2>2</s2></ex:e1>
     TestUtils.testUnparsing(sch, infoset, "[1,2]")
   }
 
@@ -107,8 +113,10 @@ class TestDsomCompilerUnparse1 {
           <xs:maxLength value="3"/>
           <xs:minLength value="3"/>
         </xs:restriction>
-      </xs:simpleType>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s1>1</s1><s2>2</s2><s3>3</s3></ex:e1>
+      </xs:simpleType>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s1>1</s1><s2>2</s2><s3>3</s3></ex:e1>
     TestUtils.testUnparsing(sch, infoset, "!#1__,__2,_3_#!")
   }
 
@@ -132,8 +140,10 @@ class TestDsomCompilerUnparse1 {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="cStyleComment"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s1>one, two</s1><s2>, three and four*/</s2></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s1>one, two</s1><s2>, three and four*/</s2></ex:e1>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, "one#, two,/*, three and four#*/*/", areTracing)
   }

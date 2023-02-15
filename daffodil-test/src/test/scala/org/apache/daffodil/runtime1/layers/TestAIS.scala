@@ -21,9 +21,10 @@ package org.apache.daffodil.runtime1.layers
  * not related to any specific requirement
  */
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestAISPayloadArmoring {
   val testDir = "/org/apache/daffodil/layers/"

@@ -17,13 +17,15 @@
 
 package org.apache.daffodil.runtime1.parser
 
-import org.junit.Test
-import org.junit.Assert._
 import org.apache.daffodil.io.processors.charset.CharsetUtils
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestCharsetDecoder2 {
 
   @Test def testIfHasJava7DecoderBug(): Unit = {
-    if (CharsetUtils.hasJava7DecoderBug) fail("Java 7 Decoder bug detected. Daffodil requires Java 8 (or higher)")
+    if (CharsetUtils.hasJava7DecoderBug)
+      fail("Java 7 Decoder bug detected. Daffodil requires Java 8 (or higher)")
   }
 }

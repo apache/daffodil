@@ -27,13 +27,13 @@ class TestRuntime2ExamplesGenerator {
   // Test added for code coverage and debugging
   @Test def test_Runtime2ExamplesGenerator_main(): Unit = {
     // Generate the C examples in a safe place (target/examples)
-    val rootDir = if (os.exists(os.pwd/"src")) os.pwd/os.up else os.pwd
-    val examplesDir = rootDir/"daffodil-runtime2"/"target"/"examples"
+    val rootDir = if (os.exists(os.pwd / "src")) os.pwd / os.up else os.pwd
+    val examplesDir = rootDir / "daffodil-runtime2" / "target" / "examples"
     val args = Array(examplesDir.toString)
     Runtime2ExamplesGenerator.main(args)
 
     // Verify the C examples were generated
-    val generatedCode = examplesDir/"variablelen"/"generated_code.c"
+    val generatedCode = examplesDir / "variablelen" / "generated_code.c"
     assert(os.exists(generatedCode))
   }
 }

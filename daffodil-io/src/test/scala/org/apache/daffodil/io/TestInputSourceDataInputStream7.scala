@@ -21,15 +21,15 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CoderResult
 
-import org.junit.Assert._
-import org.junit.Test
-
-import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetUSASCII7BitPacked
+import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
-import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+
+import org.junit.Assert._
+import org.junit.Test
 
 /**
  * Helper class for creating example data that is unaligned.
@@ -50,7 +50,14 @@ object Bitte {
   }
 
   def toBytes(bitsListRTL: Seq[String]): Array[Byte] = {
-    bitsListRTL.reverse.map { _.reverse }.mkString.sliding(8, 8).toList.map { _.reverse }.flatMap { Misc.bits2Bytes(_) }.toArray
+    bitsListRTL.reverse
+      .map { _.reverse }
+      .mkString
+      .sliding(8, 8)
+      .toList
+      .map { _.reverse }
+      .flatMap { Misc.bits2Bytes(_) }
+      .toArray
   }
 
   def encode7(s: String): Seq[String] = {
@@ -64,7 +71,9 @@ object Bitte {
     // val bitsAsString = Misc.bytes2Bits(res.toArray)
     val enc = encoder.asInstanceOf[BitsCharsetNonByteSizeEncoder]
     val nBits = s.length * enc.bitsCharset.bitWidthOfACodeUnit
-    val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
+    val bitStrings = res.map { b =>
+      (b & 0xff).toBinaryString.reverse.padTo(8, '0').reverse
+    }.toList
     val allBits = bitStrings.reverse.mkString.takeRight(nBits)
     val sevenBitChunks = allBits.reverse.sliding(7, 7).map { _.reverse }.toList.reverse.mkString
     rtl(sevenBitChunks)
@@ -105,8 +114,19 @@ class TestInputSourceDataInputStream7 {
     // val bytesAsHex = Misc.bytes2Hex(bytes)
     val bytesAsBits = Misc.bytes2Bits(bytes).sliding(8, 8).toList
     val chunks = bytesAsBits.map { _.reverse }.mkString.reverse.sliding(7, 7).toList
-    assertEquals(List("0111000", "0110111", "0110110", "0110101", "0110100", "0110011", "0110010", "0110001"),
-      chunks)
+    assertEquals(
+      List(
+        "0111000",
+        "0110111",
+        "0110110",
+        "0110101",
+        "0110100",
+        "0110011",
+        "0110010",
+        "0110001",
+      ),
+      chunks,
+    )
 
   }
 
@@ -129,7 +149,7 @@ class TestInputSourceDataInputStream7 {
     assertEquals(21, dis.bitPos0b)
     assertEquals(3, arr.size)
     assertEquals(0x61.toByte, arr(0))
-    assertEquals(0xF1.toByte, arr(1))
+    assertEquals(0xf1.toByte, arr(1))
     assertEquals(0x18.toByte, arr(2))
   }
 

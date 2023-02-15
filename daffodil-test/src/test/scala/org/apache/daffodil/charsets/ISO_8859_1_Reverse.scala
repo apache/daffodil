@@ -17,18 +17,19 @@
 
 package org.apache.daffodil.charsets
 
-import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.io.processors.charset.BitsCharsetDefinition
+import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
-object BitsCharset_ISO_8859_1_Reverse extends{
-  override val name = "X-DFDL-ISO-8859-1-8-BIT-PACKED-LSB-FIRST-REVERSE"
-  override val bitWidthOfACodeUnit = 8
-  override val decodeString = (0 to 255).map { _.toChar }.mkString.reverse
-  override val replacementCharCode = 0x0
-  override val requiredBitOrder = BitOrder.MostSignificantBitFirst
-} with BitsCharsetNonByteSize
-
+object BitsCharset_ISO_8859_1_Reverse
+  extends {
+    override val name = "X-DFDL-ISO-8859-1-8-BIT-PACKED-LSB-FIRST-REVERSE"
+    override val bitWidthOfACodeUnit = 8
+    override val decodeString = (0 to 255).map { _.toChar }.mkString.reverse
+    override val replacementCharCode = 0x0
+    override val requiredBitOrder = BitOrder.MostSignificantBitFirst
+  }
+  with BitsCharsetNonByteSize
 
 final class BitsCharset_ISO_8859_1_Reverse_Definition
   extends BitsCharsetDefinition(BitsCharset_ISO_8859_1_Reverse)

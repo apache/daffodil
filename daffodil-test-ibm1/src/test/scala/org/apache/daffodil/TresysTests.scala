@@ -18,6 +18,7 @@
 package org.apache.daffodil
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -43,11 +44,25 @@ object TresysTests {
   val runnerBG = Runner("/test-suite/tresys-contributed/BG.tdml")
   val runnerDelimited = Runner("/test-suite/tresys-contributed/delimTests.tdml")
   val runnerMB = Runner("/test-suite/tresys-contributed/mixed-binary-text.tdml")
-  val runnerMD = Runner("/test-suite/tresys-contributed/", "multiple-diagnostics.tdml", compileAllTopLevel = true)
-  val runnerMD_NV = Runner("/test-suite/tresys-contributed/", "multiple-diagnostics.tdml", compileAllTopLevel = true, validateDFDLSchemas = false)
+  val runnerMD = Runner(
+    "/test-suite/tresys-contributed/",
+    "multiple-diagnostics.tdml",
+    compileAllTopLevel = true,
+  )
+  val runnerMD_NV = Runner(
+    "/test-suite/tresys-contributed/",
+    "multiple-diagnostics.tdml",
+    compileAllTopLevel = true,
+    validateDFDLSchemas = false,
+  )
   val runnerNG = Runner("/test-suite/tresys-contributed/nested_group_ref.tdml")
   val runnerNSD = Runner("/test-suite/tresys-contributed/nested-separator-delimited.tdml")
-  val runnerRD = Runner("/test-suite/tresys-contributed/", "runtime-diagnostics.tdml", compileAllTopLevel = true, validateTDMLFile = false)
+  val runnerRD = Runner(
+    "/test-suite/tresys-contributed/",
+    "runtime-diagnostics.tdml",
+    compileAllTopLevel = true,
+    validateTDMLFile = false,
+  )
   val runnerSQ = Runner("/test-suite/tresys-contributed/sequence.tdml")
 
   @AfterClass def shutDown(): Unit = {
@@ -83,7 +98,9 @@ object TresysTests {
 class TresysTests {
   import TresysTests._
 
-  @Test def test_length_delimited_12_03_controversial(): Unit = { runnerDelimited.runOneTest("length_delimited_12_03_controversial") }
+  @Test def test_length_delimited_12_03_controversial(): Unit = {
+    runnerDelimited.runOneTest("length_delimited_12_03_controversial")
+  }
 
   @Test def test_AX000() = { runnerAX.runOneTest("AX000") } // escape schemes
 
@@ -95,21 +112,31 @@ class TresysTests {
 
   @Test def test_AV003(): Unit = { runnerAV003.runOneTest("AV003") } // needs date
 
-  @Test def test_multiple_diagnostics1(): Unit = { runnerMD.runOneTest("twoMissingTypeDefErrors") }
+  @Test def test_multiple_diagnostics1(): Unit = {
+    runnerMD.runOneTest("twoMissingTypeDefErrors")
+  }
   @Test def test_multiple_diagnostics2(): Unit = { runnerMD.runOneTest("manyErrors1") }
   @Test def test_multiple_diagnostics3(): Unit = { runnerMD_NV.runOneTest("manyErrors2") }
 
-  @Test def test_nested_separator_delimited_baseline(): Unit = { runnerNSD.runOneTest("baseline") }
+  @Test def test_nested_separator_delimited_baseline(): Unit = {
+    runnerNSD.runOneTest("baseline")
+  }
 
   // Fails in IBM DFDL - ambiguous separator/terminator not accepted.
-  @Test def test_nested_separator_delimited_baseline_ibm(): Unit = { runnerNSD.runOneTest("baseline_ibm") }
+  @Test def test_nested_separator_delimited_baseline_ibm(): Unit = {
+    runnerNSD.runOneTest("baseline_ibm")
+  }
 
-  @Test def test_nested_separator_delimited_basicNest(): Unit = { runnerNSD.runOneTest("basicNest") }
-  @Test def test_nested_separator_delimited_basicNest2(): Unit = { runnerNSD.runOneTest("basicNest2")}
+  @Test def test_nested_separator_delimited_basicNest(): Unit = {
+    runnerNSD.runOneTest("basicNest")
+  }
+  @Test def test_nested_separator_delimited_basicNest2(): Unit = {
+    runnerNSD.runOneTest("basicNest2")
+  }
 
-  @Test def test_nested_separator_delimited_nest1(): Unit = { runnerNSD.runOneTest("nest1")}
-  @Test def test_nested_separator_delimited_nest2(): Unit = { runnerNSD.runOneTest("nest2")}
-  @Test def test_nested_separator_delimited_nest3(): Unit = { runnerNSD.runOneTest("nest3")}
+  @Test def test_nested_separator_delimited_nest1(): Unit = { runnerNSD.runOneTest("nest1") }
+  @Test def test_nested_separator_delimited_nest2(): Unit = { runnerNSD.runOneTest("nest2") }
+  @Test def test_nested_separator_delimited_nest3(): Unit = { runnerNSD.runOneTest("nest3") }
 
   @Test def test_runtime_diagnostics1(): Unit = { runnerRD.runOneTest("PE1") }
 
@@ -140,14 +167,14 @@ class TresysTests {
 
   // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start.
   // Is being removed, but should be preserved as it does not precede an escape character, nor an escape block end.
-  //@Test def test_BA000() { runnerBA.runOneTest("BA000") } // escape schemes and delimiters
-  //@Test def test_BB000() { runnerBB.runOneTest("BB000") } // occursCountKind stopValue
+  // @Test def test_BA000() { runnerBA.runOneTest("BA000") } // escape schemes and delimiters
+  // @Test def test_BB000() { runnerBB.runOneTest("BB000") } // occursCountKind stopValue
 
-  //DFDL-1010
+  // DFDL-1010
   @Test def test_BE000(): Unit = { runnerBE.runOneTest("BE000") } // unordered sequences
   @Test def test_BE001(): Unit = { runnerBE.runOneTest("BE001") }
 
-  //DFDL-1010
+  // DFDL-1010
   @Test def test_BF000(): Unit = { runnerBF1.runOneTest("BF000") } // unordered sequences
   @Test def test_BF001(): Unit = { runnerBF1.runOneTest("BF001") }
 

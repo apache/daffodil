@@ -17,20 +17,18 @@
 
 package org.apache.daffodil.core.infoset
 
-import org.apache.daffodil.runtime1.infoset._
-
 import java.nio.channels.Channels
-
-import org.apache.commons.io.output.NullOutputStream
-
-import org.junit.Assert._
-import org.junit.Test
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
-import org.apache.daffodil.lib.util.SchemaUtils
+
+import org.apache.commons.io.output.NullOutputStream
+import org.junit.Assert._
+import org.junit.Test
 
 object TestInfosetFree {
 
@@ -48,9 +46,7 @@ object TestInfosetFree {
    * during unparse. We then return the infoset for the test to compare against
    * the expected value.
    */
-  def test(
-    schema: scala.xml.Elem,
-    bytes: Array[Byte]): scala.xml.Node = {
+  def test(schema: scala.xml.Elem, bytes: Array[Byte]): scala.xml.Node = {
 
     val compiler = Compiler()
       .withTunable("releaseUnneededInfoset", "false")
@@ -87,19 +83,19 @@ object TestInfosetFree {
     }
 
     // now walk the parse and unparse infosets and convert them to Scala XML
-    // with the showFreedInfoset set 
+    // with the showFreedInfoset set
 
     def docToXML(doc: DIDocument): scala.xml.Node = {
-      val detailedOutputter = new ScalaXMLInfosetOutputter(
-        showFormatInfo = false,
-        showFreedInfo = true)
+      val detailedOutputter =
+        new ScalaXMLInfosetOutputter(showFormatInfo = false, showFreedInfo = true)
 
       val infosetWalker = InfosetWalker(
         doc,
         detailedOutputter,
         walkHidden = true, // let's ensure any hidden elements are free
         ignoreBlocks = true, // there should be no blocks, but ignore them just to be sure
-        releaseUnneededInfoset = false) // do not free the infoset
+        releaseUnneededInfoset = false,
+      ) // do not free the infoset
       infosetWalker.walk(lastWalk = true)
 
       detailedOutputter.getResult()
@@ -107,7 +103,7 @@ object TestInfosetFree {
 
     val parseDoc = parseResult.resultState.asInstanceOf[PState].infoset.asInstanceOf[DIDocument]
     val unparseDoc = unparseResult.resultState.asInstanceOf[UStateMain].documentElement
-  
+
     val parseXML = docToXML(parseDoc)
     val unparseXML = docToXML(unparseDoc)
 
@@ -115,8 +111,8 @@ object TestInfosetFree {
       fail("parse and unparse XML did not match, infoset not freed the same")
     }
 
-    parseXML 
-  } 
+    parseXML
+  }
 }
 
 class TestInfosetFree {
@@ -132,7 +128,8 @@ class TestInfosetFree {
               dfdl:length="1" dfdl:lengthKind="explicit" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val actualXML = TestInfosetFree.test(testSchema, "123".getBytes)
 
@@ -163,7 +160,8 @@ class TestInfosetFree {
             <xs:sequence dfdl:hiddenGroupRef="tns:hidden" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val actualXML = TestInfosetFree.test(testSchema, "1".getBytes)
 
@@ -188,7 +186,8 @@ class TestInfosetFree {
               dfdl:lengthKind="explicit" dfdl:length="{ ../tns:fieldLen }" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val actualXML = TestInfosetFree.test(testSchema, "1123".getBytes)
 
@@ -218,7 +217,8 @@ class TestInfosetFree {
               dfdl:lengthKind="explicit" dfdl:length="1" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val actualXML = TestInfosetFree.test(testSchema, "3123".getBytes)
 
@@ -256,7 +256,8 @@ class TestInfosetFree {
               dfdl:lengthKind="explicit" dfdl:length="{ ../tns:fieldLen[dfdl:occursIndex()] }" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val actualXML = TestInfosetFree.test(testSchema, "3123122333".getBytes)
 

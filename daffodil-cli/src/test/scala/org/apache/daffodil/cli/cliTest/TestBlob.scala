@@ -21,14 +21,15 @@ import java.net.URI
 import java.nio.file.Files.exists
 import java.nio.file.Path
 import java.nio.file.Paths
-import org.apache.commons.io.FileUtils
-import org.junit.Test
-import org.junit.Assume.assumeTrue
-import org.junit.Assert.assertEquals
-
 import scala.io.Source
-import org.apache.daffodil.cli.cliTest.Util._
+
 import org.apache.daffodil.cli.Main.ExitCode
+import org.apache.daffodil.cli.cliTest.Util._
+
+import org.apache.commons.io.FileUtils
+import org.junit.Assert.assertEquals
+import org.junit.Assume.assumeTrue
+import org.junit.Test
 
 class TestBlob {
 
@@ -81,7 +82,9 @@ class TestBlob {
    *
    ***/
   @Test def test_1MB_blob(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/large_blob.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/large_blob.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/1MB.bin")
 
     assumeTrue("large test input file must be manually generated", exists(input))
@@ -89,11 +92,9 @@ class TestBlob {
     withTempFile { infoset =>
       withTempFile { unparse =>
         withBlobDir {
-          runCLI(args"parse -s $schema -o $infoset $input") { cli =>
-          } (ExitCode.Success)
+          runCLI(args"parse -s $schema -o $infoset $input") { cli => }(ExitCode.Success)
 
-          runCLI(args"unparse -s $schema -o $unparse $infoset") { cli =>
-          } (ExitCode.Success)
+          runCLI(args"unparse -s $schema -o $unparse $infoset") { cli => }(ExitCode.Success)
 
           val blob = findInfosetBlob(infoset)
           assertEquals("bc8f9d01382bf12248747cd6faecbc59", md5sum(blob))
@@ -110,7 +111,9 @@ class TestBlob {
    *
    ***/
   @Test def test_2GB_blob(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/large_blob.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/large_blob.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/2049MB.bin")
 
     assumeTrue("large test input file must be manually generated", exists(input))
@@ -118,11 +121,13 @@ class TestBlob {
     withTempFile { infoset =>
       withTempFile { unparse =>
         withBlobDir {
-          runCLI(args"parse -s $schema -o $infoset $input", timeout = 120) { cli =>
-          } (ExitCode.Success)
+          runCLI(args"parse -s $schema -o $infoset $input", timeout = 120) { cli => }(
+            ExitCode.Success,
+          )
 
-          runCLI(args"unparse -s $schema -o $unparse $infoset", timeout = 120) { cli =>
-          } (ExitCode.Success)
+          runCLI(args"unparse -s $schema -o $unparse $infoset", timeout = 120) { cli => }(
+            ExitCode.Success,
+          )
 
           val blob = findInfosetBlob(infoset)
           assertEquals("c5675d3317725595d128af56a624c49f", md5sum(blob))
@@ -141,7 +146,9 @@ class TestBlob {
    *
    ***/
   @Test def test_blob_backtracking(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/blob_backtracking.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/blob_backtracking.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/2049MB.bin")
 
     assumeTrue("large test input file must be manually generated", exists(input))
@@ -149,7 +156,7 @@ class TestBlob {
     withBlobDir {
       runCLI(args"parse -s $schema $input", timeout = 120) { cli =>
         cli.expectErr("Attempted to backtrack too far")
-      } (ExitCode.ParseError)
+      }(ExitCode.ParseError)
     }
   }
 
@@ -162,7 +169,9 @@ class TestBlob {
    *
    ***/
   @Test def test_blob_backtracking_streaming_fail(): Unit = {
-    val schema = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/blob_backtracking.dfdl.xsd")
+    val schema = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/blob_backtracking.dfdl.xsd",
+    )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/2049MB.bin")
 
     assumeTrue("large test input file must be manually generated", exists(input))
@@ -171,7 +180,7 @@ class TestBlob {
       runCLI(args"parse -s $schema", timeout = 120) { cli =>
         cli.sendFile(input, inputDone = true)
         cli.expectErr("Attempted to backtrack too far")
-      } (ExitCode.ParseError)
+      }(ExitCode.ParseError)
     }
   }
 

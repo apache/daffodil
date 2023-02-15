@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.core.xml
 
+import java.io.File
+
+import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.xml._
 
 import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.lib.Implicits._
-import java.io.File
-import org.apache.daffodil.lib.api.URISchemaSource
 
 class TestXMLLoaderWithLocation {
 
@@ -31,11 +32,10 @@ class TestXMLLoaderWithLocation {
     val tmpXMLFileName = getClass.getName() + ".xml"
     // Our loader looks for xs:schema node, and appends a file attribute
     // if it can.
-    val testXML = <xs:schema xmlns:xs={ XMLUtils.XSD_NAMESPACE }><xs:annotation/></xs:schema>
+    val testXML = <xs:schema xmlns:xs={XMLUtils.XSD_NAMESPACE}><xs:annotation/></xs:schema>
     try {
-      using(new java.io.FileWriter(tmpXMLFileName)) {
-        fw =>
-          fw.write(testXML.toString())
+      using(new java.io.FileWriter(tmpXMLFileName)) { fw =>
+        fw.write(testXML.toString())
       }
       val res = URISchemaSource(new File(tmpXMLFileName).toURI)
       val eh = new BasicErrorHandler
@@ -64,16 +64,18 @@ class TestXMLLoaderWithLocation {
     val tmpXMLFileName = getClass.getName() + ".xml"
     // Our loader looks for xs:schema node, and appends a file attribute
     // if it can.
-    val testXML = <xs:schema xmlns:xs={ XMLUtils.XSD_NAMESPACE }><xs:illegal/></xs:schema>
+    val testXML = <xs:schema xmlns:xs={XMLUtils.XSD_NAMESPACE}><xs:illegal/></xs:schema>
     try {
-      using(new java.io.FileWriter(tmpXMLFileName)) {
-        fw =>
-          fw.write(testXML.toString())
+      using(new java.io.FileWriter(tmpXMLFileName)) { fw =>
+        fw.write(testXML.toString())
       }
       val res = URISchemaSource(new File(tmpXMLFileName).toURI)
       val eh = new BasicErrorHandler
-      val node = (new DaffodilXMLLoader(eh)).load(res, Some(XMLUtils.schemaForDFDLSchemas),
-        addPositionAttributes = true)
+      val node = (new DaffodilXMLLoader(eh)).load(
+        res,
+        Some(XMLUtils.schemaForDFDLSchemas),
+        addPositionAttributes = true,
+      )
       assertTrue(eh.hasError)
       val msgs = eh.diagnostics.map { _.getMessage() }.mkString("\n")
       assertTrue(msgs.contains(":illegal"))

@@ -17,16 +17,18 @@
 
 package org.apache.daffodil.core.api
 
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.lib.util._
-import org.apache.daffodil.lib.Implicits._
+import java.io.File
+
 import org.apache.daffodil.core.compiler._
+import org.apache.daffodil.core.dsom.DFDLElement
+import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import java.io.File
 import org.junit.Test
-import org.apache.daffodil.core.dsom.DFDLElement
 
 class TestDsomCompiler3 {
 
@@ -39,10 +41,9 @@ class TestDsomCompiler3 {
     val sc = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
-          <xs:appinfo source={ dfdl }>
+          <xs:appinfo source={dfdl}>
             <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
           </xs:appinfo>
         </xs:annotation>
@@ -51,7 +52,8 @@ class TestDsomCompiler3 {
         <xs:sequence dfdl:separator="">
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
     val tmpDir = new File("./dfdl_tmp")
     if (tmpDir.exists) {
@@ -72,7 +74,7 @@ class TestDsomCompiler3 {
       //
       val Seq(schema) = sset.schemas
       val Seq(schemaDoc, _) = schema.schemaDocuments
-      val Seq(decl) = schemaDoc.globalElementDecls.map{ _.asRoot }
+      val Seq(decl) = schemaDoc.globalElementDecls.map { _.asRoot }
       val Seq(ct) = schemaDoc.globalComplexTypeDefs
       assertEquals("example1", ct.name)
 

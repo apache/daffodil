@@ -18,6 +18,7 @@
 package org.apache.daffodil.section00.general
 
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.{ AfterClass, Test }
 
 object TestTextBidi {

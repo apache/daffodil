@@ -18,10 +18,12 @@
 package org.apache.daffodil.cliTest
 
 import java.nio.file.Files.exists
-import org.junit.Test
-import org.junit.Assert.assertTrue
-import org.apache.daffodil.cli.cliTest.Util._
+
 import org.apache.daffodil.cli.Main.ExitCode
+import org.apache.daffodil.cli.cliTest.Util._
+
+import org.junit.Assert.assertTrue
+import org.junit.Test
 
 /**
  * Checks that we can run the "daffodil generate c" subcommand with
@@ -30,104 +32,125 @@ import org.apache.daffodil.cli.Main.ExitCode
 class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_schema(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
 
     withTempDir { tempDir =>
-      runCLI(args"generate c -s $schema $tempDir") { cli =>
-      } (ExitCode.Success)
+      runCLI(args"generate c -s $schema $tempDir") { cli => }(ExitCode.Success)
       assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
   }
 
   @Test def test_CLI_Generate_noC_error(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
 
     withTempDir { tempDir =>
       runCLI(args"generate -s $schema $tempDir") { cli =>
         cli.expectErr("Unknown option 's'")
-      } (ExitCode.Usage)
+      }(ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_otherThanC_error(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
 
     withTempDir { tempDir =>
       runCLI(args"generate vhld -s $schema $tempDir") { cli =>
         cli.expectErr("Unknown option 's'")
-      } (ExitCode.Usage)
+      }(ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_noSchema_error(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
 
     withTempDir { tempDir =>
       runCLI(args"generate c $tempDir") { cli =>
         cli.expectErr("Required option 'schema' not found")
-      } (ExitCode.Usage)
+      }(ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_twoSchema_error(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
 
     withTempDir { tempDir =>
       runCLI(args"generate c -s $schema -s $schema $tempDir") { cli =>
         cli.expectErr("you should provide exactly one argument")
-      } (ExitCode.Usage)
+      }(ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_verbose(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
 
     withTempDir { tempDir =>
       runCLI(args"-v generate c -s $schema $tempDir") { cli =>
         cli.expectErr("[info] Time (compiling)")
         cli.expectErr("[info] Time (generating)")
-      } (ExitCode.Success)
+      }(ExitCode.Success)
       assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
   }
 
   @Test def test_CLI_Generate_root(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
 
     withTempDir { tempDir =>
-      runCLI(args"generate c -s $schema -r {http://example.com}ex_nums $tempDir") { cli =>
-      } (ExitCode.Success)
+      runCLI(args"generate c -s $schema -r {http://example.com}ex_nums $tempDir") { cli => }(
+        ExitCode.Success,
+      )
       assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
   }
 
   @Test def test_CLI_Generate_root_error(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
-    
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
+
     withTempDir { tempDir =>
       runCLI(args"generate c -s $schema -r {ex}ex_nums $tempDir") { cli =>
         cli.expectErr("Schema Definition Error")
         cli.expectErr("No global element found for {ex}ex_nums")
-      } (ExitCode.GenerateCodeError)
+      }(ExitCode.GenerateCodeError)
     }
   }
 
   @Test def test_CLI_Generate_namespaceNoRoot_error(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
 
     withTempDir { tempDir =>
       runCLI(args"generate c -s $schema -r {http://example.com} $tempDir") { cli =>
-      cli.expectErr("Invalid syntax for extended QName")
-      } (ExitCode.Usage)
+        cli.expectErr("Invalid syntax for extended QName")
+      }(ExitCode.Usage)
     }
   }
 
   @Test def test_CLI_Generate_tunable(): Unit = {
-    val schema = path("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd")
+    val schema = path(
+      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+    )
 
     withTempDir { tempDir =>
-      runCLI(args"generate c -s $schema -T parseUnparsePolicy=parseOnly $tempDir") { cli =>
-      } (ExitCode.Success)
+      runCLI(args"generate c -s $schema -T parseUnparsePolicy=parseOnly $tempDir") { cli => }(
+        ExitCode.Success,
+      )
       assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
   }

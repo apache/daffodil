@@ -21,16 +21,18 @@ import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import scala.xml.Elem
-import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.lib.api.URISchemaSource
+
 import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.runtime1.processors.DaffodilParseOutputStreamContentHandler
-import org.apache.daffodil.runtime1.processors.DataProcessor
-import org.apache.daffodil.runtime1.processors.ParseResult
+import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.processors.DaffodilParseOutputStreamContentHandler
+import org.apache.daffodil.runtime1.processors.DataProcessor
+import org.apache.daffodil.runtime1.processors.ParseResult
+
 import org.jdom2.input.sax.BuilderErrorHandler
 import org.junit.Assert.fail
 import org.xml.sax.Attributes
@@ -39,17 +41,18 @@ import org.xml.sax.Locator
 
 object TestSAXUtils {
   lazy val testSchema1: Elem = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="list" type="tns:example1"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <dfdl:format ref="tns:GeneralFormat"/>,
+    <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" maxOccurs="unbounded"/>
         </xs:sequence>
-      </xs:complexType>
+      </xs:complexType>,
   )
   lazy val dp: DataProcessor = testDataProcessor(testSchema1)
-  lazy val expectedInfoset: Elem = <list xmlns="http://example.com"><w>9</w><w>1</w><w>0</w></list>
+  lazy val expectedInfoset: Elem =
+    <list xmlns="http://example.com"><w>9</w><w>1</w><w>0</w></list>
   lazy val testInfosetString: String = expectedInfoset.toString()
   lazy val testData: String = "910"
 
@@ -59,9 +62,13 @@ object TestSAXUtils {
     Misc.getRequiredResource("/test/example_nested_namespaces_qualified.dfdl.xsd")
   lazy val qualifiedWithNestedSchemasElem: Elem =
     loader.load(URISchemaSource(qualifiedWithNestedSchemasFile), None).asInstanceOf[Elem]
-  lazy val dpQualifiedWithNestedSchemas: DataProcessor = testDataProcessor(qualifiedWithNestedSchemasElem)
+  lazy val dpQualifiedWithNestedSchemas: DataProcessor = testDataProcessor(
+    qualifiedWithNestedSchemasElem,
+  )
   lazy val qualifiedWithNestedSchemasExpectedInfoset: Elem = {
-<b02:seq xmlns:xsi={XMLUtils.XSI_NAMESPACE} xmlns:b02="http://b02.com" xmlns:a02="http://a02.com">
+    <b02:seq xmlns:xsi={
+      XMLUtils.XSI_NAMESPACE
+    } xmlns:b02="http://b02.com" xmlns:a02="http://a02.com">
   <b02:seq2>
     <a02:inty>3</a02:inty>
   </b02:seq2>
@@ -100,11 +107,14 @@ object TestSAXUtils {
   </b02:seq2>
 </b02:seq>
   }
-  lazy val qualifiedWithNestedSchemasExpectedString: String = qualifiedWithNestedSchemasExpectedInfoset.toString()
+  lazy val qualifiedWithNestedSchemasExpectedString: String =
+    qualifiedWithNestedSchemasExpectedInfoset.toString()
   lazy val qualifiedWithNestedSchemasData: String = "-3.*4.-2.^.*1.*44.^.*643.-3.^.-5.*1"
 
   lazy val nillableElementExpectedInfoset: Elem = {
-    <b02:seq xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xmlns:b02="http://b02.com" xmlns:a02="http://a02.com">
+    <b02:seq xmlns:xsi={
+      XMLUtils.XSI_NAMESPACE
+    } xmlns:b02="http://b02.com" xmlns:a02="http://a02.com">
       <b02:seq2>
         <a02:intx xsi:nil="true"/>
       </b02:seq2>
@@ -126,37 +136,46 @@ object TestSAXUtils {
     Misc.getRequiredResource("/test/example_no_targetnamespace.dfdl.xsd")
   lazy val unqualifiedNoNamespacesElem: Elem =
     loader.load(URISchemaSource(unqualifiedNoNamespacesFile), None).asInstanceOf[Elem]
+
   /**
    * For an unqualified schemas with no targetnamespace and no default namespace, which means its
    * elements are not in any namespace and there are no prefixes
    * That schema references an element in a qualified namespace with a default
    * namespace, which means it will have no prefix (default) but be in its default namespace
    */
-  lazy val dpUnqualifiedNoNamespaces: DataProcessor = testDataProcessor(unqualifiedNoNamespacesElem)
+  lazy val dpUnqualifiedNoNamespaces: DataProcessor = testDataProcessor(
+    unqualifiedNoNamespacesElem,
+  )
   lazy val unqualifiedNoNamespacesExpectedInfoset: Elem = {
-<x xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>
+    <x xmlns:xsi={XMLUtils.XSI_NAMESPACE}>
   <y>world</y>
   <y>no</y>
   <y xsi:nil="true"/>
   <y>tea</y>
 </x>
   }
-  lazy val unqualifiedNoNamespacesExpectedString: String = unqualifiedNoNamespacesExpectedInfoset.toString()
+  lazy val unqualifiedNoNamespacesExpectedString: String =
+    unqualifiedNoNamespacesExpectedInfoset.toString()
   lazy val unqualifiedNoNamespacesData: String = "world.no.^.tea"
 
   lazy val unqualifiedWithNestedQualifiedFile =
     Misc.getRequiredResource("/test/example_nested_namespaces_unqualified.dfdl.xsd")
   lazy val unqualifiedWithNestedQualifiedElem: Elem =
     loader.load(URISchemaSource(unqualifiedWithNestedQualifiedFile), None).asInstanceOf[Elem]
+
   /**
    * For an unqualified schemas with a targetnamespace and no default namespace, which means its
    * elements are in that targetnamespace, and only global elements need a prefix (unqualified).
    * That schema references an element in a qualified namespace with a default
    * namespace, which means it will have no prefix (default) but be in its default namespace
    */
-  lazy val dpUnqualifiedWithNestedQualified: DataProcessor = testDataProcessor(unqualifiedWithNestedQualifiedElem)
+  lazy val dpUnqualifiedWithNestedQualified: DataProcessor = testDataProcessor(
+    unqualifiedWithNestedQualifiedElem,
+  )
   lazy val unqualifiedWithNestedQualifiedExpectedInfoset: Elem = {
-<b02:a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xmlns:b02="http://b02.com" xmlns:c02="http://c02.com">
+    <b02:a xmlns:xsi={
+      XMLUtils.XSI_NAMESPACE
+    } xmlns:b02="http://b02.com" xmlns:c02="http://c02.com">
   <b>
     <c xmlns="http://c02.com">
       <d>hello</d>
@@ -174,29 +193,37 @@ object TestSAXUtils {
   </b>
 </b02:a>
   }
-  lazy val unqualifiedWithNestedQualifiedExpectedString: String = unqualifiedWithNestedQualifiedExpectedInfoset.toString()
+  lazy val unqualifiedWithNestedQualifiedExpectedString: String =
+    unqualifiedWithNestedQualifiedExpectedInfoset.toString()
   lazy val unqualifiedWithNestedQualifiedData: String = "hello.^.bye"
 
   lazy val qualifiedWithDefaultNamespaceFile =
     Misc.getRequiredResource("/test/example_c02_targetnamespace_qualified.dfdl.xsd")
   lazy val qualifiedWithDefaultNamespaceElem: Elem =
     loader.load(URISchemaSource(qualifiedWithDefaultNamespaceFile), None).asInstanceOf[Elem]
-  lazy val dpQualifiedWithDefaultNamespaceSchemas: DataProcessor = testDataProcessor(qualifiedWithDefaultNamespaceElem)
+  lazy val dpQualifiedWithDefaultNamespaceSchemas: DataProcessor = testDataProcessor(
+    qualifiedWithDefaultNamespaceElem,
+  )
   lazy val qualifiedWithDefaultNamespaceExpectedInfoset: Elem = {
-<c xmlns="http://c02.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <c xmlns="http://c02.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <d>hello</d>
 </c>
   }
-  lazy val qualifiedWithDefaultNamespaceExpectedString: String = qualifiedWithDefaultNamespaceExpectedInfoset.toString()
+  lazy val qualifiedWithDefaultNamespaceExpectedString: String =
+    qualifiedWithDefaultNamespaceExpectedInfoset.toString()
   lazy val qualifiedWithDefaultNamespaceData: String = "hello"
 
   lazy val qualifiedWithDefaultAndNestedSchemasFile =
     Misc.getRequiredResource("/test/example_nested_namespaces_qualified_with_default.dfdl.xsd")
   lazy val qualifiedWithDefaultAndNestedSchemasElem: Elem =
-    loader.load(URISchemaSource(qualifiedWithDefaultAndNestedSchemasFile), None).asInstanceOf[Elem]
-  lazy val dpQualifiedWithDefaultAndNestedSchemas: DataProcessor = testDataProcessor(qualifiedWithDefaultAndNestedSchemasElem)
+    loader
+      .load(URISchemaSource(qualifiedWithDefaultAndNestedSchemasFile), None)
+      .asInstanceOf[Elem]
+  lazy val dpQualifiedWithDefaultAndNestedSchemas: DataProcessor = testDataProcessor(
+    qualifiedWithDefaultAndNestedSchemasElem,
+  )
   lazy val qualifiedWithDefaultAndNestedSchemasExpectedInfoset: Elem = {
-<a  xmlns="http://b02.com" xmlns:xsi={XMLUtils.XSI_NAMESPACE} xmlns:c02="http://c02.com">
+    <a  xmlns="http://b02.com" xmlns:xsi={XMLUtils.XSI_NAMESPACE} xmlns:c02="http://c02.com">
   <b>
     <c xmlns="http://c02.com">
       <d>test</d>
@@ -209,12 +236,14 @@ object TestSAXUtils {
   </b>
 </a>
   }
-  lazy val qualifiedWithDefaultAndNestedSchemasExpectedString: String = qualifiedWithDefaultAndNestedSchemasExpectedInfoset.toString()
+  lazy val qualifiedWithDefaultAndNestedSchemasExpectedString: String =
+    qualifiedWithDefaultAndNestedSchemasExpectedInfoset.toString()
   lazy val qualifiedWithDefaultAndNestedSchemasData: String = "test.ting"
 
-
-
-  def testDataProcessor(testSchema: scala.xml.Elem, tunablesArg: Map[String, String] = Map.empty): DataProcessor = {
+  def testDataProcessor(
+    testSchema: scala.xml.Elem,
+    tunablesArg: Map[String, String] = Map.empty,
+  ): DataProcessor = {
     val schemaCompiler = Compiler().withTunables(tunablesArg)
 
     val pf = schemaCompiler.compileNode(testSchema)
@@ -234,14 +263,18 @@ object TestSAXUtils {
     dp: DataProcessor,
     data: String,
     namespaces: Boolean,
-    namespacePrefixes: Boolean): (ParseResult, scala.xml.Elem) = {
-    val (xmlReader: DFDL.DaffodilParseXMLReader,
-    baos: ByteArrayOutputStream,
-    inArray: Array[Byte]) = setupSAXParserTest(dp, data, pretty = true)
+    namespacePrefixes: Boolean,
+  ): (ParseResult, scala.xml.Elem) = {
+    val (
+      xmlReader: DFDL.DaffodilParseXMLReader,
+      baos: ByteArrayOutputStream,
+      inArray: Array[Byte],
+    ) = setupSAXParserTest(dp, data, pretty = true)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, namespaces)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, namespacePrefixes)
     xmlReader.parse(inArray)
-    val pr = xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
+    val pr =
+      xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
     val actualInfoset = scala.xml.XML.loadString(baos.toString)
     (pr, actualInfoset)
   }
@@ -250,10 +283,13 @@ object TestSAXUtils {
     dp: DataProcessor,
     data: String,
     namespaces: Boolean,
-    namespacePrefixes: Boolean): ByteArrayOutputStream = {
-    val (xmlReader: DFDL.DaffodilParseXMLReader,
-    baos: ByteArrayOutputStream,
-    inArray: Array[Byte]) = setupTraceSAXParserTest(dp, data, pretty = true)
+    namespacePrefixes: Boolean,
+  ): ByteArrayOutputStream = {
+    val (
+      xmlReader: DFDL.DaffodilParseXMLReader,
+      baos: ByteArrayOutputStream,
+      inArray: Array[Byte],
+    ) = setupTraceSAXParserTest(dp, data, pretty = true)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, namespaces)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, namespacePrefixes)
     xmlReader.parse(inArray)
@@ -262,8 +298,11 @@ object TestSAXUtils {
     baos
   }
 
-  def setupSAXParserTest(dp: DFDL.DataProcessor, data: String, pretty: Boolean = false):
-    (DFDL.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
+  def setupSAXParserTest(
+    dp: DFDL.DataProcessor,
+    data: String,
+    pretty: Boolean = false,
+  ): (DFDL.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
     val xmlReader = dp.newXMLReaderInstance
     val baos = new ByteArrayOutputStream()
     val parseContentHandler = new DaffodilParseOutputStreamContentHandler(baos, pretty = pretty)
@@ -274,8 +313,11 @@ object TestSAXUtils {
     (xmlReader, baos, inArray)
   }
 
-  def setupTraceSAXParserTest(dp: DFDL.DataProcessor, data: String, pretty: Boolean = false):
-  (DFDL.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
+  def setupTraceSAXParserTest(
+    dp: DFDL.DataProcessor,
+    data: String,
+    pretty: Boolean = false,
+  ): (DFDL.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
     val xmlReader = dp.newXMLReaderInstance
     val baos = new ByteArrayOutputStream()
     val parseContentHandler = new TestContentHandler(baos)
@@ -297,6 +339,7 @@ object TestSAXUtils {
 class TestContentHandler(out: OutputStream) extends ContentHandler {
   val sb: StringBuilder = new StringBuilder
   private val writer = new OutputStreamWriter(out)
+
   /**
    * platform specific newline
    */
@@ -314,7 +357,12 @@ class TestContentHandler(out: OutputStream) extends ContentHandler {
     writer.write(s"endPrefixMapping($prefix)$newLine")
   }
 
-  override def startElement(uri: String, localName: String, qName: String, atts: Attributes): Unit = {
+  override def startElement(
+    uri: String,
+    localName: String,
+    qName: String,
+    atts: Attributes,
+  ): Unit = {
     writer.write(s"startElement($uri, $localName, $qName, ${attributesToString(atts)})$newLine")
   }
 
@@ -334,7 +382,7 @@ class TestContentHandler(out: OutputStream) extends ContentHandler {
     // do nothing
   }
 
-  override def processingInstruction( target: String, data: String): Unit = {
+  override def processingInstruction(target: String, data: String): Unit = {
     // do nothing
   }
 

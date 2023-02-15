@@ -21,15 +21,15 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CoderResult
 
-import org.junit.Assert._
-import org.junit.Test
-
+import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
+import org.apache.daffodil.io.processors.charset.BitsCharsetOctalLSBF
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.io.processors.charset.BitsCharsetOctalLSBF
-import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
-import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+
+import org.junit.Assert._
+import org.junit.Test
 
 /**
  * tests of 7-bit characters
@@ -57,7 +57,14 @@ class TestInputSourceDataInputStream3Bit {
     }
 
     def toBytes(bitsListRTL: Seq[String]): Array[Byte] = {
-      bitsListRTL.reverse.map { _.reverse }.mkString.sliding(8, 8).toList.map { _.reverse }.flatMap { Misc.bits2Bytes(_) }.toArray
+      bitsListRTL.reverse
+        .map { _.reverse }
+        .mkString
+        .sliding(8, 8)
+        .toList
+        .map { _.reverse }
+        .flatMap { Misc.bits2Bytes(_) }
+        .toArray
     }
 
     def encode3(s: String): Seq[String] = {
@@ -71,9 +78,12 @@ class TestInputSourceDataInputStream3Bit {
       // val bitsAsString = Misc.bytes2Bits(res.toArray)
       val enc = encoder.asInstanceOf[BitsCharsetNonByteSizeEncoder]
       val nBits = s.length * enc.bitsCharset.bitWidthOfACodeUnit
-      val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
+      val bitStrings = res.map { b =>
+        (b & 0xff).toBinaryString.reverse.padTo(8, '0').reverse
+      }.toList
       val allBits = bitStrings.reverse.mkString.takeRight(nBits)
-      val threeBitChunks = allBits.reverse.sliding(3, 3).map { _.reverse }.toList.reverse.mkString
+      val threeBitChunks =
+        allBits.reverse.sliding(3, 3).map { _.reverse }.toList.reverse.mkString
       rtl(threeBitChunks)
     }
 
@@ -103,8 +113,7 @@ class TestInputSourceDataInputStream3Bit {
     // val bytesAsHex = Misc.bytes2Hex(bytes)
     val bytesAsBits = Misc.bytes2Bits(bytes).sliding(8, 8).toList
     val chunks = bytesAsBits.map { _.reverse }.mkString.reverse.sliding(3, 3).toList
-    assertEquals(List("000", "111", "110", "101", "100", "011", "010", "001"),
-      chunks)
+    assertEquals(List("000", "111", "110", "101", "100", "011", "010", "001"), chunks)
 
   }
 

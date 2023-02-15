@@ -17,17 +17,19 @@
 
 package org.apache.daffodil.io.layers
 
-import org.junit.Assert._
-import org.junit.Test
-import org.apache.commons.io.IOUtils
-import collection.JavaConverters._
-import org.apache.daffodil.lib.exceptions.Assert
-import java.nio.charset.StandardCharsets
-import org.apache.daffodil.io.ExplicitLengthLimitingStream
-import org.apache.daffodil.io.BoundaryMarkLimitingStream
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
+import java.nio.charset.StandardCharsets
+
+import org.apache.daffodil.io.BoundaryMarkLimitingStream
+import org.apache.daffodil.io.ExplicitLengthLimitingStream
 import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.lib.exceptions.Assert
+
+import collection.JavaConverters._
+import org.apache.commons.io.IOUtils
+import org.junit.Assert._
+import org.junit.Test
 
 /**
  * Tests our layering java io streams. These are supposed to implement
@@ -53,7 +55,9 @@ class TestLimitingJavaIOStreams {
 specification that uses these DFDL schemas to parse fixed format data into an
 infoset, which is most commonly represented as either XML or JSON. This
 allows the use of well-established XML or JSON technologies and libraries to
-consume, inspect, and manipulate fixed format data in existing solutions.""".replace("\r\n", "\n").replace("\n", " ")
+consume, inspect, and manipulate fixed format data in existing solutions."""
+    .replace("\r\n", "\n")
+    .replace("\n", " ")
 
   val b64Text = """RGFmZm9kaWwgaXMgYW4gb3BlbiBzb3VyY2UgaW1wbGVtZW50YXRpb24gb2YgdGhlIERGREwgc3Bl
 Y2lmaWNhdGlvbiB0aGF0IHVzZXMgdGhlc2UgREZETCBzY2hlbWFzIHRvIHBhcnNlIGZpeGVkIGZv
@@ -78,8 +82,9 @@ ZyBzb2x1dGlvbnMuCg=="""
     val data = "c29sdXRpb25zLg" // encoding of "solutions."
     val terminator = "terminator"
     val afterTerminator = "afterTerminator"
-    val is = IOUtils.toInputStream(data + terminator + afterTerminator,
-      StandardCharsets.UTF_8).asInstanceOf[ByteArrayInputStream]
+    val is = IOUtils
+      .toInputStream(data + terminator + afterTerminator, StandardCharsets.UTF_8)
+      .asInstanceOf[ByteArrayInputStream]
     val delimitedStream =
       BoundaryMarkLimitingStream(is, terminator, iso8859, targetChunkSize = 4)
     val b64 = java.util.Base64.getMimeDecoder().wrap(delimitedStream)
@@ -94,7 +99,9 @@ ZyBzb2x1dGlvbnMuCg=="""
     val data = "c29sdXRpb25zLg" // encoding of "solutions."
     val terminator = ";;;"
     val afterTerminator = "afterTerminator"
-    val is = IOUtils.toInputStream(data + terminator + afterTerminator, "ascii").asInstanceOf[ByteArrayInputStream]
+    val is = IOUtils
+      .toInputStream(data + terminator + afterTerminator, "ascii")
+      .asInstanceOf[ByteArrayInputStream]
     val delimitedStream =
       BoundaryMarkLimitingStream(is, terminator, iso8859, targetChunkSize = 1)
     val b64 = java.util.Base64.getMimeDecoder().wrap(delimitedStream)
@@ -108,7 +115,9 @@ ZyBzb2x1dGlvbnMuCg=="""
     val data = "cGxl" // encoding of "ple"
     val terminator = ";"
     val afterTerminator = "afterTerminator"
-    val is = IOUtils.toInputStream(data + terminator + afterTerminator, "ascii").asInstanceOf[ByteArrayInputStream]
+    val is = IOUtils
+      .toInputStream(data + terminator + afterTerminator, "ascii")
+      .asInstanceOf[ByteArrayInputStream]
     val delimitedStream =
       BoundaryMarkLimitingStream(is, terminator, iso8859, targetChunkSize = 1)
     val b64 = java.util.Base64.getMimeDecoder().wrap(delimitedStream)
@@ -130,8 +139,7 @@ ZyBzb2x1dGlvbnMuCg=="""
   @Test def testGZIPDecoderWithLimit1(): Unit = {
     val inputData = zipped ++ additionalText.getBytes(iso8859)
     val inputStream = new ByteArrayInputStream(inputData)
-    val limitedStream = new ExplicitLengthLimitingStream(inputStream,
-      zipped.length)
+    val limitedStream = new ExplicitLengthLimitingStream(inputStream, zipped.length)
     val expected = text
 
     val decodedStream = new java.util.zip.GZIPInputStream(limitedStream, 5)
@@ -203,4 +211,3 @@ ZyBzb2x1dGlvbnMuCg=="""
     assertEquals(beforeDelim, actualBeforeDelim)
   }
 }
-

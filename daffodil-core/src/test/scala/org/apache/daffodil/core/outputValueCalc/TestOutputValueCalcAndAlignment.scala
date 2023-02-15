@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.core.outputValueCalc
 
+import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.core.util.TestUtils
-import org.apache.daffodil.lib.xml.XMLUtils
 
 /*
  * These are all tests of OVC and alignment interactions
@@ -50,8 +51,10 @@ class TestOutputValueCalcAndAlignment {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:alignment="2"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s2>2</s2></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s2>2</s2></ex:e1>
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, "2X2", areTracing)
   }
@@ -79,8 +82,10 @@ class TestOutputValueCalcAndAlignment {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="S" dfdl:alignment="8"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s2>12345</s2></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s2>12345</s2></ex:e1>
     val areTracing = false
     //
     // below, the two XX are inserted to align to an 8 byte boundary. But the
@@ -126,14 +131,16 @@ class TestOutputValueCalcAndAlignment {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>, elementFormDefault = "unqualified")
-    val infoset = <ex:e1 xmlns:ex={ example }><s2><i1>A</i1><i2>B</i2></s2></ex:e1>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+    val infoset = <ex:e1 xmlns:ex={example}><s2><i1>A</i1><i2>B</i2></s2></ex:e1>
     val areTracing = false
     try {
       TestUtils.testUnparsing(sch, infoset, "ignored", areTracing)
     } catch {
-          // Some test utilities, given multiple diagnostics from a run, will just
-          // concatenate their messages, and throw a vanilla Exception object.
+      // Some test utilities, given multiple diagnostics from a run, will just
+      // concatenate their messages, and throw a vanilla Exception object.
       case e: Exception => {
         val msg = Misc.getSomeMessage(e).get.toLowerCase
         if (!msg.contains("Schema Definition Error".toLowerCase))

@@ -17,15 +17,16 @@
 
 package org.apache.daffodil.runtime1.processors.input
 
-import org.junit.Assert._
 import java.text.ParsePosition
 
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.Calendar
+import org.apache.daffodil.lib.calendar.TextCalendarConstants
+
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
+import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.Calendar
+import org.junit.Assert._
 import org.junit.Test
-import org.apache.daffodil.lib.calendar.TextCalendarConstants
 
 class TestICU {
 
@@ -56,7 +57,8 @@ class TestICU {
       val outFormatter = new SimpleDateFormat(outPattern)
       val actual = outFormatter.format(cal)
 
-      val numMillis = scala.math.min(numFractionalSeconds, 3) // ICU output only has at most 3 sig figs
+      val numMillis =
+        scala.math.min(numFractionalSeconds, 3) // ICU output only has at most 3 sig figs
       val expected = (inDataChar * numMillis) + "0" * (numOutFractionalSeconds - numMillis)
 
       assertEquals(expected, actual)
@@ -83,7 +85,7 @@ class TestICU {
     val df = new DecimalFormat("000.0#E0", dfs)
     val posInf = java.lang.Double.POSITIVE_INFINITY
     val str = df.format(posInf)
-    //assertEquals("INFx10^0", str)
+    // assertEquals("INFx10^0", str)
     assertEquals("INF", str)
   }
 
@@ -95,7 +97,7 @@ class TestICU {
     val df = new DecimalFormat("000.0#E0", dfs)
     val negInf = java.lang.Double.NEGATIVE_INFINITY
     val str = df.format(negInf)
-    //assertEquals("-INFx10^0", str)
+    // assertEquals("-INFx10^0", str)
     assertEquals("-INF", str)
   }
 
@@ -107,7 +109,7 @@ class TestICU {
     val df = new DecimalFormat("000.0#E0", dfs)
     val nan = java.lang.Double.NaN
     val str = df.format(nan)
-    //assertEquals("NaNx10^0", str)
+    // assertEquals("NaNx10^0", str)
     assertEquals("NaN", str)
   }
 
@@ -132,7 +134,7 @@ class TestICU {
     val num = df.parse(str, pos)
     assertEquals(123L, num)
     assertEquals(10, pos.getIndex)
-    //assertEquals(str.length, pos.getIndex)
+    // assertEquals(str.length, pos.getIndex)
   }
 
   // This test shows the bug in ICU where it does not correctly handle
@@ -148,8 +150,8 @@ class TestICU {
     val num = df.parse("12.34+2", pp)
     assertEquals(12.34, num.doubleValue, 1e-15)
     assertEquals(5, pp.getIndex)
-    //assertEquals(1234L, num)
-    //assertEquals(7, pp.getIndex)
+    // assertEquals(1234L, num)
+    // assertEquals(7, pp.getIndex)
   }
 
   // Shows that even if a decimal format pattern doesn't contain a decimal

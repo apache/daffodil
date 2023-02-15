@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime2
 
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -32,6 +33,10 @@ object TestMpuOrangeToGreen60006 {
 class TestMpuOrangeToGreen60006 {
   import TestMpuOrangeToGreen60006._
 
-  @Test def test_MPU_orange_to_green_60006_0(): Unit = { runner.runOneTest("MPU_orange_to_green_60006_0") }
-  @Test def test_MPU_orange_to_green_60006_1(): Unit = { runner.runOneTest("MPU_orange_to_green_60006_1") }
+  @Test def test_MPU_orange_to_green_60006_0(): Unit = {
+    runner.runOneTest("MPU_orange_to_green_60006_0")
+  }
+  @Test def test_MPU_orange_to_green_60006_1(): Unit = {
+    runner.runOneTest("MPU_orange_to_green_60006_1")
+  }
 }

@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime2
 
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
 import org.junit.Test
 
@@ -36,21 +37,21 @@ object TestVariableLen {
 class TestVariableLen {
   import TestVariableLen._
 
-  @Test def s_fixed(): Unit         = { runnerS.runOneTest("fixed") }
-  @Test def s_implicit(): Unit      = { runnerS.runOneTest("implicit") }
-  @Test def s_parsed(): Unit        = { runnerS.runOneTest("parsed") }
-  @Test def s_expression(): Unit    = { runnerS.runOneTest("expression") }
+  @Test def s_fixed(): Unit = { runnerS.runOneTest("fixed") }
+  @Test def s_implicit(): Unit = { runnerS.runOneTest("implicit") }
+  @Test def s_parsed(): Unit = { runnerS.runOneTest("parsed") }
+  @Test def s_expression(): Unit = { runnerS.runOneTest("expression") }
   @Test def s_expression_00(): Unit = { runnerS.runOneTest("expression_00") }
   @Test def s_expression_01(): Unit = { runnerS.runOneTest("expression_01") }
   @Test def s_expression_16(): Unit = { runnerS.runOneTest("expression_16") }
   @Test def s_expression_17(): Unit = { runnerS.runOneTest("expression_17") }
-  @Test def s_stopValue(): Unit     = { runnerS.runOneTest("stopValue") }
+  @Test def s_stopValue(): Unit = { runnerS.runOneTest("stopValue") }
 
-  @Test def c_fixed(): Unit         = { runnerC.runOneTest("fixed") }
-  @Test def c_expression(): Unit    = { runnerC.runOneTest("expression") }
+  @Test def c_fixed(): Unit = { runnerC.runOneTest("fixed") }
+  @Test def c_expression(): Unit = { runnerC.runOneTest("expression") }
   @Test def c_expression_00(): Unit = { runnerC.runOneTest("expression_00") }
   @Test def c_expression_01(): Unit = { runnerC.runOneTest("expression_01") }
   @Test def c_expression_16(): Unit = { runnerC.runOneTest("expression_16") }
   @Test def c_expression_17(): Unit = { runnerC.runOneTest("expression_17C") }
-  @Test def c_stopValue(): Unit     = { runnerC.runOneTest("stopValue") }
+  @Test def c_stopValue(): Unit = { runnerC.runOneTest("stopValue") }
 }

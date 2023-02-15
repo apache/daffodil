@@ -20,14 +20,14 @@ package org.apache.daffodil.io
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 
+import org.apache.daffodil.io.processors.charset.CharsetUtils
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.util.MaybeULong
+import org.apache.daffodil.lib.util.Misc
+
 import org.junit.Assert._
 import org.junit.Test
-
-import org.apache.daffodil.io.processors.charset.CharsetUtils
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 
 class TestNonByteSizedCharsetDecoders3Bit {
 
@@ -38,7 +38,6 @@ class TestNonByteSizedCharsetDecoders3Bit {
   val msbfFinfo = FormatInfoForUnitTest()
   msbfFinfo.byteOrder = ByteOrder.BigEndian
   msbfFinfo.bitOrder = BitOrder.MostSignificantBitFirst
-
 
   @Test def test3BitMSBF_01(): Unit = {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-MSBF")
@@ -113,7 +112,8 @@ class TestNonByteSizedCharsetDecoders3Bit {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-LSBF")
     val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(8)
-    val bb = ByteBuffer.wrap(Misc.bits2Bytes("1 000 1111 | 011 010 00 | 10 101 100 | 0000 111 1"))
+    val bb =
+      ByteBuffer.wrap(Misc.bits2Bytes("1 000 1111 | 011 010 00 | 10 101 100 | 0000 111 1"))
     val dis = InputSourceDataInputStream(bb)
     dis.skip(4, lsbfFinfo)
     val res = decoder.decode(dis, lsbfFinfo, cb)
@@ -141,7 +141,8 @@ class TestNonByteSizedCharsetDecoders3Bit {
     val cs = CharsetUtils.getCharset("X-DFDL-OCTAL-LSBF")
     val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(40)
-    val bb = ByteBuffer.wrap(Misc.bits2Bytes("1 000 1111 | 011 010 00 | 10 101 100 | 0000 111 1"))
+    val bb =
+      ByteBuffer.wrap(Misc.bits2Bytes("1 000 1111 | 011 010 00 | 10 101 100 | 0000 111 1"))
     val dis = InputSourceDataInputStream(bb)
     dis.setBitLimit0b(MaybeULong(28))
     dis.skip(4, lsbfFinfo)

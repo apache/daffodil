@@ -17,15 +17,17 @@
 
 package org.apache.daffodil.core.general
 
-import org.junit.Test
+import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
-import org.apache.daffodil.core.compiler.Compiler; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
+
+import org.junit.Test; object INoWarnDSOM1 { ImplicitsSuppressUnusedImportWarning() }
 
 import org.apache.daffodil.core.util.Fakes
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
+
 import org.junit.Assert.assertEquals
-import org.apache.daffodil.lib.api.DaffodilTunables
 
 class TestTunables {
 
@@ -51,7 +53,8 @@ class TestTunables {
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
     val c = Compiler()
     val c1 = c.withTunable("maxSkipLengthInBytes", "1026")

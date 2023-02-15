@@ -17,19 +17,20 @@
 
 package org.apache.daffodil.core.grammar.primitives
 
-import com.ibm.icu.text.DecimalFormat
+import java.util.regex.PatternSyntaxException
+
 import org.apache.daffodil.lib.Implicits.intercept
+
+import com.ibm.icu.text.DecimalFormat
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
-import org.junit.Test
 import org.junit.Assert.fail
-
-import java.util.regex.PatternSyntaxException
+import org.junit.Test
 
 class TestPrimitives {
 
-  @Test def testVRegexPositiveAndNegativeWithPrefixesAndSuffixes() : Unit = {
+  @Test def testVRegexPositiveAndNegativeWithPrefixesAndSuffixes(): Unit = {
     val re = TextNumberPatternUtils.vRegexStandard
     val Some(myMatch) = re.findFirstMatchIn("A###012V34B;C####56V78D")
     myMatch match {
@@ -101,7 +102,8 @@ class TestPrimitives {
 
   @Test def testVRegexZonedNothingAfterSuffix(): Unit = {
     val re = TextNumberPatternUtils.vRegexZoned
-    val optMyMatch = re.findFirstMatchIn("012V34+garbage") // for zoned, overpunched trailing sign.
+    val optMyMatch =
+      re.findFirstMatchIn("012V34+garbage") // for zoned, overpunched trailing sign.
     optMyMatch match {
       case Some(re("", "012", "34", "+")) => fail("accepted trash at end of pattern")
       case None => // ok
@@ -119,7 +121,7 @@ class TestPrimitives {
 
   @Test def testVRegexZonedTwoSigns(): Unit = {
     assertTrue(
-      TextNumberPatternUtils.textNumber_V_DecimalVirtualPointForZoned("+012V34+").isEmpty
+      TextNumberPatternUtils.textNumber_V_DecimalVirtualPointForZoned("+012V34+").isEmpty,
     )
   }
 
@@ -156,7 +158,6 @@ class TestPrimitives {
       assertEquals("POSITIVE 6.847", actual)
     }
   }
-
 
   @Test def howToUseRegexLookBehindWithReplaceAll(): Unit = {
     // despite the fact that we say "P not preceded by ...." that's not how you
@@ -271,6 +272,5 @@ class TestPrimitives {
       case re("", "000", "PPP", "+") => // ok
     }
   }
-
 
 }

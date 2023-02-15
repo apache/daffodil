@@ -20,8 +20,9 @@ package org.apache.daffodil.core.general
 import scala.xml._
 
 import org.apache.daffodil.core.util.TestUtils
-import org.junit.Test
-import org.apache.daffodil.lib.Implicits._; object INoWarn9 { ImplicitsSuppressUnusedImportWarning() }
+import org.apache.daffodil.lib.Implicits._
+
+import org.junit.Test; object INoWarn9 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.lib.util.SchemaUtils
 
 class TestPrimitives {
@@ -30,9 +31,9 @@ class TestPrimitives {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
-
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="abcd">
-      </xs:element>)
+      </xs:element>,
+    )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcdefgh", areTracing)
     val expected: Node = <e1>efgh</e1>
@@ -43,9 +44,9 @@ class TestPrimitives {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
-
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="efgh">
-      </xs:element>)
+      </xs:element>,
+    )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcdefgh", areTracing)
     val expected: Node = <e1>abcd</e1>
@@ -56,7 +57,6 @@ class TestPrimitives {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
@@ -64,7 +64,8 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcd,efgh", areTracing)
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
@@ -74,9 +75,7 @@ class TestPrimitives {
   @Test def testLengthKindDelimited(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
@@ -84,7 +83,8 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcd,efgh", areTracing)
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
@@ -94,9 +94,7 @@ class TestPrimitives {
   @Test def testLengthKindDelimited2(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="%WSP;%WSP*;\%NL;%WSP;%WSP*;" dfdl:separatorPosition="infix">
@@ -104,7 +102,8 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val (_, actual) = TestUtils.testString(sch, "abcd  \\\n  efgh")
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -113,9 +112,7 @@ class TestPrimitives {
   @Test def testLengthKindDelimited3(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-
       <xs:element name="e1" dfdl:lengthKind="delimited">
         <xs:complexType>
           <xs:sequence dfdl:separator="}}}" dfdl:separatorPosition="infix">
@@ -130,7 +127,8 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcd}efgh}}}ijkl", areTracing)
     val expected: Node = <e1><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>
@@ -150,7 +148,6 @@ class TestPrimitives {
         <dfdl:format ref="tns:GeneralFormat" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" lengthUnits="bytes" initiator="" terminator="}" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no" textBidi="no" floating="no" ignoreCase="no" textPadKind="none" textTrimKind="none" textStandardBase="10" textStringJustification="right" escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
       </dfdl:defineFormat>
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
-
       <xs:element name="root" dfdl:lengthKind="implicit" dfdl:ref="config" dfdl:initiator="{{">
         <xs:complexType>
           <xs:sequence dfdl:ref="config" dfdl:separator="," dfdl:terminator="::">
@@ -166,7 +163,8 @@ class TestPrimitives {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "{a,b,c./d}//::", areTracing)
 
@@ -180,9 +178,7 @@ class TestPrimitives {
   @Test def testEntityReplacementSeparator(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no"/>,
-
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:separator="%NUL;" dfdl:separatorPosition="infix">
@@ -190,7 +186,8 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val (_, actual) = TestUtils.testString(sch, "abcd\u0000efgh")
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
@@ -200,11 +197,10 @@ class TestPrimitives {
   @Test def testEntityReplacementInitiator(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
-
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="%NUL;">
-      </xs:element>)
+      </xs:element>,
+    )
     val (_, actual) = TestUtils.testString(sch, "\u0000efgh")
     val expected: Node = <e1>efgh</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -213,11 +209,10 @@ class TestPrimitives {
   @Test def testEntityReplacementTerminator(): Unit = {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
-
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="%NUL;">
-      </xs:element>)
+      </xs:element>,
+    )
     val (_, actual) = TestUtils.testString(sch, "abcd\u0000")
 
     val expected: Node = <e1>abcd</e1>

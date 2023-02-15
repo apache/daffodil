@@ -17,13 +17,6 @@
 
 package org.apache.daffodil.io
 
-import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.io.SocketPairTestRig.timeLimit
-import org.apache.daffodil.io.SocketPairTestRig.withTimeout
-import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
-import org.junit.Test
-
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.ServerSocket
@@ -36,6 +29,13 @@ import scala.concurrent.duration.DurationInt
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 
+import org.apache.daffodil.io.SocketPairTestRig.timeLimit
+import org.apache.daffodil.io.SocketPairTestRig.withTimeout
+import org.apache.daffodil.lib.Implicits.intercept
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
+import org.junit.Test
 
 /**
  * Test rig sets up TCP socket unidirectional between a producer
@@ -99,12 +99,10 @@ object SocketPairTestRig {
    * @tparam T Return type of the testThunk
    * @return the result of the testThunk
    */
-  def withTimeout[T](
-    whatTimedOutDescription: String)(testThunk: => T): T = {
-    Try(withTimeout(testThunk)).recover {
-      case e: TimeoutException =>
-        fail(whatTimedOutDescription + " timed out.")
-        ??? // ??? because scala doesn't know fail never returns.
+  def withTimeout[T](whatTimedOutDescription: String)(testThunk: => T): T = {
+    Try(withTimeout(testThunk)).recover { case e: TimeoutException =>
+      fail(whatTimedOutDescription + " timed out.")
+      ??? // ??? because scala doesn't know fail never returns.
     }.get
   }
 
@@ -125,7 +123,6 @@ object SocketPairTestRig {
     Await.result(Future(testThunk), limitMillis)
 
 }
-
 
 /**
  * Shows that we can read from a TCP network socket

@@ -17,23 +17,23 @@
 
 package org.apache.daffodil.io
 
-import java.nio.charset.CodingErrorAction
 import java.nio.CharBuffer
 import java.nio.LongBuffer
+import java.nio.charset.CodingErrorAction
 
-import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
-import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
-import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
-import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
 import org.apache.daffodil.io.processors.charset.BitsCharset
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.io.processors.charset.StandardBitsCharsets
+import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
+import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
+import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
+import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.MaybeInt
 
 object FormatInfoForUnitTest {
   def apply() = {
@@ -43,8 +43,7 @@ object FormatInfoForUnitTest {
   }
 }
 
-class FormatInfoForUnitTest private ()
-  extends FormatInfo {
+class FormatInfoForUnitTest private () extends FormatInfo {
   var priorEncoding: BitsCharset = StandardBitsCharsets.UTF_8
 
   var encoder: BitsCharsetEncoder = priorEncoding.newEncoder()
@@ -112,5 +111,7 @@ class FakeFormatInfo(val bitOrder: BitOrder, val byteOrder: ByteOrder) extends F
   def regexMatchBitPositionBuffer: LongBuffer = ???
 }
 
-object FakeFormatInfo_MSBF_BE extends FakeFormatInfo(BitOrder.MostSignificantBitFirst, ByteOrder.BigEndian)
-object FakeFormatInfo_LSBF_LE extends FakeFormatInfo(BitOrder.LeastSignificantBitFirst, ByteOrder.LittleEndian)
+object FakeFormatInfo_MSBF_BE
+  extends FakeFormatInfo(BitOrder.MostSignificantBitFirst, ByteOrder.BigEndian)
+object FakeFormatInfo_LSBF_LE
+  extends FakeFormatInfo(BitOrder.LeastSignificantBitFirst, ByteOrder.LittleEndian)

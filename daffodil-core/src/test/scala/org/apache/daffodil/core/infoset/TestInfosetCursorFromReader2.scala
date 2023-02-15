@@ -17,18 +17,19 @@
 
 package org.apache.daffodil.core.infoset
 
-import org.apache.daffodil.runtime1.infoset._
+import scala.collection.immutable.Stream.consWrapper
 
-import org.junit.Test
-import org.junit.Assert._
+import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.runtime1.processors.DataProcessor
-import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.xml.XMLUtils
-import scala.collection.immutable.Stream.consWrapper
-import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+import org.apache.daffodil.runtime1.infoset._
+import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+
+import org.junit.Assert._
+import org.junit.Test
 
 object INoWarnU1 { ImplicitsSuppressUnusedImportWarning() }
 
@@ -44,7 +45,8 @@ class TestInfosetInputterFromReader2 {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
     val compiler = Compiler()
     val pf = compiler.compileNode(sch)
     if (pf.isError) {
@@ -70,8 +72,7 @@ class TestInfosetInputterFromReader2 {
     (ic, rootERD, inputter)
   }
 
-  class StreamInputStream(
-    private var strings: Stream[String]) extends java.io.InputStream {
+  class StreamInputStream(private var strings: Stream[String]) extends java.io.InputStream {
 
     private var bytes = {
       val ss = strings.flatMap { _.getBytes() } ++ "</bar>".getBytes().toStream
@@ -105,7 +106,7 @@ class TestInfosetInputterFromReader2 {
     inp.pushTRD(barSeqTRD)
     inp.pushTRD(fooERD)
     val StartArray(foo_arr_s) = is.next
-    1 to count foreach { i =>
+    (1 to count).foreach { i =>
       val Start(foo_1_s: DISimple) = is.next
       val End(foo_1_e: DISimple) = is.next
       assertTrue(foo_1_s eq foo_1_e)

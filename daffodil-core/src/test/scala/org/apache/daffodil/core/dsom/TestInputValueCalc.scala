@@ -17,11 +17,11 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.core.util._
-
-import org.apache.daffodil.lib.util._
-import org.junit.Test
 import scala.xml.Node
+
+import org.apache.daffodil.core.util._
+import org.apache.daffodil.lib.util._
+
 import org.junit.Test
 
 class TestInputValueCalc {
@@ -31,7 +31,8 @@ class TestInputValueCalc {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:string" dfdl:inputValueCalc="{ xs:string(42) }" />)
+      <xs:element name="data" type="xs:string" dfdl:inputValueCalc="{ xs:string(42) }" />,
+    )
     val (_, actual) = TestUtils.testString(testSchema, "")
     val expected: Node = <data>42</data>
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -49,7 +50,8 @@ class TestInputValueCalc {
             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../tns:e1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val (_, actual) = TestUtils.testString(testSchema, "A")
     val expected: Node = <data><e1>A</e1><e2>A</e2></data>
@@ -68,7 +70,8 @@ class TestInputValueCalc {
             <xs:element name="e2" type="xs:int" dfdl:inputValueCalc="{ ../tns:e1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val (_, actual) = TestUtils.testString(testSchema, "8")
     val expected: Node = <data><e1>8</e1><e2>8</e2></data>

@@ -17,19 +17,18 @@
 
 package org.apache.daffodil.runtime1.processors.charset
 
-import org.apache.daffodil.io.processors.charset._
-
 import java.nio.CharBuffer
 
-import org.junit.Assert.assertEquals
-
-import org.junit.Test
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.tdml.Document
 import org.apache.daffodil.io.FormatInfoForUnitTest
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.io.processors.charset._
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.tdml.Document
+
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
 class TestLSBFirstAndUSASCII7BitPacked {
 
@@ -44,7 +43,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" bitOrder="LSBFirst">
           0110100
         </documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val bytes = doc.documentBytes
     val in = java.nio.ByteBuffer.wrap(bytes)
     val dis = InputSourceDataInputStream(in)
@@ -61,7 +62,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL">
           00 0110010 0110100
         </documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val bytes = doc.documentBytes
     val in = java.nio.ByteBuffer.wrap(bytes)
     val dis = InputSourceDataInputStream(in)
@@ -78,7 +81,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[
       0110000 0111001 0111000 0110111 0110110 0110101 0110100 0110011 0110010 0110001
     ]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val bytes = doc.documentBytes
     val in = java.nio.ByteBuffer.wrap(bytes)
     val dis = InputSourceDataInputStream(in)
@@ -92,7 +97,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
     val doc = new Document(
       <document>
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD70", hex)
   }
@@ -101,7 +108,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"><![CDATA[123456789]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD7039", hex)
   }
@@ -110,7 +119,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
     val doc = new Document(
       <document bitOrder="LSBFirst">
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[1234567899]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD70B91C", hex)
   }
@@ -121,7 +132,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[
             011100|1 0111001 |0111000 0|110111 01|10110 011|0101 0110|100 01100|11 011001|0 0110001
       ]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD70B91C", hex)
   }
@@ -132,7 +145,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="byte" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[
             1C B9 | 70 DD B3 56 8C D9 31
       ]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD70B91C", hex)
   }
@@ -144,7 +159,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" bitOrder="LSBFirst">
           0	0110100 011001
         </documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val bytes = doc.documentBytes
     val in = java.nio.ByteBuffer.wrap(bytes)
     val dis = InputSourceDataInputStream(in)
@@ -161,7 +178,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" bitOrder="LSBFirst"><![CDATA[
        00110001 11011001 10001100 01010110  10110011 11011101 01110000 00111001 011000
     ]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val bytes = doc.documentBytes
     val in = java.nio.ByteBuffer.wrap(bytes)
     val dis = InputSourceDataInputStream(in)
@@ -175,7 +194,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
     val doc = new Document(
       <document>
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD70", hex)
   }
@@ -184,7 +205,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
     val doc = new Document(
       <document>
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[123456789]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val hex = Misc.bytes2Hex(doc.documentBytes)
     assertEquals("31D98C56B3DD7039", hex)
   }
@@ -195,7 +218,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[110]]></documentPart>
         <documentPart type="text" encoding="X-DFDL-US-ASCII-7-BIT-PACKED" bitOrder="LSBFirst"><![CDATA[123]]></documentPart>
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[1011]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc1bits = doc.documentBits.mkString
     doc1bits.length
     val doc2 = new Document(
@@ -203,7 +228,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" bitOrder="LSBFirst" byteOrder="RTL"><![CDATA[
             1011 0110011 0110010 0110001 110
          ]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc2bits = doc2.documentBits.mkString
     assertEquals(doc2bits, doc1bits)
   }
@@ -233,7 +260,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" byteOrder="RTL">GRI for R_ONE                   XXXX 0XXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">FPI for URN                     XXX1 XXXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">URN XXXX00000 00000000 00000000 011X XXXX</documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc1bits = doc.documentBits
     doc1bits.length
     val doc2 = new Document(
@@ -241,7 +270,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="byte"><![CDATA[
             E3 67 00 80 55 67 92 1A FC 77 00 00 00
          ]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc2bits = doc2.documentBits
     assertEquals(doc2bits, doc1bits)
   }
@@ -261,7 +292,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="bits" byteOrder="RTL">GRI for R_ONE                   XXXX 0XXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">FPI for URN                     XXX1 XXXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">URN XXXX00000 00000000 00000000 011X XXXX</documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc1bits = doc.documentBits
     doc1bits.length
     val doc2 = new Document(
@@ -269,7 +302,9 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="byte"><![CDATA[
             E3 67 00 80 55 67 92 1A FC 77 00 00 00
          ]]></documentPart>
-      </document>, null)
+      </document>,
+      null,
+    )
     val doc2bits = doc2.documentBits
     assertEquals(doc2bits, doc1bits)
   }

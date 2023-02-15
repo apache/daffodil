@@ -17,14 +17,16 @@
 
 package org.apache.daffodil.section12.lengthKind
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestLengthKindPrefixed {
   private val testDir = "/org/apache/daffodil/section12/lengthKind/"
 
-  val runner = Runner(testDir, "PrefixedTests.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner =
+    Runner(testDir, "PrefixedTests.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
@@ -39,32 +41,66 @@ class TestLengthKindPrefixed {
   @Test def test_pl_text_string_txt_bytes() = { runner.runOneTest("pl_text_string_txt_bytes") }
   @Test def test_pl_text_string_txt_bits() = { runner.runOneTest("pl_text_string_txt_bits") }
   @Test def test_pl_text_string_txt_chars() = { runner.runOneTest("pl_text_string_txt_chars") }
-  @Test def test_pl_text_string_txt_bytes_includes() = { runner.runOneTest("pl_text_string_txt_bytes_includes") }
-  @Test def test_pl_text_string_txt_bits_includes() = { runner.runOneTest("pl_text_string_txt_bits_includes") }
-  @Test def test_pl_text_string_txt_chars_includes() = { runner.runOneTest("pl_text_string_txt_chars_includes") }
-  @Test def test_pl_text_string_txt_chars_padding() = { runner.runOneTest("pl_text_string_txt_chars_padding") }
+  @Test def test_pl_text_string_txt_bytes_includes() = {
+    runner.runOneTest("pl_text_string_txt_bytes_includes")
+  }
+  @Test def test_pl_text_string_txt_bits_includes() = {
+    runner.runOneTest("pl_text_string_txt_bits_includes")
+  }
+  @Test def test_pl_text_string_txt_chars_includes() = {
+    runner.runOneTest("pl_text_string_txt_chars_includes")
+  }
+  @Test def test_pl_text_string_txt_chars_padding() = {
+    runner.runOneTest("pl_text_string_txt_chars_padding")
+  }
   @Test def test_pl_text_string_bin_bytes() = { runner.runOneTest("pl_text_string_bin_bytes") }
   @Test def test_pl_text_string_bin_bits() = { runner.runOneTest("pl_text_string_bin_bits") }
-  @Test def test_pl_text_string_txt_bytes_nil() = { runner.runOneTest("pl_text_string_txt_bytes_nil") }
-  @Test def test_pl_text_string_txt_bits_nil() = { runner.runOneTest("pl_text_string_txt_bits_nil") }
-  @Test def test_pl_text_string_txt_chars_nil() = { runner.runOneTest("pl_text_string_txt_chars_nil") }
-  @Test def test_pl_text_string_bin_bytes_nil() = { runner.runOneTest("pl_text_string_bin_bytes_nil") }
-  @Test def test_pl_text_string_bin_bits_nil() = { runner.runOneTest("pl_text_string_bin_bits_nil") }
-  @Test def test_pl_text_string_txt_bytes_neg_len() = { runner.runOneTest("pl_text_string_txt_bytes_neg_len") }
-  @Test def test_pl_text_string_txt_bytes_not_enough_data() = { runner.runOneTest("pl_text_string_txt_bytes_not_enough_data") }
-  @Test def test_pl_text_string_txt_bytes_not_enough_prefix_data() = { runner.runOneTest("pl_text_string_txt_bytes_not_enough_prefix_data") }
-  //DFDL-2030, nested prefixed lengths not supported
-  //@Test def test_pl_text_string_pl_txt_bytes() = { runner.runOneTest("pl_text_string_pl_txt_bytes") }
+  @Test def test_pl_text_string_txt_bytes_nil() = {
+    runner.runOneTest("pl_text_string_txt_bytes_nil")
+  }
+  @Test def test_pl_text_string_txt_bits_nil() = {
+    runner.runOneTest("pl_text_string_txt_bits_nil")
+  }
+  @Test def test_pl_text_string_txt_chars_nil() = {
+    runner.runOneTest("pl_text_string_txt_chars_nil")
+  }
+  @Test def test_pl_text_string_bin_bytes_nil() = {
+    runner.runOneTest("pl_text_string_bin_bytes_nil")
+  }
+  @Test def test_pl_text_string_bin_bits_nil() = {
+    runner.runOneTest("pl_text_string_bin_bits_nil")
+  }
+  @Test def test_pl_text_string_txt_bytes_neg_len() = {
+    runner.runOneTest("pl_text_string_txt_bytes_neg_len")
+  }
+  @Test def test_pl_text_string_txt_bytes_not_enough_data() = {
+    runner.runOneTest("pl_text_string_txt_bytes_not_enough_data")
+  }
+  @Test def test_pl_text_string_txt_bytes_not_enough_prefix_data() = {
+    runner.runOneTest("pl_text_string_txt_bytes_not_enough_prefix_data")
+  }
+  // DFDL-2030, nested prefixed lengths not supported
+  // @Test def test_pl_text_string_pl_txt_bytes() = { runner.runOneTest("pl_text_string_pl_txt_bytes") }
   @Test def test_pl_text_int_txt_bytes() = { runner.runOneTest("pl_text_int_txt_bytes") }
   @Test def test_pl_text_int_txt_bits() = { runner.runOneTest("pl_text_int_txt_bits") }
   @Test def test_pl_text_int_txt_chars() = { runner.runOneTest("pl_text_int_txt_chars") }
   @Test def test_pl_text_int_bin_bytes() = { runner.runOneTest("pl_text_int_bin_bytes") }
   @Test def test_pl_text_int_bin_bits() = { runner.runOneTest("pl_text_int_bin_bits") }
-  @Test def test_pl_text_int_txt_bytes_includes() = { runner.runOneTest("pl_text_int_txt_bytes_includes") }
-  @Test def test_pl_text_int_txt_bits_includes() = { runner.runOneTest("pl_text_int_txt_bits_includes") }
-  @Test def test_pl_text_int_txt_chars_includes() = { runner.runOneTest("pl_text_int_txt_chars_includes") }
-  @Test def test_pl_text_int_bin_bytes_includes() = { runner.runOneTest("pl_text_int_bin_bytes_includes") }
-  @Test def test_pl_text_int_bin_bits_includes() = { runner.runOneTest("pl_text_int_bin_bits_includes") }
+  @Test def test_pl_text_int_txt_bytes_includes() = {
+    runner.runOneTest("pl_text_int_txt_bytes_includes")
+  }
+  @Test def test_pl_text_int_txt_bits_includes() = {
+    runner.runOneTest("pl_text_int_txt_bits_includes")
+  }
+  @Test def test_pl_text_int_txt_chars_includes() = {
+    runner.runOneTest("pl_text_int_txt_chars_includes")
+  }
+  @Test def test_pl_text_int_bin_bytes_includes() = {
+    runner.runOneTest("pl_text_int_bin_bytes_includes")
+  }
+  @Test def test_pl_text_int_bin_bits_includes() = {
+    runner.runOneTest("pl_text_int_bin_bits_includes")
+  }
   @Test def test_pl_text_dec_txt_bytes() = { runner.runOneTest("pl_text_dec_txt_bytes") }
   @Test def test_pl_text_dec_txt_bits() = { runner.runOneTest("pl_text_dec_txt_bits") }
   @Test def test_pl_text_dec_txt_chars() = { runner.runOneTest("pl_text_dec_txt_chars") }
@@ -81,45 +117,93 @@ class TestLengthKindPrefixed {
   @Test def test_pl_text_bool_bin_bytes() = { runner.runOneTest("pl_text_bool_bin_bytes") }
   @Test def test_pl_text_bool_bin_bits() = { runner.runOneTest("pl_text_bool_bin_bits") }
 
-  @Test def test_pl_text_int_txt_bytes_plbits() = { runner.runOneTest("pl_text_int_txt_bytes_plbits") }
-  @Test def test_pl_text_int_txt_bytes_plchars() = { runner.runOneTest("pl_text_int_txt_bytes_plchars") }
-  @Test def test_pl_text_int_txt_bits_plbytes() = { runner.runOneTest("pl_text_int_txt_bits_plbytes") }
-  @Test def test_pl_text_int_txt_bits_plchars() = { runner.runOneTest("pl_text_int_txt_bits_plchars") }
-  @Test def test_pl_text_int_txt_chars_plbits() = { runner.runOneTest("pl_text_int_txt_chars_plbits") }
-  @Test def test_pl_text_int_txt_chars_plbytes() = { runner.runOneTest("pl_text_int_txt_chars_plbytes") }
-  @Test def test_pl_text_int_bin_bytes_plbits() = { runner.runOneTest("pl_text_int_bin_bytes_plbits") }
-  @Test def test_pl_text_int_bin_bytes_plchars() = { runner.runOneTest("pl_text_int_bin_bytes_plchars") }
-  @Test def test_pl_text_int_bin_bits_plbytes() = { runner.runOneTest("pl_text_int_bin_bits_plbytes") }
-  @Test def test_pl_text_int_bin_bits_plchars() = { runner.runOneTest("pl_text_int_bin_bits_plchars") }
+  @Test def test_pl_text_int_txt_bytes_plbits() = {
+    runner.runOneTest("pl_text_int_txt_bytes_plbits")
+  }
+  @Test def test_pl_text_int_txt_bytes_plchars() = {
+    runner.runOneTest("pl_text_int_txt_bytes_plchars")
+  }
+  @Test def test_pl_text_int_txt_bits_plbytes() = {
+    runner.runOneTest("pl_text_int_txt_bits_plbytes")
+  }
+  @Test def test_pl_text_int_txt_bits_plchars() = {
+    runner.runOneTest("pl_text_int_txt_bits_plchars")
+  }
+  @Test def test_pl_text_int_txt_chars_plbits() = {
+    runner.runOneTest("pl_text_int_txt_chars_plbits")
+  }
+  @Test def test_pl_text_int_txt_chars_plbytes() = {
+    runner.runOneTest("pl_text_int_txt_chars_plbytes")
+  }
+  @Test def test_pl_text_int_bin_bytes_plbits() = {
+    runner.runOneTest("pl_text_int_bin_bytes_plbits")
+  }
+  @Test def test_pl_text_int_bin_bytes_plchars() = {
+    runner.runOneTest("pl_text_int_bin_bytes_plchars")
+  }
+  @Test def test_pl_text_int_bin_bits_plbytes() = {
+    runner.runOneTest("pl_text_int_bin_bits_plbytes")
+  }
+  @Test def test_pl_text_int_bin_bits_plchars() = {
+    runner.runOneTest("pl_text_int_bin_bits_plchars")
+  }
 
   @Test def test_pl_complex_bin_bytes() = { runner.runOneTest("pl_complex_bin_bytes") }
   @Test def test_pl_complex_bin_bits() = { runner.runOneTest("pl_complex_bin_bits") }
-  @Test def test_pl_complex_bin_bytes_suspension() = { runner.runOneTest("pl_complex_bin_bytes_suspension") }
-  @Test def test_pl_complex_bin_bytes_suspension_includes() = { runner.runOneTest("pl_complex_bin_bytes_suspension_includes") }
+  @Test def test_pl_complex_bin_bytes_suspension() = {
+    runner.runOneTest("pl_complex_bin_bytes_suspension")
+  }
+  @Test def test_pl_complex_bin_bytes_suspension_includes() = {
+    runner.runOneTest("pl_complex_bin_bytes_suspension_includes")
+  }
   @Test def test_pl_bin_int_txt_bytes() = { runner.runOneTest("pl_bin_int_txt_bytes") }
   @Test def test_pl_bin_int_txt_bits() = { runner.runOneTest("pl_bin_int_txt_bits") }
   @Test def test_pl_bin_int_bin_bytes() = { runner.runOneTest("pl_bin_int_bin_bytes") }
   @Test def test_pl_bin_int_bin_bits() = { runner.runOneTest("pl_bin_int_bin_bits") }
-  @Test def test_pl_bin_int_txt_bytes_includes() = { runner.runOneTest("pl_bin_int_txt_bytes_includes") }
-  @Test def test_pl_bin_int_txt_bits_includes() = { runner.runOneTest("pl_bin_int_txt_bits_includes") }
-  @Test def test_pl_bin_int_bin_bytes_includes() = { runner.runOneTest("pl_bin_int_bin_bytes_includes") }
-  @Test def test_pl_bin_int_bin_bits_includes() = { runner.runOneTest("pl_bin_int_bin_bits_includes") }
-  @Test def test_pl_bin_int_bin_bytes_packed() = { runner.runOneTest("pl_bin_int_bin_bytes_packed") }
-  @Test def test_pl_bin_int_bin_bits_packed() = { runner.runOneTest("pl_bin_int_bin_bits_packed") }
+  @Test def test_pl_bin_int_txt_bytes_includes() = {
+    runner.runOneTest("pl_bin_int_txt_bytes_includes")
+  }
+  @Test def test_pl_bin_int_txt_bits_includes() = {
+    runner.runOneTest("pl_bin_int_txt_bits_includes")
+  }
+  @Test def test_pl_bin_int_bin_bytes_includes() = {
+    runner.runOneTest("pl_bin_int_bin_bytes_includes")
+  }
+  @Test def test_pl_bin_int_bin_bits_includes() = {
+    runner.runOneTest("pl_bin_int_bin_bits_includes")
+  }
+  @Test def test_pl_bin_int_bin_bytes_packed() = {
+    runner.runOneTest("pl_bin_int_bin_bytes_packed")
+  }
+  @Test def test_pl_bin_int_bin_bits_packed() = {
+    runner.runOneTest("pl_bin_int_bin_bits_packed")
+  }
   @Test def test_pl_bin_int_bin_bytes_bcd() = { runner.runOneTest("pl_bin_int_bin_bytes_bcd") }
   @Test def test_pl_bin_int_bin_bits_bcd() = { runner.runOneTest("pl_bin_int_bin_bits_bcd") }
-  @Test def test_pl_bin_int_bin_bytes_ibm4690() = { runner.runOneTest("pl_bin_int_bin_bytes_ibm4690") }
-  @Test def test_pl_bin_int_bin_bits_ibm4690() = { runner.runOneTest("pl_bin_int_bin_bits_ibm4690") }
+  @Test def test_pl_bin_int_bin_bytes_ibm4690() = {
+    runner.runOneTest("pl_bin_int_bin_bytes_ibm4690")
+  }
+  @Test def test_pl_bin_int_bin_bits_ibm4690() = {
+    runner.runOneTest("pl_bin_int_bin_bits_ibm4690")
+  }
   @Test def test_pl_bin_dec_txt_bytes() = { runner.runOneTest("pl_bin_dec_txt_bytes") }
   @Test def test_pl_bin_dec_txt_bits() = { runner.runOneTest("pl_bin_dec_txt_bits") }
   @Test def test_pl_bin_dec_bin_bytes() = { runner.runOneTest("pl_bin_dec_bin_bytes") }
   @Test def test_pl_bin_dec_bin_bits() = { runner.runOneTest("pl_bin_dec_bin_bits") }
-  @Test def test_pl_bin_dec_bin_bytes_packed() = { runner.runOneTest("pl_bin_dec_bin_bytes_packed") }
-  @Test def test_pl_bin_dec_bin_bits_packed() = { runner.runOneTest("pl_bin_dec_bin_bits_packed") }
+  @Test def test_pl_bin_dec_bin_bytes_packed() = {
+    runner.runOneTest("pl_bin_dec_bin_bytes_packed")
+  }
+  @Test def test_pl_bin_dec_bin_bits_packed() = {
+    runner.runOneTest("pl_bin_dec_bin_bits_packed")
+  }
   @Test def test_pl_bin_dec_bin_bytes_bcd() = { runner.runOneTest("pl_bin_dec_bin_bytes_bcd") }
   @Test def test_pl_bin_dec_bin_bits_bcd() = { runner.runOneTest("pl_bin_dec_bin_bits_bcd") }
-  @Test def test_pl_bin_dec_bin_bytes_ibm4690() = { runner.runOneTest("pl_bin_dec_bin_bytes_ibm4690") }
-  @Test def test_pl_bin_dec_bin_bits_ibm4690() = { runner.runOneTest("pl_bin_dec_bin_bits_ibm4690") }
+  @Test def test_pl_bin_dec_bin_bytes_ibm4690() = {
+    runner.runOneTest("pl_bin_dec_bin_bytes_ibm4690")
+  }
+  @Test def test_pl_bin_dec_bin_bits_ibm4690() = {
+    runner.runOneTest("pl_bin_dec_bin_bits_ibm4690")
+  }
   @Test def test_pl_bin_hex_txt_bytes() = { runner.runOneTest("pl_bin_hex_txt_bytes") }
   @Test def test_pl_bin_hex_txt_bits() = { runner.runOneTest("pl_bin_hex_txt_bits") }
   @Test def test_pl_bin_hex_bin_bytes() = { runner.runOneTest("pl_bin_hex_bin_bytes") }
@@ -128,12 +212,22 @@ class TestLengthKindPrefixed {
   @Test def test_pl_bin_bool_txt_bits() = { runner.runOneTest("pl_bin_bool_txt_bits") }
   @Test def test_pl_bin_bool_bin_bytes() = { runner.runOneTest("pl_bin_bool_bin_bytes") }
   @Test def test_pl_bin_bool_bin_bits() = { runner.runOneTest("pl_bin_bool_bin_bits") }
-  @Test def test_pl_bin_date_bin_bytes_packed() = { runner.runOneTest("pl_bin_date_bin_bytes_packed") }
-  @Test def test_pl_bin_date_bin_bits_packed() = { runner.runOneTest("pl_bin_date_bin_bits_packed") }
-  @Test def test_pl_bin_date_bin_bytes_bcd() = { runner.runOneTest("pl_bin_date_bin_bytes_bcd") }
+  @Test def test_pl_bin_date_bin_bytes_packed() = {
+    runner.runOneTest("pl_bin_date_bin_bytes_packed")
+  }
+  @Test def test_pl_bin_date_bin_bits_packed() = {
+    runner.runOneTest("pl_bin_date_bin_bits_packed")
+  }
+  @Test def test_pl_bin_date_bin_bytes_bcd() = {
+    runner.runOneTest("pl_bin_date_bin_bytes_bcd")
+  }
   @Test def test_pl_bin_date_bin_bits_bcd() = { runner.runOneTest("pl_bin_date_bin_bits_bcd") }
-  @Test def test_pl_bin_date_bin_bytes_ibm4690() = { runner.runOneTest("pl_bin_date_bin_bytes_ibm4690") }
-  @Test def test_pl_bin_date_bin_bits_ibm4690() = { runner.runOneTest("pl_bin_date_bin_bits_ibm4690") }
+  @Test def test_pl_bin_date_bin_bytes_ibm4690() = {
+    runner.runOneTest("pl_bin_date_bin_bytes_ibm4690")
+  }
+  @Test def test_pl_bin_date_bin_bits_ibm4690() = {
+    runner.runOneTest("pl_bin_date_bin_bits_ibm4690")
+  }
   @Test def test_plSlash1_data() = { runner.runOneTest("plSlash1_data") }
 
   @Test def test_pl_complex_err() = { runner.runOneTest("pl_complex_err") }
@@ -152,21 +246,39 @@ class TestLengthKindPrefixed {
   @Test def test_pl_decimal_err() = { runner.runOneTest("pl_decimal_err") }
 
   // DAFFODIL-2657
-  @Test def test_pl_implicit_1() = { runner.runOneTest("pl_implicit_1")}
+  @Test def test_pl_implicit_1() = { runner.runOneTest("pl_implicit_1") }
 
   // DAFFODIL-2656
-  @Test def test_pl_complexContentLengthBytes_1() = { runner.runOneTest("pl_complexContentLengthBytes_1")}
-  @Test def test_pl_complexValueLengthBytes_1() = { runner.runOneTest("pl_complexValueLengthBytes_1")}
-  @Test def test_pl_complexContentLengthBits_1() = { runner.runOneTest("pl_complexContentLengthBits_1")}
-  @Test def test_pl_complexValueLengthBits_1() = { runner.runOneTest("pl_complexValueLengthBits_1")}
-  @Test def test_pl_simpleContentLengthBytes_1() = { runner.runOneTest("pl_simpleContentLengthBytes_1")}
+  @Test def test_pl_complexContentLengthBytes_1() = {
+    runner.runOneTest("pl_complexContentLengthBytes_1")
+  }
+  @Test def test_pl_complexValueLengthBytes_1() = {
+    runner.runOneTest("pl_complexValueLengthBytes_1")
+  }
+  @Test def test_pl_complexContentLengthBits_1() = {
+    runner.runOneTest("pl_complexContentLengthBits_1")
+  }
+  @Test def test_pl_complexValueLengthBits_1() = {
+    runner.runOneTest("pl_complexValueLengthBits_1")
+  }
+  @Test def test_pl_simpleContentLengthBytes_1() = {
+    runner.runOneTest("pl_simpleContentLengthBytes_1")
+  }
 
   // DAFFODIL-2658
   // @Test def test_pl_simpleValueLengthBytes_1() = { runner.runOneTest("pl_simpleValueLengthBytes_1")}
 
-  @Test def test_pl_simpleContentLengthCharacters_1() = { runner.runOneTest("pl_simpleContentLengthCharacters_1")}
-  @Test def test_pl_complexContentLengthCharacters_1() = { runner.runOneTest("pl_complexContentLengthCharacters_1")}
-  @Test def test_pl_complexContentLengthCharacters_utf8_1() = { runner.runOneTest("pl_complexContentLengthCharacters_utf8_1")}
-  @Test def test_invalidLengthUnits_prefixed(): Unit = { runner.runOneTest("invalidLengthUnits_prefixed")}
+  @Test def test_pl_simpleContentLengthCharacters_1() = {
+    runner.runOneTest("pl_simpleContentLengthCharacters_1")
+  }
+  @Test def test_pl_complexContentLengthCharacters_1() = {
+    runner.runOneTest("pl_complexContentLengthCharacters_1")
+  }
+  @Test def test_pl_complexContentLengthCharacters_utf8_1() = {
+    runner.runOneTest("pl_complexContentLengthCharacters_utf8_1")
+  }
+  @Test def test_invalidLengthUnits_prefixed(): Unit = {
+    runner.runOneTest("invalidLengthUnits_prefixed")
+  }
 
 }

@@ -166,7 +166,7 @@ jobs:
         
       - name: Run scalafmt Check
         if: runner.os == 'Linux'
-        run: $SBT scalafmtCheck
+        run: $SBT scalafmtCheckAll scalafmtSbtCheck
 
       - name: Run Unit Tests
         run: $SBT test

@@ -19,9 +19,7 @@ package org.apache.daffodil.example
 
 import scala.collection.mutable.ArrayBuffer
 
-import org.apache.daffodil.sapi.infoset.InfosetInputter
-import org.apache.daffodil.sapi.infoset.InfosetOutputter
-
+import org.apache.daffodil.lib.util.MaybeBoolean
 // TODO: Shouldn't need to import things not in the sapi package
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.DIArray
@@ -32,7 +30,8 @@ import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndElement
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartDocument
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.StartElement
-import org.apache.daffodil.lib.util.MaybeBoolean
+import org.apache.daffodil.sapi.infoset.InfosetInputter
+import org.apache.daffodil.sapi.infoset.InfosetOutputter
 
 case class TestInfosetEvent(
   eventType: InfosetInputterEventType,
@@ -47,10 +46,19 @@ object TestInfosetEvent {
   def startDocument() =
     TestInfosetEvent(StartDocument)
 
-  def startComplex(name: String, namespace: String, isNilled: MaybeBoolean = MaybeBoolean.Nope) =
+  def startComplex(
+    name: String,
+    namespace: String,
+    isNilled: MaybeBoolean = MaybeBoolean.Nope,
+  ) =
     TestInfosetEvent(StartElement, name, namespace, null, isNilled)
 
-  def startSimple(name: String, namespace: String, text: String, isNilled: MaybeBoolean = MaybeBoolean.Nope) =
+  def startSimple(
+    name: String,
+    namespace: String,
+    text: String,
+    isNilled: MaybeBoolean = MaybeBoolean.Nope,
+  ) =
     TestInfosetEvent(StartElement, name, namespace, text, isNilled)
 
   def endComplex(name: String, namespace: String) =
@@ -62,7 +70,6 @@ object TestInfosetEvent {
   def endDocument() =
     TestInfosetEvent(EndDocument)
 }
-
 
 case class TestInfosetInputter(events: TestInfosetEvent*) extends InfosetInputter {
 
@@ -104,14 +111,15 @@ case class TestInfosetOutputter() extends InfosetOutputter {
         diSimple.erd.name,
         diSimple.erd.namedQName.namespace,
         diSimple.dataValueAsString,
-        if (diSimple.erd.isNillable) MaybeBoolean(diSimple.isNilled) else MaybeBoolean.Nope))
+        if (diSimple.erd.isNillable) MaybeBoolean(diSimple.isNilled) else MaybeBoolean.Nope,
+      ),
+    )
   }
 
   override def endSimple(diSimple: DISimple): Unit = {
     events.append(
-      TestInfosetEvent.endSimple(
-        diSimple.erd.name,
-        diSimple.erd.namedQName.namespace))
+      TestInfosetEvent.endSimple(diSimple.erd.name, diSimple.erd.namedQName.namespace),
+    )
   }
 
   override def startComplex(diComplex: DIComplex): Unit = {
@@ -119,19 +127,18 @@ case class TestInfosetOutputter() extends InfosetOutputter {
       TestInfosetEvent.startComplex(
         diComplex.erd.name,
         diComplex.erd.namedQName.namespace,
-        if (diComplex.erd.isNillable) MaybeBoolean(diComplex.isNilled) else MaybeBoolean.Nope))
+        if (diComplex.erd.isNillable) MaybeBoolean(diComplex.isNilled) else MaybeBoolean.Nope,
+      ),
+    )
   }
 
   override def endComplex(diComplex: DIComplex): Unit = {
     events.append(
-      TestInfosetEvent.endComplex(
-        diComplex.erd.name,
-        diComplex.erd.namedQName.namespace))
+      TestInfosetEvent.endComplex(diComplex.erd.name, diComplex.erd.namedQName.namespace),
+    )
   }
 
-  override def startArray(diArray: DIArray): Unit = {
-  }
+  override def startArray(diArray: DIArray): Unit = {}
 
-  override def endArray(diArray: DIArray): Unit = {
-  }
+  override def endArray(diArray: DIArray): Unit = {}
 }

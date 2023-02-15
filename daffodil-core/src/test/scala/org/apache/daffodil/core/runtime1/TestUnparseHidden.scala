@@ -17,10 +17,11 @@
 
 package org.apache.daffodil.core.runtime1
 
-import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.core.util.TestUtils
-import org.junit.Test
+import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.junit.Test
 
 class TestUnparseHidden {
 
@@ -61,10 +62,11 @@ class TestUnparseHidden {
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema1,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
 
     val infoset =
-      <ex:r xmlns:ex={ example }>
+      <ex:r xmlns:ex={example}>
         <a>abc</a>
         <b>def</b>
         <c>ghi</c>
@@ -78,10 +80,11 @@ class TestUnparseHidden {
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema1,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
 
     val infoset =
-      <ex:r xmlns:ex={ example }>
+      <ex:r xmlns:ex={example}>
         <a>abc</a>
         <c>ghi</c>
       </ex:r>
@@ -128,10 +131,11 @@ class TestUnparseHidden {
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema2,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
 
     val infoset =
-      <ex:r xmlns:ex={ example }>
+      <ex:r xmlns:ex={example}>
         <a>abc</a>
         <b>def</b>
         <c>ghi</c>
@@ -146,10 +150,11 @@ class TestUnparseHidden {
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema2,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
 
     val infoset =
-      <ex:r xmlns:ex={ example }>
+      <ex:r xmlns:ex={example}>
         <a>abc</a>
         <d>jkl</d>
       </ex:r>
@@ -201,10 +206,11 @@ class TestUnparseHidden {
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema3,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
 
     val infoset =
-      <ex:r xmlns:ex={ example }>
+      <ex:r xmlns:ex={example}>
         <a>abc</a>
         <arr>X</arr>
         <d>jkl</d>
@@ -222,16 +228,18 @@ class TestUnparseHidden {
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema3,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
 
     val infoset =
-      <ex:r xmlns:ex={ example }>
+      <ex:r xmlns:ex={example}>
         <a>abc</a>
         <b>42</b> <!-- value is ignored and recomputed as 3 -->
         <arr>X</arr>
         <d>jkl</d>
       </ex:r>
-    val data = "abc13Xjkl" // 1 is the present flag indicating 'b' is present. 3 is the value of b as computed.
+    val data =
+      "abc13Xjkl" // 1 is the present flag indicating 'b' is present. 3 is the value of b as computed.
     TestUtils.testUnparsing(testSchema, infoset, data)
   }
 
@@ -272,10 +280,11 @@ class TestUnparseHidden {
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schemaX,
-      elementFormDefault = "unqualified")
+      elementFormDefault = "unqualified",
+    )
 
     val infoset =
-      <ex:x xmlns:ex={ example }>
+      <ex:x xmlns:ex={example}>
         <b>3</b>
         <y>1</y>
       </ex:x>

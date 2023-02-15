@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section17.calc_value_properties
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestOutputValueCalc {
   private val testDir = "/org/apache/daffodil/section17/calc_value_properties/"
@@ -47,26 +48,50 @@ class TestOutputValueCalc {
   @Test def test_OutputValueCalc_07(): Unit = { runner.runOneTest("OutputValueCalc_07") }
   @Test def test_OutputValueCalc_08(): Unit = { runner.runOneTest("OutputValueCalc_08") }
 
-  @Test def test_binaryInteger_BigEndian(): Unit = { runner.runOneTest("binaryIntegerBigEndian") }
-  @Test def test_binaryInteger_LittleEndian(): Unit = { runner.runOneTest("binaryIntegerLittleEndian") }
+  @Test def test_binaryInteger_BigEndian(): Unit = {
+    runner.runOneTest("binaryIntegerBigEndian")
+  }
+  @Test def test_binaryInteger_LittleEndian(): Unit = {
+    runner.runOneTest("binaryIntegerLittleEndian")
+  }
 
-  @Test def test_ovcHiddenCalculations1(): Unit = { runner2.runOneTest("ovcHiddenCalculations1") }
-  @Test def test_ovcHiddenCalculations2(): Unit = { runner2.runOneTest("ovcHiddenCalculations2") }
-  @Test def test_ovcHiddenCalculations3(): Unit = { runner2.runOneTest("ovcHiddenCalculations3") }
+  @Test def test_ovcHiddenCalculations1(): Unit = {
+    runner2.runOneTest("ovcHiddenCalculations1")
+  }
+  @Test def test_ovcHiddenCalculations2(): Unit = {
+    runner2.runOneTest("ovcHiddenCalculations2")
+  }
+  @Test def test_ovcHiddenCalculations3(): Unit = {
+    runner2.runOneTest("ovcHiddenCalculations3")
+  }
   @Test def test_hiddenGroupOvcError(): Unit = { runner2.runOneTest("hiddenGroupOvcError") }
-  @Test def test_hiddenGroupArrayWithOvc(): Unit = { runner2.runOneTest("hiddenGroupArrayWithOvc") }
+  @Test def test_hiddenGroupArrayWithOvc(): Unit = {
+    runner2.runOneTest("hiddenGroupArrayWithOvc")
+  }
   @Test def test_optionalWithOvc(): Unit = { runner2.runOneTest("optionalWithOvc") }
 
-  @Test def test_ovcAllowMissingOVCElem(): Unit = { runner2.runOneTest("ovcAllowMissingOVCElem") }
+  @Test def test_ovcAllowMissingOVCElem(): Unit = {
+    runner2.runOneTest("ovcAllowMissingOVCElem")
+  }
   @Test def test_ovcIgnoreOVCElem(): Unit = { runner2.runOneTest("ovcIgnoreOVCElem") }
 
-  @Test def test_ovc_w_runtime_initiator(): Unit = { runner2.runOneTest("ovc_w_runtime_initiator") }
+  @Test def test_ovc_w_runtime_initiator(): Unit = {
+    runner2.runOneTest("ovc_w_runtime_initiator")
+  }
   @Test def test_ovc_w_runtime_dec_sep(): Unit = { runner2.runOneTest("ovc_w_runtime_dec_sep") }
-  @Test def test_ovc_w_runtime_group_sep(): Unit = { runner2.runOneTest("ovc_w_runtime_group_sep") }
+  @Test def test_ovc_w_runtime_group_sep(): Unit = {
+    runner2.runOneTest("ovc_w_runtime_group_sep")
+  }
   @Test def test_ovc_w_runtime_exp_rep(): Unit = { runner2.runOneTest("ovc_w_runtime_exp_rep") }
-  @Test def test_ovc_w_runtime_cal_lang(): Unit = { runner2.runOneTest("ovc_w_runtime_cal_lang") }
-  @Test def test_ovc_w_runtime_escape_char(): Unit = { runner2.runOneTest("ovc_w_runtime_escape_char") }
-  @Test def test_ovc_w_runtime_escape_escape_char(): Unit = { runner2.runOneTest("ovc_w_runtime_escape_escape_char") }
+  @Test def test_ovc_w_runtime_cal_lang(): Unit = {
+    runner2.runOneTest("ovc_w_runtime_cal_lang")
+  }
+  @Test def test_ovc_w_runtime_escape_char(): Unit = {
+    runner2.runOneTest("ovc_w_runtime_escape_char")
+  }
+  @Test def test_ovc_w_runtime_escape_escape_char(): Unit = {
+    runner2.runOneTest("ovc_w_runtime_escape_escape_char")
+  }
 
   @Test def test_OutputValueCalc_09(): Unit = { runner.runOneTest("OutputValueCalc_09") }
   @Test def test_OutputValueCalc_10(): Unit = { runner.runOneTest("OutputValueCalc_10") }
@@ -84,9 +109,15 @@ class TestOutputValueCalc {
   @Test def test_ovcBitOrderChange(): Unit = { runner3.runOneTest("ovc_bitOrderChange") }
 
   // DAFFODIL-1701
-  @Test def test_refSimpleTypeElemWithOvc(): Unit = { runner.runOneTest("refSimpleTypeElemWithOvc") }
-  @Test def test_refComplexTypeElemNoOvc(): Unit = { runner.runOneTest("refComplexTypeElemNoOvc") }
-  @Test def test_refComplexTypeElemWithOvc(): Unit = { runner.runOneTest("refComplexTypeElemWithOvc") }
+  @Test def test_refSimpleTypeElemWithOvc(): Unit = {
+    runner.runOneTest("refSimpleTypeElemWithOvc")
+  }
+  @Test def test_refComplexTypeElemNoOvc(): Unit = {
+    runner.runOneTest("refComplexTypeElemNoOvc")
+  }
+  @Test def test_refComplexTypeElemWithOvc(): Unit = {
+    runner.runOneTest("refComplexTypeElemWithOvc")
+  }
 
   // DAFFODIL-2167
   @Test def test_arrayWithFollowingOVC(): Unit = { runner.runOneTest("arrayWithFollowingOVC") }

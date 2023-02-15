@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.section13.nillable
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
+import org.junit.Test
 import org.junit._
 
 object TestNillableUnparse {
@@ -36,9 +37,15 @@ class TestNillableUnparse {
 
   import TestNillableUnparse._
 
-  @Test def test_scalar_nonDefaultable_nillable(): Unit = { runnerLN.runOneTest("scalar_nonDefaultable_nillable") }
-  @Test def test_scalar_nonDefaultable_nillable_02(): Unit = { runnerLN.runOneTest("scalar_nonDefaultable_nillable_02") }
-  @Test def test_scalar_nonDefaultable_nillable_03(): Unit = { runnerLN.runOneTest("scalar_nonDefaultable_nillable_03") }
+  @Test def test_scalar_nonDefaultable_nillable(): Unit = {
+    runnerLN.runOneTest("scalar_nonDefaultable_nillable")
+  }
+  @Test def test_scalar_nonDefaultable_nillable_02(): Unit = {
+    runnerLN.runOneTest("scalar_nonDefaultable_nillable_02")
+  }
+  @Test def test_scalar_nonDefaultable_nillable_03(): Unit = {
+    runnerLN.runOneTest("scalar_nonDefaultable_nillable_03")
+  }
 
   @Test def test_text_complex_nil(): Unit = { runnerLN.runOneTest("text_complex_nil") }
   @Test def test_text_complex_nil2(): Unit = { runnerLN.runOneTest("text_complex_nil2") }
@@ -63,12 +70,24 @@ class TestNillableUnparse {
   @Test def test_text_nil_only16(): Unit = { runnerLN.runOneTest("text_nil_only16") }
   @Test def test_text_nil_only17(): Unit = { runnerLN.runOneTest("text_nil_only17") }
 
-  @Test def test_text_nil_characterClass_01(): Unit = { runnerLN.runOneTest("text_nil_characterClass_01") }
-  @Test def test_text_nil_characterClass_02(): Unit = { runnerLN.runOneTest("text_nil_characterClass_02") }
-  @Test def test_text_nil_characterClass_03(): Unit = { runnerLN.runOneTest("text_nil_characterClass_03") }
-  @Test def test_text_nil_characterClass_04(): Unit = { runnerLN.runOneTest("text_nil_characterClass_04") }
-  @Test def test_text_nil_characterClass_05(): Unit = { runnerLN.runOneTest("text_nil_characterClass_05") }
-  @Test def test_text_nil_characterClass_06(): Unit = { runnerLN.runOneTest("text_nil_characterClass_06") }
+  @Test def test_text_nil_characterClass_01(): Unit = {
+    runnerLN.runOneTest("text_nil_characterClass_01")
+  }
+  @Test def test_text_nil_characterClass_02(): Unit = {
+    runnerLN.runOneTest("text_nil_characterClass_02")
+  }
+  @Test def test_text_nil_characterClass_03(): Unit = {
+    runnerLN.runOneTest("text_nil_characterClass_03")
+  }
+  @Test def test_text_nil_characterClass_04(): Unit = {
+    runnerLN.runOneTest("text_nil_characterClass_04")
+  }
+  @Test def test_text_nil_characterClass_05(): Unit = {
+    runnerLN.runOneTest("text_nil_characterClass_05")
+  }
+  @Test def test_text_nil_characterClass_06(): Unit = {
+    runnerLN.runOneTest("text_nil_characterClass_06")
+  }
 
   @Test def test_text_lit_char_01(): Unit = { runnerLC.runOneTest("text_01") }
   @Test def test_text_lit_char_01a(): Unit = { runnerLC.runOneTest("text_01a") }

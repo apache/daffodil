@@ -17,44 +17,49 @@
 
 package org.apache.daffodil.core.infoset
 
-import org.apache.daffodil.runtime1.infoset._
-
-import org.junit.Test
-import org.junit.Assert._
-import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.runtime1.processors.DataProcessor
-import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+import org.apache.daffodil.lib.xml._
+import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.ChoiceRuntimeData
-import InfosetEventKind._
+import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
+import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
+
+import InfosetEventKind._
+import org.junit.Assert._
+import org.junit.Test
 
 /**
  * Lets us pattern deconstruct infoset events, which is nice for unit testing
  */
 object Start {
-  def unapply(ev: InfosetAccessor) = if (ev.kind.isInstanceOf[StartKind]) Some(ev.info.element) else None
+  def unapply(ev: InfosetAccessor) =
+    if (ev.kind.isInstanceOf[StartKind]) Some(ev.info.element) else None
 }
 
 object End {
-  def unapply(ev: InfosetAccessor) = if (ev.kind.isInstanceOf[EndKind]) Some(ev.info.element) else None
+  def unapply(ev: InfosetAccessor) =
+    if (ev.kind.isInstanceOf[EndKind]) Some(ev.info.element) else None
 }
 
 object StartElement {
   def apply(node: DIElement) = InfosetAccessor(InfosetEventKind.StartElement, node)
-  def unapply(ev: InfosetAccessor) = if (ev.kind eq InfosetEventKind.StartElement) Some(ev.info.element) else None
+  def unapply(ev: InfosetAccessor) =
+    if (ev.kind eq InfosetEventKind.StartElement) Some(ev.info.element) else None
 }
 
 object EndElement {
   def apply(node: DIElement) = InfosetAccessor(InfosetEventKind.EndElement, node)
-  def unapply(ev: InfosetAccessor) = if (ev.kind eq InfosetEventKind.EndElement) Some(ev.info.element) else None
+  def unapply(ev: InfosetAccessor) =
+    if (ev.kind eq InfosetEventKind.EndElement) Some(ev.info.element) else None
 }
 
 object StartArray {
-  def apply(arrayERD: ElementRuntimeData) = InfosetAccessor(InfosetEventKind.StartArray, arrayERD)
+  def apply(arrayERD: ElementRuntimeData) =
+    InfosetAccessor(InfosetEventKind.StartArray, arrayERD)
   def unapply(ev: InfosetAccessor) =
     if (ev.kind eq InfosetEventKind.StartArray) {
       assertTrue(ev.erd.isArray)
@@ -100,8 +105,9 @@ class TestInfosetInputter {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
-    val infosetXML = <foo xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>Hello</foo>
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+    )
+    val infosetXML = <foo xmlns={XMLUtils.EXAMPLE_NAMESPACE}>Hello</foo>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
 
     val aacc: InfosetAccessor = ic.advanceAccessor
@@ -127,8 +133,11 @@ class TestInfosetInputter {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>)
-    val infosetXML = <foo xsi:nil="true" xmlns={ XMLUtils.EXAMPLE_NAMESPACE } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }/>
+      <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>,
+    )
+    val infosetXML = <foo xsi:nil="true" xmlns={XMLUtils.EXAMPLE_NAMESPACE} xmlns:xsi={
+      XMLUtils.XSI_NAMESPACE
+    }/>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
 
     val aacc = ic.advanceAccessor
@@ -160,8 +169,9 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={XMLUtils.EXAMPLE_NAMESPACE}><foo>Hello</foo></bar>
 
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
 
@@ -213,8 +223,11 @@ class TestInfosetInputter {
             <xs:element name="baz" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><baz>World</baz></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><foo>Hello</foo><baz>World</baz></bar>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
@@ -269,8 +282,9 @@ class TestInfosetInputter {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <quux xmlns={ XMLUtils.EXAMPLE_NAMESPACE }>
+      </xs:element>,
+    )
+    val infosetXML = <quux xmlns={XMLUtils.EXAMPLE_NAMESPACE}>
                        <bar1><foo1>Hello</foo1><baz1>World</baz1></bar1>
                        <bar2><foo2>Hello</foo2><baz2>World</baz2></bar2>
                      </quux>
@@ -339,8 +353,11 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><foo>Hello</foo><foo>World</foo></bar>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val barERD = rootERD
@@ -382,8 +399,11 @@ class TestInfosetInputter {
             <xs:element name="baz" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><foo>Hello</foo><foo>World</foo><baz>Yadda</baz></bar>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val Start(bar_s: DIComplex) = { assertTrue(ic.advance); aacc }
@@ -430,8 +450,11 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val barERD = rootERD
@@ -480,8 +503,11 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><baz>Yadda</baz><foo>Hello</foo><foo>World</foo></bar>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val barERD = rootERD
@@ -532,8 +558,9 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
+      </xs:element>,
+    )
+    val infosetXML = <bar xmlns={XMLUtils.EXAMPLE_NAMESPACE}><foo>Hello</foo></bar>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val iacc = ic.inspectAccessor
@@ -583,8 +610,11 @@ class TestInfosetInputter {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infosetXML = <e xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
+      </xs:element>,
+    )
+    val infosetXML = <e xmlns={
+      XMLUtils.EXAMPLE_NAMESPACE
+    }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
     val aacc = ic.advanceAccessor
     val Start(e: DIComplex) = { assertTrue(ic.advance); aacc }
@@ -605,7 +635,7 @@ class TestInfosetInputter {
     val Start(s2: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s2)
     ic.pushTRD(sChoTRD)
     val Start(c2: DISimple) = { assertTrue(ic.advance); aacc }
-    val End(c2e: DISimple) = { assertTrue(ic.advance); aacc }; ; assertNotNull(c2e)
+    val End(c2e: DISimple) = { assertTrue(ic.advance); aacc };; assertNotNull(c2e)
     val End(s2e: DIComplex) = { assertTrue(ic.advance); aacc }; assertNotNull(s2e)
     ic.popTRD()
     val EndArray(ase) = { assertTrue(ic.advance); aacc }

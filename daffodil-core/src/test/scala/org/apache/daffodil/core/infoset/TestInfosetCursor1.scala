@@ -17,23 +17,23 @@
 
 package org.apache.daffodil.core.infoset
 
-import org.apache.daffodil.runtime1.infoset._
-
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.core.compiler.Compiler
-import org.apache.daffodil.runtime1.processors.DataProcessor
-import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.util.SchemaUtils
-import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.jdom2.input.JDOMParseException
-import org.junit.Assert.assertEquals
-import org.xml.sax.XMLReader
-
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLStreamConstants
+
+import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.infoset._
+import org.apache.daffodil.runtime1.processors.DataProcessor
+import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
+
+import org.jdom2.input.JDOMParseException
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import org.xml.sax.XMLReader
 
 class TestInfosetInputter1 {
 
@@ -59,7 +59,8 @@ class TestInfosetInputter1 {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+    )
 
     val str = "this is not XML"
     val is = new java.io.ByteArrayInputStream(str.getBytes("UTF-8"))
@@ -75,7 +76,8 @@ class TestInfosetInputter1 {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+    )
 
     val str = """<this pretends to be xml"""
     val is = new java.io.ByteArrayInputStream(str.getBytes("UTF-8"))
@@ -92,7 +94,8 @@ class TestInfosetInputter1 {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>)
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+    )
 
     val str = "\u0000\u0000\uFFFF\uFFFF"
     val is = new java.io.ByteArrayInputStream(str.getBytes("UTF-8"))
@@ -106,15 +109,16 @@ class TestInfosetInputter1 {
   }
 
   private val rootFoo = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="root">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <dfdl:format ref="tns:GeneralFormat"/>,
+    <xs:element name="root">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="foo" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+  )
 
   /**
    * This test characterizes the behavior of the Woodstox XML library with respect to
@@ -202,7 +206,7 @@ class TestInfosetInputter1 {
     is = Misc.getRequiredResource("test/xmlDocWithBadDTD.xml").toURL.openStream()
     val ic = infosetInputter(rootFoo, is)
     val exc = intercept[UnparseError] {
-     ic.advance
+      ic.advance
     }
     val msg = Misc.getSomeMessage(exc).get
     assertTrue(msg.contains("Illegal content"))

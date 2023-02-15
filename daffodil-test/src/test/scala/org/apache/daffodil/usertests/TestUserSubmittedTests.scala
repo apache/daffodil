@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.usertests
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestUserSubmittedTests {
   val testDir = "/org/apache/daffodil/usertests/"
@@ -48,7 +49,6 @@ class TestUserSubmittedTests {
   @Test def testTextNumberPattern2(): Unit = { runner.runOneTest("textNumberPattern2") }
   @Test def testTextNumberPattern3(): Unit = { runner.runOneTest("textNumberPattern3") }
 
-
   @Test def test_nameDOB_test2_pass(): Unit = { runner2.runOneTest("nameDOB_test2_pass") }
   @Test def test_nameDOB_test2_fail(): Unit = { runner2.runOneTest("nameDOB_test2_fail") }
 
@@ -68,7 +68,7 @@ class TestUserSubmittedTests {
     Debugger.setDebugging(false)
     Debugger.setDebugger(null)
   }
-*/
+   */
 
 }
 
@@ -97,4 +97,4 @@ class CustomTraceRunner extends TraceRunner {
   override def lineOutput(line: String) = _lines ++ (line + "\n")
 
 }
-*/
+ */

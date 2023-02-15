@@ -19,14 +19,15 @@
 // KEEP THIS FILE IN CASE WE HAVE TO GO BACK TO SUPPORTING JAVA 7
 //
 package org.apache.daffodil.io
-//
-import java.nio.charset.StandardCharsets
-import java.nio.charset.CodingErrorAction
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CoderResult
-import org.junit.Test
+import java.nio.charset.CodingErrorAction
+//
+import java.nio.charset.StandardCharsets
+
 import org.junit.Assert._
+import org.junit.Test
 
 /**
  * These unit tests characterize the behavior of charset decoders
@@ -178,7 +179,7 @@ class TestDecoder {
     //
 
   }
-  
+
   // KEEP THESE TESTS IN CASE WE EVER HAVE TO SUPPORT JAVA 7
   // Delete once it's clear we're never going to have to do that.
   //

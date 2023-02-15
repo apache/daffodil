@@ -17,13 +17,19 @@
 
 package org.apache.daffodil.section07.property_syntax
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestPropertySyntax {
   val testDir1 = "/org/apache/daffodil/section07/property_syntax/"
-  val runner1 = Runner(testDir1, "PropertySyntax.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner1 = Runner(
+    testDir1,
+    "PropertySyntax.tdml",
+    validateTDMLFile = false,
+    validateDFDLSchemas = false,
+  )
   val runner1V = Runner(testDir1, "PropertySyntax.tdml", validateTDMLFile = false)
 
   @AfterClass def shutDown(): Unit = {
@@ -38,10 +44,16 @@ class TestPropertySyntax {
   import TestPropertySyntax._
 
   @Test def test_ShortAndLongForm(): Unit = { runner1.runOneTest("ShortAndLongForm") }
-  @Test def test_ShortAnnotationAndElementForm(): Unit = { runner1.runOneTest("ShortAnnotationAndElementForm") }
-  @Test def test_AnnotationAndElementForm(): Unit = { runner1.runOneTest("AnnotationAndElementForm") }
+  @Test def test_ShortAnnotationAndElementForm(): Unit = {
+    runner1.runOneTest("ShortAnnotationAndElementForm")
+  }
+  @Test def test_AnnotationAndElementForm(): Unit = {
+    runner1.runOneTest("AnnotationAndElementForm")
+  }
   @Test def test_ShortAndElementForm(): Unit = { runner1.runOneTest("ShortAndElementForm") }
-  @Test def test_Lesson3_attribute_form(): Unit = { runner1.runOneTest("Lesson3_attribute_form") }
+  @Test def test_Lesson3_attribute_form(): Unit = {
+    runner1.runOneTest("Lesson3_attribute_form")
+  }
   @Test def test_Lesson3_element_form(): Unit = { runner1.runOneTest("Lesson3_element_form") }
   @Test def test_Lesson3_short_form(): Unit = { runner1.runOneTest("Lesson3_short_form") }
   @Test def test_encodingEmptyFail(): Unit = { runner1V.runOneTest("encodingEmptyFail") }
@@ -51,8 +63,14 @@ class TestPropertySyntax {
   @Test def test_dfdlxProperty1(): Unit = { runner1.runOneTest("dfdlxProperty1") }
   @Test def test_dfdlxProperty2(): Unit = { runner1.runOneTest("dfdlxProperty2") }
 
-  @Test def test_ignoredPropertiesWarning(): Unit = { runner1.runOneTest("ignoredPropertiesWarning") }
+  @Test def test_ignoredPropertiesWarning(): Unit = {
+    runner1.runOneTest("ignoredPropertiesWarning")
+  }
 
-  @Test def test_badElementFormProperty(): Unit = { runner1.runOneTest("badElementFormProperty") }
-  @Test def test_badElementFormProperty2(): Unit = { runner1.runOneTest("badElementFormProperty2") }
+  @Test def test_badElementFormProperty(): Unit = {
+    runner1.runOneTest("badElementFormProperty")
+  }
+  @Test def test_badElementFormProperty2(): Unit = {
+    runner1.runOneTest("badElementFormProperty2")
+  }
 }

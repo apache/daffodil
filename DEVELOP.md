@@ -138,11 +138,10 @@ run `git push` from your reading copy.
 
 ### Code Style
 
-Daffodil mandates standard Scala formatting and its code generally
-keeps close to that formatting consistently.  No one has run an
-automatic Scala formatter on the codebase yet (there has not been much
-need since the code is already formatted pretty well) but
-[DAFFODIL-2133][] is waiting for someone willing to do that work.
+Daffodil code is formatted using [Scalafmt](https://scalameta.org/scalafmt/).
+Run `sbt scalafmtCheckAll` to see if changes to the source code require
+formatting and then run `sbt scalafmtAll` to apply the changes. For
+SBT files use `sbt scalafmtSbtCheck` and `sbt scalafmtSbt`.
 
 Daffodil mandates that at least 80% of new code and modified code
 should be covered by unit tests or TDML tests.  Daffodil naming

@@ -18,10 +18,12 @@
 package org.apache.daffodil.io
 
 import java.io.File
-import org.junit.Assert._
+
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.util.Maybe
+
+import org.junit.Assert._
 import org.junit.Test
 
 class TestDataOutputStream3 {
@@ -30,9 +32,20 @@ class TestDataOutputStream3 {
   lsbfFinfo.byteOrder = ByteOrder.LittleEndian
   lsbfFinfo.bitOrder = BitOrder.LeastSignificantBitFirst
 
-  def newDirectOrBufferedDataOutputStream(jos: java.io.OutputStream, creator: DirectOrBufferedDataOutputStream,
-    bo: BitOrder = BitOrder.MostSignificantBitFirst) = {
-    val os = DirectOrBufferedDataOutputStream(jos, creator, false, 4096, 2000 * (1 << 20), new File("."), Maybe.Nope)
+  def newDirectOrBufferedDataOutputStream(
+    jos: java.io.OutputStream,
+    creator: DirectOrBufferedDataOutputStream,
+    bo: BitOrder = BitOrder.MostSignificantBitFirst,
+  ) = {
+    val os = DirectOrBufferedDataOutputStream(
+      jos,
+      creator,
+      false,
+      4096,
+      2000 * (1 << 20),
+      new File("."),
+      Maybe.Nope,
+    )
     os.setPriorBitOrder(bo)
     os
   }
@@ -92,7 +105,7 @@ class TestDataOutputStream3 {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
-    out.putLong(0xA5, 7, lsbfFinfo)
+    out.putLong(0xa5, 7, lsbfFinfo)
 
     out.setFinished(lsbfFinfo)
 
@@ -108,13 +121,13 @@ class TestDataOutputStream3 {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
-    out.putLong(0xA5, 8, lsbfFinfo)
+    out.putLong(0xa5, 8, lsbfFinfo)
 
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    assertEquals(0xA5.toByte, buf(0))
+    assertEquals(0xa5.toByte, buf(0))
     if (buf.length > 1)
       assertEquals(0, buf(1))
 
@@ -124,13 +137,13 @@ class TestDataOutputStream3 {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
-    out.putLong(0xA5A5, 9, lsbfFinfo)
+    out.putLong(0xa5a5, 9, lsbfFinfo)
 
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    assertEquals(0xA5.toByte, buf(0))
+    assertEquals(0xa5.toByte, buf(0))
     assertEquals(0x01.toByte, buf(1))
     if (buf.length > 2)
       assertEquals(0, buf(2))
@@ -141,16 +154,16 @@ class TestDataOutputStream3 {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
-    out.putLong(0xA5A5A5A5A5A5A5A5L, 63, lsbfFinfo)
+    out.putLong(0xa5a5a5a5a5a5a5a5L, 63, lsbfFinfo)
 
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    val res = 0x25A5A5A5A5A5A5A5L
+    val res = 0x25a5a5a5a5a5a5a5L
     var i = 0
     while (i < 8) {
-      val expected = "%x".format(((res >> (8 * i)) & 0xFF).toByte)
+      val expected = "%x".format(((res >> (8 * i)) & 0xff).toByte)
       val actual = "%x".format(buf(i))
       assertEquals(expected, actual)
       i += 1
@@ -164,16 +177,16 @@ class TestDataOutputStream3 {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
     val out = newDirectOrBufferedDataOutputStream(baos, null)
 
-    out.putLong(0xA5A5A5A5A5A5A5A5L, 64, lsbfFinfo)
+    out.putLong(0xa5a5a5a5a5a5a5a5L, 64, lsbfFinfo)
 
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    val res = 0xA5A5A5A5A5A5A5A5L
+    val res = 0xa5a5a5a5a5a5a5a5L
     var i = 0
     while (i < 8) {
-      val expected = "%x".format(((res >> (8 * i)) & 0xFF).toByte)
+      val expected = "%x".format(((res >> (8 * i)) & 0xff).toByte)
       val actual = "%x".format(buf(i))
       assertEquals(expected, actual)
       i += 1
@@ -251,7 +264,7 @@ class TestDataOutputStream3 {
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
     val out = direct.addBuffered
 
-    out.putLong(0xA5, 7, lsbfFinfo)
+    out.putLong(0xa5, 7, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
@@ -269,14 +282,14 @@ class TestDataOutputStream3 {
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
     val out = direct.addBuffered
 
-    out.putLong(0xA5, 8, lsbfFinfo)
+    out.putLong(0xa5, 8, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    assertEquals(0xA5.toByte, buf(0))
+    assertEquals(0xa5.toByte, buf(0))
     if (buf.length > 1)
       assertEquals(0, buf(1))
 
@@ -287,14 +300,14 @@ class TestDataOutputStream3 {
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
     val out = direct.addBuffered
 
-    out.putLong(0xA5A5, 9, lsbfFinfo)
+    out.putLong(0xa5a5, 9, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    assertEquals(0xA5.toByte, buf(0))
+    assertEquals(0xa5.toByte, buf(0))
     assertEquals(0x01.toByte, buf(1))
     if (buf.length > 2)
       assertEquals(0, buf(2))
@@ -306,17 +319,17 @@ class TestDataOutputStream3 {
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
     val out = direct.addBuffered
 
-    out.putLong(0xA5A5A5A5A5A5A5A5L, 63, lsbfFinfo)
+    out.putLong(0xa5a5a5a5a5a5a5a5L, 63, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    val res = 0x25A5A5A5A5A5A5A5L
+    val res = 0x25a5a5a5a5a5a5a5L
     var i = 0
     while (i < 8) {
-      val expected = "%x".format(((res >> (8 * i)) & 0xFF).toByte)
+      val expected = "%x".format(((res >> (8 * i)) & 0xff).toByte)
       val actual = "%x".format(buf(i))
       assertEquals(expected, actual)
       i += 1
@@ -331,17 +344,17 @@ class TestDataOutputStream3 {
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
     val out = direct.addBuffered
 
-    out.putLong(0xA5A5A5A5A5A5A5A5L, 64, lsbfFinfo)
+    out.putLong(0xa5a5a5a5a5a5a5a5L, 64, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    val res = 0xA5A5A5A5A5A5A5A5L
+    val res = 0xa5a5a5a5a5a5a5a5L
     var i = 0
     while (i < 8) {
-      val expected = "%x".format(((res >> (8 * i)) & 0xFF).toByte)
+      val expected = "%x".format(((res >> (8 * i)) & 0xff).toByte)
       val actual = "%x".format(buf(i))
       assertEquals(expected, actual)
       i += 1
@@ -385,7 +398,8 @@ class TestDataOutputStream3 {
   @Test def testPutLongDirectAndBuffered1Bit_LE_LSBF(): Unit = {
 
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
-    val direct = newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
+    val direct =
+      newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
     val out = direct.addBuffered
 
     out.putLong(1, 1, lsbfFinfo)
@@ -404,7 +418,8 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered2Bit_LE_LSBF(): Unit = {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
-    val direct = newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
+    val direct =
+      newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
     val out = direct.addBuffered
 
     out.putLong(3, 2, lsbfFinfo)
@@ -415,7 +430,7 @@ class TestDataOutputStream3 {
 
     val buf = baos.getBuf()
 
-    assertEquals(0x0E.toByte, buf(0))
+    assertEquals(0x0e.toByte, buf(0))
     if (buf.length > 1)
       assertEquals(0, buf(1))
 
@@ -427,15 +442,15 @@ class TestDataOutputStream3 {
     direct.setPriorBitOrder(BitOrder.LeastSignificantBitFirst)
     val out = direct.addBuffered
 
-    out.putLong(0xA5, 7, lsbfFinfo)
-    direct.putLong(0xA5, 7, lsbfFinfo)
+    out.putLong(0xa5, 7, lsbfFinfo)
+    direct.putLong(0xa5, 7, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    assertEquals(0xA5.toByte, buf(0))
+    assertEquals(0xa5.toByte, buf(0))
     assertEquals(0x12.toByte, buf(1))
     if (buf.length > 2)
       assertEquals(0, buf(2))
@@ -447,16 +462,16 @@ class TestDataOutputStream3 {
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
     val out = direct.addBuffered
 
-    out.putLong(0xA5, 8, lsbfFinfo)
-    direct.putLong(0xA5, 8, lsbfFinfo)
+    out.putLong(0xa5, 8, lsbfFinfo)
+    direct.putLong(0xa5, 8, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    assertEquals(0xA5.toByte, buf(0))
-    assertEquals(0xA5.toByte, buf(1))
+    assertEquals(0xa5.toByte, buf(0))
+    assertEquals(0xa5.toByte, buf(1))
     if (buf.length > 2)
       assertEquals(0, buf(2))
 
@@ -464,19 +479,20 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered9Bit_LE_LSBF(): Unit = {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
-    val direct = newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
+    val direct =
+      newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
     val out = direct.addBuffered
 
-    out.putLong(0xDEAD, 9, lsbfFinfo)
-    direct.putLong(0xBEEF, 9, lsbfFinfo)
+    out.putLong(0xdead, 9, lsbfFinfo)
+    direct.putLong(0xbeef, 9, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    assertEquals(0xEF.toByte, buf(0))
-    assertEquals(0x5A.toByte, buf(1))
+    assertEquals(0xef.toByte, buf(0))
+    assertEquals(0x5a.toByte, buf(1))
     assertEquals(0x01.toByte, buf(2))
     if (buf.length > 3)
       assertEquals(0, buf(3))
@@ -485,10 +501,11 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered63BitPlus1Bit_LE_LSBF(): Unit = {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
-    val direct = newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
+    val direct =
+      newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
     val out = direct.addBuffered
 
-    out.putLong(0xA5A5A5A5A5A5A5A5L, 63, lsbfFinfo)
+    out.putLong(0xa5a5a5a5a5a5a5a5L, 63, lsbfFinfo)
     direct.putLong(1, 1, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
@@ -496,10 +513,10 @@ class TestDataOutputStream3 {
 
     val buf = baos.getBuf()
 
-    val res = (0xA5A5A5A5A5A5A5A5L << 1) + 1
+    val res = (0xa5a5a5a5a5a5a5a5L << 1) + 1
     var i = 0
     while (i < 8) {
-      val expected = "%x".format(((res >> (8 * i)) & 0xFF).toByte)
+      val expected = "%x".format(((res >> (8 * i)) & 0xff).toByte)
       val actual = "%x".format(buf(i))
       assertEquals(expected, actual)
       i += 1
@@ -511,29 +528,30 @@ class TestDataOutputStream3 {
 
   @Test def testPutLongDirectAndBuffered63BitPlus63Bit_LE_LSBF(): Unit = {
     val baos = new ByteArrayOrFileOutputStream(2000 * (1 << 20), new File("."), Maybe.Nope)
-    val direct = newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
+    val direct =
+      newDirectOrBufferedDataOutputStream(baos, null, BitOrder.LeastSignificantBitFirst)
     val out = direct.addBuffered
 
-    out.putLong(0xA5A5A5A5A5A5A5A5L, 63, lsbfFinfo)
-    direct.putLong(0xA5A5A5A5A5A5A5A5L, 63, lsbfFinfo)
+    out.putLong(0xa5a5a5a5a5a5a5a5L, 63, lsbfFinfo)
+    direct.putLong(0xa5a5a5a5a5a5a5a5L, 63, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    val res1 = 0xA5A5A5A5A5A5A5A5L
+    val res1 = 0xa5a5a5a5a5a5a5a5L
     var i = 0
     while (i < 8) {
-      val expected = "%x".format(((res1 >> (8 * i)) & 0xFF).toByte)
+      val expected = "%x".format(((res1 >> (8 * i)) & 0xff).toByte)
       val actual = "%x".format(buf(i))
       assertEquals(expected, actual)
       i += 1
     }
-    val res2 = 0x25A5A5A5A5A5A5A5L >>> 1
+    val res2 = 0x25a5a5a5a5a5a5a5L >>> 1
     i = 0
     while (i < 8) {
-      val expected = "%x".format(((res2 >> (8 * i)) & 0xFF).toByte)
+      val expected = "%x".format(((res2 >> (8 * i)) & 0xff).toByte)
       val actual = "%x".format(buf(i + 8))
       assertEquals(expected, actual)
       i += 1
@@ -549,26 +567,26 @@ class TestDataOutputStream3 {
     val direct = newDirectOrBufferedDataOutputStream(baos, null)
     val out = direct.addBuffered
 
-    out.putLong(0xA5A5A5A5A5A5A5A5L, 64, lsbfFinfo)
-    direct.putLong(0xA5A5A5A5A5A5A5A5L, 64, lsbfFinfo)
+    out.putLong(0xa5a5a5a5a5a5a5a5L, 64, lsbfFinfo)
+    direct.putLong(0xa5a5a5a5a5a5a5a5L, 64, lsbfFinfo)
 
     direct.setFinished(lsbfFinfo)
     out.setFinished(lsbfFinfo)
 
     val buf = baos.getBuf()
 
-    val res1 = 0xA5A5A5A5A5A5A5A5L
+    val res1 = 0xa5a5a5a5a5a5a5a5L
     var i = 0
     while (i < 8) {
-      val expected = "%x".format(((res1 >> (8 * i)) & 0xFF).toByte)
+      val expected = "%x".format(((res1 >> (8 * i)) & 0xff).toByte)
       val actual = "%x".format(buf(i))
       assertEquals(expected, actual)
       i += 1
     }
-    val res2 = 0xA5A5A5A5A5A5A5A5L
+    val res2 = 0xa5a5a5a5a5a5a5a5L
     i = 0
     while (i < 8) {
-      val expected = "%x".format(((res2 >> (8 * i)) & 0xFF).toByte)
+      val expected = "%x".format(((res2 >> (8 * i)) & 0xff).toByte)
       val actual = "%x".format(buf(i + 8))
       assertEquals(expected, actual)
       i += 1

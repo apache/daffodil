@@ -23,7 +23,7 @@ class TestDFDLReaders {
 
   //  @Test
   //  def test1() {
-  //    val r : Reader[Char] = dr.drop(3)   
+  //    val r : Reader[Char] = dr.drop(3)
   //  }
 
 }

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.unparser
 
-import org.junit.Test
-import org.junit.AfterClass
 import org.apache.daffodil.tdml.Runner
+
+import org.junit.AfterClass
+import org.junit.Test
 
 object TestEnvelopePayload {
   val runner = Runner("/org/apache/daffodil/unparser/", "envelopePayload.tdml")

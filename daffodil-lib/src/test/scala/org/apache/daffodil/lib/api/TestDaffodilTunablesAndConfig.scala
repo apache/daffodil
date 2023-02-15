@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.lib.api
 
-import org.junit.Test
 import org.apache.daffodil.lib.util.Misc
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class TestDaffodilTunablesAndConfig {
 

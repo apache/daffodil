@@ -31,8 +31,8 @@ package org.apache.daffodil.lib.util
 
 class IteratorFromCursor[ItemType <: HasCpy[ItemType], AccessorType <: Accessor[AccessorType]](
   cursor: Cursor[AccessorType],
-  converter: AccessorType => ItemType)
-  extends IteratorWithPeek[ItemType] {
+  converter: AccessorType => ItemType,
+) extends IteratorWithPeek[ItemType] {
 
   override def hasNext = cursor.inspect
   override def next() = converter(cursor.advanceMaybe.get).cpy()

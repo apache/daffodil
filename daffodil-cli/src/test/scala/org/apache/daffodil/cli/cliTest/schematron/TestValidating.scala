@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.cliTest.schematron
 
-import org.junit.Test
-
-import org.apache.daffodil.cli.cliTest.Util._
 import org.apache.daffodil.cli.Main.ExitCode
+import org.apache.daffodil.cli.cliTest.Util._
+
+import org.junit.Test
 
 class TestValidating {
 
@@ -31,7 +31,7 @@ class TestValidating {
 
     runCLI(args"parse -s $schema $input") { cli =>
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 
   // always fails sch, with validate flag should fail
@@ -40,10 +40,12 @@ class TestValidating {
     val schematron = path("daffodil-schematron/src/test/resources/sch/always-fails.sch")
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schematron.toString)}" -s $schema $input""") { cli =>
+    runCLI(args"""parse --validate schematron="${jsonEscape(
+        schematron.toString,
+      )}" -s $schema $input""") { cli =>
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
       cli.expectErr("[error] Validation Error: never fails")
-    } (ExitCode.ParseError)
+    }(ExitCode.ParseError)
   }
 
   // never fails sch, with validate flag should pass
@@ -52,8 +54,10 @@ class TestValidating {
     val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
 
-    runCLI(args"""parse --validate schematron="${jsonEscape(schematron.toString)}" -s $schema $input""") { cli =>
+    runCLI(args"""parse --validate schematron="${jsonEscape(
+        schematron.toString,
+      )}" -s $schema $input""") { cli =>
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
-    } (ExitCode.Success)
+    }(ExitCode.Success)
   }
 }

@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section12.lengthKind
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestLengthKindImplicit {
   val testDir = "/org/apache/daffodil/section12/lengthKind/"

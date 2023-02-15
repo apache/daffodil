@@ -19,7 +19,11 @@ package org.apache.daffodil.core.dsom.walker
 
 import scala.collection.mutable.ArrayBuffer
 
-class BasicWalker(ignoreTypeWrappers: Boolean = false, onlyElements: Boolean = false, ignoreEndEvents: Boolean = true) extends AbstractDSOMWalker {
+class BasicWalker(
+  ignoreTypeWrappers: Boolean = false,
+  onlyElements: Boolean = false,
+  ignoreEndEvents: Boolean = true,
+) extends AbstractDSOMWalker {
 
   var nodeArr: ArrayBuffer[AnyRef] = ArrayBuffer()
 
@@ -33,13 +37,16 @@ class BasicWalker(ignoreTypeWrappers: Boolean = false, onlyElements: Boolean = f
 
   override protected def onWalkBegin(root: RootView): Unit = addViewElement(root)
 
-  override protected def onWalkEnd(root: RootView): Unit = if (!ignoreEndEvents) addViewElement(root)
+  override protected def onWalkEnd(root: RootView): Unit =
+    if (!ignoreEndEvents) addViewElement(root)
 
   override def onTermBegin(termElement: TermView): Unit = addViewElement(termElement)
 
-  override def onTermEnd(termElement: TermView): Unit = if (!ignoreEndEvents) addViewElement(termElement)
+  override def onTermEnd(termElement: TermView): Unit =
+    if (!ignoreEndEvents) addViewElement(termElement)
 
   override def onTypeBegin(typeElement: TypeView): Unit = addViewElement(typeElement)
 
-  override def onTypeEnd(typeElement: TypeView): Unit = if (!ignoreEndEvents) addViewElement(typeElement)
+  override def onTypeEnd(typeElement: TypeView): Unit =
+    if (!ignoreEndEvents) addViewElement(typeElement)
 }

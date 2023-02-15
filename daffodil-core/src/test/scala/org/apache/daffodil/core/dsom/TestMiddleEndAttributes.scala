@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.core.dsom
 
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.junit.Assert._
 import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.junit.Assert._
 import org.junit.Test
 
 class TestMiddleEndAttributes {
@@ -39,7 +40,8 @@ class TestMiddleEndAttributes {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -65,7 +67,8 @@ class TestMiddleEndAttributes {
             <xs:element name="s2" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -94,7 +97,8 @@ class TestMiddleEndAttributes {
             <xs:element name="s5" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -126,7 +130,8 @@ class TestMiddleEndAttributes {
             </xs:choice>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -152,9 +157,7 @@ class TestMiddleEndAttributes {
   @Test def testNearestEnclosingSequenceElementRef(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-
       <dfdl:format ref="tns:GeneralFormat" representation="text" occursCountKind="parsed" lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" separator="" ignoreCase="no" initiatedContent="no"/>,
-
       <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
       <xs:element name="e2" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -162,7 +165,8 @@ class TestMiddleEndAttributes {
             <xs:element ref="e1"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -183,7 +187,6 @@ class TestMiddleEndAttributes {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
-
       <xs:element name="doc">
         <xs:complexType>
           <xs:sequence dfdl:sequenceKind="ordered">
@@ -203,7 +206,8 @@ class TestMiddleEndAttributes {
             <xs:element name="f" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas

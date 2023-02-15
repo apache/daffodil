@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section14.sequence_groups
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestSequenceGroupInitiatedContent {
   val testDir_01 = "/org/apache/daffodil/section14/sequence_groups/"
@@ -41,11 +42,23 @@ class TestSequenceGroupInitiatedContent {
   @Test def test_3(): Unit = { runner_01.runOneTest("initiatedContentSeq3") }
 
   // Tests for DAFFODIL-2143
-  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything1(): Unit = { runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything1") }
-  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything2(): Unit = { runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything2") }
-  @Test def test_sequenceFixedOccursChildDoesNotDiscriminateAnything1(): Unit = { runner_01.runOneTest("sequenceFixedOccursChildDoesNotDiscriminateAnything1") }
-  @Test def test_sequenceExpressionOccursChildDoesNotDiscriminateAnything1(): Unit = { runner_01.runOneTest("sequenceExpressionOccursChildDoesNotDiscriminateAnything1") }
-  @Test def test_sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1(): Unit = { runner_01.runOneTest("sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1") }
-  @Test def test_sequenceImplicitOccursZeroOrMoreDiscriminates1(): Unit = { runner_01.runOneTest("sequenceImplicitOccursZeroOrMoreDiscriminates1") }
+  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything1(): Unit = {
+    runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything1")
+  }
+  @Test def test_sequenceScalarChildDoesNotDiscriminateAnything2(): Unit = {
+    runner_01.runOneTest("sequenceScalarChildDoesNotDiscriminateAnything2")
+  }
+  @Test def test_sequenceFixedOccursChildDoesNotDiscriminateAnything1(): Unit = {
+    runner_01.runOneTest("sequenceFixedOccursChildDoesNotDiscriminateAnything1")
+  }
+  @Test def test_sequenceExpressionOccursChildDoesNotDiscriminateAnything1(): Unit = {
+    runner_01.runOneTest("sequenceExpressionOccursChildDoesNotDiscriminateAnything1")
+  }
+  @Test def test_sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1(): Unit = {
+    runner_01.runOneTest("sequenceImplicitOccursLessThanMinOccursDoesNotDiscriminateAnything1")
+  }
+  @Test def test_sequenceImplicitOccursZeroOrMoreDiscriminates1(): Unit = {
+    runner_01.runOneTest("sequenceImplicitOccursZeroOrMoreDiscriminates1")
+  }
 
 }

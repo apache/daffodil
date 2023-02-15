@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section05.simple_types
 
-import org.junit._
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit._
 
 object TestBlobs {
 

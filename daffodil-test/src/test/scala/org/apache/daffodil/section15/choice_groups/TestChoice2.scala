@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section15.choice_groups
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestChoice2 {
   val testDir = "/org/apache/daffodil/section15/choice_groups/"
@@ -46,14 +47,20 @@ class TestChoice2 {
   @Test def test_backtrack4(): Unit = { runner.runOneTest("backtrack4") }
 
   // DFDL-1773
-  @Test def test_choiceSlotAmbiguous1(): Unit = { runner1773.runOneTest("choiceSlotAmbiguous1") }
-  @Test def test_choiceSlotAmbiguous2(): Unit = { runner1773.runOneTest("choiceSlotAmbiguous2") }
+  @Test def test_choiceSlotAmbiguous1(): Unit = {
+    runner1773.runOneTest("choiceSlotAmbiguous1")
+  }
+  @Test def test_choiceSlotAmbiguous2(): Unit = {
+    runner1773.runOneTest("choiceSlotAmbiguous2")
+  }
 
   // DAFFODIL-1773
   @Test def test_queryStyle1(): Unit = { runner1773.runOneTest("queryStyle1") }
   @Test def test_queryStyle2(): Unit = { runner1773.runOneTest("queryStyle2") }
 
   // DAFFODIL-2162
-  @Test def test_choiceArrayDirectDispatch1(): Unit = { runner2162.runOneTest("choiceArrayDirectDispatch1") }
+  @Test def test_choiceArrayDirectDispatch1(): Unit = {
+    runner2162.runOneTest("choiceArrayDirectDispatch1")
+  }
 
 }

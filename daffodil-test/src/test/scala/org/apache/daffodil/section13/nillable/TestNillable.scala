@@ -17,9 +17,10 @@
 
 package org.apache.daffodil.section13.nillable
 
-import org.junit.Test
 import org.apache.daffodil.tdml.Runner
+
 import org.junit.AfterClass
+import org.junit.Test
 
 object TestNillable {
   val testDir = "/org/apache/daffodil/section13/nillable/"
@@ -57,7 +58,9 @@ class TestNillable {
   @Test def test_nillable1(): Unit = { runnerAA.runOneTest("nillable1") }
   @Test def test_edifact1a(): Unit = { runnerAA.runOneTest("edifact1a") }
 
-  @Test def test_text_nil_characterClass_04_parse(): Unit = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }
+  @Test def test_text_nil_characterClass_04_parse(): Unit = {
+    runnerLN.runOneTest("text_nil_characterClass_04_parse")
+  }
 
   @Test def test_text_03(): Unit = { runnerLN.runOneTest("text_03") }
   @Test def test_text_03ic(): Unit = { runnerLN.runOneTest("text_03ic") }

@@ -17,11 +17,12 @@
 
 package org.apache.daffodil.lib.util
 
-import org.junit.Assert._
-import java.io.ByteArrayOutputStream
-import java.io.ObjectOutputStream
 import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+
+import org.junit.Assert._
 import org.junit.Test
 
 class ToSerialize extends Serializable {

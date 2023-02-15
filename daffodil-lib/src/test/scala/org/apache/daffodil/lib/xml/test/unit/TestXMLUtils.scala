@@ -22,12 +22,14 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardOpenOption
 import scala.xml._
-import org.junit.Assert._
-import org.junit.Test
+
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.JDOMUtils
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
+
+import org.junit.Assert._
+import org.junit.Test
 
 class TestXMLUtils {
 
@@ -76,8 +78,8 @@ class TestXMLUtils {
   }
 
   @Test def testNilDiff1(): Unit = {
-    val d1 = <a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true" foo="bar"/>
-    val d2 = <a dafint:col="30" xmlns:dafint={ XMLUtils.INT_NS }/>
+    val d1 = <a xmlns:xsi={XMLUtils.XSI_NAMESPACE} xsi:nil="true" foo="bar"/>
+    val d2 = <a dafint:col="30" xmlns:dafint={XMLUtils.INT_NS}/>
     val diffs = XMLUtils.computeDiff(d1, d2)
     val Seq((path, d1attribs, d2attribs)) = diffs
     assertEquals("/a@xsi:nil", path)
@@ -109,17 +111,17 @@ class TestXMLUtils {
     assertEquals("xmlns:ns1=\"someprefixB\"", b)
   }
 
-
   @Test def testIsNil(): Unit = {
-    val d1 = JDOMUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true"/>)
-    val d2 = JDOMUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>foo</a>)
+    val d1 = JDOMUtils.elem2Element(<a xmlns:xsi={XMLUtils.XSI_NAMESPACE} xsi:nil="true"/>)
+    val d2 = JDOMUtils.elem2Element(<a xmlns:xsi={XMLUtils.XSI_NAMESPACE}>foo</a>)
     assertTrue(JDOMUtils.isNil(d1))
     assertFalse(JDOMUtils.isNil(d2))
   }
 
   @Test def testWalkUnicodeString1(): Unit = {
     val s = "abc"
-    val Seq((ab, 'a', 'b'), ('a', 'b', 'c'), ('b', 'c', ca)) = XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n))
+    val Seq((ab, 'a', 'b'), ('a', 'b', 'c'), ('b', 'c', ca)) =
+      XMLUtils.walkUnicodeString(s)((p, c, n) => (p, c, n))
     assertEquals(0.toChar, ab)
     assertEquals(0.toChar, ca)
   }
@@ -132,7 +134,9 @@ class TestXMLUtils {
   }
 
   @Test def testRemoveAttributes1(): Unit = {
-    val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={ XMLUtils.INT_NS } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>
+    val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={
+      XMLUtils.INT_NS
+    } xmlns:xsi={XMLUtils.XSI_NAMESPACE}>
                 <test2:foo dafint:qaz="qaz" dafint:line="300" xsi:nil="true"/>
               </test:bar>
     val res = XMLUtils.removeAttributes(xml)
@@ -140,11 +144,18 @@ class TestXMLUtils {
   }
 
   @Test def testRemoveAttributes2(): Unit = {
-    val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={ XMLUtils.INT_NS } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>
+    val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={
+      XMLUtils.INT_NS
+    } xmlns:xsi={XMLUtils.XSI_NAMESPACE}>
                 <test2:foo dafint:qaz="qaz" test:raz="raz" xsi:nil="true"/>
               </test:bar>
     val res = XMLUtils.removeAttributes(xml, Seq(NS("http://test2/"), XMLUtils.INT_NS))
-    assertEquals(<test:bar xmlns:test="http://test/" xmlns:xsi={ XMLUtils.XSI_NAMESPACE }><foo test:raz="raz" xsi:nil="true"/></test:bar>, Utility.trim(res))
+    assertEquals(
+      <test:bar xmlns:test="http://test/" xmlns:xsi={
+        XMLUtils.XSI_NAMESPACE
+      }><foo test:raz="raz" xsi:nil="true"/></test:bar>,
+      Utility.trim(res),
+    )
   }
 
   @Test def testRemoveAttributes3(): Unit = {
@@ -174,11 +185,11 @@ class TestXMLUtils {
 
     assertEquals("abc", res(0).toString)
     assertEquals("<![CDATA[&&&]]>", res(1).toString)
-    assertEquals("def" + 0xE000.toChar + "ghi", res(2).toString)
+    assertEquals("def" + 0xe000.toChar + "ghi", res(2).toString)
 
     assertEquals("abc", res(0).text)
     assertEquals("&&&", res(1).text)
-    assertEquals("def" + 0xE000.toChar + "ghi", res(2).text)
+    assertEquals("def" + 0xe000.toChar + "ghi", res(2).text)
   }
 
   @Test def testConstructingParserCoalesceText(): Unit = {
@@ -194,16 +205,15 @@ class TestXMLUtils {
     // Other ways of loading XML all treat whitespace as
     // somewhat fungible.
     //
-    val parser = ConstructingParser.fromSource(
-      scala.io.Source.fromString(xmlRaw), true)
+    val parser = ConstructingParser.fromSource(scala.io.Source.fromString(xmlRaw), true)
     val xml = parser.document.docElem
     assertEquals(5, xml.child.length)
     assertFalse(xml.child.forall { _.isInstanceOf[Text] })
     assertTrue(xml.child(1).isInstanceOf[PCData])
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
     assertEquals(3, res.length)
-    assertEquals("abc<![CDATA[&&&]]>def" + 0xE000.toChar + "ghi", res.mkString)
-    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res.text)
+    assertEquals("abc<![CDATA[&&&]]>def" + 0xe000.toChar + "ghi", res.mkString)
+    assertEquals("abc&&&def" + 0xe000.toChar + "ghi", res.text)
   }
 
   @Test def testStandardLoaderCoalesceText(): Unit = {
@@ -219,20 +229,19 @@ class TestXMLUtils {
     assertEquals(3, xml.child.length)
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
     assertEquals(3, res.length)
-    assertEquals("abc<![CDATA[&&&]]>def" + 0xE000.toChar + "ghi", res.mkString)
-    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res.text)
+    assertEquals("abc<![CDATA[&&&]]>def" + 0xe000.toChar + "ghi", res.mkString)
+    assertEquals("abc&&&def" + 0xe000.toChar + "ghi", res.text)
   }
 
   @Test def testOnePCData(): Unit = {
     val xmlRaw = """<foo><![CDATA[&&&]]></foo>"""
     import scala.xml.parsing.ConstructingParser
     //
-    //see testConstructingParserCoalesceText
-    //for a relevant comment about this use of the
-    //Constructing parser.
+    // see testConstructingParserCoalesceText
+    // for a relevant comment about this use of the
+    // Constructing parser.
     //
-    val parser = ConstructingParser.fromSource(
-      scala.io.Source.fromString(xmlRaw), true)
+    val parser = ConstructingParser.fromSource(scala.io.Source.fromString(xmlRaw), true)
     val xml = parser.document.docElem
     assertEquals(1, xml.child.length)
     assertTrue(xml.child(0).isInstanceOf[PCData])
@@ -252,27 +261,29 @@ class TestXMLUtils {
   @Test def testEscape0To127(): Unit = {
     val input = (0 to 127).map { _.toChar }.mkString
     val actual = XMLUtils.escape(input).toString()
-    val expected = "&#xE000;&#xE001;&#xE002;&#xE003;&#xE004;&#xE005;&#xE006;&#xE007;&#xE008;" + // first batch of C0 controls
-      "&#x9;&#xA;" + // Tab and LF
-      "&#xE00B;&#xE00C;" + // more C0 controls
-      "&#xE00D;" + // CR
-      // Even more of the C0 controls.
-      "&#xE00E;&#xE00F;&#xE010;&#xE011;&#xE012;&#xE013;&#xE014;&#xE015;&#xE016;&#xE017;&#xE018;&#xE019;&#xE01A;&#xE01B;&#xE01C;&#xE01D;&#xE01E;&#xE01F;" +
-      "&#x20;" + // space is whitespace comes through numeric.
-      "!&quot;#$%&amp;" + // XML Entities for quot, amp
-      "&#x27;" + // numeric entity for apos aka single quote (because &apos; is not universal, i.e., not in HTML
-      "()*+,-./0123456789:;&lt;=&gt" + // XML entities for lt, gt
-      ";?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[" + // all printing characters
-      "\\" + // backslash char needs escape. This is ONE character
-      "]^_`abcdefghijklmnopqrstuvwxyz{|}~" + // all printing characters
-      "&#x7F;" // DEL is a control char, so numeric entity for that too.
+    val expected =
+      "&#xE000;&#xE001;&#xE002;&#xE003;&#xE004;&#xE005;&#xE006;&#xE007;&#xE008;" + // first batch of C0 controls
+        "&#x9;&#xA;" + // Tab and LF
+        "&#xE00B;&#xE00C;" + // more C0 controls
+        "&#xE00D;" + // CR
+        // Even more of the C0 controls.
+        "&#xE00E;&#xE00F;&#xE010;&#xE011;&#xE012;&#xE013;&#xE014;&#xE015;&#xE016;&#xE017;&#xE018;&#xE019;&#xE01A;&#xE01B;&#xE01C;&#xE01D;&#xE01E;&#xE01F;" +
+        "&#x20;" + // space is whitespace comes through numeric.
+        "!&quot;#$%&amp;" + // XML Entities for quot, amp
+        "&#x27;" + // numeric entity for apos aka single quote (because &apos; is not universal, i.e., not in HTML
+        "()*+,-./0123456789:;&lt;=&gt" + // XML entities for lt, gt
+        ";?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[" + // all printing characters
+        "\\" + // backslash char needs escape. This is ONE character
+        "]^_`abcdefghijklmnopqrstuvwxyz{|}~" + // all printing characters
+        "&#x7F;" // DEL is a control char, so numeric entity for that too.
     assertEquals(expected, actual)
   }
 
   @Test def testEscape128To255(): Unit = {
     val input = (128 to 255).map { _.toChar }.mkString
     val actual = XMLUtils.escape(input).toString()
-    val expected = "&#x80;&#x81;&#x82;&#x83;&#x84;&#x85;&#x86;&#x87;&#x88;&#x89;&#x8A;&#x8B;&#x8C;&#x8D;&#x8E;&#x8F;&#x90;&#x91;&#x92;&#x93;&#x94;&#x95;&#x96;&#x97;&#x98;&#x99;&#x9A;&#x9B;&#x9C;&#x9D;&#x9E;&#x9F;&#xA0;¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
+    val expected =
+      "&#x80;&#x81;&#x82;&#x83;&#x84;&#x85;&#x86;&#x87;&#x88;&#x89;&#x8A;&#x8B;&#x8C;&#x8D;&#x8E;&#x8F;&#x90;&#x91;&#x92;&#x93;&#x94;&#x95;&#x96;&#x97;&#x98;&#x99;&#x9A;&#x9B;&#x9C;&#x9D;&#x9E;&#x9F;&#xA0;¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
     assertEquals(expected, actual)
   }
 

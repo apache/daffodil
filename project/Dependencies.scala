@@ -40,7 +40,7 @@ object Dependencies {
   lazy val infoset = Seq(
     "org.jdom" % "jdom2" % "2.0.6.1",
     "com.fasterxml.woodstox" % "woodstox-core" % "6.5.0",
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.14.2"
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.14.2",
   )
 
   lazy val cli = Seq(
@@ -53,7 +53,7 @@ object Dependencies {
   lazy val test = Seq(
     "junit" % "junit" % "4.13.2" % "it,test",
     "com.github.sbt" % "junit-interface" % "0.13.3" % "it,test",
-    "org.scalacheck" %% "scalacheck" % "1.17.0" % "it,test"
+    "org.scalacheck" %% "scalacheck" % "1.17.0" % "it,test",
   )
 
   lazy val schematron = Seq(

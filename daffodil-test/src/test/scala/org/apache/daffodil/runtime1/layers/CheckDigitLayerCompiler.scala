@@ -17,13 +17,12 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
-final class CheckDigitLayerCompiler
-extends LayerCompiler("checkDigit") {
+final class CheckDigitLayerCompiler extends LayerCompiler("checkDigit") {
 
   val variablesNamespace = "urn:org.apache.daffodil.layers.checkDigit"
   val variablesPreferredNamespacePrefix = "cd"
@@ -37,40 +36,57 @@ extends LayerCompiler("checkDigit") {
         variablesPreferredNamespacePrefix,
         variablesNamespace,
         localNameOfVariableToWrite,
-        outputVariableType)
+        outputVariableType,
+      )
 
-    val inputVRDs = localNamesAndTypesOfVariablesToRead.map {
-      case (local, primType) =>
-        layerCompileInfo.getVariableRuntimeData(variablesPreferredNamespacePrefix, variablesNamespace, local, primType)
+    val inputVRDs = localNamesAndTypesOfVariablesToRead.map { case (local, primType) =>
+      layerCompileInfo.getVariableRuntimeData(
+        variablesPreferredNamespacePrefix,
+        variablesNamespace,
+        local,
+        primType,
+      )
     }
     layerCompileInfo.optLayerLengthKind match {
       case Some(LayerLengthKind.Explicit) => // ok
-      case None => layerCompileInfo.SDE("The property dfdlx:layerLengthKind must be defined and have value 'explicit'.")
-      case Some(other) => layerCompileInfo.SDE("The property dfdlx:layerLengthKind must be 'explicit' but was '$other'.")
+      case None =>
+        layerCompileInfo.SDE(
+          "The property dfdlx:layerLengthKind must be defined and have value 'explicit'.",
+        )
+      case Some(other) =>
+        layerCompileInfo.SDE(
+          "The property dfdlx:layerLengthKind must be 'explicit' but was '$other'.",
+        )
     }
     layerCompileInfo.SDEUnless(
       layerCompileInfo.optLayerLengthOptConstantValue.isDefined,
-      "The property dfdlx:layerLength must be defined.")
+      "The property dfdlx:layerLength must be defined.",
+    )
     layerCompileInfo.optLayerLengthUnits match {
       case Some(LayerLengthUnits.Bytes) => // ok
       case None => // ok
-      case Some(other) => layerCompileInfo.SDE("The property dfdlx:layerLengthKind must be 'bytes' but was '$other'.")
+      case Some(other) =>
+        layerCompileInfo.SDE(
+          "The property dfdlx:layerLengthKind must be 'bytes' but was '$other'.",
+        )
     }
     layerCompileInfo.SDEUnless(
       layerCompileInfo.optLayerJavaCharsetOptConstantValue.isDefined,
-      "The property dfdlx:layerEncoding must be defined.")
+      "The property dfdlx:layerEncoding must be defined.",
+    )
 
     new CheckDigitLayerTransformerFactory(name, inputVRDs, outputVar)
   }
 }
 
-class CheckDigitLayerTransformerFactory(name: String, inputVars: Seq[VariableRuntimeData], outputVar: VariableRuntimeData)
-  extends LayerTransformerFactory("checkDigit") {
+class CheckDigitLayerTransformerFactory(
+  name: String,
+  inputVars: Seq[VariableRuntimeData],
+  outputVar: VariableRuntimeData,
+) extends LayerTransformerFactory("checkDigit") {
 
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo)= {
+  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo) = {
     val xformer = new CheckDigitExplicit(name, layerRuntimeInfo, outputVar, inputVars)
     xformer
   }
 }
-
-

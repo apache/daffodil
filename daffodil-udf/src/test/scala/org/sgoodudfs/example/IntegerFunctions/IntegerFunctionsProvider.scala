@@ -17,17 +17,16 @@
 package org.sgoodudfs.example.IntegerFunctions
 
 import org.apache.daffodil.udf.UserDefinedFunction
-import org.apache.daffodil.udf.UserDefinedFunctionProvider
 import org.apache.daffodil.udf.UserDefinedFunctionIdentification
+import org.apache.daffodil.udf.UserDefinedFunctionProvider
 
 /**
  * Example User Defined Function Provider in Scala
  *
  */
 class IntegerFunctionsProvider extends UserDefinedFunctionProvider {
-  override def getUserDefinedFunctionClasses=
-  {
-      Array(classOf[BoxedAddition], classOf[PrimitivesAddition])
+  override def getUserDefinedFunctionClasses = {
+    Array(classOf[BoxedAddition], classOf[PrimitivesAddition])
   }
 }
 
@@ -36,35 +35,39 @@ class IntegerFunctionsProvider extends UserDefinedFunctionProvider {
  *
  */
 @UserDefinedFunctionIdentification(
-    name = "addBoxed",
-    namespaceURI = "http://example.com/scala/iudfs")
+  name = "addBoxed",
+  namespaceURI = "http://example.com/scala/iudfs",
+)
 class BoxedAddition extends UserDefinedFunction {
+
   /**
    * Adds 2 Boxed Integers
    *
    * @return sum
    */
   def evaluate(num1: Integer, num2: Integer) = {
-      val ret = num1 + num2
-      ret
+    val ret = num1 + num2
+    ret
   }
 }
 
-  /**
+/**
    * Example User Defined Function in Scala
    *
    */
-  @UserDefinedFunctionIdentification(
-      name = "addPrimitive",
-      namespaceURI = "http://example.com/scala/iudfs")
-  class PrimitivesAddition extends UserDefinedFunction {
+@UserDefinedFunctionIdentification(
+  name = "addPrimitive",
+  namespaceURI = "http://example.com/scala/iudfs",
+)
+class PrimitivesAddition extends UserDefinedFunction {
+
   /**
    * Adds 2 primitive Ints
    *
    * @return sum
    */
   def evaluate(num1: Int, num2: Int) = {
-      val ret = num1 + num2
-      ret
+    val ret = num1 + num2
+    ret
   }
 }

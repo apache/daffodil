@@ -17,8 +17,9 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.math.{BigInteger => JBigInt}
+import java.math.{ BigInteger => JBigInt }
 import java.nio.ByteBuffer
+
 import org.apache.daffodil.io.DataInputStream
 import org.apache.daffodil.io.FakeFormatInfo
 import org.apache.daffodil.io.FormatInfo
@@ -26,9 +27,10 @@ import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.util.Misc
+
 import org.junit.After
-import org.junit.Test
 import org.junit.Assert.assertEquals
+import org.junit.Test
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 
@@ -177,15 +179,23 @@ class TestBinaryInput_01 {
   def testBufferBigIntBigEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Thirty-two character long string", BE, msbFirst)
     val bigInt = getBigInt(finfo, dis, 0, 256)
-    assertEquals(new JBigInt("38178759144797737047702418052138682097409903778432721523410841200294898527847"),
-      bigInt)
+    assertEquals(
+      new JBigInt(
+        "38178759144797737047702418052138682097409903778432721523410841200294898527847",
+      ),
+      bigInt,
+    )
   }
 
   @Test
   def testBufferBigIntLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("Thirty-two character long string", LE, msbFirst)
-    assertEquals(new JBigInt("46783304350265979503919546124020768339208030665592297039403372142674722777172"),
-      getBigInt(finfo, dis, 0, 256))
+    assertEquals(
+      new JBigInt(
+        "46783304350265979503919546124020768339208030665592297039403372142674722777172",
+      ),
+      getBigInt(finfo, dis, 0, 256),
+    )
   }
 
   // Aligned but not full string
@@ -225,7 +235,7 @@ class TestBinaryInput_01 {
   @Test
   def testBufferBitByteLittleEndianExtraction(): Unit = {
     val (dis, finfo) = fromString("3>", LE, msbFirst)
-    assertEquals(0xCC, getLong(finfo, dis, 2, 8))
+    assertEquals(0xcc, getLong(finfo, dis, 2, 8))
   }
 
   // Non-Aligned multi-byte
@@ -276,9 +286,9 @@ class TestBinaryInput_01 {
   }
 
   @Test def testOneBit3LSBFirst(): Unit = {
-    val (dis, finfo) = fromBytes(JBigInt.valueOf(0xE4567A).toByteArray, LE, lsbFirst)
+    val (dis, finfo) = fromBytes(JBigInt.valueOf(0xe4567a).toByteArray, LE, lsbFirst)
 
     val bit1 = getLong(finfo, dis, 13, 12)
-    assertEquals(0x2B7, bit1)
+    assertEquals(0x2b7, bit1)
   }
 }

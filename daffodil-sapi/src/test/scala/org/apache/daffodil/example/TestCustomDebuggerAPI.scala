@@ -17,13 +17,14 @@
 
 package org.apache.daffodil.example
 
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.parsers.Parser
 import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.infoset.NullInfosetOutputter
 import org.apache.daffodil.sapi.io.InputSourceDataInputStream
-import org.apache.daffodil.lib.util.Misc
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -46,7 +47,8 @@ class TestCustomDebuggerAPI {
 
     val schemaFile = Misc.getRequiredResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileSource(schemaFile)
-    val dp = pf.onPath("/")
+    val dp = pf
+      .onPath("/")
       .withDebugger(dbg)
       .withDebugging(true)
 

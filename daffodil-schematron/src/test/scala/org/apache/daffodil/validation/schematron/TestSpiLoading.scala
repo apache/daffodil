@@ -18,12 +18,12 @@
 package org.apache.daffodil.validation.schematron
 
 import java.io.ByteArrayInputStream
+import scala.io.Source
+
+import org.apache.daffodil.lib.validation.Validators
 
 import com.typesafe.config.ConfigFactory
-import org.apache.daffodil.lib.validation.Validators
 import org.junit.Test
-
-import scala.io.Source
 
 class TestSpiLoading {
   @Test def load(): Unit = {

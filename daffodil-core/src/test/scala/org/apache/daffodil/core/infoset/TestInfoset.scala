@@ -17,21 +17,22 @@
 
 package org.apache.daffodil.core.infoset
 
-import org.apache.daffodil.runtime1.infoset._
-
-import org.apache.commons.io.output.NullOutputStream
-import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.core.compiler._
 import org.apache.daffodil.core.dsom.{ ElementBase, Root }
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.DataProcessor
-import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.infoset._
+import org.apache.daffodil.runtime1.processors.DataProcessor
+import org.apache.daffodil.runtime1.processors.unparsers.UStateMain
+
+import org.apache.commons.io.output.NullOutputStream
 import org.junit.Assert._
 import org.junit.Test
 
 object TestInfoset {
+
   /**
    * Compute a Daffodil Infoset from a SchemaSet, and a scala XML element representing
    * the infoset (as projected into XML).
@@ -47,9 +48,7 @@ object TestInfoset {
 
   private val tunableForTests = DaffodilTunables("allowExternalPathExpressions", "true")
 
-  def elem2Infoset(
-    xmlElem: scala.xml.Node,
-    dp: DataProcessor): DIElement = {
+  def elem2Infoset(xmlElem: scala.xml.Node, dp: DataProcessor): DIElement = {
     //
     // A prior version of this code just pulled events to force the
     // infoset to be constructed. That doesn't work anymore.
@@ -62,7 +61,7 @@ object TestInfoset {
     val inputter = new ScalaXMLInfosetInputter(xmlElem)
     val dummyOutStream = NullOutputStream.NULL_OUTPUT_STREAM
     val unparseResult = dp.unparse(inputter, dummyOutStream)
-    if (unparseResult.isError){
+    if (unparseResult.isError) {
       val exc = unparseResult.getDiagnostics.filter(_.isError).head
       throw exc
     }
@@ -83,7 +82,10 @@ object TestInfoset {
    * for correctness, it sets the releaseUnusedInfoset tunable to false so that
    * the infoset elements are not freed
    */
-  def testInfoset(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem): (DIElement, Root, DaffodilTunables) = {
+  def testInfoset(
+    testSchema: scala.xml.Elem,
+    infosetAsXML: scala.xml.Elem,
+  ): (DIElement, Root, DaffodilTunables) = {
     val schemaCompiler =
       Compiler()
         .withTunable("allowExternalPathExpressions", "true")
@@ -120,9 +122,10 @@ class TestInfoset1 {
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
-    val xmlInfoset = <list xmlns={ ex }><w>4</w></list>
+    val xmlInfoset = <list xmlns={ex}><w>4</w></list>
 
     val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
     val list_erd = infoset.erd
@@ -148,9 +151,10 @@ class TestInfoset1 {
             <xs:element name="c" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
           </xs:choice>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
-    val xmlInfoset = <list xmlns={ ex }><w>4</w><c>7</c></list>
+    val xmlInfoset = <list xmlns={ex}><w>4</w><c>7</c></list>
     val (infoset, _, tunable) = testInfoset(testSchema, xmlInfoset)
     assertNotNull(infoset.parent)
     val list_erd = infoset.erd
@@ -172,9 +176,10 @@ class TestInfoset1 {
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed"/>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
-    val xmlInfoset = <list xmlns={ ex }><w>4</w><w>5</w></list>
+    val xmlInfoset = <list xmlns={ex}><w>4</w><w>5</w></list>
     val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
     val Seq(w_erd) = infoset.erd.childERDs
     infoset.getChildArray(w_erd, tunable) match {
@@ -206,9 +211,10 @@ class TestInfoset1 {
             <xs:element name="c" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
           </xs:choice>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
-    val xmlInfoset = <list xmlns={ ex }><w>4</w><w>5</w><c>7</c></list>
+    val xmlInfoset = <list xmlns={ex}><w>4</w><w>5</w><c>7</c></list>
 
     val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
     val list_erd = infoset.erd
@@ -240,9 +246,10 @@ class TestInfoset1 {
             <xs:element name="x" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed" nillable='true' dfdl:nilKind="literalValue" dfdl:nilValue="-"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
+      </xs:element>,
+    )
 
-    val xmlInfoset = <list xmlns={ ex } xmlns:xsi={ xsi }><x xsi:nil='true'/></list>
+    val xmlInfoset = <list xmlns={ex} xmlns:xsi={xsi}><x xsi:nil='true'/></list>
 
     val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
     val list_erd = infoset.erd
@@ -278,9 +285,10 @@ class TestInfoset1 {
             </xs:complexType>
           </xs:element>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
-    val xmlInfoset = <list xmlns={ ex } xmlns:xsi={ xsi }><x xsi:nil='true'/></list>
+    val xmlInfoset = <list xmlns={ex} xmlns:xsi={xsi}><x xsi:nil='true'/></list>
 
     val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
     val list_erd = infoset.erd
@@ -312,14 +320,18 @@ class TestInfoset1 {
             </xs:complexType>
           </xs:element>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
-    val xmlInfoset = <list xmlns={ ex } xmlns:xsi={ xsi }><w>4</w><w>5</w><x xsi:nil='true'/><x><c>7</c></x></list>
+    val xmlInfoset = <list xmlns={ex} xmlns:xsi={
+      xsi
+    }><w>4</w><w>5</w><x xsi:nil='true'/><x><c>7</c></x></list>
 
     val (infoset: DIComplex, rootTerm, tunable) = testInfoset(testSchema, xmlInfoset)
     val list_erd = infoset.erd
     val rootPossibles = rootTerm.possibleNextLexicalSiblingStreamingUnparserElements
-    val Seq(wTerm: ElementBase, xTerm: ElementBase) = rootTerm.complexType.modelGroup.groupMembers
+    val Seq(wTerm: ElementBase, xTerm: ElementBase) =
+      rootTerm.complexType.modelGroup.groupMembers
     val xPossibles = xTerm.possibleNextLexicalSiblingStreamingUnparserElements
     val Seq(w_erd, x_erd) = list_erd.childERDs
     val Seq(a_erd, b_erd, c_erd) = x_erd.childERDs
@@ -356,9 +368,10 @@ class TestInfoset1 {
             </xs:complexType>
           </xs:element>
         </xs:sequence>
-      </xs:complexType>)
+      </xs:complexType>,
+    )
 
-    val xmlInfoset = <list xmlns={ ex }><x><c>7</c></x><x><b>8</b></x></list>
+    val xmlInfoset = <list xmlns={ex}><x><c>7</c></x><x><b>8</b></x></list>
 
     val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
     val list_erd = infoset.erd
@@ -399,16 +412,19 @@ class TestInfoset1 {
    */
   @Test def testXMLToInfoset7(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-        <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
-        <xs:element name="root" type="tns:example1"/>
+      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
+      <xs:element name="root" type="tns:example1"/>
         <xs:complexType name="example1">
           <xs:sequence>
             <xs:element name="enum" type="xs:string" />
           </xs:sequence>
-        </xs:complexType>)
+        </xs:complexType>,
+    )
 
-    val xmlInfoset = <root xmlns={ ex }><enum>EQUAL_TO_OR_&lt;_0.0001_SQUARE_DATA_MILES</enum></root>
+    val xmlInfoset = <root xmlns={
+      ex
+    }><enum>EQUAL_TO_OR_&lt;_0.0001_SQUARE_DATA_MILES</enum></root>
 
     val (infoset: DIComplex, _, tunable) = testInfoset(testSchema, xmlInfoset)
     val enumElt: DISimple = infoset.children.head.asInstanceOf[DISimple]
