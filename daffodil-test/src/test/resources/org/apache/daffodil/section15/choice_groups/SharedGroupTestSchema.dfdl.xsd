@@ -74,7 +74,7 @@
   <group name="check">
     <choice dfdl:choiceDispatchKey="{ 'V' }">
       <sequence dfdl:choiceBranchKey="V"/>
-      <element dfdl:choiceBranchKey="I" name="invalid" type="ex:str0"/>
+      <element dfdl:choiceBranchKey="I" name="not_valid" type="ex:str0"/>
     </choice>
   </group>
 
@@ -87,7 +87,7 @@
   <group name="check_b">
     <choice dfdl:choiceDispatchKey="{ 'V' }">
       <sequence dfdl:choiceBranchKey="V"/>
-      <element dfdl:choiceBranchKey="I" name="invalid" type="ex:str0"/>
+      <element dfdl:choiceBranchKey="I" name="not_valid" type="ex:str0"/>
     </choice>
   </group>
 
