@@ -36,6 +36,7 @@ class TestSharedGroups {
 
   @Test def testShowsSharedGroupOkFirstUse() = { runner.runOneTest("Ack") }
   // DAFFODIL-2615 - shared groups problem
-  // @Test def testShowsSharedGroupFailsSecondUse() = { runner.runOneTest("Nack") }
+  @Test def testShowsSharedGroupFailsSecondUse() = { runner.runOneTest("Nack") }
+  @Test def testShowsSharedGroupBadElement() = { runner.runOneTest("badElement") }
 
 }

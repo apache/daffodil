@@ -341,6 +341,7 @@ trait TermRuntime1Mixin { self: Term =>
         }
       }
       Logger.log.debug(s"""
+        NextElementResolver -> this: $this\n
         NextElementResolver -> thisItself: $thisItself\n
         NextElementResolver -> following: $followingLexicalSiblingStreamingUnparserElements""")
       val res: PossibleNextElements =
@@ -354,8 +355,11 @@ trait TermRuntime1Mixin { self: Term =>
           case (Closed(pnes1), Closed(pnes2)) => {
             thisItself // When everything is closed, we only want thisItself and not the entire list of Closed possibilities
           }
-          case (Open(pnes1), Closed(pnes2)) => {
+          case (Open(pnes1), Closed(pnes2)) if !this.isInstanceOf[ChoiceGroupRef] => {
             // If there are optional elements before a required element, the whole sequence is considered closed
+            // unless this is a ChoiceGroupRef as the group could be shared and may not have the appropriate
+            // context to find the expected following element. By not closing when it is a ChoiceGroupRef we
+            // allow other contexts to be tried if necessary.
             Closed((pnes1 ++ pnes2).distinct)
           }
           case (poss1, poss2) => {

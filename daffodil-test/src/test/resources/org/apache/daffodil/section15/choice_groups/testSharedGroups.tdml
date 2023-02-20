@@ -55,5 +55,27 @@
     </infoset>
   </unparserTestCase>
 
+  <unparserTestCase name="badElement"
+                    model="org/apache/daffodil/section15/choice_groups/SharedGroupTestSchema.dfdl.xsd"
+                    root="msg">
+    <document>2XA</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:msg xmlns:ex="http://example.com" xmlns="">
+          <messageID>2</messageID>
+          <nack>X</nack>
+          <badElement>X</badElement>
+          <nackInfo>A</nackInfo>
+        </ex:msg>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Expected element</error>
+      <error>nackInfo</error>
+      <error>received element</error>
+      <error>(invalid)</error>
+      <error>badElement</error>
+    </errors>
+  </unparserTestCase>
 
 </testSuite>
