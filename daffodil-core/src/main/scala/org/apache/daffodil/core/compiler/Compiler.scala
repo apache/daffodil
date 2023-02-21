@@ -34,13 +34,12 @@ import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.processors.DataProcessor
 
@@ -103,10 +102,10 @@ final class ProcessorFactory private (
 
   lazy val rootView: RootView = sset.root
 
-  def elementBaseInstanceCount = sset.elementBaseInstanceCount
+  def elementBaseInstanceCount: Long = sset.elementBaseInstanceCount
 
-  def diagnostics = sset.diagnostics
-  def getDiagnostics = diagnostics
+  def diagnostics: Seq[Diagnostic] = sset.diagnostics
+  def getDiagnostics: Seq[Diagnostic] = diagnostics
 
   override def onPath(xpath: String): DFDL.DataProcessor = sset.onPath(xpath)
 
@@ -117,7 +116,7 @@ final class ProcessorFactory private (
     // it after we observe how the validator SPI evolves and wait for our
     // requirements to become clearer
     val className = language match {
-      case "c" => "org.apache.daffodil.runtime2.Runtime2CodeGenerator"
+      case "c" => "org.apache.daffodil.codegen.c.DaffodilCCodeGenerator"
       case _ =>
         throw new InvalidParserException(
           s"code generator; source language $language is not supported",
@@ -136,7 +135,7 @@ final class ProcessorFactory private (
     codeGenerator
   }
 
-  override def isError = sset.isError
+  override def isError: Boolean = sset.isError
 
   def withDistinguishedRootNode(name: String, namespace: String): ProcessorFactory = {
     Assert.usage(name ne null)
@@ -190,20 +189,7 @@ class Compiler private (
     copy(optRootName = Option(name), optRootNamespace = Option(namespace))
   }
 
-  def withValidateDFDLSchemas(value: Boolean) = copy(validateDFDLSchemas = value)
-
-  /**
-   * Supports binding external variables programatically from the API.
-   */
-  private def getBinding(name: String, namespace: String, value: String): Binding = {
-    // We must tolerate null here for namespace in order to be compatible with Java
-    val ns = namespace match {
-      case null => None // Figure out the namespace
-      case _ => Some(NS(namespace))
-    }
-    val b = Binding(name, ns, value)
-    b
-  }
+  def withValidateDFDLSchemas(value: Boolean): Compiler = copy(validateDFDLSchemas = value)
 
   def withTunable(tunable: String, value: String): Compiler =
     copy(tunables = tunables.withTunable(tunable, value))
@@ -222,7 +208,7 @@ class Compiler private (
   def withCheckAllTopLevel(flag: Boolean): Compiler =
     copy(checkAllTopLevel = flag)
 
-  def reload(savedParser: File) = reload(new FileInputStream(savedParser))
+  def reload(savedParser: File): DFDL.DataProcessor = reload(new FileInputStream(savedParser))
 
   def reload(savedParser: java.nio.channels.ReadableByteChannel): DFDL.DataProcessor =
     reload(Channels.newInputStream(savedParser))
@@ -273,7 +259,7 @@ class Compiler private (
         ///
         override def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
           try { Class.forName(desc.getName, false, getClass.getClassLoader) }
-          catch { case ex: ClassNotFoundException => super.resolveClass(desc) }
+          catch { case _: ClassNotFoundException => super.resolveClass(desc) }
         }
       }
 
@@ -282,13 +268,11 @@ class Compiler private (
       val dp = dpObj.asInstanceOf[DataProcessor]
       dp
     } catch {
-      case ex: ZipException => {
+      case _: ZipException =>
         throw new InvalidParserException("The saved parser is corrupted")
-      }
-      case ex: StreamCorruptedException => {
+      case _: StreamCorruptedException =>
         throw new InvalidParserException("The saved parser is corrupted")
-      }
-      case ex: InvalidClassException => {
+      case ex: InvalidClassException =>
         // This should only happen if users saves a schema with one version of
         // dependency and tries to reload with a different version that is not
         // serialization-compatible (e.g. save with scala 2.12.6 but reload
@@ -302,13 +286,12 @@ class Compiler private (
         val cls = Class.forName(ex.classname)
         val src = cls.getProtectionDomain.getCodeSource
         val dependencyStr =
-          if (src != null) (new File(src.getLocation().getFile)).getName else "a dependency"
+          if (src != null) (new File(src.getLocation.getFile)).getName else "a dependency"
         throw new InvalidParserException(
           "The saved parser was created with a different version of " + dependencyStr + " with incompatible class: " + ex.classname,
         )
-      }
       //
-      case ex @ (_: ClassNotFoundException | _: NoClassDefFoundError) => {
+      case ex @ (_: ClassNotFoundException | _: NoClassDefFoundError) =>
         // Both of these exception happens if a class that was used when saving
         // is no longer on the classpath when reloading.
         //
@@ -323,7 +306,6 @@ class Compiler private (
         throw new InvalidParserException(
           "The saved parser was created with a different set of dependencies containing a class no longer on the classpath: " + ex.getMessage,
         )
-      }
     }
   }
 

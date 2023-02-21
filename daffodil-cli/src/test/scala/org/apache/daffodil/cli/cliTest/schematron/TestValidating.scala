@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest.schematron
+package org.apache.daffodil.cli.cliTest.schematron
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util._

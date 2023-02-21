@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest.schematron
+package org.apache.daffodil.cli.cliTest.schematron
 
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files

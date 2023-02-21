@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest
+package org.apache.daffodil.cli.cliTest
 
 import java.net.URI
 import java.nio.file.Files.exists
@@ -56,7 +56,9 @@ class TestBlob {
    ***/
 
   private def findInfosetBlob(path: Path): Path = {
-    val contents = Source.fromFile(path.toFile).mkString
+    val source = Source.fromFile(path.toFile)
+    val contents = source.mkString
+    source.close()
     val blob = contents.substring(contents.indexOf("file://")).takeWhile(_ != '<')
     Paths.get(new URI(blob))
   }
@@ -92,9 +94,9 @@ class TestBlob {
     withTempFile { infoset =>
       withTempFile { unparse =>
         withBlobDir {
-          runCLI(args"parse -s $schema -o $infoset $input") { cli => }(ExitCode.Success)
+          runCLI(args"parse -s $schema -o $infoset $input") { _ => }(ExitCode.Success)
 
-          runCLI(args"unparse -s $schema -o $unparse $infoset") { cli => }(ExitCode.Success)
+          runCLI(args"unparse -s $schema -o $unparse $infoset") { _ => }(ExitCode.Success)
 
           val blob = findInfosetBlob(infoset)
           assertEquals("bc8f9d01382bf12248747cd6faecbc59", md5sum(blob))
@@ -121,11 +123,11 @@ class TestBlob {
     withTempFile { infoset =>
       withTempFile { unparse =>
         withBlobDir {
-          runCLI(args"parse -s $schema -o $infoset $input", timeout = 120) { cli => }(
+          runCLI(args"parse -s $schema -o $infoset $input", timeout = 120) { _ => }(
             ExitCode.Success,
           )
 
-          runCLI(args"unparse -s $schema -o $unparse $infoset", timeout = 120) { cli => }(
+          runCLI(args"unparse -s $schema -o $unparse $infoset", timeout = 120) { _ => }(
             ExitCode.Success,
           )
 

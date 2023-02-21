@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest
+package org.apache.daffodil.cli.cliTest
 
 import java.nio.charset.StandardCharsets.UTF_8
 
@@ -26,7 +26,7 @@ import org.apache.commons.io.FileUtils
 import org.junit.Assert._
 import org.junit.Test
 
-class TestCLIunparsing {
+class TestCLIUnparsing {
 
   @Test def test_3525_CLI_Unparsing_SimpleUnparse_inFile(): Unit = {
     val schema = path(
@@ -146,7 +146,7 @@ class TestCLIunparsing {
     )
 
     withTempFile { output =>
-      runCLI(args"unparse -s $schema -r e3 -o $output $input") { cli => }(ExitCode.Success)
+      runCLI(args"unparse -s $schema -r e3 -o $output $input") { _ => }(ExitCode.Success)
 
       val res = FileUtils.readFileToString(output.toFile, UTF_8)
       assertTrue(res.contains("[1,2]"))

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest
+package org.apache.daffodil.cli.cliTest
 
 import org.apache.daffodil.cli.ValidatorPatterns
 

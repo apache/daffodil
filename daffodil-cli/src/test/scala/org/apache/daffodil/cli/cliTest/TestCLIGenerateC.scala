@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest
+package org.apache.daffodil.cli.cliTest
 
 import java.nio.file.Files.exists
 
@@ -33,18 +33,18 @@ class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_schema(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
-      runCLI(args"generate c -s $schema $tempDir") { cli => }(ExitCode.Success)
+      runCLI(args"generate c -s $schema $tempDir") { _ => }(ExitCode.Success)
       assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
   }
 
   @Test def test_CLI_Generate_noC_error(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
@@ -56,7 +56,7 @@ class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_otherThanC_error(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
@@ -68,7 +68,7 @@ class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_noSchema_error(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
@@ -80,7 +80,7 @@ class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_twoSchema_error(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
@@ -92,7 +92,7 @@ class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_verbose(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
@@ -106,11 +106,11 @@ class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_root(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
-      runCLI(args"generate c -s $schema -r {http://example.com}ex_nums $tempDir") { cli => }(
+      runCLI(args"generate c -s $schema -r {http://example.com}ex_nums $tempDir") { _ => }(
         ExitCode.Success,
       )
       assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
@@ -119,7 +119,7 @@ class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_root_error(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
@@ -132,7 +132,7 @@ class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_namespaceNoRoot_error(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
@@ -144,11 +144,11 @@ class TestCLIGenerateC {
 
   @Test def test_CLI_Generate_tunable(): Unit = {
     val schema = path(
-      "daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
 
     withTempDir { tempDir =>
-      runCLI(args"generate c -s $schema -T parseUnparsePolicy=parseOnly $tempDir") { cli => }(
+      runCLI(args"generate c -s $schema -T parseUnparsePolicy=parseOnly $tempDir") { _ => }(
         ExitCode.Success,
       )
       assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest
+package org.apache.daffodil.cli.cliTest
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util._
@@ -30,7 +30,7 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"save-parser -s $schema -r matrix $parser") { cli => }(ExitCode.Success)
+      runCLI(args"save-parser -s $schema -r matrix $parser") { _ => }(ExitCode.Success)
 
       runCLI(args"parse --parser $parser") { cli =>
         cli.sendLine("0,1,2", inputDone = true)
@@ -59,7 +59,7 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"save-parser -s $schema -r row2 -c $config $parser") { cli => }(
+      runCLI(args"save-parser -s $schema -r row2 -c $config $parser") { _ => }(
         ExitCode.Success,
       )
 
@@ -79,7 +79,7 @@ class TestCLISaveParser {
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input8.txt")
 
     withTempFile { parser =>
-      runCLI(args"save-parser -s $schema -r {target}matrix $parser") { cli => }(
+      runCLI(args"save-parser -s $schema -r {target}matrix $parser") { _ => }(
         ExitCode.Success,
       )
 
@@ -95,7 +95,7 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"save-parser -s $schema -r matrix -p / $parser") { cli => }(ExitCode.Success)
+      runCLI(args"save-parser -s $schema -r matrix -p / $parser") { _ => }(ExitCode.Success)
 
       runCLI(args"parse --parser $parser") { cli =>
         cli.sendLine("0,1,2", inputDone = true)
@@ -155,7 +155,7 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"save-parser -s $schema -r {}matrix -p / $parser") { cli => }(ExitCode.Success)
+      runCLI(args"save-parser -s $schema -r {}matrix -p / $parser") { _ => }(ExitCode.Success)
 
       runCLI(args"parse --parser $parser") { cli =>
         cli.sendLine("0,1,2", inputDone = true)
@@ -171,7 +171,7 @@ class TestCLISaveParser {
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input8.txt")
 
     withTempFile { parser =>
-      runCLI(args"save-parser -s $schema -r {target}matrix $parser") { cli => }(
+      runCLI(args"save-parser -s $schema -r {target}matrix $parser") { _ => }(
         ExitCode.Success,
       )
 
@@ -194,7 +194,7 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"save-parser -s $schema -r row2 $parser") { cli => }(ExitCode.Success)
+      runCLI(args"save-parser -s $schema -r row2 $parser") { _ => }(ExitCode.Success)
 
       runCLI(
         args"parse --parser $parser -D{http://example.com}var1=25 {http://example.com}var3=7",
@@ -217,7 +217,7 @@ class TestCLISaveParser {
         cli.expectErr("Unknown option 'validate'")
       }(ExitCode.Usage)
 
-      runCLI(args"save-parser -s $schema -r validation_check $parser") { cli => }(
+      runCLI(args"save-parser -s $schema -r validation_check $parser") { _ => }(
         ExitCode.Success,
       )
 
@@ -272,7 +272,7 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"-t save-parser -s $schema -r matrix $parser") { cli => }(ExitCode.Success)
+      runCLI(args"-t save-parser -s $schema -r matrix $parser") { _ => }(ExitCode.Success)
 
       runCLI(args"unparse --parser $parser $input") { cli =>
         cli.expect("0,1,2")
@@ -289,7 +289,7 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"save-parser -s $schema -r e1 $parser") { cli => }(ExitCode.Success)
+      runCLI(args"save-parser -s $schema -r e1 $parser") { _ => }(ExitCode.Success)
 
       runCLI(args"unparse --parser $parser $input") { cli =>
         cli.expect("Hello")
@@ -306,8 +306,7 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"save-parser -s $schema -r e1 -T parseUnparsePolicy=parseOnly $parser") {
-        cli =>
+      runCLI(args"save-parser -s $schema -r e1 -T parseUnparsePolicy=parseOnly $parser") { _ =>
       }(ExitCode.Success)
 
       runCLI(args"unparse --parser $parser $input") { cli =>

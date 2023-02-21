@@ -224,6 +224,7 @@ daffodil/
 │   ├── bin.NOTICE              - Contains notices of Daffodil and subcomponents
 │   ├── build.sbt               - Tells sbt how to build CLI and installers
 │   └── src/                    - Contains CLI source code, tests, scripts, etc.
+├── daffodil-codegen-c/         - Contains Daffodil's C code generator
 ├── daffodil-core/              - Contains Daffodil's schema compiler
 ├── daffodil-io/                - Contains Daffodil's input/output/charsets
 ├── daffodil-japi/
@@ -235,7 +236,6 @@ daffodil/
 ├── daffodil-runtime1/          - Contains Daffodil's Scala parser
 ├── daffodil-runtime1-layers/   - Contains Daffodil's Scala layer transformers
 ├── daffodil-runtime1-unparser/ - Contains Daffodil's Scala unparser
-├── daffodil-runtime2/          - Contains Daffodil's C code generator
 ├── daffodil-sapi/              - Contains Daffodil's Scala API
 ├── daffodil-schematron/
 │   ├── README.md               - Explains how to validate with Schematron rules
@@ -342,7 +342,7 @@ pages worth reading as well (sorted in alphabetical order).
 - [Coding for Performance][]
 - [DFDL Schema Object Model][]
 - [Daffodil Maturity Model Assessment][]
-- [Daffodil Runtime 2][]
+- [Daffodil Code Generators][]
 - [IntelliJ IDEA Setup][]
 - [Object-Oriented Lazy Attribute Grammars][]
 - [Roadmap for Upcoming Releases][]
@@ -365,6 +365,7 @@ links to every website page (sorted in alphabetical order).
 - [Daffodil Java API][]
 - [Daffodil Scala API][]
 - [Daffodil and the DFDL Infoset][]
+- [DaffodilC ToDos][]
 - [Data Format Description Language v1.0 Specification][]
 - [Eclipse Configuration][]
 - [Examples][]
@@ -377,7 +378,6 @@ links to every website page (sorted in alphabetical order).
 - [Namespace Binding Minimization][]
 - [People][]
 - [Releases][]
-- [Runtime2 ToDos][]
 - [Standard DFDL Schema Project Layout][]
 - [Term Sharing in the Schema Compiler][]
 - [Test Data Markup Language][]
@@ -490,7 +490,7 @@ the current test coverage report on Codecov:
 [Coding for Performance]: https://cwiki.apache.org/confluence/display/DAFFODIL/Coding+for+Performance
 [DFDL Schema Object Model]: https://cwiki.apache.org/confluence/display/DAFFODIL/DFDL+Schema+Object+Model+%28DSOM%29+with+UML
 [Daffodil Maturity Model Assessment]: https://cwiki.apache.org/confluence/display/DAFFODIL/Apache+Daffodil+Maturity+Model+Assessment
-[Daffodil Runtime 2]: https://cwiki.apache.org/confluence/display/DAFFODIL/WIP%3A+Daffodil+Runtime+2
+[Daffodil Code Generators]: https://cwiki.apache.org/confluence/display/DAFFODIL/Daffodil+Code+Generators
 [IntelliJ IDEA Setup]: https://cwiki.apache.org/confluence/display/DAFFODIL/IntelliJ+IDEA+Setup
 [Java Setup]: https://cwiki.apache.org/confluence/display/DAFFODIL/Java+Setup+and+Notes
 [Object-Oriented Lazy Attribute Grammars]: https://cwiki.apache.org/confluence/display/DAFFODIL/OOLAG+-+Object-Oriented+Lazy+Attribute+Grammars
@@ -527,6 +527,7 @@ the current test coverage report on Codecov:
 [Daffodil Java API]: https://daffodil.apache.org/docs/latest/javadoc/
 [Daffodil Scala API]: https://daffodil.apache.org/docs/latest/scaladoc/
 [Daffodil and the DFDL Infoset]: https://daffodil.apache.org/infoset/
+[DaffodilC ToDos]: https://daffodil.apache.org/dev/design-notes/daffodilc-todos/
 [Data Format Description Language v1.0 Specification]: https://daffodil.apache.org/docs/dfdl/
 [Eclipse Configuration]: https://daffodil.apache.org/eclipse-configuration/
 [Examples]: https://daffodil.apache.org/examples/
@@ -539,7 +540,6 @@ the current test coverage report on Codecov:
 [Namespace Binding Minimization]: https://daffodil.apache.org/dev/design-notes/namespace-binding-minimization/
 [People]: https://daffodil.apache.org/people/
 [Releases]: https://daffodil.apache.org/releases/
-[Runtime2 ToDos]: https://daffodil.apache.org/dev/design-notes/runtime2-todos/
 [Standard DFDL Schema Project Layout]: https://daffodil.apache.org/dfdl-layout/
 [Term Sharing in the Schema Compiler]: https://daffodil.apache.org/dev/design-notes/term-sharing-in-schema-compiler/
 [Test Data Markup Language]: https://daffodil.apache.org/tdml/

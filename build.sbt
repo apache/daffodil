@@ -31,8 +31,8 @@ Global / excludeLintKeys ++= Set(
 
 lazy val genManaged = taskKey[Seq[File]]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
-lazy val genSchemas = taskKey[Seq[File]]("Generated DFDL schemas")
-lazy val genRuntime2Examples = taskKey[Seq[File]]("Generate runtime2 example files")
+lazy val genSchemas = taskKey[Seq[File]]("Generate DFDL schemas")
+lazy val genCExamples = taskKey[Seq[File]]("Generate C example files")
 
 lazy val daffodil = project
   .in(file("."))
@@ -40,6 +40,7 @@ lazy val daffodil = project
   .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
   .aggregate(
     cli,
+    codeGenC,
     core,
     io,
     japi,
@@ -49,7 +50,6 @@ lazy val daffodil = project
     runtime1,
     runtime1Layers,
     runtime1Unparser,
-    runtime2,
     sapi,
     schematron,
     slf4jLogger,
@@ -61,7 +61,7 @@ lazy val daffodil = project
     tutorials,
     udf,
   )
-  .settings(commonSettings, nopublish, ratSettings, unidocSettings, genRuntime2ExamplesSettings)
+  .settings(commonSettings, nopublish, ratSettings, unidocSettings, genCExamplesSettings)
 
 lazy val macroLib = Project("daffodil-macro-lib", file("daffodil-macro-lib"))
   .configs(IntegrationTest)
@@ -116,8 +116,8 @@ lazy val runtime1Layers = Project("daffodil-runtime1-layers", file("daffodil-run
   .dependsOn(runtime1, lib % "test->test", slf4jLogger % "test")
   .settings(commonSettings)
 
-val runtime2CFiles = Library("libruntime2.a")
-lazy val runtime2 = Project("daffodil-runtime2", file("daffodil-runtime2"))
+val codeGenCLib = Library("libruntime.a")
+lazy val codeGenC = Project("daffodil-codegen-c", file("daffodil-codegen-c"))
   .configs(IntegrationTest)
   .enablePlugins(CcPlugin)
   .dependsOn(core, core % "test->test", slf4jLogger % "test")
@@ -125,15 +125,15 @@ lazy val runtime2 = Project("daffodil-runtime2", file("daffodil-runtime2"))
   .settings(
     Compile / cCompiler := sys.env.getOrElse("CC", "cc"),
     Compile / ccArchiveCommand := sys.env.getOrElse("AR", "ar"),
-    Compile / ccTargets := ListSet(runtime2CFiles),
+    Compile / ccTargets := ListSet(codeGenCLib),
     Compile / cSources := Map(
-      runtime2CFiles -> ((Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c"
+      codeGenCLib -> ((Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "codegen" / "c" / "files"
         * GlobFilter("lib*") * GlobFilter("*.c")).get(),
     ),
     Compile / cIncludeDirectories := Map(
-      runtime2CFiles -> Seq(
-        (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c" / "libcli",
-        (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "runtime2" / "c" / "libruntime",
+      codeGenCLib -> Seq(
+        (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "codegen" / "c" / "files" / "libcli",
+        (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "codegen" / "c" / "files" / "libruntime",
       ),
     ),
     Compile / cFlags := (Compile / cFlags).value
@@ -169,20 +169,20 @@ lazy val tdmlLib = Project("daffodil-tdml-lib", file("daffodil-tdml-lib"))
 
 lazy val tdmlProc = Project("daffodil-tdml-processor", file("daffodil-tdml-processor"))
   .configs(IntegrationTest)
-  .dependsOn(tdmlLib, runtime2, core, slf4jLogger)
+  .dependsOn(tdmlLib, codeGenC, core, slf4jLogger)
   .settings(commonSettings)
 
 lazy val cli = Project("daffodil-cli", file("daffodil-cli"))
   .configs(IntegrationTest)
   .dependsOn(
     tdmlProc,
-    runtime2,
+    codeGenC,
     sapi,
     japi,
     schematron % Runtime,
     udf % "it->test",
     slf4jLogger,
-  ) // causes runtime2/sapi/japi to be pulled into the helper zip/tar
+  ) // causes codegen-c/sapi/japi to be pulled into the helper zip/tar
   .settings(commonSettings, nopublish)
   .settings(libraryDependencies ++= Dependencies.cli)
   .settings(libraryDependencies ++= Dependencies.exi)
@@ -200,7 +200,7 @@ lazy val schematron = Project("daffodil-schematron", file("daffodil-schematron")
 
 lazy val test = Project("daffodil-test", file("daffodil-test"))
   .configs(IntegrationTest)
-  .dependsOn(tdmlProc % "test", runtime2 % "test->test", udf % "test->test")
+  .dependsOn(tdmlProc % "test", codeGenC % "test->test", udf % "test->test")
   .settings(commonSettings, nopublish)
 //
 // Uncomment the following line to run these tests
@@ -452,25 +452,25 @@ lazy val unidocSettings = Seq(
   },
 )
 
-lazy val genRuntime2ExamplesSettings = Seq(
-  Compile / genRuntime2Examples := {
-    val cp = (runtime2 / Test / dependencyClasspath).value
-    val inSrc = (runtime2 / Compile / sources).value
-    val inRSrc = (runtime2 / Test / resources).value
-    val stream = (runtime2 / streams).value
+lazy val genCExamplesSettings = Seq(
+  Compile / genCExamples := {
+    val cp = (codeGenC / Test / dependencyClasspath).value
+    val inSrc = (codeGenC / Compile / sources).value
+    val inRSrc = (codeGenC / Test / resources).value
+    val stream = (codeGenC / streams).value
     val filesToWatch = (inSrc ++ inRSrc).toSet
-    val cachedFun = FileFunction.cached(stream.cacheDirectory / "genRuntime2Examples") { _ =>
+    val cachedFun = FileFunction.cached(stream.cacheDirectory / "genCExamples") { _ =>
       val forkCaptureLogger = ForkCaptureLogger()
       val forkOpts = ForkOptions()
         .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
         .withBootJars(cp.files.toVector)
-      val mainClass = "org.apache.daffodil.runtime2.Runtime2ExamplesGenerator"
-      val outdir = (runtime2 / Test / sourceDirectory).value / "c" / "examples"
+      val mainClass = "org.apache.daffodil.codegen.c.DaffodilCExamplesGenerator"
+      val outdir = (codeGenC / Test / sourceDirectory).value / "c" / "examples"
       val args = Seq(mainClass, outdir.toString)
       val ret = Fork.java(forkOpts, args)
       forkCaptureLogger.stderr.foreach { stream.log.error(_) }
       if (ret != 0) {
-        sys.error("failed to generate example files")
+        sys.error("failed to generate C example files")
       }
       val files = forkCaptureLogger.stdout
         .filterNot(_.startsWith("WARNING"))
@@ -478,14 +478,14 @@ lazy val genRuntime2ExamplesSettings = Seq(
           new File(f)
         }
         .toSet
-      stream.log.info(s"generated ${files.size} runtime2 examples to $outdir")
+      stream.log.info(s"generated ${files.size} C examples to $outdir")
       files
     }
     cachedFun(filesToWatch).toSeq
   },
   Compile / compile := {
     val res = (Compile / compile).value
-    (Compile / genRuntime2Examples).value
+    (Compile / genCExamples).value
     res
   },
 )

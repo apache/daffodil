@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest
+package org.apache.daffodil.cli.cliTest
 
 import java.nio.charset.StandardCharsets.UTF_8
 
@@ -509,7 +509,7 @@ class TestCLIParsing {
       "daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd",
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input7.txt")
-    for (x <- 1 to 10) {
+    for (_ <- 1 to 10) {
       runCLI(args"parse -s $schema $input") { cli =>
         cli.expect("<address>")
       }(ExitCode.Success)
@@ -648,7 +648,7 @@ class TestCLIParsing {
       val longInput =
         "0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64"
       cli.sendLine(longInput, inputDone = true)
-      val result = cli.expect("<tns:row").getBefore()
+      val result = cli.expect("<tns:row").getBefore
       if (
         result.contains(
           """<tns:matrix xmlns:tns="http://www.example.org/example1/"><tns:matrix xmlns:tns="http://www.example.org/example1/">""",
