@@ -333,6 +333,25 @@
       </xs:complexType>
     </xs:element>
 
+    <!--
+      allows parsing up to 10 fields. If non-empty, the value of each field must be the
+      occursIndex of that field. Note that if a field is empty and is not in the infoset
+      due to treatAsMissing, dfdl:occursIndex() should not return an incremented value
+    -->
+    <xs:element name="file3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:element name="field" type="xs:string" minOccurs="0" maxOccurs="10">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ (. eq '') or (xs:int(.) eq dfdl:occursIndex()) }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="test_sep_ssp_never_4_daffodil" root="file2" model="s4"
@@ -347,6 +366,23 @@
       <tdml:error>Empty element not allowed</tdml:error>
       <tdml:error>required</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_treatAsMissing_occursIndex" root="file3" model="s4"
+                       implementations="daffodil">
+    <tdml:document>1,2,,3,4,,,5,,6</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file3>
+          <field>1</field>
+          <field>2</field>
+          <field>3</field>
+          <field>4</field>
+          <field>5</field>
+          <field>6</field>
+        </ex:file3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <!--
