@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest.schematron
+package org.apache.daffodil.cli.cliTest.schematron
 
 import java.util.UUID
 

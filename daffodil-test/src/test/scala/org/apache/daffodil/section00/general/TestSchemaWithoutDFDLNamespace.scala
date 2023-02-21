@@ -24,7 +24,7 @@ import org.junit.Test
 
 object TestSchemaWithoutDFDLNamespace {
   val testDir = "/org/apache/daffodil/section00/general/"
-  val runner: Runner = Runner(testDir, "testSchemaWithoutDFDLNamespace.tdml")
+  val runner = Runner(testDir, "testSchemaWithoutDFDLNamespace.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset()

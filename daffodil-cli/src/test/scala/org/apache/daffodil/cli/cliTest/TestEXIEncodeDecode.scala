@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest
+package org.apache.daffodil.cli.cliTest
 
 import java.nio.file.Paths
 import scala.xml.XML
@@ -26,7 +26,7 @@ import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Test
 
-class TestCLIEncodeDecodeEXI {
+class TestEXIEncodeDecode {
 
   @Test def test_CLI_Encode_Decode_EXI_SA(): Unit = {
     val schema = path(
@@ -42,10 +42,10 @@ class TestCLIEncodeDecodeEXI {
       val tempXML = Paths.get(tempDir.toString, "temp.xml")
 
       // Encode infoset to schema aware EXI
-      runCLI(args"exi -s $schema -o $tempEXI $infosetPath") { cli => }(ExitCode.Success)
+      runCLI(args"exi -s $schema -o $tempEXI $infosetPath") { _ => }(ExitCode.Success)
 
       // Decode EXI to XML and compare against original XML infoset
-      runCLI(args"exi -d -s $schema -o $tempXML $tempEXI") { cli => }(ExitCode.Success)
+      runCLI(args"exi -d -s $schema -o $tempXML $tempEXI") { _ => }(ExitCode.Success)
 
       val resultNode = XML.loadFile(tempXML.toFile)
       XMLUtils.compareAndReport(infosetXML, resultNode)
@@ -63,7 +63,7 @@ class TestCLIEncodeDecodeEXI {
         cli.sendLine(inputXML.toString, inputDone = true)
       }(ExitCode.Success)
 
-      runCLI(args"exi -d -o $tempXML $tempEXI") { cli => }(ExitCode.Success)
+      runCLI(args"exi -d -o $tempXML $tempEXI") { _ => }(ExitCode.Success)
 
       val resultNode = XML.loadFile(tempXML.toFile)
       XMLUtils.compareAndReport(inputXML, resultNode)
@@ -110,7 +110,7 @@ class TestCLIEncodeDecodeEXI {
 
     withTempFile { tempEXI =>
       // Encode infoset to schema aware EXI
-      runCLI(args"exi -s $schema -o $tempEXI $infosetPath") { cli => }(ExitCode.Success)
+      runCLI(args"exi -s $schema -o $tempEXI $infosetPath") { _ => }(ExitCode.Success)
 
       // Attempt to decode EXI using schema unaware decoding
       runCLI(args"exi -d $tempEXI") { cli =>

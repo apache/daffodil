@@ -24,7 +24,7 @@ import org.junit.Test
 
 object TestSepTests {
   val testDir = "/org/apache/daffodil/usertests/"
-  val runner: Runner = Runner(testDir, "SepTests.tdml")
+  val runner = Runner(testDir, "SepTests.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset

@@ -19,7 +19,7 @@ import sbt._
 
 object Rat {
 
-  lazy val excludes = Seq(
+  lazy val excludes: Seq[sbt.File] = Seq(
     // git files
     file(".git"),
 
@@ -40,7 +40,7 @@ object Rat {
     file("daffodil-cli/src/windows/dialog.bmp"),
 
     // generated_code.[ch] examples
-    file("daffodil-runtime2/src/test/c/examples"),
+    file("daffodil-codegen-c/src/test/c/examples"),
 
     // Apache Rat thinks these files are binary since the file name contains ".lib"
     file(
@@ -88,6 +88,7 @@ object Rat {
     file("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/prefix.txt"),
     file("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/test_DFDL-714.txt"),
     file("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt"),
+    file("daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/data"),
     file("daffodil-io/src/test/resources/iso8859.doc.dat"),
     file("daffodil-japi/src/test/resources/test/japi/01very_simple.txt"),
     file("daffodil-japi/src/test/resources/test/japi/myData.dat"),
@@ -98,7 +99,6 @@ object Rat {
     file("daffodil-japi/src/test/resources/test/japi/myData16.dat"),
     file("daffodil-japi/src/test/resources/test/japi/myData19.dat"),
     file("daffodil-japi/src/test/resources/test/japi/myDataBroken.dat"),
-    file("daffodil-runtime2/src/test/resources/org/apache/daffodil/runtime2/data"),
     file("daffodil-sapi/src/test/resources/test/sapi/01very_simple.txt"),
     file("daffodil-sapi/src/test/resources/test/sapi/myData.dat"),
     file("daffodil-sapi/src/test/resources/test/sapi/myData2.dat"),
@@ -112,58 +112,7 @@ object Rat {
     file("daffodil-tdml-lib/src/test/resources/test/tdml/test.txt"),
     file("daffodil-tdml-processor/src/test/resources/test/tdml/test.bin"),
     file("daffodil-tdml-processor/src/test/resources/test/tdml/test.txt"),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ISRM_green_to_orange_60000.0.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ISRM_green_to_orange_60000.1.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ISRM_orange_to_green_60002.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_green_to_orange_60004.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_orange_to_green_60006.0.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/MPU_orange_to_green_60006.1.dat",
-    ),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/collisions.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.11.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.12.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.13.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.14.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.15.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.16.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.17.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.18.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.19.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/egress_xdcc_bw.20.dat"),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.111.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.112.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.113.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.114.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.115.dat",
-    ),
-    file(
-      "daffodil-test/src/test/resources/org/apache/daffodil/runtime2/ingress_xdcc_bw.116.dat",
-    ),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.aptina.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.camera.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.command.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.limits.dat"),
-    file("daffodil-test/src/test/resources/org/apache/daffodil/runtime2/orion.video.dat"),
+    file("daffodil-test/src/test/resources/org/apache/daffodil/codegen/c/data"),
     file("daffodil-test/src/test/resources/org/apache/daffodil/section00/general/ext_file.txt"),
     file(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/ext_file2.txt",

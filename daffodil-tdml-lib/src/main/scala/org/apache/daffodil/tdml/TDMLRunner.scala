@@ -236,7 +236,7 @@ class DFDLTestSuite private[tdml] (
       case TDMLImplementation.Daffodil =>
         "org.apache.daffodil.processor.tdml.TDMLDFDLProcessorFactory"
       case TDMLImplementation.DaffodilC =>
-        "org.apache.daffodil.processor.tdml.Runtime2TDMLDFDLProcessorFactory"
+        "org.apache.daffodil.processor.tdml.DaffodilCTDMLDFDLProcessorFactory"
       case TDMLImplementation.Ibm =>
         "org.apache.daffodil.processor.tdml.TDMLDFDLProcessorFactory"
     }

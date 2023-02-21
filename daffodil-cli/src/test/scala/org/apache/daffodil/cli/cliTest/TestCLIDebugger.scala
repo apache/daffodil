@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest
+package org.apache.daffodil.cli.cliTest
 
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Files
@@ -26,7 +26,7 @@ import org.apache.daffodil.cli.cliTest.Util._
 import net.sf.expectit.matcher.Matchers.regexp
 import org.junit.Test
 
-class TestCLIdebugger {
+class TestCLIDebugger {
 
   @Test def test_3385_CLI_Debugger_invalidExpressions(): Unit = {
     val schema = path(
@@ -184,7 +184,7 @@ class TestCLIdebugger {
       cli.sendLine("continue")
       cli.expect("<sneaky>5</sneaky>")
       cli.sendLine("continue")
-      val result = cli.expect("</ex:e>").getBefore();
+      val result = cli.expect("</ex:e>").getBefore
       assert(!result.contains("sneaky"))
 
     }(ExitCode.Success)

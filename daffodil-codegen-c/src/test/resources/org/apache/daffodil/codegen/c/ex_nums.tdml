@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  defaultRoundTrip="none"
+  description="TDML tests for ex_nums.dfdl.xsd"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <!--
+      Run all tests:
+
+      daffodil test -i -I daffodil ex_nums.tdml
+      daffodil test -i -I daffodilC ex_nums.tdml
+
+      Or you can debug specific steps in isolation:
+
+      mkdir c # if necessary
+      daffodil parse -s ex_nums.dfdl.xsd -o c/ex_nums.dat.xml data/ex_nums.dat
+      daffodil unparse -s ex_nums.dfdl.xsd -o c/ex_nums.dat infosets/ex_nums.dat.xml
+
+      daffodil generate c -s ex_nums.dfdl.xsd && cd c && make
+      c/daffodil parse -o c/ex_nums.dat.xml data/ex_nums.dat
+      c/daffodil unparse -o c/ex_nums.dat infosets/ex_nums.dat.xml
+  -->
+
+  <tdml:parserTestCase
+    model="ex_nums.dfdl.xsd"
+    name="ex_nums"
+    roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      In Daffodil, parse with validation="off" or "limited" reads
+      non-fixed values with no validation diagnostics, while parse
+      with validation="on" reads non-fixed values with validation
+      diagnostics.  In DaffodilC, parse always reads non-fixed values
+      with validation diagnostics regardless of validation setting but
+      only validation="on" will exit with error.
+
+      daffodil parse -V off -s ex_nums.dfdl.xsd -o c/ex_nums.error.dat.xml data/ex_nums.error.dat
+      daffodil parse -V limited -s ex_nums.dfdl.xsd -o c/ex_nums.error.dat.xml data/ex_nums.error.dat
+      daffodil parse -V on -s ex_nums.dfdl.xsd -o c/ex_nums.error.dat.xml data/ex_nums.error.dat
+
+      c/daffodil parse -V off -o c/ex_nums.error.dat.xml data/ex_nums.error.dat
+      c/daffodil parse -V limited -o c/ex_nums.error.dat.xml data/ex_nums.error.dat
+      c/daffodil parse -V on -o c/ex_nums.error.dat.xml data/ex_nums.error.dat
+  -->
+
+  <tdml:parserTestCase
+    model="ex_nums.dfdl.xsd"
+    name="parse_error_off"
+    validation="off">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    implementations="daffodil"
+    model="ex_nums.dfdl.xsd"
+    name="parse_error_limited"
+    validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    implementations="daffodilC"
+    model="ex_nums.dfdl.xsd"
+    name="parse_error_limitedC"
+    validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>value</tdml:error>
+      <tdml:error>boolean_false</tdml:error>
+      <tdml:error>does not match</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    model="ex_nums.dfdl.xsd"
+    name="parse_error_on"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>value</tdml:error>
+      <tdml:error>boolean_false</tdml:error>
+      <tdml:error>does not match</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      In Daffodil, unparse always writes non-fixed values with no
+      error or validation diagnostics regardless of validation
+      setting.  In DaffodilC, unparse always writes non-fixed values
+      with validation diagnostics regardless of validation setting but
+      never exits with error.
+
+      daffodil unparse -V off -s ex_nums.dfdl.xsd -o c/ex_nums.error.dat infosets/ex_nums.error.dat.xml
+      daffodil unparse -V limited -s ex_nums.dfdl.xsd -o c/ex_nums.error.dat infosets/ex_nums.error.dat.xml
+      daffodil unparse -V on -s ex_nums.dfdl.xsd -o c/ex_nums.error.dat infosets/ex_nums.error.dat.xml
+
+      c/daffodil unparse -V off -o c/ex_nums.error.dat infosets/ex_nums.error.dat.xml
+      c/daffodil unparse -V limited -o c/ex_nums.error.dat infosets/ex_nums.error.dat.xml
+      c/daffodil unparse -V on -o c/ex_nums.error.dat infosets/ex_nums.error.dat.xml
+  -->
+
+  <tdml:unparserTestCase
+    implementations="daffodil"
+    model="ex_nums.dfdl.xsd"
+    name="unparse_error_off"
+    validation="off">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase
+    implementations="daffodil"
+    model="ex_nums.dfdl.xsd"
+    name="unparse_error_limited"
+    validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase
+    implementations="daffodil"
+    model="ex_nums.dfdl.xsd"
+    name="unparse_error_on"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase
+    implementations="daffodilC"
+    model="ex_nums.dfdl.xsd"
+    name="unparse_error_offC"
+    validation="off">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>value</tdml:error>
+      <tdml:error>boolean_false</tdml:error>
+      <tdml:error>does not match</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase
+    implementations="daffodilC"
+    model="ex_nums.dfdl.xsd"
+    name="unparse_error_limitedC"
+    validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>value</tdml:error>
+      <tdml:error>boolean_false</tdml:error>
+      <tdml:error>does not match</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase
+    implementations="daffodilC"
+    model="ex_nums.dfdl.xsd"
+    name="unparse_error_onC"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="file">data/ex_nums.error.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/ex_nums.error.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>value</tdml:error>
+      <tdml:error>boolean_false</tdml:error>
+      <tdml:error>does not match</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

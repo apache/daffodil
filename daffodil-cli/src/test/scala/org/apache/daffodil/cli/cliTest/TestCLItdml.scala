@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.cliTest
+package org.apache.daffodil.cli.cliTest
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util._
@@ -50,7 +50,7 @@ class TestCLItdml {
       "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
     )
 
-    runCLI(args"test -l --regex $tdml escape_entryb-\d+") { cli => }(ExitCode.Success)
+    runCLI(args"test -l --regex $tdml escape_entryb-\d+") { _ => }(ExitCode.Success)
   }
 
   @Test def test_999_CLI_Tdml_Listing_listRegex01(): Unit = {
