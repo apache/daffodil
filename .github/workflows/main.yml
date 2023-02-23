@@ -108,7 +108,7 @@ jobs:
       - name: Install mxml library (Windows)
         if: runner.os == 'Windows'
         run: |
-          # Our runtime2 tests may break if mxml library is compiled with clang
+          # Our codegen-c tests may break if mxml library is compiled with clang
           export AR=ar CC=cc
           cd mxml
           ./configure --prefix=/usr --disable-shared --disable-threads
