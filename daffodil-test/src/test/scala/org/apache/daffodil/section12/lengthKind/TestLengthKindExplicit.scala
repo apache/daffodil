@@ -107,4 +107,50 @@ class TestLengthKindExplicit {
   @Test def test_invalidLengthUnitsDecimalWarning_explicit(): Unit = {
     runner.runOneTest("invalidLengthUnitsDecimalWarning_explicit")
   }
+
+  @Test def test_invalidUnsignedLongBitLength(): Unit = {
+    runner.runOneTest("invalidUnsignedLongBitLength")
+  }
+
+  @Test def test_invalidUnsignedLongByteLength(): Unit = {
+    runner.runOneTest("invalidUnsignedLongByteLength")
+  }
+  @Test def test_invalidUnsignedIntBitLength(): Unit = {
+    runner.runOneTest("invalidUnsignedIntBitLength")
+  }
+  @Test def test_invalidUnsignedShortBitLength(): Unit = {
+    runner.runOneTest("invalidUnsignedShortBitLength")
+  }
+  @Test def test_invalidUnsignedByteBitLength(): Unit = {
+    runner.runOneTest("invalidUnsignedByteBitLength")
+  }
+
+  @Test def test_invalidLongBitLength(): Unit = {
+    runner.runOneTest("invalidLongBitLength")
+  }
+  @Test def test_invalidIntBitLength(): Unit = {
+    runner.runOneTest("invalidIntBitLength")
+  }
+  @Test def test_invalidShortBitLength(): Unit = {
+    runner.runOneTest("invalidShortBitLength")
+  }
+  @Test def test_invalidByteBitLength(): Unit = {
+    runner.runOneTest("invalidByteBitLength")
+  }
+
+  @Test def test_invalidLongBitLengthExpr(): Unit = {
+    runner.runOneTest("invalidLongBitLengthExpr")
+  }
+
+  @Test def test_invalidIntBitLengthExpr(): Unit = {
+    runner.runOneTest("invalidIntBitLengthExpr")
+  }
+
+  @Test def test_invalidShortBitLengthExpr(): Unit = {
+    runner.runOneTest("invalidShortBitLengthExpr")
+  }
+
+  @Test def test_invalidByteBitLengthExpr(): Unit = {
+    runner.runOneTest("invalidByteBitLengthExpr")
+  }
 }

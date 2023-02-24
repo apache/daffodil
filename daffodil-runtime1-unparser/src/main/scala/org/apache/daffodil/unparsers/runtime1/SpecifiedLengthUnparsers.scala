@@ -225,7 +225,6 @@ final class SpecifiedLengthExplicitImplicitUnparser(
    * will be provided in bits.
    */
   def unparseBits(state: UState): Unit = {
-
     val maybeTLBits = getMaybeTL(state, targetLengthInBitsEv)
 
     if (maybeTLBits.isDefined) {

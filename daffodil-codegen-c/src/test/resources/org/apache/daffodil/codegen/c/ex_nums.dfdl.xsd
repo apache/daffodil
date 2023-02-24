@@ -138,7 +138,7 @@
                                         dfdl:byteOrder="littleEndian"/>
                             <xs:element name="le_int8" type="xs:byte"
                                         dfdl:byteOrder="littleEndian"/>
-                            <xs:element name="le_int46" type="xs:int"
+                            <xs:element name="le_int46" type="xs:integer"
                                         dfdl:byteOrder="littleEndian"
                                         dfdl:length="46"
                                         dfdl:lengthKind="explicit"/>

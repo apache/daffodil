@@ -281,4 +281,32 @@ class TestLengthKindPrefixed {
     runner.runOneTest("invalidLengthUnits_prefixed")
   }
 
+  @Test def test_invalidUnsignedLongBitLength(): Unit = {
+    runner.runOneTest("invalidUnsignedLongBitLength")
+  }
+  @Test def test_invalidUnsignedLongByteLength(): Unit = {
+    runner.runOneTest("invalidUnsignedLongByteLength")
+  }
+  @Test def test_invalidUnsignedIntBitLength(): Unit = {
+    runner.runOneTest("invalidUnsignedIntBitLength")
+  }
+  @Test def test_invalidUnsignedShortBitLength(): Unit = {
+    runner.runOneTest("invalidUnsignedShortBitLength")
+  }
+  @Test def test_invalidUnsignedByteBitLength(): Unit = {
+    runner.runOneTest("invalidUnsignedByteBitLength")
+  }
+
+  @Test def test_invalidLongBitLength(): Unit = {
+    runner.runOneTest("invalidLongBitLength")
+  }
+  @Test def test_invalidIntBitLength(): Unit = {
+    runner.runOneTest("invalidIntBitLength")
+  }
+  @Test def test_invalidShortBitLength(): Unit = {
+    runner.runOneTest("invalidShortBitLength")
+  }
+  @Test def test_invalidByteBitLength(): Unit = {
+    runner.runOneTest("invalidByteBitLength")
+  }
 }

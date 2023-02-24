@@ -705,8 +705,9 @@ trait ElementBase
     // of a variable-width charset, so greater than 0, but we don't know
     // exactly.
     Assert.usage(repElement.isFixedLength)
-    if (repElement.lengthKind =:= LengthKind.Explicit) repElement.lengthEv.optConstant.get
-    else {
+    if (repElement.lengthKind =:= LengthKind.Explicit) {
+      repElement.lengthEv.optConstant.get
+    } else {
       Assert.invariant(repElement.lengthKind =:= LengthKind.Implicit)
       // it's a string with implicit length. get from facets
       schemaDefinitionUnless(
@@ -750,21 +751,47 @@ trait ElementBase
 
   // FIXME: bless this method. Deprecate and remove other less reliable things.
   final lazy val maybeFixedLengthInBits: MaybeULong = {
-    if (isRepresented && repElement.isFixedLength) {
-      val bitsMultiplier = repElement.lengthUnits match {
-        case LengthUnits.Bits => 1
-        case LengthUnits.Bytes => 8
-        case LengthUnits.Characters =>
-          if (knownEncodingIsFixedWidth) knownEncodingWidthInBits else -1
-      }
-      if (bitsMultiplier > 0) {
-        MaybeULong(repElement.fixedLengthValue * bitsMultiplier)
+    val result = {
+      if (isRepresented && repElement.isFixedLength) {
+        val bitsMultiplier = repElement.lengthUnits match {
+          case LengthUnits.Bits => 1
+          case LengthUnits.Bytes => 8
+          case LengthUnits.Characters =>
+            if (knownEncodingIsFixedWidth) knownEncodingWidthInBits else -1
+        }
+        if (bitsMultiplier > 0) {
+          MaybeULong(repElement.fixedLengthValue * bitsMultiplier)
+        } else {
+          MaybeULong.Nope
+        }
       } else {
         MaybeULong.Nope
       }
-    } else {
-      MaybeULong.Nope
     }
+
+    // Validate that the number of bits does not exceed the maximum number of
+    // bits allowed for the type
+    if (
+      result.isDefined && repElement.isSimpleType && representation == Representation.Binary
+    ) {
+      primType match {
+        case primNumeric: NodeInfo.PrimType.PrimNumeric =>
+          if (primNumeric.width.isDefined) {
+            val nBits = result.get
+            val width = primNumeric.width.get
+            if (nBits > width) {
+              SDE(
+                "Number of bits %d out of range for binary %s, must be between 1 and %d bits.",
+                nBits,
+                primNumeric.globalQName,
+                width,
+              )
+            }
+          }
+        case _ =>
+      }
+    }
+    result
   }
 
   /**
