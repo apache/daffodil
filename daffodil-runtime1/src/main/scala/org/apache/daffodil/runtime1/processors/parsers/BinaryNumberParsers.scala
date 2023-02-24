@@ -167,6 +167,16 @@ abstract class BinaryIntegerBaseParser(
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     if (nBits == 0) return // zero length is used for outputValueCalc often.
+    if (primNumeric.width.isDefined) {
+      val width = primNumeric.width.get
+      if (nBits > width)
+        PE(
+          start,
+          "Number of bits %d out of range, must be between 1 and %d bits.",
+          nBits,
+          width,
+        )
+    }
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
       PENotEnoughBits(start, nBits, dis.remainingBits)

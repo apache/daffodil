@@ -831,7 +831,7 @@
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="stringy" type="xs:string" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="6"/>
-    <xs:element name="inty" type="xs:int" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="6"/>
+    <xs:element name="inty" type="xs:integer" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="6"/>
     <xs:element name="inty02" type="xs:int" dfdl:representation="binary" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="2"/>
 
   </tdml:defineSchema>
@@ -1048,6 +1048,294 @@
       <tdml:warning>lengthUnits='bits'</tdml:warning>
       <tdml:warning>will only be supported</tdml:warning>
     </tdml:warnings>
+  </tdml:parserTestCase>
+
+  <!--
+    These tests check for the condition where the bit length exceeds the width of the
+    specified type when the value is a constant. All numeric signed and unsigned types are checked
+    using invalid bit lengths, and there is one check for an invalid byte length.
+  -->
+  <tdml:defineSchema name="invalidUnsignedLongBitLength">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="128"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidUnsignedLongBitLength" root="r" model="invalidUnsignedLongBitLength"
+                       description="Check for invalid bit length with an unsigned long">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>128 out of range</tdml:error>
+      <tdml:error>between 1 and 64</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidUnsignedLongByteLength">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r" type="xs:unsignedLong" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="16"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidUnsignedLongByteLength" root="r" model="invalidUnsignedLongByteLength"
+                       description="Check for invalid byte length with an unsigned long">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>128 out of range</tdml:error>
+      <tdml:error>between 1 and 64</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidUnsignedIntBitLength">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="64"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidUnsignedIntBitLength" root="r" model="invalidUnsignedIntBitLength"
+                       description="Check for invalid bit length with an unsigned int">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>64 out of range</tdml:error>
+      <tdml:error>between 1 and 32</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidUnsignedShortBitLength">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r" type="xs:unsignedShort" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="32"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidUnsignedShortBitLength" root="r" model="invalidUnsignedShortBitLength"
+                       description="Check for invalid bit length with an unsigned short">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>32 out of range</tdml:error>
+      <tdml:error>between 1 and 16</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidUnsignedByteBitLength">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r" type="xs:unsignedByte" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="16"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidUnsignedByteBitLength" root="r" model="invalidUnsignedByteBitLength"
+                       description="Check for invalid bit length with an unsigned byte">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>16 out of range</tdml:error>
+      <tdml:error>between 1 and 8</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidLongBitLength">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r" type="xs:long" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="128"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidLongBitLength" root="r" model="invalidLongBitLength"
+                       description="Check for invalid bit length with a signed long">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>128 out of range</tdml:error>
+      <tdml:error>between 1 and 64</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidIntBitLength">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r" type="xs:int" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="64"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidIntBitLength" root="r" model="invalidIntBitLength"
+                       description="Check for invalid bit length with an signed in">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>64 out of range</tdml:error>
+      <tdml:error>between 1 and 32</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidShortBitLength">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r" type="xs:short" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="32"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidShortBitLength" root="r" model="invalidShortBitLength"
+                       description="Check for invalid bit length with a signed short">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>32 out of range</tdml:error>
+      <tdml:error>between 1 and 16</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidByteBitLength">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r" type="xs:byte" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="16"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidByteBitLength" root="r" model="invalidByteBitLength"
+                       description="Check for invalid bit length with a signed byte">
+    <tdml:document>
+      <tdml:documentPart type="byte">ff</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>16 out of range</tdml:error>
+      <tdml:error>between 1 and 8</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+  These tests check for the condition where the bit length exceeds the width of the
+  specified type when the value is an expression. All numeric signed types are checked
+  using invalid bit lengths.
+  -->
+  <tdml:defineSchema name="invalidLongBitLengthExpr">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedByte"/>
+          <xs:element name="v" type="xs:long" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidLongBitLengthExpr" root="r" model="invalidLongBitLengthExpr"
+                       description="">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        80
+        ff ff ff ff
+        ff ff ff ff
+        ff ff ff ff
+        ff ff ff ff
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>128 out of range</tdml:error>
+      <tdml:error>between 1 and 64</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidIntBitLengthExpr">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedByte"/>
+          <xs:element name="v" type="xs:int" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidIntBitLengthExpr" root="r" model="invalidIntBitLengthExpr"
+                       description="">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        40
+        ff ff ff ff
+        ff ff ff ff
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>64 out of range</tdml:error>
+      <tdml:error>between 1 and 32</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidShortBitLengthExpr">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedByte"/>
+          <xs:element name="v" type="xs:short" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidShortBitLengthExpr" root="r" model="invalidShortBitLengthExpr"
+                       description="">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        20
+        ff ff ff ff
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>32 out of range</tdml:error>
+      <tdml:error>between 1 and 16</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="invalidByteBitLengthExpr">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedByte"/>
+          <xs:element name="v" type="xs:byte" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="invalidByteBitLengthExpr" root="r" model="invalidByteBitLengthExpr"
+                       description="">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        10
+        ff ff
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>16 out of range</tdml:error>
+      <tdml:error>between 1 and 8</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
