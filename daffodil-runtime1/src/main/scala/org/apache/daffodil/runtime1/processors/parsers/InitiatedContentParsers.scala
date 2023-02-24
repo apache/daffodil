@@ -27,7 +27,7 @@ final class InitiatedContentDiscrimOnIndexGreaterThanMinParser(
   override lazy val runtimeDependencies = Vector()
 
   final def parse(start: PState): Unit = {
-    if (start.arrayPos > min)
+    if (start.arrayIterationPos > min)
       start.resolvePointOfUncertainty()
   }
 }
@@ -47,7 +47,7 @@ final class InitiatedContentDiscrimChoiceOnlyOnFirstIndexParser(
   override lazy val runtimeDependencies = Vector()
 
   final def parse(start: PState): Unit = {
-    if (start.arrayPos == 1)
+    if (start.arrayIterationPos == 1)
       start.resolvePointOfUncertainty()
   }
 }
@@ -71,7 +71,7 @@ final class InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser(
     // branch and not to try any other branches if something in the array
     // fails.
 
-    if (start.arrayPos > min) {
+    if (start.arrayIterationPos > min) {
       // resolve the point of uncertainty associated with array elements once
       // we have parsed the required number of min occurrences. There should
       // not be a point of uncertainty associated with this array until we have
@@ -79,7 +79,7 @@ final class InitiatedContentDiscrimChoiceAndIndexGreaterThanMinParser(
       start.resolvePointOfUncertainty()
     }
 
-    if (start.arrayPos == 1) {
+    if (start.arrayIterationPos == 1) {
       // resolve the point of uncertainty associated with the initiated content
       // choice so we do not attempt to parse other branches if something fails
       start.resolvePointOfUncertainty()

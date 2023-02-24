@@ -58,7 +58,7 @@ sealed abstract class SeparatorParseHelper(
           pstate,
           "Failed to populate %s[%s]. Missing %s separator. Cause: %s",
           erd.prefixedName,
-          pstate.mpstate.arrayPos,
+          pstate.mpstate.arrayIterationPos,
           kind,
           cause,
         )

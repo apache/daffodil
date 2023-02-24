@@ -31,7 +31,6 @@ trait InfosetArray {
   def append(ie: InfosetElement): Unit
   def getOccurrence(occursIndex: Long): InfosetElement
   def length: Long
-
 }
 
 trait InfosetElement extends InfosetItem {

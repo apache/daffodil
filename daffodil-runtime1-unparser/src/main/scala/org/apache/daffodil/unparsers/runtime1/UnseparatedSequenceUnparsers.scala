@@ -46,7 +46,7 @@ class RepOrderedUnseparatedSequenceChildUnparser(
 
   override def checkArrayPosAgainstMaxOccurs(state: UState): Boolean = {
     if (ock eq OccursCountKind.Implicit)
-      state.arrayPos <= maxRepeats(state)
+      state.arrayIterationPos <= maxRepeats(state)
     else
       true
   }
@@ -92,7 +92,8 @@ class OrderedUnseparatedSequenceUnparser(
       //
       childUnparser match {
         case unparser: RepeatingChildUnparser => {
-          state.arrayIndexStack.push(1L)
+          state.arrayIterationIndexStack.push(1L)
+          state.occursIndexStack.push(1L)
           val erd = unparser.erd
           var numOccurrences = 0
           val maxReps = unparser.maxRepeats(state)
@@ -127,7 +128,8 @@ class OrderedUnseparatedSequenceUnparser(
 
                   unparseOne(unparser, erd, state)
                   numOccurrences += 1
-                  state.moveOverOneArrayIndexOnly()
+                  state.moveOverOneArrayIterationIndexOnly()
+                  state.moveOverOneOccursIndexOnly()
                   state.moveOverOneGroupIndexOnly() // array elements are always represented.
 
                   if (isArr)
@@ -140,7 +142,7 @@ class OrderedUnseparatedSequenceUnparser(
                   unparser,
                   numOccurrences,
                   maxReps,
-                  state.arrayPos - 1,
+                  state.arrayIterationPos - 1,
                 )
                 unparser.endArrayOrOptional(erd, state)
               } else {
@@ -179,7 +181,8 @@ class OrderedUnseparatedSequenceUnparser(
             Assert.invariantFailed("No event for unparing.")
           }
 
-          state.arrayIndexStack.pop()
+          state.arrayIterationIndexStack.pop()
+          state.occursIndexStack.pop()
         }
         //
         case scalarUnparser => {

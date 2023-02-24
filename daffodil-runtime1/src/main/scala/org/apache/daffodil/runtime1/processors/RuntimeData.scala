@@ -390,7 +390,7 @@ final class SimpleTypeRuntimeData(
       }
     }
 
-    // Note: dont check occurs counts // if(!checkMinMaxOccurs(e, pstate.arrayPos)) { return java.lang.Boolean.FALSE }
+    // Note: dont check occurs counts // if(!checkMinMaxOccurs(e, pstate.arrayIterationPos)) { return java.lang.Boolean.FALSE }
     OK
   }
 

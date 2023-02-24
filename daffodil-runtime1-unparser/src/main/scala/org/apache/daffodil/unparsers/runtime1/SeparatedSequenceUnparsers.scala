@@ -111,7 +111,7 @@ class RepOrderedSeparatedSequenceChildUnparser(
   with Separated {
 
   override def checkArrayPosAgainstMaxOccurs(state: UState) =
-    state.arrayPos <= maxRepeats(state)
+    state.arrayIterationPos <= maxRepeats(state)
 }
 
 class OrderedSeparatedSequenceUnparser(
@@ -316,7 +316,8 @@ class OrderedSeparatedSequenceUnparser(
       val zlDetector = childUnparser.zeroLengthDetector
       childUnparser match {
         case unparser: RepOrderedSeparatedSequenceChildUnparser => {
-          state.arrayIndexStack.push(1L)
+          state.arrayIterationIndexStack.push(1L)
+          state.occursIndexStack.push(1L)
           val erd = unparser.erd
           var numOccurrences = 0
           val maxReps = unparser.maxRepeats(state)
@@ -357,8 +358,11 @@ class OrderedSeparatedSequenceUnparser(
                   // These are so we can check invariants on these stacks being
                   // pushed and popped reliably, and incremented only once
                   //
-                  val arrayIndexBefore = state.arrayPos
-                  val arrayIndexStackDepthBefore = state.arrayIndexStack.length
+                  val arrayIterationIndexBefore = state.arrayIterationPos
+                  val arrayIterationIndexStackDepthBefore =
+                    state.arrayIterationIndexStack.length
+                  val occursIndexBefore = state.occursPos
+                  val occursIndexStackDepthBefore = state.occursIndexStack.length
                   val groupIndexBefore = state.groupPos
                   val groupIndexStackDepthBefore = state.groupIndexStack.length
 
@@ -388,9 +392,15 @@ class OrderedSeparatedSequenceUnparser(
                     )
                   }
                   numOccurrences += 1
-                  Assert.invariant(state.arrayIndexStack.length == arrayIndexStackDepthBefore)
-                  state.moveOverOneArrayIndexOnly()
-                  Assert.invariant(state.arrayPos == arrayIndexBefore + 1)
+                  Assert.invariant(
+                    state.arrayIterationIndexStack.length == arrayIterationIndexStackDepthBefore,
+                  )
+                  state.moveOverOneArrayIterationIndexOnly()
+                  Assert.invariant(state.arrayIterationPos == arrayIterationIndexBefore + 1)
+
+                  Assert.invariant(state.occursIndexStack.length == occursIndexStackDepthBefore)
+                  state.moveOverOneOccursIndexOnly()
+                  Assert.invariant(state.occursPos == occursIndexBefore + 1)
 
                   Assert.invariant(state.groupIndexStack.length == groupIndexStackDepthBefore)
                   state.moveOverOneGroupIndexOnly() // array elements are always represented.
@@ -413,7 +423,7 @@ class OrderedSeparatedSequenceUnparser(
                   unparser,
                   numOccurrences,
                   maxReps,
-                  state.arrayPos - 1,
+                  state.arrayIterationPos - 1,
                 )
                 unparser.endArrayOrOptional(erd, state)
               } else {
@@ -467,7 +477,8 @@ class OrderedSeparatedSequenceUnparser(
             // no event (state.inspect returned false)
             Assert.invariantFailed("No event for unparsing.")
           }
-          state.arrayIndexStack.pop()
+          state.arrayIterationIndexStack.pop()
+          state.occursIndexStack.pop()
         }
         case scalarUnparser =>
           trd match {
@@ -564,7 +575,8 @@ class OrderedSeparatedSequenceUnparser(
               trailingSuspendedOps,
               onlySeparatorFlag = true,
             )
-            state.moveOverOneArrayIndexOnly()
+            state.moveOverOneArrayIterationIndexOnly()
+            state.moveOverOneOccursIndexOnly()
             state.moveOverOneGroupIndexOnly()
             numOccurrences += 1
           }
@@ -595,7 +607,8 @@ class OrderedSeparatedSequenceUnparser(
       //
       childUnparser match {
         case unparser: RepOrderedSeparatedSequenceChildUnparser => {
-          state.arrayIndexStack.push(1L)
+          state.arrayIterationIndexStack.push(1L)
+          state.occursIndexStack.push(1L)
           val erd = unparser.erd
           var numOccurrences = 0
           val maxReps = unparser.maxRepeats(state)
@@ -628,8 +641,11 @@ class OrderedSeparatedSequenceUnparser(
                   // These are so we can check invariants on these stacks being
                   // pushed and popped reliably, and incremented only once
                   //
-                  val arrayIndexBefore = state.arrayPos
-                  val arrayIndexStackDepthBefore = state.arrayIndexStack.length
+                  val arrayIterationIndexBefore = state.arrayIterationPos
+                  val arrayIterationIndexStackDepthBefore =
+                    state.arrayIterationIndexStack.length
+                  val occursIndexBefore = state.occursPos
+                  val occursIndexStackDepthBefore = state.occursIndexStack.length
                   val groupIndexBefore = state.groupPos
                   val groupIndexStackDepthBefore = state.groupIndexStack.length
 
@@ -643,9 +659,15 @@ class OrderedSeparatedSequenceUnparser(
 
                   unparseOne(unparser, erd, state)
                   numOccurrences += 1
-                  Assert.invariant(state.arrayIndexStack.length == arrayIndexStackDepthBefore)
-                  state.moveOverOneArrayIndexOnly()
-                  Assert.invariant(state.arrayPos == arrayIndexBefore + 1)
+                  Assert.invariant(
+                    state.arrayIterationIndexStack.length == arrayIterationIndexStackDepthBefore,
+                  )
+                  state.moveOverOneArrayIterationIndexOnly()
+                  Assert.invariant(state.arrayIterationPos == arrayIterationIndexBefore + 1)
+
+                  Assert.invariant(state.occursIndexStack.length == occursIndexStackDepthBefore)
+                  state.moveOverOneOccursIndexOnly()
+                  Assert.invariant(state.occursPos == occursIndexBefore + 1)
 
                   Assert.invariant(state.groupIndexStack.length == groupIndexStackDepthBefore)
                   state.moveOverOneGroupIndexOnly() // array elements are always represented.
@@ -670,7 +692,7 @@ class OrderedSeparatedSequenceUnparser(
                   unparser,
                   numOccurrences,
                   maxReps,
-                  state.arrayPos - 1,
+                  state.arrayIterationPos - 1,
                 )
                 unparser.endArrayOrOptional(erd, state)
               } else {
@@ -704,7 +726,8 @@ class OrderedSeparatedSequenceUnparser(
             // no event (state.inspect returned false)
             Assert.invariantFailed("No event for unparsing.")
           }
-          state.arrayIndexStack.pop()
+          state.arrayIterationIndexStack.pop()
+          state.occursIndexStack.pop()
         }
         case scalarUnparser => {
           unparseOne(scalarUnparser, trd, state)

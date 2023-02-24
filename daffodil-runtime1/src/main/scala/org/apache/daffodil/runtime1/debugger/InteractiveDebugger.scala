@@ -1837,7 +1837,7 @@ class InteractiveDebugger(
         val longDesc = desc
 
         def getSomeValue(state: StateForDebugger): Option[Long] = {
-          if (state.arrayPos != -1) Some(state.arrayPos) else None
+          if (state.occursPos != -1) Some(state.occursPos) else None
         }
       }
 

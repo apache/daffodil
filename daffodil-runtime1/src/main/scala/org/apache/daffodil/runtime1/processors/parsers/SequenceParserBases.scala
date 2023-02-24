@@ -46,7 +46,7 @@ abstract class SequenceParserBase(
   import ParseAttemptStatus._
 
   final protected def checkN(pstate: PState, childParser: SequenceChildParser): Unit = {
-    if (pstate.arrayPos > pstate.tunable.maxOccursBounds) {
+    if (pstate.arrayIterationPos > pstate.tunable.maxOccursBounds) {
       throw new TunableLimitExceededError(
         childParser.trd.schemaFileLocation,
         "Array occurrences excceeds the maxOccursBounds tunable limit of %s",
@@ -187,11 +187,17 @@ abstract class SequenceParserBase(
               // advance array position.
               // Done unconditionally, as some failures get converted into successes
               //
-              // If ultimately this is a real failure, then mothing cares about this, it is
-              // about to get poppped/cleared anyway.
+              // If ultimately this is a real failure, then nothing cares about this, it is
+              // about to get popped/cleared anyway.
               //
               if (ais ne Done) {
-                pstate.mpstate.moveOverOneArrayIndexOnly()
+                pstate.mpstate.moveOverOneArrayIterationIndexOnly()
+
+                // If the emptyElementParsePolicy is set to treatAsAbsent, don't
+                // increment the occursIndex if the element is absent
+                if (resultOfTry != AbsentRep) {
+                  pstate.mpstate.moveOverOneOccursIndexOnly()
+                }
               }
 
               if (
@@ -509,7 +515,7 @@ abstract class SequenceParserBase(
                 pstate,
                 "Failed to populate %s[%s]. Cause: %s",
                 erd.prefixedName,
-                pstate.mpstate.arrayPos,
+                pstate.mpstate.arrayIterationPos,
                 cause,
               )
             }

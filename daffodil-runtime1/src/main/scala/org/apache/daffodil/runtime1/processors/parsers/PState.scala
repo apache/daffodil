@@ -78,7 +78,8 @@ object MPState {
 
   final class Mark {
 
-    var arrayIndexStackMark: MStack.Mark = _
+    var arrayIterationIndexStackMark: MStack.Mark = _
+    var occursIndexStackMark: MStack.Mark = _
     var groupIndexStackMark: MStack.Mark = _
     var childIndexStackMark: MStack.Mark = _
     var occursBoundsStackMark: MStack.Mark = _
@@ -86,19 +87,23 @@ object MPState {
     clear()
 
     def clear(): Unit = {
-      arrayIndexStackMark = MStack.nullMark
+      arrayIterationIndexStackMark = MStack.nullMark
+      occursIndexStackMark = MStack.nullMark
       groupIndexStackMark = MStack.nullMark
       childIndexStackMark = MStack.nullMark
       occursBoundsStackMark = MStack.nullMark
     }
 
     def captureFrom(mp: MPState): Unit = {
-      arrayIndexStackMark = mp.arrayIndexStack.mark
+      arrayIterationIndexStackMark = mp.arrayIterationIndexStack.mark
+      occursIndexStackMark = mp.occursIndexStack.mark
       groupIndexStackMark = mp.groupIndexStack.mark
       childIndexStackMark = mp.childIndexStack.mark
     }
+
     def restoreInto(mp: MPState): Unit = {
-      mp.arrayIndexStack.reset(this.arrayIndexStackMark)
+      mp.arrayIterationIndexStack.reset(this.arrayIterationIndexStackMark)
+      mp.occursIndexStack.reset(this.occursIndexStackMark)
       mp.groupIndexStack.reset(this.groupIndexStackMark)
       mp.childIndexStack.reset(this.childIndexStackMark)
     }
@@ -107,12 +112,16 @@ object MPState {
 
 class MPState private () {
 
-  val arrayIndexStack = MStackOfLong()
+  val arrayIterationIndexStack = MStackOfLong()
+  val occursIndexStack = MStackOfLong()
 
-  def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
-  def moveBackOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop - 1)
+  def moveOverOneArrayIterationIndexOnly() =
+    arrayIterationIndexStack.push(arrayIterationIndexStack.pop + 1)
 
-  def arrayPos = arrayIndexStack.top
+  def arrayIterationPos = arrayIterationIndexStack.top
+
+  def moveOverOneOccursIndexOnly() = occursIndexStack.push(occursIndexStack.pop + 1)
+  def occursPos = occursIndexStack.top
 
   val groupIndexStack = MStackOfLong()
   def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
@@ -134,7 +143,8 @@ class MPState private () {
   val escapeSchemeEVCache = new MStackOfMaybe[EscapeSchemeParserHelper]
 
   private def init(): Unit = {
-    arrayIndexStack.push(1L)
+    arrayIterationIndexStack.push(1L)
+    occursIndexStack.push(1L)
     groupIndexStack.push(1L)
     childIndexStack.push(1L)
     delimitersLocalIndexStack.push(-1)
@@ -143,7 +153,8 @@ class MPState private () {
   def verifyFinalState(): Unit = {
     // The current values of the top of these stacks might have
     // changed, but the fact that they are just 1 deep should be restored.
-    Assert.invariant(arrayIndexStack.length == 1)
+    Assert.invariant(arrayIterationIndexStack.length == 1)
+    Assert.invariant(occursIndexStack.length == 1)
     Assert.invariant(groupIndexStack.length == 1)
     Assert.invariant(childIndexStack.length == 1)
     Assert.invariant(delimitersLocalIndexStack.length == 1)
@@ -230,7 +241,8 @@ final class PState private (
   def thisElement = infoset
 
   override def groupPos = mpstate.groupPos
-  override def arrayPos = mpstate.arrayPos
+  override def arrayIterationPos = mpstate.arrayIterationPos
+  override def occursPos = mpstate.occursPos
   override def childPos = mpstate.childPos
 
   private val markPool = new PState.MarkPool

@@ -63,7 +63,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
       dstate.setContextNode(state.thisElement.asInstanceOf[DINode]) // used for diagnostics
     }
 
-    dstate.setArrayPos(state.arrayPos)
+    dstate.setOccursIndex(state.occursPos)
     dstate.setErrorOrWarn(state)
     dstate.resetValue
     dstate.isCompile = state match {
