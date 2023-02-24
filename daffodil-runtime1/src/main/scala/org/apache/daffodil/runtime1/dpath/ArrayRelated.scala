@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.dpath
 
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.runtime1.infoset.InfosetNoInfosetException
 
@@ -79,9 +78,9 @@ case object FNExactlyOne extends RecipeOp {
 
 case object DFDLOccursIndex extends RecipeOp {
   override def run(dstate: DState): Unit = {
-    Assert.invariant(dstate.arrayPos >= 1)
-    if (dstate.isCompile)
+    if (dstate.isCompile) {
       throw new InfosetNoInfosetException(Nope)
-    dstate.setCurrentValue(dstate.arrayPos)
+    }
+    dstate.setCurrentValue(dstate.occursIndex)
   }
 }

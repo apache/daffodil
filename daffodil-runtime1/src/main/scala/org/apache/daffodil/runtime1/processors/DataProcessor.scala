@@ -587,7 +587,8 @@ class DataProcessor(
     state.setProcessor(rootUnparser)
 
     // Verify that all stacks are empty
-    Assert.invariant(state.arrayIndexStack.length == 1)
+    Assert.invariant(state.arrayIterationIndexStack.length == 1)
+    Assert.invariant(state.occursIndexStack.length == 1)
     Assert.invariant(state.groupIndexStack.length == 1)
     Assert.invariant(state.childIndexStack.length == 1)
     Assert.invariant(state.currentInfosetNodeMaybe.isEmpty)

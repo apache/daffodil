@@ -23,7 +23,6 @@ import java.math.{ BigDecimal => JBigDecimal }
 import java.util.HashMap
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-import scala.collection.IndexedSeq
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.io.DataOutputStream

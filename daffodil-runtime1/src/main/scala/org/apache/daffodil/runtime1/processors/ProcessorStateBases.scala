@@ -70,7 +70,8 @@ trait StateForDebugger {
   def bitLimit0b: MaybeULong
   def childPos: Long
   def groupPos: Long
-  def arrayPos: Long
+  def arrayIterationPos: Long
+  def occursPos: Long
   def variableMapForDebugger: VariableMap
   def delimitedParseResult: Maybe[dfa.ParseResult]
   def withinHiddenNest: Boolean
@@ -83,7 +84,8 @@ case class TupleForDebugger(
   val bitLimit0b: MaybeULong,
   val childPos: Long,
   val groupPos: Long,
-  val arrayPos: Long,
+  val arrayIterationPos: Long,
+  val occursPos: Long,
   val variableMapForDebugger: VariableMap,
   val delimitedParseResult: Maybe[dfa.ParseResult],
   val withinHiddenNest: Boolean,
@@ -473,7 +475,8 @@ abstract class ParseOrUnparseState protected (
       bitLimit0b,
       childPos,
       groupPos,
-      arrayPos,
+      arrayIterationPos,
+      occursPos,
       variableMap.copy(), // deep copy since variableMap is mutable
       delimitedParseResult,
       withinHiddenNest,
@@ -506,7 +509,8 @@ abstract class ParseOrUnparseState protected (
   final def bytePos = bytePos0b
 
   def groupPos: Long
-  def arrayPos: Long
+  def arrayIterationPos: Long
+  def occursPos: Long
   def childPos: Long
 
   def hasInfoset: Boolean
@@ -604,7 +608,8 @@ final class CompileState(
   tunable: DaffodilTunables,
 ) extends ParseOrUnparseState(tci.variableMap, Nil, maybeDataProc, tunable) {
 
-  def arrayPos: Long = 1L
+  def arrayIterationPos: Long = 1L
+  def occursPos: Long = 1L
   def bitLimit0b: MaybeULong = MaybeULong.Nope
   def bitPos0b: Long = 0L
   def childPos: Long = 0L

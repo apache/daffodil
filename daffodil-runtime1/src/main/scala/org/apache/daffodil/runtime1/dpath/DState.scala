@@ -367,10 +367,10 @@ case class DState(
     _savesErrorsAndWarnings = One(s)
   }
 
-  private var _arrayPos: Long = -1L // init to -1L so that we must set before use.
-  def arrayPos = _arrayPos
-  def setArrayPos(arrayPos1b: Long): Unit = {
-    _arrayPos = arrayPos1b
+  private var _occursIndex: Long = -1
+  def occursIndex = _occursIndex
+  def setOccursIndex(index: Long): Unit = {
+    _occursIndex = index
   }
 
   def SDE(formatString: String, args: Any*) = {
@@ -450,7 +450,6 @@ class DStateForConstantFolding(
   override def runtimeData = die
   override def selfMove() = die
   override def fnExists() = die
-  override def arrayPos = die
   override def arrayLength = die
   override val typeCalculators = compileInfo.typeCalcMap
 

@@ -291,7 +291,7 @@ abstract class RepeatingChildParser(
   def arrayIndexStatus(minRepeats: Long, maxRepeats: Long, pstate: PState): ArrayIndexStatus = {
     import ArrayIndexStatus._
     Assert.invariant(pstate.processorStatus eq Success)
-    val apos = pstate.arrayPos
+    val apos = pstate.arrayIterationPos
     val result: ArrayIndexStatus =
       if (apos <= minRepeats)
         Required
@@ -331,7 +331,8 @@ abstract class RepeatingChildParser(
    * there can be more than 1 occurrence.
    */
   def startArray(state: PState): Unit = {
-    state.mpstate.arrayIndexStack.push(1L) // one-based indexing
+    state.mpstate.arrayIterationIndexStack.push(1L) // one-based indexing
+    state.mpstate.occursIndexStack.push(1L)
   }
 
   /**
@@ -344,7 +345,8 @@ abstract class RepeatingChildParser(
    * by way of index: e.g., fn:exists( optElement[dfdl:currentIndex()]  )
    */
   def endArray(state: PState): Unit = {
-    state.mpstate.arrayIndexStack.pop()
+    state.mpstate.arrayIterationIndexStack.pop()
+    state.mpstate.occursIndexStack.pop()
     super.endArray(state)
   }
 

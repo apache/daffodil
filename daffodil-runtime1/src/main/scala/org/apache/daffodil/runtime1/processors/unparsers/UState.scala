@@ -145,10 +145,12 @@ abstract class UState(
   def popDelimiters(): Unit
 
   def currentInfosetNodeStack: MStackOfMaybe[DINode]
-  def arrayIndexStack: MStackOfLong
+  def arrayIterationIndexStack: MStackOfLong
+  def occursIndexStack: MStackOfLong
   def childIndexStack: MStackOfLong
   def groupIndexStack: MStackOfLong
-  def moveOverOneArrayIndexOnly(): Unit
+  def moveOverOneArrayIterationIndexOnly(): Unit
+  def moveOverOneOccursIndexOnly(): Unit
   def moveOverOneGroupIndexOnly(): Unit
   def moveOverOneElementChildOnly(): Unit
 
@@ -166,7 +168,7 @@ abstract class UState(
     Assert.invariant(Maybe.WithNulls.isDefined(currentInfosetNode))
     currentInfosetNode match {
       case a: DIArray => {
-        a.getOccurrence(arrayPos)
+        a.getOccurrence(arrayIterationPos)
       }
       case e: DIElement => thisElement
     }
@@ -413,6 +415,7 @@ final class UStateForSuspension(
   override var dataOutputStream: DirectOrBufferedDataOutputStream,
   vbox: VariableBox,
   override val currentInfosetNode: DINode,
+  arrayIterationIndex: Long,
   occursIndex: Long,
   escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
   delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
@@ -447,8 +450,10 @@ final class UStateForSuspension(
   override def advanceOrError = die
   override def isInspectArrayEnd = die
   override def currentInfosetNodeStack = die
-  override def arrayIndexStack = die
-  override def moveOverOneArrayIndexOnly() = die
+  override def arrayIterationIndexStack = die
+  override def moveOverOneArrayIterationIndexOnly() = die
+  override def occursIndexStack = die
+  override def moveOverOneOccursIndexOnly() = die
   override def groupIndexStack = die
   override def moveOverOneGroupIndexOnly() = die
   override def childIndexStack = die
@@ -459,7 +464,8 @@ final class UStateForSuspension(
 
   override def groupPos = 0 // was die, but this is called when copying state during debugging
   override def currentInfosetNodeMaybe = Maybe(currentInfosetNode)
-  override def arrayPos = occursIndex
+  override def arrayIterationPos = arrayIterationIndex
+  override def occursPos = occursIndex
   override def childPos = 0 // was die, but this is called when copying state during debugging.
 
   override def localDelimiters = delimiterStackMaybe.get.top
@@ -559,7 +565,8 @@ final class UStateMain private (
       suspendedDOS,
       variableBox.cloneForSuspension,
       currentInfosetNodeStack.top.get, // only need the to of the stack, not the whole thing
-      arrayIndexStack.top, // only need the top of the stack, not the whole thing
+      arrayIterationIndexStack.top, // only need the top of the stack, not the whole thing
+      occursIndexStack.top,
       es,
       ds,
       tunable,
@@ -647,10 +654,16 @@ final class UStateMain private (
 
   override val currentInfosetNodeStack = new MStackOfMaybe[DINode]
 
-  override val arrayIndexStack = MStackOfLong()
-  arrayIndexStack.push(1L)
-  override def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
-  override def arrayPos = arrayIndexStack.top
+  override val arrayIterationIndexStack = MStackOfLong()
+  arrayIterationIndexStack.push(1L)
+  override def moveOverOneArrayIterationIndexOnly() =
+    arrayIterationIndexStack.push(arrayIterationIndexStack.pop + 1)
+  override def arrayIterationPos = arrayIterationIndexStack.top
+
+  override val occursIndexStack = MStackOfLong()
+  occursIndexStack.push(1L)
+  override def moveOverOneOccursIndexOnly() = occursIndexStack.push(occursIndexStack.pop + 1)
+  override def occursPos = occursIndexStack.top
 
   override val groupIndexStack = MStackOfLong()
   groupIndexStack.push(1L)
