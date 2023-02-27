@@ -67,7 +67,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
         case e: PathExpressionNoContextError => {
           host.SDW(
             WarnID.ExpressionCompilationSkipped,
-            s"Expression compilation skipped due to path expression in unreferenced group or complex type: $expr",
+            s"Expression compilation skipped due to path expression in unreferenced element, group, or complex type: $expr",
           )
           new CompiledDPath(RuntimeAbortOp(expr))
         }

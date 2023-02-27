@@ -868,11 +868,25 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   extends Expression {
 
   def relPathErr() = {
-    val err = new RelativePathPastRootError(
-      this.schemaFileLocation,
-      "Relative path '%s' past root element.",
-      this.wholeExpressionText,
-    )
+    // This path expression cannot be compiled because we went past the root. This normally
+    // should be an SDE with a RelativePathPastRootError. However, if we don't have any element
+    // compile infos or the current root is not the distinguished root that Daffodil is
+    // compiling, it means this expression is used on a term that is not a descendent of the
+    // distinguished root. The expression might make sense if a different distinguished root were
+    // compiled and used the term, but we can't tell. But it doesn't matter since this
+    // expression will never be used because it's not a descendent of the distinguished root. So
+    // we can just throw a "no context" exception which outputs a warning and allows Daffodil to
+    // continue compilation.
+    val err =
+      if (compileInfo.elementCompileInfos.isEmpty || !rootElement.isDistinguishedRoot) {
+        new PathExpressionNoContextError()
+      } else {
+        new RelativePathPastRootError(
+          this.schemaFileLocation,
+          "Relative path '%s' past root element.",
+          this.wholeExpressionText,
+        )
+      }
     toss(err)
   }
 
@@ -1252,10 +1266,22 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
     val res: Seq[DPathElementCompileInfo] =
       if (isFirstStep) {
         if (isAbsolutePath) {
-          // has to be the root element, but we have to make sure the name matches.
-          val re = rootElement
-          re.findRoot(stepQName, this)
-          Seq(re)
+          if (compileInfo.elementCompileInfos.isEmpty || !rootElement.isDistinguishedRoot) {
+            // If we don't have any element compile infos or the current root is not the
+            // distinguished root that Daffodil is compiling, it means this expression is used
+            // on a term that is not a descendent of the distinguished root. The expression might
+            // make sense if a different distinguished root were compiled and used the term, but
+            // we can't tell. But it doesn't matter since this expression will never be used
+            // because it's not a descendent of the distinguished root. So we can just throw a
+            // "no context" exception which outputs a warning and allows Daffodil to continue
+            // compilation.
+            throw new PathExpressionNoContextError()
+          } else {
+            // Our root is the distinguished root, so ensure that the named step exists as the
+            // root element
+            rootElement.findRoot(stepQName, this)
+          }
+          Seq(rootElement)
         } else {
           // Since we're first we start from the element, or nearest enclosing
           // for this path expression.

@@ -365,6 +365,7 @@ class DPathElementCompileInfo(
   typeCalcMap: TypeCalcMap,
   val sscd: String,
   val isOutputValueCalc: Boolean,
+  val isDistinguishedRoot: Boolean,
 ) extends DPathCompileInfo(
     parentsDelay.asInstanceOf[Delay[Seq[DPathCompileInfo]]],
     variableMap,

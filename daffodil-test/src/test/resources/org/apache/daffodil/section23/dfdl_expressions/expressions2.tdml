@@ -300,6 +300,19 @@
       <tdml:warning>Expression compilation skipped</tdml:warning>
       <tdml:warning>value1</tdml:warning>
       <tdml:warning>value2</tdml:warning>
+      <tdml:warning>value3</tdml:warning>
+      <tdml:warning>value4</tdml:warning>
+      <tdml:warning>value5</tdml:warning>
+      <tdml:warning>value6</tdml:warning>
+      <tdml:warning>value7</tdml:warning>
+      <tdml:warning>value8</tdml:warning>
+      <tdml:warning>value9</tdml:warning>
+      <tdml:warning>value10</tdml:warning>
+      <tdml:warning>value11</tdml:warning>
+      <tdml:warning>value12</tdml:warning>
+      <tdml:warning>value13</tdml:warning>
+      <tdml:warning>value14</tdml:warning>
+      <tdml:warning>value15</tdml:warning>
     </tdml:warnings>
   </tdml:parserTestCase>
  

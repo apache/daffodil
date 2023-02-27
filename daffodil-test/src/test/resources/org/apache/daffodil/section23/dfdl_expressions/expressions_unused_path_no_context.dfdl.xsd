@@ -28,20 +28,119 @@
     </xs:appinfo>
   </xs:annotation>
 
+
   <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
 
-  <xs:group name="unused_group">
+  <xs:group name="unused_group_1">
     <xs:sequence>
       <xs:element name="value1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
       <xs:sequence dfdl:terminator="{ ./value1 }" />
     </xs:sequence>
   </xs:group>
 
-  <xs:complexType name="unused_complex_type">
+  <xs:complexType name="unused_complex_type_1">
     <xs:sequence>
       <xs:element name="value2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
       <xs:sequence dfdl:terminator="{ ./value2 }"/>
     </xs:sequence>
   </xs:complexType>
+
+
+  <xs:group name="unused_group_2">
+    <xs:sequence>
+      <xs:sequence dfdl:terminator="{ ./value3 }" />
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="unused_complex_type_2">
+    <xs:sequence>
+      <xs:sequence dfdl:terminator="{ ./value4 }"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="unused_element_2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:sequence dfdl:terminator="{ ./value5 }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:group name="unused_group_3">
+    <xs:sequence>
+      <xs:element name="unused" type="xs:string" dfdl:terminator="{ ../value6 }" />
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="unused_complex_type_3">
+    <xs:sequence>
+      <xs:element name="unused" type="xs:string" dfdl:terminator="{ ../value7 }" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="unused_element_3">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="unused" type="xs:string" dfdl:terminator="{ ../../value8 }" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="unused_element_4">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="value9" type="xs:string" />
+        <xs:element name="nest1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="nest2" type="xs:string" dfdl:terminator="{ ../../value9 }" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:group name="unused_group_5">
+    <xs:sequence>
+      <xs:sequence dfdl:terminator="{ /absolute/value10 }" />
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="unused_complex_type_5">
+    <xs:sequence>
+      <xs:sequence dfdl:terminator="{ /absolute/value11 }"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="unused_element_5">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:sequence dfdl:terminator="{ /absolute/value12 }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:group name="unused_group_6">
+    <xs:sequence>
+      <xs:element name="unused" type="xs:string" dfdl:terminator="{ /absolute/value13 }" />
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="unused_complex_type_6">
+    <xs:sequence>
+      <xs:element name="unused" type="xs:string" dfdl:terminator="{ /absolute/value14 }" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="unused_element_6">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="unused" type="xs:string" dfdl:terminator="{ /absolute/value15 }" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
 </xs:schema>
