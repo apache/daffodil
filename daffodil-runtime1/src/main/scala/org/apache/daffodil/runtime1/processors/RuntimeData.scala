@@ -744,8 +744,9 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
       null, // override val unqualifiedPathStepPolicy : UnqualifiedPathStepPolicy,
       null, // typeCalcMap: TypeCalcMap,
       null, // val sscd: String),
-      false,
-    ), // val isOutputValueCalc: Boolean
+      false, // val isOutputValueCalc: Boolean
+      false, // val isDistinguishedRoot: Boolean
+    ),
     null, // SchemaFileLocation
     local, // diagnosticDebugName: String,
     local, // pathArg: => String,

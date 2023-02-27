@@ -21,6 +21,7 @@ import org.apache.daffodil.core.dsom.ComplexTypeBase
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.PrefixLengthQuasiElementDecl
 import org.apache.daffodil.core.dsom.PrimitiveType
+import org.apache.daffodil.core.dsom.Root
 import org.apache.daffodil.core.dsom.SimpleTypeDefBase
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
@@ -157,9 +158,12 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       schemaSet.typeCalcMap,
       shortSchemaComponentDesignator,
       isOutputValueCalc,
+      isDistinguishedRoot,
     )
     eci
   }
+
+  private lazy val isDistinguishedRoot = this.isInstanceOf[Root]
 
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
