@@ -79,8 +79,7 @@ class TestEntities {
   @Test def test_byte_entities_6_06(): Unit = { runner_01.runOneTest("byte_entities_6_06") }
   @Test def test_byte_entities_6_07(): Unit = { runner_01.runOneTest("byte_entities_6_07") }
   @Test def test_byte_entities_6_08(): Unit = { runner_01.runOneTest("byte_entities_6_08") }
-  // DAFFODIL-2102
-  //  @Test def test_byte_entities_6_10() { runner_01.runOneTest("byte_entities_6_10") }
+  @Test def test_byte_entities_6_10(): Unit = { runner_01.runOneTest("byte_entities_6_10") }
 
   @Test def test_whitespace_01(): Unit = { runner_01.runOneTest("whitespace_01") }
   @Test def test_whitespace_02(): Unit = { runner_01.runOneTest("whitespace_02") }
