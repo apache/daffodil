@@ -57,6 +57,7 @@ import org.apache.daffodil.core.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthImplicit
 import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
@@ -216,7 +217,8 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
    * Adds a warning message to the diagnostics
    */
   private def warning(formatString: String, args: Any*): Unit = {
-    val sde = new SchemaDefinitionWarning(None, None, formatString, args: _*)
+    val sde =
+      new SchemaDefinitionWarning(WarnID.CodeGenerator, None, None, formatString, args: _*)
     diagnostics :+= sde
   }
 
