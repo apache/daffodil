@@ -21,6 +21,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.Map
 
 import org.apache.daffodil.lib.api.ThinDiagnostic
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.externalvars.Binding
@@ -450,6 +451,7 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
            * the way we evaluate escapeSchemes it could lead us to setting the
            * variable read too early */
           pstate.SDW(
+            WarnID.VariableSet,
             "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
             variable.rd.globalQName,
             VariableSet,
@@ -463,8 +465,8 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
           vrd.direction match {
             /**
              * Due to potential race conditions regarding the setting of
-             * variables via setVariable and default values in cominbation with
-             * suspesions during unparsing, we only allow the use of either
+             * variables via setVariable and default values in combination with
+             * suspensions during unparsing, we only allow the use of either
              * setVariable statements or a default value when unparsing a
              * variable.
              */

@@ -50,7 +50,12 @@ class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
   }
 
   private def loaderSDWs: Seq[Diagnostic] = loaderWarnings.map {
-    new SchemaDefinitionWarning(schemaFileLocation, "Warning loading schema due to %s", _)
+    new SchemaDefinitionWarning(
+      WarnID.XmlParser,
+      schemaFileLocation,
+      "Warning loading schema due to %s",
+      _,
+    )
   }
 
   def loadingDiagnostics = loaderSDEs ++ loaderSDWs
