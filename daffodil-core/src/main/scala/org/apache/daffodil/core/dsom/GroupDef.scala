@@ -141,7 +141,7 @@ sealed abstract class GlobalGroupDef(
     if (dais.nonEmpty)
       SDW(
         WarnID.InvalidAnnotationPoint,
-        "Annotations placed directly on a group definition will be ignored by DFDL. Any annotation expected to be processed by DFDL should instead be placed on the group reference, sequence or choice."
+        "Annotations placed directly on a group definition will be ignored by DFDL. Any annotation expected to be processed by DFDL should instead be placed on the group reference, sequence or choice.",
       )
   }
 
