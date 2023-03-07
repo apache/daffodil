@@ -1000,4 +1000,161 @@
       <tdml:error>zero</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="emptyValueDelimiterPolicy">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
+    <xs:element name="none">
+      <xs:complexType>
+        <xs:sequence
+                dfdl:separator=","
+                dfdl:separatorPosition="infix"
+                dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element
+                  name="FirstName"
+                  type="xs:string" />
+          <xs:element
+                  name="MiddleName"
+                  type="xs:string"
+                  dfdl:initiator="("
+                  dfdl:terminator=")"
+                  dfdl:emptyValueDelimiterPolicy="none" />
+          <xs:element
+                  name="LastName"
+                  type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="both">
+      <xs:complexType>
+        <xs:sequence
+                dfdl:separator=","
+                dfdl:separatorPosition="infix"
+                dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element
+                  name="FirstName"
+                  type="xs:string" />
+          <xs:element
+                  name="MiddleName"
+                  type="xs:string"
+                  dfdl:initiator="("
+                  dfdl:terminator=")"
+                  dfdl:emptyValueDelimiterPolicy="both" />
+          <xs:element
+                  name="LastName"
+                  type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="initiator">
+      <xs:complexType>
+        <xs:sequence
+                dfdl:separator=","
+                dfdl:separatorPosition="infix"
+                dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element
+                  name="FirstName"
+                  type="xs:string" />
+          <xs:element
+                  name="MiddleName"
+                  type="xs:string"
+                  dfdl:initiator="MI:"
+                  dfdl:terminator="."
+                  dfdl:emptyValueDelimiterPolicy="initiator" />
+          <xs:element
+                  name="LastName"
+                  type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="terminator">
+      <xs:complexType>
+        <xs:sequence
+                dfdl:separator=","
+                dfdl:separatorPosition="infix"
+                dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element
+                  name="FirstName"
+                  type="xs:string" />
+          <xs:element
+                  name="MiddleName"
+                  type="xs:string"
+                  dfdl:initiator="MI:"
+                  dfdl:terminator="."
+                  dfdl:emptyValueDelimiterPolicy="terminator"/>
+          <xs:element
+                  name="LastName"
+                  type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="emptyValueDelimiterPolicy_none"
+                       model="emptyValueDelimiterPolicy"
+                       description=""
+                       root="none">
+    <tdml:document>John,,Doe</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <none>
+          <FirstName>John</FirstName>
+          <MiddleName/>
+          <LastName>Doe</LastName>
+        </none>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="emptyValueDelimiterPolicy_both"
+                       model="emptyValueDelimiterPolicy"
+                       description=""
+                       root="both">
+    <tdml:document>John,(),Doe</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <both>
+          <FirstName>John</FirstName>
+          <MiddleName/>
+          <LastName>Doe</LastName>
+        </both>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="emptyValueDelimiterPolicy_initiator"
+                       model="emptyValueDelimiterPolicy"
+                       description=""
+                       root="initiator">
+    <tdml:document>John,MI:,Doe</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <initiator>
+          <FirstName>John</FirstName>
+          <MiddleName/>
+          <LastName>Doe</LastName>
+        </initiator>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="emptyValueDelimiterPolicy_terminator"
+                       model="emptyValueDelimiterPolicy"
+                       description=""
+                       root="terminator">
+    <tdml:document>John,.,Doe</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <terminator>
+          <FirstName>John</FirstName>
+          <MiddleName/>
+          <LastName>Doe</LastName>
+        </terminator>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

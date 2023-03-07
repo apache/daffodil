@@ -25,6 +25,7 @@ import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
 
 /**
  * Common to local element decls and element references
@@ -84,6 +85,10 @@ trait LocalElementMixin extends ParticleMixin with LocalElementGrammarMixin {
       else if (
         isDefaultable && !hasTerminator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Terminator
       ) true
+      else if (
+        hasInitiator && hasTerminator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.None
+      )
+        true
       else if (hasInitiator) {
         //
         // TODO: It is possible that this initiator expression cannot match zero length
@@ -123,5 +128,22 @@ trait LocalElementMixin extends ParticleMixin with LocalElementGrammarMixin {
       } else Assert.impossibleCase()
     res
   }.value
+
+  final def isDelimiterRequiredWhenEmpty(t: DelimiterTextType.Type): Boolean = {
+    val res = t match {
+      case DelimiterTextType.Initiator =>
+        if (!hasInitiator) false
+        else if (emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Both) true
+        else if (emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Initiator) true
+        else false
+      case DelimiterTextType.Terminator =>
+        if (!hasTerminator) false
+        else if (emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Both) true
+        else if (emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Terminator) true
+        else false
+      case _ => false
+    }
+    res
+  }
 
 }

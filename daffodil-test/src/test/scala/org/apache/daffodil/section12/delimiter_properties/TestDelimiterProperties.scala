@@ -89,4 +89,17 @@ class TestDelimiterProperties {
   @Test def test_emptyInitiator2() = { runner_02.runOneTest("emptyInitiator2") }
   @Test def test_emptyInitiator3() = { runner_02.runOneTest("emptyInitiator3") }
   @Test def test_emptyInitiator4() = { runner_02.runOneTest("emptyInitiator4") }
+  @Test def test_emptyValueDelimiterPolicy_none() = {
+    runner_02.runOneTest("emptyValueDelimiterPolicy_none")
+  }
+  @Test def test_emptyValueDelimiterPolicy_both() = {
+    runner_02.runOneTest("emptyValueDelimiterPolicy_both")
+  }
+  @Test def test_emptyValueDelimiterPolicy_initiator() = {
+    runner_02.runOneTest("emptyValueDelimiterPolicy_initiator")
+  }
+  @Test def test_emptyValueDelimiterPolicy_terminator() = {
+    runner_02.runOneTest("emptyValueDelimiterPolicy_terminator")
+  }
+
 }

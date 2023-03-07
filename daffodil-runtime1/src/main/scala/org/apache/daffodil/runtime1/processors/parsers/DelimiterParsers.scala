@@ -45,6 +45,8 @@ class DelimiterTextParser(
   delimiterType: DelimiterTextType.Type,
   isDelimited: Boolean,
   mustMatchNonZeroData: Boolean,
+  requiredOnEmptyValue: Boolean,
+  proceedOnMissingDelimiter: Boolean,
 ) extends TextPrimParser {
 
   override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
@@ -74,7 +76,6 @@ class DelimiterTextParser(
   }
 
   override def parse(start: PState): Unit = {
-
     val maybeDelimIter =
       if (delimiterType == DelimiterTextType.Terminator && !isDelimited) {
         Maybe(
@@ -108,12 +109,14 @@ class DelimiterTextParser(
     if (foundDelimiter.isDefined) {
       if (!containsLocalMatch(foundDelimiter.get.matchedDFAs, start)) {
         // It was a remote delimiter but we should have found a local one.
-        PE(
-          start,
-          "Found out of scope delimiter: '%s' '%s'",
-          foundDelimiter.get.matchedDFAs(0).lookingFor,
-          Misc.remapStringToVisibleGlyphs(foundDelimiter.get.matchedDelimiterValue.get),
-        )
+        if (requiredOnEmptyValue) {
+          PE(
+            start,
+            "Found out of scope delimiter: '%s' '%s'",
+            foundDelimiter.get.matchedDFAs(0).lookingFor,
+            Misc.remapStringToVisibleGlyphs(foundDelimiter.get.matchedDelimiterValue.get),
+          )
+        }
         return
       }
 
@@ -130,7 +133,6 @@ class DelimiterTextParser(
       start.clearDelimitedParseResult()
     } else {
       // no match found, gather up the local typed delims for an error message
-
       val scannedDelims = maybeDelimIter.get
       scannedDelims.reset()
 
@@ -145,8 +147,8 @@ class DelimiterTextParser(
         localTypedDelims = localTypedDelims + " " + scannedDelims.next().lookingFor
       }
 
-      PE(start, "%s '%s' not found", delimiterType.toString, localTypedDelims)
-      return
+      if (!proceedOnMissingDelimiter)
+        PE(start, "%s '%s' not found", delimiterType.toString, localTypedDelims)
     }
   }
 }

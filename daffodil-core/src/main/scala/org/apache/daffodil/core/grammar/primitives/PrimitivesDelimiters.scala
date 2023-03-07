@@ -22,6 +22,7 @@ import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.lib.schema.annotation.props.gen.EmptyValueDelimiterPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.EscapeKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.runtime1.processors.dfa.TextParser
@@ -68,15 +69,33 @@ abstract class DelimiterText(
     case _ => false
   }
 
+  // When the value is known to be empty, is this delimiter required to
+  // be present according to the emptyValueDelimiterPolicy
+  private val requiredOnEmptyValue = e match {
+    case elemB: ElementBase => elemB.isDelimiterRequiredWhenEmpty(delimiterType)
+    case _ => true
+  }
+
+  // When the value is not yet known to be empty, can we continue parsing
+  // if we have a missing delimiter
+  private val proceedOnMissingDelimiter = e match {
+    case elemB: ElementBase =>
+      delimiterType == DelimiterTextType.Initiator && elemB.emptyValueDelimiterPolicy == EmptyValueDelimiterPolicy.Terminator
+    case _ => false
+  }
+
   override lazy val parser: DaffodilParser = new DelimiterTextParser(
     e.termRuntimeData,
     textParser,
     delimiterType,
     isDelimited,
     e.mustMatchNonZeroData,
+    requiredOnEmptyValue,
+    proceedOnMissingDelimiter,
   )
   override lazy val unparser: DaffodilUnparser =
-    new DelimiterTextUnparser(e.termRuntimeData, delimiterType)
+    new DelimiterTextUnparser(e.termRuntimeData, delimiterType, requiredOnEmptyValue)
+
 }
 
 case class Initiator(e: Term) extends DelimiterText(e, e, DelimiterTextType.Initiator) {

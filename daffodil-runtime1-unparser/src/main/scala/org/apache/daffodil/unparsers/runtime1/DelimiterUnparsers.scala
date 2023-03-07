@@ -31,6 +31,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 class DelimiterTextUnparser(
   override val context: TermRuntimeData,
   delimiterType: DelimiterTextType.Type,
+  requiredOnEmptyValue: Boolean,
 ) extends TextPrimUnparser {
 
   private def erd = context
@@ -54,6 +55,15 @@ class DelimiterTextUnparser(
       s"Unparsing starting at bit position: ${state.dataOutputStream.maybeAbsBitPos0b}",
     )
 
+    // Do not emit the delimiter if the value is empty and the emptyValueDelimiterPolicy
+    // indicates it should be suppressed
+    if (state.currentInfosetNode.isSimple) {
+      val node = state.currentInfosetNode.asSimple
+      if (node.hasValue && node.isEmpty && !requiredOnEmptyValue) {
+        return
+      }
+    }
+
     val localDelimNode = state.localDelimiters
 
     val delimDFAs = {
@@ -71,7 +81,6 @@ class DelimiterTextUnparser(
 
     try {
       val valueString = delimDFA.unparseValue
-
       val outStream = state.dataOutputStream
       val nCharsWritten = outStream.putString(valueString, state)
       if (nCharsWritten != valueString.length)
