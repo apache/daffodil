@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.runtime1.processors.input
 
+import java.lang.{ Double => JDouble }
+import java.lang.{ Long => JLong }
 import java.text.ParsePosition
 
 import org.apache.daffodil.lib.calendar.TextCalendarConstants
@@ -29,6 +31,8 @@ import org.junit.Assert._
 import org.junit.Test
 
 class TestICU {
+
+  def pp = new ParsePosition(0)
 
   /*
    * This test is to ensure the reliability of ICU's fractional seconds. ICU
@@ -83,7 +87,7 @@ class TestICU {
     dfs.setNaN("NaN")
     dfs.setExponentSeparator("x10^")
     val df = new DecimalFormat("000.0#E0", dfs)
-    val posInf = java.lang.Double.POSITIVE_INFINITY
+    val posInf = JDouble.POSITIVE_INFINITY
     val str = df.format(posInf)
     // assertEquals("INFx10^0", str)
     assertEquals("INF", str)
@@ -95,7 +99,7 @@ class TestICU {
     dfs.setNaN("NaN")
     dfs.setExponentSeparator("x10^")
     val df = new DecimalFormat("000.0#E0", dfs)
-    val negInf = java.lang.Double.NEGATIVE_INFINITY
+    val negInf = JDouble.NEGATIVE_INFINITY
     val str = df.format(negInf)
     // assertEquals("-INFx10^0", str)
     assertEquals("-INF", str)
@@ -107,7 +111,7 @@ class TestICU {
     dfs.setNaN("NaN")
     dfs.setExponentSeparator("x10^")
     val df = new DecimalFormat("000.0#E0", dfs)
-    val nan = java.lang.Double.NaN
+    val nan = JDouble.NaN
     val str = df.format(nan)
     // assertEquals("NaNx10^0", str)
     assertEquals("NaN", str)
@@ -203,16 +207,73 @@ class TestICU {
     val ppNaN = new ParsePosition(0)
     val numNaN = df.parse(dfs.getNaN, ppNaN)
     assertTrue(numNaN.isInstanceOf[Double])
-    assertEquals(java.lang.Double.NaN, numNaN.doubleValue, 0.0)
+    assertEquals(JDouble.NaN, numNaN.doubleValue, 0.0)
 
     val ppInf = new ParsePosition(0)
     val numInf = df.parse(dfs.getInfinity, ppInf)
     assertTrue(numInf.isInstanceOf[Double])
-    assertEquals(java.lang.Double.POSITIVE_INFINITY, numInf.doubleValue, 0.0)
+    assertEquals(JDouble.POSITIVE_INFINITY, numInf.doubleValue, 0.0)
 
     val ppNInf = new ParsePosition(0)
     val numNInf = df.parse(dfs.getMinusSign + dfs.getInfinity, ppNInf)
     assertTrue(numNInf.isInstanceOf[Double])
-    assertEquals(java.lang.Double.NEGATIVE_INFINITY, numNInf.doubleValue, 0.0)
+    assertEquals(JDouble.NEGATIVE_INFINITY, numNInf.doubleValue, 0.0)
   }
+
+  // shows that with parseStrict and decimalPatternMatch required, that ICU requires or
+  // disallows a decimal point in the data based on whether or not a decimal point appears in
+  // the pattern. Also shows ICU failing to parse infinity/nan when decimalPatternMatchRequired
+  // is true and the pattern contains a decimal.
+  @Test def test_decimalPatternMatchRequired(): Unit = {
+    val dfs = new DecimalFormatSymbols(java.util.Locale.US)
+
+    val df = new DecimalFormat("", dfs)
+    df.setDecimalPatternMatchRequired(true)
+    df.setParseStrict(true)
+
+    df.applyPattern("0.0")
+
+    assertEquals(JLong.valueOf(1), df.parse("1.0", pp))
+    assertEquals(null, df.parse("1", pp))
+    assertEquals(null, df.parse(dfs.getInfinity, pp)) // see ICU-22303
+    assertEquals(null, df.parse(dfs.getNaN, pp)) // see ICU-22303
+
+    assertEquals("1.0", df.format(1L))
+    assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
+    assertEquals(dfs.getNaN, df.format(JDouble.NaN))
+
+    df.applyPattern("0")
+
+    assertEquals(null, df.parse("1.0", pp))
+    assertEquals(JLong.valueOf(1), df.parse("1", pp))
+    assertEquals(JDouble.POSITIVE_INFINITY, df.parse(dfs.getInfinity, pp))
+    assertEquals(JDouble.NaN, df.parse(dfs.getNaN, pp))
+
+    assertEquals("1", df.format(1L))
+    assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
+    assertEquals(dfs.getNaN, df.format(JDouble.NaN))
+
+    df.applyPattern("#.#")
+
+    assertEquals(JLong.valueOf(1), df.parse("1.0", pp))
+    assertEquals(null, df.parse("1", pp))
+    assertEquals(null, df.parse(dfs.getInfinity, pp)) // see ICU-22303
+    assertEquals(null, df.parse(dfs.getNaN, pp)) // see ICU-22303
+
+    assertEquals("1", df.format(1L))
+    assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
+    assertEquals(dfs.getNaN, df.format(JDouble.NaN))
+
+    df.applyPattern("#")
+
+    assertEquals(null, df.parse("1.0", pp))
+    assertEquals(JLong.valueOf(1), df.parse("1", pp))
+    assertEquals(JDouble.POSITIVE_INFINITY, df.parse(dfs.getInfinity, pp))
+    assertEquals(JDouble.NaN, df.parse(dfs.getNaN, pp))
+
+    assertEquals("1", df.format(1L))
+    assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
+    assertEquals(dfs.getNaN, df.format(JDouble.NaN))
+  }
+
 }

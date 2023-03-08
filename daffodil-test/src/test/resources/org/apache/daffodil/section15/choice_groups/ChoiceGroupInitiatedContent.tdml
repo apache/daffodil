@@ -396,17 +396,17 @@
               <xs:choice dfdl:initiatedContent="no">
 
                 <xs:element name="t0" type="xs:int"
-                  dfdl:initiator="t0:" dfdl:textNumberPattern="###.0" />
+                  dfdl:initiator="t0:" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict" />
                 <xs:element name="t1" type="xs:int"
-                  dfdl:initiator="t1:" dfdl:textNumberPattern="###.0" />
+                  dfdl:initiator="t1:" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict" />
                 <xs:element name="t2" type="xs:int"
-                  dfdl:initiator="t2:" dfdl:textNumberPattern="###.0" />
+                  dfdl:initiator="t2:" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict" />
                 <xs:element name="t2f" type="xs:float"
-                  dfdl:initiator="t2:" dfdl:textNumberPattern="###.0" />
+                  dfdl:initiator="t2:" dfdl:textNumberPattern="###.0" dfdl:textNumberCheckPolicy="strict" />
                 <xs:element name="t3" type="xs:int"
-                  dfdl:initiator="t3:" dfdl:textNumberPattern="###.0" />
+                  dfdl:initiator="t3:" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict" />
                 <xs:element name="t4" type="xs:int"
-                  dfdl:initiator="t4:" dfdl:textNumberPattern="###.0" />
+                  dfdl:initiator="t4:" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict" />
                 <xs:element name="other" type="xs:string" />
               </xs:choice>
             </xs:complexType>
@@ -423,18 +423,18 @@
             dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
             <xs:complexType>
               <xs:choice dfdl:initiatedContent="yes">
-                <xs:element name="t0" type="xs:int"
+                <xs:element name="t0" type="xs:int" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict"
                   dfdl:initiator="t0:" />
-                <xs:element name="t1" type="xs:int"
+                <xs:element name="t1" type="xs:int" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict"
                   dfdl:initiator="t1:" />
-                <xs:element name="t2" type="xs:int"
+                <xs:element name="t2" type="xs:int" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict"
                   dfdl:initiator="t2:" />
                 <!-- t2f can never happen because of the initiator.and initiatedContent -->
-                <xs:element name="t2f" type="xs:float"
+                <xs:element name="t2f" type="xs:float" dfdl:textNumberPattern="##0.0" dfdl:textNumberCheckPolicy="strict"
                   dfdl:initiator="t2:" />
-                <xs:element name="t3" type="xs:int"
+                <xs:element name="t3" type="xs:int" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict"
                   dfdl:initiator="t3:" />
-                <xs:element name="t4" type="xs:int"
+                <xs:element name="t4" type="xs:int" dfdl:textNumberPattern="##0" dfdl:textNumberCheckPolicy="strict"
                   dfdl:initiator="t4:" />
               </xs:choice>
             </xs:complexType>
