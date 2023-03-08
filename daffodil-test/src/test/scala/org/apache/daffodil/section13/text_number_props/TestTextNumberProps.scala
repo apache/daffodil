@@ -280,6 +280,9 @@ class TestTextNumberProps {
   @Test def test_textStandardDecimalSeparator09(): Unit = {
     runner.runOneTest("textStandardDecimalSeparator09")
   }
+  @Test def test_textStandardDecimalSeparator09u(): Unit = {
+    runner.runOneTest("textStandardDecimalSeparator09u")
+  }
   @Test def test_textStandardDecimalSeparator12(): Unit = {
     runner.runOneTest("textStandardDecimalSeparator12")
   }
@@ -453,6 +456,7 @@ class TestTextNumberProps {
   @Test def test_nonNegIntPadding02(): Unit = { runner.runOneTest("nonNegIntPadding02") }
   @Test def test_nonNegIntPadding03(): Unit = { runner.runOneTest("nonNegIntPadding03") }
   @Test def test_nonNegIntPadding04(): Unit = { runner.runOneTest("nonNegIntPadding04") }
+  @Test def test_nonNegIntPadding05(): Unit = { runner.runOneTest("nonNegIntPadding05") }
 
   @Test def test_hexBinaryPadding01(): Unit = { runner.runOneTest("hexBinaryPadding01") }
 
@@ -488,5 +492,35 @@ class TestTextNumberProps {
   }
   @Test def test_textStandardRoundingIncrement4(): Unit = {
     runner.runOneTest("textNumberRoundingIncrement4")
+  }
+
+  @Test def test_textNumberIntWithDecimal01(): Unit = {
+    runner.runOneTest("textNumberIntWithDecimal01")
+  }
+  @Test def test_textNumberIntWithDecimal02(): Unit = {
+    runner.runOneTest("textNumberIntWithDecimal02")
+  }
+  @Test def test_textNumberIntWithDecimal03(): Unit = {
+    runner.runOneTest("textNumberIntWithDecimal03")
+  }
+  @Test def test_textNumberIntWithDecimal04(): Unit = {
+    runner.runOneTest("textNumberIntWithDecimal04")
+  }
+
+  @Test def test_textNumberDoubleWithDecimal01(): Unit = {
+    runner.runOneTest("textNumberIntWithDecimal04")
+  }
+
+  @Test def test_textNumberIntegerWithDecimal01(): Unit = {
+    runner.runOneTest("textNumberIntegerWithDecimal01")
+  }
+  @Test def test_textNumberIntegerWithDecimal02(): Unit = {
+    runner.runOneTest("textNumberIntegerWithDecimal02")
+  }
+  @Test def test_textNumberIntegerWithDecimal03(): Unit = {
+    runner.runOneTest("textNumberIntegerWithDecimal03")
+  }
+  @Test def test_textNumberIntegerWithDecimal04(): Unit = {
+    runner.runOneTest("textNumberIntegerWithDecimal04")
   }
 }

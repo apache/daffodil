@@ -59,7 +59,7 @@ case class ConvertTextNumberUnparser(
   override def unparse(state: UState): Unit = {
 
     val node = state.currentInfosetNode.asSimple
-    val value = node.dataValue.getAnyRef
+    val value = node.dataValue.getNumber
 
     // The type of value should have the type of S, but type erasure makes this
     // difficult to assert. Could probably check this with TypeTags or Manifest

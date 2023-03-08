@@ -704,7 +704,13 @@ object NodeInfo extends Enum {
       type Kind = DecimalKind
       protected override def fromString(s: String): DataValueBigDecimal = new JBigDecimal(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigDecimal = asBigDecimal(n)
-      override def isValid(n: Number): Boolean = true
+      override def isValid(n: Number): Boolean = {
+        n match {
+          case d: JDouble if d.isInfinite || d.isNaN => false
+          case f: JFloat if f.isInfinite || f.isNaN => false
+          case _ => true
+        }
+      }
 
       override val width: MaybeInt = MaybeInt.Nope
 
@@ -720,7 +726,13 @@ object NodeInfo extends Enum {
       type Kind = IntegerKind
       protected override def fromString(s: String): DataValueBigInt = new JBigInt(s)
       protected override def fromNumberNoCheck(n: Number): DataValueBigInt = asBigInt(n)
-      override def isValid(n: Number): Boolean = true
+      override def isValid(n: Number): Boolean = {
+        n match {
+          case d: JDouble if d.isInfinite || d.isNaN => false
+          case f: JFloat if f.isInfinite || f.isNaN => false
+          case _ => true
+        }
+      }
 
       override val width: MaybeInt = MaybeInt.Nope
 
@@ -795,6 +807,8 @@ object NodeInfo extends Enum {
       def isValid(n: Number): Boolean = n match {
         case bd: JBigDecimal => bd.signum >= 0
         case bi: JBigInt => bi.signum >= 0
+        case d: JDouble if d.isInfinite || d.isNaN => false
+        case f: JFloat if f.isInfinite || f.isNaN => false
         case _ => n.longValue >= 0
       }
 
@@ -815,6 +829,8 @@ object NodeInfo extends Enum {
       def isValid(n: Number): Boolean = n match {
         case bd: JBigDecimal => bd.signum >= 0 && bd.compareTo(maxBD) <= 0
         case bi: JBigInt => bi.signum >= 0 && bi.compareTo(max) <= 0
+        case d: JDouble if d.isInfinite || d.isNaN => false
+        case f: JFloat if f.isInfinite || f.isNaN => false
         case _ => n.longValue >= 0
       }
       val max = new JBigInt(1, scala.Array.fill(8)(0xff.toByte))

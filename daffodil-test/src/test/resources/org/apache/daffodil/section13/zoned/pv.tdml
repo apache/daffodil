@@ -155,6 +155,24 @@
     </infoset>
   </parserTestCase>
 
+  <parserTestCase name="vpattern_08" root="money" model="s1">
+    <document>9223372036854775808</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:money>92233720368547758.08</ex:money>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="vpattern_09" root="money" model="s1">
+    <document>99.99</document>
+    <errors>
+      <error>Parse Error</error>
+      <error>Unable to parse</error>
+      <error>xs:decimal</error>
+    </errors>
+  </parserTestCase>
+
   <parserTestCase name="vpattern_zero" root="money" model="s1">
     <document>zero</document>
     <infoset>

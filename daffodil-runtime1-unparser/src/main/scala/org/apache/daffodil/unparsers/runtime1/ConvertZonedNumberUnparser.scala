@@ -64,9 +64,9 @@ case class ConvertZonedNumberUnparser(
     // if we find this is not the case. Want something akin to:
     // Assert.invariant(value.isInstanceOf[S])
 
-    val valueAsAnyRef = node.dataValue.getAnyRef
+    val number = node.dataValue.getNumber
 
-    val scaledNum = this.applyTextDecimalVirtualPointForUnparse(valueAsAnyRef)
+    val scaledNum = this.applyTextDecimalVirtualPointForUnparse(number)
 
     val value = scaledNum.toString
 

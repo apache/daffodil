@@ -81,7 +81,6 @@ class TextNumberFormatEv(
   roundingMode: Maybe[TextNumberRoundingMode],
   roundingIncrement: MaybeDouble,
   zeroRepsRaw: List[String],
-  isInt: Boolean,
   primType: PrimType,
 ) extends Evaluatable[DecimalFormat](tci)
   with InfosetCachedEvaluatable[DecimalFormat] {
@@ -161,6 +160,11 @@ class TextNumberFormatEv(
       case TextNumberCheckPolicy.Lax => false
     }
     df.setParseStrict(cp)
+    // if strict mode is enabled, we also enable setDecimalPatternMatchRequired. This says that
+    // if a decimal point is in the pattern, then the data must contain a decimal point. It also
+    // says the reverse, that if a decimal point is not in the pattern, then the data cannot
+    // contain a decimal point.
+    df.setDecimalPatternMatchRequired(cp)
 
     rounding match {
       case TextNumberRounding.Pattern => {
@@ -180,13 +184,6 @@ class TextNumberFormatEv(
         df.setRoundingMode(rm.ordinal())
         df.setRoundingIncrement(roundingIncrement.get)
       }
-    }
-
-    if (isInt) {
-      df.setMaximumFractionDigits(0)
-      df.setDecimalSeparatorAlwaysShown(false)
-      df.setParseIntegerOnly(true)
-      df.setParseBigDecimal(false)
     }
 
     df

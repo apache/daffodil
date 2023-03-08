@@ -312,6 +312,15 @@
     <xs:element name="tnp100" type="xs:decimal" dfdl:textNumberPattern="##00"
       dfdl:textNumberRounding="explicit" dfdl:textNumberRoundingIncrement="1" />
 
+    <xs:element name="tnp101" type="xs:int" dfdl:textNumberPattern="###0.0##"
+      dfdl:textNumberCheckPolicy="strict" />
+
+    <xs:element name="tnp102" type="xs:double" dfdl:textNumberPattern="###0.0##"
+      dfdl:textNumberCheckPolicy="strict" />
+
+    <xs:element name="tnp103" type="xs:integer" dfdl:textNumberPattern="###0.0##"
+      dfdl:textNumberCheckPolicy="strict" />
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="textNumberPattern2"  elementFormDefault="qualified">
@@ -1503,12 +1512,12 @@
      Test Name: textStandardDecimalSeparator09
         Schema: textNumberPattern
           Root: tnp20
-       Purpose: This test demonstrates that textStandardDecimalSeparator will be ignored when the type isn't
-                decimal, float, or double
+       Purpose: This test demonstrates that textStandardDecimalSeparator is used but can be missing in the data if the type isn't
+                decimal, float, or double, as long as the fractional part is non-zero
 -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator09" root="tnp20" model="textNumberPattern"
-    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R" roundTrip="none">
 
     <tdml:document>
       <tdml:documentPart type="text">$5</tdml:documentPart>
@@ -1520,6 +1529,28 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+
+<!--
+     Test Name: textStandardDecimalSeparator10
+        Schema: textNumberPattern
+          Root: tnp20
+       Purpose: This test demonstrates that textStandardDecimalSeparator is used when unparsing if the pattern specifies
+                a decimal separator, even if the type isn't decimal, float, or double
+-->
+
+  <tdml:unparserTestCase name="textStandardDecimalSeparator09u"  root="tnp20" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$5^</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp20>5</tnp20>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="textStandardDecimalSeparatorOneOnly1" root="tnp26" model="textNumberPattern"
     description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
@@ -2850,6 +2881,17 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nonNegIntPadding05" root="nonNegIntPad3" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+    <tdml:document>
+      <tdml:documentPart type="text">****begin: Inf :end</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>xs:nonNegativeInteger</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
   
   <!--
      Test Name: textNumberPattern_inputValueCalc
@@ -4039,16 +4081,13 @@
       <tdml:documentPart type="text"><![CDATA[NOTANUMBER]]]></tdml:documentPart>
     </tdml:document>
 
-    <tdml:warnings>
-      <tdml:warning>DFDL property was ignored</tdml:warning>
-      <tdml:warning>textStandardNaNRep</tdml:warning>
-    </tdml:warnings>
+    <tdml:warnings />
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>NaN</tdml:error>
+      <tdml:error>Out of range</tdml:error>
       <tdml:error>xs:long</tdml:error>
-      <tdml:error>NOTANUMBER</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -4061,16 +4100,13 @@
       <tdml:documentPart type="text"><![CDATA[INFINITY]]]></tdml:documentPart>
     </tdml:document>
 
-    <tdml:warnings>
-      <tdml:warning>DFDL property was ignored</tdml:warning>
-      <tdml:warning>textStandardInfinityRep</tdml:warning>
-    </tdml:warnings>
+    <tdml:warnings />
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>Infinity</tdml:error>
+      <tdml:error>Out of range</tdml:error>
       <tdml:error>xs:long</tdml:error>
-      <tdml:error>INFINITY</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -4368,5 +4404,104 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="textNumberIntWithDecimal01" root="tnp101" model="textNumberPattern" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="text">2.000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp101>2</tnp101>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="textNumberIntWithDecimal02" root="tnp101" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">2.0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp101>2</tnp101>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="textNumberIntWithDecimal03" root="tnp101" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">2.01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>2.01</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textNumberIntWithDecimal04" root="tnp101" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">Inf</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Inf</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textNumberDoubleWithDecimal01" root="tnp102" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">Inf</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp102>INF</tnp102>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textNumberIntegerWithDecimal01" root="tnp103" model="textNumberPattern" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="text">9223372036854775808.000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp103>9223372036854775808</tnp103>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="textNumberIntegerWithDecimal02" root="tnp103" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">9223372036854775808.0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp103>9223372036854775808</tnp103>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="textNumberIntegerWithDecimal03" root="tnp103" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">9223372036854775808.01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>9223372036854775808.01</tdml:error>
+      <tdml:error>xs:integer</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textNumberIntegerWithDecimal04" root="tnp103" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">Inf</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Inf</tdml:error>
+      <tdml:error>xs:integer</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

@@ -42,6 +42,8 @@ class TestPV {
   @Test def vpattern_05(): Unit = { runner.runOneTest("vpattern_05") }
   @Test def vpattern_06(): Unit = { runner.runOneTest("vpattern_06") }
   @Test def vpattern_07(): Unit = { runner.runOneTest("vpattern_07") }
+  @Test def vpattern_08(): Unit = { runner.runOneTest("vpattern_08") }
+  @Test def vpattern_09(): Unit = { runner.runOneTest("vpattern_09") }
 
   @Test def vpattern_zero(): Unit = { runner.runOneTest("vpattern_zero") }
   @Test def vpattern_ZZZ(): Unit = { runner.runOneTest("vpattern_ZZZ") }

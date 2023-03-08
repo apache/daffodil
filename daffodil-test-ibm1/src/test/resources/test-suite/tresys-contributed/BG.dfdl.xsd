@@ -75,7 +75,7 @@
       <sequence dfdl:separator="***" dfdl:terminator="%NL;">
         <element name="z" type="xsd:float" maxOccurs="unbounded"
           dfdl:lengthKind="delimited" dfdl:textNumberJustification="right"
-          dfdl:textNumberPattern="####"
+          dfdl:textNumberPattern="####.#"
           dfdl:textNumberPadCharacter="%SP;" />
       </sequence>
     </sequence>
