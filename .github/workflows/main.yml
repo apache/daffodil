@@ -38,14 +38,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distribution: [ temurin ]
+        java_distribution: [ temurin ]
         java_version: [ 8, 11, 17 ]
         scala_version: [ 2.12.17 ]
         os: [ ubuntu-22.04, windows-2022 ]
         include:
           - os: macos-12
             shell: bash
-            distribution: temurin
+            java_distribution: temurin
             java_version: 17
             scala_version: 2.12.17
             env_cc: cc
@@ -119,14 +119,14 @@ jobs:
 
       - name: Check out Repository
         uses: actions/checkout@v3.4.0
-        # Disabling shallow clone is recommended for improving reporting
+        # Disabling shallow clone is recommended for improving sonarcloud reporting
         with:
           fetch-depth: 0
 
       - name: Setup Java
         uses: actions/setup-java@v3.10.0
         with:
-          distribution: ${{ matrix.distribution }}
+          distribution: ${{ matrix.java_distribution }}
           java-version: ${{ matrix.java_version }}
           cache: sbt
 
@@ -156,16 +156,6 @@ jobs:
       ############################################################
       # Check
       ############################################################
-
-      - name: Run Rat Check
-        run: $SBT ratCheck || (cat target/rat.txt; exit 1)
-
-      - name: Run OSGI Check
-        run: $SBT osgiCheck
-        
-      - name: Run scalafmt Check
-        if: runner.os == 'Linux'
-        run: $SBT scalafmtCheckAll scalafmtSbtCheck
 
       - name: Run Unit Tests
         run: $SBT test
@@ -198,8 +188,53 @@ jobs:
           args: -Dproject.settings=.sonar-project.properties
 
 
-  # Ensure pull requests only have a single commit
+  # Lint checks that do not require compilation
+  lint:
+    name: Lint Checks
+    strategy:
+      fail-fast: false
+      matrix:
+        java_distribution: [ temurin ]
+        java_version: [ 17 ]
+        scala_version: [ 2.12.17 ]
+        os: [ ubuntu-22.04 ]
+    runs-on: ${{ matrix.os }}
+    env:
+      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
+    steps:
 
+      ############################################################
+      # Setup
+      ############################################################
+
+      - name: Check out Repository
+        uses: actions/checkout@v3.4.0
+
+      - name: Setup Java
+        uses: actions/setup-java@v3.10.0
+        with:
+          distribution: ${{ matrix.java_distribution }}
+          java-version: ${{ matrix.java_version }}
+          cache: sbt
+
+      ############################################################
+      # Lint checks
+      ############################################################
+
+      - name: Run Rat Check
+        if: success() || failure()
+        run: $SBT ratCheck || (cat target/rat.txt; exit 1)
+
+      - name: Run OSGI Check
+        if: success() || failure()
+        run: $SBT osgiCheck
+
+      - name: Run scalafmt Check
+        if: success() || failure()
+        run: $SBT scalafmtCheckAll scalafmtSbtCheck
+
+
+  # Ensure pull requests only have a single commit
   single-commit:
     name: Single Commit Pull Request
     if: github.event_name == 'pull_request'
