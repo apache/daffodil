@@ -47,6 +47,14 @@
       <xs:appinfo source="urn:otherAnnotationLanguage">
         <oth:otherAnnotation oth:otherAnnotationAttribute="other"/>
       </xs:appinfo>
+      <xs:appinfo source="urn:otherAnnotationLanguageNoNamespace">
+        <noNamespace xmlns="">This contains elements in no namespace</noNamespace>
+      </xs:appinfo>
+      <xs:appinfo source="urn:otherAnnotationLanguageMixedContent">
+        This is mixed content
+        <mixedContent xmlns="">Mixed contains and elements in no namespace</mixedContent>
+        This is mixed content
+      </xs:appinfo>
       <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
         <dfdl:element lengthKind="delimited"/>
       </xs:appinfo>
