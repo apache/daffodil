@@ -61,12 +61,15 @@
     except it applies to elements instead of attributes (xs:any vs
     xs:anyAttribute). See the description above for how this group works to
     enable strict validation of dfdl namespace elements and lax validation of
-    other elements.
+    other elements. Note that in addition to specifying ##other (i.e. non-DFDL
+    namespace) as lax, we must also specify ##local (i.e. no-namespace) as lax.
+    Only specifying ##other does not match no-namespace elements.
   -->
   <xsd:group name="anyOther">
-    <xsd:sequence>
+    <xsd:choice>
       <xsd:any namespace="##other" processContents="lax" />
-    </xsd:sequence>
+      <xsd:any namespace="##local" processContents="lax" />
+    </xsd:choice>
   </xsd:group>
 
   <xsd:attributeGroup name="BaseAG">
