@@ -245,4 +245,13 @@
 			<ex:r2>1</ex:r2>
 		</tdml:dfdlInfoset></tdml:infoset>
 	</tdml:unparserTestCase>
+
+	<tdml:parserTestCase name="test_DFDL_2586" root="root" model="invalid_xml.dfdl.xsd"
+						 description="FIXME">
+		<tdml:document>1</tdml:document>
+		<tdml:errors>
+			<tdml:error>not allowed in attrib value</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
 </tdml:testSuite>

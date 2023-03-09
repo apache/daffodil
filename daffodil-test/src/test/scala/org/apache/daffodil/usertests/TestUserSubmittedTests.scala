@@ -26,7 +26,6 @@ object TestUserSubmittedTests {
   val testDir = "/org/apache/daffodil/usertests/"
   val runner = Runner(testDir, "UserSubmittedTests.tdml")
   val runner2 = Runner(testDir, "nameDOB_test.tdml")
-
   @AfterClass def shutDown(): Unit = {
     runner.reset
     runner2.reset
@@ -42,6 +41,7 @@ class TestUserSubmittedTests {
     runner.runOneTest("test_prefix_separator_as_variable")
   }
   @Test def test_DFDL_2262(): Unit = { runner.runOneTest("test_DFDL_2262") }
+  @Test def test_DFDL_2586(): Unit = { runner.runOneTest("test_DFDL_2586") }
   @Test def test_DFDL_2399(): Unit = { runner.runOneTest("test_DFDL_2399") }
 
   // DAFFODIL-2378 (decided as not a bug. These tests characterize that behavior.)
