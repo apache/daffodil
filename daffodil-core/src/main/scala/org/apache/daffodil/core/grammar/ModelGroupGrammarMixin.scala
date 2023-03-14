@@ -49,11 +49,11 @@ trait ModelGroupGrammarMixin
   final override lazy val termContentBody = prod("termContentBody") {
     // See 9.5 Evaluation Order for Statement Annotations
     dfdlPatternStatementEvaluations ~ // Assert and Discriminator statements with testKind="pattern"
-    dfdlScopeBegin ~ // newVariableInstance
-    dfdlSetVariableStatements ~
-    groupLeftFraming ~ groupContentWithInitiatorTerminator ~ groupRightFraming ~
-    dfdlLowPriorityStatementEvaluations ~ // The rest of the Assert and Discriminator statements
-    dfdlScopeEnd
+      dfdlScopeBegin ~ // newVariableInstance
+      dfdlSetVariableStatements ~
+      groupLeftFraming ~ groupContentWithInitiatorTerminator ~ groupRightFraming ~
+      dfdlLowPriorityStatementEvaluations ~ // The rest of the Assert and Discriminator statements
+      dfdlScopeEnd
   }
 
   private lazy val groupContentWithInitiatorTerminator =
