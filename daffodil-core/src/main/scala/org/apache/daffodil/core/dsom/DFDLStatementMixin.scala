@@ -216,7 +216,8 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
 
   final lazy val patternStatements: Seq[DFDLStatement] = patternAsserts ++ patternDiscrims
 
-  final lazy val lowPriorityStatements: Seq[DFDLStatement] = nonPatternAsserts ++ nonPatternDiscrims
+  final lazy val lowPriorityStatements: Seq[DFDLStatement] =
+    nonPatternAsserts ++ nonPatternDiscrims
 
   final protected lazy val localStatements = this.annotationObjs.collect {
     case st: DFDLStatement => st

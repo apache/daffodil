@@ -52,9 +52,10 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
 
   private lazy val setVarGrams = setVars.map { _.gram(self) }
 
-  protected lazy val dfdlSetVariableStatements = prod("dfdlSetVariableStatments", setVarGrams.length > 0) {
-    setVarGrams.fold(mt) { _ ~ _ }
-  }
+  protected lazy val dfdlSetVariableStatements =
+    prod("dfdlSetVariableStatments", setVarGrams.length > 0) {
+      setVarGrams.fold(mt) { _ ~ _ }
+    }
 
   /**
    * Mandatory text alignment or mta
