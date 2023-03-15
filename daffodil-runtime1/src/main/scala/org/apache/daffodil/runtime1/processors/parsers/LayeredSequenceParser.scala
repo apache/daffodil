@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.layers.LayerExecutionException
 import org.apache.daffodil.runtime1.layers.LayerNotEnoughDataException
 import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
@@ -62,7 +61,6 @@ class LayeredSequenceParser(
           le.schemaFileLocation,
           le.dataLocation,
           le.nBytesRequired * 8,
-          MaybeULong.Nope,
         )
       case e: Exception =>
         throw LayerExecutionException(

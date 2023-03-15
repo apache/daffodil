@@ -20,7 +20,6 @@ package org.apache.daffodil.runtime1.processors.parsers
 import java.nio.file.Files
 import java.nio.file.StandardOpenOption
 
-import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.LengthInBitsEv
 
@@ -37,10 +36,11 @@ trait ByteChunkWriter { self: PrimParser =>
     writeChunk: (Array[Byte], Int) => Unit,
   ): Unit = {
     val dis = start.dataInputStream
+    val startLoc = start.currentLocation
+    val startSfl = start.schemaFileLocation
     var remainingBitsToGet = nBits
 
     val array = new Array[Byte](start.tunable.blobChunkSizeInBytes)
-
     // Tunable restrictions ensure blobChunkSizeInBits still fits in an int.
     // All the places where toInt is called below can be no larger than this
     // value, and so have no issues with potential overflow.
@@ -54,14 +54,7 @@ trait ByteChunkWriter { self: PrimParser =>
         writeChunk(array, bytesToPut.toInt)
         remainingBitsToGet -= bitsToGet
       } else {
-        val remainingBits =
-          if (dis.remainingBits.isDefined) {
-            val totalBitsRead = nBits - remainingBitsToGet
-            MaybeULong(dis.remainingBits.get + totalBitsRead)
-          } else {
-            MaybeULong.Nope
-          }
-        self.PENotEnoughBits(start, nBits, remainingBits)
+        PENotEnoughBits(start, startSfl, startLoc, nBits, start.dataInputStream)
         remainingBitsToGet = 0 // break out of the loop
       }
     }

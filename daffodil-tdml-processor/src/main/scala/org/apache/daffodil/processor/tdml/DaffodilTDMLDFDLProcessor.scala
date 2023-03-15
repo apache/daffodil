@@ -269,13 +269,6 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
     saxInputStream: java.io.InputStream,
     lengthLimitInBits: Long,
   ): TDMLParseResult = {
-    //
-    // TDML Tests MUST have a length limit. Otherwise they cannot determine if
-    // there is left-over-data or not without doing more reading from the input stream
-    // so as to be sure to hit end-of-data.
-    //
-    Assert.usage(lengthLimitInBits >= 0)
-
     val outputter = new TDMLInfosetOutputter()
     outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
 
@@ -293,8 +286,14 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
     val dis = InputSourceDataInputStream(dpInputStream)
     val sis = InputSourceDataInputStream(saxInputStream)
 
-    dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
-    sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+    // The length limit here should be the length of the document
+    // under test. Only set a limit when the end of the document
+    // do not match a byte boundary.
+    if (lengthLimitInBits % 8 != 0) {
+      Assert.usage(lengthLimitInBits >= 0)
+      dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+      sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+    }
 
     val actual = dp.parse(dis, outputter)
     xri.parse(sis)

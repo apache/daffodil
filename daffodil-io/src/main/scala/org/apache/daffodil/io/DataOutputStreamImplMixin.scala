@@ -313,11 +313,6 @@ trait DataOutputStreamImplMixin
    */
   var bitStartOffset0b: Int = 0
 
-  final override def remainingBits: MaybeULong = {
-    if (maybeRelBitLimit0b.isEmpty) MaybeULong.Nope
-    else MaybeULong(maybeRelBitLimit0b.get - relBitPos0b.toLong)
-  }
-
   var debugOutputStream: Maybe[ByteArrayOutputStream] = Nope
 
   /**

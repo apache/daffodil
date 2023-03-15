@@ -18,7 +18,6 @@
 package org.apache.daffodil.io
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.MaybeULong
 
 trait DataInputStreamImplMixin
   extends DataInputStream
@@ -43,16 +42,6 @@ trait DataInputStreamImplMixin
     if (isAligned(bitAlignment1b)) return true
     val deltaBits = bitAlignment1b - (bitPos0b % bitAlignment1b)
     skip(deltaBits, finfo)
-  }
-
-  final override def remainingBits = {
-    if (this.bitLimit0b.isEmpty) MaybeULong.Nope
-    else {
-      val lim = bitLimit0b.get
-      Assert.invariant(lim >= 0)
-      val nBits = lim - bitPos0b
-      MaybeULong(nBits)
-    }
   }
 
 }

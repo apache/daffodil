@@ -203,7 +203,7 @@ case class ConvertBinaryCalendarSecMilliParser(
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(lengthInBits)) {
-      PENotEnoughBits(start, lengthInBits, dis.remainingBits)
+      PENotEnoughBits(start, lengthInBits, dis)
       return
     }
 

@@ -1138,7 +1138,7 @@ class Main(
                         if (loc.bitLimit0b.isDefined) {
                           (loc.bitLimit0b.get - loc.bitPos0b).toString
                         } else {
-                          "at least " + (inStream.inputSource.bytesAvailable * 8)
+                          "at least " + (inStream.inputSource.knownBytesAvailable * 8)
                         }
                       Logger.log.error(
                         s"Left over data after consuming 0 bits while streaming. Stopped after consuming ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining.",
@@ -1176,7 +1176,7 @@ class Main(
                       dumpString
                     } else ""
                     val curBytePosition1b = inStream.inputSource.position + 1
-                    val bytesAvailable = inStream.inputSource.bytesAvailable
+                    val bytesAvailable = inStream.inputSource.knownBytesAvailable
                     val bytesLimit = math.min(8, bytesAvailable).toInt
                     val destArray = new Array[Byte](bytesLimit)
                     val destArrayFilled = inStream.inputSource.get(destArray, 0, bytesLimit)

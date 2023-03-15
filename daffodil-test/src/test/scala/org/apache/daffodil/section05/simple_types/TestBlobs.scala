@@ -37,6 +37,10 @@ class TestBlobs {
   import TestBlobs._
 
   @Test def test_blob_01(): Unit = { runner.runOneTest("blob_01") }
+  @Test def test_blob_01_insufficient(): Unit = { runner.runOneTest("blob_01_insufficient") }
+  @Test def test_blob_01_insufficient_complex(): Unit = {
+    runner.runOneTest("blob_01_insufficient_complex")
+  }
   @Test def test_blob_02(): Unit = { runner.runOneTest("blob_02") }
   @Test def test_blob_03(): Unit = { runner.runOneTest("blob_03") }
   @Test def test_blob_04(): Unit = { runner.runOneTest("blob_04") }

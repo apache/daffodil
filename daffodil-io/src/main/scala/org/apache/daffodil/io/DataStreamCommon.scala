@@ -19,8 +19,6 @@ package org.apache.daffodil.io
 
 import java.nio.ByteBuffer
 
-import org.apache.daffodil.lib.util.MaybeULong
-
 /**
  * This is an interface trait, and it defines methods shared by
  * both DataInputStream and DataOutputStream.
@@ -29,12 +27,6 @@ import org.apache.daffodil.lib.util.MaybeULong
  *
  */
 trait DataStreamCommon {
-
-  /**
-   * Returns number of bits remaining (if a limit is defined). Nope if not defined.
-   */
-
-  def remainingBits: MaybeULong
 
   /*
    * Methods for moving through data.
