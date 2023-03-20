@@ -129,9 +129,9 @@ static const ERD *const expressionElement__childrenERDs[4] = {
 
 static const ERD expressionElement_ERD = {
     {
-        NULL, // namedQName.prefix
+        "vl", // namedQName.prefix
         "expressionElement", // namedQName.local
-        NULL, // namedQName.ns
+        "urn:variablelen", // namedQName.ns
     },
     COMPLEX, // typeCode
     4, // numChildren

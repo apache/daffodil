@@ -76,9 +76,9 @@ static const ERD *const padtest__childrenERDs[2] = {
 
 static const ERD padtest_ERD = {
     {
-        NULL, // namedQName.prefix
+        "pad", // namedQName.prefix
         "padtest", // namedQName.local
-        NULL, // namedQName.ns
+        "urn:padtest", // namedQName.ns
     },
     COMPLEX, // typeCode
     2, // numChildren

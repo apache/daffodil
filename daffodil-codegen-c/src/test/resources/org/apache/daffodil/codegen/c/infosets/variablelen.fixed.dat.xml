@@ -16,11 +16,11 @@
   limitations under the License.
 -->
 
-<fixedElement>
+<vl:fixedElement xmlns:vl="urn:variablelen">
   <before>0</before>
   <variablelen_size>2</variablelen_size>
   <variablelen>1</variablelen>
   <variablelen>2</variablelen>
   <after>1</after>
   <after>2</after>
-</fixedElement>
+</vl:fixedElement>

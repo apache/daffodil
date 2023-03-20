@@ -16,11 +16,11 @@
   limitations under the License.
 -->
 
-<stopValueElement>
+<vl:stopValueElement xmlns:vl="urn:variablelen">
   <before>0</before>
   <variablelen_size>2</variablelen_size>
   <variablelen>1</variablelen>
   <variablelen>2</variablelen>
   <after>1</after>
   <after>2</after>
-</stopValueElement>
+</vl:stopValueElement>

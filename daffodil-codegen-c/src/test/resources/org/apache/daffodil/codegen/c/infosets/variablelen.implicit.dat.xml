@@ -16,9 +16,9 @@
   limitations under the License.
 -->
 
-<implicitElement>
+<vl:implicitElement xmlns:vl="urn:variablelen">
   <before>0</before>
   <variablelen_size>2</variablelen_size>
   <variablelen>1</variablelen>
   <variablelen>2</variablelen>
-</implicitElement>
+</vl:implicitElement>

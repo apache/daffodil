@@ -16,10 +16,10 @@
   limitations under the License.
 -->
 
-<expressionElement>
+<vl:expressionElement xmlns:vl="urn:variablelen">
   <before>0</before>
   <variablelen_size>1</variablelen_size>
   <variablelen>1</variablelen>
   <after>1</after>
   <after>2</after>
-</expressionElement>
+</vl:expressionElement>

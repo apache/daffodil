@@ -16,78 +16,31 @@
   limitations under the License.
 -->
 
+<!--
+    Run all tests with each backend
+    daffodil test -i -I daffodil variablelen.tdml
+    daffodil test -i -I daffodilC variablelen.tdml
+
+    Or you can debug specific backends in isolation, see below.
+-->
 <tdml:testSuite
   defaultRoundTrip="onePass"
-  description="TDML tests for variablelen.dfdl.xsd"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
   <!--
-      Run all tests:
+      Daffodil backend can parse fixedElement
 
-      daffodil test -i -I daffodil variablelen.tdml
-      daffodil test -i -I daffodilC variablelen.tdml
-
-      Or you can debug specific steps in isolation:
-
-      mkdir c
       daffodil parse -r fixedElement -s variablelen.dfdl.xsd -o c/variablelen.fixed.dat.xml data/variablelen.fixed.dat
       daffodil unparse -r fixedElement -s variablelen.dfdl.xsd -o c/variablelen.fixed.dat infosets/variablelen.fixed.dat.xml
 
-      daffodil parse -r implicitElement -s variablelen.dfdl.xsd -o c/variablelen.implicit.dat.xml data/variablelen.implicit.dat
-      daffodil unparse -r implicitElement -s variablelen.dfdl.xsd -o c/variablelen.implicit.dat infosets/variablelen.implicit.dat.xml
+      Codegen backends can parse fixedElement too
 
-      daffodil parse -r parsedElement -s variablelen.dfdl.xsd -o c/variablelen.parsed.dat.xml data/variablelen.parsed.dat
-      daffodil unparse -r parsedElement -s variablelen.dfdl.xsd -o c/variablelen.parsed.dat infosets/variablelen.parsed.dat.xml
+      daffodil generate c -r fixedElement -s variablelen.dfdl.xsd && make -C c
 
-      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.expression.dat.xml data/variablelen.expression.dat
-      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.expression.dat infosets/variablelen.expression.dat.xml
-
-      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.00.dat.xml data/variablelen.00.dat
-      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.00.dat infosets/variablelen.00.dat.xml
-      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.01.dat.xml data/variablelen.01.dat
-      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.01.dat infosets/variablelen.01.dat.xml
-      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.16.dat.xml data/variablelen.16.dat
-      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.16.dat infosets/variablelen.16.dat.xml
-      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.17.dat.xml data/variablelen.17.dat
-      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.17.dat infosets/variablelen.17.dat.xml
-
-      daffodil parse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
-      daffodil unparse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat infosets/variablelen.stopValue.dat.xml
-
-      daffodil generate c -r fixedElement -s variablelen.dfdl.xsd && cd c && make
       c/daffodil parse -o c/variablelen.fixed.dat.xml data/variablelen.fixed.dat
       c/daffodil unparse -o c/variablelen.fixed.dat infosets/variablelen.fixed.dat.xml
-
-      daffodil generate c -r implicitElement -s variablelen.dfdl.xsd && cd c && make
-      c/daffodil parse -o c/variablelen.implicit.dat.xml data/variablelen.implicit.dat
-      c/daffodil unparse -o c/variablelen.implicit.dat infosets/variablelen.implicit.dat.xml
-
-      daffodil generate c -r parsedElement -s variablelen.dfdl.xsd && cd c && make
-      c/daffodil parse -o c/variablelen.parsed.dat.xml data/variablelen.parsed.dat
-      c/daffodil unparse -o c/variablelen.parsed.dat infosets/variablelen.parsed.dat.xml
-
-      daffodil generate c -r expressionElement -s variablelen.dfdl.xsd && cd c && make
-      c/daffodil parse -o c/variablelen.expression.dat.xml data/variablelen.expression.dat
-      c/daffodil unparse -o c/variablelen.expression.dat infosets/variablelen.expression.dat.xml
-
-      c/daffodil parse -o c/variablelen.00.dat.xml data/variablelen.00.dat
-      c/daffodil unparse -o c/variablelen.00.dat infosets/variablelen.00.dat.xml
-      c/daffodil parse -o c/variablelen.01.dat.xml data/variablelen.01.dat
-      c/daffodil unparse -o c/variablelen.01.dat infosets/variablelen.01.dat.xml
-      c/daffodil parse -o c/variablelen.16.dat.xml data/variablelen.16.dat
-      c/daffodil unparse -o c/variablelen.16.dat infosets/variablelen.16.dat.xml
-      c/daffodil parse -o c/variablelen.17.dat.xml data/variablelen.17.dat
-      c/daffodil unparse -o c/variablelen.17.dat infosets/variablelen.17.dat.xml
-
-      daffodil generate c -r stopValueElement -s variablelen.dfdl.xsd && cd c && make
-      c/daffodil parse -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
-      c/daffodil unparse -o c/variablelen.stopValue.dat infosets/variablelen.stopValue.dat.xml
   -->
-
   <tdml:parserTestCase
-    implementations="daffodil daffodilC"
     model="variablelen.dfdl.xsd"
     name="fixed"
     root="fixedElement">
@@ -99,6 +52,19 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+      Daffodil backend can parse implicitElement
+
+      daffodil parse -r implicitElement -s variablelen.dfdl.xsd -o c/variablelen.implicit.dat.xml data/variablelen.implicit.dat
+      daffodil unparse -r implicitElement -s variablelen.dfdl.xsd -o c/variablelen.implicit.dat infosets/variablelen.implicit.dat.xml
+
+      Codegen backends cannot parse implicitElement
+
+      daffodil generate c -r implicitElement -s variablelen.dfdl.xsd && make -C c
+
+      c/daffodil parse -o c/variablelen.implicit.dat.xml data/variablelen.implicit.dat
+      c/daffodil unparse -o c/variablelen.implicit.dat infosets/variablelen.implicit.dat.xml
+  -->
   <tdml:parserTestCase
     implementations="daffodil"
     model="variablelen.dfdl.xsd"
@@ -112,6 +78,19 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+      Daffodil backend can parse parsedElement
+
+      daffodil parse -r parsedElement -s variablelen.dfdl.xsd -o c/variablelen.parsed.dat.xml data/variablelen.parsed.dat
+      daffodil unparse -r parsedElement -s variablelen.dfdl.xsd -o c/variablelen.parsed.dat infosets/variablelen.parsed.dat.xml
+
+      Codegen backends cannot parse parsedElement
+
+      daffodil generate c -r parsedElement -s variablelen.dfdl.xsd && make -C c
+
+      c/daffodil parse -o c/variablelen.parsed.dat.xml data/variablelen.parsed.dat
+      c/daffodil unparse -o c/variablelen.parsed.dat infosets/variablelen.parsed.dat.xml
+  -->
   <tdml:parserTestCase
     implementations="daffodil"
     model="variablelen.dfdl.xsd"
@@ -125,8 +104,20 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+      Daffodil backend can parse expressionElement
+
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.expression.dat.xml data/variablelen.expression.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.expression.dat infosets/variablelen.expression.dat.xml
+
+      Codegen backends can parse expressionElement too
+
+      daffodil generate c -r expressionElement -s variablelen.dfdl.xsd && make -C c
+
+      c/daffodil parse -o c/variablelen.expression.dat.xml data/variablelen.expression.dat
+      c/daffodil unparse -o c/variablelen.expression.dat infosets/variablelen.expression.dat.xml
+  -->
   <tdml:parserTestCase
-    implementations="daffodil daffodilC"
     model="variablelen.dfdl.xsd"
     name="expression"
     root="expressionElement">
@@ -140,8 +131,14 @@
 
   <!-- Test several sizes of the variable length array (0, 1, 16, 17) -->
 
+  <!--
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.00.dat.xml data/variablelen.00.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.00.dat infosets/variablelen.00.dat.xml
+
+      c/daffodil parse -o c/variablelen.00.dat.xml data/variablelen.00.dat
+      c/daffodil unparse -o c/variablelen.00.dat infosets/variablelen.00.dat.xml
+  -->
   <tdml:parserTestCase
-    implementations="daffodil daffodilC"
     model="variablelen.dfdl.xsd"
     name="expression_00"
     root="expressionElement">
@@ -153,8 +150,14 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.01.dat.xml data/variablelen.01.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.01.dat infosets/variablelen.01.dat.xml
+
+      c/daffodil parse -o c/variablelen.01.dat.xml data/variablelen.01.dat
+      c/daffodil unparse -o c/variablelen.01.dat infosets/variablelen.01.dat.xml
+  -->
   <tdml:parserTestCase
-    implementations="daffodil daffodilC"
     model="variablelen.dfdl.xsd"
     name="expression_01"
     root="expressionElement">
@@ -166,8 +169,14 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.16.dat.xml data/variablelen.16.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.16.dat infosets/variablelen.16.dat.xml
+
+      c/daffodil parse -o c/variablelen.16.dat.xml data/variablelen.16.dat
+      c/daffodil unparse -o c/variablelen.16.dat infosets/variablelen.16.dat.xml
+  -->
   <tdml:parserTestCase
-    implementations="daffodil daffodilC"
     model="variablelen.dfdl.xsd"
     name="expression_16"
     root="expressionElement">
@@ -179,6 +188,12 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+      Daffodil backend can parse expressionElement > 16
+
+      daffodil parse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.17.dat.xml data/variablelen.17.dat
+      daffodil unparse -r expressionElement -s variablelen.dfdl.xsd -o c/variablelen.17.dat infosets/variablelen.17.dat.xml
+  -->
   <tdml:parserTestCase
     implementations="daffodil"
     model="variablelen.dfdl.xsd"
@@ -192,12 +207,16 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- Can't test 17C since daffodilC supports only static memory arrays  -->
+  <!--
+      Codegen backends cannot parse expressionElement > 16 since they cannot resize arrays
 
+      c/daffodil parse -o c/variablelen.17.dat.xml data/variablelen.17.dat
+      c/daffodil unparse -o c/variablelen.17.dat infosets/variablelen.17.dat.xml
+  -->
   <tdml:parserTestCase
     implementations="daffodilC"
     model="variablelen.dfdl.xsd"
-    name="expression_17C"
+    name="expression_17_error"
     root="expressionElement">
     <tdml:document>
       <tdml:documentPart type="file">data/variablelen.17.dat</tdml:documentPart>
@@ -209,10 +228,20 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <!-- Can't test stopValue since Daffodil doesn't support stopValue (DAFFODIL-501) -->
+  <!--
+      Daffodil backend cannot parse stopValueElement since stopValue isn't supported yet (DAFFODIL-501)
 
+      daffodil parse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
+      daffodil unparse -r stopValueElement -s variablelen.dfdl.xsd -o c/variablelen.stopValue.dat infosets/variablelen.stopValue.dat.xml
+
+      Codegen backends cannot parse stopValueElement either
+
+      daffodil generate c -r stopValueElement -s variablelen.dfdl.xsd && make -C c
+
+      c/daffodil parse -o c/variablelen.stopValue.dat.xml data/variablelen.stopValue.dat
+      c/daffodil unparse -o c/variablelen.stopValue.dat infosets/variablelen.stopValue.dat.xml
+  -->
   <tdml:parserTestCase
-    implementations="daffodil daffodilC"
     model="variablelen.dfdl.xsd"
     name="stopValue"
     root="stopValueElement">

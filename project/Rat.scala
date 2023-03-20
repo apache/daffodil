@@ -39,8 +39,8 @@ object Rat {
     file("daffodil-cli/src/windows/banner.bmp"),
     file("daffodil-cli/src/windows/dialog.bmp"),
 
-    // generated_code.[ch] examples
-    file("daffodil-codegen-c/src/test/c/examples"),
+    // generated code examples
+    file("daffodil-codegen-c/src/test/examples"),
 
     // Apache Rat thinks these files are binary since the file name contains ".lib"
     file(
