@@ -16,9 +16,9 @@
   limitations under the License.
 -->
 
-<padtest>
+<pad:padtest xmlns:pad="urn:padtest">
   <padhexbinary>
     <opaque></opaque>
   </padhexbinary>
   <after>1</after>
-</padtest>
+</pad:padtest>

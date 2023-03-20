@@ -16,53 +16,55 @@
   limitations under the License.
 -->
 
-<xs:schema
- elementFormDefault="qualified"
- xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
- xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<schema
+  targetNamespace="urn:padtest"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:pad="urn:padtest"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://www.w3.org/2001/XMLSchema">
 
-  <!-- Binary data format bindings -->
+  <!-- Binary representation properties -->
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-  <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/">
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format
-        ref="GeneralFormat"
         binaryBooleanFalseRep="0"
         binaryBooleanTrueRep="1"
         fillByte="%NUL;"
         prefixIncludesPrefixLength="no"
+        ref="pad:GeneralFormat"
         representation="binary"/>
-    </xs:appinfo>
-  </xs:annotation>
+    </appinfo>
+  </annotation>
 
-  <!-- Types for testing -->
+  <!-- Root element (padtest) -->
 
-  <xs:simpleType name="length">
-    <xs:restriction base="xs:unsignedInt"/>
-  </xs:simpleType>
+  <element name="padtest" type="pad:padtest"/>
 
-  <xs:complexType name="padhexbinary">
-    <xs:sequence>
+  <!-- Types (length, padhexbinary, padtest -->
+
+  <simpleType name="length">
+    <restriction base="xs:unsignedInt"/>
+  </simpleType>
+
+  <complexType name="padhexbinary">
+    <sequence>
       <!-- Store variable-length opaque bytes -->
-      <xs:element name="opaque" type="xs:hexBinary"
+      <element name="opaque" type="xs:hexBinary"
                   dfdl:lengthKind="prefixed"
                   dfdl:lengthUnits="bytes"
-                  dfdl:prefixLengthType="length"/>
+                  dfdl:prefixLengthType="pad:length"/>
       <!-- Pad "padhexbinary" to a multiple of 4 bytes -->
-      <xs:sequence dfdl:alignment="4" dfdl:alignmentUnits="bytes"/>
-    </xs:sequence>
-  </xs:complexType>
+      <sequence dfdl:alignment="4" dfdl:alignmentUnits="bytes"/>
+    </sequence>
+  </complexType>
 
-  <xs:complexType name="padtest">
-    <xs:sequence>
-      <xs:element name="padhexbinary" type="padhexbinary"/>
-      <xs:element name="after" type="xs:unsignedInt"/>
-    </xs:sequence>
-  </xs:complexType>
+  <complexType name="padtest">
+    <sequence>
+      <element name="padhexbinary" type="pad:padhexbinary"/>
+      <element name="after" type="xs:unsignedInt"/>
+    </sequence>
+  </complexType>
 
-  <!-- Root elements for testing -->
-
-  <xs:element name="padtest" type="padtest"/>
-
-</xs:schema>
+</schema>

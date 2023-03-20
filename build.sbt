@@ -465,7 +465,7 @@ lazy val genCExamplesSettings = Seq(
         .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
         .withBootJars(cp.files.toVector)
       val mainClass = "org.apache.daffodil.codegen.c.DaffodilCExamplesGenerator"
-      val outdir = (codeGenC / Test / sourceDirectory).value / "c" / "examples"
+      val outdir = (codeGenC / Test / sourceDirectory).value / "examples"
       val args = Seq(mainClass, outdir.toString)
       val ret = Fork.java(forkOpts, args)
       forkCaptureLogger.stderr.foreach { stream.log.error(_) }

@@ -16,106 +16,110 @@
   limitations under the License.
 -->
 
-<xs:schema
- elementFormDefault="qualified"
- xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
- xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<schema
+  targetNamespace="urn:variablelen"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:vl="urn:variablelen"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://www.w3.org/2001/XMLSchema">
 
-  <!-- Binary data format bindings -->
+  <!-- Binary representation properties -->
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-  <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/">
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format
-        ref="GeneralFormat"
         binaryBooleanFalseRep="0"
         binaryBooleanTrueRep="1"
         fillByte="%NUL;"
         prefixIncludesPrefixLength="no"
+        ref="vl:GeneralFormat"
         representation="binary"/>
-    </xs:appinfo>
-  </xs:annotation>
+    </appinfo>
+  </annotation>
 
-  <!-- Types for testing -->
+  <!-- Root elements (fixedElement, implicitElement, parsedElement,
+       expressionElement, stopValueElement) -->
+
+  <element name="fixedElement" type="vl:fixedType"/>
+  <element name="implicitElement" type="vl:implicitType"/>
+  <element name="parsedElement" type="vl:parsedType"/>
+  <element name="expressionElement" type="vl:expressionType"/>
+  <!-- Daffodil doesn't support stopValue (DAFFODIL-501) -->
+  <element name="stopValueElement" type="vl:stopValueType"/>
+
+  <!-- Types (fixedType, implicitType, parsedType, expressionType,
+       stopValueType) -->
 
   <!-- Unsuitable since variable length array must allow 0 to 16 numbers -->
-  <xs:complexType name="fixedType">
-    <xs:sequence>
-      <xs:element name="before" type="xs:unsignedInt" />
-      <xs:element name="variablelen_size" type="xs:unsignedInt" />
-      <xs:element name="variablelen" type="xs:unsignedInt"
+  <complexType name="fixedType">
+    <sequence>
+      <element name="before" type="xs:unsignedInt" />
+      <element name="variablelen_size" type="xs:unsignedInt" />
+      <element name="variablelen" type="xs:unsignedInt"
                   minOccurs="2" maxOccurs="2"
                   dfdl:occursCountKind="fixed" />
       <!-- Yes, can have "after" element after "fixed" array -->
-      <xs:element name="after" type="xs:unsignedInt"
+      <element name="after" type="xs:unsignedInt"
                   minOccurs="2" maxOccurs="2"
                   dfdl:occursCountKind="fixed" />
-    </xs:sequence>
-  </xs:complexType>
+    </sequence>
+  </complexType>
 
   <!-- Unsuitable since "implicit" works only at end of binary data -->
-  <xs:complexType name="implicitType">
-    <xs:sequence>
-      <xs:element name="before" type="xs:unsignedInt" />
-      <xs:element name="variablelen_size" type="xs:unsignedInt" />
-      <xs:element name="variablelen" type="xs:unsignedInt"
+  <complexType name="implicitType">
+    <sequence>
+      <element name="before" type="xs:unsignedInt" />
+      <element name="variablelen_size" type="xs:unsignedInt" />
+      <element name="variablelen" type="xs:unsignedInt"
                   minOccurs="0" maxOccurs="16"
                   dfdl:occursCountKind="implicit" />
       <!-- No, cannot have "after" element after "implicit" array -->
-    </xs:sequence>
-  </xs:complexType>
+    </sequence>
+  </complexType>
 
   <!-- Unsuitable since "parsed" works only at end of binary data -->
-  <xs:complexType name="parsedType">
-    <xs:sequence>
-      <xs:element name="before" type="xs:unsignedInt" />
-      <xs:element name="variablelen_size" type="xs:unsignedInt" />
-      <xs:element name="variablelen" type="xs:unsignedInt"
+  <complexType name="parsedType">
+    <sequence>
+      <element name="before" type="xs:unsignedInt" />
+      <element name="variablelen_size" type="xs:unsignedInt" />
+      <element name="variablelen" type="xs:unsignedInt"
                   minOccurs="0" maxOccurs="16"
                   dfdl:occursCountKind="parsed" />
       <!-- No, cannot have "after" element after "parsed" array -->
-    </xs:sequence>
-  </xs:complexType>
+    </sequence>
+  </complexType>
 
-  <!-- Suitable, although need to support variable length arrays in C -->
-  <xs:complexType name="expressionType">
-    <xs:sequence>
-      <xs:element name="before" type="xs:unsignedInt" />
-      <xs:element name="variablelen_size" type="xs:unsignedInt" />
-      <xs:element name="variablelen" type="xs:unsignedInt"
+  <!-- Suitable, although need codegen support for variable length arrays -->
+  <complexType name="expressionType">
+    <sequence>
+      <element name="before" type="xs:unsignedInt" />
+      <element name="variablelen_size" type="xs:unsignedInt" />
+      <element name="variablelen" type="xs:unsignedInt"
                   minOccurs="0" maxOccurs="16"
                   dfdl:occursCountKind="expression"
                   dfdl:occursCount="{ ../variablelen_size }" />
       <!-- Yes, can have "after" element after "expression" array -->
-      <xs:element name="after" type="xs:unsignedInt"
+      <element name="after" type="xs:unsignedInt"
                   minOccurs="2" maxOccurs="2"
                   dfdl:occursCountKind="fixed" />
-    </xs:sequence>
-  </xs:complexType>
+    </sequence>
+  </complexType>
 
   <!-- Unsuitable since "stopValue" adds extra data -->
-  <xs:complexType name="stopValueType">
-    <xs:sequence>
-      <xs:element name="before" type="xs:unsignedInt" />
-      <xs:element name="variablelen_size" type="xs:unsignedInt" />
-      <xs:element name="variablelen" type="xs:unsignedInt"
+  <complexType name="stopValueType">
+    <sequence>
+      <element name="before" type="xs:unsignedInt" />
+      <element name="variablelen_size" type="xs:unsignedInt" />
+      <element name="variablelen" type="xs:unsignedInt"
                   minOccurs="0" maxOccurs="16"
                   dfdl:occursCountKind="stopValue"
                   dfdl:occursStopValue="0" />
       <!-- Yes, can have "after" element after "stopValue" array -->
-      <xs:element name="after" type="xs:unsignedInt"
+      <element name="after" type="xs:unsignedInt"
                   minOccurs="2" maxOccurs="2"
                   dfdl:occursCountKind="fixed" />
-    </xs:sequence>
-  </xs:complexType>
+    </sequence>
+  </complexType>
 
-  <!-- Root elements for testing -->
-
-  <xs:element name="fixedElement" type="fixedType"/>
-  <xs:element name="implicitElement" type="implicitType"/>
-  <xs:element name="parsedElement" type="parsedType"/>
-  <xs:element name="expressionElement" type="expressionType"/>
-  <!-- Daffodil doesn't support stopValue (DAFFODIL-501) -->
-  <xs:element name="stopValueElement" type="stopValueType"/>
-
-</xs:schema>
+</schema>

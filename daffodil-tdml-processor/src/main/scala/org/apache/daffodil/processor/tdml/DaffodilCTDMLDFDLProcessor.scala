@@ -45,7 +45,6 @@ import org.apache.daffodil.tdml.processor.TDMLParseResult
 import org.apache.daffodil.tdml.processor.TDMLUnparseResult
 
 import org.xml.sax.SAXParseException
-import os.CommandResult
 
 /**
   * A factory called by the TDML runner to create a TDMLDFDL processor.
@@ -161,12 +160,12 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
         val result = os
           .proc(executable, "-o", outfile, "parse", infile)
           .call(cwd = tempDir, stderr = os.Pipe)
-        new DaffodilCTDMLParseResult(result, lengthLimitInBits, outfile, Success)
+        val messages = if (result.chunks.nonEmpty) result.toString() else ""
+        new DaffodilCTDMLParseResult(lengthLimitInBits, outfile, Success, messages)
       } catch {
         case e: os.SubprocessException =>
-          val result = e.result
           val parseError = new ParseError(Nope, Nope, Maybe(e), Nope)
-          new DaffodilCTDMLParseResult(result, lengthLimitInBits, outfile, Failure(parseError))
+          new DaffodilCTDMLParseResult(lengthLimitInBits, outfile, Failure(parseError))
       } finally {
         os.remove.all(tempDir)
       }
@@ -197,13 +196,13 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
           .call(cwd = tempDir, stderr = os.Pipe)
         os.read.stream(outfile).writeBytesTo(output)
         val finalBitPos0b = os.size(outfile) * 8
-        new DaffodilCTDMLUnparseResult(result, finalBitPos0b, Success)
+        val messages = if (result.chunks.nonEmpty) result.toString() else ""
+        new DaffodilCTDMLUnparseResult(finalBitPos0b, Success, messages)
       } catch {
         case e: os.SubprocessException =>
-          val result = e.result
           val finalBitPos0b = os.size(outfile) * 8
           val unparseError = new UnparseError(Nope, Nope, Maybe(e), Nope)
-          new DaffodilCTDMLUnparseResult(result, finalBitPos0b, Failure(unparseError))
+          new DaffodilCTDMLUnparseResult(finalBitPos0b, Failure(unparseError))
       } finally {
         os.remove.all(tempDir)
       }
@@ -212,7 +211,10 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
   }
 
   // Complete a round trip from data to infoset and back to data
-  def unparse(parseResult: TDMLParseResult, outStream: OutputStream): TDMLUnparseResult = {
+  override def unparse(
+    parseResult: TDMLParseResult,
+    outStream: OutputStream,
+  ): TDMLUnparseResult = {
     val infosetXML = parseResult.getResult
     val res = unparse(infosetXML, outStream)
     res
@@ -223,15 +225,15 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
  * A TDML parse result which captures the result of running the executable
  */
 final class DaffodilCTDMLParseResult(
-  result: CommandResult,
   finalBitPos0b: Long,
   outfile: os.Path,
   processorResult: ProcessorResult,
+  messages: String = "",
 ) extends TDMLParseResult {
 
   private var diagnostics: Seq[Diagnostic] = processorResult match {
     case Success =>
-      if (result.chunks.nonEmpty) List(DaffodilCTDMLMessages(result.toString())) else Nil
+      if (messages.nonEmpty) List(DaffodilCTDMLMessages(messages)) else Nil
     case Failure(cause) => List(cause)
   }
 
@@ -286,14 +288,14 @@ object DaffodilCTDMLDataLocation {
  * A TDML unparse result which captures the result of running the executable
  */
 final class DaffodilCTDMLUnparseResult(
-  result: CommandResult,
   override val finalBitPos0b: Long,
   processorResult: ProcessorResult,
+  messages: String = "",
 ) extends TDMLUnparseResult {
 
   private val diagnostics: Seq[Diagnostic] = processorResult match {
     case Success =>
-      if (result.chunks.nonEmpty) List(DaffodilCTDMLMessages(result.toString())) else Nil
+      if (messages.nonEmpty) List(DaffodilCTDMLMessages(messages)) else Nil
     case Failure(cause) => List(cause)
   }
 

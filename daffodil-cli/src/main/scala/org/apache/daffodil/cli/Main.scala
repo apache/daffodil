@@ -1654,9 +1654,9 @@ class Main(
 
       // Get our generate options from whichever language we're generating
       case Some(conf.generate) => {
+        // Determine which language we've generating
         val generateOpts = conf.generate.subcommand match {
           case Some(conf.generate.c) => conf.generate.c
-
           // Required to avoid "match may not be exhaustive", but should never happen
           case _ => Assert.impossible()
         }
