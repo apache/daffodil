@@ -39,4 +39,4 @@ jobs:
       - name: Sbt Dependency Submission
         # You may pin to the exact commit or the version.
         # uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
-        uses: scalacenter/sbt-dependency-submission@v2.1.0
+        uses: scalacenter/sbt-dependency-submission@v2.1.2
