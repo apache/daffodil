@@ -115,7 +115,7 @@ class TestCLItdml {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/testNonCompatibleImplementation.tdml",
     )
 
-    runCLI(args"test -iii $tdml testNotCompatibleImplementation1") { cli =>
+    runCLI(args"test $tdml testNotCompatibleImplementation1") { cli =>
       cli.expect(
         "[Skipped] testNotCompatibleImplementation1 (not compatible with implementation: daffodil)",
       )

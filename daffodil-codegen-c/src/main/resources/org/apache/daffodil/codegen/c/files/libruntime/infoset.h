@@ -85,7 +85,7 @@ typedef struct ERD
     const NamedQName         namedQName;
     const enum TypeCode      typeCode;
     const size_t             numChildren;
-    const size_t *           offsets;
+    const size_t *           childrenOffsets;
     const struct ERD *const *childrenERDs;
 
     const ERDParseSelf   parseSelf;
@@ -119,24 +119,24 @@ typedef struct InfosetBase
 
 typedef struct PState
 {
-    FILE *       stream;      // stream to read data from (input)
-    size_t       bitPos0b;    // 0-based position of last successful parse (1-bit granularity)
-    Diagnostics *diagnostics; // any validation diagnostics
-    const Error *error;       // any error which stops parse
-    uint8_t      unreadBits;  // any buffered bits not read yet
-    uint8_t      unreadLen;   // number of buffered bits not read yet
+    FILE *       stream;        // stream to read data from (input)
+    size_t       bitPos0b;      // 0-based position of last successful parse (1-bit granularity)
+    Diagnostics *diagnostics;   // any validation diagnostics
+    const Error *error;         // any error which stops parse
+    uint8_t      unreadBits;    // any buffered bits not read yet
+    uint8_t      numUnreadBits; // number of buffered bits not read yet
 } PState;
 
 // UState - mutable state while unparsing infoset
 
 typedef struct UState
 {
-    FILE *       stream;      // stream to write data to (output)
-    size_t       bitPos0b;    // 0-based position of last successful write (1-bit granularity)
-    Diagnostics *diagnostics; // any validation diagnostics
-    const Error *error;       // any error which stops unparse
-    uint8_t      unwritBits;  // any buffered bits not written yet
-    uint8_t      unwritLen;   // number of buffered bits not written yet
+    FILE *       stream;        // stream to write data to (output)
+    size_t       bitPos0b;      // 0-based position of last successful write (1-bit granularity)
+    Diagnostics *diagnostics;   // any validation diagnostics
+    const Error *error;         // any error which stops unparse
+    uint8_t      unwritBits;    // any buffered bits not written yet
+    uint8_t      numUnwritBits; // number of buffered bits not written yet
 } UState;
 
 // VisitEventHandler - methods to be called when walking an infoset
@@ -157,18 +157,29 @@ extern const char *get_erd_name(const ERD *erd);
 extern const char *get_erd_xmlns(const ERD *erd);
 extern const char *get_erd_ns(const ERD *erd);
 
-// rootElement - return an infoset's root element for parsing,
-// walking, or unparsing (implementation actually is generated in
-// generated_code.c, not defined in infoset.c)
+// get_infoset - get an infoset (optionally clearing it first) for
+// parsing/walking (note get_infoset actually is defined in
+// generated_code.c, not infoset.c)
 
-extern InfosetBase *rootElement(void);
+extern InfosetBase *get_infoset(bool clear_infoset);
 
-// walkInfoset - walk each node of an infoset and call VisitEventHandler methods
+// parse_data - parse an input stream into an infoset, check for
+// leftover data, and return any errors in pstate
 
-extern const Error *walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoset);
+extern void parse_data(InfosetBase *infoset, PState *pstate);
 
-// flushUState - flush any buffered bits not written yet
+// unparse_infoset - unparse an infoset to an output stream, flush the
+// fragment byte if not done yet, and return any errors in ustate
 
-extern void flushUState(UState *ustate);
+extern void unparse_infoset(InfosetBase *infoset, UState *ustate);
+
+// walk_infoset - walk each node of an infoset and call
+// VisitEventHandler methods
+
+extern const Error *walk_infoset(const VisitEventHandler *handler, const InfosetBase *infoset);
+
+// UNUSED - suppress compiler warning about unused variable
+
+#define UNUSED(x) (void)(x)
 
 #endif // INFOSET_H

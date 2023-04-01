@@ -19,9 +19,9 @@
 #include "parsers.h"
 #include <assert.h>   // for assert
 #include <stdbool.h>  // for bool, false, true
-#include <stdio.h>    // for fread
+#include <stdio.h>    // for fread, fgetc, EOF
 #include <stdlib.h>   // for free, malloc
-#include "errors.h"   // for eof_or_error, Error, add_diagnostic, get_diagnostics, ERR_ARRAY_BOUNDS, ERR_FIXED_VALUE, ERR_HEXBINARY_ALLOC, ERR_PARSE_BOOL, Error::(anonymous), Diagnostics
+#include "errors.h"   // for Error, eof_or_error, Error::(anonymous), ERR_LEFTOVER_DATA, add_diagnostic, get_diagnostics, ERR_ARRAY_BOUNDS, ERR_FIXED_VALUE, ERR_HEXBINARY_ALLOC, ERR_PARSE_BOOL, Diagnostics
 #include "p_endian.h" // for be64toh, le64toh, be32toh, le32toh
 // clang-format on
 
@@ -35,7 +35,7 @@
 #define HIGH_BITS(byte, n) ((byte & HIGH_MASK(n)) >> (BYTE_WIDTH - n))
 
 // Helper method to read bits using whole bytes while storing
-// remaining bits not yet read within a fractional byte; returns last
+// remaining bits not yet read within a fragment byte; returns last
 // bits of last byte already shifted to left end
 
 // Note callers must check pstate->error after calling read_bits and
@@ -46,7 +46,7 @@ read_bits(uint8_t *bytes, size_t num_bits, PState *pstate)
 {
     // Copy as many bytes directly from stream as possible
     size_t ix_bytes = 0;
-    if (!pstate->unreadLen)
+    if (!pstate->numUnreadBits)
     {
         size_t num_bytes = num_bits / BYTE_WIDTH;
         if (num_bytes)
@@ -62,8 +62,8 @@ read_bits(uint8_t *bytes, size_t num_bits, PState *pstate)
         }
     }
 
-    // Copy and fill the fractional byte as many times as needed
-    while (num_bits > pstate->unreadLen)
+    // Copy and fill the fragment byte as many times as needed
+    while (num_bits > pstate->numUnreadBits)
     {
         // Copy one whole byte from stream to temporary storage
         size_t whole_byte = 0;
@@ -74,42 +74,42 @@ read_bits(uint8_t *bytes, size_t num_bits, PState *pstate)
             return;
         }
 
-        // Copy bits from whole byte to fill fractional byte
-        size_t num_bits_fill = BYTE_WIDTH - pstate->unreadLen;
+        // Copy bits from whole byte to fill fragment byte
+        size_t num_bits_fill = BYTE_WIDTH - pstate->numUnreadBits;
         pstate->unreadBits <<= num_bits_fill;
         pstate->unreadBits |= HIGH_BITS(whole_byte, num_bits_fill);
-        pstate->unreadLen += num_bits_fill;
+        pstate->numUnreadBits += num_bits_fill;
         whole_byte <<= num_bits_fill;
 
-        // Copy bits from fractional byte to `bytes`
+        // Copy bits from fragment byte to `bytes`
         size_t num_bits_read = BYTE_WIDTH;
         if (num_bits_read > num_bits) num_bits_read = num_bits;
         num_bits -= num_bits_read;
         bytes[ix_bytes++] = pstate->unreadBits & HIGH_MASK(num_bits_read);
-        pstate->unreadLen -= num_bits_read;
+        pstate->numUnreadBits -= num_bits_read;
 
-        // Copy rest of bits from whole byte to fractional byte
+        // Copy rest of bits from whole byte to fragment byte
         size_t num_bits_unread = BYTE_WIDTH - num_bits_fill;
-        assert(num_bits_unread + pstate->unreadLen < BYTE_WIDTH);
+        assert(num_bits_unread + pstate->numUnreadBits < BYTE_WIDTH);
         if (num_bits_unread)
         {
             pstate->unreadBits <<= num_bits_unread;
             pstate->unreadBits |= HIGH_BITS(whole_byte, num_bits_unread);
-            pstate->unreadLen += num_bits_unread;
+            pstate->numUnreadBits += num_bits_unread;
         }
     }
 
-    // Copy bits from fractional byte to `bytes` one last time,
-    // keeping unread bits in right end (NOT shifted left)
-    assert(num_bits <= pstate->unreadLen);
+    // Copy bits from fragment byte to `bytes` one last time, keeping
+    // unread bits in right end (NOT shifted left)
+    assert(num_bits <= pstate->numUnreadBits);
     if (num_bits)
     {
         // Shift the unread bits to the left end so we can copy some
         // of them starting from the first unread bit
-        size_t shift = BYTE_WIDTH - pstate->unreadLen;
+        size_t shift = BYTE_WIDTH - pstate->numUnreadBits;
         pstate->unreadBits <<= shift;
         bytes[ix_bytes] = pstate->unreadBits & HIGH_MASK(num_bits);
-        pstate->unreadLen -= num_bits;
+        pstate->numUnreadBits -= num_bits;
 
         // Shift any remaining unread bits back to the right end since
         // we append new unread bits from the right
@@ -195,7 +195,7 @@ parse_endian_float(bool big_endian_data, float *number, size_t num_bits, PState 
     pstate->bitPos0b += num_bits;
 }
 
-// Helper method to read signed integers using fractional byte shifts
+// Helper method to read signed integers using fragment byte shifts
 // depending on data endianness (note not tested on big-endian
 // architecture; might work only on low-endian architecture)
 
@@ -256,8 +256,8 @@ parse_endian_int64(bool big_endian_data, int64_t *number, size_t num_bits, PStat
     pstate->bitPos0b += num_bits;
 }
 
-// Helper method to read unsigned integers using fractional byte
-// shifts depending on data endianness (note not tested on big-endian
+// Helper method to read unsigned integers using fragment byte shifts
+// depending on data endianness (note not tested on big-endian
 // architecture; might work only on low-endian architecture)
 
 static void
@@ -592,5 +592,36 @@ parse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxO
         static Error error = {ERR_ARRAY_BOUNDS, {0}};
         error.arg.s = name;
         pstate->error = &error;
+    }
+}
+
+// Check for any data left over after end of parse
+
+void
+no_leftover_data(PState *pstate)
+{
+    // Skip the check if we already have an error
+    if (!pstate->error)
+    {
+        // Check for any unread bits left in pstate's fragment byte
+        if (pstate->numUnreadBits)
+        {
+            // We have some unread bits remaining, so report leftover data
+            static Error error = {ERR_LEFTOVER_DATA, {0}};
+            error.arg.c = pstate->numUnreadBits;
+            pstate->error = &error;
+        }
+        else
+        {
+            // Check for any unread bytes left in input stream
+            int c = fgetc(pstate->stream);
+            if (c != EOF)
+            {
+                // We have some unread bytes remaining, so report leftover data
+                static Error error = {ERR_LEFTOVER_DATA, {0}};
+                error.arg.c = BYTE_WIDTH;
+                pstate->error = &error;
+            }
+        }
     }
 }

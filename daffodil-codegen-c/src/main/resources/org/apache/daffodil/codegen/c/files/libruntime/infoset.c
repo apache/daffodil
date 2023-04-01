@@ -17,18 +17,19 @@
 
 // clang-format off
 #include "infoset.h"
-#include <stdio.h>   // for fwrite
-#include <string.h>  // for memccpy
-#include "errors.h"  // for Error, eof_or_error, LIMIT_NAME_LENGTH
+#include <string.h>     // for memccpy
+#include "errors.h"     // for Error, LIMIT_NAME_LENGTH
+#include "parsers.h"    // for no_leftover_data
+#include "unparsers.h"  // for flush_fragment_byte
 // clang-format on
 
 // Declare prototypes for easier compilation
 
-static const Error *walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode);
-static const Error *walkInfosetNodeChild(const VisitEventHandler *handler, const InfosetBase *infoNode,
-                                         const ERD *childERD, const void *child);
-static const Error *walkArray(const VisitEventHandler *handler, const InfosetBase *infoNode,
-                              const ERD *arrayERD, const void *child);
+static const Error *walk_infoset_node(const VisitEventHandler *handler, const InfosetBase *infoNode,
+                                      const ERD *childERD, const void *child);
+static const Error *walk_array(const VisitEventHandler *handler, const InfosetBase *infoNode,
+                               const ERD *arrayERD, const void *child);
+static const Error *walk_infoset_node_children(const VisitEventHandler *handler, const InfosetBase *infoNode);
 
 // get_erd_name, get_erd_xmlns, get_erd_ns - get name and xmlns
 // attribute/value from ERD to use on XML element
@@ -123,17 +124,41 @@ get_erd_ns(const ERD *erd)
     return erd->namedQName.ns;
 }
 
-// walkInfoset - walk each node of an infoset and call
-// VisitEventHandler methods
+// parse_data - parse an input stream into an infoset, check for
+// leftover data, and return any errors in pstate
+
+void
+parse_data(InfosetBase *infoset, PState *pstate)
+{
+    infoset->erd->parseSelf(infoset, pstate);
+    no_leftover_data(pstate);
+}
+
+// unparse_infoset - unparse an infoset to an output stream, flush the
+// fragment byte if not done yet, and return any errors in ustate
+
+void
+unparse_infoset(InfosetBase *infoset, UState *ustate)
+{
+    infoset->erd->unparseSelf(infoset, ustate);
+    const uint8_t fill_byte = '\0';
+    flush_fragment_byte(fill_byte, ustate);
+}
+
+// walk_infoset - walk an infoset and call VisitEventHandler methods
 
 const Error *
-walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoNode)
+walk_infoset(const VisitEventHandler *handler, const InfosetBase *infoNode)
 {
     const Error *error = handler->visitStartDocument(handler);
 
     if (!error)
     {
-        error = walkInfosetNode(handler, infoNode);
+        const ERD *  childERD = infoNode->erd;
+        const size_t childOffset = childERD->numChildren ? 0 : childERD->childrenOffsets[0];
+        const void * child = (const void *)((const char *)infoNode + childOffset);
+
+        error = walk_infoset_node(handler, infoNode, childERD, child);
     }
     if (!error)
     {
@@ -143,44 +168,12 @@ walkInfoset(const VisitEventHandler *handler, const InfosetBase *infoNode)
     return error;
 }
 
-// walkInfosetNode - walk each child of an infoset node and call
-// VisitEventHandler methods
+// walk_infoset_node - walk an infoset node and call VisitEventHandler
+// methods
 
 static const Error *
-walkInfosetNode(const VisitEventHandler *handler, const InfosetBase *infoNode)
-{
-    const size_t            numChildren = infoNode->erd->numChildren;
-    const ERD *const *const childrenERDs = infoNode->erd->childrenERDs;
-    const size_t *          offsets = infoNode->erd->offsets;
-
-    // Start visiting the node
-    const Error *error = handler->visitStartComplex(handler, infoNode);
-
-    // Walk each child of the node
-    for (size_t i = 0; i < numChildren && !error; i++)
-    {
-        const ERD *  childERD = childrenERDs[i];
-        const size_t offset = offsets[i];
-        const void * child = (const void *)((const char *)infoNode + offset);
-
-        error = walkInfosetNodeChild(handler, infoNode, childERD, child);
-    }
-
-    // End visiting the node
-    if (!error)
-    {
-        error = handler->visitEndComplex(handler, infoNode);
-    }
-
-    return error;
-}
-
-// walkInfosetNodeChild - walk a child of an infoset node and call
-// VisitEventHandler methods
-
-static const Error *
-walkInfosetNodeChild(const VisitEventHandler *handler, const InfosetBase *infoNode, const ERD *childERD,
-                     const void *child)
+walk_infoset_node(const VisitEventHandler *handler, const InfosetBase *infoNode, const ERD *childERD,
+                  const void *child)
 {
     // Get the type of child to walk
     const Error *       error = NULL;
@@ -192,15 +185,15 @@ walkInfosetNodeChild(const VisitEventHandler *handler, const InfosetBase *infoNo
     {
     case ARRAY:
         // Walk an array recursively
-        error = walkArray(handler, infoNode, childERD, child);
+        error = walk_array(handler, infoNode, childERD, child);
         break;
     case CHOICE:
         // Point next ERD to choice of alternative elements' ERDs
         error = infoNode->erd->initChoice(infoNode);
         break;
     case COMPLEX:
-        // Walk a child node recursively
-        error = walkInfosetNode(handler, childNode);
+        // Walk a node's children recursively
+        error = walk_infoset_node_children(handler, childNode);
         break;
     case PRIMITIVE_BOOLEAN:
     case PRIMITIVE_DOUBLE:
@@ -222,53 +215,60 @@ walkInfosetNodeChild(const VisitEventHandler *handler, const InfosetBase *infoNo
     return error;
 }
 
-// walkArray - walk each element of an array and call
+// walk_array - walk each element of an array and call
 // VisitEventHandler methods
 
 static const Error *
-walkArray(const VisitEventHandler *handler, const InfosetBase *infoNode, const ERD *arrayERD,
-          const void *child)
+walk_array(const VisitEventHandler *handler, const InfosetBase *infoNode, const ERD *arrayERD,
+           const void *child)
 {
     // Get the array's size, type of its elements, and offset between its elements
     const Error *error = NULL;
     const size_t arraySize = arrayERD->getArraySize(infoNode);
     const ERD *  childERD = arrayERD->childrenERDs[0];
-    const size_t offset = arrayERD->offsets[0];
+    const size_t childOffset = arrayERD->childrenOffsets[0];
 
     // Walk each element of the array
     for (size_t i = 0; i < arraySize && !error; i++)
     {
         // Walk an element of the array recursively
-        error = walkInfosetNodeChild(handler, infoNode, childERD, child);
+        error = walk_infoset_node(handler, infoNode, childERD, child);
 
-        // Increment child by offset in order to walk the next element
-        child = (const char *)child + offset;
+        // Increment child by childOffset in order to walk the next element
+        child = (const char *)child + childOffset;
     }
 
     return error;
 }
 
-// flushUState - flush any buffered bits not written yet
+// walk_infoset_node_children - walk each child of an infoset node and
+// call VisitEventHandler methods
 
-#define BYTE_WIDTH 8
-
-void
-flushUState(UState *ustate)
+static const Error *
+walk_infoset_node_children(const VisitEventHandler *handler, const InfosetBase *infoNode)
 {
-    // Do we have any bits within the fractional byte?
-    if (ustate->unwritLen)
-    {
-        // Fill the fractional byte
-        size_t num_bits_fill = BYTE_WIDTH - ustate->unwritLen;
-        ustate->unwritBits <<= num_bits_fill;
-        ustate->bitPos0b += num_bits_fill;
-        ustate->unwritLen = 0; // Even though we don't flush until next line
+    const size_t            numChildren = infoNode->erd->numChildren;
+    const ERD *const *const childrenERDs = infoNode->erd->childrenERDs;
+    const size_t *          childrenOffsets = infoNode->erd->childrenOffsets;
 
-        // Flush the fractional byte
-        size_t count = fwrite(&ustate->unwritBits, 1, 1, ustate->stream);
-        if (count < 1)
-        {
-            ustate->error = eof_or_error(ustate->stream);
-        }
+    // Start visiting the node
+    const Error *error = handler->visitStartComplex(handler, infoNode);
+
+    // Walk each child of the node
+    for (size_t i = 0; i < numChildren && !error; i++)
+    {
+        const ERD *  childERD = childrenERDs[i];
+        const size_t childOffset = childrenOffsets[i];
+        const void * child = (const void *)((const char *)infoNode + childOffset);
+
+        error = walk_infoset_node(handler, infoNode, childERD, child);
     }
+
+    // End visiting the node
+    if (!error)
+    {
+        error = handler->visitEndComplex(handler, infoNode);
+    }
+
+    return error;
 }

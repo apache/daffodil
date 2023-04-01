@@ -49,7 +49,7 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
-    val localName = e.namedQName.local
+    val localName = cgState.cName(e)
     val field = s"instance->$localName$deref"
     val intType = e.prefixedLengthElementDecl.optPrimType.get match {
       case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer =>
@@ -93,7 +93,7 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
-    val localName = e.namedQName.local
+    val localName = cgState.cName(e)
     val field = s"instance->$localName$deref"
     val fieldArray = s"instance->_a_$localName$deref"
     val specifiedLength = e.elementLengthInBitsEv.constValue.get
@@ -124,7 +124,7 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
-    val localName = e.namedQName.local
+    val localName = cgState.cName(e)
     val field = s"instance->$localName$deref"
     val fixed = s"${localName}_fixed"
     val array = e.fixedValueAsString.grouped(2).mkString("0x", ", 0x", "")

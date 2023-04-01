@@ -21,7 +21,7 @@
 // clang-format off
 #include <mxml.h>     // for mxml_node_t
 #include <stdio.h>    // for FILE
-#include "infoset.h"  // for VisitEventHandler, InfosetBase
+#include "infoset.h"  // for VisitEventHandler
 // clang-format on
 
 // XMLReader - infoset visitor with methods to read XML
@@ -30,12 +30,11 @@ typedef struct XMLReader
 {
     const VisitEventHandler handler;
     FILE *                  stream;
-    InfosetBase *           root;
     mxml_node_t *           xml;
     mxml_node_t *           node;
 } XMLReader;
 
-// XMLReader methods to pass to walkInfoset method
+// XMLReader methods to pass to walk_infoset method
 
 extern const VisitEventHandler xmlReaderMethods;
 

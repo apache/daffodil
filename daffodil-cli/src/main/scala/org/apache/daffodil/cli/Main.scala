@@ -1618,7 +1618,7 @@ class Main(
                         fail += 1
                         if (testOpts.info() > 0) {
                           STDOUT.println("  Failure Information:")
-                          STDOUT.println(indent(e.getMessage(), 4))
+                          STDOUT.println(indent(e.toString, 4))
                         }
                         if (testOpts.info() > 1) {
                           STDOUT.println("  Backtrace:")
