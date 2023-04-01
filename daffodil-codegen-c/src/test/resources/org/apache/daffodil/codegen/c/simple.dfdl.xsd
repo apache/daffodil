@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<schema
+  targetNamespace="urn:simple"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:si="urn:simple"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://www.w3.org/2001/XMLSchema">
+
+  <!-- Binary representation properties -->
+
+  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format
+        binaryBooleanFalseRep="0"
+        binaryBooleanTrueRep="1"
+        fillByte="%NUL;"
+        prefixIncludesPrefixLength="no"
+        ref="si:GeneralFormat"
+        representation="binary"/>
+    </appinfo>
+  </annotation>
+
+  <!-- Root elements (pick only one) -->
+
+  <element name="simple-boolean" type="xs:boolean"/>
+  <element name="simple-byte" type="xs:byte"/>
+  <element name="simple-double" type="xs:double"/>
+  <element name="simple-float" type="xs:float"/>
+  <element name="simple-hexBinary" type="xs:hexBinary" dfdl:length="4" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/>
+  <element name="simple-hexBinaryPrefixed" type="xs:hexBinary" dfdl:lengthKind="prefixed" dfdl:lengthUnits="bytes" dfdl:prefixLengthType="si:prefixedCount"/>
+  <element name="simple-int" type="xs:int"/>
+  <element name="simple-integer" type="xs:integer" dfdl:length="4" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/>
+  <element name="simple-long" type="xs:long"/>
+  <element name="simple-nonNegativeInteger" type="xs:nonNegativeInteger" dfdl:length="4" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/>
+  <element name="simple-short" type="xs:short"/>
+  <element name="simple-unsignedByte" type="xs:unsignedByte"/>
+  <element name="simple-unsignedInt" type="xs:unsignedInt"/>
+  <element name="simple-unsignedLong" type="xs:unsignedLong"/>
+  <element name="simple-unsignedShort" type="xs:unsignedShort"/>
+
+  <!-- Simple data types -->
+
+  <simpleType name="prefixedCount">
+    <restriction base="xs:unsignedShort"/>
+  </simpleType>
+
+</schema>

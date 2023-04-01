@@ -16,14 +16,16 @@
  */
 
 // clang-format off
+#include <stdbool.h>  // for bool
 #include <stddef.h>   // for NULL
-#include "infoset.h"  // for InfosetBase, rootElement
+#include "infoset.h"  // for InfosetBase, get_infoset
 // clang-format on
 
-// Define `rootElement' to avoid an undefined reference when linking.
+// Define `get_infoset' to avoid an undefined reference when linking.
 
 InfosetBase *
-rootElement(void)
+get_infoset(bool clear_infoset)
 {
+    UNUSED(clear_infoset);
     return NULL;
 }

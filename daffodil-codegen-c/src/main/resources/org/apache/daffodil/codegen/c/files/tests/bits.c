@@ -23,9 +23,9 @@
 #include <stdint.h>                // for uint32_t, int16_t, int32_t, int64_t, int8_t, uint16_t, uint64_t, uint8_t
 #include <stdio.h>                 // for fclose, NULL, fflush, fmemopen, open_memstream, FILE, size_t
 #include <stdlib.h>                // for free
-#include "infoset.h"               // for UState, PState, flushUState
+#include "infoset.h"               // for UState, PState
 #include "parsers.h"               // for parse_be_bool, parse_le_bool, parse_be_int16, parse_be_int32, parse_be_int64, parse_be_int8, parse_be_uint16, parse_be_uint32, parse_be_uint64, parse_be_uint8, parse_le_int16, parse_le_int32, parse_le_int64, parse_le_int8, parse_le_uint16, parse_le_uint32, parse_le_uint64, parse_le_uint8
-#include "unparsers.h"             // for unparse_be_bool, unparse_le_bool, unparse_be_int16, unparse_be_int32, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint32, unparse_be_uint64, unparse_be_uint8, unparse_le_int16, unparse_le_int32, unparse_le_int64, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64, unparse_le_uint8
+#include "unparsers.h"             // for unparse_be_bool, unparse_le_bool, flush_fragment_byte, unparse_be_int16, unparse_be_int32, unparse_be_int64, unparse_be_int8, unparse_be_uint16, unparse_be_uint32, unparse_be_uint64, unparse_be_uint8, unparse_le_int16, unparse_le_int32, unparse_le_int64, unparse_le_int8, unparse_le_uint16, unparse_le_uint32, unparse_le_uint64, unparse_le_uint8
 // clang-format on
 
 Test(bits, be_bool_24)
@@ -44,7 +44,7 @@ Test(bits, be_bool_24)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 24), "ustate should advance 24 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0), "ustate should hold nothing");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
     cr_expect(eq(sz, size, 3), "stream should hold 3 bytes");
     cr_expect(eq(u8, buffer[0], 0372), "stream should hold 0b_11_111_010");
     cr_expect(eq(u8, buffer[1], 0306), "stream should hold 0b_11_000_110");
@@ -62,7 +62,7 @@ Test(bits, be_bool_24)
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 24), "pstate should advance 24 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0), "pstate should hold nothing");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Close stream and free dynamic buffer
     fclose(stream);
@@ -85,14 +85,14 @@ Test(bits, be_bool_4)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 4), "ustate should advance 4 bits");
     cr_expect(eq(u8, ustate.unwritBits, 012), "ustate should hold 0b_1_010");
-    cr_expect(eq(u8, ustate.unwritLen, 4), "ustate should buffer 4 bits");
+    cr_expect(eq(u8, ustate.numUnwritBits, 4), "ustate should buffer 4 bits");
     cr_expect(eq(sz, size, 0), "stream should be empty");
     unparse_be_bool(false, 4, true4_rep, false_rep, &ustate);
     fflush(stream);
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 8), "ustate should advance 4 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0255), "ustate should hold 0b_10_101_101");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
     cr_expect(eq(sz, size, 1), "stream should have 1 byte");
     cr_expect(eq(u8, buffer[0], 0255), "stream should hold 0b_10_101_101");
 
@@ -108,14 +108,14 @@ Test(bits, be_bool_4)
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 4), "pstate should advance 4 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0255), "pstate should hold 0b_10_101_101");
-    cr_expect(eq(u8, pstate.unreadLen, 4), "pstate should buffer 4 bits");
+    cr_expect(eq(u8, pstate.numUnreadBits, 4), "pstate should buffer 4 bits");
     number = false;
     parse_be_bool(&number, 4, true4_rep, false_rep, &pstate);
     cr_expect(eq(int, number, false), "boolean number should be false");
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 8), "pstate should advance 4 bits");
     cr_expect(eq(u8, pstate.unreadBits, 015), "pstate should hold 0b_1_101");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Close stream and free dynamic buffer
     fclose(stream);
@@ -138,24 +138,25 @@ Test(bits, be_bool_7_7)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 7), "ustate should advance 7 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0146), "ustate should hold 0b_01_100_110");
-    cr_expect(eq(u8, ustate.unwritLen, 7), "ustate should buffer 7 bits");
+    cr_expect(eq(u8, ustate.numUnwritBits, 7), "ustate should buffer 7 bits");
     cr_expect(eq(sz, size, 0), "stream should be empty");
     unparse_be_bool(false, 7, true7_rep, false_rep, &ustate);
     fflush(stream);
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 14), "ustate should advance 7 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0157), "ustate should hold 0b_01_101_111");
-    cr_expect(eq(u8, ustate.unwritLen, 6), "ustate should buffer 6 bits");
+    cr_expect(eq(u8, ustate.numUnwritBits, 6), "ustate should buffer 6 bits");
     cr_expect(eq(sz, size, 1), "stream should have 1 byte");
     cr_expect(eq(u8, buffer[0], 0315), "stream should hold 0b_11_001_101");
 
     // Verify that flushing ustate writes 10111100
-    flushUState(&ustate);
+    const uint8_t fill_byte = '\0';
+    flush_fragment_byte(fill_byte, &ustate);
     fflush(stream);
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
-    cr_expect(eq(sz, ustate.bitPos0b, 16), "ustate should advance 2 bits");
+    cr_expect(eq(sz, ustate.bitPos0b, 20), "ustate should advance 6 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0274), "ustate should hold 0b_10_111_100");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
     cr_expect(eq(sz, size, 2), "stream should have 2 bytes");
     cr_expect(eq(u8, buffer[1], 0274), "stream should hold 0b_10_111_100");
 
@@ -171,14 +172,14 @@ Test(bits, be_bool_7_7)
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 7), "pstate should advance 7 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0315), "pstate should hold 0b_11_001_101");
-    cr_expect(eq(u8, pstate.unreadLen, 1), "pstate should buffer 1 bit");
+    cr_expect(eq(u8, pstate.numUnreadBits, 1), "pstate should buffer 1 bit");
     number = false;
     parse_be_bool(&number, 7, true7_rep, false_rep, &pstate);
     cr_expect(eq(int, number, false), "boolean number should be false");
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 14), "pstate should advance 7 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0274), "pstate should hold 0b_10_111_100");
-    cr_expect(eq(u8, pstate.unreadLen, 2), "pstate should buffer 2 bits");
+    cr_expect(eq(u8, pstate.numUnreadBits, 2), "pstate should buffer 2 bits");
 
     // Close stream and free dynamic buffer
     fclose(stream);
@@ -202,7 +203,7 @@ Test(bits, be_bool_9_7)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 9), "ustate should advance 9 bits");
     cr_expect(eq(u8, ustate.unwritBits, 01), "ustate should hold 0b_00_000_001");
-    cr_expect(eq(u8, ustate.unwritLen, 1), "ustate should buffer 1 bit");
+    cr_expect(eq(u8, ustate.numUnwritBits, 1), "ustate should buffer 1 bit");
     cr_expect(eq(sz, size, 1), "stream should hold 1 byte");
     cr_expect(eq(u8, buffer[0], 0363), "stream should hold 0b_11_110_011");
     unparse_be_bool(true, 7, true7_rep, false_rep, &ustate);
@@ -210,7 +211,7 @@ Test(bits, be_bool_9_7)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 16), "ustate should advance 7 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0367), "ustate should hold 0b_11_110_111");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
     cr_expect(eq(sz, size, 2), "stream should hold 2 bytes");
     cr_expect(eq(u8, buffer[1], 0367), "stream should hold 0b_11_110_111");
 
@@ -226,14 +227,14 @@ Test(bits, be_bool_9_7)
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 9), "pstate should advance 9 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0367), "pstate should hold 0b_11_110_111");
-    cr_expect(eq(u8, pstate.unreadLen, 7), "pstate should buffer 7 bits");
+    cr_expect(eq(u8, pstate.numUnreadBits, 7), "pstate should buffer 7 bits");
     number = false;
     parse_be_bool(&number, 7, true7_rep, false_rep, &pstate);
     cr_expect(eq(int, number, true), "boolean number should be true");
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 16), "pstate should advance 7 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0167), "pstate should hold 0b_01_110_111");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Close stream and free dynamic buffer
     fclose(stream);
@@ -271,7 +272,7 @@ Test(bits, be_signed_integers)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 176), "ustate should advance 176 bits");
     cr_expect(eq(sz, size, 22), "stream should have 22 bytes");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
 
     // Reopen stream for reading from same dynamic buffer
     fclose(stream);
@@ -297,7 +298,7 @@ Test(bits, be_signed_integers)
     parse_be_int64(&tin63, 63, &pstate);
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 176), "pstate should advance 176 bits");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Verify that these 8 integers are the same integers originally written
     cr_expect(eq(i8, int1, tin1), "numbers should be the same");
@@ -345,7 +346,7 @@ Test(bits, be_unsigned_integers)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 176), "ustate should advance 176 bits");
     cr_expect(eq(sz, size, 22), "stream should have 22 bytes");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
 
     // Reopen stream for reading from same dynamic buffer
     fclose(stream);
@@ -371,7 +372,7 @@ Test(bits, be_unsigned_integers)
     parse_be_uint64(&tniu63, 63, &pstate);
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 176), "pstate should advance 176 bits");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Verify that these 8 integers are the same integers originally written
     cr_expect(eq(u8, uint1, tniu1), "numbers should be the same");
@@ -404,7 +405,7 @@ Test(bits, le_bool_24)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 24), "ustate should advance 24 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0), "ustate should hold nothing");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
     cr_expect(eq(sz, size, 3), "stream should hold 3 bytes");
     cr_expect(eq(u8, buffer[0], 0210), "stream should hold 0b_10_001_000");
     cr_expect(eq(u8, buffer[1], 0306), "stream should hold 0b_11_000_110");
@@ -422,7 +423,7 @@ Test(bits, le_bool_24)
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 24), "pstate should advance 24 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0), "pstate should hold nothing");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Close stream and free dynamic buffer
     fclose(stream);
@@ -445,14 +446,14 @@ Test(bits, le_bool_4_4)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 4), "ustate should advance 4 bits");
     cr_expect(eq(u8, ustate.unwritBits, 012), "ustate should hold 0b_1_010");
-    cr_expect(eq(u8, ustate.unwritLen, 4), "ustate should buffer 4 bits");
+    cr_expect(eq(u8, ustate.numUnwritBits, 4), "ustate should buffer 4 bits");
     cr_expect(eq(sz, size, 0), "stream should be empty");
     unparse_le_bool(false, 4, true4_rep, false_rep, &ustate);
     fflush(stream);
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 8), "ustate should advance 4 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0255), "ustate should hold 0b_10_101_101");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
     cr_expect(eq(sz, size, 1), "stream should have 1 byte");
     cr_expect(eq(u8, buffer[0], 0255), "stream should hold 0b_10_101_101");
 
@@ -468,14 +469,14 @@ Test(bits, le_bool_4_4)
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 4), "pstate should advance 4 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0255), "pstate should hold 0b_10_101_101");
-    cr_expect(eq(u8, pstate.unreadLen, 4), "pstate should buffer 4 bits");
+    cr_expect(eq(u8, pstate.numUnreadBits, 4), "pstate should buffer 4 bits");
     number = false;
     parse_le_bool(&number, 4, true4_rep, false_rep, &pstate);
     cr_expect(eq(int, number, false), "boolean number should be false");
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 8), "pstate should advance 4 bits");
     cr_expect(eq(u8, pstate.unreadBits, 015), "pstate should hold 0b_1_101");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Close stream and free dynamic buffer
     fclose(stream);
@@ -498,24 +499,25 @@ Test(bits, le_bool_7_7)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 7), "ustate should advance 7 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0146), "ustate should hold 0b_01_100_110");
-    cr_expect(eq(u8, ustate.unwritLen, 7), "ustate should buffer 7 bits");
+    cr_expect(eq(u8, ustate.numUnwritBits, 7), "ustate should buffer 7 bits");
     cr_expect(eq(sz, size, 0), "stream should be empty");
     unparse_le_bool(false, 7, true7_rep, false_rep, &ustate);
     fflush(stream);
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 14), "ustate should advance 7 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0157), "ustate should hold 0b_01_101_111");
-    cr_expect(eq(u8, ustate.unwritLen, 6), "ustate should buffer 6 bits");
+    cr_expect(eq(u8, ustate.numUnwritBits, 6), "ustate should buffer 6 bits");
     cr_expect(eq(sz, size, 1), "stream should have 1 byte");
     cr_expect(eq(u8, buffer[0], 0315), "stream should hold 0b_11_001_101");
 
     // Verify that flushing ustate writes 10111100
-    flushUState(&ustate);
+    const uint8_t fill_byte = '\0';
+    flush_fragment_byte(fill_byte, &ustate);
     fflush(stream);
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
-    cr_expect(eq(sz, ustate.bitPos0b, 16), "ustate should advance 2 bits");
+    cr_expect(eq(sz, ustate.bitPos0b, 20), "ustate should advance 6 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0274), "ustate should hold 0b_10_111_100");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
     cr_expect(eq(sz, size, 2), "stream should have 2 bytes");
     cr_expect(eq(u8, buffer[1], 0274), "stream should hold 0b_10_111_100");
 
@@ -531,14 +533,14 @@ Test(bits, le_bool_7_7)
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 7), "pstate should advance 7 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0315), "pstate should hold 0b_11_001_101");
-    cr_expect(eq(u8, pstate.unreadLen, 1), "pstate should buffer 1 bit");
+    cr_expect(eq(u8, pstate.numUnreadBits, 1), "pstate should buffer 1 bit");
     number = false;
     parse_le_bool(&number, 7, true7_rep, false_rep, &pstate);
     cr_expect(eq(int, number, false), "boolean number should be false");
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 14), "pstate should advance 7 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0274), "pstate should hold 0b_10_111_100");
-    cr_expect(eq(u8, pstate.unreadLen, 2), "pstate should buffer 2 bits");
+    cr_expect(eq(u8, pstate.numUnreadBits, 2), "pstate should buffer 2 bits");
 
     // Close stream and free dynamic buffer
     fclose(stream);
@@ -562,7 +564,7 @@ Test(bits, le_bool_9_7)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 9), "ustate should advance 9 bits");
     cr_expect(eq(u8, ustate.unwritBits, 01), "ustate should hold 0b_00_000_001");
-    cr_expect(eq(u8, ustate.unwritLen, 1), "ustate should buffer 1 bit");
+    cr_expect(eq(u8, ustate.numUnwritBits, 1), "ustate should buffer 1 bit");
     cr_expect(eq(sz, size, 1), "stream should hold 1 byte");
     cr_expect(eq(u8, buffer[0], 0347), "stream should hold 0b_11_100_111");
     unparse_le_bool(true, 7, true7_rep, false_rep, &ustate);
@@ -570,7 +572,7 @@ Test(bits, le_bool_9_7)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 16), "ustate should advance 7 bits");
     cr_expect(eq(u8, ustate.unwritBits, 0367), "ustate should hold 0b_11_110_111");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
     cr_expect(eq(sz, size, 2), "stream should hold 2 bytes");
     cr_expect(eq(u8, buffer[1], 0367), "stream should hold 0b_11_110_111");
 
@@ -586,14 +588,14 @@ Test(bits, le_bool_9_7)
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 9), "pstate should advance 9 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0367), "pstate should hold 0b_11_110_111");
-    cr_expect(eq(u8, pstate.unreadLen, 7), "pstate should buffer 7 bits");
+    cr_expect(eq(u8, pstate.numUnreadBits, 7), "pstate should buffer 7 bits");
     number = false;
     parse_le_bool(&number, 7, true7_rep, false_rep, &pstate);
     cr_expect(eq(int, number, true), "boolean number should be true");
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 16), "pstate should advance 7 bits");
     cr_expect(eq(u8, pstate.unreadBits, 0167), "pstate should hold 0b_01_110_111");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Close stream and free dynamic buffer
     fclose(stream);
@@ -631,7 +633,7 @@ Test(bits, le_signed_integers)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 176), "ustate should advance 176 bits");
     cr_expect(eq(sz, size, 22), "stream should have 22 bytes");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
 
     // Reopen stream for reading from same dynamic buffer
     fclose(stream);
@@ -657,7 +659,7 @@ Test(bits, le_signed_integers)
     parse_le_int64(&tin63, 63, &pstate);
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 176), "pstate should advance 176 bits");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Verify that these 8 integers are the same integers originally written
     cr_expect(eq(i8, int1, tin1), "numbers should be the same");
@@ -705,7 +707,7 @@ Test(bits, le_unsigned_integers)
     cr_expect(eq(ptr, (void *)ustate.error, 0), "ustate should have no error");
     cr_expect(eq(sz, ustate.bitPos0b, 176), "ustate should advance 176 bits");
     cr_expect(eq(sz, size, 22), "stream should have 22 bytes");
-    cr_expect(eq(u8, ustate.unwritLen, 0), "ustate should be empty");
+    cr_expect(eq(u8, ustate.numUnwritBits, 0), "ustate should be empty");
 
     // Reopen stream for reading from same dynamic buffer
     fclose(stream);
@@ -731,7 +733,7 @@ Test(bits, le_unsigned_integers)
     parse_le_uint64(&tniu63, 63, &pstate);
     cr_expect(eq(ptr, (void *)pstate.error, 0), "pstate should have no error");
     cr_expect(eq(sz, pstate.bitPos0b, 176), "pstate should advance 176 bits");
-    cr_expect(eq(u8, pstate.unreadLen, 0), "pstate should be empty");
+    cr_expect(eq(u8, pstate.numUnreadBits, 0), "pstate should be empty");
 
     // Verify that these 8 integers are the same integers originally written
     cr_expect(eq(u8, uint1, tniu1), "numbers should be the same");

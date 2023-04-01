@@ -2,7 +2,7 @@
 #include "generated_code.h"
 #include <stdbool.h>    // for false, bool, true
 #include <stddef.h>     // for NULL, size_t
-#include <string.h>     // for memcmp
+#include <string.h>     // for memcmp, memset
 #include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, Error::(anonymous), UNUSED
 #include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
 #include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
@@ -53,7 +53,7 @@ static const ERD variablelen_expressionType_ERD = {
 
 static const expressionElement_ array_variablelen_expressionType_expressionElement__compute_offsets;
 
-static const size_t array_variablelen_expressionType_expressionElement__offsets[1] = {
+static const size_t array_variablelen_expressionType_expressionElement__childrenOffsets[1] = {
     (const char *)&array_variablelen_expressionType_expressionElement__compute_offsets.variablelen[1] - (const char *)&array_variablelen_expressionType_expressionElement__compute_offsets.variablelen[0]
 };
 
@@ -69,11 +69,11 @@ static const ERD array_variablelen_expressionType_expressionElement_ERD = {
     },
     ARRAY, // typeCode
     16, // maxOccurs
-    array_variablelen_expressionType_expressionElement__offsets, // offsets
-    array_variablelen_expressionType_expressionElement__childrenERDs, // childrenERDs
-    (ERDParseSelf)&array_variablelen_expressionType_expressionElement__parseSelf, // parseSelf
-    (ERDUnparseSelf)&array_variablelen_expressionType_expressionElement__unparseSelf, // unparseSelf
-    {.getArraySize = (GetArraySize)&array_variablelen_expressionType_expressionElement__getArraySize} // getArraySize
+    array_variablelen_expressionType_expressionElement__childrenOffsets,
+    array_variablelen_expressionType_expressionElement__childrenERDs,
+    (ERDParseSelf)&array_variablelen_expressionType_expressionElement__parseSelf,
+    (ERDUnparseSelf)&array_variablelen_expressionType_expressionElement__unparseSelf,
+    {.getArraySize = (GetArraySize)&array_variablelen_expressionType_expressionElement__getArraySize}
 };
 
 static const ERD after_expressionType_ERD = {
@@ -88,7 +88,7 @@ static const ERD after_expressionType_ERD = {
 
 static const expressionElement_ array_after_expressionType_expressionElement__compute_offsets;
 
-static const size_t array_after_expressionType_expressionElement__offsets[1] = {
+static const size_t array_after_expressionType_expressionElement__childrenOffsets[1] = {
     (const char *)&array_after_expressionType_expressionElement__compute_offsets.after[1] - (const char *)&array_after_expressionType_expressionElement__compute_offsets.after[0]
 };
 
@@ -104,16 +104,16 @@ static const ERD array_after_expressionType_expressionElement_ERD = {
     },
     ARRAY, // typeCode
     2, // maxOccurs
-    array_after_expressionType_expressionElement__offsets, // offsets
-    array_after_expressionType_expressionElement__childrenERDs, // childrenERDs
-    (ERDParseSelf)&array_after_expressionType_expressionElement__parseSelf, // parseSelf
-    (ERDUnparseSelf)&array_after_expressionType_expressionElement__unparseSelf, // unparseSelf
-    {.getArraySize = (GetArraySize)&array_after_expressionType_expressionElement__getArraySize} // getArraySize
+    array_after_expressionType_expressionElement__childrenOffsets,
+    array_after_expressionType_expressionElement__childrenERDs,
+    (ERDParseSelf)&array_after_expressionType_expressionElement__parseSelf,
+    (ERDUnparseSelf)&array_after_expressionType_expressionElement__unparseSelf,
+    {.getArraySize = (GetArraySize)&array_after_expressionType_expressionElement__getArraySize}
 };
 
 static const expressionElement_ expressionElement__compute_offsets;
 
-static const size_t expressionElement__offsets[4] = {
+static const size_t expressionElement__childrenOffsets[4] = {
     (const char *)&expressionElement__compute_offsets.before - (const char *)&expressionElement__compute_offsets,
     (const char *)&expressionElement__compute_offsets.variablelen_size - (const char *)&expressionElement__compute_offsets,
     (const char *)&expressionElement__compute_offsets.variablelen[0] - (const char *)&expressionElement__compute_offsets,
@@ -135,11 +135,11 @@ static const ERD expressionElement_ERD = {
     },
     COMPLEX, // typeCode
     4, // numChildren
-    expressionElement__offsets, // offsets
-    expressionElement__childrenERDs, // childrenERDs
-    (ERDParseSelf)&expressionElement__parseSelf, // parseSelf
-    (ERDUnparseSelf)&expressionElement__unparseSelf, // unparseSelf
-    {NULL} // initChoice
+    expressionElement__childrenOffsets,
+    expressionElement__childrenERDs,
+    (ERDParseSelf)&expressionElement__parseSelf,
+    (ERDUnparseSelf)&expressionElement__unparseSelf,
+    {.initChoice = NULL}
 };
 
 // Initialize, parse, and unparse nodes of the infoset
@@ -262,17 +262,21 @@ expressionElement__unparseSelf(const expressionElement_ *instance, UState *ustat
     if (ustate->error) return;
 }
 
-// Return a root element for parsing or unparsing the infoset
+// Get an infoset (optionally clearing it first) for parsing/walking
 
 InfosetBase *
-rootElement(void)
+get_infoset(bool clear_infoset)
 {
-    static bool initialized;
-    static expressionElement_ root;
-    if (!initialized)
+    static expressionElement_ infoset;
+
+    if (clear_infoset)
     {
-        expressionElement__initERD(&root, (InfosetBase *)&root);
-        initialized = true;
+        // If your infoset contains hexBinary prefixed length elements,
+        // you may want to walk infoset first to free their malloc'ed
+        // storage - we are not handling that case for now...
+        memset(&infoset, 0, sizeof(infoset));
+        expressionElement__initERD(&infoset, (InfosetBase *)&infoset);
     }
-    return &root._base;
+
+    return &infoset._base;
 }

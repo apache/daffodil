@@ -76,6 +76,11 @@ extern void parse_validate_fixed(bool same, const char *element, PState *pstate)
 
 // Check array count is within bounds
 
-extern void parse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs, PState *pstate);
+extern void parse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs,
+                               PState *pstate);
+
+// Check for any data left over after end of parse
+
+extern void no_leftover_data(PState *pstate);
 
 #endif // PARSERS_H

@@ -68,7 +68,7 @@ trait BinaryValueCodeGenerator {
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
-    val localName = e.namedQName.local
+    val localName = cgState.cName(e)
     val field = s"instance->$localName$deref"
     val conv = if (e.byteOrderEv.constValue eq ByteOrder.BigEndian) "be" else "le"
     val function = s"${conv}_$primType"
@@ -92,7 +92,7 @@ trait BinaryValueCodeGenerator {
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
-    val localName = e.namedQName.local
+    val localName = cgState.cName(e)
     val field = s"instance->$localName$deref"
     val fixed = e.fixedValueAsString
 

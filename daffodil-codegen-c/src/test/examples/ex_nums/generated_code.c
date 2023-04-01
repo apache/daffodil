@@ -2,7 +2,7 @@
 #include "generated_code.h"
 #include <stdbool.h>    // for false, bool, true
 #include <stddef.h>     // for NULL, size_t
-#include <string.h>     // for memcmp
+#include <string.h>     // for memcmp, memset
 #include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, Error::(anonymous), UNUSED
 #include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
 #include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
@@ -50,7 +50,7 @@ static const ERD be_boolean_array_ex_nums_ERD = {
 
 static const array_ex_nums_ array_be_boolean_array_ex_nums_array_ex_nums__compute_offsets;
 
-static const size_t array_be_boolean_array_ex_nums_array_ex_nums__offsets[1] = {
+static const size_t array_be_boolean_array_ex_nums_array_ex_nums__childrenOffsets[1] = {
     (const char *)&array_be_boolean_array_ex_nums_array_ex_nums__compute_offsets.be_boolean[1] - (const char *)&array_be_boolean_array_ex_nums_array_ex_nums__compute_offsets.be_boolean[0]
 };
 
@@ -66,11 +66,11 @@ static const ERD array_be_boolean_array_ex_nums_array_ex_nums_ERD = {
     },
     ARRAY, // typeCode
     2, // maxOccurs
-    array_be_boolean_array_ex_nums_array_ex_nums__offsets, // offsets
-    array_be_boolean_array_ex_nums_array_ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&array_be_boolean_array_ex_nums_array_ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&array_be_boolean_array_ex_nums_array_ex_nums__unparseSelf, // unparseSelf
-    {.getArraySize = (GetArraySize)&array_be_boolean_array_ex_nums_array_ex_nums__getArraySize} // getArraySize
+    array_be_boolean_array_ex_nums_array_ex_nums__childrenOffsets,
+    array_be_boolean_array_ex_nums_array_ex_nums__childrenERDs,
+    (ERDParseSelf)&array_be_boolean_array_ex_nums_array_ex_nums__parseSelf,
+    (ERDUnparseSelf)&array_be_boolean_array_ex_nums_array_ex_nums__unparseSelf,
+    {.getArraySize = (GetArraySize)&array_be_boolean_array_ex_nums_array_ex_nums__getArraySize}
 };
 
 static const ERD be_float_array_ex_nums_ERD = {
@@ -85,7 +85,7 @@ static const ERD be_float_array_ex_nums_ERD = {
 
 static const array_ex_nums_ array_be_float_array_ex_nums_array_ex_nums__compute_offsets;
 
-static const size_t array_be_float_array_ex_nums_array_ex_nums__offsets[1] = {
+static const size_t array_be_float_array_ex_nums_array_ex_nums__childrenOffsets[1] = {
     (const char *)&array_be_float_array_ex_nums_array_ex_nums__compute_offsets.be_float[1] - (const char *)&array_be_float_array_ex_nums_array_ex_nums__compute_offsets.be_float[0]
 };
 
@@ -101,11 +101,11 @@ static const ERD array_be_float_array_ex_nums_array_ex_nums_ERD = {
     },
     ARRAY, // typeCode
     3, // maxOccurs
-    array_be_float_array_ex_nums_array_ex_nums__offsets, // offsets
-    array_be_float_array_ex_nums_array_ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&array_be_float_array_ex_nums_array_ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&array_be_float_array_ex_nums_array_ex_nums__unparseSelf, // unparseSelf
-    {.getArraySize = (GetArraySize)&array_be_float_array_ex_nums_array_ex_nums__getArraySize} // getArraySize
+    array_be_float_array_ex_nums_array_ex_nums__childrenOffsets,
+    array_be_float_array_ex_nums_array_ex_nums__childrenERDs,
+    (ERDParseSelf)&array_be_float_array_ex_nums_array_ex_nums__parseSelf,
+    (ERDUnparseSelf)&array_be_float_array_ex_nums_array_ex_nums__unparseSelf,
+    {.getArraySize = (GetArraySize)&array_be_float_array_ex_nums_array_ex_nums__getArraySize}
 };
 
 static const ERD be_int16_array_ex_nums_ERD = {
@@ -120,7 +120,7 @@ static const ERD be_int16_array_ex_nums_ERD = {
 
 static const array_ex_nums_ array_be_int16_array_ex_nums_array_ex_nums__compute_offsets;
 
-static const size_t array_be_int16_array_ex_nums_array_ex_nums__offsets[1] = {
+static const size_t array_be_int16_array_ex_nums_array_ex_nums__childrenOffsets[1] = {
     (const char *)&array_be_int16_array_ex_nums_array_ex_nums__compute_offsets.be_int16[1] - (const char *)&array_be_int16_array_ex_nums_array_ex_nums__compute_offsets.be_int16[0]
 };
 
@@ -136,11 +136,11 @@ static const ERD array_be_int16_array_ex_nums_array_ex_nums_ERD = {
     },
     ARRAY, // typeCode
     3, // maxOccurs
-    array_be_int16_array_ex_nums_array_ex_nums__offsets, // offsets
-    array_be_int16_array_ex_nums_array_ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&array_be_int16_array_ex_nums_array_ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&array_be_int16_array_ex_nums_array_ex_nums__unparseSelf, // unparseSelf
-    {.getArraySize = (GetArraySize)&array_be_int16_array_ex_nums_array_ex_nums__getArraySize} // getArraySize
+    array_be_int16_array_ex_nums_array_ex_nums__childrenOffsets,
+    array_be_int16_array_ex_nums_array_ex_nums__childrenERDs,
+    (ERDParseSelf)&array_be_int16_array_ex_nums_array_ex_nums__parseSelf,
+    (ERDUnparseSelf)&array_be_int16_array_ex_nums_array_ex_nums__unparseSelf,
+    {.getArraySize = (GetArraySize)&array_be_int16_array_ex_nums_array_ex_nums__getArraySize}
 };
 
 static const ERD hexBinary2_array_ex_nums_ERD = {
@@ -155,7 +155,7 @@ static const ERD hexBinary2_array_ex_nums_ERD = {
 
 static const array_ex_nums_ array_hexBinary2_array_ex_nums_array_ex_nums__compute_offsets;
 
-static const size_t array_hexBinary2_array_ex_nums_array_ex_nums__offsets[1] = {
+static const size_t array_hexBinary2_array_ex_nums_array_ex_nums__childrenOffsets[1] = {
     (const char *)&array_hexBinary2_array_ex_nums_array_ex_nums__compute_offsets.hexBinary2[1] - (const char *)&array_hexBinary2_array_ex_nums_array_ex_nums__compute_offsets.hexBinary2[0]
 };
 
@@ -171,11 +171,11 @@ static const ERD array_hexBinary2_array_ex_nums_array_ex_nums_ERD = {
     },
     ARRAY, // typeCode
     3, // maxOccurs
-    array_hexBinary2_array_ex_nums_array_ex_nums__offsets, // offsets
-    array_hexBinary2_array_ex_nums_array_ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&array_hexBinary2_array_ex_nums_array_ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&array_hexBinary2_array_ex_nums_array_ex_nums__unparseSelf, // unparseSelf
-    {.getArraySize = (GetArraySize)&array_hexBinary2_array_ex_nums_array_ex_nums__getArraySize} // getArraySize
+    array_hexBinary2_array_ex_nums_array_ex_nums__childrenOffsets,
+    array_hexBinary2_array_ex_nums_array_ex_nums__childrenERDs,
+    (ERDParseSelf)&array_hexBinary2_array_ex_nums_array_ex_nums__parseSelf,
+    (ERDUnparseSelf)&array_hexBinary2_array_ex_nums_array_ex_nums__unparseSelf,
+    {.getArraySize = (GetArraySize)&array_hexBinary2_array_ex_nums_array_ex_nums__getArraySize}
 };
 
 static const ERD hexBinaryPrefixed_array_ex_nums_ERD = {
@@ -190,7 +190,7 @@ static const ERD hexBinaryPrefixed_array_ex_nums_ERD = {
 
 static const array_ex_nums_ array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__compute_offsets;
 
-static const size_t array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__offsets[1] = {
+static const size_t array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__childrenOffsets[1] = {
     (const char *)&array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__compute_offsets.hexBinaryPrefixed[1] - (const char *)&array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__compute_offsets.hexBinaryPrefixed[0]
 };
 
@@ -206,16 +206,16 @@ static const ERD array_hexBinaryPrefixed_array_ex_nums_array_ex_nums_ERD = {
     },
     ARRAY, // typeCode
     3, // maxOccurs
-    array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__offsets, // offsets
-    array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__unparseSelf, // unparseSelf
-    {.getArraySize = (GetArraySize)&array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__getArraySize} // getArraySize
+    array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__childrenOffsets,
+    array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__childrenERDs,
+    (ERDParseSelf)&array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__parseSelf,
+    (ERDUnparseSelf)&array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__unparseSelf,
+    {.getArraySize = (GetArraySize)&array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__getArraySize}
 };
 
 static const array_ex_nums_ array_ex_nums__compute_offsets;
 
-static const size_t array_ex_nums__offsets[5] = {
+static const size_t array_ex_nums__childrenOffsets[5] = {
     (const char *)&array_ex_nums__compute_offsets.be_boolean[0] - (const char *)&array_ex_nums__compute_offsets,
     (const char *)&array_ex_nums__compute_offsets.be_float[0] - (const char *)&array_ex_nums__compute_offsets,
     (const char *)&array_ex_nums__compute_offsets.be_int16[0] - (const char *)&array_ex_nums__compute_offsets,
@@ -239,11 +239,11 @@ static const ERD array_ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     5, // numChildren
-    array_ex_nums__offsets, // offsets
-    array_ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&array_ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&array_ex_nums__unparseSelf, // unparseSelf
-    {NULL} // initChoice
+    array_ex_nums__childrenOffsets,
+    array_ex_nums__childrenERDs,
+    (ERDParseSelf)&array_ex_nums__parseSelf,
+    (ERDUnparseSelf)&array_ex_nums__unparseSelf,
+    {.initChoice = NULL}
 };
 
 static const ERD be_bool16_bigEndian_ex_nums_ERD = {
@@ -408,7 +408,7 @@ static const ERD hexBinaryPrefixed_bigEndian_ex_nums_ERD = {
 
 static const bigEndian_ex_nums_ bigEndian_ex_nums__compute_offsets;
 
-static const size_t bigEndian_ex_nums__offsets[16] = {
+static const size_t bigEndian_ex_nums__childrenOffsets[16] = {
     (const char *)&bigEndian_ex_nums__compute_offsets.be_bool16 - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.be_boolean - (const char *)&bigEndian_ex_nums__compute_offsets,
     (const char *)&bigEndian_ex_nums__compute_offsets.be_double - (const char *)&bigEndian_ex_nums__compute_offsets,
@@ -454,11 +454,11 @@ static const ERD bigEndian_ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     16, // numChildren
-    bigEndian_ex_nums__offsets, // offsets
-    bigEndian_ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&bigEndian_ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&bigEndian_ex_nums__unparseSelf, // unparseSelf
-    {NULL} // initChoice
+    bigEndian_ex_nums__childrenOffsets,
+    bigEndian_ex_nums__childrenERDs,
+    (ERDParseSelf)&bigEndian_ex_nums__parseSelf,
+    (ERDUnparseSelf)&bigEndian_ex_nums__unparseSelf,
+    {.initChoice = NULL}
 };
 
 static const ERD le_bool16_littleEndian_ex_nums_ERD = {
@@ -623,7 +623,7 @@ static const ERD hexBinaryPrefixed_littleEndian_ex_nums_ERD = {
 
 static const littleEndian_ex_nums_ littleEndian_ex_nums__compute_offsets;
 
-static const size_t littleEndian_ex_nums__offsets[16] = {
+static const size_t littleEndian_ex_nums__childrenOffsets[16] = {
     (const char *)&littleEndian_ex_nums__compute_offsets.le_bool16 - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.le_boolean - (const char *)&littleEndian_ex_nums__compute_offsets,
     (const char *)&littleEndian_ex_nums__compute_offsets.le_double - (const char *)&littleEndian_ex_nums__compute_offsets,
@@ -669,11 +669,11 @@ static const ERD littleEndian_ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     16, // numChildren
-    littleEndian_ex_nums__offsets, // offsets
-    littleEndian_ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&littleEndian_ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&littleEndian_ex_nums__unparseSelf, // unparseSelf
-    {NULL} // initChoice
+    littleEndian_ex_nums__childrenOffsets,
+    littleEndian_ex_nums__childrenERDs,
+    (ERDParseSelf)&littleEndian_ex_nums__parseSelf,
+    (ERDUnparseSelf)&littleEndian_ex_nums__unparseSelf,
+    {.initChoice = NULL}
 };
 
 static const ERD boolean_false_fixed_ex_nums_ERD = {
@@ -758,7 +758,7 @@ static const ERD hexBinaryPrefixed_ab_fixed_ex_nums_ERD = {
 
 static const fixed_ex_nums_ fixed_ex_nums__compute_offsets;
 
-static const size_t fixed_ex_nums__offsets[8] = {
+static const size_t fixed_ex_nums__childrenOffsets[8] = {
     (const char *)&fixed_ex_nums__compute_offsets.boolean_false - (const char *)&fixed_ex_nums__compute_offsets,
     (const char *)&fixed_ex_nums__compute_offsets.boolean_true - (const char *)&fixed_ex_nums__compute_offsets,
     (const char *)&fixed_ex_nums__compute_offsets.double_3 - (const char *)&fixed_ex_nums__compute_offsets,
@@ -788,16 +788,16 @@ static const ERD fixed_ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     8, // numChildren
-    fixed_ex_nums__offsets, // offsets
-    fixed_ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&fixed_ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&fixed_ex_nums__unparseSelf, // unparseSelf
-    {NULL} // initChoice
+    fixed_ex_nums__childrenOffsets,
+    fixed_ex_nums__childrenERDs,
+    (ERDParseSelf)&fixed_ex_nums__parseSelf,
+    (ERDUnparseSelf)&fixed_ex_nums__unparseSelf,
+    {.initChoice = NULL}
 };
 
 static const ex_nums_ ex_nums__compute_offsets;
 
-static const size_t ex_nums__offsets[4] = {
+static const size_t ex_nums__childrenOffsets[4] = {
     (const char *)&ex_nums__compute_offsets.array - (const char *)&ex_nums__compute_offsets,
     (const char *)&ex_nums__compute_offsets.bigEndian - (const char *)&ex_nums__compute_offsets,
     (const char *)&ex_nums__compute_offsets.littleEndian - (const char *)&ex_nums__compute_offsets,
@@ -819,11 +819,11 @@ static const ERD ex_nums_ERD = {
     },
     COMPLEX, // typeCode
     4, // numChildren
-    ex_nums__offsets, // offsets
-    ex_nums__childrenERDs, // childrenERDs
-    (ERDParseSelf)&ex_nums__parseSelf, // parseSelf
-    (ERDUnparseSelf)&ex_nums__unparseSelf, // unparseSelf
-    {NULL} // initChoice
+    ex_nums__childrenOffsets,
+    ex_nums__childrenERDs,
+    (ERDParseSelf)&ex_nums__parseSelf,
+    (ERDUnparseSelf)&ex_nums__unparseSelf,
+    {.initChoice = NULL}
 };
 
 // Initialize, parse, and unparse nodes of the infoset
@@ -1411,17 +1411,21 @@ ex_nums__unparseSelf(const ex_nums_ *instance, UState *ustate)
     if (ustate->error) return;
 }
 
-// Return a root element for parsing or unparsing the infoset
+// Get an infoset (optionally clearing it first) for parsing/walking
 
 InfosetBase *
-rootElement(void)
+get_infoset(bool clear_infoset)
 {
-    static bool initialized;
-    static ex_nums_ root;
-    if (!initialized)
+    static ex_nums_ infoset;
+
+    if (clear_infoset)
     {
-        ex_nums__initERD(&root, (InfosetBase *)&root);
-        initialized = true;
+        // If your infoset contains hexBinary prefixed length elements,
+        // you may want to walk infoset first to free their malloc'ed
+        // storage - we are not handling that case for now...
+        memset(&infoset, 0, sizeof(infoset));
+        ex_nums__initERD(&infoset, (InfosetBase *)&infoset);
     }
-    return &root._base;
+
+    return &infoset._base;
 }

@@ -20,7 +20,7 @@
 #include <assert.h>   // for assert
 #include <stdbool.h>  // for bool
 #include <stdio.h>    // for fwrite
-#include "errors.h"   // for eof_or_error, add_diagnostic, get_diagnostics, ERR_ARRAY_BOUNDS, ERR_FIXED_VALUE, Diagnostics, Error
+#include "errors.h"   // for eof_or_error, Error, add_diagnostic, get_diagnostics, ERR_ARRAY_BOUNDS, ERR_FIXED_VALUE, Diagnostics, Error::(anonymous)
 #include "p_endian.h" // for htobe64, htole64, htobe32, htole32
 // clang-format on
 
@@ -34,8 +34,8 @@
 #define HIGH_BITS(byte, n) ((byte & HIGH_MASK(n)) >> (BYTE_WIDTH - n))
 
 // Helper method to write bits using whole bytes while storing
-// remaining bits not yet written within a fractional byte; expects
-// last bits of last byte to be already shifted to left end
+// remaining bits not yet written within a fragment byte; expects last
+// bits of last byte to be already shifted to left end
 
 // Note callers must check ustate->error after calling write_bits and
 // update ustate->bitPos0b themselves after successful unparses
@@ -45,7 +45,7 @@ write_bits(const uint8_t *bytes, size_t num_bits, UState *ustate)
 {
     // Copy as many bytes directly to stream as possible
     size_t ix_bytes = 0;
-    if (!ustate->unwritLen)
+    if (!ustate->numUnwritBits)
     {
         size_t num_bytes = num_bits / BYTE_WIDTH;
         if (num_bytes)
@@ -61,19 +61,19 @@ write_bits(const uint8_t *bytes, size_t num_bits, UState *ustate)
         }
     }
 
-    // Fill and copy the fractional byte as many times as needed
-    while (num_bits + ustate->unwritLen >= BYTE_WIDTH)
+    // Fill and copy the fragment byte as many times as needed
+    while (num_bits + ustate->numUnwritBits >= BYTE_WIDTH)
     {
-        // Fill the fractional byte
+        // Fill the fragment byte
         uint8_t whole_byte = bytes[ix_bytes++];
-        size_t  num_bits_fill = BYTE_WIDTH - ustate->unwritLen;
+        size_t  num_bits_fill = BYTE_WIDTH - ustate->numUnwritBits;
         ustate->unwritBits <<= num_bits_fill;
         ustate->unwritBits |= HIGH_BITS(whole_byte, num_bits_fill);
-        ustate->unwritLen += num_bits_fill;
+        ustate->numUnwritBits += num_bits_fill;
         num_bits -= num_bits_fill;
         whole_byte <<= num_bits_fill;
 
-        // Copy the fractional byte to stream
+        // Copy the fragment byte to stream
         size_t num_bits_write = BYTE_WIDTH;
         size_t count = fwrite(&ustate->unwritBits, 1, 1, ustate->stream);
         if (count < 1)
@@ -81,29 +81,29 @@ write_bits(const uint8_t *bytes, size_t num_bits, UState *ustate)
             ustate->error = eof_or_error(ustate->stream);
             return;
         }
-        ustate->unwritLen -= num_bits_write;
+        ustate->numUnwritBits -= num_bits_write;
 
         // Copy any remaining unused bits from the whole byte to the
-        // fractional byte
+        // fragment byte
         size_t num_bits_unused = BYTE_WIDTH - num_bits_fill;
         if (num_bits_unused > num_bits) num_bits_unused = num_bits;
         if (num_bits_unused)
         {
             ustate->unwritBits <<= num_bits_unused;
             ustate->unwritBits |= HIGH_BITS(whole_byte, num_bits_unused);
-            ustate->unwritLen += num_bits_unused;
+            ustate->numUnwritBits += num_bits_unused;
             num_bits -= num_bits_unused;
         }
     }
 
-    // Fill the fractional byte one last time
+    // Fill the fragment byte one last time
     if (num_bits)
     {
-        assert(num_bits + ustate->unwritLen < BYTE_WIDTH);
+        assert(num_bits + ustate->numUnwritBits < BYTE_WIDTH);
 
         ustate->unwritBits <<= num_bits;
         ustate->unwritBits |= HIGH_BITS(bytes[ix_bytes], num_bits);
-        ustate->unwritLen += num_bits;
+        ustate->numUnwritBits += num_bits;
     }
 }
 
@@ -177,7 +177,7 @@ unparse_endian_float(bool big_endian_data, float number, size_t num_bits, UState
     ustate->bitPos0b += num_bits;
 }
 
-// Helper method to write signed integers using fractional byte shifts
+// Helper method to write signed integers using fragment byte shifts
 // depending on data endianness (note not tested on big-endian
 // architecture; might work only on low-endian architecture)
 
@@ -219,8 +219,8 @@ unparse_endian_int64(bool big_endian_data, int64_t number, size_t num_bits, USta
     ustate->bitPos0b += num_bits;
 }
 
-// Helper method to write unsigned integers using fractional byte
-// shifts depending on data endianness (note not tested on big-endian
+// Helper method to write unsigned integers using fragment byte shifts
+// depending on data endianness (note not tested on big-endian
 // architecture; might work only on low-endian architecture)
 
 // Also note that we probably could use this helper function to write
@@ -463,5 +463,35 @@ unparse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t ma
         static Error error = {ERR_ARRAY_BOUNDS, {0}};
         error.arg.s = name;
         ustate->error = &error;
+    }
+}
+
+// Flush the fragment byte if not done yet
+
+void
+flush_fragment_byte(const uint8_t fill_byte, UState *ustate)
+{
+    // Skip the flush if we already have an error
+    if (!ustate->error)
+    {
+        // Do we have any unwritten bits left in the fragment byte?
+        if (ustate->numUnwritBits)
+        {
+            // Fill the fragment byte
+            size_t num_bits_fill = BYTE_WIDTH - ustate->numUnwritBits;
+            ustate->unwritBits <<= num_bits_fill;
+            ustate->unwritBits |= HIGH_BITS(fill_byte, num_bits_fill);
+
+            // Flush the fragment byte
+            size_t num_bits_write = ustate->numUnwritBits;
+            size_t count = fwrite(&ustate->unwritBits, 1, 1, ustate->stream);
+            if (count < 1)
+            {
+                ustate->error = eof_or_error(ustate->stream);
+                num_bits_write = 0;
+            }
+            ustate->numUnwritBits -= num_bits_write;
+            ustate->bitPos0b += num_bits_write;
+        }
     }
 }

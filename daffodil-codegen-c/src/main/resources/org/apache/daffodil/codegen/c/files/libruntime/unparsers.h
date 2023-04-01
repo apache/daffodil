@@ -72,6 +72,11 @@ extern void unparse_validate_fixed(bool same, const char *element, UState *ustat
 
 // Check array count is within bounds
 
-extern void unparse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs, UState *ustate);
+extern void unparse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs,
+                                 UState *ustate);
+
+// Flush the fragment byte if not done yet
+
+extern void flush_fragment_byte(const uint8_t fill_byte, UState *ustate);
 
 #endif // UNPARSERS_H

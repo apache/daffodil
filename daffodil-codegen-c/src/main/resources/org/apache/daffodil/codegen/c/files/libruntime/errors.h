@@ -33,6 +33,7 @@ enum ErrorCode
     ERR_CHOICE_KEY,
     ERR_FIXED_VALUE,
     ERR_HEXBINARY_ALLOC,
+    ERR_LEFTOVER_DATA,
     ERR_PARSE_BOOL,
     ERR_STREAM_EOF,
     ERR_STREAM_ERROR,
@@ -116,9 +117,5 @@ extern cli_error_lookup_t *cli_error_lookup;
 // daffodil_program_version - declare our program's name and version
 
 extern const char *daffodil_program_version;
-
-// UNUSED - suppress compiler warning about unused variable
-
-#define UNUSED(x) (void)(x)
 
 #endif // ERRORS_H
