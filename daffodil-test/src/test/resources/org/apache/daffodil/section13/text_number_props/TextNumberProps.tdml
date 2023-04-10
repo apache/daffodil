@@ -1531,7 +1531,7 @@
   </tdml:parserTestCase>
 
 <!--
-     Test Name: textStandardDecimalSeparator10
+     Test Name: textStandardDecimalSeparator09u
         Schema: textNumberPattern
           Root: tnp20
        Purpose: This test demonstrates that textStandardDecimalSeparator is used when unparsing if the pattern specifies
