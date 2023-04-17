@@ -346,8 +346,8 @@ abstract class RepeatingChildParser(
    */
   def endArray(state: PState): Unit = {
     state.mpstate.arrayIterationIndexStack.pop()
-    state.mpstate.occursIndexStack.pop()
-    super.endArray(state)
+    val occurrences = state.mpstate.occursIndexStack.pop() - 1
+    super.endArray(state, occurrences)
   }
 
 }
@@ -517,7 +517,7 @@ trait EndArrayChecksMixin {
 
   def erd: ElementRuntimeData
 
-  def endArray(state: ParseOrUnparseState): Unit = {
+  def endArray(state: ParseOrUnparseState, occurrences: Long): Unit = {
     if (state.processorStatus eq Success) {
 
       val shouldValidate =
@@ -528,38 +528,24 @@ trait EndArrayChecksMixin {
         val maxO = erd.maxOccurs
         val isUnbounded = maxO == -1
 
-        // At this point, state.infoset is the parent node of the DIArray that
-        // we are trying to validate. If any elements were added for this
-        // array, then the DIArray will be the last child of that parent node
-        // AND it will have the same erd as this parser. If that's not the
-        // case, and the parent has no children or it does but the last child
-        // has a different erd than what we expect, then it must mean nothing
-        // was added for this array and the occurrences are zero.
-        val occurrence = {
-          val maybeLastChild = state.infoset.maybeLastChild
-          if (maybeLastChild.isEmpty || maybeLastChild.get.erd != erd)
-            0
-          else
-            maybeLastChild.get.numChildren
-        }
-        if (isUnbounded && occurrence < minO)
+        if (isUnbounded && occurrences < minO)
           state.validationError(
             "%s occurred '%s' times when it was expected to be a " +
               "minimum of '%s' and a maximum of 'UNBOUNDED' times.",
             erd.diagnosticDebugName,
-            occurrence,
+            occurrences,
             minO,
           )
-        else if (!isUnbounded && (occurrence < minO || occurrence > maxO))
+        else if (!isUnbounded && (occurrences < minO || occurrences > maxO)) {
           state.validationError(
             "%s occurred '%s' times when it was expected to be a " +
               "minimum of '%s' and a maximum of '%s' times.",
             erd.diagnosticDebugName,
-            occurrence,
+            occurrences,
             minO,
             maxO,
           )
-        else {
+        } else {
           // ok
         }
       }

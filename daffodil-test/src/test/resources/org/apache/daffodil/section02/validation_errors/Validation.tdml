@@ -2157,5 +2157,50 @@
       <tdml:error>5.0</tdml:error>
     </tdml:validationErrors>
   </tdml:parserTestCase>
-  
+
+  <tdml:defineSchema name="validationOptional">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+    <xs:element name="a">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/">
+          <xs:element name="b" type="xs:string" />
+          <xs:element name="num" type="xs:int" minOccurs="0" />
+          <xs:element name="c" minOccurs="0">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="/">
+                <xs:element name="str" type="xs:string" />
+                <xs:element name="float" type="xs:float" dfdl:textNumberPattern="0.0" />
+                <xs:element name="int" type="xs:int" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="optional_element_1" root="a"
+    model="validationOptional"
+    roundTrip="onePass"
+    validation="on">
+    <tdml:document>B/2/A/2.0/4</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <a>
+          <b>B</b>
+          <num>2</num>
+          <c>
+            <str>A</str>
+            <float>2.0</float>
+            <int>4</int>
+          </c>
+        </a>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors />
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
