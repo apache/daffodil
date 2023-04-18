@@ -92,7 +92,7 @@
           textStandardGroupingSeparator=","
           textStandardInfinityRep="Inf"
           textStandardNaNRep="NaN"
-          textStandardZeroRep="0"
+          textStandardZeroRep=""
           textStringJustification="left"
           textStringPadCharacter="%SP;"
           textTrimKind="none"

@@ -142,7 +142,7 @@
       <xs:element name="e17" type="ex:st10" dfdl:lengthKind="delimited" dfdl:textPadKind="padChar" dfdl:textStringPadCharacter="%ES;" dfdl:textStringJustification="right" />
 
   </tdml:defineSchema>
-  
+
 <!--
       Test Name: unparseDelimitedPaddedString01
       Schema: delimitedStringsPadding
@@ -677,6 +677,67 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document><![CDATA[0.12]]></tdml:document>
+  </tdml:unparserTestCase>
+
+
+  <tdml:defineSchema name="textNumbers">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
+
+    <xs:element name="e18" type="xs:double"
+                dfdl:textNumberCheckPolicy="strict"
+                dfdl:textNumberPattern="000.00"
+                dfdl:lengthKind="delimited"/>
+
+    <xs:element name="e19" type="xs:double"
+                dfdl:textNumberCheckPolicy="strict"
+                dfdl:textNumberPattern="000.00"
+                dfdl:textStandardZeroRep="zero"
+                dfdl:lengthKind="delimited"/>
+
+    <!--
+    This element demonstrates why the default value for dfdl:textStandardZeroRep needs to be "" (turns the feature off)
+    which is because if it is defined to be "0", then it overrides the dfdl:textNumberPattern.
+
+    People shouldn't even have to remember this property exists unless they need it for their format. So by default
+    it needs to be off.
+
+    People waste quite a bit of time on this, permuting their textNumberPattern, but not understanding why it is
+    not working.
+    -->
+    <xs:element name="e20" type="xs:double"
+                dfdl:textNumberCheckPolicy="strict"
+                dfdl:textNumberPattern="000.00"
+                dfdl:textStandardZeroRep="0"
+                dfdl:lengthKind="delimited"/>
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="textStandardZeroRepNotDefinedByDefault" model="textNumbers" root="e18" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e18>0.0</ex:e18>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>000.00</tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="textStandardZeroRep1" model="textNumbers" root="e19" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e19>0.0</ex:e19>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>zero</tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="textStandardZeroRep2" model="textNumbers" root="e20" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e20>0.0</ex:e20>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>0</tdml:document>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>
