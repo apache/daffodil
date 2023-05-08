@@ -414,7 +414,7 @@ command line:
 
 ```text
 sbt "daffodil-test/testOnly org.apache.daffodil.section05.facets.TestNulChars"
-sbt "daffodil-cli/IntegrationTest/testOnly org.apache.daffodil.parsing.TestCLIparsing -- --tests=test_XXX_CLI_Parsing_SimpleParse_sax"
+sbt "daffodil-test-integration/testOnly org.apache.daffodil.cliTest.TestCLIUdfs -- --tests=test_noUdfsLoaded_regular_schema"
 ```
 
 TDML tests are helpful for Daffodil developers because they allow a
@@ -443,14 +443,16 @@ generated C code works successfully:
 daffodil test -I daffodilC nums.tdml
 ```
 
-Daffodil also has integration tests in the daffodil-cli module which
-test Daffodil's command line interface.  If a developer changes any
+Daffodil also has command line interface tests in the daffodil-cli and
+daffodil-test-integration modules. Slower CLI tests that require
+forking should go in the latter module. If a developer changes any
 part of Daffodil's command line interface, the developer should test
-that change in an integration test too.  You can run integration tests
-with sbt using this command:
+that change in one of these modules. You can run all CLI tests
+using these sbt commands:
 
 ```text
-sbt IntegrationTest/test
+sbt daffodil-cli/test
+sbt daffodil-test-integration/test
 ```
 
 Daffodil also has a [GitHub Actions][] continuous integration workflow

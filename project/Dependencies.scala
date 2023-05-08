@@ -47,13 +47,13 @@ object Dependencies {
     "org.fusesource.jansi" % "jansi" % "2.4.0",
     "org.jline" % "jline" % "3.22.0",
     "org.rogach" %% "scallop" % "4.1.0",
-    "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test",
+    "net.sf.expectit" % "expectit-core" % "0.9.0" % "test",
   )
 
   lazy val test = Seq(
-    "junit" % "junit" % "4.13.2" % "it,test",
-    "com.github.sbt" % "junit-interface" % "0.13.3" % "it,test",
-    "org.scalacheck" %% "scalacheck" % "1.17.0" % "it,test",
+    "junit" % "junit" % "4.13.2" % "test",
+    "com.github.sbt" % "junit-interface" % "0.13.3" % "test",
+    "org.scalacheck" %% "scalacheck" % "1.17.0" % "test",
   )
 
   lazy val schematron = Seq(

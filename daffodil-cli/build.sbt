@@ -23,23 +23,6 @@ enablePlugins(JavaAppPackaging)
 enablePlugins(RpmPlugin)
 enablePlugins(WindowsPlugin)
 
-// integration tests require forking, which require a lot of extra memory, so
-// these should only be run sequentially
-IntegrationTest / parallelExecution := false
-
-// need 'sbt stage' to build the CLI for cli integration tests
-(IntegrationTest / test) := (IntegrationTest / test).dependsOn(Compile / stage).value
-(IntegrationTest / testOnly) := (IntegrationTest / testOnly)
-  .dependsOn(Compile / stage)
-  .evaluated
-(IntegrationTest / testQuick) := (IntegrationTest / testQuick)
-  .dependsOn(Compile / stage)
-  .evaluated
-
-// Add the classes in src/test/ to the IntegrationTest classpath
-// so we can share CLI utliities in Util.scala
-(IntegrationTest / dependencyClasspath) ++= (Test / exportedProducts).value
-
 executableScriptName := "daffodil"
 
 Universal / packageName := "apache-daffodil-" + version.value + "-bin" //tarball name

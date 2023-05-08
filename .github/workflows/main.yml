@@ -141,7 +141,7 @@ jobs:
       ############################################################
 
       - name: Compile
-        run: $SBT compile Test/compile IntegrationTest/compile
+        run: $SBT compile Test/compile daffodil-test-integration/Test/compile
 
       - name: Build Documentation
         run: $SBT unidoc
@@ -161,7 +161,7 @@ jobs:
         run: $SBT test
 
       - name: Run Integration Tests
-        run: $SBT IntegrationTest/test
+        run: $SBT daffodil-test-integration/test
 
       - name: Run Modified Example Files Check
         run: git diff --color --exit-code
