@@ -176,7 +176,7 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
           "separatorSuppressionPolicy='never' with occursCountKind='implicit' requires bounded maxOccurs.",
         )
       case (e: EB, Ordered__, Never______, Implicit__, ___, max) =>
-        new RepOrderedExactlyNSequenceChild(this, e, groupIndex, max)
+        new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
       case (
             e: EB,
             Ordered__,

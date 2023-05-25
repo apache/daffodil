@@ -169,7 +169,6 @@
       <dfdlInfoset>
         <tns:e_infix_never>
           <x>foo</x>
-          <y/>
       </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
@@ -215,7 +214,6 @@
       <dfdlInfoset>
         <tns:e_infix_never>
           <x>foo;</x>
-          <y></y>
         </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>
@@ -241,7 +239,6 @@
       <dfdlInfoset>
         <tns:e_infix_never>
           <x>foo/</x>
-          <y></y>
         </tns:e_infix_never>
       </dfdlInfoset>
     </infoset>

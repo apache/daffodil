@@ -48,12 +48,19 @@ trait Separated { self: SequenceChildParser =>
     separatorHelper.parseOneWithSeparator(pstate, requiredOptional)
   }
 
-  final override def finalChecks(
+  final override def arrayCompleteChecks(
     pstate: PState,
     resultOfTry: ParseAttemptStatus,
     priorResultOfTry: ParseAttemptStatus,
   ): Unit =
-    parseResultHelper.finalChecks(self, pstate, resultOfTry, priorResultOfTry)
+    parseResultHelper.arrayCompleteChecks(self, pstate, resultOfTry, priorResultOfTry)
+
+  final override def sequenceCompleteChecks(
+    pstate: PState,
+    resultOfTry: ParseAttemptStatus,
+    priorResultOfTry: ParseAttemptStatus,
+  ): Unit =
+    parseResultHelper.sequenceCompleteChecks(self, pstate, resultOfTry, priorResultOfTry)
 
 }
 

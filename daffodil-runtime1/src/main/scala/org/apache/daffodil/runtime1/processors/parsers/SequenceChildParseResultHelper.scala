@@ -87,17 +87,6 @@ trait SequenceChildParseResultHelper extends Serializable {
     requiredOptional: RequiredOptionalStatus,
   ): ParseAttemptStatus
 
-  /**
-   * Overridden for PositionalTrailingStrict case.
-   */
-  def finalChecks(
-    parser: SequenceChildParser,
-    pstate: PState,
-    resultOfTry: ParseAttemptStatus,
-    priorResultOfTry: ParseAttemptStatus,
-  ): Unit = {
-    // do nothing by default
-  }
 }
 
 trait ElementSequenceChildParseResultHelper extends SequenceChildParseResultHelper {
