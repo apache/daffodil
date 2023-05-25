@@ -57,6 +57,27 @@ class TestSequenceGroups {
   @Test def test_separatorSuppressionPolicy_never(): Unit = {
     runner_01.runOneTest("separatorSuppressionPolicy_never")
   }
+  @Test def test_separatorSuppressionPolicy_never_optionalStringArray_1(): Unit = {
+    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalStringArray_1")
+  }
+  @Test def test_separatorSuppressionPolicy_never_optionalStringArray_2(): Unit = {
+    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalStringArray_2")
+  }
+  @Test def test_separatorSuppressionPolicy_never_optionalStringArray_3(): Unit = {
+    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalStringArray_3")
+  }
+  @Test def test_separatorSuppressionPolicy_never_optionalIntArray_1(): Unit = {
+    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalIntArray_1")
+  }
+  @Test def test_separatorSuppressionPolicy_never_optionalIntArray_2(): Unit = {
+    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalIntArray_2")
+  }
+  @Test def test_separatorSuppressionPolicy_never_optionalIntArray_3(): Unit = {
+    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalIntArray_3")
+  }
+  @Test def test_separatorSuppressionPolicy_never_optionalIntArray_4(): Unit = {
+    runner_01.runOneTest("separatorSuppressionPolicy_never_optionalIntArray_4")
+  }
 
   // DAFFODIL-669
   //  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }

@@ -215,7 +215,16 @@ abstract class SequenceChildParser(
 
   def pouStatus: PoUStatus
 
-  def finalChecks(
+  def arrayCompleteChecks(
+    pstate: PState,
+    resultOfTry: ParseAttemptStatus,
+    priorResultOfTry: ParseAttemptStatus,
+  ): Unit = {
+    // does nothing by default.
+    // overridden in separated sequence child parsers in some cases
+  }
+
+  def sequenceCompleteChecks(
     pstate: PState,
     resultOfTry: ParseAttemptStatus,
     priorResultOfTry: ParseAttemptStatus,
