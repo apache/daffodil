@@ -19,6 +19,10 @@ The following NOTICE information applies to binary components distributed with t
   been in development since 2007.
   It is currently developed by a community of developers.
 
+  ## Copyright
+
+  Copyright 2007-, Tatu Saloranta (tatu.saloranta@iki.fi)
+
   ## Licensing
 
   Jackson 2.x core and extension components are licensed under Apache License 2.0
@@ -29,6 +33,17 @@ The following NOTICE information applies to binary components distributed with t
   A list of contributors may be found from CREDITS(-2.x) file, which is included
   in some artifacts (usually source distributions); but is always available
   from the source code management (SCM) system project uses.
+
+  ## FastDoubleParser
+
+  jackson-core bundles a shaded copy of FastDoubleParser <https://github.com/wrandelshofer/FastDoubleParser>.
+  That code is available under an MIT license <https://github.com/wrandelshofer/FastDoubleParser/blob/main/LICENSE>
+  under the following copyright.
+
+  Copyright © 2023 Werner Randelshofer, Switzerland. MIT License.
+
+  See FastDoubleParser-NOTICE for details of other source code included in FastDoubleParser
+  and the licenses and copyrights that apply to that code.
 
 - com.typesafe.scala-logging.scala-logging_<VERSION>.jar
   Copyright 2014-2021 Lightbend, Inc.
