@@ -127,9 +127,6 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
   override def withDebugger(db: AnyRef): R = this
   override def withValidationMode(validationMode: ValidationMode.Type): R = this
   override def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R = this
-  // We return errors and diagnostics in TDMLParseResult and TDMLUnparseResult
-  override def isError: Boolean = false
-  override def getDiagnostics: Seq[Diagnostic] = Seq.empty
 
   // Parses the input stream to an infoset and returns a TDMLParseResult
   // containing the infoset with any errors and diagnostics.
@@ -268,7 +265,7 @@ final case class DaffodilCTDMLMessages(messages: String)
   extends SchemaDefinitionDiagnosticBase(Nope, Nope, None, Nope, Maybe(messages)) {
 
   override def isValidation: Boolean = true
-  override def isError: Boolean = false
+  override def isError: Boolean = true
   override protected def modeName: String = TDMLImplementation.DaffodilC.toString
 }
 

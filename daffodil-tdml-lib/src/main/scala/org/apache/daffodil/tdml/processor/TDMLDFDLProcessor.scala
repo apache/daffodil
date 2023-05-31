@@ -81,10 +81,6 @@ trait TDMLDFDLProcessor {
 
   def withExternalDFDLVariables(externalVarBindings: Seq[Binding]): R
 
-  def isError: Boolean
-
-  def getDiagnostics: Seq[Diagnostic]
-
   def parse(is: java.io.InputStream, lengthLimitInBits: Long): TDMLParseResult
 
   def unparse(infosetXML: scala.xml.Node, outStream: java.io.OutputStream): TDMLUnparseResult

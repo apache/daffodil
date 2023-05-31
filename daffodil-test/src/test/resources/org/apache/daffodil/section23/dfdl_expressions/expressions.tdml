@@ -7253,8 +7253,7 @@
     <tdml:document>1,2,3</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Statically ambiguous or query-style paths not supported</tdml:error>
-      <tdml:error>ex:a</tdml:error>
+      <tdml:error>Path step 'ex:{http://example.com}a' ambiguous</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -7271,7 +7270,7 @@
     <tdml:document>1,2,3</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Statically ambiguous or query-style paths not supported</tdml:error>
+      <tdml:error>Subset Indexing is only allowed on arrays</tdml:error>
       <tdml:error>ex:a</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

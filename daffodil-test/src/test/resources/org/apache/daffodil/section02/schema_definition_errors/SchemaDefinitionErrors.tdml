@@ -182,12 +182,14 @@
   <tdml:parserTestCase name="missing_appinfo_source" root="elem"
     model="MissingAppinfoSource.dfdl.xsd"
     description="">
-    <tdml:document><![CDATA[test]]></tdml:document>
-
-    <tdml:errors>
-      <tdml:error>Schema Definition Warning</tdml:error>
-      <tdml:error>xs:appinfo without source attribute</tdml:error>
-    </tdml:errors>
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset><elem/></tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>xs:appinfo without source attribute</tdml:warning>
+    </tdml:warnings>
 
   </tdml:parserTestCase>
 
