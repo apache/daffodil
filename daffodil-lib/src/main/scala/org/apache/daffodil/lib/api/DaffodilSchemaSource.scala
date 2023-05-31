@@ -142,7 +142,7 @@ class InputStreamSchemaSource(
     XMLUtils.convertInputStreamToTempFile(is, tmpDir.getOrElse(null), blameName, extension)
   lazy val tempURI = tempSchemaFile.toURI
   lazy val csName = {
-    val xmlStream = new XmlStreamReader(tempSchemaFile)
+    val xmlStream = XmlStreamReader.builder().setFile(tempSchemaFile).get()
     val csName = xmlStream.getEncoding()
     xmlStream.close()
     csName

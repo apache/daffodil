@@ -1309,8 +1309,8 @@ class Main(
               }
             }
 
-            val nullChannelForUnparse = Channels.newChannel(NullOutputStream.NULL_OUTPUT_STREAM)
-            val nullOutputStreamForParse = NullOutputStream.NULL_OUTPUT_STREAM
+            val nullChannelForUnparse = Channels.newChannel(NullOutputStream.INSTANCE)
+            val nullOutputStreamForParse = NullOutputStream.INSTANCE
 
             val NSConvert = 1000000000.0
             val (totalTime, results) = Timer.getTimeResult({
