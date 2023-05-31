@@ -63,10 +63,10 @@
         <computedCheckDigit>1</computedCheckDigit>
       </ex:r>
     </dfdlInfoset></infoset>
-    <warnings>
-      <warning>Incorrect check digit</warning>
-      <warning>7</warning>
-    </warnings>
+    <validationErrors>
+      <error>Incorrect check digit</error>
+      <error>7</error>
+    </validationErrors>
   </parserTestCase>
 
   <unparserTestCase name="test_checkDigit_01u" root="r" model="checkDigit.dfdl.xsd"

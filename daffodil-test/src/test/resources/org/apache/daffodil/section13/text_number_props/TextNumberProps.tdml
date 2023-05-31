@@ -3761,7 +3761,7 @@
   <tdml:errors>
     <tdml:error>Schema Definition Error</tdml:error>
     <tdml:error>textStandardExponentRep</tdml:error>
-    <tdml:error>cannot</tdml:error>
+    <tdml:error>disallowed</tdml:error>
     <tdml:error>contain</tdml:error>
     <tdml:error>ES</tdml:error>
   </tdml:errors>

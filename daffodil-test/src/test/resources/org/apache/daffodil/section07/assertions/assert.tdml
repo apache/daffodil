@@ -660,10 +660,10 @@
     root="e6r" model="s1" roundTrip="false"
     description="Section 7 - assert pattern fail multiple assert - DFDL-7-053R">
     <tdml:document>43,</tdml:document>
-    <tdml:warnings>
-      <tdml:warning>Assert</tdml:warning>
-      <tdml:warning>pattern</tdml:warning>
-    </tdml:warnings>
+    <tdml:validationErrors>
+      <tdml:error>Assert</tdml:error>
+      <tdml:error>pattern</tdml:error>
+    </tdml:validationErrors>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e6r>43</e6r>

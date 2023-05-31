@@ -79,12 +79,13 @@ trait SchemaSetRuntime1Mixin {
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null
     val ssrd =
-      new SchemaSetRuntimeData(p, u, this.diagnostics, rootERD, variableMap, typeCalcMap)
+      new SchemaSetRuntimeData(p, u, rootERD, variableMap, typeCalcMap)
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(
         s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.",
       )
-    val dataProc = new DataProcessor(ssrd, tunable, variableMap.copy())
+    val dataProc =
+      new DataProcessor(ssrd, tunable, variableMap.copy(), diagnostics = this.diagnostics)
     if (dataProc.isError) {} else {
       Logger.log.debug(s"Parser = ${ssrd.parser.toString}.")
       Logger.log.debug(s"Unparser = ${ssrd.unparser.toString}.")

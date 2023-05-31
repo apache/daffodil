@@ -21,9 +21,10 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
 >
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format
+      <dfdl:format ref="GeneralFormat"
           terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
           alignment="implicit" alignmentUnits="bits" trailingSkip="0" ignoreCase="no"
           separatorPosition="infix" occursCountKind="implicit"

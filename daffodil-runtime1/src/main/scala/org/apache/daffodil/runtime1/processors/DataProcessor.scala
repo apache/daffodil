@@ -28,6 +28,7 @@ import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.runtime1.layers.LayerExecutionException
 
 object INoWarn4 {
@@ -137,6 +138,7 @@ class DataProcessor(
   val validationMode: ValidationMode.Type = ValidationMode.Off,
   protected val areDebugging: Boolean = false,
   protected val optDebugger: Option[Debugger] = None,
+  protected val diagnostics: Seq[Diagnostic] = Seq.empty,
 ) extends DFDL.DataProcessor
   with Serializable
   with MultipleEventHandler {
@@ -171,7 +173,16 @@ class DataProcessor(
     validationMode: ValidationMode.Type = validationMode,
     areDebugging: Boolean = areDebugging,
     optDebugger: Option[Debugger] = optDebugger,
-  ) = new DataProcessor(ssrd, tunables, variableMap, validationMode, areDebugging, optDebugger)
+    diagnostics: Seq[Diagnostic] = diagnostics,
+  ) = new DataProcessor(
+    ssrd,
+    tunables,
+    variableMap,
+    validationMode,
+    areDebugging,
+    optDebugger,
+    diagnostics,
+  )
 
   // This thread local state is used by the PState when it needs buffers for
   // regex matching. This cannot be in PState because a PState does not last
@@ -261,7 +272,7 @@ class DataProcessor(
 
   override def isError = false
 
-  override def getDiagnostics = ssrd.diagnostics
+  override def getDiagnostics = diagnostics
 
   override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = {
     val xrdr = new DaffodilParseXMLReader(this)
@@ -295,6 +306,7 @@ class DataProcessor(
       variableMap = ssrd.originalVariables, // reset to original variables defined in schema
       validationMode =
         ValidationMode.Off, // explicitly turn off, so restored processor won't be validating
+      diagnostics = Seq.empty, // don't save any warnings that were generated
     )
 
     try {

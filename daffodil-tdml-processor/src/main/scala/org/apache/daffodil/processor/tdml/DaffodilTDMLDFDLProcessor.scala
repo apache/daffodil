@@ -205,10 +205,6 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
   ): DaffodilTDMLDFDLProcessor =
     copy(dp = dp.withExternalVariables(externalVarBindings))
 
-  override def isError: Boolean = dp.isError
-
-  override def getDiagnostics: Seq[Diagnostic] = dp.getDiagnostics
-
   def parse(uri: java.net.URI, lengthLimitInBits: Long): TDMLParseResult = {
     val url = uri.toURL
     val dpInputStream = url.openStream()
