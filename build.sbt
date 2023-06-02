@@ -19,10 +19,11 @@ import scala.collection.immutable.ListSet
 
 import sbtcc._
 
-lazy val genManaged = taskKey[Seq[File]]("Generate managed sources and resources")
+lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generate DFDL schemas")
 lazy val genCExamples = taskKey[Seq[File]]("Generate C example files")
+lazy val genVersion = taskKey[Seq[File]]("Generate VERSION file")
 
 lazy val daffodil = project
   .in(file("."))
@@ -328,7 +329,8 @@ lazy val usesMacros = Seq(
 
 lazy val libManagedSettings = Seq(
   genManaged := {
-    (Compile / genProps).value ++ (Compile / genSchemas).value
+    (Compile / managedSources).value
+    (Compile / managedResources).value
   },
   Compile / genProps := {
     val cp = (propgen / Runtime / dependencyClasspath).value
@@ -374,8 +376,23 @@ lazy val libManagedSettings = Seq(
       }
     cachedFun(filesToWatch).toSeq
   },
-  Compile / sourceGenerators += (Compile / genProps).taskValue,
-  Compile / resourceGenerators += (Compile / genSchemas).taskValue,
+  Compile / genVersion := {
+    val resourceDir = (Compile / resourceManaged).value
+    val outFile = resourceDir / "org" / "apache" / "daffodil" / "lib" / "VERSION"
+    if (!outFile.exists || IO.read(outFile) != version.value) {
+      // only write the VERSION file if the version hasn't changed. If we always write, then the
+      // mtime changes and sbt thinks it needs to rebuild everything since a resource changed.
+      IO.write(outFile, version.value)
+    }
+    Seq(outFile)
+  },
+  Compile / sourceGenerators ++= Seq(
+    (Compile / genProps).taskValue,
+  ),
+  Compile / resourceGenerators ++= Seq(
+    (Compile / genSchemas).taskValue,
+    (Compile / genVersion).taskValue,
+  ),
 )
 
 lazy val ratSettings = Seq(
