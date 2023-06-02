@@ -234,12 +234,13 @@ lazy val commonSettings = Seq(
   ),
   licenses := Seq(License.Apache2),
   homepage := Some(url("https://daffodil.apache.org")),
+  releaseNotesURL := Some(url(s"https://daffodil.apache.org/releases/${version.value}/")),
   unmanagedBase := baseDirectory.value / "lib" / "jars",
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
-) ++ Defaults.itSettings
+)
 
 def buildScalacOptions(scalaVersion: String) = {
   val commonOptions = Seq(
