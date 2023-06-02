@@ -34,6 +34,7 @@ import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.file.Files
 import java.nio.file.Paths
 import scala.collection.JavaConverters._
+import scala.io.Source
 
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
@@ -250,12 +251,9 @@ object Misc {
    * Returns the primary version of daffodil from the jar
    */
   def getDaffodilVersion: String = {
-    val implVersion = this.getClass.getPackage.getImplementationVersion
-    if (implVersion == null) {
-      ""
-    } else {
-      implVersion
-    }
+    val uri = getRequiredResource("org/apache/daffodil/lib/VERSION")
+    val version = Source.fromInputStream(uri.toURL.openStream, "UTF-8").mkString
+    version
   }
 
   /**
