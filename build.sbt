@@ -380,7 +380,7 @@ lazy val libManagedSettings = Seq(
     val resourceDir = (Compile / resourceManaged).value
     val outFile = resourceDir / "org" / "apache" / "daffodil" / "lib" / "VERSION"
     if (!outFile.exists || IO.read(outFile) != version.value) {
-      // only write the VERSION file if the version hasn't changed. If we always write, then the
+      // only write the VERSION file if the version has changed. If we always write, then the
       // mtime changes and sbt thinks it needs to rebuild everything since a resource changed.
       IO.write(outFile, version.value)
     }
