@@ -23,6 +23,7 @@ import java.text.ParsePosition
 
 import org.apache.daffodil.lib.calendar.TextCalendarConstants
 
+import com.ibm.icu.math.{ BigDecimal => ICUBigDecimal }
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 import com.ibm.icu.text.SimpleDateFormat
@@ -274,6 +275,34 @@ class TestICU {
     assertEquals("1", df.format(1L))
     assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
     assertEquals(dfs.getNaN, df.format(JDouble.NaN))
+  }
+
+  /**
+   * Regardless of the ICU number pattern or text being parsed, ICU always returns the following
+   * types
+   *
+   * - Double if the parsed value is INF, -INF, NaN, or negative zero
+   * - Long if the parsed value has no fractional parts and fits in a long
+   * - ICUBigDecimal otherwise
+   */
+  @Test def test_floatingPointReturnType(): Unit = {
+    val dfs = new DecimalFormatSymbols()
+    val df = new DecimalFormat("", dfs)
+    df.applyPattern("###0.0##;-###0.0##")
+
+    assertTrue(df.parse("1.0", pp).isInstanceOf[Long])
+    assertTrue(df.parse("-1.0", pp).isInstanceOf[Long])
+    assertTrue(df.parse("0.0", pp).isInstanceOf[Long])
+    assertTrue(df.parse("9223372036854775807", pp).isInstanceOf[Long])
+
+    assertTrue(df.parse(dfs.getNaN, pp).isInstanceOf[Double])
+    assertTrue(df.parse(dfs.getInfinity, pp).isInstanceOf[Double])
+    assertTrue(df.parse("-" + dfs.getInfinity, pp).isInstanceOf[Double])
+    assertTrue(df.parse("-0.0", pp).isInstanceOf[Double])
+
+    assertTrue(df.parse("9223372036854775808", pp).isInstanceOf[ICUBigDecimal])
+    assertTrue(df.parse("122.75", pp).isInstanceOf[ICUBigDecimal])
+    assertTrue(df.parse("0.3", pp).isInstanceOf[ICUBigDecimal])
   }
 
 }

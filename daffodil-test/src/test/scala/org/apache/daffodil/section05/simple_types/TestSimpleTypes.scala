@@ -821,6 +821,7 @@ class TestSimpleTypes {
     runner.runOneTest("characterDuringValidDouble")
   }
   @Test def test_double_unparseError(): Unit = { runner.runOneTest("double_unparseError") }
+  @Test def test_double_negativeZero(): Unit = { runner.runOneTest("double_negativeZero") }
 
   @Test def test_float_text(): Unit = { runner.runOneTest("float_text") }
   @Test def test_float_text2(): Unit = { runner.runOneTest("float_text2") }
