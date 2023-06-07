@@ -81,8 +81,11 @@ trait TextDecimalVirtualPointMixin {
           bd.scaleByPowerOfTen(-textDecimalVirtualPoint)
         }
         case d: JDouble => {
-          // ICU only returns doubles if they are infinity/NaN, these cannot be scaled
-          Assert.invariant(d.isNaN || d.isInfinite)
+          // ICU only returns doubles if they are -INF, INF, NaN, or negative zero, which do not
+          // need scaling
+          Assert.invariant(
+            d.isNaN || d.isInfinite || JDouble.doubleToLongBits(d) == 0x8000000000000000L,
+          )
           d
         }
         // $COVERAGE-OFF$
@@ -228,10 +231,12 @@ case class ConvertTextStandardNumberParser(
             }
           }
           case d: JDouble => {
-            // ICU returns a Double only if it parsed NaN, Infinity, or -Infinity. We will later
-            // pass this value in primNumber.fromNumber, which will fail if the primitive type
-            // does not allow NaN/Infinity
-            Assert.invariant(d.isNaN || d.isInfinite)
+            // ICU returns a Double only if it parsed NaN, Infinity, -Infinity, or negative
+            // zero. We will later pass this value in primNumber.fromNumber, which will fail if
+            // the primitive type does not allow NaN/Infinity
+            Assert.invariant(
+              d.isNaN || d.isInfinite || JDouble.doubleToLongBits(d) == 0x8000000000000000L,
+            )
             d
           }
           case bd: ICUBigDecimal => {

@@ -3683,6 +3683,18 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
+  <tdml:parserTestCase name="double_negativeZero" root="doubleText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+
+    <tdml:document><![CDATA[-0.0]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleText>-0.0</doubleText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="float_text" root="floatText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R"
     roundTrip="false">
