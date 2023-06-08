@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.codegen.c.generators
 
+import java.util.regex.Pattern
 import scala.collection.immutable
 import scala.collection.mutable
 
@@ -387,7 +388,7 @@ class CodeGeneratorState(private val root: ElementBase) {
     code.replace("\r\n", "\n").replace("\n", System.lineSeparator)
   }
 
-  // Returns a name for the given element's C struct identifier
+  // Returns a C name for the given element's C struct identifier
   private def cStructName(context: ElementBase): String = {
     val sb = buildName(context, new StringBuilder)
     makeLegalForC(sb)
@@ -395,7 +396,7 @@ class CodeGeneratorState(private val root: ElementBase) {
     name
   }
 
-  // Returns a name for the given element's element runtime data
+  // Returns a C name for the given element's element runtime data
   private def erdName(context: ElementBase): String = {
     val sb = buildName(context, new StringBuilder) ++= "ERD"
     makeLegalForC(sb)
@@ -403,12 +404,50 @@ class CodeGeneratorState(private val root: ElementBase) {
     name
   }
 
-  // Returns a name for the given element's local name
+  // Returns a C name for the given element's local name.
   def cName(context: ElementBase): String = {
     val sb = new StringBuilder(context.namedQName.local)
     makeLegalForC(sb)
     val name = sb.toString
     name
+  }
+
+  // Converts a dfdl:length expression to a C expression.  We make some
+  // simplifying assumptions to make converting the expression easier:
+  // - all field names start with ../ or /rootName
+  // - all field names end at the first non-XML-identifier character
+  // - all field names can be converted to C identifiers using cStructFieldAccess
+  // - the expression performs only arithmetic (with no casts) and computes a length
+  // - the expression is almost C-ready but may contain some non-C named operators
+  // - may need to replace any div, idiv, mod with / and % instead
+  // Eventually we should make the compiled expression generate the C code itself
+  // instead of using this superficial replaceAllIn approach.
+  def cExpression(expr: String): String = {
+    // Match each field name and replace it with a C struct field dereference
+    val field = """(((\.\./)+|/)[\p{L}_][\p{L}:_\-.0-9/]*)""".r
+    val exprWithFields = field.replaceAllIn(
+      expr,
+      m => {
+        val fieldName = m.group(1).stripPrefix("../")
+        val cFieldName = cStructFieldAccess(fieldName)
+        cFieldName
+      },
+    )
+    // Match each named operator and replace it with a C operator
+    val operator = """(\bidiv\b|\bdiv\b|\bmod\b)""".r
+    val exprWithOperators = operator.replaceAllIn(
+      exprWithFields,
+      m => {
+        val operatorName = m.group(1)
+        val cOperatorSymbol = operatorName match {
+          case "idiv" => "/"
+          case "div" => "/"
+          case "mod" => "%"
+        }
+        cOperatorSymbol
+      },
+    )
+    exprWithOperators
   }
 
   // Adds an ERD definition for the given complex element
@@ -792,9 +831,14 @@ class CodeGeneratorState(private val root: ElementBase) {
 
   // Makes any XML identifier a legal C identifier
   private def makeLegalForC(sb: StringBuilder): Unit = {
+    // Remove the local name's namespace prefix if there is one; with
+    // luck it won't be needed and the C code will look cleaner
+    val matcher = Pattern.compile("^[^/:]+:").matcher(sb)
+    if (matcher.lookingAt()) sb.replace(matcher.start, matcher.end, "")
+
+    // Replace illegal characters with '_' to form a legal C name
     lazy val legalCharsForC: immutable.Set[Char] =
       Set('_') ++ ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
-    // Ensure sb contains only legal characters for C identifiers
     for (i <- sb.indices) {
       if (!legalCharsForC.contains(sb.charAt(i))) {
         sb.setCharAt(i, '_')
@@ -880,6 +924,7 @@ class CodeGeneratorState(private val root: ElementBase) {
       case OccursCountKind.Fixed if e.maxOccurs > 1 => e.maxOccurs
       case OccursCountKind.Fixed if e.maxOccurs == 1 => 0
       case OccursCountKind.Implicit if e.minOccurs == 1 && e.maxOccurs == 1 => 0
+      case OccursCountKind.Implicit if e.maxOccurs > 0 => e.maxOccurs
       case OccursCountKind.Expression if e.maxOccurs > 0 => e.maxOccurs
       case _ =>
         e.SDE(
@@ -938,18 +983,31 @@ class CodeGeneratorState(private val root: ElementBase) {
   // - we can convert a relative path without any up dirs to an instance-> indirection
   // - we can convert slashes in the path to dots in a C struct field access notation
   private def cStructFieldAccess(expr: String): String = {
-    // Strip any namespace prefixes from expr and the root element's local name since
-    // C code uses only struct fields' names.
-    val rootName = cName(root)
-    val exprPath = expr.replaceAll("/[^/:]+:", "/").stripPrefix(s"/$rootName")
-    val fieldAccess = if (exprPath.startsWith("/")) {
+    // If expr is an absolute path, strip the root element's local name
+    val rootName = root.namedQName.local
+    val exprWOPrefix = expr.stripPrefix(s"/$rootName")
+
+    // Turn all DFDL local names into legal C names
+    val localName = """([\p{L}_][\p{L}:_\-.0-9]*)""".r
+    val exprWithFields = localName.replaceAllIn(
+      exprWOPrefix,
+      m => {
+        // Make each DFDL local name a legal C name
+        val sb = new StringBuilder(m.group(1))
+        makeLegalForC(sb)
+        sb.mkString
+      },
+    )
+
+    // Convert exprPath to the appropriate field access indirection
+    val fieldAccess = if (exprWithFields.startsWith("/")) {
       // Convert exprPath to a get_infoset()-> indirection
       val C = cStructName(root)
-      s"""(($C *)get_infoset(false))->${exprPath.stripPrefix("/")}"""
-    } else if (exprPath.startsWith("../")) {
+      s"""(($C *)get_infoset(false))->${exprWithFields.stripPrefix("/")}"""
+    } else if (exprWithFields.startsWith("../")) {
       // Split exprPath into the up dirs and after the up dirs
-      val afterUpDirs = exprPath.split("\\.\\./").mkString
-      val upDirs = exprPath.stripSuffix(afterUpDirs)
+      val afterUpDirs = exprWithFields.split("\\.\\./").mkString
+      val upDirs = exprWithFields.stripSuffix(afterUpDirs)
       // Count how many up dirs there are
       val nUpDirs = upDirs.split('/').length
       // Go up the stack that many times to get that struct's C type
@@ -960,8 +1018,9 @@ class CodeGeneratorState(private val root: ElementBase) {
       s"""(($C *)instance->_base.$parents)->$afterUpDirs"""
     } else {
       // Convert exprPath to an instance-> indirection
-      s"""instance->$exprPath"""
+      s"""instance->$exprWithFields"""
     }
+
     // Finally, convert the field access to C struct dot notation
     val notation = fieldAccess.replace('/', '.')
     notation

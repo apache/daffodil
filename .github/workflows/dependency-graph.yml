@@ -13,30 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Dependency scan
+name: Dependency Graph
 
-# Controls when the workflow will run
+# Run after pushing a commit to the main branch.
+
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-    
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    branches:
+      - main
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  dependency-graph:
+    name: Dependency Graph
     runs-on: ubuntu-22.04
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3.5.2
+      - name: Check out Repository
+        uses: actions/checkout@v3.5.2
 
-      - name: Sbt Dependency Submission
-        # You may pin to the exact commit or the version.
-        # uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
+      - name: Submit Dependency Graph
         uses: scalacenter/sbt-dependency-submission@v2.1.2

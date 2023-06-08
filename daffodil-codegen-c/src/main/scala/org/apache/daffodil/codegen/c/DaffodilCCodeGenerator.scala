@@ -52,6 +52,7 @@ import org.apache.daffodil.core.grammar.primitives.HexBinarySpecifiedLength
 import org.apache.daffodil.core.grammar.primitives.OrderedSequence
 import org.apache.daffodil.core.grammar.primitives.RepOrderedExactlyNSequenceChild
 import org.apache.daffodil.core.grammar.primitives.RepOrderedExpressionOccursCountSequenceChild
+import org.apache.daffodil.core.grammar.primitives.RepOrderedWithMinMaxSequenceChild
 import org.apache.daffodil.core.grammar.primitives.RightFill
 import org.apache.daffodil.core.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthExplicit
@@ -143,21 +144,21 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
     val exe = if (isWin) codeDir / "daffodil.exe" else codeDir / "daffodil"
 
     try {
-      // Assemble the compiler's command line arguments
-      val compiler = pickCompiler
+      // Assemble the compilation command line arguments
+      val command = pickCommand
       val cFlags = Seq("-std=gnu11")
       val includes = Seq("-Ilibcli", "-Ilibruntime")
       val absFiles = os.walk(codeDir, skip = _.last == "tests").filter(_.ext == "c")
       val relFiles = Seq("libcli/*.c", "libruntime/*.c")
       val libs = Seq("-lmxml")
 
-      // Run the compiler within the code directory
-      if (compiler.nonEmpty) {
+      // Run the compilation command within the code directory
+      if (command.nonEmpty) {
         val result = os
-          .proc(compiler, cFlags, includes, if (isWin) relFiles else absFiles, libs, "-o", exe)
+          .proc(command, cFlags, includes, if (isWin) relFiles else absFiles, libs, "-o", exe)
           .call(cwd = codeDir, stderr = os.Pipe)
         if (result.chunks.nonEmpty) {
-          // Report any compiler output as a warning
+          // Report any compilation output as a warning
           warning(result.toString())
         }
       }
@@ -179,26 +180,27 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
   }
 
   /**
-   * Searches for any available C compiler on the system.  Tries to find the
-   * compiler given by `CC` if `CC` exists in the environment, then tries to
-   * find any compiler from the following list:
+   * Searches for any available C compilation command on the system.
+   * Tries to find the command given by `CC` if `CC` exists in the
+   * environment, then tries to find any command from the following
+   * list:
    *
    *   - zig cc
    *   - cc
    *   - clang
    *   - gcc
    *
-   * Returns the first compiler found as a sequence of strings in case the
-   * compiler is a program with a subcommand argument.  Returns the empty
-   * sequence if no compiler could be found in the user's PATH.
+   * Returns the first command found as a sequence of strings in case
+   * the command has a subcommand argument.  Returns the empty
+   * sequence if no command could be found in the user's PATH.
    */
-  private lazy val pickCompiler: Seq[String] = {
+  private lazy val pickCommand: Seq[String] = {
     val ccEnv = sys.env.getOrElse("CC", "zig cc")
-    val compilers = Seq(ccEnv, "zig cc", "cc", "clang", "gcc")
+    val commands = Seq(ccEnv, "zig cc", "cc", "clang", "gcc")
     val path = sys.env.getOrElse("PATH", ".").split(File.pathSeparatorChar)
-    def inPath(compiler: String): Boolean = {
-      (compiler != null) && {
-        val exec = compiler.takeWhile(_ != ' ')
+    def inPath(command: String): Boolean = {
+      (command != null) && {
+        val exec = command.takeWhile(_ != ' ')
         val exec2 = exec + ".exe"
         path.exists(dir =>
           Files.isExecutable(Paths.get(dir, exec))
@@ -206,9 +208,9 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
         )
       }
     }
-    val compiler = compilers.find(inPath)
-    if (compiler.isDefined)
-      compiler.get.split(' ').toSeq
+    val command = commands.find(inPath)
+    if (command.isDefined)
+      command.get.split(' ').toSeq
     else
       Seq.empty[String]
   }
@@ -278,6 +280,7 @@ object DaffodilCCodeGenerator
       case g: RepOrderedExactlyNSequenceChild => repOrderedExactlyNSequenceChild(g, cgState)
       case g: RepOrderedExpressionOccursCountSequenceChild =>
         repOrderedExpressionOccursCountSequenceChild(g, cgState)
+      case g: RepOrderedWithMinMaxSequenceChild => repOrderedWithMinMaxSequenceChild(g, cgState)
       case g: RightFill => noop(g)
       case g: ScalarOrderedSequenceChild => scalarOrderedSequenceChild(g, cgState)
       case g: SeqComp => seqCompGenerateCode(g, cgState)
@@ -341,6 +344,13 @@ object DaffodilCCodeGenerator
     cgState.pushArray(g.context)
     DaffodilCCodeGenerator.generateCode(g.term.termContentBody, cgState)
     cgState.popArray(g.context)
+  }
+
+  private def repOrderedWithMinMaxSequenceChild(
+    g: RepOrderedWithMinMaxSequenceChild,
+    cgState: CodeGeneratorState,
+  ): Unit = {
+    DaffodilCCodeGenerator.generateCode(g.term.termContentBody, cgState)
   }
 
   private def scalarOrderedSequenceChild(

@@ -20,6 +20,7 @@ package org.apache.daffodil.codegen.c.generators
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.processors.ExplicitLengthEv
 
 trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
 
@@ -96,20 +97,50 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val localName = cgState.cName(e)
     val field = s"instance->$localName$deref"
     val fieldArray = s"instance->_a_$localName$deref"
-    val specifiedLength = e.elementLengthInBitsEv.constValue.get
+    val specifiedLength =
+      if (e.elementLengthInBitsEv.isConstant)
+        e.elementLengthInBitsEv.constValue.get
+      else
+        -1
+    val primType = s"size_t"
+    val lenVar = s"_l_$localName"
+    val expression =
+      if (e.elementLengthInBitsEv.isConstant)
+        e.elementLengthInBitsEv.constValue.get.toString
+      else {
+        val expr = e.elementLengthInBitsEv.lengthEv
+          .asInstanceOf[ExplicitLengthEv]
+          .expr
+          .toBriefXML()
+          .stripPrefix("'{")
+          .stripSuffix("}'")
+          .trim()
+        // Convert DFDL expression to a C expression
+        val cExpr = cgState.cExpression(expr)
+        cExpr
+      }
 
     val initERDStatement =
       if (specifiedLength > 0)
         s"""$indent1$indent2    $field.array = $fieldArray;
-         |$indent1$indent2    $field.lengthInBytes = sizeof($fieldArray);
-         |$indent1$indent2    $field.dynamic = false;""".stripMargin
-      else
+           |$indent1$indent2    $field.lengthInBytes = sizeof($fieldArray);
+           |$indent1$indent2    $field.dynamic = false;""".stripMargin
+      else if (specifiedLength == 0)
         s"""$indent1$indent2    $field.array = NULL;
-         |$indent1$indent2    $field.lengthInBytes = 0;
-         |$indent1$indent2    $field.dynamic = false;""".stripMargin
+           |$indent1$indent2    $field.lengthInBytes = 0;
+           |$indent1$indent2    $field.dynamic = false;""".stripMargin
+      else
+        s"""$indent1$indent2    $field.dynamic = true;""".stripMargin
     val parseStatement =
-      s"""$indent1$indent2    parse_hexBinary(&$field, pstate);
-         |$indent1$indent2    if (pstate->error) return;""".stripMargin
+      if (specifiedLength >= 0)
+        s"""$indent1$indent2    parse_hexBinary(&$field, pstate);
+           |$indent1$indent2    if (pstate->error) return;""".stripMargin
+      else
+        s"""$indent1$indent2    $primType $lenVar = $expression;
+           |$indent1$indent2    alloc_hexBinary(&$field, $lenVar, pstate);
+           |$indent1$indent2    if (pstate->error) return;
+           |$indent1$indent2    parse_hexBinary(&$field, pstate);
+           |$indent1$indent2    if (pstate->error) return;""".stripMargin
     val unparseStatement =
       s"""$indent1$indent2    unparse_hexBinary($field, ustate);
          |$indent1$indent2    if (ustate->error) return;""".stripMargin

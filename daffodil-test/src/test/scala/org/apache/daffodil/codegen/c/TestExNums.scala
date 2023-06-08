@@ -38,6 +38,7 @@ class TestExNums {
   import TestExNums._
 
   @Test def s_ex_nums(): Unit = { runnerS.runOneTest("ex_nums") }
+  @Test def s_length(): Unit = { runnerS.runOneTest("length") }
   @Test def s_parse_error_off(): Unit = { runnerS.runOneTest("parse_error_off") }
   @Test def s_parse_error_limited(): Unit = { runnerS.runOneTest("parse_error_limited") }
   @Test def s_parse_error_on(): Unit = { runnerS.runOneTest("parse_error_on") }
@@ -46,6 +47,7 @@ class TestExNums {
   @Test def s_unparse_error_on(): Unit = { runnerS.runOneTest("unparse_error_on") }
 
   @Test def c_ex_nums(): Unit = { runnerC.runOneTest("ex_nums") }
+  @Test def c_length(): Unit = { runnerC.runOneTest("length") }
   @Test def c_parse_error_off(): Unit = { runnerC.runOneTest("parse_error_off") }
   @Test def c_parse_error_limited(): Unit = { runnerC.runOneTest("parse_error_limitedC") }
   @Test def c_parse_error_on(): Unit = { runnerC.runOneTest("parse_error_on") }
