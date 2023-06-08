@@ -21,7 +21,9 @@
   description="TDML tests for ex_nums.dfdl.xsd"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+  xmlns:ex="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <!--
       Run all tests:
@@ -49,6 +51,44 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset type="file">infosets/ex_nums.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      Test runtime length hexBinary works
+  -->
+
+  <tdml:defineSchema name="length">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="GeneralFormat" representation="binary"/>
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int"/>
+          <xs:element name="hex" type="xs:hexBinary"
+                      dfdl:length="{ (../ex:len idiv 4) * 4 }"
+                      dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase
+    model="length"
+    name="length"
+    root="e1"
+    roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000004</tdml:documentPart>
+      <tdml:documentPart type="byte">00000004</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <len>4</len>
+          <hex>00000004</hex>
+        </e1>
+      </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
