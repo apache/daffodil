@@ -45,7 +45,7 @@ class TestMiddleEndAttributes {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // Explore global element decl
     val Seq(e1) = sd.globalElementDecls
@@ -72,7 +72,7 @@ class TestMiddleEndAttributes {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // Explore global element decl
     val Seq(e1) = sd.globalElementDecls
@@ -102,7 +102,7 @@ class TestMiddleEndAttributes {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // Explore global element decl
     val Seq(e1) = sd.globalElementDecls
@@ -135,7 +135,7 @@ class TestMiddleEndAttributes {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // Explore global element decl
     val Seq(e1) = sd.globalElementDecls
@@ -170,7 +170,7 @@ class TestMiddleEndAttributes {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // Explore global element decl
     val Seq(_, e2) = sd.globalElementDecls
@@ -211,7 +211,7 @@ class TestMiddleEndAttributes {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // Explore global element decl
     val Seq(e1, _) = sd.globalElementDecls

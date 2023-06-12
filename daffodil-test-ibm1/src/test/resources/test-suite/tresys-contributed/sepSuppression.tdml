@@ -48,9 +48,9 @@
   </tdml:defineConfig>
 
   <tdml:defineSchema name="s1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd" />
 
-    <dfdl:format ref="ex:GeneralFormatPortable" 
+    <dfdl:format ref="ex:GeneralFormat" 
       lengthKind="delimited"
       occursCountKind="implicit" />
 
@@ -481,9 +481,9 @@
   
   
   <tdml:defineSchema name="s2">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd" />
     
-    <dfdl:format ref="ex:GeneralFormatPortable" 
+    <dfdl:format ref="ex:GeneralFormat" 
       lengthKind="delimited" 
       occursCountKind="implicit"/>    
     <!-- 
@@ -583,9 +583,9 @@
   </tdml:unparserTestCase>
     
   <tdml:defineSchema name="s3" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd" />
     
-    <dfdl:format ref="ex:GeneralFormatPortable" 
+    <dfdl:format ref="ex:GeneralFormat" 
       lengthKind="delimited" 
       occursCountKind="implicit"/>
       
@@ -644,9 +644,9 @@
   <!-- Same as s3 schema but emptyElementParsePolicy is now treatAsAbsent -->
 
   <tdml:defineSchema name="s3_absent" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd" />
 
-    <dfdl:format ref="ex:GeneralFormatPortable"
+    <dfdl:format ref="ex:GeneralFormat"
                  lengthKind="delimited"
                  occursCountKind="implicit"
                  emptyElementParsePolicy="treatAsAbsent"/>

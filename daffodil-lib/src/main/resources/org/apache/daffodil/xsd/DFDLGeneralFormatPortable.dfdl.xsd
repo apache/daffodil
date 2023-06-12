@@ -27,9 +27,11 @@
 
       <dfdl:defineFormat name="GeneralFormat">
         <dfdl:format ref="GeneralFormatBase"
-            emptyElementParsePolicy="treatAsEmpty"/>
+          calendarTimeZone="UTC"
+          encodingErrorPolicy="error"
+        />   
       </dfdl:defineFormat>
-        
+
     </xs:appinfo>
   </xs:annotation>
 

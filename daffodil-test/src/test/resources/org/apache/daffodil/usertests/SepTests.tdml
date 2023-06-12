@@ -39,9 +39,9 @@
 
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
     <dfdl:format
-      ref="ex:GeneralFormatPortable"
+      ref="ex:GeneralFormat"
       representation="text"
       lengthKind="delimited"
       separatorPosition="infix"/>
@@ -134,9 +134,9 @@
 
   <tdml:defineSchema name="s2" elementFormDefault="unqualified">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
     <dfdl:format
-      ref="ex:GeneralFormatPortable"
+      ref="ex:GeneralFormat"
       representation="text"
       lengthKind="delimited"
       separatorPosition="infix"/>
@@ -188,9 +188,9 @@
 
   <tdml:defineSchema name="s3" elementFormDefault="unqualified">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
     <dfdl:format
-      ref="ex:GeneralFormatPortable"
+      ref="ex:GeneralFormat"
       representation="text"
       lengthKind="delimited"
       separatorPosition="infix"/>
@@ -289,9 +289,9 @@
 
   <tdml:defineSchema name="s4" elementFormDefault="unqualified">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
     <dfdl:format
-            ref="ex:GeneralFormatPortable"
+            ref="ex:GeneralFormat"
             representation="text"
             lengthKind="delimited"
             separatorPosition="infix"
@@ -383,9 +383,9 @@
   -->
   <tdml:defineSchema name="s5" elementFormDefault="unqualified">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
     <dfdl:format
-            ref="ex:GeneralFormatPortable"
+            ref="ex:GeneralFormat"
             representation="text"
             lengthKind="delimited"
             separatorPosition="infix"

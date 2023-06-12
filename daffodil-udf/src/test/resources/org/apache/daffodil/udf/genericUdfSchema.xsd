@@ -23,11 +23,11 @@
   xmlns:ssudf="http://example.com/scala/udf">
 
   <xs:include
-    schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd" />
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="GeneralFormatPortable" initiator=""
+      <dfdl:format ref="GeneralFormat" initiator=""
         terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
         floating="no" encoding="ASCII" byteOrder="bigEndian"
         alignment="implicit" alignmentUnits="bits" fillByte="f"

@@ -71,7 +71,7 @@ class TestSimpleTypeUnions {
 
     val sset = SchemaSet(testSchema1)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // Explore global element decl
     val Seq(e1) = sd.globalElementDecls

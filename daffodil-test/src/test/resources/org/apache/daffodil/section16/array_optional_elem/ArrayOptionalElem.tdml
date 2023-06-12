@@ -28,13 +28,13 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="s1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
 
-    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormatPortable"
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:GeneralFormat"
       separator="" initiator="" terminator="" occursCountKind="implicit"
       ignoreCase="no" textNumberRep="standard" representation="text" />
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="implicit" ref="ex:GeneralFormatPortable"
+      <dfdl:format lengthKind="implicit" ref="ex:GeneralFormat"
         separator="" initiator="" terminator="" representation="text" />
     </dfdl:defineFormat>
     
@@ -51,10 +51,10 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="array-optionalElem.dfdl.xsd">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
-      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
+      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
       representation="text" />
 
@@ -130,10 +130,9 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="arrays1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormatPortable" occursCountKind="implicit"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" occursCountKind="implicit"
       lengthKind="delimited" separatorSuppressionPolicy="trailingEmptyStrict"
       separatorPosition="prefix" />
 
@@ -278,8 +277,8 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="arrayExpressions-portable">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormatPortable" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
     
     <dfdl:defineVariable name="counter" type="xs:int" />
     
@@ -323,8 +322,8 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="arrayExpressions">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormatPortable" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
     
     <dfdl:defineVariable name="counter" type="xs:int" />
 
@@ -674,10 +673,10 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="array-ockImplicitSeparators.dfdl.xsd" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
-      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
+      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
       representation="text" />
 
@@ -746,10 +745,10 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="array-ockImplicitSeparators.dfdl.xsd-strict" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
-      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
+      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
       representation="text" />
      
@@ -914,10 +913,10 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="nestedSequence" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
-      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
+      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
       representation="text" />
 
@@ -949,10 +948,10 @@
   </tdml:defineSchema>
       
   <tdml:defineSchema name="nestedSequence-strict" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
 
     <dfdl:format lengthKind="delimited" lengthUnits="bytes"
-      ref="ex:GeneralFormatPortable" encoding="UTF-8" separator="" initiator="" terminator=""
+      ref="ex:GeneralFormat" encoding="UTF-8" separator="" initiator="" terminator=""
       occursCountKind="implicit" ignoreCase="no" textNumberRep="standard"
       representation="text" />
       
@@ -1039,8 +1038,8 @@
   </tdml:parserTestCase>
   
  <tdml:defineSchema name="adjacent"  elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormatPortable" lengthKind="delimited"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
     
     <xs:element name="r">
       <xs:complexType>
@@ -1071,8 +1070,8 @@
   </tdml:parserTestCase>
 
  <tdml:defineSchema name="dfdl2263"  elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormatPortable" lengthKind="delimited"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:element name="input">
       <xs:complexType>
