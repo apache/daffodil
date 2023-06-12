@@ -25,8 +25,8 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormatPortable" lengthKind="implicit" representation="text"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" textNumberCheckPolicy="lax" ignoreCase="no" textNumberRep="standard"
         textPadKind="padChar" textTrimKind="padChar"/>
@@ -203,8 +203,8 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="SimpleTypes-binary">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormatPortable" representation="binary"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bytes"
       textPadKind="padChar" textTrimKind="padChar" />
 

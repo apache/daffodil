@@ -38,9 +38,9 @@
   </tdml:defineConfig>
 
   <tdml:defineSchema name="s0">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd" />
 
-    <dfdl:format ref="ex:GeneralFormatPortable" 
+    <dfdl:format ref="ex:GeneralFormat" 
       lengthKind="delimited"
       occursCountKind="implicit"/>
 
@@ -126,9 +126,9 @@
   </tdml:unparserTestCase>
   
  <tdml:defineSchema name="s1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd" />
 
-    <dfdl:format ref="ex:GeneralFormatPortable" 
+    <dfdl:format ref="ex:GeneralFormat" 
       lengthKind="delimited"
       occursCountKind="implicit"/>
       
@@ -274,9 +274,9 @@
 
   <tdml:defineSchema name="s2" elementFormDefault="unqualified">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd" />
 
-    <dfdl:format ref="ex:GeneralFormatPortable" />
+    <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r" dfdl:lengthKind="implicit">
       <xs:complexType>

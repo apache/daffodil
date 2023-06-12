@@ -45,7 +45,7 @@ class TestDFDLExpressionTree extends Parsers {
     val schemaCompiler = Compiler()
     val sset = schemaCompiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.asRoot
     val erd = decl.elementRuntimeData
@@ -68,7 +68,7 @@ class TestDFDLExpressionTree extends Parsers {
     val schemaCompiler = Compiler()
     val sset = schemaCompiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.asRoot
     val erd = decl
@@ -398,7 +398,7 @@ class TestDFDLExpressionTree extends Parsers {
     val schemaCompiler = Compiler()
     val sset = schemaCompiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.asRoot
     decl.elementRuntimeData

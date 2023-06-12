@@ -73,7 +73,7 @@ class TestDsomCompiler3 {
       // Verify things still work using specified tmpDir
       //
       val Seq(schema) = sset.schemas
-      val Seq(schemaDoc, _) = schema.schemaDocuments
+      val schemaDoc = schema.schemaDocuments.head
       val Seq(decl) = schemaDoc.globalElementDecls.map { _.asRoot }
       val Seq(ct) = schemaDoc.globalComplexTypeDefs
       assertEquals("example1", ct.name)

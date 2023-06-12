@@ -55,7 +55,7 @@ class TestIsScannable {
     val sset = Compiler().compileNode(sc).sset
 
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val list = schemaDoc.globalElementDecls.head.asRoot
     assertTrue(list.isScannable)
     val Seq(child) = list.termChildren
@@ -86,7 +86,7 @@ class TestIsScannable {
     val sset = Compiler().compileNode(sc).sset
 
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val list = schemaDoc.globalElementDecls.head.asRoot
     assertFalse(list.isScannable)
     val Seq(child) = list.termChildren
@@ -121,7 +121,7 @@ class TestIsScannable {
     val sset = Compiler().compileNode(sc).sset
 
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val list = schemaDoc.globalElementDecls.head.asRoot
     assertFalse(list.isScannable)
     val Seq(child) = list.termChildren

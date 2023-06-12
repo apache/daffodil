@@ -76,7 +76,7 @@ class TestDsomCompiler {
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val Seq(decl) = schemaDoc.globalElementDecls.map { _.asRoot }
 
     val tnr = decl.textNumberRep
@@ -182,7 +182,7 @@ class TestDsomCompiler {
     val sset = Compiler().compileNode(sc).sset
 
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val Seq(decl) = schemaDoc.globalElementDecls.map { _.asRoot }
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
@@ -213,7 +213,7 @@ class TestDsomCompiler {
 
     val sset = Compiler().compileNode(w).sset
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val geds @ Seq(_) = schemaDoc.globalElementDecls; assertNotNull(geds)
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
@@ -240,7 +240,7 @@ class TestDsomCompiler {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // No annotations
     val Seq(gct) = sd.globalComplexTypeDefs
@@ -344,7 +344,7 @@ class TestDsomCompiler {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // Explore global group defs
     val Seq(_, root, _*) = sd.globalElementDecls
@@ -379,7 +379,7 @@ class TestDsomCompiler {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     val Seq(a1d, _, _, _, _, _) = sd.globalElementDecls // Obtain global element nodes
     val a1 = a1d.asRoot
@@ -401,7 +401,7 @@ class TestDsomCompiler {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     val Seq(_, x, _, _, _, _) = sd.globalElementDecls.map {
       _.asRoot
@@ -422,7 +422,7 @@ class TestDsomCompiler {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     val Seq(_, ge2, ge3, ge4, ge5, ge6) = sd.globalElementDecls.map {
       _.asRoot
@@ -455,7 +455,7 @@ class TestDsomCompiler {
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val root = sset.root
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // No annotations
     val Seq(gct) = sd.globalComplexTypeDefs
@@ -506,7 +506,7 @@ class TestDsomCompiler {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     // No annotations
     val Seq(g) = sd.globalComplexTypeDefs;
@@ -560,7 +560,7 @@ class TestDsomCompiler {
     // val ibm7132Schema = "test/TestRefChainingIBM7132.dfdl.xml"
     val sset = SchemaSet(ibm7132Schema)
     // val Seq(sch) = sset.schemas
-    val Seq(sd) = sset.allSchemaDocuments
+    val sd = sset.allSchemaDocuments.head
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.asRoot
@@ -592,7 +592,7 @@ class TestDsomCompiler {
     )
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.asRoot
@@ -611,7 +611,7 @@ class TestDsomCompiler {
     )
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.asRoot.referencedElement
@@ -654,7 +654,7 @@ class TestDsomCompiler {
     )
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.asRoot.referencedElement
@@ -683,7 +683,7 @@ class TestDsomCompiler {
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     val Seq(_, gedf, _*) = sd.globalElementDecls
     val root = gedf.asRoot
@@ -719,7 +719,7 @@ class TestDsomCompiler {
     )
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd, _) = sch.schemaDocuments
+    val sd = sch.schemaDocuments.head
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.asRoot.referencedElement
@@ -1121,7 +1121,7 @@ class TestDsomCompiler {
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.asRoot
 
@@ -1161,7 +1161,7 @@ class TestDsomCompiler {
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val schemaDoc = schema.schemaDocuments.head
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.asRoot
 
