@@ -20,7 +20,6 @@ package org.apache.daffodil.validation.schematron
 import java.io.InputStream
 import java.io.StringWriter
 import javax.xml.transform.Templates
-import javax.xml.transform.URIResolver
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamResult
 
@@ -36,9 +35,6 @@ object Schematron {
   val templatesRootDir = "iso-schematron-xslt2"
 
   def fromRules(rules: Templates) = new Schematron(xmlReader.get(), rules)
-
-  def isoTemplateResolver(child: Option[URIResolver]) =
-    new ClassPathUriResolver(templatesRootDir, child)
 
   // reduce overhead by caching the xml reader, but the SAXParser class is not thread safe so use a thread local
   private val xmlReader = new ThreadLocal[XMLReader] {

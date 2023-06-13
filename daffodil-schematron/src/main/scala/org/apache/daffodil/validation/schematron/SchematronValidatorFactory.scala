@@ -22,11 +22,11 @@ import java.io.InputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import javax.xml.transform.URIResolver
 
 import org.apache.daffodil.lib.api.Validator
 import org.apache.daffodil.lib.api.ValidatorFactory
 import org.apache.daffodil.lib.api.ValidatorInitializationException
+import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigValueType
@@ -61,25 +61,25 @@ object SchematronValidatorFactory {
         Some(Paths.get(config.getString(SchematronValidator.ConfigKeys.svrlOutputFile)))
       else None
 
-    makeValidator(schStream, SchSource.from(schPath), svrlOutPath, None)
+    makeValidator(schStream, schPath.toString, SchSource.from(schPath), svrlOutPath)
   }
 
   def makeValidator(
     schematron: InputStream,
+    schematronId: String,
     srcfmt: SchSource,
-    fallback: Option[URIResolver] = None,
   ): SchematronValidator =
-    makeValidator(schematron, srcfmt, None, fallback)
+    makeValidator(schematron, schematronId, srcfmt, None)
 
   def makeValidator(
     schematron: InputStream,
+    schematronID: String,
     srcfmt: SchSource,
     svrlPath: Option[Path],
-    fallback: Option[URIResolver],
   ): SchematronValidator = {
     val factory = new TransformerFactoryImpl()
-    factory.setURIResolver(Schematron.isoTemplateResolver(fallback))
-    val rules = Transforms.from(schematron, srcfmt, factory)
+    factory.setURIResolver(DFDLCatalogResolver.get)
+    val rules = Transforms.from(schematron, schematronID, srcfmt, factory)
     new SchematronValidator(Schematron.fromRules(rules), svrlPath)
   }
 }

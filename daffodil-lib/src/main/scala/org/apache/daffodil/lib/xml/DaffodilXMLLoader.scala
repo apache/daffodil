@@ -30,6 +30,7 @@ import java.io.Reader
 import java.net.URI
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
+import javax.xml.transform.Source
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
@@ -72,7 +73,8 @@ class DFDLCatalogResolver private ()
   extends org.apache.xerces.xni.parser.XMLEntityResolver
   with org.w3c.dom.ls.LSResourceResolver
   with org.xml.sax.EntityResolver
-  with org.xml.sax.ext.EntityResolver2 {
+  with org.xml.sax.ext.EntityResolver2
+  with javax.xml.transform.URIResolver {
 
   lazy val init = {
     cm
@@ -172,12 +174,23 @@ class DFDLCatalogResolver private ()
   }
 
   def resolveURI(uri: String): String = {
-    init
     val optURI = resolveCommon(uri, null, null)
     optURI match {
       case None => null
       case Some(uri) => uri.toString
     }
+  }
+
+  override def resolve(href: String, base: String): Source = {
+    val optURI = resolveCommon(null, href, base)
+    // The way resolveCommon is called here, it should always throw an exception during
+    // resolution failure, so we should never get a None. That exception should be handled by
+    // the caller, so we can assume we have an URI at this point.
+    Assert.invariant(optURI.isDefined)
+    val uri = optURI.get
+    val source = new StreamSource(uri.toURL.openStream)
+    source.setSystemId(uri.toString)
+    source
   }
 
   private def resolveCommon(

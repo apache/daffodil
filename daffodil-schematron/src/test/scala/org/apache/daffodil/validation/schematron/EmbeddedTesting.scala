@@ -76,7 +76,11 @@ trait EmbeddedTesting {
     if (pf.isError()) pf.getDiagnostics.foreach(println)
     assertFalse("Schema did not compile", pf.isError())
 
-    val v = SchematronValidatorFactory.makeValidator(schema.toURL.openStream(), Xsd)
+    val v = SchematronValidatorFactory.makeValidator(
+      schema.toURL.openStream(),
+      schema.toURL.toString(),
+      Xsd,
+    )
     val dp = pf.onPath("/").withValidator(v)
 
     f(Validation(dp))
