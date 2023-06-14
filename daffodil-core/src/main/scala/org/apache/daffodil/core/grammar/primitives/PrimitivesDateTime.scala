@@ -31,6 +31,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.CalendarPatternKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.runtime1.processors.CalendarEv
 import org.apache.daffodil.runtime1.processors.CalendarLanguageEv
+import org.apache.daffodil.runtime1.processors.DateTimeFormatterEv
 import org.apache.daffodil.runtime1.processors.parsers.ConvertBinaryCalendarSecMilliParser
 import org.apache.daffodil.runtime1.processors.parsers.ConvertTextCalendarParser
 import org.apache.daffodil.unparsers.runtime1.ConvertBinaryCalendarSecMilliUnparser
@@ -165,6 +166,12 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     } else {
       p
     }
+
+    schemaDefinitionWhen(
+      patternToCheck.length == 0,
+      "dfdl:calendarPatttern contains no pattern letters",
+    )
+
     patternToCheck.toSeq.foreach(char =>
       if (!validFormatCharacters.contains(char)) {
         if (e.representation == Representation.Binary)
@@ -201,18 +208,34 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     p
   }
 
+  private lazy val dateTimeFormatterEv = {
+    val ev = new DateTimeFormatterEv(
+      calendarEv,
+      localeEv,
+      pattern,
+      e.eci,
+    )
+    ev.compile(e.tunable)
+    ev
+  }
+
   override lazy val parser = new ConvertTextCalendarParser(
     e.elementRuntimeData,
     xsdType,
     prettyType,
     pattern,
     hasTZ,
-    localeEv,
     calendarEv,
+    dateTimeFormatterEv,
   )
 
   override lazy val unparser =
-    new ConvertTextCalendarUnparser(e.elementRuntimeData, pattern, localeEv, calendarEv)
+    new ConvertTextCalendarUnparser(
+      e.elementRuntimeData,
+      pattern,
+      calendarEv,
+      dateTimeFormatterEv,
+    )
 }
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {

@@ -26,78 +26,22 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryCalendarRep
 import org.apache.daffodil.runtime1.dsom.TunableLimitExceededError
 import org.apache.daffodil.runtime1.processors.CalendarEv
-import org.apache.daffodil.runtime1.processors.CalendarLanguageEv
+import org.apache.daffodil.runtime1.processors.DateTimeFormatterEv
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.Processor
 
-import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.ULocale
-
-abstract class ConvertTextCalendarProcessorBase(
-  override val context: ElementRuntimeData,
-  pattern: String,
-) extends Processor {
-  // The dfdl:calendarLanguage property can be a runtime-valued expression.
-  // Hence, locale and calendar, derived from it, can also be runtime-valued.
-  //
-  // To parse we need a SimpleDateFormat, and these are
-  // (1) not thread safe - so need to be a thread local
-  // (2) must be initialized passing the runtime-valued locale and calendar.
-  //
-  // Now, fact is, while this could be runtime-valued, even if it is, it is very unlikely
-  // to be changing a lot. So it's a shame to endlessly allocate SimpleDateFormat objects
-  //
-  // So we have a 1 slot cache here. We memorize the locale and calendar and associated
-  // thread local, and return that thread local if the locale and calendar are the same.
-  //
-  // Conservatively, they need to be the exact same object, not just equivalent in the "==" sense.
-  //
-  // This won't be great if some format really is switching among locales and calendars
-  // so that more than one of them really ought to be cached, but that's sufficiently unlikely
-  // that this trivial scheme will do for now.
-  //
-  private final class Cache(var cache: (ULocale, Calendar, SimpleDateFormat))
-
-  private object tlCache extends ThreadLocal[Cache] {
-    override def initialValue = new Cache(null)
-  }
-
-  /**
-   * tlDataFormatter can be runtime valued, as it depends on both locale and calendar
-   * each of which can be runtime valued.
-   */
-  final protected def tlDataFormatter(locale: ULocale, calendar: Calendar) = {
-    val tl = tlCache.get
-    val cache = tl.cache
-    if ((cache ne null) && (locale eq cache._1) && (calendar eq cache._2)) {
-      // cache hit. Same formatter will do
-      cache._3
-    } else {
-      // As per ICU4J documentation, "Date formats are not synchronized. If
-      // multiple threads access a format concurrently, it must be synchronized
-      // externally."
-      val formatter = new SimpleDateFormat(pattern, locale)
-      formatter.setCalendar(calendar)
-      formatter.setLenient(true)
-      tl.cache = (locale, calendar, formatter)
-      formatter
-    }
-  }
-}
 
 case class ConvertTextCalendarParser(
-  erd: ElementRuntimeData,
+  override val context: ElementRuntimeData,
   xsdType: String,
   prettyType: String,
   pattern: String,
   hasTZ: Boolean,
-  localeEv: CalendarLanguageEv,
   calendarEv: CalendarEv,
-) extends ConvertTextCalendarProcessorBase(erd, pattern)
-  with TextPrimParser {
+  dateTimeFormatterEv: DateTimeFormatterEv,
+) extends TextPrimParser {
 
-  override lazy val runtimeDependencies = Vector(localeEv, calendarEv)
+  override lazy val runtimeDependencies = Vector(calendarEv, dateTimeFormatterEv)
 
   def parse(start: PState): Unit = {
     val node = start.simpleElement
@@ -106,8 +50,6 @@ case class ConvertTextCalendarParser(
     Assert.invariant(str != null)
 
     val pos = new ParsePosition(0)
-
-    val locale: ULocale = localeEv.evaluate(start)
 
     val calendarOrig: Calendar = calendarEv.evaluate(start)
 
@@ -120,17 +62,13 @@ case class ConvertTextCalendarParser(
     // the case.
     calendarOrig.clear()
 
-    // It's important here to use the calendarOrig that results from
-    // calendarEv.evaluate() since the tlDataFormatter is a cache the uses
-    // reference equality. For everything else we want to use a clone for
-    // reasons described below.
-    val df = tlDataFormatter(locale, calendarOrig)
+    val df = dateTimeFormatterEv.evaluate(start).get
 
     // When we evaluate calendarEV, if it is a constant we will always get back
     // the same Calendar object. Because of this it is important here to clone
     // this calendar and always use the clone below for two reasons:
     //
-    // 1) The below code will modify modify the calendar object based on the
+    // 1) The below code will modify the calendar object based on the
     //    value of the parsed string. Any changes to the object will persist
     //    and could affect future parses. By cloning, we ensure we do not
     //    modify the original calendar object.
@@ -143,10 +81,10 @@ case class ConvertTextCalendarParser(
     df.setCalendar(calendar)
     df.parse(str, calendar, pos);
 
-    // Verify that what was parsed was what was passed exactly in byte count
-    // Use pos to verify all characters consumed & check for errors
-    if (pos.getIndex != str.length || pos.getErrorIndex >= 0) {
-      val errIndex = if (pos.getErrorIndex >= 0) pos.getErrorIndex else pos.getIndex
+    // Verify that we did not fail to parse and that we consumed the entire string. Note that
+    // getErrorIndex is never set and is always -1. Only a getIndex value of zero means there
+    // was an error
+    if (pos.getIndex == 0 || pos.getIndex != str.length) {
       PE(start, "Unable to parse xs:%s from text: %s", xsdType, str)
       return
     }
@@ -163,7 +101,7 @@ case class ConvertTextCalendarParser(
         ) < start.tunable.minValidYear)
       )
         throw new TunableLimitExceededError(
-          erd.schemaFileLocation,
+          context.schemaFileLocation,
           "Year value of %s is not within the limits of the tunables minValidYear (%s) and maxValidYear (%s)",
           calendar.get(Calendar.YEAR),
           start.tunable.minValidYear,

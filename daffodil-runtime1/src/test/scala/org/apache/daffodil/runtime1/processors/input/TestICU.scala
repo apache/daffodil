@@ -73,6 +73,52 @@ class TestICU {
     r.foreach(parseFractionalSeconds)
   }
 
+  /**
+   * This test shows that error index is never set when parsing with a SimpleDateFormat. If ICU
+   * ever changes this to use error index, this test should fail.
+   *
+   * On success, ParsePosition.getIndex is set to where the parse finished. On error,
+   * ParsePosition.getIndex is set to zero and ParsePoition.getErrorIndex is -1 (unset)
+   */
+  @Test def test_simpleDateFormatParse() = {
+    def parseWithPattern(pattern: String, data: String): ParsePosition = {
+      val df = new SimpleDateFormat(pattern)
+      val cal = Calendar.getInstance()
+      val pos = pp
+      df.parse(data, cal, pos)
+      pos
+    }
+
+    {
+      // success, consumes all data
+      val pos = parseWithPattern("HHmm", "1122")
+      assertEquals(4, pos.getIndex)
+      assertEquals(-1, pos.getErrorIndex)
+    }
+
+    {
+      // success, parses only first 4 characters
+      val pos = parseWithPattern("HHmm", "1122extra")
+      assertEquals(4, pos.getIndex)
+      assertEquals(-1, pos.getErrorIndex)
+    }
+
+    {
+      // failure, only partially correct data
+      val pos = parseWithPattern("HHmm", "11cd")
+      assertEquals(2, pos.getIndex)
+      assertEquals(-1, pos.getErrorIndex)
+    }
+
+    {
+      // failure, empty string
+      val pos = parseWithPattern("HHmm", "")
+      assertEquals(0, pos.getIndex)
+      assertEquals(-1, pos.getErrorIndex)
+    }
+
+  }
+
   // The three following tests show an old ICU bug where if the decimal pattern
   // uses scientific notation and the number to format/unparse is positive
   // infinity, negative infinity, or not a number, ICU would include the
