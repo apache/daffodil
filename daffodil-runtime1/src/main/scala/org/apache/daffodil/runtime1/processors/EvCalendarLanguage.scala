@@ -21,6 +21,7 @@ import org.apache.daffodil.lib.cookers.Converter
 import org.apache.daffodil.lib.exceptions._
 import org.apache.daffodil.runtime1.dsom._
 
+import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
@@ -94,5 +95,35 @@ class CalendarEv(
     cal.clear()
 
     cal
+  }
+}
+
+class DateTimeFormatterEv(
+  calendarEv: CalendarEv,
+  localeEv: CalendarLanguageEv,
+  pattern: String,
+  eci: DPathElementCompileInfo,
+) extends Evaluatable[ThreadLocal[SimpleDateFormat]](eci)
+  with InfosetCachedEvaluatable[ThreadLocal[SimpleDateFormat]] {
+
+  override lazy val runtimeDependencies = Seq(localeEv)
+
+  override def compute(state: ParseOrUnparseState) = {
+    val calendar = calendarEv.evaluate(state)
+    val locale = localeEv.evaluate(state)
+
+    // As per ICU4J documentation, "Date formats are not synchronized. If multiple threads
+    // access a format concurrently, it must be synchronized externally." Rather than
+    // synchronzing, we create a ThreadLocal so each thread gets their own copy of the
+    // SimpleDateFormat
+    val dateFormatTL = new ThreadLocal[SimpleDateFormat] with Serializable {
+      override def initialValue = {
+        val formatter = new SimpleDateFormat(pattern, locale)
+        formatter.setCalendar(calendar)
+        formatter.setLenient(true) // TODO: should this use calendarCheckPolicy?
+        formatter
+      }
+    }
+    dateFormatTL
   }
 }

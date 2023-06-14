@@ -21,26 +21,23 @@ import org.apache.daffodil.lib.calendar.DFDLCalendar
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.CalendarEv
-import org.apache.daffodil.runtime1.processors.CalendarLanguageEv
+import org.apache.daffodil.runtime1.processors.DateTimeFormatterEv
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.parsers.ConvertTextCalendarProcessorBase
 import org.apache.daffodil.runtime1.processors.unparsers._
 
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.ULocale
 
 case class ConvertTextCalendarUnparser(
-  erd: ElementRuntimeData,
+  override val context: ElementRuntimeData,
   pattern: String,
-  localeEv: CalendarLanguageEv,
   calendarEv: CalendarEv,
-) extends ConvertTextCalendarProcessorBase(erd, pattern)
-  with TextPrimUnparser {
+  dateTimeFormatterEv: DateTimeFormatterEv,
+) extends TextPrimUnparser {
 
   /**
    * Primitive unparsers must override runtimeDependencies
    */
-  override lazy val runtimeDependencies = Vector(localeEv, calendarEv)
+  override lazy val runtimeDependencies = Vector(calendarEv, dateTimeFormatterEv)
 
   def unparse(state: UState): Unit = {
 
@@ -59,8 +56,6 @@ case class ConvertTextCalendarUnparser(
         )
     }
 
-    val locale: ULocale = localeEv.evaluate(state)
-
     val calendarOrig: Calendar = calendarEv.evaluate(state)
 
     // The clear() here actually shouldn't be necessary since we call clear()
@@ -72,11 +67,7 @@ case class ConvertTextCalendarUnparser(
     // the case.
     calendarOrig.clear()
 
-    // It's important here to use the calendarOrig that results from
-    // calendarEv.evaluate() since the tlDataFormatter is a cache the uses
-    // reference equality. For everything else we want to use a clone for
-    // reasons described below.
-    val df = tlDataFormatter(locale, calendarOrig)
+    val df = dateTimeFormatterEv.evaluate(state).get
 
     // When we evaluate calendarEV, if it is a constant we will always get back
     // the same Calendar object. Because of this it is important here to clone

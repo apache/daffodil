@@ -863,4 +863,9 @@ class TestSimpleTypes {
     runner.runOneTest("hexBinary_specifiedLengthUnaligned")
   }
 
+  @Test def test_time_optional_empty(): Unit = { runner.runOneTest("time_optional_empty") }
+  @Test def test_time_optional_nonWellFormed(): Unit = {
+    runner.runOneTest("time_optional_nonWellFormed")
+  }
+
 }
