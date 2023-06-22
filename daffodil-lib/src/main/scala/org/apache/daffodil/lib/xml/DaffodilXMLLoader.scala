@@ -263,10 +263,11 @@ class DFDLCatalogResolver private ()
         // and the classpath.
         val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
         // try it as a direct classpath resolution first, and if that fails,
-        // try removing all the upward path steps (if any).
-        val optURI = Misc.getResourceRelativeOption(sysId, baseURI).orElse(
-          Misc.getResourceRelativeOption(removeInitialUpwardPathSteps(sysId), baseURI)
-        )
+        // try removing all the upward path steps (if any)
+        val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
+          .orElse(
+            Misc.getResourceRelativeOption(removeInitialUpwardPathSteps(sysId), baseURI),
+          )
         optURI match {
           case Some(uri) => Logger.log.debug(s"Found on classpath: ${uri}.")
           case None => {

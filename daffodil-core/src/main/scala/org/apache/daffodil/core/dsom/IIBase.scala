@@ -23,13 +23,15 @@ import java.net.URISyntaxException
 import java.net.URLEncoder
 import scala.collection.immutable.ListMap
 import scala.xml.Node
+
 import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.xml.{DFDLCatalogResolver, NS}
+import org.apache.daffodil.lib.xml.DFDLCatalogResolver
+import org.apache.daffodil.lib.xml.NS
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include
@@ -217,11 +219,13 @@ abstract class IIBase(
 
         // Enhanced to use the DFDLCatalogResolver, because
         // other things than Daffodil's own loading of files need to process
-        // include/imports such as the schematron validator.
+        // include/imports such as the schematron validator
         val r = DFDLCatalogResolver.get
-        val completeURI = enclosingSchemaURI.map { esu =>
-          r.resolveToURI(slText, esu.toString)
-        }.getOrElse(uri)
+        val completeURI = enclosingSchemaURI
+          .map { esu =>
+            r.resolveToURI(slText, esu.toString)
+          }
+          .getOrElse(uri)
         val protocol = {
           if (completeURI.isAbsolute) {
             val completeURL = completeURI.toURL
