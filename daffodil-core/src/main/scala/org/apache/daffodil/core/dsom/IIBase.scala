@@ -43,7 +43,7 @@ import org.apache.daffodil.lib.xml.NS
  *
  * From the perspective of DSOM, there are 3 new kinds of SchemaComponents.
  *
- * A DFDLSchemaFile represents the naming/identifcation of a file, but not its
+ * A DFDLSchemaFile represents the naming/identification of a file, but not its
  * contents, which are represented by SchemaDocument. We need a file object
  * to represent the reference to a file which may or may not exist, but also
  * to encapsulate the mechanism by means of which URIs for namespaces are
@@ -61,7 +61,7 @@ import org.apache.daffodil.lib.xml.NS
  *
  * Circular references are NOT an error. Two schema documents can mutually import
  * each other just fine. They simply must be detected to avoid an obvious
- * infinte loop/stack overflow kind of situation.
+ * infinite loop/stack overflow kind of situation.
  *
  * Each included DFDLSchemaFile is identified by a "map pair", which is a tuple of
  * (NS, URL), and is used as the key to a Map which is used to keep track of
@@ -119,7 +119,8 @@ import org.apache.daffodil.lib.xml.NS
 object IIUtils {
   type IIMap = Delay[ListMap[(NS, DaffodilSchemaSource), IIBase]]
   private val empty = new ListMap[(NS, DaffodilSchemaSource), IIBase]()
-  val emptyIIMap = Delay('IIMapEmpty, this, empty).force
+  val emptyIIMap: Delay[ListMap[(NS, DaffodilSchemaSource), IIBase]] =
+    Delay('IIMapEmpty, this, empty).force
 }
 
 /**
@@ -131,7 +132,7 @@ abstract class IIBase(
   val seenBefore: IIMap,
 ) extends SchemaComponent
   with NestingLexicalMixin {
-  final override def optLexicalParent = Option(xsdArg)
+  final override def optLexicalParent: Option[XMLSchemaDocument] = Option(xsdArg)
 
   /**
    * An import/include requires only that we can access the
@@ -146,7 +147,7 @@ abstract class IIBase(
    * compilation.
    */
 
-  protected final lazy val notSeenThisBefore = LV('notSeenThisBefore) {
+  private final lazy val notSeenThisBefore = LV('notSeenThisBefore) {
     val mp = mapPair
     val res = seenBefore.value.get(mp) match {
       case Some(_) => false
@@ -162,7 +163,7 @@ abstract class IIBase(
    * so that if our own includes/imports cycle back to us
    * we will detect it.
    */
-  protected final lazy val seenBeforeThisFile: IIMap = LV('seenBeforeThisFile) {
+  private final lazy val seenBeforeThisFile: IIMap = LV('seenBeforeThisFile) {
     val res = Delay(
       'seenBeforeThisFile,
       this, {
@@ -191,9 +192,9 @@ abstract class IIBase(
     prop
   }
 
-  protected final def isValidURI(uri: String): Boolean = {
+  private final def isValidURI(uri: String): Boolean = {
     try { new URI(uri) }
-    catch { case ex: URISyntaxException => return false }
+    catch { case _: URISyntaxException => return false }
     true
   }
 
@@ -210,7 +211,7 @@ abstract class IIBase(
         // to make it valid (takes care of spaces in directories). If it fails after this, oh well!
         val encodedSLText = if (!isValidURI(slText)) {
           val file = new File(slText)
-          if (file.exists()) file.toURI().toString() else URLEncoder.encode(slText, "UTF-8")
+          if (file.exists()) file.toURI.toString else URLEncoder.encode(slText, "UTF-8")
         } else slText
 
         val uri: URI = URI.create(encodedSLText)
@@ -229,7 +230,7 @@ abstract class IIBase(
         val protocol = {
           if (completeURI.isAbsolute) {
             val completeURL = completeURI.toURL
-            completeURL.getProtocol()
+            completeURL.getProtocol
           } else {
             ""
           }
@@ -241,7 +242,7 @@ abstract class IIBase(
         // searched.
         //
         val resolved =
-          if (protocol == "file" && (new File(completeURI)).exists)
+          if (protocol == "file" && new File(completeURI).exists)
             Some(URISchemaSource(completeURI))
           else if (protocol == "jar")
             Some(
@@ -258,7 +259,7 @@ abstract class IIBase(
 
   protected def mapPair: (NS, DaffodilSchemaSource)
 
-  protected final lazy val mapTuple = LV('mapTuple) {
+  private final lazy val mapTuple = LV('mapTuple) {
     val tuple = (mapPair, this)
     tuple
   }.value
@@ -307,6 +308,6 @@ abstract class IIBase(
   private def classPath = Misc.classPath
 
   protected final lazy val whereSearched =
-    if (classPath.length == 0) " Classpath was empty."
+    if (classPath.isEmpty) " Classpath was empty."
     else " Searched these classpath locations: \n" + classPathLines + "\n"
 }

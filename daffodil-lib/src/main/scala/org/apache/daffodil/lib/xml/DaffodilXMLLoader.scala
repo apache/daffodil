@@ -76,18 +76,19 @@ class DFDLCatalogResolver private ()
   with org.xml.sax.ext.EntityResolver2
   with javax.xml.transform.URIResolver {
 
-  lazy val init = {
+  lazy val init: Unit = {
     cm
     catalogFiles
     delegate
   }
 
-  lazy val catalogFiles = cm.getCatalogFiles().asScala.toList.asInstanceOf[List[String]]
+  lazy val catalogFiles: Seq[String] =
+    cm.getCatalogFiles.asScala.toList.asInstanceOf[List[String]]
   // Caution: it took a long time to figure out how to use
   // the XML Catalog stuff. Many permutations were attempted
   // so change this next block of code at your peril
   //
-  lazy val cm = {
+  lazy val cm: CatalogManager = {
     val cm = new CatalogManager()
     cm.setIgnoreMissingProperties(true)
     cm.setRelativeCatalogs(true)
@@ -103,18 +104,18 @@ class DFDLCatalogResolver private ()
     // catalogs, we take any user-specified catalogs and explicitly put
     // our catalog first in the catalog list, and then set it again.
     //
-    val catFiles = cm.getCatalogFiles().toArray.toList.asInstanceOf[List[String]]
-    Logger.log.debug(s"initial catalog files: ${catFiles}")
+    val catFiles = cm.getCatalogFiles.toArray.toList.asInstanceOf[List[String]]
+    Logger.log.debug(s"initial catalog files: $catFiles")
     val builtInCatalog = Misc.getRequiredResource("/daffodil-built-in-catalog.xml")
-    val newCatFiles = builtInCatalog.toString() :: catFiles
+    val newCatFiles = builtInCatalog.toString :: catFiles
     cm.setCatalogFiles(newCatFiles.mkString(";"))
 
-    val catFilesAfter = cm.getCatalogFiles()
-    Logger.log.debug(s"final catalog files: ${catFilesAfter}")
+    val catFilesAfter = cm.getCatalogFiles
+    Logger.log.debug(s"final catalog files: $catFilesAfter")
     cm
   }
 
-  lazy val delegate = {
+  lazy val delegate: Catalog = {
     val delegate = new Catalog(cm)
     //    delegate.getCatalogManager().debug.setDebug(100) // uncomment for even more debug output
     delegate.setupReaders()
@@ -129,7 +130,7 @@ class DFDLCatalogResolver private ()
    * This is not thread safe, but the underlying catalog resolver isn't either, so
    * we're not making it worse.
    */
-  var alreadyResolvingXSD: Boolean = false
+  private var alreadyResolvingXSD: Boolean = false
 
   /**
    * Called by SAX parser of the schema to resolve entities.
@@ -144,10 +145,10 @@ class DFDLCatalogResolver private ()
    * Without this special case check, we'll recurse and stack overflow here.
    */
   def resolveEntity(ri: org.apache.xerces.xni.XMLResourceIdentifier): XMLInputSource = {
-    val nsString = ri.getNamespace()
+    val nsString = ri.getNamespace
     val ns = NS(nsString)
-    val literalSysId = ri.getLiteralSystemId()
-    val baseURIString = ri.getBaseSystemId()
+    val literalSysId = ri.getLiteralSystemId
+    val baseURIString = ri.getBaseSystemId
 
     if (ns == XMLUtils.XSD_NAMESPACE) {
       if (alreadyResolvingXSD) {
@@ -158,7 +159,7 @@ class DFDLCatalogResolver private ()
     val prior = alreadyResolvingXSD
     val res =
       try {
-        alreadyResolvingXSD = (ns == XMLUtils.XSD_NAMESPACE)
+        alreadyResolvingXSD = ns == XMLUtils.XSD_NAMESPACE
         val optURI = resolveCommon(nsString, literalSysId, baseURIString)
         optURI match {
           case None => null
@@ -221,7 +222,7 @@ class DFDLCatalogResolver private ()
         delegate.resolveSystem(systemId) match {
           case null => {
             val systemIdFile = new File(systemId)
-            if (systemIdFile.exists) systemIdFile.toURI().toString else null
+            if (systemIdFile.exists) systemIdFile.toURI.toString else null
           }
           case rSys => rSys
         }
@@ -264,7 +265,8 @@ class DFDLCatalogResolver private ()
         val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
         // try it as a direct classpath resolution first, and if that fails,
         // try removing all the upward path steps (if any)
-        val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
+        val optURI = Misc
+          .getResourceRelativeOption(sysId, baseURI)
           .orElse(
             Misc.getResourceRelativeOption(removeInitialUpwardPathSteps(sysId), baseURI),
           )
@@ -321,14 +323,14 @@ class DFDLCatalogResolver private ()
     }
   }
 
-  override def resolveEntity(publicId: String, systemId: String) = {
+  override def resolveEntity(publicId: String, systemId: String): InputSource = {
     Assert.invariantFailed("resolveEntity3 - should not be called")
   }
 
   /**
    * We don't deal with DTDs at all. So this always returns null
    */
-  def getExternalSubset(name: String, baseURI: String) = {
+  def getExternalSubset(name: String, baseURI: String): Null = {
     Logger.log.debug(s"getExternalSubset: name = ${name}, baseURI = ${baseURI}")
     null
   }
@@ -338,7 +340,12 @@ class DFDLCatalogResolver private ()
    * (xerces, IBM DFDL, etc.) this API may be called even though Daffodil itself doesn't (or didn't
    * anyway as of when this was written) use this method..
    */
-  def resolveEntity(name: String, publicId: String, baseURI: String, systemId: String) = {
+  def resolveEntity(
+    name: String,
+    publicId: String,
+    baseURI: String,
+    systemId: String,
+  ): InputSource = {
     //
     // When this method is called from IBM DFDL, for an xs:include with a schemaLocation, the
     // schemaLocation attribute's value is passed in the systemID string.
@@ -353,8 +360,8 @@ class DFDLCatalogResolver private ()
     optURI match {
       case None => null
       case Some(uri) => {
-        val xis = new InputSource(uri.toURL().openStream())
-        xis.setSystemId(uri.toString())
+        val xis = new InputSource(uri.toURL.openStream())
+        xis.setSystemId(uri.toString)
         xis
       }
     }
@@ -366,12 +373,12 @@ class DFDLCatalogResolver private ()
  * do I/O etc. so we really only want one per thread.
  */
 object DFDLCatalogResolver {
-  lazy val d = new ThreadLocal[DFDLCatalogResolver] {
-    override def initialValue() = {
+  lazy val d: ThreadLocal[DFDLCatalogResolver] = new ThreadLocal[DFDLCatalogResolver] {
+    override def initialValue(): DFDLCatalogResolver = {
       new DFDLCatalogResolver()
     }
   }
-  def get = d.get
+  def get: DFDLCatalogResolver = d.get
 }
 
 /**
@@ -390,35 +397,35 @@ object DFDLCatalogResolver {
 class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: InputStream)
   extends LSInput {
 
-  var myBaseURI: String = null
+  private var myBaseURI: String = _
 
-  def getBaseURI = myBaseURI
-  def getPublicId = pubId
-  def getSystemId = sysId
+  override def getBaseURI: String = myBaseURI
+  override def getPublicId: String = pubId
+  override def getSystemId: String = sysId
 
-  def setBaseURI(baseURI: String) = myBaseURI = baseURI
-  def setPublicId(publicId: String) = pubId = publicId
-  def setSystemId(systemId: String) = sysId = systemId
+  override def setBaseURI(baseURI: String): Unit = myBaseURI = baseURI
+  override def setPublicId(publicId: String): Unit = pubId = publicId
+  override def setSystemId(systemId: String): Unit = sysId = systemId
 
-  def getByteStream = inputStream
-  def getCertifiedText = false
-  def getCharacterStream = null
-  def getEncoding = null
-  def getStringData = null
+  override def getByteStream: InputStream = inputStream
+  override def getCertifiedText: Boolean = false
+  override def getCharacterStream: Reader = null
+  override def getEncoding: String = null
+  override def getStringData: String = null
 
-  def setByteStream(byteStream: InputStream) = {
+  override def setByteStream(byteStream: InputStream): Unit = {
     // do nothing
   }
-  def setCertifiedText(certifiedText: Boolean) = {
+  override def setCertifiedText(certifiedText: Boolean): Unit = {
     // do nothing
   }
-  def setCharacterStream(characterStream: Reader) = {
+  override def setCharacterStream(characterStream: Reader): Unit = {
     // do nothing
   }
-  def setEncoding(encoding: String) = {
+  override def setEncoding(encoding: String): Unit = {
     // do nothing
   }
-  def setStringData(stringData: String) = {
+  override def setStringData(stringData: String): Unit = {
     // do nothing
   }
 }
@@ -443,7 +450,7 @@ class InputStreamLSInput(var pubId: String, var sysId: String, inputStream: Inpu
  * them to XML and validating them as XML against the DFDL Schema (in that case being
  * interpreted only as an XML Schema).
  *
- * A second issue: some DFDL schemas are created programatically from other files such
+ * A second issue: some DFDL schemas are created programmatically from other files such
  * as TDML files. It would be great if we could redirect Xerces to use file/line/col
  * information from the TDML files instead of its own. But this has proven to be
  * fragile and depends on much undocumented behavior, so was removed. One might get
@@ -564,7 +571,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       try {
         schemaFactory.newSchema(saxSource)
       } finally {
-        inputSource.getByteStream().close()
+        inputSource.getByteStream.close()
       }
     } catch {
       // fatal errors are thrown.
@@ -584,7 +591,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   }
 
   // $COVERAGE-OFF$
-  override def parser = {
+  override def parser: SAXParser = {
     Assert.usageError("not to be called.")
   }
   // $COVERAGE-ON$
@@ -636,7 +643,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     // p.setProperty(XMLUtils.SAX_NAvMESPACES_FEATURE, true)
     // Not allowed on a SAXParser
     // p.setProperty(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
-    val xrdr = p.getXMLReader()
+    val xrdr = p.getXMLReader
     xrdr.setErrorHandler(errorHandler)
     // not recognized by XMLReader
     // xrdr.setFeature("http://xml.org/sax/features/validation/dynamic", true)
@@ -707,7 +714,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       // this writing, we have no tests that use that.
       //
       val parser = parserFromURI(optSchemaURI)
-      val xrdr = parser.getXMLReader()
+      val xrdr = parser.getXMLReader
       val saxSource = scala.xml.Source.fromSysId(source.uriForLoading.toString)
       try {
         xrdr.parse(saxSource)
@@ -751,15 +758,15 @@ class BasicErrorHandler extends org.xml.sax.ErrorHandler {
   var diagnostics: List[SAXParseException] = Nil
   var hasError: Boolean = false
 
-  def warning(exception: SAXParseException) = {
+  def warning(exception: SAXParseException): Unit = {
     diagnostics :+= exception
   }
 
-  def error(exception: SAXParseException) = {
+  def error(exception: SAXParseException): Unit = {
     diagnostics :+= exception
     hasError = true
   }
-  def fatalError(exception: SAXParseException) = {
+  def fatalError(exception: SAXParseException): Unit = {
     error(exception)
   }
 }
@@ -771,15 +778,15 @@ case class DFDLSchemaValidationError(cause: Throwable)
   extends DFDLSchemaValidationException(cause)
 
 object RethrowSchemaErrorHandler extends org.xml.sax.ErrorHandler {
-  def warning(exception: SAXParseException) = {
+  def warning(exception: SAXParseException): Unit = {
     throw exception
   }
 
-  def error(exception: SAXParseException) = {
+  def error(exception: SAXParseException): Unit = {
     throw exception
   }
 
-  def fatalError(exception: SAXParseException) = {
+  def fatalError(exception: SAXParseException): Unit = {
     throw exception
   }
 }
