@@ -24,7 +24,11 @@
 
     <!-- Your constraints go here -->
     <sch:pattern>
-        <sch:include href="custom-resolver/title-rules.sch"/>
+        <!--
+        even in schematron we can use either a relative path,
+        or a classpath root relative path
+        -->
+        <sch:include href="../custom-resolver/title-rules.sch"/>
         <sch:rule context="chapter">
             <sch:let name="numOfTitles" value="count(title)"/>
             <sch:assert test="title">A chapter should have a title</sch:assert>

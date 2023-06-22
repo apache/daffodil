@@ -28,8 +28,9 @@
         alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
     </xs:appinfo>
   </xs:annotation>
-   
-  <xs:include schemaLocation="test space/test 2/multi_A_05_nons.dfdl.xsd"/>
+
+  <!-- schemaLocations can either be relative paths, or can be absolute paths -->
+  <xs:include schemaLocation="../../test space/test 2/multi_A_05_nons.dfdl.xsd"/>
   <xs:include schemaLocation="test space/test 3/multi_B_05_nons.dfdl.xsd"/>
   
   <xs:element name="baseSeq">

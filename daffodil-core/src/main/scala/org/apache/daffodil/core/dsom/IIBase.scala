@@ -23,14 +23,13 @@ import java.net.URISyntaxException
 import java.net.URLEncoder
 import scala.collection.immutable.ListMap
 import scala.xml.Node
-
 import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.xml.NS
+import org.apache.daffodil.lib.xml.{DFDLCatalogResolver, NS}
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include
@@ -201,9 +200,9 @@ abstract class IIBase(
    * If supplied we resolve it via the classpath, relative
    * to the location of the including/importing file, etc.
    */
-
   protected final lazy val resolvedSchemaLocation: Option[DaffodilSchemaSource] =
     LV('resolvedSchemaLocation) {
+
       val res = schemaLocationProperty.flatMap { slText =>
         // We need to determine if the URI is valid, if it's not we should attempt to encode it
         // to make it valid (takes care of spaces in directories). If it fails after this, oh well!
@@ -216,7 +215,13 @@ abstract class IIBase(
         val enclosingSchemaURI: Option[URI] =
           if (Misc.isFileURI(uri)) None else schemaFile.map { _.schemaSource.uriForLoading }
 
-        val completeURI = enclosingSchemaURI.map { _.resolve(uri) }.getOrElse(uri)
+        // Enhanced to use the DFDLCatalogResolver, because
+        // other things than Daffodil's own loading of files need to process
+        // include/imports such as the schematron validator.
+        val r = DFDLCatalogResolver.get
+        val completeURI = enclosingSchemaURI.map { esu =>
+          r.resolveToURI(slText, esu.toString)
+        }.getOrElse(uri)
         val protocol = {
           if (completeURI.isAbsolute) {
             val completeURL = completeURI.toURL

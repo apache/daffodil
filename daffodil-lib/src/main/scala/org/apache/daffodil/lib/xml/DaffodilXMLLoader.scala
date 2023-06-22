@@ -181,13 +181,25 @@ class DFDLCatalogResolver private ()
     }
   }
 
-  override def resolve(href: String, base: String): Source = {
+  /**
+   * Create a URI given a base URI string, and a relative or absolute href string.
+   *
+   * @param href - the relative or absolute href such as "../../foo/bar.dfdl.xsd"
+   * @param base - the URI (as a string) of the file which contains the href.
+   * @return - A URI that can be opened to access the href-defined resource.
+   */
+  def resolveToURI(href: String, base: String): URI = {
     val optURI = resolveCommon(null, href, base)
     // The way resolveCommon is called here, it should always throw an exception during
     // resolution failure, so we should never get a None. That exception should be handled by
     // the caller, so we can assume we have an URI at this point.
     Assert.invariant(optURI.isDefined)
     val uri = optURI.get
+    uri
+  }
+
+  override def resolve(href: String, base: String): Source = {
+    val uri = resolveToURI(href, base)
     val source = new StreamSource(uri.toURL.openStream)
     source.setSystemId(uri.toString)
     source
@@ -250,7 +262,11 @@ class DFDLCatalogResolver private ()
         // use the systemId (which comes from the schemaLocation attribute)
         // and the classpath.
         val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
-        val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
+        // try it as a direct classpath resolution first, and if that fails,
+        // try removing all the upward path steps (if any).
+        val optURI = Misc.getResourceRelativeOption(sysId, baseURI).orElse(
+          Misc.getResourceRelativeOption(removeInitialUpwardPathSteps(sysId), baseURI)
+        )
         optURI match {
           case Some(uri) => Logger.log.debug(s"Found on classpath: ${uri}.")
           case None => {
@@ -275,6 +291,11 @@ class DFDLCatalogResolver private ()
       }
     }
     result
+  }
+
+  private def removeInitialUpwardPathSteps(filePath: String): String = {
+    val pattern = """^(\.\./)+""".r
+    pattern.replaceFirstIn(filePath, "")
   }
 
   def resolveResource(
