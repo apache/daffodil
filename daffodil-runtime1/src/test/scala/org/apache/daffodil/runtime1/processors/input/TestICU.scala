@@ -28,6 +28,7 @@ import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.ULocale
 import org.junit.Assert._
 import org.junit.Test
 
@@ -129,7 +130,7 @@ class TestICU {
   // create are commented out to show what used to be broken.
 
   @Test def test_scientific_pos_inf() = {
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
     dfs.setInfinity("INF")
     dfs.setNaN("NaN")
     dfs.setExponentSeparator("x10^")
@@ -141,7 +142,7 @@ class TestICU {
   }
 
   @Test def test_scientific_neg_inf() = {
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
     dfs.setInfinity("INF")
     dfs.setNaN("NaN")
     dfs.setExponentSeparator("x10^")
@@ -153,7 +154,7 @@ class TestICU {
   }
 
   @Test def test_scientific_nan() = {
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
     dfs.setInfinity("INF")
     dfs.setNaN("NaN")
     dfs.setExponentSeparator("x10^")
@@ -192,7 +193,7 @@ class TestICU {
   // scientific notiation with an empty exponent separator. If ICU fixes this
   // bug, this test should fail. See DAFFODIL-1981
   @Test def test_empty_exponent_separator() = {
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
     dfs.setExponentSeparator("")
     dfs.setGroupingSeparator(',')
     dfs.setDecimalSeparator('.')
@@ -211,7 +212,7 @@ class TestICU {
   @Test def test_local_side_effect() = {
 
     // Germany's locale has a decimal separator of ','
-    val dfs = new DecimalFormatSymbols(java.util.Locale.GERMANY)
+    val dfs = new DecimalFormatSymbols(ULocale.GERMANY)
 
     // Set the grouping separator to be the same as the decimal separator from
     // the locale. ICU never complains
@@ -243,7 +244,7 @@ class TestICU {
     // defaults to values from the locale. Note that Daffodil does not set
     // inf/nan representations when parsing integers since they should not
     // apply and aren't used according to the DFDL spec
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
 
     // Define a pattern that only has a grouping separator--no decimal
     // separator and should only parse integers
@@ -272,7 +273,7 @@ class TestICU {
   // the pattern. Also shows ICU failing to parse infinity/nan when decimalPatternMatchRequired
   // is true and the pattern contains a decimal.
   @Test def test_decimalPatternMatchRequired(): Unit = {
-    val dfs = new DecimalFormatSymbols(java.util.Locale.US)
+    val dfs = new DecimalFormatSymbols(ULocale.US)
 
     val df = new DecimalFormat("", dfs)
     df.setDecimalPatternMatchRequired(true)
@@ -332,7 +333,7 @@ class TestICU {
    * - ICUBigDecimal otherwise
    */
   @Test def test_floatingPointReturnType(): Unit = {
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
     val df = new DecimalFormat("", dfs)
     df.applyPattern("###0.0##;-###0.0##")
 

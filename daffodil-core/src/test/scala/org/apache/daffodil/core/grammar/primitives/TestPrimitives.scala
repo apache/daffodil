@@ -22,6 +22,8 @@ import java.util.regex.PatternSyntaxException
 import org.apache.daffodil.lib.Implicits.intercept
 
 import com.ibm.icu.text.DecimalFormat
+import com.ibm.icu.text.DecimalFormatSymbols
+import com.ibm.icu.util.ULocale
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -146,14 +148,16 @@ class TestPrimitives {
     {
       // Note that E is a pattern special character
       val pattern = "'POSITIVE' #.0###;'NEGATIVE' #.0###"
-      val df = new DecimalFormat(pattern)
+      val dfs = new DecimalFormatSymbols(ULocale.US)
+      val df = new DecimalFormat(pattern, dfs)
       val actual = df.format(-6.847)
       assertEquals("NEGATIVE 6.847", actual)
     }
     {
       // here we quote only the E, not the other characters.
       val pattern = "POSITIV'E' #.0###;NEGATIV'E' #.0###"
-      val df = new DecimalFormat(pattern)
+      val dfs = new DecimalFormatSymbols(ULocale.US)
+      val df = new DecimalFormat(pattern, dfs)
       val actual = df.format(6.847)
       assertEquals("POSITIVE 6.847", actual)
     }
