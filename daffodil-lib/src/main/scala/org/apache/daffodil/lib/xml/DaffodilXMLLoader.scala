@@ -695,7 +695,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
         // Regular Xerces doesn't report that as an error.
         case spe: SAXParseException => errorHandler.error(spe)
       }
-    // no result, as the errors are reported separately
+      // no result, as the errors are reported separately
     }
     //
     // To get reliable xml nodes including conversion of CDATA syntax into
