@@ -1516,7 +1516,28 @@ class Main(
 
         val tdmlFile = testOpts.tdmlfile()
         val optTDMLImplementation = testOpts.implementation.toOption
-        val tdmlRunner = Runner(tdmlFile, optTDMLImplementation)
+        val tdmlRunnerInit = Runner(tdmlFile, optTDMLImplementation)
+
+        val tdmlRunner = if (conf.trace() || conf.debug.isDefined) {
+          val db = if (conf.trace()) {
+            new TraceDebuggerRunner(STDOUT)
+          } else {
+            if (System.console == null) {
+              Logger.log.warn(
+                s"Using --debug on a non-interactive console may result in display issues",
+              )
+            }
+            conf.debug() match {
+              case Some(f) => new CLIDebuggerRunner(new File(f), STDIN, STDOUT)
+              case None => new CLIDebuggerRunner(STDIN, STDOUT)
+            }
+          }
+          val id = new InteractiveDebugger(db, ExpressionCompilers)
+          tdmlRunnerInit.setDebugger(id)
+          tdmlRunnerInit
+        } else {
+          tdmlRunnerInit
+        }
 
         val tests = {
           if (testOpts.testnames.isDefined) {

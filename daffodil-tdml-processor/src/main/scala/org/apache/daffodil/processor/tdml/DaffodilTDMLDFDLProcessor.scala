@@ -189,9 +189,9 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
       dp.withDebugging(false)
     }
 
-  override def withDebugger(db: AnyRef): DaffodilTDMLDFDLProcessor = {
-    Assert.usage(dp ne null)
-    val d = dp.asInstanceOf[Debugger]
+  override def withDebugger(debugger: AnyRef): DaffodilTDMLDFDLProcessor = {
+    Assert.usage(debugger ne null)
+    val d = debugger.asInstanceOf[Debugger]
     copy(dp = dp.withDebugger(d))
   }
 

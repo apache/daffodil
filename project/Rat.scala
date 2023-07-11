@@ -196,6 +196,7 @@ object Rat {
     ),
     file("test-stdLayout/src/test/resources/org1/test-outer-data1.txt"),
     file("test-stdLayout/src/test/resources/org2/test-data1.txt"),
+    file("daffodil-cli/src/test/resources/org/apache/daffodil/cli/debug.txt"),
   )
 
   lazy val BSD2_LICENSE_NAME = "BSD 2-Clause License"
