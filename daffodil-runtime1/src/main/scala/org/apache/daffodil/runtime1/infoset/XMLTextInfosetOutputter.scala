@@ -28,16 +28,18 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo
 /**
  * Writes the infoset to a java.io.Writer as XML text.
  *
- * @param writer The writer to write the XML text to
- * @param pretty Whether or to enable pretty printing. Set to true, XML
- *               elements are indented and newlines are inserted.
+ * @param writer             The writer to write the XML text to
+ * @param pretty             Whether or to enable pretty printing. Set to true, XML
+ *                           elements are indented and newlines are inserted.
  * @param xmlTextEscapeStyle Determine whether to wrap values of elements of type
- *        xs:string in CDATA tags in order to preserve whitespace.
+ *                           xs:string in CDATA tags in order to preserve whitespace.
+ * @param minimal            Determine whether to exclude xml slug and prefix bindings
  */
 class XMLTextInfosetOutputter private (
   writer: java.io.Writer,
   pretty: Boolean,
   xmlTextEscapeStyle: XMLTextEscapeStyle.Value,
+  minimal: Boolean,
 ) extends InfosetOutputter
   with Indentable
   with XMLInfosetOutputter {
@@ -46,8 +48,14 @@ class XMLTextInfosetOutputter private (
     os: java.io.OutputStream,
     pretty: Boolean,
     xmlTextEscapeStyle: XMLTextEscapeStyle.Value = XMLTextEscapeStyle.Standard,
+    minimal: Boolean = false,
   ) = {
-    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty, xmlTextEscapeStyle)
+    this(
+      new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8),
+      pretty,
+      xmlTextEscapeStyle,
+      minimal,
+    )
   }
 
   private val sb = new StringBuilder()
@@ -87,12 +95,14 @@ class XMLTextInfosetOutputter private (
 
     outputTagName(elem)
 
-    val nsbStart = elem.erd.minimizedScope
-    val nsbEnd = if (elem.isRoot) scala.xml.TopScope else elem.diParent.erd.minimizedScope
-    if (nsbStart != nsbEnd) {
-      sb.setLength(0) // reset the stringbuilder
-      nsbStart.buildString(sb, nsbEnd)
-      writer.write(sb.toString)
+    if (!minimal) {
+      val nsbStart = elem.erd.minimizedScope
+      val nsbEnd = if (elem.isRoot) scala.xml.TopScope else elem.diParent.erd.minimizedScope
+      if (nsbStart != nsbEnd) {
+        sb.setLength(0) // reset the stringbuilder
+        nsbStart.buildString(sb, nsbEnd)
+        writer.write(sb.toString)
+      }
     }
 
     if (isNilled(elem)) {
@@ -233,7 +243,9 @@ class XMLTextInfosetOutputter private (
   }
 
   override def startDocument(): Unit = {
-    writer.write("""<?xml version="1.0" encoding="UTF-8"?>""")
+    if (!minimal) {
+      writer.write("""<?xml version="1.0" encoding="UTF-8"?>""")
+    }
   }
 
   override def endDocument(): Unit = {
