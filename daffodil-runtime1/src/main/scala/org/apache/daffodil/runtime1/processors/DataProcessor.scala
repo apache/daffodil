@@ -232,7 +232,7 @@ class DataProcessor(
 
   def withDebugger(dbg: AnyRef): DataProcessor = {
     val optDbg = if (dbg eq null) None else Some(dbg.asInstanceOf[Debugger])
-    copy(optDebugger = optDbg)
+    copy(areDebugging = optDbg.isDefined, optDebugger = optDbg)
   }
 
   def withDebugging(flag: Boolean): DataProcessor = {
