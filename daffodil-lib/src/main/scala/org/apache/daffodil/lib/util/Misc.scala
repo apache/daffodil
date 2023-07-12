@@ -279,7 +279,7 @@ object Misc {
         else if (i >= 97 && i <= 102) (i - 97) + 10 // lowercase a-f
         else
           throw new NumberFormatException(
-            "Hex character must be 0-9, a-z, or A-Z, but was '" + c + "'",
+            "Hex character must be 0-9, a-f, or A-F, but was '" + c + "'",
           )
       v
     }
