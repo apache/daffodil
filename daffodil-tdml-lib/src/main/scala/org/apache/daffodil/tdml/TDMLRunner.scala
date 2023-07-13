@@ -707,6 +707,13 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       }
     case other => Assert.invariantFailed("unrecognized validation enum string: " + other)
   }
+  lazy val avoidFalsePositiveMatchesWithLocationInfo =
+    (testCaseXML \ "@diagnosticsStripLocationInfo").text match {
+      case "true" => true
+      case "false" => false
+      case _ => true
+    }
+
   lazy val shouldValidate = validationMode != ValidationMode.Off
   lazy val expectsValidationError =
     if (optExpectedValidationErrors.isDefined) optExpectedValidationErrors.get.hasDiagnostics
@@ -939,13 +946,23 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       !isCrossTest(implString.get) ||
       parent.shouldDoErrorComparisonOnCrossTests
     )
-      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors), implString)
+      VerifyTestCase.verifyAllDiagnosticsFound(
+        diagnostics,
+        Some(errors),
+        implString,
+        avoidFalsePositiveMatchesWithLocationInfo,
+      )
 
     if (
       !isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests
     )
-      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings, implString)
+      VerifyTestCase.verifyAllDiagnosticsFound(
+        diagnostics,
+        optWarnings,
+        implString,
+        avoidFalsePositiveMatchesWithLocationInfo,
+      )
   }
 }
 
@@ -1162,6 +1179,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           actual.getDiagnostics,
           optExpectedValidationErrors,
           implString,
+          avoidFalsePositiveMatchesWithLocationInfo,
         ) // verify all validation errors were found
         Assert.invariant(actual.isValidationError)
       }
@@ -1180,7 +1198,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       !isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests
     )
-      VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optExpectedWarnings, implString)
+      VerifyTestCase.verifyAllDiagnosticsFound(
+        allDiags,
+        optExpectedWarnings,
+        implString,
+        avoidFalsePositiveMatchesWithLocationInfo,
+      )
   }
 
   /**
@@ -1541,7 +1564,12 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       !isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests
     )
-      VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optWarnings, implString)
+      VerifyTestCase.verifyAllDiagnosticsFound(
+        allDiags,
+        optWarnings,
+        implString,
+        avoidFalsePositiveMatchesWithLocationInfo,
+      )
 
     if (roundTrip eq OnePassRoundTrip) {
 
@@ -1581,7 +1609,12 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         !isCrossTest(implString.get) ||
         parent.shouldDoWarningComparisonOnCrossTests
       )
-        VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optWarnings, implString)
+        VerifyTestCase.verifyAllDiagnosticsFound(
+          actual.getDiagnostics,
+          optWarnings,
+          implString,
+          avoidFalsePositiveMatchesWithLocationInfo,
+        )
 
       (shouldValidate, expectsValidationError) match {
         case (_, true) => {
@@ -1592,6 +1625,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             actual.getDiagnostics,
             optExpectedValidationErrors,
             implString,
+            avoidFalsePositiveMatchesWithLocationInfo,
           ) // verify all validation errors were found
           Assert.invariant(actual.isValidationError)
         }
@@ -1741,14 +1775,31 @@ object VerifyTestCase {
     }
   }
 
+  /**
+   * Do diagnostics verification
+   *
+   * @param actualDiags                               Actual diagnostics produced
+   * @param expectedDiags                             Expected diagnostics from test cases
+   * @param implString                                Implementation string
+   * @param avoidFalsePositiveMatchesWithLocationInfo We strip the file info from the diagnostics to prevent false
+   *                                                  positive matches against the test case's error and warning strings
+   *                                                  coming from file/dir names.
+   *                                                  As there are tests that look for correct file/dir names, those
+   *                                                  tests will need to NOT strip them and can do so by setting the
+   *                                                  test flag to false.
+   *                                                  This is only for purposes of comparing error/warning strings
+   *                                                  to the diagnostic messages. Users would always see, displayed,
+   *                                                  the full diagnostic messages.
+   */
   def verifyAllDiagnosticsFound(
     actualDiags: Seq[Diagnostic],
     expectedDiags: Option[ErrorWarningBase],
     implString: Option[String],
+    avoidFalsePositiveMatchesWithLocationInfo: Boolean = true,
   ) = {
 
     val actualDiagMsgs = actualDiags.map {
-      _.toString
+      _.toString()
     }
     val expectedDiagMsgs = expectedDiags
       .map {
@@ -1775,8 +1826,13 @@ object VerifyTestCase {
         expectedDiag.messages.foreach { expectedMsg =>
           {
             val wasFound = actualDiags.exists { actualDiag =>
+              val actualDiagMsg = if (avoidFalsePositiveMatchesWithLocationInfo) {
+                stripLocationInformation(actualDiag.getMessage())
+              } else {
+                actualDiag.getMessage()
+              }
               actualDiag.isError == expectedDiag.isError &&
-              actualDiag.getMessage.toLowerCase.contains(expectedMsg.toLowerCase)
+              actualDiagMsg.toLowerCase.contains(expectedMsg.toLowerCase)
             }
             if (!wasFound) {
               throw TDMLException(
@@ -1791,6 +1847,15 @@ object VerifyTestCase {
         }
       }
     }
+  }
+
+  /**
+   * Strip location info from schema context off diag string message
+   * @param msg diag string message
+   * @return diag message without location information
+   */
+  def stripLocationInformation(msg: String): String = {
+    msg.replaceAll("Location line.*", "")
   }
 
   def verifyNoValidationErrorsFound(actual: TDMLResult, implString: Option[String]) = {

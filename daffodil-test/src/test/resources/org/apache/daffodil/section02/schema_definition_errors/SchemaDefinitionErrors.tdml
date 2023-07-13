@@ -222,8 +222,9 @@
 -->
 
   <tdml:parserTestCase name="schema_line_number" root="e1"
-    model="lineNumber.dfdl.xsd"
-    description="">
+                       model="lineNumber.dfdl.xsd"
+                       description=""
+                       diagnosticsStripLocationInfo="false">
     <tdml:document />
 
     <tdml:errors>
