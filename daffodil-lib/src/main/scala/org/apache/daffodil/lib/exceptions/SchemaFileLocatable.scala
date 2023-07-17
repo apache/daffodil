@@ -19,6 +19,7 @@ package org.apache.daffodil.lib.exceptions
 
 import java.net.URLDecoder
 
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.LocationInSchemaFile
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 
@@ -34,13 +35,14 @@ trait HasSchemaFileLocation extends LookupLocation {
 }
 
 object SchemaFileLocation {
-  def apply(context: SchemaFileLocatable) =
+  def apply(context: SchemaFileLocatable, tunables: DaffodilTunables) =
     new SchemaFileLocation(
       context.lineNumber,
       context.columnNumber,
       context.uriString,
       context.toString,
       context.diagnosticDebugName,
+      tunables.maxParentDirectoriesForDiagnostics,
     )
 }
 
@@ -50,6 +52,7 @@ class SchemaFileLocation private (
   val uriString: String,
   contextToString: String,
   val diagnosticDebugName: String,
+  maxParentDirectoriesForDiagnostics: Int,
 ) extends LocationInSchemaFile
   with Serializable {
 
@@ -65,7 +68,10 @@ class SchemaFileLocation private (
 
   override val toString = contextToString
 
-  override def fileDescription = " in " + URLDecoder.decode(uriString, "UTF-8")
+  override def fileDescription = {
+    val decodedString = URLDecoder.decode(uriString, "UTF-8")
+    " in " + limitMaxParentDirectories(decodedString, maxParentDirectoriesForDiagnostics)
+  }
 
   override def locationDescription = {
     val showInfo = lineDescription != "" || fileDescription != ""
@@ -81,6 +87,8 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
   def fileAttribute: Option[String]
 
   def diagnosticDebugName: String
+
+  def tunables: DaffodilTunables
 
   lazy val lineNumber: Option[String] = lineAttribute match {
     case Some(seqNodes) => Some(seqNodes.toString)
@@ -103,7 +111,13 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
   }
 
   // URLDecoder removes %20, etc from the file name.
-  override lazy val fileDescription = " in " + URLDecoder.decode(uriString, "UTF-8")
+  override lazy val fileDescription = {
+    val newUriString: String = limitMaxParentDirectories(
+      URLDecoder.decode(uriString, "UTF-8"),
+      tunables.maxParentDirectoriesForDiagnostics,
+    )
+    " in " + newUriString
+  }
 
   override lazy val locationDescription = {
     val showInfo = lineDescription != "" || fileDescription != ""
@@ -139,5 +153,5 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
 
   }
 
-  override lazy val schemaFileLocation = SchemaFileLocation(this)
+  override lazy val schemaFileLocation = SchemaFileLocation(this, tunables)
 }

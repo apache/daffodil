@@ -97,7 +97,7 @@ final class SchemaSet private (
   val schemaSource: DaffodilSchemaSource,
   val shouldValidateDFDLSchemas: Boolean,
   val checkAllTopLevel: Boolean,
-  val tunables: DaffodilTunables,
+  override val tunables: DaffodilTunables,
 ) extends SchemaComponentImpl(<schemaSet/>, None)
   with SchemaSetIncludesAndImportsMixin
   with SchemaSetGrammarMixin {
