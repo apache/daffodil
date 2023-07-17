@@ -366,6 +366,19 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
+        <xs:element name="maxParentDirectoriesForDiagnostics" default="3" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              The maximum number of parent directories that show up for a file within a diagnostic
+              message.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="0" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
         <xs:element name="maxSkipLengthInBytes" default="1024" minOccurs="0">
           <xs:annotation>
             <xs:documentation>

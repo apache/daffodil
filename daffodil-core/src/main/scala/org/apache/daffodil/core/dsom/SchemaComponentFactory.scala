@@ -20,15 +20,18 @@ package org.apache.daffodil.core.dsom
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.core.dsom.walker.CommonContextView
+import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.SchemaFileLocatable
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 
-trait SchemaFileLocatableImpl extends SchemaFileLocatable {
+trait SchemaFileLocatableImpl extends SchemaFileLocatable { self: SchemaComponent =>
 
   def xml: scala.xml.Node
   def schemaFile: Option[DFDLSchemaFile]
   def optLexicalParent: Option[SchemaComponent]
+
+  def tunables: DaffodilTunables = self.tunable
 
   /**
    * Annotations can contain expressions, so we need to be able to compile them.
