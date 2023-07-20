@@ -19,7 +19,6 @@ package org.apache.daffodil.core.runtime1
 
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.grammar.VariableMapFactory
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -68,7 +67,7 @@ trait SchemaSetRuntime1Mixin {
   }.value
 
   def onPath(xpath: String): DFDL.DataProcessor = {
-    Assert.usage(!isError)
+    checkNotError()
     if (xpath != "/")
       root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
     val rootERD = root.elementRuntimeData

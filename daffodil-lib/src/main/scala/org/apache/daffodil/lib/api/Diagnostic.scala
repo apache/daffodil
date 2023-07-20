@@ -308,4 +308,18 @@ trait WithDiagnostics {
    * then one can proceed to run the compiled entity.
    */
   def isError: Boolean
+
+  /**
+   * Helper method to check that isError is false, if not it throws
+   * a usage error caused by illegal state caused by a compilation error
+   */
+  def checkNotError(): Unit = {
+    Assert.usage(
+      !isError,
+      new IllegalStateException(
+        "Must call isError() to ensure there are no errors",
+        getDiagnostics.find(_.isError).get,
+      ),
+    )
+  }
 }

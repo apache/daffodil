@@ -51,7 +51,10 @@ abstract class UnsuppressableException(m: String, th: Throwable) extends Excepti
   def this(th: Throwable) = this(null, th)
 }
 
-class UsageException(m: String) extends UnsuppressableException(m)
+class UsageException(m: String, th: Throwable) extends UnsuppressableException(m, th) {
+  def this(th: Throwable) = this(null, th)
+  def this(m: String) = this(m, null)
+}
 class NotYetImplementedException(m: String)
   extends UnsuppressableException("Not yet implemented: " + m)
 class Abort(m: String, th: Throwable) extends UnsuppressableException(m, th) {
@@ -83,13 +86,18 @@ object Assert extends Assert {
    */
   def usageErrorUnless(testAbortsIfFalse: Boolean, message: String): Unit =
     macro AssertMacros.usageMacro2
+  def usageErrorUnless(testAbortsIfFalse: Boolean, cause: Throwable): Unit =
+    macro AssertMacros.usageMacro2Cause
   def usageErrorUnless(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.usageMacro1
 
   /**
    * Brief form
    */
   def usage(testAbortsIfFalse: Boolean, message: String): Unit = macro AssertMacros.usageMacro2
-  def usage(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.usageMacro1
+  def usage(testAbortsIfFalse: Boolean, cause: Throwable): Unit =
+    macro AssertMacros.usageMacro2Cause
+  def usage(testAbortsIfFalse: Boolean): Unit =
+    macro AssertMacros.usageMacro1
 
   /**
    * test for something that the program is supposed to be ensuring.
@@ -128,7 +136,15 @@ object Assert extends Assert {
   //
 
   def usageError(message: String = "Usage error."): Nothing = {
-    abort(message)
+    toss(new UsageException(message))
+  }
+
+  def usageError(cause: Throwable): Nothing = {
+    toss(new UsageException(cause))
+  }
+
+  def usageError2(message: String = "Usage error.", testAsString: String): Nothing = {
+    usageError(message + " (" + testAsString + ")")
   }
 
   def nyi(info: String): Nothing = {

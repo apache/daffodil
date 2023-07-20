@@ -340,8 +340,7 @@ class DataProcessor(
    * runtime. Instead we deal with success and failure statuses.
    */
   def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = {
-    Assert.usage(!this.isError)
-
+    checkNotError()
     // If full validation is enabled, tee all the infoset events to a second
     // infoset outputter that writes the infoset to a byte array, and then
     // we'll validate that byte array upon a successful parse.
@@ -501,7 +500,7 @@ class DataProcessor(
   }
 
   def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = {
-    Assert.usage(!this.isError)
+    checkNotError()
     val outStream = java.nio.channels.Channels.newOutputStream(output)
     unparse(inputter, outStream)
   }
