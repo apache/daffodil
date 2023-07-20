@@ -110,7 +110,7 @@ final class ProcessorFactory private (
   override def onPath(xpath: String): DFDL.DataProcessor = sset.onPath(xpath)
 
   override def forLanguage(language: String): DFDL.CodeGenerator = {
-    Assert.usage(!isError)
+    checkNotError()
 
     // Do a poor man's pluggable code generator implementation - we can replace
     // it after we observe how the validator SPI evolves and wait for our

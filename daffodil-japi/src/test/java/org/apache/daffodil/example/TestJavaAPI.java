@@ -1217,6 +1217,22 @@ public class TestJavaAPI {
     }
 
     @Test
+    public void testJavaAPI27() throws IOException {
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        java.io.File schemaFile = getResource("/test/japi/mySchema6.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        assertTrue(pf.isError());
+        try {
+            pf.onPath("/");
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            assertTrue(cause.toString().contains("Must call isError"));
+            assertTrue(cause.getCause().toString().contains("Schema Definition Error"));
+            assertTrue(cause.getCause().toString().contains("Cannot resolve the name 'tns:nonExistent'"));
+        }
+    }
+
+    @Test
     public void testJavaAPINullXMLTextEscapeStyle() throws IOException, ClassNotFoundException {
         ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
         try {

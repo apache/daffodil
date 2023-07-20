@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import javax.xml.XMLConstants
 
-import org.apache.daffodil.lib.exceptions.Abort
+import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.sapi.Daffodil
 import org.apache.daffodil.sapi.DaffodilParseXMLReader
 import org.apache.daffodil.sapi.DaffodilUnhandledSAXException
@@ -887,7 +887,7 @@ class TestScalaAPI {
     try {
       res = dp.parse(input, outputter)
     } catch {
-      case e: Abort => {
+      case e: UsageException => {
         assertTrue(e.getMessage().contains("Usage error"))
         assertTrue(e.getMessage().contains("invalid input source"))
       }
@@ -1205,6 +1205,28 @@ class TestScalaAPI {
     val ur = dp.unparse(inputter, wbc)
     assertFalse(ur.isError)
     assertEquals(expectedData, bos.toString())
+  }
+
+  @Test
+  def testScalaAPI26(): Unit = {
+    val c = Daffodil.compiler()
+    val schemaFile = getResource("/test/sapi/mySchema6.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    assertTrue(pf.isError())
+    try {
+      pf.onPath("/")
+    } catch {
+      case e: UsageException => {
+        val cause = e.getCause
+        assertTrue(cause.toString.contains("Must call isError"))
+        assertTrue(
+          cause.getCause.toString.contains("Schema Definition Error"),
+        )
+        assertTrue(
+          cause.getCause.toString.contains("Cannot resolve the name 'tns:nonExistent'"),
+        )
+      }
+    }
   }
 
   @Test
