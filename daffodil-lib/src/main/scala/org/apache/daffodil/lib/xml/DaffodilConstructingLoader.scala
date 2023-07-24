@@ -172,16 +172,6 @@ class DaffodilConstructingLoader private[xml] (
   override def reportSyntaxError(pos: Int, msg: String): Unit = {
     val exc = makeSAXParseException(pos, msg)
     errorHandler.fatalError(exc)
-    if (msg == "'<' not allowed in attrib value") {
-      // DAFFODIL-2586
-      // There is a bug in scala-xml which causes an infinite loop when
-      // this error condition is reached. The loop expects the scanner
-      // to advance but in this case it does not. When this error is
-      // seen, an exception needs to be thrown to stop processing.
-      //
-      // See: https://github.com/scala/scala-xml/blob/v2.1.0/shared/src/main/scala/scala/xml/parsing/MarkupParserCommon.scala#L67-L72
-      throw exc
-    }
   }
 
   /*
