@@ -24,7 +24,6 @@ import scala.collection.mutable
 import scala.language.reflectiveCalls
 import scala.xml.Attribute
 import scala.xml.Elem
-import scala.xml.InputSource
 import scala.xml.MetaData
 import scala.xml.NamespaceBinding
 import scala.xml.Node
@@ -45,6 +44,13 @@ import org.apache.xml.resolver.CatalogManager
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import org.xml.sax.ContentHandler
+import org.xml.sax.DTDHandler
+import org.xml.sax.EntityResolver
+import org.xml.sax.ErrorHandler
+import org.xml.sax.InputSource
+import org.xml.sax.XMLReader
+import org.xml.sax.helpers.XMLFilterImpl
 
 object Implicits {
 
@@ -446,48 +452,56 @@ class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
   f.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
   f.setValidating(true)
   val p = f.newSAXParser()
-  val xr = p.getXMLReader()
-  xr.setContentHandler(this)
-  xr.setEntityResolver(res) // older API??
-  xr.setProperty("http://apache.org/xml/properties/internal/entity-resolver", res)
-  //
+  val r = p.getXMLReader()
 
-  override lazy val parser: SAXParser = p
+  // We must use XMLReader setProperty() function to set the entity resolver--calling
+  // setEntityResolver with the Xerces XML reader causes validation to fail for some
+  // reason. We call the right function below, but unfortunately, scala-xml calls
+  // setEntityResolver in loadDocument(), which cannot be disabled and scala-xml does not
+  // want to change. To avoid this, we wrap the Xerces XMLReader in an XMLFilterImpl and
+  // override setEntityResolver to a no-op. However, XMLFilterImpl parse() calls
+  // setEntityResolver() on the XMLReader, which for the same reason as before causes
+  // issues. To fix this, we can override parse() to just pass through to the parent, but
+  // that means we must override the various set/get handler functions to also pass
+  // through to the parent.
+  val xr = new XMLFilterImpl(r) {
+    override def setEntityResolver(resolver: EntityResolver): Unit = {} // no-op
+    override def parse(input: InputSource): Unit = getParent.parse(input)
+
+    override def setContentHandler(handler: ContentHandler): Unit =
+      getParent.setContentHandler(handler)
+    override def setDTDHandler(handler: DTDHandler): Unit =
+      getParent.setDTDHandler(handler)
+    override def setErrorHandler(handler: ErrorHandler): Unit =
+      getParent.setErrorHandler(handler)
+    override def getContentHandler(): ContentHandler =
+      getParent.getContentHandler()
+    override def getDTDHandler(): DTDHandler =
+      getParent.getDTDHandler()
+    override def getErrorHandler(): ErrorHandler =
+      getParent.getErrorHandler()
+  }
+
+  xr.setContentHandler(this)
+  // older API, must not be called for validation to work, must use setPropery bloew
+  // xr.setEntityResolver(res)
+  xr.setProperty("http://apache.org/xml/properties/internal/entity-resolver", res)
 
   var exceptionList: List[Exception] = Nil
+  xr.setErrorHandler(new org.xml.sax.ErrorHandler() {
+    def warning(exception: SAXParseException) = { exceptionList :+= exception }
+    def error(exception: SAXParseException) = { exceptionList :+= exception }
+    def fatalError(exception: SAXParseException) = { exceptionList :+= exception }
+  })
+
+  override lazy val parser: SAXParser = p
+  override lazy val reader: XMLReader = xr
 
   /**
-   * Called by all the load(...) methods to actually do the loading.
-   *
-   * @param source
-   * @param ignored
-   * @return the scala.xml.Node loaded that is the document element of the loaded source.
+   * Scala-XML creates its own adapter and calls the loadDocument function on that. We want it
+   * to use this custom adpater, so we must override it to point to this
    */
-  override def loadXML(source: InputSource, ignored: SAXParser): Node = {
-    val xr = parser.getXMLReader()
-    xr.setErrorHandler(new org.xml.sax.ErrorHandler() {
-
-      def warning(exception: SAXParseException) = {
-        // System.err.println(exception.getMessage())
-        exceptionList :+= exception
-      }
-
-      def error(exception: SAXParseException) = {
-        // System.err.println("Error: " + exception.getMessage())
-        exceptionList :+= exception
-      }
-      def fatalError(exception: SAXParseException) = {
-        // System.err.println(exception.getMessage())
-        exceptionList :+= exception
-      }
-    })
-
-    // validation occurs during the loading process because
-    // we set the feature requiring it above where the parser is constructed.
-
-    xr.parse(source)
-    return rootElem.asInstanceOf[Elem]
-  }
+  override def adapter = this
 }
 
 /**
@@ -501,16 +515,17 @@ class MyResolver()
   with org.w3c.dom.ls.LSResourceResolver
   with org.xml.sax.EntityResolver
   with org.xml.sax.ext.EntityResolver2 {
+
   val cm = new CatalogManager()
   val catFiles = cm.getCatalogFiles().toArray.toList.asInstanceOf[List[String]]
   // println("catalog files: " + catFiles)
-  cm.setIgnoreMissingProperties(false)
+  cm.setIgnoreMissingProperties(true)
   cm.setRelativeCatalogs(true)
   // cm.setVerbosity(4)
   // cm.debug.setDebug(100)
   val delegate = // new org.apache.xerces.util.XMLCatalogResolver() // cl)
     new Catalog(cm) {
-      // catalogManager.debug.setDebug(100)
+      // cm.debug.setDebug(100)
     }
   delegate.setupReaders()
   delegate.loadSystemCatalogs()
