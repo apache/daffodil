@@ -93,7 +93,10 @@ import org.xml.sax.InputSource
 import org.xml.sax.SAXParseException
 import org.xml.sax.helpers.XMLReaderFactory
 
-class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
+class ScallopExitException(val exitCode: Int) extends Exception
+
+class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream)
+  extends scallop.ScallopConf(arguments) {
 
   /**
    * This is used when the flag is optional and so is its
@@ -250,6 +253,12 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
       }
     throw new GenericScallopException(msg)
   }
+
+  exitHandler = int => throw new ScallopExitException(int)
+
+  stdoutPrintln = string => stdout.println(string)
+
+  stderrPrintln = string => stderr.println(string)
 
   banner("""|Usage: daffodil [GLOBAL_OPTS] <subcommand> [SUBCOMMAND_OPTS]
             |
@@ -1038,7 +1047,7 @@ class Main(
   }
 
   def runIgnoreExceptions(arguments: Array[String]): ExitCode.Value = {
-    val conf = new CLIConf(arguments)
+    val conf = new CLIConf(arguments, STDOUT, STDERR)
 
     // Set the log level to whatever was parsed by the options
     setLogLevel(conf.verbose())
@@ -1887,6 +1896,9 @@ class Main(
         }
         case e: DebuggerExitException => {
           ExitCode.Failure
+        }
+        case e: ScallopExitException => {
+          ExitCode(e.exitCode)
         }
         case e: GenericScallopException => {
           Logger.log.error(e.message)
