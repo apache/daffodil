@@ -27,25 +27,17 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:GeneralFormat"
-        representation="binary"
-        encodingErrorPolicy="replace" />
+        representation="binary" />
     </appinfo>
   </annotation>
 
   <xs:element name="root">
     <xs:complexType>
-      <xs:choice>
-        <xs:sequence>
-          <xs:element name="b" type="xs:anyURI"
-            dfdl:lengthKind="explicit" dfdl:length="2098176008"
-            dfdlx:objectKind="bytes" />
-          <xs:element name="a" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="1" />
-        </xs:sequence>
-        <xs:element name="oneGigBlob" type="xs:anyURI"
-          dfdl:lengthKind="explicit" dfdl:length="2098176008"
-          dfdlx:objectKind="bytes" />
-      </xs:choice>
+      <xs:sequence>
+        <xs:element name="length" type="xs:int" />
+        <xs:element name="blob" type="xs:anyURI" dfdlx:objectKind="bytes"
+          dfdl:lengthKind="explicit" dfdl:length="{ ../length }" />
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
 
