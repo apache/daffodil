@@ -58,24 +58,30 @@ sealed trait DaffodilSchemaSource {
    * False otherwise.
    */
   def isXSD: Boolean
+
+  /**
+   * Diagnostic file path associated with this schema source
+   */
+  def diagnosticFile: File
 }
 
 object URISchemaSource {
-  def apply(fileOrResource: URI) = {
-    new URISchemaSource(fileOrResource)
+  def apply(diagnosticFile: File, uri: URI): URISchemaSource = {
+    new URISchemaSource(diagnosticFile, uri)
   }
 }
 
-class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchemaSource {
+class URISchemaSource protected (diagnosticFilepath: File, val uri: URI)
+  extends DaffodilSchemaSource {
 
   override def equals(other: Any) = other match {
-    case oth: URISchemaSource => this.fileOrResource == oth.fileOrResource
+    case oth: URISchemaSource => this.uri == oth.uri
     case _ => false
   }
 
-  override def hashCode() = fileOrResource.hashCode()
+  override def hashCode() = uri.hashCode()
 
-  private lazy val url = fileOrResource.toURL
+  private lazy val url = uri.toURL
 
   final def isXSD = isXSD_
 
@@ -96,7 +102,7 @@ class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchema
     val ext = uriString.split("\\.").last
     val isXSDExt = (ext == "xsd")
     try {
-      val path = Paths.get(fileOrResource)
+      val path = Paths.get(uri)
       val f = path.toFile()
       (true, isXSDExt, f, f.lastModified())
     } catch {
@@ -108,11 +114,13 @@ class URISchemaSource protected (val fileOrResource: URI) extends DaffodilSchema
   override def newInputSource() = {
     fileModTime // demand this so we have it recorded
     val is = new InputSource(url.openStream())
-    is.setSystemId(fileOrResource.toString)
+    is.setSystemId(uri.toString)
     is
   }
 
-  override def uriForLoading = fileOrResource
+  override def uriForLoading = uri
+
+  override def diagnosticFile: File = diagnosticFilepath
 
   /**
    * @return True if this URI is for a file, other URI is for a file
@@ -158,17 +166,19 @@ class InputStreamSchemaSource(
     inSrc
   }
   override def uriForLoading = tempURI
+
+  override def diagnosticFile: File = tempSchemaFile
 }
 
 protected sealed abstract class NodeSchemaSourceBase(
   node: Node,
   nameHint: String,
   tmpDir: Option[File],
-) extends URISchemaSource({
-    val tempSchemaFile = XMLUtils.convertNodeToTempFile(node, tmpDir.orNull, nameHint)
-    val tempURI = tempSchemaFile.toURI
-    tempURI
-  }) {
+  tempSchemaFileFromNode: File,
+) extends URISchemaSource(
+    tempSchemaFileFromNode,
+    tempSchemaFileFromNode.toURI,
+  ) {
 
   def blameName: String
 
@@ -180,7 +190,12 @@ protected sealed abstract class NodeSchemaSourceBase(
 }
 
 case class UnitTestSchemaSource(node: Node, nameHint: String, optTmpDir: Option[File] = None)
-  extends NodeSchemaSourceBase(node, nameHint, optTmpDir) {
+  extends NodeSchemaSourceBase(
+    node,
+    nameHint,
+    optTmpDir,
+    XMLUtils.convertNodeToTempFile(node, optTmpDir.orNull, nameHint),
+  ) {
   override val blameName =
     if (nameHint != "") "unittest:" + nameHint
     else uriForLoading.toString
@@ -191,6 +206,11 @@ case class UnitTestSchemaSource(node: Node, nameHint: String, optTmpDir: Option[
  * which in order to be able to validate repeatedly and such, is written to a temp file.
  */
 case class EmbeddedSchemaSource(node: Node, nameHint: String, optTmpDir: Option[File] = None)
-  extends NodeSchemaSourceBase(node, nameHint, optTmpDir) {
+  extends NodeSchemaSourceBase(
+    node,
+    nameHint,
+    optTmpDir,
+    XMLUtils.convertNodeToTempFile(node, optTmpDir.orNull, nameHint),
+  ) {
   override val blameName = nameHint
 }

@@ -50,6 +50,8 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |//
     |////////////////////////////////////////////////////////////////////////////////////////////
     |
+    |import java.nio.file.Paths
+    |
     |import org.apache.daffodil.lib.exceptions.Assert
     |import org.apache.daffodil.lib.exceptions.ThrowsSDE
     |import org.apache.daffodil.lib.schema.annotation.props.EmptyElementParsePolicy
@@ -70,11 +72,12 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |
     |  def apply(): DaffodilTunables = {
     |    // override tunables from the global configuration file on the class path, if it exists
-    |    val (configOpt, _) = Misc.getResourceOption("/daffodil-config.xml")
+    |    val configPath = "/daffodil-config.xml"
+    |    val (configOpt, _) = Misc.getResourceOption(configPath)
     |    val configTunables: Map[String, String] =
     |      if (configOpt.isDefined) {
     |        val loader = new DaffodilXMLLoader()
-    |        val node = loader.load(URISchemaSource(configOpt.get), Some(XMLUtils.dafextURI))
+    |        val node = loader.load(URISchemaSource(Paths.get(configPath).toFile, configOpt.get), Some(XMLUtils.dafextURI))
     |        tunablesMap(node)
     |      } else {
     |        Map.empty

@@ -104,7 +104,7 @@ sealed trait RuntimeData
   final override def schemaFileLineColumnNumber: JLong =
     schemaFileLocation.columnNumber.map { JLong.getLong(_) }.orNull
 
-  final override def schemaFileInfo: String = schemaFileLocation.fileURITrimmed
+  final override def schemaFileInfo: String = schemaFileLocation.fileDescription
 }
 
 object TermRuntimeData {

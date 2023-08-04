@@ -59,8 +59,6 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>org.xml.sax.SAXParseException</tdml:error>
-      <tdml:error>hasDocType-include.dfdl.xsd</tdml:error>
       <tdml:error>DOCTYPE is disallowed</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -70,8 +68,6 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>org.xml.sax.SAXParseException</tdml:error>
-      <tdml:error>hasDocType-import.dfdl.xsd</tdml:error>
       <tdml:error>DOCTYPE is disallowed</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

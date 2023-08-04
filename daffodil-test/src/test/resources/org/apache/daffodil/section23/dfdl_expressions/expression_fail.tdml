@@ -67,7 +67,6 @@
     	<tdml:error>Error</tdml:error>
     	<tdml:error>loading</tdml:error>
     	<tdml:error>schema</tdml:error>
-    	<tdml:error>SAXParseException</tdml:error>
     	<tdml:error>not</tdml:error>
     	<tdml:error>facet-valid</tdml:error>
     	<tdml:error>dfdl:occursCount</tdml:error>

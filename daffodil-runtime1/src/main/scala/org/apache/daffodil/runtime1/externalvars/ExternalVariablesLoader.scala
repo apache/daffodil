@@ -80,7 +80,10 @@ object ExternalVariablesLoader {
     val input = scala.io.Source.fromURI(file.toURI)(enc)
     val ldr = new DaffodilXMLLoader()
     val dafextURI = XMLUtils.dafextURI
-    val node = ldr.load(URISchemaSource(file.toURI), Some(dafextURI))
+    val node = ldr.load(
+      URISchemaSource(file, file.toURI),
+      Some(dafextURI),
+    )
     nodeToBindings(node)
   }
 

@@ -184,21 +184,6 @@
     <attribute name="unsupported" type="xs:boolean" use="optional" default="false"/>
     <attribute name="validation" type="tns:validationType" use="optional"/>
     <attribute name="implementations" type="tns:implementationsType" use="optional"/>
-    <attribute name="diagnosticsStripLocationInfo" type="xs:boolean" use="optional" default="true">
-      <annotation>
-        <documentation>We strip the file info from the diagnostics to prevent false
-          positive matches against the test case's error and warning strings
-          coming from file/dir names.
-
-          As there are tests that look for correct file/dir names, those
-          tests will need to NOT strip them and can do so by setting the
-          test flag to false.
-
-          This is only for purposes of comparing error/warning strings
-          to the diagnostic messages. Users would always see, displayed,
-          the full diagnostic messages.</documentation>
-      </annotation>
-    </attribute>
 
   </attributeGroup>
 

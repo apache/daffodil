@@ -44,7 +44,9 @@ class TestStringAsXml {
 
   private def compileSchema(dfdlSchemaURI: URI) = {
     val c = Compiler()
-    val pf = c.compileSource(URISchemaSource(dfdlSchemaURI))
+    val pf = c.compileSource(
+      URISchemaSource(Misc.uriToDiagnosticFile(dfdlSchemaURI), dfdlSchemaURI),
+    )
     val dp = pf.onPath("/")
     dp.withValidationMode(ValidationMode.Full)
   }

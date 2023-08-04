@@ -17,10 +17,10 @@
 
 package org.apache.daffodil.core.dsom
 
+import java.io.File
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.core.dsom.walker.CommonContextView
-import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.SchemaFileLocatable
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -30,8 +30,6 @@ trait SchemaFileLocatableImpl extends SchemaFileLocatable { self: SchemaComponen
   def xml: scala.xml.Node
   def schemaFile: Option[DFDLSchemaFile]
   def optLexicalParent: Option[SchemaComponent]
-
-  def tunables: DaffodilTunables = self.tunable
 
   /**
    * Annotations can contain expressions, so we need to be able to compile them.
@@ -76,6 +74,7 @@ trait CommonContextMixin extends NestingLexicalMixin with CommonContextView {
   }
   final def xmlSchemaDocument: XMLSchemaDocument = optXMLSchemaDocument.get
   def uriString: String = optLexicalParent.get.uriString
+  def diagnosticFile: File = optLexicalParent.get.diagnosticFile
 
   def xml: scala.xml.Node
 

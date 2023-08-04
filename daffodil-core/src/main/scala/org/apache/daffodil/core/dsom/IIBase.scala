@@ -26,6 +26,7 @@ import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.NS
@@ -195,15 +196,28 @@ abstract class IIBase(
   protected final lazy val resolvedSchemaLocation: Option[DaffodilSchemaSource] =
     LV('resolvedSchemaLocation) {
       val res = schemaLocationProperty.flatMap { slText =>
-        val enclosingSchemaURI = schemaFile.map { _.schemaSource.uriForLoading }
-        val optURI = XMLUtils.resolveSchemaLocation(slText, enclosingSchemaURI)
-        val optSource = optURI.map { case (uri, relToAbs) =>
+        val enclosingSchemaSource = schemaFile.map { sf =>
+          sf.schemaSource
+        }
+        val optURISchemaSource =
+          XMLUtils.resolveSchemaLocation(slText, enclosingSchemaSource)
+        val optSource = optURISchemaSource.map { case (uriSchemaSource, relToAbs) =>
           schemaDefinitionWarningWhen(
             WarnID.DeprecatedRelativeSchemaLocation,
             relToAbs,
             s"Resolving relative schemaLocations absolutely is deprecated. Did you mean /$slText",
           )
-          URISchemaSource(uri)
+          // if isBootStrapSD is true, we assume we are using the fakeXMLSchemaDocument, which means
+          // we will be passing in and receiving back an absolute diagnosticFilepath from resolveSchemaLocation.
+          // In just this case, we want to ignore that absolute filepath and use the diagnosticFilepath
+          // from main, which is the XMLSchemaDocument diagnosticFilepath
+          val finalUriSchemaSource = if (xmlSchemaDocument.isBootStrapSD) {
+            Assert.invariant(enclosingSchemaSource.isEmpty)
+            URISchemaSource(xmlSchemaDocument.diagnosticFile, uriSchemaSource.uri)
+          } else {
+            uriSchemaSource
+          }
+          finalUriSchemaSource
         }
         optSource
       }
