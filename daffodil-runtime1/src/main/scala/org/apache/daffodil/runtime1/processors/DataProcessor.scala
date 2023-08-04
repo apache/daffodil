@@ -356,6 +356,13 @@ class DataProcessor(
           val bos = new java.io.ByteArrayOutputStream()
           val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
           val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
+          // copy the blob attributes from the users outputter to the tee infoset outputter
+          // since Daffodil will now use that to get blob attributes
+          teeOutputter.setBlobAttributes(
+            output.getBlobDirectory(),
+            output.getBlobPrefix(),
+            output.getBlobSuffix(),
+          )
           (teeOutputter, One(bos))
         case _ =>
           (output, Nope)
@@ -387,15 +394,16 @@ class DataProcessor(
         }
         res
       }
-      state.output.setBlobPaths(state.blobPaths)
+      // copy the blob paths we created to the users infoset outputter
+      output.setBlobPaths(state.blobPaths)
       new ParseResult(state, vr)
     } else {
       // failed, so delete all blobs that were created
       state.blobPaths.foreach { path =>
         Files.delete(path)
       }
-      // ensure the blob paths are empty in case of outputter reuse
-      state.output.setBlobPaths(Seq.empty)
+      // ensure the blob paths on the users infoset outputter are empty in case of reuse
+      output.setBlobPaths(Seq.empty)
       new ParseResult(state, None)
     }
     val s = state

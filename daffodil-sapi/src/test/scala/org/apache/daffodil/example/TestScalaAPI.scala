@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import java.nio.file.Paths
 import javax.xml.XMLConstants
 
@@ -1289,5 +1290,39 @@ class TestScalaAPI {
 
     assertFalse(err)
     assertEquals(expect, value)
+  }
+
+  @Test
+  def testScalaAPIBlob1(): Unit = {
+    val c = Daffodil.compiler()
+    val schemaFile = getResource("/test/sapi/blob.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    val dp = pf.onPath("/").withValidationMode(ValidationMode.Full)
+
+    val data = Array[Byte](0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04)
+    val bis = new ByteArrayInputStream(data)
+    val input = new InputSourceDataInputStream(data)
+
+    val blobRoot = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil", "sapi")
+    Files.createDirectories(blobRoot)
+    val blobDir = Files.createTempDirectory(blobRoot, "blob-")
+
+    val bos = new ByteArrayOutputStream()
+    val output = new XMLTextInfosetOutputter(bos, true)
+    output.setBlobAttributes(blobDir, "pre-", ".suf")
+
+    val res = dp.parse(input, output)
+    val blobPaths = output.getBlobPaths()
+
+    try {
+      assertFalse(res.isError)
+      assertTrue(blobPaths.length == 1)
+      assertTrue(blobPaths(0).toString().contains("blob-"))
+      assertTrue(blobPaths(0).toString().contains("pre-"))
+      assertTrue(blobPaths(0).toString().contains(".suf"))
+    } finally {
+      blobPaths.foreach(Files.delete)
+      Files.delete(blobDir)
+    }
   }
 }

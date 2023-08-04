@@ -35,7 +35,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import scala.collection.JavaConverters;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -1307,5 +1309,41 @@ public class TestJavaAPI {
 
         assertFalse(err);
         assertEquals(expect, value);
+    }
+
+    @Test
+    public void testJavaAPIBlob1() throws IOException, ClassNotFoundException, InvalidUsageException {
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        java.io.File schemaFile = getResource("/test/japi/blob.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+        dp = dp.withValidationMode(ValidationMode.Full);
+
+        byte[] data = new byte[] { 0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04 };
+        ByteArrayInputStream bis = new ByteArrayInputStream(data);
+        InputSourceDataInputStream input = new InputSourceDataInputStream(data);
+
+        Path blobRoot = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil", "japi");
+        Files.createDirectories(blobRoot);
+        Path blobDir = Files.createTempDirectory(blobRoot, "blob-");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        XMLTextInfosetOutputter output = new XMLTextInfosetOutputter(bos, true);
+        output.setBlobAttributes(blobDir, "pre-", ".suf");
+
+        ParseResult res = dp.parse(input, output);
+        List<Path> blobPaths = JavaConverters.seqAsJavaList(output.getBlobPaths());
+
+        try {
+            assertFalse(res.isError());
+            assertTrue(blobPaths.size() == 1);
+            assertTrue(blobPaths.get(0).toString().contains("blob-"));
+            assertTrue(blobPaths.get(0).toString().contains("pre-"));
+            assertTrue(blobPaths.get(0).toString().contains(".suf"));
+        } finally {
+            Iterator<Path> pathIter = blobPaths.iterator();
+            while (pathIter.hasNext()) Files.delete(pathIter.next());
+            Files.delete(blobDir);
+        }
     }
 }
