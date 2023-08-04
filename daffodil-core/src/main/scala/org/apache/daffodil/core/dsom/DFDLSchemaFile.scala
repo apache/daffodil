@@ -17,11 +17,14 @@
 
 package org.apache.daffodil.core.dsom
 
+import java.io.File
+
 import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.exceptions.XercesSchemaFileLocation
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
@@ -45,16 +48,30 @@ class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
   private def loaderErrors = loaderErrors_
   private def loaderWarnings = loaderWarnings_
 
-  private def loaderSDEs: Seq[Diagnostic] = loaderErrors.map {
-    new SchemaDefinitionError(schemaFileLocation, "Error loading schema due to %s", _)
+  private def loaderSDEs: Seq[Diagnostic] = loaderErrors.map { err =>
+    val errMessage = err.getMessage
+    // we create a new SchemaFileLocation (xsfl) because the Xerces error has line, column and file info that
+    // the original schemaFileLocation that's passed in doesn't contain, so we can pass in this more
+    // complete SchemaFileLocation
+    val xsfl = new XercesSchemaFileLocation(err, schemaFileLocation)
+    new SchemaDefinitionError(
+      xsfl,
+      "Error loading schema due to %s",
+      errMessage,
+    )
   }
 
-  private def loaderSDWs: Seq[Diagnostic] = loaderWarnings.map {
+  private def loaderSDWs: Seq[Diagnostic] = loaderWarnings.map { w =>
+    val warnMessage = w.getMessage
+    // we create a new SchemaFileLocation (xsfl) because the Xerces error has line and column info that
+    // the original schemaFileLocation that's passed in doesn't contain, so we can pass in this more
+    // complete SchemaFileLocation
+    val xsfl = new XercesSchemaFileLocation(w, schemaFileLocation)
     new SchemaDefinitionWarning(
       WarnID.XmlParser,
-      schemaFileLocation,
+      xsfl,
       "Warning loading schema due to %s",
-      _,
+      warnMessage,
     )
   }
 
@@ -139,7 +156,9 @@ final class DFDLSchemaFile(
 
   override lazy val uriString = schemaSource.uriForLoading.toString
 
-  override protected lazy val diagnosticDebugNameImpl = schemaSource.uriForLoading.toString
+  override lazy val diagnosticFile: File = schemaSource.diagnosticFile
+
+  override protected lazy val diagnosticDebugNameImpl = diagnosticFile.getPath
 
   lazy val diagnosticChildren =
     Nil // no recursive descent. We just want the loader's validation errors.

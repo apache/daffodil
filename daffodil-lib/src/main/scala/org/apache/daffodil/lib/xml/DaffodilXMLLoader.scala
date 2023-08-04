@@ -27,6 +27,7 @@ import java.io.BufferedInputStream
 import java.io.InputStream
 import java.io.Reader
 import java.net.URI
+import java.nio.file.Paths
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.Source
@@ -40,6 +41,7 @@ import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
 
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
@@ -244,12 +246,21 @@ class DFDLCatalogResolver private ()
         // comes from the schemaLocation attribute) on classpath or as a file.
         val optURI =
           try {
-            val contextURI = Some(new URI(baseURIString))
+            val baseURI = new URI(baseURIString)
+            // DaffodilXMLLoader implements a Xerces API, and Xerces doesn't have a concept of diagnostic path
+            // that we need for a URISchemaSource to pass in as the context for resolveSchemaLocation.
+            // We could use some heuristic to come up with a diagnostic path (e.g. call uriToDiagosticPath).
+            // But we don't actually use the diagnosticPath returned by resolveSchemaLocation here, all we care
+            // about is getting a URI for Xerces. So the diagnostic path in the schema source doesn't really
+            // matter as long as it doesn't break resolveSchemaLocation, and an empty diagnostic path works
+            // fine for that.
+            val uriSchemaSource = URISchemaSource(Paths.get("").toFile, baseURI)
+            val contextURI = Some(uriSchemaSource)
             val resolved = XMLUtils.resolveSchemaLocation(sysId, contextURI)
             // we drop the boolean return part of resolveSchemaLocation because we don't care here
             // if a relative schemaLocation was resolved absolutely. Daffodil will detect that
             // elsewhere and output a warning.
-            resolved.map(_._1)
+            resolved.map(_._1.uri)
           } catch {
             case e: IllegalArgumentException =>
               throw new SAXParseException(

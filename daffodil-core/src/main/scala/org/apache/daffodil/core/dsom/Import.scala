@@ -25,6 +25,7 @@ import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml._
 
 /**
@@ -98,10 +99,13 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         None
       }
       case Some(ns) => {
-        val uri = resolver.resolveURI(ns.toString)
-        if (uri == null) None
+        val uriString = resolver.resolveURI(ns.toString)
+        if (uriString == null) None
         else {
-          val res = URISchemaSource(URI.create(uri))
+          val uri = URI.create(uriString)
+          val dfp = Misc.uriToDiagnosticFile(uri)
+          val res =
+            URISchemaSource(dfp, uri)
           Some(res)
         }
       }

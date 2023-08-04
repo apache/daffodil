@@ -68,6 +68,7 @@ import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.Misc.bits2Bytes
 import org.apache.daffodil.lib.util.Misc.hex2Bits
+import org.apache.daffodil.lib.util.Misc.uriToDiagnosticFile
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -320,14 +321,22 @@ class DFDLTestSuite private[tdml] (
       Logger.log.info(s"loading TDML file: ${tdmlFile}")
       val uri = tdmlFile.toURI()
       val newNode =
-        loader.load(URISchemaSource(uri), optTDMLSchema, addPositionAttributes = true)
+        loader.load(
+          URISchemaSource(tdmlFile, uri),
+          optTDMLSchema,
+          addPositionAttributes = true,
+        )
       val res = (newNode, uri)
       Logger.log.debug(s"done loading TDML file: ${tdmlFile}")
       res
     }
     case uri: URI => {
       val newNode =
-        loader.load(URISchemaSource(uri), optTDMLSchema, addPositionAttributes = true)
+        loader.load(
+          URISchemaSource(Misc.uriToDiagnosticFile(uri), uri),
+          optTDMLSchema,
+          addPositionAttributes = true,
+        )
       val res = (newNode, uri)
       res
     }
@@ -707,12 +716,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       }
     case other => Assert.invariantFailed("unrecognized validation enum string: " + other)
   }
-  lazy val avoidFalsePositiveMatchesWithLocationInfo =
-    (testCaseXML \ "@diagnosticsStripLocationInfo").text match {
-      case "true" => true
-      case "false" => false
-      case _ => true
-    }
 
   lazy val shouldValidate = validationMode != ValidationMode.Off
   lazy val expectsValidationError =
@@ -758,7 +761,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       case (None, Some(uri)) => {
         //
         // In this case, we have a real TDML file (or resource) to open
-        URISchemaSource(uri)
+        URISchemaSource(Misc.uriToDiagnosticFile(uri), uri)
       }
     } // end match
     suppliedSchema
@@ -774,7 +777,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       case (name, Some(x), None) if name != "" => Some(x)
       case (name, None, Some(uri)) if name != "" => {
         // Read file, convert to definedConfig
-        val node = parent.loader.load(URISchemaSource(uri), Some(XMLUtils.dafextURI))
+        val node = parent.loader.load(
+          URISchemaSource(uriToDiagnosticFile(uri), uri),
+          Some(XMLUtils.dafextURI),
+        )
         if (node eq null)
           throw TDMLException(parent.loadingExceptions.toSeq, None)
         val definedConfig = DefinedConfig(node, parent)
@@ -950,7 +956,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         diagnostics,
         Some(errors),
         implString,
-        avoidFalsePositiveMatchesWithLocationInfo,
       )
 
     if (
@@ -961,7 +966,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         diagnostics,
         optWarnings,
         implString,
-        avoidFalsePositiveMatchesWithLocationInfo,
       )
   }
 }
@@ -1179,7 +1183,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           actual.getDiagnostics,
           optExpectedValidationErrors,
           implString,
-          avoidFalsePositiveMatchesWithLocationInfo,
         ) // verify all validation errors were found
         Assert.invariant(actual.isValidationError)
       }
@@ -1202,7 +1205,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         allDiags,
         optExpectedWarnings,
         implString,
-        avoidFalsePositiveMatchesWithLocationInfo,
       )
   }
 
@@ -1568,7 +1570,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         allDiags,
         optWarnings,
         implString,
-        avoidFalsePositiveMatchesWithLocationInfo,
       )
 
     if (roundTrip eq OnePassRoundTrip) {
@@ -1613,7 +1614,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           actual.getDiagnostics,
           optWarnings,
           implString,
-          avoidFalsePositiveMatchesWithLocationInfo,
         )
 
       (shouldValidate, expectsValidationError) match {
@@ -1625,7 +1625,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             actual.getDiagnostics,
             optExpectedValidationErrors,
             implString,
-            avoidFalsePositiveMatchesWithLocationInfo,
           ) // verify all validation errors were found
           Assert.invariant(actual.isValidationError)
         }
@@ -1781,21 +1780,11 @@ object VerifyTestCase {
    * @param actualDiags                               Actual diagnostics produced
    * @param expectedDiags                             Expected diagnostics from test cases
    * @param implString                                Implementation string
-   * @param avoidFalsePositiveMatchesWithLocationInfo We strip the file info from the diagnostics to prevent false
-   *                                                  positive matches against the test case's error and warning strings
-   *                                                  coming from file/dir names.
-   *                                                  As there are tests that look for correct file/dir names, those
-   *                                                  tests will need to NOT strip them and can do so by setting the
-   *                                                  test flag to false.
-   *                                                  This is only for purposes of comparing error/warning strings
-   *                                                  to the diagnostic messages. Users would always see, displayed,
-   *                                                  the full diagnostic messages.
    */
   def verifyAllDiagnosticsFound(
     actualDiags: Seq[Diagnostic],
     expectedDiags: Option[ErrorWarningBase],
     implString: Option[String],
-    avoidFalsePositiveMatchesWithLocationInfo: Boolean = true,
   ) = {
 
     val actualDiagMsgs = actualDiags.map {
@@ -1826,11 +1815,7 @@ object VerifyTestCase {
         expectedDiag.messages.foreach { expectedMsg =>
           {
             val wasFound = actualDiags.exists { actualDiag =>
-              val actualDiagMsg = if (avoidFalsePositiveMatchesWithLocationInfo) {
-                stripLocationInformation(actualDiag.getMessage())
-              } else {
-                actualDiag.getMessage()
-              }
+              val actualDiagMsg = actualDiag.getMessage()
               actualDiag.isError == expectedDiag.isError &&
               actualDiagMsg.toLowerCase.contains(expectedMsg.toLowerCase)
             }
@@ -2723,7 +2708,7 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
               "TDMLRunner: infoset file '" + path + "' was not found",
             ),
           )
-          URISchemaSource(uri)
+          URISchemaSource(uriToDiagnosticFile(uri), uri)
         }
         case value => Assert.abort("Unknown value for type attribute on dfdlInfoset: " + value)
       }

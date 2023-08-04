@@ -42,14 +42,6 @@ class TestSDE {
   @Test def test_schema_component_err(): Unit = { runner.runOneTest("schema_component_err") }
 
   @Test def test_schema_line_number(): Unit = { runner.runOneTest("schema_line_number") }
-  @Test def test_schema_file_path(): Unit = { runner.runOneTest("schema_file_path") }
-  @Test def test_schema_file_path_tunable_1(): Unit = {
-    runner.runOneTest("schema_file_path_tunable_1")
-  }
-  @Test def test_schema_file_path_tunable_2(): Unit = {
-    runner.runOneTest("schema_file_path_tunable_2")
-  }
-
   @Test def test_schema_warning(): Unit = { runner.runOneTest("schema_warning") }
   @Test def test_missing_appinfo_source(): Unit = {
     runner.runOneTest("missing_appinfo_source")

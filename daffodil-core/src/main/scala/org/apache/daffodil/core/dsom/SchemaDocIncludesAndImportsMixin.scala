@@ -22,6 +22,7 @@ import scala.xml.NodeSeq
 
 import org.apache.daffodil.core.dsom.IIUtils._
 import org.apache.daffodil.lib.equality._
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NoNamespace
 
@@ -142,6 +143,15 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
 
   override lazy val uriString = {
     this.uriStringFromAttribute.getOrElse("file:unknown")
+  }
+
+  override lazy val diagnosticFile = if (self.schemaFile.isDefined) {
+    self.schemaFile.get.diagnosticFile
+  } else {
+    // in the case of a boostrap/fake schema document, schemaFile can be None, so we want
+    // to grab the diagnostic of the first schema in the schemaSet
+    Assert.invariant(self.isBootStrapSD)
+    self.schemaSet.diagnosticFile
   }
 
   protected def seenBefore: IIMap

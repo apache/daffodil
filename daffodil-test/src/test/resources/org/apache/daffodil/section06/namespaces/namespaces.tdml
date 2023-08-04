@@ -715,8 +715,7 @@
 
   <tdml:parserTestCase name="long_chain_05" root="rabbitHole5"
                        model="multi_base_03.dfdl.xsd"
-                       description="import a schema - DFDL-6-007R"
-                       diagnosticsStripLocationInfo="false">
+                       description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[5632]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
@@ -1010,8 +1009,7 @@
         the
         error messages to specifically mention this file, not just show that
         it was included. -->
-      <tdml:error>file:</tdml:error>
-      <tdml:error>subfolder/multi_C_06_nons.dfdl.xsd</tdml:error>
+      <tdml:error>multi_C_06_nons.dfdl.xsd</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2144,8 +2142,7 @@
   -->
   <tdml:parserTestCase name="junkAnnotation01" root="x"
                        model="junk-annotation-01.dfdl.xsd"
-                       description="Diagnostic provides proper line number and file when a junk annotation is found - DFDL-6-007R"
-                       diagnosticsStripLocationInfo="false">
+                       description="Diagnostic provides proper line number and file when a junk annotation is found - DFDL-6-007R">
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
@@ -2211,12 +2208,11 @@
 
   <tdml:parserTestCase name="errorLocations_01" root="rabbitHole"
                        model="multi_base_13.dfdl.xsd"
-                       description="import a schema - DFDL-6-007R"
-                       diagnosticsStripLocationInfo="false">
+                       description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[temp]]></tdml:document>
       <tdml:errors>
         <tdml:error>nonExistent</tdml:error>
-        <tdml:error>namespaces/multi_C_13.dfdl.xsd</tdml:error>
+        <tdml:error>multi_C_13.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   

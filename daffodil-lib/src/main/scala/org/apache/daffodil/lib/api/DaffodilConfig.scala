@@ -22,6 +22,7 @@ import scala.xml.Elem
 import scala.xml.Node
 
 import org.apache.daffodil.lib.externalvars.Binding
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -66,9 +67,13 @@ object DaffodilConfig {
     }
   }
 
-  def fromURI(uri: URI) = fromSchemaSource(URISchemaSource(uri))
+  def fromURI(uri: URI) = fromSchemaSource(
+    URISchemaSource(Misc.uriToDiagnosticFile(uri), uri),
+  )
 
-  def fromFile(file: File) = fromURI(file.toURI)
+  def fromFile(file: File) = fromSchemaSource(
+    URISchemaSource(file, file.toURI),
+  )
 
 }
 

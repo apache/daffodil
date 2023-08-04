@@ -20,6 +20,7 @@ package org.apache.daffodil.core.processor
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream
 import java.io.OutputStreamWriter
+import java.nio.file.Paths
 import scala.xml.Elem
 
 import org.apache.daffodil.core.compiler.Compiler
@@ -58,10 +59,20 @@ object TestSAXUtils {
 
   lazy val loader = new DaffodilXMLLoader()
 
+  lazy val qualifiedWithNestedSchemasFilePath =
+    "/test/example_nested_namespaces_qualified.dfdl.xsd"
   lazy val qualifiedWithNestedSchemasFile =
-    Misc.getRequiredResource("/test/example_nested_namespaces_qualified.dfdl.xsd")
+    Misc.getRequiredResource(qualifiedWithNestedSchemasFilePath)
   lazy val qualifiedWithNestedSchemasElem: Elem =
-    loader.load(URISchemaSource(qualifiedWithNestedSchemasFile), None).asInstanceOf[Elem]
+    loader
+      .load(
+        URISchemaSource(
+          Paths.get(qualifiedWithNestedSchemasFilePath).toFile,
+          qualifiedWithNestedSchemasFile,
+        ),
+        None,
+      )
+      .asInstanceOf[Elem]
   lazy val dpQualifiedWithNestedSchemas: DataProcessor = testDataProcessor(
     qualifiedWithNestedSchemasElem,
   )
@@ -132,10 +143,19 @@ object TestSAXUtils {
   lazy val nillableElementExpectedString: String = nillableElementExpectedInfoset.toString()
   lazy val nillableElementData: String = "^.-3.*4.7"
 
+  private val unqualifiedNoNamespacesFilePath = "/test/example_no_targetnamespace.dfdl.xsd"
   lazy val unqualifiedNoNamespacesFile =
-    Misc.getRequiredResource("/test/example_no_targetnamespace.dfdl.xsd")
+    Misc.getRequiredResource(unqualifiedNoNamespacesFilePath)
   lazy val unqualifiedNoNamespacesElem: Elem =
-    loader.load(URISchemaSource(unqualifiedNoNamespacesFile), None).asInstanceOf[Elem]
+    loader
+      .load(
+        URISchemaSource(
+          Paths.get(unqualifiedNoNamespacesFilePath).toFile,
+          unqualifiedNoNamespacesFile,
+        ),
+        None,
+      )
+      .asInstanceOf[Elem]
 
   /**
    * For an unqualified schemas with no targetnamespace and no default namespace, which means its
@@ -158,10 +178,20 @@ object TestSAXUtils {
     unqualifiedNoNamespacesExpectedInfoset.toString()
   lazy val unqualifiedNoNamespacesData: String = "world.no.^.tea"
 
+  lazy val unqualifiedWithNestedQualifiedFilePath =
+    "/test/example_nested_namespaces_unqualified.dfdl.xsd"
   lazy val unqualifiedWithNestedQualifiedFile =
-    Misc.getRequiredResource("/test/example_nested_namespaces_unqualified.dfdl.xsd")
+    Misc.getRequiredResource(unqualifiedWithNestedQualifiedFilePath)
   lazy val unqualifiedWithNestedQualifiedElem: Elem =
-    loader.load(URISchemaSource(unqualifiedWithNestedQualifiedFile), None).asInstanceOf[Elem]
+    loader
+      .load(
+        URISchemaSource(
+          Paths.get(unqualifiedWithNestedQualifiedFilePath).toFile,
+          unqualifiedWithNestedQualifiedFile,
+        ),
+        None,
+      )
+      .asInstanceOf[Elem]
 
   /**
    * For an unqualified schemas with a targetnamespace and no default namespace, which means its
@@ -197,10 +227,20 @@ object TestSAXUtils {
     unqualifiedWithNestedQualifiedExpectedInfoset.toString()
   lazy val unqualifiedWithNestedQualifiedData: String = "hello.^.bye"
 
+  private val qualifiedWithDefaultNamespaceFilePath =
+    "/test/example_c02_targetnamespace_qualified.dfdl.xsd"
   lazy val qualifiedWithDefaultNamespaceFile =
-    Misc.getRequiredResource("/test/example_c02_targetnamespace_qualified.dfdl.xsd")
+    Misc.getRequiredResource(qualifiedWithDefaultNamespaceFilePath)
   lazy val qualifiedWithDefaultNamespaceElem: Elem =
-    loader.load(URISchemaSource(qualifiedWithDefaultNamespaceFile), None).asInstanceOf[Elem]
+    loader
+      .load(
+        URISchemaSource(
+          Paths.get(qualifiedWithDefaultNamespaceFilePath).toFile,
+          qualifiedWithDefaultNamespaceFile,
+        ),
+        None,
+      )
+      .asInstanceOf[Elem]
   lazy val dpQualifiedWithDefaultNamespaceSchemas: DataProcessor = testDataProcessor(
     qualifiedWithDefaultNamespaceElem,
   )
@@ -213,11 +253,19 @@ object TestSAXUtils {
     qualifiedWithDefaultNamespaceExpectedInfoset.toString()
   lazy val qualifiedWithDefaultNamespaceData: String = "hello"
 
+  private val qualifiedWithDefaultAndNestedSchemasFilePath =
+    "/test/example_nested_namespaces_qualified_with_default.dfdl.xsd"
   lazy val qualifiedWithDefaultAndNestedSchemasFile =
-    Misc.getRequiredResource("/test/example_nested_namespaces_qualified_with_default.dfdl.xsd")
+    Misc.getRequiredResource(qualifiedWithDefaultAndNestedSchemasFilePath)
   lazy val qualifiedWithDefaultAndNestedSchemasElem: Elem =
     loader
-      .load(URISchemaSource(qualifiedWithDefaultAndNestedSchemasFile), None)
+      .load(
+        URISchemaSource(
+          Paths.get(qualifiedWithDefaultAndNestedSchemasFilePath).toFile,
+          qualifiedWithDefaultAndNestedSchemasFile,
+        ),
+        None,
+      )
       .asInstanceOf[Elem]
   lazy val dpQualifiedWithDefaultAndNestedSchemas: DataProcessor = testDataProcessor(
     qualifiedWithDefaultAndNestedSchemasElem,

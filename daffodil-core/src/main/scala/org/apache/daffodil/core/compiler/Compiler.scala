@@ -325,7 +325,7 @@ class Compiler private (
     optRootName: Option[String] = None,
     optRootNamespace: Option[String] = None,
   ): ProcessorFactory = {
-    val source = URISchemaSource(file.toURI)
+    val source = URISchemaSource(file, file.toURI)
     compileSource(source, optRootName, optRootNamespace)
   }
 

@@ -96,7 +96,7 @@ final class SchemaSet private (
   val schemaSource: DaffodilSchemaSource,
   val shouldValidateDFDLSchemas: Boolean,
   val checkAllTopLevel: Boolean,
-  override val tunables: DaffodilTunables,
+  val tunables: DaffodilTunables,
 ) extends SchemaComponentImpl(<schemaSet/>, None)
   with SchemaSetIncludesAndImportsMixin
   with SchemaSetGrammarMixin {
@@ -138,6 +138,8 @@ final class SchemaSet private (
    * and as such, doesn't need to be a URL.  Can just be String.
    */
   override lazy val uriString: String = schemaSource.uriForLoading.toString
+
+  override lazy val diagnosticFile: File = schemaSource.diagnosticFile
 
   override def warn(th: Diagnostic) = oolagWarn(th)
 
