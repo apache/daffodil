@@ -244,4 +244,8 @@ class TestNamespaces {
   @Test def test_complexIncludesNamespaces_02(): Unit = {
     runner2.runOneTest("complexIncludesNamespaces_02")
   }
+
+  @Test def test_deprecatedSchemaLocation01(): Unit = {
+    runner3.runOneTest("deprecatedSchemaLocation01")
+  }
 }

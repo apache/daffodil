@@ -18,6 +18,10 @@
 package org.apache.daffodil.lib.xml
 
 import java.io.File
+import java.io.IOException
+import java.net.URI
+import java.net.URISyntaxException
+import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -1298,6 +1302,127 @@ Differences were (path, expected, actual):
         Maybe.One(nsb.prefix)
       }
     } else maybePrefix(nsb.parent, uri)
+  }
+
+  /**
+   * Resolves an xs:include/xs:import schemaLocation to a URI
+   *
+   * Attempts to resolve a schemaLocation using a provided URI and contextURI, where the context
+   * is the URI of the schema importing this schemaLocation.
+   *
+   * If schemaLocation is not a valid URI, an IllegalArgumentException is thrown.
+   *
+   * If schemaLocation is not an absolute URI, then only the path component should be provided,
+   * or an IllegalArgumentException is thrown.
+   *
+   * If schemaLocation is not an absolute URI, and the path component is relative, then
+   * optContextURI must be provided or a usage exception is thrown.
+   *
+   * Returns None if this fails to resolve the schemaLocation to a URI that exists. If this
+   * successfully resolves, it returns a Some containing a tuple of the URI and a boolean that
+   * is true if a relative schemaLocation path was resolved absolutely on the classpath, and
+   * false otherwise. A boolean value of true indicates that a fallback behavior was used for
+   * backwards compatibility with older versions of Daffodil. The ability to resolve relative
+   * URIs absolutely, and the associated boolean, may be removed in the future.
+   */
+  def resolveSchemaLocation(
+    schemaLocation: String,
+    optContextURI: Option[URI],
+  ): Option[(URI, Boolean)] = {
+    val uri =
+      try {
+        new URI(schemaLocation)
+      } catch {
+        case e: URISyntaxException =>
+          throw new IllegalArgumentException(
+            "schemaLocation is not a valid URI: " + schemaLocation,
+            e,
+          )
+      }
+
+    val uriIsJustPathComponent =
+      uri.getScheme == null &&
+        uri.getAuthority == null &&
+        uri.getQuery == null &&
+        uri.getFragment == null &&
+        uri.getPath != null
+
+    val optResolved =
+      if (uri.isAbsolute) {
+        // an absolute URI is one with a scheme. In this case, we expect to be able to resolve
+        // the URI and do not try anything else (e.g. filesystem, classpath). Since this function
+        // is for schemaLocation attributes, we may eventually want to disallow this, and only
+        // allow relative URIs (i.e. URIs without a scheme). We do have some places that use
+        // absolute URIs in includes/imports and cannot remove this yet.
+        try {
+          uri.toURL.openStream.close
+          Some(uri, false)
+        } catch {
+          case e: IOException => None
+        }
+      } else if (!uriIsJustPathComponent) {
+        // this is not an absolute URI so we don't have a scheme. This should just be a path, so
+        // throw an IllegalArgumentException if that's not the case
+        val msg =
+          s"Non-absolute schemaLocation URI can only contain a path component: $schemaLocation"
+        throw new IllegalArgumentException(msg)
+      } else if (uri.getPath.startsWith("/")) {
+        // The None.orElse{ ... }.orElse { ... } pattern below is useful to evaluate each
+        // alternative way to resolve a schema location, stopping only when a Some is returned.
+        // This makes for easily adding/removing/reordering resolution approaches by changing
+        // orElse blocks
+        val optResolvedAbsolute = None
+          .orElse {
+            // Search for the schemaLocation on the classpath. The schemaLocation path is
+            // absolute so we can use it as-is so getResource does not care what package this
+            // class is in.
+            val resource = this.getClass.getResource(uri.getPath)
+            if (resource != null) Some((resource.toURI, false)) else None
+          }
+          .orElse {
+            // Search for the schemaLocation path on the file system. This path is absolute so it
+            // must exist. If it does not exist, this orElse block results in a None
+            val file = Paths.get(uri.getPath).toFile
+            if (file.exists) Some((file.toURI, false)) else None
+          }
+        optResolvedAbsolute
+      } else {
+        // the schema location is a relative path, we must have a context resolve it
+        Assert.usage(optContextURI.isDefined)
+        val contextURI = optContextURI.get
+        val optResolvedRelative = None
+          .orElse {
+            // This is a relative path, so look up the schemaLocation path relative to the
+            // context. Note that URI.resolve does not support opaque URIs, and the context
+            // parameter is often an opaque "jar" URI if the context resolved to a file inside a
+            // jar on the classpath. Instead we can use the URL constructor to resolve the
+            // relative path, which does support opaque URIs for supported schemes (jar and
+            // file). Unfortunately, the only way to test for URL existence is to open a stream
+            // to that resulting URL and see if an exception is thrown or not
+            val resolvedURL = new URL(contextURI.toURL, uri.getPath)
+            try {
+              resolvedURL.openStream.close
+              Some((resolvedURL.toURI, false))
+            } catch {
+              case e: IOException => None
+            }
+          }
+          .orElse {
+            // The user might have meant an absolute schemaLocation but left off the leading
+            // slash accidentally. Past versions of Daffodil allowed this, so we allow it too,
+            // but return a boolean if a relative path was found absolutely so callers can warn
+            // if needed. Future versions of Daffodil may want to remove this orElse block so we
+            // are strict about how absolute vs relative schemaLocations are resolved.
+            val resource = this.getClass.getResource("/" + uri.getPath)
+            if (resource != null) {
+              Some((resource.toURI, true))
+            } else {
+              None
+            }
+          }
+        optResolvedRelative
+      }
+    optResolved
   }
 }
 

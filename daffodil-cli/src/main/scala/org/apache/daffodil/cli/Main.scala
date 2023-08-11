@@ -63,6 +63,7 @@ import org.apache.daffodil.lib.util.Timer
 import org.apache.daffodil.lib.validation.Validators
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.debugger.DebuggerExitException
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
@@ -226,14 +227,52 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
   implicit def rootNSConverter = org.rogach.scallop.singleArgConverter[RefQName](qnameConvert _)
 
   implicit def fileResourceURIConverter = singleArgConverter[URI]((s: String) => {
-    val file = new File(s)
-    val uri =
-      if (file.isFile()) {
-        Some(file.toURI)
-      } else {
-        Misc.getResourceRelativeOption(s, None)
+    val optResolved =
+      try {
+        val uri =
+          if (File.separatorChar == '/' || s.startsWith("/")) {
+            // This is either a non-Windows system or a resource on the classpath. Either way we
+            // assume it is a valid URI except for things like spaces, which this URI
+            // constructor converts. We do not specify a schema since this might be a relative
+            // path
+            new URI(null, s, null)
+          } else {
+            // This is a Windows system, which has complex path resolution and paths that are
+            // not valid URIs. Try to convert it to a relative URI where possible, otherwise we
+            // settle for an absolute URI
+            val p = Paths.get(s)
+            if (p.isAbsolute() || s.startsWith("\\")) {
+              // if the Windows path is absolute (i.e. starts with a drive letter and colon) or
+              // starts with a backslash (which resolves relative to the current drive instead
+              // of the current working directory), then there is no valid relative URI
+              // representation, so we just convert it to an absolute URI
+              p.toUri
+            } else {
+              // this Windows path is relative to the current working directory. We can convert
+              // it to a relative URI by just switching all the path separators. We do not
+              // specify a schema since this is a relative path
+              new URI(null, s.replace('\\', '/'), null)
+            }
+          }
+        // At this point we have a valid URI, which could be absolute or relative, with relative
+        // URIs resolved from the current working directory. We can convert this to a string and
+        // pass it to resolveSchemaLocation to find the actual file or resource
+        val cwd = Paths.get("").toUri
+        XMLUtils.resolveSchemaLocation(uri.toString, Some(cwd))
+      } catch {
+        case _: Exception => throw new Exception(s"Could not find file or resource $s")
       }
-    uri.getOrElse(throw new Exception("Could not find file or resource %s".format(s)))
+    optResolved match {
+      case Some((uri, relToAbs)) => {
+        if (relToAbs) {
+          Logger.log.warn(s"Found relative path on classpath absolutely, did you mean /$s")
+        }
+        uri
+      }
+      case None => {
+        throw new Exception(s"Could not find file or resource $s")
+      }
+    }
   })
 
   printedName = "Apache Daffodil"
