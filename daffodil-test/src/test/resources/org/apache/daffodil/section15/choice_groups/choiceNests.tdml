@@ -30,7 +30,7 @@
   <tdml:defineSchema name="choiceNest" xmlns:ex="http://example.com"
     elementFormDefault="unqualified">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineVariable name="captureUnknown" type="xs:boolean" external="true"

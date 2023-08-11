@@ -29,7 +29,7 @@
 
   <tdml:defineSchema name="s1" xmlns="http://www.w3.org/2001/XMLSchema"
                      elementFormDefault="unqualified" useDefaultNamespace="false">
-    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format
       ref="ex:GeneralFormat"
       representation="text"
@@ -316,7 +316,7 @@
 
   <tdml:defineSchema name="zoned1" xmlns="http://www.w3.org/2001/XMLSchema"
                      elementFormDefault="unqualified" useDefaultNamespace="false">
-    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format
       ref="ex:GeneralFormat"
       representation="text"

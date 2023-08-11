@@ -24,14 +24,14 @@
 
   <tdml:defineSchema name="embeddedWithImport">
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
-      schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+      schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" />
     <dfdl:format ref="gpf:GeneralPurposeFormat" />
     <xs:element name="basic" type="xs:string"
       dfdl:lengthKind="delimited" />
   </tdml:defineSchema>
 
   <tdml:defineSchema name="embeddedWithInclude">
-    <xs:include schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+    <xs:include schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" />
     <dfdl:format ref="GeneralPurposeFormat" />
     <xs:element name="basic" type="xs:string"
       dfdl:lengthKind="delimited" />
@@ -44,11 +44,11 @@
       textNumberRep="standard" lengthKind="delimited" encoding="ASCII" />
 
     <xs:import namespace="http://a01.com"
-      schemaLocation="org/apache/daffodil/section06/namespaces/multi_A_01.dfdl.xsd" />
+      schemaLocation="/org/apache/daffodil/section06/namespaces/multi_A_01.dfdl.xsd" />
     <xs:import namespace="http://b01.com"
-      schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_01.dfdl.xsd" />
+      schemaLocation="/org/apache/daffodil/section06/namespaces/multi_B_01.dfdl.xsd" />
     <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
-      schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+      schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" />
 
     <xs:element name="choice01">
       <xs:complexType>

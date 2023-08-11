@@ -21,7 +21,7 @@
            targetNamespace="http://foo.bar.com/v1"
            xmlns:myns="http://foo.bar.com/v1">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:format ref="GeneralFormat"/>

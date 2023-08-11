@@ -36,7 +36,7 @@ class PadCharacter {
       <tdml:testSuite suiteName="PadCharTests" description="Section 13 - Pad Character Tests"
                       xmlns:tdml={tdml} xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:tns={tns}>
         <tdml:defineSchema name="padCharSchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
           <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
           <xs:element name="shortForm" type="xs:string" dfdl:textStringPadCharacter=" " />
         </tdml:defineSchema>
@@ -64,7 +64,7 @@ class PadCharacter {
       <tdml:testSuite suiteName="PadCharTests" description="Section 13 - Pad Character Tests"
                       xmlns:tdml={tdml} xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:tns={tns}>
         <tdml:defineSchema name="padCharSchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
           <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
           <xs:element name="longForm" type="xs:string">
             <xs:annotation>
@@ -99,7 +99,7 @@ class PadCharacter {
       <tdml:testSuite suiteName="PadCharTests" description="Section 13 - Pad Character Tests"
                       xmlns:tdml={tdml} xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:tns={tns}>
         <tdml:defineSchema name="padCharSchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
           <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
           <xs:element name="propertyForm" type="xs:string">
             <xs:annotation>

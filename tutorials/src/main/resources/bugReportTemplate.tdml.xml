@@ -38,11 +38,11 @@
   -->
 
   <tdml:defineSchema name="bug01Schema" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
    <xs:import 
      namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
-     schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" /> 
+     schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" /> 
      
     <dfdl:defineFormat name="myFormat">
       <dfdl:format  ref="gpf:GeneralPurposeFormat"

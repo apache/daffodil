@@ -35,7 +35,7 @@
   </tdml:defineConfig>
   
   <tdml:defineSchema name="simple">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="implicit" occursCountKind="parsed" />
     <xs:element name="USG_01">
@@ -108,7 +108,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="simple_min_max_occurs">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="implicit" occursCountKind="parsed" />
     <xs:element name="USG_01">
@@ -193,7 +193,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="array_reference">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="implicit" occursCountKind="parsed" />
     <xs:element name="USG_01">
@@ -271,7 +271,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="simple_delimited">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" occursCountKind="parsed" />
     <xs:element name="USG_01">
@@ -311,7 +311,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="simple_nil">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="implicit" nilValueDelimiterPolicy="none" occursCountKind="parsed"/>
     <xs:element name="USG_01">
@@ -352,7 +352,7 @@
 
 
   <tdml:defineSchema name="simple_optional">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="implicit" nilValueDelimiterPolicy="none" occursCountKind="parsed"/>
     <xs:element name="USG_01">
@@ -393,7 +393,7 @@
 
 
   <tdml:defineSchema name="simple_invalid_path_to_branch">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" occursCountKind="parsed" />
     <xs:element name="USG_01">
@@ -470,7 +470,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="nested_paths">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" occursCountKind="parsed" />
     <xs:element name="USG_01">
@@ -632,7 +632,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="simple_sdes_1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" occursCountKind="parsed" />
 
@@ -664,7 +664,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="simple_sdes_2">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" />
 
@@ -692,7 +692,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="simple_sdes_3">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" />
 
@@ -755,7 +755,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="separated">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" occursCountKind="parsed" />
     <xs:element name="infix">
@@ -866,7 +866,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="empty_seq">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" occursCountKind="parsed" />
     <xs:element name="empty">
@@ -889,7 +889,7 @@
   
   
   <tdml:defineSchema name="initiated_content">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthUnits="characters"
       lengthKind="delimited" occursCountKind="parsed" />
     <xs:element name="R" dfdl:terminator="FINAL">

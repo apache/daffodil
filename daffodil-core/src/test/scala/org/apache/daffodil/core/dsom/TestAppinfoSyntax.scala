@@ -45,7 +45,7 @@ class TestAppinfoSyntax {
     val sc = <xs:schema xmlns:xs={
       xsd
     } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI}>
-               <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+               <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <xs:annotation>
                  <xs:appinfo source={dfdl} foo:nonNativeAttribute1={expected}>
                    <dfdl:format ref="GeneralFormat"/>
@@ -81,7 +81,7 @@ class TestAppinfoSyntax {
     val sc = <xs:schema xmlns:xs={
       xsd
     } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI}>
-               <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+               <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <xs:annotation>
                  <xs:appinfo source={dfdl} foo:nonNativeAttribute1={expected}>
                    <dfdl:format ref="GeneralFormat"/>
@@ -128,7 +128,7 @@ class TestAppinfoSyntax {
     val sc = <xs:schema xmlns:xs={
       xsd
     } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI}>
-               <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+               <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <xs:annotation>
                  <xs:appinfo source={dfdl} foo:nonNativeAttribute1={expected}>
                    <dfdl:format ref="GeneralFormat"/>
@@ -166,7 +166,7 @@ class TestAppinfoSyntax {
     val sc = <xs:schema xmlns:xs={
       xsd
     } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI} xmlns:bar={nnURI2}>
-               <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+               <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <xs:annotation>
                  <xs:appinfo source={nnURI} foo:nonNativeAttribute1={expected}>
                    <!-- since the source is not DFDL's, this should be completely ignored. -->
@@ -212,7 +212,7 @@ class TestAppinfoSyntax {
       xsd
     } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo={nnURI}>
                <!-- This is a comment -->
-               <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+               <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                <!-- This is a comment -->
                <xs:annotation>
                  <!-- This is a comment -->

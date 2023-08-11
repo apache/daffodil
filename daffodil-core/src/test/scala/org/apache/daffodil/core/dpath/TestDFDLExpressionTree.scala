@@ -36,7 +36,7 @@ class TestDFDLExpressionTree extends Parsers {
   val qn = GlobalQName(Some("daf"), "testExpr", XMLUtils.dafintURI)
 
   val dummySchema = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="title" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>,
   )
@@ -85,7 +85,7 @@ class TestDFDLExpressionTree extends Parsers {
   }
 
   val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="bookstore">
       <xs:complexType>
@@ -103,7 +103,7 @@ class TestDFDLExpressionTree extends Parsers {
   )
 
   val aSchema = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:string(xs:unsignedInt(5)) }"/>,
   )
@@ -130,7 +130,7 @@ class TestDFDLExpressionTree extends Parsers {
   }
 
   val bSchema = SchemaUtils.dfdlTestSchemaUnqualified(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="b">
       <xs:complexType>

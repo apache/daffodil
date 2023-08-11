@@ -34,7 +34,7 @@ class TestIsScannable {
 
   @Test def testIsScannableAllText1(): Unit = {
     val sc = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="utf-8"/>,
       <xs:element name="list">
         <xs:complexType>
@@ -65,7 +65,7 @@ class TestIsScannable {
 
   @Test def testIsScannableHasBinary1(): Unit = {
     val sc = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list">
         <xs:complexType>
@@ -100,7 +100,7 @@ class TestIsScannable {
 
   @Test def testIsScannableDifferentEncodings1(): Unit = {
     val sc = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="utf-8"/>,
       <xs:element name="list">
         <xs:complexType>

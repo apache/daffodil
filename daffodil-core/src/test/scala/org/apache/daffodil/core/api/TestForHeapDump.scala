@@ -54,7 +54,7 @@ class TestForHeapDump {
    */
   def getDataProcWithInclude() = {
     val sch = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       rootElem,
       elementFormDefault = "unqualified",

@@ -22,7 +22,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" calendarPatternKind="explicit"/>
 
     <xs:element name="r">
@@ -79,7 +79,7 @@
 
 
   <tdml:defineSchema name="s2" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" calendarPatternKind="explicit"/>
 
     <xs:element name="r">
@@ -138,7 +138,7 @@
     </tdml:tutorial>
 
   <tdml:defineSchema name="s3" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" calendarPatternKind="explicit"/>
 
      <xs:element name="r">

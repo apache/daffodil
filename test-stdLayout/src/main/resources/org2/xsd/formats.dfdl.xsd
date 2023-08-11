@@ -23,7 +23,7 @@
   <!-- No target namespace. Intended to be used from an xs:include -->
   <!-- element of a schema that has a target namespace.            -->
   
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">

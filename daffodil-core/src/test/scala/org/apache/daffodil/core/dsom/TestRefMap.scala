@@ -33,7 +33,7 @@ class TestRefMap {
 
   @Test def testRefMapEmpty(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>,
     )
@@ -51,7 +51,7 @@ class TestRefMap {
 
   @Test def testRefMapComplex1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="ex:ct"/>
         <xs:complexType name="ct">
@@ -77,7 +77,7 @@ class TestRefMap {
 
   @Test def testRefMapGroupRefSeq1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="ex:ct"/>
         <xs:complexType name="ct">
@@ -112,7 +112,7 @@ class TestRefMap {
 
   @Test def testRefMapGroupRefChoice1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="ex:ct"/>
         <xs:complexType name="ct">
@@ -148,7 +148,7 @@ class TestRefMap {
 
   @Test def testRefMapGroupRefNest1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="ex:ct"/>
         <xs:complexType name="ct">
@@ -195,7 +195,7 @@ class TestRefMap {
 
   @Test def testRefMapNonExplosion1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="ex:ct"/>
         <xs:complexType name="ct">
@@ -245,7 +245,7 @@ class TestRefMap {
 
   @Test def testRefMapExplosion2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="ex:ct"/>
         <xs:complexType name="ct">
@@ -297,7 +297,7 @@ class TestRefMap {
 
   @Test def testRefMapExplosion3(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r">
         <xs:complexType>
@@ -351,7 +351,7 @@ class TestRefMap {
 
   @Test def testRefMapExplosion4(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e5">
         <xs:complexType>
@@ -413,7 +413,7 @@ class TestRefMap {
 
   @Test def testRefMapExplosion5(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e6">
         <xs:complexType>
@@ -483,7 +483,7 @@ class TestRefMap {
 
   @Test def testRefMapExplosion6(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e7">
         <xs:complexType>
@@ -561,7 +561,7 @@ class TestRefMap {
 
   @Test def testRefMapExplosion7(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e8">
         <xs:complexType>
@@ -657,7 +657,7 @@ class TestRefMap {
    */
   @Test def testUnusedGroup1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
       <xs:element name="r" type="ex:ct"/>
         <xs:complexType name="ct">
@@ -703,7 +703,7 @@ class TestRefMap {
   }
 
   lazy val testRootPathsSchema1 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
     //
     // note that the first element below will be the root element.
@@ -813,7 +813,7 @@ class TestRefMap {
   }
 
   lazy val testRootPathsSchema2 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
     //
     // note that the first element below will be the root element.
@@ -851,7 +851,7 @@ class TestRefMap {
   }
 
   lazy val testRootPathsSchema3 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
     //
     // note that the first element below will be the root element.

@@ -41,7 +41,7 @@ import org.xml.sax.Locator
 
 object TestSAXUtils {
   lazy val testSchema1: Elem = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">

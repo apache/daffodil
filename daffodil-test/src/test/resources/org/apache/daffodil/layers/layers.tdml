@@ -23,7 +23,7 @@
   xmlns:ex="http://example.com" xmlns:tns="http://example.com" defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" />
     </dfdl:defineFormat>
@@ -94,7 +94,7 @@
 
 
   <tdml:defineSchema name="s2" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
     </dfdl:defineFormat>
@@ -174,7 +174,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="s3" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
     </dfdl:defineFormat>
@@ -218,7 +218,7 @@
 
   
   <tdml:defineSchema name="err1" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" />
     </dfdl:defineFormat>
@@ -251,7 +251,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s4" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="general">
       <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" outputNewLine="%CR;%LF;" dfdlx:layerEncoding="iso-8859-1"
         dfdlx:layerLengthUnits='bytes' />

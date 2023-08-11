@@ -21,7 +21,7 @@
   xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
-    schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+    schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" />
   <xsd:element dfdl:terminator="%NL;" ibmSchExtn:docRoot="true"
     name="ABC">
     <xsd:complexType>

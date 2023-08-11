@@ -59,7 +59,7 @@
   -->
 
   <tdml:defineSchema name="length">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="GeneralFormat" representation="binary"/>
     <xs:element name="e1">
       <xs:complexType>

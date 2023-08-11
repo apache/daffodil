@@ -24,7 +24,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="simpleAssert">
@@ -524,7 +524,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
@@ -719,7 +719,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="literalTextMatch">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
     <xs:element name="root">
       <xs:complexType>
@@ -835,7 +835,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="s2">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -1125,7 +1125,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s3">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator="+"
       terminator=";" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
@@ -1252,7 +1252,7 @@
   </tdml:parserTestCase>
 
  <tdml:defineSchema name="s4">
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <dfdl:format
    ref="ex:GeneralFormat"
    lengthKind="delimited" />
@@ -1320,7 +1320,7 @@
  
  
  <tdml:defineSchema name="assertsWithMessageExpression">
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <dfdl:format
    ref="ex:GeneralFormat"
    lengthKind="delimited" />

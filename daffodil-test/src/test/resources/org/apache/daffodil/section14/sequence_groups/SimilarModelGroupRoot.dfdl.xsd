@@ -33,7 +33,7 @@
   targetNamespace="http://example.com"
   elementFormDefault="unqualified">
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
   <xs:include schemaLocation="SimilarModelGroupElement1.dfdl.xsd" />
   <xs:include schemaLocation="SimilarModelGroupElement2.dfdl.xsd" />
 

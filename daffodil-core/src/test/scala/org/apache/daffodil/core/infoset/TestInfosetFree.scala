@@ -119,7 +119,7 @@ class TestInfosetFree {
 
   @Test def testInfosetFree1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
       <dfdl:format ref="tns:GeneralFormat" />,
       <xs:element name="root">
         <xs:complexType>
@@ -146,7 +146,7 @@ class TestInfosetFree {
 
   @Test def testInfosetFree2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
       <dfdl:format ref="tns:GeneralFormat" />,
       <xs:group name="hidden">
         <xs:sequence>
@@ -176,7 +176,7 @@ class TestInfosetFree {
 
   @Test def testInfosetFree3(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
       <dfdl:format ref="tns:GeneralFormat" />,
       <xs:element name="root">
         <xs:complexType>
@@ -205,7 +205,7 @@ class TestInfosetFree {
 
   @Test def testInfosetFree4(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
       <dfdl:format ref="tns:GeneralFormat" />,
       <xs:element name="root">
         <xs:complexType>
@@ -241,7 +241,7 @@ class TestInfosetFree {
 
   @Test def testInfosetFree5(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />,
       <dfdl:format ref="tns:GeneralFormat" />,
       <xs:element name="root">
         <xs:complexType>

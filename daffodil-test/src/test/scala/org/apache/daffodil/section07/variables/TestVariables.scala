@@ -178,7 +178,7 @@ class TestVariables {
       dfdl
     } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
-        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <dfdl:defineVariable name="pi" type="xs:double" defaultValue={Pi.toString}/>
         <xs:element name="data" type="xs:double" dfdl:inputValueCalc="{ $tns:pi }"/>
@@ -205,7 +205,7 @@ class TestVariables {
       dfdl
     } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
-        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <dfdl:defineVariable name="x" type="xs:double"/>
         <xs:element name="data">

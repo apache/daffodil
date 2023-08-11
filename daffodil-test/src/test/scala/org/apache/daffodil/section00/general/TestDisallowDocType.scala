@@ -98,7 +98,7 @@ class TestDisallowDocType {
   @Test
   def testExternalVariablesFileMustNotHaveDocType(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
       <xs:element name="e1" type="xs:string"/>,
     )

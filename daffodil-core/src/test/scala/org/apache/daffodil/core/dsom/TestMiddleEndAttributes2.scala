@@ -26,7 +26,7 @@ class TestMiddleEndAttributes2 {
 
   @Test def testNestedSequencePrefixSep() = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" encoding="US-ASCII"/>,
       <xs:element name="e1">
         <xs:complexType>

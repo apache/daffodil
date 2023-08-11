@@ -26,7 +26,7 @@
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="embeddedWithInclude">
-    <xs:include schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+    <xs:include schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" />
     <dfdl:format ref="GeneralPurposeFormat"/>
     <xs:element name="basic" type="xs:string" dfdl:lengthKind="delimited"/>
   </tdml:defineSchema>

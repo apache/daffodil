@@ -32,7 +32,7 @@
 			defaultValue="42" external="true" />
 		<dfdl:defineVariable name="myVar1" type="xs:int"
 			defaultValue="6" external="true" />
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="accessPreDefs">
@@ -109,7 +109,7 @@
 			defaultValue="42" external="true" />
 		<dfdl:defineVariable name="myVar1" type="xs:int"
 			defaultValue="6" external="true" />
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="c">
@@ -204,7 +204,7 @@
 			defaultValue="42" external="true" />
 		<dfdl:defineVariable name="myVar1" type="xs:int"
 			defaultValue="6" />
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="c">
@@ -255,7 +255,7 @@
 			defaultValue="42" external="true" />
 		<dfdl:defineVariable name="myVar1" type="xs:int"
 			defaultValue="6" />
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="c">
@@ -291,7 +291,7 @@
 			external="true">73</dfdl:defineVariable>
 		<dfdl:defineVariable name="v_with_global_default"
 			type="xsd:int" defaultValue="15" external="true" />
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
 		<xs:element name="c">
@@ -338,7 +338,7 @@
   <tdml:defineSchema name="v5">
     <dfdl:defineVariable name="v_with_default" type="xsd:int"
       defaultValue="1" external="true" />
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="c">

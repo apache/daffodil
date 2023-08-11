@@ -41,7 +41,7 @@ class TestSerialization {
         xmlns:ex="http://example.com"
         targetNamespace="http://example.com"
       >
-        <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <annotation>
           <!-- The invalid appinfo source generates a warning -->
           <appinfo source="http://www.ogf.org/dfdl/WRONG">

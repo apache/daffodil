@@ -28,7 +28,7 @@
 
   <tdml:defineSchema name="lengthKindPrefixed-text.dfdl.xsd">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format ref="ex:GeneralFormat"
       representation="text"
@@ -259,7 +259,7 @@
 
   <tdml:defineSchema name="lengthKindPrefixed-bin.dfdl.xsd">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format ref="ex:GeneralFormat"
       representation="binary"
@@ -424,7 +424,7 @@
 
   <tdml:defineSchema name="lengthKindPrefixed-sde.dfdl.xsd">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format ref="ex:GeneralFormat"
       prefixIncludesPrefixLength="no" />
@@ -2172,7 +2172,7 @@
                      useDefaultNamespace="false"
                      elementFormDefault="unqualified">
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
   <dfdl:format ref="ex:GeneralFormat"
                representation="binary"
@@ -2434,7 +2434,7 @@
                      useDefaultNamespace="false"
                      elementFormDefault="unqualified">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format ref="ex:GeneralFormat"
                  representation="binary"
@@ -2554,7 +2554,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidLengthUnits_prefixed">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="Binary">
       <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
     </dfdl:defineFormat>
@@ -2594,7 +2594,7 @@
   using invalid bit lengths, and there is one check for an invalid byte length.
   -->
   <tdml:defineSchema name="invalidUnsignedLongBitLength">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:simpleType name="prefixedUnsignedLong"
@@ -2623,7 +2623,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidUnsignedLongByteLength">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:simpleType name="prefixedUnsignedLong"
@@ -2652,7 +2652,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidUnsignedIntBitLength">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:simpleType name="prefixedUnsignedInt"
@@ -2681,7 +2681,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidUnsignedShortBitLength">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:simpleType name="prefixedUnsignedShort"
@@ -2710,7 +2710,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidUnsignedByteBitLength">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:simpleType name="prefixedUnsignedByte"
@@ -2739,7 +2739,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidLongBitLength">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:simpleType name="prefixedLong"
@@ -2768,7 +2768,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidIntBitLength">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:simpleType name="prefixedInt"
@@ -2797,7 +2797,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidShortBitLength">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:simpleType name="prefixedShort"
@@ -2826,7 +2826,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="invalidByteBitLength">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <xs:simpleType name="prefixedByte"

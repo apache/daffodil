@@ -26,7 +26,7 @@
 	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
 	attributeFormDefault="unqualified" >
 	
-	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+	<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 	
 	<!--
 		7.1.3.1 Representation Property Binding Syntax: Attribute  Form spec v.40

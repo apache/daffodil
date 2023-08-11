@@ -53,7 +53,7 @@ class TestExternalVariables {
 
   def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:GeneralFormat"/>) = {
     lazy val sch = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="tns:fakeCT"/>
@@ -77,7 +77,7 @@ class TestExternalVariables {
 
   def generateTestSchema(topLevelAnnotations: Seq[Node]) = {
     val sch = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="tns:fakeCT"/>
@@ -103,7 +103,7 @@ class TestExternalVariables {
     hasDefaultNamespace: Boolean = true,
   ) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:import schemaLocation={importSchemaLocation} namespace=""/>
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
@@ -127,7 +127,7 @@ class TestExternalVariables {
 
   def generateTestSchemaNoTarget(topLevelAnnotations: Seq[Node]) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="fakeCT"/>
@@ -149,7 +149,7 @@ class TestExternalVariables {
 
   def generateTestSchemaVmap(topLevelAnnotations: Seq[Node], theTargetNS: String) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"
         dfdl:inputValueCalc="{ $ex:var1 }" />,

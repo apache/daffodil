@@ -23,7 +23,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   elementFormDefault="unqualified">
   
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
