@@ -55,7 +55,7 @@ abstract class PackedBinaryDecimalBaseParser(
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {
-      PENotEnoughBits(start, nBits, dis.remainingBits)
+      PENotEnoughBits(start, nBits, dis)
       return
     }
 
@@ -83,7 +83,7 @@ abstract class PackedBinaryIntegerBaseParser(
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {
-      PENotEnoughBits(start, nBits, dis.remainingBits)
+      PENotEnoughBits(start, nBits, dis)
       return
     }
 

@@ -87,6 +87,7 @@ class RuntimeSchemaDefinitionError(
 }
 
 class RuntimeSchemaDefinitionWarning(
+  warnID: WarnID,
   schemaContext: SchemaFileLocation,
   runtimeContext: ParseOrUnparseState,
   kind: String,
@@ -96,7 +97,7 @@ class RuntimeSchemaDefinitionWarning(
     Some(runtimeContext),
     None,
     Nope,
-    Maybe(kind),
+    Maybe(kind + s" (id: ${warnID})"),
     args: _*,
   ) {
 
@@ -106,6 +107,7 @@ class RuntimeSchemaDefinitionWarning(
 }
 
 class SchemaDefinitionWarning(
+  warnID: WarnID,
   schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],
   kind: String,
@@ -115,15 +117,16 @@ class SchemaDefinitionWarning(
     None,
     annotationContext,
     Nope,
-    Maybe(kind),
+    Maybe(kind + s" (id: ${warnID})"),
     args: _*,
   ) {
 
-  def this(sc: SchemaFileLocation, kind: String, args: Any*) =
-    this(Some(sc), None, kind, args: _*)
+  def this(w: WarnID, sc: SchemaFileLocation, kind: String, args: Any*) =
+    this(w, Some(sc), None, kind, args: _*)
 
   override def isError = false
   def modeName = "Schema Definition"
+
 }
 
 class ValidationError(
@@ -255,6 +258,7 @@ trait ImplementsThrowsOrSavesSDE extends ImplementsThrowsSDE with SavesErrorsAnd
   def SDW(warnID: WarnID, fmt: String, args: Any*): Unit = {
     if (tunable.notSuppressedWarning(warnID)) {
       val sdw = new SchemaDefinitionWarning(
+        warnID,
         Some(schemaFileLocation),
         NoAnnotationContext,
         fmt,

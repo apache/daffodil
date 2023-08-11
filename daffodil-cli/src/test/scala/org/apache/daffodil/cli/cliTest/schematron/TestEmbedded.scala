@@ -148,4 +148,15 @@ class TestEmbedded {
         cli.expectErr("Validation Error")
     }(ExitCode.ParseError)
   }
+
+  @Test def testRelativeImport(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/relative-import.dfdl.xsd")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(schema.toString)}" -s $schema""") {
+      cli =>
+        cli.sendLine("not-valid-uuid-field-lengths", inputDone = true)
+        cli.expect("</uuid>")
+        cli.expectErr("Validation Error: uuid wrong length")
+    }(ExitCode.ParseError)
+  }
 }

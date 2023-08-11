@@ -22,11 +22,11 @@
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="tns:GeneralFormatPortable"
+      <dfdl:format ref="tns:GeneralFormat"
         representation="binary"
         encodingErrorPolicy="replace" />
     </appinfo>

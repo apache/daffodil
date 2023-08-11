@@ -561,17 +561,11 @@ abstract class ParseOrUnparseState protected (
     diagnostics = rsde :: diagnostics
   }
 
-  final def SDW(str: String, args: Any*) = {
-    val ctxt = getContext()
-    val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
-    diagnostics = rsdw :: diagnostics
-  }
-
   final def SDW(warnID: WarnID, str: String, args: Any*) = {
     if (tunable.notSuppressedWarning(warnID)) {
       val ctxt = getContext()
       val rsdw =
-        new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
+        new RuntimeSchemaDefinitionWarning(warnID, ctxt.schemaFileLocation, this, str, args: _*)
       diagnostics = rsdw :: diagnostics
     }
   }

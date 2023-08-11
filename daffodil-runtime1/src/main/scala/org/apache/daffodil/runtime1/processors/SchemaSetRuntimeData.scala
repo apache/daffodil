@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.runtime1.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.runtime1.processors.parsers.Parser
@@ -26,11 +25,6 @@ import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 final class SchemaSetRuntimeData(
   val parser: Parser,
   val unparser: Unparser,
-  /*
-   * Memory of the compiler's warnings. If we save a processor, it's useful to be able
-   * to have these warnings.
-   */
-  val diagnostics: Seq[Diagnostic],
   val elementRuntimeData: ElementRuntimeData,
   /*
    * The original variables determined by the schema compiler.

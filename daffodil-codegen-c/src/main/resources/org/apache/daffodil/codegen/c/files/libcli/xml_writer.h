@@ -33,7 +33,7 @@ typedef struct XMLWriter
     c_stack_t               stack;
 } XMLWriter;
 
-// XMLWriter methods to pass to walkInfoset method
+// XMLWriter methods to pass to walk_infoset method
 
 extern const VisitEventHandler xmlWriterMethods;
 

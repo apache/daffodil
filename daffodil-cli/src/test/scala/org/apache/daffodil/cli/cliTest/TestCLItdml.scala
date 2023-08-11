@@ -110,12 +110,52 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
+  @Test def test_CLI_Tdml_Trace_singleTest(): Unit = {
+    val tdml = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+    )
+
+    runCLI(args"-t test $tdml byte_entities_6_08") { cli =>
+      cli.expect("parser:")
+      cli.expect("bitPosition:")
+      cli.expect("data:")
+      cli.expect("[Pass] byte_entities_6_08")
+    }(ExitCode.Success)
+  }
+
+  @Test def test_CLI_Tdml_Debug_singleTest(): Unit = {
+    val tdml = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+    )
+
+    runCLI(args"-d test $tdml byte_entities_6_08") { cli =>
+      cli.expect("(debug)")
+      cli.sendLine("continue")
+      cli.expect("[Pass] byte_entities_6_08")
+    }(ExitCode.Success)
+  }
+
+  @Test def test_CLI_Tdml_DebugFile_singleTest(): Unit = {
+    val tdml = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+    )
+    val debugFile = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/debug.txt",
+    )
+
+    runCLI(args"-d $debugFile test $tdml byte_entities_6_08") { cli =>
+      cli.expect("(debug)")
+      cli.expect("Usage:")
+      cli.expect("[Pass] byte_entities_6_08")
+    }(ExitCode.Success)
+  }
+
   @Test def test_CLI_catch_TestNotCompatible(): Unit = {
     val tdml = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/testNonCompatibleImplementation.tdml",
     )
 
-    runCLI(args"test -iii $tdml testNotCompatibleImplementation1") { cli =>
+    runCLI(args"test $tdml testNotCompatibleImplementation1") { cli =>
       cli.expect(
         "[Skipped] testNotCompatibleImplementation1 (not compatible with implementation: daffodil)",
       )

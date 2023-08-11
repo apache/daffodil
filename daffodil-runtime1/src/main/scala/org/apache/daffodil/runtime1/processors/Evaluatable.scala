@@ -451,7 +451,7 @@ trait ExprEvalMixin[T <: AnyRef]
  * of the property.
  */
 abstract class EvaluatableExpression[ExprType <: AnyRef](
-  override protected val expr: CompiledExpression[ExprType],
+  override val expr: CompiledExpression[ExprType],
   ci: DPathCompileInfo,
 ) extends Evaluatable[ExprType](ci)
   with ExprEvalMixin[ExprType] {

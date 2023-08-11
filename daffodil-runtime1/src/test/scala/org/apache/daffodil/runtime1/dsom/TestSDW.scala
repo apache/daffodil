@@ -15,31 +15,23 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.validation.schematron
+package org.apache.daffodil.runtime1.dsom
 
-import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.lib.api.ValidatorInitializationException
+import org.apache.daffodil.lib.api.WarnID
 
+import org.junit.Assert._
 import org.junit.Test
 
-class TestUriResolver {
-  @Test def testExists(): Unit = {
-    ClassPathUriResolver("sch").resolve("schematron-1.sch", null)
-  }
+class TestSDW {
 
-  @Test def testFallback(): Unit = {
-    ClassPathUriResolver("foo", ClassPathUriResolver("sch")).resolve("schematron-1.sch", null)
-  }
-
-  @Test def testFileNotFound(): Unit = {
-    intercept[ValidatorInitializationException] {
-      ClassPathUriResolver("foo").resolve("bar.sch", null)
-    }
-  }
-
-  @Test def testFallbackNotFound(): Unit = {
-    intercept[ValidatorInitializationException] {
-      ClassPathUriResolver("foo", ClassPathUriResolver("foo2")).resolve("bar.sch", null)
-    }
+  @Test def testSDWMessage() = {
+    val sdw = new SchemaDefinitionWarning(
+      WarnID.DeprecatedBuiltInFormats,
+      None,
+      None,
+      "test message",
+    )
+    val expected = "Schema Definition Warning: test message (id: deprecatedBuiltInFormats)"
+    assertEquals(expected, sdw.getMessage)
   }
 }

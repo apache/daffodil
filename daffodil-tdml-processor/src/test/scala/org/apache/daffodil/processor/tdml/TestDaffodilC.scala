@@ -219,7 +219,6 @@ class TestDaffodilC {
       case Left(diagnostics) => fail(s"getProcessor failed: ${diagnostics.mkString}")
       case Right((diagnostics, tdmlDFDLProcessor)) =>
         assert(diagnostics.isEmpty)
-        assert(!tdmlDFDLProcessor.isError)
         assert(tdmlDFDLProcessor.isInstanceOf[DaffodilCTDMLDFDLProcessor])
     }
   }

@@ -116,9 +116,9 @@ abstract class InputSource {
    *
    * This should not be used to determine the length of the data, as more bytes
    * may become available in the future. This should really only be used for
-   * debug purposes.
+   * debug or diagnostic purposes.
    */
-  def bytesAvailable(): Long
+  def knownBytesAvailable(): Long
 
   /**
    * Return a single byte at the current byte position with a value in the
@@ -396,7 +396,7 @@ class BucketingInputSource(
    * Calculate how many bytes are currently buffered starting from the current
    * position
    */
-  def bytesAvailable(): Long = {
+  def knownBytesAvailable(): Long = {
     var available = 0L
     val (curBucketIndex, curByteIndex) = bytePositionToIndicies(curBytePosition0b)
 
@@ -528,7 +528,7 @@ class BucketingInputSource(
    * buckets arraybuffer does not grow too big. This will move all existing
    * buckets to the front of the buckets ArrayBuffer and update offsets
    * accordingly. This way, there are not a bunch of null empty buckets at the
-   * front of the buckets array taking up space. 
+   * front of the buckets array taking up space.
    */
   def compact(): Unit = {
     releaseBuckets()
@@ -559,7 +559,7 @@ class ByteBufferInputSource(byteBuffer: ByteBuffer) extends InputSource {
     bb.remaining >= nBytes
   }
 
-  def bytesAvailable(): Long = {
+  def knownBytesAvailable(): Long = {
     bb.remaining
   }
 

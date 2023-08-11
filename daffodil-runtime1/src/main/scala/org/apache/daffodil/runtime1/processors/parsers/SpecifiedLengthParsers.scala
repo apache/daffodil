@@ -67,7 +67,7 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser, erd: RuntimeDat
     }
 
     if (shouldCheckDefinedForLength && !dis.isDefinedForLength(nBits)) {
-      PENotEnoughBits(pState, nBits, dis.remainingBits)
+      PENotEnoughBits(pState, nBits, dis)
       return
     }
 
@@ -96,7 +96,7 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser, erd: RuntimeDat
       // skip left over bits
       val skipSuccess = dis.skip(bitsToSkip, pState)
       if (!skipSuccess) {
-        PENotEnoughBits(pState, bitsToSkip, dis.remainingBits)
+        PENotEnoughBits(pState, bitsToSkip, dis)
       }
     }
   }

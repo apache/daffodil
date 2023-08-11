@@ -18,7 +18,7 @@
 package org.apache.daffodil.io
 
 import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.exceptions.Abort
+import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.lib.util.MaybeULong
 
 import org.junit.Assert._
@@ -107,7 +107,7 @@ class TestInputSourceDataInputStream2 {
     assertEquals(81, dis.bitLimit1b.get)
     assertEquals(10, dis.bytePos0b)
     dis.reset(m1)
-    intercept[Abort] {
+    intercept[UsageException] {
       dis.reset(m2)
     }
   }

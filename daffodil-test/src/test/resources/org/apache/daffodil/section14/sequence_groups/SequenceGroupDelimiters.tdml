@@ -629,6 +629,22 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="policyNeverOptionalStringArray">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:sequenceKind="ordered" dfdl:separatorSuppressionPolicy="never">
+          <xs:element name="A" type="xs:string" minOccurs="0" maxOccurs="5" dfdl:occursCountKind="implicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="policyNeverOptionalIntArray">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:sequenceKind="ordered" dfdl:separatorSuppressionPolicy="never">
+          <xs:element name="A" type="xs:int" minOccurs="0" maxOccurs="5" dfdl:occursCountKind="implicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="separatorSuppressionPolicy_never" model="separatorSuppressionPolicy">
@@ -641,10 +657,90 @@
         <tns:policyNever>
           <tns:A>Hello</tns:A>
           <tns:B>world</tns:B>
-          <tns:C></tns:C>
         </tns:policyNever>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="separatorSuppressionPolicy_never_optionalStringArray_1" model="separatorSuppressionPolicy">
+    <tdml:document><![CDATA[1,2,3,4,5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:policyNeverOptionalStringArray>
+          <A>1</A>
+          <A>2</A>
+          <A>3</A>
+          <A>4</A>
+          <A>5</A>
+        </tns:policyNeverOptionalStringArray>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="separatorSuppressionPolicy_never_optionalStringArray_2" model="separatorSuppressionPolicy">
+    <tdml:document><![CDATA[,,,,]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:policyNeverOptionalStringArray />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="separatorSuppressionPolicy_never_optionalStringArray_3" model="separatorSuppressionPolicy" root="policyNeverOptionalStringArray">
+    <tdml:document><![CDATA[,,,]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>maxOccurs</tdml:error>
+      <tdml:error>required</tdml:error>
+      <tdml:error>separatorSuppressionPolicy</tdml:error>
+      <tdml:error>never</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="separatorSuppressionPolicy_never_optionalIntArray_1" model="separatorSuppressionPolicy">
+    <tdml:document><![CDATA[1,2,3,4,5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:policyNeverOptionalIntArray>
+          <A>1</A>
+          <A>2</A>
+          <A>3</A>
+          <A>4</A>
+          <A>5</A>
+        </tns:policyNeverOptionalIntArray>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="separatorSuppressionPolicy_never_optionalIntArray_2" model="separatorSuppressionPolicy">
+    <tdml:document><![CDATA[,,,,]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:policyNeverOptionalIntArray />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="separatorSuppressionPolicy_never_optionalIntArray_3" model="separatorSuppressionPolicy" root="policyNeverOptionalIntArray">
+    <tdml:document><![CDATA[1,a,3,4,5]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>maxOccurs</tdml:error>
+      <tdml:error>required</tdml:error>
+      <tdml:error>separatorSuppressionPolicy</tdml:error>
+      <tdml:error>never</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="separatorSuppressionPolicy_never_optionalIntArray_4" model="separatorSuppressionPolicy" root="policyNeverOptionalIntArray">
+    <tdml:document><![CDATA[1,2,3,4]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>maxOccurs</tdml:error>
+      <tdml:error>required</tdml:error>
+      <tdml:error>separatorSuppressionPolicy</tdml:error>
+      <tdml:error>never</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

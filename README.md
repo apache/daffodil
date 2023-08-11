@@ -65,9 +65,9 @@ Run unit tests:
 
     sbt test
 
-Run command line interface tests:
+Run slower integration tests:
 
-    sbt IntegrationTest/test
+    sbt daffodil-test-integration/test
 
 ### Command Line Interface
 
@@ -88,7 +88,7 @@ if any unapproved licenses are found):
 
 Run [sbt-scoverage] (report in `target/scala-ver/scoverage-report/`):
 
-    sbt clean coverage test IntegrationTest/test
+    sbt clean coverage test daffodil-test-integration/test
     sbt coverageAggregate
 
 ## Getting Help

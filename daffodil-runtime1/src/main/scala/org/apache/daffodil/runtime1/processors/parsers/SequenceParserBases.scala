@@ -245,6 +245,7 @@ abstract class SequenceParserBase(
 
             } // end while for each repeat
             parser.endArray(pstate)
+            parser.arrayCompleteChecks(pstate, resultOfTry, priorResultOfTry)
           } // end match case RepeatingChildParser
 
           case nonRepresentedParser: NonRepresentedSequenceChildParser => {
@@ -402,7 +403,7 @@ abstract class SequenceParserBase(
         pstate.walker.walk()
       }
 
-      if (child ne null) child.finalChecks(pstate, resultOfTry, priorResultOfTry)
+      if (child ne null) child.sequenceCompleteChecks(pstate, resultOfTry, priorResultOfTry)
       ()
     } finally {
       pstate.mpstate.groupIndexStack.pop()

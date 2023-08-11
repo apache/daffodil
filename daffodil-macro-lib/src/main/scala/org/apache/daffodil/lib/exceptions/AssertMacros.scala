@@ -28,7 +28,17 @@ object AssertMacros {
 
     q"""
     if (!($testAbortsIfFalse)) {
-         Assert.abort2("Usage error: " + $message, $testAsString)
+         Assert.usageError2("Usage error: " + $message, $testAsString)
+    }
+    """
+  }
+
+  def usageMacro2Cause(c: Context)(testAbortsIfFalse: c.Tree, cause: c.Tree): c.Tree = {
+    import c.universe._
+
+    q"""
+    if (!($testAbortsIfFalse)) {
+         Assert.usageError($cause)
     }
     """
   }
@@ -40,7 +50,7 @@ object AssertMacros {
 
     q"""
     if (!($testAbortsIfFalse)) {
-         Assert.abort("Usage error: " + $testAsString)
+         Assert.usageError("Usage error: " + $testAsString)
     }
     """
   }
@@ -100,5 +110,4 @@ object AssertMacros {
     }
     """
   }
-
 }

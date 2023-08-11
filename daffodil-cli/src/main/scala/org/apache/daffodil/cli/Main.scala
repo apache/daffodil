@@ -93,7 +93,10 @@ import org.xml.sax.InputSource
 import org.xml.sax.SAXParseException
 import org.xml.sax.helpers.XMLReaderFactory
 
-class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
+class ScallopExitException(val exitCode: Int) extends Exception
+
+class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream)
+  extends scallop.ScallopConf(arguments) {
 
   /**
    * This is used when the flag is optional and so is its
@@ -250,6 +253,12 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments) {
       }
     throw new GenericScallopException(msg)
   }
+
+  exitHandler = int => throw new ScallopExitException(int)
+
+  stdoutPrintln = string => stdout.println(string)
+
+  stderrPrintln = string => stderr.println(string)
 
   banner("""|Usage: daffodil [GLOBAL_OPTS] <subcommand> [SUBCOMMAND_OPTS]
             |
@@ -1038,7 +1047,7 @@ class Main(
   }
 
   def runIgnoreExceptions(arguments: Array[String]): ExitCode.Value = {
-    val conf = new CLIConf(arguments)
+    val conf = new CLIConf(arguments, STDOUT, STDERR)
 
     // Set the log level to whatever was parsed by the options
     setLogLevel(conf.verbose())
@@ -1138,7 +1147,7 @@ class Main(
                         if (loc.bitLimit0b.isDefined) {
                           (loc.bitLimit0b.get - loc.bitPos0b).toString
                         } else {
-                          "at least " + (inStream.inputSource.bytesAvailable * 8)
+                          "at least " + (inStream.inputSource.knownBytesAvailable * 8)
                         }
                       Logger.log.error(
                         s"Left over data after consuming 0 bits while streaming. Stopped after consuming ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining.",
@@ -1176,7 +1185,7 @@ class Main(
                       dumpString
                     } else ""
                     val curBytePosition1b = inStream.inputSource.position + 1
-                    val bytesAvailable = inStream.inputSource.bytesAvailable
+                    val bytesAvailable = inStream.inputSource.knownBytesAvailable
                     val bytesLimit = math.min(8, bytesAvailable).toInt
                     val destArray = new Array[Byte](bytesLimit)
                     val destArrayFilled = inStream.inputSource.get(destArray, 0, bytesLimit)
@@ -1309,8 +1318,8 @@ class Main(
               }
             }
 
-            val nullChannelForUnparse = Channels.newChannel(NullOutputStream.NULL_OUTPUT_STREAM)
-            val nullOutputStreamForParse = NullOutputStream.NULL_OUTPUT_STREAM
+            val nullChannelForUnparse = Channels.newChannel(NullOutputStream.INSTANCE)
+            val nullOutputStreamForParse = NullOutputStream.INSTANCE
 
             val NSConvert = 1000000000.0
             val (totalTime, results) = Timer.getTimeResult({
@@ -1516,7 +1525,28 @@ class Main(
 
         val tdmlFile = testOpts.tdmlfile()
         val optTDMLImplementation = testOpts.implementation.toOption
-        val tdmlRunner = Runner(tdmlFile, optTDMLImplementation)
+        val tdmlRunnerInit = Runner(tdmlFile, optTDMLImplementation)
+
+        val tdmlRunner = if (conf.trace() || conf.debug.isDefined) {
+          val db = if (conf.trace()) {
+            new TraceDebuggerRunner(STDOUT)
+          } else {
+            if (System.console == null) {
+              Logger.log.warn(
+                s"Using --debug on a non-interactive console may result in display issues",
+              )
+            }
+            conf.debug() match {
+              case Some(f) => new CLIDebuggerRunner(new File(f), STDIN, STDOUT)
+              case None => new CLIDebuggerRunner(STDIN, STDOUT)
+            }
+          }
+          val id = new InteractiveDebugger(db, ExpressionCompilers)
+          tdmlRunnerInit.setDebugger(id)
+          tdmlRunnerInit
+        } else {
+          tdmlRunnerInit
+        }
 
         val tests = {
           if (testOpts.testnames.isDefined) {
@@ -1618,7 +1648,7 @@ class Main(
                         fail += 1
                         if (testOpts.info() > 0) {
                           STDOUT.println("  Failure Information:")
-                          STDOUT.println(indent(e.getMessage(), 4))
+                          STDOUT.println(indent(e.toString, 4))
                         }
                         if (testOpts.info() > 1) {
                           STDOUT.println("  Backtrace:")
@@ -1654,9 +1684,9 @@ class Main(
 
       // Get our generate options from whichever language we're generating
       case Some(conf.generate) => {
+        // Determine which language we've generating
         val generateOpts = conf.generate.subcommand match {
           case Some(conf.generate.c) => conf.generate.c
-
           // Required to avoid "match may not be exhaustive", but should never happen
           case _ => Assert.impossible()
         }
@@ -1866,6 +1896,9 @@ class Main(
         }
         case e: DebuggerExitException => {
           ExitCode.Failure
+        }
+        case e: ScallopExitException => {
+          ExitCode(e.exitCode)
         }
         case e: GenericScallopException => {
           Logger.log.error(e.message)

@@ -28,6 +28,12 @@ import org.junit.Test
 
 class TestCLIParsing {
 
+  @Test def test_CLI_help(): Unit = {
+    runCLI(args"parse --help") { cli =>
+      cli.expect("Usage: daffodil parse")
+    }(ExitCode.Success)
+  }
+
   @Test def test_3677_CLI_Parsing_elementFormDefault_qualified(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/elementFormDefaultQualified.dfdl.xsd",

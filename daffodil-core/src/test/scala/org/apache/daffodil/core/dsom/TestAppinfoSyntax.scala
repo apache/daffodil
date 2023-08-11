@@ -62,7 +62,7 @@ class TestAppinfoSyntax {
     val compiler = Compiler()
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
-    val Seq(a, _) = sch.schemaDocuments
+    val a = sch.schemaDocuments.head
     val Seq(ao: Elem) = a.dfdlAppInfos
     val Some(ns) = ao.attribute(nnURI, "nonNativeAttribute1")
     assertEquals(expected, ns.toString())
@@ -103,7 +103,7 @@ class TestAppinfoSyntax {
     val compiler = Compiler()
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
-    val Seq(a, _) = sch.schemaDocuments
+    val a = sch.schemaDocuments.head
     val Seq(ao: Elem, bo: Elem) = a.dfdlAppInfos
     val Some(anna) = ao.attribute(nnURI, "nonNativeAttribute1")
     val Some(bnna) = bo.attribute(nnURI, "nonNativeAttribute2")
@@ -146,7 +146,7 @@ class TestAppinfoSyntax {
     val compiler = Compiler()
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
-    val Seq(a, _) = sch.schemaDocuments
+    val a = sch.schemaDocuments.head
     val Seq(ao: Elem) = a.dfdlAppInfos
     val Some(anna) = ao.attribute(nnURI, "nonNativeAttribute1")
     assertEquals(expected, anna.toString())
@@ -192,7 +192,7 @@ class TestAppinfoSyntax {
     val compiler = Compiler()
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
-    val Seq(a, _) = sch.schemaDocuments
+    val a = sch.schemaDocuments.head
     val Seq(ao: Elem) = a.dfdlAppInfos
     val Some(anna) = ao.attribute(nnURI, "nonNativeAttribute1")
     assertEquals(expected, anna.toString())
@@ -242,7 +242,7 @@ class TestAppinfoSyntax {
     val compiler = Compiler()
     val sset = compiler.compileNode(sc).sset
     val Seq(sch) = sset.schemas
-    val Seq(a, _) = sch.schemaDocuments
+    val a = sch.schemaDocuments.head
     val Seq(ao: Elem) = a.dfdlAppInfos
     val Some(anna) = ao.attribute(nnURI, "nonNativeAttribute1")
     assertEquals(expected, anna.toString())

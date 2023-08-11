@@ -52,6 +52,6 @@ class TestVariableLen {
   @Test def c_expression_00(): Unit = { runnerC.runOneTest("expression_00") }
   @Test def c_expression_01(): Unit = { runnerC.runOneTest("expression_01") }
   @Test def c_expression_16(): Unit = { runnerC.runOneTest("expression_16") }
-  @Test def c_expression_17(): Unit = { runnerC.runOneTest("expression_17C") }
+  @Test def c_expression_17_error(): Unit = { runnerC.runOneTest("expression_17_error") }
   @Test def c_stopValue(): Unit = { runnerC.runOneTest("stopValue") }
 }

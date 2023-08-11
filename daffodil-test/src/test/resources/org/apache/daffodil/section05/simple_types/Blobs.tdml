@@ -38,15 +38,25 @@
 
   <tdml:defineSchema name="Blob.dfdl.xsd">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
 
-    <dfdl:format ref="ex:GeneralFormatPortable"
+    <dfdl:format ref="ex:GeneralFormat"
       representation="binary"
       encodingErrorPolicy="replace" />
 
     <xs:element name="blob_01" type="xs:anyURI"
       dfdl:lengthKind="explicit" dfdl:length="4"
       dfdlx:objectKind="bytes" />
+
+    <xs:element name="blob_01_complex" dfdl:lengthKind="explicit" dfdl:length="8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="blob_01" type="xs:anyURI"
+                      dfdl:lengthKind="explicit" dfdl:length="4"
+                      dfdlx:objectKind="bytes" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="blob_02" type="xs:anyURI"
       dfdl:lengthKind="explicit" dfdl:length="30" dfdl:lengthUnits="bits"
@@ -145,7 +155,29 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+  <tdml:parserTestCase name="blob_01_insufficient" root="blob_01" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1]]></tdml:documentPart>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Needed 32 bit(s)</tdml:error>
+      <tdml:error>found only 25</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="blob_01_insufficient_complex" root="blob_01_complex" model="Blob.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1]]></tdml:documentPart>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Needed 64 bit(s)</tdml:error>
+      <tdml:error>found only 25</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <!-- 30 bits of blob data, MSBF -->
   <tdml:parserTestCase name="blob_02" root="blob_02" model="Blob.dfdl.xsd">
     <tdml:document>

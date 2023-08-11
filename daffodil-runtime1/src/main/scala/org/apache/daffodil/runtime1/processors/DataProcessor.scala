@@ -28,6 +28,7 @@ import java.nio.file.Files
 import java.util.zip.GZIPOutputStream
 
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.runtime1.layers.LayerExecutionException
 
 object INoWarn4 {
@@ -137,6 +138,7 @@ class DataProcessor(
   val validationMode: ValidationMode.Type = ValidationMode.Off,
   protected val areDebugging: Boolean = false,
   protected val optDebugger: Option[Debugger] = None,
+  protected val diagnostics: Seq[Diagnostic] = Seq.empty,
 ) extends DFDL.DataProcessor
   with Serializable
   with MultipleEventHandler {
@@ -171,7 +173,16 @@ class DataProcessor(
     validationMode: ValidationMode.Type = validationMode,
     areDebugging: Boolean = areDebugging,
     optDebugger: Option[Debugger] = optDebugger,
-  ) = new DataProcessor(ssrd, tunables, variableMap, validationMode, areDebugging, optDebugger)
+    diagnostics: Seq[Diagnostic] = diagnostics,
+  ) = new DataProcessor(
+    ssrd,
+    tunables,
+    variableMap,
+    validationMode,
+    areDebugging,
+    optDebugger,
+    diagnostics,
+  )
 
   // This thread local state is used by the PState when it needs buffers for
   // regex matching. This cannot be in PState because a PState does not last
@@ -221,7 +232,7 @@ class DataProcessor(
 
   def withDebugger(dbg: AnyRef): DataProcessor = {
     val optDbg = if (dbg eq null) None else Some(dbg.asInstanceOf[Debugger])
-    copy(optDebugger = optDbg)
+    copy(areDebugging = optDbg.isDefined, optDebugger = optDbg)
   }
 
   def withDebugging(flag: Boolean): DataProcessor = {
@@ -261,7 +272,7 @@ class DataProcessor(
 
   override def isError = false
 
-  override def getDiagnostics = ssrd.diagnostics
+  override def getDiagnostics = diagnostics
 
   override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = {
     val xrdr = new DaffodilParseXMLReader(this)
@@ -295,6 +306,7 @@ class DataProcessor(
       variableMap = ssrd.originalVariables, // reset to original variables defined in schema
       validationMode =
         ValidationMode.Off, // explicitly turn off, so restored processor won't be validating
+      diagnostics = Seq.empty, // don't save any warnings that were generated
     )
 
     try {
@@ -328,8 +340,7 @@ class DataProcessor(
    * runtime. Instead we deal with success and failure statuses.
    */
   def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = {
-    Assert.usage(!this.isError)
-
+    checkNotError()
     // If full validation is enabled, tee all the infoset events to a second
     // infoset outputter that writes the infoset to a byte array, and then
     // we'll validate that byte array upon a successful parse.
@@ -345,6 +356,13 @@ class DataProcessor(
           val bos = new java.io.ByteArrayOutputStream()
           val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
           val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)
+          // copy the blob attributes from the users outputter to the tee infoset outputter
+          // since Daffodil will now use that to get blob attributes
+          teeOutputter.setBlobAttributes(
+            output.getBlobDirectory(),
+            output.getBlobPrefix(),
+            output.getBlobSuffix(),
+          )
           (teeOutputter, One(bos))
         case _ =>
           (output, Nope)
@@ -376,15 +394,16 @@ class DataProcessor(
         }
         res
       }
-      state.output.setBlobPaths(state.blobPaths)
+      // copy the blob paths we created to the users infoset outputter
+      output.setBlobPaths(state.blobPaths)
       new ParseResult(state, vr)
     } else {
       // failed, so delete all blobs that were created
       state.blobPaths.foreach { path =>
         Files.delete(path)
       }
-      // ensure the blob paths are empty in case of outputter reuse
-      state.output.setBlobPaths(Seq.empty)
+      // ensure the blob paths on the users infoset outputter are empty in case of reuse
+      output.setBlobPaths(Seq.empty)
       new ParseResult(state, None)
     }
     val s = state
@@ -489,7 +508,7 @@ class DataProcessor(
   }
 
   def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult = {
-    Assert.usage(!this.isError)
+    checkNotError()
     val outStream = java.nio.channels.Channels.newOutputStream(output)
     unparse(inputter, outStream)
   }

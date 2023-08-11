@@ -60,4 +60,18 @@ class TestValidating {
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
     }(ExitCode.Success)
   }
+
+  // fails to resolve included schema
+  @Test def failToResolve(): Unit = {
+    val schema = path("daffodil-schematron/src/test/resources/xsd/string.dfdl.xsd")
+    val schematron = path("daffodil-schematron/src/test/resources/sch/missing-include.sch")
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
+
+    runCLI(args"""parse --validate schematron="${jsonEscape(
+        schematron.toString,
+      )}" -s $schema $input""") { cli =>
+      cli.expectErr("Bad arguments")
+      cli.expectErr("does-no-exist/title-rules.sch")
+    }(ExitCode.Usage)
+  }
 }

@@ -16,12 +16,13 @@
  */
 
 // clang-format off
+#include <stdbool.h>          // for bool, true
 #include <stdio.h>            // for NULL, FILE, perror, fclose, fopen, stdin, stdout
 #include <string.h>           // for strcmp
 #include "cli_errors.h"       // for CLI_DIAGNOSTICS, CLI_FILE_CLOSE, CLI_FILE_OPEN
-#include "daffodil_getopt.h"  // for daffodil_cli, parse_daffodil_cli, daffodil_parse, daffodil_parse_cli, daffodil_unparse, daffodil_unparse_cli, DAFFODIL_PARSE, DAFFODIL_UNPARSE
+#include "daffodil_getopt.h"  // for daffodil_cli, daffodil_parse, daffodil_parse_cli, parse_daffodil_cli, daffodil_unparse, daffodil_unparse_cli, DAFFODIL_PARSE, DAFFODIL_UNPARSE
 #include "errors.h"           // for continue_or_exit, print_diagnostics, Error, Diagnostics, Error::(anonymous)
-#include "infoset.h"          // for walkInfoset, InfosetBase, PState, UState, flushUState, rootElement, ERD, VisitEventHandler
+#include "infoset.h"          // for get_infoset, walk_infoset, PState, UState, parse_data, unparse_infoset, InfosetBase, VisitEventHandler
 #include "xml_reader.h"       // for xmlReaderMethods, XMLReader
 #include "xml_writer.h"       // for xmlWriterMethods, XMLWriter
 // clang-format on
@@ -66,10 +67,9 @@ main(int argc, char *argv[])
     const Error *error = parse_daffodil_cli(argc, argv);
     continue_or_exit(error);
 
-    // Get our infoset ready
-    FILE *       input = stdin;
-    FILE *       output = stdout;
-    InfosetBase *root = rootElement();
+    // We will read from stdin and write to stdout unless overridden
+    FILE *input = stdin;
+    FILE *output = stdout;
 
     // Perform our command
     if (daffodil_cli.subcommand == DAFFODIL_PARSE)
@@ -79,14 +79,16 @@ main(int argc, char *argv[])
         output = fopen_or_exit(output, daffodil_parse.outfile, "w");
 
         // Parse the input file into our infoset
-        PState pstate = {input, 0, NULL, NULL, 0, 0};
-        root->erd->parseSelf(root, &pstate);
+        const bool   CLEAR_INFOSET = true;
+        InfosetBase *infoset = get_infoset(CLEAR_INFOSET);
+        PState       pstate = {input, 0, NULL, NULL, 0, 0};
+        parse_data(infoset, &pstate);
         print_diagnostics(pstate.diagnostics);
         continue_or_exit(pstate.error);
 
         // Visit the infoset and print XML from it
         XMLWriter xmlWriter = {xmlWriterMethods, output, {NULL, NULL, 0}};
-        error = walkInfoset((VisitEventHandler *)&xmlWriter, root);
+        error = walk_infoset((VisitEventHandler *)&xmlWriter, infoset);
         continue_or_exit(error);
 
         // Any diagnostics will fail the parse if validate mode is on
@@ -105,14 +107,15 @@ main(int argc, char *argv[])
         output = fopen_or_exit(output, daffodil_unparse.outfile, "w");
 
         // Initialize our infoset's values from the XML data
-        XMLReader xmlReader = {xmlReaderMethods, input, root, NULL, NULL};
-        error = walkInfoset((VisitEventHandler *)&xmlReader, root);
+        const bool   CLEAR_INFOSET = true;
+        InfosetBase *infoset = get_infoset(CLEAR_INFOSET);
+        XMLReader    xmlReader = {xmlReaderMethods, input, NULL, NULL};
+        error = walk_infoset((VisitEventHandler *)&xmlReader, infoset);
         continue_or_exit(error);
 
         // Unparse our infoset to the output file
         UState ustate = {output, 0, NULL, NULL, 0, 0};
-        root->erd->unparseSelf(root, &ustate);
-        flushUState(&ustate);
+        unparse_infoset(infoset, &ustate);
         print_diagnostics(ustate.diagnostics);
         continue_or_exit(ustate.error);
     }

@@ -25,8 +25,8 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormatPortable" lengthKind="implicit" representation="text"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" textNumberCheckPolicy="lax" ignoreCase="no" textNumberRep="standard"
         textPadKind="padChar" textTrimKind="padChar"/>
@@ -203,8 +203,8 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="SimpleTypes-binary">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormatPortable" representation="binary"
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"
       lengthUnits="bytes"
       textPadKind="padChar" textTrimKind="padChar" />
 
@@ -3683,6 +3683,18 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
+  <tdml:parserTestCase name="double_negativeZero" root="doubleText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R"
+    roundTrip="false">
+
+    <tdml:document><![CDATA[-0.0]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleText>-0.0</doubleText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="float_text" root="floatText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R"
     roundTrip="false">
@@ -5111,6 +5123,15 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="time33">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4" />
+          <xs:element name="e2" type="xs:time" minOccurs="0" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HHmm" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="44" 
@@ -5704,18 +5725,17 @@
      Test Name: dateEpochFillIn2
         Schema: dateTimeSchema
           Root: date28
-       Purpose: This test demonstrates that if a formatting character is not provided, the time is filled in with the epoch time.
+       Purpose: This test demonstrates that if a formatting character is not provided it is an SDE
 -->
   
   <tdml:parserTestCase name="dateEpochFillIn2" root="date28"
     model="dateTimeSchema" description="Section 13 Simple Types - epoch fill in - DFDL-13-164R">
 
     <tdml:document><![CDATA[]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <date28>1970-01-01</date28>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:calendarPatttern contains no pattern letters</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -7185,7 +7205,7 @@
   
   <!--
     Test name: time_calendarTimeZone_EST
-       Schema: constructorSchema
+       Schema: dateTimeSchema
          Root: time32
       Purpose: This test demonstrates the ability to construct a xs:time object
                with a time zone specified.
@@ -7206,6 +7226,46 @@
         </time32>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: time_optional_empty
+       Schema: dateTimeSchema
+         Root: time33
+      Purpose: This test demonstrates parsing an empty optional time field
+  -->
+
+  <tdml:parserTestCase name="time_optional_empty" root="time33" model="dateTimeSchema"
+    description="Section 13 - Simple Types - xs:time calendarTimeZone EST  - DFDL-13-XXXR">
+
+    <tdml:document>
+      <tdml:documentPart type="text">ABCD</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time33>
+          <e1>ABCD</e1>
+        </time33>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: time_optional_invalid
+       Schema: dateTimeSchema
+         Root: time33
+      Purpose: This test demonstrates parsing an non-well-formed optional time field
+  -->
+
+  <tdml:parserTestCase name="time_optional_nonWellFormed" root="time33" model="dateTimeSchema"
+    description="Section 13 - Simple Types - xs:time calendarTimeZone EST  - DFDL-13-XXXR">
+
+    <tdml:document>
+      <tdml:documentPart type="text">ABCDaaaa</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--
@@ -7337,18 +7397,18 @@
         Schema: dateTimeSchema
           Root: time23
        Purpose: This test demonstrates that for any pattern that omits components,
-                the values for the omitted components are supplied from the Unix epoch 1970-01-01T00:00:00.000
+                the values for the omitted components are supplied from the Unix epoch 1970-01-01T00:00:00.000.
+                It is an SDE if the property contains no pattern letters
 -->
   
   <tdml:parserTestCase name="epochFillIn2" root="time23"
     model="dateTimeSchema" description="Section 13 Simple Types - Patterns with ommitted components - DFDL-13-164R">
 
     <tdml:document><![CDATA[]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <time23>00:00:00</time23>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:calendarPatttern contains no pattern letters</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -7357,17 +7417,17 @@
           Root: time24
        Purpose: This test demonstrates that for any pattern that omits components,
                 the values for the omitted components are supplied from the Unix epoch 1970-01-01T00:00:00.000
+                It is an SDE if the property contains no pattern letters
 -->
   
   <tdml:parserTestCase name="epochFillIn3" root="time24"
     model="dateTimeSchema" description="Section 13 Simple Types - Patterns with ommitted components - DFDL-13-164R">
 
     <tdml:document><![CDATA[.]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <time24>00:00:00</time24>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:calendarPatttern contains no pattern letters</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--

@@ -112,8 +112,7 @@ abstract class RepeatingChildUnparser(
     }
 
     // State could be Success or Failure here.
-
-    endArray(state)
+    endArray(state, state.occursPos - 1)
   }
 
   /**

@@ -610,122 +610,95 @@ class OrderedSeparatedSequenceUnparser(
           state.arrayIterationIndexStack.push(1L)
           state.occursIndexStack.push(1L)
           val erd = unparser.erd
+          Assert.invariant(erd.isArray || erd.isOptional)
+          Assert.invariant(erd.isRepresented) // arrays/optionals cannot have inputValueCalc
+
           var numOccurrences = 0
           val maxReps = unparser.maxRepeats(state)
-          // val isBounded = unparser.isBoundedMax // not needed for the no-suppression case
 
-          //
-          // The number of occurrances we unparse is always exactly driven
-          // by the number of infoset events for the repeating/optional element.
-          //
-          // For RepUnparser - array/optional case - in all cases we should get a
-          // startArray event. If we don't then
-          // the element must be entirely optional, so we get no events for it
-          // at all.
-          //
+          Assert.invariant(state.inspect)
+          val ev = state.inspectAccessor
+          val isArr = erd.isArray
 
-          if (state.inspect) {
-            val ev = state.inspectAccessor
-            val isArr = erd.isArray
-            if (ev.isStart && (isArr || erd.isOptional)) {
-              if (ev.erd eq erd) {
-                //
-                // StartArray for this unparser's array element
-                //
-                unparser.startArrayOrOptional(state)
-                while ({
-                  doUnparser = unparser.shouldDoUnparser(unparser, state)
-                  doUnparser
-                }) {
-                  //
-                  // These are so we can check invariants on these stacks being
-                  // pushed and popped reliably, and incremented only once
-                  //
-                  val arrayIterationIndexBefore = state.arrayIterationPos
-                  val arrayIterationIndexStackDepthBefore =
-                    state.arrayIterationIndexStack.length
-                  val occursIndexBefore = state.occursPos
-                  val occursIndexStackDepthBefore = state.occursIndexStack.length
-                  val groupIndexBefore = state.groupPos
-                  val groupIndexStackDepthBefore = state.groupIndexStack.length
-
-                  Assert.invariant(
-                    erd.isRepresented,
-                  ) // since this is an array, can't have inputValueCalc
-
-                  if (isArr)
-                    if (state.dataProc.isDefined)
-                      state.dataProc.get.beforeRepetition(state, this)
-
-                  unparseOne(unparser, erd, state)
-                  numOccurrences += 1
-                  Assert.invariant(
-                    state.arrayIterationIndexStack.length == arrayIterationIndexStackDepthBefore,
-                  )
-                  state.moveOverOneArrayIterationIndexOnly()
-                  Assert.invariant(state.arrayIterationPos == arrayIterationIndexBefore + 1)
-
-                  Assert.invariant(state.occursIndexStack.length == occursIndexStackDepthBefore)
-                  state.moveOverOneOccursIndexOnly()
-                  Assert.invariant(state.occursPos == occursIndexBefore + 1)
-
-                  Assert.invariant(state.groupIndexStack.length == groupIndexStackDepthBefore)
-                  state.moveOverOneGroupIndexOnly() // array elements are always represented.
-                  Assert.invariant(state.groupPos == groupIndexBefore + 1)
-
-                  if (isArr)
-                    if (state.dataProc.isDefined)
-                      state.dataProc.get.afterRepetition(state, this)
-                }
-                //
-                // If not enough occurences in array, we output extra separators
-                //
-                if (maxReps > numOccurrences) {
-                  var numExtraSeps = erd.maxOccurs - numOccurrences
-                  while (numExtraSeps > 0) {
-                    unparseJustSeparator(state)
-                    numExtraSeps -= 1
-                  }
-                }
-                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
-                  state,
-                  unparser,
-                  numOccurrences,
-                  maxReps,
-                  state.arrayIterationPos - 1,
-                )
-                unparser.endArrayOrOptional(erd, state)
-              } else {
-                //
-                // start array for some other array. Not this one. So we
-                // don't unparse anything here, and we'll go on to the next
-                // sequence child, which hopefully will be a matching array.
-                //
-                Assert.invariant(erd.minOccurs == 0L)
-              }
-            } else if (ev.isStart) {
-              Assert.invariant(!ev.erd.isArray && !erd.isOptional)
-              //
-              // start of scalar.
-              // That has to be for a different element later in the sequence
-              // since this one has a RepUnparser (i.e., is NOT scalar)
-              //
-              val eventNQN = ev.erd.namedQName
-              Assert.invariant(eventNQN != erd.namedQName)
-            } else {
-              Assert.invariant(ev.isEnd && ev.erd.isComplexType)
-              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
-                state,
-                unparser,
-                numOccurrences,
-                maxReps,
-                0,
-              )
-            }
-          } else {
-            // no event (state.inspect returned false)
-            Assert.invariantFailed("No event for unparsing.")
+          // If the event is for this Rep unparser, we need to consume the StartArray event
+          if (ev.erd eq erd) {
+            unparser.startArrayOrOptional(state)
           }
+
+          // Unparse each occurrence of this array in the infoset. Note that there could be zero
+          // occurrences
+          while ({
+            doUnparser = unparser.shouldDoUnparser(unparser, state)
+            doUnparser
+          }) {
+            //
+            // These are so we can check invariants on these stacks being
+            // pushed and popped reliably, and incremented only once
+            //
+            val arrayIterationIndexBefore = state.arrayIterationPos
+            val arrayIterationIndexStackDepthBefore =
+              state.arrayIterationIndexStack.length
+            val occursIndexBefore = state.occursPos
+            val occursIndexStackDepthBefore = state.occursIndexStack.length
+            val groupIndexBefore = state.groupPos
+            val groupIndexStackDepthBefore = state.groupIndexStack.length
+
+            if (isArr && state.dataProc.isDefined)
+              state.dataProc.get.beforeRepetition(state, this)
+
+            unparseOne(unparser, erd, state)
+            numOccurrences += 1
+            Assert.invariant(
+              state.arrayIterationIndexStack.length == arrayIterationIndexStackDepthBefore,
+            )
+            state.moveOverOneArrayIterationIndexOnly()
+            Assert.invariant(state.arrayIterationPos == arrayIterationIndexBefore + 1)
+
+            Assert.invariant(state.occursIndexStack.length == occursIndexStackDepthBefore)
+            state.moveOverOneOccursIndexOnly()
+            Assert.invariant(state.occursPos == occursIndexBefore + 1)
+
+            Assert.invariant(state.groupIndexStack.length == groupIndexStackDepthBefore)
+            state.moveOverOneGroupIndexOnly() // array elements are always represented.
+            Assert.invariant(state.groupPos == groupIndexBefore + 1)
+
+            if (isArr && state.dataProc.isDefined)
+              state.dataProc.get.afterRepetition(state, this)
+          }
+
+          // If not enough occurrences are in the infoset, we output extra separators because
+          // we are unparsing with no suppression
+          if (maxReps > numOccurrences) {
+            var numExtraSeps = {
+              val sepsNeeded = erd.maxOccurs - numOccurrences
+              if ((spos eq Infix) && state.groupPos == 1) {
+                // If separatorPosition is infix and we haven't output anything for this sequence
+                // yet, then we need one less extra separator, since the separator is skipped
+                // for the first instance of infix separators.
+                sepsNeeded - 1
+              } else {
+                sepsNeeded
+              }
+            }
+            while (numExtraSeps > 0) {
+              unparseJustSeparator(state)
+              numExtraSeps -= 1
+            }
+          }
+
+          unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
+            state,
+            unparser,
+            numOccurrences,
+            maxReps,
+            state.arrayIterationPos - 1,
+          )
+
+          // If the event is for this Rep unparser, we need to consume the EndArray event
+          if (ev.erd eq erd) {
+            unparser.endArrayOrOptional(erd, state)
+          }
+
           state.arrayIterationIndexStack.pop()
           state.occursIndexStack.pop()
         }

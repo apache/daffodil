@@ -61,10 +61,10 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
     allSchemaFiles.map { _.iiSchemaDocument }
   }
 
-  lazy val allSchemaFiles = {
+  lazy val allSchemaFiles = LV('allSchemaFiles) {
     val fd = fakeXMLSchemaDocument // bootstrap
     val sa = fd.seenAfter
-    val first = sa.value.head._2
+    val first = sa.value.head._2.iiSchemaFile
     val sfl = sa.value.flatMap {
       case (_, ii) => {
         val sf =
@@ -94,6 +94,6 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
       }
     }.toList
     sfl
-  }
+  }.value
 
 }

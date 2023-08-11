@@ -366,6 +366,19 @@
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
+        <xs:element name="maxParentDirectoriesForDiagnostics" default="3" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              The maximum number of parent directories that show up for a file within a diagnostic
+              message.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:simpleType>
+            <xs:restriction base="xs:int">
+              <xs:minInclusive value="0" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
         <xs:element name="maxSkipLengthInBytes" default="1024" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -672,6 +685,7 @@
           <xs:enumeration value="appinfoDFDLSourceWrong" />
           <xs:enumeration value="appinfoNoSource" />
           <xs:enumeration value="choiceInsideHiddenGroup" />
+          <xs:enumeration value="codeGenerator" />
           <xs:enumeration value="deprecatedBigIntegerBits" />
           <xs:enumeration value="deprecatedBuiltInFormats" />
           <xs:enumeration value="deprecatedEncodingNameUSASCII7BitPacked" />
@@ -710,6 +724,8 @@
           <xs:enumeration value="unsupportedAttributeFinalDefault" />
           <xs:enumeration value="unsupportedAttributeFormDefault" />
           <xs:enumeration value="unsupportedAttributeSchemaLocation" />
+          <xs:enumeration value="variableSet" />
+          <xs:enumeration value="xmlParser" />
         </xs:restriction>
       </xs:simpleType>
     </xs:list>

@@ -62,6 +62,7 @@ object SeparatedSequenceChildBehavior {
   sealed abstract class PositionalLike extends Type
   sealed abstract class PositionalTrailing extends PositionalLike
   case object Positional extends PositionalLike
+  case object PositionalNever extends PositionalLike
   case object PositionalTrailingLax extends PositionalTrailing
   case object PositionalTrailingStrict extends PositionalTrailing
   case object NonPositional extends Type
@@ -94,7 +95,30 @@ trait SeparatedSequenceChildParseResultHelper extends SequenceChildParseResultHe
    * Define this as final here so we aren't creating proliferation of
    * traits/classes just for this one little issue.
    */
-  final override def finalChecks(
+  final def arrayCompleteChecks(
+    parser: SequenceChildParser,
+    pstate: PState,
+    resultOfTry: ParseAttemptStatus,
+    priorResultOfTry: ParseAttemptStatus,
+  ): Unit = {
+    if ((sscb eq PositionalNever)) {
+      val resultToTest = resultOfTry
+      resultToTest match {
+        case ParseAttemptStatus.FailureUnspecified | ParseAttemptStatus.MissingSeparator =>
+          parser.PE(
+            pstate,
+            "maxOccurs instances and their separators are required when dfdl:separatorSuppressionPolicy='never'",
+          )
+        case _ => // ok
+      }
+    }
+  }
+
+  /**
+   * Define this as final here so we aren't creating proliferation of
+   * traits/classes just for this one little issue.
+   */
+  final def sequenceCompleteChecks(
     parser: SequenceChildParser,
     pstate: PState,
     resultOfTry: ParseAttemptStatus,

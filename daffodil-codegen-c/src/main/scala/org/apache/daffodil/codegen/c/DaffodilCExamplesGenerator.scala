@@ -29,11 +29,11 @@ object DaffodilCExamplesGenerator {
   // Update one example of generated C code from a sample schema
   private def updateCExample(
     schemaFile: os.Path,
-    rootName: Option[String],
+    optRootName: Option[String],
     exampleDir: os.Path,
   ): Unit = {
     // Generate example code from the sample schema
-    val pf = Compiler().compileFile(schemaFile.toIO, rootName)
+    val pf = Compiler().compileFile(schemaFile.toIO, optRootName)
     assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
     val cg = pf.forLanguage("c")
     val tempDir = os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
@@ -75,25 +75,22 @@ object DaffodilCExamplesGenerator {
 
     val schemaDir =
       rootDir / "daffodil-codegen-c" / "src" / "test" / "resources" / "org" / "apache" / "daffodil" / "codegen" / "c"
-    val exNumsSchema = schemaDir / "ex_nums.dfdl.xsd"
-    val exNumsRootName = None
-    val nestedSchema = schemaDir / "nested.dfdl.xsd"
-    val nestedRootName = Some("NestedUnion")
-    val padTestSchema = schemaDir / "padtest.dfdl.xsd"
-    val padTestRootName = None
-    val variableLenSchema = schemaDir / "variablelen.dfdl.xsd"
-    val variableLenRootName = Some("expressionElement")
-
     val examplesDir = os.Path(args(0))
-    val exNumsExampleDir = examplesDir / "ex_nums"
-    val nestedExampleDir = examplesDir / "NestedUnion"
-    val padTestExampleDir = examplesDir / "padtest"
-    val variableLenExampleDir = examplesDir / "variablelen"
+    val examples = Array(
+      (schemaDir / "ex_nums.dfdl.xsd", None, examplesDir / "ex_nums"),
+      (schemaDir / "nested.dfdl.xsd", Some("NestedUnion"), examplesDir / "NestedUnion"),
+      (schemaDir / "padtest.dfdl.xsd", None, examplesDir / "padtest"),
+      (schemaDir / "simple.dfdl.xsd", Some("simple-byte"), examplesDir / "simple"),
+      (
+        schemaDir / "variablelen.dfdl.xsd",
+        Some("expressionElement"),
+        examplesDir / "variablelen",
+      ),
+    )
 
     // Update each example of generated C code
-    updateCExample(exNumsSchema, exNumsRootName, exNumsExampleDir)
-    updateCExample(nestedSchema, nestedRootName, nestedExampleDir)
-    updateCExample(padTestSchema, padTestRootName, padTestExampleDir)
-    updateCExample(variableLenSchema, variableLenRootName, variableLenExampleDir)
+    examples.foreach { case (schemaFile, optRootName, exampleDir) =>
+      updateCExample(schemaFile, optRootName, exampleDir)
+    }
   }
 }

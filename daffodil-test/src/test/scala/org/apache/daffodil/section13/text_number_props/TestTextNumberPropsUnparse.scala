@@ -109,4 +109,12 @@ class TestTextNumberPropsUnparse {
   @Test def test_unparse_tnp_04(): Unit = { runner.runOneTest("unparse_tnp_04") }
   @Test def test_unparse_tnp_05a(): Unit = { runner.runOneTest("unparse_tnp_05a") }
   @Test def test_unparse_tnp_05b(): Unit = { runner.runOneTest("unparse_tnp_05b") }
+
+  @Test def test_textStandardZeroRepNotDefinedByDefault(): Unit =
+    runner.runOneTest("textStandardZeroRepNotDefinedByDefault")
+
+  @Test def test_textStandardZeroRep1(): Unit = runner.runOneTest("textStandardZeroRep1")
+
+  @Test def test_textStandardZeroRep2(): Unit = runner.runOneTest("textStandardZeroRep2")
+
 }

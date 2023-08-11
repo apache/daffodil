@@ -19,101 +19,17 @@
 <xs:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <xs:include schemaLocation="DFDLGeneralFormatBase.dfdl.xsd" />
+
   <!-- Intended for inclusion into other schemas. Has no targetNamespace on purpose -->
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
 
-      <!--
-        This set of properties should never change. It can be added to 
-        if properties are missing, but should not be changed.
-        
-        Changes should be introduced by way of defining new formats in
-        terms of this one, which override definitions. See below in 
-        the file for examples. 
-       -->
-      <dfdl:defineFormat name="GeneralFormatOriginal">
-        <dfdl:format
-          alignment="1"
-          alignmentUnits="bytes"
-          binaryFloatRep="ieee"
-          binaryNumberCheckPolicy="lax"
-          binaryNumberRep="binary"
-          binaryCalendarEpoch="1970-01-01T00:00:00"
-          bitOrder="mostSignificantBitFirst"
-          byteOrder="bigEndian"
-          calendarCenturyStart="53"
-          calendarCheckPolicy="strict"
-          calendarDaysInFirstWeek="4"
-          calendarFirstDayOfWeek="Sunday"
-          calendarLanguage="en"
-          calendarObserveDST="yes"
-          calendarPatternKind="implicit"
-          calendarTimeZone=""
-          choiceLengthKind="implicit"
-          decimalSigned="yes"
-          documentFinalTerminatorCanBeMissing="no"
-          emptyValueDelimiterPolicy="both"
-          encodingErrorPolicy="replace"
-          encoding="US-ASCII"
-          escapeSchemeRef=""
-          fillByte="%#r20;"
-          floating="no"
-          ignoreCase="no"
-          initiatedContent="no"
-          initiator=""
-          leadingSkip="0"
-          lengthKind="implicit"
-          lengthUnits="bytes"
-          occursCountKind="implicit"
-          outputNewLine="%LF;"
-          representation="text"
-          separator=""
-          separatorPosition="infix"
-          separatorSuppressionPolicy="anyEmpty"
-          sequenceKind="ordered"
-          terminator=""
-          textBidi="no"
-          textBooleanPadCharacter="%SP;"
-          textCalendarJustification="left"
-          textCalendarPadCharacter="%SP;"
-          textNumberCheckPolicy="lax"
-          textNumberJustification="right"
-          textNumberPadCharacter="%SP;"
-          textNumberPattern="#,##0.###;-#,##0.###"
-          textNumberRep="standard"
-          textNumberRounding="explicit"
-          textNumberRoundingIncrement="0"
-          textNumberRoundingMode="roundHalfEven"
-          textOutputMinLength="0"
-          textPadKind="none"
-          textStandardBase="10"
-          textStandardDecimalSeparator="."
-          textStandardExponentRep="E"
-          textStandardGroupingSeparator=","
-          textStandardInfinityRep="Inf"
-          textStandardNaNRep="NaN"
-          textStandardZeroRep="0"
-          textStringJustification="left"
-          textStringPadCharacter="%SP;"
-          textTrimKind="none"
-          trailingSkip="0"
-          truncateSpecifiedLengthString="no"
-          utf16Width="fixed"
-        />
-      </dfdl:defineFormat>
-      
       <dfdl:defineFormat name="GeneralFormat">
-        <dfdl:format ref="GeneralFormatOriginal"
+        <dfdl:format ref="GeneralFormatBase"
             emptyElementParsePolicy="treatAsEmpty"/>
       </dfdl:defineFormat>
         
-      <dfdl:defineFormat name="GeneralFormatPortable">
-        <dfdl:format ref="GeneralFormatOriginal"
-          calendarTimeZone="UTC"
-          encodingErrorPolicy="error"
-        />   
-      </dfdl:defineFormat>
-
     </xs:appinfo>
   </xs:annotation>
 

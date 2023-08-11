@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!--
+    Run all tests with each backend
+    daffodil test -i -I daffodil simple.tdml
+    daffodil test -i -I daffodilC simple.tdml
+
+    Or you can debug specific backends in isolation, see below
+-->
+<tdml:testSuite
+  defaultRoundTrip="onePass"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <!--
+      daffodil parse -r simple-boolean -s simple.dfdl.xsd -o c/simple-boolean.dat.xml data/simple-boolean.dat
+      daffodil unparse -r simple-boolean -s simple.dfdl.xsd -o c/simple-boolean.dat infosets/simple-boolean.dat.xml
+
+      daffodil generate c -r simple-boolean -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-boolean.dat.xml data/simple-boolean.dat
+      c/daffodil unparse -o c/simple-boolean.dat infosets/simple-boolean.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-boolean"
+    root="simple-boolean">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-boolean.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-boolean.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-byte -s simple.dfdl.xsd -o c/simple-byte.dat.xml data/simple-byte.dat
+      daffodil unparse -r simple-byte -s simple.dfdl.xsd -o c/simple-byte.dat infosets/simple-byte.dat.xml
+
+      daffodil generate c -r simple-byte -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-byte.dat.xml data/simple-byte.dat
+      c/daffodil unparse -o c/simple-byte.dat infosets/simple-byte.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-byte"
+    root="simple-byte">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-byte.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-byte.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-double -s simple.dfdl.xsd -o c/simple-double.dat.xml data/simple-double.dat
+      daffodil unparse -r simple-double -s simple.dfdl.xsd -o c/simple-double.dat infosets/simple-double.dat.xml
+
+      daffodil generate c -r simple-double -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-double.dat.xml data/simple-double.dat
+      c/daffodil unparse -o c/simple-double.dat infosets/simple-double.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-double"
+    root="simple-double">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-double.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-double.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-float -s simple.dfdl.xsd -o c/simple-float.dat.xml data/simple-float.dat
+      daffodil unparse -r simple-float -s simple.dfdl.xsd -o c/simple-float.dat infosets/simple-float.dat.xml
+
+      daffodil generate c -r simple-float -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-float.dat.xml data/simple-float.dat
+      c/daffodil unparse -o c/simple-float.dat infosets/simple-float.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-float"
+    root="simple-float">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-float.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-float.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-hexBinary -s simple.dfdl.xsd -o c/simple-hexBinary.dat.xml data/simple-hexBinary.dat
+      daffodil unparse -r simple-hexBinary -s simple.dfdl.xsd -o c/simple-hexBinary.dat infosets/simple-hexBinary.dat.xml
+
+      daffodil generate c -r simple-hexBinary -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-hexBinary.dat.xml data/simple-hexBinary.dat
+      c/daffodil unparse -o c/simple-hexBinary.dat infosets/simple-hexBinary.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-hexBinary"
+    root="simple-hexBinary">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-hexBinary.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-hexBinary.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-hexBinaryPrefixed -s simple.dfdl.xsd -o c/simple-hexBinaryPrefixed.dat.xml data/simple-hexBinaryPrefixed.dat
+      daffodil unparse -r simple-hexBinaryPrefixed -s simple.dfdl.xsd -o c/simple-hexBinaryPrefixed.dat infosets/simple-hexBinaryPrefixed.dat.xml
+
+      daffodil generate c -r simple-hexBinaryPrefixed -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-hexBinaryPrefixed.dat.xml data/simple-hexBinaryPrefixed.dat
+      c/daffodil unparse -o c/simple-hexBinaryPrefixed.dat infosets/simple-hexBinaryPrefixed.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-hexBinaryPrefixed"
+    root="simple-hexBinaryPrefixed">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-hexBinaryPrefixed.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-hexBinaryPrefixed.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-int -s simple.dfdl.xsd -o c/simple-int.dat.xml data/simple-int.dat
+      daffodil unparse -r simple-int -s simple.dfdl.xsd -o c/simple-int.dat infosets/simple-int.dat.xml
+
+      daffodil generate c -r simple-int -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-int.dat.xml data/simple-int.dat
+      c/daffodil unparse -o c/simple-int.dat infosets/simple-int.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-int"
+    root="simple-int">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-int.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-int.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-integer -s simple.dfdl.xsd -o c/simple-integer.dat.xml data/simple-integer.dat
+      daffodil unparse -r simple-integer -s simple.dfdl.xsd -o c/simple-integer.dat infosets/simple-integer.dat.xml
+
+      daffodil generate c -r simple-integer -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-integer.dat.xml data/simple-integer.dat
+      c/daffodil unparse -o c/simple-integer.dat infosets/simple-integer.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-integer"
+    root="simple-integer">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-integer.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-integer.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-long -s simple.dfdl.xsd -o c/simple-long.dat.xml data/simple-long.dat
+      daffodil unparse -r simple-long -s simple.dfdl.xsd -o c/simple-long.dat infosets/simple-long.dat.xml
+
+      daffodil generate c -r simple-long -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-long.dat.xml data/simple-long.dat
+      c/daffodil unparse -o c/simple-long.dat infosets/simple-long.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-long"
+    root="simple-long">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-long.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-long.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-nonNegativeInteger -s simple.dfdl.xsd -o c/simple-nonNegativeInteger.dat.xml data/simple-nonNegativeInteger.dat
+      daffodil unparse -r simple-nonNegativeInteger -s simple.dfdl.xsd -o c/simple-nonNegativeInteger.dat infosets/simple-nonNegativeInteger.dat.xml
+
+      daffodil generate c -r simple-nonNegativeInteger -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-nonNegativeInteger.dat.xml data/simple-nonNegativeInteger.dat
+      c/daffodil unparse -o c/simple-nonNegativeInteger.dat infosets/simple-nonNegativeInteger.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-nonNegativeInteger"
+    root="simple-nonNegativeInteger">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-nonNegativeInteger.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-nonNegativeInteger.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-short -s simple.dfdl.xsd -o c/simple-short.dat.xml data/simple-short.dat
+      daffodil unparse -r simple-short -s simple.dfdl.xsd -o c/simple-short.dat infosets/simple-short.dat.xml
+
+      daffodil generate c -r simple-short -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-short.dat.xml data/simple-short.dat
+      c/daffodil unparse -o c/simple-short.dat infosets/simple-short.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-short"
+    root="simple-short">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-short.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-short.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-unsignedByte -s simple.dfdl.xsd -o c/simple-unsignedByte.dat.xml data/simple-unsignedByte.dat
+      daffodil unparse -r simple-unsignedByte -s simple.dfdl.xsd -o c/simple-unsignedByte.dat infosets/simple-unsignedByte.dat.xml
+
+      daffodil generate c -r simple-unsignedByte -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-unsignedByte.dat.xml data/simple-unsignedByte.dat
+      c/daffodil unparse -o c/simple-unsignedByte.dat infosets/simple-unsignedByte.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-unsignedByte"
+    root="simple-unsignedByte">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-unsignedByte.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-unsignedByte.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-unsignedInt -s simple.dfdl.xsd -o c/simple-unsignedInt.dat.xml data/simple-unsignedInt.dat
+      daffodil unparse -r simple-unsignedInt -s simple.dfdl.xsd -o c/simple-unsignedInt.dat infosets/simple-unsignedInt.dat.xml
+
+      daffodil generate c -r simple-unsignedInt -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-unsignedInt.dat.xml data/simple-unsignedInt.dat
+      c/daffodil unparse -o c/simple-unsignedInt.dat infosets/simple-unsignedInt.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-unsignedInt"
+    root="simple-unsignedInt">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-unsignedInt.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-unsignedInt.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-unsignedLong -s simple.dfdl.xsd -o c/simple-unsignedLong.dat.xml data/simple-unsignedLong.dat
+      daffodil unparse -r simple-unsignedLong -s simple.dfdl.xsd -o c/simple-unsignedLong.dat infosets/simple-unsignedLong.dat.xml
+
+      daffodil generate c -r simple-unsignedLong -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-unsignedLong.dat.xml data/simple-unsignedLong.dat
+      c/daffodil unparse -o c/simple-unsignedLong.dat infosets/simple-unsignedLong.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-unsignedLong"
+    root="simple-unsignedLong">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-unsignedLong.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-unsignedLong.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      daffodil parse -r simple-unsignedShort -s simple.dfdl.xsd -o c/simple-unsignedShort.dat.xml data/simple-unsignedShort.dat
+      daffodil unparse -r simple-unsignedShort -s simple.dfdl.xsd -o c/simple-unsignedShort.dat infosets/simple-unsignedShort.dat.xml
+
+      daffodil generate c -r simple-unsignedShort -s simple.dfdl.xsd && make -C c
+      c/daffodil parse -o c/simple-unsignedShort.dat.xml data/simple-unsignedShort.dat
+      c/daffodil unparse -o c/simple-unsignedShort.dat infosets/simple-unsignedShort.dat.xml
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="simple-unsignedShort"
+    root="simple-unsignedShort">
+    <tdml:document>
+      <tdml:documentPart type="file">data/simple-unsignedShort.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/simple-unsignedShort.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

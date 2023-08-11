@@ -310,7 +310,7 @@ object TestUtils {
   }
 
   def testCompileTime(resourcePathString: String): Unit = {
-    val nos = NullOutputStream.NULL_OUTPUT_STREAM
+    val nos = NullOutputStream.INSTANCE
     val nullChannel = java.nio.channels.Channels.newChannel(nos)
     val compiler = Compiler()
     val uri = Misc.getRequiredResource(resourcePathString)

@@ -153,7 +153,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
               case (true, false, TrailingEmptyStrict, UNB)
                   if !eb.isLastDeclaredRepresentedInSequence =>
                 Assert.invariantFailed("Should be SDE found elsewhere.")
-              case (true, _, Never, _) => Positional
+              case (true, _, Never, _) => PositionalNever
               case (true, _, AnyEmpty, _) => NonPositional
               case (true, _, TrailingEmpty, _) => PositionalTrailingLax
               case (true, _, TrailingEmptyStrict, _) => PositionalTrailingStrict
@@ -465,7 +465,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           isModelGroupRepPossiblyZeroLength,
           isModelGroupRepNonZeroLength,
         )
-      case Positional =>
+      case Positional | PositionalNever =>
         new PositionalGroupSeparatedSequenceChildParseResultHelper(
           mgrd,
           sscb,
@@ -509,7 +509,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength,
         )
-      case Positional =>
+      case Positional | PositionalNever =>
         new PositionalScalarElementSeparatedSequenceChildParseResultHelper(
           sscb,
           erd,
@@ -601,7 +601,7 @@ sealed abstract class RepElementSequenceChild(
           isEmptyRepZeroLength,
           isEmptyRepNonZeroLength,
         )
-      case Positional =>
+      case Positional | PositionalNever =>
         new PositionalRepElementSeparatedSequenceChildParseResultHelper(
           sscb,
           erd,

@@ -59,7 +59,7 @@ object TestInfoset {
     // what maintains the schema dynamic runtime context.
     //
     val inputter = new ScalaXMLInfosetInputter(xmlElem)
-    val dummyOutStream = NullOutputStream.NULL_OUTPUT_STREAM
+    val dummyOutStream = NullOutputStream.INSTANCE
     val unparseResult = dp.unparse(inputter, dummyOutStream)
     if (unparseResult.isError) {
       val exc = unparseResult.getDiagnostics.filter(_.isError).head

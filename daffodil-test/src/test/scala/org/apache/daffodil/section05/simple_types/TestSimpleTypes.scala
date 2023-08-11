@@ -821,6 +821,7 @@ class TestSimpleTypes {
     runner.runOneTest("characterDuringValidDouble")
   }
   @Test def test_double_unparseError(): Unit = { runner.runOneTest("double_unparseError") }
+  @Test def test_double_negativeZero(): Unit = { runner.runOneTest("double_negativeZero") }
 
   @Test def test_float_text(): Unit = { runner.runOneTest("float_text") }
   @Test def test_float_text2(): Unit = { runner.runOneTest("float_text2") }
@@ -860,6 +861,11 @@ class TestSimpleTypes {
 
   @Test def test_hexBinary_specifiedLengthUnaligned(): Unit = {
     runner.runOneTest("hexBinary_specifiedLengthUnaligned")
+  }
+
+  @Test def test_time_optional_empty(): Unit = { runner.runOneTest("time_optional_empty") }
+  @Test def test_time_optional_nonWellFormed(): Unit = {
+    runner.runOneTest("time_optional_nonWellFormed")
   }
 
 }

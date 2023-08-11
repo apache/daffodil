@@ -24,7 +24,7 @@
 
     <!-- Your constraints go here -->
     <sch:pattern>
-        <sch:include href="title-rules.sch"/>
+        <sch:include href="custom-resolver/title-rules.sch"/>
         <sch:rule context="chapter">
             <sch:let name="numOfTitles" value="count(title)"/>
             <sch:assert test="title">A chapter should have a title</sch:assert>

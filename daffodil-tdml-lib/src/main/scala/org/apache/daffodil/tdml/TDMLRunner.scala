@@ -47,6 +47,7 @@ import org.apache.daffodil.lib.api.DaffodilConfig
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.DataLocation
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.EmbeddedSchemaSource
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.lib.api.URISchemaSource
@@ -706,6 +707,13 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       }
     case other => Assert.invariantFailed("unrecognized validation enum string: " + other)
   }
+  lazy val avoidFalsePositiveMatchesWithLocationInfo =
+    (testCaseXML \ "@diagnosticsStripLocationInfo").text match {
+      case "true" => true
+      case "false" => false
+      case _ => true
+    }
+
   lazy val shouldValidate = validationMode != ValidationMode.Off
   lazy val expectsValidationError =
     if (optExpectedValidationErrors.isDefined) optExpectedValidationErrors.get.hasDiagnostics
@@ -926,7 +934,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   }
 
   protected def checkDiagnosticMessages(
-    diagnostics: Seq[Throwable],
+    diagnostics: Seq[Diagnostic],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
     implString: Option[String],
@@ -938,13 +946,23 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       !isCrossTest(implString.get) ||
       parent.shouldDoErrorComparisonOnCrossTests
     )
-      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors), implString)
+      VerifyTestCase.verifyAllDiagnosticsFound(
+        diagnostics,
+        Some(errors),
+        implString,
+        avoidFalsePositiveMatchesWithLocationInfo,
+      )
 
     if (
       !isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests
     )
-      VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings, implString)
+      VerifyTestCase.verifyAllDiagnosticsFound(
+        diagnostics,
+        optWarnings,
+        implString,
+        avoidFalsePositiveMatchesWithLocationInfo,
+      )
   }
 }
 
@@ -975,9 +993,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     (optExpectedInfoset, optExpectedErrors) match {
       case (Some(_), None) => {
-        compileResult.left.foreach { diags => throw TDMLException(diags, implString) }
-        compileResult.right.foreach {
-          case (_, proc) => {
+        compileResult match {
+          case Left(diags) => throw TDMLException(diags, implString)
+          case Right((diags, proc)) => {
             processor = proc
             runParseExpectSuccess(
               dataToParse,
@@ -987,17 +1005,17 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               validationMode,
               roundTrip,
               implString,
+              diags,
             )
           }
         }
       }
 
       case (None, Some(errors)) => {
-        compileResult.left.foreach { diags =>
-          checkDiagnosticMessages(diags, errors, optExpectedWarnings, implString)
-        }
-        compileResult.right.foreach {
-          case (_, proc) => {
+        compileResult match {
+          case Left(diags) =>
+            checkDiagnosticMessages(diags, errors, optExpectedWarnings, implString)
+          case Right((diags, proc)) => {
             processor = proc
             runParseExpectErrors(
               dataToParse,
@@ -1007,6 +1025,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optExpectedValidationErrors,
               validationMode,
               implString,
+              diags,
             )
           }
         }
@@ -1024,6 +1043,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     implString: Option[String],
+    compileWarnings: Seq[Diagnostic],
   ): Unit = {
 
     try {
@@ -1033,46 +1053,41 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
 
     val (parseResult, diagnostics, isError) = {
-      if (processor.isError) {
-        val noParseResult: TDMLParseResult = null
-        (noParseResult, processor.getDiagnostics, true)
-      } else {
-        val actual =
-          try {
-            processor.parse(dataToParse, lengthLimitInBits)
-          } catch {
-            case t: Throwable => toss(t, implString)
+      val actual =
+        try {
+          processor.parse(dataToParse, lengthLimitInBits)
+        } catch {
+          case t: Throwable => toss(t, implString)
+        }
+
+      // we should never need blobs if we're expecting an error even if we
+      // don't get errors. So clean them up immediately
+      actual.cleanUp()
+
+      val isErr: Boolean =
+        if (actual.isProcessingError) true
+        else {
+          //
+          // didn't get an error.
+          // If we're not at the end of data, synthesize an error for left-over-data
+          //
+          val loc: DataLocation = actual.currentLocation
+
+          if (loc.bitPos1b >= 0 && loc.bitPos1b <= lengthLimitInBits) {
+            val leftOverMsg =
+              "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
+                loc.bitPos1b - 1,
+                lengthLimitInBits - (loc.bitPos1b - 1),
+              )
+            actual.addDiagnostic(new TDMLDiagnostic(leftOverMsg, implString))
+            true
+          } else {
+            false
           }
+        }
 
-        // we should never need blobs if we're expecting an error even if we
-        // don't get errors. So clean them up immediately
-        actual.cleanUp()
-
-        val isErr: Boolean =
-          if (actual.isProcessingError) true
-          else {
-            //
-            // didn't get an error.
-            // If we're not at the end of data, synthesize an error for left-over-data
-            //
-            val loc: DataLocation = actual.currentLocation
-
-            if (loc.bitPos1b >= 0 && loc.bitPos1b <= lengthLimitInBits) {
-              val leftOverMsg =
-                "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
-                  loc.bitPos1b - 1,
-                  lengthLimitInBits - (loc.bitPos1b - 1),
-                )
-              actual.addDiagnostic(new TDMLDiagnostic(leftOverMsg, implString))
-              true
-            } else {
-              false
-            }
-          }
-
-        val diagnostics = processor.getDiagnostics ++ actual.getDiagnostics
-        (actual, diagnostics, isErr)
-      }
+      val diagnostics = compileWarnings ++ actual.getDiagnostics
+      (actual, diagnostics, isErr)
     }
     if (!isError) {
       toss(
@@ -1147,6 +1162,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   private def verifyParseResults(
+    compileWarnings: Seq[Diagnostic],
     actual: TDMLParseResult,
     testInfoset: Infoset,
     implString: Option[String],
@@ -1163,6 +1179,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           actual.getDiagnostics,
           optExpectedValidationErrors,
           implString,
+          avoidFalsePositiveMatchesWithLocationInfo,
         ) // verify all validation errors were found
         Assert.invariant(actual.isValidationError)
       }
@@ -1176,12 +1193,17 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       case (false, false) => // Nothing to do here.
     }
 
-    val allDiags = processor.getDiagnostics ++ actual.getDiagnostics
+    val allDiags = compileWarnings ++ actual.getDiagnostics
     if (
       !isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests
     )
-      VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optExpectedWarnings, implString)
+      VerifyTestCase.verifyAllDiagnosticsFound(
+        allDiags,
+        optExpectedWarnings,
+        implString,
+        avoidFalsePositiveMatchesWithLocationInfo,
+      )
   }
 
   /**
@@ -1200,7 +1222,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val unparseResult = processor.unparse(parseResult, outStream)
     if (unparseResult.isProcessingError) {
-      val diagObjs = processor.getDiagnostics ++ unparseResult.getDiagnostics
+      val diagObjs = unparseResult.getDiagnostics
       if (diagObjs.length == 1) throw TDMLException(diagObjs.head, implString)
       throw TDMLException(diagObjs, implString)
     }
@@ -1266,16 +1288,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationMode: ValidationMode.Type,
     roundTripArg: RoundTrip,
     implString: Option[String],
+    compileWarnings: Seq[Diagnostic],
   ): Unit = {
 
     val roundTrip =
       roundTripArg // change to OnePassRoundTrip to force all parse tests to round trip (to see which fail to round trip)
 
-    if (processor.isError) {
-      val diagObjs = processor.getDiagnostics
-      if (diagObjs.length == 1) throw diagObjs.head
-      throw TDMLException(diagObjs, implString)
-    }
     processor = processor.withValidationMode(validationMode)
 
     val firstParseTestData = IOUtils.toByteArray(dataToParse)
@@ -1286,7 +1304,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     roundTrip match {
       case NoRoundTrip | OnePassRoundTrip => {
-        verifyParseResults(firstParseResult, testInfoset, implString)
+        verifyParseResults(compileWarnings, firstParseResult, testInfoset, implString)
         verifyLeftOverData(firstParseResult, lengthLimitInBits, implString)
       }
       case TwoPassRoundTrip => {
@@ -1321,7 +1339,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         //
         //        val isFirstParseInfosetMatching =
         //          try {
-        //            verifyParseResults(processor, firstParseResult, testInfoset, implString)
+        //            verifyParseResults(compileWarnings, processor, firstParseResult, testInfoset, implString)
         //            verifyLeftOverData(firstParseResult, lengthLimitInBits, implString)
         //            true
         //          } catch {
@@ -1384,7 +1402,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             firstParseTestData,
             testInfoset,
           )
-        verifyParseResults(actual, testInfoset, implString)
+        verifyParseResults(compileWarnings, actual, testInfoset, implString)
         verifyLeftOverData(actual, reParseTestDataLength, implString)
         // if it doesn't pass, it will throw out of here.
 
@@ -1423,7 +1441,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         //
         // So we just verify normally here.
         //
-        verifyParseResults(secondParseResult, testInfoset, implString)
+        verifyParseResults(compileWarnings, secondParseResult, testInfoset, implString)
         verifyLeftOverData(secondParseResult, reParseTestDataLength, implString)
         //
         // So now we do the third pass unparse and compare this output with the
@@ -1470,23 +1488,21 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     (optExpectedData, optErrors) match {
       case (Some(expectedData), None) => {
-        compileResult.left.foreach { diags => throw TDMLException(diags, implString) }
-        compileResult.right.foreach {
-          case (warnings, proc) => {
+        compileResult match {
+          case Left(diags) => throw TDMLException(diags, implString)
+          case Right((diags, proc)) => {
             processor = proc
-            runUnparserExpectSuccess(expectedData, optWarnings, roundTrip, implString)
+            runUnparserExpectSuccess(expectedData, optWarnings, roundTrip, implString, diags)
           }
         }
       }
 
       case (_, Some(errors)) => {
-        compileResult.left.foreach { diags =>
-          checkDiagnosticMessages(diags, errors, optWarnings, implString)
-        }
-        compileResult.right.foreach {
-          case (_, proc) => {
+        compileResult match {
+          case Left(diags) => checkDiagnosticMessages(diags, errors, optWarnings, implString)
+          case Right((diags, proc)) => {
             processor = proc
-            runUnparserExpectErrors(optExpectedData, errors, optWarnings, implString)
+            runUnparserExpectErrors(optExpectedData, errors, optWarnings, implString, diags)
           }
         }
       }
@@ -1500,6 +1516,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[ExpectedWarnings],
     roundTrip: RoundTrip,
     implString: Option[String],
+    compileWarnings: Seq[Diagnostic],
   ): Unit = {
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
@@ -1542,12 +1559,17 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       // we will need to treat as Hex bytes as well.
       VerifyTestCase.verifyBinaryOrMixedData(expectedData, outStream, implString)
     }
-    val allDiags = actual.getDiagnostics ++ processor.getDiagnostics
+    val allDiags = actual.getDiagnostics ++ compileWarnings
     if (
       !isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests
     )
-      VerifyTestCase.verifyAllDiagnosticsFound(allDiags, optWarnings, implString)
+      VerifyTestCase.verifyAllDiagnosticsFound(
+        allDiags,
+        optWarnings,
+        implString,
+        avoidFalsePositiveMatchesWithLocationInfo,
+      )
 
     if (roundTrip eq OnePassRoundTrip) {
 
@@ -1587,7 +1609,12 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         !isCrossTest(implString.get) ||
         parent.shouldDoWarningComparisonOnCrossTests
       )
-        VerifyTestCase.verifyAllDiagnosticsFound(actual.getDiagnostics, optWarnings, implString)
+        VerifyTestCase.verifyAllDiagnosticsFound(
+          actual.getDiagnostics,
+          optWarnings,
+          implString,
+          avoidFalsePositiveMatchesWithLocationInfo,
+        )
 
       (shouldValidate, expectsValidationError) match {
         case (_, true) => {
@@ -1598,6 +1625,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             actual.getDiagnostics,
             optExpectedValidationErrors,
             implString,
+            avoidFalsePositiveMatchesWithLocationInfo,
           ) // verify all validation errors were found
           Assert.invariant(actual.isValidationError)
         }
@@ -1631,6 +1659,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
     implString: Option[String],
+    compileWarnings: Seq[Diagnostic],
   ): Unit = {
 
     try {
@@ -1639,58 +1668,52 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       case e: Exception => throw TDMLException(e, implString)
     }
 
-    val diagnostics = {
-      if (processor.isError)
-        processor.getDiagnostics
-      else {
-        val outStream = new java.io.ByteArrayOutputStream()
-        val infosetXML = {
-          if (optInputInfoset.isEmpty)
-            throw TDMLException(
-              "No infoset specified, but one is required to run the test.",
-              implString,
-            )
-          inputInfoset.dfdlInfoset.contents
-        }
-        val actual =
-          try {
-            processor.unparse(infosetXML, outStream)
-          } catch {
-            case t: Throwable => toss(t, implString)
+    val outStream = new java.io.ByteArrayOutputStream()
+    val infosetXML = {
+      if (optInputInfoset.isEmpty)
+        throw TDMLException(
+          "No infoset specified, but one is required to run the test.",
+          implString,
+        )
+      inputInfoset.dfdlInfoset.contents
+    }
+    val actual =
+      try {
+        processor.unparse(infosetXML, outStream)
+      } catch {
+        case t: Throwable => toss(t, implString)
+      }
+
+    val dataErrors = {
+      optExpectedData.flatMap { data =>
+        try {
+          if (actual.isScannable) {
+            // all textual in one encoding, so we can do display of results
+            // in terms of text so the user can see what is going on.
+            VerifyTestCase.verifyTextData(data, outStream, actual.encodingName, implString)
+          } else {
+            // data is not all textual, or in mixture of encodings
+            // So while we can still use the encoding as a heuristic,
+            // we will need to treat as Hex bytes as well.
+            VerifyTestCase.verifyBinaryOrMixedData(data, outStream, implString)
           }
-
-        val dataErrors = {
-          optExpectedData.flatMap { data =>
-            try {
-              if (actual.isScannable) {
-                // all textual in one encoding, so we can do display of results
-                // in terms of text so the user can see what is going on.
-                VerifyTestCase.verifyTextData(data, outStream, actual.encodingName, implString)
-              } else {
-                // data is not all textual, or in mixture of encodings
-                // So while we can still use the encoding as a heuristic,
-                // we will need to treat as Hex bytes as well.
-                VerifyTestCase.verifyBinaryOrMixedData(data, outStream, implString)
-              }
-              None
-            } catch {
-              //
-              // verifyData throws TDMLExceptions if the data doesn't match
-              // In order for negative tests to look for these errors
-              // we need to capture them and treat like regular diagnostics.
-              //
-              case x: TDMLException =>
-                Some(x)
-            }
-          }
+          None
+        } catch {
+          //
+          // verifyData throws TDMLExceptions if the data doesn't match
+          // In order for negative tests to look for these errors
+          // we need to capture them and treat like regular diagnostics.
+          //
+          case x: TDMLException =>
+            Some(new TDMLDiagnostic(x.getMessage, implString))
         }
-
-        // Done with the unparse results, safe to clean up any temporary files
-        actual.cleanUp()
-
-        processor.getDiagnostics ++ actual.getDiagnostics ++ dataErrors
       }
     }
+
+    // Done with the unparse results, safe to clean up any temporary files
+    actual.cleanUp()
+
+    val diagnostics = compileWarnings ++ actual.getDiagnostics ++ dataErrors
 
     if (diagnostics.isEmpty)
       throw TDMLException("Unparser test expected error. Didn't get one.", implString)
@@ -1752,14 +1775,31 @@ object VerifyTestCase {
     }
   }
 
+  /**
+   * Do diagnostics verification
+   *
+   * @param actualDiags                               Actual diagnostics produced
+   * @param expectedDiags                             Expected diagnostics from test cases
+   * @param implString                                Implementation string
+   * @param avoidFalsePositiveMatchesWithLocationInfo We strip the file info from the diagnostics to prevent false
+   *                                                  positive matches against the test case's error and warning strings
+   *                                                  coming from file/dir names.
+   *                                                  As there are tests that look for correct file/dir names, those
+   *                                                  tests will need to NOT strip them and can do so by setting the
+   *                                                  test flag to false.
+   *                                                  This is only for purposes of comparing error/warning strings
+   *                                                  to the diagnostic messages. Users would always see, displayed,
+   *                                                  the full diagnostic messages.
+   */
   def verifyAllDiagnosticsFound(
-    actualDiags: Seq[Throwable],
+    actualDiags: Seq[Diagnostic],
     expectedDiags: Option[ErrorWarningBase],
     implString: Option[String],
+    avoidFalsePositiveMatchesWithLocationInfo: Boolean = true,
   ) = {
 
     val actualDiagMsgs = actualDiags.map {
-      _.toString
+      _.toString()
     }
     val expectedDiagMsgs = expectedDiags
       .map {
@@ -1781,22 +1821,41 @@ object VerifyTestCase {
     }
 
     // must find each expected warning message within some actual warning message.
-    expectedDiagMsgs.foreach { expected =>
+    expectedDiags.foreach { expectedDiag =>
       {
-        val wasFound = actualDiagMsgs.exists { actual =>
-          actual.toLowerCase.contains(expected.toLowerCase)
-        }
-        if (!wasFound) {
-          throw TDMLException(
-            """Did not find diagnostic message """" +
-              expected +
-              """" in any of the actual diagnostic messages: """ + "\n" +
-              actualDiagMsgs.mkString("\n"),
-            implString,
-          )
+        expectedDiag.messages.foreach { expectedMsg =>
+          {
+            val wasFound = actualDiags.exists { actualDiag =>
+              val actualDiagMsg = if (avoidFalsePositiveMatchesWithLocationInfo) {
+                stripLocationInformation(actualDiag.getMessage())
+              } else {
+                actualDiag.getMessage()
+              }
+              actualDiag.isError == expectedDiag.isError &&
+              actualDiagMsg.toLowerCase.contains(expectedMsg.toLowerCase)
+            }
+            if (!wasFound) {
+              throw TDMLException(
+                s"""Did not find diagnostic ${expectedDiag.diagnosticType} message """" +
+                  expectedMsg +
+                  """" in any of the actual diagnostic messages: """ + "\n" +
+                  actualDiagMsgs.mkString("\n"),
+                implString,
+              )
+            }
+          }
         }
       }
     }
+  }
+
+  /**
+   * Strip location info from schema context off diag string message
+   * @param msg diag string message
+   * @return diag message without location information
+   */
+  def stripLocationInformation(msg: String): String = {
+    msg.replaceAll("Location line.*", "")
   }
 
   def verifyNoValidationErrorsFound(actual: TDMLResult, implString: Option[String]) = {
@@ -2707,6 +2766,9 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
 abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
   lazy val matchAttrib = (n \ "@match").text
 
+  def isError: Boolean
+  def diagnosticType: String
+
   protected def diagnosticNodes: Seq[Node]
 
   lazy val messages = diagnosticNodes.map {
@@ -2720,6 +2782,8 @@ case class ExpectedErrors(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
+  override def isError = true
+  override def diagnosticType = "error"
 
 }
 
@@ -2727,6 +2791,8 @@ case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "warning"
+  override def isError = false
+  override def diagnosticType = "warning"
 
 }
 
@@ -2734,6 +2800,8 @@ case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
+  override def isError = true
+  override def diagnosticType = "validation error"
 
 }
 
@@ -2945,6 +3013,16 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
         key.tunables,
       )
       cache += (key -> TDMLCompileResultCacheValue(compileResult, None))
+      compileResult match {
+        case Left(diags) => {
+          // a Left must have at least one error diagnostic if we don't get a processor
+          Assert.invariant(diags.exists(_.isError))
+        }
+        case Right((diags, _)) => {
+          // if a Right has diags, they must all be warnings
+          Assert.invariant(diags.forall(!_.isError))
+        }
+      }
       compileResult
     }
   }

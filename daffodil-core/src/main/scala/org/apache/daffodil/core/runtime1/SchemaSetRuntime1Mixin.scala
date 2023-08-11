@@ -19,7 +19,6 @@ package org.apache.daffodil.core.runtime1
 
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.grammar.VariableMapFactory
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -68,7 +67,7 @@ trait SchemaSetRuntime1Mixin {
   }.value
 
   def onPath(xpath: String): DFDL.DataProcessor = {
-    Assert.usage(!isError)
+    checkNotError()
     if (xpath != "/")
       root.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
     val rootERD = root.elementRuntimeData
@@ -79,12 +78,13 @@ trait SchemaSetRuntime1Mixin {
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null
     val ssrd =
-      new SchemaSetRuntimeData(p, u, this.diagnostics, rootERD, variableMap, typeCalcMap)
+      new SchemaSetRuntimeData(p, u, rootERD, variableMap, typeCalcMap)
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(
         s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.",
       )
-    val dataProc = new DataProcessor(ssrd, tunable, variableMap.copy())
+    val dataProc =
+      new DataProcessor(ssrd, tunable, variableMap.copy(), diagnostics = this.diagnostics)
     if (dataProc.isError) {} else {
       Logger.log.debug(s"Parser = ${ssrd.parser.toString}.")
       Logger.log.debug(s"Unparser = ${ssrd.unparser.toString}.")

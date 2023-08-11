@@ -257,6 +257,26 @@ trait LocationInSchemaFile {
 
   def locationDescription: String
 
+  def limitMaxParentDirectories(
+    uriString: String,
+    maxParentDirectoriesForDiagnostics: Int,
+  ): String = {
+    // works for both windows and unix
+    val splitter = "/"
+    val tokens = uriString.split(splitter)
+    val reducedTokens = tokens
+      // we want to get just the filename plus the max number of directories
+      // since these paths can get really long. To change how much of the path to see
+      // in diagnostics, one can update the maxParentDirectoriesForDiagnostics tunable
+      .takeRight(maxParentDirectoriesForDiagnostics + 1)
+    // we only want to use the prefix if the new number of directories is
+    // less than the original
+    val prefix = if (reducedTokens.length < tokens.length) s"...${splitter}" else ""
+    val newUriString = reducedTokens
+      .mkString(prefix, splitter, "")
+    newUriString
+  }
+
 }
 
 /**
@@ -288,4 +308,18 @@ trait WithDiagnostics {
    * then one can proceed to run the compiled entity.
    */
   def isError: Boolean
+
+  /**
+   * Helper method to check that isError is false, if not it throws
+   * a usage error caused by illegal state caused by a compilation error
+   */
+  def checkNotError(): Unit = {
+    Assert.usage(
+      !isError,
+      new IllegalStateException(
+        "Must call isError() to ensure there are no errors",
+        getDiagnostics.find(_.isError).get,
+      ),
+    )
+  }
 }

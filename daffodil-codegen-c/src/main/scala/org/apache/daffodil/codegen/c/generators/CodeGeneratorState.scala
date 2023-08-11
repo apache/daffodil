@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.codegen.c.generators
 
+import java.util.regex.Pattern
+import scala.collection.immutable
 import scala.collection.mutable
 
 import org.apache.daffodil.core.dsom.Choice
@@ -40,8 +42,8 @@ class CodeGeneratorState(private val root: ElementBase) {
   private val finalStructs = mutable.ArrayBuffer[String]()
   private val finalImplementation = mutable.ArrayBuffer[String]()
 
-  // Create the topmost "main_struct" struct immediately
-  structs.push(new ComplexCGState("main_struct"))
+  // Push a dummy topmost state to simplify code
+  structs.push(new ComplexCGState(cStructName(root), root))
 
   // Returns true if the generator is currently processing an array
   def hasArray: Boolean = structs.nonEmpty && structs.top.inArray
@@ -62,8 +64,8 @@ class CodeGeneratorState(private val root: ElementBase) {
       structs.top.unparserStatements += s"    case $position:"
     }
 
-    if (context.isComplexType) {
-      // Initialize complex element
+    if (context.isComplexType || context == root) {
+      // Initialize complex element or distinguished root element which we treat like a complex element
       val C = cStructName(context)
       structs.push(new ComplexCGState(C, context))
       val erd = erdName(context)
@@ -72,7 +74,9 @@ class CodeGeneratorState(private val root: ElementBase) {
            |    instance->_base.parent = parent;""".stripMargin
 
       // Calculate padding if complex element has an explicit length
-      if (context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0) {
+      if (
+        context.isComplexType && context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0
+      ) {
         val lengthInBits = context.maybeFixedLengthInBits.get
         structs.top.parserStatements += s"    const size_t end_bitPos0b = pstate->bitPos0b + $lengthInBits;"
         structs.top.unparserStatements += s"    const size_t end_bitPos0b = ustate->bitPos0b + $lengthInBits;"
@@ -107,7 +111,7 @@ class CodeGeneratorState(private val root: ElementBase) {
       val indent1 = if (hasChoice) INDENT else NO_INDENT
       val indent2 = if (hasArray) INDENT else NO_INDENT
       val C = cStructName(context)
-      val e = context.namedQName.local
+      val e = cName(context)
       val deref = if (hasArray) "[i]" else ""
       if (hasChoice)
         structs.top.initChoiceStatements += s"$indent2        ${C}_initERD(&instance->$e$deref, (InfosetBase *)instance);"
@@ -119,6 +123,14 @@ class CodeGeneratorState(private val root: ElementBase) {
       structs.top.unparserStatements +=
         s"""$indent1$indent2    ${C}_unparseSelf(&instance->$e$deref, ustate);
            |$indent1$indent2    if (ustate->error) return;""".stripMargin
+    } else if (context == root) {
+      // Treat a simple type root element as a hybrid of simple and complex types
+      addFieldDeclaration(context) // struct member for element
+      addComputations(context) // offset, ERD computations
+      addSimpleTypeERD(context) // ERD static initializer
+      addStruct(context) // struct definition
+      addImplementation(context)
+      structs.pop()
     } else {
       // Prevent redundant definitions on reused types
       if (elementNotSeenYet(context, cStructName(context))) {
@@ -338,7 +350,7 @@ class CodeGeneratorState(private val root: ElementBase) {
          |#include "generated_code.h"
          |#include <stdbool.h>    // for false, bool, true
          |#include <stddef.h>     // for NULL, size_t
-         |#include <string.h>     // for memcmp
+         |#include <string.h>     // for memcmp, memset
          |#include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, Error::(anonymous), UNUSED
          |#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
          |#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
@@ -354,36 +366,88 @@ class CodeGeneratorState(private val root: ElementBase) {
          |// Initialize, parse, and unparse nodes of the infoset
          |
          |$finalImplementation
-         |// Return a root element for parsing or unparsing the infoset
+         |// Get an infoset (optionally clearing it first) for parsing/walking
          |
          |InfosetBase *
-         |rootElement(void)
+         |get_infoset(bool clear_infoset)
          |{
-         |    static bool initialized;
-         |    static $rootName root;
-         |    if (!initialized)
+         |    static $rootName infoset;
+         |
+         |    if (clear_infoset)
          |    {
-         |        ${rootName}_initERD(&root, (InfosetBase *)&root);
-         |        initialized = true;
+         |        // If your infoset contains hexBinary prefixed length elements,
+         |        // you may want to walk infoset first to free their malloc'ed
+         |        // storage - we are not handling that case for now...
+         |        memset(&infoset, 0, sizeof(infoset));
+         |        ${rootName}_initERD(&infoset, (InfosetBase *)&infoset);
          |    }
-         |    return &root._base;
+         |
+         |    return &infoset._base;
          |}
          |""".stripMargin
     code.replace("\r\n", "\n").replace("\n", System.lineSeparator)
   }
 
-  // Returns a name for the given element's C struct identifier
+  // Returns a C name for the given element's C struct identifier
   private def cStructName(context: ElementBase): String = {
     val sb = buildName(context, new StringBuilder)
+    makeLegalForC(sb)
     val name = sb.toString
     name
   }
 
-  // Returns a name for the given element's element runtime data.
+  // Returns a C name for the given element's element runtime data
   private def erdName(context: ElementBase): String = {
     val sb = buildName(context, new StringBuilder) ++= "ERD"
+    makeLegalForC(sb)
     val name = sb.toString
     name
+  }
+
+  // Returns a C name for the given element's local name.
+  def cName(context: ElementBase): String = {
+    val sb = new StringBuilder(context.namedQName.local)
+    makeLegalForC(sb)
+    val name = sb.toString
+    name
+  }
+
+  // Converts a dfdl:length expression to a C expression.  We make some
+  // simplifying assumptions to make converting the expression easier:
+  // - all field names start with ../ or /rootName
+  // - all field names end at the first non-XML-identifier character
+  // - all field names can be converted to C identifiers using cStructFieldAccess
+  // - the expression performs only arithmetic (with no casts) and computes a length
+  // - the expression is almost C-ready but may contain some non-C named operators
+  // - may need to replace any div, idiv, mod with / and % instead
+  // Eventually we should make the compiled expression generate the C code itself
+  // instead of using this superficial replaceAllIn approach.
+  def cExpression(expr: String): String = {
+    // Match each field name and replace it with a C struct field dereference
+    val field = """(((\.\./)+|/)[\p{L}_][\p{L}:_\-.0-9/]*)""".r
+    val exprWithFields = field.replaceAllIn(
+      expr,
+      m => {
+        val fieldName = m.group(1).stripPrefix("../")
+        val cFieldName = cStructFieldAccess(fieldName)
+        cFieldName
+      },
+    )
+    // Match each named operator and replace it with a C operator
+    val operator = """(\bidiv\b|\bdiv\b|\bmod\b)""".r
+    val exprWithOperators = operator.replaceAllIn(
+      exprWithFields,
+      m => {
+        val operatorName = m.group(1)
+        val cOperatorSymbol = operatorName match {
+          case "idiv" => "/"
+          case "div" => "/"
+          case "mod" => "%"
+        }
+        cOperatorSymbol
+      },
+    )
+    exprWithOperators
   }
 
   // Adds an ERD definition for the given complex element
@@ -400,7 +464,7 @@ class CodeGeneratorState(private val root: ElementBase) {
       if (numChildren > 0)
         s"""static const $C ${C}_compute_offsets;
          |
-         |static const size_t ${C}_offsets[$count] = {
+         |static const size_t ${C}_childrenOffsets[$count] = {
          |$offsetComputations
          |};
          |
@@ -412,11 +476,11 @@ class CodeGeneratorState(private val root: ElementBase) {
          |$qNameInit
          |    COMPLEX, // typeCode
          |    $numChildren, // numChildren
-         |    ${C}_offsets, // offsets
-         |    ${C}_childrenERDs, // childrenERDs
-         |    (ERDParseSelf)&${C}_parseSelf, // parseSelf
-         |    (ERDUnparseSelf)&${C}_unparseSelf, // unparseSelf
-         |    {$initChoice} // initChoice
+         |    ${C}_childrenOffsets,
+         |    ${C}_childrenERDs,
+         |    (ERDParseSelf)&${C}_parseSelf,
+         |    (ERDUnparseSelf)&${C}_unparseSelf,
+         |    {.initChoice = $initChoice}
          |};
          |""".stripMargin
       else
@@ -424,11 +488,11 @@ class CodeGeneratorState(private val root: ElementBase) {
          |$qNameInit
          |    COMPLEX, // typeCode
          |    $numChildren, // numChildren
-         |    NULL, // offsets
+         |    NULL, // childrenOffsets
          |    NULL, // childrenERDs
-         |    (ERDParseSelf)&${C}_parseSelf, // parseSelf
-         |    (ERDUnparseSelf)&${C}_unparseSelf, // unparseSelf
-         |    {$initChoice} // initChoice
+         |    (ERDParseSelf)&${C}_parseSelf,
+         |    (ERDUnparseSelf)&${C}_unparseSelf,
+         |    {.initChoice = $initChoice}
          |};
          |""".stripMargin
 
@@ -521,9 +585,12 @@ class CodeGeneratorState(private val root: ElementBase) {
     !alreadySeen
   }
 
-  // Adds an ERD definition for a simple element
+  // Adds an ERD definition for a simple element or simple root element
   private def addSimpleTypeERD(context: ElementBase): Unit = {
+    val C = cStructName(context)
     val erd = erdName(context)
+    val count = structs.top.offsetComputations.length
+    val offsetComputations = structs.top.offsetComputations.mkString(",\n")
     val qNameInit = defineQNameInit(context)
     val typeCode = getPrimType(context) match {
       case PrimType.Boolean => "PRIMITIVE_BOOLEAN"
@@ -540,13 +607,34 @@ class CodeGeneratorState(private val root: ElementBase) {
       case PrimType.UnsignedByte => "PRIMITIVE_UINT8"
       case p => context.SDE("PrimType %s is not supported.", p.toString)
     }
+    // Treat a simple type root element as a hybrid of simple and complex types
     val erdDef =
-      s"""static const ERD $erd = {
-         |$qNameInit
-         |    $typeCode, // typeCode
-         |    0, NULL, NULL, NULL, NULL, {NULL}
-         |};
-         |""".stripMargin
+      if (context == root)
+        s"""|static const $C ${C}_compute_offsets;
+          |
+          |static const size_t ${C}_childrenOffsets[$count] = {
+          |$offsetComputations
+          |};
+          |
+          |static const ERD $erd = {
+          |$qNameInit
+          |    $typeCode, // typeCode
+          |    0, // numChildren
+          |    ${C}_childrenOffsets,
+          |    NULL, // childrenERDs
+          |    (ERDParseSelf)&${C}_parseSelf,
+          |    (ERDUnparseSelf)&${C}_unparseSelf,
+          |    {.initChoice = NULL}
+          |};
+          |""".stripMargin
+      else
+        s"""|static const ERD $erd = {
+          |$qNameInit
+          |    $typeCode, // typeCode
+          |    0, NULL, NULL, NULL, NULL, {NULL}
+          |};
+          |""".stripMargin
+
     erds += erdDef
   }
 
@@ -571,7 +659,7 @@ class CodeGeneratorState(private val root: ElementBase) {
     } else {
       cStructName(child)
     }
-    val e = child.namedQName.local
+    val e = cName(child)
     val arraySize = arrayMaxOccurs(child)
     val arrayDef = if (arraySize > 0) s"[$arraySize]" else ""
     val indent = if (hasChoice) INDENT else NO_INDENT
@@ -593,7 +681,7 @@ class CodeGeneratorState(private val root: ElementBase) {
   // Adds an element's ERD & offset to its parent element's children ERD & offset computations.
   private def addComputations(child: ElementBase): Unit = {
     val C = structs.top.C
-    val e = child.namedQName.local
+    val e = cName(child)
     val hasArray = arrayMaxOccurs(child) > 0
     val arrayName = s"array_${cStructName(child)}$C"
     val erd = if (hasArray) s"${arrayName}ERD" else erdName(child)
@@ -605,21 +693,21 @@ class CodeGeneratorState(private val root: ElementBase) {
     structs.top.erdComputations += erdComputation
   }
 
-  // Generates an array's ERD, offsets, childrenERDs, initERD, parseSelf, unparseSelf, getArraySize
+  // Generates an array's ERD, childrenOffsets, childrenERDs, initERD, parseSelf, unparseSelf, getArraySize
   private def addArrayImplementation(elem: ElementBase): Unit = {
     val C = structs.top.C
-    val e = elem.namedQName.local
+    val e = cName(elem)
     val arrayName = s"array_${cStructName(elem)}$C"
     val erd = erdName(elem)
     val maxOccurs = elem.maxOccurs
     val minOccurs = elem.minOccurs
     val qNameInit = defineQNameInit(elem)
 
-    // Add the array's ERD, offsets, childrenERDs
+    // Add the array's ERD, childrenOffsets, childrenERDs
     val arrayERD =
       s"""static const $C ${arrayName}_compute_offsets;
          |
-         |static const size_t ${arrayName}_offsets[1] = {
+         |static const size_t ${arrayName}_childrenOffsets[1] = {
          |    (const char *)&${arrayName}_compute_offsets.$e[1] - (const char *)&${arrayName}_compute_offsets.$e[0]
          |};
          |
@@ -631,11 +719,11 @@ class CodeGeneratorState(private val root: ElementBase) {
          |$qNameInit
          |    ARRAY, // typeCode
          |    $maxOccurs, // maxOccurs
-         |    ${arrayName}_offsets, // offsets
-         |    ${arrayName}_childrenERDs, // childrenERDs
-         |    (ERDParseSelf)&${arrayName}_parseSelf, // parseSelf
-         |    (ERDUnparseSelf)&${arrayName}_unparseSelf, // unparseSelf
-         |    {.getArraySize = (GetArraySize)&${arrayName}_getArraySize} // getArraySize
+         |    ${arrayName}_childrenOffsets,
+         |    ${arrayName}_childrenERDs,
+         |    (ERDParseSelf)&${arrayName}_parseSelf,
+         |    (ERDUnparseSelf)&${arrayName}_unparseSelf,
+         |    {.getArraySize = (GetArraySize)&${arrayName}_getArraySize}
          |};
          |""".stripMargin
     erds += arrayERD
@@ -727,22 +815,41 @@ class CodeGeneratorState(private val root: ElementBase) {
 
   // Recursively builds a hopefully unique name using the given StringBuilder
   private def buildName(sc: SchemaComponent, sb: StringBuilder): StringBuilder = {
+    // Append schema component's name
     sc match {
       case eb: ElementBase => sb ++= eb.namedQName.local += '_'
       case gd: GlobalElementDecl => sb ++= gd.namedQName.local += '_'
       case ct: GlobalComplexTypeDef => sb ++= ct.namedQName.local += '_'
       case _ => // don't include other schema components in qualified name
     }
+    // Recursively append parent schema components' names
     sc.optLexicalParent.foreach {
       buildName(_, sb)
     }
     sb
   }
 
+  // Makes any XML identifier a legal C identifier
+  private def makeLegalForC(sb: StringBuilder): Unit = {
+    // Remove the local name's namespace prefix if there is one; with
+    // luck it won't be needed and the C code will look cleaner
+    val matcher = Pattern.compile("^[^/:]+:").matcher(sb)
+    if (matcher.lookingAt()) sb.replace(matcher.start, matcher.end, "")
+
+    // Replace illegal characters with '_' to form a legal C name
+    lazy val legalCharsForC: immutable.Set[Char] =
+      Set('_') ++ ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
+    for (i <- sb.indices) {
+      if (!legalCharsForC.contains(sb.charAt(i))) {
+        sb.setCharAt(i, '_')
+      }
+    }
+  }
+
   // Generates the name part of an ERD definition
   private def defineQNameInit(context: ElementBase): String = {
     val prefix = context.namedQName.prefix.map(p => s""""$p"""").getOrElse("NULL")
-    val local = context.namedQName.local
+    val local = context.namedQName.local // we want XML name not C name
     val nsUri = context.namedQName.namespace.toStringOrNullIfNoNS
     // Optimize away ns declaration if possible, although this approach may not be entirely correct
     val parentNsUri = context.enclosingElements.headOption
@@ -817,6 +924,7 @@ class CodeGeneratorState(private val root: ElementBase) {
       case OccursCountKind.Fixed if e.maxOccurs > 1 => e.maxOccurs
       case OccursCountKind.Fixed if e.maxOccurs == 1 => 0
       case OccursCountKind.Implicit if e.minOccurs == 1 && e.maxOccurs == 1 => 0
+      case OccursCountKind.Implicit if e.maxOccurs > 0 => e.maxOccurs
       case OccursCountKind.Expression if e.maxOccurs > 0 => e.maxOccurs
       case _ =>
         e.SDE(
@@ -870,23 +978,36 @@ class CodeGeneratorState(private val root: ElementBase) {
   // assumptions to make generating the field access easier:
   // - the expression contains only a relative or absolute path, nothing else (e.g.,
   //   the expression doesn't call any functions or perform any computation)
-  // - we can convert an absolute path to a rootElement()-> indirection
+  // - we can convert an absolute path to a get_infoset()-> indirection
   // - we can convert a relative path beginning with up dirs to a parents-> indirection
   // - we can convert a relative path without any up dirs to an instance-> indirection
   // - we can convert slashes in the path to dots in a C struct field access notation
   private def cStructFieldAccess(expr: String): String = {
-    // Strip any namespace prefixes from expr and the root element's local name since
-    // C code uses only struct fields' names.
+    // If expr is an absolute path, strip the root element's local name
     val rootName = root.namedQName.local
-    val exprPath = expr.replaceAll("/[^/:]+:", "/").stripPrefix(s"/$rootName")
-    val fieldAccess = if (exprPath.startsWith("/")) {
-      // Convert exprPath to a rootElement()-> indirection
+    val exprWOPrefix = expr.stripPrefix(s"/$rootName")
+
+    // Turn all DFDL local names into legal C names
+    val localName = """([\p{L}_][\p{L}:_\-.0-9]*)""".r
+    val exprWithFields = localName.replaceAllIn(
+      exprWOPrefix,
+      m => {
+        // Make each DFDL local name a legal C name
+        val sb = new StringBuilder(m.group(1))
+        makeLegalForC(sb)
+        sb.mkString
+      },
+    )
+
+    // Convert exprPath to the appropriate field access indirection
+    val fieldAccess = if (exprWithFields.startsWith("/")) {
+      // Convert exprPath to a get_infoset()-> indirection
       val C = cStructName(root)
-      s"""(($C *)rootElement())->${exprPath.stripPrefix("/")}"""
-    } else if (exprPath.startsWith("../")) {
+      s"""(($C *)get_infoset(false))->${exprWithFields.stripPrefix("/")}"""
+    } else if (exprWithFields.startsWith("../")) {
       // Split exprPath into the up dirs and after the up dirs
-      val afterUpDirs = exprPath.split("\\.\\./").mkString
-      val upDirs = exprPath.stripSuffix(afterUpDirs)
+      val afterUpDirs = exprWithFields.split("\\.\\./").mkString
+      val upDirs = exprWithFields.stripSuffix(afterUpDirs)
       // Count how many up dirs there are
       val nUpDirs = upDirs.split('/').length
       // Go up the stack that many times to get that struct's C type
@@ -897,8 +1018,9 @@ class CodeGeneratorState(private val root: ElementBase) {
       s"""(($C *)instance->_base.$parents)->$afterUpDirs"""
     } else {
       // Convert exprPath to an instance-> indirection
-      s"""instance->$exprPath"""
+      s"""instance->$exprWithFields"""
     }
+
     // Finally, convert the field access to C struct dot notation
     val notation = fieldAccess.replace('/', '.')
     notation

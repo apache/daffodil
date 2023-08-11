@@ -18,8 +18,6 @@
 package org.apache.daffodil.validation.schematron
 
 import java.io.ByteArrayInputStream
-import javax.xml.transform.URIResolver
-import javax.xml.transform.stream.StreamSource
 import scala.io.Source
 
 import org.apache.daffodil.validation.schematron.SchSource.Sch
@@ -35,20 +33,30 @@ import org.junit.Test
 class TestBasicValidation {
 
   @Test def testValidXML(): Unit = {
-    val sch = Source.fromResource("sch/schematron-1.sch").mkString
+    val schFile = "sch/schematron-1.sch"
+    val sch = Source.fromResource(schFile).mkString
     val xml = Source.fromResource("xml/article-1.xml").mkString
     val p =
-      SchematronValidatorFactory.makeValidator(new ByteArrayInputStream(sch.getBytes), Sch)
+      SchematronValidatorFactory.makeValidator(
+        new ByteArrayInputStream(sch.getBytes),
+        schFile,
+        Sch,
+      )
 
     val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
     assert(result.errors.isEmpty)
   }
 
   @Test def testInvalidXML(): Unit = {
-    val sch = Source.fromResource("sch/schematron-2.sch").mkString
+    val schFile = "sch/schematron-1.sch"
+    val sch = Source.fromResource(schFile.mkString).mkString
     val xml = Source.fromResource("xml/article-2.xml").mkString
     val p =
-      SchematronValidatorFactory.makeValidator(new ByteArrayInputStream(sch.getBytes), Sch)
+      SchematronValidatorFactory.makeValidator(
+        new ByteArrayInputStream(sch.getBytes),
+        schFile,
+        Sch,
+      )
 
     val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
     result.errors.forEach(e => println(s"Fail: ${e.getMessage}"))
@@ -56,13 +64,15 @@ class TestBasicValidation {
   }
 
   @Test def testInvalidXML2(): Unit = {
-    val sch = Source.fromResource("sch/schematron-3.sch").mkString
+    val schFile = "sch/schematron-3.sch"
+    val sch = Source.fromResource(schFile).mkString
     val xml = Source.fromResource("xml/article-3.xml").mkString
-    val p = SchematronValidatorFactory.makeValidator(
-      new ByteArrayInputStream(sch.getBytes),
-      Sch,
-      Some(new CustomResolver),
-    )
+    val p =
+      SchematronValidatorFactory.makeValidator(
+        new ByteArrayInputStream(sch.getBytes),
+        schFile,
+        Sch,
+      )
 
     val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
     result.errors.forEach(e => println(s"Fail: ${e.getMessage}"))
@@ -70,17 +80,10 @@ class TestBasicValidation {
   }
 
   @Test def testInstantiateAnInstanceOfTemplates(): Unit = {
-    val resolver = new ClassPathUriResolver(Schematron.templatesRootDir, None)
     val factory = new TransformerFactoryImpl()
-    factory.setURIResolver(resolver)
-    val sch = getClass.getClassLoader.getResourceAsStream("sch/schematron-1.sch")
-    val rules = Transforms.from(sch, Sch, factory)
+    val schFile = "sch/schematron-1.sch"
+    val sch = getClass.getClassLoader.getResourceAsStream(schFile)
+    val rules = Transforms.from(sch, schFile, Sch, factory)
     assertNotNull(rules)
-  }
-
-  class CustomResolver extends URIResolver {
-    override def resolve(href: String, base: String) = new StreamSource(
-      getClass.getClassLoader.getResourceAsStream(s"custom-resolver/$href"),
-    )
   }
 }

@@ -36,7 +36,7 @@ class BinaryFloatParser(override val context: ElementRuntimeData) extends PrimPa
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(32)) {
-      PENotEnoughBits(start, 32, dis.remainingBits)
+      PENotEnoughBits(start, 32, dis)
       return
     }
 
@@ -52,7 +52,7 @@ class BinaryDoubleParser(override val context: ElementRuntimeData) extends PrimP
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(64)) {
-      PENotEnoughBits(start, 64, dis.remainingBits)
+      PENotEnoughBits(start, 64, dis)
       return
     }
 
@@ -109,7 +109,7 @@ abstract class BinaryDecimalParserBase(
     val nBits = getBitLength(start)
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
-      PENotEnoughBits(start, nBits, dis.remainingBits)
+      PENotEnoughBits(start, nBits, dis)
       return
     }
 
@@ -179,7 +179,7 @@ abstract class BinaryIntegerBaseParser(
     }
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
-      PENotEnoughBits(start, nBits, dis.remainingBits)
+      PENotEnoughBits(start, nBits, dis)
       return
     }
 

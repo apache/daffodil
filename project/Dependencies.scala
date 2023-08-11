@@ -23,41 +23,41 @@ object Dependencies {
 
   lazy val core = Seq(
     "com.lihaoyi" %% "os-lib" % "0.9.1", // for writing/compiling C source files
-    "org.scala-lang.modules" %% "scala-xml" % "2.1.0",
-    "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0",
-    "com.ibm.icu" % "icu4j" % "72.1",
+    "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
+    "org.scala-lang.modules" %% "scala-parser-combinators" % "2.3.0",
+    "com.ibm.icu" % "icu4j" % "73.2",
     "xerces" % "xercesImpl" % "2.12.2",
     "xml-resolver" % "xml-resolver" % "1.2",
-    "commons-io" % "commons-io" % "2.11.0",
+    "commons-io" % "commons-io" % "2.13.0",
     "com.typesafe" % "config" % "1.4.2",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
   )
 
   lazy val slf4jAPI = Seq(
-    "org.slf4j" % "slf4j-api" % "2.0.6",
+    "org.slf4j" % "slf4j-api" % "2.0.7",
   )
 
   lazy val infoset = Seq(
     "org.jdom" % "jdom2" % "2.0.6.1",
-    "com.fasterxml.woodstox" % "woodstox-core" % "6.5.0",
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.14.2",
+    "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1",
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
   )
 
   lazy val cli = Seq(
     "org.fusesource.jansi" % "jansi" % "2.4.0",
     "org.jline" % "jline" % "3.22.0",
-    "org.rogach" %% "scallop" % "4.1.0",
-    "net.sf.expectit" % "expectit-core" % "0.9.0" % "it,test",
+    "org.rogach" %% "scallop" % "5.0.0",
+    "net.sf.expectit" % "expectit-core" % "0.9.0" % "test",
   )
 
   lazy val test = Seq(
-    "junit" % "junit" % "4.13.2" % "it,test",
-    "com.github.sbt" % "junit-interface" % "0.13.3" % "it,test",
-    "org.scalacheck" %% "scalacheck" % "1.17.0" % "it,test",
+    "junit" % "junit" % "4.13.2" % "test",
+    "com.github.sbt" % "junit-interface" % "0.13.3" % "test",
+    "org.scalacheck" %% "scalacheck" % "1.17.0" % "test",
   )
 
   lazy val schematron = Seq(
-    "net.sf.saxon" % "Saxon-HE" % "11.5",
+    "net.sf.saxon" % "Saxon-HE" % "12.3",
   )
 
   lazy val exi = Seq(

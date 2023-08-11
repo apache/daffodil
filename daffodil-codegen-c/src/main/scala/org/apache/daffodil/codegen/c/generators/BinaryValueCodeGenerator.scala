@@ -20,7 +20,6 @@ package org.apache.daffodil.codegen.c.generators
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
 import org.apache.daffodil.lib.util.Maybe.Nope
 
 // Base trait which provides common code to generate C code for primitive value elements
@@ -44,10 +43,6 @@ trait BinaryValueCodeGenerator {
       e.maybeByteOrderEv == Nope || e.byteOrderEv.isConstant,
       "Runtime dfdl:byteOrder expressions not supported.",
     )
-    e.schemaDefinitionUnless(
-      e.lengthKind == LengthKind.Prefixed || e.elementLengthInBitsEv.isConstant,
-      "Runtime dfdl:length expressions not supported.",
-    )
 
     // Call the given partially applied function values with their remaining unbound argument (deref)
     val deref = if (cgState.hasArray) "[i]" else ""
@@ -68,7 +63,7 @@ trait BinaryValueCodeGenerator {
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
-    val localName = e.namedQName.local
+    val localName = cgState.cName(e)
     val field = s"instance->$localName$deref"
     val conv = if (e.byteOrderEv.constValue eq ByteOrder.BigEndian) "be" else "le"
     val function = s"${conv}_$primType"
@@ -92,7 +87,7 @@ trait BinaryValueCodeGenerator {
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
-    val localName = e.namedQName.local
+    val localName = cgState.cName(e)
     val field = s"instance->$localName$deref"
     val fixed = e.fixedValueAsString
 

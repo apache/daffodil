@@ -17,18 +17,24 @@
 
 package org.apache.daffodil.runtime1.processors.input
 
+import java.lang.{ Double => JDouble }
+import java.lang.{ Long => JLong }
 import java.text.ParsePosition
 
 import org.apache.daffodil.lib.calendar.TextCalendarConstants
 
+import com.ibm.icu.math.{ BigDecimal => ICUBigDecimal }
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.ULocale
 import org.junit.Assert._
 import org.junit.Test
 
 class TestICU {
+
+  def pp = new ParsePosition(0)
 
   /*
    * This test is to ensure the reliability of ICU's fractional seconds. ICU
@@ -68,6 +74,52 @@ class TestICU {
     r.foreach(parseFractionalSeconds)
   }
 
+  /**
+   * This test shows that error index is never set when parsing with a SimpleDateFormat. If ICU
+   * ever changes this to use error index, this test should fail.
+   *
+   * On success, ParsePosition.getIndex is set to where the parse finished. On error,
+   * ParsePosition.getIndex is set to zero and ParsePoition.getErrorIndex is -1 (unset)
+   */
+  @Test def test_simpleDateFormatParse() = {
+    def parseWithPattern(pattern: String, data: String): ParsePosition = {
+      val df = new SimpleDateFormat(pattern)
+      val cal = Calendar.getInstance()
+      val pos = pp
+      df.parse(data, cal, pos)
+      pos
+    }
+
+    {
+      // success, consumes all data
+      val pos = parseWithPattern("HHmm", "1122")
+      assertEquals(4, pos.getIndex)
+      assertEquals(-1, pos.getErrorIndex)
+    }
+
+    {
+      // success, parses only first 4 characters
+      val pos = parseWithPattern("HHmm", "1122extra")
+      assertEquals(4, pos.getIndex)
+      assertEquals(-1, pos.getErrorIndex)
+    }
+
+    {
+      // failure, only partially correct data
+      val pos = parseWithPattern("HHmm", "11cd")
+      assertEquals(2, pos.getIndex)
+      assertEquals(-1, pos.getErrorIndex)
+    }
+
+    {
+      // failure, empty string
+      val pos = parseWithPattern("HHmm", "")
+      assertEquals(0, pos.getIndex)
+      assertEquals(-1, pos.getErrorIndex)
+    }
+
+  }
+
   // The three following tests show an old ICU bug where if the decimal pattern
   // uses scientific notation and the number to format/unparse is positive
   // infinity, negative infinity, or not a number, ICU would include the
@@ -78,36 +130,36 @@ class TestICU {
   // create are commented out to show what used to be broken.
 
   @Test def test_scientific_pos_inf() = {
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
     dfs.setInfinity("INF")
     dfs.setNaN("NaN")
     dfs.setExponentSeparator("x10^")
     val df = new DecimalFormat("000.0#E0", dfs)
-    val posInf = java.lang.Double.POSITIVE_INFINITY
+    val posInf = JDouble.POSITIVE_INFINITY
     val str = df.format(posInf)
     // assertEquals("INFx10^0", str)
     assertEquals("INF", str)
   }
 
   @Test def test_scientific_neg_inf() = {
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
     dfs.setInfinity("INF")
     dfs.setNaN("NaN")
     dfs.setExponentSeparator("x10^")
     val df = new DecimalFormat("000.0#E0", dfs)
-    val negInf = java.lang.Double.NEGATIVE_INFINITY
+    val negInf = JDouble.NEGATIVE_INFINITY
     val str = df.format(negInf)
     // assertEquals("-INFx10^0", str)
     assertEquals("-INF", str)
   }
 
   @Test def test_scientific_nan() = {
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
     dfs.setInfinity("INF")
     dfs.setNaN("NaN")
     dfs.setExponentSeparator("x10^")
     val df = new DecimalFormat("000.0#E0", dfs)
-    val nan = java.lang.Double.NaN
+    val nan = JDouble.NaN
     val str = df.format(nan)
     // assertEquals("NaNx10^0", str)
     assertEquals("NaN", str)
@@ -141,7 +193,7 @@ class TestICU {
   // scientific notiation with an empty exponent separator. If ICU fixes this
   // bug, this test should fail. See DAFFODIL-1981
   @Test def test_empty_exponent_separator() = {
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
     dfs.setExponentSeparator("")
     dfs.setGroupingSeparator(',')
     dfs.setDecimalSeparator('.')
@@ -160,7 +212,7 @@ class TestICU {
   @Test def test_local_side_effect() = {
 
     // Germany's locale has a decimal separator of ','
-    val dfs = new DecimalFormatSymbols(java.util.Locale.GERMANY)
+    val dfs = new DecimalFormatSymbols(ULocale.GERMANY)
 
     // Set the grouping separator to be the same as the decimal separator from
     // the locale. ICU never complains
@@ -192,7 +244,7 @@ class TestICU {
     // defaults to values from the locale. Note that Daffodil does not set
     // inf/nan representations when parsing integers since they should not
     // apply and aren't used according to the DFDL spec
-    val dfs = new DecimalFormatSymbols()
+    val dfs = new DecimalFormatSymbols(ULocale.US)
 
     // Define a pattern that only has a grouping separator--no decimal
     // separator and should only parse integers
@@ -203,16 +255,101 @@ class TestICU {
     val ppNaN = new ParsePosition(0)
     val numNaN = df.parse(dfs.getNaN, ppNaN)
     assertTrue(numNaN.isInstanceOf[Double])
-    assertEquals(java.lang.Double.NaN, numNaN.doubleValue, 0.0)
+    assertEquals(JDouble.NaN, numNaN.doubleValue, 0.0)
 
     val ppInf = new ParsePosition(0)
     val numInf = df.parse(dfs.getInfinity, ppInf)
     assertTrue(numInf.isInstanceOf[Double])
-    assertEquals(java.lang.Double.POSITIVE_INFINITY, numInf.doubleValue, 0.0)
+    assertEquals(JDouble.POSITIVE_INFINITY, numInf.doubleValue, 0.0)
 
     val ppNInf = new ParsePosition(0)
     val numNInf = df.parse(dfs.getMinusSign + dfs.getInfinity, ppNInf)
     assertTrue(numNInf.isInstanceOf[Double])
-    assertEquals(java.lang.Double.NEGATIVE_INFINITY, numNInf.doubleValue, 0.0)
+    assertEquals(JDouble.NEGATIVE_INFINITY, numNInf.doubleValue, 0.0)
   }
+
+  // shows that with parseStrict and decimalPatternMatch required, that ICU requires or
+  // disallows a decimal point in the data based on whether or not a decimal point appears in
+  // the pattern. Also shows ICU failing to parse infinity/nan when decimalPatternMatchRequired
+  // is true and the pattern contains a decimal.
+  @Test def test_decimalPatternMatchRequired(): Unit = {
+    val dfs = new DecimalFormatSymbols(ULocale.US)
+
+    val df = new DecimalFormat("", dfs)
+    df.setDecimalPatternMatchRequired(true)
+    df.setParseStrict(true)
+
+    df.applyPattern("0.0")
+
+    assertEquals(JLong.valueOf(1), df.parse("1.0", pp))
+    assertEquals(null, df.parse("1", pp))
+    assertEquals(null, df.parse(dfs.getInfinity, pp)) // see ICU-22303
+    assertEquals(null, df.parse(dfs.getNaN, pp)) // see ICU-22303
+
+    assertEquals("1.0", df.format(1L))
+    assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
+    assertEquals(dfs.getNaN, df.format(JDouble.NaN))
+
+    df.applyPattern("0")
+
+    assertEquals(null, df.parse("1.0", pp))
+    assertEquals(JLong.valueOf(1), df.parse("1", pp))
+    assertEquals(JDouble.POSITIVE_INFINITY, df.parse(dfs.getInfinity, pp))
+    assertEquals(JDouble.NaN, df.parse(dfs.getNaN, pp))
+
+    assertEquals("1", df.format(1L))
+    assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
+    assertEquals(dfs.getNaN, df.format(JDouble.NaN))
+
+    df.applyPattern("#.#")
+
+    assertEquals(JLong.valueOf(1), df.parse("1.0", pp))
+    assertEquals(null, df.parse("1", pp))
+    assertEquals(null, df.parse(dfs.getInfinity, pp)) // see ICU-22303
+    assertEquals(null, df.parse(dfs.getNaN, pp)) // see ICU-22303
+
+    assertEquals("1", df.format(1L))
+    assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
+    assertEquals(dfs.getNaN, df.format(JDouble.NaN))
+
+    df.applyPattern("#")
+
+    assertEquals(null, df.parse("1.0", pp))
+    assertEquals(JLong.valueOf(1), df.parse("1", pp))
+    assertEquals(JDouble.POSITIVE_INFINITY, df.parse(dfs.getInfinity, pp))
+    assertEquals(JDouble.NaN, df.parse(dfs.getNaN, pp))
+
+    assertEquals("1", df.format(1L))
+    assertEquals(dfs.getInfinity, df.format(JDouble.POSITIVE_INFINITY))
+    assertEquals(dfs.getNaN, df.format(JDouble.NaN))
+  }
+
+  /**
+   * Regardless of the ICU number pattern or text being parsed, ICU always returns the following
+   * types
+   *
+   * - Double if the parsed value is INF, -INF, NaN, or negative zero
+   * - Long if the parsed value has no fractional parts and fits in a long
+   * - ICUBigDecimal otherwise
+   */
+  @Test def test_floatingPointReturnType(): Unit = {
+    val dfs = new DecimalFormatSymbols(ULocale.US)
+    val df = new DecimalFormat("", dfs)
+    df.applyPattern("###0.0##;-###0.0##")
+
+    assertTrue(df.parse("1.0", pp).isInstanceOf[Long])
+    assertTrue(df.parse("-1.0", pp).isInstanceOf[Long])
+    assertTrue(df.parse("0.0", pp).isInstanceOf[Long])
+    assertTrue(df.parse("9223372036854775807", pp).isInstanceOf[Long])
+
+    assertTrue(df.parse(dfs.getNaN, pp).isInstanceOf[Double])
+    assertTrue(df.parse(dfs.getInfinity, pp).isInstanceOf[Double])
+    assertTrue(df.parse("-" + dfs.getInfinity, pp).isInstanceOf[Double])
+    assertTrue(df.parse("-0.0", pp).isInstanceOf[Double])
+
+    assertTrue(df.parse("9223372036854775808", pp).isInstanceOf[ICUBigDecimal])
+    assertTrue(df.parse("122.75", pp).isInstanceOf[ICUBigDecimal])
+    assertTrue(df.parse("0.3", pp).isInstanceOf[ICUBigDecimal])
+  }
+
 }

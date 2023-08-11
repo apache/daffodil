@@ -605,7 +605,8 @@
       <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY123]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>6467715464</tdml:error>
+      <tdml:error>Needed 16</tdml:error>
+      <tdml:error>found only 8</tdml:error>
       <tdml:error>insufficient</tdml:error>
       <tdml:error>parse error</tdml:error>
     </tdml:errors>
@@ -1335,6 +1336,56 @@
     <tdml:errors>
       <tdml:error>16 out of range</tdml:error>
       <tdml:error>between 1 and 8</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="insufficientBits">
+    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"
+                 representation="binary"
+                 alignment="1"
+                 alignmentUnits="bits"
+    />
+
+    <xs:element name="complex" dfdl:lengthKind="explicit" dfdl:length="16">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="child" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nineBits" dfdl:lengthKind="explicit" dfdl:length="2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="bit" type="xs:int" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="1"/>
+          <xs:element name="byte" type="xs:int" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="8"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="insufficientBitsComplex" root="complex" model="insufficientBits"
+                       description="Tests that we get the correct error message when there are not enough bits remaining in the stream">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        12 34
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>32 bit(s) but found only 16</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="insufficientBitsByte" root="nineBits" model="insufficientBits"
+                       description="Tests that we get the correct error message when there are not enough bits remaining in the stream when unaligned">
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        ff
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>8 bit(s) but found only 7</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -62,7 +62,7 @@ abstract class BinaryBooleanParserBase(
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {
-      PENotEnoughBits(start, nBits, dis.remainingBits)
+      PENotEnoughBits(start, nBits, dis)
       return
     }
 

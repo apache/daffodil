@@ -153,4 +153,12 @@ class TestLengthKindExplicit {
   @Test def test_invalidByteBitLengthExpr(): Unit = {
     runner.runOneTest("invalidByteBitLengthExpr")
   }
+
+  @Test def test_insufficientBitsComplex(): Unit = {
+    runner.runOneTest("insufficientBitsComplex")
+  }
+
+  @Test def test_insufficientBitsByte(): Unit = {
+    runner.runOneTest("insufficientBitsByte")
+  }
 }

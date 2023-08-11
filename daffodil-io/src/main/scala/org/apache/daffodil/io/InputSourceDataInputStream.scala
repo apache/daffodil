@@ -128,6 +128,15 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
    */
   def hasReachedEndOfData: Boolean = inputSource.hasReachedEndOfData
 
+  /**
+   * Return the number of currently available bytes.
+   *
+   * This should not be used to determine the length of the data, as more bytes
+   * may become available in the future. This should really only be used for
+   * debug or diagnostic purposes.
+   */
+  def knownBytesAvailable: Long = inputSource.knownBytesAvailable
+
   def setBitPos0b(newBitPos0b: Long): Unit = {
     // threadCheck()
     Assert.invariant(newBitPos0b >= 0)
@@ -789,7 +798,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
     // need to call areBytesAvailable first to ensure at least length bytes are
     // buffered if they exist
     val available = inputSource.areBytesAvailable(nBytesRequested)
-    val bytesToRead = if (available) nBytesRequested else inputSource.bytesAvailable.toInt
+    val bytesToRead = if (available) nBytesRequested else inputSource.knownBytesAvailable.toInt
     val array = new Array[Byte](bytesToRead)
     inputSource.get(array, 0, bytesToRead)
 

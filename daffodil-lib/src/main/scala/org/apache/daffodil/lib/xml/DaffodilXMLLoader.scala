@@ -30,12 +30,12 @@ import java.io.Reader
 import java.net.URI
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
+import javax.xml.transform.Source
 import javax.xml.transform.sax.SAXSource
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.Schema
 import javax.xml.validation.SchemaFactory
 import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.xml.InputSource
 import scala.xml.SAXParseException
 import scala.xml.SAXParser
 import scala.xml.parsing.NoBindingFactoryAdapter
@@ -51,6 +51,13 @@ import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.Catalog
 import org.apache.xml.resolver.CatalogManager
 import org.w3c.dom.ls.LSInput
+import org.xml.sax.ContentHandler
+import org.xml.sax.DTDHandler
+import org.xml.sax.EntityResolver
+import org.xml.sax.ErrorHandler
+import org.xml.sax.InputSource
+import org.xml.sax.XMLReader
+import org.xml.sax.helpers.XMLFilterImpl
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -72,7 +79,8 @@ class DFDLCatalogResolver private ()
   extends org.apache.xerces.xni.parser.XMLEntityResolver
   with org.w3c.dom.ls.LSResourceResolver
   with org.xml.sax.EntityResolver
-  with org.xml.sax.ext.EntityResolver2 {
+  with org.xml.sax.ext.EntityResolver2
+  with javax.xml.transform.URIResolver {
 
   lazy val init = {
     cm
@@ -172,12 +180,23 @@ class DFDLCatalogResolver private ()
   }
 
   def resolveURI(uri: String): String = {
-    init
     val optURI = resolveCommon(uri, null, null)
     optURI match {
       case None => null
       case Some(uri) => uri.toString
     }
+  }
+
+  override def resolve(href: String, base: String): Source = {
+    val optURI = resolveCommon(null, href, base)
+    // The way resolveCommon is called here, it should always throw an exception during
+    // resolution failure, so we should never get a None. That exception should be handled by
+    // the caller, so we can assume we have an URI at this point.
+    Assert.invariant(optURI.isDefined)
+    val uri = optURI.get
+    val source = new StreamSource(uri.toURL.openStream)
+    source.setSystemId(uri.toString)
+    source
   }
 
   private def resolveCommon(
@@ -548,8 +567,16 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
 
   }
 
-  // $COVERAGE-OFF$
+  // $COVERAGE-OFF$ These three functions should only be used if someone calls one of the
+  // Scala-XML load* functions. Only our custom load() functions should be used, which ensures
+  // hat correct parses/readers are used
   override def parser = {
+    Assert.usageError("not to be called.")
+  }
+  override def reader = {
+    Assert.usageError("not to be called.")
+  }
+  override def adapter = {
     Assert.usageError("not to be called.")
   }
   // $COVERAGE-ON$
@@ -596,21 +623,10 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
 
   private def parserFromFactory(f: SAXParserFactory) = {
     val p = f.newSAXParser()
-    //
     // Not allowed on a SAXParser
     // p.setProperty(XMLUtils.SAX_NAvMESPACES_FEATURE, true)
     // Not allowed on a SAXParser
     // p.setProperty(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
-    val xrdr = p.getXMLReader()
-    xrdr.setErrorHandler(errorHandler)
-    // not recognized by XMLReader
-    // xrdr.setFeature("http://xml.org/sax/features/validation/dynamic", true)
-    xrdr.setContentHandler(this)
-    //
-    // This is required to get the parse to really use our resolver.
-    // The setEntityResolver(resolver) does not work.
-    //
-    xrdr.setProperty("http://apache.org/xml/properties/internal/entity-resolver", resolver)
     p
   }
 
@@ -672,17 +688,56 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       // this writing, we have no tests that use that.
       //
       val parser = parserFromURI(optSchemaURI)
-      val xrdr = parser.getXMLReader()
+      val xrdr: XMLReader = {
+        val r = parser.getXMLReader()
+
+        // We must use XMLReader setProperty() function to set the entity resolver--calling
+        // setEntityResolver with the Xerces XML reader causes validation to fail for some
+        // reason. We call the right function below, but unfortunately, scala-xml calls
+        // setEntityResolver in loadDocument(), which cannot be disabled and scala-xml does not
+        // want to change. To avoid this, we wrap the Xerces XMLReader in an XMLFilterImpl and
+        // override setEntityResolver to a no-op. However, XMLFilterImpl parse() calls
+        // setEntityResolver() on the XMLReader, which for the same reason as before causes
+        // issues. To fix this, we can override parse() to just pass through to the parent, but
+        // that means we must override the various set/get handler functions to also pass
+        // through to the parent.
+        val w = new XMLFilterImpl(r) {
+          override def setEntityResolver(resolver: EntityResolver): Unit = {} // no-op
+          override def parse(input: InputSource): Unit = getParent.parse(input)
+
+          override def setContentHandler(handler: ContentHandler): Unit =
+            getParent.setContentHandler(handler)
+          override def setDTDHandler(handler: DTDHandler): Unit =
+            getParent.setDTDHandler(handler)
+          override def setErrorHandler(handler: ErrorHandler): Unit =
+            getParent.setErrorHandler(handler)
+          override def getContentHandler(): ContentHandler =
+            getParent.getContentHandler()
+          override def getDTDHandler(): DTDHandler =
+            getParent.getDTDHandler()
+          override def getErrorHandler(): ErrorHandler =
+            getParent.getErrorHandler()
+        }
+        w.setErrorHandler(errorHandler)
+        w.setProperty("http://apache.org/xml/properties/internal/entity-resolver", resolver)
+        w
+      }
+
       val saxSource = scala.xml.Source.fromSysId(source.uriForLoading.toString)
       try {
-        xrdr.parse(saxSource)
+        // it is important that we call loadDocument to parse/validate the XML instead of
+        // directly calling xrdr.parse. Although loadDocument does eventually call xrdr.parse,
+        // it first modifies the reader in a number of ways to prepare it for use with this
+        // FactoryAdapter, as well as initialize private state that is used by ContentHandler
+        // functions.
+        loadDocument(saxSource, xrdr)
       } catch {
         // can be thrown by the resolver if a schemaLocation of
         // an import/include cannot be resolved.
         // Regular Xerces doesn't report that as an error.
         case spe: SAXParseException => errorHandler.error(spe)
       }
-    // no result, as the errors are reported separately
+      // no result, as the errors are reported separately
     }
     //
     // To get reliable xml nodes including conversion of CDATA syntax into

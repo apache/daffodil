@@ -26,12 +26,12 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Checks that we can run the "daffodil generate c" subcommand with
+ * Checks that we can run the "daffodil generate" subcommand with
  * various options and get expected outputs.
  */
-class TestCLIGenerateC {
+class TestCLIGenerate {
 
-  @Test def test_CLI_Generate_schema(): Unit = {
+  @Test def test_CLI_Generate_C(): Unit = {
     val schema = path(
       "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
@@ -42,7 +42,7 @@ class TestCLIGenerateC {
     }
   }
 
-  @Test def test_CLI_Generate_noC_error(): Unit = {
+  @Test def test_CLI_Generate_noLang_error(): Unit = {
     val schema = path(
       "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )
@@ -54,7 +54,7 @@ class TestCLIGenerateC {
     }
   }
 
-  @Test def test_CLI_Generate_otherThanC_error(): Unit = {
+  @Test def test_CLI_Generate_unknownLang_error(): Unit = {
     val schema = path(
       "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
     )

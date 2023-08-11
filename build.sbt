@@ -19,24 +19,14 @@ import scala.collection.immutable.ListSet
 
 import sbtcc._
 
-// Silence an errant sbt linter warning about unused sbt settings. For some
-// reason, the sbt linter thinks the below settings are set but not used, which
-// leads to a bunch of noisy warnings. But they clearly are used. Seems to be a
-// bug in the linter where it cannot detect that some keys are used. The
-// following is the sbt recommended way to silence these linter warnings on a
-// per setting basis rather thand disabling the linter completely.
-Global / excludeLintKeys ++= Set(
-  EclipseKeys.classpathTransformerFactories,
-)
-
-lazy val genManaged = taskKey[Seq[File]]("Generate managed sources and resources")
+lazy val genManaged = taskKey[Unit]("Generate managed sources and resources")
 lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generate DFDL schemas")
 lazy val genCExamples = taskKey[Seq[File]]("Generate C example files")
+lazy val genVersion = taskKey[Seq[File]]("Generate VERSION file")
 
 lazy val daffodil = project
   .in(file("."))
-  .configs(IntegrationTest)
   .enablePlugins(JavaUnidocPlugin, ScalaUnidocPlugin)
   .aggregate(
     cli,
@@ -55,8 +45,9 @@ lazy val daffodil = project
     slf4jLogger,
     tdmlLib,
     tdmlProc,
-    test,
+    testDaf,
     testIBM1,
+    // testIntegration, // integration tests must be run manually
     testStdLayout,
     tutorials,
     udf,
@@ -64,32 +55,26 @@ lazy val daffodil = project
   .settings(commonSettings, nopublish, ratSettings, unidocSettings, genCExamplesSettings)
 
 lazy val macroLib = Project("daffodil-macro-lib", file("daffodil-macro-lib"))
-  .configs(IntegrationTest)
   .settings(commonSettings, nopublish)
   .settings(libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value)
   .disablePlugins(OsgiCheckPlugin)
 
 lazy val propgen = Project("daffodil-propgen", file("daffodil-propgen"))
-  .configs(IntegrationTest)
   .settings(commonSettings, nopublish)
 
 lazy val slf4jLogger = Project("daffodil-slf4j-logger", file("daffodil-slf4j-logger"))
-  .configs(IntegrationTest)
   .settings(commonSettings)
   .settings(libraryDependencies ++= Dependencies.slf4jAPI)
 
 lazy val lib = Project("daffodil-lib", file("daffodil-lib"))
-  .configs(IntegrationTest)
   .dependsOn(macroLib % "compile-internal, test-internal", slf4jLogger % "test")
   .settings(commonSettings, libManagedSettings, usesMacros)
 
 lazy val io = Project("daffodil-io", file("daffodil-io"))
-  .configs(IntegrationTest)
   .dependsOn(lib, macroLib % "compile-internal, test-internal", slf4jLogger % "test")
   .settings(commonSettings, usesMacros)
 
 lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
-  .configs(IntegrationTest)
   .dependsOn(
     io,
     lib % "test->test",
@@ -101,7 +86,6 @@ lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
 
 lazy val runtime1Unparser =
   Project("daffodil-runtime1-unparser", file("daffodil-runtime1-unparser"))
-    .configs(IntegrationTest)
     .dependsOn(
       runtime1,
       lib % "test->test",
@@ -112,13 +96,11 @@ lazy val runtime1Unparser =
     .settings(commonSettings)
 
 lazy val runtime1Layers = Project("daffodil-runtime1-layers", file("daffodil-runtime1-layers"))
-  .configs(IntegrationTest)
   .dependsOn(runtime1, lib % "test->test", slf4jLogger % "test")
   .settings(commonSettings)
 
 val codeGenCLib = Library("libruntime.a")
 lazy val codeGenC = Project("daffodil-codegen-c", file("daffodil-codegen-c"))
-  .configs(IntegrationTest)
   .enablePlugins(CcPlugin)
   .dependsOn(core, core % "test->test", slf4jLogger % "test")
   .settings(commonSettings)
@@ -141,7 +123,6 @@ lazy val codeGenC = Project("daffodil-codegen-c", file("daffodil-codegen-c"))
   )
 
 lazy val core = Project("daffodil-core", file("daffodil-core"))
-  .configs(IntegrationTest)
   .dependsOn(
     runtime1Unparser,
     udf,
@@ -153,34 +134,28 @@ lazy val core = Project("daffodil-core", file("daffodil-core"))
   .settings(commonSettings)
 
 lazy val japi = Project("daffodil-japi", file("daffodil-japi"))
-  .configs(IntegrationTest)
   .dependsOn(core, slf4jLogger % "test")
   .settings(commonSettings)
 
 lazy val sapi = Project("daffodil-sapi", file("daffodil-sapi"))
-  .configs(IntegrationTest)
   .dependsOn(core, slf4jLogger % "test")
   .settings(commonSettings)
 
 lazy val tdmlLib = Project("daffodil-tdml-lib", file("daffodil-tdml-lib"))
-  .configs(IntegrationTest)
   .dependsOn(macroLib % "compile-internal", lib, io, io % "test->test", slf4jLogger % "test")
   .settings(commonSettings)
 
 lazy val tdmlProc = Project("daffodil-tdml-processor", file("daffodil-tdml-processor"))
-  .configs(IntegrationTest)
   .dependsOn(tdmlLib, codeGenC, core, slf4jLogger)
   .settings(commonSettings)
 
 lazy val cli = Project("daffodil-cli", file("daffodil-cli"))
-  .configs(IntegrationTest)
   .dependsOn(
     tdmlProc,
     codeGenC,
     sapi,
     japi,
     schematron % Runtime,
-    udf % "it->test",
     slf4jLogger,
   ) // causes codegen-c/sapi/japi to be pulled into the helper zip/tar
   .settings(commonSettings, nopublish)
@@ -188,7 +163,6 @@ lazy val cli = Project("daffodil-cli", file("daffodil-cli"))
   .settings(libraryDependencies ++= Dependencies.exi)
 
 lazy val udf = Project("daffodil-udf", file("daffodil-udf"))
-  .configs(IntegrationTest)
   .dependsOn(slf4jLogger % "test")
   .settings(commonSettings)
 
@@ -196,10 +170,8 @@ lazy val schematron = Project("daffodil-schematron", file("daffodil-schematron")
   .dependsOn(lib, sapi % Test, slf4jLogger % "test")
   .settings(commonSettings)
   .settings(libraryDependencies ++= Dependencies.schematron)
-  .configs(IntegrationTest)
 
-lazy val test = Project("daffodil-test", file("daffodil-test"))
-  .configs(IntegrationTest)
+lazy val testDaf = Project("daffodil-test", file("daffodil-test"))
   .dependsOn(tdmlProc % "test", codeGenC % "test->test", udf % "test->test")
   .settings(commonSettings, nopublish)
 //
@@ -209,7 +181,6 @@ lazy val test = Project("daffodil-test", file("daffodil-test"))
 //.settings(IBMDFDLCrossTesterPlugin.settings)
 
 lazy val testIBM1 = Project("daffodil-test-ibm1", file("daffodil-test-ibm1"))
-  .configs(IntegrationTest)
   .dependsOn(tdmlProc % "test")
   .settings(commonSettings, nopublish)
 //
@@ -218,21 +189,33 @@ lazy val testIBM1 = Project("daffodil-test-ibm1", file("daffodil-test-ibm1"))
 //
 //.settings(IBMDFDLCrossTesterPlugin.settings)
 
+lazy val testIntegration =
+  Project("daffodil-test-integration", file("daffodil-test-integration"))
+    .dependsOn(cli % "test->test", udf % "test->test")
+    .settings(commonSettings, nopublish)
+    .settings(
+      // CLI integration tests fork a new process which requires extra memory, so these should
+      // only be run sequentially. We also need to stage the CLI script if any of the test
+      // tasks are run
+      Test / parallelExecution := false,
+      Test / test := (Test / test).dependsOn(cli / Compile / stage).value,
+      Test / testOnly := (Test / testOnly).dependsOn(cli / Compile / stage).evaluated,
+      Test / testQuick := (Test / testQuick).dependsOn(cli / Compile / stage).evaluated,
+    )
+
 lazy val tutorials = Project("daffodil-tutorials", file("tutorials"))
-  .configs(IntegrationTest)
   .dependsOn(tdmlProc % "test")
   .settings(commonSettings, nopublish)
 
 lazy val testStdLayout = Project("daffodil-test-stdLayout", file("test-stdLayout"))
-  .configs(IntegrationTest)
   .dependsOn(tdmlProc % "test")
   .settings(commonSettings, nopublish)
 
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
-  version := "3.5.0-SNAPSHOT",
-  scalaVersion := "2.12.17",
-  crossScalaVersions := Seq("2.12.17"),
+  version := "3.6.0-SNAPSHOT",
+  scalaVersion := "2.12.18",
+  crossScalaVersions := Seq("2.12.18"),
   scalacOptions ++= buildScalacOptions(scalaVersion.value),
   Compile / compile / javacOptions ++= buildJavacOptions(),
   logBuffered := true,
@@ -252,13 +235,13 @@ lazy val commonSettings = Seq(
   ),
   licenses := Seq(License.Apache2),
   homepage := Some(url("https://daffodil.apache.org")),
+  releaseNotesURL := Some(url(s"https://daffodil.apache.org/releases/${version.value}/")),
   unmanagedBase := baseDirectory.value / "lib" / "jars",
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
-  // IntegrationTest / parallelExecution := false, // allow test in parallel
   testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
-) ++ Defaults.itSettings
+)
 
 def buildScalacOptions(scalaVersion: String) = {
   val commonOptions = Seq(
@@ -342,31 +325,12 @@ lazy val usesMacros = Seq(
   Compile / packageBin / mappings ++= (macroLib / Compile / packageBin / mappings).value
     .filter { case (f, _) => f.isDirectory || f.getPath.endsWith(".class") },
   Compile / packageSrc / mappings ++= (macroLib / Compile / packageSrc / mappings).value,
-
-  // The .classpath files that the sbt eclipse plugin creates need minor
-  // modifications. Fortunately, the plugin allows us to provide "transformers"
-  // to make such modifications. Note that because this is part of the
-  // "usesMacro" setting, the following transformations are only applied to
-  // .classpath files in projects that use macros and add this setting.
-  EclipseKeys.classpathTransformerFactories ++= Seq(
-    // The macroLib project needs to be a "compile-internal" dependency to
-    // projects that add this "usesMacros" setting. But the sbt eclipse plugin
-    // only looks at "compile" dependencies when building .classpath files.
-    // This means that eclipse projects that use macros don't have a dependency
-    // to macroLib and so fail to compile. This transformation looks for
-    // "classpath" nodes, and appends a new "classpathentry" node as a child
-    // referencing the macroLib project. This causes Eclipse to treat macroLib
-    // just like any other dependency to allow compilation to work.
-    transformNode(
-      "classpath",
-      DefaultTransforms.Append(EclipseClasspathEntry.Project(macroLib.base.toString)),
-    ),
-  ),
 )
 
 lazy val libManagedSettings = Seq(
   genManaged := {
-    (Compile / genProps).value ++ (Compile / genSchemas).value
+    (Compile / managedSources).value
+    (Compile / managedResources).value
   },
   Compile / genProps := {
     val cp = (propgen / Runtime / dependencyClasspath).value
@@ -412,8 +376,23 @@ lazy val libManagedSettings = Seq(
       }
     cachedFun(filesToWatch).toSeq
   },
-  Compile / sourceGenerators += (Compile / genProps).taskValue,
-  Compile / resourceGenerators += (Compile / genSchemas).taskValue,
+  Compile / genVersion := {
+    val resourceDir = (Compile / resourceManaged).value
+    val outFile = resourceDir / "org" / "apache" / "daffodil" / "lib" / "VERSION"
+    if (!outFile.exists || IO.read(outFile) != version.value) {
+      // only write the VERSION file if the version has changed. If we always write, then the
+      // mtime changes and sbt thinks it needs to rebuild everything since a resource changed.
+      IO.write(outFile, version.value)
+    }
+    Seq(outFile)
+  },
+  Compile / sourceGenerators ++= Seq(
+    (Compile / genProps).taskValue,
+  ),
+  Compile / resourceGenerators ++= Seq(
+    (Compile / genSchemas).taskValue,
+    (Compile / genVersion).taskValue,
+  ),
 )
 
 lazy val ratSettings = Seq(
@@ -465,7 +444,7 @@ lazy val genCExamplesSettings = Seq(
         .withOutputStrategy(Some(LoggedOutput(forkCaptureLogger)))
         .withBootJars(cp.files.toVector)
       val mainClass = "org.apache.daffodil.codegen.c.DaffodilCExamplesGenerator"
-      val outdir = (codeGenC / Test / sourceDirectory).value / "c" / "examples"
+      val outdir = (codeGenC / Test / sourceDirectory).value / "examples"
       val args = Seq(mainClass, outdir.toString)
       val ret = Fork.java(forkOpts, args)
       forkCaptureLogger.stderr.foreach { stream.log.error(_) }

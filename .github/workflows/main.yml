@@ -38,16 +38,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distribution: [ temurin ]
+        java_distribution: [ temurin ]
         java_version: [ 8, 11, 17 ]
-        scala_version: [ 2.12.17 ]
+        scala_version: [ 2.12.18 ]
         os: [ ubuntu-22.04, windows-2022 ]
         include:
           - os: macos-12
             shell: bash
-            distribution: temurin
+            java_distribution: temurin
             java_version: 17
-            scala_version: 2.12.17
+            scala_version: 2.12.18
             env_cc: cc
             env_ar: ar
           - os: ubuntu-22.04
@@ -58,6 +58,14 @@ jobs:
             shell: msys2 {0}
             env_cc: clang
             env_ar: llvm-ar
+          # configure different languages for some jobs, defaulting to en_US.UTF-8
+          - env_lang: en_US.UTF-8
+          - os: ubuntu-22.04
+            java_version: 8
+            env_lang: de_DE.UTF-8
+          - os: ubuntu-22.04
+            java_version: 11
+            env_lang: ja_JP.UTF-8
 
     runs-on: ${{ matrix.os }}
     defaults:
@@ -66,11 +74,12 @@ jobs:
     env:
       AR: ${{ matrix.env_ar }}
       CC: ${{ matrix.env_cc }}
+      LANG: ${{ matrix.env_lang }}
       SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
       SONARSCAN: ${{
                      matrix.os == 'ubuntu-22.04' &&
                      matrix.java_version == '11' &&
-                     matrix.scala_version == '2.12.17' &&
+                     matrix.scala_version == '2.12.18' &&
                      github.event_name == 'push' &&
                      github.repository == 'apache/daffodil' &&
                      github.ref == 'refs/heads/main'
@@ -88,7 +97,9 @@ jobs:
 
       - name: Install Dependencies (Linux)
         if: runner.os == 'Linux'
-        run: sudo apt-get install -y libmxml-dev
+        run: |
+          sudo apt-get install -y libmxml-dev
+          sudo locale-gen $LANG
 
       - name: Install Dependencies (Windows)
         if: runner.os == 'Windows'
@@ -99,7 +110,7 @@ jobs:
 
       - name: Check out mxml source (Windows)
         if: runner.os == 'Windows'
-        uses: actions/checkout@v3.3.0
+        uses: actions/checkout@v3.5.3
         with:
           repository: michaelrsweet/mxml
           ref: v3.3
@@ -118,15 +129,15 @@ jobs:
           echo "COURSIER_CONFIG_DIR=$temp" >> $GITHUB_ENV
 
       - name: Check out Repository
-        uses: actions/checkout@v3.3.0
-        # Disabling shallow clone is recommended for improving reporting
+        uses: actions/checkout@v3.5.3
+        # Disabling shallow clone is recommended for improving sonarcloud reporting
         with:
           fetch-depth: 0
 
       - name: Setup Java
-        uses: actions/setup-java@v3.10.0
+        uses: actions/setup-java@v3.12.0
         with:
-          distribution: ${{ matrix.distribution }}
+          distribution: ${{ matrix.java_distribution }}
           java-version: ${{ matrix.java_version }}
           cache: sbt
 
@@ -141,7 +152,7 @@ jobs:
       ############################################################
 
       - name: Compile
-        run: $SBT compile Test/compile IntegrationTest/compile
+        run: $SBT compile Test/compile daffodil-test-integration/Test/compile
 
       - name: Build Documentation
         run: $SBT unidoc
@@ -157,21 +168,11 @@ jobs:
       # Check
       ############################################################
 
-      - name: Run Rat Check
-        run: $SBT ratCheck || (cat target/rat.txt; exit 1)
-
-      - name: Run OSGI Check
-        run: $SBT osgiCheck
-        
-      - name: Run scalafmt Check
-        if: runner.os == 'Linux'
-        run: $SBT scalafmtCheckAll scalafmtSbtCheck
-
       - name: Run Unit Tests
         run: $SBT test
 
       - name: Run Integration Tests
-        run: $SBT IntegrationTest/test
+        run: $SBT daffodil-test-integration/test
 
       - name: Run Modified Example Files Check
         run: git diff --color --exit-code
@@ -180,7 +181,7 @@ jobs:
         run: $SBT coverageAggregate
 
       - name: Upload Coverage Report
-        uses: codecov/codecov-action@v3.1.1
+        uses: codecov/codecov-action@v3.1.4
 
       - name: Prepare for SonarCloud Scan
         if: ${{ env.SONARSCAN == 'true' }}
@@ -198,15 +199,60 @@ jobs:
           args: -Dproject.settings=.sonar-project.properties
 
 
-  # Ensure pull requests only have a single commit
+  # Lint checks that do not require compilation
+  lint:
+    name: Lint Checks
+    strategy:
+      fail-fast: false
+      matrix:
+        java_distribution: [ temurin ]
+        java_version: [ 17 ]
+        scala_version: [ 2.12.18 ]
+        os: [ ubuntu-22.04 ]
+    runs-on: ${{ matrix.os }}
+    env:
+      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }}
+    steps:
 
+      ############################################################
+      # Setup
+      ############################################################
+
+      - name: Check out Repository
+        uses: actions/checkout@v3.5.3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3.12.0
+        with:
+          distribution: ${{ matrix.java_distribution }}
+          java-version: ${{ matrix.java_version }}
+          cache: sbt
+
+      ############################################################
+      # Lint checks
+      ############################################################
+
+      - name: Run Rat Check
+        if: success() || failure()
+        run: $SBT ratCheck || (cat target/rat.txt; exit 1)
+
+      - name: Run OSGI Check
+        if: success() || failure()
+        run: $SBT osgiCheck
+
+      - name: Run scalafmt Check
+        if: success() || failure()
+        run: $SBT scalafmtCheckAll scalafmtSbtCheck
+
+
+  # Ensure pull requests only have a single commit
   single-commit:
     name: Single Commit Pull Request
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-22.04
     steps:
       - name: Check Single Commit
-        uses: actions/github-script@v6.4.0
+        uses: actions/github-script@v6.4.1
         with:
           script: |
             const commits = await github.rest.pulls.listCommits({

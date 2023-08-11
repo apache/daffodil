@@ -23,6 +23,7 @@ import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.cookers.EntityReplacer
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberCheckPolicy
 import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
@@ -559,24 +560,17 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
         case TextNumberRounding.Pattern => (MaybeDouble.Nope, Nope)
       }
 
-    val (infRep, nanRep) = e.primType match {
-      case PrimType.Double | PrimType.Float =>
-        (One(e.textStandardInfinityRep), One(e.textStandardNaNRep))
-      case _ => (Nope, Nope)
-    }
-
-    // If the pattern contains any of these characters, we need to set both
-    // group and decimal separators, even if the pattern doesn't contain the
-    // associated character. This is because even when the pattern does not
-    // contain the grouping/decimal separators, ICU stills seems to take the
-    // separators into account. And since ICU provides default values based on
-    // locales, not setting them can cause subtle locale related bugs. We must
-    // also require the separators if the prim type is not an integer type,
-    // since ICU will use them even if the pattern does not specify them.
+    // If the pattern contains any of these characters, we need to set both group and decimal
+    // separators, even if the pattern doesn't contain the associated character. This is because
+    // even when the pattern does not contain the grouping/decimal separators, ICU stills seems
+    // to take the separators into account. And since ICU provides default values based on
+    // locales, not setting them can cause subtle locale related bugs. We also must required
+    // separators when parsing is lax, which parses decimals and grouping separators regardless
+    // of the pattern.
     val requireDecGroupSeps =
       patternWithoutEscapedChars.contains(",") || patternWithoutEscapedChars.contains(".") ||
         patternWithoutEscapedChars.contains("E") || patternWithoutEscapedChars.contains("@") ||
-        !primNumeric.isInteger
+        (e.textNumberCheckPolicy eq TextNumberCheckPolicy.Lax)
 
     val decSep =
       if (requireDecGroupSeps) {
@@ -597,15 +591,14 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       decSep,
       groupSep,
       One(e.textStandardExponentRepEv),
-      infRep,
-      nanRep,
+      One(e.textStandardInfinityRep),
+      One(e.textStandardNaNRep),
       e.textNumberCheckPolicy,
       runtimePattern,
       e.textNumberRounding,
       roundingMode,
       roundingIncrement,
       zeroRepsRaw,
-      primNumeric.isInteger,
       e.primType,
     )
     ev.compile(tunable)

@@ -52,7 +52,7 @@ sealed abstract class HexBinaryLengthParser(override val context: ElementRuntime
       // create and fill the byte array
       val dis = start.dataInputStream
       if (!dis.isDefinedForLength(nBits)) {
-        PENotEnoughBits(start, nBits, dis.remainingBits)
+        PENotEnoughBits(start, nBits, dis)
       } else {
         val array = start.dataInputStream.getByteArray(nBits.toInt, start)
         currentElement.setDataValue(array)

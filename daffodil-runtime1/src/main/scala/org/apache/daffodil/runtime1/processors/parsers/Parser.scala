@@ -18,13 +18,13 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.io.BacktrackingException
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.api.DataLocation
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.util.Maybe.One
-import org.apache.daffodil.lib.util.MaybeULong
-import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.{ MaybeULong, Misc }
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.processors.CombinatorProcessor
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -65,10 +65,49 @@ sealed trait Parser extends Processor {
     pstate.setFailed(new ParseError(One(sfl), One(dataLoc), s, args: _*))
   }
 
-  def PENotEnoughBits(pstate: PState, neededBits: Long, remainingBits: MaybeULong) = {
-    val remainingStr =
-      if (remainingBits.isDefined) s" but found only ${remainingBits.get} available" else ""
-    PE(pstate, "Insufficient bits in data. Needed %d bit(s)%s.", neededBits, remainingStr)
+  def PENotEnoughBits(
+    pstate: PState,
+    sfl: SchemaFileLocation,
+    dataLoc: DataLocation,
+    neededBits: Long,
+    source: InputSourceDataInputStream,
+  ): Unit = {
+    val startPos = dataLoc.bitPos1b - 1
+    val remainingLimitedBits = {
+      if (source.bitLimit0b.isEmpty) MaybeULong.Nope
+      else {
+        val lim = source.bitLimit0b.get
+        Assert.invariant(lim >= 0)
+        val nBits = lim - startPos
+        MaybeULong(nBits)
+      }
+    }
+    val remainingBits = {
+      if (source.hasReachedEndOfData) {
+        val bitsAvailable = {
+          val fragmentBitsReadFromSourcePos = source.bitPos0b % 8
+          val bitsAvailableFromSourcePos =
+            source.knownBytesAvailable * 8 - fragmentBitsReadFromSourcePos
+          val bitsBetweenStartPosAndSourcePos = source.bitPos0b - startPos
+          val bitsAvailableFromStartPos =
+            bitsAvailableFromSourcePos + bitsBetweenStartPosAndSourcePos
+          bitsAvailableFromStartPos
+        }
+        if (remainingLimitedBits.isEmpty || bitsAvailable < remainingLimitedBits.get)
+          bitsAvailable
+        else
+          remainingLimitedBits.get
+      } else remainingLimitedBits.get
+    }
+
+    PE(
+      pstate,
+      sfl,
+      dataLoc,
+      "Insufficient bits in data. Needed %d bit(s) but found only %d available",
+      neededBits,
+      remainingBits,
+    )
   }
 
   def PENotEnoughBits(
@@ -76,17 +115,27 @@ sealed trait Parser extends Processor {
     sfl: SchemaFileLocation,
     dataLoc: DataLocation,
     neededBits: Long,
-    remainingBits: MaybeULong,
-  ) = {
-    val remainingStr =
-      if (remainingBits.isDefined) s" but found only ${remainingBits.get} available" else ""
+  ): Unit = {
     PE(
       pstate,
       sfl,
       dataLoc,
-      "Insufficient bits in data. Needed %d bit(s)%s.",
+      "Insufficient bits in data. Needed %d bit(s)",
       neededBits,
-      remainingStr,
+    )
+  }
+
+  def PENotEnoughBits(
+    pstate: PState,
+    neededBits: Long,
+    source: InputSourceDataInputStream,
+  ): Unit = {
+    PENotEnoughBits(
+      pstate,
+      pstate.schemaFileLocation,
+      pstate.currentLocation,
+      neededBits,
+      source,
     )
   }
 
