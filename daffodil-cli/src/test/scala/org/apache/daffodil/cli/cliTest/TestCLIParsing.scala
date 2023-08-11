@@ -630,9 +630,53 @@ class TestCLIParsing {
   }
 
   @Test def test_DFDL_1203_schema_from_jar(): Unit = {
+    // This test makes sure a schema can be compiled from a jar on the classpath--the schema
+    // val should not use the path() function, and the value should be an absolute resource
+    // path. Note that this requires the daffodil-cli src/test/resources directory to be on the
+    // classpath. If this test changes so that runCLI forks, that might not be the case and this
+    // test might fail
+    val schema = "/org/apache/daffodil/cli/global_element.dfdl.xsd"
+
+    val input = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/test_DFDL-714.txt",
+    )
+
+    runCLI(args"parse -s $schema $input") { cli =>
+      cli.expect("<tns:elem xmlns:tns=\"http://baseSchema.com\">")
+      cli.expect("<content")
+      cli.expect("Hello World")
+      cli.expect("</tns:elem>")
+    }(ExitCode.Success)
+  }
+
+  @Test def test_DFDL_1203_schema_from_jar_relative(): Unit = {
+    // This is the same as test_DFDL_1203_schema_from_jar, but its schema is relative. This
+    // behavior is deprecated and should lead to a CLI warning. Future versions of Daffodil may
+    // disallow this and it may become a CLI error
+    val schema = "org/apache/daffodil/cli/global_element.dfdl.xsd"
+
+    val input = path(
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/test_DFDL-714.txt",
+    )
+
+    runCLI(args"parse -s $schema $input") { cli =>
+      cli.expect("<tns:elem xmlns:tns=\"http://baseSchema.com\">")
+      cli.expect("<content")
+      cli.expect("Hello World")
+      cli.expect("</tns:elem>")
+      cli.expectErr("Found relative path on classpath absolutely")
+      cli.expectErr("/org/apache/daffodil/cli/global_element.dfdl.xsd")
+    }(ExitCode.Success)
+  }
+
+  @Test def test_DFDL_1203_schema_from_absolute_path(): Unit = {
+    // This test makes sure a schema can be compiled from an absolute path on the filesystem.
+    // Note that this will result in the CLI seeing OS-dependent path separators, and on Windows
+    // will have a drive letter and colon prefixed
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/global_element.dfdl.xsd",
-    )
+    ).toAbsolutePath
+
     val input = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/test_DFDL-714.txt",
     )
@@ -672,10 +716,9 @@ class TestCLIParsing {
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
     runCLI(args"parse -s $schema -r e $input") { cli =>
-      cli.expectErr("Schema Definition Warning")
+      cli.expectErr("Schema Definition Error")
       cli.expectErr("edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd")
-      cli.expectErr("org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd")
-    }(ExitCode.Success)
+    }(ExitCode.UnableToCreateProcessor)
   }
 
   @Test def test_CLI_Parsing_JavaDefaults(): Unit = {

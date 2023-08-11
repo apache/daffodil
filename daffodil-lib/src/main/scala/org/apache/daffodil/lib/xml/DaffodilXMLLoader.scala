@@ -24,7 +24,6 @@ package org.apache.daffodil.lib.xml
  */
 
 import java.io.BufferedInputStream
-import java.io.File
 import java.io.InputStream
 import java.io.Reader
 import java.net.URI
@@ -209,17 +208,7 @@ class DFDLCatalogResolver private ()
 
     Logger.log.debug(s"nsURI = ${nsURI}, baseURI = ${baseURIString}, systemId = ${systemId}")
     val resolvedUri = delegate.resolveURI(nsURI)
-    val resolvedSystem =
-      if (systemId == null) null
-      else {
-        delegate.resolveSystem(systemId) match {
-          case null => {
-            val systemIdFile = new File(systemId)
-            if (systemIdFile.exists) systemIdFile.toURI().toString else null
-          }
-          case rSys => rSys
-        }
-      }
+    val resolvedSystem = delegate.resolveSystem(systemId)
 
     // An Include in a schema with a target namespace should resolve to the systemId and ignore the nsURI
     // because the nsURI will resolve to the including schema file.
@@ -251,26 +240,31 @@ class DFDLCatalogResolver private ()
         None
       }
       case (null, sysId) => {
-        // We did not get a catalog resolution of the nsURI, nor
-        // a straight file resolution of the systemId, so we
-        // use the systemId (which comes from the schemaLocation attribute)
-        // and the classpath.
-        val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
-        val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
+        // We did not get a catalog resolution of the nsURI. We now look for the systemID (which
+        // comes from the schemaLocation attribute) on classpath or as a file.
+        val optURI =
+          try {
+            val contextURI = Some(new URI(baseURIString))
+            val resolved = XMLUtils.resolveSchemaLocation(sysId, contextURI)
+            // we drop the boolean return part of resolveSchemaLocation because we don't care here
+            // if a relative schemaLocation was resolved absolutely. Daffodil will detect that
+            // elsewhere and output a warning.
+            resolved.map(_._1)
+          } catch {
+            case e: IllegalArgumentException =>
+              throw new SAXParseException(
+                s"Invalid or unsupported schemaLocation URI: ${e.getMessage}",
+                null,
+              )
+          }
+
         optURI match {
-          case Some(uri) => Logger.log.debug(s"Found on classpath: ${uri}.")
+          case Some(uri) => Logger.log.debug(s"Found schemaLocation: ${uri}.")
           case None => {
-            //
-            // We have to explicitly throw this, because returning with
-            // a no-resolve does not cause Xerces to report an error.
-            // Instead you just get later errors about symbols that can't
-            // be resolved, but it never mentions that an include/import didn't
-            // work.
-            val e = new SAXParseException(
-              s"""DaffodilXMLLoader: Unable to resolve schemaLocation='$systemId'.""",
-              null,
-            )
-            throw e
+            // We have to explicitly throw this, because returning with a no-resolve does not
+            // cause Xerces to report an error. Instead you just get later errors about symbols
+            // that can't be resolved, but it never mentions that an include/import didn't work.
+            throw new SAXParseException(s"Unable to resolve schemaLocation: $systemId", null)
           }
         }
         optURI

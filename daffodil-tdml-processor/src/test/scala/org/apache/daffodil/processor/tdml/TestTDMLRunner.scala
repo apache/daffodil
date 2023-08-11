@@ -216,7 +216,7 @@ class TestTDMLRunner {
       xsd
     } xmlns:dfdl={dfdl} xmlns:tns={example}>
                       <ts:defineSchema name="mySchema">
-                        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+                        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
                         <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
                       </ts:defineSchema>

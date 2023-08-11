@@ -17,10 +17,8 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.io.File
 import java.net.URI
 import java.net.URISyntaxException
-import java.net.URLEncoder
 import scala.collection.immutable.ListMap
 import scala.xml.Node
 
@@ -31,6 +29,7 @@ import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.NS
+import org.apache.daffodil.lib.xml.XMLUtils
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include
@@ -179,16 +178,7 @@ abstract class IIBase(
     res
   }.value
 
-  final lazy val schemaLocationProperty = {
-    val prop = getAttributeOption("schemaLocation")
-    if (prop.isDefined && prop.get == "edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd") {
-      SDW(
-        WarnID.DeprecatedBuiltInFormats,
-        "schemaLocation property uses deprecated include/import of edu/illinois/ncsa/daffodil/xsd/built-in-formats.xsd. Use org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd instead and change the dfdl:format ref to \"GeneralFormat\".",
-      )
-    }
-    prop
-  }
+  final lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
 
   protected final def isValidURI(uri: String): Boolean = {
     try { new URI(uri) }
@@ -205,44 +195,17 @@ abstract class IIBase(
   protected final lazy val resolvedSchemaLocation: Option[DaffodilSchemaSource] =
     LV('resolvedSchemaLocation) {
       val res = schemaLocationProperty.flatMap { slText =>
-        // We need to determine if the URI is valid, if it's not we should attempt to encode it
-        // to make it valid (takes care of spaces in directories). If it fails after this, oh well!
-        val encodedSLText = if (!isValidURI(slText)) {
-          val file = new File(slText)
-          if (file.exists()) file.toURI().toString() else URLEncoder.encode(slText, "UTF-8")
-        } else slText
-
-        val uri: URI = URI.create(encodedSLText)
-        val enclosingSchemaURI: Option[URI] =
-          if (Misc.isFileURI(uri)) None else schemaFile.map { _.schemaSource.uriForLoading }
-
-        val completeURI = enclosingSchemaURI.map { _.resolve(uri) }.getOrElse(uri)
-        val protocol = {
-          if (completeURI.isAbsolute) {
-            val completeURL = completeURI.toURL
-            completeURL.getProtocol()
-          } else {
-            ""
-          }
+        val enclosingSchemaURI = schemaFile.map { _.schemaSource.uriForLoading }
+        val optURI = XMLUtils.resolveSchemaLocation(slText, enclosingSchemaURI)
+        val optSource = optURI.map { case (uri, relToAbs) =>
+          schemaDefinitionWarningWhen(
+            WarnID.DeprecatedRelativeSchemaLocation,
+            relToAbs,
+            s"Resolving relative schemaLocations absolutely is deprecated. Did you mean /$slText",
+          )
+          URISchemaSource(uri)
         }
-        //
-        // Note that Looking in the current working directory (CWD)
-        // would be a security risk/issue. So if a user wants the CWD
-        // they should add "." to their classpath to get it to be
-        // searched.
-        //
-        val resolved =
-          if (protocol == "file" && (new File(completeURI)).exists)
-            Some(URISchemaSource(completeURI))
-          else if (protocol == "jar")
-            Some(
-              URISchemaSource(completeURI),
-            ) // jars are pre-resolved - we got the jar URI from the resolver
-          else {
-            val res = Misc.getResourceRelativeOption(encodedSLText, enclosingSchemaURI)
-            res.map { URISchemaSource(_) }
-          }
-        resolved
+        optSource
       }
       res
     }.value
