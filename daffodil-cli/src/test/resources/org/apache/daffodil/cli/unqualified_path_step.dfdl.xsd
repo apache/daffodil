@@ -24,7 +24,7 @@
   xmlns="http://example.com"
   elementFormDefault="unqualified"> 
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:annotation> 
     <xs:appinfo source="http://www.ogf.org/dfdl/" >

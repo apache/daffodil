@@ -25,7 +25,7 @@
 
   <!-- Binary representation properties -->
 
-  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format

@@ -61,7 +61,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s2a" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:group name="g">
@@ -134,7 +134,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="s2b" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:group name="g">
@@ -208,7 +208,7 @@
     
   
   <tdml:defineSchema name="s3" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:group name="g">
@@ -289,7 +289,7 @@
   
   
   <tdml:defineSchema name="s4" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
     <dfdl:defineVariable name="myVar" type="xs:double"/>
 
@@ -352,7 +352,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s5" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
     <dfdl:defineVariable name="myVar" type="xs:double"/>
 
@@ -421,7 +421,7 @@
   </tdml:parserTestCase>
   
     <tdml:defineSchema name="s6" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
     <dfdl:defineVariable name="myVar" type="xs:double"/>
 
@@ -477,7 +477,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="arraySchema" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
 
     <xs:element name="r">

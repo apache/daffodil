@@ -80,7 +80,7 @@ community by IBM. (It is built into the Daffodil software.)
 </p></tdml:tutorial>
 
   <tdml:defineSchema name="s1" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:defineFormat name="myDefaults">
       <dfdl:format lengthKind="implicit" representation="text" encoding="ASCII" initiator="" terminator="" separator=""
@@ -99,7 +99,7 @@ community by IBM. (It is built into the Daffodil software.)
     nice one as a good starting point.
      -->
 
-    <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" /> 
+    <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" /> 
  
     <!-- 
     Now imagine we are reporting a bug with date/time functionality, and

@@ -22,7 +22,7 @@
         targetNamespace="http://example.com" xmlns:tns="http://example.com">
 
   <xsd:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
-    schemaLocation="IBMdefined/GeneralPurposeFormat.xsd"/>
+    schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd"/>
 
   <xsd:element dfdl:lengthKind="implicit" ibmSchExtn:docRoot="true" name="RNAChain">
     <xsd:complexType>

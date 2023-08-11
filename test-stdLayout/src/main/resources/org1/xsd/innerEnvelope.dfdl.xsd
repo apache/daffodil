@@ -24,9 +24,9 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
   >
   
-  <xs:import namespace="urn:payload" schemaLocation="org2/xsd/payload.dfdl.xsd" />
+  <xs:import namespace="urn:payload" schemaLocation="/org2/xsd/payload.dfdl.xsd" />
 
-  <xs:include schemaLocation="org2/xsd/formats.dfdl.xsd" />
+  <xs:include schemaLocation="/org2/xsd/formats.dfdl.xsd" />
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">

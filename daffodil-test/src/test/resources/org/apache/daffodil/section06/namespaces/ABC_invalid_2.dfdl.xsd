@@ -21,7 +21,7 @@
   xmlns:ibmSchExtn="http://www.ibm.com/schema/extensions" 
   xmlns:rando="urn:imnotreal.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
-    schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+    schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" />
   <xsd:element dfdl:terminator="%NL;" rando:whatAreYouDoing="this is notavalid" name="ABC">
     <xsd:complexType>
       <xsd:sequence dfdl:separator="" rando:IcanPutAnythingHEre="yep" rando:separator=".">

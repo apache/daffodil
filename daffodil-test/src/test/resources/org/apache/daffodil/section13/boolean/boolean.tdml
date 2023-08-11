@@ -26,7 +26,7 @@
   defaultRoundTrip="onePass">
   
   <tdml:defineSchema name="BooleanDefaultSchema" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
     <xs:element name="root1" dfdl:initiator="default1,default2,default3,default4:">
       <xs:complexType>
@@ -72,7 +72,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="BooleanDefaultSDE" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"/>
     <xs:element name="root1" dfdl:initiator="default1:">
       <xs:complexType>
@@ -107,7 +107,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="BooleanInputValueCalc" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="tns:GeneralFormat"  lengthKind="delimited" />
     <xs:element name="root1" dfdl:initiator="boolStr:">
       <xs:complexType>

@@ -20,7 +20,7 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:tns="http://baseSchema.com" 
 	targetNamespace="http://baseSchema.com">
 	
-	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+	<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">

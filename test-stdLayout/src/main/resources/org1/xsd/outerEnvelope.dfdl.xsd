@@ -26,7 +26,7 @@
   
   <xs:import namespace="urn:inner" schemaLocation="innerEnvelope.dfdl.xsd" />
   
-  <xs:include schemaLocation="org2/xsd/formats.dfdl.xsd" />
+  <xs:include schemaLocation="/org2/xsd/formats.dfdl.xsd" />
   
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">

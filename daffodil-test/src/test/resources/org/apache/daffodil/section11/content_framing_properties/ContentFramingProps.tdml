@@ -25,7 +25,7 @@
   <tdml:defineSchema name="ContentFramingProperties-Embedded.dfdl.xsd">
 
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="characters" encoding="UTF-8" />
 
@@ -261,7 +261,7 @@
 
   <tdml:defineSchema name="packed7BitASCII">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
@@ -804,7 +804,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="iso-8859-1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="text" encoding="iso-8859-1"
       separator="/" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
       initiator="" initiatedContent="no" terminator="" />
@@ -958,7 +958,7 @@
 
   <tdml:defineSchema name="mixedEncoding">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" 
       lengthKind="implicit" alignmentUnits="bits" alignment="1" />
@@ -1086,7 +1086,7 @@
 
   <tdml:defineSchema name="packed6BitASCII">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-US-ASCII-6-BIT-PACKED" alignmentUnits="bits"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
@@ -1302,7 +1302,7 @@
 
   <tdml:defineSchema name="packed5Bit">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-5-BIT-PACKED-LSBF"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
@@ -1527,7 +1527,7 @@
 
   <tdml:defineSchema name="octalLSBF">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-OCTAL-LSBF"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 
@@ -1654,7 +1654,7 @@
 
   <tdml:defineSchema name="hexLSBF">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" encoding="X-DFDL-HEX-LSBF"
       lengthUnits="characters" bitOrder="leastSignificantBitFirst" byteOrder="littleEndian" />
 

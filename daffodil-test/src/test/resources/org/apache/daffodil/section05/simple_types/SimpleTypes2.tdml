@@ -23,7 +23,7 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="s">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" representation="text" />
     

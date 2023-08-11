@@ -25,7 +25,7 @@
 
 
   <tdml:defineSchema name="s1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def2">
       <dfdl:format ref="tns:def3" lengthKind="explicit"
         lengthUnits="characters" length="4" representation="text"
@@ -89,7 +89,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="errs">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"
@@ -116,7 +116,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="defineNotUsed">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"
         lengthUnits="characters" length="4" representation="text"
@@ -153,7 +153,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="circularRef">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:def2" lengthKind="explicit"
         lengthUnits="characters" length="4" representation="text"

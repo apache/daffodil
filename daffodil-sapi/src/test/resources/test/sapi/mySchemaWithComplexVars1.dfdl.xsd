@@ -23,7 +23,7 @@
   xmlns:ex2="http://example.com/2"
   targetNamespace="http://example.com/1">
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
   <xs:import schemaLocation="mySchemaWithComplexVars2.dfdl.xsd" namespace="http://example.com/2" />
 
   <xs:annotation>

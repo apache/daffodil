@@ -38,7 +38,7 @@
 
   <tdml:defineSchema name="Blob.dfdl.xsd">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
 
     <dfdl:format ref="ex:GeneralFormat"
       representation="binary"

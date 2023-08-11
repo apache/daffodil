@@ -25,10 +25,10 @@
            xmlns:tns="urn:org.apache.daffodil.layers.IPv4"
            targetNamespace="urn:org.apache.daffodil.layers.IPv4" >
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:import namespace="urn:org.apache.daffodil.layers.IPv4Checksum"
-             schemaLocation="org/apache/daffodil/layers/xsd/IPv4ChecksumLayer.dfdl.xsd"/>
+             schemaLocation="/org/apache/daffodil/layers/xsd/IPv4ChecksumLayer.dfdl.xsd"/>
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">

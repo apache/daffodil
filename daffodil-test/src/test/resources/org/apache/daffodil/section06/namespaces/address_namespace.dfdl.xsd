@@ -21,7 +21,7 @@
    xmlns:tns="http://myAddress.com"
    xmlns:addr="http://myAddress.com">
       
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
       
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">

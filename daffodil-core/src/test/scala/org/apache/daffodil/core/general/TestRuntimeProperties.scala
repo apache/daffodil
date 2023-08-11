@@ -84,7 +84,7 @@ class RedactingScalaXMLInfosetInputter(rootNode: scala.xml.Node)
 class TestRuntimeProperties {
 
   val testSchema1 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
     <xs:element name="root">
       <xs:complexType>
@@ -138,7 +138,7 @@ class TestRuntimeProperties {
   }
 
   val testSchemaBad1 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
     <xs:element name="root" dfdlx:runtimeProperties="redact=foo,baz">
       <xs:complexType>
@@ -162,7 +162,7 @@ class TestRuntimeProperties {
   }
 
   val testSchemaBad2 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
     <xs:element name="root">
       <xs:complexType>
@@ -186,7 +186,7 @@ class TestRuntimeProperties {
   }
 
   val testSchema2 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
     <xs:element name="root">
       <xs:complexType>

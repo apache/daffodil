@@ -26,7 +26,7 @@
 	 properties must be explicitly defined
 -->
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -49,7 +49,7 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:import namespace="http://b03.com" schemaLocation="org/apache/daffodil/section06/namespaces/multi_B_03.dfdl.xsd"/>
+  <xs:import namespace="http://b03.com" schemaLocation="/org/apache/daffodil/section06/namespaces/multi_B_03.dfdl.xsd"/>
 
   <xs:element name="nestSequence" dfdl:terminator="">
     <xs:complexType>

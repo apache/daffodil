@@ -67,7 +67,7 @@ class TestTDMLRunner2 {
         dfdl
       } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
           <xsd:element name="array" type="tns:arrayType" dfdl:lengthKind="implicit"/>
           <xsd:complexType name="arrayType">
@@ -125,7 +125,7 @@ class TestTDMLRunner2 {
         dfdl
       } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
           <xsd:element name="array" type="tns:arrayType" dfdl:lengthKind="implicit"/>
           <xsd:complexType name="arrayType">
@@ -177,7 +177,7 @@ class TestTDMLRunner2 {
         dfdl
       } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
           <xsd:element name="array" type="tns:arrayType" dfdl:lengthKind="implicit"/>
           <xsd:complexType name="arrayType">
@@ -229,7 +229,7 @@ class TestTDMLRunner2 {
         dfdl
       } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
           <xsd:element name="array" type="tns:arrayType" dfdl:lengthKind="implicit"/>
           <xsd:complexType name="arrayType">
@@ -295,7 +295,7 @@ abc # a comment
         dfdl
       } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="pattern" dfdl:terminator="abcdef">
             <xsd:annotation>
@@ -330,7 +330,7 @@ abc # a comment
         dfdl
       } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited">
             <xsd:annotation>
@@ -370,7 +370,7 @@ abc # a comment
         dfdl
       } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited">
             <xsd:annotation>
@@ -410,7 +410,7 @@ abc # a comment
         dfdl
       } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
         <tdml:defineSchema name="mySchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="tns:GeneralFormat"/>
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited">
             <xsd:annotation>
@@ -457,7 +457,7 @@ abc # a comment
       } xmlns:xs={xsd}>
         <!-- This embedded schema has validation errors. -->
         <tdml:defineSchema name="mySchema">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <xs:format ref="tns:GeneralFormat" />
           <xs:element name="data" type="fn:string" dfdl:lengthKind="delimited" />
         </tdml:defineSchema>
@@ -482,7 +482,7 @@ abc # a comment
       xsd
     } xmlns:xsi={xsi} suiteName="theSuiteName">
                       <ts:defineSchema name="unparseTestSchema1">
-                        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+                        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="tns:GeneralFormat"/>
                         <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 9 }"/>
                       </ts:defineSchema>
@@ -512,7 +512,7 @@ abc # a comment
       dfdl
     } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
       <tdml:defineSchema name="mySchema">
-        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="tns:GeneralFormat"/>
         <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
       </tdml:defineSchema>

@@ -29,7 +29,7 @@
   defaultRoundTrip="true">
   
 <tdml:defineSchema name="enc1">
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   
   <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>
     
@@ -268,7 +268,7 @@
     elementFormDefault="unqualified"
     useDefaultNamespace="false">
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <dfdl:format ref="tns:GeneralFormat"
                lengthKind="explicit"
@@ -318,7 +318,7 @@
     elementFormDefault="unqualified"
     useDefaultNamespace="false">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format ref="tns:GeneralFormat"
                  lengthKind="explicit"

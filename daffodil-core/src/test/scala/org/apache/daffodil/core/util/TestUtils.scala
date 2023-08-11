@@ -264,7 +264,7 @@ object TestUtils {
   }
 
   private val defaultIncludeImports =
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   private val defaultTopLevels =
     <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited" encoding="US-ASCII"/>
 
@@ -339,7 +339,7 @@ object Fakes {
 
 class Fakes private () {
   lazy val sch = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat"/>,
     <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
     <xs:element name="fake2" type="tns:fakeCT"/>

@@ -41,7 +41,7 @@
       defaultValue="{ $ex:myVar4 }" />
     <dfdl:defineVariable name="nonConstVar2" type="xs:int"
       defaultValue="{ $ex:nonConstVar }" />
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c">
       <xs:complexType>
@@ -1319,7 +1319,7 @@
       defaultValue="42" />
     <dfdl:defineVariable name="myVar1" type="xs:int" />
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r1">
@@ -1440,7 +1440,7 @@
   
   <tdml:defineSchema name="absolutePath" elementFormDefault="qualified">
     
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"/>
     
     <xs:element name="elem">
@@ -1661,7 +1661,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choiceInSequenceWithSeparators">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="ch1">
@@ -1677,7 +1677,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="separatorAsVar">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <dfdl:defineVariable name="v3_with_default" type="xs:string"
@@ -1719,7 +1719,7 @@
       defaultValue="" />
     <dfdl:defineVariable name="v_empty_default2" type="xs:string" >{ "" }</dfdl:defineVariable>
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r1">
@@ -1786,7 +1786,7 @@
     <dfdl:defineVariable name="v_empty_default_invalid" type="xs:string"
       defaultValue="">{ "" }</dfdl:defineVariable>
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="r2" type="xs:string" dfdl:inputValueCalc="{ $ex:v_empty_default_invalid }" dfdl:lengthKind="delimited" />
@@ -1810,7 +1810,7 @@
 
   <tdml:defineSchema name="variable_path">
     
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="var" defaultValue="e1" />
@@ -1865,7 +1865,7 @@
 
   <tdml:defineSchema name="logical_default_values">
     
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="float" type="xs:float" defaultValue="-INF" />
@@ -1907,7 +1907,7 @@
 
 
   <tdml:defineSchema name="logical_default_values_err">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="float" type="xs:float" defaultValue="float" />
@@ -1926,7 +1926,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice_branch_variables">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="var1" type="xs:string" defaultValue="false" />
@@ -2006,7 +2006,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="variables_nilled_element">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
       nilKind="literalValue" nilValue="%ES;" useNilForDefault="no" nilValueDelimiterPolicy="none" />
 
@@ -2047,7 +2047,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="newVariableInstance_choiceDispatchKey">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format ref="GeneralFormat" />
     <dfdl:defineVariable name="type" type="xs:int" />
@@ -2118,7 +2118,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="circular_defineVariable">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="circular1" type="xs:int"
@@ -2139,7 +2139,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="defineVariable_ref_infoset">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="badRef" type="xs:int"
@@ -2157,7 +2157,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="defineVariable_ref_noDefault">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="noDefault" type="xs:int" />
@@ -2177,7 +2177,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="defineVariable_nonConstantExpression_setVar">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <dfdl:defineVariable name="var1" type="xs:int"
@@ -2221,7 +2221,7 @@
 
 
   <tdml:defineSchema name="variable_direction_schema">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
       representation="binary"/>
 
@@ -2309,7 +2309,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="variable_direction_simple">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
       representation="text" textNumberRep="standard" alignment="8" alignmentUnits="bits"
       lengthUnits="bytes" lengthKind="delimited" />
@@ -2496,7 +2496,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="variable_suspension_scope">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
       representation="text" lengthKind="delimited"/>
 
@@ -2592,7 +2592,7 @@
 
   <tdml:defineSchema name="escapeCharVars">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:defineVariable defaultValue="\" name="EscapeChar" type="xs:string"/>
 
@@ -2664,7 +2664,7 @@
 
   <tdml:defineSchema name="multipleVarReadInPoU">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:defineVariable defaultValue="x" name="var1" type="xs:string"/>
 
@@ -2710,7 +2710,7 @@
 
   <tdml:defineSchema name="nviInGroupDecl">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:defineVariable defaultValue="x" name="var1" type="xs:string"/>
 

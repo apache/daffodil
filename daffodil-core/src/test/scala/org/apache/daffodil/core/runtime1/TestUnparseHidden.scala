@@ -59,7 +59,7 @@ class TestUnparseHidden {
 
   @Test def testUnparseHiddenGroupsPresenceFlags1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema1,
       elementFormDefault = "unqualified",
@@ -77,7 +77,7 @@ class TestUnparseHidden {
 
   @Test def testUnparseHiddenGroupsPresenceFlags2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema1,
       elementFormDefault = "unqualified",
@@ -128,7 +128,7 @@ class TestUnparseHidden {
 
   @Test def testUnparseHiddenGroupsPresenceFlags3(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema2,
       elementFormDefault = "unqualified",
@@ -147,7 +147,7 @@ class TestUnparseHidden {
 
   @Test def testUnparseHiddenGroupsPresenceFlags4(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema2,
       elementFormDefault = "unqualified",
@@ -203,7 +203,7 @@ class TestUnparseHidden {
    */
   @Test def testUnparseHiddenGroupsPresenceFlags5a(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema3,
       elementFormDefault = "unqualified",
@@ -225,7 +225,7 @@ class TestUnparseHidden {
    */
   @Test def testUnparseHiddenGroupsPresenceFlags5b(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema3,
       elementFormDefault = "unqualified",
@@ -277,7 +277,7 @@ class TestUnparseHidden {
 
   @Test def testUnparseHiddenGroupsPresenceFlags6(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schemaX,
       elementFormDefault = "unqualified",

@@ -56,7 +56,7 @@ class TestDaffodilC {
 
   // Defines a very simple DFDL test schema for all tests to use
   private val testSchema = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format representation="binary" ref="GeneralFormat"/>,
     <xs:element name="e1">
       <xs:complexType>

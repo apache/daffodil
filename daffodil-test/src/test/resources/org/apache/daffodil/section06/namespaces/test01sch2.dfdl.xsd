@@ -29,6 +29,6 @@
     </xs:appinfo>
   </xs:annotation>
   
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   
 </xs:schema>
