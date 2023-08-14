@@ -105,7 +105,7 @@ object Conversion {
       case (Double, NonNegativeInteger) =>
         DoubleToDecimal +: conversionOps(Decimal, tt, context)
       case (Double, Long) => List(DoubleToLong)
-      case (Double, UnsignedLong) => DoubleToUnsignedLong +: conversionOps(Long, tt, context)
+      case (Double, UnsignedLong) => List(DoubleToUnsignedLong)
       case (Double, i: Int.Kind) => DoubleToLong +: conversionOps(Long, tt, context)
       case (Double, ui: UnsignedInt.Kind) =>
         DoubleToUnsignedLong +: UnsignedLongToLong +: conversionOps(Long, tt, context)
