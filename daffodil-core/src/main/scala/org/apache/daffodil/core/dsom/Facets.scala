@@ -191,6 +191,16 @@ trait Facets { self: Restriction =>
           // The XSD numeric character entity &#xE000; can be used to match ASCII NUL
           // (char code 0).
           //
+          // This remapping is for pattern facets, which are inside a DFDL schema,
+          // and so will not contain CR characters, since XML reading will convert those
+          // to LF. To discuss CR in this pattern we can't use `&#x0d;` syntax because that
+          // turns into a CR which gets turned into a LF. Plus the pattern value is
+          // an XML attribute, the value of which gets its whitespace collapsed, all
+          // line-ending chars converted to spaces, and adjacent spaces collapsed to one.
+          //
+          // So a pattern facet must use `\r` and '\n' to describe line-endings within the pattern.
+          // And in general one must be careful about whitespace.
+          //
           val remapped: String = XMLUtils.remapPUAToXMLIllegalCharacters(v)
           (f, remapped.r)
         }
