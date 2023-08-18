@@ -22,13 +22,6 @@ import org.apache.daffodil.runtime1.processors.SimpleTypeRuntimeData
 
 trait SimpleTypeRuntime1Mixin { self: SimpleTypeDefBase =>
 
-  /**
-   * Initialize cyclic structure
-   */
-  requiredEvaluationsIfActivated(simpleTypeRuntimeData.typeCalculator.map { tc =>
-    tc.initialize
-  })
-
   lazy val simpleTypeRuntimeData: SimpleTypeRuntimeData = {
     val strd =
       new SimpleTypeRuntimeData(
@@ -55,7 +48,6 @@ trait SimpleTypeRuntime1Mixin { self: SimpleTypeDefBase =>
         tunable.unqualifiedPathStepPolicy,
         optRepTypeDef.map(_.simpleTypeRuntimeData),
         optRepValueSet,
-        optTypeCalculator,
         optRepType.map(_.primType),
       )
     strd

@@ -66,4 +66,50 @@
     </errors>
   </parserTestCase>
 
+  <tdml:defineSchema
+    name="s1"
+    useDefaultNamespace="false"
+    elementFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema">
+
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <element name="r1">
+      <complexType>
+        <sequence>
+          <element name="e1" type="ex:enum1" minOccurs="0"/>
+        </sequence>
+      </complexType>
+    </element>
+
+    <simpleType name="myByte" dfdl:lengthKind="explicit" dfdl:length="1">
+      <restriction base="xs:byte"/>
+    </simpleType>
+
+    <simpleType name="enum1" dfdlx:repType="ex:myByte">
+      <restriction base="xs:string">
+        <enumeration value="validA" />
+        <enumeration value="validB" />
+        <enumeration value="invalidC" />
+      </restriction>
+    </simpleType>
+
+  </tdml:defineSchema>
+
+  <parserTestCase name="noRepValuesDifferentTypes" model="s1" root="r1">
+    <document>
+      <documentPart type="byte">01</documentPart>
+    </document>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>enumeration</error>
+      <error>dfdlx:repValues</error>
+      <error>different primitve type</error>
+      <error>xs:string</error>
+      <error>tns:myByte</error>
+      <error>xs:byte</error>
+    </errors>
+  </parserTestCase>
+
 </testSuite>

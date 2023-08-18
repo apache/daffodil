@@ -166,4 +166,45 @@
     </infoset>
   </parserTestCase>
 
+  <tdml:defineSchema
+    name="s3"
+    useDefaultNamespace="false"
+    elementFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema">
+
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <element name="r1">
+      <complexType>
+        <sequence>
+          <element name="e1" type="ex:enum1" minOccurs="0"/>
+        </sequence>
+      </complexType>
+    </element>
+
+    <simpleType name="myString" dfdl:lengthKind="explicit" dfdl:length="6">
+      <restriction base="xs:string"/>
+    </simpleType>
+
+    <simpleType name="enum1" dfdlx:repType="ex:myString">
+      <restriction base="xs:string">
+        <enumeration value="validA" />
+        <enumeration value="validB" />
+        <enumeration value="validC" />
+      </restriction>
+    </simpleType>
+  </tdml:defineSchema>
+
+  <parserTestCase name="enumNoRepValues" model="s3" root="r1">
+    <document>validB</document>
+    <infoset>
+      <tdml:dfdlInfoset xmlns="">
+        <ex:r1>
+          <e1>validB</e1>
+        </ex:r1>
+      </tdml:dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
 </testSuite>

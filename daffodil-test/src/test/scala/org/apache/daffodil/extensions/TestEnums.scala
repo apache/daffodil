@@ -39,8 +39,13 @@ class TestEnums {
   @Test def test_enumValid1(): Unit = { runner.runOneTest("enumValid1") }
   @Test def test_enumInvalid1(): Unit = { runner.runOneTest("enumInvalid1") }
   @Test def test_enumMiss1(): Unit = { runner.runOneTest("enumMiss1") }
+  @Test def test_enumNoRepValues(): Unit = { runner.runOneTest("enumNoRepValues") }
 
   @Test def test_repTypeAlignment(): Unit = { runner.runOneTest("repTypeAlignment") }
 
   @Test def test_emptyRepValues(): Unit = { runner2.runOneTest("emptyRepValues") }
+  @Test def test_noRepValuesDifferentTypes(): Unit = {
+    runner2.runOneTest("noRepValuesDifferentTypes")
+  }
+
 }

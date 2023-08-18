@@ -35,15 +35,6 @@ trait SchemaSetRuntime1Mixin {
   requiredEvaluationsAlways(unparser)
   requiredEvaluationsAlways(root.elementRuntimeData.initialize)
 
-  /**
-   * This initialization is required for simpleTypeDefs used only
-   * for type calculations where those simpleTypeDefs do not have
-   * a corresponding element of that type.
-   */
-  requiredEvaluationsAlways(typeCalcMap.foreach { case (_, typeCalculator) =>
-    typeCalculator.initialize()
-  })
-
   override lazy val variableMap: VariableMap = LV('variableMap) {
     val dvs = allSchemaDocuments.flatMap {
       _.defineVariables
@@ -78,7 +69,7 @@ trait SchemaSetRuntime1Mixin {
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null
     val ssrd =
-      new SchemaSetRuntimeData(p, u, rootERD, variableMap, typeCalcMap)
+      new SchemaSetRuntimeData(p, u, rootERD, variableMap)
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(
         s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.",

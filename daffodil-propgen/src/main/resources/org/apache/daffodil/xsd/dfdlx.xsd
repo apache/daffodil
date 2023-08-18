@@ -37,9 +37,7 @@
       <xs:enumeration value="dfdlx:alignmentKind" />
       <xs:enumeration value="dfdlx:choiceBranchKeyRanges" />
       <xs:enumeration value="dfdlx:emptyElementParsePolicy"/> <!-- deprecated -->
-      <xs:enumeration value="dfdlx:inputTypeCalc"/>
       <xs:enumeration value="dfdlx:objectKind"/>
-      <xs:enumeration value="dfdlx:outputTypeCalc"/>
       <xs:enumeration value="dfdlx:parseUnparsePolicy"/>
       <xs:enumeration value="dfdlx:repType"/>
       <xs:enumeration value="dfdlx:repValueRanges"/>
@@ -106,8 +104,6 @@
 
   <xs:attributeGroup name="SimpleTypeValueCalcAG">
     <xs:attribute form="qualified" name="repType" type="dfdl:DFDLQName" />
-    <xs:attribute form="qualified" name="inputTypeCalc" type="dfdl:DFDLExpression" />
-    <xs:attribute form="qualified" name="outputTypeCalc" type="dfdl:DFDLExpression" />
     <xs:attributeGroup ref="dfdlx:RepValuesAG" />
   </xs:attributeGroup>
 
@@ -118,8 +114,6 @@
 
   <xs:attributeGroup name="SimpleTypeValueCalcAGQualified">
     <xs:attribute form="qualified" name="repType" type="dfdl:DFDLQName" />
-    <xs:attribute form="qualified" name="inputTypeCalc" type="dfdl:DFDLExpression" />
-    <xs:attribute form="qualified" name="outputTypeCalc" type="dfdl:DFDLExpression" />
     <xs:attributeGroup ref="dfdlx:RepValuesAGQualified" />
   </xs:attributeGroup>
 

@@ -343,9 +343,6 @@ case class TypeValueCalc(e: ElementBase) extends Terminal(e, e.hasRepType) {
     simpleTypeDefBase.optRepTypeElement.get.enclosedElement.unparser
 
   override lazy val parser: DaffodilParser = {
-    if (!typeCalculator.supportsParse) {
-      SDE("Parsing not defined by typeValueCalc")
-    }
     new TypeValueCalcParser(
       typeCalculator,
       repTypeParser,
@@ -354,9 +351,6 @@ case class TypeValueCalc(e: ElementBase) extends Terminal(e, e.hasRepType) {
     )
   }
   override lazy val unparser: DaffodilUnparser = {
-    if (!typeCalculator.supportsUnparse) {
-      SDE("Unparsing not defined by typeValueCalc")
-    }
     new TypeValueCalcUnparser(
       typeCalculator,
       repTypeUnparser,

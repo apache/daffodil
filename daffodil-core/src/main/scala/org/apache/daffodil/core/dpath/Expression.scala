@@ -2051,35 +2051,6 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
 
       // Begin DFDLX functions
 
-      // Begin TypeValueCalc related functions
-      case (RefQName(_, "inputTypeCalc", DFDLX), args) => {
-        val typeCalc = lookupTypeCalculator(args(0), true, false)
-        FNTwoArgsExprInferedArgType(
-          functionQNameString,
-          functionQName,
-          args,
-          typeCalc.dstType,
-          NodeInfo.String,
-          typeCalc.srcType,
-          DFDLXInputTypeCalc(_, typeCalc),
-        )
-      }
-
-      case (RefQName(_, "outputTypeCalc", DFDLX), args) => {
-        val typeCalc = lookupTypeCalculator(args(0), false, true)
-        FNTwoArgsExprInferedArgType(
-          functionQNameString,
-          functionQName,
-          args,
-          typeCalc.srcType,
-          NodeInfo.String,
-          typeCalc.dstType,
-          DFDLXOutputTypeCalc(_, typeCalc),
-        )
-      }
-
-      // End typeValueCalc related functions
-
       case (RefQName(_, "doubleFromRawLong", DFDLX), args) => {
         FNOneArgExpr(
           functionQNameString,
@@ -2307,50 +2278,6 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
     }
     funcObj.setOOLAGContext(this)
     funcObj
-  }
-
-  def lookupTypeCalculator(
-    typeCalcExpr: Expression,
-    requiresParse: Boolean,
-    requiresUnparse: Boolean,
-  ): TypeCalculator = {
-    /*
-     * Every function that currently uses this defines the type calculator
-     * as their first arguement.
-     * We still take the calculators name as an arguement to avoid relying on this
-     * fact.
-     */
-    Assert.invariant(typeCalcExpr == expressions(0))
-    /*
-     * This lookup needs to occur before the main type-checker runs, because it is
-     * used to determine the type of this expression.
-     * As a result, we must do some type checking manually
-     * Also, we insist that typeCalcExpr is a constant, which is not even
-     * a concept that the type checker has
-     */
-    if (typeCalcExpr.inherentType != NodeInfo.String) {
-      SDE("The type calculator name argument must be a constant string")
-    }
-    val qname = typeCalcExpr match {
-      case typeCalcName: LiteralExpression => typeCalcName.v.asInstanceOf[String]
-      case _ => SDE("The type calculator name argument must be a constant string")
-    }
-    val refType = QName
-      .resolveRef(qname, compileInfo.namespaces, tunable.unqualifiedPathStepPolicy)
-      .get
-      .toGlobalQName
-    val typeCalculator = compileInfo.typeCalcMap.get(refType) match {
-      case None => SDE("Simple type %s does not exist or does not have a repType", refType)
-      case Some(x) => x
-    }
-    if (requiresParse && !typeCalculator.supportsParse) {
-      SDE("The type calculator defined by %s does not define an inputValueCalc.", qname)
-    }
-    if (requiresUnparse && !typeCalculator.supportsUnparse) {
-      SDE("The type calculator defined by %s does not define an outputValueCalc.", qname)
-    }
-    typeCalculator.initialize()
-    typeCalculator
   }
 
 }

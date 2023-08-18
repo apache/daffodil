@@ -82,7 +82,6 @@ trait SchemaComponent
       path,
       schemaFileLocation,
       tunable.unqualifiedPathStepPolicy,
-      schemaSet.typeCalcMap,
     )
   }
 
