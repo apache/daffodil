@@ -46,12 +46,6 @@ import org.apache.daffodil.lib.xml.XMLUtils
  * All "real" terms are able to resolve properties. Most other objects just contribute
  * properties to the mix, but they are not points where properties are
  * used to generate processors.
- *
- * EnumerationFactory and SimpleTypeDefFactory are the oddballs out. In addition to
- * being used to generate processors, these classes our also used to generate abstract
- * TypeCalculators, which are not necessarily attached to any particular element, nor
- * used to generate any processor (for instance, there may be a globalSimpleType whose
- * only purpose is to define a TypeCalculator for use in DPath expressions)
  */
 
 object ResolvesProperties {
@@ -64,8 +58,6 @@ object ResolvesProperties {
   val localOnlyProperties = Seq(
     "choiceBranchKey",
     "hiddenGroupRef",
-    "inputTypeCalc",
-    "outputTypeCalc",
     "repType",
     "repValueRanges",
     "repValues",

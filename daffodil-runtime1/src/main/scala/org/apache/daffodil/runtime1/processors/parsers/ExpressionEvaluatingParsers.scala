@@ -148,7 +148,6 @@ class TypeValueCalcParser(
     val repValue: DataValuePrimitiveNullable =
       runDetachedParser(pstate, repTypeParser, repTypeRuntimeData)
     val repValueType = repTypeRuntimeData.optPrimType.get
-    pstate.dataProc.get.ssrd
     if (pstate.processorStatus == Success) {
       Assert.invariant(repValue.isDefined)
       val logicalValue: DataValuePrimitiveNullable = typeCalculator.inputTypeCalcParse(

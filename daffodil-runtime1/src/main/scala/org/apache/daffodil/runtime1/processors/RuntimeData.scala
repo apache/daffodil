@@ -223,7 +223,6 @@ final class SimpleTypeRuntimeData(
   unqualifiedPathStepPolicyArg: UnqualifiedPathStepPolicy,
   val repTypeRuntimeData: Option[SimpleTypeRuntimeData],
   val repValueSet: Option[RepValueSet],
-  val typeCalculator: Option[TypeCalculator],
   val optRepPrimType: Option[PrimType],
 ) extends NonTermRuntimeData(
     variableMapArg,
@@ -742,7 +741,6 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
       None, // val optPrimType: Option[PrimType],
       null, // sfl: SchemaFileLocation,
       null, // override val unqualifiedPathStepPolicy : UnqualifiedPathStepPolicy,
-      null, // typeCalcMap: TypeCalcMap,
       null, // val sscd: String),
       false, // val isOutputValueCalc: Boolean
       false, // val isDistinguishedRoot: Boolean

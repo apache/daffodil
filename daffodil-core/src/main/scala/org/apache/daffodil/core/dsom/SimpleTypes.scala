@@ -25,13 +25,10 @@ import org.apache.daffodil.core.runtime1.SimpleTypeRuntime1Mixin
 import org.apache.daffodil.lib.cookers.IntRangeCooker
 import org.apache.daffodil.lib.cookers.RepValueCooker
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.gen.ParseUnparsePolicy
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
@@ -39,7 +36,6 @@ import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
-import org.apache.daffodil.runtime1.processors.IdentifyTypeCalculator
 import org.apache.daffodil.runtime1.processors.RangeBound
 import org.apache.daffodil.runtime1.processors.RepValueSet
 import org.apache.daffodil.runtime1.processors.RepValueSetCompiler
@@ -312,40 +308,63 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
     }
   }
 
-  lazy val optInputTypeCalc = findPropertyOption("inputTypeCalc", expressionAllowed = true)
-  lazy val optOutputTypeCalc = findPropertyOption("outputTypeCalc", expressionAllowed = true)
-
+  /**
+   * The repType is a QName that resolves to a simple used to hang properties that define the
+   * physical representation of this element. When used, it is because we want to convert the
+   * physical representation to something else that actually ends up in the infoset, usually
+   * with a different logical type. For example, we may want to convert a numeric physical
+   * representation to string logical representation for the infoset. This could be done using
+   * multiple elements and input/outputValueCalc, but using repType allows it to be done by
+   * Daffodil. The task to convert a physical type to a logical type during parse (or in reverse
+   * during unparse) is done via a TypeCalculator. The goal of this optTypeCalculator is to
+   * inspect the various properties (e.g. repType, enumeration, unions, repValues,
+   * repValueRanges) and create a TypeCalculator that does the necessary conversions. This type
+   * calculator will later be provided to a parser/unparser to be evaluated at runtime after the
+   * physical representation is parsed or prior to being unparsed.
+   */
   lazy val optTypeCalculator: Option[TypeCalculator] = LV('optTypeCalculator) {
     optRepType.flatMap(repType => {
       val srcType = repType.primType
       val dstType = primType
 
-      val fromRestriction: Option[TypeCalculator] = optRestriction.flatMap({ restriction =>
-        val enumerations = restriction.enumerations.filter(_.optRepValueSet.isDefined)
-        if (enumerations.isEmpty) {
-          /*
-           * In theory, we require srcType == dstType.
-           * But, we also compute this when we are an expression calculator.
-           * In such a case, the above invariant may not hold, which is okay, because we
-           * will not actually use the identity calculator.
-           */
-          Some(TypeCalculatorCompiler.compileIdentity(srcType))
+      val fromRestriction: Option[TypeCalculator] = optRestriction.flatMap { restriction =>
+        if (restriction.enumerations.isEmpty) {
+          None
         } else {
-          if (enumerations.size != restriction.enumerations.size) {
-            SDE("If one enumeration value defines a repValue, then all must define a repValue")
+          val terms = restriction.enumerations.flatMap { enum =>
+            if (enum.optRepValueSet.isEmpty) {
+              None
+            } else {
+              Assert.invariant(enum.canonicalRepValue.isDefined)
+              val repValues = enum.optRepValueSet.get
+              val canonValues = enum.canonicalRepValue.getNonNullable
+              val cookedValue = enum.enumValueCooked
+              Some((repValues, canonValues, cookedValue))
+            }
           }
-          val terms = enumerations.map(enum => {
-            Assert.invariant(enum.canonicalRepValue.isDefined)
-            (
-              enum.optRepValueSet.get,
-              enum.canonicalRepValue.getNonNullable,
-              enum.enumValueCooked,
-            )
-          })
-          Some(TypeCalculatorCompiler.compileKeysetValue(terms, srcType, dstType))
+
+          if (terms.isEmpty) {
+            if (srcType != dstType) {
+              SDE(
+                """An enumeration without any dfdlx:repValues or dfdlx:repValueRanges cannot have a different primitve type (%s) than that of its dfdlx:repType="%s" (%s)""",
+                dstType.globalQName,
+                repType.namedQName,
+                srcType.globalQName,
+              )
+            }
+            Some(TypeCalculatorCompiler.compileIdentity(srcType))
+          } else {
+            if (terms.size != restriction.enumerations.size) {
+              SDE(
+                "If one enumeration value defines dfdlx:repValues, then all must define a dfdlx:repValues",
+              )
+            }
+            Some(TypeCalculatorCompiler.compileKeysetValue(terms, srcType, dstType))
+          }
         }
-      })
-      val fromUnion: Option[TypeCalculator] = optUnion.map({ union =>
+      }
+
+      val fromUnion: Option[TypeCalculator] = optUnion.map { union =>
         val subCalculators: Seq[(RepValueSet, RepValueSet, TypeCalculator)] =
           union.unionMemberTypes.map(subType =>
             (
@@ -355,113 +374,22 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
             ),
           )
         TypeCalculatorCompiler.compileUnion(subCalculators)
-      })
-      val fromExpression: Option[TypeCalculator] = {
-        /*
-         * This is a minefield for circular dependencies.
-         * In order to compile expressions involve many typeCalc functions,
-         * the DPath compiler needs to look up the typeCalculator involved
-         * (to determine the src/dst type of the calculator)
-         * However, a fromExpression typeCalculator needs to compile DPath expressions,
-         * which may make use of typeCalc functions, and therefore need for the expressions
-         * to have been already compiled.
-         */
-        lazy val optInputCompiled = optInputTypeCalc.toOption.map(sExpr => {
-          val prop = optInputTypeCalc.asInstanceOf[Found]
-          val qn = GlobalQName(Some("dfdlx"), "inputTypeCalc", XMLUtils.dafintURI)
-          val exprNamespaces = prop.location.namespaces
-          val exprComponent = prop.location.asInstanceOf[SchemaComponent]
-          ExpressionCompilers.AnyRef.compileExpression(
-            qn,
-            dstType,
-            sExpr,
-            exprNamespaces,
-            exprComponent.dpathCompileInfo,
-            false,
-            this,
-            dpathCompileInfo,
-          )
-        })
-        lazy val optOutputCompiled = optOutputTypeCalc.toOption.map(sExpr => {
-          val prop = optOutputTypeCalc.asInstanceOf[Found]
-          val qn = GlobalQName(Some("daf"), "outputTypeCalc", XMLUtils.dafintURI)
-          val exprNamespaces = prop.location.namespaces
-          val exprComponent = prop.location.asInstanceOf[SchemaComponent]
-          ExpressionCompilers.AnyRef.compileExpression(
-            qn,
-            srcType,
-            sExpr,
-            exprNamespaces,
-            exprComponent.dpathCompileInfo,
-            false,
-            this,
-            dpathCompileInfo,
-          )
-        })
-        val supportsParse = optInputTypeCalc.isDefined
-        val supportsUnparse = optOutputTypeCalc.isDefined
-        val res = {
-          if (supportsParse || supportsUnparse) {
-            Some(
-              TypeCalculatorCompiler.compileTypeCalculatorFromExpression(
-                optInputCompiled,
-                optOutputCompiled,
-                srcType,
-                dstType,
-              ),
-            )
-          } else {
-            None
-          }
-        }
-        res
       }
 
-      val ans = (fromRestriction, fromUnion, fromExpression) match {
-        case (Some(x), None, None) => Some(x)
-        case (None, Some(x), None) => Some(x)
-        case (None, None, Some(x)) =>
+      val ans = (fromRestriction, fromUnion) match {
+        case (Some(x), None) => Some(x)
+        case (None, Some(x)) => Some(x)
+        case (None, None) => {
           SDE(
-            "Usage of inputTypeCalc and outputTypeCalc requires an empty xs:restriction to determine the base type.",
+            "dfdlx:repType (%s) requires an enumeration or union with defined dfdlx:repValues",
+            repType.namedQName,
           )
-        case (Some(x), _, Some(y)) if x.isInstanceOf[IdentifyTypeCalculator] => Some(y)
-        case (None, None, None) => {
-          if (dstType != srcType) {
-            val repTypeName = optRepTypeDef match {
-              case Some(r) => r.diagnosticDebugName
-              case None => repType.toString()
-            }
-            SDE(
-              "repType (%s) with primitive type (%s) used without defining a transformation is not compatable with the baseType of (%s) with primitive type (%s)",
-              repTypeName,
-              srcType.name,
-              diagnosticDebugName,
-              dstType.name,
-            )
-          }
-          None
         }
-        case (Some(_), Some(_), _) =>
+        case (Some(_), Some(_)) =>
           Assert.invariantFailed("Cannot combine an enumeration with a union")
-        case (Some(_), _, Some(_)) =>
-          SDE("Cannot use typeCalcExpressions while defining repValues of enumerations")
-        case (_, Some(_), Some(_)) =>
-          SDE("Cannot use typeCalcExpressions while using a union that defines typeCalcs")
-      }
-
-      ans match {
-        case Some(idt: IdentifyTypeCalculator) => {
-          if (srcType != dstType) {
-            SDE(
-              "Identity transform requires that the basetype and reptype have a common primitive type",
-            )
-          }
-        }
-        case _ => ()
       }
 
       ans
-
     })
   }.value
 
