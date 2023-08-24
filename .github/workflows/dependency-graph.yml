@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Check out Repository
-        uses: actions/checkout@v3.5.3
+        uses: actions/checkout@v3.6.0
 
       - name: Submit Dependency Graph
         uses: scalacenter/sbt-dependency-submission@v2.2.0
