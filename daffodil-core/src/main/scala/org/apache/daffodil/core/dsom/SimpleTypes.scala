@@ -317,7 +317,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
    * multiple elements and input/outputValueCalc, but using repType allows it to be done by
    * Daffodil. The task to convert a physical type to a logical type during parse (or in reverse
    * during unparse) is done via a TypeCalculator. The goal of this optTypeCalculator is to
-   * inspect the various properties (e.g. repType, enumeration, unions, repValues,
+   * inspect the various properties (e.g. repType, enumeration, repValues,
    * repValueRanges) and create a TypeCalculator that does the necessary conversions. This type
    * calculator will later be provided to a parser/unparser to be evaluated at runtime after the
    * physical representation is parsed or prior to being unparsed.
@@ -364,32 +364,13 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
         }
       }
 
-      val fromUnion: Option[TypeCalculator] = optUnion.map { union =>
-        val subCalculators: Seq[(RepValueSet, RepValueSet, TypeCalculator)] =
-          union.unionMemberTypes.map(subType =>
-            (
-              subType.optRepValueSet.get,
-              subType.optLogicalValueSet.get,
-              subType.optTypeCalculator.get,
-            ),
-          )
-        TypeCalculatorCompiler.compileUnion(subCalculators)
-      }
+      schemaDefinitionUnless(
+        fromRestriction.isDefined,
+        "dfdlx:repType (%s) requires an enumeration with defined dfdlx:repValues",
+        repType.namedQName,
+      )
 
-      val ans = (fromRestriction, fromUnion) match {
-        case (Some(x), None) => Some(x)
-        case (None, Some(x)) => Some(x)
-        case (None, None) => {
-          SDE(
-            "dfdlx:repType (%s) requires an enumeration or union with defined dfdlx:repValues",
-            repType.namedQName,
-          )
-        }
-        case (Some(_), Some(_)) =>
-          Assert.invariantFailed("Cannot combine an enumeration with a union")
-      }
-
-      ans
+      fromRestriction
     })
   }.value
 
@@ -405,90 +386,38 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
       })
   }.value
 
-  private lazy val optRepTypeFromSelf: Option[SimpleTypeBase with NamedMixin] =
-    LV('optRepTypeFromSelf) {
-      val optRepTypeDef = optRepTypeQName.flatMap(schemaSet.getGlobalSimpleTypeDef(_))
-      val optRepPrimType = optRepTypeQName.flatMap(schemaSet.getPrimitiveType(_))
-      Assert.invariant(!(optRepPrimType.isDefined && optRepTypeDef.isDefined))
-      if (optRepTypeQName.isDefined) {
-        schemaDefinitionUnless(
-          optRepTypeDef.isDefined || optRepPrimType.isDefined,
-          s"Cannot find reptype ${optRepTypeQNameString.get}",
-        )
-      }
-      optRepTypeDef.orElse(optRepPrimType)
-    }.value
-
-  private lazy val optRepTypeFromUnion: Option[SimpleTypeBase with NamedMixin] =
-    LV('optRepTypeFromUnion) {
-      optUnion.flatMap(union => {
-        val repTypes = union.unionMemberTypes.map(_.optRepType)
-        // check that all repTypes are the same
-        // Because of how we inline types, we do not expect to see structural equality,
-        // so we rely on the xml qname instead
-        val numRepTypes = repTypes.map(_.map(_.namedQName)).toSet.size
-        if (numRepTypes > 1) {
-          SDE("If any child type of a union has a repType, they all must have the same repType")
-        }
-        if (numRepTypes == 0) {
-          None
-        } else {
-          repTypes.head
-        }
-      })
-    }.value
-
-  /*
-   * We don't really need the NamedMixin. It is only used for detecting duplicates
-   * However, since only named types can be a repType, there is no problem
-   * in requiring them to be named
-   */
   override lazy val optRepType: Option[SimpleTypeBase with NamedMixin] = LV('optRepType) {
-    /*
-     * Note that there is no fromRestriction option here
-     * In theory, we could consider every restriction type without an explicit repType to be
-     * either a restriction or identity transform.
-     * In practice, this would introduce the overhead of a transform to almost every derived type.
-     * Instead, when a user needs a restriction transform, they must simply provide the reptype explitly,
-     * which is arguably a good design decision from a readability standpoint of the schema as well.
-     */
-    optRepTypeFromSelf.orElse(optRepTypeFromUnion)
+    val optRepTypeDef = optRepTypeQName.flatMap(schemaSet.getGlobalSimpleTypeDef(_))
+    val optRepPrimType = optRepTypeQName.flatMap(schemaSet.getPrimitiveType(_))
+    Assert.invariant(!(optRepPrimType.isDefined && optRepTypeDef.isDefined))
+    if (optRepTypeQName.isDefined) {
+      schemaDefinitionUnless(
+        optRepTypeDef.isDefined || optRepPrimType.isDefined,
+        s"Cannot find reptype ${optRepTypeQNameString.get}",
+      )
+    }
+    optRepTypeDef.orElse(optRepPrimType)
   }.toOption.flatten
 
   override lazy val optRepValueSet: Option[RepValueSet] = optRepTypeDef.flatMap(repType => {
     val primType: PrimType = repType.primType
 
     val fromRestriction: Option[RepValueSet] = optRestriction.flatMap(_.optRepValueSet)
-    val fromUnion: Option[RepValueSet] = {
-      val componentTypes = optUnion.map(_.unionMemberTypes).getOrElse(Seq())
-      val componentValueSets = componentTypes.flatMap(_.optRepValueSet)
-      val ans = componentValueSets.fold(RepValueSetCompiler.empty)((a, b) => a.merge(b))
-      if (ans.isEmpty) None else Some(ans)
-    }
     val fromSelf: Option[RepValueSet] = optRepValueSetFromAttribute
 
-    (fromRestriction, fromUnion, fromSelf) match {
-      case (None, None, None) => None
-      case (Some(a), None, None) => Some(a)
-      case (None, Some(a), None) => Some(a)
-      case (None, None, Some(a)) => Some(a)
-      case (Some(_), Some(_), _) => throw new IllegalStateException("Can't happen")
-      case (Some(_), _, Some(_)) =>
+    (fromRestriction, fromSelf) match {
+      case (None, None) => None
+      case (Some(a), None) => Some(a)
+      case (None, Some(a)) => Some(a)
+      case (Some(_), Some(_)) =>
         SDE("Cannot put repValues or repRangeValues on a simple type defining an enumeration")
-      case (_, Some(_), Some(_)) =>
-        SDE("Cannot put repValue or repRangeValues on a simple type defined by a union")
     }
 
   })
 
   lazy val optLogicalValueSet: Option[RepValueSet] = {
     val fromRestriction: Option[RepValueSet] = optRestriction.map(_.logicalValueSet)
-    val fromUnion: Option[RepValueSet] = optUnion.map(union => {
-      val subsets =
-        union.unionMemberTypes.map(_.optLogicalValueSet).filter(_.isDefined).map(_.get)
-      subsets.fold(RepValueSetCompiler.empty)((a, b) => a.merge(b))
-    })
-    fromRestriction.orElse(fromUnion)
+    fromRestriction
   }
 
 }

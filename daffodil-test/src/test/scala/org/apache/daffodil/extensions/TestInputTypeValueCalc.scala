@@ -55,13 +55,6 @@ class TestInputTypeValueCalc {
     runner.runOneTest("InputTypeCalc_unparse_keysetValue_02")
   }
 
-  @Test def test_InputTypeCalc_unionOfKeysetValueCalcs_01(): Unit = {
-    runner.runOneTest("InputTypeCalc_unionOfKeysetValueCalcs_01")
-  }
-  @Test def test_InputTypeCalc_unparse_unionOfKeysetValueCalcs_01(): Unit = {
-    runner.runOneTest("InputTypeCalc_unparse_unionOfKeysetValueCalcs_01")
-  }
-
   @Test def test_inherited_LengthKind(): Unit = { runner.runOneTest("inherited_LengthKind") }
 
   @Test def test_valueNotFound_1(): Unit = { runner.runOneTest("valueNotFound_1") }

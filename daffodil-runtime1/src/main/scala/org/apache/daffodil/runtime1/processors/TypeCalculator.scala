@@ -217,43 +217,6 @@ class IdentityTypeCalculator(srcType: NodeInfo.Kind) extends TypeCalculator(srcT
   ): Either[Error, DataValuePrimitiveNullable] = Right(x)
 }
 
-class UnionTypeCalculator(
-  subCalculators: Seq[(RepValueSet, RepValueSet, TypeCalculator)],
-  srcType: NodeInfo.Kind,
-  dstType: NodeInfo.Kind,
-) extends TypeCalculator(srcType, dstType) {
-  // TODO, it may be worth it to pre-compute a hash table for direct dispatch,
-  // Similar to how keyset-value works
-  override def inputTypeCalc(
-    x: DataValuePrimitive,
-    xType: NodeInfo.Kind,
-  ): Either[Error, DataValuePrimitiveNullable] = {
-    val subCalcSeq = subCalculators.filter(sub => sub._1.contains(x))
-    Assert.invariant(subCalcSeq.length <= 1)
-    if (subCalcSeq.isEmpty) {
-      Left(s"Key ${x} does not match any component of this simpleType union")
-    } else {
-      val subCalc = subCalcSeq.head._3
-      subCalc.inputTypeCalc(x, xType)
-    }
-  }
-
-  override def outputTypeCalc(
-    x: DataValuePrimitive,
-    xType: NodeInfo.Kind,
-  ): Either[Error, DataValuePrimitiveNullable] = {
-    val subCalcSeq = subCalculators.filter(sub => sub._2.contains(x))
-    Assert.invariant(subCalcSeq.length <= 1)
-    if (subCalcSeq.isEmpty) {
-      Left(s"Key ${x} does not match the logical values from any component of this union.")
-    } else {
-      val subCalc = subCalcSeq.head._3
-      subCalc.outputTypeCalc(x, xType)
-    }
-  }
-
-}
-
 /*
  * Since we can inherit the restriction from xsd facets, we also need to be able to support an
  * aribitrary subset of: minInclusive, minExclusive, maxInclusive, and maxExclusive
@@ -262,18 +225,6 @@ class RepValueSet(
   val valueSet: HashSet[DataValuePrimitive],
   val valueRanges: Set[(RangeBound, RangeBound)],
 ) extends Serializable {
-  def contains(x: DataValuePrimitive): Boolean = {
-    val ans1 = valueSet.contains(x)
-    if (ans1) {
-      ans1
-    } else {
-      valueRanges
-        .map({ case (min, max) =>
-          min.testAsLower(x) && max.testAsUpper(x)
-        })
-        .fold(false)(_ || _)
-    }
-  }
 
   def merge(other: RepValueSet): RepValueSet = {
     val valueSet_ = valueSet ++ other.valueSet
@@ -346,22 +297,6 @@ object TypeCalculatorCompiler {
   def compileIdentity(srcType: NodeInfo.Kind): TypeCalculator = new IdentityTypeCalculator(
     srcType,
   )
-
-  // subCalculators: Seq[(repValues, logicalValues, subCalc)]
-  def compileUnion(
-    subCalculators: Seq[(RepValueSet, RepValueSet, TypeCalculator)],
-  ): TypeCalculator = {
-    // TODO, in some cases, it may be possible to merge some subCalculators
-    // It may also be possible to compute a direct dispatch table
-    val types = subCalculators.map(x => (x._3.srcType, x._3.dstType))
-    val srcTypes = types.map(_._1)
-    val dstTypes = types.map(_._2)
-    val srcType = srcTypes.head
-    val dstType = dstTypes.head
-    Assert.invariant(srcTypes.map(_ == srcType).reduce(_ == _))
-    Assert.invariant(dstTypes.map(_ == dstType).reduce(_ == _))
-    new UnionTypeCalculator(subCalculators, srcType, dstType)
-  }
 
 }
 
