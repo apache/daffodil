@@ -96,14 +96,7 @@ trait ElementBaseGrammarMixin
     // We need to resolve the global simple type of the prefix length type
     // because we need to create a detached element with the same schema
     // document/parent of the GSTD.
-    schemaSet
-      .getGlobalSimpleTypeDef(prefixLengthType)
-      .getOrElse(
-        schemaDefinitionError(
-          "Failed to resolve dfdl:prefixLengthType=\"%s\" to a simpleType",
-          prefixLengthType.toQNameString,
-        ),
-      )
+    schemaSet.getGlobalSimpleTypeDefNoPrim(prefixLengthType, "dfdl:prefixLengthType", this)
   }.value
 
   lazy val prefixedLengthElementDecl: PrefixLengthQuasiElementDecl =

@@ -327,4 +327,35 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="inputTypeCalc-InvalidRepType.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="binary" />
+
+    <xs:simpleType name="primitiveRep_invalid" dfdlx:repType="xs:int">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="zero" dfdlx:repValues="0" />
+        <xs:enumeration value="one" dfdlx:repValues="1" />
+        <xs:enumeration value="two" dfdlx:repValues="2" />
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="root" type="primitiveRep_invalid" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="primitiveRep_invalid_01"
+    root="root" model="inputTypeCalc-InvalidRepType.dfdl.xsd">
+    <tdml:document>1</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:repType</tdml:error>
+      <tdml:error>primitive type</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
