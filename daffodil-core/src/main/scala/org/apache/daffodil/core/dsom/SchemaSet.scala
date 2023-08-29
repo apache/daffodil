@@ -425,6 +425,21 @@ final class SchemaSet private (
     _.getGlobalSimpleTypeDef(refQName.local)
   }
 
+  def getGlobalSimpleTypeDefNoPrim(
+    refQName: RefQName,
+    prop: String,
+    context: ThrowsSDE,
+  ): GlobalSimpleTypeDef = {
+    val gstd = getGlobalSimpleTypeDef(refQName)
+    gstd.getOrElse {
+      val isPrimitive = getPrimitiveType(refQName).isDefined
+      val msg =
+        if (isPrimitive) s"The $prop property cannnot resolve to a primitive type: $refQName"
+        else s"Failed to resolve $prop to a global simpleType definition: $refQName"
+      context.schemaDefinitionError(msg)
+    }
+  }
+
   def getGlobalComplexTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
     _.getGlobalComplexTypeDef(refQName.local)
   }

@@ -65,4 +65,6 @@ class TestInputTypeValueCalc {
   @Test def test_unparseValueNotFound_2(): Unit = {
     runner.runOneTest("unparseValueNotFound_2")
   }
+
+  @Test def test_primitiveRep_invalid(): Unit = { runner.runOneTest("primitiveRep_invalid_01") }
 }

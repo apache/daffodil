@@ -387,17 +387,13 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
   }.value
 
   override lazy val optRepType: Option[SimpleTypeBase with NamedMixin] = LV('optRepType) {
-    val optRepTypeDef = optRepTypeQName.flatMap(schemaSet.getGlobalSimpleTypeDef(_))
-    val optRepPrimType = optRepTypeQName.flatMap(schemaSet.getPrimitiveType(_))
-    Assert.invariant(!(optRepPrimType.isDefined && optRepTypeDef.isDefined))
-    if (optRepTypeQName.isDefined) {
-      schemaDefinitionUnless(
-        optRepTypeDef.isDefined || optRepPrimType.isDefined,
-        s"Cannot find reptype ${optRepTypeQNameString.get}",
-      )
+    val optRepTypeDef = optRepTypeQName.map { qname =>
+      // throws an SDE if the simple type def is not found or if it is not a simple type (e.g. a
+      // primitive type)
+      schemaSet.getGlobalSimpleTypeDefNoPrim(qname, "dfdlx:repType", this)
     }
-    optRepTypeDef.orElse(optRepPrimType)
-  }.toOption.flatten
+    optRepTypeDef
+  }.value
 
   override lazy val optRepValueSet: Option[RepValueSet] = optRepTypeDef.flatMap(repType => {
     val primType: PrimType = repType.primType
