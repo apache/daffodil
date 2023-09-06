@@ -736,11 +736,8 @@ is subject to the terms and conditions of the following licenses.
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
 
-- com.sun.xml.bind.jaxb-core-<VERSION>.jar
-- com.sun.xml.bind.jaxb-impl-<VERSION>.jar
 - javax.activation.activation-<VERSION>.jar
-- javax.xml.bind.jaxb-api-<VERSION>.jar
-  This product bundles 'JAXB' and 'Activation Framework' from the above files.
+  This product bundles the 'Activation Framework' from the above files.
   These files are available under the CDDL 1.1 license:
 
     COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1
