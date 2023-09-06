@@ -81,11 +81,9 @@ users@daffodil.apache.org mailing lists. Bugs can be reported via the
 
 Daffodil is licensed under the [Apache License, v2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-This product bundles the [Java Architecture for XML
-Binding](https://docs.oracle.com/javase/8/docs/technotes/guides/xml/jaxb/index.html)
-and the [JavaBeans Activation
+This product bundles the [JavaBeans Activation
 Framework](https://www.oracle.com/java/technologies/downloads.html),
-which are licensed under the Common Development and Distribution
+which is licensed under the Common Development and Distribution
 License Version 1.1.
 
 This product bundles the [Saxon XSLT and XQuery Processor from

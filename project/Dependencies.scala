@@ -61,6 +61,6 @@ object Dependencies {
   )
 
   lazy val exi = Seq(
-    "com.siemens.ct.exi" % "exificient" % "1.0.4",
+    "com.siemens.ct.exi" % "exificient" % "1.0.7",
   )
 }
