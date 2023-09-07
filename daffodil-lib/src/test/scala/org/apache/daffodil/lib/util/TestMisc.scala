@@ -48,7 +48,7 @@ class TestMisc {
   @Test def testHex2BytesValid(): Unit = {
     assertArrayEquals(Array(0).map(_.toByte), Misc.hex2Bytes("00"))
     assertArrayEquals(Array(9).map(_.toByte), Misc.hex2Bytes("09"))
-    assertArrayEquals(Array(10).map(_.toByte), Misc.hex2Bytes("0a"))
+    assertArrayEquals(Array(10).map(_.toByte), Misc.hex2Bytes("0A"))
     assertArrayEquals(Array(15).map(_.toByte), Misc.hex2Bytes("0F"))
     assertArrayEquals(Array(10).map(_.toByte), Misc.hex2Bytes("0a"))
     assertArrayEquals(Array(15).map(_.toByte), Misc.hex2Bytes("0f"))
