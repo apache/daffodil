@@ -55,7 +55,7 @@ class TestStringAsXml {
     val parseOut = new XMLTextInfosetOutputter(parseBos, pretty = true)
     val parseRes = dp.parse(parseIn, parseOut)
     val parseDiags = parseRes.getDiagnostics.map(_.toString)
-    val parseStrOpt = if (parseRes.isProcessingError) None else Some(parseBos.toString)
+    val parseStrOpt = if (parseRes.isProcessingError) None else Some(parseBos.toString("UTF-8"))
     (parseDiags, parseStrOpt)
   }
 
@@ -65,7 +65,8 @@ class TestStringAsXml {
     val unparseOut = java.nio.channels.Channels.newChannel(unparseBos)
     val unparseRes = dp.unparse(unparseIn, unparseOut)
     val unparseDiags = unparseRes.getDiagnostics.map(_.toString)
-    val unparseStrOpt = if (unparseRes.isProcessingError) None else Some(unparseBos.toString)
+    val unparseStrOpt =
+      if (unparseRes.isProcessingError) None else Some(unparseBos.toString("UTF-8"))
     (unparseDiags, unparseStrOpt)
   }
 

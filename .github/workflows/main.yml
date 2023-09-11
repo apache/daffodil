@@ -41,15 +41,15 @@ jobs:
         java_distribution: [ temurin ]
         java_version: [ 8, 11, 17 ]
         scala_version: [ 2.12.18 ]
-        os: [ ubuntu-22.04, windows-2022 ]
-        include:
+        os: [ ubuntu-22.04, windows-2022, macos-12 ]
+        exclude:
+          # only run macos on java 17
           - os: macos-12
-            shell: bash
-            java_distribution: temurin
-            java_version: 17
-            scala_version: 2.12.18
-            env_cc: cc
-            env_ar: ar
+            java_version: 8
+          - os: macos-12
+            java_version: 11
+        include:
+          # configure shell/cc/ar for all OSes
           - os: ubuntu-22.04
             shell: bash
             env_cc: clang
@@ -58,14 +58,23 @@ jobs:
             shell: msys2 {0}
             env_cc: clang
             env_ar: llvm-ar
-          # configure different languages for some jobs, defaulting to en_US.UTF-8
-          - env_lang: en_US.UTF-8
+          - os: macos-12
+            shell: bash
+            env_cc: cc
+            env_ar: ar
+          # configure different languages/encodings for some jobs, defaulting to en_US/UTF-8
+          - lang: en_US
+          - encoding: UTF-8
           - os: ubuntu-22.04
             java_version: 8
-            env_lang: de_DE.UTF-8
+            lang: de_DE
           - os: ubuntu-22.04
             java_version: 11
-            env_lang: ja_JP.UTF-8
+            lang: ja_JP
+          - os: windows-2022
+            java_version: 8
+            encoding: US-ASCII
+
 
     runs-on: ${{ matrix.os }}
     defaults:
@@ -74,8 +83,8 @@ jobs:
     env:
       AR: ${{ matrix.env_ar }}
       CC: ${{ matrix.env_cc }}
-      LANG: ${{ matrix.env_lang }}
-      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m ++${{ matrix.scala_version }} coverage
+      LANG: ${{ matrix.lang }}.${{ matrix.encoding }}
+      SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m -J-Dfile.encoding=${{ matrix.encoding }} ++${{ matrix.scala_version }} coverage
       SONARSCAN: ${{
                      matrix.os == 'ubuntu-22.04' &&
                      matrix.java_version == '11' &&
