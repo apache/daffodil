@@ -2966,7 +2966,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
 
   private def removeExpiredEntries(): Unit = {
     val now = System.currentTimeMillis()
-    cache.retain { case (_, v) =>
+    cache.filterInPlace { case (_, v) =>
       val retainEntry = v.optExpireTimeMillis.map { now < _ }.getOrElse(true)
       retainEntry
     }
