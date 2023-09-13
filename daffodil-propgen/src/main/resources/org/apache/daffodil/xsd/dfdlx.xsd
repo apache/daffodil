@@ -19,6 +19,7 @@
 <xs:schema
   targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
@@ -102,24 +103,22 @@
   
   <xs:attribute name="choiceBranchKeyRanges" type="dfdl:NonEmptyListOfInteger" />
 
-  <xs:attributeGroup name="SimpleTypeValueCalcAG">
-    <xs:attribute form="qualified" name="repType" type="dfdl:DFDLQName" />
-    <xs:attributeGroup ref="dfdlx:RepValuesAG" />
-  </xs:attributeGroup>
-
   <xs:attributeGroup name="RepValuesAG">
     <xs:attribute form="qualified" name="repValues" type="dfdl:NonEmptyListofDFDLStringLiteralOrNonEmptyListOfInteger" />
     <xs:attribute form="qualified" name="repValueRanges" type="dfdl:NonEmptyListOfInteger" />
   </xs:attributeGroup>
 
-  <xs:attributeGroup name="SimpleTypeValueCalcAGQualified">
-    <xs:attribute form="qualified" name="repType" type="dfdl:DFDLQName" />
-    <xs:attributeGroup ref="dfdlx:RepValuesAGQualified" />
-  </xs:attributeGroup>
-
   <xs:attributeGroup name="RepValuesAGQualified">
     <xs:attribute form="qualified" name="repValues" type="dfdl:NonEmptyListofDFDLStringLiteralOrNonEmptyListOfInteger" />
     <xs:attribute form="qualified" name="repValueRanges" type="dfdl:NonEmptyListOfInteger" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="RepTypeAG">
+    <xs:attribute form="qualified" name="repType" type="xsd:QName" />
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="RepTypeAGQualified">
+    <xs:attribute form="qualified" name="repType" type="xsd:QName" />
   </xs:attributeGroup>
 
   <xs:attributeGroup name="ExtLayeringAGQualified">

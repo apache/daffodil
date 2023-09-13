@@ -17,30 +17,18 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.math.{ BigInteger => JBigInt }
 import scala.xml.Node
 
 import org.apache.daffodil.core.dsom.walker.SimpleTypeView
 import org.apache.daffodil.core.runtime1.SimpleTypeRuntime1Mixin
-import org.apache.daffodil.lib.cookers.IntRangeCooker
 import org.apache.daffodil.lib.cookers.RepValueCooker
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.schema.annotation.props.gen.ParseUnparsePolicy
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.xml.QName
-import org.apache.daffodil.lib.xml.RefQName
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.infoset.DataValue
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
-import org.apache.daffodil.runtime1.processors.RangeBound
-import org.apache.daffodil.runtime1.processors.RepValueSet
-import org.apache.daffodil.runtime1.processors.RepValueSetCompiler
-import org.apache.daffodil.runtime1.processors.TypeCalculator
-import org.apache.daffodil.runtime1.processors.TypeCalculatorCompiler
 
 trait TypeBase {
   def optRestriction: Option[Restriction] = None
@@ -50,70 +38,9 @@ trait TypeBase {
 
 trait NonPrimTypeMixin
 
-sealed trait SimpleTypeBase extends TypeBase with HasOptRepTypeMixin with SimpleTypeView {
+sealed trait SimpleTypeBase extends TypeBase with SimpleTypeView {
 
   override def primType: PrimType
-}
-
-/*
- * For components which can define dfdlx:repValues and dfdlx:repValueRanges
- * Construct the repValueSet using only the above mentioned attributes on the element itself
- * Applies to simpleType and enumeration
- *
- * In the case of simpleType, it is possible that optRepValueSetFromAttribute will be none
- * but the element will still have an optRepValueSet for another source (eg. children elements)
- */
-sealed trait HasRepValueAttributes
-  extends AnnotatedSchemaComponent
-  with ResolvesLocalProperties // for repValues, repValueRanges, repType
-  {
-
-  def optRepType: Option[SimpleTypeBase]
-  def optRepValueSet: Option[RepValueSet]
-
-  lazy val (
-    repValuesAttrCooked: Seq[DataValuePrimitive],
-    repValueRangesAttrCooked: Seq[(RangeBound, RangeBound)],
-  ) =
-    optRepType match {
-      case Some(repType) => {
-        val repValueSetRaw = findPropertyOption("repValues").toOption
-          .map(_.split("\\s+").toSeq)
-          .getOrElse(Seq())
-        val repValueRangesRaw = findPropertyOption("repValueRanges").toOption.getOrElse("")
-        repType.primType match {
-          case PrimType.String => {
-            if (repValueRangesRaw.size > 0)
-              SDE("repValueRanges set when using a string repType")
-            val repValueSetCooked = repValueSetRaw
-              .flatMap(RepValueCooker.convertConstant(_, this, false))
-              .map(DataValue.toDataValue)
-            (repValueSetCooked, Seq())
-          }
-          case _: NodeInfo.Integer.Kind => {
-            val ans1 = repValueSetRaw.map(new JBigInt(_): DataValueBigInt)
-            val ans2 = IntRangeCooker
-              .convertConstant(repValueRangesRaw, this, false)
-              .map({ case (lower, upper) =>
-                (new RangeBound(lower, true), new RangeBound(upper, true))
-              })
-            (ans1, ans2)
-          }
-          case x => SDE("repType must be either String or Integer type")
-        }
-      }
-      case None => (Seq(), Seq())
-    }
-
-  lazy val optRepValueSetFromAttribute: Option[RepValueSet] = optRepType.flatMap(repType => {
-
-    val ans = RepValueSetCompiler.compile(
-      repValuesAttrCooked,
-      repValueRangesAttrCooked.asInstanceOf[Seq[(RangeBound, RangeBound)]],
-    )
-    if (ans.isEmpty) None else Some(ans)
-
-  })
 }
 
 /**
@@ -129,11 +56,8 @@ sealed trait HasRepValueAttributes
 final class PrimitiveType private (tn: PrimType) extends SimpleTypeBase with NamedMixin {
   override def optRestriction = None
   override def optUnion = None
-  override def optRepType = None
-  override def optRepValueSet = None
   override def primType = tn
   override def typeNode = tn
-  override def optRepTypeElement = None
 
   override def name = diagnosticDebugName
 
@@ -212,40 +136,12 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
   with NonPrimTypeMixin
   with ProvidesDFDLStatementMixin
   with OverlapCheckMixin
-  with HasOptRepTypeMixinImpl
   with NamedMixin
-  with HasRepValueAttributes
   with SimpleTypeRuntime1Mixin {
-
-  requiredEvaluationsIfActivated(validateRepType)
 
   override def typeNode = primType
 
   def toOpt[R <: AnyRef](b: Boolean, v: => R): Option[R] = Misc.boolToOpt(b, v)
-
-  private lazy val validateRepType: Unit = {
-    if (optRepType.isDefined && optRepType.get.isInstanceOf[PrimitiveType]) {
-      val ees = enclosingElements
-      //
-      // for all enclosing elements (if this is a named type, there could be several),
-      // they all have to be inputValueCalc.
-      //
-      val areNotAllIVC = ees.exists { ee => ee.isRepresented }
-      if (areNotAllIVC) {
-        //
-        // Also, we don't care about this parsing check if all uses of the type
-        // are unparse-only usages.
-        //
-        val isAtLeastOneUsageForParsing =
-          ees.exists { ee => ee.defaultParseUnparsePolicy != ParseUnparsePolicy.UnparseOnly }
-        if (isAtLeastOneUsageForParsing) {
-          SDE(
-            "Primitive types can only be used as repTypes for parsing when the enclosing element is computed with inputValueCalc",
-          )
-        }
-      }
-    }
-  }
 
   lazy val noFacetChecks =
     optRestriction
@@ -308,114 +204,6 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
     }
   }
 
-  /**
-   * The repType is a QName that resolves to a simple used to hang properties that define the
-   * physical representation of this element. When used, it is because we want to convert the
-   * physical representation to something else that actually ends up in the infoset, usually
-   * with a different logical type. For example, we may want to convert a numeric physical
-   * representation to string logical representation for the infoset. This could be done using
-   * multiple elements and input/outputValueCalc, but using repType allows it to be done by
-   * Daffodil. The task to convert a physical type to a logical type during parse (or in reverse
-   * during unparse) is done via a TypeCalculator. The goal of this optTypeCalculator is to
-   * inspect the various properties (e.g. repType, enumeration, repValues,
-   * repValueRanges) and create a TypeCalculator that does the necessary conversions. This type
-   * calculator will later be provided to a parser/unparser to be evaluated at runtime after the
-   * physical representation is parsed or prior to being unparsed.
-   */
-  lazy val optTypeCalculator: Option[TypeCalculator] = LV('optTypeCalculator) {
-    optRepType.flatMap(repType => {
-      val srcType = repType.primType
-      val dstType = primType
-
-      val fromRestriction: Option[TypeCalculator] = optRestriction.flatMap { restriction =>
-        if (restriction.enumerations.isEmpty) {
-          None
-        } else {
-          val terms = restriction.enumerations.flatMap { enum =>
-            if (enum.optRepValueSet.isEmpty) {
-              None
-            } else {
-              Assert.invariant(enum.canonicalRepValue.isDefined)
-              val repValues = enum.optRepValueSet.get
-              val canonValues = enum.canonicalRepValue.getNonNullable
-              val cookedValue = enum.enumValueCooked
-              Some((repValues, canonValues, cookedValue))
-            }
-          }
-
-          if (terms.isEmpty) {
-            if (srcType != dstType) {
-              SDE(
-                """An enumeration without any dfdlx:repValues or dfdlx:repValueRanges cannot have a different primitve type (%s) than that of its dfdlx:repType="%s" (%s)""",
-                dstType.globalQName,
-                repType.namedQName,
-                srcType.globalQName,
-              )
-            }
-            Some(TypeCalculatorCompiler.compileIdentity(srcType))
-          } else {
-            if (terms.size != restriction.enumerations.size) {
-              SDE(
-                "If one enumeration value defines dfdlx:repValues, then all must define a dfdlx:repValues",
-              )
-            }
-            Some(TypeCalculatorCompiler.compileKeysetValue(terms, srcType, dstType))
-          }
-        }
-      }
-
-      schemaDefinitionUnless(
-        fromRestriction.isDefined,
-        "dfdlx:repType (%s) requires an enumeration with defined dfdlx:repValues",
-        repType.namedQName,
-      )
-
-      fromRestriction
-    })
-  }.value
-
-  private lazy val optRepTypeQNameString = findPropertyOption("repType").toOption
-
-  private lazy val optRepTypeQName: Option[RefQName] = LV('optRepTypeQName) {
-    optRepTypeQNameString
-      .map(qn => {
-        QName.resolveRef(qn, namespaces, tunable.unqualifiedPathStepPolicy).toOption match {
-          case Some(x) => x
-          case None => SDE(s"Cannot resolve type ${qn}")
-        }
-      })
-  }.value
-
-  override lazy val optRepType: Option[SimpleTypeBase with NamedMixin] = LV('optRepType) {
-    val optRepTypeDef = optRepTypeQName.map { qname =>
-      // throws an SDE if the simple type def is not found or if it is not a simple type (e.g. a
-      // primitive type)
-      schemaSet.getGlobalSimpleTypeDefNoPrim(qname, "dfdlx:repType", this)
-    }
-    optRepTypeDef
-  }.value
-
-  override lazy val optRepValueSet: Option[RepValueSet] = optRepTypeDef.flatMap(repType => {
-    val primType: PrimType = repType.primType
-
-    val fromRestriction: Option[RepValueSet] = optRestriction.flatMap(_.optRepValueSet)
-    val fromSelf: Option[RepValueSet] = optRepValueSetFromAttribute
-
-    (fromRestriction, fromSelf) match {
-      case (None, None) => None
-      case (Some(a), None) => Some(a)
-      case (None, Some(a)) => Some(a)
-      case (Some(_), Some(_)) =>
-        SDE("Cannot put repValues or repRangeValues on a simple type defining an enumeration")
-    }
-
-  })
-
-  lazy val optLogicalValueSet: Option[RepValueSet] = {
-    val fromRestriction: Option[RepValueSet] = optRestriction.map(_.logicalValueSet)
-    fromRestriction
-  }
-
 }
 
 object LocalSimpleTypeDef {
@@ -474,12 +262,10 @@ final class GlobalSimpleTypeDef private (xmlArg: Node, schemaDocumentArg: Schema
  */
 final class EnumerationDef(xml: Node, parentType: SimpleTypeDefBase)
   extends SchemaComponentImpl(xml, parentType.schemaDocument)
-  with NestingLexicalMixin
-  with HasRepValueAttributes {
+  with AnnotatedSchemaComponent
+  with NestingLexicalMixin {
 
   Assert.invariant(xml.label == "enumeration")
-
-  override lazy val optRepType = parentType.optRepType
 
   lazy val enumValueRaw: String = (xml \ "@value").head.text
   lazy val enumValueCooked: DataValuePrimitive =
@@ -490,22 +276,24 @@ final class EnumerationDef(xml: Node, parentType: SimpleTypeDefBase)
         SDE("Invalid data for enumeration: %s", e.getMessage)
     }
 
-  override lazy val optRepValueSet: Option[RepValueSet] = optRepValueSetFromAttribute
-  lazy val logicalValueSet: RepValueSet =
-    RepValueSetCompiler.compile(Seq(enumValueCooked), Seq())
-  lazy val canonicalRepValue: DataValuePrimitiveNullable = {
-    val ans1 = repValuesAttrCooked.headOption.getOrElse(DataValue.NoValue)
-    val ans2 = repValueRangesAttrCooked.headOption
-      .map(_._1)
-      .map(asBound => {
-        // TODO, currently, if the first repValue comes from an exclusive restriction we cannot
-        // infer a canonical repValue
-        if (asBound.isInclusive) asBound.maybeBound else DataValue.NoValue
-      })
-      .getOrElse(DataValue.NoValue)
-    val ans = if (ans1.isDefined) ans1 else ans2
-    Assert.invariant(ans.isDefined == optRepValueSet.isDefined)
-    ans
+  lazy val repValuesRaw: Seq[String] = {
+    val optNodes = xml.attribute(XMLUtils.DFDLX_NAMESPACE, "repValues")
+    val res = optNodes.getOrElse(Seq.empty).flatMap { node =>
+      RepValueCooker.convertConstant(node.text, this, false)
+    }
+    res
+  }
+
+  lazy val repValueRangesRaw: Seq[String] = {
+    val optNodes = xml.attribute(XMLUtils.DFDLX_NAMESPACE, "repValueRanges")
+    val res = optNodes.getOrElse(Seq.empty).flatMap { node =>
+      val ranges = RepValueCooker.convertConstant(node.text, this, false)
+      if (ranges.length % 2 != 0) {
+        SDE("dfdlx:repValueRanges must specify an even number of values")
+      }
+      ranges
+    }
+    res
   }
 
   override val optReferredToComponent = None

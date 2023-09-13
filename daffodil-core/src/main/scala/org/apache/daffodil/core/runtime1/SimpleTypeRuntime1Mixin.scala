@@ -46,9 +46,6 @@ trait SimpleTypeRuntime1Mixin { self: SimpleTypeDefBase =>
           _.unionMemberTypes.map { _.simpleTypeRuntimeData }
         },
         tunable.unqualifiedPathStepPolicy,
-        optRepTypeDef.map(_.simpleTypeRuntimeData),
-        optRepValueSet,
-        optRepType.map(_.primType),
       )
     strd
   }

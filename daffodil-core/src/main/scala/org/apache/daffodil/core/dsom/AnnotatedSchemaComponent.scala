@@ -58,9 +58,6 @@ object ResolvesProperties {
   val localOnlyProperties = Seq(
     "choiceBranchKey",
     "hiddenGroupRef",
-    "repType",
-    "repValueRanges",
-    "repValues",
   )
 }
 

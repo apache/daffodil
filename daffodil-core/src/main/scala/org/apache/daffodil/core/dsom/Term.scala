@@ -120,14 +120,7 @@ trait Term
       .map { _.formatAnnotation.justThisOneProperties }
       .getOrElse(Map.empty)
 
-    // If a term references a global simple type, we need to inspect the
-    // propCache of the simple type in addition to this terms propCache. This
-    // is because some property lookup results are cached on the global simple
-    // type, like in the case of type calc properties
-    val optSimpleTypeCached = optReferredToComponent.collect { case gstd: GlobalSimpleTypeDef =>
-      gstd.propCache
-    }
-    val usedProperties = propCache ++ optSimpleTypeCached.getOrElse(Map.empty)
+    val usedProperties = propCache
 
     localProps.foreach { case (prop, (value, _)) =>
       if (!usedProperties.contains(prop)) {

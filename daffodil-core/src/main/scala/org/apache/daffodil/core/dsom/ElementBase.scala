@@ -985,6 +985,11 @@ trait ElementBase
       "Facets minLength and maxLength are allowed only on types string and hexBinary.",
     )
     typeDef match {
+      case _ if hasRepType => {
+        // this minLength/maxLength is only used for the length of the representation. The
+        // values used for facet restrictions during limited validation come from elsewhere
+        (repTypeElementDecl.minLength, repTypeElementDecl.maxLength)
+      }
       case prim: PrimitiveType => {
         val pt = prim.primType
         schemaDefinitionWhen(
@@ -999,8 +1004,6 @@ trait ElementBase
         // This means we cannot check and SDE here on incorrect simple type.
         (zeroBD, unbBD)
       }
-      case st: SimpleTypeDefBase if st.optRepTypeElement.isDefined =>
-        (st.optRepTypeElement.get.minLength, st.optRepTypeElement.get.maxLength)
       case st: SimpleTypeDefBase if st.optRestriction.isDefined => {
         val r = st.optRestriction.get
         val pt = st.primType
@@ -1368,8 +1371,8 @@ trait ElementBase
       if (!isQuasiElement)
         if (this.lengthKind == LengthKind.Prefixed)
           Seq(prefixedLengthElementDecl)
-        else if (this.isSimpleType)
-          this.simpleType.optRepTypeElement.toSeq
+        else if (this.hasRepType)
+          Seq(repTypeElementDecl)
         else
           Nil
       else
