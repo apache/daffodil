@@ -361,8 +361,8 @@
     <xsd:attributeGroup ref="dfdl:CalendarFormatAG" />
     <xsd:attributeGroup ref="dfdl:BooleanTextAG" />
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAG" />
-    <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAG" />
     <xsd:attributeGroup ref="dfdlx:ObjectKindAG" />
+    <xsd:attributeGroup ref="dfdlx:RepTypeAG" />
   </xsd:attributeGroup>
 
 </xsd:schema>

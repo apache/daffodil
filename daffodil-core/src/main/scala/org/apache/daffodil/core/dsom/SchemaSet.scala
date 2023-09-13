@@ -715,9 +715,7 @@ class TransitiveClosureSchemaComponents private () extends TransitiveClosure[Sch
       case st: SimpleTypeDefBase =>
         st.bases ++
           st.optRestriction ++
-          st.optUnion ++
-          st.optRepTypeDef ++
-          st.optRepTypeElement
+          st.optUnion
       case r: Restriction => r.optUnion.toSeq
       case u: Union => u.unionMemberTypes
       case c: ComplexTypeBase => Seq(c.modelGroup)
@@ -729,7 +727,10 @@ class TransitiveClosureSchemaComponents private () extends TransitiveClosure[Sch
       case _ => Nil
     }
     val misc: SSC = sc match {
-      case eb: ElementBase => eb.optPrefixLengthElementDecl.toSeq
+      case eb: ElementBase => {
+        eb.optPrefixLengthElementDecl.toSeq ++
+          eb.optRepTypeElementDecl.toSeq
+      }
       case _ => Seq()
     }
 

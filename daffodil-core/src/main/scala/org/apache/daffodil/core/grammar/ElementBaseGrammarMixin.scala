@@ -51,6 +51,7 @@ trait ElementBaseGrammarMixin
   with AlignedMixin
   with HasStatementsGrammarMixin
   with PaddingInfoMixin
+  with RepTypeMixin
   with ElementBaseRuntime1Mixin { self: ElementBase =>
 
   requiredEvaluationsIfActivated(checkPrefixedLengthElementDecl)
@@ -1399,14 +1400,7 @@ trait ElementBaseGrammarMixin
     else body
   }
 
-  lazy val hasRepType = (isSimpleType && simpleType.optRepType.isDefined)
-  lazy val optRepType = if (hasRepType) Some(simpleType.optRepType.get) else None
-  lazy val optRepTypeElement =
-    if (isSimpleType && simpleType.optRepTypeElement.isDefined)
-      Some(simpleType.optRepTypeElement.get)
-    else
-      None
-  lazy val repElement = optRepTypeElement.getOrElse(this)
+  lazy val repElement = optRepTypeElementDecl.getOrElse(this)
 
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
@@ -1520,7 +1514,7 @@ trait ElementBaseGrammarMixin
         dfdlScopeBegin,
         scalarDefaultableSimpleContent,
         dfdlScopeEnd,
-        new TypeValueCalc(this),
+        new RepType(this),
       )
     } else {
       new ElementCombinator(

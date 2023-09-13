@@ -221,9 +221,6 @@ final class SimpleTypeRuntimeData(
   val fractionDigits: Option[java.math.BigDecimal],
   val unionMemberTypes: Seq[SimpleTypeRuntimeData],
   unqualifiedPathStepPolicyArg: UnqualifiedPathStepPolicy,
-  val repTypeRuntimeData: Option[SimpleTypeRuntimeData],
-  val repValueSet: Option[RepValueSet],
-  val optRepPrimType: Option[PrimType],
 ) extends NonTermRuntimeData(
     variableMapArg,
     schemaFileLocationArg,

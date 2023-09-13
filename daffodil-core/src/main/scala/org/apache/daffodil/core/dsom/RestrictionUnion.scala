@@ -32,11 +32,6 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom.FacetTypes.ElemFacets
 import org.apache.daffodil.runtime1.dsom.FacetTypes.FacetValue
 import org.apache.daffodil.runtime1.dsom._
-import org.apache.daffodil.runtime1.infoset.DataValue
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
-import org.apache.daffodil.runtime1.processors.RangeBound
-import org.apache.daffodil.runtime1.processors.RepValueSet
-import org.apache.daffodil.runtime1.processors.RepValueSetCompiler
 
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.GregorianCalendar
@@ -210,73 +205,21 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
     }
   }.value
 
-  lazy val enumerations: Seq[EnumerationDef] =
-    (xml \ "enumeration").map(new EnumerationDef(_, simpleTypeDef))
-
-  lazy val facetValueSet: RepValueSet = {
-    val initAns: (RangeBound, RangeBound) =
-      (new RangeBound(DataValue.NoValue, false), new RangeBound(DataValue.NoValue, false))
-    val range = combinedBaseFacets.foldLeft(initAns)({ case (acc, (facetType, facetValue)) =>
-      lazy val valueAsBigInt: DataValueBigInt = new JBigInt(facetValue)
-      val (maybeBound, isMax, isInclusive) = facetType match {
-        case Facet.maxExclusive => (valueAsBigInt, true, false)
-        case Facet.maxInclusive => (valueAsBigInt, true, true)
-        case Facet.minExclusive => (valueAsBigInt, false, false)
-        case Facet.minInclusive => (valueAsBigInt, false, true)
-        case _ => (DataValue.NoValue, false, false)
-      }
-      if (maybeBound.isEmpty) {
-        acc
+  lazy val enumerations: Seq[EnumerationDef] = {
+    val localEnums = (xml \ "enumeration").map(new EnumerationDef(_, simpleTypeDef))
+    val enums =
+      if (localEnums.isEmpty) {
+        val remoteEnums = optBaseTypeDef
+          .flatMap(_.optRestriction)
+          .map(_.enumerations)
+          .getOrElse(Nil)
+        remoteEnums
       } else {
-        if (isMax) {
-          val oldMax = acc._2
-          if (!oldMax.isEmpty) {
-            SDE("Cannot define multiple max bounds on restriction")
-          }
-          val newMax = new RangeBound(maybeBound, isInclusive)
-          (acc._1, newMax)
-        } else {
-          val oldMin = acc._1
-          if (!oldMin.isEmpty) {
-            SDE("Cannot define multiple min bounds on restriction")
-          }
-          val newMin = new RangeBound(maybeBound, isInclusive)
-          (newMin, acc._2)
-        }
+        localEnums
       }
-    })
-    RepValueSetCompiler.compile(Seq(), Seq(range.asInstanceOf[(RangeBound, RangeBound)]))
+    enums
   }
 
-  lazy val repValueSet: RepValueSet = {
-    val subsets = enumerations.map(_.optRepValueSet).filter(_.isDefined).map(_.get)
-    if (subsets.length != 0 && subsets.length != enumerations.length) {
-      SDE("If one enumeration value defines a repValue, then all must define a repValue")
-    }
-    val fromEnums = subsets.fold(RepValueSetCompiler.empty)((a, b) => a.merge(b))
-    if (enumerations.length > 0) {
-      fromEnums
-    } else {
-      // We are some form of identity mapping, so our facetValues are also our repValues
-      facetValueSet
-    }
-  }
-
-  lazy val optRepValueSet = if (repValueSet.isEmpty) None else Some(repValueSet)
-
-  lazy val logicalValueSet: RepValueSet = {
-    val subsets = enumerations.map(_.logicalValueSet)
-    val fromEnums = subsets.fold(RepValueSetCompiler.empty)((a, b) => a.merge(b))
-    if (enumerations.length > 0) {
-      fromEnums
-    } else {
-      // We are some form of identity mapping, so our facetValues are also our repValues
-      facetValueSet
-    }
-  }
-
-  lazy val optLogicalValueSet: Option[RepValueSet] =
-    if (logicalValueSet.isEmpty) None else Some(logicalValueSet)
 }
 
 object Union {

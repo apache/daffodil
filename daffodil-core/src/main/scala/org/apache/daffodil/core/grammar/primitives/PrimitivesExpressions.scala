@@ -44,14 +44,12 @@ import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.runtime1.processors.parsers.NewVariableInstanceEndParser
 import org.apache.daffodil.runtime1.processors.parsers.NewVariableInstanceStartParser
 import org.apache.daffodil.runtime1.processors.parsers.SetVariableParser
-import org.apache.daffodil.runtime1.processors.parsers.TypeValueCalcParser
 import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
 import org.apache.daffodil.unparsers.runtime1.NadaUnparser
 import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceEndUnparser
 import org.apache.daffodil.unparsers.runtime1.NewVariableInstanceStartUnparser
 import org.apache.daffodil.unparsers.runtime1.SetVariableUnparser
-import org.apache.daffodil.unparsers.runtime1.TypeValueCalcUnparser
 
 abstract class AssertBase(
   decl: AnnotatedSchemaComponent,
@@ -329,36 +327,6 @@ case class InputValueCalc(e: ElementBase, property: PropertyLookupResult)
   }
 
   override lazy val unparser = Assert.usageError("Not to be called on InputValueCalc class.")
-}
-
-case class TypeValueCalc(e: ElementBase) extends Terminal(e, e.hasRepType) {
-
-  private lazy val simpleTypeDefBase = e.simpleType.asInstanceOf[SimpleTypeDefBase]
-  private lazy val typeCalculator = simpleTypeDefBase.optTypeCalculator.get
-  private lazy val repTypeRuntimeData =
-    simpleTypeDefBase.optRepTypeElement.get.elementRuntimeData
-  private lazy val repTypeParser =
-    simpleTypeDefBase.optRepTypeElement.get.enclosedElement.parser
-  private lazy val repTypeUnparser =
-    simpleTypeDefBase.optRepTypeElement.get.enclosedElement.unparser
-
-  override lazy val parser: DaffodilParser = {
-    new TypeValueCalcParser(
-      typeCalculator,
-      repTypeParser,
-      e.elementRuntimeData,
-      repTypeRuntimeData,
-    )
-  }
-  override lazy val unparser: DaffodilUnparser = {
-    new TypeValueCalcUnparser(
-      typeCalculator,
-      repTypeUnparser,
-      e.elementRuntimeData,
-      repTypeRuntimeData,
-    )
-  }
-
 }
 
 abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discrim: Boolean)
