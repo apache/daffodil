@@ -31,6 +31,8 @@ import org.apache.daffodil.lib.cookers.IntRangeCooker
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.ChoiceLengthKind
 import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.ProperlySerializableMap._
+import org.apache.daffodil.runtime1.infoset.ChoiceBranchEvent
 import org.apache.daffodil.runtime1.processors.RangeBound
 import org.apache.daffodil.runtime1.processors.parsers._
 import org.apache.daffodil.runtime1.processors.unparsers._
@@ -246,7 +248,9 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
           }
         (parser, isRepresented)
       }
-      val serializableMap: Map[String, (Parser, Boolean)] = dispatchBranchKeyMap.map(identity)
+
+      val serializableMap: ProperlySerializableMap[String, (Parser, Boolean)] =
+        dispatchBranchKeyMap.toProperlySerializableMap
       val serializableKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)] =
         dispatchBranchKeyRangeTuples.toVector.map(identity)
 
@@ -319,7 +323,9 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
         branchForUnparse.get
       }
     } else {
-      val cbm = ChoiceBranchMap(eventUnparserMap, branchForUnparse)
+      val serializableMap: ProperlySerializableMap[ChoiceBranchEvent, Unparser] =
+        eventUnparserMap.toProperlySerializableMap
+      val cbm = ChoiceBranchMap(serializableMap, branchForUnparse)
       new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, cbm, choiceLengthInBits)
     }
   }
