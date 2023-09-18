@@ -17,23 +17,26 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
+import scala.collection.JavaConverters._
+
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeInt
+import org.apache.daffodil.lib.util.ProperlySerializableMap._
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.RuntimeData
 import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.runtime1.processors.unparsers._
 
 case class ChoiceBranchMap(
-  lookupTable: Map[ChoiceBranchEvent, Unparser],
+  lookupTable: ProperlySerializableMap[ChoiceBranchEvent, Unparser],
   unmappedDefault: Option[Unparser],
 ) extends Serializable {
 
   def get(cbe: ChoiceBranchEvent): Maybe[Unparser] = {
     val fromTable = lookupTable.get(cbe)
     val res =
-      if (fromTable.isDefined) One(fromTable.get)
+      if (fromTable != null) One(fromTable)
       else {
         //
         // There must be an unmapped default in this case
@@ -49,9 +52,9 @@ case class ChoiceBranchMap(
 
   def defaultUnparser = unmappedDefault
 
-  def childProcessors = lookupTable.values.toSeq ++ unmappedDefault
+  def childProcessors = lookupTable.values.iterator.asScala.toVector ++ unmappedDefault
 
-  def keys = lookupTable.keys
+  def keys = lookupTable.keySet.asScala
 }
 
 /*
