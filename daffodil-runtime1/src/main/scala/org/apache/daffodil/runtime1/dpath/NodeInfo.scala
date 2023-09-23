@@ -658,13 +658,8 @@ object NodeInfo extends Enum {
       with PrimNumericFloat
       with FloatView {
       type Kind = FloatKind
-      protected override def fromString(s: String) = {
-        val f: JFloat = s match {
-          case XMLUtils.PositiveInfinityString => JFloat.POSITIVE_INFINITY
-          case XMLUtils.NegativeInfinityString => JFloat.NEGATIVE_INFINITY
-          case XMLUtils.NaNString => JFloat.NaN
-          case _ => s.toFloat
-        }
+      protected override def fromString(s: String): DataValueFloat = {
+        val f: JFloat = XMLUtils.strToFloat(s)
         f
       }
       protected override def fromNumberNoCheck(n: Number): DataValueFloat = n.floatValue
@@ -681,12 +676,7 @@ object NodeInfo extends Enum {
       with DoubleView {
       type Kind = DoubleKind
       protected override def fromString(s: String): DataValueDouble = {
-        val d: JDouble = s match {
-          case XMLUtils.PositiveInfinityString => JDouble.POSITIVE_INFINITY
-          case XMLUtils.NegativeInfinityString => JDouble.NEGATIVE_INFINITY
-          case XMLUtils.NaNString => JDouble.NaN
-          case _ => s.toDouble
-        }
+        val d: JDouble = XMLUtils.strToDouble(s)
         d
       }
       protected override def fromNumberNoCheck(n: Number): DataValueDouble = n.doubleValue

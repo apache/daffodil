@@ -151,8 +151,6 @@ class TestForHeapDump {
 
   def gcAndAllowHeapDump(): Unit = {
     System.gc()
-    System.runFinalization()
-    System.gc()
     System.out.println("Take a Heap Dump Now! (You have 10 seconds)")
     Thread.sleep(10000)
     System.out.println("Too late")

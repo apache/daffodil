@@ -3426,7 +3426,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <d_02>9.8765432109876544E16</d_02>
+        <d_02 xsi:type="xs:double">9.8765432109876544E16</d_02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

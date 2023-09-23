@@ -22,7 +22,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com" 
+  xmlns:ex="http://example.com"
   xmlns="http://example.com" 
   xmlns:tns="http://example.com" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -609,7 +609,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tnp05>6.5400003E9</tnp05>
+        <tnp05 xsi:type="xs:float">6.5400003E9</tnp05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
