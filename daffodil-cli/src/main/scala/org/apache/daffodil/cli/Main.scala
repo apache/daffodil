@@ -28,6 +28,7 @@ import java.nio.channels.Channels
 import java.nio.file.Paths
 import java.util.Scanner
 import java.util.concurrent.Executors
+import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.TransformerException
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.stream.StreamResult
@@ -92,7 +93,6 @@ import org.rogach.scallop.exceptions.GenericScallopException
 import org.slf4j.event.Level
 import org.xml.sax.InputSource
 import org.xml.sax.SAXParseException
-import org.xml.sax.helpers.XMLReaderFactory
 
 class ScallopExitException(val exitCode: Int) extends Exception
 
@@ -1813,8 +1813,10 @@ class Main(
           case (false, true) => { // Encoding
             val exiResult = new EXIResult(exiFactory.get)
             exiResult.setOutputStream(output)
-
-            val reader = XMLReaderFactory.createXMLReader()
+            val factory = SAXParserFactory.newInstance()
+            factory.setNamespaceAware(true)
+            val saxParser = factory.newSAXParser()
+            val reader = saxParser.getXMLReader
             reader.setContentHandler(exiResult.getHandler)
             reader.setErrorHandler(new EXIErrorHandler)
             try {

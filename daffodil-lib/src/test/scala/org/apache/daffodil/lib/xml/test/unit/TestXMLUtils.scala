@@ -36,7 +36,7 @@ class TestXMLUtils {
   @Test def testDiff0(): Unit = {
     val d1 = new Text("a")
     val d2 = new Text("b")
-    val diffs = XMLUtils.computeTextDiff("", d1, d2, None)
+    val diffs = XMLUtils.computeTextDiff("", d1, d2, None, None, None)
     val Seq((p, a, b)) = diffs
     assertEquals(".charAt(1)", p)
     assertEquals("a", a)
@@ -74,7 +74,6 @@ class TestXMLUtils {
     assertEquals("a/d[2].charAt(3)", p2)
     assertEquals("x", x)
     assertEquals("y", y)
-
   }
 
   @Test def testNilDiff1(): Unit = {
@@ -109,6 +108,55 @@ class TestXMLUtils {
     assertEquals("/a@xmlns", path)
     assertEquals("xmlns:ns1=\"someprefixA\"", a)
     assertEquals("xmlns:ns1=\"someprefixB\"", b)
+  }
+
+  val xsiNS = "http://www.w3.org/2001/XMLSchema-instance"
+  val xsNS = "http://www.w3.org/2001/XMLSchema"
+
+  @Test def testDoubleDiffNoEpsilon(): Unit = {
+    val d1 = <tnp05 xmlns:xsi={xsiNS} xmlns:xs={xsNS} xsi:type="xs:double">
+      9.8765432109876544E16
+    </tnp05>
+    val d2 = <tnp05 xmlns:xsi={xsiNS} xmlns:xs={xsNS} xsi:type="xs:double">
+      9.876543210987654E16
+    </tnp05>
+    val diffs = XMLUtils.computeDiff(d1, d2, false).toList
+    assertTrue(diffs.isEmpty)
+  }
+
+  @Test def testDoubleDiffWithEpsilon(): Unit = {
+    val d1 = "9.09"
+    val d2 = "9.11"
+    val isSame = XMLUtils.textIsSame(d1, d2, Some("xs:double"), None, Some(0.1))
+    assertTrue(isSame)
+  }
+
+  @Test def testDoubleDiffWithEpsilonNeg(): Unit = {
+    val d1 = "9.09"
+    val d2 = "9.11"
+    val isSame = XMLUtils.textIsSame(d1, d2, Some("xs:double"), None, Some(0.01))
+    assertFalse(isSame)
+  }
+
+  @Test def testFloatDiffNoEpsilon(): Unit = {
+    val d1 = <tnp05 xmlns:xsi={xsiNS} xmlns:xs={xsNS} xsi:type="xs:float">6.5400003E9</tnp05>
+    val d2 = <tnp05 xmlns:xsi={xsiNS} xmlns:xs={xsNS} xsi:type="xs:float">6.54E9</tnp05>
+    val diffs = XMLUtils.computeDiff(d1, d2, false).toList
+    assertTrue(diffs.isEmpty)
+  }
+
+  @Test def testFloatDiffWithEpsilon(): Unit = {
+    val d1 = "9.09"
+    val d2 = "9.11"
+    val isSame = XMLUtils.textIsSame(d1, d2, Some("xs:float"), Some(0.1.toFloat), None)
+    assertTrue(isSame)
+  }
+
+  @Test def testFloatDiffWithEpsilonNeg(): Unit = {
+    val d1 = "9.09"
+    val d2 = "9.11"
+    val isSame = XMLUtils.textIsSame(d1, d2, Some("xs:float"), Some(0.01.toFloat), None)
+    assertFalse(isSame)
   }
 
   @Test def testIsNil(): Unit = {
