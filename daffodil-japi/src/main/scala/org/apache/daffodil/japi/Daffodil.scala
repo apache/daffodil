@@ -22,49 +22,36 @@ import java.net.URI
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import scala.collection.JavaConverters._
-
-import org.apache.daffodil.core.compiler.{ Compiler => SCompiler }
-import org.apache.daffodil.core.compiler.{ InvalidParserException => SInvalidParserException }
-import org.apache.daffodil.core.compiler.{ ProcessorFactory => SProcessorFactory }
+import org.apache.daffodil.core.compiler.{Compiler => SCompiler}
+import org.apache.daffodil.core.compiler.{InvalidParserException => SInvalidParserException}
+import org.apache.daffodil.core.compiler.{ProcessorFactory => SProcessorFactory}
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.japi.debugger._
 import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.japi.io.InputSourceDataInputStream
 import org.apache.daffodil.japi.packageprivate._
+import org.apache.daffodil.japi.schema.{RuntimeSchemaHandler, RuntimeSchemaWalker}
 import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.api.Validator
-import org.apache.daffodil.lib.api.{ DataLocation => SDataLocation }
-import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
-import org.apache.daffodil.lib.api.{ LocationInSchemaFile => SLocationInSchemaFile }
-import org.apache.daffodil.lib.api.{ WithDiagnostics => SWithDiagnostics }
+import org.apache.daffodil.lib.api.{DataLocation => SDataLocation}
+import org.apache.daffodil.lib.api.{Diagnostic => SDiagnostic}
+import org.apache.daffodil.lib.api.{LocationInSchemaFile => SLocationInSchemaFile}
+import org.apache.daffodil.lib.api.{WithDiagnostics => SWithDiagnostics}
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.api.DFDL.{
-  DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException,
-}
-import org.apache.daffodil.runtime1.api.DFDL.{
-  DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler,
-}
-import org.apache.daffodil.runtime1.api.DFDL.{
-  DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException,
-}
+import org.apache.daffodil.runtime1.api.DFDL.{DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException}
+import org.apache.daffodil.runtime1.api.DFDL.{DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler}
+import org.apache.daffodil.runtime1.api.DFDL.{DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException}
 import org.apache.daffodil.runtime1.debugger.Debugger
-import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import org.apache.daffodil.runtime1.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
-import org.apache.daffodil.runtime1.processors.{
-  DaffodilParseXMLReader => SDaffodilParseXMLReader,
-}
-import org.apache.daffodil.runtime1.processors.{ DataProcessor => SDataProcessor }
-import org.apache.daffodil.runtime1.processors.{
-  ExternalVariableException => SExternalVariableException,
-}
-import org.apache.daffodil.runtime1.processors.{
-  InvalidUsageException => SInvalidUsageException,
-}
-import org.apache.daffodil.runtime1.processors.{ ParseResult => SParseResult }
-import org.apache.daffodil.runtime1.processors.{ UnparseResult => SUnparseResult }
-
+import org.apache.daffodil.runtime1.debugger.{InteractiveDebugger => SInteractiveDebugger}
+import org.apache.daffodil.runtime1.debugger.{TraceDebuggerRunner => STraceDebuggerRunner}
+import org.apache.daffodil.runtime1.processors.{DaffodilParseXMLReader => SDaffodilParseXMLReader}
+import org.apache.daffodil.runtime1.processors.{DataProcessor => SDataProcessor}
+import org.apache.daffodil.runtime1.processors.{ExternalVariableException => SExternalVariableException}
+import org.apache.daffodil.runtime1.processors.{InvalidUsageException => SInvalidUsageException}
+import org.apache.daffodil.runtime1.processors.{ParseResult => SParseResult}
+import org.apache.daffodil.runtime1.processors.{UnparseResult => SUnparseResult}
 import org.xml.sax.Attributes
 import org.xml.sax.ContentHandler
 import org.xml.sax.DTDHandler
@@ -401,6 +388,12 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
   extends WithDiagnostics(dp)
   with Serializable {
 
+  /**
+   * For use by the JAPI implementation only.
+   * @return the underlying data processor
+   */
+  private [japi] def getUnderlyingDataProcessor = dp
+
   private def copy(dp: SDataProcessor = dp) = new DataProcessor(dp)
 
   /**
@@ -513,6 +506,11 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    * @param output the byte channel to write the [[DataProcessor]] to
    */
   def save(output: WritableByteChannel): Unit = dp.save(output)
+
+  def walkRuntimeSchema(handler: RuntimeSchemaHandler): Unit = {
+    val walker = new RuntimeSchemaWalker(dp)
+    walker.walk(handler)
+  }
 
   /**
    *  Obtain a new [[DaffodilParseXMLReader]] from the current [[DataProcessor]].
