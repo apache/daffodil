@@ -26,7 +26,7 @@ import org.apache.daffodil.lib.util.SchemaUtils
 class TestDPath {
 
   val testSchemaNoRef = SchemaUtils.dfdlTestSchemaUnqualified(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
     <xs:element name="a">
       <xs:complexType>
@@ -49,7 +49,7 @@ class TestDPath {
   }
 
   val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
     <xs:element name="a">
       <xs:complexType>
@@ -73,7 +73,7 @@ class TestDPath {
   }
 
   val testSchema2 = SchemaUtils.dfdlTestSchemaUnqualified(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" representation="binary" binaryNumberRep="binary" lengthUnits="bytes"/>,
     <xs:element name="a">
       <xs:complexType>

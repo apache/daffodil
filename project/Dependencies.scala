@@ -28,23 +28,23 @@ object Dependencies {
     "com.ibm.icu" % "icu4j" % "73.2",
     "xerces" % "xercesImpl" % "2.12.2",
     "xml-resolver" % "xml-resolver" % "1.2",
-    "commons-io" % "commons-io" % "2.13.0",
+    "commons-io" % "commons-io" % "2.14.0",
     "com.typesafe" % "config" % "1.4.2",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
   )
 
   lazy val slf4jAPI = Seq(
-    "org.slf4j" % "slf4j-api" % "2.0.7",
+    "org.slf4j" % "slf4j-api" % "2.0.9",
   )
 
   lazy val infoset = Seq(
     "org.jdom" % "jdom2" % "2.0.6.1",
     "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1",
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.15.3",
   )
 
   lazy val cli = Seq(
-    "org.fusesource.jansi" % "jansi" % "2.4.0",
+    "org.fusesource.jansi" % "jansi" % "2.4.1",
     "org.jline" % "jline" % "3.22.0",
     "org.rogach" %% "scallop" % "5.0.0",
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "test",
@@ -61,6 +61,6 @@ object Dependencies {
   )
 
   lazy val exi = Seq(
-    "com.siemens.ct.exi" % "exificient" % "1.0.4",
+    "com.siemens.ct.exi" % "exificient" % "1.0.7",
   )
 }

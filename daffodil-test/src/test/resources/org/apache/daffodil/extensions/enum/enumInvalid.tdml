@@ -35,7 +35,7 @@
     elementFormDefault="unqualified"
     xmlns="http://www.w3.org/2001/XMLSchema">
 
-    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
 
     <element name="r2">
@@ -65,5 +65,92 @@
       <error>NonEmptyListofDFDLStringLiteralOrNonEmptyListOfInteger</error>
     </errors>
   </parserTestCase>
+
+  <tdml:defineSchema
+    name="s1"
+    useDefaultNamespace="false"
+    elementFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema">
+
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <element name="r1">
+      <complexType>
+        <sequence>
+          <element name="e1" type="ex:enum1" minOccurs="0"/>
+        </sequence>
+      </complexType>
+    </element>
+
+    <simpleType name="myByte" dfdl:lengthKind="explicit" dfdl:length="1">
+      <restriction base="xs:byte"/>
+    </simpleType>
+
+    <simpleType name="enum1" dfdlx:repType="ex:myByte">
+      <restriction base="xs:string">
+        <enumeration value="validA" />
+        <enumeration value="validB" />
+        <enumeration value="invalidC" />
+      </restriction>
+    </simpleType>
+
+  </tdml:defineSchema>
+
+  <parserTestCase name="noRepValues" model="s1" root="r1">
+    <document>
+      <documentPart type="byte">01</documentPart>
+    </document>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>enumerations must define</error>
+      <error>dfdlx:repValues</error>
+      <error>dfdlx:repValueRanges</error>
+      <error>dfdlx:repType</error>
+      <error>ex:myByte</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineSchema
+    name="s2"
+    useDefaultNamespace="false"
+    elementFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema">
+
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+
+    <element name="r1">
+      <complexType>
+        <sequence>
+          <element name="e1" type="ex:enum1" minOccurs="0"/>
+        </sequence>
+      </complexType>
+    </element>
+
+    <simpleType name="myString" dfdl:lengthKind="explicit" dfdl:length="6">
+      <restriction base="xs:string"/>
+    </simpleType>
+
+    <simpleType name="enum1" dfdlx:repType="ex:myString">
+      <restriction base="xs:string">
+        <enumeration value="validA" />
+        <enumeration value="validB" />
+        <enumeration value="validC" />
+      </restriction>
+    </simpleType>
+  </tdml:defineSchema>
+
+  <parserTestCase name="enumRepTypeNonInt" model="s2" root="r1">
+    <document></document>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>dfdlx:repType</error>
+      <error>ex:myString</error>
+      <error>xs:integer</error>
+      <error>xs:string</error>
+    </errors>
+  </parserTestCase>
+
 
 </testSuite>

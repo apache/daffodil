@@ -408,9 +408,9 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
    */
   final override protected def unparseBegin(state: UState): Unit = {
     if (erd.isQuasiElement) {
-      // Quasi elements are used for TypeValueCalc, and have no corresponding events in the infoset inputter
-      // The parent parser will push a DIElement for us to consume containing the logical value, so we do
-      // not need to do so here
+      // Quasi elements are used for RepType and PrefixedLength, and have no corresponding
+      // events in the infoset inputter. The parent parser will push a DIElement for us to
+      // consume containing the logical value, so we do not need to do so here
       Assert.invariant(state.currentInfosetNode.isSimple)
       Assert.invariant(state.currentInfosetNode.asSimple.erd eq erd)
       ()

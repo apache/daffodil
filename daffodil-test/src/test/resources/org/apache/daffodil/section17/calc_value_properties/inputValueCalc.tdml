@@ -23,7 +23,7 @@
   <tdml:defineSchema name="inputValueCalc-Embedded.dfdl.xsd">
 
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
@@ -464,6 +464,15 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="ivc_17_4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="double" type="xs:double" />
+          <xs:element name="ivc_ulong_from_double" type="xs:unsignedLong" dfdl:inputValueCalc="{ ../ex:double }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
     
     <xs:element name="ivc_18_1_a">
       <xs:complexType>
@@ -629,7 +638,7 @@
 
   <tdml:defineSchema name="inputValueCalc-invalid.dfdl.xsd">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
       occursCountKind="parsed" ignoreCase="no" inputValueCalc="{ 5 }"
@@ -1073,6 +1082,20 @@
           <num>7</num>
           <ivc_ulong_range_max>18446744073709551615</ivc_ulong_range_max>
         </ivc_17_3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="InputValueCalc_UnsignedLong_From_Double"
+    root="ivc_17_4" model="inputValueCalc-Embedded.dfdl.xsd">
+
+    <tdml:document>9.223372036854775808E18</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ivc_17_4>
+          <double>9.223372036854776E18</double>
+          <ivc_ulong_from_double>9223372036854775808</ivc_ulong_from_double>
+        </ivc_17_4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

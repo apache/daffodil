@@ -20,6 +20,6 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 
 <!-- search for this on the classpath -->
-  <xs:include schemaLocation="include02_01.dfdl.xsd"/>
+  <xs:include schemaLocation="/include02_01.dfdl.xsd"/>
   
 </xs:schema>

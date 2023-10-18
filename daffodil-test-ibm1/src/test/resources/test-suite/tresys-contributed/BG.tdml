@@ -17,7 +17,8 @@
 -->
 
 <testSuite suiteName="BG" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com"
   defaultImplementations="ibm daffodil">
 
@@ -30,20 +31,20 @@
     <infoset>
       <dfdlInfoset>
         <ex:list>
-          <x>9.87654321001E9</x>
-          <x>12345.6</x>
-          <x>1.23456789123456784E17</x>
-          <x>INF</x>
-          <x>NaN</x>
-          <x>0.0</x>
-          <x>0.0</x>
-          <x>0.0</x>
+          <x xsi:type="xs:double">9.87654321001E9</x>
+          <x xsi:type="xs:double">12345.6</x>
+          <x xsi:type="xs:double">1.23456789123456784E17</x>
+          <x xsi:type="xs:double">INF</x>
+          <x xsi:type="xs:double">NaN</x>
+          <x xsi:type="xs:double">0.0</x>
+          <x xsi:type="xs:double">0.0</x>
+          <x xsi:type="xs:double">0.0</x>
           <y>187723572702975</y>
           <y>986895</y>
           <y>4886718345</y>
-          <z>10.1</z>
-          <z>20.3</z>
-          <z>-9.12E-11</z>
+          <z xsi:type="xs:float">10.1</z>
+          <z xsi:type="xs:float">20.3</z>
+          <z xsi:type="xs:float">-9.12E-11</z>
         </ex:list>
       </dfdlInfoset>
     </infoset>

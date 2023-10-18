@@ -113,6 +113,10 @@ class TestInputValueCalc {
     runner.runOneTest("InputValueCalc_UnsignedLong_Range_Max_Pass")
   }
 
+  @Test def test_InputValueCalc_UnsignedLong_From_Double(): Unit = {
+    runner.runOneTest("InputValueCalc_UnsignedLong_From_Double")
+  }
+
   // NOTE: These tests were modified to test both the CompileTime and RunTime side of expressions
   // when dealing with InputValueCalc.  Essentially, constant expressions are evaluated at compile time.
   // Non constant expressions are evaluated at run time.

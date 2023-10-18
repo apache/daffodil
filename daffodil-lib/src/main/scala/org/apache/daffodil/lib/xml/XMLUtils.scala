@@ -18,6 +18,9 @@
 package org.apache.daffodil.lib.xml
 
 import java.io.File
+import java.io.IOException
+import java.net.URI
+import java.net.URISyntaxException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -26,6 +29,7 @@ import javax.xml.XMLConstants
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuilder
+import scala.math.abs
 import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 import scala.xml._
@@ -65,6 +69,34 @@ object XMLUtils {
   val PositiveInfinityString = "INF"
   val NegativeInfinityString = "-INF"
   val NaNString = "NaN"
+
+  /**
+   * Converts a string to a float, including handling our INF, -INF, and NaN notations.
+   * @param s
+   * @return
+   */
+  def strToFloat(s: String): Float = {
+    s match {
+      case PositiveInfinityString => Float.PositiveInfinity
+      case NegativeInfinityString => Float.NegativeInfinity
+      case NaNString => Float.NaN
+      case _ => s.toFloat
+    }
+  }
+
+  /**
+   * Converts a string to a double, including handling our INF, -INF, and NaN notations.
+   * @param s
+   * @return
+   */
+  def strToDouble(s: String): Double = {
+    s match {
+      case PositiveInfinityString => Double.PositiveInfinity
+      case NegativeInfinityString => Double.NegativeInfinity
+      case NaNString => Double.NaN
+      case _ => s.toDouble
+    }
+  }
 
   /**
    * Length where a surrogate pair counts as 1 character, not two.
@@ -774,6 +806,8 @@ object XMLUtils {
     ignoreProcInstr: Boolean = true,
     checkPrefixes: Boolean = false,
     checkNamespaces: Boolean = false,
+    maybeFloatEpsilon: Option[Float] = None,
+    maybeDoubleEpsilon: Option[Double] = None,
   ): Unit = {
     val expectedMinimized = normalize(expected)
     val actualMinimized = normalize(actual)
@@ -783,6 +817,8 @@ object XMLUtils {
       ignoreProcInstr,
       checkPrefixes,
       checkNamespaces,
+      maybeFloatEpsilon,
+      maybeDoubleEpsilon,
     )
     if (diffs.length > 0) {
       throw new XMLDifferenceException(
@@ -817,6 +853,8 @@ Differences were (path, expected, actual):
     ignoreProcInstr: Boolean = true,
     checkPrefixes: Boolean = false,
     checkNamespaces: Boolean = false,
+    maybeFloatEpsilon: Option[Float] = None,
+    maybeDoubleEpsilon: Option[Double] = None,
   ) = {
     computeDiffOne(
       a,
@@ -829,6 +867,8 @@ Differences were (path, expected, actual):
       checkPrefixes,
       checkNamespaces,
       None,
+      maybeFloatEpsilon,
+      maybeDoubleEpsilon,
     )
   }
 
@@ -846,6 +886,11 @@ Differences were (path, expected, actual):
     arrayCounters
   }
 
+  private def getXSIType(a: Elem) = {
+    val res = a.attribute(XSI_NAMESPACE.toString, "type").map(_.head.text)
+    res
+  }
+
   def computeDiffOne(
     an: Node,
     bn: Node,
@@ -857,14 +902,16 @@ Differences were (path, expected, actual):
     checkPrefixes: Boolean,
     checkNamespaces: Boolean,
     maybeType: Option[String],
+    maybeFloatEpsilon: Option[Float],
+    maybeDoubleEpsilon: Option[Double],
   ): Seq[(String, String, String)] = {
     lazy val zPath = parentPathSteps.reverse.mkString("/")
     (an, bn) match {
       case (a: Elem, b: Elem) => {
         val Elem(prefixA, labelA, attribsA, nsbA, childrenA @ _*) = a
         val Elem(prefixB, labelB, attribsB, nsbB, childrenB @ _*) = b
-        val typeA: Option[String] = a.attribute(XSI_NAMESPACE.toString, "type").map(_.head.text)
-        val typeB: Option[String] = b.attribute(XSI_NAMESPACE.toString, "type").map(_.head.text)
+        val typeA: Option[String] = getXSIType(a)
+        val typeB: Option[String] = getXSIType(b)
         val maybeType: Option[String] = Option(typeA.getOrElse(typeB.getOrElse(null)))
         val nilledA = a.attribute(XSI_NAMESPACE.toString, "nil")
         val nilledB = b.attribute(XSI_NAMESPACE.toString, "nil")
@@ -937,6 +984,8 @@ Differences were (path, expected, actual):
               checkPrefixes,
               checkNamespaces,
               maybeType,
+              maybeFloatEpsilon,
+              maybeDoubleEpsilon,
             )
           }
 
@@ -959,13 +1008,14 @@ Differences were (path, expected, actual):
         }
       }
       case (tA: Text, tB: Text) => {
-        val thisDiff = computeTextDiff(zPath, tA, tB, maybeType)
+        val thisDiff =
+          computeTextDiff(zPath, tA, tB, maybeType, maybeFloatEpsilon, maybeDoubleEpsilon)
         thisDiff
       }
       case (pA: ProcInstr, pB: ProcInstr) => {
         val ProcInstr(tA1label, tA1content) = pA
         val ProcInstr(tB1label, tB1content) = pB
-        val labelDiff = computeTextDiff(zPath, tA1label, tB1label, None)
+        val labelDiff = computeTextDiff(zPath, tA1label, tB1label, None, None, None)
         //
         // The content of a ProcInstr is technically a big string
         // But our usage of them the content is XML-like so could be loaded and then compared
@@ -977,7 +1027,7 @@ Differences were (path, expected, actual):
         //
         // TODO: implement XML-comparison for our data format info PIs.
         //
-        val contentDiff = computeTextDiff(zPath, tA1content, tB1content, maybeType)
+        val contentDiff = computeTextDiff(zPath, tA1content, tB1content, maybeType, None, None)
         labelDiff ++ contentDiff
       }
       case _ => {
@@ -991,11 +1041,13 @@ Differences were (path, expected, actual):
     tA: Text,
     tB: Text,
     maybeType: Option[String],
+    maybeFloatEpsilon: Option[Float],
+    maybeDoubleEpsilon: Option[Double],
   ): Seq[(String, String, String)] = {
 
     val dataA = tA.toString
     val dataB = tB.toString
-    computeTextDiff(zPath, dataA, dataB, maybeType)
+    computeTextDiff(zPath, dataA, dataB, maybeType, maybeFloatEpsilon, maybeDoubleEpsilon)
   }
 
   def computeBlobDiff(zPath: String, dataA: String, dataB: String) = {
@@ -1057,12 +1109,14 @@ Differences were (path, expected, actual):
     dataA: String,
     dataB: String,
     maybeType: Option[String],
+    maybeFloatEpsilon: Option[Float],
+    maybeDoubleEpsilon: Option[Double],
   ): Seq[(String, String, String)] = {
 
     val hasBlobType = maybeType.isDefined && maybeType.get == "xs:anyURI"
     val dataLooksLikeBlobURI = Seq(dataA, dataB).forall(_.startsWith("file://"))
     if (hasBlobType || dataLooksLikeBlobURI) computeBlobDiff(zPath, dataA, dataB)
-    else if (textIsSame(dataA, dataB, maybeType)) Nil
+    else if (textIsSame(dataA, dataB, maybeType, maybeFloatEpsilon, maybeDoubleEpsilon)) Nil
     else {
       // There must be some difference, so let's find just the first index of
       // difference and we'll include that and some following characters for
@@ -1091,7 +1145,30 @@ Differences were (path, expected, actual):
     }
   }
 
-  def textIsSame(dataA: String, dataB: String, maybeType: Option[String]): Boolean = {
+  /**
+   * Compares two strings of xml text, optionally using type information to tolerate insignificant differences, and
+   * optionally using a tolerance amount for floating point comparison.
+   *
+   * @param dataA string for first value in comparison
+   * @param dataB string for second value in comparison
+   * @param maybeType - type as a "xs:" prefixed QName string of an XSD type (Ex: as in the value of
+   *                  the xsi:type="xs:date" attribute.) Any non "xs:" prefixed type is ignored.
+   * @param maybeFloatEpsilon - for floating point comparison, a float (single precision) expressing the acceptable delta
+   *                     amount to proclaim equality.
+   * @param maybeDoubleEpsilon - for floating point comparison, a double (double precision) expressing the acceptable delta
+   *                          amount to proclaim equality.
+   * @return
+   */
+  def textIsSame(
+    dataA: String,
+    dataB: String,
+    maybeType: Option[String],
+    maybeFloatEpsilon: Option[Float],
+    maybeDoubleEpsilon: Option[Double],
+  ): Boolean = {
+    maybeFloatEpsilon.foreach { eps => Assert.usage(eps > 0.0) }
+    maybeDoubleEpsilon.foreach { eps => Assert.usage(eps > 0.0) }
+
     maybeType match {
       case Some("xs:hexBinary") => dataA.equalsIgnoreCase(dataB)
       case Some("xs:date") => {
@@ -1109,6 +1186,29 @@ Differences were (path, expected, actual):
         val b = DFDLDateTimeConversion.fromXMLString(dataB)
         a == b
       }
+      case Some("xs:double") => {
+        val a = strToDouble(dataA)
+        val b = strToDouble(dataB)
+        if (a.isNaN && b.isNaN) true // two NaNs are not normally considered equal
+        else {
+          maybeDoubleEpsilon match {
+            case None => a == b
+            case Some(epsilon) => abs(a - b) < epsilon
+          }
+        }
+      }
+      case Some("xs:float") => {
+        val a = strToFloat(dataA)
+        val b = strToFloat(dataB)
+        if (a.isNaN && b.isNaN) true // two NaNs are not normally considered equal
+        else {
+          maybeFloatEpsilon match {
+            case None => a == b
+            case Some(epsilon) => abs(a - b) < epsilon
+          }
+        }
+      }
+
       case _ => dataA == dataB
     }
   }
@@ -1298,6 +1398,113 @@ Differences were (path, expected, actual):
         Maybe.One(nsb.prefix)
       }
     } else maybePrefix(nsb.parent, uri)
+  }
+
+  /**
+   * Resolves an xs:include/xs:import schemaLocation to a URI
+   *
+   * Attempts to resolve a schemaLocation using a provided URI and contextURI, where the context
+   * is the URI of the schema importing this schemaLocation.
+   *
+   * If schemaLocation is not a valid URI, an IllegalArgumentException is thrown.
+   *
+   * If schemaLocation is not an absolute URI, then only the path component should be provided,
+   * or an IllegalArgumentException is thrown.
+   *
+   * If schemaLocation is not an absolute URI, and the path component is relative, then
+   * optContextURI must be provided or a usage exception is thrown.
+   *
+   * Returns None if this fails to resolve the schemaLocation to a URI that exists. If this
+   * successfully resolves, it returns a Some containing a tuple of the URI and a boolean that
+   * is true if a relative schemaLocation path was resolved absolutely on the classpath, and
+   * false otherwise. A boolean value of true indicates that a fallback behavior was used for
+   * backwards compatibility with older versions of Daffodil. The ability to resolve relative
+   * URIs absolutely, and the associated boolean, may be removed in the future.
+   */
+  def resolveSchemaLocation(
+    schemaLocation: String,
+    optContextURI: Option[URI],
+  ): Option[(URI, Boolean)] = {
+    val uri =
+      try {
+        new URI(schemaLocation)
+      } catch {
+        case e: URISyntaxException =>
+          throw new IllegalArgumentException(
+            "schemaLocation is not a valid URI: " + schemaLocation,
+            e,
+          )
+      }
+
+    val uriIsJustPathComponent =
+      uri.getScheme == null &&
+        uri.getAuthority == null &&
+        uri.getQuery == null &&
+        uri.getFragment == null &&
+        uri.getPath != null
+
+    val optResolved: Option[(URI, Boolean)] =
+      if (uri.isAbsolute) {
+        // an absolute URI is one with a scheme. In this case, we expect to be able to resolve
+        // the URI and do not try anything else (e.g. filesystem, classpath). Since this function
+        // is for schemaLocation attributes, we may eventually want to disallow this, and only
+        // allow relative URIs (i.e. URIs without a scheme). We do have some places that use
+        // absolute URIs in includes/imports and cannot remove this yet.
+        try {
+          uri.toURL.openStream.close
+          Some(uri, false)
+        } catch {
+          case e: IOException => None
+        }
+      } else if (!uriIsJustPathComponent) {
+        // this is not an absolute URI so we don't have a scheme. This should just be a path, so
+        // throw an IllegalArgumentException if that's not the case
+        val msg =
+          s"Non-absolute schemaLocation URI can only contain a path component: $schemaLocation"
+        throw new IllegalArgumentException(msg)
+      } else if (uri.getPath.startsWith("/")) {
+        // The None.orElse{ ... }.orElse { ... } pattern below is useful to evaluate each
+        // alternative way to resolve a schema location, stopping only when a Some is returned.
+        // This makes for easily adding/removing/reordering resolution approaches by changing
+        // orElse blocks
+        val optResolvedAbsolute = None
+          .orElse {
+            // Search for the schemaLocation on the classpath. The schemaLocation path is
+            // absolute so we can use it as-is so getResource does not care what package this
+            // class is in.
+            val resource = this.getClass.getResource(uri.getPath)
+            if (resource != null) Some((resource.toURI, false)) else None
+          }
+          .orElse {
+            // Search for the schemaLocation path on the file system. This path is absolute so it
+            // must exist. If it does not exist, this orElse block results in a None
+            val file = Paths.get(uri.getPath).toFile
+            if (file.exists) Some((file.toURI, false)) else None
+          }
+        optResolvedAbsolute
+      } else {
+        // the schema location is a relative path, we must have a context resolve it
+        Assert.usage(optContextURI.isDefined)
+        val contextURI = optContextURI.get
+        val optResolvedRelative = None
+          .orElse {
+            // This is a relative path, so look up the schemaLocation path relative to the context
+            Misc.getResourceRelativeOnlyOption(uri.getPath, contextURI).map { (_, false) }
+          }
+          .orElse {
+            // The user might have meant an absolute schemaLocation but left off the leading
+            // slash accidentally. Past versions of Daffodil allowed this, so we allow it too,
+            // but return a boolean if a relative path was found absolutely so callers can warn
+            // if needed. Future versions of Daffodil may want to remove this orElse block so we
+            // are strict about how absolute vs relative schemaLocations are resolved.
+            val pair = Option(this.getClass.getResource("/" + uri.getPath))
+              .map { _.toURI }
+              .map { (_, true) }
+            pair
+          }
+        optResolvedRelative
+      }
+    optResolved
   }
 }
 

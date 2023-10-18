@@ -211,6 +211,12 @@ lazy val testStdLayout = Project("daffodil-test-stdLayout", file("test-stdLayout
   .dependsOn(tdmlProc % "test")
   .settings(commonSettings, nopublish)
 
+// Choices here are Java LTS versions, 8, 11, 17, 21,...
+// However 8 is deprecated as of Java 21, so will be phased out.
+val minSupportedJavaVersion: String =
+  if (scala.util.Properties.isJavaAtLeast("21")) "11"
+  else "8"
+
 lazy val commonSettings = Seq(
   organization := "org.apache.daffodil",
   version := "3.6.0-SNAPSHOT",
@@ -245,7 +251,7 @@ lazy val commonSettings = Seq(
 
 def buildScalacOptions(scalaVersion: String) = {
   val commonOptions = Seq(
-    "-target:jvm-1.8",
+    s"-release:$minSupportedJavaVersion", // scala 2.12 can only do Java 8, regardless of this setting.
     "-feature",
     "-deprecation",
     "-language:experimental.macros",
@@ -268,13 +274,19 @@ def buildScalacOptions(scalaVersion: String) = {
     case _ => Seq.empty
   }
 
-  val javaVersionSpecificOptions =
-    if (scala.util.Properties.isJavaAtLeast("9"))
-      Seq("-release", "8") // ensure Java backwards compatibility (DAFFODIL-2579)
-    else
-      Seq.empty
+  commonOptions ++ scalaVersionSpecificOptions
+}
 
-  commonOptions ++ scalaVersionSpecificOptions ++ javaVersionSpecificOptions
+val javaVersionSpecificOptions = {
+  val releaseOption = // as of Java 11, they no longer accept "-release". Must use "--release".
+    if (scala.util.Properties.isJavaAtLeast("11")) "--release" else "-release"
+
+  // Java 21 deprecates Java 8 and warns about it.
+  // So if you are using Java 21, Java code compilation will specify a newer Java version
+  // to avoid warnings.
+  if (scala.util.Properties.isJavaAtLeast("11")) Seq(releaseOption, minSupportedJavaVersion)
+  else if (scala.util.Properties.isJavaAtLeast("9")) Seq(releaseOption, "8")
+  else Nil // for Java 8 compilation
 }
 
 // Workaround issue that some options are valid for javac, not javadoc.
@@ -284,12 +296,6 @@ def buildJavacOptions() = {
     "-Werror",
     "-Xlint:deprecation",
   )
-
-  val javaVersionSpecificOptions =
-    if (scala.util.Properties.isJavaAtLeast("9"))
-      Seq("--release", "8") // ensure Java backwards compatibility (DAFFODIL-2579)
-    else
-      Seq.empty
 
   commonOptions ++ javaVersionSpecificOptions
 }

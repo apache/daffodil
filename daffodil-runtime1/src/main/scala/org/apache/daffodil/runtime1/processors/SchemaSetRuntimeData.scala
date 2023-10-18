@@ -18,7 +18,6 @@
 package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.runtime1.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.runtime1.processors.parsers.Parser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
@@ -30,7 +29,6 @@ final class SchemaSetRuntimeData(
    * The original variables determined by the schema compiler.
    */
   variables: VariableMap,
-  val typeCalculators: TypeCalcMap,
 ) extends Serializable
   with ThrowsSDE {
 

@@ -22,14 +22,14 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com" 
+  xmlns:ex="http://example.com"
   xmlns="http://example.com" 
   xmlns:tns="http://example.com" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="textNumberPattern" elementFormDefault="qualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" occursCountKind="implicit"/>
 
     <xs:element name="tnp01" type="xs:int" dfdl:textNumberRep="standard" dfdl:textStandardBase="16" dfdl:textNumberPattern="0000" />
@@ -609,7 +609,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tnp05>6.5400003E9</tnp05>
+        <tnp05 xsi:type="xs:float">6.5400003E9</tnp05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -3396,7 +3396,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="textprops" elementFormDefault="qualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" initiator=""
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"

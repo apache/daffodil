@@ -24,7 +24,7 @@
  
   <tdml:defineSchema name="s1">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e" type="xs:string" dfdl:lengthKind="delimited"
@@ -56,7 +56,7 @@
   
   <tdml:defineSchema name="alignmentSchema">
     
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary" encoding="utf-8" alignmentUnits="bits" alignment="4" leadingSkip="0"
       occursCountKind='parsed'/>
     
@@ -492,7 +492,7 @@
   
   <tdml:defineSchema name="implicitAlignmentSchema">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary" encoding="ascii" 
       lengthUnits="bits" alignmentUnits="bits" binaryNumberRep="binary" textNumberPattern="###0.###;-###0.###"/>
 
@@ -575,7 +575,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="alignmentBitOrder">
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" textNumberPattern="###0.###;-###0.###" lengthUnits='bits' representation='binary'
       binaryNumberRep='binary' alignmentUnits='bits' lengthKind='explicit'
       byteOrder="littleEndian"/>
@@ -3850,7 +3850,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="separatorMTA">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format ref="ex:GeneralFormat"
       lengthUnits="bits"

@@ -63,7 +63,7 @@ class TestDsomCompiler {
 
   @Test def testHasProps(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1"/>
       <xs:complexType name="example1">
@@ -85,7 +85,7 @@ class TestDsomCompiler {
 
   @Test def testSchemaValidationSubset(): Unit = {
     val sch: Node = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list">
         <xs:complexType>
@@ -112,7 +112,7 @@ class TestDsomCompiler {
   // are supposed to anyway.
   @Test def testTypeReferentialError(): Unit = {
     val sch: Node = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="typeDoesNotExist"/>,
     )
@@ -141,7 +141,7 @@ class TestDsomCompiler {
 
   @Test def testSchemaValidationPropertyChecking(): Unit = {
     val s: Node = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list">
         <xs:complexType>
@@ -163,7 +163,7 @@ class TestDsomCompiler {
 
   @Test def test2(): Unit = {
     val sc = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
@@ -193,7 +193,7 @@ class TestDsomCompiler {
 
   @Test def testSequence1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
@@ -585,7 +585,7 @@ class TestDsomCompiler {
 
   @Test def testDfdlRef(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>,
@@ -602,7 +602,7 @@ class TestDsomCompiler {
 
   @Test def testGetQName() = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:defineFormat name="ref1">
         <dfdl:format initiator=":" alignmentUnits="bits"/>
       </dfdl:defineFormat>,
@@ -635,7 +635,7 @@ class TestDsomCompiler {
 
   @Test def test_escapeSchemeOverride() = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" separator="" initiator="" terminator="" emptyValueDelimiterPolicy="none" textNumberRep="standard" representation="text" occursStopValue="-1" occursCountKind="expression" escapeSchemeRef="pound"/>
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeKind="escapeCharacter"/>
@@ -704,7 +704,7 @@ class TestDsomCompiler {
 
   @Test def testPathWithIndexes(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="r" type="tns:myType"/>
       <xs:complexType name="myType">
@@ -745,7 +745,7 @@ class TestDsomCompiler {
 
   @Test def testInitiator(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>,
     )
@@ -760,7 +760,7 @@ class TestDsomCompiler {
 
   @Test def testTerminator(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="data" type="xs:string" dfdl:terminator="!" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>,
     )
@@ -775,7 +775,7 @@ class TestDsomCompiler {
 
   @Test def testDelims(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="data" type="xs:string" dfdl:initiator="*" dfdl:terminator="! $" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>,
     )
@@ -790,7 +790,7 @@ class TestDsomCompiler {
 
   //  @Test def testUnparseMultiElem1() {
   //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+  //      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
   //      <dfdl:format ref="tns:GeneralFormat"/>,
   //
   //      <xs:element name="list" type="tns:example1">
@@ -819,7 +819,7 @@ class TestDsomCompiler {
 
   @Test def testUnparseMultiElem2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="list" type="tns:example1">
         <xs:annotation>
@@ -849,7 +849,7 @@ class TestDsomCompiler {
 
   //  @Test def testUnparseNested() {
   //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+  //      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
   //      <dfdl:format ref="tns:GeneralFormat"/>,
   //
   //      <xs:element name="list" type="tns:example1">
@@ -887,7 +887,7 @@ class TestDsomCompiler {
 
   //  //  @Test def testUnparseNestedChildren() {
   //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+  //      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
   //      <dfdl:format ref="tns:GeneralFormat"/>,
   //
   //      <xs:element name="list" type="tns:example1">
@@ -925,7 +925,7 @@ class TestDsomCompiler {
 
   //  @Test def testUnparseDelimited() {
   //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+  //      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
   //      <dfdl:format ref="tns:GeneralFormat"/>,
   //
   //      <xs:element name="list" type="tns:example1">
@@ -954,7 +954,7 @@ class TestDsomCompiler {
 
   //  @Test def testUnparseAlignmentBits() {
   //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+  //      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
   //      <dfdl:format ref="tns:GeneralFormat"/>,
   //
   //      <xs:element name="list" type="tns:example1">
@@ -979,7 +979,7 @@ class TestDsomCompiler {
 
   //  @Test def testUnparseChoice1() {
   //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+  //      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
   //      <dfdl:format ref="tns:GeneralFormat"/>,
   //
   //      <xs:element name="list" type="tns:example1">
@@ -1014,7 +1014,7 @@ class TestDsomCompiler {
 
   //  @Test def testUnparseChoice2() {
   //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+  //      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
   //      <dfdl:format ref="tns:GeneralFormat"/>,
   //
   //      <xs:element name="list" type="tns:example1">
@@ -1049,7 +1049,7 @@ class TestDsomCompiler {
 
   @Test def testUnparseBinaryIntBE(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="data" type="xs:int" dfdl:representation="binary"/>,
     )
@@ -1065,7 +1065,7 @@ class TestDsomCompiler {
 
   @Test def testUnparseBinaryIntLE(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="data" type="xs:int" dfdl:representation="binary" dfdl:byteOrder='littleEndian'/>,
     )
@@ -1081,7 +1081,7 @@ class TestDsomCompiler {
 
   //  @Test def testUnparseBinary1() {
   //    val testSchema = SchemaUtils.dfdlTestSchema(
-  //      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+  //      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
   //      <dfdl:format ref="tns:GeneralFormat"/>,
   //
   //      <xs:element name="list" type="tns:example1">
@@ -1106,7 +1106,7 @@ class TestDsomCompiler {
 
   @Test def testHasPatternFacets(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" type="tns:st1" dfdl:lengthKind="explicit" dfdl:length="1"/>
       <xs:simpleType name="st1">
@@ -1132,7 +1132,7 @@ class TestDsomCompiler {
 
   @Test def testPatternFacetsInheritance(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" type="tns:st1" dfdl:lengthKind="explicit" dfdl:length="1"/>
       <xs:simpleType name="st1">

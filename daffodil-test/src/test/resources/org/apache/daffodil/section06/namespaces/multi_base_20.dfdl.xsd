@@ -20,7 +20,7 @@
    targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:a20="http://a20.com">
 
   <xs:import namespace="http://a20.com" schemaLocation="multi_A_20.dfdl.xsd"/>
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">

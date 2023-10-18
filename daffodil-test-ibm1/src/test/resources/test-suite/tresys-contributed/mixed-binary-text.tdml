@@ -26,7 +26,7 @@
 
   <tdml:defineSchema name="v">
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
       encoding="utf-8" lengthUnits='characters'/>
 

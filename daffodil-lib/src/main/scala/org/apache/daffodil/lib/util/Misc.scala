@@ -20,9 +20,8 @@ package org.apache.daffodil.lib.util
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.InputStream
+import java.io.IOException
 import java.net.URI
-import java.net.URL
 import java.net.URLClassLoader
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
@@ -103,35 +102,99 @@ object Misc {
     // more time is wasted by people forgetting that the initial "/" is needed
     // to get classpath relative behavior... Let's make sure there is a leading "/"
     val resPath = if (resourcePath.startsWith("/")) resourcePath else "/" + resourcePath
-    val res = this.getClass().getResource(resPath)
-    if (res == null) {
-      (None, resPath)
-    } else (Some(res.toURI), resPath)
+    val res = Option(this.getClass().getResource(resPath))
+    (res.map(_.toURI), resPath)
   }
 
   /**
    * Gets a resource on the classpath, or relative to another URI
    */
-  def getResourceRelativeOption(rawResName: String, optContextURI: Option[URI]): Option[URI] = {
+  private def getResourceAbsoluteOrRelativeOption(
+    rawResName: String,
+    optContextURI: Option[URI],
+  ): Option[URI] = {
     val resName = rawResName.replaceAll("""\s""", "%20")
     val (maybeRes, _) = Misc.getResourceOption(resName)
     if (maybeRes.isDefined) {
       maybeRes // found directly on the classpath.
     } else {
       optContextURI.flatMap { contextURI =>
-        //
-        // try relative to enclosing context uri
-        //
-        // Done using URL constructor because the URI.resolve(uri) method
-        // doesn't work against so called opaque URIs, and jar URIs of the
-        // sort we get here if the resource is in a jar, are opaque.
-        // Some discussion of this issue is https://issues.apache.org/jira/browse/XMLSCHEMA-3
-        //
-        val contextURL = contextURI.toURL
-        val completeURL = new URL(contextURL, resName)
-        val res = tryURL(completeURL)
-        res
+        getResourceRelativeOnlyOption(resName, contextURI)
       }
+    }
+  }
+
+  /**
+   * Get resource relative to the context URI.
+   *
+   * Does NOT try the string as an absolute location first
+   * or anything like that.
+   *
+   * @param relPath
+   * @param contextURI
+   * @return Some uri if the relative resource exists.
+   */
+  def getResourceRelativeOnlyOption(relPath: String, contextURI: URI): Option[URI] = {
+    Assert.usage(relPath ne null)
+    Assert.usage(contextURI ne null)
+    if (contextURI.isOpaque) {
+      //
+      // We used to call new URL(jarURI, relativePathString)
+      // but that is deprecated now (as of Java 20)
+      //
+      optRelativeJarFileURI(contextURI, relPath)
+    } else {
+      // context URI is not opaque. It's probably a file URI
+      if (contextURI.getScheme == "file") {
+        val relURI = contextURI.resolve(relPath)
+        if (Paths.get(relURI).toFile.exists())
+          Some(relURI)
+        else None
+      } else {
+        // not a file nor an opaque resource URI. What is it?
+        throw new IllegalArgumentException(s"Unrecognized URI type: $contextURI")
+      }
+    }
+  }
+
+  /**
+   * Java 20 deprecated the 2-arg URL constructor which worked to create relative URIs
+   * within the same Jar file.
+   *
+   * This is a bit harder to achieve now. You are not allowed to resolve relative to a jar file URI.
+   * That is URI.resolve(relPath) doesn't work if the URI is a jar file URI.
+   *
+   * Now we have to hack the jar:file: URI as a string because URI.resolve won't work
+   *
+   * jar file URIs look like this:
+   *
+   *    `jar:file:/..absolute path to jar file.jar!/absolute path from root inside jar to file``
+   *
+   * We split at the !/, make a relative path on just the inside-jar-file part, then glue
+   * back together.
+   *
+   *
+   * @param contextURI
+   * @param relPath
+   * @return Some(uri) for an existing relative path within the same jar file, or None if it does not exist.
+   */
+  def optRelativeJarFileURI(contextURI: URI, relPath: String): Option[URI] = {
+    val parts = contextURI.toString.split("\\!\\/")
+    Assert.invariant(parts.length == 2)
+    val jarPart = parts(0)
+    val pathPart = parts(1)
+    Assert.invariant(pathPart ne null)
+    val contextURIPathOnly = URI.create(pathPart)
+    val resolvedURIPathOnly = contextURIPathOnly.resolve(relPath)
+    val newJarPathURI = URI.create(jarPart + "!/" + resolvedURIPathOnly.toString)
+    try {
+      newJarPathURI.toURL.openStream().close()
+      // that worked, so we can open it so it exists.
+      Some(newJarPathURI)
+    } catch {
+      case io: IOException =>
+        // failed. So that jar file doesn't exist
+        None
     }
   }
 
@@ -155,7 +218,7 @@ object Misc {
       if (resAsURI.getScheme != null) Paths.get(resAsURI) else Paths.get(resName)
     val resolvedURI =
       if (Files.exists(resPath)) Some(resPath.toFile().toURI())
-      else Misc.getResourceRelativeOption(resName, relativeTo)
+      else Misc.getResourceAbsoluteOrRelativeOption(resName, relativeTo)
     val res = resolvedURI.orElse {
       // try ignoring the directory part
       val parts = resName.split("/")
@@ -167,21 +230,6 @@ object Misc {
         None
       }
     }
-    res
-  }
-
-  private def tryURL(url: URL): Option[URI] = {
-    var is: InputStream = null
-    val res =
-      try {
-        is = url.openStream()
-        // worked! We found it.
-        Some(url.toURI)
-      } catch {
-        case e: java.io.IOException => None
-      } finally {
-        if (is != null) is.close()
-      }
     res
   }
 

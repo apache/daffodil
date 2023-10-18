@@ -100,7 +100,7 @@
 	</tdml:defineConfig>
 
 	<tdml:defineSchema name="unqualifiedPathStep" elementFormDefault="unqualified">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format ref="ex:GeneralFormat" />
 
@@ -430,7 +430,7 @@
 
 
 	<tdml:defineSchema name="exceedMaxOccursBounds">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format ref="ex:GeneralFormat" />
 
@@ -462,7 +462,7 @@
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="missingTextBidi">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
       trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
@@ -524,7 +524,7 @@
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="textBidiYes">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
       trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
@@ -558,7 +558,7 @@
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="missingFloating">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
       trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
@@ -620,7 +620,7 @@
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="floatingYes">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
       trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
@@ -654,7 +654,7 @@
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="encodingErrorPolicyError">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
       trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
@@ -700,7 +700,7 @@
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="missingEncodingErrorPolicy">
-		<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format lengthKind="implicit" leadingSkip="0" sequenceKind="ordered" representation="text"
       trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
@@ -761,7 +761,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="smallMaxHexBinary">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
     <dfdl:format ref="ex:GeneralFormat" />
 

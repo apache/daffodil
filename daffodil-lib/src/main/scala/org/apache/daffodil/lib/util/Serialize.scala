@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.lib.util
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable.HashMap
 
 import org.apache.daffodil.lib.exceptions.Assert
@@ -91,5 +92,47 @@ private object PreSerialization {
       cls.getInterfaces().exists(classHasWriteObjectMethod(_))
     classCache += (cls -> hasIt)
     hasIt
+  }
+}
+
+/**
+ * Scala has a bug where failure to deserialize a Scala HashMap when classpath jars aren't
+ * correct can lead to very confusing and unhelpful error messages. This seems to be related to
+ * the fact that a HashMap serializes to a HashMap.SerializationProxy, which appears to have a
+ * bug when deserialization fails. Note that we cannot just use .asJava since that creates a
+ * Scala JavaCollectionWrappers.MapWrapper, which has the same serialization issues.
+ *
+ * Fortunately, the Java HashMap does not have these serialization issues. So anywhere we have a
+ * Scala HashMap that could easily fail deserialization, we should probably use a Java HashMap
+ * instead, and do so by create a new Java HashMap instance and copying in the keys/values from
+ * the Scala HashMap.
+ *
+ * To make to make it clear throughout the code where we actually do this, a new type alias is
+ * created for a Java Map called "ProperlySerializableMap". Although the compiler cannot enforce
+ * alias use instead of directly using a Java Map, as convention we should use this type alias
+ * anywhere we are using a Map for correct serialization purposes. Additionally, an implicit
+ * class with helper function is added to make it easy to correctly convert a Scala Map to a
+ * ProperlySerializableMap. For example:
+ *
+ *     import org.apache.daffodil.lib.util.ProperlySerializableMap._
+ *
+ *     val myScalaMap = Map((1,2), (3,4))
+ *     val serializableMap = myScalaMap.toProperlySerializableMap
+ *
+ * Note that the toProperlySerializableMap function creates a LinkedHashMap to guarantee
+ * repeatable order.
+ *
+ * See DAFFODIL-228 for examples of the confusing error messages and details of the issue.
+ */
+object ProperlySerializableMap {
+
+  type ProperlySerializableMap[K, V] = java.util.Map[K, V]
+
+  implicit class DecoratedWithToProperlySerialableMap[K, V](m: Map[K, V]) {
+    def toProperlySerializableMap: ProperlySerializableMap[K, V] = {
+      // This LinkedHashMap constructor copies the keys/values from the Scala MapWrapper, so
+      // anything using the result of this function will not have any Scala serialization issues
+      new java.util.LinkedHashMap[K, V](m.asJava)
+    }
   }
 }

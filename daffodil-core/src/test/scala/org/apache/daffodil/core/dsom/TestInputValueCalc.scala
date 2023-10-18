@@ -29,7 +29,7 @@ class TestInputValueCalc {
   // @Test
   @Test def testInputValueCalc1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="data" type="xs:string" dfdl:inputValueCalc="{ xs:string(42) }" />,
     )
@@ -41,7 +41,7 @@ class TestInputValueCalc {
   // @Test
   @Test def testInputValueCalcString2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii"/>,
       <xs:element name="data">
         <xs:complexType>
@@ -61,7 +61,7 @@ class TestInputValueCalc {
   // @Test
   @Test def testInputValueCalcInt3(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii"/>,
       <xs:element name="data">
         <xs:complexType>

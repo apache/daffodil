@@ -24,7 +24,7 @@
 
     <!-- modified from daffodil-cli/src/test/resources/org/apache/daffodil/CLI/cli_schema_03.dfdl.xsd -->
 
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">

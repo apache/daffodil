@@ -46,7 +46,7 @@
   </annotation>
   
   <import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
-     schemaLocation="IBMdefined/GeneralPurposeFormat.xsd"/>
+     schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd"/>
 
   <!-- Schema Escaping: escape character and escape block, fixed length -->
 

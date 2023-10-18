@@ -155,7 +155,6 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       optPrimType,
       schemaFileLocation,
       tunable.unqualifiedPathStepPolicy,
-      schemaSet.typeCalcMap,
       shortSchemaComponentDesignator,
       isOutputValueCalc,
       isDistinguishedRoot,

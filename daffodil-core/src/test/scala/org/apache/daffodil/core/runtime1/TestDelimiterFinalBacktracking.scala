@@ -58,7 +58,7 @@ class TestDelimiterFinalBacktracking {
    */
   @Test def testParseTerminatorBacktrack1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       schema1,
       elementFormDefault = "unqualified",

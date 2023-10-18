@@ -23,7 +23,7 @@
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
 	<xsd:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
-		schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+		schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" />
 	<xsd:annotation>
 		<xsd:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format ref="fmt:GeneralPurposeFormat" />

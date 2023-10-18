@@ -18,9 +18,11 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import java.math.{ BigInteger => JBigInt }
+import scala.collection.JavaConverters._
 
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Maybe
+import org.apache.daffodil.lib.util.ProperlySerializableMap._
 import org.apache.daffodil.runtime1.processors.ChoiceDispatchKeyEv
 import org.apache.daffodil.runtime1.processors.DelimiterParseEv
 import org.apache.daffodil.runtime1.processors.EscapeSchemeParseEv
@@ -140,7 +142,7 @@ class ChoiceBranchEmptyParser(val context: RuntimeData) extends PrimParserNoData
 
 abstract class ChoiceDispatchCombinatorParserBase(
   rd: TermRuntimeData,
-  dispatchBranchKeyMap: Map[String, (Parser, Boolean)],
+  dispatchBranchKeyMap: ProperlySerializableMap[String, (Parser, Boolean)],
   dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)],
 ) extends CombinatorParser(rd) {
 
@@ -149,7 +151,8 @@ abstract class ChoiceDispatchCombinatorParserBase(
   override lazy val runtimeDependencies = Vector()
 
   override def childProcessors =
-    dispatchBranchKeyMap.values.map(_._1).toVector ++ dispatchKeyRangeMap.map(_._3)
+    dispatchBranchKeyMap.values.iterator.asScala.map(_._1).toVector ++
+      dispatchKeyRangeMap.map(_._3)
 
   /*
    * Returns a value if pstate.processorStatus eq Success
@@ -165,8 +168,8 @@ abstract class ChoiceDispatchCombinatorParserBase(
 
         val parserOpt1 = dispatchBranchKeyMap.get(key)
         val parserOpt2 =
-          if (parserOpt1.isDefined) {
-            parserOpt1
+          if (parserOpt1 != null) {
+            Some(parserOpt1)
           } else {
             if (!dispatchKeyRangeMap.isEmpty) {
               try {
@@ -235,7 +238,7 @@ abstract class ChoiceDispatchCombinatorParserBase(
 class ChoiceDispatchCombinatorParser(
   rd: TermRuntimeData,
   dispatchKeyEv: ChoiceDispatchKeyEv,
-  dispatchBranchKeyMap: Map[String, (Parser, Boolean)],
+  dispatchBranchKeyMap: ProperlySerializableMap[String, (Parser, Boolean)],
   dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)],
 ) extends ChoiceDispatchCombinatorParserBase(rd, dispatchBranchKeyMap, dispatchKeyRangeMap) {
   override def computeDispatchKey(pstate: PState): Maybe[String] = Maybe(

@@ -17,21 +17,12 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.dpath.SuspendableExpression
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
-import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
-import org.apache.daffodil.runtime1.infoset.Infoset
-import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.NonTermRuntimeData
-import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
-import org.apache.daffodil.runtime1.processors.TypeCalculator
 import org.apache.daffodil.runtime1.processors.VariableInProcess
 import org.apache.daffodil.runtime1.processors.VariableInstance
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
@@ -134,59 +125,4 @@ class NewVariableInstanceEndUnparser(vrd: VariableRuntimeData, trd: TermRuntimeD
   override lazy val childProcessors = Vector()
 
   override def unparse(state: UState) = state.removeVariableInstance(vrd)
-}
-
-class TypeValueCalcUnparser(
-  typeCalculator: TypeCalculator,
-  repTypeUnparser: Unparser,
-  e: ElementRuntimeData,
-  repTypeRuntimeData: ElementRuntimeData,
-) extends CombinatorUnparser(e) {
-
-  override def childProcessors: Vector[Unparser] = Vector(repTypeUnparser)
-
-  def runtimeDependencies: Vector[Evaluatable[AnyRef]] = Vector()
-
-  protected def unparse(ustate: UState): Unit = {
-    Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
-    Assert.invariant(ustate.currentInfosetNode.isSimple)
-
-    val currentSimple = ustate.currentInfosetNode.asSimple
-
-    val logicalValueNullable = currentSimple.dataValue
-    Assert.invariant(logicalValueNullable.isDefined)
-    val logicalValue = logicalValueNullable.getNonNullable
-    val logicalValueType = currentSimple.erd.optPrimType.get
-    val repTypeValue: DataValuePrimitiveNullable = {
-      val ans = typeCalculator.outputTypeCalcUnparse(
-        ustate,
-        e,
-        logicalValue.getNonNullable,
-        logicalValueType,
-      )
-      ans
-    }
-
-    val origInfosetElement = ustate.currentInfosetNode
-    val tmpInfosetElement = Infoset.newElement(repTypeRuntimeData).asInstanceOf[DISimple]
-    if (ustate.withinHiddenNest)
-      tmpInfosetElement.setHidden()
-
-    // Although quasi elements aren't really part of the infoset, we still
-    // require that certain invariants hold. One of which is that all elements
-    // have a parent. This is necessary for things like running the
-    // InfosetWalker in the interactive debugger. To ensure this invariant
-    // holds, we set the parent of this quasi element to the same as that of
-    // the current infoset node.
-    tmpInfosetElement.setParent(currentSimple.parent)
-
-    if (ustate.processorStatus == Success) {
-
-      Assert.invariant(repTypeValue.isDefined)
-      tmpInfosetElement.setDataValue(repTypeValue)
-      ustate.currentInfosetNodeStack.push(Maybe(tmpInfosetElement))
-      repTypeUnparser.unparse1(ustate)
-      ustate.currentInfosetNodeStack.pop
-    }
-  }
 }

@@ -39,7 +39,7 @@ class TestTDMLUnparseCases {
       tdml
     } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
-                        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+                        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="ex:GeneralFormat"/>
                         <xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
                       </ts:defineSchema>

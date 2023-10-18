@@ -42,7 +42,7 @@ class TestTDMLCrossTest {
         tdml
       } suiteName="theSuiteName" defaultImplementations="notAnImplName">
         <ts:defineSchema name="s">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="ex:GeneralFormat"/>
           <xs:element name="r" type="xs:string" dfdl:lengthKind="delimited"/>
         </ts:defineSchema>

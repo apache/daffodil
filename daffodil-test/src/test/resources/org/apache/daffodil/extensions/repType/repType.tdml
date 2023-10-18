@@ -1,0 +1,924 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:tns="http://example.com"
+  defaultRoundTrip="onePass">
+
+  <tdml:defineSchema name="repType-Embedded.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="binary" />
+
+    <xs:element name="keysetValue_00" type="tns:keysetValue_01"/>
+
+    <xs:element name="keysetValue_01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" type="tns:keysetValue_01"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="keysetValue_02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" type="tns:keysetValue_01" maxOccurs="unbounded" dfdl:occursCountKind="parsed"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="uint8" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="keysetValue_01" dfdlx:repType="tns:uint8">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="zero" dfdlx:repValues="0" />
+        <xs:enumeration value="one" dfdlx:repValues="1" />
+        <xs:enumeration value="2-100" dfdlx:repValueRanges="2 100" />
+        <xs:enumeration value="101 103-110 115 120-125" dfdlx:repValues="101 115" dfdlx:repValueRanges="103 110 120 125"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="complexSet_to_string" dfdlx:repType="tns:uint8">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="101 103-110 115 120-125" dfdlx:repValues="101 115" dfdlx:repValueRanges="103 110 120 125"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_keysetValue_00"
+    root="keysetValue_00" model="repType-Embedded.dfdl.xsd" description="Extensions - repType keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_00>one</keysetValue_00>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repType_keysetValue_01"
+    root="keysetValue_01" model="repType-Embedded.dfdl.xsd" description="Extensions - repType keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_01><byte>one</byte></keysetValue_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    does not round trip due to repValueRanges, the canonical
+    unparsed value is 2 or 101 depending on the enum
+  -->
+  <tdml:parserTestCase name="repType_keysetValue_02"
+    root="keysetValue_02" model="repType-Embedded.dfdl.xsd" description="Extensions - repType keysetValue transform"
+    roundTrip="false">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00
+    01 
+    02 20 64 
+    65 67 68 6E 73 78 7A 7D 
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_02>
+          <byte>zero</byte>
+          <byte>one</byte>
+          <byte>2-100</byte>
+          <byte>2-100</byte>
+          <byte>2-100</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+          <byte>101 103-110 115 120-125</byte>
+        </keysetValue_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="repType_unparse_keysetValue_00"
+    root="keysetValue_00" model="repType-Embedded.dfdl.xsd" description="Extensions - repType keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_00>one</keysetValue_00>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="repType_unparse_keysetValue_01"
+    root="keysetValue_01" model="repType-Embedded.dfdl.xsd" description="Extensions - repType keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_01><byte>one</byte></keysetValue_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="repType_unparse_keysetValue_02"
+    root="keysetValue_02" model="repType-Embedded.dfdl.xsd" description="Extensions - repType keysetValue transform">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00
+    01 
+    02 
+    65 
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <keysetValue_02>
+          <byte>zero</byte>
+          <byte>one</byte>
+          <byte>2-100</byte>
+          <byte>101 103-110 115 120-125</byte>
+        </keysetValue_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="repType-Inherited.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="binary" />
+
+    <xs:simpleType name="enumVal" dfdl:lengthKind="explicit" dfdl:length="4">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="enumElem" dfdlx:repType="tns:enumVal">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="VALUE=0" dfdlx:repValues="0"/>
+        <xs:enumeration value="VALUE=1" dfdlx:repValues="1"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="enumWithRange" dfdlx:repType="tns:enumVal">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="VALUE=0" dfdlx:repValues="0"/>
+        <xs:enumeration value="VALUE=1" dfdlx:repValues="1"/>
+        <xs:enumeration value="VALUE=2" dfdlx:repValueRanges="4 5"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="int" type="tns:enumElem"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="int2" type="tns:enumWithRange"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="inherited_LengthKind"
+    root="root" model="repType-Inherited.dfdl.xsd"
+    description="DAFFODIL-2596 - Demonstrates that although global lengthKind='implicit' the enum string representation doesn't complain about implicit length string">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 00 00 01
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <root><int>VALUE=1</int></root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="valueNotFound_1"
+    root="root" model="repType-Inherited.dfdl.xsd"
+    description="Demonstrates a case where the provided value doesn't match any value in the enumeration">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 00 00 03
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Value</tdml:error>
+      <tdml:error>3</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>enumeration</tdml:error>
+      <tdml:error>repValues</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseValueNotFound_1"
+    root="root" model="repType-Inherited.dfdl.xsd"
+    description="Demonstrates a case where the provided key doesn't match any key in the enumeration">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <root><int>BAD_KEY</int></root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Value</tdml:error>
+      <tdml:error>BAD_KEY</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>enumeration</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="valueNotFound_2"
+    root="r2" model="repType-Inherited.dfdl.xsd"
+    description="Demonstrates a case where the provided value doesn't match any value in the enumeration">
+
+    <tdml:document>
+    <tdml:documentPart type="byte">
+    00 00 00 03
+    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Value</tdml:error>
+      <tdml:error>3</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>enumeration</tdml:error>
+      <tdml:error>repValues</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparseValueNotFound_2"
+    root="r2" model="repType-Inherited.dfdl.xsd"
+    description="Demonstrates a case where the provided key doesn't match any key in the enumeration">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <r2><int2>BAD_KEY</int2></r2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Value</tdml:error>
+      <tdml:error>BAD_KEY</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>enumeration</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="repType-InvalidRepType.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="binary" />
+
+    <xs:simpleType name="primitiveRep_invalid" dfdlx:repType="xs:int">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="zero" dfdlx:repValues="0" />
+        <xs:enumeration value="one" dfdlx:repValues="1" />
+        <xs:enumeration value="two" dfdlx:repValues="2" />
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="root" type="primitiveRep_invalid" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="primitiveRep_invalid_01"
+    root="root" model="repType-InvalidRepType.dfdl.xsd">
+    <tdml:document>1</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:repType</tdml:error>
+      <tdml:error>primitive type</tdml:error>
+      <tdml:error>xs:int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="repType-Immediate.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" dfdlx:repType="tns:rep">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="zero" dfdlx:repValues="0" />
+                <xs:enumeration value="one" dfdlx:repValues="1" />
+                <xs:enumeration value="two" dfdlx:repValues="2" />
+                <xs:enumeration value="three" dfdlx:repValues="3" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field">
+            <xs:simpleType dfdlx:repType="tns:rep">
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="zero" dfdlx:repValues="0" />
+                <xs:enumeration value="one" dfdlx:repValues="1" />
+                <xs:enumeration value="two" dfdlx:repValues="2" />
+                <xs:enumeration value="three" dfdlx:repValues="3" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_immediate_01" model="repType-Immediate.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <field>one</field>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repType_immediate_02" model="repType-Immediate.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">02</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <field>two</field>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="repType-Overlap.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" dfdlx:repType="tns:rep">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="zero" dfdlx:repValues="0" />
+                <xs:enumeration value="one" dfdlx:repValues="1" />
+                <xs:enumeration value="three" dfdlx:repValues="3" />
+                <xs:enumeration value="overlap_range" dfdlx:repValueRanges="2 4" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_overlap_01"
+    root="root" model="repType-Overlap.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Overlapping</tdml:error>
+      <tdml:error>dfdlx:repValueRanges</tdml:error>
+      <tdml:error>2 4</tdml:error>
+      <tdml:error>dfdlx:repValues</tdml:error>
+      <tdml:error>3</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="repType-BadRange.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" dfdlx:repType="tns:rep">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="bad_range" dfdlx:repValueRanges="4 2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_bad_range_01"
+    root="root" model="repType-BadRange.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:repValueRanges</tdml:error>
+      <tdml:error>low value</tdml:error>
+      <tdml:error>less than</tdml:error>
+      <tdml:error>high value</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="repType-Indirection.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:element name="root" type="tns:level1" />
+
+    <xs:simpleType name="level1">
+      <xs:restriction base="tns:level2"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="level2" dfdlx:repType="tns:rep">
+      <xs:restriction base="tns:myString">
+        <xs:enumeration value="ONE" dfdlx:repValues="1"/>
+        <xs:enumeration value="TWO" dfdlx:repValues="2"/>
+        <xs:enumeration value="TRE" dfdlx:repValues="3"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="myString" dfdl:lengthKind="explicit">
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="rep" dfdl:length="1">
+      <xs:restriction base="tns:myLong"/>
+    </xs:simpleType>
+
+    <xs:simpleType name="myLong" dfdl:lengthKind="explicit">
+      <xs:restriction base="xs:unsignedLong"/>
+    </xs:simpleType>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_indirection_01" model="repType-Indirection.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>TRE</root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="repType-OddRange.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" dfdlx:repType="tns:rep">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="zero" dfdlx:repValueRanges="0 10 20" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_odd_range_01" model="repType-OddRange.dfdl.xsd"
+    root="root1">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:repValueRanges</tdml:error>
+      <tdml:error>even number of values</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="repType-Complex.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="cmplx" dfdlx:repType="tns:rep">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="field" type="xs:string" dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_complex_01" model="repType-Complex.dfdl.xsd"
+    root="root1">
+    <tdml:document>data</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1 xmlns="http://example.com">
+          <cmplx>
+            <field>data</field>
+          </cmplx>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>ignored</tdml:warning>
+      <tdml:warning>repType="tns:rep"</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="repType-NoRestriction.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" type="xs:string" dfdlx:repType="tns:rep" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_no_restriction_01" model="repType-NoRestriction.dfdl.xsd"
+    root="root1">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:repType</tdml:error>
+      <tdml:error>tns:rep</tdml:error>
+      <tdml:error>restriction</tdml:error>
+      <tdml:error>required</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="repType-NoEnumerations.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt"/>
+    </xs:simpleType>
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" dfdlx:repType="tns:rep">
+            <xs:simpleType>
+              <xs:restriction base="xs:string" />
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_no_enumerations_01" model="repType-NoEnumerations.dfdl.xsd"
+    root="root1">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdlx:repType</tdml:error>
+      <tdml:error>at least one enumeration</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="repType-LengthFacets.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt" />
+    </xs:simpleType>
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" dfdlx:repType="tns:rep">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <!-- "t" is actually the only valid value due to min/maxLength -->
+                <xs:enumeration value="one" dfdlx:repValues="1" />
+                <xs:enumeration value="t" dfdlx:repValues="2" />
+                <xs:enumeration value="three" dfdlx:repValues="3" />
+                <xs:minLength value="2" />
+                <xs:maxLength value="3" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_length_facet_01" model="repType-LengthFacets.dfdl.xsd" validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <field>one</field>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repType_length_facet_02" model="repType-LengthFacets.dfdl.xsd" validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="byte">02</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <field>t</field>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>ex:field</tdml:error>
+      <tdml:error>minLength</tdml:error>
+      <tdml:error>2</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repType_length_facet_03" model="repType-LengthFacets.dfdl.xsd" validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="byte">03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <field>three</field>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>ex:field</tdml:error>
+      <tdml:error>maxLength</tdml:error>
+      <tdml:error>3</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="repType-Negative.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:byte"/>
+    </xs:simpleType>
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" dfdlx:repType="tns:rep">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="neg_one" dfdlx:repValues="-1" />
+                <xs:enumeration value="pos_one" dfdlx:repValues="1" />
+                <xs:enumeration value="other_neg" dfdlx:repValueRanges="-128 -2" />
+                <xs:enumeration value="other_pos" dfdlx:repValueRanges="2 127" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_negative_01" model="repType-Negative.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">FF</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <field>neg_one</field>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repType_negative_02" model="repType-Negative.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">80</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <field>other_neg</field>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- does not round trip due to repValueRanges, the canonical unparsed value is 2 -->
+  <tdml:parserTestCase name="repType_negative_03" model="repType-Negative.dfdl.xsd" roundTrip="false">
+    <tdml:document>
+      <tdml:documentPart type="byte">7F</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <field>other_pos</field>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repType_negative_04" model="repType-Negative.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">02</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root1>
+          <field>other_pos</field>
+        </root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    use of scalar repType in hidden groups can't be used because it requires
+    outputValueCalc, which is not allowed in combination with repType.
+  -->
+  <tdml:defineSchema name="repType-HiddenGroup.dfdl.xsd">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" representation="binary" />
+
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:byte"/>
+    </xs:simpleType>
+
+    <xs:group name="hiddenField">
+      <xs:sequence>
+        <xs:element name="field" dfdlx:repType="tns:rep" dfdl:outputValueCalc="{ ../ex:visField }">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="one" dfdlx:repValues="1" />
+              <xs:enumeration value="two" dfdlx:repValues="2" />
+              <xs:enumeration value="three" dfdlx:repValues="3" />
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:group ref="ex:hiddenField" />
+          <xs:element name="visField" type="xs:string" dfdl:inputValueCalc="{ ../ex:field }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="repType_hiddenGroup_01" model="repType-HiddenGroup.dfdl.xsd"
+    root="root1">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:outputValueCalc</tdml:error>
+      <tdml:error>dfdlx:repType</tdml:error>
+      <tdml:error>defined on the same element</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

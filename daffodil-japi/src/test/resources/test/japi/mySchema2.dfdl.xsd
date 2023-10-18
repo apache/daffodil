@@ -27,7 +27,7 @@
     </appinfo>
   </annotation>
   
-  <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   
   <element name="e2" dfdl:lengthKind="delimited">
     <simpleType>

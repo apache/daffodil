@@ -25,7 +25,7 @@
 
 
   <tdml:defineSchema name="baseline">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" 
       encodingErrorPolicy="error"/>
 
@@ -63,7 +63,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="baseline_ibm">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" 
       encodingErrorPolicy="error"/>
     
@@ -107,7 +107,7 @@
 
 
   <tdml:defineSchema name="basicNest">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" 
       encodingErrorPolicy="error"/>
 
@@ -156,7 +156,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="basicNest2">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
 
     <xs:element name="e1" dfdl:lengthKind="implicit"
@@ -203,7 +203,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="nest1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
 
     <xs:element name="nest1" dfdl:lengthKind="implicit"
@@ -234,7 +234,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="nest2">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
     <!-- test the issue of ambiguous delimiters, which requires the parser
       to keep track of what's got priority over what else. (i.e., that inner
@@ -295,7 +295,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="nest3">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" occursCountKind="parsed" />
     <!-- test the issue of shared prefixes among the delimiters. This makes
       it challenging to determine longest match, as several contenders must

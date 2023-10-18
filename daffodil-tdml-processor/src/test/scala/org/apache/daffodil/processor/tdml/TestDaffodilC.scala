@@ -56,7 +56,7 @@ class TestDaffodilC {
 
   // Defines a very simple DFDL test schema for all tests to use
   private val testSchema = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format representation="binary" ref="GeneralFormat"/>,
     <xs:element name="e1">
       <xs:complexType>
@@ -137,7 +137,7 @@ class TestDaffodilC {
     val input = new ByteArrayInputStream(b)
     val pr = tdp.parse(input, b.length * 8)
     assert(
-      !pr.isProcessingError && pf.getDiagnostics.isEmpty,
+      !pr.isProcessingError && pr.getDiagnostics.isEmpty,
       pr.getDiagnostics.map(_.getMessage()).mkString("\n"),
     )
     val expected = <e1><x>1280</x></e1>
@@ -175,7 +175,7 @@ class TestDaffodilC {
     val output = new ByteArrayOutputStream()
     val ur = tdp.unparse(infosetXML, output)
     assert(
-      !ur.isProcessingError && pf.getDiagnostics.isEmpty,
+      !ur.isProcessingError && ur.getDiagnostics.isEmpty,
       ur.getDiagnostics.map(_.getMessage()).mkString("\n"),
     )
     val expected = Misc.hex2Bytes("00000500")
@@ -218,7 +218,10 @@ class TestDaffodilC {
     cr match {
       case Left(diagnostics) => fail(s"getProcessor failed: ${diagnostics.mkString}")
       case Right((diagnostics, tdmlDFDLProcessor)) =>
-        assert(diagnostics.isEmpty)
+        assert(
+          diagnostics.forall(!_.isError),
+          diagnostics.filter(_.isError).map(_.getMessage()).mkString("\n"),
+        )
         assert(tdmlDFDLProcessor.isInstanceOf[DaffodilCTDMLDFDLProcessor])
     }
   }

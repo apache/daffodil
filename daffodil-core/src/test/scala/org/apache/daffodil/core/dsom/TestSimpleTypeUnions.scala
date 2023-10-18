@@ -36,7 +36,7 @@ class TestSimpleTypeUnions {
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
   val testSchema1 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="GeneralFormat"/>,
     <xs:simpleType name="int1Type">
       <xs:restriction base="xs:int">
@@ -159,7 +159,7 @@ class TestSimpleTypeUnions {
   }
 
   val testSchema2 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="GeneralFormat"/>,
     <xs:simpleType name="int19Type">
       <xs:restriction base="xs:int">
@@ -300,7 +300,7 @@ class TestSimpleTypeUnions {
   }
 
   val testSchema3 = SchemaUtils.dfdlTestSchema(
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format ref="GeneralFormat"/>,
     <xs:simpleType name="fooXbar">
       <xs:restriction base="xs:string">

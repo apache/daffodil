@@ -26,7 +26,7 @@
 	xmlns:cal="http://www.saf.cal/" elementFormDefault="unqualified"
 	attributeFormDefault="unqualified" >
 
-	<xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+	<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 	 
 	<!--
 		"another example" of short form in section 7.1.4.3 dfdl spec v.39

@@ -129,10 +129,16 @@ ZyBzb2x1dGlvbnMuCg=="""
     val scanner = new Scanner(is, StandardCharsets.ISO_8859_1.name())
     is.skip(3)
     is.mark(2)
-    val matchString = scanner.findWithinHorizon("(.*?)(?=(\\Q;\\E))", 2)
+    // Prior to changes for Java21, this test used non-capturing lookahead for the ";"
+    // and group(2) was containing the match of the lookahead.
+    // as of Java21 testing, the lookahead match is no longer made into a group it seems.
+    // The lookahead is included in the "whole match" aka group(0)
+    val matchString = scanner.findWithinHorizon("(.*?)(\\Q;\\E)", 2)
     is.reset()
-    assertEquals("l", matchString)
-    assertEquals(";", scanner.`match`().group(2))
+    val m = scanner.`match`()
+    assertEquals("l;", m.group(0))
+    assertEquals("l", m.group(1))
+    assertEquals(";", m.group(2))
   }
 
   /**

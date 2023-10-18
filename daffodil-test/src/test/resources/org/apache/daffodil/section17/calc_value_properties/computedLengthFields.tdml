@@ -27,7 +27,7 @@
   <tdml:defineSchema name="s" useDefaultNamespace="false" elementFormDefault="unqualified"
                      xmlns="http://www.w3.org/2001/XMLSchema">
 
-    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:defineFormat name="base">
       <dfdl:format ref="ex:GeneralFormat"
@@ -197,7 +197,7 @@
     This schema identical to the one above named "s" with exactly 1 line different.
     The default format has the property dfdlx:alignmentKind 'manual' in effect.
     -->
-    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:defineFormat name="base">
       <dfdl:format ref="ex:GeneralFormat"
@@ -372,7 +372,7 @@
     useDefaultNamespace="false"
     xmlns="http://www.w3.org/2001/XMLSchema"
   >
-    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format
       ref="ex:GeneralFormat"
       encoding="iso-8859-1"
@@ -444,7 +444,7 @@
 
     We use this to verify that dfdlx:alignmentKind 'manual' eliminates the cyclic deadlocks.
     -->
-    <include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format
       ref="ex:GeneralFormat"
       encoding="iso-8859-1"

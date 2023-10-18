@@ -42,7 +42,7 @@ class TestTDMLRoundTrips {
       tdml
     } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
-                        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+                        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="ex:GeneralFormat"/>
                         <xs:element name="r" dfdl:lengthKind="implicit">
                           <xs:complexType>
@@ -83,7 +83,7 @@ class TestTDMLRoundTrips {
       tdml
     } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
-                        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+                        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="ex:GeneralFormat"/>
                         <xs:element name="r" dfdl:lengthKind="implicit">
                           <xs:complexType>
@@ -120,7 +120,7 @@ class TestTDMLRoundTrips {
       tdml
     } suiteName="theSuiteName">
       <ts:defineSchema name="s">
-        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="ex:GeneralFormat"/>
         <xs:element name="r" dfdl:lengthKind="implicit">
           <xs:complexType>
@@ -166,7 +166,7 @@ class TestTDMLRoundTrips {
         tdml
       } suiteName="theSuiteName">
         <ts:defineSchema name="s">
-          <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <dfdl:format ref="ex:GeneralFormat"/>
           <xs:element name="all">
             <xs:complexType>
@@ -219,7 +219,7 @@ New Line]]></bar>
       tdml
     } suiteName="theSuiteName">
                       <ts:defineSchema name="s">
-                        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+                        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="ex:GeneralFormat"/>
                         <xs:element name="all">
                           <xs:complexType>
@@ -268,7 +268,7 @@ New Line]]></bar>
       tdml
     } suiteName="theSuiteName">
       <ts:defineSchema name="s">
-        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         <dfdl:format ref="ex:GeneralFormat"/>
         <xs:element name="r" dfdl:lengthKind="implicit">
           <xs:complexType>
@@ -321,7 +321,7 @@ New Line]]></bar>
       fn
     } xmlns:ex={example} xmlns:ts={tdml} xmlns:daf={daf} suiteName="theSuiteName">
                       <ts:defineSchema name="s" elementFormDefault="unqualified">
-                        <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+                        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
                         <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" separatorSuppressionPolicy="anyEmpty"/>
                         <xs:element name="r" dfdl:lengthKind="implicit">
                           <xs:complexType>

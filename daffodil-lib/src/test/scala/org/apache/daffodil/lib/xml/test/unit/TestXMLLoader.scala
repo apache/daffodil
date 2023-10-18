@@ -39,7 +39,7 @@ class TestXMLLoader {
         |xmlns:xs="http://www.w3.org/2001/XMLSchema"
         |xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         |xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
-        |  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        |  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         |  <xs:annotation>
         |    <xs:appinfo source="http://www.ogf.org/dfdl/">
         |      <dfdl:format lengthKind="delimited" ref="ex:GeneralFormat"/>
@@ -71,7 +71,7 @@ class TestXMLLoader {
         |xmlns:xs="http://www.w3.org/2001/XMLSchema"
         |xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         |xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
-        |  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        |  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
         |  <xs:annotation>
         |    <xs:appinfo source="http://www.ogf.org/dfdl/">
         |      <dfdl:format lengthKind="delimited" ref="ex:GeneralFormat"/>

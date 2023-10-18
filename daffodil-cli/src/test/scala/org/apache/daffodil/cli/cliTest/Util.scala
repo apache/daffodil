@@ -25,6 +25,7 @@ import java.io.PipedOutputStream
 import java.io.PrintStream
 import java.lang.ProcessBuilder
 import java.math.BigInteger
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -224,6 +225,7 @@ object Util {
     eb.withOutput(toIn)
     eb.withInputs(fromOut, fromErr)
     eb.withInputFilters(replaceInString("\r\n", "\n"))
+    eb.withCharset(StandardCharsets.UTF_8)
     // Disable timeouts on expect calls. We do this because often times the CLI can
     // take a while to start up (e.g. spawning a thread, schema compilation) which
     // can lead to timeouts and false negatives. Instead, we will spawn the expect
@@ -367,8 +369,9 @@ object Util {
     var exitCode: ExitCode.Value = _
 
     override def run(): Unit = {
-      val psOut = new PrintStream(out)
-      val psErr = new PrintStream(err)
+      // require UTF-8 output streams when testing the CLI
+      val psOut = new PrintStream(out, false, StandardCharsets.UTF_8.name)
+      val psErr = new PrintStream(err, false, StandardCharsets.UTF_8.name)
 
       try {
         // Run a thread-safe CLI instance that uses our custom streams that

@@ -20,10 +20,10 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:what="http://example.com/3" xmlns:foo="http://example.com/2">
 
-  <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:import namespace="http://example.com/3"
-    schemaLocation="org/apache/daffodil/section06/namespaces/qname3.dfdl.xsd" />
+    schemaLocation="/org/apache/daffodil/section06/namespaces/qname3.dfdl.xsd" />
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">

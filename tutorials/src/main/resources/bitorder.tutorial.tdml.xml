@@ -171,7 +171,7 @@ left, least significant on the right. We also put the bytes in order with byte 1
 </p>
 </tdml:tutorial>
   <tdml:defineSchema name="s3">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   
     <dfdl:format ref="ex:GeneralFormat"
 		 bitOrder='mostSignificantBitFirst'
@@ -320,7 +320,7 @@ most significant bit is on the left, least significant on the right.</p>
 </p>
     </tdml:tutorial>
     <tdml:defineSchema name="s2">
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
       
       <dfdl:format ref="ex:GeneralFormat" bitOrder='leastSignificantBitFirst' byteOrder='littleEndian' representation="binary" lengthUnits="bits"  lengthKind='explicit' alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
 
@@ -1186,7 +1186,7 @@ The schema corresponding to this table is given below. This schema is derived fr
 </tdml:tutorial>
 
   <tdml:defineSchema name="s">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   
     <dfdl:format tdml:tutorialInclude="no" ref="ex:GeneralFormat" representation="binary" lengthUnits="bits" 
                  bitOrder='leastSignificantBitFirst' lengthKind='explicit' 
@@ -1244,7 +1244,7 @@ The schema corresponding to this table is given below. This schema is derived fr
   </tdml:parserTestCase>
 
 <tdml:defineSchema name="s2_1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
     <dfdl:format ref="ex:GeneralFormat" bitOrder='leastSignificantBitFirst' byteOrder='littleEndian' representation="binary" lengthUnits="bits"  lengthKind='explicit' alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
 
@@ -1286,7 +1286,7 @@ The schema corresponding to this table is given below. This schema is derived fr
   </tdml:parserTestCase>
   
     <tdml:defineSchema name="s4">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     
     <dfdl:format ref="ex:GeneralFormat" representation="binary" 
                  lengthUnits="bytes" lengthKind='explicit' 
@@ -1315,7 +1315,7 @@ The schema corresponding to this table is given below. This schema is derived fr
   </tdml:parserTestCase>
   
     <tdml:defineSchema name="s4_1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     
     <dfdl:format ref="ex:GeneralFormat" representation="binary" 
                  lengthUnits="bytes" lengthKind='explicit' 
@@ -1349,7 +1349,7 @@ The schema corresponding to this table is given below. This schema is derived fr
   </tdml:parserTestCase>
   
     <tdml:defineSchema name="s6">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     
     <dfdl:format ref="ex:GeneralFormat" representation="binary" 
                  lengthUnits="bits" lengthKind='explicit' 
@@ -1392,7 +1392,7 @@ The schema corresponding to this table is given below. This schema is derived fr
   </tdml:parserTestCase>
   
     <tdml:defineSchema name="s6_1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     
     <dfdl:format ref="ex:GeneralFormat" representation="binary" 
                  lengthUnits="bits" lengthKind='explicit' 
@@ -1434,7 +1434,7 @@ The schema corresponding to this table is given below. This schema is derived fr
   </tdml:parserTestCase>
   
     <tdml:defineSchema name="s6_2">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     
     <dfdl:format ref="ex:GeneralFormat" representation="binary" 
                  lengthUnits="bits" lengthKind='explicit' 

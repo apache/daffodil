@@ -35,7 +35,7 @@
 
   <tdml:defineSchema name="udf-schema-Embedded.dfdl.xsd">
     <xs:include
-      schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+      schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="def_ns" type="xs:boolean"

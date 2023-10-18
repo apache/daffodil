@@ -29,7 +29,7 @@
   defaultValidation="on">
 
   <tdml:defineSchema name="discrimAssertPlacement">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="root-discrim" dfdl:lengthKind="implicit" >
@@ -117,7 +117,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="s0">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:simpleType name="simpleAssert">
@@ -298,7 +298,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
@@ -345,7 +345,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice2">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
@@ -381,7 +381,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="s1">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
@@ -589,7 +589,7 @@
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="invalid">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
@@ -612,7 +612,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="discrimExpression">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
@@ -703,7 +703,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice3">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
@@ -761,7 +761,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="choice4">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <xs:element name="c1">
       <xs:complexType>
@@ -866,7 +866,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="discrimWithVariable">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
     <dfdl:defineVariable name="var"/>
 
@@ -938,7 +938,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="iSetNotFound" elementFormDefault="unqualified">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="e1">

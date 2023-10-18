@@ -37,7 +37,6 @@ import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.processors.TypeCalculatorCompiler.TypeCalcMap
 
 object SchemaSet {
   def apply(
@@ -120,7 +119,6 @@ final class SchemaSet private (
 
   override lazy val tunable = tunables
 
-  requiredEvaluationsAlways(typeCalcMap)
   requiredEvaluationsAlways(root)
   requiredEvaluationsAlways(checkForDuplicateTopLevels())
 
@@ -220,19 +218,6 @@ final class SchemaSet private (
 
   lazy val globalSimpleTypeDefs: Seq[GlobalSimpleTypeDef] =
     schemas.flatMap(_.globalSimpleTypeDefs)
-
-  /**
-   * For simple types defs, get those that particpate
-   * in type calculation.
-   */
-  lazy val typeCalcMap: TypeCalcMap = {
-    // Just take all global simple type defs for now. Not just "in use".
-    // filter them by whether they have a typeCalculator
-    val factories = globalSimpleTypeDefs
-    val withCalc = factories.filter(_.optTypeCalculator.isDefined)
-    val mappings = withCalc.map(st => (st.globalQName, st.optTypeCalculator.get))
-    mappings.toMap
-  }
 
   /**
    * For checking uniqueness of global definitions in their namespaces
@@ -438,6 +423,21 @@ final class SchemaSet private (
 
   def getGlobalSimpleTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
     _.getGlobalSimpleTypeDef(refQName.local)
+  }
+
+  def getGlobalSimpleTypeDefNoPrim(
+    refQName: RefQName,
+    prop: String,
+    context: ThrowsSDE,
+  ): GlobalSimpleTypeDef = {
+    val gstd = getGlobalSimpleTypeDef(refQName)
+    gstd.getOrElse {
+      val isPrimitive = getPrimitiveType(refQName).isDefined
+      val msg =
+        if (isPrimitive) s"The $prop property cannnot resolve to a primitive type: $refQName"
+        else s"Failed to resolve $prop to a global simpleType definition: $refQName"
+      context.schemaDefinitionError(msg)
+    }
   }
 
   def getGlobalComplexTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
@@ -662,12 +662,10 @@ final class SchemaSet private (
 
   private lazy val startingGlobalComponents: Seq[SchemaComponent] = {
     root +: {
-      // always need the simple type defs so we can ask for their
-      // repTypeElements as part of constructing the complete object graph.
-      // The inputTypeCalc/outputTypeCalc functions take
-      // The QName of a simple type. By just always obtaining all the simple types defs
-      // we insure the quasi-elements used by them are always constructed, and names
-      // are resolvable.
+      // always need the simple type defs so we can ask for their repType elements as part of
+      // constructing the complete object graph. By just always obtaining all the simple types
+      // defs we insure the quasi-elements used by them are always constructed, and names are
+      // resolvable.
       allSchemaDocuments.flatMap { sd: SchemaDocument =>
         sd.globalSimpleTypeDefs
       } ++ {
@@ -711,23 +709,13 @@ class TransitiveClosureSchemaComponents private () extends TransitiveClosure[Sch
         e.typeDef match {
           case std: SimpleTypeDefBase => Seq(std)
           case ctd: ComplexTypeBase => Seq(ctd)
-          case pt: PrimitiveType => {
-            // An element decl with primitive type can still reference a simple type by way
-            // of dfdl:inputValueCalc that calls dfdlx:inputTypeCalc('QNameOfType', ....)
-            //
-            // This is covered because the QNameOfType must be a GlobalSimpleTypeDef and
-            // those will always be part of all components and their type calcs will be
-            // checked.
-            Nil
-          }
+          case pt: PrimitiveType => Nil
         }
       case m: ModelGroup => m.groupMembers
       case st: SimpleTypeDefBase =>
         st.bases ++
           st.optRestriction ++
-          st.optUnion ++
-          st.optRepTypeDef ++
-          st.optRepTypeElement
+          st.optUnion
       case r: Restriction => r.optUnion.toSeq
       case u: Union => u.unionMemberTypes
       case c: ComplexTypeBase => Seq(c.modelGroup)
@@ -739,7 +727,10 @@ class TransitiveClosureSchemaComponents private () extends TransitiveClosure[Sch
       case _ => Nil
     }
     val misc: SSC = sc match {
-      case eb: ElementBase => eb.optPrefixLengthElementDecl.toSeq
+      case eb: ElementBase => {
+        eb.optPrefixLengthElementDecl.toSeq ++
+          eb.optRepTypeElementDecl.toSeq
+      }
       case _ => Seq()
     }
 

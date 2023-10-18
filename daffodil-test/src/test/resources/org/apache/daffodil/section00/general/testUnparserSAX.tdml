@@ -23,7 +23,7 @@
   suiteName="saxUnparserTests">
 
   <tdml:defineSchema name="saxUnparseSchema.embedded.dfdl.xsd">
-    <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
     <dfdl:format ref="ex:GeneralFormat" />
 
     <xs:element name="record" type="ex:itemType"/>

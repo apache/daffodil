@@ -39,7 +39,7 @@ class TestPolymorphicUpwardRelativeExpressions {
    */
   @Test def testPoly1(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
       <xs:element name="r" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -156,7 +156,7 @@ class TestPolymorphicUpwardRelativeExpressions {
 
   @Test def testPoly2(): Unit = {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
       <xs:element name="r" dfdl:lengthKind="implicit">
         <xs:complexType>

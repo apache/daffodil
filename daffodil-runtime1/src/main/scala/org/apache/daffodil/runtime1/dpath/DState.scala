@@ -124,18 +124,6 @@ case class DState(
 
   var opIndex: Int = 0
 
-  /*
-   * Used by TypeValueCalc to pass the logical or representation value to the DPath runtime.
-   * In principle, TypeValueCalc can be used recursively, so these data structures are really a stack.
-   * Instead of storing the stack explicitly, we rely on the runtime stack.
-   * When ExpressionTypeCalculator begins a computation, it saves the previous value of logical/repValue to a local variable
-   * (eg. to the runtime stack), and replaces the below fields.
-   * At the end of the computation, it should restore the below fields.
-   */
-  var logicalValue: DataValuePrimitiveNullable = DataValue.NoValue
-
-  var repValue: DataValuePrimitiveNullable = DataValue.NoValue
-
   /**
    * The currentValue is used when we have a value that is not
    * associated with an element of simple type. E.g., If I have
@@ -359,8 +347,6 @@ case class DState(
     Nope
   }
 
-  def typeCalculators = maybeSsrd.get.typeCalculators
-
   private var _savesErrorsAndWarnings: Maybe[SavesErrorsAndWarnings] = Nope
   def errorOrWarn = _savesErrorsAndWarnings
   def setErrorOrWarn(s: SavesErrorsAndWarnings): Unit = {
@@ -451,7 +437,6 @@ class DStateForConstantFolding(
   override def selfMove() = die
   override def fnExists() = die
   override def arrayLength = die
-  override val typeCalculators = compileInfo.typeCalcMap
 
   isCompile = true
 }

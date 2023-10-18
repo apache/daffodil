@@ -1038,8 +1038,8 @@
     <xsd:attributeGroup ref="dfdl:CalendarFormatAGQualified" />
     <xsd:attributeGroup ref="dfdl:BooleanTextAGQualified" />
     <xsd:attributeGroup ref="dfdl:BooleanBinaryAGQualified" />
-    <xsd:attributeGroup ref="dfdlx:SimpleTypeValueCalcAGQualified" />
     <xsd:attributeGroup ref="dfdlx:ObjectKindAGQualified" />
+    <xsd:attributeGroup ref="dfdlx:RepTypeAGQualified" />
   </xsd:attributeGroup>
   
 </xsd:schema>

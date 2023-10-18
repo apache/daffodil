@@ -23,7 +23,7 @@ xmlns:b·="http://example.com"
 targetNamespace="http://example.com">
 
 
-  <имен:include schemaLocation="org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <имен:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
       
   <имен:annotation>
     <имен:appinfo source="http://www.ogf.org/dfdl/">

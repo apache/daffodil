@@ -38,7 +38,6 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Suspension
-import org.apache.daffodil.runtime1.processors.TypeCalculatorCompiler.TypeCalcMap
 import org.apache.daffodil.runtime1.processors.VariableMap
 
 trait ContentValueReferencedElementInfoMixin {
@@ -149,11 +148,6 @@ final case class ConstantExpression[+T <: AnyRef](qn: NamedQName, kind: NodeInfo
 
   override def evaluate(state: ParseOrUnparseState) = value
 
-  def evaluate(dstate: DState, state: ParseOrUnparseState) = {
-    dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
-    value
-  }
-
   override def run(dstate: DState) = dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
 
   final def evaluateForwardReferencing(
@@ -218,7 +212,6 @@ class DPathCompileInfo(
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
-  typeCalcMapArg: TypeCalcMap,
 ) extends ImplementsThrowsSDE
   with PreSerialization
   with HasSchemaFileLocation {
@@ -267,11 +260,6 @@ class DPathCompileInfo(
     parentsField.set(this, deserializedParents) // set the value to the deserialized value
     parentsField.setAccessible(false)
   }
-
-  /*
-   * This map(identity) pattern appears to work around an unidentified bug with serialization.
-   */
-  lazy val typeCalcMap: TypeCalcMap = typeCalcMapArg.map(identity)
 
   def diagnosticDebugName = path
 
@@ -362,7 +350,6 @@ class DPathElementCompileInfo(
   val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,
   override val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
-  typeCalcMap: TypeCalcMap,
   val sscd: String,
   val isOutputValueCalc: Boolean,
   val isDistinguishedRoot: Boolean,
@@ -373,7 +360,6 @@ class DPathElementCompileInfo(
     path,
     sfl,
     unqualifiedPathStepPolicy,
-    typeCalcMap,
   ) {
 
   /**
