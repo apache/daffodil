@@ -13,13 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-AlignConsecutiveDeclarations: true
 AllowShortFunctionsOnASingleLine: None
-AllowShortIfStatementsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: WithoutElse
 AlwaysBreakAfterReturnType: TopLevelDefinitions
-BasedOnStyle: llvm
+BasedOnStyle: LLVM
 BreakBeforeBraces: Allman
 ColumnLimit: 110
 IndentWidth: 4
 KeepEmptyLinesAtTheStartOfBlocks: false
-SortIncludes: false
+SortIncludes: Never

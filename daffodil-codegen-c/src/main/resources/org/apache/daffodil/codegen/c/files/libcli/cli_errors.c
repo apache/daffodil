@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include "cli_errors.h"
 #include <assert.h>    // for assert
@@ -31,9 +32,9 @@
 static const ErrorLookup *
 error_lookup(uint8_t code)
 {
-    static const ErrorLookup table[CLI_ZZZ - ERR_ZZZ] = {
+    static const ErrorLookup table[CLI__NUM_CODES - ERR__NUM_CODES] = {
         {CLI_DIAGNOSTICS, "parse failed with %" PRId64 " diagnostics\n", FIELD_D64},
-        {CLI_FILE_CLOSE, "error closing file\n", FIELD_ZZZ},
+        {CLI_FILE_CLOSE, "error closing file\n", FIELD__NO_ARGS},
         {CLI_FILE_OPEN, "error opening file '%s'\n", FIELD_S},
         {CLI_HELP_USAGE,
          "Usage: %s [OPTION...] <command> [infile]\n"
@@ -61,16 +62,16 @@ error_lookup(uint8_t code)
         {CLI_INVALID_INFOSET, "invalid infoset type -- '%s'\n" USAGE, FIELD_S},
         {CLI_INVALID_OPTION, "invalid option -- '%c'\n" USAGE, FIELD_C},
         {CLI_INVALID_VALIDATE, "invalid validate mode -- '%s'\n" USAGE, FIELD_S},
-        {CLI_MISSING_COMMAND, "missing command\n" USAGE, FIELD_ZZZ},
+        {CLI_MISSING_COMMAND, "missing command\n" USAGE, FIELD__NO_ARGS},
         {CLI_MISSING_VALUE, "option requires an argument -- '%c'\n" USAGE, FIELD_C},
         {CLI_PROGRAM_ERROR,
          "unexpected getopt code %" PRId64 "\n"
          "Check for program error\n",
          FIELD_D64},
         {CLI_PROGRAM_VERSION, "%s\n", FIELD_S_ON_STDOUT},
-        {CLI_STACK_EMPTY, "stack empty, stopping program\n", FIELD_ZZZ},
-        {CLI_STACK_OVERFLOW, "stack overflow, stopping program\n", FIELD_ZZZ},
-        {CLI_STACK_UNDERFLOW, "stack underflow, stopping program\n", FIELD_ZZZ},
+        {CLI_STACK_EMPTY, "stack empty, stopping program\n", FIELD__NO_ARGS},
+        {CLI_STACK_OVERFLOW, "stack overflow, stopping program\n", FIELD__NO_ARGS},
+        {CLI_STACK_UNDERFLOW, "stack underflow, stopping program\n", FIELD__NO_ARGS},
         {CLI_STRTOBOOL, "error converting XML data '%s' to boolean\n", FIELD_S},
         {CLI_STRTOD_ERRNO, "error converting XML data '%s' to number\n", FIELD_S},
         {CLI_STRTOI_ERRNO, "error converting XML data '%s' to integer\n", FIELD_S},
@@ -78,19 +79,19 @@ error_lookup(uint8_t code)
         {CLI_STRTONUM_NOT, "found non-number characters in XML data '%s'\n", FIELD_S},
         {CLI_STRTONUM_RANGE, "number in XML data '%s' out of range\n", FIELD_S},
         {CLI_UNEXPECTED_ARGUMENT, "unexpected extra argument -- '%s'\n" USAGE, FIELD_S},
-        {CLI_XML_DECL, "error making new XML declaration\n", FIELD_ZZZ},
+        {CLI_XML_DECL, "error making new XML declaration\n", FIELD__NO_ARGS},
         {CLI_XML_ELEMENT, "error making new XML element '%s'\n", FIELD_S},
         {CLI_XML_ERD, "unexpected ERD typeCode %" PRId64 " while reading XML data\n", FIELD_D64},
-        {CLI_XML_GONE, "ran out of XML data\n", FIELD_ZZZ},
-        {CLI_XML_INPUT, "unable to read XML data from input file\n", FIELD_ZZZ},
+        {CLI_XML_GONE, "ran out of XML data\n", FIELD__NO_ARGS},
+        {CLI_XML_INPUT, "unable to read XML data from input file\n", FIELD__NO_ARGS},
         {CLI_XML_LEFT, "did not consume all of the XML data, '%s' left\n", FIELD_S},
         {CLI_XML_MISMATCH, "found mismatch between XML data and infoset '%s'\n", FIELD_S},
-        {CLI_XML_WRITE, "error writing XML document\n", FIELD_ZZZ},
+        {CLI_XML_WRITE, "error writing XML document\n", FIELD__NO_ARGS},
     };
 
-    if (code >= ERR_ZZZ && code < CLI_ZZZ)
+    if (code >= ERR__NUM_CODES && code < CLI__NUM_CODES)
     {
-        const ErrorLookup *lookup = &table[code - ERR_ZZZ];
+        const ErrorLookup *lookup = &table[code - ERR__NUM_CODES];
 
         // Double check that we looked up correct row
         assert(code == lookup->code);

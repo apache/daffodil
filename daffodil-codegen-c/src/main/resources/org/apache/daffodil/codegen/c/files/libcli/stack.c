@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include "stack.h"
 #include <stdbool.h>     // for bool

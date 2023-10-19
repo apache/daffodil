@@ -72,15 +72,16 @@ object DaffodilCExamplesGenerator {
 
     // Get paths to our sample schemas and their corresponding example directories
     val rootDir = if (os.exists(os.pwd / "src")) os.pwd / os.up else os.pwd
-
     val schemaDir =
       rootDir / "daffodil-codegen-c" / "src" / "test" / "resources" / "org" / "apache" / "daffodil" / "codegen" / "c"
     val examplesDir = os.Path(args(0))
+
+    // Update each example of generated C code
     val examples = Array(
       (schemaDir / "ex_nums.dfdl.xsd", None, examplesDir / "ex_nums"),
       (schemaDir / "nested.dfdl.xsd", Some("NestedUnion"), examplesDir / "NestedUnion"),
       (schemaDir / "padtest.dfdl.xsd", None, examplesDir / "padtest"),
-      (schemaDir / "simple.dfdl.xsd", Some("simple-byte"), examplesDir / "simple"),
+      (schemaDir / "simple.dfdl.xsd", Some("simple"), examplesDir / "simple"),
       (
         schemaDir / "variablelen.dfdl.xsd",
         Some("expressionElement"),

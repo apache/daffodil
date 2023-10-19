@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include "xml_writer.h"
 #include <assert.h>      // for assert
@@ -82,7 +83,7 @@ fixNumberIfNeeded(const char *text)
 static const char *
 binaryToHex(HexBinary hexBinary, bool freeMemory)
 {
-    static char * text = NULL;
+    static char *text = NULL;
     static size_t capacity = 256;
 
     // Call with freeMemory true when finished
@@ -177,8 +178,8 @@ xmlStartComplex(XMLWriter *writer, const InfosetBase *base)
 {
     mxml_node_t *parent = stack_top(&writer->stack);
 
-    const char * name = get_erd_name(base->erd);
-    const char * xmlns = get_erd_xmlns(base->erd);
+    const char *name = get_erd_name(base->erd);
+    const char *xmlns = get_erd_xmlns(base->erd);
     mxml_node_t *complex = mxmlNewElement(parent, name);
     if (xmlns)
     {
@@ -212,7 +213,7 @@ static const Error *
 xmlSimpleElem(XMLWriter *writer, const ERD *erd, const void *valueptr)
 {
     mxml_node_t *parent = stack_top(&writer->stack);
-    const char * name = get_erd_name(erd);
+    const char *name = get_erd_name(erd);
     mxml_node_t *simple = mxmlNewElement(parent, name);
 
     // Set namespace declaration if necessary
@@ -224,7 +225,7 @@ xmlSimpleElem(XMLWriter *writer, const ERD *erd, const void *valueptr)
     }
 
     // Format various types of values as XML element's text
-    mxml_node_t *       text = NULL;
+    mxml_node_t *text = NULL;
     const enum TypeCode typeCode = erd->typeCode;
     switch (typeCode)
     {

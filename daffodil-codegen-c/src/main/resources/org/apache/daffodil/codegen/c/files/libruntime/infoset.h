@@ -18,6 +18,7 @@
 #ifndef INFOSET_H
 #define INFOSET_H
 
+// auto-maintained by iwyu
 // clang-format off
 #include <stdbool.h>  // for bool
 #include <stddef.h>   // for size_t
@@ -42,9 +43,9 @@ typedef size_t (*GetArraySize)(const struct InfosetBase *infoNode);
 typedef const Error *(*VisitStartDocument)(const struct VisitEventHandler *handler);
 typedef const Error *(*VisitEndDocument)(const struct VisitEventHandler *handler);
 typedef const Error *(*VisitStartComplex)(const struct VisitEventHandler *handler,
-                                          const struct InfosetBase *      base);
+                                          const struct InfosetBase *base);
 typedef const Error *(*VisitEndComplex)(const struct VisitEventHandler *handler,
-                                        const struct InfosetBase *      base);
+                                        const struct InfosetBase *base);
 typedef const Error *(*VisitSimpleElem)(const struct VisitEventHandler *handler, const struct ERD *erd,
                                         const void *number);
 
@@ -82,13 +83,13 @@ enum TypeCode
 
 typedef struct ERD
 {
-    const NamedQName         namedQName;
-    const enum TypeCode      typeCode;
-    const size_t             numChildren;
-    const size_t *           childrenOffsets;
+    const NamedQName namedQName;
+    const enum TypeCode typeCode;
+    const size_t numChildren;
+    const size_t *childrenOffsets;
     const struct ERD *const *childrenERDs;
 
-    const ERDParseSelf   parseSelf;
+    const ERDParseSelf parseSelf;
     const ERDUnparseSelf unparseSelf;
     // Save space since typeCode won't be both ARRAY and CHOICE
     union
@@ -102,41 +103,45 @@ typedef struct ERD
 
 typedef struct HexBinary
 {
-    uint8_t *array;         // pointer to data in byte array
-    size_t   lengthInBytes; // length of data in bytes
-    bool     dynamic;       // true if byte array was malloc'ed
+    uint8_t *array;       // pointer to data in byte array
+    size_t lengthInBytes; // length of data in bytes
+    bool dynamic;         // true if byte array was malloc'ed
 } HexBinary;
 
 // InfosetBase - metadata of an infoset element
 
 typedef struct InfosetBase
 {
-    const ERD *               erd;
+    const ERD *erd;
     const struct InfosetBase *parent;
 } InfosetBase;
+
+// ParserOrUnparserState - common mutable state while validating parser or unparser data
+
+typedef struct ParserOrUnparserState
+{
+    FILE *stream;             // stream to read from / write to
+    size_t bitPos0b;          // 0-based position after last read/write (1-bit granularity)
+    Diagnostics *diagnostics; // any validation diagnostics
+    const Error *error;       // any error which stops parser/unparser
+} ParserOrUnparserState;
 
 // PState - mutable state while parsing data
 
 typedef struct PState
 {
-    FILE *       stream;        // stream to read data from (input)
-    size_t       bitPos0b;      // 0-based position of last successful parse (1-bit granularity)
-    Diagnostics *diagnostics;   // any validation diagnostics
-    const Error *error;         // any error which stops parse
-    uint8_t      unreadBits;    // any buffered bits not read yet
-    uint8_t      numUnreadBits; // number of buffered bits not read yet
+    ParserOrUnparserState pu; // common mutable state
+    uint8_t unreadBits;       // any buffered bits not read yet
+    uint8_t numUnreadBits;    // number of buffered bits not read yet
 } PState;
 
 // UState - mutable state while unparsing infoset
 
 typedef struct UState
 {
-    FILE *       stream;        // stream to write data to (output)
-    size_t       bitPos0b;      // 0-based position of last successful write (1-bit granularity)
-    Diagnostics *diagnostics;   // any validation diagnostics
-    const Error *error;         // any error which stops unparse
-    uint8_t      unwritBits;    // any buffered bits not written yet
-    uint8_t      numUnwritBits; // number of buffered bits not written yet
+    ParserOrUnparserState pu; // common mutable state
+    uint8_t unwritBits;       // any buffered bits not written yet
+    uint8_t numUnwritBits;    // number of buffered bits not written yet
 } UState;
 
 // VisitEventHandler - methods to be called when walking an infoset
@@ -144,10 +149,10 @@ typedef struct UState
 typedef struct VisitEventHandler
 {
     const VisitStartDocument visitStartDocument;
-    const VisitEndDocument   visitEndDocument;
-    const VisitStartComplex  visitStartComplex;
-    const VisitEndComplex    visitEndComplex;
-    const VisitSimpleElem    visitSimpleElem;
+    const VisitEndDocument visitEndDocument;
+    const VisitStartComplex visitStartComplex;
+    const VisitEndComplex visitEndComplex;
+    const VisitSimpleElem visitSimpleElem;
 } VisitEventHandler;
 
 // get_erd_name, get_erd_xmlns, get_erd_ns - get name and xmlns

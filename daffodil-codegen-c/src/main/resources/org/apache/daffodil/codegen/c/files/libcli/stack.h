@@ -18,6 +18,7 @@
 #ifndef STACK_H
 #define STACK_H
 
+// auto-maintained by iwyu
 // clang-format off
 #include <mxml.h>     // for mxml_node_t
 #include <stdbool.h>  // for bool
@@ -32,9 +33,9 @@ typedef mxml_node_t *stack_item_t;
 
 typedef struct
 {
-    stack_item_t *p_after;  // Pointer to one past top element
-    stack_item_t *p_array;  // Pointer to stack's array
-    ptrdiff_t     capacity; // Size of stack's array
+    stack_item_t *p_after; // Pointer to one past top element
+    stack_item_t *p_array; // Pointer to stack's array
+    ptrdiff_t capacity;    // Size of stack's array
 } c_stack_t;
 
 // Initialize stack with preallocated array

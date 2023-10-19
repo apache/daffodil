@@ -18,6 +18,7 @@
 #ifndef XML_READER_H
 #define XML_READER_H
 
+// auto-maintained by iwyu
 // clang-format off
 #include <mxml.h>     // for mxml_node_t
 #include <stdio.h>    // for FILE
@@ -29,9 +30,9 @@
 typedef struct XMLReader
 {
     const VisitEventHandler handler;
-    FILE *                  stream;
-    mxml_node_t *           xml;
-    mxml_node_t *           node;
+    FILE *stream;
+    mxml_node_t *xml;
+    mxml_node_t *node;
 } XMLReader;
 
 // XMLReader methods to pass to walk_infoset method

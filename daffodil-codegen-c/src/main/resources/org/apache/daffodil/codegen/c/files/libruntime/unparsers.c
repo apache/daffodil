@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include "unparsers.h"
 #include <assert.h>   // for assert
 #include <stdbool.h>  // for bool
 #include <stdio.h>    // for fwrite
-#include "errors.h"   // for eof_or_error, Error, add_diagnostic, get_diagnostics, ERR_ARRAY_BOUNDS, ERR_FIXED_VALUE, Diagnostics, Error::(anonymous)
+#include "errors.h"   // for eof_or_error
 #include "p_endian.h" // for htobe64, htole64, htobe32, htole32
 // clang-format on
 
@@ -37,8 +38,8 @@
 // remaining bits not yet written within a fragment byte; expects last
 // bits of last byte to be already shifted to left end
 
-// Note callers must check ustate->error after calling write_bits and
-// update ustate->bitPos0b themselves after successful unparses
+// Note callers must check ustate->pu.error after calling write_bits and
+// update ustate->pu.bitPos0b themselves after successful unparses
 
 static void
 write_bits(const uint8_t *bytes, size_t num_bits, UState *ustate)
@@ -50,10 +51,10 @@ write_bits(const uint8_t *bytes, size_t num_bits, UState *ustate)
         size_t num_bytes = num_bits / BYTE_WIDTH;
         if (num_bytes)
         {
-            size_t count = fwrite(bytes, 1, num_bytes, ustate->stream);
+            size_t count = fwrite(bytes, 1, num_bytes, ustate->pu.stream);
             if (count < num_bytes)
             {
-                ustate->error = eof_or_error(ustate->stream);
+                ustate->pu.error = eof_or_error(ustate->pu.stream);
                 return;
             }
             num_bits -= count * BYTE_WIDTH;
@@ -66,7 +67,7 @@ write_bits(const uint8_t *bytes, size_t num_bits, UState *ustate)
     {
         // Fill the fragment byte
         uint8_t whole_byte = bytes[ix_bytes++];
-        size_t  num_bits_fill = BYTE_WIDTH - ustate->numUnwritBits;
+        size_t num_bits_fill = BYTE_WIDTH - ustate->numUnwritBits;
         ustate->unwritBits <<= num_bits_fill;
         ustate->unwritBits |= HIGH_BITS(whole_byte, num_bits_fill);
         ustate->numUnwritBits += num_bits_fill;
@@ -75,10 +76,10 @@ write_bits(const uint8_t *bytes, size_t num_bits, UState *ustate)
 
         // Copy the fragment byte to stream
         size_t num_bits_write = BYTE_WIDTH;
-        size_t count = fwrite(&ustate->unwritBits, 1, 1, ustate->stream);
+        size_t count = fwrite(&ustate->unwritBits, 1, 1, ustate->pu.stream);
         if (count < 1)
         {
-            ustate->error = eof_or_error(ustate->stream);
+            ustate->pu.error = eof_or_error(ustate->pu.stream);
             return;
         }
         ustate->numUnwritBits -= num_bits_write;
@@ -116,8 +117,8 @@ unparse_endian_double(bool big_endian_data, double number, size_t num_bits, USta
     // Unparse all doubles in ths helper function
     union
     {
-        uint8_t  bytes[sizeof(double)];
-        double   number;
+        uint8_t bytes[sizeof(double)];
+        double number;
         uint64_t integer;
     } buffer;
 
@@ -138,8 +139,8 @@ unparse_endian_double(bool big_endian_data, double number, size_t num_bits, USta
 
     // Write data bits and update our last successful write position
     write_bits(buffer.bytes, num_bits, ustate);
-    if (ustate->error) return;
-    ustate->bitPos0b += num_bits;
+    if (ustate->pu.error) return;
+    ustate->pu.bitPos0b += num_bits;
 }
 
 // Helper method to write floats depending on data endianness;
@@ -151,8 +152,8 @@ unparse_endian_float(bool big_endian_data, float number, size_t num_bits, UState
     // Unparse all floats in this helper function
     union
     {
-        uint8_t  bytes[sizeof(float)];
-        float    number;
+        uint8_t bytes[sizeof(float)];
+        float number;
         uint32_t integer;
     } buffer;
 
@@ -173,8 +174,8 @@ unparse_endian_float(bool big_endian_data, float number, size_t num_bits, UState
 
     // Write data bits and update our last successful write position
     write_bits(buffer.bytes, num_bits, ustate);
-    if (ustate->error) return;
-    ustate->bitPos0b += num_bits;
+    if (ustate->pu.error) return;
+    ustate->pu.bitPos0b += num_bits;
 }
 
 // Helper method to write signed integers using fragment byte shifts
@@ -215,8 +216,8 @@ unparse_endian_int64(bool big_endian_data, int64_t number, size_t num_bits, USta
 
     // Write data bits and update our last successful write position
     write_bits(buffer.bytes, num_bits, ustate);
-    if (ustate->error) return;
-    ustate->bitPos0b += num_bits;
+    if (ustate->pu.error) return;
+    ustate->pu.bitPos0b += num_bits;
 }
 
 // Helper method to write unsigned integers using fragment byte shifts
@@ -232,7 +233,7 @@ unparse_endian_uint64(bool big_endian_data, uint64_t number, size_t num_bits, US
     // Unparse all unsigned integers in this helper function
     union
     {
-        uint8_t  bytes[sizeof(uint64_t)];
+        uint8_t bytes[sizeof(uint64_t)];
         uint64_t integer;
     } buffer;
 
@@ -260,8 +261,8 @@ unparse_endian_uint64(bool big_endian_data, uint64_t number, size_t num_bits, US
 
     // Write data bits and update our last successful write position
     write_bits(buffer.bytes, num_bits, ustate);
-    if (ustate->error) return;
-    ustate->bitPos0b += num_bits;
+    if (ustate->pu.error) return;
+    ustate->pu.bitPos0b += num_bits;
 }
 
 // Unparse all binary booleans, real numbers, and integers in helper
@@ -401,69 +402,41 @@ unparse_le_uint8(uint8_t number, size_t num_bits, UState *ustate)
     unparse_endian_uint64(LITTLE_ENDIAN_DATA, number, num_bits, ustate);
 }
 
-// Unparse fill bits up to alignmentInBits or end_bitPos0b
-
-void
-unparse_align(size_t alignmentInBits, const uint8_t fill_byte, UState *ustate)
-{
-    size_t end_bitPos0b = ((ustate->bitPos0b + alignmentInBits - 1) / alignmentInBits) * alignmentInBits;
-    unparse_fill_bits(end_bitPos0b, fill_byte, ustate);
-}
-
-void
-unparse_fill_bits(size_t end_bitPos0b, const uint8_t fill_byte, UState *ustate)
-{
-    assert(ustate->bitPos0b <= end_bitPos0b);
-
-    size_t fill_bits = end_bitPos0b - ustate->bitPos0b;
-    while (fill_bits)
-    {
-        size_t num_bits = (fill_bits >= BYTE_WIDTH) ? BYTE_WIDTH : fill_bits;
-        write_bits(&fill_byte, num_bits, ustate);
-        if (ustate->error) return;
-        fill_bits -= num_bits;
-    }
-
-    // If we got all the way here, update our last successful write position
-    ustate->bitPos0b = end_bitPos0b;
-}
-
 // Unparse opaque bytes from hexBinary field
 
 void
 unparse_hexBinary(HexBinary hexBinary, UState *ustate)
 {
     write_bits(hexBinary.array, hexBinary.lengthInBytes * BYTE_WIDTH, ustate);
-    if (ustate->error) return;
-    ustate->bitPos0b += hexBinary.lengthInBytes * BYTE_WIDTH;
+    if (ustate->pu.error) return;
+    ustate->pu.bitPos0b += hexBinary.lengthInBytes * BYTE_WIDTH;
 }
 
-// Validate element's value matches its fixed attribute
+// Unparse alignment bits up to alignmentInBits or end_bitPos0b
 
 void
-unparse_validate_fixed(bool same, const char *element, UState *ustate)
+unparse_align_to(size_t alignmentInBits, const uint8_t fill_byte, UState *ustate)
 {
-    if (!same)
-    {
-        Diagnostics *diagnostics = get_diagnostics();
-        const Error  error = {ERR_FIXED_VALUE, {.s = element}};
-
-        add_diagnostic(diagnostics, &error);
-        ustate->diagnostics = diagnostics;
-    }
+    size_t end_bitPos0b = ((ustate->pu.bitPos0b + alignmentInBits - 1) / alignmentInBits) * alignmentInBits;
+    unparse_alignment_bits(end_bitPos0b, fill_byte, ustate);
 }
 
-// Check array count is within bounds
-
 void
-unparse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs, UState *ustate)
+unparse_alignment_bits(size_t end_bitPos0b, const uint8_t fill_byte, UState *ustate)
 {
-    if (count < minOccurs || count > maxOccurs)
+    assert(ustate->pu.bitPos0b <= end_bitPos0b);
+
+    size_t fill_bits = end_bitPos0b - ustate->pu.bitPos0b;
+    while (fill_bits)
     {
-        static Error error = {ERR_ARRAY_BOUNDS, {0}};
-        error.arg.s = name;
-        ustate->error = &error;
+        size_t num_bits = (fill_bits >= BYTE_WIDTH) ? BYTE_WIDTH : fill_bits;
+        write_bits(&fill_byte, num_bits, ustate);
+        if (ustate->pu.error) return;
+        fill_bits -= num_bits;
     }
+
+    // If we got all the way here, update our last successful write position
+    ustate->pu.bitPos0b = end_bitPos0b;
 }
 
 // Flush the fragment byte if not done yet
@@ -472,7 +445,7 @@ void
 flush_fragment_byte(const uint8_t fill_byte, UState *ustate)
 {
     // Skip the flush if we already have an error
-    if (!ustate->error)
+    if (!ustate->pu.error)
     {
         // Do we have any unwritten bits left in the fragment byte?
         if (ustate->numUnwritBits)
@@ -484,14 +457,14 @@ flush_fragment_byte(const uint8_t fill_byte, UState *ustate)
 
             // Flush the fragment byte
             size_t num_bits_write = ustate->numUnwritBits;
-            size_t count = fwrite(&ustate->unwritBits, 1, 1, ustate->stream);
+            size_t count = fwrite(&ustate->unwritBits, 1, 1, ustate->pu.stream);
             if (count < 1)
             {
-                ustate->error = eof_or_error(ustate->stream);
+                ustate->pu.error = eof_or_error(ustate->pu.stream);
                 num_bits_write = 0;
             }
             ustate->numUnwritBits -= num_bits_write;
-            ustate->bitPos0b += num_bits_write;
+            ustate->pu.bitPos0b += num_bits_write;
         }
     }
 }

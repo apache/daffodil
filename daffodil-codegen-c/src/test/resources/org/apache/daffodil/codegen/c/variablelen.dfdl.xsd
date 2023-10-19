@@ -19,22 +19,17 @@
 <schema
   targetNamespace="urn:variablelen"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:net="urn:network/format"
   xmlns:vl="urn:variablelen"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://www.w3.org/2001/XMLSchema">
 
-  <!-- Binary representation properties -->
+  <!-- Network order big endian format (net:format) -->
 
-  <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <import namespace="urn:network/format" schemaLocation="network/format.dfdl.xsd"/>
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format
-        binaryBooleanFalseRep="0"
-        binaryBooleanTrueRep="1"
-        fillByte="%NUL;"
-        prefixIncludesPrefixLength="no"
-        ref="vl:GeneralFormat"
-        representation="binary"/>
+      <dfdl:format ref="net:format"/>
     </appinfo>
   </annotation>
 

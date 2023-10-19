@@ -18,6 +18,7 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
+// auto-maintained by iwyu
 // clang-format off
 #include <stdbool.h>  // for bool
 #include <stddef.h>   // for size_t
@@ -31,13 +32,15 @@ enum ErrorCode
 {
     ERR_ARRAY_BOUNDS,
     ERR_CHOICE_KEY,
-    ERR_FIXED_VALUE,
     ERR_HEXBINARY_ALLOC,
     ERR_LEFTOVER_DATA,
     ERR_PARSE_BOOL,
+    ERR_RESTR_ENUM,
+    ERR_RESTR_FIXED,
+    ERR_RESTR_RANGE,
     ERR_STREAM_EOF,
     ERR_STREAM_ERROR,
-    ERR_ZZZ,
+    ERR__NUM_CODES,
 };
 
 // ErrorField - identifiers of Error fields
@@ -48,15 +51,15 @@ enum ErrorField
     FIELD_D64,
     FIELD_S,
     FIELD_S_ON_STDOUT,
-    FIELD_ZZZ,
+    FIELD__NO_ARGS,
 };
 
 // ErrorLookup - structure of an error lookup table row
 
 typedef struct ErrorLookup
 {
-    uint8_t         code;
-    const char *    message;
+    uint8_t code;
+    const char *message;
     enum ErrorField field;
 } ErrorLookup;
 
@@ -67,9 +70,9 @@ typedef struct Error
     uint8_t code;
     union
     {
-        int         c;   // for %c
-        int64_t     d64; // for %d64
-        const char *s;   // for %s
+        int c;         // for %c
+        int64_t d64;   // for %d64
+        const char *s; // for %s
     } arg;
 } Error;
 
@@ -85,7 +88,7 @@ enum Limits
 
 typedef struct Diagnostics
 {
-    Error  array[LIMIT_DIAGNOSTICS];
+    Error array[LIMIT_DIAGNOSTICS];
     size_t length;
 } Diagnostics;
 
@@ -113,9 +116,5 @@ extern void continue_or_exit(const Error *error);
 
 typedef const ErrorLookup *cli_error_lookup_t(uint8_t code);
 extern cli_error_lookup_t *cli_error_lookup;
-
-// daffodil_program_version - declare our program's name and version
-
-extern const char *daffodil_program_version;
 
 #endif // ERRORS_H

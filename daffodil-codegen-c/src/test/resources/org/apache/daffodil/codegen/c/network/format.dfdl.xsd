@@ -16,51 +16,37 @@
   limitations under the License.
 -->
 
+<!-- Network order big endian format: <https://en.wikipedia.org/wiki/Endianness#Networking> -->
+
 <schema
-  targetNamespace="urn:padtest"
-  version="3"
+  targetNamespace="urn:network/format"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:net="urn:network/format"
-  xmlns:pad="urn:padtest"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://www.w3.org/2001/XMLSchema">
 
   <!-- Network order big endian format (net:format) -->
 
-  <import namespace="urn:network/format" schemaLocation="network/format.dfdl.xsd"/>
+  <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:defineFormat name="format">
+        <dfdl:format
+          alignment="1"
+          alignmentUnits="bits"
+          binaryBooleanFalseRep="0"
+          binaryBooleanTrueRep="1"
+          bitOrder="mostSignificantBitFirst"
+          byteOrder="bigEndian"
+          encoding="UTF-8"
+          fillByte="%NUL;"
+          prefixIncludesPrefixLength="no"
+          ref="net:GeneralFormat"
+          representation="binary"
+          />
+      </dfdl:defineFormat>
       <dfdl:format ref="net:format"/>
     </appinfo>
   </annotation>
-
-  <!-- Root element (padtest) -->
-
-  <element name="padtest" type="pad:padtest"/>
-
-  <!-- Types (length, padhexbinary, padtest) -->
-
-  <simpleType name="length">
-    <restriction base="xs:unsignedInt"/>
-  </simpleType>
-
-  <complexType name="padhexbinary">
-    <sequence>
-      <!-- Store variable-length opaque bytes -->
-      <element name="opaque" type="xs:hexBinary"
-                  dfdl:lengthKind="prefixed"
-                  dfdl:lengthUnits="bytes"
-                  dfdl:prefixLengthType="pad:length"/>
-      <!-- Pad "padhexbinary" to a multiple of 4 bytes -->
-      <sequence dfdl:alignment="4" dfdl:alignmentUnits="bytes"/>
-    </sequence>
-  </complexType>
-
-  <complexType name="padtest">
-    <sequence>
-      <element name="padhexbinary" type="pad:padhexbinary"/>
-      <element name="after" type="xs:unsignedInt"/>
-    </sequence>
-  </complexType>
 
 </schema>

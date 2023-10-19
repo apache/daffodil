@@ -18,7 +18,6 @@
 package org.apache.daffodil.codegen.c.generators
 
 import java.util.regex.Pattern
-import scala.collection.immutable
 import scala.collection.mutable
 
 import org.apache.daffodil.core.dsom.Choice
@@ -78,8 +77,8 @@ class CodeGeneratorState(private val root: ElementBase) {
         context.isComplexType && context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0
       ) {
         val lengthInBits = context.maybeFixedLengthInBits.get
-        structs.top.parserStatements += s"    const size_t end_bitPos0b = pstate->bitPos0b + $lengthInBits;"
-        structs.top.unparserStatements += s"    const size_t end_bitPos0b = ustate->bitPos0b + $lengthInBits;"
+        structs.top.parserStatements += s"    const size_t end_bitPos0b = pstate->pu.bitPos0b + $lengthInBits;"
+        structs.top.unparserStatements += s"    const size_t end_bitPos0b = ustate->pu.bitPos0b + $lengthInBits;"
       }
     }
   }
@@ -90,12 +89,12 @@ class CodeGeneratorState(private val root: ElementBase) {
       // Calculate padding if complex element has an explicit length
       if (context.maybeFixedLengthInBits.isDefined && context.maybeFixedLengthInBits.get > 0) {
         structs.top.parserStatements +=
-          s"""    parse_fill_bits(end_bitPos0b, pstate);
-             |    if (pstate->error) return;""".stripMargin
+          s"""    parse_alignment_bits(end_bitPos0b, pstate);
+             |    if (pstate->pu.error) return;""".stripMargin
         val octalFillByte = context.fillByteEv.constValue.toByte.toOctalString
         structs.top.unparserStatements +=
-          s"""    unparse_fill_bits(end_bitPos0b, '\\$octalFillByte', ustate);
-             |    if (ustate->error) return;""".stripMargin
+          s"""    unparse_alignment_bits(end_bitPos0b, '\\$octalFillByte', ustate);
+             |    if (ustate->pu.error) return;""".stripMargin
       }
 
       // Finish generating the complex element's definition
@@ -119,10 +118,10 @@ class CodeGeneratorState(private val root: ElementBase) {
         structs.top.initERDStatements += s"$indent2    ${C}_initERD(&instance->$e$deref, (InfosetBase *)instance);"
       structs.top.parserStatements +=
         s"""$indent1$indent2    ${C}_parseSelf(&instance->$e$deref, pstate);
-           |$indent1$indent2    if (pstate->error) return;""".stripMargin
+           |$indent1$indent2    if (pstate->pu.error) return;""".stripMargin
       structs.top.unparserStatements +=
         s"""$indent1$indent2    ${C}_unparseSelf(&instance->$e$deref, ustate);
-           |$indent1$indent2    if (ustate->error) return;""".stripMargin
+           |$indent1$indent2    if (ustate->pu.error) return;""".stripMargin
     } else if (context == root) {
       // Treat a simple type root element as a hybrid of simple and complex types
       addFieldDeclaration(context) // struct member for element
@@ -186,10 +185,10 @@ class CodeGeneratorState(private val root: ElementBase) {
       structs.top.initERDStatements += s"$indent    ${arrayName}_initERD(instance, parent);"
     structs.top.parserStatements +=
       s"""$indent    ${arrayName}_parseSelf(instance, pstate);
-         |$indent    if (pstate->error) return;""".stripMargin
+         |$indent    if (pstate->pu.error) return;""".stripMargin
     structs.top.unparserStatements +=
       s"""$indent    ${arrayName}_unparseSelf(instance, ustate);
-         |$indent    if (ustate->error) return;""".stripMargin
+         |$indent    if (ustate->pu.error) return;""".stripMargin
   }
 
   // Generates choice member/ERD and switch statements for a choice group
@@ -226,16 +225,16 @@ class CodeGeneratorState(private val root: ElementBase) {
       val parseStatement =
         s"""    static Error error = {ERR_CHOICE_KEY, {0}};
            |
-           |    pstate->error = instance->_base.erd->initChoice(&instance->_base);
-           |    if (pstate->error) return;
+           |    pstate->pu.error = instance->_base.erd->initChoice(&instance->_base);
+           |    if (pstate->pu.error) return;
            |
            |    switch (instance->_choice)
            |    {""".stripMargin
       val unparseStatement =
         s"""    static Error error = {ERR_CHOICE_KEY, {0}};
            |
-           |    ustate->error = instance->_base.erd->initChoice(&instance->_base);
-           |    if (ustate->error) return;
+           |    ustate->pu.error = instance->_base.erd->initChoice(&instance->_base);
+           |    if (ustate->pu.error) return;
            |
            |    switch (instance->_choice)
            |    {""".stripMargin
@@ -268,14 +267,14 @@ class CodeGeneratorState(private val root: ElementBase) {
         s"""    default:
            |        // Should never happen because initChoice would return an error first
            |        error.arg.d64 = (int64_t)instance->_choice;
-           |        pstate->error = &error;
+           |        pstate->pu.error = &error;
            |        return;
            |    }""".stripMargin
       val unparseStatement =
         s"""    default:
            |        // Should never happen because initChoice would return an error first
            |        error.arg.d64 = (int64_t)instance->_choice;
-           |        ustate->error = &error;
+           |        ustate->pu.error = &error;
            |        return;
            |    }""".stripMargin
 
@@ -324,12 +323,17 @@ class CodeGeneratorState(private val root: ElementBase) {
       s"""#ifndef GENERATED_CODE_H
          |#define GENERATED_CODE_H
          |
+         |// auto-maintained by iwyu
          |// clang-format off
          |#include <stdbool.h>  // for bool
          |#include <stddef.h>   // for size_t
          |#include <stdint.h>   // for uint8_t, int16_t, int32_t, int64_t, uint32_t, int8_t, uint16_t, uint64_t
          |#include "infoset.h"  // for InfosetBase, HexBinary
          |// clang-format on
+         |
+         |// Define schema version (will be empty if schema did not define any version string)
+         |
+         |extern const char *schema_version;
          |
          |// Define infoset structures
          |
@@ -342,23 +346,30 @@ class CodeGeneratorState(private val root: ElementBase) {
   // Generates a C source file to implement the generated code
   def generateCodeFile: String = {
     val rootName = cStructName(root)
+    val version = root.schemaDocument.version
     val prototypes = this.prototypes.mkString("\n")
     val erds = this.erds.mkString("\n")
     val finalImplementation = this.finalImplementation.mkString("\n")
     val code =
-      s"""// clang-format off
+      s"""// auto-maintained by iwyu
+         |// clang-format off
          |#include "generated_code.h"
          |#include <stdbool.h>    // for false, bool, true
          |#include <stddef.h>     // for NULL, size_t
          |#include <string.h>     // for memcmp, memset
          |#include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, Error::(anonymous), UNUSED
-         |#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
-         |#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+         |#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
+         |#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+         |#include "validators.h" // for validate_array_bounds, validate_fixed_attribute, validate_floatpt_enumeration, validate_integer_enumeration, validate_schema_range
          |// clang-format on
          |
          |// Declare prototypes for easier compilation
          |
          |$prototypes
+         |
+         |// Define schema version (will be empty if schema did not define any version string)
+         |
+         |const char *schema_version = "$version";
          |
          |// Define metadata for the infoset
          |
@@ -741,8 +752,8 @@ class CodeGeneratorState(private val root: ElementBase) {
          |    UNUSED(parent);""".stripMargin
     val parserStatements =
       s"""    const size_t arraySize = ${arrayName}_getArraySize(instance);
-         |    parse_check_bounds("$arrayName", arraySize, $minOccurs, $maxOccurs, pstate);
-         |    if (pstate->error) return;
+         |    validate_array_bounds("$arrayName", arraySize, $minOccurs, $maxOccurs, &pstate->pu);
+         |    if (pstate->pu.error) return;
          |
          |    for (size_t i = 0; i < arraySize; i++)
          |    {
@@ -750,8 +761,8 @@ class CodeGeneratorState(private val root: ElementBase) {
          |    }""".stripMargin
     val unparserStatements =
       s"""    const size_t arraySize = ${arrayName}_getArraySize(instance);
-         |    unparse_check_bounds("$arrayName", arraySize, $minOccurs, $maxOccurs, ustate);
-         |    if (ustate->error) return;
+         |    validate_array_bounds("$arrayName", arraySize, $minOccurs, $maxOccurs, &ustate->pu);
+         |    if (ustate->pu.error) return;
          |
          |    for (size_t i = 0; i < arraySize; i++)
          |    {
@@ -837,7 +848,7 @@ class CodeGeneratorState(private val root: ElementBase) {
     if (matcher.lookingAt()) sb.replace(matcher.start, matcher.end, "")
 
     // Replace illegal characters with '_' to form a legal C name
-    lazy val legalCharsForC: immutable.Set[Char] =
+    lazy val legalCharsForC: Set[Char] =
       Set('_') ++ ('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')
     for (i <- sb.indices) {
       if (!legalCharsForC.contains(sb.charAt(i))) {
@@ -983,14 +994,10 @@ class CodeGeneratorState(private val root: ElementBase) {
   // - we can convert a relative path without any up dirs to an instance-> indirection
   // - we can convert slashes in the path to dots in a C struct field access notation
   private def cStructFieldAccess(expr: String): String = {
-    // If expr is an absolute path, strip the root element's local name
-    val rootName = root.namedQName.local
-    val exprWOPrefix = expr.stripPrefix(s"/$rootName")
-
     // Turn all DFDL local names into legal C names
     val localName = """([\p{L}_][\p{L}:_\-.0-9]*)""".r
     val exprWithFields = localName.replaceAllIn(
-      exprWOPrefix,
+      expr,
       m => {
         // Make each DFDL local name a legal C name
         val sb = new StringBuilder(m.group(1))
@@ -1001,9 +1008,12 @@ class CodeGeneratorState(private val root: ElementBase) {
 
     // Convert exprPath to the appropriate field access indirection
     val fieldAccess = if (exprWithFields.startsWith("/")) {
-      // Convert exprPath to a get_infoset()-> indirection
+      // Strip the root element's name from exprWithFields
+      val rootName = root.namedQName.local
+      val exprWORoot = exprWithFields.stripPrefix(s"/$rootName/")
+      // Convert exprWORoot to a get_infoset()-> indirection
       val C = cStructName(root)
-      s"""(($C *)get_infoset(false))->${exprWithFields.stripPrefix("/")}"""
+      s"""(($C *)get_infoset(false))->$exprWORoot"""
     } else if (exprWithFields.startsWith("../")) {
       // Split exprPath into the up dirs and after the up dirs
       val afterUpDirs = exprWithFields.split("\\.\\./").mkString

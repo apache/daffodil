@@ -50,9 +50,9 @@ following its website's instructions. This is necessary to install the
 [libmxml-devel][Mini-XML] package.
 
 You can use the `dnf` package manager to install most of the tools
-needed to build Daffodil:
+used to develop Daffodil:
 
-    sudo dnf install clang gcc git java-11-openjdk-devel llvm make mxml-devel pkgconf
+    sudo dnf install clang gcc git iwyu java-11-openjdk-devel llvm make mxml-devel pkgconf
 
 If you want to use clang instead of gcc, you'll have to set your
 environment variables `CC` and `AR` to the clang binaries' names:
@@ -68,15 +68,17 @@ commands you type will be able to call the C compiler.
 
 ## Ubuntu
 
-You can use the `apt` package manager to install most of the tools
-needed to build Daffodil:
+You can use the `apt` package manager to install all of the tools
+used to develop Daffodil:
 
-    sudo apt install build-essential clang clang-format default-jdk git libmxml-dev
+    sudo apt install build-essential clang clang-format default-jdk git iwyu libcriterion-dev libmxml-dev
+    # If "iwyu -print-resource-dir" prints /usr/lib/clang/13.0.1 and it doesn't exist:
+    sudo apt install libclang-common-13-dev
 
 If you want to use clang instead of gcc, you'll have to set your
 environment variables `CC` and `AR` to the clang binaries' names:
 
-    export CC=clang AR=llvm-ar-14 # or llvm-ar-10 or whatever you have
+    export CC=clang AR=llvm-ar-14 # or whatever llvm-ar-* version you have
 
 However, Ubuntu has no [sbt] package in its own repositories.
 You'll have to install the latest [sbt] version following its
@@ -95,7 +97,7 @@ Install [MSYS2] following its website's instructions and open a new
 libraries.
 
 You can use the `pacman` package manager to install most of the tools
-needed to build Daffodil:
+used to develop Daffodil:
 
     pacman -S clang diffutils gcc git make pkgconf
 
@@ -130,9 +132,10 @@ Install the Xcode Command Line Tools:
     xcode-select --install
 
 You can use the [Homebrew] package manager to install most of the tools
-needed to build Daffodil:
+used to develop Daffodil:
 
     brew install clang-format
+    brew install criterion
     brew install git
     brew install llvm # needed by iwyu
     brew install include-what-you-use

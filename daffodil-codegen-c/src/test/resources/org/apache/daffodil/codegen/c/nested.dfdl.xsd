@@ -19,20 +19,16 @@
 <xs:schema
  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
  xmlns:idl="urn:idl:1.0"
+ xmlns:net="urn:network/format"
  xmlns:xs="http://www.w3.org/2001/XMLSchema"
  targetNamespace="urn:idl:1.0">
 
-  <!-- Representation property bindings -->
+  <!-- Network order big endian format (net:format) -->
 
-  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <xs:import namespace="urn:network/format" schemaLocation="network/format.dfdl.xsd"/>
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format
-        ref="GeneralFormat"
-        binaryBooleanFalseRep="0"
-        binaryBooleanTrueRep="1"
-        prefixIncludesPrefixLength="no"
-        representation="binary"/>
+      <dfdl:format ref="net:format"/>
     </xs:appinfo>
   </xs:annotation>
 

@@ -18,22 +18,23 @@
 
 <!--
     Run all tests with each backend
-    daffodil test -i -I daffodil simple.err.tdml
-    daffodil test -i -I daffodilC simple.err.tdml
+
+    daffodil test -i -I daffodil simple_errors.tdml
+    daffodil test -i -I daffodilC simple_errors.tdml
 -->
 <tdml:testSuite
   defaultRoundTrip="none"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
   <!--
-      Checks boolean must be 0 or 1, not 42
+      Checks boolean with any value except 0 or 1 causes parse error
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
     name="simple-boolean-42"
     root="simple-boolean">
     <tdml:document>
-      <tdml:documentPart type="byte">0000002a</tdml:documentPart>
+      <tdml:documentPart type="byte">00 00 00 2a</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>parse</tdml:error>
@@ -43,14 +44,14 @@
   </tdml:parserTestCase>
 
   <!--
-      Checks byte with any left over bits causes parse error
+      Checks byte with 2 bytes (too many) causes parse error
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
     name="simple-byte-2b"
     root="simple-byte">
     <tdml:document>
-      <tdml:documentPart type="byte">0102</tdml:documentPart>
+      <tdml:documentPart type="byte">01 02</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>8 bit</tdml:error>
@@ -59,14 +60,14 @@
   </tdml:parserTestCase>
 
   <!--
-      Checks double with only 4 bytes causes parse error
+      Checks double with 4 bytes (too few) causes parse error
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
     name="simple-double-4b"
     root="simple-double">
     <tdml:document>
-      <tdml:documentPart type="byte">01020304</tdml:documentPart>
+      <tdml:documentPart type="byte">01 02 03 04</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>64 bit</tdml:error>
@@ -75,14 +76,14 @@
   </tdml:parserTestCase>
 
   <!--
-      Checks float with NaN pattern is parsed as NaN
+      Checks float with NaN pattern is parsed correctly as NaN
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
     name="simple-float-NaN"
     root="simple-float">
     <tdml:document>
-      <tdml:documentPart type="byte">7fc00000</tdml:documentPart>
+      <tdml:documentPart type="byte">7f c0 00 00</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -99,7 +100,7 @@
     name="simple-hexBinary-5b"
     root="simple-hexBinary">
     <tdml:document>
-      <tdml:documentPart type="byte">0102030405</tdml:documentPart>
+      <tdml:documentPart type="byte">01 02 03 04 05</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>8 bit</tdml:error>
@@ -108,14 +109,14 @@
   </tdml:parserTestCase>
 
   <!--
-      Checks hexBinary with too few bytes causes parse error
+      Checks prefixed hexBinary with too few bytes causes parse error
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
     name="simple-hexBinaryPrefixed-4b"
     root="simple-hexBinaryPrefixed">
     <tdml:document>
-      <tdml:documentPart type="byte">01020304</tdml:documentPart>
+      <tdml:documentPart type="byte">01 02 03 04</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>2064 bit</tdml:error>
@@ -124,7 +125,7 @@
   </tdml:parserTestCase>
 
   <!--
-      Checks int with 1 byte causes parse error
+      Checks int with 1 byte (too few) causes parse error
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
@@ -140,19 +141,591 @@
   </tdml:parserTestCase>
 
   <!--
-      Checks unsignedShort with 4 bytes causes parse error
+      Checks unsignedShort with 4 bytes (too many) causes parse error
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
     name="simple-unsignedShort-4b"
     root="simple-unsignedShort">
     <tdml:document>
-      <tdml:documentPart type="byte">01020304</tdml:documentPart>
+      <tdml:documentPart type="byte">01 02 03 04</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>16 bit</tdml:error>
       <tdml:error>remaining</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-byte not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-byte-0"
+    root="enum-byte"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-byte xmlns:si="urn:simple">0</si:enum-byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>byte</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-double not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-double-0.0"
+    root="enum-double"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-double xmlns:si="urn:simple">0.0</si:enum-double>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>double</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-float not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-float-0.0"
+    root="enum-float"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-float xmlns:si="urn:simple">0.0</si:enum-float>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>float</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-hexBinary not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-hexBinary-00000000"
+    root="enum-hexBinary"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-hexBinary xmlns:si="urn:simple">00000000</si:enum-hexBinary>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>hexBinary</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-hexBinaryPrefixed not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-hexBinaryPrefixed-00000000"
+    root="enum-hexBinaryPrefixed"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 04   00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-hexBinaryPrefixed xmlns:si="urn:simple">00000000</si:enum-hexBinaryPrefixed>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>hexBinaryPrefixed</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-int not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-int-0"
+    root="enum-int"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-int xmlns:si="urn:simple">0</si:enum-int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>int</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-integer not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-integer-0"
+    root="enum-integer"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-integer xmlns:si="urn:simple">0</si:enum-integer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>integer</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-long not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-long-0"
+    root="enum-long"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-long xmlns:si="urn:simple">0</si:enum-long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>long</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-nonNegativeInteger not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-nonNegativeInteger-0"
+    root="enum-nonNegativeInteger"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-nonNegativeInteger xmlns:si="urn:simple">0</si:enum-nonNegativeInteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>nonNegativeInteger</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-short not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-short-0"
+    root="enum-short"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-short xmlns:si="urn:simple">0</si:enum-short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>short</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-unsignedByte not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-unsignedByte-0"
+    root="enum-unsignedByte"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-unsignedByte xmlns:si="urn:simple">0</si:enum-unsignedByte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>unsignedByte</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-unsignedInt not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-unsignedInt-0"
+    root="enum-unsignedInt"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-unsignedInt xmlns:si="urn:simple">0</si:enum-unsignedInt>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>unsignedInt</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-unsignedLong not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-unsignedLong-0"
+    root="enum-unsignedLong"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-unsignedLong xmlns:si="urn:simple">0</si:enum-unsignedLong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>unsignedLong</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks enum-unsignedShort not matching any enumeration causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="enum-unsignedShort-0"
+    root="enum-unsignedShort"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:enum-unsignedShort xmlns:si="urn:simple">0</si:enum-unsignedShort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>enum</tdml:error>
+      <tdml:error>unsignedShort</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-byte outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-byte-0"
+    root="range-byte"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-byte xmlns:si="urn:simple">0</si:range-byte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>byte</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-double outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-double-0.0"
+    root="range-double"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-double xmlns:si="urn:simple">0.0</si:range-double>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>double</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-float outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-float-0.0"
+    root="range-float"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-float xmlns:si="urn:simple">0.0</si:range-float>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>float</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-int outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-int-0"
+    root="range-int"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-int xmlns:si="urn:simple">0</si:range-int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>int</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-integer outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-integer-0"
+    root="range-integer"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-integer xmlns:si="urn:simple">0</si:range-integer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>integer</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-long outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-long-0"
+    root="range-long"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-long xmlns:si="urn:simple">0</si:range-long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>long</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-nonNegativeInteger outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-nonNegativeInteger-0"
+    root="range-nonNegativeInteger"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-nonNegativeInteger xmlns:si="urn:simple">0</si:range-nonNegativeInteger>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>nonNegativeInteger</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-short outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-short-0"
+    root="range-short"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-short xmlns:si="urn:simple">0</si:range-short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>short</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-unsignedByte outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-unsignedByte-0"
+    root="range-unsignedByte"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-unsignedByte xmlns:si="urn:simple">0</si:range-unsignedByte>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>unsignedByte</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-unsignedInt outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-unsignedInt-0"
+    root="range-unsignedInt"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-unsignedInt xmlns:si="urn:simple">0</si:range-unsignedInt>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>unsignedInt</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-unsignedLong outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-unsignedLong-0"
+    root="range-unsignedLong"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 00 00 00 00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-unsignedLong xmlns:si="urn:simple">0</si:range-unsignedLong>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>unsignedLong</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <!--
+      Checks range-unsignedShort outside range causes parse diagnostic
+  -->
+  <tdml:parserTestCase
+    model="simple.dfdl.xsd"
+    name="range-unsignedShort-0"
+    root="range-unsignedShort"
+    validation="on">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <si:range-unsignedShort xmlns:si="urn:simple">0</si:range-unsignedShort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>range</tdml:error>
+      <tdml:error>unsignedShort</tdml:error>
+    </tdml:validationErrors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

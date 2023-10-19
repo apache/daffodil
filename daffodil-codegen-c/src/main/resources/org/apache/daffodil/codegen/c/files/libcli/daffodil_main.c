@@ -15,14 +15,15 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include <stdbool.h>          // for bool, true
 #include <stdio.h>            // for NULL, FILE, perror, fclose, fopen, stdin, stdout
 #include <string.h>           // for strcmp
 #include "cli_errors.h"       // for CLI_DIAGNOSTICS, CLI_FILE_CLOSE, CLI_FILE_OPEN
-#include "daffodil_getopt.h"  // for daffodil_cli, daffodil_parse, daffodil_parse_cli, parse_daffodil_cli, daffodil_unparse, daffodil_unparse_cli, DAFFODIL_PARSE, DAFFODIL_UNPARSE
-#include "errors.h"           // for continue_or_exit, print_diagnostics, Error, Diagnostics, Error::(anonymous)
-#include "infoset.h"          // for get_infoset, walk_infoset, PState, UState, parse_data, unparse_infoset, InfosetBase, VisitEventHandler
+#include "daffodil_getopt.h"  // for daffodil_cli, daffodil_pu, daffodil_pu_cli, DAFFODIL_PARSE, DAFFODIL_UNPARSE
+#include "errors.h"           // for continue_or_exit, Diagnostics, print_diagnostics, Error
+#include "infoset.h"          // for ParserOrUnparserState, PState, UState, get_infoset, walk_infoset, parse_data, unparse_infoset, InfosetBase, VisitEventHandler
 #include "xml_reader.h"       // for xmlReaderMethods, XMLReader
 #include "xml_writer.h"       // for xmlWriterMethods, XMLWriter
 // clang-format on
@@ -75,16 +76,16 @@ main(int argc, char *argv[])
     if (daffodil_cli.subcommand == DAFFODIL_PARSE)
     {
         // Open our input and output files if given as arguments
-        input = fopen_or_exit(input, daffodil_parse.infile, "r");
-        output = fopen_or_exit(output, daffodil_parse.outfile, "w");
+        input = fopen_or_exit(input, daffodil_pu.infile, "r");
+        output = fopen_or_exit(output, daffodil_pu.outfile, "w");
 
         // Parse the input file into our infoset
-        const bool   CLEAR_INFOSET = true;
+        const bool CLEAR_INFOSET = true;
         InfosetBase *infoset = get_infoset(CLEAR_INFOSET);
-        PState       pstate = {input, 0, NULL, NULL, 0, 0};
+        PState pstate = {{input, 0, NULL, NULL}, 0, 0};
         parse_data(infoset, &pstate);
-        print_diagnostics(pstate.diagnostics);
-        continue_or_exit(pstate.error);
+        print_diagnostics(pstate.pu.diagnostics);
+        continue_or_exit(pstate.pu.error);
 
         // Visit the infoset and print XML from it
         XMLWriter xmlWriter = {xmlWriterMethods, output, {NULL, NULL, 0}};
@@ -92,32 +93,37 @@ main(int argc, char *argv[])
         continue_or_exit(error);
 
         // Any diagnostics will fail the parse if validate mode is on
-        if (daffodil_parse.validate && pstate.diagnostics)
+        if (daffodil_pu.validate && pstate.pu.diagnostics)
         {
-            static Error error = {CLI_DIAGNOSTICS, {0}};
-
-            error.arg.d64 = pstate.diagnostics->length;
+            const Error error = {CLI_DIAGNOSTICS, {.d64 = pstate.pu.diagnostics->length}};
             continue_or_exit(&error);
         }
     }
     else if (daffodil_cli.subcommand == DAFFODIL_UNPARSE)
     {
         // Open our input and output files if given as arguments
-        input = fopen_or_exit(input, daffodil_unparse.infile, "r");
-        output = fopen_or_exit(output, daffodil_unparse.outfile, "w");
+        input = fopen_or_exit(input, daffodil_pu.infile, "r");
+        output = fopen_or_exit(output, daffodil_pu.outfile, "w");
 
         // Initialize our infoset's values from the XML data
-        const bool   CLEAR_INFOSET = true;
+        const bool CLEAR_INFOSET = true;
         InfosetBase *infoset = get_infoset(CLEAR_INFOSET);
-        XMLReader    xmlReader = {xmlReaderMethods, input, NULL, NULL};
+        XMLReader xmlReader = {xmlReaderMethods, input, NULL, NULL};
         error = walk_infoset((VisitEventHandler *)&xmlReader, infoset);
         continue_or_exit(error);
 
         // Unparse our infoset to the output file
-        UState ustate = {output, 0, NULL, NULL, 0, 0};
+        UState ustate = {{output, 0, NULL, NULL}, 0, 0};
         unparse_infoset(infoset, &ustate);
-        print_diagnostics(ustate.diagnostics);
-        continue_or_exit(ustate.error);
+        print_diagnostics(ustate.pu.diagnostics);
+        continue_or_exit(ustate.pu.error);
+
+        // Any diagnostics will fail the unparse if validate mode is on
+        if (daffodil_pu.validate && ustate.pu.diagnostics)
+        {
+            const Error error = {CLI_DIAGNOSTICS, {.d64 = ustate.pu.diagnostics->length}};
+            continue_or_exit(&error);
+        }
     }
 
     // Close our input and out files if we opened them

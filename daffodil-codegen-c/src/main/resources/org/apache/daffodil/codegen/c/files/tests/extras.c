@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include <stdbool.h>  // for bool
 #include <stddef.h>   // for NULL
-#include "infoset.h"  // for InfosetBase, get_infoset
+#include "infoset.h"  // for InfosetBase, UNUSED, get_infoset
 // clang-format on
 
 // Define `get_infoset' to avoid an undefined reference when linking.

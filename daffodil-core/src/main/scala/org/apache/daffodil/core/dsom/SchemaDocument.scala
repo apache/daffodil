@@ -212,6 +212,8 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
   final override lazy val optLexicalParent = Some(xmlSDoc)
   final override lazy val optXMLSchemaDocument = Some(xmlSDoc)
 
+  final lazy val version = (xml \ "@version").text
+
   override lazy val optReferredToComponent = None
 
   override lazy val optSchemaDocument = Some(this)

@@ -18,6 +18,7 @@
 #ifndef PARSERS_H
 #define PARSERS_H
 
+// auto-maintained by iwyu
 // clang-format off
 #include <stdbool.h>  // for bool
 #include <stddef.h>   // for size_t
@@ -57,11 +58,6 @@ extern void parse_le_uint32(uint32_t *number, size_t num_bits, PState *pstate);
 extern void parse_le_uint64(uint64_t *number, size_t num_bits, PState *pstate);
 extern void parse_le_uint8(uint8_t *number, size_t num_bits, PState *pstate);
 
-// Parse fill bits up to alignmentInBits or end_bitPos0b
-
-extern void parse_align(size_t alignmentInBits, PState *pstate);
-extern void parse_fill_bits(size_t end_bitPos0b, PState *pstate);
-
 // Allocate memory for hexBinary array
 
 extern void alloc_hexBinary(HexBinary *hexBinary, size_t num_bytes, PState *pstate);
@@ -70,14 +66,10 @@ extern void alloc_hexBinary(HexBinary *hexBinary, size_t num_bytes, PState *psta
 
 extern void parse_hexBinary(HexBinary *hexBinary, PState *pstate);
 
-// Validate parsed number is same as fixed value
+// Parse alignment bits up to alignmentInBits or end_bitPos0b
 
-extern void parse_validate_fixed(bool same, const char *element, PState *pstate);
-
-// Check array count is within bounds
-
-extern void parse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs,
-                               PState *pstate);
+extern void parse_align_to(size_t alignmentInBits, PState *pstate);
+extern void parse_alignment_bits(size_t end_bitPos0b, PState *pstate);
 
 // Check for any data left over after end of parse
 
