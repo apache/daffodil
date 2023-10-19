@@ -30,7 +30,6 @@ import scala.xml._
 
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom._
-import org.apache.daffodil.core.grammar.VariableMapFactory
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.api._
@@ -389,7 +388,7 @@ class Fakes private () {
     override def isError: Boolean = false
 
     override def tunables: DaffodilTunables = DaffodilTunables()
-    override def variableMap: VariableMap = VariableMapFactory.create(Nil)
+    override def variableMap: VariableMap = VariableMap(Nil)
     override def validationMode: ValidationMode.Type = ValidationMode.Full
 
     override def withExternalVariables(extVars: Seq[Binding]): DFDL.DataProcessor = this

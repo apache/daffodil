@@ -17,9 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors
 
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.Map
-
 import org.apache.daffodil.lib.api.ThinDiagnostic
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
@@ -218,7 +215,17 @@ final class VariableBox(initialVMap: VariableMap) {
     vmap_ = newMap
   }
 
-  def cloneForSuspension(): VariableBox = new VariableBox(vmap.topLevelInstances)
+  def cloneForSuspension(): VariableBox = new VariableBox(vmap.cloneForSuspension)
+}
+
+object VariableMap {
+  def apply(vrds: Seq[VariableRuntimeData] = Nil) = {
+    val table = new Array[Seq[VariableInstance]](vrds.size)
+    vrds.foreach { vrd =>
+      table(vrd.vmapIndex) = Seq(vrd.createVariableInstance())
+    }
+    new VariableMap(vrds, table)
+  }
 }
 
 /**
@@ -233,20 +240,25 @@ final class VariableBox(initialVMap: VariableMap) {
  * The DPath implementation must be made to implement the
  * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
  *
- * The implementation of the VariabeMap uses ArrayBuffers essentially as a
- * stack, as they allow for easy serialization unlike the custom MStack classes
- * we use elsewhere. Scala's mutable Stack is deprecated in 2.12
+ * The VariableMap implementation essentially uses Seq as a stack, as they allow for easy
+ * serialization unlike the custom MStack classes we use elsewhere. Note that Scala's mutable
+ * Stack is deprecated in 2.12. Additionally, this stack is rarely changed (only when
+ * newVariableInstance occurs) so limiting allocations is not critical. Further, suspensions
+ * create a copy of the vTable, which is a relatively expensive operation if using something
+ * else like an ArrayBuffer or MStack, since Seq's are immutable and copies are virtually free.
+ *
+ * Note that each index in the vTable array contains the VariableInstance stack for a specific
+ * variable, with that index defined by the "vmapIndex" member of the variables
+ * VariableRuntimeData. This implementation allows for constant lookups by indexing into the
+ * vTable array and accessing the head of the VariableInstance sequence. Additionally, in some
+ * cases (like with suspensions) we have to make a copy of the array. This is the primary reason
+ * for using an Array as opposed to another data structure that allows constant lookups like a
+ * Map--array copies are quite fast, and we know the exact size since all variables must be
+ * defined at compile time. Although this adds extra complexity compared to a Map since we must
+ * carry around an index, the performance gains are worth it.
  */
-class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance]])
+class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[VariableInstance]])
   extends Serializable {
-
-  def this(topLevelVRDs: Seq[VariableRuntimeData] = Nil) =
-    this(Map(topLevelVRDs.map { vrd =>
-      val variab = vrd.createVariableInstance()
-      val variableInstances = new ArrayBuffer[VariableInstance]
-      variableInstances += variab
-      (vrd.globalQName, variableInstances)
-    }: _*))
 
   override def toString(): String = {
     "VariableMap(" + vTable.mkString(" | ") + ")"
@@ -257,26 +269,18 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
    * VariableInstances are mutable and cannot safely be shared across threads
    */
   def copy(): VariableMap = {
-    val table = vTable.map {
-      case (k: GlobalQName, variableInstances: ArrayBuffer[VariableInstance]) => {
-        val newBuf = variableInstances.map { _.copy() }
-        (k, newBuf)
-      }
+    val table = vTable.map { variableInstances =>
+      val newBuf = variableInstances.map { _.copy() }
+      newBuf
     }
 
-    new VariableMap(table)
+    new VariableMap(vrds, table)
   }
 
-  def topLevelInstances(): VariableMap = {
-    val table = vTable.map {
-      case (k: GlobalQName, variableInstances: ArrayBuffer[VariableInstance]) => {
-        val newBuf = new ArrayBuffer[VariableInstance]()
-        newBuf.append(variableInstances.last)
-        (k, newBuf)
-      }
-    }
-
-    new VariableMap(table)
+  def cloneForSuspension(): VariableMap = {
+    val newTable = new Array[Seq[VariableInstance]](vTable.size)
+    Array.copy(vTable, 0, newTable, 0, vTable.size)
+    new VariableMap(vrds, newTable)
   }
 
   // For defineVariable's with non-constant expressions for default values, it
@@ -285,20 +289,11 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
   // must also ensure that the expressions only reference other variables that
   // have default value expressions or are defined externally.
   def forceExpressionEvaluations(state: ParseOrUnparseState): Unit = {
-    vTable.foreach {
-      case (_, variableInstances) => {
-        variableInstances.foreach { inst =>
-          {
-            (inst.state, inst.rd.maybeDefaultValueExpr.isDefined) match {
-              // Evaluate defineVariable statements with non-constant default value expressions
-              case (VariableUndefined, true) => {
-                val res = inst.rd.maybeDefaultValueExpr.get.evaluate(state)
-                inst.setDefaultValue(DataValue.unsafeFromAnyRef(res))
-              }
-              case (_, _) => // Do nothing
-            }
-          }
-        }
+    vTable.foreach { variableInstances =>
+      val inst = variableInstances.head
+      if ((inst.state eq VariableUndefined) && inst.rd.maybeDefaultValueExpr.isDefined) {
+        val res = inst.rd.maybeDefaultValueExpr.get.evaluate(state)
+        inst.setDefaultValue(DataValue.unsafeFromAnyRef(res))
       }
     }
   }
@@ -311,31 +306,33 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
    * expression
    */
   def setFirstInstanceInitialValues(): Unit = {
-    vTable.foreach {
-      case (_, variableInstances) => {
-        variableInstances(0).firstInstanceInitialValue = variableInstances(0).value
-      }
+    vTable.foreach { variableInstances =>
+      variableInstances.head.firstInstanceInitialValue = variableInstances.head.value
     }
   }
 
+  /**
+   * Performance of this is linear in number of variables, this should not be used in
+   * performance critical sections.
+   */
   def find(qName: GlobalQName): Option[VariableInstance] = {
-    val optBuf = vTable.get(qName)
-    val variab = {
-      if (optBuf.isDefined)
-        Some(optBuf.get.last)
-      else
-        None
-    }
-    variab
+    getVariableRuntimeData(qName).map { vrd => vTable(vrd.vmapIndex).head }
   }
 
-  def qnames(): Seq[GlobalQName] = {
-    vTable.toSeq.map(_._1)
+  /**
+   * Performance of this is linear in number of variables, this should not be used in
+   * performance critical sections.
+   */
+  lazy val qnames: Seq[GlobalQName] = {
+    vrds.map { _.globalQName }
   }
 
+  /**
+   * Performance of this is linear in number of variables, this should not be used in
+   * performance critical sections.
+   */
   def getVariableRuntimeData(qName: GlobalQName): Option[VariableRuntimeData] = {
-    val optVariable = find(qName)
-    if (optVariable.isDefined) Some(optVariable.get.rd) else None
+    vrds.find { _.globalQName == qName }
   }
 
   lazy val context = Assert.invariantFailed("unused.")
@@ -348,14 +345,9 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
    * perform
    */
   def readVariableWillChangeState(vrd: VariableRuntimeData): Boolean = {
-    val variableInstances = vTable.get(vrd.globalQName)
-    if (variableInstances.isDefined) {
-      val variable = variableInstances.get.last
-      val variableRead = (variable.state eq VariableRead) && variable.value.isDefined
-      !variableRead
-    } else {
-      true
-    }
+    val variable = vTable(vrd.vmapIndex).head
+    val variableRead = (variable.state eq VariableRead) && variable.value.isDefined
+    !variableRead
   }
 
   /**
@@ -384,41 +376,34 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
       case _ => // Do nothing
     }
 
-    val variableInstances = vTable.get(varQName)
-    if (variableInstances.isDefined) {
-      val variable = variableInstances.get.last
-      variable.state match {
-        case VariableRead if (variable.value.isDefined) => variable.value.getNonNullable
-        case VariableDefined | VariableSet if (variable.value.isDefined) => {
-          variable.setState(VariableRead)
-          variable.value.getNonNullable
-        }
-        // This case is only hit for defineVariable's who's expression reference
-        // other defineVariables with expressions. It will be hit at the start
-        // of parsing, before an infoset is generated, via the
-        // forceExpressionEvaluations function after which all variables should
-        // have a defined value
-        case VariableUndefined if (variable.rd.maybeDefaultValueExpr.isDefined) => {
-          variable.setState(VariableBeingDefined)
-          val res =
-            DataValue.unsafeFromAnyRef(variable.rd.maybeDefaultValueExpr.get.evaluate(state))
-
-          // Need to update the variable's value with the result of the
-          // expression
-          variable.setState(VariableRead)
-          variable.setValue(res)
-
-          res
-        }
-        case VariableBeingDefined => throw new VariableCircularDefinition(varQName, vrd)
-        case VariableInProcess => throw new VariableSuspended(varQName, vrd)
-        case _ => throw new VariableHasNoValue(varQName, vrd)
+    val variable = vTable(vrd.vmapIndex).head
+    variable.state match {
+      case VariableRead if (variable.value.isDefined) => variable.value.getNonNullable
+      case VariableDefined | VariableSet if (variable.value.isDefined) => {
+        variable.setState(VariableRead)
+        variable.value.getNonNullable
       }
-    } else
-      referringContext.SDE(
-        "Variable map (compilation): unknown variable %s",
-        varQName,
-      ) // Fix DFDL-766
+      // This case is only hit for defineVariable's who's expression reference
+      // other defineVariables with expressions. It will be hit at the start
+      // of parsing, before an infoset is generated, via the
+      // forceExpressionEvaluations function after which all variables should
+      // have a defined value
+      case VariableUndefined if (variable.rd.maybeDefaultValueExpr.isDefined) => {
+        variable.setState(VariableBeingDefined)
+        val res =
+          DataValue.unsafeFromAnyRef(variable.rd.maybeDefaultValueExpr.get.evaluate(state))
+
+        // Need to update the variable's value with the result of the
+        // expression
+        variable.setState(VariableRead)
+        variable.setValue(res)
+
+        res
+      }
+      case VariableBeingDefined => throw new VariableCircularDefinition(varQName, vrd)
+      case VariableInProcess => throw new VariableSuspended(varQName, vrd)
+      case _ => throw new VariableHasNoValue(varQName, vrd)
+    }
   }
 
   /**
@@ -431,59 +416,57 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
     pstate: ParseOrUnparseState,
   ) = {
     val varQName = vrd.globalQName
-    val variableInstances = vTable.get(varQName)
-    if (variableInstances.isDefined) {
-      val variable = variableInstances.get.last
-      variable.state match {
-        case VariableSet => {
-          referringContext.SDE(
-            "Cannot set variable %s twice. State was: %s. Existing value: %s",
-            variable.rd.globalQName,
-            VariableSet,
-            variable.value,
-          )
-        }
+    val variableInstances = vTable(vrd.vmapIndex)
+    val variable = variableInstances.head
+    variable.state match {
+      case VariableSet => {
+        referringContext.SDE(
+          "Cannot set variable %s twice. State was: %s. Existing value: %s",
+          variable.rd.globalQName,
+          VariableSet,
+          variable.value,
+        )
+      }
 
-        case VariableRead => {
+      case VariableRead => {
 
+        /**
+         * TODO: This should be an SDE, but due to a bug (DAFFODIL-1443) in
+         * the way we evaluate escapeSchemes it could lead us to setting the
+         * variable read too early */
+        pstate.SDW(
+          WarnID.VariableSet,
+          "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
+          variable.rd.globalQName,
+          VariableSet,
+          variable.value,
+        )
+        variable.setValue(newValue)
+        variable.setState(VariableSet)
+      }
+
+      case _ => {
+        vrd.direction match {
           /**
-           * TODO: This should be an SDE, but due to a bug (DAFFODIL-1443) in
-           * the way we evaluate escapeSchemes it could lead us to setting the
-           * variable read too early */
-          pstate.SDW(
-            WarnID.VariableSet,
-            "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
-            variable.rd.globalQName,
-            VariableSet,
-            variable.value,
-          )
-          variable.setValue(newValue)
-          variable.setState(VariableSet)
-        }
-
-        case _ => {
-          vrd.direction match {
-            /**
-             * Due to potential race conditions regarding the setting of
-             * variables via setVariable and default values in combination with
-             * suspensions during unparsing, we only allow the use of either
-             * setVariable statements or a default value when unparsing a
-             * variable.
-             */
-            case VariableDirection.UnparseOnly | VariableDirection.Both
-                if (vrd.maybeDefaultValueExpr.isDefined && variableInstances.get.size > 1) => {
-              // Variable has an unparse direction, a default value, and a
-              // newVariableInstance
-              pstate.SDE(
-                "Variable %s has an unparse direction and a default value, setting the variable may cause race conditions when combined with a forward referencing expression.",
-                varQName,
-              )
-            }
-            case _ => // Do nothing
+           * Due to potential race conditions regarding the setting of
+           * variables via setVariable and default values in combination with
+           * suspensions during unparsing, we only allow the use of either
+           * setVariable statements or a default value when unparsing a
+           * variable.
+           */
+          case VariableDirection.UnparseOnly | VariableDirection.Both
+              if (vrd.maybeDefaultValueExpr.isDefined && variableInstances.size > 1) => {
+            // Variable has an unparse direction, a default value, and a
+            // newVariableInstance
+            pstate.SDE(
+              "Variable %s has an unparse direction and a default value, setting the variable may cause race conditions when combined with a forward referencing expression.",
+              varQName,
+            )
           }
-          variable.setValue(newValue)
-          variable.setState(VariableSet)
+          case _ => // Do nothing
         }
+        variable.setValue(newValue)
+        variable.setState(VariableSet)
       }
     }
   }
@@ -492,20 +475,17 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
    * Creates a new instance of a variable without default value
    */
   def newVariableInstance(vrd: VariableRuntimeData): VariableInstance = {
-    val varQName = vrd.globalQName
-    val variableInstances = vTable.get(varQName)
-    Assert.invariant(variableInstances.isDefined)
+    val variableInstances = vTable(vrd.vmapIndex)
     val nvi = vrd.createVariableInstance()
-    nvi.firstInstanceInitialValue = variableInstances.get(0).firstInstanceInitialValue
-    variableInstances.get += nvi
+    nvi.firstInstanceInitialValue = variableInstances.head.firstInstanceInitialValue
+    vTable(vrd.vmapIndex) = nvi +: variableInstances
     nvi
   }
 
   def removeVariableInstance(vrd: VariableRuntimeData): Unit = {
-    val varQName = vrd.globalQName
-    val variableInstances = vTable.get(varQName)
-    Assert.invariant(variableInstances.isDefined && variableInstances.get.nonEmpty)
-    variableInstances.get.trimEnd(1)
+    val variableInstances = vTable(vrd.vmapIndex)
+    Assert.invariant(variableInstances.nonEmpty)
+    vTable(vrd.vmapIndex) = variableInstances.tail
   }
 
   /**
@@ -524,21 +504,22 @@ class VariableMap private (vTable: Map[GlobalQName, ArrayBuffer[VariableInstance
         // solving this ambiguity if only one of those varibles was external,
         // but it's safer to err on the side of caution and require the user to
         // be explicit about which variable they intended to set.
-        val candidates = vTable.filter { case (key, _) =>
-          key.local == bindingQName.local
+        val candidates = vrds.filter { vrd =>
+          vrd.globalQName.local == bindingQName.local
         }
         candidates.size match {
           case 0 => None
-          case 1 => Some(candidates.head._2)
+          case 1 => Some(vTable(candidates.head.vmapIndex))
           case _ => {
             val msg =
               "External variable binding %s is ambiguous. A namespace is required to resolve the ambiguity. Found variables: %s"
-                .format(bindingQName, candidates.keys.map(_.toString).mkString(", "))
+                .format(bindingQName, candidates.map(_.globalQName.toString).mkString(", "))
             throw new ExternalVariableException(msg)
           }
         }
       } else {
-        vTable.get(bindingQName.toGlobalQName)
+        val optVrd = vrds.find { _.globalQName == bindingQName.toGlobalQName }
+        optVrd.map { vrd => vTable(vrd.vmapIndex) }
       }
 
     optVariableInstances match {

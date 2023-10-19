@@ -165,6 +165,8 @@ class TestVariables {
 
   @Test def test_nviInGroupDecl_01(): Unit = { runner.runOneTest("nviInGroupDecl_01") }
 
+  @Test def test_backwardsDefines_01: Unit = { runner.runOneTest("backwardsDefines_01") }
+
   /*****************************************************************/
   val tdmlVal = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE

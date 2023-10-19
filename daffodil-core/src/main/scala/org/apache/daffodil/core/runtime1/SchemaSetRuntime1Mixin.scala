@@ -18,7 +18,6 @@
 package org.apache.daffodil.core.runtime1
 
 import org.apache.daffodil.core.dsom.SchemaSet
-import org.apache.daffodil.core.grammar.VariableMapFactory
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -36,11 +35,8 @@ trait SchemaSetRuntime1Mixin {
   requiredEvaluationsAlways(root.elementRuntimeData.initialize)
 
   override lazy val variableMap: VariableMap = LV('variableMap) {
-    val dvs = allSchemaDocuments.flatMap {
-      _.defineVariables
-    }
-    val alldvs = dvs.union(predefinedVars)
-    val vmap = VariableMapFactory.create(alldvs)
+    val vrds = allDefinedVariables.map { _.variableRuntimeData }
+    val vmap = VariableMap(vrds)
     vmap
   }.value
 
