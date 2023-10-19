@@ -1,11 +1,13 @@
+// auto-maintained by iwyu
 // clang-format off
 #include "generated_code.h"
 #include <stdbool.h>    // for false, bool, true
 #include <stddef.h>     // for NULL, size_t
 #include <string.h>     // for memcmp, memset
 #include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, Error::(anonymous), UNUSED
-#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
-#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
+#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+#include "validators.h" // for validate_array_bounds, validate_fixed_attribute, validate_floatpt_enumeration, validate_integer_enumeration, validate_schema_range
 // clang-format on
 
 // Declare prototypes for easier compilation
@@ -14,6 +16,10 @@ static void padhexbinary_padtest__parseSelf(padhexbinary_padtest_ *instance, PSt
 static void padhexbinary_padtest__unparseSelf(const padhexbinary_padtest_ *instance, UState *ustate);
 static void padtest__parseSelf(padtest_ *instance, PState *pstate);
 static void padtest__unparseSelf(const padtest_ *instance, UState *ustate);
+
+// Define schema version (will be empty if schema did not define any version string)
+
+const char *schema_version = "3";
 
 // Define metadata for the infoset
 
@@ -104,26 +110,26 @@ padhexbinary_padtest__parseSelf(padhexbinary_padtest_ *instance, PState *pstate)
 {
     uint32_t _l_opaque;
     parse_be_uint32(&_l_opaque, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     alloc_hexBinary(&instance->opaque, _l_opaque, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_hexBinary(&instance->opaque, pstate);
-    if (pstate->error) return;
-    // Fill to closest alignment
-    parse_align(32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
+    // Align to closest alignment
+    parse_align_to(32, pstate);
+    if (pstate->pu.error) return;
 }
 
 static void
 padhexbinary_padtest__unparseSelf(const padhexbinary_padtest_ *instance, UState *ustate)
 {
     unparse_be_uint32(instance->opaque.lengthInBytes, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_hexBinary(instance->opaque, ustate);
-    if (ustate->error) return;
-    // Fill to closest alignment
-    unparse_align(32, '\0', ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
+    // Align to closest alignment
+    unparse_align_to(32, '\0', ustate);
+    if (ustate->pu.error) return;
 }
 
 static void
@@ -138,18 +144,18 @@ static void
 padtest__parseSelf(padtest_ *instance, PState *pstate)
 {
     padhexbinary_padtest__parseSelf(&instance->padhexbinary, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_uint32(&instance->after, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 }
 
 static void
 padtest__unparseSelf(const padtest_ *instance, UState *ustate)
 {
     padhexbinary_padtest__unparseSelf(&instance->padhexbinary, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_uint32(instance->after, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
 }
 
 // Get an infoset (optionally clearing it first) for parsing/walking

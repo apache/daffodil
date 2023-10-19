@@ -1,11 +1,13 @@
+// auto-maintained by iwyu
 // clang-format off
 #include "generated_code.h"
 #include <stdbool.h>    // for false, bool, true
 #include <stddef.h>     // for NULL, size_t
 #include <string.h>     // for memcmp, memset
 #include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, Error::(anonymous), UNUSED
-#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
-#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
+#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+#include "validators.h" // for validate_array_bounds, validate_fixed_attribute, validate_floatpt_enumeration, validate_integer_enumeration, validate_schema_range
 // clang-format on
 
 // Declare prototypes for easier compilation
@@ -35,6 +37,10 @@ static void fixed_ex_nums__parseSelf(fixed_ex_nums_ *instance, PState *pstate);
 static void fixed_ex_nums__unparseSelf(const fixed_ex_nums_ *instance, UState *ustate);
 static void ex_nums__parseSelf(ex_nums_ *instance, PState *pstate);
 static void ex_nums__unparseSelf(const ex_nums_ *instance, UState *ustate);
+
+// Define schema version (will be empty if schema did not define any version string)
+
+const char *schema_version = "1.2.3";
 
 // Define metadata for the infoset
 
@@ -839,13 +845,13 @@ static void
 array_be_boolean_array_ex_nums_array_ex_nums__parseSelf(array_ex_nums_ *instance, PState *pstate)
 {
     const size_t arraySize = array_be_boolean_array_ex_nums_array_ex_nums__getArraySize(instance);
-    parse_check_bounds("array_be_boolean_array_ex_nums_array_ex_nums_", arraySize, 2, 2, pstate);
-    if (pstate->error) return;
+    validate_array_bounds("array_be_boolean_array_ex_nums_array_ex_nums_", arraySize, 2, 2, &pstate->pu);
+    if (pstate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         parse_be_bool(&instance->be_boolean[i], 32, -1, 0, pstate);
-        if (pstate->error) return;
+        if (pstate->pu.error) return;
     }
 }
 
@@ -853,13 +859,13 @@ static void
 array_be_boolean_array_ex_nums_array_ex_nums__unparseSelf(const array_ex_nums_ *instance, UState *ustate)
 {
     const size_t arraySize = array_be_boolean_array_ex_nums_array_ex_nums__getArraySize(instance);
-    unparse_check_bounds("array_be_boolean_array_ex_nums_array_ex_nums_", arraySize, 2, 2, ustate);
-    if (ustate->error) return;
+    validate_array_bounds("array_be_boolean_array_ex_nums_array_ex_nums_", arraySize, 2, 2, &ustate->pu);
+    if (ustate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         unparse_be_bool(instance->be_boolean[i], 32, ~0, 0, ustate);
-        if (ustate->error) return;
+        if (ustate->pu.error) return;
     }
 }
 
@@ -881,13 +887,13 @@ static void
 array_be_float_array_ex_nums_array_ex_nums__parseSelf(array_ex_nums_ *instance, PState *pstate)
 {
     const size_t arraySize = array_be_float_array_ex_nums_array_ex_nums__getArraySize(instance);
-    parse_check_bounds("array_be_float_array_ex_nums_array_ex_nums_", arraySize, 3, 3, pstate);
-    if (pstate->error) return;
+    validate_array_bounds("array_be_float_array_ex_nums_array_ex_nums_", arraySize, 3, 3, &pstate->pu);
+    if (pstate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         parse_be_float(&instance->be_float[i], 32, pstate);
-        if (pstate->error) return;
+        if (pstate->pu.error) return;
     }
 }
 
@@ -895,13 +901,13 @@ static void
 array_be_float_array_ex_nums_array_ex_nums__unparseSelf(const array_ex_nums_ *instance, UState *ustate)
 {
     const size_t arraySize = array_be_float_array_ex_nums_array_ex_nums__getArraySize(instance);
-    unparse_check_bounds("array_be_float_array_ex_nums_array_ex_nums_", arraySize, 3, 3, ustate);
-    if (ustate->error) return;
+    validate_array_bounds("array_be_float_array_ex_nums_array_ex_nums_", arraySize, 3, 3, &ustate->pu);
+    if (ustate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         unparse_be_float(instance->be_float[i], 32, ustate);
-        if (ustate->error) return;
+        if (ustate->pu.error) return;
     }
 }
 
@@ -923,13 +929,13 @@ static void
 array_be_int16_array_ex_nums_array_ex_nums__parseSelf(array_ex_nums_ *instance, PState *pstate)
 {
     const size_t arraySize = array_be_int16_array_ex_nums_array_ex_nums__getArraySize(instance);
-    parse_check_bounds("array_be_int16_array_ex_nums_array_ex_nums_", arraySize, 3, 3, pstate);
-    if (pstate->error) return;
+    validate_array_bounds("array_be_int16_array_ex_nums_array_ex_nums_", arraySize, 3, 3, &pstate->pu);
+    if (pstate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         parse_be_int16(&instance->be_int16[i], 16, pstate);
-        if (pstate->error) return;
+        if (pstate->pu.error) return;
     }
 }
 
@@ -937,13 +943,13 @@ static void
 array_be_int16_array_ex_nums_array_ex_nums__unparseSelf(const array_ex_nums_ *instance, UState *ustate)
 {
     const size_t arraySize = array_be_int16_array_ex_nums_array_ex_nums__getArraySize(instance);
-    unparse_check_bounds("array_be_int16_array_ex_nums_array_ex_nums_", arraySize, 3, 3, ustate);
-    if (ustate->error) return;
+    validate_array_bounds("array_be_int16_array_ex_nums_array_ex_nums_", arraySize, 3, 3, &ustate->pu);
+    if (ustate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         unparse_be_int16(instance->be_int16[i], 16, ustate);
-        if (ustate->error) return;
+        if (ustate->pu.error) return;
     }
 }
 
@@ -970,13 +976,13 @@ static void
 array_hexBinary2_array_ex_nums_array_ex_nums__parseSelf(array_ex_nums_ *instance, PState *pstate)
 {
     const size_t arraySize = array_hexBinary2_array_ex_nums_array_ex_nums__getArraySize(instance);
-    parse_check_bounds("array_hexBinary2_array_ex_nums_array_ex_nums_", arraySize, 3, 3, pstate);
-    if (pstate->error) return;
+    validate_array_bounds("array_hexBinary2_array_ex_nums_array_ex_nums_", arraySize, 3, 3, &pstate->pu);
+    if (pstate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         parse_hexBinary(&instance->hexBinary2[i], pstate);
-        if (pstate->error) return;
+        if (pstate->pu.error) return;
     }
 }
 
@@ -984,13 +990,13 @@ static void
 array_hexBinary2_array_ex_nums_array_ex_nums__unparseSelf(const array_ex_nums_ *instance, UState *ustate)
 {
     const size_t arraySize = array_hexBinary2_array_ex_nums_array_ex_nums__getArraySize(instance);
-    unparse_check_bounds("array_hexBinary2_array_ex_nums_array_ex_nums_", arraySize, 3, 3, ustate);
-    if (ustate->error) return;
+    validate_array_bounds("array_hexBinary2_array_ex_nums_array_ex_nums_", arraySize, 3, 3, &ustate->pu);
+    if (ustate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         unparse_hexBinary(instance->hexBinary2[i], ustate);
-        if (ustate->error) return;
+        if (ustate->pu.error) return;
     }
 }
 
@@ -1015,18 +1021,18 @@ static void
 array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__parseSelf(array_ex_nums_ *instance, PState *pstate)
 {
     const size_t arraySize = array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__getArraySize(instance);
-    parse_check_bounds("array_hexBinaryPrefixed_array_ex_nums_array_ex_nums_", arraySize, 3, 3, pstate);
-    if (pstate->error) return;
+    validate_array_bounds("array_hexBinaryPrefixed_array_ex_nums_array_ex_nums_", arraySize, 3, 3, &pstate->pu);
+    if (pstate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         uint16_t _l_hexBinaryPrefixed;
         parse_be_uint16(&_l_hexBinaryPrefixed, 16, pstate);
-        if (pstate->error) return;
+        if (pstate->pu.error) return;
         alloc_hexBinary(&instance->hexBinaryPrefixed[i], _l_hexBinaryPrefixed, pstate);
-        if (pstate->error) return;
+        if (pstate->pu.error) return;
         parse_hexBinary(&instance->hexBinaryPrefixed[i], pstate);
-        if (pstate->error) return;
+        if (pstate->pu.error) return;
     }
 }
 
@@ -1034,15 +1040,15 @@ static void
 array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__unparseSelf(const array_ex_nums_ *instance, UState *ustate)
 {
     const size_t arraySize = array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__getArraySize(instance);
-    unparse_check_bounds("array_hexBinaryPrefixed_array_ex_nums_array_ex_nums_", arraySize, 3, 3, ustate);
-    if (ustate->error) return;
+    validate_array_bounds("array_hexBinaryPrefixed_array_ex_nums_array_ex_nums_", arraySize, 3, 3, &ustate->pu);
+    if (ustate->pu.error) return;
 
     for (size_t i = 0; i < arraySize; i++)
     {
         unparse_be_uint16(instance->hexBinaryPrefixed[i].lengthInBytes, 16, ustate);
-        if (ustate->error) return;
+        if (ustate->pu.error) return;
         unparse_hexBinary(instance->hexBinaryPrefixed[i], ustate);
-        if (ustate->error) return;
+        if (ustate->pu.error) return;
     }
 }
 
@@ -1069,30 +1075,30 @@ static void
 array_ex_nums__parseSelf(array_ex_nums_ *instance, PState *pstate)
 {
     array_be_boolean_array_ex_nums_array_ex_nums__parseSelf(instance, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     array_be_float_array_ex_nums_array_ex_nums__parseSelf(instance, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     array_be_int16_array_ex_nums_array_ex_nums__parseSelf(instance, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     array_hexBinary2_array_ex_nums_array_ex_nums__parseSelf(instance, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__parseSelf(instance, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 }
 
 static void
 array_ex_nums__unparseSelf(const array_ex_nums_ *instance, UState *ustate)
 {
     array_be_boolean_array_ex_nums_array_ex_nums__unparseSelf(instance, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     array_be_float_array_ex_nums_array_ex_nums__unparseSelf(instance, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     array_be_int16_array_ex_nums_array_ex_nums__unparseSelf(instance, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     array_hexBinary2_array_ex_nums_array_ex_nums__unparseSelf(instance, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     array_hexBinaryPrefixed_array_ex_nums_array_ex_nums__unparseSelf(instance, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
 }
 
 static void
@@ -1110,81 +1116,81 @@ static void
 bigEndian_ex_nums__parseSelf(bigEndian_ex_nums_ *instance, PState *pstate)
 {
     parse_be_bool(&instance->be_bool16, 16, 16, 0, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_bool(&instance->be_boolean, 32, -1, 0, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_double(&instance->be_double, 64, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_float(&instance->be_float, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_int16(&instance->be_int16, 16, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_int32(&instance->be_int32, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_int64(&instance->be_int64, 64, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_int8(&instance->be_int8, 8, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_int32(&instance->be_int17, 17, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_uint16(&instance->be_uint16, 16, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_uint32(&instance->be_uint32, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_uint64(&instance->be_uint64, 64, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_uint8(&instance->be_uint8, 8, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_uint32(&instance->be_uint31, 31, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_hexBinary(&instance->hexBinary4, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     uint16_t _l_hexBinaryPrefixed;
     parse_be_uint16(&_l_hexBinaryPrefixed, 16, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     alloc_hexBinary(&instance->hexBinaryPrefixed, _l_hexBinaryPrefixed, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_hexBinary(&instance->hexBinaryPrefixed, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 }
 
 static void
 bigEndian_ex_nums__unparseSelf(const bigEndian_ex_nums_ *instance, UState *ustate)
 {
     unparse_be_bool(instance->be_bool16, 16, 16, 0, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_bool(instance->be_boolean, 32, ~0, 0, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_double(instance->be_double, 64, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_float(instance->be_float, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_int16(instance->be_int16, 16, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_int32(instance->be_int32, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_int64(instance->be_int64, 64, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_int8(instance->be_int8, 8, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_int32(instance->be_int17, 17, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_uint16(instance->be_uint16, 16, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_uint32(instance->be_uint32, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_uint64(instance->be_uint64, 64, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_uint8(instance->be_uint8, 8, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_uint32(instance->be_uint31, 31, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_hexBinary(instance->hexBinary4, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_uint16(instance->hexBinaryPrefixed.lengthInBytes, 16, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_hexBinary(instance->hexBinaryPrefixed, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
 }
 
 static void
@@ -1202,81 +1208,81 @@ static void
 littleEndian_ex_nums__parseSelf(littleEndian_ex_nums_ *instance, PState *pstate)
 {
     parse_le_bool(&instance->le_bool16, 16, 16, 0, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_bool(&instance->le_boolean, 32, -1, 0, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_double(&instance->le_double, 64, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_float(&instance->le_float, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_int16(&instance->le_int16, 16, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_int32(&instance->le_int32, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_int64(&instance->le_int64, 64, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_int8(&instance->le_int8, 8, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_int64(&instance->le_int46, 46, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_uint16(&instance->le_uint16, 16, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_uint32(&instance->le_uint32, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_uint64(&instance->le_uint64, 64, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_uint8(&instance->le_uint8, 8, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_le_uint16(&instance->le_uint10, 10, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_hexBinary(&instance->hexBinary0, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     uint16_t _l_hexBinaryPrefixed;
     parse_le_uint16(&_l_hexBinaryPrefixed, 16, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     alloc_hexBinary(&instance->hexBinaryPrefixed, _l_hexBinaryPrefixed, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_hexBinary(&instance->hexBinaryPrefixed, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 }
 
 static void
 littleEndian_ex_nums__unparseSelf(const littleEndian_ex_nums_ *instance, UState *ustate)
 {
     unparse_le_bool(instance->le_bool16, 16, 16, 0, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_bool(instance->le_boolean, 32, ~0, 0, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_double(instance->le_double, 64, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_float(instance->le_float, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_int16(instance->le_int16, 16, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_int32(instance->le_int32, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_int64(instance->le_int64, 64, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_int8(instance->le_int8, 8, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_int64(instance->le_int46, 46, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_uint16(instance->le_uint16, 16, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_uint32(instance->le_uint32, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_uint64(instance->le_uint64, 64, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_uint8(instance->le_uint8, 8, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_uint16(instance->le_uint10, 10, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_hexBinary(instance->hexBinary0, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_le_uint16(instance->hexBinaryPrefixed.lengthInBytes, 16, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_hexBinary(instance->hexBinaryPrefixed, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
 }
 
 static void
@@ -1297,81 +1303,81 @@ static void
 fixed_ex_nums__parseSelf(fixed_ex_nums_ *instance, PState *pstate)
 {
     parse_be_bool(&instance->boolean_false, 32, -1, 0, pstate);
-    if (pstate->error) return;
-    parse_validate_fixed(instance->boolean_false == false, "boolean_false", pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
+    validate_fixed_attribute(instance->boolean_false == false, "boolean_false", &pstate->pu);
+    if (pstate->pu.error) return;
     parse_be_bool(&instance->boolean_true, 32, -1, 0, pstate);
-    if (pstate->error) return;
-    parse_validate_fixed(instance->boolean_true == true, "boolean_true", pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
+    validate_fixed_attribute(instance->boolean_true == true, "boolean_true", &pstate->pu);
+    if (pstate->pu.error) return;
     parse_be_double(&instance->double_3, 64, pstate);
-    if (pstate->error) return;
-    parse_validate_fixed(instance->double_3 == 3.0, "double_3", pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
+    validate_fixed_attribute(instance->double_3 == 3.0, "double_3", &pstate->pu);
+    if (pstate->pu.error) return;
     parse_be_float(&instance->float_1_5, 32, pstate);
-    if (pstate->error) return;
-    parse_validate_fixed(instance->float_1_5 == 1.5, "float_1_5", pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
+    validate_fixed_attribute(instance->float_1_5 == 1.5, "float_1_5", &pstate->pu);
+    if (pstate->pu.error) return;
     parse_be_int32(&instance->int_32, 32, pstate);
-    if (pstate->error) return;
-    parse_validate_fixed(instance->int_32 == 32, "int_32", pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
+    validate_fixed_attribute(instance->int_32 == 32, "int_32", &pstate->pu);
+    if (pstate->pu.error) return;
     parse_hexBinary(&instance->hexBinary_deadbeef, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     uint8_t hexBinary_deadbeef_fixed[] = {0xDE, 0xAD, 0xBE, 0xEF};
-    parse_validate_fixed(memcmp(instance->hexBinary_deadbeef.array, hexBinary_deadbeef_fixed, sizeof(hexBinary_deadbeef_fixed)) == 0, "hexBinary_deadbeef", pstate);
-    if (pstate->error) return;
+    validate_fixed_attribute(memcmp(instance->hexBinary_deadbeef.array, hexBinary_deadbeef_fixed, sizeof(hexBinary_deadbeef_fixed)) == 0, "hexBinary_deadbeef", &pstate->pu);
+    if (pstate->pu.error) return;
     parse_hexBinary(&instance->hexBinary0, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     int8_t _l_hexBinaryPrefixed_ab;
     parse_be_int8(&_l_hexBinaryPrefixed_ab, 8, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     alloc_hexBinary(&instance->hexBinaryPrefixed_ab, _l_hexBinaryPrefixed_ab, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_hexBinary(&instance->hexBinaryPrefixed_ab, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     uint8_t hexBinaryPrefixed_ab_fixed[] = {0xAB};
-    parse_validate_fixed(memcmp(instance->hexBinaryPrefixed_ab.array, hexBinaryPrefixed_ab_fixed, sizeof(hexBinaryPrefixed_ab_fixed)) == 0, "hexBinaryPrefixed_ab", pstate);
-    if (pstate->error) return;
+    validate_fixed_attribute(memcmp(instance->hexBinaryPrefixed_ab.array, hexBinaryPrefixed_ab_fixed, sizeof(hexBinaryPrefixed_ab_fixed)) == 0, "hexBinaryPrefixed_ab", &pstate->pu);
+    if (pstate->pu.error) return;
 }
 
 static void
 fixed_ex_nums__unparseSelf(const fixed_ex_nums_ *instance, UState *ustate)
 {
     unparse_be_bool(instance->boolean_false, 32, ~0, 0, ustate);
-    if (ustate->error) return;
-    unparse_validate_fixed(instance->boolean_false == false, "boolean_false", ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
+    validate_fixed_attribute(instance->boolean_false == false, "boolean_false", &ustate->pu);
+    if (ustate->pu.error) return;
     unparse_be_bool(instance->boolean_true, 32, ~0, 0, ustate);
-    if (ustate->error) return;
-    unparse_validate_fixed(instance->boolean_true == true, "boolean_true", ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
+    validate_fixed_attribute(instance->boolean_true == true, "boolean_true", &ustate->pu);
+    if (ustate->pu.error) return;
     unparse_be_double(instance->double_3, 64, ustate);
-    if (ustate->error) return;
-    unparse_validate_fixed(instance->double_3 == 3.0, "double_3", ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
+    validate_fixed_attribute(instance->double_3 == 3.0, "double_3", &ustate->pu);
+    if (ustate->pu.error) return;
     unparse_be_float(instance->float_1_5, 32, ustate);
-    if (ustate->error) return;
-    unparse_validate_fixed(instance->float_1_5 == 1.5, "float_1_5", ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
+    validate_fixed_attribute(instance->float_1_5 == 1.5, "float_1_5", &ustate->pu);
+    if (ustate->pu.error) return;
     unparse_be_int32(instance->int_32, 32, ustate);
-    if (ustate->error) return;
-    unparse_validate_fixed(instance->int_32 == 32, "int_32", ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
+    validate_fixed_attribute(instance->int_32 == 32, "int_32", &ustate->pu);
+    if (ustate->pu.error) return;
     unparse_hexBinary(instance->hexBinary_deadbeef, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     uint8_t hexBinary_deadbeef_fixed[] = {0xDE, 0xAD, 0xBE, 0xEF};
-    unparse_validate_fixed(memcmp(instance->hexBinary_deadbeef.array, hexBinary_deadbeef_fixed, sizeof(hexBinary_deadbeef_fixed)) == 0, "hexBinary_deadbeef", ustate);
-    if (ustate->error) return;
+    validate_fixed_attribute(memcmp(instance->hexBinary_deadbeef.array, hexBinary_deadbeef_fixed, sizeof(hexBinary_deadbeef_fixed)) == 0, "hexBinary_deadbeef", &ustate->pu);
+    if (ustate->pu.error) return;
     unparse_hexBinary(instance->hexBinary0, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_int8(instance->hexBinaryPrefixed_ab.lengthInBytes, 8, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_hexBinary(instance->hexBinaryPrefixed_ab, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     uint8_t hexBinaryPrefixed_ab_fixed[] = {0xAB};
-    unparse_validate_fixed(memcmp(instance->hexBinaryPrefixed_ab.array, hexBinaryPrefixed_ab_fixed, sizeof(hexBinaryPrefixed_ab_fixed)) == 0, "hexBinaryPrefixed_ab", ustate);
-    if (ustate->error) return;
+    validate_fixed_attribute(memcmp(instance->hexBinaryPrefixed_ab.array, hexBinaryPrefixed_ab_fixed, sizeof(hexBinaryPrefixed_ab_fixed)) == 0, "hexBinaryPrefixed_ab", &ustate->pu);
+    if (ustate->pu.error) return;
 }
 
 static void
@@ -1389,26 +1395,26 @@ static void
 ex_nums__parseSelf(ex_nums_ *instance, PState *pstate)
 {
     array_ex_nums__parseSelf(&instance->array, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     bigEndian_ex_nums__parseSelf(&instance->bigEndian, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     littleEndian_ex_nums__parseSelf(&instance->littleEndian, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     fixed_ex_nums__parseSelf(&instance->fixed, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 }
 
 static void
 ex_nums__unparseSelf(const ex_nums_ *instance, UState *ustate)
 {
     array_ex_nums__unparseSelf(&instance->array, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     bigEndian_ex_nums__unparseSelf(&instance->bigEndian, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     littleEndian_ex_nums__unparseSelf(&instance->littleEndian, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     fixed_ex_nums__unparseSelf(&instance->fixed, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
 }
 
 // Get an infoset (optionally clearing it first) for parsing/walking

@@ -74,16 +74,16 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val parseStatement =
       s"""$indent1$indent2    ${primType}_t $lenVar;
          |$indent1$indent2    parse_$function(&$lenVar, $intLen, pstate);
-         |$indent1$indent2    if (pstate->error) return;
+         |$indent1$indent2    if (pstate->pu.error) return;
          |$indent1$indent2    alloc_hexBinary(&$field, $lenVar, pstate);
-         |$indent1$indent2    if (pstate->error) return;
+         |$indent1$indent2    if (pstate->pu.error) return;
          |$indent1$indent2    parse_hexBinary(&$field, pstate);
-         |$indent1$indent2    if (pstate->error) return;""".stripMargin
+         |$indent1$indent2    if (pstate->pu.error) return;""".stripMargin
     val unparseStatement =
       s"""$indent1$indent2    unparse_$function($field.lengthInBytes, $intLen, ustate);
-         |$indent1$indent2    if (ustate->error) return;
+         |$indent1$indent2    if (ustate->pu.error) return;
          |$indent1$indent2    unparse_hexBinary($field, ustate);
-         |$indent1$indent2    if (ustate->error) return;""".stripMargin
+         |$indent1$indent2    if (ustate->pu.error) return;""".stripMargin
     cgState.addSimpleTypeStatements(initERDStatement, parseStatement, unparseStatement)
   }
 
@@ -134,16 +134,16 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val parseStatement =
       if (specifiedLength >= 0)
         s"""$indent1$indent2    parse_hexBinary(&$field, pstate);
-           |$indent1$indent2    if (pstate->error) return;""".stripMargin
+           |$indent1$indent2    if (pstate->pu.error) return;""".stripMargin
       else
         s"""$indent1$indent2    $primType $lenVar = $expression;
            |$indent1$indent2    alloc_hexBinary(&$field, $lenVar, pstate);
-           |$indent1$indent2    if (pstate->error) return;
+           |$indent1$indent2    if (pstate->pu.error) return;
            |$indent1$indent2    parse_hexBinary(&$field, pstate);
-           |$indent1$indent2    if (pstate->error) return;""".stripMargin
+           |$indent1$indent2    if (pstate->pu.error) return;""".stripMargin
     val unparseStatement =
       s"""$indent1$indent2    unparse_hexBinary($field, ustate);
-         |$indent1$indent2    if (ustate->error) return;""".stripMargin
+         |$indent1$indent2    if (ustate->pu.error) return;""".stripMargin
     cgState.addSimpleTypeStatements(initERDStatement, parseStatement, unparseStatement)
   }
 
@@ -163,12 +163,12 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
     val initERDStatement = ""
     val parseStatement =
       s"""$indent1$indent2    uint8_t $fixed[] = {$array};
-         |$indent1$indent2    parse_validate_fixed(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", pstate);
-         |$indent1$indent2    if (pstate->error) return;""".stripMargin
+         |$indent1$indent2    validate_fixed_attribute(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", &pstate->pu);
+         |$indent1$indent2    if (pstate->pu.error) return;""".stripMargin
     val unparseStatement =
       s"""$indent1$indent2    uint8_t $fixed[] = {$array};
-         |$indent1$indent2    unparse_validate_fixed(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", ustate);
-         |$indent1$indent2    if (ustate->error) return;""".stripMargin
+         |$indent1$indent2    validate_fixed_attribute(memcmp($field.array, $fixed, sizeof($fixed)) == 0, "$localName", &ustate->pu);
+         |$indent1$indent2    if (ustate->pu.error) return;""".stripMargin
     cgState.addSimpleTypeStatements(initERDStatement, parseStatement, unparseStatement)
   }
 }

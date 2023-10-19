@@ -1,11 +1,13 @@
+// auto-maintained by iwyu
 // clang-format off
 #include "generated_code.h"
 #include <stdbool.h>    // for false, bool, true
 #include <stddef.h>     // for NULL, size_t
 #include <string.h>     // for memcmp, memset
 #include "errors.h"     // for Error, PState, UState, ERR_CHOICE_KEY, Error::(anonymous), UNUSED
-#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_validate_fixed, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
-#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_validate_fixed, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+#include "parsers.h"    // for alloc_hexBinary, parse_hexBinary, parse_be_float, parse_be_int16, parse_be_bool32, parse_be_bool16, parse_be_int32, parse_be_uint16, parse_be_uint32, parse_le_bool32, parse_le_int64, parse_le_uint16, parse_le_uint8, parse_be_bool8, parse_be_double, parse_be_int64, parse_be_int8, parse_be_uint64, parse_be_uint8, parse_le_bool16, parse_le_bool8, parse_le_double, parse_le_float, parse_le_int16, parse_le_int32, parse_le_int8, parse_le_uint32, parse_le_uint64
+#include "unparsers.h"  // for unparse_hexBinary, unparse_be_float, unparse_be_int16, unparse_be_bool32, unparse_be_bool16, unparse_be_int32, unparse_be_uint16, unparse_be_uint32, unparse_le_bool32, unparse_le_int64, unparse_le_uint16, unparse_le_uint8, unparse_be_bool8, unparse_be_double, unparse_be_int64, unparse_be_int8, unparse_be_uint64, unparse_be_uint8, unparse_le_bool16, unparse_le_bool8, unparse_le_double, unparse_le_float, unparse_le_int16, unparse_le_int32, unparse_le_int8, unparse_le_uint32, unparse_le_uint64
+#include "validators.h" // for validate_array_bounds, validate_fixed_attribute, validate_floatpt_enumeration, validate_integer_enumeration, validate_schema_range
 // clang-format on
 
 // Declare prototypes for easier compilation
@@ -19,6 +21,10 @@ static void data_NestedUnionType__parseSelf(data_NestedUnionType_ *instance, PSt
 static void data_NestedUnionType__unparseSelf(const data_NestedUnionType_ *instance, UState *ustate);
 static void NestedUnion__parseSelf(NestedUnion_ *instance, PState *pstate);
 static void NestedUnion__unparseSelf(const NestedUnion_ *instance, UState *ustate);
+
+// Define schema version (will be empty if schema did not define any version string)
+
+const char *schema_version = "";
 
 // Define metadata for the infoset
 
@@ -229,22 +235,22 @@ static void
 foo_data_NestedUnionType__parseSelf(foo_data_NestedUnionType_ *instance, PState *pstate)
 {
     parse_be_int32(&instance->a, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_int32(&instance->b, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_int32(&instance->c, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 }
 
 static void
 foo_data_NestedUnionType__unparseSelf(const foo_data_NestedUnionType_ *instance, UState *ustate)
 {
     unparse_be_int32(instance->a, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_int32(instance->b, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_int32(instance->c, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
 }
 
 static void
@@ -258,22 +264,22 @@ static void
 bar_data_NestedUnionType__parseSelf(bar_data_NestedUnionType_ *instance, PState *pstate)
 {
     parse_be_double(&instance->x, 64, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_double(&instance->y, 64, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     parse_be_double(&instance->z, 64, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 }
 
 static void
 bar_data_NestedUnionType__unparseSelf(const bar_data_NestedUnionType_ *instance, UState *ustate)
 {
     unparse_be_double(instance->x, 64, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_double(instance->y, 64, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     unparse_be_double(instance->z, 64, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
 }
 
 static void
@@ -314,23 +320,23 @@ data_NestedUnionType__parseSelf(data_NestedUnionType_ *instance, PState *pstate)
 {
     static Error error = {ERR_CHOICE_KEY, {0}};
 
-    pstate->error = instance->_base.erd->initChoice(&instance->_base);
-    if (pstate->error) return;
+    pstate->pu.error = instance->_base.erd->initChoice(&instance->_base);
+    if (pstate->pu.error) return;
 
     switch (instance->_choice)
     {
     case 1:
         foo_data_NestedUnionType__parseSelf(&instance->foo, pstate);
-        if (pstate->error) return;
+        if (pstate->pu.error) return;
         break;
     case 2:
         bar_data_NestedUnionType__parseSelf(&instance->bar, pstate);
-        if (pstate->error) return;
+        if (pstate->pu.error) return;
         break;
     default:
         // Should never happen because initChoice would return an error first
         error.arg.d64 = (int64_t)instance->_choice;
-        pstate->error = &error;
+        pstate->pu.error = &error;
         return;
     }
 }
@@ -340,23 +346,23 @@ data_NestedUnionType__unparseSelf(const data_NestedUnionType_ *instance, UState 
 {
     static Error error = {ERR_CHOICE_KEY, {0}};
 
-    ustate->error = instance->_base.erd->initChoice(&instance->_base);
-    if (ustate->error) return;
+    ustate->pu.error = instance->_base.erd->initChoice(&instance->_base);
+    if (ustate->pu.error) return;
 
     switch (instance->_choice)
     {
     case 1:
         foo_data_NestedUnionType__unparseSelf(&instance->foo, ustate);
-        if (ustate->error) return;
+        if (ustate->pu.error) return;
         break;
     case 2:
         bar_data_NestedUnionType__unparseSelf(&instance->bar, ustate);
-        if (ustate->error) return;
+        if (ustate->pu.error) return;
         break;
     default:
         // Should never happen because initChoice would return an error first
         error.arg.d64 = (int64_t)instance->_choice;
-        ustate->error = &error;
+        ustate->pu.error = &error;
         return;
     }
 }
@@ -373,18 +379,18 @@ static void
 NestedUnion__parseSelf(NestedUnion_ *instance, PState *pstate)
 {
     parse_be_int32(&instance->tag, 32, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
     data_NestedUnionType__parseSelf(&instance->data, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 }
 
 static void
 NestedUnion__unparseSelf(const NestedUnion_ *instance, UState *ustate)
 {
     unparse_be_int32(instance->tag, 32, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
     data_NestedUnionType__unparseSelf(&instance->data, ustate);
-    if (ustate->error) return;
+    if (ustate->pu.error) return;
 }
 
 // Get an infoset (optionally clearing it first) for parsing/walking

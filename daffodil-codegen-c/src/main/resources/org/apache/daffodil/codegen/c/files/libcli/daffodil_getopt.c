@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include "daffodil_getopt.h"
 #include <string.h>            // for strcmp, strrchr
@@ -29,21 +30,13 @@ struct daffodil_cli daffodil_cli = {
     DAFFODIL_MISSING_COMMAND, // default subcommand
 };
 
-// Initialize our "daffodil parse" CLI options
+// Initialize our "daffodil parse/unparse" CLI options
 
-struct daffodil_parse_cli daffodil_parse = {
+struct daffodil_pu_cli daffodil_pu = {
     "xml", // default infoset type
     "-",   // default infile
     "-",   // default outfile
     false, // default validate
-};
-
-// Initialize our "daffodil unparse" CLI options
-
-struct daffodil_unparse_cli daffodil_unparse = {
-    "xml", // default infoset type
-    "-",   // default infile
-    "-",   // default outfile
 };
 
 // Parse our command line interface.  Note there is NO portable way to
@@ -63,7 +56,7 @@ parse_daffodil_cli(int argc, char *argv[])
 
     // We expect callers to put all non-option arguments at the end
     int opt = 0;
-    while ((opt = getopt(argc, argv, ":hI:o:V:v")) != -1)
+    while ((opt = getopt(argc, argv, ":hI:o:r:s:V:v")) != -1)
     {
         switch (opt)
         {
@@ -78,17 +71,21 @@ parse_daffodil_cli(int argc, char *argv[])
                 error.arg.s = optarg;
                 return &error;
             }
-            daffodil_parse.infoset_converter = optarg;
-            daffodil_unparse.infoset_converter = optarg;
+            daffodil_pu.infoset_converter = optarg;
             break;
         case 'o':
-            daffodil_parse.outfile = optarg;
-            daffodil_unparse.outfile = optarg;
+            daffodil_pu.outfile = optarg;
+            break;
+        case 'r':
+            // Ignore "-r root" option/optarg
+            break;
+        case 's':
+            // Ignore "-s schema" option/optarg
             break;
         case 'V':
             if (strcmp("limited", optarg) == 0 || strcmp("on", optarg) == 0)
             {
-                daffodil_parse.validate = true;
+                daffodil_pu.validate = true;
             }
             else if (strcmp("off", optarg) != 0)
             {
@@ -122,25 +119,14 @@ parse_daffodil_cli(int argc, char *argv[])
     {
         const char *arg = argv[i];
 
-        if (DAFFODIL_PARSE == daffodil_cli.subcommand)
+        if (DAFFODIL_MISSING_COMMAND != daffodil_cli.subcommand)
         {
-            if (strcmp("-", daffodil_parse.infile) == 0)
+            // Set infile only once
+            if (strcmp("-", daffodil_pu.infile) == 0)
             {
-                daffodil_parse.infile = arg;
+                daffodil_pu.infile = arg;
             }
-            else
-            {
-                error.code = CLI_UNEXPECTED_ARGUMENT;
-                error.arg.s = arg;
-                return &error;
-            }
-        }
-        else if (DAFFODIL_UNPARSE == daffodil_cli.subcommand)
-        {
-            if (strcmp("-", daffodil_unparse.infile) == 0)
-            {
-                daffodil_unparse.infile = arg;
-            }
+            // Error if infile is followed by another arg
             else
             {
                 error.code = CLI_UNEXPECTED_ARGUMENT;

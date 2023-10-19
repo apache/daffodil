@@ -35,6 +35,7 @@ import org.apache.daffodil.core.grammar.Gram
 import org.apache.daffodil.core.grammar.Prod
 import org.apache.daffodil.core.grammar.SeqComp
 import org.apache.daffodil.core.grammar.primitives.AlignmentFill
+import org.apache.daffodil.core.grammar.primitives.AssertBooleanPrim
 import org.apache.daffodil.core.grammar.primitives.BinaryBoolean
 import org.apache.daffodil.core.grammar.primitives.BinaryDouble
 import org.apache.daffodil.core.grammar.primitives.BinaryFloat
@@ -259,6 +260,7 @@ object DaffodilCCodeGenerator
   def generateCode(gram: Gram, cgState: CodeGeneratorState): Unit = {
     gram match {
       case g: AlignmentFill => alignmentFillGenerateCode(g, cgState)
+      case g: AssertBooleanPrim => noop(g)
       case g: BinaryBoolean => binaryBooleanGenerateCode(g.e, cgState)
       case g: BinaryDouble => binaryFloatGenerateCode(g.e, lengthInBits = 64, cgState)
       case g: BinaryFloat => binaryFloatGenerateCode(g.e, lengthInBits = 32, cgState)

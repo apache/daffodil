@@ -21,7 +21,8 @@ import org.apache.daffodil.core.grammar.primitives.AlignmentFill
 
 trait AlignmentFillCodeGenerator {
 
-  // Generate C code to parse/unparse fill bytes until an alignment boundary is reached
+  // Generate C code to parse/unparse alignment fill bytes until an
+  // alignment boundary is reached
   def alignmentFillGenerateCode(g: AlignmentFill, cgState: CodeGeneratorState): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (cgState.hasArray) INDENT else NO_INDENT
@@ -29,13 +30,13 @@ trait AlignmentFillCodeGenerator {
     val octalFillByte = g.e.fillByteEv.constValue.toByte.toOctalString
     val initERDStatement = ""
     val parseStatement =
-      s"""$indent1$indent2    // Fill to closest alignment
-         |$indent1$indent2    parse_align($alignmentInBits, pstate);
-         |$indent1$indent2    if (pstate->error) return;""".stripMargin
+      s"""$indent1$indent2    // Align to closest alignment
+         |$indent1$indent2    parse_align_to($alignmentInBits, pstate);
+         |$indent1$indent2    if (pstate->pu.error) return;""".stripMargin
     val unparseStatement =
-      s"""$indent1$indent2    // Fill to closest alignment
-         |$indent1$indent2    unparse_align($alignmentInBits, '\\$octalFillByte', ustate);
-         |$indent1$indent2    if (ustate->error) return;""".stripMargin
+      s"""$indent1$indent2    // Align to closest alignment
+         |$indent1$indent2    unparse_align_to($alignmentInBits, '\\$octalFillByte', ustate);
+         |$indent1$indent2    if (ustate->pu.error) return;""".stripMargin
     cgState.addSimpleTypeStatements(initERDStatement, parseStatement, unparseStatement)
   }
 }

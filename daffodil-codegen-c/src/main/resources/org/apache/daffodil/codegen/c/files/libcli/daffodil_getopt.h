@@ -18,6 +18,7 @@
 #ifndef DAFFODIL_GETOPT_H
 #define DAFFODIL_GETOPT_H
 
+// auto-maintained by iwyu
 // clang-format off
 #include <stdbool.h>  // for bool
 #include "errors.h"   // for Error
@@ -35,24 +36,15 @@ extern struct daffodil_cli
     } subcommand;
 } daffodil_cli;
 
-// Declare our "daffodil parse" CLI options
+// Declare our "daffodil parse/unparse" CLI options
 
-extern struct daffodil_parse_cli
+extern struct daffodil_pu_cli
 {
     const char *infoset_converter;
     const char *infile;
     const char *outfile;
-    bool        validate;
-} daffodil_parse;
-
-// Declare our "daffodil unparse" CLI options
-
-extern struct daffodil_unparse_cli
-{
-    const char *infoset_converter;
-    const char *infile;
-    const char *outfile;
-} daffodil_unparse;
+    bool validate;
+} daffodil_pu;
 
 // Parse our command line interface
 

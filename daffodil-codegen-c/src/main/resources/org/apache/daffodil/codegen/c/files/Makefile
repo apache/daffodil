@@ -105,7 +105,7 @@ clean:
 # $ make iwyu
 
 FMT = clang-format -i
-IWYU = iwyu -Xiwyu --max_line_length=999 -Xiwyu --update_comments
+IWYU = iwyu -Xiwyu --max_line_length=111 -Xiwyu --update_comments
 
 format:
 	$(FMT) $(HEADERS) $(SOURCES) $(TSOURCES)

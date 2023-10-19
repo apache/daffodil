@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include "infoset.h"
 #include <string.h>     // for memccpy
@@ -80,8 +81,8 @@ get_erd_xmlns(const ERD *erd)
     if (erd->namedQName.ns)
     {
         static char xmlns[LIMIT_NAME_LENGTH];
-        char *      next = xmlns;
-        char *      last = xmlns + sizeof(xmlns) - 1;
+        char *next = xmlns;
+        char *last = xmlns + sizeof(xmlns) - 1;
 
         next = memccpy(next, "xmlns", 0, last - next);
         if (next)
@@ -154,9 +155,9 @@ walk_infoset(const VisitEventHandler *handler, const InfosetBase *infoNode)
 
     if (!error)
     {
-        const ERD *  childERD = infoNode->erd;
+        const ERD *childERD = infoNode->erd;
         const size_t childOffset = childERD->numChildren ? 0 : childERD->childrenOffsets[0];
-        const void * child = (const void *)((const char *)infoNode + childOffset);
+        const void *child = (const void *)((const char *)infoNode + childOffset);
 
         error = walk_infoset_node(handler, infoNode, childERD, child);
     }
@@ -176,8 +177,8 @@ walk_infoset_node(const VisitEventHandler *handler, const InfosetBase *infoNode,
                   const void *child)
 {
     // Get the type of child to walk
-    const Error *       error = NULL;
-    const InfosetBase * childNode = (const InfosetBase *)child;
+    const Error *error = NULL;
+    const InfosetBase *childNode = (const InfosetBase *)child;
     const enum TypeCode typeCode = childERD->typeCode;
 
     // Walk the child appropriately depending on its type
@@ -225,7 +226,7 @@ walk_array(const VisitEventHandler *handler, const InfosetBase *infoNode, const 
     // Get the array's size, type of its elements, and offset between its elements
     const Error *error = NULL;
     const size_t arraySize = arrayERD->getArraySize(infoNode);
-    const ERD *  childERD = arrayERD->childrenERDs[0];
+    const ERD *childERD = arrayERD->childrenERDs[0];
     const size_t childOffset = arrayERD->childrenOffsets[0];
 
     // Walk each element of the array
@@ -247,9 +248,9 @@ walk_array(const VisitEventHandler *handler, const InfosetBase *infoNode, const 
 static const Error *
 walk_infoset_node_children(const VisitEventHandler *handler, const InfosetBase *infoNode)
 {
-    const size_t            numChildren = infoNode->erd->numChildren;
+    const size_t numChildren = infoNode->erd->numChildren;
     const ERD *const *const childrenERDs = infoNode->erd->childrenERDs;
-    const size_t *          childrenOffsets = infoNode->erd->childrenOffsets;
+    const size_t *childrenOffsets = infoNode->erd->childrenOffsets;
 
     // Start visiting the node
     const Error *error = handler->visitStartComplex(handler, infoNode);
@@ -257,9 +258,9 @@ walk_infoset_node_children(const VisitEventHandler *handler, const InfosetBase *
     // Walk each child of the node
     for (size_t i = 0; i < numChildren && !error; i++)
     {
-        const ERD *  childERD = childrenERDs[i];
+        const ERD *childERD = childrenERDs[i];
         const size_t childOffset = childrenOffsets[i];
-        const void * child = (const void *)((const char *)infoNode + childOffset);
+        const void *child = (const void *)((const char *)infoNode + childOffset);
 
         error = walk_infoset_node(handler, infoNode, childERD, child);
     }

@@ -18,6 +18,7 @@
 #ifndef XML_WRITER_H
 #define XML_WRITER_H
 
+// auto-maintained by iwyu
 // clang-format off
 #include <stdio.h>    // for FILE
 #include "infoset.h"  // for VisitEventHandler
@@ -29,8 +30,8 @@
 typedef struct XMLWriter
 {
     const VisitEventHandler handler;
-    FILE *                  stream;
-    c_stack_t               stack;
+    FILE *stream;
+    c_stack_t stack;
 } XMLWriter;
 
 // XMLWriter methods to pass to walk_infoset method

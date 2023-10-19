@@ -59,32 +59,53 @@ Compile source code:
 
     sbt compile
 
-### Tests
+### Test
 
-Run unit tests:
+Check all unit tests pass:
 
     sbt test
 
-Run slower integration tests:
+Check all integration tests pass:
 
     sbt daffodil-test-integration/test
 
-### Command Line Interface
+### Format
 
-Build the command line interface (Linux and Windows shell scripts in
-`daffodil-cli/target/universal/stage/bin/`; see the [Command Line
-Interface] documentation for details on their usage):
+Check format of source and sbt files:
+
+    sbt scalafmtCheckAll scalafmtSbtCheck
+
+Reformat source and sbt files if necessary:
+
+    sbt scalafmtAll scalafmtSbt
+
+### Build
+
+Build the Daffodil command line interface (Linux and Windows shell
+scripts in `daffodil-cli/target/universal/stage/bin/`; see the
+[Command Line Interface] documentation for details on their usage):
 
     sbt daffodil-cli/stage
 
-### License Check
+Publish the Daffodil jars to a Maven repository (for Java projects) or
+Ivy repository (for Scala or schema projects).
+
+Maven (for Java or mvn):
+
+    sbt publishM2
+
+Ivy (for Scala or sbt):
+
+    sbt publishLocal
+
+### Check Licenses
 
 Run [Apache RAT] (license audit report in `target/rat.txt` and error
 if any unapproved licenses are found):
 
     sbt ratCheck
 
-### Test Coverage Report
+### Check Coverage
 
 Run [sbt-scoverage] (report in `target/scala-ver/scoverage-report/`):
 

@@ -63,10 +63,10 @@ trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
     val initERDStatement = ""
     val parseStatement =
       s"""$indent1$indent2    parse_$function(&$field, $lengthInBits, $trueRep, $falseRep, pstate);
-         |$indent1$indent2    if (pstate->error) return;""".stripMargin
+         |$indent1$indent2    if (pstate->pu.error) return;""".stripMargin
     val unparseStatement =
       s"""$indent1$indent2    unparse_$function($field, $lengthInBits, $unparseTrueRep, $falseRep, ustate);
-         |$indent1$indent2    if (ustate->error) return;""".stripMargin
+         |$indent1$indent2    if (ustate->pu.error) return;""".stripMargin
     cgState.addSimpleTypeStatements(initERDStatement, parseStatement, unparseStatement)
   }
 }

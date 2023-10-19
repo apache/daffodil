@@ -18,15 +18,16 @@
 #ifndef CLI_ERRORS_H
 #define CLI_ERRORS_H
 
+// auto-maintained by iwyu
 // clang-format off
-#include "errors.h"  // for ERR_ZZZ
+#include "errors.h"  // for ERR__NUM_CODES
 // clang-format on
 
 // CliCode - identifiers of libcli errors
 
 enum CliCode
 {
-    CLI_DIAGNOSTICS = ERR_ZZZ,
+    CLI_DIAGNOSTICS = ERR__NUM_CODES,
     CLI_FILE_CLOSE,
     CLI_FILE_OPEN,
     CLI_HELP_USAGE,
@@ -59,7 +60,7 @@ enum CliCode
     CLI_XML_LEFT,
     CLI_XML_MISMATCH,
     CLI_XML_WRITE,
-    CLI_ZZZ,
+    CLI__NUM_CODES,
 };
 
 // CliLimits - limits on how many elements static arrays can hold

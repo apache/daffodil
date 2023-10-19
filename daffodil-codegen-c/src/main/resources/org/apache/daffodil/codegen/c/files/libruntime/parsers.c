@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include "parsers.h"
 #include <assert.h>   // for assert
 #include <stdbool.h>  // for bool, false, true
 #include <stdio.h>    // for fread, fgetc, EOF
 #include <stdlib.h>   // for free, malloc
-#include "errors.h"   // for Error, eof_or_error, Error::(anonymous), ERR_LEFTOVER_DATA, add_diagnostic, get_diagnostics, ERR_ARRAY_BOUNDS, ERR_FIXED_VALUE, ERR_HEXBINARY_ALLOC, ERR_PARSE_BOOL, Diagnostics
+#include "errors.h"   // for Error, eof_or_error, ERR_LEFTOVER_DATA, Error::(anonymous), ERR_HEXBINARY_ALLOC, ERR_PARSE_BOOL
 #include "p_endian.h" // for be64toh, le64toh, be32toh, le32toh
 // clang-format on
 
@@ -38,8 +39,8 @@
 // remaining bits not yet read within a fragment byte; returns last
 // bits of last byte already shifted to left end
 
-// Note callers must check pstate->error after calling read_bits and
-// update pstate->bitPos0b themselves after successful parses
+// Note callers must check pstate->pu.error after calling read_bits and
+// update pstate->pu.bitPos0b themselves after successful parses
 
 static void
 read_bits(uint8_t *bytes, size_t num_bits, PState *pstate)
@@ -51,10 +52,10 @@ read_bits(uint8_t *bytes, size_t num_bits, PState *pstate)
         size_t num_bytes = num_bits / BYTE_WIDTH;
         if (num_bytes)
         {
-            size_t count = fread(bytes, 1, num_bytes, pstate->stream);
+            size_t count = fread(bytes, 1, num_bytes, pstate->pu.stream);
             if (count < num_bytes)
             {
-                pstate->error = eof_or_error(pstate->stream);
+                pstate->pu.error = eof_or_error(pstate->pu.stream);
                 return;
             }
             num_bits -= count * BYTE_WIDTH;
@@ -67,10 +68,10 @@ read_bits(uint8_t *bytes, size_t num_bits, PState *pstate)
     {
         // Copy one whole byte from stream to temporary storage
         size_t whole_byte = 0;
-        size_t count = fread(&whole_byte, 1, 1, pstate->stream);
+        size_t count = fread(&whole_byte, 1, 1, pstate->pu.stream);
         if (count < 1)
         {
-            pstate->error = eof_or_error(pstate->stream);
+            pstate->pu.error = eof_or_error(pstate->pu.stream);
             return;
         }
 
@@ -126,15 +127,15 @@ parse_endian_double(bool big_endian_data, double *number, size_t num_bits, PStat
     // Parse all doubles in ths helper function
     union
     {
-        uint8_t  bytes[sizeof(double)];
-        double   number;
+        uint8_t bytes[sizeof(double)];
+        double number;
         uint64_t integer;
     } buffer;
 
     // Read data bits
     buffer.integer = 0;
     read_bits(buffer.bytes, num_bits, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 
     // Convert data endianness to host endianness
     if (big_endian_data)
@@ -153,7 +154,7 @@ parse_endian_double(bool big_endian_data, double *number, size_t num_bits, PStat
     // Return successfully parsed number and update our last
     // successful parse position
     *number = buffer.number;
-    pstate->bitPos0b += num_bits;
+    pstate->pu.bitPos0b += num_bits;
 }
 
 // Helper method to read floats depending on data endianness; note
@@ -165,15 +166,15 @@ parse_endian_float(bool big_endian_data, float *number, size_t num_bits, PState 
     // Parse all floats in this helper function
     union
     {
-        uint8_t  bytes[sizeof(float)];
-        float    number;
+        uint8_t bytes[sizeof(float)];
+        float number;
         uint32_t integer;
     } buffer;
 
     // Read data bits
     buffer.integer = 0;
     read_bits(buffer.bytes, num_bits, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 
     // Convert data endianness to host endianness
     if (big_endian_data)
@@ -192,7 +193,7 @@ parse_endian_float(bool big_endian_data, float *number, size_t num_bits, PState 
     // Return successfully parsed number and update our last
     // successful parse position
     *number = buffer.number;
-    pstate->bitPos0b += num_bits;
+    pstate->pu.bitPos0b += num_bits;
 }
 
 // Helper method to read signed integers using fragment byte shifts
@@ -216,7 +217,7 @@ parse_endian_int64(bool big_endian_data, int64_t *number, size_t num_bits, PStat
     // Read data bits
     buffer.integer = 0;
     read_bits(buffer.bytes, num_bits, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 
     // Shift data bits differently on endianness
     if (big_endian_data)
@@ -253,7 +254,7 @@ parse_endian_int64(bool big_endian_data, int64_t *number, size_t num_bits, PStat
     // Return successfully parsed number and update our last
     // successful parse position
     *number = buffer.integer;
-    pstate->bitPos0b += num_bits;
+    pstate->pu.bitPos0b += num_bits;
 }
 
 // Helper method to read unsigned integers using fragment byte shifts
@@ -266,14 +267,14 @@ parse_endian_uint64(bool big_endian_data, uint64_t *number, size_t num_bits, PSt
     // Parse all unsigned integers in this helper function
     union
     {
-        uint8_t  bytes[sizeof(uint64_t)];
+        uint8_t bytes[sizeof(uint64_t)];
         uint64_t integer;
     } buffer;
 
     // Read data bits
     buffer.integer = 0;
     read_bits(buffer.bytes, num_bits, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 
     // Shift data bits differently on endianness
     if (big_endian_data)
@@ -299,7 +300,7 @@ parse_endian_uint64(bool big_endian_data, uint64_t *number, size_t num_bits, PSt
     // Return successfully parsed number and update our last
     // successful parse position
     *number = buffer.integer;
-    pstate->bitPos0b += num_bits;
+    pstate->pu.bitPos0b += num_bits;
 }
 
 // Helper method to read booleans depending on data endianness;
@@ -310,8 +311,8 @@ parse_endian_bool(bool big_endian_data, bool *number, size_t num_bits, int64_t t
                   PState *pstate)
 {
     // Parse all booleans in this helper function
-    const size_t last_successful_parse = pstate->bitPos0b;
-    uint64_t     integer;
+    const size_t last_successful_parse = pstate->pu.bitPos0b;
+    uint64_t integer;
 
     // Booleans are limited to 32 bits in the DFDL spec, but we read
     // all unsigned integers with parse_endian_uint64 using num_bits
@@ -319,7 +320,7 @@ parse_endian_bool(bool big_endian_data, bool *number, size_t num_bits, int64_t t
 
     // parse_endian_uint64 will change position of last successful parse
     parse_endian_uint64(big_endian_data, &integer, num_bits, pstate);
-    if (pstate->error) return;
+    if (pstate->pu.error) return;
 
     // Recognize true or false representation and assign boolean value
     // negative true_rep means it is absent and only false_rep needs
@@ -341,10 +342,10 @@ parse_endian_bool(bool big_endian_data, bool *number, size_t num_bits, int64_t t
     {
         static Error error = {ERR_PARSE_BOOL, {0}};
         error.arg.d64 = (int64_t)integer;
-        pstate->error = &error;
+        pstate->pu.error = &error;
 
         // Restore original position of last successful parse
-        pstate->bitPos0b = last_successful_parse;
+        pstate->pu.bitPos0b = last_successful_parse;
     }
 }
 
@@ -507,34 +508,6 @@ parse_le_uint8(uint8_t *number, size_t num_bits, PState *pstate)
     *number = (uint8_t)integer;
 }
 
-// Parse fill bits up to alignmentInBits or end_bitPos0b
-
-void
-parse_align(size_t alignmentInBits, PState *pstate)
-{
-    size_t end_bitPos0b = ((pstate->bitPos0b + alignmentInBits - 1) / alignmentInBits) * alignmentInBits;
-    parse_fill_bits(end_bitPos0b, pstate);
-}
-
-void
-parse_fill_bits(size_t end_bitPos0b, PState *pstate)
-{
-    assert(pstate->bitPos0b <= end_bitPos0b);
-
-    size_t  fill_bits = end_bitPos0b - pstate->bitPos0b;
-    uint8_t bytes[1];
-    while (fill_bits)
-    {
-        size_t num_bits = (fill_bits >= BYTE_WIDTH) ? BYTE_WIDTH : fill_bits;
-        read_bits(bytes, num_bits, pstate);
-        if (pstate->error) return;
-        fill_bits -= num_bits;
-    }
-
-    // If we got all the way here, update our last successful parse position
-    pstate->bitPos0b = end_bitPos0b;
-}
-
 // Allocate memory for hexBinary array
 
 void
@@ -553,7 +526,7 @@ alloc_hexBinary(HexBinary *hexBinary, size_t num_bytes, PState *pstate)
     {
         static Error error = {ERR_HEXBINARY_ALLOC, {0}};
         error.arg.d64 = (int64_t)num_bytes;
-        pstate->error = &error;
+        pstate->pu.error = &error;
     }
 }
 
@@ -563,36 +536,36 @@ void
 parse_hexBinary(HexBinary *hexBinary, PState *pstate)
 {
     read_bits(hexBinary->array, hexBinary->lengthInBytes * BYTE_WIDTH, pstate);
-    if (pstate->error) return;
-    pstate->bitPos0b += hexBinary->lengthInBytes * BYTE_WIDTH;
+    if (pstate->pu.error) return;
+    pstate->pu.bitPos0b += hexBinary->lengthInBytes * BYTE_WIDTH;
 }
 
-// Validate element's value matches its fixed attribute
+// Parse alignment bits up to alignmentInBits or end_bitPos0b
 
 void
-parse_validate_fixed(bool same, const char *element, PState *pstate)
+parse_align_to(size_t alignmentInBits, PState *pstate)
 {
-    if (!same)
-    {
-        Diagnostics *diagnostics = get_diagnostics();
-        const Error  error = {ERR_FIXED_VALUE, {.s = element}};
-
-        add_diagnostic(diagnostics, &error);
-        pstate->diagnostics = diagnostics;
-    }
+    size_t end_bitPos0b = ((pstate->pu.bitPos0b + alignmentInBits - 1) / alignmentInBits) * alignmentInBits;
+    parse_alignment_bits(end_bitPos0b, pstate);
 }
 
-// Check array count is within bounds
-
 void
-parse_check_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs, PState *pstate)
+parse_alignment_bits(size_t end_bitPos0b, PState *pstate)
 {
-    if (count < minOccurs || count > maxOccurs)
+    assert(pstate->pu.bitPos0b <= end_bitPos0b);
+
+    size_t fill_bits = end_bitPos0b - pstate->pu.bitPos0b;
+    uint8_t bytes[1];
+    while (fill_bits)
     {
-        static Error error = {ERR_ARRAY_BOUNDS, {0}};
-        error.arg.s = name;
-        pstate->error = &error;
+        size_t num_bits = (fill_bits >= BYTE_WIDTH) ? BYTE_WIDTH : fill_bits;
+        read_bits(bytes, num_bits, pstate);
+        if (pstate->pu.error) return;
+        fill_bits -= num_bits;
     }
+
+    // If we got all the way here, update our last successful parse position
+    pstate->pu.bitPos0b = end_bitPos0b;
 }
 
 // Check for any data left over after end of parse
@@ -601,7 +574,7 @@ void
 no_leftover_data(PState *pstate)
 {
     // Skip the check if we already have an error
-    if (!pstate->error)
+    if (!pstate->pu.error)
     {
         // Check for any unread bits left in pstate's fragment byte
         if (pstate->numUnreadBits)
@@ -609,18 +582,18 @@ no_leftover_data(PState *pstate)
             // We have some unread bits remaining, so report leftover data
             static Error error = {ERR_LEFTOVER_DATA, {0}};
             error.arg.c = pstate->numUnreadBits;
-            pstate->error = &error;
+            pstate->pu.error = &error;
         }
         else
         {
             // Check for any unread bytes left in input stream
-            int c = fgetc(pstate->stream);
+            int c = fgetc(pstate->pu.stream);
             if (c != EOF)
             {
                 // We have some unread bytes remaining, so report leftover data
                 static Error error = {ERR_LEFTOVER_DATA, {0}};
                 error.arg.c = BYTE_WIDTH;
-                pstate->error = &error;
+                pstate->pu.error = &error;
             }
         }
     }

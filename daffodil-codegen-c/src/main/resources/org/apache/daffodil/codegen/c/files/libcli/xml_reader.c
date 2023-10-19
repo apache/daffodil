@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+// auto-maintained by iwyu
 // clang-format off
 #include "xml_reader.h"
 #include <assert.h>      // for assert
@@ -272,7 +273,7 @@ strtohexbinary(const char *text, HexBinary *hexBinary)
         memset(hexBinary->array, 0, hexBinary->lengthInBytes);
         for (size_t i = 0; i < numNibbles; i++)
         {
-            char    c = text[i];
+            char c = text[i];
             uint8_t value = 0;
 
             // Check whether c is valid hexadecimal character
@@ -441,8 +442,8 @@ xmlSimpleElem(XMLReader *reader, const ERD *erd, void *valueptr)
         {
             // Check for any errors calling strtonum or strtounum
             const Error *error = NULL;
-            intmax_t     num = 0;
-            uintmax_t    unum = 0;
+            intmax_t num = 0;
+            uintmax_t unum = 0;
 
             // Handle various types of values
             const enum TypeCode typeCode = erd->typeCode;

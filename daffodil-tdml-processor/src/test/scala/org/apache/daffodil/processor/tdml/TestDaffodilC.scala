@@ -67,6 +67,15 @@ class TestDaffodilC {
     </xs:element>,
   )
 
+  // Checks that test schema compiles successfully without warnings
+  @Test def test_compileNode(): Unit = {
+    val pf = Compiler().compileNode(testSchema)
+    assert(
+      !pf.isError && pf.getDiagnostics.isEmpty,
+      pf.getDiagnostics.map(_.getMessage()).mkString("\n"),
+    )
+  }
+
   // Checks that processorFactory.forLanguage("c") succeeds
   @Test def test_forLanguage_success(): Unit = {
     // Create a ProcessorFactory from the test schema
@@ -191,11 +200,11 @@ class TestDaffodilC {
     val executable = cg.compileCode(codeDir)
 
     // Create a DaffodilCTDMLDFDLProcessor and unparse a binary int32 number unsuccessfully
-    val dp = new DaffodilCTDMLDFDLProcessor(executable)
+    val tdp = new DaffodilCTDMLDFDLProcessor(executable)
     val infosetXML = <e1 xmlns="http://example.com"><x>FAIL</x></e1>
     val output = new ByteArrayOutputStream()
-    val ur = dp.unparse(infosetXML, output)
-    assert(ur.isProcessingError, "expected ur.isError to be true")
+    val ur = tdp.unparse(infosetXML, output)
+    assert(ur.isProcessingError, "expected ur.isProcessingError to be true")
     assert(ur.getDiagnostics.nonEmpty, "expected ur.getDiagnostics to be non-empty")
   }
 
