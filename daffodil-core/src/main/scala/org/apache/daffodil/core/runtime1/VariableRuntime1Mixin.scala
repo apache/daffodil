@@ -46,6 +46,7 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
       this.namedQName.asInstanceOf[GlobalQName],
       this.primType,
       this.tunable.unqualifiedPathStepPolicy,
+      this.schemaSet.allDefinedVariables.indexOf(this),
     )
     vrd
   }
@@ -97,6 +98,7 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
       defv.namedQName.asInstanceOf[GlobalQName],
       defv.primType,
       this.tunable.unqualifiedPathStepPolicy,
+      this.schemaSet.allDefinedVariables.indexOf(defv),
     )
     vrd
   }

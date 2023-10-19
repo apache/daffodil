@@ -571,12 +571,9 @@ final class SchemaSet private (
     Seq(encDFV, boDFV, binDFV, outDFV)
   }
 
-  lazy val allDefinedVariables = schemas.flatMap {
-    _.defineVariables
-  }
-  lazy val allExternalVariables = allDefinedVariables.filter {
-    _.external
-  }
+  lazy val allDefinedVariables = schemas
+    .flatMap(_.defineVariables)
+    .union(predefinedVars)
 
   private lazy val checkUnusedProperties = LV('hasUnusedProperties) {
     root.checkUnusedProperties

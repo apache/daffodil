@@ -980,6 +980,7 @@ final class VariableRuntimeData(
   val globalQName: GlobalQName,
   val primType: NodeInfo.PrimType,
   unqualifiedPathStepPolicyArg: UnqualifiedPathStepPolicy,
+  val vmapIndex: Int,
 ) extends NonTermRuntimeData(
     null, // no variable map
     schemaFileLocationArg,

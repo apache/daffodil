@@ -2754,5 +2754,30 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="backwardsDefines">
+    <!--
+      Daffodil evaluates variable defaults in the order the variables are
+      defined. This schema ensures that variable defaults that reference later
+      defined variables still works, i.e. defineVariable order does not matter
+    -->
+    <dfdl:defineVariable name="three" type="xs:int" defaultValue="{ $two + 1 }" />
+    <dfdl:defineVariable name="two" type="xs:int" defaultValue="{ $one + 1 }" />
+    <dfdl:defineVariable name="one" type="xs:int" defaultValue="1" />
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+
+    <xs:element name="three" type="xs:int" dfdl:inputValueCalc="{ $three }" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="backwardsDefines_01" root="three" model="backwardsDefines">
+    <tdml:document></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <three>3</three>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
