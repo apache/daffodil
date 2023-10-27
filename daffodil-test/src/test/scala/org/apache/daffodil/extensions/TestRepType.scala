@@ -107,4 +107,12 @@ class TestRepType {
   @Test def test_repType_different_namespaces_01(): Unit = {
     runner.runOneTest("repType_different_namespaces_01")
   }
+
+  @Test def test_repValuesWithSpaces_01(): Unit = {
+    runner.runOneTest("repValuesWithSpaces_01")
+  }
+
+  @Test def test_repValuesWithSpaces_02(): Unit = {
+    runner.runOneTest("repValuesWithSpaces_02")
+  }
 }

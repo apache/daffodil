@@ -55,8 +55,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error><!-- at runtime -->
-      <tdml:error>The property 'separator'</tdml:error>
-      <tdml:error>U+000a</tdml:error>
+      <tdml:error>Property separator cannot be empty string</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -53,7 +53,9 @@ object NilValueLiteralValueBinaryCooker
 
 object NilValueLiteralValueTextCooker extends NonEmptyListOfStringLiteral("nilValue", true)
 
-object NilValueRawListCooker extends ListOfStringLiteral("nilValue", true)
+object NilValueRawListCooker
+  extends ListOfStringLiteral("nilValue", true)
+  with ListOfStringOneOrMoreLiteral
 
 object EscapeCharacterCooker extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
 
@@ -79,6 +81,7 @@ object SeparatorCooker extends DelimiterCookerNoES("separator")
 
 object TextStandardDecimalSeparatorCooker
   extends ListOfSingleCharacterLiteralNoCharClassEntitiesNoByteEntities()
+  with ListOfStringOneOrMoreLiteral
 
 object TextStandardGroupingSeparatorCooker
   extends SingleCharacterLiteralNoCharClassEntitiesNoByteEntities()

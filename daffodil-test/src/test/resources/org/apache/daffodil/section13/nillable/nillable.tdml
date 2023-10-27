@@ -229,13 +229,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>nillable</tdml:error>
-      <tdml:error>complex</tdml:error>
-      <tdml:error>elements</tdml:error>
-      <tdml:error>only</tdml:error>
-      <tdml:error>ES</tdml:error>
       <tdml:error>nilValue</tdml:error>
-      <tdml:error>property</tdml:error>
+      <tdml:error>cannot be empty</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

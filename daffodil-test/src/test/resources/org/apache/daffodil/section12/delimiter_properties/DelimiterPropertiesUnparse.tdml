@@ -342,7 +342,7 @@
       Test Name: unparseSeparatorLeadingSpace
       Schema: delimitedStrings
       Root: e15
-      Purpose: This test demonstrates the scenario where the list of separators has a leading space
+      Purpose: This test demonstrates the scenario where the list of separators has a leading space, the leading space should be ignored
 -->
 
   <tdml:unparserTestCase name="unparseSeparatorLeadingSpace" model="delimitedStrings" root="e15" roundTrip="true">
@@ -354,11 +354,7 @@
         </ex:e15>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-    </tdml:errors>
-
+    <tdml:document>,apple+.|banana1</tdml:document>
   </tdml:unparserTestCase>
 
 <!--
