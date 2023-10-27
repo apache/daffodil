@@ -61,7 +61,7 @@ trait RepTypeMixin { self: ElementBase =>
     hasRT
   }.value
 
-  private lazy val repTypeGSTD: GlobalSimpleTypeDef = LV('prefixLengthTypeGSTD) {
+  private lazy val repTypeGSTD: GlobalSimpleTypeDef = LV('repTypeGSTD) {
     // throws an SDE if the simple type def is not found or if it is not a simple type (e.g. a
     // primitive type)
     val gstd = schemaSet.getGlobalSimpleTypeDefNoPrim(repType, "dfdlx:repType", this)
@@ -75,11 +75,18 @@ trait RepTypeMixin { self: ElementBase =>
   }.value
 
   lazy val repTypeElementDecl: RepTypeQuasiElementDecl = LV('repTypeElementDecl) {
+    // this quasi element must use the in-scope namespaces from where the repType property was
+    // defined, which isn't necessarily the same as the in-scope namespaces on this element,
+    // since the repType property could be defined on a simpleType in another file with
+    // completely different namesapce prefixes. This information is available on the Found
+    // class, but the generated property code does not make that available for repType, so we
+    // must manually do a lookup here.
+    val repTypeNamespaces = findProperty("repType").location.namespaces
     val xmlElem = Elem(
       null,
       "QuasiElementForRepType",
       new UnprefixedAttribute("type", repType.toString, Null),
-      namespaces,
+      repTypeNamespaces,
       true,
     )
     RepTypeQuasiElementDecl(xmlElem, repTypeGSTD)

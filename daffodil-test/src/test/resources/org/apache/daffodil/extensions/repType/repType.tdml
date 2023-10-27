@@ -921,4 +921,15 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="repType_different_namespaces_01" model="repType_01_a.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <a:value xmlns:a="http://example.com">one</a:value>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

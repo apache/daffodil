@@ -103,4 +103,8 @@ class TestRepType {
   @Test def test_repType_hiddenGroup_01(): Unit = {
     runner.runOneTest("repType_hiddenGroup_01")
   }
+
+  @Test def test_repType_different_namespaces_01(): Unit = {
+    runner.runOneTest("repType_different_namespaces_01")
+  }
 }
