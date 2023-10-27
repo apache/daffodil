@@ -69,6 +69,16 @@
       </xs:restriction>
     </xs:simpleType>
 
+    <xs:element name="repValuesWithSpaces" dfdlx:repType="tns:uint8">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="zero" dfdlx:repValues="  0  " />
+          <xs:enumeration value="one" dfdlx:repValues="  1  " />
+          <xs:enumeration value="more" dfdlx:repValues="  2   3   4  " dfdlx:repValueRanges="  5   100  101  200  " />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="repType_keysetValue_00"
@@ -196,6 +206,29 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="repValuesWithSpaces_01" root="repValuesWithSpaces" model="repType-Embedded.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <repValuesWithSpaces>one</repValuesWithSpaces>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repValuesWithSpaces_02" root="repValuesWithSpaces" model="repType-Embedded.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte">02</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <repValuesWithSpaces>more</repValuesWithSpaces>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 
   <tdml:defineSchema name="repType-Inherited.dfdl.xsd">
 

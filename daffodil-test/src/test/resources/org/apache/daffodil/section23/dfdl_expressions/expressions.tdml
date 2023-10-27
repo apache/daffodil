@@ -1493,9 +1493,8 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="value" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="{'
-3
-2
-1
+321
+blastoff
 ' }"/>
         </xs:sequence>
       </xs:complexType>
@@ -1956,20 +1955,20 @@
 <!--
      Test Name: internal_space_preserved4
         Schema: expressions-Embedded.dfdl.xsd
-       Purpose: This test demonstrates that in order to use newlines in an expression and
-                have them preserved, one must use dfdl:property.
+       Purpose: This test demonstrates that in multiple spaces are allowed using dfdl:property
 -->
   
   <tdml:parserTestCase name="internal_space_preserved4" root="expr_space5b"
     model="expressions-Embedded.dfdl.xsd" description="">
 
     <tdml:document><![CDATA[1blastoff]]></tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>property 'initiator'</tdml:error>
-      <tdml:error>cannot start or end with the string</tdml:error>
-      <tdml:error>U+0020</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expr_space5b>
+          <value>blastoff</value>
+        </expr_space5b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
@@ -2001,7 +2000,7 @@
      Test Name: internal_space_not_preserved2
         Schema: expressions-Embedded.dfdl.xsd
        Purpose: This test demonstrates that when expressions appear in attribute values
-       as in short form dfdl:inputValueCalc, that newlines are not preserved.
+       as in short form dfdl:inputValueCalc, that newlines are not preserved and are treated as spaces.
        This is unavoidable in XML. One must use dfdl:property for expressions where
        whitespace is significant.
 -->
@@ -2010,12 +2009,13 @@
     model="expressions-Embedded.dfdl.xsd" description="">
 
     <tdml:document><![CDATA[321blastoff]]></tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>property 'initiator'</tdml:error>
-      <tdml:error>cannot start or end with the string</tdml:error>
-      <tdml:error>U+0020</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expr_space5>
+          <value>blastoff</value>
+        </expr_space5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="expression-type-errors.dfdl.xsd">

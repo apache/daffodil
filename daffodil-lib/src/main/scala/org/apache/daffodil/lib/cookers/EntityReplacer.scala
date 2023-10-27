@@ -722,20 +722,9 @@ sealed abstract class ListOfStringLiteralBase(
   private lazy val olc = oneLiteralCooker
 
   protected def cook(raw: String, context: ThrowsSDE, forUnparse: Boolean): List[String] = {
-    if (raw.length != 0 && (raw.head.isWhitespace || raw.last.isWhitespace)) {
-      val ws = if (raw.head.isWhitespace) raw.head else raw.last
-      val wsVisible = Misc.remapCodepointToVisibleGlyph(ws.toChar).toChar
-      val hexCodePoint = "%04x".format(ws.toInt)
-      context.SDE(
-        "The property '%s' cannot start or end with the string \"%s\"(Unicode hex code point U+%s), or consist entirely of whitespace."
-          + "\nDid you mean to use character entities like '%%SP;' or '%%NL;' to indicate whitespace in the data format instead?",
-        propName,
-        wsVisible,
-        hexCodePoint,
-      )
-    }
 
-    val rawList = raw.split("\\s+").toList
+    // ignore leading, trailing, and repeating whitespae
+    val rawList = raw.split("\\s").filterNot(_ == "").toList
 
     val cooked = {
       val cookedList: ListBuffer[String] = ListBuffer.empty
@@ -774,18 +763,15 @@ class NonEmptyListOfStringLiteral(pn: String, allowByteEntities: Boolean)
 
   override def testCooked(cookedList: List[String], context: ThrowsSDE) = {
     context.schemaDefinitionUnless(
-      cookedList.exists { _.length > 0 },
-      "Property dfdl:%s cannot be empty string. Use dfdl:nilValue='%%ES;' for empty string as nil value.",
+      cookedList.length > 0,
+      "Property dfdl:%s cannot be empty string. Use dfdl:%s='%%ES;' for empty string.",
+      propName,
       propName,
     )
   }
 }
 
-class ListOfString1OrMoreLiteral(pn: String, allowByteEntities: Boolean)
-  extends ListOfStringLiteralBase(pn, allowByteEntities) {
-
-  override protected val oneLiteralCooker: StringLiteralBase =
-    new StringLiteral(propName, allowByteEntities)
+trait ListOfStringOneOrMoreLiteral { self: ListOfStringLiteralBase =>
 
   override protected def testCooked(cooked: List[String], context: ThrowsSDE): Unit = {
     context.schemaDefinitionUnless(
@@ -889,16 +875,17 @@ class NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities(pn: String)
 
   override def testCooked(cookedList: List[String], context: ThrowsSDE) = {
     context.schemaDefinitionUnless(
-      cookedList.exists { _.length > 0 },
-      "Property dfdl:%s cannot be empty string. Use dfdl:nilValue='%%ES;' for empty string as nil value.",
+      cookedList.length > 0,
+      "Property dfdl:%s cannot be empty string. Use dfdl:%s='%%ES;' for empty string.",
+      propName,
       propName,
     )
   }
 }
 
-class DelimiterCookerNoES(pn: String) extends ListOfString1OrMoreLiteral(pn, true) {
+class DelimiterCookerNoES(pn: String) extends DelimiterCooker(pn) {
 
-  override val oneLiteralCooker: StringLiteralBase =
+  override def oneDelimiterLiteralCooker: StringLiteralBase =
     new StringLiteralNoCharClassEntities(propName, true) with DisallowedCharClassEntitiesMixin {
 
       // Disallow "%ES" in the string raw. Disallow "%WSP*" when it is
@@ -915,9 +902,9 @@ class DelimiterCookerNoES(pn: String) extends ListOfString1OrMoreLiteral(pn, tru
     }
 }
 
-class DelimiterCookerNoSoleES(pn: String) extends ListOfString1OrMoreLiteral(pn, true) {
+class DelimiterCookerNoSoleES(pn: String) extends DelimiterCooker(pn) {
 
-  override val oneLiteralCooker: StringLiteralBase =
+  override def oneDelimiterLiteralCooker: StringLiteralBase =
     new StringLiteralBase(propName, true) {
 
       override def testRaw(raw: String, context: ThrowsSDE): Unit = {
@@ -937,8 +924,18 @@ class DelimiterCookerNoSoleES(pn: String) extends ListOfString1OrMoreLiteral(pn,
 }
 
 class DelimiterCooker(pn: String) extends ListOfStringLiteralBase(pn, true) {
-  private val constantCooker = new ListOfStringLiteral(propName, true) // zero length allowed
-  private val runtimeCooker = new ListOfString1OrMoreLiteral(propName, true)
+
+  def oneDelimiterLiteralCooker: StringLiteralBase = new StringLiteral(pn, true)
+
+  // zero length allowed for constants
+  private val constantCooker = new ListOfStringLiteral(propName, true) {
+    override val oneLiteralCooker = oneDelimiterLiteralCooker
+  }
+
+  private val runtimeCooker = new ListOfStringLiteral(propName, true)
+    with ListOfStringOneOrMoreLiteral {
+    override val oneLiteralCooker = oneDelimiterLiteralCooker
+  }
 
   override def convertRuntime(
     b: String,
