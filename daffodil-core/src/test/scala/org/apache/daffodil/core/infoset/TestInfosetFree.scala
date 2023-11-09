@@ -87,7 +87,7 @@ object TestInfosetFree {
 
     def docToXML(doc: DIDocument): scala.xml.Node = {
       val detailedOutputter =
-        new ScalaXMLInfosetOutputter(showFormatInfo = false, showFreedInfo = true)
+        new ScalaXMLInfosetOutputter(showFreedInfo = true)
 
       val infosetWalker = InfosetWalker(
         doc,

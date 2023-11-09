@@ -21,7 +21,11 @@ import java.nio.charset.StandardCharsets
 
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.util.MStackOfBoolean
-import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.api.PrimitiveType
 
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 
@@ -52,7 +56,7 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
   // starting a newline, and adding indenting for whatever ends up coming after
   // it
   private def startNode(): Unit = {
-    if (isFirstChildStack.top == true) {
+    if (isFirstChildStack.top) {
       // the first child does not need a comma before it, but all following children will
       isFirstChildStack.pop()
       isFirstChildStack.push(false)
@@ -64,12 +68,12 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
   }
 
   // handles logic for printing the name of a simple or complex element
-  private def startElement(element: DIElement): Unit = {
-    if (!element.erd.isArray) {
+  private def startElement(element: InfosetElement): Unit = {
+    if (!element.metadata.isArray) {
       // Only write the name if this is not an array of simple/complex types.
       // If it is an array, the name is written in startArray
       writer.write('"')
-      writer.write(element.erd.name)
+      writer.write(element.metadata.name)
       writer.write("\": ")
     }
   }
@@ -92,17 +96,17 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
     if (pretty) outputIndentation(writer)
   }
 
-  override def startSimple(simple: DISimple): Unit = {
+  override def startSimple(simple: InfosetSimpleElement): Unit = {
     startNode()
     startElement(simple)
-    if (!isNilled(simple) && simple.hasValue) {
+    if (!simple.isNilled) {
       val text =
-        if (simple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
+        if (simple.metadata.primitiveType == PrimitiveType.String) {
           new String(
-            stringEncoder.quoteAsString(simple.dataValueAsString),
+            stringEncoder.quoteAsString(simple.getText),
           ) // escapes according to Json spec
         } else {
-          simple.dataValueAsString
+          simple.getText
         }
       writer.write('"')
       writer.write(text)
@@ -112,14 +116,14 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
     }
   }
 
-  override def endSimple(simple: DISimple): Unit = {
+  override def endSimple(se: InfosetSimpleElement): Unit = {
     // nothing to do
   }
 
-  override def startComplex(complex: DIComplex): Unit = {
+  override def startComplex(complex: InfosetComplexElement): Unit = {
     startNode()
     startElement(complex)
-    if (!isNilled(complex)) {
+    if (!complex.isNilled) {
       writer.write('{')
       prepareForChildren()
     } else {
@@ -127,8 +131,8 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
     }
   }
 
-  override def endComplex(complex: DIComplex): Unit = {
-    if (!isNilled(complex)) {
+  override def endComplex(complex: InfosetComplexElement): Unit = {
+    if (!complex.isNilled) {
       endNodeWithChildren()
       writer.write('}')
     } else {
@@ -136,15 +140,15 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
     }
   }
 
-  override def startArray(array: DIArray): Unit = {
+  override def startArray(array: InfosetArray): Unit = {
     startNode()
     writer.write('"')
-    writer.write(array.erd.name)
+    writer.write(array.metadata.name)
     writer.write("\": [")
     prepareForChildren()
   }
 
-  override def endArray(array: DIArray): Unit = {
+  override def endArray(array: InfosetArray): Unit = {
     endNodeWithChildren()
     writer.write(']')
   }

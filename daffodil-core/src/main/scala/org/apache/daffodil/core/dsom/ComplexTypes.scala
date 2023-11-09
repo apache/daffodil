@@ -56,7 +56,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
 
   private lazy val smg = {
     childrenForTerms.map { xmlChild =>
-      ModelGroupFactory(xmlChild, this, 1, false)
+      ModelGroupFactory(xmlChild, this, 1, isHidden = false)
     }
   }
 

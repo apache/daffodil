@@ -168,7 +168,7 @@ abstract class UState(
     Assert.invariant(Maybe.WithNulls.isDefined(currentInfosetNode))
     currentInfosetNode match {
       case a: DIArray => {
-        a.getOccurrence(arrayIterationPos)
+        a(arrayIterationPos)
       }
       case e: DIElement => thisElement
     }

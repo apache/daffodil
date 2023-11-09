@@ -23,6 +23,10 @@ import javax.xml.stream.XMLStreamConstants._
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Indentable
+import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 /**
@@ -41,8 +45,7 @@ class XMLTextInfosetOutputter private (
   xmlTextEscapeStyle: XMLTextEscapeStyle.Value,
   minimal: Boolean,
 ) extends InfosetOutputter
-  with Indentable
-  with XMLInfosetOutputter {
+  with Indentable {
 
   def this(
     os: java.io.OutputStream,
@@ -105,7 +108,7 @@ class XMLTextInfosetOutputter private (
       }
     }
 
-    if (isNilled(elem)) {
+    if (elem.isNilled) {
       writer.write(" xsi:nil=\"true\"")
     }
 
@@ -171,20 +174,21 @@ class XMLTextInfosetOutputter private (
     }
   }
 
-  override def startSimple(simple: DISimple): Unit = {
+  override def startSimple(se: InfosetSimpleElement): Unit = {
+    val simple = se.asInstanceOf[DISimple]
     if (pretty) {
       writer.write(System.lineSeparator())
       outputIndentation(writer)
     }
     outputStartTag(simple)
 
-    if (!isNilled(simple) && simple.hasValue) {
+    if (simple.hasValue) {
       if (simple.erd.optPrimType.get == NodeInfo.String) {
         val simpleVal = simple.dataValueAsString
         if (simple.erd.runtimeProperties.get(XMLTextInfoset.stringAsXml) == "true") {
           writeStringAsXml(simpleVal)
         } else {
-          val xmlSafe = remapped(simpleVal)
+          val xmlSafe = XMLUtils.remapXMLIllegalCharactersToPUA(simpleVal)
           val escaped = xmlTextEscapeStyle match {
             case XMLTextEscapeStyle.CDATA => {
               val needsCDataEscape = xmlSafe.exists { c =>
@@ -209,11 +213,12 @@ class XMLTextInfosetOutputter private (
     inScopeComplexElementHasChildren = true
   }
 
-  override def endSimple(simple: DISimple): Unit = {
+  override def endSimple(simple: InfosetSimpleElement): Unit = {
     // do nothing, everything is done in startSimple
   }
 
-  override def startComplex(complex: DIComplex): Unit = {
+  override def startComplex(ce: InfosetComplexElement): Unit = {
+    val complex = ce.asInstanceOf[DIComplex]
     if (pretty) {
       writer.write(System.lineSeparator())
       outputIndentation(writer)
@@ -223,7 +228,8 @@ class XMLTextInfosetOutputter private (
     inScopeComplexElementHasChildren = false
   }
 
-  override def endComplex(complex: DIComplex): Unit = {
+  override def endComplex(ce: InfosetComplexElement): Unit = {
+    val complex = ce.asInstanceOf[DIComplex]
     decrementIndentation()
     if (pretty && inScopeComplexElementHasChildren) {
       // only output newline and indentation for non-empty complex types
@@ -234,11 +240,11 @@ class XMLTextInfosetOutputter private (
     inScopeComplexElementHasChildren = true
   }
 
-  override def startArray(array: DIArray): Unit = {
+  override def startArray(array: InfosetArray): Unit = {
     // do nothing
   }
 
-  override def endArray(array: DIArray): Unit = {
+  override def endArray(array: InfosetArray): Unit = {
     // do nothing
   }
 

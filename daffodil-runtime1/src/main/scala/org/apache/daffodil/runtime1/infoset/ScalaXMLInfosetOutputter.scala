@@ -26,11 +26,13 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.api.PrimitiveType
 
-class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: Boolean = false)
-  extends InfosetOutputter
-  with XMLInfosetOutputter {
+class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOutputter {
 
   protected val stack = new MStackOf[ListBuffer[scala.xml.Node]]
   private var resultNode: Maybe[scala.xml.Node] = Maybe.Nope
@@ -52,13 +54,18 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
   }
 
   private def getAttributes(diElem: DIElement): MetaData = {
-    val nilAttr = if (isNilled(diElem)) XMLUtils.xmlNilAttribute else Null
+    val nilAttr = if (diElem.isNilled) XMLUtils.xmlNilAttribute else Null
     val freedAttr =
       if (showFreedInfo) {
         val selfFreed = diElem.wouldHaveBeenFreed
         val arrayFreed =
           if (diElem.erd.isArray)
-            diElem.diParent.children.find { _.erd eq diElem.erd }.get.wouldHaveBeenFreed
+            diElem.diParent.children
+              .find {
+                _.erd eq diElem.erd
+              }
+              .get
+              .wouldHaveBeenFreed
           else false
         if (selfFreed || arrayFreed) {
           val freedAttrVal =
@@ -75,15 +82,15 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
     freedAttr
   }
 
-  def startSimple(diSimple: DISimple): Unit = {
-
+  override def startSimple(se: InfosetSimpleElement): Unit = {
+    val diSimple = se.asInstanceOf[DISimple]
     val attributes = getAttributes(diSimple)
 
     val children =
       if (!isNilled(diSimple) && diSimple.hasValue) {
         val text =
-          if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
-            remapped(diSimple.dataValueAsString)
+          if (diSimple.metadata.primitiveType == PrimitiveType.String) {
+            XMLUtils.remapXMLIllegalCharactersToPUA(diSimple.dataValueAsString)
           } else {
             diSimple.dataValueAsString
           }
@@ -94,47 +101,46 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
 
     val elem =
       scala.xml.Elem(
-        diSimple.erd.prefix,
-        diSimple.erd.name,
+        diSimple.metadata.prefix,
+        diSimple.metadata.name,
         attributes,
-        diSimple.erd.minimizedScope,
+        diSimple.metadata.minimizedScope,
         minimizeEmpty = true,
         children: _*,
       )
 
-    val elemWithFmt = addFmtInfo(diSimple, elem, showFormatInfo)
-    stack.top.append(elemWithFmt)
+    stack.top.append(elem)
   }
 
-  def endSimple(diSimple: DISimple): Unit = {}
+  override def endSimple(se: InfosetSimpleElement): Unit = {}
 
-  def startComplex(diComplex: DIComplex): Unit = {
+  override def startComplex(ce: InfosetComplexElement): Unit = {
     stack.push(new ListBuffer())
   }
 
-  def endComplex(diComplex: DIComplex): Unit = {
+  override def endComplex(ce: InfosetComplexElement): Unit = {
 
+    val diComplex = ce.asInstanceOf[DIComplex]
     val attributes = getAttributes(diComplex)
     val children = stack.pop
 
     val elem =
       scala.xml.Elem(
-        diComplex.erd.prefix,
-        diComplex.erd.name,
+        diComplex.metadata.prefix,
+        diComplex.metadata.name,
         attributes,
-        diComplex.erd.minimizedScope,
+        diComplex.metadata.minimizedScope,
         minimizeEmpty = true,
         children: _*,
       )
 
-    val elemWithFmt = addFmtInfo(diComplex, elem, showFormatInfo)
-    stack.top.append(elemWithFmt)
+    stack.top.append(elem)
   }
 
-  def startArray(diArray: DIArray): Unit = {
+  override def startArray(ar: InfosetArray): Unit = {
     // Array elements are started individually
   }
-  def endArray(diArray: DIArray): Unit = {}
+  def endArray(ar: InfosetArray): Unit = {}
 
   def getResult(): scala.xml.Node = {
     Assert.usage(
@@ -142,5 +148,20 @@ class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false, showFreedInfo: B
       "No result to get. Must check isError parse result before calling getResult",
     )
     resultNode.get
+  }
+
+  /**
+   * Helper function to determine if an element is nilled or not, taking into
+   * account whether or not the nilled state has been set yet.
+   *
+   * @param elem the element to check the nilled state of
+   * @return true if the nilled state has been set and is true. false if the
+   *         nilled state is false or if the nilled state has not been set yet
+   *         (e.g. during debugging)
+   */
+  private def isNilled(elem: InfosetElement): Boolean = {
+    val diElement = elem.asInstanceOf[DIElement]
+    val maybeIsNilled = diElement.maybeIsNilled
+    maybeIsNilled.isDefined && maybeIsNilled.get == true
   }
 }

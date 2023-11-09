@@ -350,7 +350,7 @@ class DPathElementCompileInfo(
   val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,
   override val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
-  val sscd: String,
+  val shortSchemaComponentDesignator: String,
   val isOutputValueCalc: Boolean,
   val isDistinguishedRoot: Boolean,
 ) extends DPathCompileInfo(

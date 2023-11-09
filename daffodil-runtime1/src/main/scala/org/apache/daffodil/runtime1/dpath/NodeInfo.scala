@@ -27,6 +27,7 @@ import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
 import java.net.URI
 import java.net.URISyntaxException
+import scala.collection.JavaConverters._
 
 import org.apache.daffodil.lib.calendar.DFDLCalendar
 import org.apache.daffodil.lib.calendar.DFDLDateConversion
@@ -44,6 +45,8 @@ import org.apache.daffodil.lib.xml.NoNamespace
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.api
+import org.apache.daffodil.runtime1.api.PrimitiveType
 import org.apache.daffodil.runtime1.dsom.walker._
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigDecimal
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBigInt
@@ -122,7 +125,8 @@ sealed abstract class PrimTypeNode(
   parent: NodeInfo.Kind,
   childrenArg: => Seq[NodeInfo.Kind],
 ) extends TypeNode(sym, parent, childrenArg)
-  with NodeInfo.PrimType {
+  with NodeInfo.PrimType
+  with api.PrimitiveType {
 
   def this(sym: Symbol, parent: NodeInfo.Kind) = this(sym, parent, Seq(NodeInfo.Nothing))
 }
@@ -186,7 +190,7 @@ object NodeInfo extends Enum {
     /**
      * When class name is isomorphic to the type name, compute automatically.
      */
-    override def name = {
+    override lazy val name: String = {
       val cname = super.name
       val first = cname(0).toLower
       val rest = cname.substring(1)
@@ -204,6 +208,18 @@ object NodeInfo extends Enum {
   private def getTypeNode(name: String) = {
     val namelc = name.toLowerCase()
     allTypes.find(stn => stn.lcaseName == namelc)
+  }
+
+  /**
+   * For Java API use, we have a very restricted trait api.PrimitiveType
+   * mixed into PrimTypeNode, so that we can hand PrimTypeNode as result
+   * from methods callable from Java without exposing all of PrimType's
+   * implementation.
+   * @param name lookup key, case insensitive
+   * @return an api.PrimitiveType, or null if there is no type with that name.
+   */
+  def primitiveTypeFromName(name: String): PrimitiveType = {
+    allDFDLTypesLookupTable.get(name)
   }
 
   def isXDerivedFromY(nameX: String, nameY: String): Boolean = {
@@ -973,7 +989,7 @@ object NodeInfo extends Enum {
     Opaque,
     AnyDateTime,
   )
-  private lazy val allDFDLTypes = List(
+  lazy val allDFDLTypes = List(
     Float,
     Double,
     Decimal,
@@ -995,6 +1011,9 @@ object NodeInfo extends Enum {
     Time,
     DateTime,
   )
+
+  private lazy val allDFDLTypesLookupTable: java.util.Map[String, PrimitiveType] =
+    allDFDLTypes.map { p => (p.name.toLowerCase, p.asInstanceOf[PrimitiveType]) }.toMap.asJava
 
   lazy val allTypes =
     allDFDLTypes ++ List(

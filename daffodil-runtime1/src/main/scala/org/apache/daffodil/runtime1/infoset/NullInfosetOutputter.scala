@@ -17,6 +17,10 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+
 /**
  * Ignores all infoset events, outputting nothing
  */
@@ -24,14 +28,14 @@ class NullInfosetOutputter() extends InfosetOutputter {
 
   override def reset(): Unit = {}
 
-  override def startSimple(simple: DISimple): Unit = {}
-  override def endSimple(simple: DISimple): Unit = {}
+  override def startSimple(simple: InfosetSimpleElement): Unit = {}
+  override def endSimple(simple: InfosetSimpleElement): Unit = {}
 
-  override def startComplex(complex: DIComplex): Unit = {}
-  override def endComplex(complex: DIComplex): Unit = {}
+  override def startComplex(complex: InfosetComplexElement): Unit = {}
+  override def endComplex(complex: InfosetComplexElement): Unit = {}
 
-  override def startArray(array: DIArray): Unit = {}
-  override def endArray(array: DIArray): Unit = {}
+  override def startArray(array: InfosetArray): Unit = {}
+  override def endArray(array: InfosetArray): Unit = {}
 
   override def startDocument(): Unit = {}
   override def endDocument(): Unit = {}

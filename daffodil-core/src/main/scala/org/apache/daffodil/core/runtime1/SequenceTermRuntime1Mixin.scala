@@ -49,6 +49,7 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
       fillByteEv,
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv,
+      isHidden,
     )
   }
 
@@ -82,6 +83,7 @@ trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequen
       FillByteUseNotAllowedEv,
       Maybe.Nope,
       Maybe.Nope,
+      isHidden = false,
     )
   }
 

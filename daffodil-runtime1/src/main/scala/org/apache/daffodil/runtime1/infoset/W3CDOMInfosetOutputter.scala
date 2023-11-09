@@ -23,13 +23,17 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.api.PrimitiveType
 
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node;
 
-class W3CDOMInfosetOutputter extends InfosetOutputter with XMLInfosetOutputter {
+class W3CDOMInfosetOutputter extends InfosetOutputter {
 
   private var document: Document = null
   private val stack = new MStackOf[Node]
@@ -56,16 +60,16 @@ class W3CDOMInfosetOutputter extends InfosetOutputter with XMLInfosetOutputter {
     result = Maybe(root.asInstanceOf[Document])
   }
 
-  def startSimple(diSimple: DISimple): Unit = {
+  override def startSimple(se: InfosetSimpleElement): Unit = {
 
-    val elem = createElement(diSimple)
+    val elem = createElement(se)
 
-    if (diSimple.hasValue) {
+    if (!se.isNilled) {
       val text =
-        if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
-          remapped(diSimple.dataValueAsString)
+        if (se.metadata.primitiveType == PrimitiveType.String) {
+          XMLUtils.remapXMLIllegalCharactersToPUA(se.getText)
         } else {
-          diSimple.dataValueAsString
+          se.getText
         }
       elem.appendChild(document.createTextNode(text))
     }
@@ -73,21 +77,20 @@ class W3CDOMInfosetOutputter extends InfosetOutputter with XMLInfosetOutputter {
     stack.top.appendChild(elem)
   }
 
-  def endSimple(diSimple: DISimple): Unit = {}
+  override def endSimple(se: InfosetSimpleElement): Unit = {}
 
-  def startComplex(diComplex: DIComplex): Unit = {
-
+  override def startComplex(diComplex: InfosetComplexElement): Unit = {
     val elem = createElement(diComplex)
     stack.top.appendChild(elem)
     stack.push(elem)
   }
 
-  def endComplex(diComplex: DIComplex): Unit = {
+  override def endComplex(ce: InfosetComplexElement): Unit = {
     stack.pop
   }
 
-  def startArray(diArray: DIArray): Unit = {}
-  def endArray(diArray: DIArray): Unit = {}
+  override def startArray(ar: InfosetArray): Unit = {}
+  def endArray(ar: InfosetArray): Unit = {}
 
   def getResult(): Document = {
     Assert.usage(
@@ -97,18 +100,21 @@ class W3CDOMInfosetOutputter extends InfosetOutputter with XMLInfosetOutputter {
     result.get
   }
 
-  private def createElement(diElement: DIElement): Element = {
+  private def createElement(ie: InfosetElement): Element = {
 
     assert(document != null)
 
     val elem: Element =
-      if (diElement.erd.namedQName.namespace.isNoNamespace) {
-        document.createElementNS(null, diElement.erd.name)
+      if (ie.metadata.namespace eq null) {
+        document.createElementNS(null, ie.metadata.name)
       } else {
-        document.createElementNS(diElement.erd.namedQName.namespace, diElement.erd.prefixedName)
+        document.createElementNS(
+          ie.metadata.namespace,
+          ie.metadata.toQName,
+        )
       }
 
-    if (isNilled(diElement)) {
+    if (ie.isNilled) {
       elem.setAttributeNS(XMLUtils.XSI_NAMESPACE.toString, "xsi:nil", "true")
     }
 

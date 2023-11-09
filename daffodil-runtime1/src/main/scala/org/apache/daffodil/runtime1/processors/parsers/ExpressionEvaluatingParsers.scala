@@ -25,7 +25,6 @@ import org.apache.daffodil.runtime1.dpath.ParserNonBlocking
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
-import org.apache.daffodil.runtime1.infoset.InfosetSimpleElement
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Failure
 import org.apache.daffodil.runtime1.processors.RuntimeData
@@ -61,7 +60,7 @@ class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
 
   def parse(start: PState): Unit = {
     Logger.log.debug(s"This is ${toString}")
-    val currentElement: InfosetSimpleElement = start.simpleElement
+    val currentElement = start.simpleElement
     val res = eval(start)
     currentElement.setDataValue(res)
     if (start.processorStatus ne Success) return

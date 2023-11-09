@@ -29,6 +29,8 @@ import java.util.zip.GZIPOutputStream
 
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.api.Diagnostic
+import org.apache.daffodil.runtime1.api.MetadataHandler
+import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.layers.LayerExecutionException
 
 object INoWarn4 {
@@ -65,7 +67,6 @@ import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.InfosetException
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
-import org.apache.daffodil.runtime1.infoset.InfosetOutputter
 import org.apache.daffodil.runtime1.infoset.TeeInfosetOutputter
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.runtime1.processors.parsers.PState
@@ -333,6 +334,11 @@ class DataProcessor(
       }
     }
     oos.close()
+  }
+
+  def walkMetadata(handler: MetadataHandler): Unit = {
+    val walker = new MetadataWalker(this)
+    walker.walk(handler)
   }
 
   /**

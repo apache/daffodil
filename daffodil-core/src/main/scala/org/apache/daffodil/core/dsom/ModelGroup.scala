@@ -147,7 +147,8 @@ object TermFactory {
           case Some(_) => ElementRef(child, lexicalParent, position)
         }
       }
-      case _ => ModelGroupFactory(child, lexicalParent, position, false, nodesAlreadyTrying)
+      case _ =>
+        ModelGroupFactory(child, lexicalParent, position, isHidden = false, nodesAlreadyTrying)
     }
     childTerm
   }
