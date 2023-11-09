@@ -154,8 +154,10 @@ class TestUnicodeErrorTolerance {
    * is presented to the encoder.
    */
   @Test def testUTF8Encode3ByteSurrogateReplacement(): Unit = {
-    val s = "\ud800"
-    val act = replaceBadCharactersEncoding(s)
+    // scalafmt detects invalid surrogate pairs in unicode literals, so we can't use them like
+    // we do for other tests--we must manually create the surrogate chars and append to a string
+    val s = 0xd800.toChar
+    val act = replaceBadCharactersEncoding("" + s)
     val exp = Array[Int](0xef, 0xbf, 0xbd) // the 3-byte UTF-8 replacement sequence
     // which is just the UTF-8 encoding of the Unicode replacement character U+FFFD.
     for ((e, a) <- exp.zip(act)) {
