@@ -53,8 +53,8 @@ case object UpMove extends RecipeOp {
 case object UpMoveArray extends RecipeOp {
   override def run(dstate: DState): Unit = {
     val now = dstate.currentElement
-    Assert.invariant(now.toParent.array.isDefined)
-    val n = now.toParent.array.get
+    Assert.invariant(now.toParent.maybeArray.isDefined)
+    val n = now.toParent.maybeArray.get
     dstate.setCurrentNode(n.asInstanceOf[DIArray])
   }
 }
@@ -102,7 +102,7 @@ case class DownArrayOccurrence(nqn: NamedQName, indexRecipe: CompiledDPath)
       savedCurrentElement.getChildArray(childArrayElementERD, dstate.tunable),
     )
     val occurrence =
-      dstate.withRetryIfBlocking(arr.getOccurrence(index)) // will throw on out of bounds
+      dstate.withRetryIfBlocking(arr(index)) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
 

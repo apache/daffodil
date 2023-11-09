@@ -49,6 +49,7 @@ import org.apache.daffodil.runtime1.api.DFDL.{
 import org.apache.daffodil.runtime1.api.DFDL.{
   DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException,
 }
+import org.apache.daffodil.runtime1.api.MetadataHandler
 import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.runtime1.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
@@ -167,7 +168,7 @@ class Compiler private[japi] (private var sCompiler: SCompiler) {
   def compileSource(uri: URI, rootName: String, rootNamespace: String): ProcessorFactory = {
     val source = URISchemaSource(uri)
     val pf = sCompiler.compileSource(source, Option(rootName), Option(rootNamespace))
-    new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
+    new ProcessorFactory(pf)
   }
 
   /**
@@ -513,6 +514,20 @@ class DataProcessor private[japi] (private var dp: SDataProcessor)
    * @param output the byte channel to write the [[DataProcessor]] to
    */
   def save(output: WritableByteChannel): Unit = dp.save(output)
+
+  /**
+   * Walks the handler over the runtime [[org.apache.daffodil.runtime1.api.Metadata]] structures.
+   * These provide information about name, namespace, type, simple/complex, etc.
+   *
+   * This is used to interface Daffodil runtime1 metadata to the metadata structures
+   * of other software systems.
+   *
+   * See [[org.apache.daffodil.runtime1.api.MetadataHandler]] for more motivating materials about
+   * runtime1 metadata walking.
+   *
+   * @param handler - the handler is called-back during the walk as each metadata structure is encountered.
+   */
+  def walkMetadata(handler: MetadataHandler): Unit = dp.walkMetadata(handler)
 
   /**
    *  Obtain a new [[DaffodilParseXMLReader]] from the current [[DataProcessor]].

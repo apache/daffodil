@@ -96,6 +96,7 @@ object SchemaUtils {
     defaultNamespace: NS = XMLUtils.targetNS,
     elementFormDefault: String = "qualified",
     useDefaultNamespace: Boolean = true,
+    useTNS: Boolean = true,
   ): Elem = {
     val fileAttrib =
       if (fileName == "") Null
@@ -115,7 +116,8 @@ object SchemaUtils {
     if (useDefaultNamespace) {
       scope = XMLUtils.combineScopes(null, defaultNamespace, scope)
     }
-    scope = XMLUtils.combineScopes("tns", targetNamespace, scope)
+    if (useTNS)
+      scope = XMLUtils.combineScopes("tns", targetNamespace, scope)
     scope = XMLUtils.combineScopes("ex", targetNamespace, scope)
     scope = XMLUtils.combineScopes("dfdlx", XMLUtils.DFDLX_NAMESPACE, scope)
 

@@ -19,12 +19,10 @@ package org.apache.daffodil.sapi.infoset
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MaybeBoolean
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.infoset.DIArray
-import org.apache.daffodil.runtime1.infoset.DIComplex
-// TODO: Not sure about the access to internal infoset implementation details.
-// Should API users have this deep access to our internal infoset?
-import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
 import org.apache.daffodil.runtime1.infoset.{ InfosetInputter => SInfosetInputter }
 import org.apache.daffodil.runtime1.infoset.{ InfosetOutputter => SInfosetOutputter }
@@ -161,7 +159,7 @@ abstract class InfosetOutputter extends SInfosetOutputter {
    *                 value, nil, name, namespace, etc.
    */
   @throws[Exception]
-  def startSimple(diSimple: DISimple): Unit
+  def startSimple(diSimple: InfosetSimpleElement): Unit
 
   /**
    * Called by Daffodil internals to signify the end of a simple element.
@@ -173,55 +171,55 @@ abstract class InfosetOutputter extends SInfosetOutputter {
    *                 value, nil, name, namespace, etc.
    */
   @throws[Exception]
-  def endSimple(diSimple: DISimple): Unit
+  def endSimple(diSimple: InfosetSimpleElement): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of a complex element.
    *
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    *
-   * @param diComplex the complex element that is started. Various fields of
+   * @param complex the complex element that is started. Various fields of
    *                  DIComplex can be accessed to determine things like the
    *                  nil, name, namespace, etc.
    */
   @throws[Exception]
-  def startComplex(diComplex: DIComplex): Unit
+  def startComplex(complex: InfosetComplexElement): Unit
 
   /**
    * Called by Daffodil internals to signify the end of a complex element.
    *
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    *
-   * @param diComplex the complex element that is ended. Various fields of
+   * @param complex the complex element that is ended. Various fields of
    *                  DIComplex can be accessed to determine things like the
    *                  nil, name, namespace, etc.
    */
   @throws[Exception]
-  def endComplex(diComplex: DIComplex): Unit
+  def endComplex(complex: InfosetComplexElement): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of an array of elements.
    *
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    *
-   * @param diArray the array that is started. Various fields of
+   * @param array the array that is started. Various fields of
    *                DIArray can be accessed to determine things like the
    *                name, namespace, etc.
    */
   @throws[Exception]
-  def startArray(diArray: DIArray): Unit
+  def startArray(array: InfosetArray): Unit
 
   /**
    * Called by Daffodil internals to signify the end of an array of elements.
    *
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    *
-   * @param diArray the array that is ended. Various fields of
+   * @param array the array that is ended. Various fields of
    *                DIArray can be accessed to determine things like the
    *                name, namespace, etc.
    */
   @throws[Exception]
-  def endArray(diArray: DIArray): Unit
+  def endArray(array: InfosetArray): Unit
 }
 
 /**
@@ -236,9 +234,9 @@ abstract class InfosetOutputter extends SInfosetOutputter {
  *
  * @param showFormatInfo add additional properties to each scala.xml.Node for debug purposes
  */
-class ScalaXMLInfosetOutputter(showFormatInfo: Boolean = false) extends InfosetOutputterProxy {
+class ScalaXMLInfosetOutputter() extends InfosetOutputterProxy {
 
-  override val infosetOutputter = new SScalaXMLInfosetOutputter(showFormatInfo)
+  override val infosetOutputter = new SScalaXMLInfosetOutputter()
 
   /**
    * Get the scala.xml.Node representing the infoset created during a parse
@@ -453,11 +451,14 @@ abstract class InfosetOutputterProxy extends InfosetOutputter {
   override def reset(): Unit = infosetOutputter.reset()
   override def startDocument(): Unit = infosetOutputter.startDocument()
   override def endDocument(): Unit = infosetOutputter.endDocument()
-  override def startSimple(diSimple: DISimple): Unit = infosetOutputter.startSimple(diSimple)
-  override def endSimple(diSimple: DISimple): Unit = infosetOutputter.endSimple(diSimple)
-  override def startComplex(diComplex: DIComplex): Unit =
-    infosetOutputter.startComplex(diComplex)
-  override def endComplex(diComplex: DIComplex): Unit = infosetOutputter.endComplex(diComplex)
-  override def startArray(diArray: DIArray): Unit = infosetOutputter.startArray(diArray)
-  override def endArray(diArray: DIArray): Unit = infosetOutputter.endArray(diArray)
+  override def startSimple(diSimple: InfosetSimpleElement): Unit =
+    infosetOutputter.startSimple(diSimple)
+  override def endSimple(diSimple: InfosetSimpleElement): Unit =
+    infosetOutputter.endSimple(diSimple)
+  override def startComplex(complex: InfosetComplexElement): Unit =
+    infosetOutputter.startComplex(complex)
+  override def endComplex(complex: InfosetComplexElement): Unit =
+    infosetOutputter.endComplex(complex)
+  override def startArray(array: InfosetArray): Unit = infosetOutputter.startArray(array)
+  override def endArray(array: InfosetArray): Unit = infosetOutputter.endArray(array)
 }

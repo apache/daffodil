@@ -119,8 +119,8 @@ object DataValue {
 
   /** All values which are legal for DPath and infoset data values. Note that this incudes
    *  DINodes, which is legal for DPath, but not infoset data values.
-   *  Also note that at any given time, the infoset may have no value, which is not directly 
-   *  representable by this type. 
+   *  Also note that at any given time, the infoset may have no value, which is not directly
+   *  representable by this type.
    */
   type DataValuePrimitive = DataValue[AnyRef, NonNullable with DataValuePrimitiveType]
 
@@ -204,7 +204,7 @@ object DataValue {
   val NoValue: DataValueEmpty = new DataValue(null)
 
   /** Used as a sentinal value for Element's defaultValue, when said element
-   *  is nillable and has dfdl:useNilForDefault set to true, 
+   *  is nillable and has dfdl:useNilForDefault set to true,
    */
   val UseNilForDefault: DataValueUseNilForDefault = new DataValue(new UseNilForDefaultObj)
 

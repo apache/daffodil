@@ -19,17 +19,17 @@ package org.apache.daffodil.udf;
 
 /**
  * Abstract class used by ServiceLoader to poll for UDF providers on classpath.
- *
+ * <p>
  * Through this class, several User Defined Functions can be made available to
  * Daffodil via a single entry in the META-INF/services file.
- *
+ * <p>
  * UDF Providers must subclass this, and must initialize the
  * userDefinedFunctionClasses array with all the UDF classes it is providing.
- *
+ * <p>
  * If the UDFs being provided have constructors with arguments, the provider
  * subclass must also implement the createUserDefinedFunction to return an
  * initialized function class object based on the supplied namespace and name.
- *
+ * <p>
  * Subclasses must also supply a
  * src/META-INF/services/org.apache.daffodil.udf.UserDefinedFunctionProvider
  * file in their JAVA project in order to be discoverable by Daffodil.
@@ -61,13 +61,13 @@ public abstract class UserDefinedFunctionProvider {
    * @return initialized UserDefinedFunction object that must contain evaluate
    *         function with desired functionality
    *
-   * @throws SecurityException
+   * @throws java.lang.SecurityException
    *           if security manager exists and disallows access
-   * @throws IllegalArgumentException
+   * @throws java.lang.IllegalArgumentException
    *           if the UDF doesn't have a no-argument constructor
-   * @throws ExceptionInInitializerError
+   * @throws java.lang.ExceptionInInitializerError
    *           if there is an issue initializing the UDF object
-   * @throws ReflectiveOperationException
+   * @throws java.lang.ReflectiveOperationException
    *           if the UDF doesn't have a no-argument constructor or if there is an
    *           issue initializing the UDF object
    */

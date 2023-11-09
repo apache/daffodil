@@ -32,12 +32,12 @@ import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.BasicComponent
+import org.apache.daffodil.runtime1.api.InfosetElement
 import org.apache.daffodil.runtime1.dpath.ExpressionEvaluationException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dsom.ExpressionCompilerClass
 import org.apache.daffodil.runtime1.dsom.RelativePathPastRootError
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
-import org.apache.daffodil.runtime1.infoset.InfosetElement
 import org.apache.daffodil.runtime1.infoset.XMLTextInfosetOutputter
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors._

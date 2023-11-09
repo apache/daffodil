@@ -22,18 +22,18 @@ import java.util.ArrayList;
 import org.apache.daffodil.japi.infoset.InfosetOutputter;
 
 // TODO: Shouldn't need to import things not in the japi package
-import org.apache.daffodil.runtime1.infoset.DIArray;
-import org.apache.daffodil.runtime1.infoset.DIComplex;
-import org.apache.daffodil.runtime1.infoset.DISimple;
+import org.apache.daffodil.runtime1.api.InfosetArray;
+import org.apache.daffodil.runtime1.api.InfosetComplexElement;
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement;
 
+import static org.junit.Assert.assertEquals;
 
 public class TestInfosetOutputter extends InfosetOutputter {
 
-    public ArrayList<TestInfosetEvent> events;
 
-    TestInfosetOutputter() {
-        events = new ArrayList<>();
-    }
+    public ArrayList<TestInfosetEvent> events = new ArrayList<>();
+
+    TestInfosetOutputter() {}
 
     @Override
     public void reset() {
@@ -51,45 +51,46 @@ public class TestInfosetOutputter extends InfosetOutputter {
     }
 
     @Override
-    public void startSimple(DISimple diSimple) {
+    public void startSimple(InfosetSimpleElement simple) {
         events.add(
             TestInfosetEvent.startSimple(
-                diSimple.erd().name(),
-                diSimple.erd().namedQName().namespace().toString(),
-                diSimple.dataValueAsString(),
-                diSimple.erd().isNillable() ? diSimple.isNilled() : null));
+                simple.metadata().name(),
+                simple.metadata().namespace(),
+                simple.getText(),
+                simple.metadata().isNillable() ? simple.isNilled() : null));
     }
 
     @Override
-    public void endSimple(DISimple diSimple) {
+    public void endSimple(InfosetSimpleElement simple) {
         events.add(
             TestInfosetEvent.endSimple(
-                diSimple.erd().name(),
-                diSimple.erd().namedQName().namespace().toString()));
+                simple.metadata().name(),
+                simple.metadata().namespace()));
     }
 
     @Override
-    public void startComplex(DIComplex diComplex) {
+    public void startComplex(InfosetComplexElement complex) throws Exception {
+
         events.add(
             TestInfosetEvent.startComplex(
-                diComplex.erd().name(),
-                diComplex.erd().namedQName().namespace().toString(),
-                diComplex.erd().isNillable() ? diComplex.isNilled() : null));
+                complex.metadata().name(),
+                complex.metadata().namespace(),
+                complex.metadata().isNillable() ? complex.isNilled() : null));
     }
 
     @Override
-    public void endComplex(DIComplex diComplex) {
+    public void endComplex(InfosetComplexElement complex) {
         events.add(
             TestInfosetEvent.endComplex(
-                diComplex.erd().name(),
-                diComplex.erd().namedQName().namespace().toString()));
+                complex.metadata().name(),
+                complex.metadata().namespace()));
     }
 
     @Override
-    public void startArray(DIArray diArray) {
+    public void startArray(InfosetArray array) {
     }
 
     @Override
-    public void endArray(DIArray diArray) {
+    public void endArray(InfosetArray array) {
     }
 }

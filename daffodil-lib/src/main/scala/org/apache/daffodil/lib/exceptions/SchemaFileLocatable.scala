@@ -68,10 +68,13 @@ class SchemaFileLocation private (
 
   override val toString = contextToString
 
-  override def fileDescription = {
-    val decodedString = URLDecoder.decode(uriString, "UTF-8")
-    " in " + limitMaxParentDirectories(decodedString, maxParentDirectoriesForDiagnostics)
-  }
+  lazy val fileURITrimmed =
+    limitMaxParentDirectories(
+      URLDecoder.decode(uriString, "UTF-8"),
+      maxParentDirectoriesForDiagnostics,
+    )
+
+  override def fileDescription = " in " + fileURITrimmed
 
   override def locationDescription = {
     val showInfo = lineDescription != "" || fileDescription != ""
@@ -110,12 +113,11 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
     case None => ""
   }
 
+  lazy val fileURITrimmed = schemaFileLocation.fileURITrimmed
+
   // URLDecoder removes %20, etc from the file name.
   override lazy val fileDescription = {
-    val newUriString: String = limitMaxParentDirectories(
-      URLDecoder.decode(uriString, "UTF-8"),
-      tunables.maxParentDirectoriesForDiagnostics,
-    )
+    val newUriString: String = fileURITrimmed
     " in " + newUriString
   }
 

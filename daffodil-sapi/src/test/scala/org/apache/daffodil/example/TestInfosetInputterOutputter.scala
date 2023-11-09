@@ -20,11 +20,10 @@ package org.apache.daffodil.example
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.daffodil.lib.util.MaybeBoolean
-// TODO: Shouldn't need to import things not in the sapi package
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.infoset.DIArray
-import org.apache.daffodil.runtime1.infoset.DIComplex
-import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndDocument
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType.EndElement
@@ -105,40 +104,40 @@ case class TestInfosetOutputter() extends InfosetOutputter {
     events.append(TestInfosetEvent.endDocument())
   }
 
-  override def startSimple(diSimple: DISimple): Unit = {
+  override def startSimple(simple: InfosetSimpleElement): Unit = {
     events.append(
       TestInfosetEvent.startSimple(
-        diSimple.erd.name,
-        diSimple.erd.namedQName.namespace,
-        diSimple.dataValueAsString,
-        if (diSimple.erd.isNillable) MaybeBoolean(diSimple.isNilled) else MaybeBoolean.Nope,
+        simple.metadata.name,
+        simple.metadata.namespace,
+        simple.getText,
+        if (simple.metadata.isNillable) MaybeBoolean(simple.isNilled) else MaybeBoolean.Nope,
       ),
     )
   }
 
-  override def endSimple(diSimple: DISimple): Unit = {
+  override def endSimple(simple: InfosetSimpleElement): Unit = {
     events.append(
-      TestInfosetEvent.endSimple(diSimple.erd.name, diSimple.erd.namedQName.namespace),
+      TestInfosetEvent.endSimple(simple.metadata.name, simple.metadata.namespace),
     )
   }
 
-  override def startComplex(diComplex: DIComplex): Unit = {
+  override def startComplex(complex: InfosetComplexElement): Unit = {
     events.append(
       TestInfosetEvent.startComplex(
-        diComplex.erd.name,
-        diComplex.erd.namedQName.namespace,
-        if (diComplex.erd.isNillable) MaybeBoolean(diComplex.isNilled) else MaybeBoolean.Nope,
+        complex.metadata.name,
+        complex.metadata.namespace,
+        if (complex.metadata.isNillable) MaybeBoolean(complex.isNilled) else MaybeBoolean.Nope,
       ),
     )
   }
 
-  override def endComplex(diComplex: DIComplex): Unit = {
+  override def endComplex(complex: InfosetComplexElement): Unit = {
     events.append(
-      TestInfosetEvent.endComplex(diComplex.erd.name, diComplex.erd.namedQName.namespace),
+      TestInfosetEvent.endComplex(complex.metadata.name, complex.metadata.namespace),
     )
   }
 
-  override def startArray(diArray: DIArray): Unit = {}
+  override def startArray(array: InfosetArray): Unit = {}
 
-  override def endArray(diArray: DIArray): Unit = {}
+  override def endArray(array: InfosetArray): Unit = {}
 }

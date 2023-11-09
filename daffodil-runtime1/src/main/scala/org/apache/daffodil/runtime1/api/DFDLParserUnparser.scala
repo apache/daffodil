@@ -177,6 +177,7 @@ object DFDL {
 
     def save(output: DFDL.Output): Unit
 
+    def walkMetadata(handler: MetadataHandler): Unit
     def tunables: DaffodilTunables
     def variableMap: VariableMap
     def validationMode: ValidationMode.Type

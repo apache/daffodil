@@ -14,11 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.daffodil.runtime1.infoset
 
 import java.nio.file.Path
 import java.nio.file.Paths
+
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
 
 /**
  * Defines the interface for InfosetOutputters.
@@ -34,15 +37,11 @@ import java.nio.file.Paths
  * by implementations. This does mean some exceptions that you might normally
  * expect to bubble up and will not, and will instead be turned into an SDE.
  */
-trait InfosetOutputter {
-
-  import Status._
-
-  def status: Status = READY
+trait InfosetOutputter extends BlobMethodsMixin {
 
   /**
    * Reset the internal state of this InfosetOutputter. This should be called
-   * inbetween calls to the parse method.
+   * in between calls to the parse method.
    */
   def reset(): Unit
 
@@ -72,7 +71,7 @@ trait InfosetOutputter {
    *                 value, nil, name, namespace, etc.
    */
   @throws[Exception]
-  def startSimple(diSimple: DISimple): Unit
+  def startSimple(diSimple: InfosetSimpleElement): Unit
 
   /**
    * Called by Daffodil internals to signify the end of a simple element.
@@ -84,75 +83,65 @@ trait InfosetOutputter {
    *                 value, nil, name, namespace, etc.
    */
   @throws[Exception]
-  def endSimple(diSimple: DISimple): Unit
+  def endSimple(diSimple: InfosetSimpleElement): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of a complex element.
    *
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    *
-   * @param diComplex the complex element that is started. Various fields of
+   * @param complex the complex element that is started. Various fields of
    *                  DIComplex can be accessed to determine things like the
    *                  nil, name, namespace, etc.
    */
   @throws[Exception]
-  def startComplex(diComplex: DIComplex): Unit
+  def startComplex(complex: InfosetComplexElement): Unit
 
   /**
    * Called by Daffodil internals to signify the end of a complex element.
    *
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    *
-   * @param diComplex the complex element that is ended. Various fields of
+   * @param complex the complex element that is ended. Various fields of
    *                  DIComplex can be accessed to determine things like the
    *                  nil, name, namespace, etc.
    */
   @throws[Exception]
-  def endComplex(diComplex: DIComplex): Unit
+  def endComplex(complex: InfosetComplexElement): Unit
 
   /**
    * Called by Daffodil internals to signify the beginning of an array of elements.
    *
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    *
-   * @param diComplex the array that is started. Various fields of
+   * @param array the array that is started. Various fields of
    *                  DIArray can be accessed to determine things like the
    *                  name, namespace, etc.
    */
   @throws[Exception]
-  def startArray(diArray: DIArray): Unit
+  def startArray(array: InfosetArray): Unit
 
   /**
    * Called by Daffodil internals to signify the end of an array of elements.
    *
    * Throws java.lang.Exception if there was an error and Daffodil should stop parsing
    *
-   * @param diComplex the array that is ended. Various fields of
+   * @param array the array that is ended. Various fields of
    *                  DIArray can be accessed to determine things like the
    *                  name, namespace, etc.
    */
   @throws[Exception]
-  def endArray(diArray: DIArray): Unit
+  def endArray(array: InfosetArray): Unit
+}
 
-  def getStatus(): Status = {
-    // Done, Ready (Not started), Visiting (part way done - can retry to visit more)...
-    status
-  }
-
-  /**
-   * Helper function to determine if an element is nilled or not, taking into
-   * account whether or not the nilled state has been set yet.
-   *
-   * @param diElement the element to check the nilled state of
-   *
-   * @return true if the nilled state has been set and is true. false if the
-   *         nilled state is false or if the nilled state has not been set yet
-   *         (e.g. during debugging)
-   */
-  final def isNilled(diElement: DIElement): Boolean = {
-    val maybeIsNilled = diElement.maybeIsNilled
-    maybeIsNilled.isDefined && maybeIsNilled.get == true
-  }
+/**
+ * An available basic implementation of the BLOB methods.
+ * Stores blobs in files in directory identified by Java system property
+ * `java.io.tempdir`.
+ *
+ * FIXME: Scaladoc
+ */
+trait BlobMethodsMixin {
 
   /**
    * Set the attributes for how to create blob files.
@@ -175,7 +164,6 @@ trait InfosetOutputter {
    * This is the same as what would be found by iterating over the infoset.
    */
   final def getBlobPaths(): Seq[Path] = blobPaths
-
   final def getBlobDirectory(): Path = blobDirectory
   final def getBlobPrefix(): String = blobPrefix
   final def getBlobSuffix(): String = blobSuffix
@@ -184,9 +172,4 @@ trait InfosetOutputter {
   private var blobPrefix: String = "daffodil-"
   private var blobSuffix: String = ".blob"
   private var blobPaths: Seq[Path] = Seq.empty
-}
-
-object Status extends Enumeration {
-  type Status = Value
-  val DONE, READY, VISITING = Value
 }

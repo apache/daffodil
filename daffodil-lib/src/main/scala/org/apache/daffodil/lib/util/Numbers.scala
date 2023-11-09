@@ -30,7 +30,10 @@ import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.lib.exceptions.Assert
 
-object Numbers {
+object Numbers extends Numbers {
+
+  override protected def errorThrower(message: String): Nothing =
+    Assert.invariantFailed(message)
 
   def isValidInt(n: Number): Boolean = {
     val res = n match {
@@ -90,6 +93,11 @@ object Numbers {
       d.equals(bd)
     }
   }
+}
+
+trait Numbers {
+
+  protected def errorThrower(message: String): Nothing
 
   def asInt(n: AnyRef): JInt = {
     val value = n match {
@@ -102,7 +110,7 @@ object Numbers {
       case bi: JBigInt => bi.intValue()
       case bd: JBigDecimal => bd.intValue()
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to Int. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -119,7 +127,7 @@ object Numbers {
       case bi: JBigInt => bi.byteValue()
       case bd: JBigDecimal => bd.byteValue()
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to Byte. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -136,7 +144,7 @@ object Numbers {
       case bi: JBigInt => bi.shortValue()
       case bd: JBigDecimal => bd.shortValue()
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to Short. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -154,7 +162,7 @@ object Numbers {
       case bi: JBigInt => bi.longValue()
       case bd: JBigDecimal => bd.longValue()
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to Long. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -176,7 +184,7 @@ object Numbers {
       // the rest of the JNumbers are integers long or smaller.
       case jn: JNumber => new JBigInt(jn.toString())
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to BigInt. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -198,7 +206,7 @@ object Numbers {
       // the rest of the JNumbers are integers long or smaller.
       case jn: JNumber => JBigInt.valueOf(jn.longValue())
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to BigInt. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -222,7 +230,7 @@ object Numbers {
       case bi: JBigInt => bi.floatValue()
       case bd: JBigDecimal => bd.floatValue()
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to Float. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -246,7 +254,7 @@ object Numbers {
       case bi: JBigInt => bi.doubleValue()
       case bd: JBigDecimal => bd.doubleValue()
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to Double. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -270,9 +278,13 @@ object Numbers {
       case bi: JBigInt => new java.math.BigDecimal(bi.toString())
       case bd: JBigDecimal => bd
       // The rest of the cases are integers long or smaller
+      case jl: JLong => java.math.BigDecimal.valueOf(jl)
+      case i: JInt => java.math.BigDecimal.valueOf(i.toLong)
+      case s: JShort => java.math.BigDecimal.valueOf(s.toLong)
+      case b: JByte => java.math.BigDecimal.valueOf(b.toLong)
       case jn: JNumber => new java.math.BigDecimal(jn.toString())
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to BigDecimal. %s of type %s".format(
             n,
             Misc.getNameFromClass(n),
@@ -301,7 +313,7 @@ object Numbers {
       // The rest of the cases are integers long or smaller
       case jn: JNumber => JBigDecimal.valueOf(jn.longValue())
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to BigDecimal. %s of type %s".format(
             n,
             Misc.getNameFromClass(n),
@@ -316,7 +328,7 @@ object Numbers {
       case bool: JBoolean => return bool
       case b: Boolean => JBoolean.valueOf(b)
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to Boolean. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -332,7 +344,7 @@ object Numbers {
       case d: Double => JDouble.valueOf(d)
       case jn: JNumber => jn
       case _ =>
-        Assert.invariantFailed(
+        errorThrower(
           "Unsupported conversion to Number. %s of type %s".format(n, Misc.getNameFromClass(n)),
         )
     }
@@ -355,7 +367,7 @@ object Numbers {
       case s: JShort => s.shortValue == 0
       case b: JByte => b.byteValue == 0
       // $COVERAGE-OFF$
-      case _ => Assert.invariantFailed(s"Unknown JNumber type: ${n1.getClass.getName}")
+      case _ => errorThrower(s"Unknown JNumber type: ${n1.getClass.getName}")
       // $COVERAGE-ON$
     }
   }

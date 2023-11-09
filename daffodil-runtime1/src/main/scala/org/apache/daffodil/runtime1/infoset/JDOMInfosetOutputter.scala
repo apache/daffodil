@@ -21,9 +21,13 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.api.PrimitiveType
 
-class JDOMInfosetOutputter extends InfosetOutputter with XMLInfosetOutputter {
+class JDOMInfosetOutputter extends InfosetOutputter {
 
   private val stack = new MStackOf[org.jdom2.Parent]
   private var result: Maybe[org.jdom2.Document] = Maybe.Nope
@@ -46,16 +50,16 @@ class JDOMInfosetOutputter extends InfosetOutputter with XMLInfosetOutputter {
     result = Maybe(root.asInstanceOf[org.jdom2.Document])
   }
 
-  def startSimple(diSimple: DISimple): Unit = {
+  override def startSimple(simple: InfosetSimpleElement): Unit = {
 
-    val elem = createElement(diSimple)
+    val elem = createElement(simple)
 
-    if (diSimple.hasValue) {
+    if (!simple.isNilled) {
       val text =
-        if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
-          remapped(diSimple.dataValueAsString)
+        if (simple.metadata.primitiveType == PrimitiveType.String) {
+          XMLUtils.remapXMLIllegalCharactersToPUA(simple.getText)
         } else {
-          diSimple.dataValueAsString
+          simple.getText
         }
       elem.addContent(text)
     }
@@ -63,22 +67,22 @@ class JDOMInfosetOutputter extends InfosetOutputter with XMLInfosetOutputter {
     stack.top.addContent(elem)
   }
 
-  def endSimple(diSimple: DISimple): Unit = {}
+  override def endSimple(se: InfosetSimpleElement): Unit = {}
 
-  def startComplex(diComplex: DIComplex): Unit = {
+  override def startComplex(ce: InfosetComplexElement): Unit = {
 
-    val elem = createElement(diComplex)
+    val elem = createElement(ce)
 
     stack.top.addContent(elem)
     stack.push(elem)
   }
 
-  def endComplex(diComplex: DIComplex): Unit = {
+  override def endComplex(ce: InfosetComplexElement): Unit = {
     stack.pop
   }
 
-  def startArray(diArray: DIArray): Unit = {}
-  def endArray(diArray: DIArray): Unit = {}
+  override def startArray(ar: InfosetArray): Unit = {}
+  override def endArray(ar: InfosetArray): Unit = {}
 
   def getResult(): org.jdom2.Document = {
     Assert.usage(
@@ -88,18 +92,18 @@ class JDOMInfosetOutputter extends InfosetOutputter with XMLInfosetOutputter {
     result.get
   }
 
-  private def createElement(diElement: DIElement): org.jdom2.Element = {
+  private def createElement(element: InfosetElement): org.jdom2.Element = {
     val elem: org.jdom2.Element =
-      if (diElement.erd.namedQName.namespace.isNoNamespace)
-        new org.jdom2.Element(diElement.erd.name)
+      if (element.metadata.namespace eq null)
+        new org.jdom2.Element(element.metadata.name)
       else
         new org.jdom2.Element(
-          diElement.erd.name,
-          diElement.erd.prefix,
-          diElement.erd.namedQName.namespace,
+          element.metadata.name,
+          element.metadata.prefix,
+          element.metadata.namespace,
         )
 
-    if (isNilled(diElement)) {
+    if (element.isNilled) {
       elem.setAttribute("nil", "true", xsiNS)
     }
     elem

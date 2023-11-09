@@ -70,6 +70,11 @@ abstract class SequenceTermBase(
 
   def isOrdered: Boolean
 
+  /**
+   * Overridden in sequence group ref
+   */
+  def isHidden: Boolean = false
+
 }
 
 /**

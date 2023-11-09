@@ -17,6 +17,10 @@
 
 package org.apache.daffodil.runtime1.infoset
 
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+
 /**
  * Receive infoset events and forward them to one or more InfosetOutputters. A
  * thrown exception from any outputter is not caught and bubbles up resulting
@@ -32,27 +36,27 @@ class TeeInfosetOutputter(outputters: InfosetOutputter*) extends InfosetOutputte
     outputters.foreach { _.reset() }
   }
 
-  override def startSimple(simple: DISimple): Unit = {
+  override def startSimple(simple: InfosetSimpleElement): Unit = {
     outputters.foreach { _.startSimple(simple) }
   }
 
-  override def endSimple(simple: DISimple): Unit = {
+  override def endSimple(simple: InfosetSimpleElement): Unit = {
     outputters.foreach { _.endSimple(simple) }
   }
 
-  override def startComplex(complex: DIComplex): Unit = {
+  override def startComplex(complex: InfosetComplexElement): Unit = {
     outputters.foreach { _.startComplex(complex) }
   }
 
-  override def endComplex(complex: DIComplex): Unit = {
+  override def endComplex(complex: InfosetComplexElement): Unit = {
     outputters.foreach { _.endComplex(complex) }
   }
 
-  override def startArray(array: DIArray): Unit = {
+  override def startArray(array: InfosetArray): Unit = {
     outputters.foreach { _.startArray(array) }
   }
 
-  override def endArray(array: DIArray): Unit = {
+  override def endArray(array: InfosetArray): Unit = {
     outputters.foreach { _.endArray(array) }
   }
 

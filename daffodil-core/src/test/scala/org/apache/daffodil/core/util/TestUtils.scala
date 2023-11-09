@@ -38,6 +38,7 @@ import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.api.MetadataHandler
 import org.apache.daffodil.runtime1.debugger._
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
@@ -390,6 +391,7 @@ class Fakes private () {
     override def tunables: DaffodilTunables = DaffodilTunables()
     override def variableMap: VariableMap = VariableMap(Nil)
     override def validationMode: ValidationMode.Type = ValidationMode.Full
+    override def walkMetadata(handler: MetadataHandler): Unit = {}
 
     override def withExternalVariables(extVars: Seq[Binding]): DFDL.DataProcessor = this
     override def withExternalVariables(extVars: java.io.File): DFDL.DataProcessor = this
@@ -404,6 +406,7 @@ class Fakes private () {
     override def newContentHandlerInstance(
       output: DFDL.Output,
     ): DFDL.DaffodilUnparseContentHandler = null
+
   }
   lazy val fakeDP = new FakeDataProcessor
 

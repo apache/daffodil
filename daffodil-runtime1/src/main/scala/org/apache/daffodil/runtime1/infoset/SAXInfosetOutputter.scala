@@ -21,7 +21,11 @@ import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
-import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.api.InfosetArray
+import org.apache.daffodil.runtime1.api.InfosetComplexElement
+import org.apache.daffodil.runtime1.api.InfosetElement
+import org.apache.daffodil.runtime1.api.InfosetSimpleElement
+import org.apache.daffodil.runtime1.api.PrimitiveType
 
 import org.xml.sax.ContentHandler
 import org.xml.sax.helpers.AttributesImpl
@@ -30,8 +34,7 @@ class SAXInfosetOutputter(
   xmlReader: DFDL.DaffodilParseXMLReader,
   val namespacesFeature: Boolean,
   val namespacePrefixesFeature: Boolean,
-) extends InfosetOutputter
-  with XMLInfosetOutputter {
+) extends InfosetOutputter {
 
   /**
    * Reset the internal state of this InfosetOutputter. This should be called
@@ -58,16 +61,16 @@ class SAXInfosetOutputter(
     }
   }
 
-  override def startSimple(diSimple: DISimple): Unit = {
+  override def startSimple(simple: InfosetSimpleElement): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      doStartElement(diSimple, contentHandler)
-      if (diSimple.hasValue) {
+      doStartElement(simple, contentHandler)
+      if (!simple.isNilled) {
         val text =
-          if (diSimple.erd.optPrimType.get.isInstanceOf[NodeInfo.String.Kind]) {
-            remapped(diSimple.dataValueAsString)
+          if (simple.metadata.primitiveType == PrimitiveType.String) {
+            XMLUtils.remapXMLIllegalCharactersToPUA(simple.getText)
           } else {
-            diSimple.dataValueAsString
+            simple.getText
           }
         val arr = text.toCharArray
         contentHandler.characters(arr, 0, arr.length)
@@ -75,33 +78,36 @@ class SAXInfosetOutputter(
     }
   }
 
-  override def endSimple(diSimple: DISimple): Unit = {
+  override def endSimple(simple: InfosetSimpleElement): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      doEndElement(diSimple, contentHandler)
+      doEndElement(simple, contentHandler)
     }
   }
 
-  override def startComplex(diComplex: DIComplex): Unit = {
+  override def startComplex(complex: InfosetComplexElement): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      doStartElement(diComplex, contentHandler)
+      doStartElement(complex, contentHandler)
     }
   }
 
-  override def endComplex(diComplex: DIComplex): Unit = {
+  override def endComplex(complex: InfosetComplexElement): Unit = {
     val contentHandler = xmlReader.getContentHandler
     if (contentHandler != null) {
-      doEndElement(diComplex, contentHandler)
+      doEndElement(complex, contentHandler)
     }
   }
 
-  override def startArray(diArray: DIArray): Unit = {} // not applicable
+  override def startArray(ar: InfosetArray): Unit = {} // not applicable
 
-  override def endArray(diArray: DIArray): Unit = {} // not applicable
+  override def endArray(ar: InfosetArray): Unit = {} // not applicable
 
-  private def doStartPrefixMapping(diElem: DIElement, contentHandler: ContentHandler): Unit = {
-    val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(diElem)
+  private def doStartPrefixMapping(
+    elem: InfosetElement,
+    contentHandler: ContentHandler,
+  ): Unit = {
+    val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(elem)
     var n = nsbStart
     while (n.ne(nsbEnd) && n.ne(null) && n.ne(scala.xml.TopScope)) {
       val prefix = if (n.prefix == null) "" else n.prefix
@@ -111,8 +117,8 @@ class SAXInfosetOutputter(
     }
   }
 
-  private def doEndPrefixMapping(diElem: DIElement, contentHandler: ContentHandler): Unit = {
-    val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(diElem)
+  private def doEndPrefixMapping(elem: InfosetElement, contentHandler: ContentHandler): Unit = {
+    val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(elem)
     var n = nsbStart
     while (n.ne(nsbEnd) && n.ne(null) && n.ne(scala.xml.TopScope)) {
       val prefix = if (n.prefix == null) "" else n.prefix
@@ -126,10 +132,10 @@ class SAXInfosetOutputter(
    * when namespacePrefixes feature is true
    */
   private def doAttributesPrefixMapping(
-    diElem: DIElement,
+    elem: InfosetElement,
     attrs: AttributesImpl,
   ): AttributesImpl = {
-    val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(diElem)
+    val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(elem)
     var n = nsbStart
     while (n.ne(nsbEnd) && n.ne(null) && n.ne(scala.xml.TopScope)) {
       val prefix = if (n.prefix == null) "xmlns" else s"xmlns:${n.prefix}"
@@ -181,7 +187,8 @@ class SAXInfosetOutputter(
     }
   }
 
-  private def getNsbStartAndEnd(diElem: DIElement) = {
+  private def getNsbStartAndEnd(elem: InfosetElement): (NamespaceBinding, NamespaceBinding) = {
+    val diElem = elem.asInstanceOf[DIElement]
     val nsbStart = diElem.erd.minimizedScope
     val nsbEnd = if (diElem.isRoot) {
       scala.xml.TopScope
@@ -208,8 +215,8 @@ class SAXInfosetOutputter(
     }
   }
 
-  private def doStartElement(diElem: DIElement, contentHandler: ContentHandler): Unit = {
-    val (ns: String, localName: String, qName: String) = getNamespaceLocalNameAndQName(diElem)
+  private def doStartElement(elem: InfosetElement, contentHandler: ContentHandler): Unit = {
+    val (ns: String, localName: String, qName: String) = getNamespaceLocalNameAndQName(elem)
     val attrs = new AttributesImpl()
     val elemUri: String = if (namespacesFeature) ns else ""
     val elemLocalName: String = if (namespacesFeature) localName else ""
@@ -217,16 +224,16 @@ class SAXInfosetOutputter(
 
     if (namespacesFeature) {
       // only when this feature is true do we use prefix mappings
-      doStartPrefixMapping(diElem, contentHandler)
+      doStartPrefixMapping(elem, contentHandler)
     }
 
     if (namespacePrefixesFeature) {
       // handle prefix attribute
-      doAttributesPrefixMapping(diElem, attrs)
+      doAttributesPrefixMapping(elem, attrs)
     }
 
     // handle xsi:nil attribute
-    if (isNilled(diElem)) {
+    if (elem.isNilled) {
       val isNilled = "true"
       val nType: String = "CDATA"
       val nValue: String = isNilled
@@ -240,8 +247,8 @@ class SAXInfosetOutputter(
     contentHandler.startElement(elemUri, elemLocalName, elemQname, attrs)
   }
 
-  private def doEndElement(diElem: DIElement, contentHandler: ContentHandler): Unit = {
-    val (ns: String, localName: String, qName: String) = getNamespaceLocalNameAndQName(diElem)
+  private def doEndElement(elem: InfosetElement, contentHandler: ContentHandler): Unit = {
+    val (ns: String, localName: String, qName: String) = getNamespaceLocalNameAndQName(elem)
     val elemUri: String = if (namespacesFeature) ns else ""
     val elemLocalName = if (namespacesFeature) localName else ""
     val elemQname = if (namespacePrefixesFeature) qName else ""
@@ -249,18 +256,18 @@ class SAXInfosetOutputter(
     contentHandler.endElement(elemUri, elemLocalName, elemQname)
 
     // only when this feature is true do we use prefix mappings
-    if (namespacesFeature) doEndPrefixMapping(diElem, contentHandler)
+    if (namespacesFeature) doEndPrefixMapping(elem, contentHandler)
   }
 
-  private def getNamespaceLocalNameAndQName(diElem: DIElement): (String, String, String) = {
+  private def getNamespaceLocalNameAndQName(elem: InfosetElement): (String, String, String) = {
     val ns: String =
-      if (diElem.erd.namedQName.namespace.isNoNamespace) {
+      if (elem.metadata.namespace eq null) {
         ""
       } else {
-        diElem.erd.namedQName.namespace.toString
+        elem.metadata.namespace
       }
-    val elemName = diElem.erd.namedQName.local
-    val qName = diElem.erd.prefixedName
+    val elemName = elem.metadata.name
+    val qName = elem.asInstanceOf[DIElement].erd.prefixedName
     (ns, elemName, qName)
   }
 

@@ -31,7 +31,7 @@ import org.junit.Test; object INoWarn2 { ImplicitsSuppressUnusedImportWarning() 
 import org.apache.daffodil.core.infoset.TestInfoset
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.runtime1.infoset.InfosetDocument
+import org.apache.daffodil.runtime1.api.InfosetDocument
 import org.apache.daffodil.runtime1.infoset.NullInfosetOutputter
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.parsers.PState

@@ -202,8 +202,6 @@ trait SchemaComponent
     sscd
   }
 
-  final def sscd = shortSchemaComponentDesignator
-
   /**
    * Elements only e.g., /foo/ex:bar
    */
