@@ -123,18 +123,6 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
-  @Test def test_CLI_Tdml_Debug_singleTest(): Unit = {
-    val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
-    )
-
-    runCLI(args"-d test $tdml byte_entities_6_08") { cli =>
-      cli.expect("(debug)")
-      cli.sendLine("continue")
-      cli.expect("[Pass] byte_entities_6_08")
-    }(ExitCode.Success)
-  }
-
   @Test def test_CLI_Tdml_DebugFile_singleTest(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",

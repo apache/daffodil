@@ -1858,7 +1858,7 @@ class Main(
                       | to this bug.
                       |
                       |""".stripMargin)
-    e.printStackTrace
+    e.printStackTrace(STDERR)
     1
   }
 

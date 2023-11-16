@@ -22,11 +22,69 @@ import java.nio.file.Files
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util._
+import org.apache.daffodil.lib.Implicits._
 
 import net.sf.expectit.matcher.Matchers.regexp
 import org.junit.Test
 
+/**
+ * Tests specific to the CLI debugger
+ *
+ * Note that all tests set "fork = true" because SBT creates a class loader with two versions of
+ * jline, one a dependency of SBT and one a dependency of Daffodil. With these two versions on
+ * the classpath, sometimes a class is found in one version of jline and sometimes in another,
+ * which causes compatibility issues if the jline versions are too different (newer versions of
+ * jline added an incompatibility) and leads to exceptions being thrown. By forking, we no
+ * longer use SBT's classloader and avoid the issue entirely.
+ *
+ * Note that we only have this issue with CLI debugger tests because the CLI debugger is the
+ * only thing that uses jline. If the debugger is never triggered by a test, ten the SBT class
+ * loader never tries to find, load, or use any of these incompatible jline classes.
+ *
+ * Note that because we fork, these tests are put in daffodil-test-integration instead of
+ * daffodil-cli, since this project requires the daffodil CLI to be staged and disables parallel
+ * execution to reduce memory requirements.
+ *
+ * Additionally, because we now fork, the forked process uses normal stdin/stdout and so the
+ * CLIDebuggerRunner uses jline to find the best Terminal to use, instead of using a
+ * DumbTerminal like when we don't fork. But the fancy terminal that jline finds fails on
+ * windows. To fix this, we also define a number of jline properties to force it to use a dumb
+ * terminal for these integration tests.
+ */
 class TestCLIDebugger {
+
+  val javaOpts = Seq(
+    "-Dorg.jline.terminal.type=dumb",
+    "-Dorg.jline.terminal.provider=dumb",
+    "-Dorg.jline.terminal.dumb=true",
+    "-Dorg.jline.terminal.dumb.color=false",
+    "-Dfile.encoding=UTF-8",
+  )
+
+  val envs = Map(
+    "DAFFODIL_JAVA_OPTS" -> javaOpts.mkString(" "),
+  )
+
+  /**
+    * This shows that the way SBT creates its class loader breaks debugger tests if we do not
+    * fork (note that this is the only test in this file where "fork = false" and the envs are
+    * not provided). If this test ever fails, it probably means SBT fixed the jline issue and we
+    * can remove "fork = true" and "envs = envs" from these tests and move them back to the
+    * daffodil-test project.
+   */
+  @Test def test_CLI_Debugger_sbt_jline_broken(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
+    val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
+
+    intercept[Exception] {
+      runCLI(args"-d parse -s $schema -r matrix $input", fork = false) { cli =>
+        cli.expect("(debug)")
+        cli.sendLine("continue")
+      }(ExitCode.Success)
+    }
+  }
 
   @Test def test_3385_CLI_Debugger_invalidExpressions(): Unit = {
     val schema = path(
@@ -34,7 +92,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("eval (/invalid)")
@@ -69,7 +127,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("garbage")
       cli.expect("error: undefined command: garbage")
@@ -83,7 +141,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("debug")
 
       cli.sendLine("info data")
@@ -104,7 +162,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("continue")
 
@@ -117,7 +175,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display eval (.)")
@@ -154,7 +212,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
-    runCLI(args"-d parse -s $schema -r e $input") { cli =>
+    runCLI(args"-d parse -s $schema -r e $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("set removeHidden false")
       cli.sendLine("display info infoset")
@@ -176,7 +234,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
-    runCLI(args"-d parse -s $schema -r e $input") { cli =>
+    runCLI(args"-d parse -s $schema -r e $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("set removeHidden false")
       cli.sendLine("display info infoset")
@@ -196,7 +254,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("break cell")
@@ -247,7 +305,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("set breakOnlyOnCreation false")
@@ -299,7 +357,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input5.txt")
 
-    runCLI(args"-d parse -s $schema -r Item2 $input") { cli =>
+    runCLI(args"-d parse -s $schema -r Item2 $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info pointsOfUncertainty")
@@ -326,7 +384,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info infoset")
@@ -362,7 +420,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info infoset")
@@ -393,7 +451,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info infoset")
@@ -416,7 +474,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info occursIndex")
@@ -451,7 +509,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info infoset")
@@ -489,7 +547,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info bitPosition")
@@ -516,7 +574,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input4.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("break cell")
@@ -544,7 +602,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("break cell")
@@ -569,7 +627,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("break cell")
@@ -593,7 +651,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt")
 
-    runCLI(args"-d parse -r list -s $schema $input") { cli =>
+    runCLI(args"-d parse -r list -s $schema $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info groupIndex")
@@ -621,7 +679,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt")
 
-    runCLI(args"-d parse -r list -s $schema $input") { cli =>
+    runCLI(args"-d parse -r list -s $schema $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info dne1")
@@ -640,7 +698,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display info data")
@@ -669,7 +727,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("display data")
@@ -689,7 +747,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("break row")
@@ -724,7 +782,7 @@ class TestCLIDebugger {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/hextest.txt",
     )
 
-    runCLI(args"-d parse -s $schema -r e2 $input") { cli =>
+    runCLI(args"-d parse -s $schema -r e2 $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("info data")
@@ -740,7 +798,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("info infoset")
@@ -762,7 +820,7 @@ class TestCLIDebugger {
     withTempFile { input =>
       Files.write(input, "2~3".getBytes(UTF_8))
 
-      runCLI(args"-d parse -s $schema -r e5 $input") { cli =>
+      runCLI(args"-d parse -s $schema -r e5 $input", fork = true, envs = envs) { cli =>
         cli.expect("(debug)")
 
         cli.sendLine("break f")
@@ -795,7 +853,7 @@ class TestCLIDebugger {
     withTempFile { input =>
       Files.write(input, "2~3".getBytes(UTF_8))
 
-      runCLI(args"-d parse -s $schema -r e4 $input") { cli =>
+      runCLI(args"-d parse -s $schema -r e4 $input", fork = true, envs = envs) { cli =>
         cli.expect("(debug)")
 
         cli.sendLine("break f")
@@ -828,7 +886,7 @@ class TestCLIDebugger {
     withTempFile { input =>
       Files.write(input, "2,3".getBytes(UTF_8))
 
-      runCLI(args"-d parse -s $schema -r e8 $input") { cli =>
+      runCLI(args"-d parse -s $schema -r e8 $input", fork = true, envs = envs) { cli =>
         cli.expect("(debug)")
 
         cli.sendLine("break a")
@@ -868,7 +926,7 @@ class TestCLIDebugger {
     withTempFile { input =>
       Files.write(input, "[6~]9".getBytes(UTF_8))
 
-      runCLI(args"-d parse -s $schema -r e9 $input") { cli =>
+      runCLI(args"-d parse -s $schema -r e9 $input", fork = true, envs = envs) { cli =>
         cli.expect("(debug)")
 
         cli.sendLine("break e")
@@ -936,7 +994,7 @@ class TestCLIDebugger {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input12.txt",
     )
 
-    runCLI(args"-d unparse -s $schema -r e1 $input") { cli =>
+    runCLI(args"-d unparse -s $schema -r e1 $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("break e1")
       cli.expect("1: e1")
@@ -954,7 +1012,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/prefix.txt")
 
-    runCLI(args"-d parse -s $schema $input") { cli =>
+    runCLI(args"-d parse -s $schema $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("display info infoset")
       cli.expect("(debug)")
@@ -978,7 +1036,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("info variables byteOrder")
       cli.expect("byteOrder: bigEndian (default)")
@@ -992,7 +1050,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("display info data text")
       cli.expect("(debug)")
@@ -1008,7 +1066,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("display info data binary")
       cli.expect("(debug)")
@@ -1024,7 +1082,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r c $input") { cli =>
+    runCLI(args"-d parse -s $schema -r c $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("display info diff")
       cli.expect("(debug)")
@@ -1052,7 +1110,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
-    runCLI(args"-d parse -s $schema -r matrix $input") { cli =>
+    runCLI(args"-d parse -s $schema -r matrix $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("display info diff")
       cli.expect("(debug)")
@@ -1086,7 +1144,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
-    runCLI(args"-d parse -s $schema -r e $input") { cli =>
+    runCLI(args"-d parse -s $schema -r e $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("display info diff")
       cli.expect("(debug)")
@@ -1116,7 +1174,7 @@ class TestCLIDebugger {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml",
     )
 
-    runCLI(args"-d unparse -s $schema -r matrix -o $devNull $input") { cli =>
+    runCLI(args"-d unparse -s $schema -r matrix -o $devNull $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("display info diff")
       cli.expect("(debug)")
@@ -1155,7 +1213,7 @@ class TestCLIDebugger {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt.xml",
     )
 
-    runCLI(args"-d unparse -r list -s $schema -o $devNull $input") { cli =>
+    runCLI(args"-d unparse -r list -s $schema -o $devNull $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
       cli.sendLine("set diffExcludes doesNotExist1 bitLimit doesNotExist2")
       cli.expect("unknown or undiffable info commands: doesNotExist1, doesNotExist2")
@@ -1189,7 +1247,7 @@ class TestCLIDebugger {
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
-    runCLI(args"-d parse -s $schema $input") { cli =>
+    runCLI(args"-d parse -s $schema $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("info parser")
@@ -1213,7 +1271,7 @@ class TestCLIDebugger {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml",
     )
 
-    runCLI(args"-d unparse -s $schema $input") { cli =>
+    runCLI(args"-d unparse -s $schema $input", fork = true, envs = envs) { cli =>
       cli.expect("(debug)")
 
       cli.sendLine("info unparser")
@@ -1226,5 +1284,18 @@ class TestCLIDebugger {
 
     }(ExitCode.Success)
   }
+
+  @Test def test_CLI_Tdml_Debug_singleTest(): Unit = {
+    val tdml = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+    )
+
+    runCLI(args"-d test $tdml byte_entities_6_08", fork = true, envs = envs) { cli =>
+      cli.expect("(debug)")
+      cli.sendLine("continue")
+      cli.expect("[Pass] byte_entities_6_08")
+    }(ExitCode.Success)
+  }
+
 
 }
