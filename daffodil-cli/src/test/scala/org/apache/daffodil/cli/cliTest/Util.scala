@@ -159,6 +159,9 @@ object Util {
    * @param classpaths sequence of paths to add to the classpath. If non-empty,
    *   runs the CLI in a new process instead of a thread and will likely decrease
    *   performance
+   * @param envs map of environment varibles to set. If non-empty,
+   *   runs the CLI in a new process instead of a thread and will likely decrease
+   *   performance
    * @param fork if true, forces the the CLI to run in a new process
    * @param timeout how long to wait, in seconds, for the testFunc to finish after
    *   the CLI has completed. Test testFunc is interrupted if this timeout is reached
@@ -174,13 +177,14 @@ object Util {
   def runCLI(
     args: Array[String],
     classpaths: Seq[Path] = Seq(),
+    envs: Map[String, String] = Map(),
     fork: Boolean = false,
     timeout: Int = 10,
     debug: Boolean = false,
   )(testFunc: (CLITester) => Unit)(expectedExitCode: ExitCode.Value): Unit = {
 
     val (toIn, fromOut, fromErr, cliThreadOrProc: Either[CLIThread, Process]) =
-      if (classpaths.nonEmpty || fork) {
+      if (classpaths.nonEmpty || envs.nonEmpty || fork) {
         // spawn a new process to run Daffodil, needed if a custom classpath is
         // defined or if the caller explicitly wants to fork
         val processBuilder = new ProcessBuilder()
@@ -189,6 +193,10 @@ object Util {
           val classpath = classpaths.mkString(File.pathSeparator)
           if (debug) System.out.println(s"DAFFODIL_CLASSPATH=$classpath")
           processBuilder.environment().put("DAFFODIL_CLASSPATH", classpath)
+        }
+
+        if (envs.nonEmpty) {
+          processBuilder.environment().putAll(envs.asJava)
         }
 
         val cmd = daffodilBinPath.toString +: args
