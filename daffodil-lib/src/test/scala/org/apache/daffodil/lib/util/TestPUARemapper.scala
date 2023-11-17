@@ -76,7 +76,10 @@ class TestPUARemapper {
   @Test def testRemapXMLIllegalCharToPUA(): Unit = {
     val ec = xmlToPUANoCR2LF.remap("\u0000")
     assertEquals("\uE000", ec)
-    val ed = xmlToPUANoCR2LF.remap("\uD880")
+    // scalafmt detects invalid surrogate pairs in unicode literals, so we can't use them like
+    // we do for other tests--we must manually create the surrogate chars and append to a string
+    val loneSurrogate = 0xd880.toChar
+    val ed = xmlToPUANoCR2LF.remap("" + loneSurrogate)
     assertEquals("\uE880", ed)
     val crInPUA = xmlToPUANoCR2LF.remap("\u000d") // CR
     assertEquals("\uE00D", crInPUA)
@@ -93,13 +96,22 @@ class TestPUARemapper {
   @Test def testRemapXMLSurrogateCharactersToPUA(): Unit = {
     assertEquals(2, elephant.length)
     assertEquals("\uD80C\uDCF0", elephant)
-    val input = "elephant" + elephant + "isolatedHigh\uD80CisolatedLow\uDCF0"
+    // scalafmt detects invalid surrogate pairs in unicode literals, so we can't use them like
+    // we do for other tests--we must manually create the surrogate chars and append to a string
+    val highSurrogate = 0xd80c.toChar
+    val lowSurrogate = 0xdcf0.toChar
+    val input =
+      "elephant" + elephant + "isolatedHigh" + highSurrogate + "isolatedLow" + lowSurrogate
     val actual = xmlToPUANoCR2LF.remap(input)
     assertEquals("elephant\uD80C\uDCF0isolatedHigh\uE80CisolatedLow\uECF0", actual)
   }
 
   @Test def testRemapXMLSurrogateCharactersToPUA2(): Unit = {
-    val input = "badSurrogateOrder lowFirst\uDCF0\uD80CthenHigh"
+    // scalafmt detects invalid surrogate pairs in unicode literals, so we can't use them like
+    // we do for other tests--we must manually create the surrogate chars and append to a string
+    val highSurrogate = 0xd80c.toChar
+    val lowSurrogate = 0xdcf0.toChar
+    val input = "badSurrogateOrder lowFirst" + lowSurrogate + highSurrogate + "thenHigh"
     val actual = xmlToPUANoCR2LF.remap(input)
     assertEquals("badSurrogateOrder lowFirst\uECF0\uE80CthenHigh", actual)
   }
@@ -132,7 +144,10 @@ class TestRemapPUAToXML() {
     val ec = puaToXML.remap("\uE000")
     assertEquals("\u0000", ec)
     val ed = puaToXML.remap("\uE880")
-    assertEquals("\uD880", ed)
+    // scalafmt detects invalid surrogate pairs in unicode literals, so we can't use them like
+    // we do for other tests--we must manually create the surrogate chars and append to a string
+    val loneSurrogate = 0xd880.toChar
+    assertEquals("" + loneSurrogate, ed)
     val cr = puaToXML.remap("\uE00D")
     assertEquals("\u000D", cr)
   }
@@ -144,9 +159,16 @@ class TestRemapPUAToXML() {
   }
 
   @Test def testRemapPUAToSurrogateChars(): Unit = {
+    // scalafmt detects invalid surrogate pairs in unicode literals, so we can't use them like
+    // we do for other tests--we must manually create the surrogate chars and append to a string
+    val highSurrogate = 0xd80c.toChar
+    val lowSurrogate = 0xdcf0.toChar
     val input = "elephant\uD80C\uDCF0isolatedHigh\uE80CisolatedLow\uECF0"
     val actual = puaToXML.remap(input)
-    assertEquals("elephant" + elephant + "isolatedHigh\uD80CisolatedLow\uDCF0", actual)
+    assertEquals(
+      "elephant" + elephant + "isolatedHigh" + highSurrogate + "isolatedLow" + lowSurrogate,
+      actual,
+    )
   }
 
 }
