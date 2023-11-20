@@ -259,6 +259,9 @@ object DaffodilCCodeGenerator
    */
   def generateCode(gram: Gram, cgState: CodeGeneratorState): Unit = {
     gram match {
+      // Skip empty grams
+      case g: Gram if g.isEmpty => noop(g)
+      // Handle non-empty grams
       case g: AlignmentFill => alignmentFillGenerateCode(g, cgState)
       case g: AssertBooleanPrim => noop(g)
       case g: BinaryBoolean => binaryBooleanGenerateCode(g.e, cgState)
