@@ -17,6 +17,10 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.util.SchemaUtils
+
 import org.junit.Test
 
 /**
@@ -24,7 +28,8 @@ import org.junit.Test
  * capture call of genCExamples
  */
 class TestDaffodilCExamplesGenerator {
-  // Test added for code coverage and debugging
+
+  // Calls DaffodilCExamplesGenerator for code coverage and debugging
   @Test def test_DaffodilCExamplesGenerator_main(): Unit = {
     // Generate the C examples in a safe place (target/examples)
     val rootDir = if (os.exists(os.pwd / "src")) os.pwd / os.up else os.pwd
@@ -36,4 +41,39 @@ class TestDaffodilCExamplesGenerator {
     val generatedCode = examplesDir / "variablelen" / "generated_code.c"
     assert(os.exists(generatedCode))
   }
+
+  // Checks C code can be generated from a schema with an empty grammar object
+  @Test def test_generateCode(): Unit = {
+    // Define a schema containing an empty grammar object
+    val testSchema = SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <dfdl:format representation="binary" ref="GeneralFormat"/>,
+      <xs:element name="foo">
+        <xs:complexType>
+          <xs:choice>
+            <xs:element name="bar" type="xs:int"/>
+            <xs:sequence/>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>,
+    )
+
+    // Compile the schema into a ProcessorFactory
+    val pf = Compiler().compileNode(testSchema)
+    assert(!pf.isError, pf.getDiagnostics.map(_.getMessage()).mkString("\n"))
+
+    // Get a CodeGenerator from the ProcessorFactory
+    val cg = pf.forLanguage("c")
+    assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
+
+    // Generate C code into a temporary directory
+    val tempDir: os.Path =
+      os.temp.dir(dir = null, prefix = TDMLImplementation.DaffodilC.toString)
+    cg.generateCode(tempDir.toString)
+    os.remove.all(tempDir)
+
+    // Check the C code was generated successfully
+    assert(!cg.isError, cg.getDiagnostics.map(_.getMessage()).mkString("\n"))
+  }
+
 }
