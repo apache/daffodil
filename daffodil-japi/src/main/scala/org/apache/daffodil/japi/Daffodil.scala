@@ -141,7 +141,6 @@ class Compiler private[japi] (private var sCompiler: SCompiler) {
   ): ProcessorFactory = {
 
     val pf = sCompiler.compileFile(schemaFile, Option(rootName), Option(rootNamespace))
-    pf.isError
     new ProcessorFactory(pf)
   }
 

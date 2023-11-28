@@ -38,7 +38,6 @@ import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -65,7 +64,6 @@ final class ProcessorFactory private (
   val validateDFDLSchemas: Boolean,
   checkAllTopLevel: Boolean,
   tunables: DaffodilTunables,
-  optSchemaSet: Option[SchemaSet],
 ) extends DFDL.ProcessorFactory {
 
   def this(
@@ -82,7 +80,6 @@ final class ProcessorFactory private (
       validateDFDLSchemas,
       checkAllTopLevel,
       tunables,
-      None,
     )
 
   private def copy(optRootSpec: Option[RootSpec] = optRootSpec): ProcessorFactory =
@@ -92,19 +89,29 @@ final class ProcessorFactory private (
       validateDFDLSchemas,
       checkAllTopLevel,
       tunables,
-      Some(sset),
     )
 
   lazy val sset: SchemaSet =
-    optSchemaSet.getOrElse(
-      SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables),
-    )
+    SchemaSet(optRootSpec, schemaSource, validateDFDLSchemas, checkAllTopLevel, tunables)
 
   lazy val rootView: RootView = sset.root
 
   def elementBaseInstanceCount: Long = sset.elementBaseInstanceCount
 
-  def diagnostics: Seq[Diagnostic] = sset.diagnostics
+  def diagnostics: Seq[Diagnostic] = {
+    // The work to compile a schema and build diagnostics is triggered by the user calling
+    // isError. But if a user gets diagnostics before doing so, then no work will have been done
+    // and the diagnostics will be empty. Technically this is incorrect usage--a user should
+    // always call isError before getting diagnostics. But there are known instances where users
+    // have done this. We could detect this and throw a usage assertion so users know to fix it,
+    // but if they want diagnostics then they likely expected the work to have been done
+    // already, so lets just call isError to trigger that work so they get what they expect.
+    // Note that we don't check the result of isError, since it is perfectly reasonable for
+    // errors to exist when a user asks for diagnostics--we only call it for its side-effects.
+    isError
+    sset.diagnostics
+  }
+
   def getDiagnostics: Seq[Diagnostic] = diagnostics
 
   override def onPath(xpath: String): DFDL.DataProcessor = sset.onPath(xpath)
@@ -359,21 +366,6 @@ class Compiler private (
       )
     }
 
-    val err = pf.isError
-    val diags = pf.getDiagnostics // might be warnings even if not isError
-    if (err) {
-      Assert.invariant(diags.nonEmpty)
-      Logger.log.debug(
-        s"Compilation (ProcessorFactory) produced ${diags.length} errors/warnings.",
-      )
-    } else {
-      if (diags.nonEmpty) {
-        Logger.log.debug(s"Compilation (ProcessorFactory) produced ${diags.length} warnings.")
-      } else {
-        Logger.log.debug(s"ProcessorFactory completed with no errors.")
-      }
-    }
-    Logger.log.debug(s"Schema had ${pf.elementBaseInstanceCount} elements.")
     pf
   }
 

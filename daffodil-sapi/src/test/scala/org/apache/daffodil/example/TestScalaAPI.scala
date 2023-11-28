@@ -1325,4 +1325,56 @@ class TestScalaAPI {
       Files.delete(blobDir)
     }
   }
+
+  /**
+   * Verify that ProcessorFactory.withDistinguishedRootNode selects the right node
+   */
+  @Test
+  def testScalaAPIWithDistinguishedRootNode(): Unit = {
+    val c = Daffodil.compiler()
+
+    // e3 is defined first in mySchema3.dfdl.xsd, so if withDistinguishedRootNode is ignored,
+    // this should give a different result
+    val schemaFile = getResource("/test/sapi/mySchema3.dfdl.xsd")
+    val pf = c
+      .compileFile(schemaFile)
+      .withDistinguishedRootNode("e4", null)
+    val dp1 = pf.onPath("/")
+    val dp = reserializeDataProcessor(dp1)
+
+    val file = getResource("/test/sapi/myData16.dat")
+    val fis = new java.io.FileInputStream(file)
+    val input = new InputSourceDataInputStream(fis)
+    val outputter = new ScalaXMLInfosetOutputter()
+    val res = dp.parse(input, outputter)
+    val err = res.isError()
+    assertFalse(err)
+    assertEquals(5, res.location().bytePos1b())
+    assertEquals(33, res.location().bitPos1b())
+
+    val bos = new java.io.ByteArrayOutputStream()
+    val wbc = java.nio.channels.Channels.newChannel(bos)
+    val inputter = new ScalaXMLInfosetInputter(outputter.getResult)
+    val res2 = dp.unparse(inputter, wbc)
+    val err2 = res2.isError();
+    assertFalse(err2);
+    assertEquals("9100", bos.toString());
+  }
+
+  /**
+   * Verify that a user can get diagnostics without having to call isError
+   */
+  @Test
+  def testScalaAPIGetDiagnostics(): Unit = {
+    val c = Daffodil.compiler()
+
+    val schemaFile = new java.io.File("/test/sapi/notHere1.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    val diags = pf.getDiagnostics
+    val found1 = diags.exists { _.getMessage().contains("notHere1") }
+
+    assertTrue(found1)
+    assertTrue(pf.isError())
+  }
+
 }
