@@ -1346,4 +1346,59 @@ public class TestJavaAPI {
             Files.delete(blobDir);
         }
     }
+
+    /**
+     * Verify that ProcessorFactory.withDistinguishedRootNode selects the right node
+     */
+    @Test
+    public void testJavaAPIWithDistinguishedRootNode() throws IOException, ClassNotFoundException {
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+
+        // e3 is defined first in mySchema3.dfdl.xsd, so if withDistinguishedRootNode is ignored,
+        // this should give a different result
+        java.io.File schemaFile = getResource("/test/japi/mySchema3.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        pf = pf.withDistinguishedRootNode("e4", null);
+        DataProcessor dp = pf.onPath("/");
+
+        java.io.File file = getResource("/test/japi/myData16.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
+        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+        ParseResult res = dp.parse(dis, outputter);
+        boolean err = res.isError();
+        assertFalse(err);
+        assertEquals(5, res.location().bytePos1b());
+        assertEquals(33, res.location().bitPos1b());
+
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+        UnparseResult res2 = dp.unparse(inputter, wbc);
+        err = res2.isError();
+        assertFalse(err);
+        assertEquals("9100", bos.toString());
+    }
+
+    /***
+     * Verify that a user can get diagnostics without having to call isError
+     *
+     * @throws IOException
+     */
+    @Test
+    public void testJavaAPIGetDiagnostics() throws IOException {
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        java.io.File schemaFile = new java.io.File("/test/japi/notHere1.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        List<Diagnostic> diags = pf.getDiagnostics();
+        boolean found1 = false;
+        for (Diagnostic d : diags) {
+            if (d.getMessage().contains("notHere1")) {
+                found1 = true;
+            }
+        }
+        assertTrue(found1);
+        assertTrue(pf.isError());
+    }
+
 }

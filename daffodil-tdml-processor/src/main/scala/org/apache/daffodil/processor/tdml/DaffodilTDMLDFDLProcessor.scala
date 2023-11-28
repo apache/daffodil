@@ -128,8 +128,8 @@ final class TDMLDFDLProcessorFactory private (
     optRootNamespace: Option[String],
   ): TDML.CompileResult = {
     val pf = compiler.compileSource(schemaSource, optRootName, optRootNamespace)
-    val diags = pf.getDiagnostics
     if (pf.isError) {
+      val diags = pf.getDiagnostics
       Left(diags)
     } else {
       val res = this.generateProcessor(pf, useSerializedProcessor)

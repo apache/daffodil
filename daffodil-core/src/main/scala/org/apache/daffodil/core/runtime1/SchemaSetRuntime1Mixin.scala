@@ -72,11 +72,6 @@ trait SchemaSetRuntime1Mixin {
       )
     val dataProc =
       new DataProcessor(ssrd, tunable, variableMap.copy(), diagnostics = this.diagnostics)
-    if (dataProc.isError) {} else {
-      Logger.log.debug(s"Parser = ${ssrd.parser.toString}.")
-      Logger.log.debug(s"Unparser = ${ssrd.unparser.toString}.")
-      Logger.log.debug(s"Compilation (DataProcesor) completed with no errors.")
-    }
     dataProc
   }
 }

@@ -136,7 +136,6 @@ class Compiler private[sapi] (private var sCompiler: SCompiler) {
     optRootNamespace: Option[String] = None,
   ): ProcessorFactory = {
     val pf = sCompiler.compileFile(schemaFile, optRootName, optRootNamespace)
-    pf.isError
     new ProcessorFactory(pf)
   }
 

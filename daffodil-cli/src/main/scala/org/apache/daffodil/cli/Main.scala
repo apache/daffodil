@@ -72,6 +72,7 @@ import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
 import org.apache.daffodil.runtime1.layers.LayerExecutionException
 import org.apache.daffodil.runtime1.processors.DataLoc
+import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ExternalVariableException
 import org.apache.daffodil.runtime1.udf.UserDefinedFunctionFatalErrorException
 import org.apache.daffodil.slf4j.DaffodilLogger
@@ -960,6 +961,11 @@ class Main(
       // saved processor. Those are from compile time, are all warnings, and
       // are just noise in a production system where we're reloading a parser.
       if (!processor.isError) {
+        Logger.log.whenDebugEnabled {
+          val processorImpl = processor.asInstanceOf[DataProcessor]
+          Logger.log.debug(s"Parser = ${processorImpl.ssrd.parser.toString}")
+          Logger.log.debug(s"Unparser = ${processorImpl.ssrd.unparser.toString}")
+        }
         Some(processor.withValidationMode(mode))
       } else {
         None
@@ -1024,10 +1030,16 @@ class Main(
         val processorFactory = compiler.compileSource(schemaSource)
         if (!processorFactory.isError) {
           val processor = processorFactory.onPath(path.getOrElse("/")).withValidationMode(mode)
-          displayDiagnostics(processor)
           if (processor.isError) {
+            displayDiagnostics(processor)
             None
           } else {
+            displayDiagnostics(processor)
+            Logger.log.whenDebugEnabled {
+              val processorImpl = processor.asInstanceOf[DataProcessor]
+              Logger.log.debug(s"Parser = ${processorImpl.ssrd.parser.toString}")
+              Logger.log.debug(s"Unparser = ${processorImpl.ssrd.unparser.toString}")
+            }
             Some(processor)
           }
         } else {
