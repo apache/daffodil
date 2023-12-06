@@ -87,7 +87,7 @@ jobs:
       SBT: sbt -J-Xms1024m -J-Xmx5120m -J-XX:ReservedCodeCacheSize=512m -J-XX:MaxMetaspaceSize=1024m -J-Dfile.encoding=${{ matrix.encoding }} ++${{ matrix.scala_version }} coverage
       SONARSCAN: ${{
                      matrix.os == 'ubuntu-22.04' &&
-                     matrix.java_version == '11' &&
+                     matrix.java_version == '17' &&
                      matrix.scala_version == '2.12.18' &&
                      github.event_name == 'push' &&
                      github.repository == 'apache/daffodil' &&
