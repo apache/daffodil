@@ -28,9 +28,18 @@
 
       daffodil test -i -I daffodil nested.tdml
       daffodil test -i -I daffodilC nested.tdml
+
+      Or you can debug specific steps in isolation:
+
+      daffodil parse -s nested.dfdl.xsd -o infosets/nested.struct.dat.xml data/nested.struct.dat
+      daffodil unparse -s nested.dfdl.xsd -o data/nested.struct.dat infosets/nested.struct.dat.xml
+
+      daffodil generate c -s nested.dfdl.xsd && make -C c
+      c/daffodil parse -o c/nested.struct.dat.xml data/nested.struct.dat
+      c/daffodil unparse -o c/nested.struct.dat infosets/nested.struct.dat.xml
   -->
 
-  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_struct">
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.struct">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.struct.dat</tdml:documentPart>
     </tdml:document>
@@ -39,7 +48,61 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_union_bar">
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.struct.diag1">
+    <tdml:document>
+      <tdml:documentPart type="file">data/nested.struct.diag1.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/nested.struct.diag1.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>expression</tdml:error>
+      <tdml:error>failed</tdml:error>
+      <tdml:error>. eq 1</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.struct.diag2">
+    <tdml:document>
+      <tdml:documentPart type="file">data/nested.struct.diag2.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset type="file">infosets/nested.struct.diag2.dat.xml</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>expression</tdml:error>
+      <tdml:error>failed</tdml:error>
+      <tdml:error>b eq 2</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase model="nested.dfdl.xsd"
+                       name="nested.struct.err1"
+                       root="NestedStruct">
+    <tdml:document>
+      <tdml:documentPart type="file">data/nested.struct.err1.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>expression</tdml:error>
+      <tdml:error>failed</tdml:error>
+      <tdml:error>x eq 4.5</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase model="nested.dfdl.xsd"
+                       name="nested.struct.err2"
+                       root="NestedStruct">
+    <tdml:document>
+      <tdml:documentPart type="file">data/nested.struct.err2.dat</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>expression</tdml:error>
+      <tdml:error>failed</tdml:error>
+      <tdml:error>. eq 5.5</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.union.bar">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.union.bar.dat</tdml:documentPart>
     </tdml:document>
@@ -48,7 +111,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_union_foo">
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.union.foo">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.union.foo.dat</tdml:documentPart>
     </tdml:document>

@@ -445,15 +445,24 @@ class CodeGeneratorState(private val root: ElementBase) {
       },
     )
     // Match each named operator and replace it with a C operator
-    val operator = """(\bidiv\b|\bdiv\b|\bmod\b)""".r
+    val operator =
+      """(\band\b|\bdiv\b|\beq\b|\bge\b|\bgt\b|\bidiv\b|\ble\b|\blt\b|\bmod\b|\bne\b|\bor\b)""".r
     val exprWithOperators = operator.replaceAllIn(
       exprWithFields,
       m => {
         val operatorName = m.group(1)
         val cOperatorSymbol = operatorName match {
-          case "idiv" => "/"
+          case "and" => "&&"
           case "div" => "/"
+          case "eq" => "=="
+          case "ge" => ">="
+          case "gt" => ">"
+          case "idiv" => "/"
+          case "le" => "<="
+          case "lt" => "<"
           case "mod" => "%"
+          case "ne" => "!="
+          case "or" => "||"
         }
         cOperatorSymbol
       },

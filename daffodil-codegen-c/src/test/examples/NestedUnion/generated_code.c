@@ -236,6 +236,8 @@ foo_data_NestedUnionType__parseSelf(foo_data_NestedUnionType_ *instance, PState 
 {
     parse_be_int32(&instance->a, 32, pstate);
     if (pstate->pu.error) return;
+    validate_dfdl_assert(instance->a == 1, "{ . eq 1 }", true, &pstate->pu);
+    if (pstate->pu.error) return;
     parse_be_int32(&instance->b, 32, pstate);
     if (pstate->pu.error) return;
     parse_be_int32(&instance->c, 32, pstate);
@@ -246,6 +248,8 @@ static void
 foo_data_NestedUnionType__unparseSelf(const foo_data_NestedUnionType_ *instance, UState *ustate)
 {
     unparse_be_int32(instance->a, 32, ustate);
+    if (ustate->pu.error) return;
+    validate_dfdl_assert(instance->a == 1, "{ . eq 1 }", true, &ustate->pu);
     if (ustate->pu.error) return;
     unparse_be_int32(instance->b, 32, ustate);
     if (ustate->pu.error) return;
@@ -267,6 +271,8 @@ bar_data_NestedUnionType__parseSelf(bar_data_NestedUnionType_ *instance, PState 
     if (pstate->pu.error) return;
     parse_be_double(&instance->y, 64, pstate);
     if (pstate->pu.error) return;
+    validate_dfdl_assert(instance->y == 5.5, "{ . eq 5.5 }", false, &pstate->pu);
+    if (pstate->pu.error) return;
     parse_be_double(&instance->z, 64, pstate);
     if (pstate->pu.error) return;
 }
@@ -277,6 +283,8 @@ bar_data_NestedUnionType__unparseSelf(const bar_data_NestedUnionType_ *instance,
     unparse_be_double(instance->x, 64, ustate);
     if (ustate->pu.error) return;
     unparse_be_double(instance->y, 64, ustate);
+    if (ustate->pu.error) return;
+    validate_dfdl_assert(instance->y == 5.5, "{ . eq 5.5 }", false, &ustate->pu);
     if (ustate->pu.error) return;
     unparse_be_double(instance->z, 64, ustate);
     if (ustate->pu.error) return;
