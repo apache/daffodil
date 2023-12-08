@@ -31,6 +31,11 @@
 extern void validate_array_bounds(const char *name, size_t count, size_t minOccurs, size_t maxOccurs,
                                   ParserOrUnparserState *pu);
 
+// Validate element or sequence's dfdl:assert expression returns true
+
+extern void validate_dfdl_assert(bool assertion, const char *expression, bool recoverable,
+                                 ParserOrUnparserState *pu);
+
 // Validate element's value is same as its fixed attribute
 
 extern void validate_fixed_attribute(bool same, const char *element, ParserOrUnparserState *pu);

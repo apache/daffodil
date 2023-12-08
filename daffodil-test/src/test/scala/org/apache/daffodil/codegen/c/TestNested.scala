@@ -33,7 +33,11 @@ object TestNested {
 class TestNested {
   import TestNested._
 
-  @Test def test_nested_struct(): Unit = { runner.runOneTest("nested_struct") }
-  @Test def test_nested_union_bar(): Unit = { runner.runOneTest("nested_union_bar") }
-  @Test def test_nested_union_foo(): Unit = { runner.runOneTest("nested_union_foo") }
+  @Test def test_nested_struct(): Unit = { runner.runOneTest("nested.struct") }
+  @Test def test_nested_struct_diag1(): Unit = { runner.runOneTest("nested.struct.diag1") }
+  @Test def test_nested_struct_diag2(): Unit = { runner.runOneTest("nested.struct.diag2") }
+  @Test def test_nested_struct_err1(): Unit = { runner.runOneTest("nested.struct.err1") }
+  @Test def test_nested_struct_err2(): Unit = { runner.runOneTest("nested.struct.err2") }
+  @Test def test_nested_union_bar(): Unit = { runner.runOneTest("nested.union.bar") }
+  @Test def test_nested_union_foo(): Unit = { runner.runOneTest("nested.union.foo") }
 }

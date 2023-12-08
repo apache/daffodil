@@ -25,6 +25,7 @@ import scala.collection.JavaConverters._
 import scala.util.Properties.isWin
 
 import org.apache.daffodil.codegen.c.generators.AlignmentFillCodeGenerator
+import org.apache.daffodil.codegen.c.generators.AssertStatementGenerateCode
 import org.apache.daffodil.codegen.c.generators.BinaryBooleanCodeGenerator
 import org.apache.daffodil.codegen.c.generators.BinaryFloatCodeGenerator
 import org.apache.daffodil.codegen.c.generators.BinaryIntegerKnownLengthCodeGenerator
@@ -60,6 +61,8 @@ import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthImplicit
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.WarnID
+import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
+import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
@@ -247,6 +250,7 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
  */
 object DaffodilCCodeGenerator
   extends AlignmentFillCodeGenerator
+  with AssertStatementGenerateCode
   with BinaryBooleanCodeGenerator
   with BinaryIntegerKnownLengthCodeGenerator
   with BinaryFloatCodeGenerator
@@ -263,7 +267,13 @@ object DaffodilCCodeGenerator
       case g: Gram if g.isEmpty => noop(g)
       // Handle non-empty grams
       case g: AlignmentFill => alignmentFillGenerateCode(g, cgState)
-      case g: AssertBooleanPrim => noop(g)
+      case g: AssertBooleanPrim =>
+        assertStatementGenerateCode(
+          g.name,
+          g.exprText,
+          g.stmt.failureType == FailureType.RecoverableError,
+          cgState,
+        )
       case g: BinaryBoolean => binaryBooleanGenerateCode(g.e, cgState)
       case g: BinaryDouble => binaryFloatGenerateCode(g.e, lengthInBits = 64, cgState)
       case g: BinaryFloat => binaryFloatGenerateCode(g.e, lengthInBits = 32, cgState)
@@ -306,6 +316,21 @@ object DaffodilCCodeGenerator
   private def elementCombinator(g: ElementCombinator, cgState: CodeGeneratorState): Unit = {
     cgState.pushElement(g.context)
     DaffodilCCodeGenerator.generateCode(g.subComb, cgState)
+    // Also generate code for the element's assert statements
+    g.context.assertStatements.foreach { assert =>
+      assert.testKind match {
+        case TestKind.Pattern =>
+          g.SDW(
+            WarnID.IgnoreDFDLProperty,
+            "Code generation not supported for dfdl:assert pattern stmts",
+          )
+        case TestKind.Expression =>
+          val name = g.name
+          val exprText = assert.testTxt
+          val recoverable = assert.failureType == FailureType.RecoverableError
+          assertStatementGenerateCode(name, exprText, recoverable, cgState)
+      }
+    }
     cgState.popElement(g.context)
   }
 

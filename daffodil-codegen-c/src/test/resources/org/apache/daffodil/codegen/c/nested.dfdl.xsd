@@ -44,7 +44,15 @@
 
   <xs:complexType name="FooType">
     <xs:sequence>
-      <xs:element name="a" type="idl:int32"/>
+      <xs:element name="a" type="idl:int32">
+        <!-- Validate field a; recoverable error if fails -->
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:assert test="{ . eq 1 }"
+                         failureType="recoverableError"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="b" type="idl:int32"/>
       <xs:element name="c" type="idl:int32"/>
     </xs:sequence>
@@ -53,7 +61,14 @@
   <xs:complexType name="BarType">
     <xs:sequence>
       <xs:element name="x" type="idl:double"/>
-      <xs:element name="y" type="idl:double"/>
+      <xs:element name="y" type="idl:double">
+        <!-- Validate field y; processing error if fails -->
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:assert test="{ . eq 5.5 }"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
       <xs:element name="z" type="idl:double"/>
     </xs:sequence>
   </xs:complexType>
@@ -64,7 +79,24 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element name="foo" type="idl:FooType"/>
+            <!-- Validate field b in foo; recoverable error if fails -->
+            <xs:sequence>
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ ../data/foo/b eq 2 }"
+                               failureType="recoverableError"/>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:sequence>
             <xs:element name="bar" type="idl:BarType"/>
+            <!-- Validate field x in bar; processing error if fails -->
+            <xs:sequence>
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ ../data/bar/x eq 4.5 }"/>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:sequence>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

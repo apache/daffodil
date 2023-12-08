@@ -38,6 +38,31 @@ validate_array_bounds(const char *name, size_t count, size_t minOccurs, size_t m
     }
 }
 
+// Validate element or sequence's dfdl:assert expression returns true
+
+void
+validate_dfdl_assert(bool assertion, const char *expression, bool recoverable, ParserOrUnparserState *pu)
+{
+    // The boolean expression that determines if the assertion is true
+    // is evaluated in generated code and the result passed here, as
+    // well as failure_type which determines whether to issue a diagnostic
+    // which is printed later or an error which terminates processing now.
+    if (!assertion && recoverable)
+    {
+        Diagnostics *diagnostics = get_diagnostics();
+        const Error error = {ERR_DFDL_ASSERT, {.s = expression}};
+
+        add_diagnostic(diagnostics, &error);
+        pu->diagnostics = diagnostics;
+    }
+    else if (!assertion)
+    {
+        static Error error = {ERR_DFDL_ASSERT, {0}};
+        error.arg.s = expression;
+        pu->error = &error;
+    }
+}
+
 // Validate element's value is same as its fixed attribute
 
 void

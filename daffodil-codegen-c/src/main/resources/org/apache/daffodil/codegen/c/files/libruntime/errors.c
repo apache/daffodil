@@ -81,6 +81,7 @@ error_lookup(uint8_t code)
     static const ErrorLookup table[ERR__NUM_CODES] = {
         {ERR_ARRAY_BOUNDS, "%s count out of bounds\n", FIELD_S},
         {ERR_CHOICE_KEY, "no match between choice dispatch key %" PRId64 " and any branch key\n", FIELD_D64},
+        {ERR_DFDL_ASSERT, "Assertion expression failed: %s", FIELD_S},
         {ERR_HEXBINARY_ALLOC, "error allocating hexBinary memory -- %" PRId64 " bytes\n", FIELD_D64},
         {ERR_LEFTOVER_DATA, "Left over data, at least %i bit(s) remaining after end of parse\n", FIELD_C},
         {ERR_PARSE_BOOL, "error parsing binary value %" PRId64 " as either true or false\n", FIELD_D64},

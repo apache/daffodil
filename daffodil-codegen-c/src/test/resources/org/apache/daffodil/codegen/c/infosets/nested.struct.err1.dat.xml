@@ -16,13 +16,17 @@
   limitations under the License.
 -->
 
-<idl:NestedUnion xmlns:idl="urn:idl:1.0">
-  <tag>4</tag>
+<idl:NestedStruct xmlns:idl="urn:idl:1.0">
   <data>
+    <foo>
+      <a>1</a>
+      <b>2</b>
+      <c>3</c>
+    </foo>
     <bar>
-      <x>4.5</x>
+      <x>0.5</x>
       <y>5.5</y>
       <z>6.5</z>
     </bar>
   </data>
-</idl:NestedUnion>
+</idl:NestedStruct>
