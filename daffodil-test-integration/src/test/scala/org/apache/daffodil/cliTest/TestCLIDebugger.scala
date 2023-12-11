@@ -86,7 +86,7 @@ class TestCLIDebugger {
     }
   }
 
-  @Test def test_3385_CLI_Debugger_invalidExpressions(): Unit = {
+  @Test def test_CLI_Debugger_invalidExpressions(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -121,7 +121,7 @@ class TestCLIDebugger {
     }(ExitCode.Failure)
   }
 
-  @Test def test_1591_CLI_Debugger_invalidCommandError(): Unit = {
+  @Test def test_CLI_Debugger_invalidCommandError(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -135,7 +135,7 @@ class TestCLIDebugger {
     }(ExitCode.Failure)
   }
 
-  @Test def test_1335_CLI_Debugger_dataAndWrapLength(): Unit = {
+  @Test def test_CLI_Debugger_dataAndWrapLength(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -156,7 +156,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_982_CLI_Debugger_simpleDebugger(): Unit = {
+  @Test def test_CLI_Debugger_simpleDebugger(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -169,7 +169,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1326_CLI_Debugger_displaysTesting(): Unit = {
+  @Test def test_CLI_Debugger_displaysTesting(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -206,7 +206,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1339_CLI_Debugger_removeHidden(): Unit = {
+  @Test def test_CLI_Debugger_removeHidden(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
     )
@@ -228,7 +228,7 @@ class TestCLIDebugger {
     }(ExitCode.Failure)
   }
 
-  @Test def test_3268_CLI_Debugger_removeHidden2(): Unit = {
+  @Test def test_CLI_Debugger_removeHidden2(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
     )
@@ -248,7 +248,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1331_CLI_Debugger_breakpointTesting4(): Unit = {
+  @Test def test_CLI_Debugger_breakpointTesting4(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -299,7 +299,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1463_CLI_Debugger_breakOnValueOfElement(): Unit = {
+  @Test def test_CLI_Debugger_breakOnValueOfElement(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -351,7 +351,7 @@ class TestCLIDebugger {
     }(ExitCode.Failure)
   }
 
-  @Test def test_1338_CLI_Debugger_pointsOfUncertaintyInfo(): Unit = {
+  @Test def test_CLI_Debugger_pointsOfUncertaintyInfo(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
     )
@@ -378,7 +378,7 @@ class TestCLIDebugger {
     }(ExitCode.Failure)
   }
 
-  @Test def test_1328_CLI_Debugger_breakpointTesting(): Unit = {
+  @Test def test_CLI_Debugger_breakpointTesting(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -414,7 +414,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1329_CLI_Debugger_breakpointTesting2(): Unit = {
+  @Test def test_CLI_Debugger_breakpointTesting2(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -468,7 +468,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1330_CLI_Debugger_breakpointTesting3(): Unit = {
+  @Test def test_CLI_Debugger_breakpointTesting3(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -503,7 +503,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1333_CLI_Debugger_settingInfosetLines(): Unit = {
+  @Test def test_CLI_Debugger_settingInfosetLines(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -541,7 +541,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1334_CLI_Debugger_infoBitPosition(): Unit = {
+  @Test def test_CLI_Debugger_infoBitPosition(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -568,7 +568,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1337_CLI_Debugger_childIndex(): Unit = {
+  @Test def test_CLI_Debugger_childIndex(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -596,7 +596,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1340_CLI_Debugger_infoPath(): Unit = {
+  @Test def test_CLI_Debugger_infoPath(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -621,7 +621,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1382_CLI_Debugger_dataAndWrapLength2(): Unit = {
+  @Test def test_CLI_Debugger_dataAndWrapLength2(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -645,7 +645,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1863_CLI_Debugger_groupIndex01(): Unit = {
+  @Test def test_CLI_Debugger_groupIndex01(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd",
     )
@@ -673,7 +673,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_1029_CLI_Debugger_validation1(): Unit = {
+  @Test def test_CLI_Debugger_validation1(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd",
     )
@@ -692,7 +692,7 @@ class TestCLIDebugger {
     }(ExitCode.Failure)
   }
 
-  @Test def test_3258_CLI_Debugger_infodata(): Unit = {
+  @Test def test_CLI_Debugger_infodata(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -721,7 +721,7 @@ class TestCLIDebugger {
     }(ExitCode.Success)
   }
 
-  @Test def test_3264_CLI_Debugger_undefined_command(): Unit = {
+  @Test def test_CLI_Debugger_undefined_command(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -792,7 +792,7 @@ class TestCLIDebugger {
     }(ExitCode.Failure)
   }
 
-  @Test def test_1337_CLI_Debugger_info_infoset(): Unit = {
+  @Test def test_CLI_Debugger_info_infoset(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -986,7 +986,7 @@ class TestCLIDebugger {
     }
   }
 
-  @Test def test_3585_CLI_Debugger_simpleDebugger_unparse(): Unit = {
+  @Test def test_CLI_Debugger_simpleDebugger_unparse(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -1006,7 +1006,7 @@ class TestCLIDebugger {
     }(ExitCode.Failure)
   }
 
-  @Test def test_3585_CLI_Debugger_prefixLength(): Unit = {
+  @Test def test_CLI_Debugger_prefixLength(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/prefixed_length.dfdl.xsd",
     )
