@@ -32,7 +32,7 @@ class TestCLItdml {
     runCLI(args"test $tdml escape_entry1 escape_entry2-11 escape_entry1-5 escape_entry4_3") {
       cli =>
         cli.expect("Total: 4, Pass: 2, Fail: 0, Not Found: 2")
-    }(ExitCode.Success)
+    }(ExitCode.TestError)
   }
 
   @Test def test_CLI_Tdml_Listing_execRegex01(): Unit = {

@@ -1609,7 +1609,10 @@ class Main(
                   val matches = tdmlRunner.testCases.filter(testCase =>
                     regex.pattern.matcher(testCase.tcName).matches,
                   )
-                  matches.map(testCase => (testCase.tcName, Some(testCase)))
+                  matches match {
+                    case m if !m.isEmpty => m.map(testCase => (testCase.tcName, Some(testCase)))
+                    case _ => Seq((testName, None))
+                  }
                 } else {
                   List((testName, tdmlRunner.testCases.find(_.tcName == testName)))
                 }
@@ -1729,7 +1732,7 @@ class Main(
             ),
           )
 
-          if (fail == 0) ExitCode.Success else ExitCode.TestError
+          if (fail == 0 && notfound == 0) ExitCode.Success else ExitCode.TestError
         }
       }
 
