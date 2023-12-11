@@ -24,7 +24,7 @@ import org.junit.Test
 
 class TestCLItdml {
 
-  @Test def test_995_CLI_Tdml_Listing_negativeTest01(): Unit = {
+  @Test def test_CLI_Tdml_Listing_negativeTest01(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
     )
@@ -35,7 +35,7 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
-  @Test def test_1001_CLI_Tdml_Listing_execRegex01(): Unit = {
+  @Test def test_CLI_Tdml_Listing_execRegex01(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
     )
@@ -45,7 +45,7 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
-  @Test def test_1000_CLI_Tdml_Listing_listRegex02(): Unit = {
+  @Test def test_CLI_Tdml_Listing_listRegex02(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
     )
@@ -53,7 +53,7 @@ class TestCLItdml {
     runCLI(args"test -l --regex $tdml escape_entryb-\d+") { _ => }(ExitCode.Success)
   }
 
-  @Test def test_999_CLI_Tdml_Listing_listRegex01(): Unit = {
+  @Test def test_CLI_Tdml_Listing_listRegex01(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
     )
@@ -66,7 +66,7 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
-  @Test def test_994_CLI_Tdml_Listing_execAll(): Unit = {
+  @Test def test_CLI_Tdml_Listing_execAll(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
     )
@@ -76,7 +76,7 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
-  @Test def test_993_CLI_Tdml_Listing_listAll(): Unit = {
+  @Test def test_CLI_Tdml_Listing_listAll(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
     )
@@ -90,7 +90,7 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
-  @Test def test_992_CLI_Tdml_Listing_singleTestList(): Unit = {
+  @Test def test_CLI_Tdml_Listing_singleTestList(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
     )
@@ -100,7 +100,7 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
-  @Test def test_990_CLI_Tdml_Listing_singleTest(): Unit = {
+  @Test def test_CLI_Tdml_Listing_singleTest(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
     )
@@ -170,7 +170,7 @@ class TestCLItdml {
     }(ExitCode.Success)
   }
 
-  @Test def test_1016_CLI_Tdml_Listing_listVerbose(): Unit = {
+  @Test def test_CLI_Tdml_Listing_listVerbose(): Unit = {
     val tdml = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section07/assertions/assert.tdml",
     )

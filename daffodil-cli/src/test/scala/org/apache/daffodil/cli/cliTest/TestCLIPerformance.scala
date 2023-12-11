@@ -24,7 +24,7 @@ import org.junit.Test
 
 class TestCLIPerformance {
 
-  @Test def test_3393_CLI_Performance_2_Threads_2_Times(): Unit = {
+  @Test def test_CLI_Performance_2_Threads_2_Times(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -36,7 +36,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Performance_2_Threads_2_Times_sax(): Unit = {
+  @Test def test_CLI_Performance_2_Threads_2_Times_sax(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -48,7 +48,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Performance_2_Threads_2_Times_exi(): Unit = {
+  @Test def test_CLI_Performance_2_Threads_2_Times_exi(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -60,7 +60,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Performance_2_Threads_2_Times_exisa(): Unit = {
+  @Test def test_CLI_Performance_2_Threads_2_Times_exisa(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -72,7 +72,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_3394_CLI_Performance_3_Threads_20_Times(): Unit = {
+  @Test def test_CLI_Performance_3_Threads_20_Times(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -84,7 +84,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_3395_CLI_Performance_5_Threads_50_Times(): Unit = {
+  @Test def test_CLI_Performance_5_Threads_50_Times(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
     )
@@ -96,7 +96,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_3396_CLI_Performance_2_Threads_2_Times_Negative(): Unit = {
+  @Test def test_CLI_Performance_2_Threads_2_Times_Negative(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -109,7 +109,7 @@ class TestCLIPerformance {
     }(ExitCode.PerformanceTestError)
   }
 
-  @Test def test_3641_CLI_Performance_Unparse_2_Threads_2_Times(): Unit = {
+  @Test def test_CLI_Performance_Unparse_2_Threads_2_Times(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -123,7 +123,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Performance_Unparse_2_Threads_2_Times_sax(): Unit = {
+  @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_sax(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -137,7 +137,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Performance_Unparse_2_Threads_2_Times_exi(): Unit = {
+  @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_exi(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -151,7 +151,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Performance_Unparse_2_Threads_2_Times_exisa(): Unit = {
+  @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_exisa(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -165,7 +165,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Performance_Unparse_2_Threads_2_Times_null(): Unit = {
+  @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_null(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -179,7 +179,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_3643_CLI_Performance_Unparse_3_Threads_20_Times(): Unit = {
+  @Test def test_CLI_Performance_Unparse_3_Threads_20_Times(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -193,7 +193,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_3644_CLI_Performance_Unparse_5_Threads_50_Times(): Unit = {
+  @Test def test_CLI_Performance_Unparse_5_Threads_50_Times(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -207,7 +207,7 @@ class TestCLIPerformance {
     }(ExitCode.Success)
   }
 
-  @Test def test_3642_CLI_Performance_Unparse_2_Threads_2_Times_Negative(): Unit = {
+  @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_Negative(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )

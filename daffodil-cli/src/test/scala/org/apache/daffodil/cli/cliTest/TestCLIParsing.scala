@@ -34,7 +34,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_3677_CLI_Parsing_elementFormDefault_qualified(): Unit = {
+  @Test def test_CLI_Parsing_elementFormDefault_qualified(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/elementFormDefaultQualified.dfdl.xsd",
     )
@@ -45,7 +45,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_3678_CLI_Parsing_elementFormDefault_unqualified(): Unit = {
+  @Test def test_CLI_Parsing_elementFormDefault_unqualified(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/elementFormDefaultUnqualified.dfdl.xsd",
     )
@@ -56,7 +56,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_2358_CLI_Parsing_SimpleParse_stdOut_extVars(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_stdOut_extVars(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd",
     )
@@ -71,7 +71,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_3507_CLI_Parsing_SimpleParse_SaveParser_extVars(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_SaveParser_extVars(): Unit = {
     withTempFile { parser =>
       val schema = path(
         "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd",
@@ -98,7 +98,7 @@ class TestCLIParsing {
     }
   }
 
-  @Test def test_2360_CLI_Parsing_SimpleParse_stdOut_extVars2(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_stdOut_extVars2(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd",
     )
@@ -114,7 +114,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_3506_CLI_Parsing_SimpleParse_extVars2(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_extVars2(): Unit = {
     withTempFile { parser =>
       val schema = path(
         "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd",
@@ -150,7 +150,7 @@ class TestCLIParsing {
     }(ExitCode.BadExternalVariable)
   }
 
-  @Test def test_3227_CLI_Parsing_SimpleParse_DFDL1197_fix(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_DFDL1197_fix(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section12/delimiter_properties/testOptionalInfix.dfdl.xsd",
     )
@@ -161,7 +161,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_1593_CLI_Parsing_MultifileSchema_noGlobalElem(): Unit = {
+  @Test def test_CLI_Parsing_MultifileSchema_noGlobalElem(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_21.dfdl.xsd",
     )
@@ -181,7 +181,7 @@ class TestCLIParsing {
   //  TDML tests do not verify this part of expected infosets. This is one test
   //  verifies the expected output. If this test fails, it likely means we've
   //  broken our attempts to create consistent prefix mappings.
-  @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir(): Unit = {
+  @Test def test_CLI_Parsing_MultifileSchema_methodImportSameDir(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_14.dfdl.xsd",
     )
@@ -196,7 +196,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_1586_CLI_Parsing_MultifileSchema_methodIncludeSameDir(): Unit = {
+  @Test def test_CLI_Parsing_MultifileSchema_methodIncludeSameDir(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_15.dfdl.xsd",
     )
@@ -208,7 +208,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_1587_CLI_Parsing_MultifileSchema_methodImportSameDir2(): Unit = {
+  @Test def test_CLI_Parsing_MultifileSchema_methodImportSameDir2(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_16.dfdl.xsd",
     )
@@ -220,7 +220,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_1317_IBMCompatibility_ABC_test_ibm_abc_cli(): Unit = {
+  @Test def test_CLI_IBMCompatibility_ABC_test_ibm_abc(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/ABC_IBM.dfdl.xsd",
     )
@@ -232,7 +232,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_977_CLI_Parsing_SimpleParse_stdOut(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_stdOut(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -243,7 +243,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_978_CLI_Parsing_SimpleParse_outFile(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_outFile(): Unit = {
     withTempFile { output =>
       val schema = path(
         "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
@@ -258,7 +258,7 @@ class TestCLIParsing {
     }
   }
 
-  @Test def test_979_CLI_Parsing_SimpleParse_inFile(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_inFile(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -269,7 +269,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_980_CLI_Parsing_SimpleParse_stOutDash(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_stOutDash(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -280,7 +280,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_981_CLI_Parsing_SimpleParse_stdInDash(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_stdInDash(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -291,7 +291,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_983_CLI_Parsing_SimpleParse_verboseMode(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_verboseMode(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -307,14 +307,14 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_984_CLI_Parsing_negativeTest(): Unit = {
+  @Test def test_CLI_Parsing_negativeTest(): Unit = {
     runCLI(args"parse") { cli =>
       cli.sendLine("0,1,2,3", inputDone = true)
       cli.expectErr("There should be exactly one of the following options: schema, parser")
     }(ExitCode.Usage)
   }
 
-  @Test def test_985_CLI_Parsing_SimpleParse_defaultRoot(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_defaultRoot(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -325,7 +325,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_988_CLI_Parsing_SimpleParse_specifiedRoot(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_specifiedRoot(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -338,7 +338,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_996_CLI_Parsing_negativeTest04(): Unit = {
+  @Test def test_CLI_Parsing_negativeTest04(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -349,7 +349,7 @@ class TestCLIParsing {
     }(ExitCode.UnableToCreateProcessor)
   }
 
-  @Test def test_997_CLI_Parsing_multSchemas(): Unit = {
+  @Test def test_CLI_Parsing_multSchemas(): Unit = {
     val schema1 = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -363,7 +363,7 @@ class TestCLIParsing {
     }(ExitCode.Usage)
   }
 
-  @Test def test_3661_CLI_Parsing_badSchemaPath(): Unit = {
+  @Test def test_CLI_Parsing_badSchemaPath(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/doesnotexist.dfdl.xsd",
     )
@@ -375,7 +375,7 @@ class TestCLIParsing {
     }(ExitCode.Usage)
   }
 
-  @Test def test_1002_CLI_Parsing_negativeTest03(): Unit = {
+  @Test def test_CLI_Parsing_negativeTest03(): Unit = {
 
     runCLI(args"parse -P parserThatDoesNotExist") { cli =>
       cli.sendLine("0,1,2", inputDone = true)
@@ -383,7 +383,7 @@ class TestCLIParsing {
     }(ExitCode.FileNotFound)
   }
 
-  @Test def test_1003_CLI_Parsing_SimpleParse_emptyNamespace(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_emptyNamespace(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd",
     )
@@ -394,7 +394,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_1004_CLI_Parsing_SimpleParse_namespaceUsed(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_namespaceUsed(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/charClassEntities.dfdl.xsd",
     )
@@ -406,7 +406,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_2615_CLI_Parsing_SimpleParse_namespaceUsedLongOpt(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_namespaceUsedLongOpt(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/charClassEntities.dfdl.xsd",
     )
@@ -418,7 +418,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_1005_CLI_Parsing_SimpleParse_rootPath(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_rootPath(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -431,7 +431,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_1015_CLI_Parsing_SimpleParse_defaultRootMultSchema(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_defaultRootMultSchema(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd",
     )
@@ -442,7 +442,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationOn(): Unit = {
+  @Test def test_CLI_Parsing_SimpleSchema_basicTest_validationOn(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -453,7 +453,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validation_missing_mode(): Unit = {
+  @Test def test_CLI_Parsing_SimpleSchema_basicTest_validation_missing_mode(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -466,7 +466,7 @@ class TestCLIParsing {
     }(ExitCode.Usage)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationLimited(): Unit = {
+  @Test def test_CLI_Parsing_SimpleSchema_basicTest_validationLimited(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -477,7 +477,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationOff(): Unit = {
+  @Test def test_CLI_Parsing_SimpleSchema_basicTest_validationOff(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -488,7 +488,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationFooBar(): Unit = {
+  @Test def test_CLI_Parsing_SimpleSchema_basicTest_validationFooBar(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -499,7 +499,7 @@ class TestCLIParsing {
     }(ExitCode.Usage)
   }
 
-  @Test def test_1319_CLI_Parsing_invalidElementSDE(): Unit = {
+  @Test def test_CLI_Parsing_invalidElementSDE(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/ABC_IBM_invalid.dfdl.xsd",
     )
@@ -510,7 +510,7 @@ class TestCLIParsing {
     }(ExitCode.UnableToCreateProcessor)
   }
 
-  @Test def test_1346_CLI_Parsing_SimpleParse_defaultRootMultSchemaMultiple(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_defaultRootMultSchemaMultiple(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd",
     )
@@ -522,14 +522,14 @@ class TestCLIParsing {
     }
   }
 
-  @Test def test_1386_CLI_Parsing_negativeTest05(): Unit = {
+  @Test def test_CLI_Parsing_negativeTest05(): Unit = {
     runCLI(args"") { cli =>
       cli.sendLine("12", inputDone = true)
       cli.expectErr("Subcommand required")
     }(ExitCode.Usage)
   }
 
-  @Test def test_1971_CLI_Parsing_traceMode01(): Unit = {
+  @Test def test_CLI_Parsing_traceMode01(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_15.dfdl.xsd",
     )
@@ -540,7 +540,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_1973_CLI_Parsing_traceMode03(): Unit = {
+  @Test def test_CLI_Parsing_traceMode03(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -553,7 +553,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_1941_CLI_Parsing_SimpleParse_leftOverData(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_leftOverData(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -689,7 +689,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_3606_CLI_Parsing_SimpleParse_largeInfoset(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_largeInfoset(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -740,7 +740,7 @@ class TestCLIParsing {
     }
   }
 
-  @Test def test_XXX_CLI_Parsing_Stream_01(): Unit = {
+  @Test def test_CLI_Parsing_Stream_01(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_02.dfdl.xsd",
     )
@@ -753,7 +753,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Parsing_Stream_02(): Unit = {
+  @Test def test_CLI_Parsing_Stream_02(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_02.dfdl.xsd",
     )
@@ -768,7 +768,7 @@ class TestCLIParsing {
     }(ExitCode.LeftOverData)
   }
 
-  @Test def test_XXX_CLI_Parsing_Stream_03(): Unit = {
+  @Test def test_CLI_Parsing_Stream_03(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_02.dfdl.xsd",
     )
@@ -800,7 +800,7 @@ class TestCLIParsing {
     }
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_w3cdom(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_w3cdom(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -811,7 +811,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_jdom(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_jdom(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -822,7 +822,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_scala_xml(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_scala_xml(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -833,7 +833,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_json(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_json(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -844,7 +844,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_null(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_null(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -859,7 +859,7 @@ class TestCLIParsing {
     }
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_sax(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_sax(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -870,7 +870,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_exi(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_exi(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -880,7 +880,7 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_exisa(): Unit = {
+  @Test def test_CLI_Parsing_SimpleParse_exisa(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
     )
@@ -898,7 +898,7 @@ class TestCLIParsing {
     }(ExitCode.Usage)
   }
 
-  @Test def test_2575_DFDLX_Trace_output(): Unit = {
+  @Test def test_DFDLX_Trace_output(): Unit = {
     val schema = path(
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/trace_input.dfdl.xsd",
     )
