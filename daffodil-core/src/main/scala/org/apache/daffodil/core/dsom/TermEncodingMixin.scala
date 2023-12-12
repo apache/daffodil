@@ -59,15 +59,19 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
           )
         optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
       }
-    if (policy == EncodingErrorPolicy.Error) {
-      // DFDL-935 to enable
-      SDW(
-        WarnID.EncodingErrorPolicyError,
-        "dfdl:encodingErrorPolicy=\"error\" is not yet implemented. The 'replace' value will be used.",
-      )
-      EncodingErrorPolicy.Replace
-    }
-    policy
+
+    // DFDL-935 to enable
+    schemaDefinitionWarningWhen(
+      WarnID.EncodingErrorPolicyError,
+      policy == EncodingErrorPolicy.Error,
+      "dfdl:encodingErrorPolicy=\"error\" is not yet implemented. The 'replace' value will be used.",
+    )
+
+    // The encodingErrorPolicy property is essentially ignored. We always use "replace", but
+    // warn if it is "error". This allows for compatibility with schemas written for IBM DFDL
+    // (which only supports "error") and has the same behavior as IBM DFDL as long as data does
+    // not contain encoding errors
+    EncodingErrorPolicy.Replace
   }
 
   /**

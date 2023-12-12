@@ -678,6 +678,7 @@
 
 		<tdml:document>
 			<tdml:documentPart type="text">1234</tdml:documentPart>
+			<tdml:documentPart type="byte">80</tdml:documentPart> <!-- invalid in US-ASCII -->
 		</tdml:document>
 
     <tdml:warnings>
@@ -693,6 +694,7 @@
           <ex:char>2</ex:char>
           <ex:char>3</ex:char>
           <ex:char>4</ex:char>
+          <ex:char>&#xFFFD;</ex:char> <!-- unicode replacement character -->
         </ex:root>
       </tdml:dfdlInfoset>
     </tdml:infoset>
