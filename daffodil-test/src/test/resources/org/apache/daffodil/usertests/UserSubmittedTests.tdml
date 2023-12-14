@@ -56,32 +56,25 @@
 					<!-- use asserts to make sure each header appears the correct number 
 						of times -->
 					<dfdl:assert message="Date must appear 1 time."
-						test="{ (fn:count(ex:RootArray/ex:Date) eq 1) }" />
+						test="{ (fn:count(ex:Date) eq 1) }" />
 					<dfdl:assert message="From must appear 1 time."
-						test="{ (fn:count(ex:RootArray/ex:From) eq 1) }" />
+						test="{ (fn:count(ex:From) eq 1) }" />
 					<dfdl:assert message="To must appear 0 or 1 times."
-						test="{ (fn:count(ex:RootArray/ex:To) lt 2) }" />
+						test="{ (fn:count(ex:To) lt 2) }" />
 					<dfdl:assert message="Subject must appear 1 time."
-						test="{ (fn:count(ex:RootArray/ex:Subject) eq 1) }" />
+						test="{ (fn:count(ex:Subject) eq 1) }" />
 				</xsd:appinfo>
 			</xsd:annotation>
 			<xsd:complexType>
-				<xsd:sequence>
-					<xsd:element name="RootArray" dfdl:occursCountKind="implicit"
-						minOccurs="1" maxOccurs="unbounded">
-						<xsd:complexType>
-							<xsd:choice dfdl:initiatedContent="yes">
-								<xsd:element name="Date" dfdl:initiator="Date:%SP;"
-									dfdl:terminator="%CR;%LF;" type="xsd:string" />
-								<xsd:element name="From" dfdl:initiator="From:%SP;"
-									dfdl:terminator="%CR;%LF;" type="xsd:string" />
-								<xsd:element name="To" dfdl:initiator="To:%SP;"
-									dfdl:terminator="%CR;%LF;" type="xsd:string" />
-								<xsd:element name="Subject" dfdl:initiator="Subject:%SP;"
-									dfdl:terminator="%CR;%LF;" type="xsd:string" />
-							</xsd:choice>
-						</xsd:complexType>
-					</xsd:element>
+				<xsd:sequence dfdl:sequenceKind="unordered" dfdl:separator="%CR;%LF;" dfdl:separatorPosition="postfix">
+					<xsd:element name="Date" dfdl:initiator="Date:%SP;" type="xsd:string"
+						maxOccurs="unbounded" dfdl:occursCountKind="parsed"/>
+					<xsd:element name="From" dfdl:initiator="From:%SP;" type="xsd:string"
+						maxOccurs="unbounded" dfdl:occursCountKind="parsed"/>
+					<xsd:element name="To" dfdl:initiator="To:%SP;" type="xsd:string"
+						maxOccurs="unbounded" dfdl:occursCountKind="parsed"/>
+					<xsd:element name="Subject" dfdl:initiator="Subject:%SP;" type="xsd:string"
+						maxOccurs="unbounded" dfdl:occursCountKind="parsed"/>
 				</xsd:sequence>
 			</xsd:complexType>
 		</xsd:element>
@@ -108,7 +101,6 @@
 			<tdml:documentPart type="byte">0D0A</tdml:documentPart>
 			<tdml:documentPart type="text"><![CDATA[To: jane@doe.com]]></tdml:documentPart>
 			<tdml:documentPart type="byte">0D0A</tdml:documentPart>
-			<tdml:documentPart type="text"><![CDATA[Subject: Hello World!]]></tdml:documentPart>
 		</tdml:document>
 
 		<tdml:errors>

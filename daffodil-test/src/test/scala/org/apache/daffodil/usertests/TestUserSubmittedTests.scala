@@ -17,9 +17,13 @@
 
 package org.apache.daffodil.usertests
 
+import org.apache.daffodil.core.dsom.ExpressionCompilers
+import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
+import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
 import org.apache.daffodil.tdml.Runner
 
 import org.junit.AfterClass
+import org.junit.Assert._
 import org.junit.Test
 
 object TestUserSubmittedTests {
@@ -52,49 +56,38 @@ class TestUserSubmittedTests {
   @Test def test_nameDOB_test2_pass(): Unit = { runner2.runOneTest("nameDOB_test2_pass") }
   @Test def test_nameDOB_test2_fail(): Unit = { runner2.runOneTest("nameDOB_test2_fail") }
 
-  /*//DFDL-1118
   @Test def test_dfdl_782() = {
-    val tr = new CustomTraceRunner
-    tr.init
-    val crunner = new CustomInteractiveDebuggerRunner(tr)
-    val db = new InteractiveDebugger(crunner, ExpressionCompiler)
-    Debugger.setDebugging(true)
-    Debugger.setDebugger(db)
+    val crunner = new CountTraceDebuggerRunner
+    val db = new InteractiveDebugger(crunner, ExpressionCompilers)
 
+    // sets the debugger and enables debugging
+    runner.setDebugger(db)
+
+    // run a test with the debugger and debugging enabled so that we count the lines. runOneTest
+    // will disable debugging when the test completes
     runner.runOneTest("test_DFDL_782")
+    assertTrue(crunner.numLines > 0)
 
-    // Comment out these two lines to see issue
-    // documented in DFDL-790
-    Debugger.setDebugging(false)
-    Debugger.setDebugger(null)
-  }
-   */
+    // reset the numLines counter to 0
+    crunner.numLines = 0
 
-}
+    // run the test again, this should not count any lines because debugging was disabled when
+    // the previous call to runOneTest finished
+    runner.runOneTest("test_DFDL_782")
+    assertTrue(crunner.numLines == 0)
 
-/*
-class CustomInteractiveDebuggerRunner(dr: DebuggerRunner)
-  extends InteractiveDebuggerRunner {
-  def init(id: InteractiveDebugger): Unit = dr.init
-  def getCommand(): String = dr.getCommand
-  def lineOutput(line: String): Unit = dr.lineOutput(line)
-  def fini(): Unit = dr.fini
-}
-
-class CustomTraceRunner extends TraceRunner {
-  private var _lines = List.empty[String]
-
-  def getAllTheLines(): String = {
-    val sb = new StringBuilder
-    _lines.foreach(line => {
-      if (line.length > 0) sb.append(line)
-    })
-    val allTheLines = sb.toString
-    allTheLines
+    // note that this Runner still has the CountTraceDebuggerRunner set as its debugger, so if
+    // other tests using the same Runner enable debugging via runner.debug and run after this
+    // test, they will use it and it might affect their behavior. Technically this isn't
+    // necessary since no other tests in this suite do this, but it's good habit. But commenting
+    // this line out should not break anything.
+    runner.setDebugger(null)
   }
 
-  override def init(): Unit = { _lines = List.empty[String] }
-  override def lineOutput(line: String) = _lines ++ (line + "\n")
-
 }
- */
+
+// custom trace debugger runner that just counts the number of lines output by the debugger
+class CountTraceDebuggerRunner extends TraceDebuggerRunner {
+  var numLines = 0
+  override def lineOutput(line: String) = numLines += 1
+}
