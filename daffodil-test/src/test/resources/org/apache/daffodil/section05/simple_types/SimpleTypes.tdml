@@ -139,6 +139,9 @@
       dfdl:textNumberPattern="000000000000000000000" />
     <xs:element name="floatTextFail" type="xs:float"
       dfdl:lengthKind="implicit" />
+    <xs:element name="floatTextDelim" type="xs:float"
+                dfdl:representation="text" dfdl:lengthKind="delimited"
+                dfdl:terminator="%SP;"/>
 
     <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
@@ -3715,6 +3718,17 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <floatText>-2.7</floatText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="float_text_delim" root="floatTextDelim"
+                       model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R">
+
+    <tdml:document><![CDATA[3.4028235E38]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatTextDelim>3.4028235E38</floatTextDelim>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
