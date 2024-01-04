@@ -17,10 +17,13 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
+import java.lang.{ Float => JFloat }
 import java.lang.{ Number => JNumber }
+import java.math.{ BigDecimal => JBigDecimal }
 
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Numbers.isZero
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
 import org.apache.daffodil.runtime1.processors._
 import org.apache.daffodil.runtime1.processors.parsers.TextDecimalVirtualPointMixin
@@ -86,7 +89,22 @@ case class ConvertTextNumberUnparser(
       case n: JNumber if zeroRep.isDefined && isZero(n) => zeroRep.get
       case _ =>
         try {
-          df.format(scaledValue)
+          if (
+            (context.optPrimType.get eq NodeInfo.Float) &&
+            JFloat.isFinite(scaledValue.asInstanceOf[Float])
+          ) {
+            // ICU4J has has no format() function that handles a float. Instead, ICU4J converts
+            // the float to a double, and formats that value. However, formatting a double as a
+            // string has different precision than formatting a float as a string, resulting in
+            // extra precision that implies more accuracy than actually exists for floats, and
+            // can also lead to failures to exactly round. To solve this, we convert the float
+            // to a String, convert that String to a BigDecimal, and then format that. This is
+            // more expensive, but ensures we unparse the exact same precision as represented by
+            // the float.
+            df.format(new JBigDecimal(scaledValue.toString))
+          } else {
+            df.format(scaledValue)
+          }
         } catch {
           case e: java.lang.ArithmeticException =>
             UE(state, "Unable to format number to pattern: %s", e.getMessage())

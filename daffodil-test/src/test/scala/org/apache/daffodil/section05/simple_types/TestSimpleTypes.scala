@@ -826,9 +826,7 @@ class TestSimpleTypes {
   @Test def test_float_text(): Unit = { runner.runOneTest("float_text") }
   @Test def test_float_text2(): Unit = { runner.runOneTest("float_text2") }
   @Test def test_float_text3(): Unit = { runner.runOneTest("float_text3") }
-
-  // DAFFODIL-2867
-  // @Test def test_float_text_delim(): Unit = { runner.runOneTest("float_text_delim") }
+  @Test def test_float_text_max(): Unit = { runner.runOneTest("float_text_max") }
 
   @Test def test_float_text_fail(): Unit = { runner.runOneTest("float_text_fail") }
   @Test def test_characterDuringValidFloat(): Unit = {
