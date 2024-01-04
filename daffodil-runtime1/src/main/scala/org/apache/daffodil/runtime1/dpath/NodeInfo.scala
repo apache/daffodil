@@ -651,11 +651,17 @@ object NodeInfo extends Enum {
     trait PrimNumericFloat extends PrimNumeric { self: Numeric.Kind =>
       def min: Double
       def max: Double
-      private lazy val minBD = new JBigDecimal(min)
-      private lazy val maxBD = new JBigDecimal(max)
+      def minStr: String
+      def maxStr: String
+      private lazy val minBD = new JBigDecimal(minStr)
+      private lazy val maxBD = new JBigDecimal(maxStr)
 
       def isValid(n: java.lang.Number): Boolean = n match {
         case bd: JBigDecimal => {
+          bd.compareTo(minBD) >= 0 && bd.compareTo(maxBD) <= 0
+        }
+        case bi: JBigInt => {
+          val bd = new JBigDecimal(bi)
           bd.compareTo(minBD) >= 0 && bd.compareTo(maxBD) <= 0
         }
         case _ => {
@@ -681,6 +687,10 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueFloat = n.floatValue
       override val min = -JFloat.MAX_VALUE.doubleValue
       override val max = JFloat.MAX_VALUE.doubleValue
+      // we cannot use min/max.toString for minStr/maxStr because min/max are doubles so
+      // toString would have a precision different than Float.MaxValue.toString
+      override val minStr = "-" + JFloat.MAX_VALUE.toString
+      override val maxStr = JFloat.MAX_VALUE.toString
       override val width: MaybeInt = MaybeInt(32)
     }
 
@@ -698,6 +708,8 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueDouble = n.doubleValue
       override val min = -JDouble.MAX_VALUE
       override val max = JDouble.MAX_VALUE
+      override val minStr = "-" + JDouble.MAX_VALUE.toString
+      override val maxStr = JDouble.MAX_VALUE.toString
       override val width: MaybeInt = MaybeInt(64)
     }
 

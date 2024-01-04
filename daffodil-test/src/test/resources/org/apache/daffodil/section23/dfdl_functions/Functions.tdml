@@ -6333,8 +6333,7 @@
 -->
 
   <tdml:parserTestCase name="xPathFunc_round_hte_02" root="round-hte"
-    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R"
-    roundTrip="twoPass">
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">3.455,2</tdml:documentPart>
@@ -6360,8 +6359,7 @@
 -->
 
   <tdml:parserTestCase name="xPathFunc_round_hte_03" root="round-hte"
-    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R"
-    roundTrip="twoPass">
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">3.00865,4</tdml:documentPart>
@@ -6386,8 +6384,7 @@
 -->
 
   <tdml:parserTestCase name="xPathFunc_round_hte_04" root="round-hte"
-    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R"
-    roundTrip="twoPass">
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">3.00065,4</tdml:documentPart>
@@ -6412,8 +6409,7 @@
 -->
 
   <tdml:parserTestCase name="xPathFunc_round_hte_05" root="round-hte"
-    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R"
-    roundTrip="twoPass">
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
 
     <tdml:document>
       <tdml:documentPart type="text">3.000065,5</tdml:documentPart>
