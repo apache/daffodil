@@ -139,6 +139,8 @@
       dfdl:textNumberPattern="000000000000000000000" />
     <xs:element name="floatTextFail" type="xs:float"
       dfdl:lengthKind="implicit" />
+    <xs:element name="floatTextDelim" type="xs:float"
+                dfdl:representation="text" dfdl:lengthKind="delimited" />
 
     <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
@@ -3715,6 +3717,21 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <floatText>-2.7</floatText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="float_text_max" root="floatTextDelim"
+                       model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R">
+    <!--
+      We would really prefer to use "3.4028235E38" as the document data (wich would parse exactly the same),
+      but textNumberPattern is "#,##0.###" so this unparses with all 39 digits plus commas instead of using
+      an exponent. In order to round trip correctly, we set the document to the more verbose form
+    -->
+    <tdml:document><![CDATA[340,282,350,000,000,000,000,000,000,000,000,000,000]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatTextDelim>3.4028235E38</floatTextDelim>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

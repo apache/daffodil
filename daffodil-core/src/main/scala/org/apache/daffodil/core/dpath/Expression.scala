@@ -2295,6 +2295,18 @@ abstract class FunctionCallBase(
     res
   }
 
+  final def checkArgArray(): Unit = {
+    lazy val isArray = expressions.head match {
+      case rpe: RelativePathExpression => rpe.steps.last.isArray
+      case rpe: RootPathExpression => rpe.steps.last.isArray
+      case _ => true
+    }
+    if (!isArray) argArrayErr()
+  }
+  final def argArrayErr() = {
+    SDE("The %s function requires an array.", functionQName.toPrettyString)
+  }
+
   final def checkArgCount(n: Int): Unit = {
     if (expressions.length != n) argCountErr(n)
   }
@@ -2369,6 +2381,7 @@ case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expre
 
   override lazy val compiledDPath = {
     checkArgCount(1)
+    checkArgArray()
     val arg0Recipe = args(0).compiledDPath
     val arg0Type = args(0).inherentType
     val c = conversions

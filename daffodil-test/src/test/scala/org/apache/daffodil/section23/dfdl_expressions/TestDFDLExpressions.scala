@@ -769,6 +769,12 @@ class TestDFDLExpressions {
   @Test def test_count_10(): Unit = { runner2.runOneTest("count_10") }
   @Test def test_count_11(): Unit = { runner2.runOneTest("count_11") }
 
+  @Test def test_count_12(): Unit = { runner2.runOneTest("count_12") }
+  @Test def test_count_13(): Unit = { runner2.runOneTest("count_13") }
+  @Test def test_count_14(): Unit = { runner2.runOneTest("count_14") }
+  @Test def test_count_15(): Unit = { runner2.runOneTest("count_15") }
+  @Test def test_count_16(): Unit = { runner2.runOneTest("count_16") }
+
   @Test def test_local_name_01(): Unit = { runner2.runOneTest("local_name_01") }
   @Test def test_local_name_02(): Unit = { runner2.runOneTest("local_name_02") }
   @Test def test_local_name_03(): Unit = { runner2.runOneTest("local_name_03") }
