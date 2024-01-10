@@ -321,6 +321,13 @@
     <xs:element name="tnp103" type="xs:integer" dfdl:textNumberPattern="###0.0##"
       dfdl:textNumberCheckPolicy="strict" />
 
+    <!--
+      Daffodil configures ICU so that a textNumberPattern with a leading pad
+      character of '0' and no positive prefix pads to the right of the negative sign
+    -->
+    <xs:element name="tnp104" type="xs:integer" dfdl:textNumberPattern="*0####0"
+      dfdl:textNumberCheckPolicy="strict" />
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="textNumberPattern2"  elementFormDefault="qualified">
@@ -4502,6 +4509,28 @@
       <tdml:error>Inf</tdml:error>
       <tdml:error>xs:integer</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textNumberZeroPad01" root="tnp104" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">00012</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp104>12</tnp104>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textNumberZeroPad02" root="tnp104" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">-0012</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp104>-12</tnp104>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

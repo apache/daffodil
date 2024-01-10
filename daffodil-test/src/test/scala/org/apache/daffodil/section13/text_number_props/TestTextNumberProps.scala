@@ -523,4 +523,7 @@ class TestTextNumberProps {
   @Test def test_textNumberIntegerWithDecimal04(): Unit = {
     runner.runOneTest("textNumberIntegerWithDecimal04")
   }
+
+  @Test def test_textNumberZeroPad01(): Unit = { runner.runOneTest("textNumberZeroPad01") }
+  @Test def test_textNumberZeroPad02(): Unit = { runner.runOneTest("textNumberZeroPad02") }
 }

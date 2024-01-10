@@ -186,6 +186,31 @@ class TextNumberFormatEv(
       }
     }
 
+    // If textNumberPattern specifies a pad character before the number pattern and without a
+    // positive prefix, then ICU defaults to a pad position of PAD_BEFORE_PREFIX with no way to
+    // change it with just the pattern. This is reasonable for most cases, like when the pad
+    // character is a space. However, if the pad character in textNumberPattern is '0', then
+    // negative numbers are padded with a '0' before the negative sign. For example, a pattern
+    // of "*0####0" unparses -123 to "0-123". This is very unlikely to be what the user wants
+    // with this pattern.
+    //
+    // So in this very specific case, we change the pad position to PAD_AFTER_PREFIX so the zero
+    // pad character appears after the negative sign, e.g. "-0123". Note that the check for
+    // format width > 0 is used to test if padding is enabled at all--there is no specific API
+    // for this, and this is how ICU determines to add padding or not.
+    //
+    // If a user really wants '0' characters to the left of the negative sign, they can use
+    // textPadKind/textTrimKind and textNumberPadCharacter to uses Daffodils padding logic
+    // instead of ICUs.
+    if (
+      df.getFormatWidth > 0 &&
+      df.getPadCharacter == '0' &&
+      df.getPositivePrefix == "" &&
+      df.getPadPosition == DecimalFormat.PAD_BEFORE_PREFIX
+    ) {
+      df.setPadPosition(DecimalFormat.PAD_AFTER_PREFIX)
+    }
+
     df
   }
 
