@@ -321,6 +321,20 @@
     <xs:element name="tnp103" type="xs:integer" dfdl:textNumberPattern="###0.0##"
       dfdl:textNumberCheckPolicy="strict" />
 
+    <!--
+      pad position is after prefix because of ambiguity in the postive pattern
+      resolved by the negative pattern. Otherwise ICU defaults to before prefix
+    -->
+    <xs:element name="tnp104" type="xs:integer" dfdl:textNumberPattern="*_####0;(*_0)"
+      dfdl:textNumberCheckPolicy="strict" />
+
+    <!--
+      pad position is after suffix because of ambiguity in the postive pattern
+      resolved by the negative pattern. Otherwise ICU defaults to before suffix
+    -->
+    <xs:element name="tnp105" type="xs:integer" dfdl:textNumberPattern="####0*_;(0)*_"
+      dfdl:textNumberCheckPolicy="strict" />
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="textNumberPattern2"  elementFormDefault="qualified">
@@ -4502,6 +4516,28 @@
       <tdml:error>Inf</tdml:error>
       <tdml:error>xs:integer</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textNumberPaddingAmbiguity01" root="tnp104" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">(__1)</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp104>-1</tnp104>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="textNumberPaddingAmbiguity02" root="tnp105" model="textNumberPattern">
+    <tdml:document>
+      <tdml:documentPart type="text">(1)__</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp105>-1</tnp105>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

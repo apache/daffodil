@@ -28,6 +28,7 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.TextNumberRounding
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeDouble
+import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.processors.Delimiter
 import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
@@ -38,6 +39,10 @@ import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 import org.apache.daffodil.unparsers.runtime1.ConvertTextCombinatorUnparser
 import org.apache.daffodil.unparsers.runtime1.ConvertTextNumberUnparser
 
+import com.ibm.icu.impl.number.AffixPatternProvider
+import com.ibm.icu.impl.number.Padder.PadPosition
+import com.ibm.icu.impl.number.PatternStringParser
+import com.ibm.icu.impl.number.PatternStringParser.ParsedPatternInfo
 import com.ibm.icu.text.DecimalFormat
 
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
@@ -399,14 +404,20 @@ trait ConvertTextNumberMixin {
     } else pattern
   }
 
-  final protected def checkPatternWithICU(e: ElementBase) = {
-    // Load the pattern to make sure it is valid
+  /**
+   * Validates the textNumberPattern using ICU's PatternStringParser. Although this class is
+   * public, it is not part of the ICU API, so it maybe not be stable. However, this is what
+   * DecimalFormat uses internally to parse patterns and extract information for initialization,
+   * and that likely won't change significantly. Plus, by using this class instead of parsing
+   * with DeciamlFormat we can return the ParsedPatternInfo to give callers raw access to what
+   * was in the pattern without having to parse it ourselves. This can be useful for additional
+   * validation or logic using parts of the pattern ICU might normally ignore.
+   */
+  final protected def checkPatternWithICU(e: ElementBase): ParsedPatternInfo = {
     try {
-      if (hasV || hasP) {
-        new DecimalFormat(runtimePattern)
-      } else {
-        new DecimalFormat(pattern)
-      }
+      val patternToCheck = if (hasV || hasP) runtimePattern else pattern
+      val parsedPatternInfo = PatternStringParser.parseToPatternInfo(patternToCheck)
+      parsedPatternInfo
     } catch {
       case ex: IllegalArgumentException =>
         if (hasV || hasP) {
@@ -551,7 +562,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       pattern.startsWith(";"),
       "The positive part of the dfdl:textNumberPattern is required. The dfdl:textNumberPattern cannot begin with ';'.",
     )
-    checkPatternWithICU(e)
+    val parsedPatternInfo = checkPatternWithICU(e)
 
     val (roundingIncrement: MaybeDouble, roundingMode) =
       e.textNumberRounding match {
@@ -586,6 +597,29 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
         Nope
       }
 
+    // ICU does not have a way to set the pad position to after an affix if the positive pattern
+    // does not have that affix. For example, "* 0", will always have a pad position of
+    // BEFORE_PREFIX, with no way to set it to AFTER_PREFIX because the positive pattern has no
+    // prefix. In cases where formats do not have a postive affix but want to specify the pad
+    // position to AFTER, we allow them to do so in the negative pattern. For example, a pattern
+    // of "* 0;-* 0" will have a pad position of AFTER_PREFIX. ICU normally ignores the negative
+    // pattern for pad position. Note that we require the pad char to be defined on the same
+    // affix or else it is ignored.
+    val posPadLoc = parsedPatternInfo.positive.paddingLocation
+    val negPadLoc =
+      if (parsedPatternInfo.negative != null) parsedPatternInfo.negative.paddingLocation
+      else null
+    val posPrefix = parsedPatternInfo.getString(AffixPatternProvider.FLAG_POS_PREFIX)
+    val posSuffix = parsedPatternInfo.getString(AffixPatternProvider.FLAG_POS_SUFFIX)
+    val icuPadPosition =
+      (posPadLoc, negPadLoc, posPrefix, posSuffix) match {
+        case (PadPosition.BEFORE_PREFIX, PadPosition.AFTER_PREFIX, "", _) =>
+          MaybeInt(DecimalFormat.PAD_AFTER_PREFIX)
+        case (PadPosition.BEFORE_SUFFIX, PadPosition.AFTER_SUFFIX, _, "") =>
+          MaybeInt(DecimalFormat.PAD_AFTER_SUFFIX)
+        case _ => MaybeInt.Nope
+      }
+
     val ev = new TextNumberFormatEv(
       e.tci,
       decSep,
@@ -599,6 +633,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       roundingMode,
       roundingIncrement,
       zeroRepsRaw,
+      icuPadPosition,
       e.primType,
     )
     ev.compile(tunable)
