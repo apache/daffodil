@@ -32,6 +32,7 @@ import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.lib.util.MaybeDouble
+import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.dsom._
 
@@ -81,6 +82,7 @@ class TextNumberFormatEv(
   roundingMode: Maybe[TextNumberRoundingMode],
   roundingIncrement: MaybeDouble,
   zeroRepsRaw: List[String],
+  icuPadPosition: MaybeInt,
   primType: PrimType,
 ) extends Evaluatable[DecimalFormat](tci)
   with InfosetCachedEvaluatable[DecimalFormat] {
@@ -184,6 +186,10 @@ class TextNumberFormatEv(
         df.setRoundingMode(rm.ordinal())
         df.setRoundingIncrement(roundingIncrement.get)
       }
+    }
+
+    if (icuPadPosition.isDefined) {
+      df.setPadPosition(icuPadPosition.get)
     }
 
     df

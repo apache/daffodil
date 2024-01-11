@@ -523,4 +523,11 @@ class TestTextNumberProps {
   @Test def test_textNumberIntegerWithDecimal04(): Unit = {
     runner.runOneTest("textNumberIntegerWithDecimal04")
   }
+
+  @Test def test_textNumberPaddingAmbiguity01(): Unit = {
+    runner.runOneTest("textNumberPaddingAmbiguity01")
+  }
+  @Test def test_textNumberPaddingAmbiguity02(): Unit = {
+    runner.runOneTest("textNumberPaddingAmbiguity02")
+  }
 }

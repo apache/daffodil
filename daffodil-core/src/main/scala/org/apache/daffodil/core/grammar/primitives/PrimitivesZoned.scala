@@ -27,6 +27,7 @@ import org.apache.daffodil.lib.util.DecimalUtils.OverpunchLocation
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeDouble
+import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
 import org.apache.daffodil.runtime1.processors.parsers.ConvertZonedCombinatorParser
@@ -179,6 +180,7 @@ case class ConvertZonedNumberPrim(e: ElementBase)
       roundingMode,
       roundingIncrement,
       Nil,
+      MaybeInt.Nope,
       e.primType,
     )
     ev.compile(tunable)
