@@ -34,7 +34,7 @@ object Dependencies {
   )
 
   lazy val slf4jAPI = Seq(
-    "org.slf4j" % "slf4j-api" % "2.0.9",
+    "org.slf4j" % "slf4j-api" % "2.0.11",
   )
 
   lazy val infoset = Seq(
