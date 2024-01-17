@@ -36,6 +36,22 @@ Universal / mappings ++= Seq(
   baseDirectory.value / "README.md" -> "README.md",
 )
 
+// When the sbt-native-packger plugin creates a tar/zip/RPM/etc, it does not include the
+// crossVersion in mapping of jars built from this project (i.e. org.apache.daffodil jars only).
+// There are cases where this crossVersion would be useful (e.g. consistency with Ivy jar names
+// that do include the crossVersion), so this modifies the mapping to include that. Note that
+// the name of the path already has what we need, we just need to prepend "lib/" and our
+// organization.
+Universal / mappings := (Universal / mappings).value.map { case (path, mapping) =>
+  val thisProjectJarPrefix = "lib/" + organization.value + "."
+  val newMapping =
+    if (mapping.startsWith(thisProjectJarPrefix))
+      thisProjectJarPrefix + path.getName
+    else
+      mapping
+  (path, newMapping)
+}
+
 maintainer := "Apache Daffodil <dev@daffodil.apache.org>"
 
 //
