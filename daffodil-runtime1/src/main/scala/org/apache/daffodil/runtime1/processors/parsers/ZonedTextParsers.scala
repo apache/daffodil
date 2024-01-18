@@ -52,7 +52,7 @@ case class ConvertZonedCombinatorParser(
 case class ConvertZonedNumberParser(
   opl: OverpunchLocation.Value,
   textNumberFormatEv: TextNumberFormatEv,
-  zonedSignStyle: TextZonedSignStyle,
+  optZonedSignStyle: Option[TextZonedSignStyle],
   override val context: ElementRuntimeData,
   override val textDecimalVirtualPoint: Int,
 ) extends TextPrimParser
@@ -83,7 +83,7 @@ case class ConvertZonedNumberParser(
 
       val decodedNum =
         try {
-          DecimalUtils.zonedToNumber(str, zonedSignStyle, opl)
+          DecimalUtils.zonedToNumber(str, optZonedSignStyle, opl)
         } catch {
           case e: NumberFormatException => {
             PE(

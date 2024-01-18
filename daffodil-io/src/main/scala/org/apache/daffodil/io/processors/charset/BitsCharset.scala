@@ -22,6 +22,7 @@ import java.nio.charset.CoderResult
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.charset.{ CharsetEncoder => JavaCharsetEncoder }
+import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
@@ -58,6 +59,15 @@ trait BitsCharset extends Serializable {
   def mandatoryBitAlignment: Int // ignored when dfdlx:alignmentKind is 'manual'
   def newDecoder(): BitsCharsetDecoder
   def newEncoder(): BitsCharsetEncoder
+
+  /**
+   * Used to determine if zoned numbers use ascii or ebcdic conventions
+   * for overpunched signs. This determines whether the textZonedSignStyle property is needed or not.
+   *
+   * Override in any EBCDIC family charset definition.
+   * @return true if the charset is an EBCDIC family charset.
+   */
+  def isEbcdicFamily(): Boolean = false
 
   def maybeFixedWidth: MaybeInt
 
@@ -107,6 +117,16 @@ trait BitsCharsetJava extends BitsCharset {
     if (avg == max) MaybeInt(avg.toInt * 8)
     else MaybeInt.Nope
   }
+
+  private lazy val hasNameOrAliasContainingEBCDIC = {
+    val allCharsetNames = (javaCharset.aliases().toSeq :+ name :+ javaCharset.name()).map {
+      _.toUpperCase
+    }
+    val res = allCharsetNames.exists(_.contains("EBCDIC"))
+    res
+  }
+
+  override def isEbcdicFamily(): Boolean = hasNameOrAliasContainingEBCDIC
 
   override def newEncoder() =
     new BitsCharsetWrappingJavaCharsetEncoder(this, javaCharset.newEncoder())

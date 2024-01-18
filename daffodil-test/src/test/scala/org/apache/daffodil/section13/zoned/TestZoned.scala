@@ -25,6 +25,7 @@ import org.junit.Test
 object TestZoned {
   val testDir = "/org/apache/daffodil/section13/zoned/"
   val runner = Runner(testDir, "zoned.tdml")
+  val eRunner = Runner(testDir, "zoned2.tdml")
 
   @AfterClass def shutdown(): Unit = {
     runner.reset
@@ -99,4 +100,27 @@ class TestZoned {
   @Test def testZonedTandemModified03(): Unit = { runner.runOneTest("ZonedTandemModified03") }
   @Test def testZonedTandemModified04(): Unit = { runner.runOneTest("ZonedTandemModified04") }
   @Test def testZonedTandemModified05(): Unit = { runner.runOneTest("ZonedTandemModified05") }
+
+  @Test def testZonedEBCDICLeadingOverpunchedSign(): Unit = {
+    eRunner.runOneTest("ZonedEBCDICLeadingOverpunchedSign")
+  }
+
+  @Test def testZonedEBCDICLeadingOverpunchedSign_B5(): Unit = {
+    eRunner.runOneTest("ZonedEBCDICLeadingOverpunchedSign_B5")
+  }
+
+  @Test def testZonedEBCDICLeadingOverpunchedSignBadDigit(): Unit = {
+    eRunner.runOneTest("ZonedEBCDICLeadingOverpunchedSignBadDigit")
+  }
+  @Test def testZonedEBCDICTrailingOverpunchedSign(): Unit = {
+    eRunner.runOneTest("ZonedEBCDICTrailingOverpunchedSign")
+  }
+
+  @Test def testZonedEBCDICTrailingOverpunchedSign_B2(): Unit = {
+    eRunner.runOneTest("ZonedEBCDICTrailingOverpunchedSign_B2")
+  }
+  @Test def testZonedEBCDICTrailingOverpunchedSignBadDigit(): Unit = {
+    eRunner.runOneTest("ZonedEBCDICTrailingOverpunchedSignBadDigit")
+  }
+
 }

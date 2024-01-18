@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite
+  description="Zoned Number Properties EBCDIC encoding"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true"
+  defaultValidation="limited">
+
+  <tdml:defineSchema
+    name="ebcdic1"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    useDefaultNamespace="false"
+    elementFormDefault="unqualified">
+
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format
+      ref="ex:GeneralFormat"
+      lengthKind="explicit"
+      encoding="ebcdic-cp-us"
+      occursCountKind="implicit"
+      textNumberCheckPolicy="strict"
+      textNumberPadCharacter="0"
+      textNumberJustification="right"
+      textNumberRep="zoned"
+      lengthUnits="characters"/>
+
+    <simpleType
+      name="displayMoney8Digits"
+      dfdl:representation="text"
+      dfdl:textNumberRep="zoned"
+      dfdl:encoding="ebcdic-cp-us"
+      dfdl:decimalSigned="yes"
+      dfdl:textNumberPattern="+00000000V00"
+      dfdl:length="10">
+      <restriction base="xs:decimal" >
+        <maxInclusive value="99999999.99"/>
+        <minInclusive value="-99999999.99"/>
+      </restriction>
+    </simpleType>
+
+    <element name="money8" type="ex:displayMoney8Digits"/>
+
+    <simpleType
+      name="displayMoney8DigitsTrailingSign"
+      dfdl:representation="text"
+      dfdl:textNumberRep="zoned"
+      dfdl:encoding="ebcdic-cp-us"
+      dfdl:decimalSigned="yes"
+      dfdl:textNumberPattern="00000000V00+"
+      dfdl:length="10">
+      <restriction base="xs:decimal" >
+        <maxInclusive value="99999999.99"/>
+        <minInclusive value="-99999999.99"/>
+      </restriction>
+    </simpleType>
+
+    <element name="money8TS" type="ex:displayMoney8DigitsTrailingSign"/>
+
+
+  </tdml:defineSchema>
+
+  <parserTestCase name="ZonedEBCDICLeadingOverpunchedSign" root="money8" model="ebcdic1"
+    description="Test of a negative number with ebcdic charset, leading overpunched sign of R should represent -9">
+    <document>
+      <!--
+      Use hex here not the type='text' encoding='ebcdic-cp-us' because we can rule out
+      a bug in TDML data encoding as an issue that way.
+      -->
+      <documentPart type="byte">D9 F8 F7 F6 F5 F4 F3 F0 F1 F2</documentPart> <!-- R is D9 in EBCDIC -->
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:money8>-98765430.12</ex:money8>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="ZonedEBCDICLeadingOverpunchedSign_B5" root="money8" model="ebcdic1"
+                  description="Test of a negative number with ebcdic charset, leading overpunched sign of R should represent -9"
+                  roundTrip="twoPass">
+    <document>
+      <!--
+      Two pass because the B5 overpunched leading sign -5 will be canonicalized to D5.
+      -->
+      <documentPart type="byte">B5 F8 F7 F6 F5 F4 F3 F0 F1 F2</documentPart> <!-- B5 means -5 in EBCDIC -->
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:money8>-58765430.12</ex:money8>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="ZonedEBCDICLeadingOverpunchedSignBadDigit" root="money8" model="ebcdic1"
+                       description="Test of a negative number with ebcdic charset, leading overpunched sign of y should cause parse error">
+    <document>
+      <documentPart type="text" encoding="ebcdic-cp-us">y876543012</documentPart> <!-- 'y' is A8 in EBCDIC -->
+    </document>
+    <errors>
+      <error>Unable to parse zoned xs:decimal from text</error>
+      <error>y876543012</error>
+      <error>Invalid zoned digit: y</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="ZonedEBCDICTrailingOverpunchedSign" root="money8TS" model="ebcdic1"
+                  description="Test of a negative number with ebcdic charset, trailing overpunched sign of R should represent -9">
+    <document>
+      <!--
+      Use hex here not the type='text' encoding='ebcdic-cp-us' because we can rule out
+      a bug in TDML data encoding as an issue that way.
+      -->
+      <documentPart type="byte">F9 F8 F7 F6 F5 F4 F3 F0 F1 D2</documentPart> <!-- K is D2 in EBCDIC -->
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:money8TS>-98765430.12</ex:money8TS>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="ZonedEBCDICTrailingOverpunchedSign_B2" root="money8TS" model="ebcdic1"
+                  description="Test of a negative number with ebcdic charset, trailing overpunched sign of R should represent -9"
+                  roundTrip="twoPass">
+    <document>
+      <!--
+      Two pass because trailing overpunched B2 will be canonicalized to D2.
+      -->
+      <documentPart type="byte">F9 F8 F7 F6 F5 F4 F3 F0 F1 B2</documentPart> <!-- B2 is -2 in EBCDIC -->
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:money8TS>-98765430.12</ex:money8TS>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="ZonedEBCDICTrailingOverpunchedSignBadDigit" root="money8TS" model="ebcdic1"
+                  description="Test of a negative number with ebcdic charset, trailing overpunched sign of r should cause parse error">
+    <document>
+      <documentPart type="text" encoding="ebcdic-cp-us">987654301r</documentPart> <!-- 'r' is 99 in EBCDIC -->
+    </document>
+    <errors>
+      <error>Unable to parse zoned xs:decimal from text</error>
+      <error>987654301r</error>
+      <error>Invalid zoned digit: r</error>
+    </errors>
+  </parserTestCase>
+
+</testSuite>

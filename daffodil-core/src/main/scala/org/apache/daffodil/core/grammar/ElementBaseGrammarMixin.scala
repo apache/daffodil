@@ -27,13 +27,13 @@ import org.apache.daffodil.core.grammar.primitives.ConvertTextBooleanPrim
 import org.apache.daffodil.core.grammar.primitives.LeadingSkipRegion
 import org.apache.daffodil.core.grammar.primitives.LiteralValueNilOfSpecifiedLength
 import org.apache.daffodil.core.grammar.primitives.SimpleNilOrValue
-import org.apache.daffodil.core.grammar.primitives._ // there are too many to show individually
+import org.apache.daffodil.core.grammar.primitives._
 import org.apache.daffodil.core.runtime1.ElementBaseRuntime1Mixin
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
-import org.apache.daffodil.lib.schema.annotation.props.gen._ // there are too many to show individually
+import org.apache.daffodil.lib.schema.annotation.props.gen._
 import org.apache.daffodil.lib.util.PackedSignCodes
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -699,6 +699,22 @@ trait ElementBaseGrammarMixin
     prod("textZonedNumber", textNumberRep == TextNumberRep.Zoned) {
       ConvertZonedCombinator(this, stringValue, textZonedConverter)
     }
+
+  /**
+   * True if the encoding is known to be an EBCDIC one, as in the encoding is not  a runtime expression
+   * and it's some ebcdic flavor. If it's any ascii flavor or a runtime expression this is false.
+   */
+  lazy val isKnownEBCDICEncoding: Boolean =
+    charsetEv.optConstant.map { _.isEbcdicFamily() }.getOrElse(false)
+
+  /**
+   * Avoids requesting the textZonedSignStyle property if we know the encoding
+   * is an EBCDIC flavor.
+   */
+  lazy val optTextZonedSignStyle = {
+    if (isKnownEBCDICEncoding) None
+    else Some(textZonedSignStyle)
+  }
 
   private lazy val textConverter = {
     primType match {

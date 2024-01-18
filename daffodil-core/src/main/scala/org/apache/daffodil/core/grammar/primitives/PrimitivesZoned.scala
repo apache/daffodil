@@ -201,7 +201,7 @@ case class ConvertZonedNumberPrim(e: ElementBase)
     new ConvertZonedNumberParser(
       opl,
       textNumberFormatEv,
-      e.textZonedSignStyle,
+      e.optTextZonedSignStyle,
       e.elementRuntimeData,
       textDecimalVirtualPoint,
     )
@@ -209,7 +209,7 @@ case class ConvertZonedNumberPrim(e: ElementBase)
   override lazy val unparser: Unparser =
     new ConvertZonedNumberUnparser(
       opl,
-      e.textZonedSignStyle,
+      e.optTextZonedSignStyle,
       e.elementRuntimeData,
       textDecimalVirtualPoint,
     )

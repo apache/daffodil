@@ -386,6 +386,45 @@ object DecimalUtils {
     outArray
   }
 
+  /**
+   * These are the java characters corresponding to EBCDIC B0 to B9.
+   * These are commonly "^£¥·©§¶¼½¾" but we compute them by decoding to
+   * avoid literal charset issues.
+   *
+   * Note that in Java chars (which are unicode), these do not have adjacent code points.
+   * They are (hex) 5e, a3, a5, b7, a9, a7, b6, bc, bd, be.
+   */
+  private val B0_to_B9_chars = "^£¥·©§¶¼½¾"
+
+  /**
+   * Despite the name, this does not actually convert the digit from EBCDIC encoding.
+   * The characters have already been decoded from whatever charset into Unicode code points.
+   * What this does is deal with overpunched positive and negative sign character mappings.
+   * In this case positive are 0-9 and "{ABCDEFGHI", negative are "}JKLMNOPQR" and
+   * what we call the B0_to_B9 characters, which are "^£¥·©§¶¼½¾".
+   * @param digit
+   * @return A pair of the integer the digit represents, and a boolean indicating if negative.
+   */
+  def convertFromZonedEBCDIC(digit: Char): (Int, Boolean) = {
+    if ((digit >= '0') && (digit <= '9')) // positive 0-9
+      (digit - 48, false)
+    else if (digit == '{') // positive 0 aka hex C0 ebcdic
+      (0, false)
+    else if ((digit >= 'A') && (digit <= 'I')) // positive 1-9 as C1 to C9 i.e, "ABCDEFGHI"
+      (digit - 'A' + 1, false)
+    else if (digit == '}') // negative 0 aka hex D0 ebcdic
+      (0, true)
+    else if ((digit >= 'J') && (digit <= 'R')) // negative 1-9 as hex D1 to D9.
+      (digit - 'J' + 1, true)
+    else {
+      val index = B0_to_B9_chars.indexOf(digit)
+      if (index >= 0)
+        (index, true)
+      else
+        throw new NumberFormatException("Invalid zoned digit: " + digit)
+    }
+  }
+
   def convertFromAsciiStandard(digit: Char): (Int, Boolean) = {
     if ((digit >= '0') && (digit <= '9')) // positive 0-9
       (digit - 48, false)
@@ -415,6 +454,25 @@ object DecimalUtils {
       (digit - 48, false) // non-overpunched digit
     else
       throw new NumberFormatException("Invalid zoned digit: " + digit)
+  }
+
+  /**
+   * Does not encode to the EBCDIC charset, but converts overpunched sign
+   * digits to their corresponding Zoned overpunched representation characters.
+   * Positive 0 to 9 become "{ABCDEFGHI" respectively. Negative 0 to 9
+   * become "}JKLMNOPQR" respectively.
+   * @param digit - the digit, as a char '0' to '9'
+   * @param positive - true if positive, false if negative
+   * @return the character needed to represent this character as an overpunched sign digit.
+   */
+  def convertToZonedEBCDIC(digit: Char, positive: Boolean): Char = {
+    val pos: Int = digit - '0'
+    if (pos > 9 || pos < 0)
+      throw new NumberFormatException("Invalid zoned digit: " + digit)
+    if (positive)
+      "{ABCDEFGHI".charAt(pos)
+    else
+      "}JKLMNOPQR".charAt(pos)
   }
 
   def convertToAsciiTranslatedEBCDIC(digit: Char, positive: Boolean): Char = {
@@ -470,7 +528,7 @@ object DecimalUtils {
 
   def zonedToNumber(
     num: String,
-    zonedStyle: TextZonedSignStyle,
+    optZonedStyle: Option[TextZonedSignStyle],
     opl: OverpunchLocation.Value,
   ): String = {
     val opindex = opl match {
@@ -483,24 +541,27 @@ object DecimalUtils {
       if (opl == OverpunchLocation.None) {
         num
       } else {
-        val (digit, opneg) = zonedStyle match {
-          case TextZonedSignStyle.AsciiStandard => convertFromAsciiStandard(num(opindex))
-          case TextZonedSignStyle.AsciiTranslatedEBCDIC =>
+        val (digit, opneg) = optZonedStyle match {
+          case None => convertFromZonedEBCDIC(num(opindex))
+          case Some(TextZonedSignStyle.AsciiStandard) => convertFromAsciiStandard(num(opindex))
+          case Some(TextZonedSignStyle.AsciiTranslatedEBCDIC) =>
             convertFromAsciiTranslatedEBCDIC(num(opindex))
-          case TextZonedSignStyle.AsciiCARealiaModified =>
+          case Some(TextZonedSignStyle.AsciiCARealiaModified) =>
             convertFromAsciiCARealiaModified(num(opindex))
-          case TextZonedSignStyle.AsciiTandemModified =>
+          case Some(TextZonedSignStyle.AsciiTandemModified) =>
             convertFromAsciiTandemModified(num(opindex))
         }
 
-        val convertedNum = (opneg, opl) match {
-          case (true, OverpunchLocation.Start) => "-" + digit + num.substring(1)
-          case (false, OverpunchLocation.Start) => digit + num.substring(1)
-          case (true, OverpunchLocation.End) => "-" + num.substring(0, opindex) + digit
-          case (false, OverpunchLocation.End) => num.substring(0, opindex) + digit
+        val allDigits = opl match {
+          case OverpunchLocation.Start => digit + num.substring(1)
+          case OverpunchLocation.End => num.substring(0, opindex) + digit
           case _ => Assert.impossible()
         }
+        val convertedNum = if (opneg) "-" + allDigits else allDigits
 
+        // It is still possible for this to be an illegal/malformed number like "-1K3"
+        // because nothing has yet checked the interior chars are all digits.
+        // But this will be caught later when the string is converted to a number.
         convertedNum
       }
     }
@@ -510,7 +571,7 @@ object DecimalUtils {
 
   def zonedFromNumber(
     num: String,
-    zonedStyle: TextZonedSignStyle,
+    optZonedStyle: Option[TextZonedSignStyle],
     opl: OverpunchLocation.Value,
   ): String = {
     val positive = (num.charAt(0) != '-')
@@ -529,14 +590,15 @@ object DecimalUtils {
         if (!positive) Assert.impossible()
         inStr
       } else {
-        val digit = zonedStyle match {
-          case TextZonedSignStyle.AsciiStandard =>
+        val digit = optZonedStyle match {
+          case None => convertToZonedEBCDIC(inStr(opindex), positive)
+          case Some(TextZonedSignStyle.AsciiStandard) =>
             convertToAsciiStandard(inStr(opindex), positive)
-          case TextZonedSignStyle.AsciiTranslatedEBCDIC =>
+          case Some(TextZonedSignStyle.AsciiTranslatedEBCDIC) =>
             convertToAsciiTranslatedEBCDIC(inStr(opindex), positive)
-          case TextZonedSignStyle.AsciiCARealiaModified =>
+          case Some(TextZonedSignStyle.AsciiCARealiaModified) =>
             convertToAsciiCARealiaModified(inStr(opindex), positive)
-          case TextZonedSignStyle.AsciiTandemModified =>
+          case Some(TextZonedSignStyle.AsciiTandemModified) =>
             convertToAsciiTandemModified(inStr(opindex), positive)
         }
 
