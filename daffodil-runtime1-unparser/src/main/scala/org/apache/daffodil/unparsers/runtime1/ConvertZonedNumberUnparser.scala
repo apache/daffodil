@@ -45,7 +45,7 @@ case class ConvertZonedCombinatorUnparser(
 
 case class ConvertZonedNumberUnparser(
   opl: OverpunchLocation.Value,
-  zonedSignStyle: TextZonedSignStyle,
+  optZonedSignStyle: Option[TextZonedSignStyle],
   override val context: ElementRuntimeData,
   override val textDecimalVirtualPoint: Int,
 ) extends PrimUnparser
@@ -70,7 +70,7 @@ case class ConvertZonedNumberUnparser(
 
     val value = scaledNum.toString
 
-    val strRep = DecimalUtils.zonedFromNumber(value, zonedSignStyle, opl)
+    val strRep = DecimalUtils.zonedFromNumber(value, optZonedSignStyle, opl)
 
     node.overwriteDataValue(strRep)
   }

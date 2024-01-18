@@ -1328,101 +1328,111 @@ class TestDecimalUtils {
 
   @Test def zonedIntAsciiStandardPos1(): Unit = {
     val num = "1"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start)
     assertEquals(result, "1")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       num,
     )
   }
 
   @Test def zonedIntAsciiStandardPos2(): Unit = {
     val num = "12"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.End)
     System.out.println("Result: " + result)
     assertEquals(result, "12")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.End),
       num,
     )
   }
 
   @Test def zonedIntAsciiStandardPos3(): Unit = {
     val num = "123"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.None)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.None)
     assertEquals(result, "123")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.None),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.None),
       num,
     )
   }
 
   @Test def zonedIntAsciiStandardPos4(): Unit = {
     val num = "1234567890"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start)
     assertEquals(result, "1234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       num,
     )
   }
 
   @Test def zonedIntAsciiStandardPos5(): Unit = {
     val num = "000000000001234567890"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start)
     assertEquals(result, "000000000001234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "000000000001234567890",
     )
   }
 
   @Test def zonedIntAsciiStandardNeg1(): Unit = {
     val num = "q"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start)
     assertEquals(result, "-1")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       num,
     )
   }
 
   @Test def zonedIntAsciiStandardNeg2(): Unit = {
     val num = "1r"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.End)
     assertEquals(result, "-12")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.End),
       num,
     )
   }
 
   @Test def zonedIntAsciiStandardNeg3(): Unit = {
     val num = "q23"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start)
     assertEquals(result, "-123")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       num,
     )
   }
 
   @Test def zonedIntAsciiStandardNeg4(): Unit = {
     val num = "123456789p"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.End)
     assertEquals(result, "-1234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.End),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.End),
       num,
     )
   }
 
   @Test def zonedIntAsciiStandardNeg5(): Unit = {
     val num = "p00000000001234567890"
-    val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
+    val result =
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start)
     assertEquals(result, "-000000000001234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber(result, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       num,
     )
   }
@@ -1430,7 +1440,8 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiStandardInvalidDigit(): Unit = {
     val num = "z123"
     try {
-      val result = zonedToNumber(num, TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start)
+      val result =
+        zonedToNumber(num, Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start)
       assertEquals(result, "-0123")
     } catch {
       case nfe: NumberFormatException =>
@@ -1441,12 +1452,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICPos1(): Unit = {
     val num = "A"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "1")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiTranslatedEBCDIC,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
         OverpunchLocation.Start,
       ),
       num,
@@ -1456,10 +1471,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICPos2(): Unit = {
     val num = "1B"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTranslatedEBCDIC), OverpunchLocation.End)
     assertEquals(result, "12")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1467,10 +1486,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICPos3(): Unit = {
     val num = "123"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTranslatedEBCDIC), OverpunchLocation.None)
     assertEquals(result, "123")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       num,
     )
   }
@@ -1478,12 +1501,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICPos4(): Unit = {
     val num = "A234567890"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "1234567890")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiTranslatedEBCDIC,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
         OverpunchLocation.Start,
       ),
       num,
@@ -1493,10 +1520,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICPos5(): Unit = {
     val num = "00000000000123456789{"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTranslatedEBCDIC), OverpunchLocation.End)
     assertEquals(result, "000000000001234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1504,12 +1535,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICNeg1(): Unit = {
     val num = "J"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "-1")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiTranslatedEBCDIC,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
         OverpunchLocation.Start,
       ),
       num,
@@ -1519,10 +1554,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICNeg2(): Unit = {
     val num = "1K"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTranslatedEBCDIC), OverpunchLocation.End)
     assertEquals(result, "-12")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1530,12 +1569,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICNeg3(): Unit = {
     val num = "J23"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "-123")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiTranslatedEBCDIC,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
         OverpunchLocation.Start,
       ),
       num,
@@ -1545,10 +1588,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICNeg4(): Unit = {
     val num = "123456789}"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTranslatedEBCDIC), OverpunchLocation.End)
     assertEquals(result, "-1234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1556,12 +1603,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTranslatedEBCDICNeg5(): Unit = {
     val num = "}00000000001234567890"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "-000000000001234567890")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiTranslatedEBCDIC,
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
         OverpunchLocation.Start,
       ),
       num,
@@ -1572,7 +1623,11 @@ class TestDecimalUtils {
     val num = "z123"
     try {
       val result =
-        zonedToNumber(num, TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start)
+        zonedToNumber(
+          num,
+          Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+          OverpunchLocation.Start,
+        )
       assertEquals(result, "-0123")
     } catch {
       case nfe: NumberFormatException =>
@@ -1583,12 +1638,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedPos1(): Unit = {
     val num = "1"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "1")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiCARealiaModified,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
         OverpunchLocation.Start,
       ),
       num,
@@ -1598,10 +1657,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedPos2(): Unit = {
     val num = "12"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiCARealiaModified), OverpunchLocation.End)
     assertEquals(result, "12")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1609,10 +1672,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedPos3(): Unit = {
     val num = "123"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.None)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiCARealiaModified), OverpunchLocation.None)
     assertEquals(result, "123")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.None),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.None,
+      ),
       num,
     )
   }
@@ -1620,12 +1687,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedPos4(): Unit = {
     val num = "1234567890"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "1234567890")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiCARealiaModified,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
         OverpunchLocation.Start,
       ),
       num,
@@ -1635,10 +1706,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedPos5(): Unit = {
     val num = "000000000001234567890"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiCARealiaModified), OverpunchLocation.End)
     assertEquals(result, "000000000001234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1646,12 +1721,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedNeg1(): Unit = {
     val num = "!"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "-1")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiCARealiaModified,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
         OverpunchLocation.Start,
       ),
       num,
@@ -1661,10 +1740,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedNeg2(): Unit = {
     val num = "1\""
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiCARealiaModified), OverpunchLocation.End)
     assertEquals(result, "-12")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1672,12 +1755,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedNeg3(): Unit = {
     val num = "!23"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "-123")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiCARealiaModified,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
         OverpunchLocation.Start,
       ),
       num,
@@ -1687,10 +1774,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedNeg4(): Unit = {
     val num = "123456789 "
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiCARealiaModified), OverpunchLocation.End)
     assertEquals(result, "-1234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1698,12 +1789,16 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiCARealiaModifiedNeg5(): Unit = {
     val num = " 00000000001234567890"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
+      zonedToNumber(
+        num,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      )
     assertEquals(result, "-000000000001234567890")
     assertEquals(
       zonedFromNumber(
         result,
-        TextZonedSignStyle.AsciiCARealiaModified,
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
         OverpunchLocation.Start,
       ),
       num,
@@ -1714,7 +1809,11 @@ class TestDecimalUtils {
     val num = "z123"
     try {
       val result =
-        zonedToNumber(num, TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start)
+        zonedToNumber(
+          num,
+          Some(TextZonedSignStyle.AsciiCARealiaModified),
+          OverpunchLocation.Start,
+        )
       assertEquals(result, "-0123")
     } catch {
       case nfe: NumberFormatException =>
@@ -1725,10 +1824,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedPos1(): Unit = {
     val num = "1"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start)
     assertEquals(result, "1")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       num,
     )
   }
@@ -1736,10 +1839,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedPos2(): Unit = {
     val num = "12"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.End)
     assertEquals(result, "12")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1747,10 +1854,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedPos3(): Unit = {
     val num = "123"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.None)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.None)
     assertEquals(result, "123")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.None),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.None,
+      ),
       num,
     )
   }
@@ -1758,10 +1869,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedPos4(): Unit = {
     val num = "1234567890"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start)
     assertEquals(result, "1234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       num,
     )
   }
@@ -1769,10 +1884,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedPos5(): Unit = {
     val num = "000000000001234567890"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.End)
     assertEquals(result, "000000000001234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1780,10 +1899,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedNeg1(): Unit = {
     val num = ""
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start)
     assertEquals(result, "-1")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       num,
     )
   }
@@ -1791,10 +1914,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedNeg2(): Unit = {
     val num = "1"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.End)
     assertEquals(result, "-12")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1802,10 +1929,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedNeg3(): Unit = {
     val num = "23"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start)
     assertEquals(result, "-123")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       num,
     )
   }
@@ -1813,10 +1944,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedNeg4(): Unit = {
     val num = "123456789"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.End)
     assertEquals(result, "-1234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.End,
+      ),
       num,
     )
   }
@@ -1824,10 +1959,14 @@ class TestDecimalUtils {
   @Test def zonedIntAsciiTandemModifiedNeg5(): Unit = {
     val num = "00000000001234567890"
     val result =
-      zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
+      zonedToNumber(num, Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start)
     assertEquals(result, "-000000000001234567890")
     assertEquals(
-      zonedFromNumber(result, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        result,
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       num,
     )
   }
@@ -1836,7 +1975,11 @@ class TestDecimalUtils {
     val num = "z123"
     try {
       val result =
-        zonedToNumber(num, TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start)
+        zonedToNumber(
+          num,
+          Some(TextZonedSignStyle.AsciiTandemModified),
+          OverpunchLocation.Start,
+        )
       assertEquals(result, "-0123")
     } catch {
       case nfe: NumberFormatException =>
@@ -1846,733 +1989,1717 @@ class TestDecimalUtils {
 
   @Test def zonedIntAsciiStandardAllDigits(): Unit = {
     assertEquals(
-      zonedToNumber("0", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("0", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "0",
     )
     assertEquals(
-      zonedFromNumber("0", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("0", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "0",
     )
     assertEquals(
-      zonedToNumber("1", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("1", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "1",
     )
     assertEquals(
-      zonedFromNumber("1", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("1", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "1",
     )
     assertEquals(
-      zonedToNumber("2", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("2", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "2",
     )
     assertEquals(
-      zonedFromNumber("2", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("2", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "2",
     )
     assertEquals(
-      zonedToNumber("3", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("3", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "3",
     )
     assertEquals(
-      zonedFromNumber("3", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("3", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "3",
     )
     assertEquals(
-      zonedToNumber("4", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("4", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "4",
     )
     assertEquals(
-      zonedFromNumber("4", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("4", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "4",
     )
     assertEquals(
-      zonedToNumber("5", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("5", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "5",
     )
     assertEquals(
-      zonedFromNumber("5", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("5", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "5",
     )
     assertEquals(
-      zonedToNumber("6", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("6", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "6",
     )
     assertEquals(
-      zonedFromNumber("6", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("6", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "6",
     )
     assertEquals(
-      zonedToNumber("7", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("7", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "7",
     )
     assertEquals(
-      zonedFromNumber("7", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("7", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "7",
     )
     assertEquals(
-      zonedToNumber("8", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("8", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "8",
     )
     assertEquals(
-      zonedFromNumber("8", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("8", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "8",
     )
     assertEquals(
-      zonedToNumber("9", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("9", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "9",
     )
     assertEquals(
-      zonedFromNumber("9", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("9", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "9",
     )
     assertEquals(
-      zonedToNumber("1p", TextZonedSignStyle.AsciiStandard, OverpunchLocation.End),
+      zonedToNumber("1p", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.End),
       "-10",
     )
     assertEquals(
-      zonedFromNumber("-10", TextZonedSignStyle.AsciiStandard, OverpunchLocation.End),
+      zonedFromNumber("-10", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.End),
       "1p",
     )
     assertEquals(
-      zonedToNumber("q", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("q", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "-1",
     )
     assertEquals(
-      zonedFromNumber("-1", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("-1", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "q",
     )
     assertEquals(
-      zonedToNumber("r", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("r", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "-2",
     )
     assertEquals(
-      zonedFromNumber("-2", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("-2", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "r",
     )
     assertEquals(
-      zonedToNumber("s", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("s", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "-3",
     )
     assertEquals(
-      zonedFromNumber("-3", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("-3", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "s",
     )
     assertEquals(
-      zonedToNumber("t", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("t", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "-4",
     )
     assertEquals(
-      zonedFromNumber("-4", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("-4", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "t",
     )
     assertEquals(
-      zonedToNumber("u", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("u", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "-5",
     )
     assertEquals(
-      zonedFromNumber("-5", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("-5", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "u",
     )
     assertEquals(
-      zonedToNumber("v", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("v", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "-6",
     )
     assertEquals(
-      zonedFromNumber("-6", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("-6", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "v",
     )
     assertEquals(
-      zonedToNumber("w", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("w", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "-7",
     )
     assertEquals(
-      zonedFromNumber("-7", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("-7", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "w",
     )
     assertEquals(
-      zonedToNumber("x", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("x", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "-8",
     )
     assertEquals(
-      zonedFromNumber("-8", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("-8", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "x",
     )
     assertEquals(
-      zonedToNumber("y", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedToNumber("y", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "-9",
     )
     assertEquals(
-      zonedFromNumber("-9", TextZonedSignStyle.AsciiStandard, OverpunchLocation.Start),
+      zonedFromNumber("-9", Some(TextZonedSignStyle.AsciiStandard), OverpunchLocation.Start),
       "y",
     )
   }
 
   @Test def zonedIntAsciiTranslatedEBCDICAllDigits(): Unit = {
     assertEquals(
-      zonedToNumber("0", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "0",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "0",
     )
     assertEquals(
-      zonedFromNumber("0", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "0",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "0",
     )
     assertEquals(
-      zonedToNumber("1", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "1",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "1",
     )
     assertEquals(
-      zonedFromNumber("1", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "1",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "1",
     )
     assertEquals(
-      zonedToNumber("2", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "2",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "2",
     )
     assertEquals(
-      zonedFromNumber("2", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "2",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "2",
     )
     assertEquals(
-      zonedToNumber("3", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "3",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "3",
     )
     assertEquals(
-      zonedFromNumber("3", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "3",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "3",
     )
     assertEquals(
-      zonedToNumber("4", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "4",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "4",
     )
     assertEquals(
-      zonedFromNumber("4", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "4",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "4",
     )
     assertEquals(
-      zonedToNumber("5", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "5",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "5",
     )
     assertEquals(
-      zonedFromNumber("5", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "5",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "5",
     )
     assertEquals(
-      zonedToNumber("6", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "6",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "6",
     )
     assertEquals(
-      zonedFromNumber("6", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "6",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "6",
     )
     assertEquals(
-      zonedToNumber("7", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "7",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "7",
     )
     assertEquals(
-      zonedFromNumber("7", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "7",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "7",
     )
     assertEquals(
-      zonedToNumber("8", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "8",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "8",
     )
     assertEquals(
-      zonedFromNumber("8", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "8",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "8",
     )
     assertEquals(
-      zonedToNumber("9", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedToNumber(
+        "9",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "9",
     )
     assertEquals(
-      zonedFromNumber("9", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.None),
+      zonedFromNumber(
+        "9",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.None,
+      ),
       "9",
     )
     assertEquals(
-      zonedToNumber("{", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "{",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "0",
     )
     assertEquals(
-      zonedFromNumber("0", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "0",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "{",
     )
     assertEquals(
-      zonedToNumber("A", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "A",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "1",
     )
     assertEquals(
-      zonedFromNumber("1", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "1",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "A",
     )
     assertEquals(
-      zonedToNumber("B", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "B",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "2",
     )
     assertEquals(
-      zonedFromNumber("2", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "2",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "B",
     )
     assertEquals(
-      zonedToNumber("C", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "C",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "3",
     )
     assertEquals(
-      zonedFromNumber("3", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "3",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "C",
     )
     assertEquals(
-      zonedToNumber("D", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "D",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "4",
     )
     assertEquals(
-      zonedFromNumber("4", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "4",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "D",
     )
     assertEquals(
-      zonedToNumber("E", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "E",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "5",
     )
     assertEquals(
-      zonedFromNumber("5", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "5",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "E",
     )
     assertEquals(
-      zonedToNumber("F", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "F",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "6",
     )
     assertEquals(
-      zonedFromNumber("6", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "6",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "F",
     )
     assertEquals(
-      zonedToNumber("G", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "G",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "7",
     )
     assertEquals(
-      zonedFromNumber("7", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "7",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "G",
     )
     assertEquals(
-      zonedToNumber("H", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "H",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "8",
     )
     assertEquals(
-      zonedFromNumber("8", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "8",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "H",
     )
     assertEquals(
-      zonedToNumber("I", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "I",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "9",
     )
     assertEquals(
-      zonedFromNumber("9", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "9",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "I",
     )
     assertEquals(
-      zonedToNumber("1}", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End),
+      zonedToNumber(
+        "1}",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.End,
+      ),
       "-10",
     )
     assertEquals(
-      zonedFromNumber("-10", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.End),
+      zonedFromNumber(
+        "-10",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.End,
+      ),
       "1}",
     )
     assertEquals(
-      zonedToNumber("J", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "J",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "-1",
     )
     assertEquals(
-      zonedFromNumber("-1", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-1",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "J",
     )
     assertEquals(
-      zonedToNumber("K", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "K",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "-2",
     )
     assertEquals(
-      zonedFromNumber("-2", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-2",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "K",
     )
     assertEquals(
-      zonedToNumber("L", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "L",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "-3",
     )
     assertEquals(
-      zonedFromNumber("-3", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-3",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "L",
     )
     assertEquals(
-      zonedToNumber("M", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "M",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "-4",
     )
     assertEquals(
-      zonedFromNumber("-4", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-4",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "M",
     )
     assertEquals(
-      zonedToNumber("N", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "N",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "-5",
     )
     assertEquals(
-      zonedFromNumber("-5", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-5",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "N",
     )
     assertEquals(
-      zonedToNumber("O", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "O",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "-6",
     )
     assertEquals(
-      zonedFromNumber("-6", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-6",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "O",
     )
     assertEquals(
-      zonedToNumber("P", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "P",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "-7",
     )
     assertEquals(
-      zonedFromNumber("-7", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-7",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "P",
     )
     assertEquals(
-      zonedToNumber("Q", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "Q",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "-8",
     )
     assertEquals(
-      zonedFromNumber("-8", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-8",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "Q",
     )
     assertEquals(
-      zonedToNumber("R", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedToNumber(
+        "R",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "-9",
     )
     assertEquals(
-      zonedFromNumber("-9", TextZonedSignStyle.AsciiTranslatedEBCDIC, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-9",
+        Some(TextZonedSignStyle.AsciiTranslatedEBCDIC),
+        OverpunchLocation.Start,
+      ),
       "R",
     )
   }
 
   @Test def zonedIntAsciiCARealiaModifiedAllDigits(): Unit = {
     assertEquals(
-      zonedToNumber("0", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "0",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "0",
     )
     assertEquals(
-      zonedFromNumber("0", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "0",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "0",
     )
     assertEquals(
-      zonedToNumber("1", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "1",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "1",
     )
     assertEquals(
-      zonedFromNumber("1", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "1",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "1",
     )
     assertEquals(
-      zonedToNumber("2", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "2",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "2",
     )
     assertEquals(
-      zonedFromNumber("2", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "2",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "2",
     )
     assertEquals(
-      zonedToNumber("3", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "3",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "3",
     )
     assertEquals(
-      zonedFromNumber("3", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "3",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "3",
     )
     assertEquals(
-      zonedToNumber("4", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "4",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "4",
     )
     assertEquals(
-      zonedFromNumber("4", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "4",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "4",
     )
     assertEquals(
-      zonedToNumber("5", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "5",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "5",
     )
     assertEquals(
-      zonedFromNumber("5", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "5",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "5",
     )
     assertEquals(
-      zonedToNumber("6", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "6",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "6",
     )
     assertEquals(
-      zonedFromNumber("6", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "6",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "6",
     )
     assertEquals(
-      zonedToNumber("7", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "7",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "7",
     )
     assertEquals(
-      zonedFromNumber("7", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "7",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "7",
     )
     assertEquals(
-      zonedToNumber("8", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "8",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "8",
     )
     assertEquals(
-      zonedFromNumber("8", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "8",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "8",
     )
     assertEquals(
-      zonedToNumber("9", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "9",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "9",
     )
     assertEquals(
-      zonedFromNumber("9", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "9",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "9",
     )
     assertEquals(
-      zonedToNumber("1 ", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End),
+      zonedToNumber(
+        "1 ",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.End,
+      ),
       "-10",
     )
     assertEquals(
-      zonedFromNumber("-10", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.End),
+      zonedFromNumber(
+        "-10",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.End,
+      ),
       "1 ",
     )
     assertEquals(
-      zonedToNumber("!", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "!",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "-1",
     )
     assertEquals(
-      zonedFromNumber("-1", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-1",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "!",
     )
     assertEquals(
-      zonedToNumber("\"", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "\"",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "-2",
     )
     assertEquals(
-      zonedFromNumber("-2", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-2",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "\"",
     )
     assertEquals(
-      zonedToNumber("#", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "#",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "-3",
     )
     assertEquals(
-      zonedFromNumber("-3", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-3",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "#",
     )
     assertEquals(
-      zonedToNumber("$", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "$",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "-4",
     )
     assertEquals(
-      zonedFromNumber("-4", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-4",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "$",
     )
     assertEquals(
-      zonedToNumber("%", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "%",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "-5",
     )
     assertEquals(
-      zonedFromNumber("-5", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-5",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "%",
     )
     assertEquals(
-      zonedToNumber("&", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "&",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "-6",
     )
     assertEquals(
-      zonedFromNumber("-6", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-6",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "&",
     )
     assertEquals(
-      zonedToNumber("'", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "'",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "-7",
     )
     assertEquals(
-      zonedFromNumber("-7", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-7",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "'",
     )
     assertEquals(
-      zonedToNumber("(", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        "(",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "-8",
     )
     assertEquals(
-      zonedFromNumber("-8", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-8",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "(",
     )
     assertEquals(
-      zonedToNumber(")", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedToNumber(
+        ")",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       "-9",
     )
     assertEquals(
-      zonedFromNumber("-9", TextZonedSignStyle.AsciiCARealiaModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-9",
+        Some(TextZonedSignStyle.AsciiCARealiaModified),
+        OverpunchLocation.Start,
+      ),
       ")",
     )
   }
 
   @Test def zonedIntAsciiTandemModifiedAllDigits(): Unit = {
     assertEquals(
-      zonedToNumber("0", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("0", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "0",
     )
     assertEquals(
-      zonedFromNumber("0", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "0",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "0",
     )
     assertEquals(
-      zonedToNumber("1", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("1", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "1",
     )
     assertEquals(
-      zonedFromNumber("1", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "1",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "1",
     )
     assertEquals(
-      zonedToNumber("2", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("2", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "2",
     )
     assertEquals(
-      zonedFromNumber("2", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "2",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "2",
     )
     assertEquals(
-      zonedToNumber("3", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("3", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "3",
     )
     assertEquals(
-      zonedFromNumber("3", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "3",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "3",
     )
     assertEquals(
-      zonedToNumber("4", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("4", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "4",
     )
     assertEquals(
-      zonedFromNumber("4", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "4",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "4",
     )
     assertEquals(
-      zonedToNumber("5", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("5", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "5",
     )
     assertEquals(
-      zonedFromNumber("5", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "5",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "5",
     )
     assertEquals(
-      zonedToNumber("6", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("6", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "6",
     )
     assertEquals(
-      zonedFromNumber("6", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "6",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "6",
     )
     assertEquals(
-      zonedToNumber("7", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("7", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "7",
     )
     assertEquals(
-      zonedFromNumber("7", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "7",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "7",
     )
     assertEquals(
-      zonedToNumber("8", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("8", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "8",
     )
     assertEquals(
-      zonedFromNumber("8", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "8",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "8",
     )
     assertEquals(
-      zonedToNumber("9", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("9", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "9",
     )
     assertEquals(
-      zonedFromNumber("9", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "9",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "9",
     )
     assertEquals(
-      zonedToNumber("1", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End),
+      zonedToNumber("1", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.End),
       "-10",
     )
     assertEquals(
-      zonedFromNumber("-10", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.End),
+      zonedFromNumber(
+        "-10",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.End,
+      ),
       "1",
     )
     assertEquals(
-      zonedToNumber("", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "-1",
     )
     assertEquals(
-      zonedFromNumber("-1", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-1",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "",
     )
     assertEquals(
-      zonedToNumber("", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "-2",
     )
     assertEquals(
-      zonedFromNumber("-2", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-2",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "",
     )
     assertEquals(
-      zonedToNumber("", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "-3",
     )
     assertEquals(
-      zonedFromNumber("-3", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-3",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "",
     )
     assertEquals(
-      zonedToNumber("", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "-4",
     )
     assertEquals(
-      zonedFromNumber("-4", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-4",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "",
     )
     assertEquals(
-      zonedToNumber("", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "-5",
     )
     assertEquals(
-      zonedFromNumber("-5", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-5",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "",
     )
     assertEquals(
-      zonedToNumber("", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "-6",
     )
     assertEquals(
-      zonedFromNumber("-6", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-6",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "",
     )
     assertEquals(
-      zonedToNumber("", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "-7",
     )
     assertEquals(
-      zonedFromNumber("-7", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-7",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "",
     )
     assertEquals(
-      zonedToNumber("", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "-8",
     )
     assertEquals(
-      zonedFromNumber("-8", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-8",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "",
     )
     assertEquals(
-      zonedToNumber("", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedToNumber("", Some(TextZonedSignStyle.AsciiTandemModified), OverpunchLocation.Start),
       "-9",
     )
     assertEquals(
-      zonedFromNumber("-9", TextZonedSignStyle.AsciiTandemModified, OverpunchLocation.Start),
+      zonedFromNumber(
+        "-9",
+        Some(TextZonedSignStyle.AsciiTandemModified),
+        OverpunchLocation.Start,
+      ),
       "",
     )
   }
+
+  @Test def zonedIntEBCDICPos1(): Unit = {
+    val num = "1"
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.Start)
+    assertEquals("1", result)
+    assertEquals(
+      "A",
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.Start,
+      ),
+    )
+  }
+
+  @Test def zonedIntEBCDICPos2(): Unit = {
+    val num = "12"
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.End)
+    assertEquals(result, "12")
+    assertEquals(
+      "1B",
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.End,
+      ),
+    )
+  }
+
+  @Test def zonedIntEBCDICPos3(): Unit = {
+    val num = "123"
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.None)
+    assertEquals("123", result)
+    assertEquals(
+      "123",
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.None,
+      ),
+    )
+  }
+
+  @Test def zonedIntEBCDICPos4(): Unit = {
+    val num = "A234567890" // A is +1 sign Ebcdic C1.
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.Start)
+    assertEquals("1234567890", result)
+    assertEquals(
+      num,
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.Start,
+      ),
+    )
+  }
+
+  @Test def zonedIntEBCDICPos5(): Unit = {
+    val num = "00000000000123456789{"
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.End)
+    assertEquals("000000000001234567890", result)
+    assertEquals(
+      num,
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.End,
+      ),
+    )
+  }
+
+  @Test def zonedIntEBCDICNeg1(): Unit = {
+    val num = "J"
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.Start)
+    assertEquals(result, "-1")
+    assertEquals(
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.Start,
+      ),
+      num,
+    )
+  }
+
+  @Test def zonedIntEBCDICNeg2(): Unit = {
+    val num = "1K"
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.End)
+    assertEquals(result, "-12")
+    assertEquals(
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.End,
+      ),
+      num,
+    )
+  }
+
+  @Test def zonedIntEBCDICNeg3(): Unit = {
+    val num = "J23"
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.Start)
+    assertEquals(result, "-123")
+    assertEquals(
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.Start,
+      ),
+      num,
+    )
+  }
+
+  @Test def zonedIntEBCDICNeg4(): Unit = {
+    val num = "123456789}"
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.End)
+    assertEquals(result, "-1234567890")
+    assertEquals(
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.End,
+      ),
+      num,
+    )
+  }
+
+  @Test def zonedIntEBCDICNeg5(): Unit = {
+    val num = "}00000000001234567890"
+    val result =
+      zonedToNumber(num, None, OverpunchLocation.Start)
+    assertEquals(result, "-000000000001234567890")
+    assertEquals(
+      zonedFromNumber(
+        result,
+        None,
+        OverpunchLocation.Start,
+      ),
+      num,
+    )
+  }
+
+  @Test def zonedIntEBCDICInvalidDigit(): Unit = {
+    val num = "z123"
+    try {
+      zonedToNumber(
+        num,
+        None,
+        OverpunchLocation.Start,
+      )
+    } catch {
+      case nfe: NumberFormatException =>
+        assertTrue(nfe.getMessage().contains("Invalid zoned digit"))
+    }
+  }
+
+  @Test def zonedIntEBCDICInvalidOverpunchInMiddle(): Unit = {
+    val num = "1K3" // K is normally an overpunched -2 (ebcdic D2)
+    try {
+      zonedToNumber(
+        num,
+        None,
+        OverpunchLocation.Start,
+      ).toInt // error is detected by toInt call since 1K3 isn't convertible.
+      fail("Did not detect number format exception")
+    } catch {
+      case nfe: NumberFormatException =>
+        val m = nfe.getMessage()
+        assertTrue(m.contains("1K3"))
+    }
+  }
+
+  @Test def zonedIntEBCDICAllDigits(): Unit = {
+    assertEquals(
+      zonedToNumber("0", None, OverpunchLocation.Start),
+      "0",
+    )
+    assertEquals(
+      zonedToNumber("{", None, OverpunchLocation.Start),
+      "0",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "0",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "{",
+    )
+    assertEquals(
+      zonedToNumber("1", None, OverpunchLocation.Start),
+      "1",
+    )
+    assertEquals(
+      zonedToNumber("A", None, OverpunchLocation.Start),
+      "1",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "1",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "A",
+    )
+    assertEquals(
+      zonedToNumber("2", None, OverpunchLocation.Start),
+      "2",
+    )
+    assertEquals(
+      zonedToNumber("B", None, OverpunchLocation.Start),
+      "2",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "2",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "B",
+    )
+    assertEquals(
+      zonedToNumber("3", None, OverpunchLocation.Start),
+      "3",
+    )
+    assertEquals(
+      zonedToNumber("C", None, OverpunchLocation.Start),
+      "3",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "3",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "C",
+    )
+    assertEquals(
+      zonedToNumber("4", None, OverpunchLocation.Start),
+      "4",
+    )
+    assertEquals(
+      zonedToNumber("D", None, OverpunchLocation.Start),
+      "4",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "4",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "D",
+    )
+    assertEquals(
+      zonedToNumber("5", None, OverpunchLocation.Start),
+      "5",
+    )
+    assertEquals(
+      zonedToNumber("E", None, OverpunchLocation.Start),
+      "5",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "5",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "E",
+    )
+    assertEquals(
+      zonedToNumber("6", None, OverpunchLocation.Start),
+      "6",
+    )
+    assertEquals(
+      zonedToNumber("F", None, OverpunchLocation.Start),
+      "6",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "6",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "F",
+    )
+    assertEquals(
+      zonedToNumber("7", None, OverpunchLocation.Start),
+      "7",
+    )
+    assertEquals(
+      zonedToNumber("G", None, OverpunchLocation.Start),
+      "7",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "7",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "G",
+    )
+    assertEquals(
+      zonedToNumber("8", None, OverpunchLocation.Start),
+      "8",
+    )
+    assertEquals(
+      zonedToNumber("H", None, OverpunchLocation.Start),
+      "8",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "8",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "H",
+    )
+    assertEquals(
+      zonedToNumber("9", None, OverpunchLocation.Start),
+      "9",
+    )
+    assertEquals(
+      zonedToNumber("I", None, OverpunchLocation.Start),
+      "9",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "9",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "I",
+    )
+    assertEquals(
+      zonedToNumber("1}", None, OverpunchLocation.End),
+      "-10",
+    )
+    assertEquals(
+      zonedToNumber("1^", None, OverpunchLocation.End),
+      "-10",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-10",
+        None,
+        OverpunchLocation.End,
+      ),
+      "1}",
+    )
+    assertEquals(
+      zonedToNumber("J", None, OverpunchLocation.Start),
+      "-1",
+    )
+    assertEquals(
+      zonedToNumber("£", None, OverpunchLocation.Start),
+      "-1",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-1",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "J",
+    )
+    assertEquals(
+      zonedToNumber("K", None, OverpunchLocation.Start),
+      "-2",
+    )
+    assertEquals(
+      zonedToNumber("¥", None, OverpunchLocation.Start),
+      "-2",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-2",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "K",
+    )
+    assertEquals(
+      zonedToNumber("L", None, OverpunchLocation.Start),
+      "-3",
+    )
+    assertEquals(
+      zonedToNumber("·", None, OverpunchLocation.Start),
+      "-3",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-3",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "L",
+    )
+    assertEquals(
+      zonedToNumber("M", None, OverpunchLocation.Start),
+      "-4",
+    )
+    assertEquals(
+      zonedToNumber("©", None, OverpunchLocation.Start),
+      "-4",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-4",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "M",
+    )
+    assertEquals(
+      zonedToNumber("N", None, OverpunchLocation.Start),
+      "-5",
+    )
+    assertEquals(
+      zonedToNumber("§", None, OverpunchLocation.Start),
+      "-5",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-5",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "N",
+    )
+    assertEquals(
+      zonedToNumber("O", None, OverpunchLocation.Start),
+      "-6",
+    )
+    assertEquals(
+      zonedToNumber("¶", None, OverpunchLocation.Start),
+      "-6",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-6",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "O",
+    )
+    assertEquals(
+      zonedToNumber("P", None, OverpunchLocation.Start),
+      "-7",
+    )
+    assertEquals(
+      zonedToNumber("¼", None, OverpunchLocation.Start),
+      "-7",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-7",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "P",
+    )
+    assertEquals(
+      zonedToNumber("Q", None, OverpunchLocation.Start),
+      "-8",
+    )
+    assertEquals(
+      zonedToNumber("½", None, OverpunchLocation.Start),
+      "-8",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-8",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "Q",
+    )
+    assertEquals(
+      zonedToNumber("R", None, OverpunchLocation.Start),
+      "-9",
+    )
+    assertEquals(
+      zonedToNumber("¾", None, OverpunchLocation.Start),
+      "-9",
+    )
+    assertEquals(
+      zonedFromNumber(
+        "-9",
+        None,
+        OverpunchLocation.Start,
+      ),
+      "R",
+    )
+  }
+
 }
