@@ -49,12 +49,17 @@ USAGE
 DRY_RUN=false
 
 echo "Which project to release?"
-select PROJECT_REPO in daffodil daffodil-vscode
+select PROJECT_REPO in daffodil daffodil-sbt daffodil-vscode
 do
   case $PROJECT_REPO in
     "daffodil")
       PROJECT_DIST_DIR=""
       PROJECT_NAME="Daffodil"
+      break
+      ;;
+    "daffodil-sbt")
+      PROJECT_DIST_DIR="$PROJECT_REPO"
+      PROJECT_NAME="Daffodil SBT Plugin"
       break
       ;;
     "daffodil-vscode")
@@ -204,7 +209,7 @@ svn checkout https://dist.apache.org/repos/dist/dev/daffodil/$PROJECT_DIST_DIR $
 pushd $REPO_ROOT/$DAFFODIL_CODE_REPO &> /dev/null
 
 case $PROJECT_REPO in
-  "daffodil")
+  "daffodil" | "daffodil-sbt")
     VERSION=$(grep 'version :=' build.sbt | cut -d\" -f2)
     ;;
   "daffodil-vscode")
@@ -294,6 +299,24 @@ case $PROJECT_REPO in
 
     ;;
 
+  "daffodil-sbt")
+    if [ "$DRY_RUN" = true ]; then
+      SBT_PUBLISH="publishLocalSigned"
+    else
+      SBT_PUBLISH="publishSigned"
+    fi
+
+    echo "Building and Publishing to Apache Repository..."
+    sbt \
+      "set ThisBuild/updateOptions := updateOptions.value.withGigahorse(false)" \
+      "set ThisBuild/credentials += Credentials(\"Sonatype Nexus Repository Manager\", \"repository.apache.org\", \"$APACHE_USERNAME\", \"$APACHE_PASSWD\")" \
+      "set ThisBuild/publishTo := Some(\"Apache Staging Distribution Repository\" at \"https://repository.apache.org/service/local/staging/deploy/maven2\")" \
+      "set pgpSigningKey := Some(\"$PGP_SIGNING_KEY_ID\")" \
+      "^compile" \
+      "^$SBT_PUBLISH" \
+
+    ;;
+
   "daffodil-vscode")
 
     echo "Building Convenience Binaries..."
@@ -318,9 +341,9 @@ case $PROJECT_REPO in
 esac
 
 echo "Calculating Checksums..."
-for i in src/ bin/
+for i in $DAFFODIL_RELEASE_DIR/*/
 do
-    pushd $DAFFODIL_RELEASE_DIR/$i > /dev/null
+    pushd $i > /dev/null
     for file in *
     do
        sha512sum --binary $file > $file.sha512
