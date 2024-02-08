@@ -143,7 +143,9 @@ lazy val sapi = Project("daffodil-sapi", file("daffodil-sapi"))
 
 lazy val tdmlLib = Project("daffodil-tdml-lib", file("daffodil-tdml-lib"))
   .dependsOn(macroLib % "compile-internal", lib, io, io % "test->test", slf4jLogger % "test")
+  .enablePlugins(ScalaxbPlugin)
   .settings(commonSettings)
+  .settings(scalaxbSettings)
 
 lazy val tdmlProc = Project("daffodil-tdml-processor", file("daffodil-tdml-processor"))
   .dependsOn(tdmlLib, codeGenC, core, slf4jLogger)
@@ -210,6 +212,16 @@ lazy val tutorials = Project("daffodil-tutorials", file("tutorials"))
 lazy val testStdLayout = Project("daffodil-test-stdLayout", file("test-stdLayout"))
   .dependsOn(tdmlProc % "test")
   .settings(commonSettings, nopublish)
+
+lazy val scalaxbSettings = Seq(
+  Compile / scalaxb / scalaxbGenerateMutable := true,
+  // Even though we don't generate any http clients, we need this to avoid an unused import error in the generated code.
+  Compile / scalaxb / scalaxbHttpClientStyle := HttpClientStyle.Sync,
+  Compile / scalaxb / scalaxbPackageName := "org.apache.daffodil.tdml.scalaxb",
+  Compile / scalaxb / sources := Seq(
+    (lib / Compile / resourceDirectory).value / "org/apache/daffodil/xsd/tdml-core.xsd",
+  ),
+)
 
 // Choices here are Java LTS versions, 8, 11, 17, 21,...
 // However 8 is deprecated as of Java 21, so will be phased out.
