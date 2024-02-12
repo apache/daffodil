@@ -21,11 +21,11 @@ import java.nio.charset.StandardCharsets
 
 import org.apache.daffodil.lib.util.Indentable
 import org.apache.daffodil.lib.util.MStackOfBoolean
+import org.apache.daffodil.runtime1.api.DFDLPrimType
 import org.apache.daffodil.runtime1.api.InfosetArray
 import org.apache.daffodil.runtime1.api.InfosetComplexElement
 import org.apache.daffodil.runtime1.api.InfosetElement
 import org.apache.daffodil.runtime1.api.InfosetSimpleElement
-import org.apache.daffodil.runtime1.api.PrimitiveType
 
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 
@@ -101,7 +101,7 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
     startElement(simple)
     if (!simple.isNilled) {
       val text =
-        if (simple.metadata.primitiveType == PrimitiveType.String) {
+        if (simple.metadata.dfdlType == DFDLPrimType.String) {
           new String(
             stringEncoder.quoteAsString(simple.getText),
           ) // escapes according to Json spec

@@ -884,11 +884,6 @@ trait LayeringRuntimeValuedPropertiesMixin extends RawLayeringRuntimeValuedPrope
     )
   }
 
-  //  final lazy val layerBoundaryMarkEv = {
-  //    if (maybeLayerBoundaryMarkEv.isEmpty) layerBoundaryMarkRaw // must be defined
-  //    maybeLayerBoundaryMarkEv.get
-  //  }
-
   final lazy val maybeLayerBoundaryMarkEv = {
     if (optionLayerBoundaryMarkRaw.isDefined) {
       val ev = new LayerBoundaryMarkEv(layerBoundaryMarkExpr, tci)

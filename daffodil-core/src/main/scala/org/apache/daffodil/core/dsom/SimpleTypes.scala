@@ -45,7 +45,7 @@ sealed trait SimpleTypeBase extends TypeBase with SimpleTypeView {
 
 /**
  * PrimType nodes are part of the runtime. For compilation, we need a notion
- * of primitive type that derives from the same base a SimpleTypeBase and
+ * of primitive type that derives from the same base as SimpleTypeBase and
  * ComplexTypeBase, and it needs to have methods that take and return
  * compiler-only object types; hence we can't define a base in the runtime
  * because it can't have those methods; hence, can't achieve the
