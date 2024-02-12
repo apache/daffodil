@@ -20,7 +20,6 @@ package org.apache.daffodil.runtime1.processors
 import java.lang.{ Double => JDouble }
 import java.lang.{ Float => JFloat }
 import java.lang.{ Long => JLong }
-import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 
@@ -46,16 +45,15 @@ import org.apache.daffodil.lib.xml.StepQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.ChoiceMetadata
 import org.apache.daffodil.runtime1.api.ComplexElementMetadata
+import org.apache.daffodil.runtime1.api.DFDLPrimType
 import org.apache.daffodil.runtime1.api.ElementMetadata
 import org.apache.daffodil.runtime1.api.Metadata
 import org.apache.daffodil.runtime1.api.ModelGroupMetadata
-import org.apache.daffodil.runtime1.api.PrimitiveType
 import org.apache.daffodil.runtime1.api.SequenceMetadata
 import org.apache.daffodil.runtime1.api.SimpleElementMetadata
 import org.apache.daffodil.runtime1.api.TermMetadata
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-import org.apache.daffodil.runtime1.dpath.PrimTypeNode
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
@@ -698,10 +696,9 @@ sealed class ElementRuntimeData(
 
   def isSimpleType = optPrimType.isDefined
 
-  def primType: PrimTypeNode =
-    optPrimType.asInstanceOf[Option[PrimTypeNode]].orNull
+  def primType: PrimType = optPrimType.orNull
 
-  override def primitiveType: PrimitiveType = primType.asInstanceOf[PrimitiveType]
+  override def dfdlType: DFDLPrimType = primType.dfdlType
 
   lazy val schemaURIStringsForFullValidation: Seq[String] =
     schemaURIStringsForFullValidation1.distinct
@@ -756,13 +753,11 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     new DPathElementCompileInfo(
       Delay(
         'ErrorERDParents,
-        getClass().getName,
         Seq[DPathElementCompileInfo](),
       ).force, // parentsArg: => Seq[DPathElementCompileInfo],
       null, // variableMap: => VariableMap,
       Delay(
         'ErrorERD,
-        getClass().getName,
         Seq[DPathElementCompileInfo](),
       ).force, // elementChildrenCompileInfoDelay: Delay[Seq[DPathElementCompileInfo]],
       null, // namespaces: scala.xml.NamespaceBinding,

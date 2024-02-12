@@ -22,6 +22,8 @@ import org.apache.daffodil.lib.exceptions.Assert
 /**
  * Delay[T]
  *
+ * Used to create cyclic objects without side-effects.
+ *
  * This Delayed evaluation technique is an alternative to staggered
  * multi-stage factories, or currying. Turns out currying works fine in
  * Scala for functions, but not for class constructors, so it's easier to
@@ -65,7 +67,7 @@ import org.apache.daffodil.lib.exceptions.Assert
  *
  * }}}
  */
-final class Delay[T] private (private var box: Delay.Box[T], sym: Symbol)
+final class Delay[T] private (private var box: Delay.Box[T], ctxt1: AnyRef)
   extends PreSerialization {
   //
   // This trick of taking another object on a var, and
@@ -97,20 +99,23 @@ final class Delay[T] private (private var box: Delay.Box[T], sym: Symbol)
   /**
    * Create a string representation. Does not force the value to be computed.
    */
-  override def toString = {
-    val bodyString = if (hasValue) ", " + value.toString else ""
-    val objString =
-      if (hasValue) ""
-      else {
-        box
+  override def toString: String = {
+    val str =
+      if (hasValue) {
+        if (ctxt1 ne null)
+          s"Delay(${Delay.nameOrValue(ctxt1)}, $value)"
+        else
+          s"Delay($value)"
+      } else {
+        s"Delay($box)"
       }
-    "Delay(" + sym + ", " + objString + bodyString + ")"
+    str
   }
 
   override def preSerialization = {
     if (!hasValue) {
       Assert.invariant(box ne null)
-      val msg = s"No value for delay. Containing object not initialized? ID Symbol:$sym " +
+      val msg = s"No value for delay. Containing object not initialized? ID Symbol:$ctxt1 " +
         s"object ${box}"
       Assert.invariantFailed(msg)
     }
@@ -121,32 +126,71 @@ final class Delay[T] private (private var box: Delay.Box[T], sym: Symbol)
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 }
 
+/**
+ * Factory for Delay[T] objects. Used to create cyclic structures without using side-effects.
+ */
 object Delay {
 
   /**
    * Create a delayed expression object.
    *
+   * @param ctxt1 Used for debugging only. ctxt1.toString is used in display of these object.
+   *              Can be null if not needed.
+   * @param ctxt2 Used for debugging only. ctxt2.toString is used in display of these objects.
+   *              Can be null if not needed.
    * @param delayedExpression an argument expression which will not be evaluated until required
    * @tparam T type of the argument. (Usually inferred by Scala.)
    * @return the Delay object
    */
-  def apply[T](sym: Symbol, obj: AnyRef, delayedExpression: => T) = {
-    new Delay(new Box(sym, obj, delayedExpression), sym)
+  def apply[T](ctxt1: AnyRef, ctxt2: AnyRef, delayedExpression: => T): Delay[T] = {
+    new Delay(new Box(ctxt1, ctxt2, delayedExpression), ctxt1)
   }
 
   /**
-   * Specifically, this is NOT serializable.
-   * Serialization must force all Delay objects.
+   * Two-arg version to create a delayed expression object.
+   * @param ctxt1 Used for debugging only. ctxt1.toString is used in display of these object.
+   *              Can be null if not needed.
+   * @param delayedExpression an argument expression which will not be evaluated until required
+   * @tparam T type of the argument. (Usually inferred by Scala.)
+   * @return the Delay object.
    */
-  private class Box[T](val sym: Symbol, val obj: AnyRef, delayedExpression: => T) {
+  def apply[T](ctxt1: AnyRef, delayedExpression: => T): Delay[T] =
+    new Delay(new Box(ctxt1, null, delayedExpression), ctxt1)
+
+  private def nameOrValue(x: AnyRef) = x match {
+    case d: NamedMixinBase => d.diagnosticDebugName
+    case _ => x
+  }
+
+  /**
+   * Box object to hold delayed expression.
+   *
+   * Needed so that we can look at Delay objects in the debugger and
+   * printed output without forcing the evaluation of their delayed contents.
+   *
+   * Also potentially helps with discarding everything Scala needs
+   * to implement Delays, once they have been forced.
+   *
+   * Note: this is NOT serializable, on purpose.
+   * Serialization must force all Delay objects.
+   * @param ctxt1 Used for debugging only. ctxt1.toString is used in display of these object.
+   *              Can be null if not needed.
+   * @param ctxt2 Used for debugging only. ctxt2.toString is used in display of these objects.
+   *              Can be null if not needed.
+   * @param delayedExpression an argument expression which will not be evaluated until required
+   * @tparam T
+   */
+  private class Box[T](val ctxt1: AnyRef, val ctxt2: AnyRef, delayedExpression: => T) {
     lazy val value = delayedExpression
 
-    override def toString() = {
-      val desc = obj match {
-        case d: NamedMixinBase => "(" + d.diagnosticDebugName + ")"
-        case _ => ""
-      }
-      "box(" + obj.hashCode() + desc + ")"
+    private lazy val str = {
+      val ctxtList = Seq(Option(ctxt1), Option(ctxt2)).flatten.distinct
+      val descList: Seq[_] = ctxtList.map { nameOrValue(_) }
+      val desc =
+        if (descList.isEmpty) "@" + hashCode().toString
+        else descList.mkString("(", ", ", ")")
+      s"box$desc"
     }
+    override def toString() = str
   }
 }

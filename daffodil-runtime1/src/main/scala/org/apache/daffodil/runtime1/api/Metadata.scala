@@ -17,11 +17,7 @@
 package org.apache.daffodil.runtime1.api
 
 import java.lang.{ Long => JLong }
-import scala.collection.JavaConverters._
 import scala.xml.NamespaceBinding
-
-import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 
 /**
  * This is the supportable API for access to the RuntimeData structures
@@ -155,58 +151,11 @@ trait ComplexElementMetadata extends ElementMetadata {
  */
 trait SimpleElementMetadata extends ElementMetadata {
 
-  def primitiveType: PrimitiveType
-}
-
-/**
- * Instances are static objects that represent the DFDL primitive types.
- */
-trait PrimitiveType {
-  def name: String
-}
-
-/**
- * Static methods related to PrimitiveType objects
- */
-object PrimitiveType {
-
-  private lazy val _list: java.util.List[PrimitiveType] =
-    NodeInfo.allDFDLTypes.asInstanceOf[Seq[PrimitiveType]].asJava
-
   /**
-   * Get a primitive type given a name string.
-   *
-   * @param name lookup key. Case insensitive.
-   * @return the PrimitiveType with that name, or null if there is no such primitive type.
+   * Primitive Type enum usable from Java
+   * @return
    */
-  def fromName(name: String): PrimitiveType =
-    NodeInfo.primitiveTypeFromName(name)
-
-  /**
-   * A list of all the primitive type objects.
-   */
-  def list: java.util.List[PrimitiveType] = _list
-
-  val String: PrimitiveType = PrimType.String
-  val Int: PrimitiveType = PrimType.Int
-  val Byte: PrimitiveType = PrimType.Byte
-  val Short: PrimitiveType = PrimType.Short
-  val Long: PrimitiveType = PrimType.Long
-  val Integer: PrimitiveType = PrimType.Integer
-  val Decimal: PrimitiveType = PrimType.Decimal
-  val UnsignedInt: PrimitiveType = PrimType.UnsignedInt
-  val UnsignedByte: PrimitiveType = PrimType.UnsignedByte
-  val UnsignedShort: PrimitiveType = PrimType.UnsignedShort
-  val UnsignedLong: PrimitiveType = PrimType.UnsignedLong
-  val NonNegativeInteger: PrimitiveType = PrimType.NonNegativeInteger
-  val Double: PrimitiveType = PrimType.Double
-  val Float: PrimitiveType = PrimType.Float
-  val HexBinary: PrimitiveType = PrimType.HexBinary
-  val AnyURI: PrimitiveType = PrimType.AnyURI
-  val Boolean: PrimitiveType = PrimType.Boolean
-  val DateTime: PrimitiveType = PrimType.DateTime
-  val Date: PrimitiveType = PrimType.Date
-  val Time: PrimitiveType = PrimType.Time
+  def dfdlType: DFDLPrimType
 }
 
 /**
@@ -249,6 +198,10 @@ abstract class MetadataHandler() {
 
   /**
    * Called for simple type element metadata (for declarations or references)
+   *
+   * There are no separate start/end methods for simple element declarations.
+   *
+   * @param m the simple element metadata for the element declaration.
    */
   def simpleElementMetadata(m: SimpleElementMetadata): Unit
 
@@ -257,6 +210,7 @@ abstract class MetadataHandler() {
    *
    * Subsequent calls will be for the model group making up the content
    * of the element.
+   * @param m the complex element metadata for the element declaration that is starting
    */
   def startComplexElementMetadata(m: ComplexElementMetadata): Unit
 
@@ -265,41 +219,41 @@ abstract class MetadataHandler() {
    *
    * This is called after all the calls corresponding to the content of the
    * complex type element.
-   * @param m
+   * @param m the complex element metadata for the element declaration that is ending
    */
   def endComplexElementMetadata(m: ComplexElementMetadata): Unit
 
   /**
-   * Called for sequence groups.
+   * Called for sequence group definitions.
    *
    * Subsequent calls will be for the content of the sequence.
-   * @param m
+   * @param m the sequence metadata for the sequence definition that is starting
    */
   def startSequenceMetadata(m: SequenceMetadata): Unit
 
   /**
-   * Called for sequence groups.
+   * Called for sequence group definitions.
    *
    * This is called after all the calls corresponding to the content
    * of the sequence group.
-   * @param m
+   * @param m the sequence metadata for the sequence definition that is ending
    */
   def endSequenceMetadata(m: SequenceMetadata): Unit
 
   /**
-   * Called for choice groups.
+   * Called for choice group definitions.
    *
    * Subsequent calls will be for the content of the choice.
-   * @param m
+   * @param m the choice metadata for the choice definition that is starting
    */
   def startChoiceMetadata(m: ChoiceMetadata): Unit
 
   /**
-   * Called for choice groups.
+   * Called for choice group definitions.
    *
    * This is called after all the calls corresponding to the content
    * of the choice group.
-   * @param m
+   * @param m the choice metadata for the choice definition that is ending
    */
   def endChoiceMetadata(m: ChoiceMetadata): Unit
 

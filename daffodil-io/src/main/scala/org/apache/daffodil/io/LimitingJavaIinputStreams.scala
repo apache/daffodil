@@ -41,7 +41,7 @@ class ExplicitLengthLimitingStream(in: InputStream, limit: Long) extends FilterI
 
   private var numRemaining = limit
 
-  override def read(buf: Array[Byte], off: Int, len: Int) = {
+  override def read(buf: Array[Byte], off: Int, len: Int): Int = {
     Assert.invariant(numRemaining >= 0)
     if (numRemaining == 0) -1
     else if (len == 0) 0
@@ -97,7 +97,7 @@ object BoundaryMarkLimitingStream {
     boundaryMark: String,
     charset: Charset,
     targetChunkSize: Int = 32 * 1024,
-  ) = {
+  ): InputStream = {
 
     Assert.usage(targetChunkSize >= 1)
     Assert.usage(boundaryMark.length >= 1)

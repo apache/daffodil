@@ -21,11 +21,11 @@ import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.api.DFDLPrimType
 import org.apache.daffodil.runtime1.api.InfosetArray
 import org.apache.daffodil.runtime1.api.InfosetComplexElement
 import org.apache.daffodil.runtime1.api.InfosetElement
 import org.apache.daffodil.runtime1.api.InfosetSimpleElement
-import org.apache.daffodil.runtime1.api.PrimitiveType
 
 import org.xml.sax.ContentHandler
 import org.xml.sax.helpers.AttributesImpl
@@ -67,7 +67,7 @@ class SAXInfosetOutputter(
       doStartElement(simple, contentHandler)
       if (!simple.isNilled) {
         val text =
-          if (simple.metadata.primitiveType == PrimitiveType.String) {
+          if (simple.metadata.dfdlType == DFDLPrimType.String) {
             XMLUtils.remapXMLIllegalCharactersToPUA(simple.getText)
           } else {
             simple.getText

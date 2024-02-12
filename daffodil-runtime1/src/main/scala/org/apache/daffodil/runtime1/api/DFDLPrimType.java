@@ -14,16 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.daffodil.runtime1.api;
 
-package org.apache.daffodil.runtime1.dpath
+/**
+ * An enumeration of all DFDL's simple types.
+ * <p/>
+ * Intended to be easily used from Java code calling Daffodil APIs.
+ */
+public enum DFDLPrimType {
 
-import org.junit.Assert.assertTrue
-import org.junit.Test
-
-class TestNodeInfo {
-
-  @Test def test_nodeInfoCanBeConstructed(): Unit = {
-    assertTrue(NodeInfo.isXDerivedFromY("Byte", "Long"))
-  }
-
+    String,
+    Int,
+    Byte,
+    Short,
+    Long,
+    Integer,
+    Decimal,
+    UnsignedInt,
+    UnsignedByte,
+    UnsignedShort,
+    UnsignedLong,
+    NonNegativeInteger,
+    Double,
+    Float,
+    HexBinary,
+    AnyURI,
+    Boolean,
+    DateTime,
+    Date,
+    Time
 }
