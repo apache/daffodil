@@ -29,12 +29,16 @@ import org.apache.daffodil.runtime1.api.InfosetSimpleElement
 
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 
-class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
+class JsonInfosetOutputter private (writer: java.io.BufferedWriter, pretty: Boolean)
   extends InfosetOutputter
   with Indentable {
 
   def this(os: java.io.OutputStream, pretty: Boolean) = {
-    this(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8), pretty)
+    // using a BufferedWriter provides significant performance improvements
+    this(
+      new java.io.BufferedWriter(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8)),
+      pretty,
+    )
   }
 
   // Keeps track of if the next element we see is the first child or not of a
@@ -63,7 +67,7 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
     } else {
       writer.write(',')
     }
-    if (pretty) writer.write(System.lineSeparator())
+    if (pretty) writer.newLine()
     if (pretty) outputIndentation(writer)
   }
 
@@ -91,7 +95,7 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
   // complex/array/document at the right indentation level
   private def endNodeWithChildren(): Unit = {
     isFirstChildStack.pop()
-    if (pretty) writer.write(System.lineSeparator())
+    if (pretty) writer.newLine()
     decrementIndentation()
     if (pretty) outputIndentation(writer)
   }
@@ -163,7 +167,7 @@ class JsonInfosetOutputter private (writer: java.io.Writer, pretty: Boolean)
   override def endDocument(): Unit = {
     endNodeWithChildren()
     writer.write('}')
-    if (pretty) writer.write(System.lineSeparator())
+    if (pretty) writer.newLine()
     writer.flush()
   }
 }
