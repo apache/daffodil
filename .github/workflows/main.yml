@@ -253,7 +253,7 @@ jobs:
 
       - name: Run scalafmt Check
         if: success() || failure()
-        run: $SBT scalafmtCheckAll scalafmtSbtCheck
+        run: $SBT scalafmtCheckAll scalafmtSbtCheck daffodil-test-integration/scalafmtCheckAll
 
 
   # Ensure pull requests only have a single commit
