@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
+
+  <parserTestCase name="testAllTypes" root="root" model="useAllTypesLayer.dfdl.xsd">
+    <document/>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <data/>
+          <b2>84</b2>
+          <ub2>84</ub2>
+          <s2>-84</s2>
+          <us2>84</us2>
+          <i2>84</i2>
+          <ui2>84</ui2>
+          <l2>-84</l2>
+          <ul2>84</ul2>
+          <integer2>-84</integer2>
+          <nni2>84</nni2>
+          <dec2>-84.84</dec2>
+          <f2>0.0084</f2>
+          <d2>-8.4E143</d2>
+          <string2>fortyTwo fortyTwo</string2>
+          <hex2>2A2A</hex2>
+          <date2 xsi:type="xs:date">1942-04-03</date2>
+          <time2 xsi:type="xs:time">05:42:42</time2>
+          <dt2 xsi:type="xs:dateTime">1942-04-03T04:42:42</dt2>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+
+  <parserTestCase name="testOk1" root="rootOk1" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <infoset>
+      <dfdlInfoset>
+        <ex:rootOk1 xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data/>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two</stringVarOut>
+        </ex:rootOk1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="testOk2" root="rootOk2" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <infoset>
+      <dfdlInfoset>
+        <ex:rootOk2 xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data/>
+          <intVarOut>84</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:rootOk2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="testOk3" root="rootOk3" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <infoset>
+      <dfdlInfoset>
+        <ex:rootOk3 xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data/>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:rootOk3>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="testOk4" root="rootOk4" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <infoset>
+      <dfdlInfoset>
+        <ex:rootOk4 xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data/>
+          <intVarOut>84</intVarOut>
+          <stringVarOut>forty two</stringVarOut>
+        </ex:rootOk4>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="testBadTypeInLayerCode1" root="rootBadTypeInLayerCode1" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>intVar</error>
+      <error>differing types</error>
+      <error>java.lang.String</error>
+      <error>java.lang.Integer</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadTypeInLayerCode2" root="rootBadTypeInLayerCode2" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>stringVar</error>
+      <error>differing types</error>
+      <error>java.lang.String</error>
+      <error>int</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadNotInMETAINFServices" root="rootBadNotInMETAINFServices" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>dfdlx:layer</error>
+      <error>{urn:STL}stlBadNotInMETAINFServices</error>
+      <error>not found</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingSetter" root="rootBadMissingSetter" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>STL_BadMissingSetter</error>
+      <error>does not have a setter</error>
+      <error>setLayerVariableParameters</error>
+      <error>intVar</error>
+      <error>stringVar</error>
+      <error>getter for remaining layer variables</error>
+      <error>getLayerVariableResult_</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingSetterArg" root="rootBadMissingSetterArg" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>STL_BadMissingSetterArg</error>
+      <error>does not have a setter</error>
+      <error>setLayerVariableParameters</error>
+      <error>intVar</error>
+      <error>stringVar</error>
+      <error>getter for remaining layer variables</error>
+      <error>getLayerVariableResult_</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingGetter" root="rootBadMissingGetter" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>STL_BadMissingGetter</error>
+      <error>does not have a setter</error>
+      <error>setLayerVariableParameters</error>
+      <error>intVar</error>
+      <error>stringVar</error>
+      <error>getter for remaining layer variables</error>
+      <error>getLayerVariableResult_</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingSetterVar" root="rootBadMissingSetterVar" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>No layer DFDL variable</error>
+      <error>namespace</error>
+      <error>urn:STL1</error>
+      <error>intVar</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingGetterVar" root="rootBadMissingGetterVar" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <!--
+      TODO: This could be improved. This doesn't mention that there is a getter
+       named getLayerVariableResult_stringVar() of type string, but no corresponding
+       DFDL variable named 'stringVar' of that type.
+       -->
+      <error>Schema Definition Error</error>
+      <error>STL_BadMissingGetterVar</error>
+      <error>does not have a setter</error>
+      <error>setLayerVariableParameters</error>
+      <error>intVar</error>
+      <error>getter for remaining layer variables</error>
+      <error>getLayerVariableResult_</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingDefaultConstructor" root="rootBadMissingDefaultConstructor" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>dfdlx:layer</error>
+      <error>not found</error>
+      <error>stlBadMissingDefaultConstructor</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadNotALayer" root="rootBadNotALayer" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>dfdlx:layer</error>
+      <error>not found</error>
+      <error>stlBadNotALayer</error>
+    </errors>
+  </parserTestCase>
+
+</testSuite>

@@ -17,25 +17,22 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
-import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
+import org.apache.daffodil.lib.exceptions.UnsuppressableException
+import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.runtime1.layers.LayerDriver
+import org.apache.daffodil.runtime1.layers.LayerException
+import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
 
 class LayeredSequenceUnparser(
   ctxt: SequenceRuntimeData,
-  layerTransformerFactory: LayerTransformerFactory,
-  layerRuntimeInfo: LayerRuntimeInfo,
   childUnparser: SequenceChildUnparser,
 ) extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
-
-  override lazy val runtimeDependencies =
-    layerRuntimeInfo.evaluatables.toVector
 
   override def nom = "LayeredSequence"
 
   override def unparse(state: UState): Unit = {
-    val layerTransformer = layerTransformerFactory.newInstance(layerRuntimeInfo)
 
     val originalDOS = state.dataOutputStream
 
@@ -52,10 +49,14 @@ class LayeredSequenceUnparser(
     // since the flushing of the layer might be delayed due to suspensions. By
     // getting an immutable state, we ensure that the flushing of the layer
     // occurs with the state at this point.
+    //
+    // TODO: we're not unparsing here, just writing bytes, so perhaps we do not
+    // need this cloned state? Everything in layers is byte-centric, so there is
+    // no issue of fragment bytes.
     val formatInfoPre = state.asInstanceOf[UStateMain].cloneForSuspension(layerUnderlyingDOS)
 
     // mark the original DOS as finished--no more data will be unparsed to it.
-    // If known, this will carry bit position forward to the layerUnerlyingDOS,
+    // If known, this will carry bit position forward to the layerUnderlyingDOS,
     // or could even make that DOS direct. Note that it is important to use the
     // cloned state from above. This is because the setFinished function stores
     // the formatInfo (as finishedFormatInfo) to be used when delivering
@@ -67,36 +68,53 @@ class LayeredSequenceUnparser(
     // create a new DOS where unparsers following this layer will unparse
     val layerFollowingDOS = layerUnderlyingDOS.addBuffered()
 
-    // New layerDOS is where the layer will unparse into. Ultimately anything written
-    // to layerDOS ends up, post transform, in layerUnderlyingDOS
-    val layerDOS = layerTransformer.addLayer(layerUnderlyingDOS, state, formatInfoPre)
+    try {
+      val layerDriver = LayerDriver(formatInfoPre, ctxt.layerRuntimeData)
 
-    // unparse the layer body into layerDOS
-    state.dataOutputStream = layerDOS
-    super.unparse(state)
-    layerTransformer.endLayerForUnparse(state)
+      // New layerDOS is where the layer will unparse into. Ultimately anything written
+      // to layerDOS ends up, post transform, in layerUnderlyingDOS
+      val layerDOS = layerDriver.addOutputLayer(layerUnderlyingDOS)
 
-    // now we're done unparsing the layer, so finalize the last DOS in the
-    // chain. Note that there might be suspensions so some parts of the
-    // layerDOS chain may not be finished. When those suspensions are all
-    // finished, the layerDOS content will be written to the
-    // layerUnderlyingDOS, which will subsequently be finished. Like above, it
-    // is important to pass an immutable UState into the setFinished function
-    // because that state is stored in the DOS (as finishedFormatInfo) and its
-    // use may be delayed to after the actual UState has been changed. The
-    // UState has almost certainly changed since the last cloneForSuspension
-    // call, so we need a new clone to finish this DOS.
-    val layerDOSLast = layerDOS.lastInChain
-    val formatInfoPost = state.asInstanceOf[UStateMain].cloneForSuspension(layerDOSLast)
-    layerDOSLast.setFinished(formatInfoPost)
+      // unparse the layer body into layerDOS
+      state.dataOutputStream = layerDOS
+      super.unparse(state)
+      // now we're done unparsing the layer recursively.
+      // While doing that unparsing, the data output stream may have been split, so the
+      // DOS in the state may no longer be the layerDOS.
+      //
+      // However, it is when whatever DOS is in the state at this point, that, when that
+      // DOS is consolidated and written out, that is when the layer is finished
+      // and the wrap-up of the layer (such as writing output variables) can occur.
+      //
+      val endOfLayerUnparseDOS = state.dataOutputStream
+      val formatInfoPost =
+        state.asInstanceOf[UStateMain].cloneForSuspension(endOfLayerUnparseDOS)
 
-    // clean up resources - note however, that due to suspensions, the whole
-    // layer stack is potentially still needed, so not clear what can be
-    // cleaned up at this point.
-    layerTransformer.removeLayer(layerDOS, state)
+      // setFinished on this end-of-layer-unparse data-output-stream  ensures
+      // that the layerDOS gets close() called on it.
+      endOfLayerUnparseDOS.setFinished(formatInfoPost)
 
-    // reset the state so subsequent unparsers write to the following DOS
-    state.dataOutputStream = layerFollowingDOS
+      // clean up resources - note however, that due to suspensions, the whole
+      // layer stack is potentially still needed, so not clear what can be
+      // cleaned up at this point.
+      layerDriver.removeOutputLayer(layerDOS, state)
+    } catch {
+      case u: UnsuppressableException =>
+        throw u
+      case re: RuntimeException =>
+        throw re
+      case pe: UnparseError =>
+        throw pe
+      case sde: RuntimeSchemaDefinitionError =>
+        throw sde
+      case le: LayerException =>
+        throw le
+      case e: Exception =>
+        throw new LayerUnexpectedException(e)
+    } finally {
+      // reset the state so subsequent unparsers write to the following DOS
+      state.dataOutputStream = layerFollowingDOS
+    }
   }
 
 }

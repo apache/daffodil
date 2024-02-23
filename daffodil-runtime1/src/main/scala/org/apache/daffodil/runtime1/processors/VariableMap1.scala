@@ -102,16 +102,16 @@ class VariableInstance private (val rd: VariableRuntimeData) extends Serializabl
   // either the defaultValue expression or by an external binding
   var firstInstanceInitialValue: DataValuePrimitiveNullable = DataValue.NoValue
 
-  def setState(s: VariableState) = {
+  def setState(s: VariableState): Unit = {
     this.state = s
   }
 
-  def setValue(v: DataValuePrimitiveNullable) = {
+  def setValue(v: DataValuePrimitiveNullable): Unit = {
     this.value = v
   }
 
   /* This is used to set a default value with the appropriate state */
-  def setDefaultValue(v: DataValuePrimitiveNullable) = {
+  def setDefaultValue(v: DataValuePrimitiveNullable): Unit = {
     Assert.invariant(
       (this.state == VariableUndefined || this.state == VariableInProcess) && v.isDefined,
     )
@@ -126,7 +126,7 @@ class VariableInstance private (val rd: VariableRuntimeData) extends Serializabl
     state: VariableState = state,
     value: DataValuePrimitiveNullable = value,
     rd: VariableRuntimeData = rd,
-  ) = {
+  ): VariableInstance = {
     val inst = new VariableInstance(rd)
     inst.state = state
     inst.value = value
@@ -141,7 +141,7 @@ object VariableUtils {
     currentVMap: VariableMap,
     bindings: Seq[Binding],
     referringContext: ThrowsSDE,
-  ) = {
+  ): Unit = {
     bindings.foreach { b =>
       currentVMap.setExtVariable(b.varQName, b.varValue, referringContext)
     }
@@ -209,17 +209,17 @@ class VariableCircularDefinition(qname: NamedQName, context: VariableRuntimeData
 final class VariableBox(initialVMap: VariableMap) {
   private var vmap_ : VariableMap = initialVMap
 
-  def vmap = vmap_
+  def vmap: VariableMap = vmap_
 
   def setVMap(newMap: VariableMap): Unit = {
     vmap_ = newMap
   }
 
-  def cloneForSuspension(): VariableBox = new VariableBox(vmap.cloneForSuspension)
+  def cloneForSuspension(): VariableBox = new VariableBox(vmap.cloneForSuspension())
 }
 
 object VariableMap {
-  def apply(vrds: Seq[VariableRuntimeData] = Nil) = {
+  def apply(vrds: Seq[VariableRuntimeData] = Nil): VariableMap = {
     val table = new Array[Seq[VariableInstance]](vrds.size)
     vrds.foreach { vrd =>
       table(vrd.vmapIndex) = Seq(vrd.createVariableInstance())
@@ -257,10 +257,12 @@ object VariableMap {
  * defined at compile time. Although this adds extra complexity compared to a Map since we must
  * carry around an index, the performance gains are worth it.
  */
-class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[VariableInstance]])
-  extends Serializable {
+class VariableMap private (
+  val vrds: Seq[VariableRuntimeData],
+  vTable: Array[Seq[VariableInstance]],
+) extends Serializable {
 
-  override def toString(): String = {
+  override def toString: String = {
     "VariableMap(" + vTable.mkString(" | ") + ")"
   }
 
@@ -278,8 +280,8 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
   }
 
   def cloneForSuspension(): VariableMap = {
-    val newTable = new Array[Seq[VariableInstance]](vTable.size)
-    Array.copy(vTable, 0, newTable, 0, vTable.size)
+    val newTable = new Array[Seq[VariableInstance]](vTable.length)
+    Array.copy(vTable, 0, newTable, 0, vTable.length)
     new VariableMap(vrds, newTable)
   }
 
@@ -315,9 +317,10 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
    * Performance of this is linear in number of variables, this should not be used in
    * performance critical sections.
    */
-  def find(qName: GlobalQName): Option[VariableInstance] = {
+  def find(qName: RefQName): Option[VariableInstance] = {
     getVariableRuntimeData(qName).map { vrd => vTable(vrd.vmapIndex).head }
   }
+  def find(qName: GlobalQName): Option[VariableInstance] = find(qName.toRefQName)
 
   /**
    * Performance of this is linear in number of variables, this should not be used in
@@ -331,8 +334,8 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
    * Performance of this is linear in number of variables, this should not be used in
    * performance critical sections.
    */
-  def getVariableRuntimeData(qName: GlobalQName): Option[VariableRuntimeData] = {
-    vrds.find { _.globalQName == qName }
+  def getVariableRuntimeData(qName: RefQName): Option[VariableRuntimeData] = {
+    vrds.find { _.globalQName.matches(qName) }
   }
 
   lazy val context = Assert.invariantFailed("unused.")
@@ -376,7 +379,25 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
       case _ => // Do nothing
     }
 
-    val variable = vTable(vrd.vmapIndex).head
+    val variable = {
+      // The vrd.vmapIndex cannot be out of range of the vTable, because the vTable size
+      // accommodates as many variables as are in the top-level schema.
+      val varAtIndex = vTable(vrd.vmapIndex).head
+      val varAtIndexVRD = varAtIndex.rd
+      if (varAtIndexVRD != vrd) {
+        // The variable at that index does not have our VRD.
+        // A newVariableInstance must be in place for this variable, but we're trying to access
+        // using a different VRD (probably the top-level VRD you get from the schemaSet variable map.
+        // These MUST, however, be for the same variable, and so will have the same index
+        // into the vtable.
+        // PERFORMANCE: this is perhaps a little expensive.
+        // Rather than just taking this out, consider interning QNames instead so that this
+        // becomes an object EQ check on the QName objects.
+        val isSameVar = varAtIndexVRD.globalQName.matches(vrd.globalQName.toRefQName)
+        Assert.invariant(isSameVar)
+      }
+      varAtIndex
+    }
     variable.state match {
       case VariableRead if (variable.value.isDefined) => variable.value.getNonNullable
       case VariableDefined | VariableSet if (variable.value.isDefined) => {
@@ -402,7 +423,8 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
       }
       case VariableBeingDefined => throw new VariableCircularDefinition(varQName, vrd)
       case VariableInProcess => throw new VariableSuspended(varQName, vrd)
-      case _ => throw new VariableHasNoValue(varQName, vrd)
+      case _ =>
+        throw new VariableHasNoValue(varQName, vrd)
     }
   }
 
@@ -414,7 +436,7 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
     newValue: DataValuePrimitive,
     referringContext: ThrowsSDE,
     pstate: ParseOrUnparseState,
-  ) = {
+  ): Unit = {
     val varQName = vrd.globalQName
     val variableInstances = vTable(vrd.vmapIndex)
     val variable = variableInstances.head
@@ -491,7 +513,11 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
   /**
    * Assigns an external variable and sets the variables state to VariableSet
    */
-  def setExtVariable(bindingQName: RefQName, newValue: String, referringContext: ThrowsSDE) = {
+  def setExtVariable(
+    bindingQName: RefQName,
+    newValue: String,
+    referringContext: ThrowsSDE,
+  ): Unit = {
 
     val optVariableInstances =
       if (bindingQName.namespace == UnspecifiedNamespace) {
@@ -531,7 +557,7 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
         // a parse/unparse is started. So this array should contain only a
         // single instance
         Assert.invariant(variableInstances.size == 1)
-        val variable = variableInstances(0)
+        val variable = variableInstances.head
         if (!variable.rd.external) {
           throw new ExternalVariableException(
             "Variable cannot be set externally: " + variable.rd.globalQName,

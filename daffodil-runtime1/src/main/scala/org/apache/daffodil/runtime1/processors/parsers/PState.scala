@@ -446,6 +446,7 @@ final class PState private (
    * an error to call this function if the PoU has been resolved.
    */
   def resetToPointOfUncertainty(pou: PState.Mark): Unit = {
+    Assert.usage(!isPointOfUncertaintyResolved(pou))
     val pouPop = pointsOfUncertainty.pop
     Assert.invariant(pou == pouPop)
     reset(pouPop)
@@ -461,6 +462,7 @@ final class PState private (
    * PoU has been resolved.
    */
   def discardPointOfUncertainty(pou: PState.Mark): Unit = {
+    Assert.usage(!isPointOfUncertaintyResolved(pou))
     val pouPop = pointsOfUncertainty.pop
     Assert.invariant(pou == pouPop)
     discard(pou)

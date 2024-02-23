@@ -20,8 +20,8 @@ package org.apache.daffodil.runtime1.layers
 import java.io._
 import java.nio.charset.StandardCharsets
 
-import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
-import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.io.BoundaryMarkInsertingJavaOutputStream
+import org.apache.daffodil.io.BoundaryMarkLimitingInputStream
 import org.apache.daffodil.lib.util.Misc
 
 import org.apache.commons.io.IOUtils
@@ -49,7 +49,7 @@ class TestAISPayloadArmoringStreams {
     //
     // regex is ",0*"
     //
-    val rls = new RegexLimitingStream(bba, ",", ",", iso8859)
+    val rls = new BoundaryMarkLimitingInputStream(bba, ",", iso8859)
     val aas = new AISPayloadArmoringInputStream(rls)
 
     val baos = new ByteArrayOutputStream()
@@ -78,7 +78,7 @@ class TestAISPayloadArmoringStreams {
     )
     val bais = new ByteArrayInputStream(dataBytes)
     val baos = new ByteArrayOutputStream()
-    val lbmijos = new LayerBoundaryMarkInsertingJavaOutputStream(baos, ",", iso8859)
+    val lbmijos = new BoundaryMarkInsertingJavaOutputStream(baos, ",", iso8859)
     val aas = new AISPayloadArmoringOutputStream(lbmijos)
     IOUtils.copy(bais, aas)
     aas.close()

@@ -34,6 +34,7 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
   requiredEvaluationsAlways(variableRuntimeData.initialize)
 
   final lazy val variableRuntimeData = {
+    val index = this.schemaSet.allDefinedVariables.indexOf(this)
     val vrd = new VariableRuntimeData(
       this.schemaFileLocation,
       this.diagnosticDebugName,
@@ -46,7 +47,7 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
       this.namedQName.asInstanceOf[GlobalQName],
       this.primType,
       this.tunable.unqualifiedPathStepPolicy,
-      this.schemaSet.allDefinedVariables.indexOf(this),
+      vmapIndex = index,
     )
     vrd
   }
@@ -86,6 +87,7 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
    * point to this location instead of the original definition
    */
   final override lazy val variableRuntimeData = {
+    val globalVRD = defv.variableRuntimeData
     val vrd = new VariableRuntimeData(
       this.schemaFileLocation,
       this.diagnosticDebugName,
@@ -98,7 +100,10 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
       defv.namedQName.asInstanceOf[GlobalQName],
       defv.primType,
       this.tunable.unqualifiedPathStepPolicy,
-      this.schemaSet.allDefinedVariables.indexOf(defv),
+      // This is a really important invariant. The index of the NVI's VRD
+      // must be identical to that of the global VRD for this variable,
+      // So we take it from there.
+      vmapIndex = globalVRD.vmapIndex,
     )
     vrd
   }

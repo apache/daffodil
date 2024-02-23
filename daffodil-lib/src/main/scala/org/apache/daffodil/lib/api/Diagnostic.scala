@@ -57,7 +57,7 @@ abstract class Diagnostic protected (
   private val maybeFormatString: Maybe[String],
   private val args: Any*,
 ) extends Exception(
-    null,
+    (if (maybeFormatString.isDefined) maybeFormatString.get else null),
     (if (maybeCause.isDefined) maybeCause.get else null),
     isThick,
     isThick,
@@ -165,13 +165,6 @@ abstract class Diagnostic protected (
   final def getSomeCause: Some[Throwable] = Misc.getSomeCause(this)
   final def getSomeMessage: Some[String] = Misc.getSomeMessage(this)
 
-  private def init(): Unit = {
-    Assert.invariant(maybeCause.isDefined ^ maybeFormatString.isDefined)
-    Assert.invariant(
-      maybeCause.isEmpty || args.length == 0,
-    ) // if there is a cause, there can't be args.
-  }
-
   private def schemaLocationsString = {
     val strings = getLocationsInSchemaFiles.map { _.locationDescription }
     val res =
@@ -225,7 +218,6 @@ abstract class Diagnostic protected (
   }
 
   private lazy val message = {
-    init
     val res = modeName + " " + errorOrWarning + ": " +
       (if (maybeCause.isDefined) msgCausedBy else msgString) +
       componentText +

@@ -111,6 +111,8 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   val markStack = new MStackOf[MarkState]
   val markPool = new MarkPool()
 
+  override def close(): Unit = inputSource.close()
+
   @inline
   override final def bitPos0b: Long = cst.bitPos0b
 

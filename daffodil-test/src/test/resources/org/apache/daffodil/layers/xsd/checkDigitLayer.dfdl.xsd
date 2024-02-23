@@ -18,13 +18,10 @@
 <schema
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://www.w3.org/2001/XMLSchema"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:cd="urn:org.apache.daffodil.layers.checkDigit"
-  xmlns:tns="urn:org.apache.daffodil.layers.checkDigit"
-  targetNamespace="urn:org.apache.daffodil.layers.checkDigit"
-  elementFormDefault="unqualified">
+  targetNamespace="urn:org.apache.daffodil.layers.checkDigit">
 
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
@@ -33,21 +30,16 @@
 
       <dfdl:format ref="cd:GeneralFormat" />
 
-      <dfdl:defineVariable name="checkDigit" type="xs:int"/>
-      <dfdl:defineVariable name="checkDigitParams" type="xs:string" defaultValue=""/>
+      <dfdl:defineVariable name="checkDigit" type="xs:unsignedShort"/>
+      <dfdl:defineVariable name="length" type="xs:unsignedShort"/>
+      <dfdl:defineVariable name="params" type="xs:string" defaultValue=""/>
+      <dfdl:defineVariable name="digitEncoding" type="xs:string"/>
 
-      <dfdl:defineFormat name="checkDigitExplicit">
-        <!-- up to an explicit length limit, only digits are totaled. Other characters
-             are ignored --> 
-        <dfdl:format dfdlx:layerTransform='checkDigit' dfdlx:layerLengthKind="explicit" dfdlx:layerLengthUnits="bytes"
-          dfdlx:layerEncoding="ascii" />
-      </dfdl:defineFormat>
-     
     </appinfo>
   </annotation>
 
   <simpleType name="checkDigitType" dfdl:length="1" dfdl:lengthKind="explicit">
-    <restriction base="xs:int">
+    <restriction base="xs:unsignedShort">
       <xs:minInclusive value="0"/>
       <xs:maxInclusive value="9"/>
     </restriction>

@@ -30,7 +30,7 @@ import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataIn
  */
 class InputSourceDataInputStream private[japi] (
   private[japi] val dis: SInputSourceDataInputStream,
-) {
+) extends java.io.Closeable {
 
   /**
    * Create an InputSourceDataInputStream from a java.io.InputStream
@@ -66,4 +66,6 @@ class InputSourceDataInputStream private[japi] (
    * been consumed or some data is left-over.
    */
   def hasData(): Boolean = dis.isDefinedForLength(1)
+
+  def close(): Unit = dis.close()
 }

@@ -58,7 +58,10 @@ import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.dfa.Registers
 import org.apache.daffodil.runtime1.processors.dfa.RegistersPool
+import org.apache.daffodil.runtime1.processors.parsers.PState
+import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.unparsers.UState
+import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 /**
  * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
@@ -485,6 +488,8 @@ abstract class ParseOrUnparseState protected (
     )
   }
 
+  lazy val layerRuntimeCompiler = dataProc.get.ssrd.layerRuntimeCompiler
+
   final override def schemaFileLocation = getContext().schemaFileLocation
 
   def dataStream: Maybe[DataStreamCommon]
@@ -583,6 +588,46 @@ abstract class ParseOrUnparseState protected (
     def returnToPool(r: Registers) = pool.returnToPool(r)
 
     def finalCheck() = pool.finalCheck
+  }
+
+  def toProcessingError(msg: String): ProcessingError = {
+    val diagnostic = this match {
+      case ps: PState =>
+        new ParseError(
+          rd = Maybe(ps.schemaFileLocation),
+          loc = Maybe(ps.currentLocation),
+          causedBy = Maybe.Nope,
+          kind = Maybe(msg),
+        )
+      case us: UState =>
+        new UnparseError(
+          rd = Maybe(us.schemaFileLocation),
+          loc = Maybe(us.currentLocation),
+          causedBy = Maybe.Nope,
+          kind = Maybe(msg),
+        )
+    }
+    diagnostic
+  }
+
+  def toProcessingError(e: Throwable): ProcessingError = {
+    val diagnostic = this match {
+      case ps: PState =>
+        new ParseError(
+          rd = Maybe(ps.schemaFileLocation),
+          loc = Maybe(ps.currentLocation),
+          causedBy = Maybe(e),
+          kind = Maybe.Nope,
+        )
+      case us: UState =>
+        new UnparseError(
+          rd = Maybe(us.schemaFileLocation),
+          loc = Maybe(us.currentLocation),
+          causedBy = Maybe(e),
+          kind = Maybe.Nope,
+        )
+    }
+    diagnostic
   }
 }
 

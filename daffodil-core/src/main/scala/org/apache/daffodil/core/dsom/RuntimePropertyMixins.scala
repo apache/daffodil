@@ -51,10 +51,6 @@ import org.apache.daffodil.runtime1.processors.FillByteEv
 import org.apache.daffodil.runtime1.processors.ImplicitLengthEv
 import org.apache.daffodil.runtime1.processors.InitiatorParseEv
 import org.apache.daffodil.runtime1.processors.InitiatorUnparseEv
-import org.apache.daffodil.runtime1.processors.LayerBoundaryMarkEv
-import org.apache.daffodil.runtime1.processors.LayerCharsetEv
-import org.apache.daffodil.runtime1.processors.LayerEncodingEv
-import org.apache.daffodil.runtime1.processors.LayerLengthEv
 import org.apache.daffodil.runtime1.processors.LengthEv
 import org.apache.daffodil.runtime1.processors.LengthInBitsEv
 import org.apache.daffodil.runtime1.processors.MinLengthInBitsEv
@@ -335,8 +331,8 @@ trait ElementRuntimeValuedPropertiesMixin
 
   private lazy val implicitLengthEv: LengthEv = {
     Assert.usage(repElement.lengthKind eq LengthKind.Implicit)
-    import Representation._
     import NodeInfo._
+    import Representation._
     lazy val maxLengthLong = repElement.maxLength.longValueExact
     val ev = (repElement.impliedRepresentation, repElement.typeDef.typeNode) match {
       case (Text, String) => new ImplicitLengthEv(maxLengthLong, eci)
@@ -393,8 +389,8 @@ trait ElementRuntimeValuedPropertiesMixin
       (repElement.lengthKind eq LengthKind.Implicit) || (repElement.lengthKind eq LengthKind.Explicit),
     )
     import LengthKind._
-    import Representation._
     import NodeInfo._
+    import Representation._
     val (units: LengthUnits, lenEv: LengthEv) =
       (
         repElement.lengthKind,
@@ -438,8 +434,8 @@ trait ElementRuntimeValuedPropertiesMixin
 
   protected lazy val (minLenUnits: LengthUnits, minLen: Long) = {
     import LengthKind._
-    import Representation._
     import NodeInfo._
+    import Representation._
     lazy val maxLengthLong = maxLength.longValueExact
     lazy val minLengthLong = minLength.longValueExact
     val res: (LengthUnits, Long) =
@@ -811,88 +807,6 @@ trait SequenceRuntimeValuedPropertiesMixin
 
   final override protected def propertyValueReferencedElementInfos =
     myPropertyValueReferencedElementInfos
-
-}
-
-trait LayeringRuntimeValuedPropertiesMixin extends RawLayeringRuntimeValuedPropertiesMixin {
-  decl: SequenceTermBase =>
-
-  private lazy val layerEncodingExpr = {
-    val qn = this.qNameForProperty("layerEncoding")
-    ExpressionCompilers.String.compileProperty(
-      qn,
-      NodeInfo.NonEmptyString,
-      layerEncodingRaw,
-      decl,
-      dpathCompileInfo,
-    )
-  }
-
-  private final lazy val layerEncodingEv = {
-    if (maybeLayerEncodingEv.isEmpty) layerEncodingRaw // must be defined
-    maybeLayerEncodingEv.get
-  }
-
-  private final lazy val maybeLayerEncodingEv = {
-    if (optionLayerEncodingRaw.isDefined) {
-      val ev = new LayerEncodingEv(layerEncodingExpr, tci)
-      ev.compile(tunable)
-      One(ev)
-    } else {
-      Nope
-    }
-  }
-
-  final lazy val maybeLayerCharsetEv =
-    if (optionLayerEncodingRaw.isDefined) {
-      val ev = new LayerCharsetEv(layerEncodingEv, tci)
-      ev.compile(tunable)
-      One(ev)
-    } else
-      Nope
-
-  private lazy val layerLengthExpr = {
-    val qn = this.qNameForProperty("layerLength")
-    ExpressionCompilers.JLong.compileProperty(
-      qn,
-      NodeInfo.Long,
-      layerLengthRaw,
-      decl,
-      dpathCompileInfo,
-    )
-  }
-
-  final lazy val maybeLayerLengthEv = {
-    if (optionLayerLengthRaw.isDefined) {
-      layerLengthUnits
-      val ev = new LayerLengthEv(layerLengthExpr, tci)
-      ev.compile(tunable)
-      One(ev)
-    } else {
-      Nope
-    }
-  }
-
-  private lazy val layerBoundaryMarkExpr = {
-    val qn = this.qNameForProperty("layerBoundaryMark")
-    ExpressionCompilers.String.compileProperty(
-      qn,
-      NodeInfo.String,
-      layerBoundaryMarkRaw,
-      decl,
-      dpathCompileInfo,
-    )
-  }
-
-  final lazy val maybeLayerBoundaryMarkEv = {
-    if (optionLayerBoundaryMarkRaw.isDefined) {
-      val ev = new LayerBoundaryMarkEv(layerBoundaryMarkExpr, tci)
-      ev.compile(tunable)
-      One(ev)
-    } else {
-      Nope
-    }
-  }
 
 }
 

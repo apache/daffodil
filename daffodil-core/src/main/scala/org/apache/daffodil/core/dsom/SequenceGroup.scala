@@ -30,14 +30,12 @@ import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicyMixin
-import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.Sequence_AnnotationMixin
+import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.layers.LayerCompiler
-import org.apache.daffodil.runtime1.layers.LayerCompilerRegistry
+import org.apache.daffodil.runtime1.layers.LayerRuntimeData
 import org.apache.daffodil.runtime1.processors.SeparatorParseEv
 import org.apache.daffodil.runtime1.processors.SeparatorUnparseEv
 
@@ -60,13 +58,11 @@ abstract class SequenceTermBase(
 
   def separatorPosition: SeparatorPosition
 
-  def isLayered: Boolean
-
   def separatorParseEv: SeparatorParseEv
 
   def separatorUnparseEv: SeparatorUnparseEv
 
-  def layerLengthUnits: LayerLengthUnits
+  def layerOption: Option[RefQName]
 
   def isOrdered: Boolean
 
@@ -74,6 +70,23 @@ abstract class SequenceTermBase(
    * Overridden in sequence group ref
    */
   def isHidden: Boolean = false
+
+  def isLayered: Boolean = layerOption.isDefined
+
+  lazy val optionLayerRuntimeData: Option[LayerRuntimeData] =
+    layerOption.map { layerProperty: RefQName =>
+      val layerVars = variableMap.vrds.filter { vrd =>
+        vrd.globalQName.namespace == layerProperty.namespace
+      }
+      val qNameToVRD = layerVars.map { vrd => (vrd.globalQName.local, vrd) }.toMap
+      val sfl = schemaFileLocation
+      new LayerRuntimeData(
+        layerProperty,
+        schemaFileLocation = sfl,
+        qNameToVRD,
+        this.sequenceRuntimeData,
+      )
+    }
 
 }
 
@@ -84,10 +97,8 @@ abstract class SequenceTermBase(
  */
 abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, position: Int)
   extends SequenceTermBase(xml, Option(lexicalParent), position)
-  with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
-  with SeparatorSuppressionPolicyMixin
-  with LayeringRuntimeValuedPropertiesMixin {
+  with SeparatorSuppressionPolicyMixin {
 
   requiredEvaluationsIfActivated(checkIfValidUnorderedSequence)
   requiredEvaluationsIfActivated(checkIfNonEmptyAndDiscrimsOrAsserts)
@@ -115,19 +126,19 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
    * we know a separator MUST appear in the data stream.
    */
   private lazy val infixAndTwoOrMoreStaticallyRequiredInstances =
-    hasInfixSep && (representedMembers.filter { m =>
+    hasInfixSep && (representedMembers.count { m =>
       val res = m.hasStaticallyRequiredOccurrencesInDataRepresentation
       res
-    }.length >= 2)
+    } >= 2)
 
   private lazy val sepAndArrayaWithTwoOrMoreStaticallyRequiredInstances =
-    hasSeparator && (representedMembers.filter { m =>
+    hasSeparator && representedMembers.exists { m =>
       val res = m.hasStaticallyRequiredOccurrencesInDataRepresentation && (m match {
         case e: ElementBase => e.minOccurs >= 2
         case _ => false
       })
       res
-    }.length > 0)
+    }
 
   final override lazy val hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
     if (hasFraming) true
@@ -153,9 +164,9 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
   protected final lazy val checkIfNonEmptyAndDiscrimsOrAsserts: Unit = {
     val msg = "Counterintuitive placement detected. Wrap the discriminator or assert " +
       "in an empty sequence to evaluate before the contents."
-    if (groupMembers.size > 0 && discriminatorStatements.size > 0)
+    if (groupMembers.nonEmpty && discriminatorStatements.nonEmpty)
       SDW(WarnID.DiscouragedDiscriminatorPlacement, msg)
-    if (groupMembers.size > 0 && assertStatements.size > 0)
+    if (groupMembers.nonEmpty && assertStatements.nonEmpty)
       SDW(WarnID.DiscouragedAssertPlacement, msg)
   }
 
@@ -221,36 +232,6 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     case SequenceKind.Unordered => false
   }
 
-  private val layeredSequenceAllowedProps = Set(
-    "ref",
-    "layerTransform",
-    "layerEncoding",
-    "layerLengthKind",
-    "layerLength",
-    "layerLengthUnits",
-    "layerBoundaryMark",
-  )
-
-  private lazy val optionLayerTransform = findPropertyOption("layerTransform").toOption
-
-  final lazy val layerCompiler: LayerCompiler = {
-
-    // need to check that only layering properties are specified
-    val localProps = this.formatAnnotation.justThisOneProperties
-    val localKeys = localProps.keySet
-    val disallowedKeys = localKeys.filterNot(k => layeredSequenceAllowedProps.contains(k))
-    if (disallowedKeys.size > 0)
-      SDE(
-        "Sequence has dfdlx:layerTransform specified, so cannot have non-layering properties: %s",
-        disallowedKeys.mkString(", "),
-      )
-
-    optionLayerTransform.map { xformName =>
-      LayerCompilerRegistry.find(xformName, this)
-    }.get
-  }
-
-  final def isLayered = optionLayerTransform.isDefined
 }
 
 /**
@@ -266,7 +247,8 @@ trait SequenceDefMixin
 
   def groupMembersNotShared: Seq[Term]
 
-  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation): Boolean =
+    a.isInstanceOf[DFDLSequence]
 
   protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {
@@ -277,9 +259,9 @@ trait SequenceDefMixin
 
   protected def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
 
-  final lazy val <sequence>{apparentXMLChildren @ _*}</sequence> = (xml \\ "sequence")(0)
+  final lazy val apparentXMLChildren = (xml \\ "sequence").head.child
 
-  def xmlChildren = apparentXMLChildren
+  def xmlChildren: Seq[Node] = apparentXMLChildren
 
   // The dfdl:hiddenGroupRef property cannot be scoped, nor defaulted. It's really a special
   // attribute, not a format property in the usual sense.
@@ -291,7 +273,7 @@ trait SequenceDefMixin
 
   override lazy val optReferredToComponent = None
 
-  lazy val checkHiddenGroupRefHasNoChildren = {
+  lazy val checkHiddenGroupRefHasNoChildren: Unit = {
     if (hiddenGroupRefOption.isDefined) {
       val axc = apparentXMLChildren
       val len = axc.length
@@ -312,7 +294,7 @@ trait SequenceDefMixin
 }
 
 object LocalSequence {
-  def apply(xmlArg: Node, lexicalParent: SchemaComponent, position: Int) = {
+  def apply(xmlArg: Node, lexicalParent: SchemaComponent, position: Int): LocalSequence = {
     val ls = new LocalSequence(xmlArg, lexicalParent, position)
     ls.initialize()
     ls
@@ -328,7 +310,7 @@ final class LocalSequence private (xmlArg: Node, lexicalParent: SchemaComponent,
   with SequenceView
 
 object ChoiceBranchImpliedSequence {
-  def apply(rawGM: Term) = {
+  def apply(rawGM: Term): ChoiceBranchImpliedSequence = {
     val cbis = new ChoiceBranchImpliedSequence(rawGM)
     cbis.initialize()
     cbis
@@ -350,7 +332,7 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
   with SequenceDefMixin
   with ChoiceBranchImpliedSequenceRuntime1Mixin {
 
-  override final protected lazy val groupMembersDef: Seq[Term] = Seq(rawGM)
+  override protected lazy val groupMembersDef: Seq[Term] = Seq(rawGM)
 
   override def separatorSuppressionPolicy: SeparatorSuppressionPolicy =
     SeparatorSuppressionPolicy.TrailingEmptyStrict
@@ -360,6 +342,7 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
   override def separatorPosition: SeparatorPosition = SeparatorPosition.Infix
 
   override def isLayered: Boolean = false
+  override def layerOption: Option[RefQName] = None
 
   override lazy val hasSeparator = false
   override lazy val hasTerminator = false
@@ -370,9 +353,6 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
 
   override def separatorUnparseEv: SeparatorUnparseEv =
     Assert.usageError("Not to be called on choice branches.")
-
-  override def layerLengthUnits: LayerLengthUnits =
-    Assert.usageError("Not to be called for choice branches.")
 
   override def isOrdered = true
 
@@ -387,9 +367,9 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
    */
   override lazy val nonDefaultPropertySources: Seq[ChainPropProvider] = Seq()
 
-  final override def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
+  override def xmlChildren: Seq[scala.xml.Node] = Seq(xml)
 
   // Members declared in Term
-  def hasKnownRequiredSyntax: Boolean = groupMembers(0).hasKnownRequiredSyntax
+  def hasKnownRequiredSyntax: Boolean = groupMembers.head.hasKnownRequiredSyntax
 
 }

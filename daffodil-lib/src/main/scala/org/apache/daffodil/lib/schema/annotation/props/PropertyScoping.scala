@@ -62,6 +62,15 @@ sealed abstract class PropertyLookupResult(val pname: String) extends Serializab
   }
 }
 
+/**
+ * Represents a successful property lookup result.
+ *
+ * @constructor Create a new Found instance with the specified value, location, property name, and format information.
+ * @param value               The value associated with the property.
+ * @param location            The lookup location where the property was found.
+ * @param pname               The name of the property.
+ * @param isFromDefaultFormat Indicates whether the property was found in the default format.
+ */
 case class Found(
   value: String,
   location: LookupLocation,
@@ -71,13 +80,20 @@ case class Found(
   override def isDefined = true
 }
 
+/**
+ * Represents a property lookup result when the property is not found.
+ *
+ * @param localWhereLooked   The sequence of lookup locations where the property was searched locally.
+ * @param defaultWhereLooked The sequence of lookup locations where the property was searched in the default format.
+ * @param pname              The name of the property that was searched.
+ */
 case class NotFound(
   localWhereLooked: Seq[LookupLocation],
   defaultWhereLooked: Seq[LookupLocation],
   override val pname: String,
 ) extends PropertyLookupResult(pname) {
   override def isDefined = false
-  override def isFromDefaultFormat = Assert.usageError("Not meaningful for NotFound.")
+  override def isFromDefaultFormat: Boolean = Assert.usageError("Not meaningful for NotFound.")
 }
 
 /**
