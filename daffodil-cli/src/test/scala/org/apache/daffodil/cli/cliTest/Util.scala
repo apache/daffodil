@@ -40,6 +40,7 @@ import org.apache.daffodil.cli.Main.ExitCode
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 import net.sf.expectit.Expect
 import net.sf.expectit.ExpectBuilder
+import net.sf.expectit.ExpectIOException
 import net.sf.expectit.Result
 import net.sf.expectit.filter.Filters.replaceInString
 import net.sf.expectit.matcher.Matcher
@@ -311,7 +312,15 @@ object Util {
     // if the test thread didn't end cleanly then it must have thrown an exception
     // (e.g. assertion failed, interrupted exception). Just rethrow that exception
     // and cause the test to fail
-    testThread.optException.map { e => throw e }
+    testThread.optException.map {
+      case e: ExpectIOException => {
+        // if an expect match fails then we include the input buffer in the exceptions message.
+        // This could be pretty verbose for large infosets, but makes debugging easier
+        val msg = e.getMessage() + ", Input Buffer: " + e.getInputBuffer()
+        throw new ExpectIOException(msg, e.getInputBuffer())
+      }
+      case e => throw e
+    }
 
     // if the test thread didn't throw an exception then that means all of its tests
     // passed. We just need to verify the CLI exit code
