@@ -19,17 +19,15 @@ package org.apache.daffodil.layers.runtime1
 
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.charset.StandardCharsets
+import java.util.Optional
+import scala.collection.JavaConverters._
 
-import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
-import org.apache.daffodil.io.RegexLimitingStream
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.exceptions.ThrowsSDE
-import org.apache.daffodil.lib.schema.annotation.props.Enum
-import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.runtime1.layers._
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-
+import org.apache.daffodil.runtime1.layers.api.JLayerLengthKind
+import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.runtime1.layers.api.LayerLimiter
+import org.apache.daffodil.runtime1.layers.api.LayerPropertyInfo
+import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 /*
  * This and related classes implement so called "line folding" from
  * IETF RFC 2822 Internet Message Format (IMF), and IETF RFC 5545 iCalendar.
@@ -62,7 +60,7 @@ import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
  *
  * Note that i/vCalendar, vCard, and MIME payloads held by IMF do not run into
  * the IMF line length issues, in that they have their own line length limits that
- * are smaller than those of IMF, and which do not require accomodation by having
+ * are smaller than those of IMF, and which do not require accommodation by having
  * pre-existing spaces/tabs in the data. So such data *always* will be short
  * enough lines.
  *
@@ -75,157 +73,62 @@ import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
  * For MIME, the maximum line length is 76.
  */
 
-sealed abstract class LineFoldedLayerCompiler(mode: LineFoldMode)
-  extends LayerCompiler(mode.transformName) {
+sealed abstract class LineFoldedLayerBase(mode: LineFoldMode)
+  extends Layer(
+    layerName = mode.dfdlName,
+    supportedLayerLengthKinds =
+      Seq(JLayerLengthKind.BoundaryMark, JLayerLengthKind.Implicit).asJava,
+    supportedLayerLengthUnits = Seq().asJava,
+    isRequiredLayerEncoding = false,
+    optLayerVariables = Optional.empty(),
+  ) {
 
-  override def compileLayer(
-    layerCompileInfo: LayerCompileInfo,
-  ): LineFoldedTransformerFactory = {
-
-    layerCompileInfo.optLayerLengthKind match {
-      case Some(LayerLengthKind.BoundaryMark) =>
-        layerCompileInfo.SDEUnless(
-          layerCompileInfo.optLayerBoundaryMarkOptConstantValue.isDefined,
-          "Property dfdlx:layerBoundaryMark was not defined.",
-        )
-      case Some(LayerLengthKind.Implicit) => // ok
-      case Some(other) =>
-        layerCompileInfo.SDE(
-          s"Property dfdlx:layerLengthKind can only be 'implicit' or 'boundaryMark', but was '$other'.",
-        )
-      case None =>
-        layerCompileInfo.SDE(
-          s"Property dfdlx:layerLengthKind must be 'implicit' or 'boundaryMark'.",
-        )
+  /**
+   * The layer limiter needs to be different for boundaryMark and implicit cases.
+   *  @return a LayerLimiter or Optional.empty to indicate the standard layer limiter implementation should be used.
+   */
+  override def layerLimiter(layerPropertyInfo: LayerPropertyInfo): Optional[LayerLimiter] =
+    layerPropertyInfo.layerLengthKind() match {
+      case JLayerLengthKind.Implicit =>
+        Optional.empty() // use the default implicit layer length implementation.
+      case JLayerLengthKind.BoundaryMark =>
+        Optional.of(new LineFoldedLayerBoundaryMarkLimiter(this))
+      case JLayerLengthKind.Explicit =>
+        Assert.invariantFailed("layerLengthKind 'explicit' not allowed.")
     }
 
-    //
-    // This layer assumes an ascii-family encoding.
-    //
+  override def wrapLayerDecoder(jis: InputStream, lr: LayerRuntime): InputStream =
+    new LineFoldedInputStream(mode, jis)
 
-    val xformer =
-      new LineFoldedTransformerFactory(mode, layerCompileInfo.optLayerLengthKind.get)
-    xformer
-  }
+  override def wrapLayerEncoder(jos: OutputStream, lr: LayerRuntime): OutputStream =
+    new LineFoldedOutputStream(mode, jos)
 }
 
-final class LineFoldedIMFLayerCompiler extends LineFoldedLayerCompiler(LineFoldMode.IMF)
-final class LineFoldedICalendarLayerCompiler
-  extends LineFoldedLayerCompiler(LineFoldMode.iCalendar)
+class LineFoldedIMFLayer extends LineFoldedLayerBase(LineFoldMode.IMF)
 
-final class LineFoldedTransformerFactory(mode: LineFoldMode, layerLengthKind: LayerLengthKind)
-  extends LayerTransformerFactory(mode.transformName) {
+class LineFoldedICalendarLayer extends LineFoldedLayerBase(LineFoldMode.iCalendar)
 
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo): LayerTransformer = {
-    val xformer =
-      layerLengthKind match {
-        case LayerLengthKind.BoundaryMark => {
-          new LineFoldedTransformerDelimited(mode, layerRuntimeInfo)
-        }
-        case LayerLengthKind.Implicit => {
-          new LineFoldedTransformerImplicit(mode, layerRuntimeInfo)
-        }
-        case _ =>
-          Assert.invariantFailed(
-            "Should already have checked that it is only one of BoundaryMark or Implicit",
-          )
-      }
-    xformer
-  }
-}
+class LineFoldedLayerBoundaryMarkLimiter(layer: LineFoldedLayerBase)
+  extends BoundaryMarkRegexLimiter {
 
-sealed trait LineFoldMode extends LineFoldMode.Value {
-  def transformName: String = s"lineFolded_${this.toString}"
-}
+  /**
+   * This is CRLF not followed by space or tab.
+   * Note that if the CR is at end-of-data that is NOT a match. (See the $ in the negative lookahead)
+   *
+   * Note: one must not use capturing groups in these regex.
+   */
+  override protected def regexForBoundaryMarkMatch: String = "\\r\\n(?!(?:\\t|\\ |$))"
 
-object LineFoldMode extends Enum[LineFoldMode] {
+  override protected def maximumLengthBoundaryMark: String = "\r\n"
 
-  case object IMF extends LineFoldMode
-  case object iCalendar extends LineFoldMode
-  override lazy val values = Array(IMF, iCalendar)
+  //
+  // Q: How do we insert a CRLF "not followed by tab or space" when we don't
+  // control what follows?
+  // A: We don't. This is nature of the format. If what follows could begin
+  // with a space or tab, then the format can't use a line-folded layer.
+  //
 
-  override def apply(name: String, context: ThrowsSDE): LineFoldMode =
-    stringToEnum("lineFoldMode", name, context)
-}
-
-/**
- * For line folded, the notion of "delimited" means that the element is a "line"
- * that ends with CRLF, except that if it is long, it will be folded, which involves
- * inserting/removing CRLF+Space (or CRLF+TAB). A CRLF not followed by space or tab
- * is ALWAYS the actual "delimiter". There's no means of supplying a specific delimiter.
- */
-final class LineFoldedTransformerDelimited(
-  mode: LineFoldMode,
-  layerRuntimeInfo: LayerRuntimeInfo,
-) extends LayerTransformer(mode.transformName, layerRuntimeInfo) {
-
-  override protected def wrapLimitingStream(
-    state: ParseOrUnparseState,
-    jis: java.io.InputStream,
-  ) = {
-    // regex means CRLF not followed by space or tab.
-    // NOTE: this regex cannot contain ANY capturing groups (per scaladoc on RegexLimitingStream)
-    val s =
-      new RegexLimitingStream(jis, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", StandardCharsets.ISO_8859_1)
-    s
-  }
-
-  override protected def wrapLimitingStream(
-    state: ParseOrUnparseState,
-    jos: java.io.OutputStream,
-  ) = {
-    //
-    // Q: How do we insert a CRLF "not followed by tab or space" when we don't
-    // control what follows?
-    // A: We don't. This is nature of the format. If what follows could begin
-    // with a space or tab, then the format can't use a line-folded layer.
-    //
-    val newJOS =
-      new LayerBoundaryMarkInsertingJavaOutputStream(jos, "\r\n", StandardCharsets.ISO_8859_1)
-    newJOS
-  }
-
-  override protected def wrapLayerDecoder(jis: java.io.InputStream): java.io.InputStream = {
-    val s = new LineFoldedInputStream(mode, jis)
-    s
-  }
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
-    val s = new LineFoldedOutputStream(mode, jos)
-    s
-  }
-}
-
-/**
- * For line folded, the 'implicit' length kind means that the region continues
- * to end of data. At top level this would be the "whole file/stream" but this can
- * also be used with a specified length enclosing element. This code cannot tell
- * the difference.
- */
-class LineFoldedTransformerImplicit(mode: LineFoldMode, layerRuntimeInfo: LayerRuntimeInfo)
-  extends LayerTransformer(mode.transformName, layerRuntimeInfo) {
-
-  override protected def wrapLimitingStream(
-    state: ParseOrUnparseState,
-    jis: java.io.InputStream,
-  ) = {
-    jis // no limiting - just pull input until EOF.
-  }
-
-  override protected def wrapLimitingStream(
-    state: ParseOrUnparseState,
-    jos: java.io.OutputStream,
-  ) = {
-    jos // no limiting - just write output until EOF.
-  }
-
-  override protected def wrapLayerDecoder(jis: java.io.InputStream): java.io.InputStream = {
-    val s = new LineFoldedInputStream(mode, jis)
-    s
-  }
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
-    val s = new LineFoldedOutputStream(mode, jos)
-    s
-  }
+  override protected def boundaryMarkToInsert: String = "\r\n"
 }
 
 /**
@@ -236,7 +139,7 @@ class LineFoldedTransformerImplicit(mode: LineFoldMode, layerRuntimeInfo: LayerR
 class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream) extends InputStream {
 
   object State extends org.apache.daffodil.lib.util.Enum {
-    abstract sealed trait Type extends EnumValueType
+    sealed trait Type extends EnumValueType
 
     /**
      * No state. Read a character, and if CR, go to state GotCR.
@@ -333,7 +236,7 @@ class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream) extends InputS
           c = jis.read()
           c match {
             case ' ' | '\t' => {
-              if (mode eq LineFoldMode.IMF) {
+              if (mode == LineFoldMode.IMF) {
                 state = Start // absorb the CR, LF, but not the sp/tab
                 return c // return the sp/tab
               } else {
@@ -345,9 +248,11 @@ class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream) extends InputS
             }
             case _ => {
               // CRLF followed by other not sp/tab, or end of data.
+              // Note: This can happen when layerLengthKind is 'implicit' because the
+              // layer does not end at the first \r\n that is not followed by tab/space.
               // Buffer up to LF.
               state = Buf2
-              return '\r'
+              return '\r' // TODO: Why return \r ?
             }
           }
         }
@@ -393,11 +298,25 @@ class LineFoldedOutputStream(mode: LineFoldMode, jos: OutputStream) extends Outp
     }
   }
 
+  // TODO: This is broken because an isolated \r or \n is output as \r\n, but without verifying that the next character
+  //  is space or tab. If that ends up as a \r\n not followed by a space or tab it has broken the data, as on a reparse
+  //  that \r\n will be interpreted as an end-of-layer marker.
+  //  So as is, this is only correct if isolated \r or \n are always followed by a space/tab character.
+  //  Furthermore, if \r or \n isolated was the last character of the data being unparsed, then that will get converted
+  //  to a \r\n at the end of data. (Possibly this is not a big problem, the data was ending anyway?)
+  //
+  //  TODO: To work properly this state machine needs more than just the line buffer as state. It needs to
+  //   suspend the decision about what to do with isolated \r and \n until it sees the next character after (if any)
+  //   Note that if write(\n) is the last call, then no subsequent character exists, but we can't know what do do with the
+  //   \n until the close() happens. At that point we know there is no following character, and the \n can be
+  //   converted to a \r\n. But if the write(\n) call is followed by a write(' ') call, then we output the \r\n and the ' '
+  //   character. If the write(\n) call is followed by a write(x) where x is not tab or space, then we must output
+  //   \r\n and a ' ' so that this does NOT become an artificial end-of-layer boundary mark.
   override def write(bInt: Int): Unit = {
-    val b = bInt.toChar
     Assert.usage(!closed)
     Assert.invariant(line.length <= lineLength)
-    Assert.usage(b >= 0)
+    Assert.usage(bInt >= 0)
+    val b = bInt.toChar
     if (line.length < lineLength) {
       // there's room for more on the line
       b match {
@@ -450,8 +369,7 @@ class LineFoldedOutputStream(mode: LineFoldMode, jos: OutputStream) extends Outp
   private def tooLongLineICalendar(b: Char): Unit = {
     line += '\r'
     line += '\n'
-    if (mode eq LineFoldMode.iCalendar)
-      line += ' '
+    line += ' '
     jos.write(lineBytes)
     line.clear()
     line += b
@@ -469,6 +387,7 @@ class LineFoldedOutputStream(mode: LineFoldMode, jos: OutputStream) extends Outp
    * Ideally it would not be a space immediately before punctuation, as that
    * would affect readability (for people) by starting the next line with a
    * punctuation character. But this is, strictly speaking, unnecessary.
+   * (It is recommended by the RFC however, so it is likely expected behavior.)
    */
   private def tooLongLineIMF(b: Char): Unit = {
     var i = line.length - 1
@@ -477,6 +396,8 @@ class LineFoldedOutputStream(mode: LineFoldMode, jos: OutputStream) extends Outp
       val c = line(i)
       c match {
         case ' ' | '\t' => {
+          // TODO: Implement check for punctuation immediately after the space or tab
+          //  as that makes this an undesirable place for a line-ending to be inserted.
           done = true
           //
           // i is the index of latest sp/tab

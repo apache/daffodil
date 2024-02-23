@@ -20,130 +20,78 @@ package org.apache.daffodil.runtime1.layers
 import java.io._
 import java.nio._
 import java.nio.charset._
+import java.util.Optional
+import scala.collection.JavaConverters._
 
-import org.apache.daffodil.io.BoundaryMarkLimitingStream
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
-import org.apache.daffodil.io.LayerBoundaryMarkInsertingJavaOutputStream
 import org.apache.daffodil.io.processors.charset.BitsCharsetAISPayloadArmoring
 import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
+import org.apache.daffodil.layers.runtime1.BoundaryMarkRegexLimiter
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.ByteOrder
 import org.apache.daffodil.lib.schema.annotation.props.gen.EncodingErrorPolicy
-import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
+import org.apache.daffodil.runtime1.layers.api.JLayerLengthKind
+import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.runtime1.layers.api.LayerLimiter
+import org.apache.daffodil.runtime1.layers.api.LayerPropertyInfo
+import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
 import org.apache.commons.io.IOUtils
 
-final class AISPayloadArmoringLayerCompiler extends LayerCompiler("aisPayloadArmor") {
-
-  override def compileLayer(
-    layerCompileInfo: LayerCompileInfo,
-  ): AISPayloadArmoringTransformerFactory = {
-
-    layerCompileInfo.optLayerBoundaryMarkOptConstantValue match {
-      case Some(Some(",")) => // ok
-      case None => // ok
-      case Some(Some(nonComma)) =>
-        layerCompileInfo.SDE(
-          "Property dfdlx:layerBoundaryMark was defined as '$nonComma'. It must be ',' or left undefined.",
-        )
-      case Some(None) =>
-        layerCompileInfo.SDE(
-          "Property dfdlx:layerBoundaryMark was defined as an expression. It must be omitted, or defined to be ','.",
-        )
-    }
-    layerCompileInfo.optLayerLengthKind match {
-      case Some(LayerLengthKind.BoundaryMark) => // ok
-      case Some(other) =>
-        layerCompileInfo.SDE(
-          s"Only dfdlx:layerLengthKind 'boundaryMark' is supported, but '$other' was specified",
-        )
-      case None => // ok
-    }
-    layerCompileInfo.optLayerJavaCharsetOptConstantValue match {
-      case Some(Some(_)) => // ok
-      case None => // ok
-      case _ =>
-        layerCompileInfo.SDE(
-          "Property dfdlx:layerEncoding must be defined, and must be an ordinary 8-bit wide encoding. ",
-        )
-    }
-    val xformer = new AISPayloadArmoringTransformerFactory(name)
-    xformer
-  }
-}
-
-class AISPayloadArmoringTransformerFactory(name: String) extends LayerTransformerFactory(name) {
-
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo) = {
-    val xformer = new AISPayloadArmoringTransformer(name, layerRuntimeInfo)
-    xformer
-  }
-}
-
-object AISPayloadArmoringTransformer {
-  def iso8859 = StandardCharsets.ISO_8859_1
-}
-
-class AISPayloadArmoringTransformer(name: String, layerRuntimeInfo: LayerRuntimeInfo)
-  extends LayerTransformer(name, layerRuntimeInfo) {
-
-  import AISPayloadArmoringTransformer._
+final class AISPayloadArmoringLayer
+  extends Layer(
+    layerName = "aisPayloadArmor",
+    supportedLayerLengthKinds = Seq(JLayerLengthKind.BoundaryMark).asJava,
+    supportedLayerLengthUnits = Seq().asJava,
+    isRequiredLayerEncoding = true,
+    optLayerVariables = Optional.empty(),
+  ) {
 
   /**
    * Decoding AIS payload armoring is encoding the ASCII text into the
    * underlying binary data.
    */
-  override def wrapLayerDecoder(jis: java.io.InputStream) = {
+  override def wrapLayerDecoder(jis: InputStream, lr: LayerRuntime): InputStream =
     new AISPayloadArmoringInputStream(jis)
-  }
 
-  override def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
-    val layerBoundaryMark = ","
-    val s = BoundaryMarkLimitingStream(jis, layerBoundaryMark, iso8859)
-    s
-  }
-
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
+  override def wrapLayerEncoder(jos: OutputStream, lr: LayerRuntime): OutputStream =
     new AISPayloadArmoringOutputStream(jos)
-  }
 
-  override protected def wrapLimitingStream(
-    state: ParseOrUnparseState,
-    jos: java.io.OutputStream,
-  ) = {
-    val layerBoundaryMark = ","
-    val newJOS = new LayerBoundaryMarkInsertingJavaOutputStream(jos, layerBoundaryMark, iso8859)
-    newJOS
-  }
+  override def layerLimiter(layerPropertyInfo: LayerPropertyInfo): Optional[LayerLimiter] =
+    Optional.of(new BoundaryMarkRegexLimiter {
+      override protected def regexForBoundaryMarkMatch: String = ","
+
+      override protected def boundaryMarkToInsert: String = ","
+
+      override protected def maximumLengthBoundaryMark: String = ","
+    })
 }
 
 class AISPayloadArmoringInputStream(jis: InputStream) extends InputStream {
-  import AISPayloadArmoringTransformer._
 
   private lazy val enc = BitsCharsetAISPayloadArmoring.newEncoder()
 
   private lazy val bais = {
-    val armoredText = IOUtils.toString(jis, iso8859)
+    val armoredText = IOUtils.toString(jis, StandardCharsets.ISO_8859_1)
     val cb = CharBuffer.wrap(armoredText)
 
     val numBytes = (6 * armoredText.length) / 8
     val ba = new Array[Byte](numBytes + 1)
     val bb = ByteBuffer.wrap(ba)
-    val cr = enc.encode(cb, bb, true)
+    val cr = enc.encode(cb, bb, endOfInput = true)
     //
     // We made bb have one extra byte in it.
     // So this should end on UNDERFLOW meaning it could take more characters.
     //
-    Assert.invariant(cr.isUnderflow())
+    Assert.invariant(cr.isUnderflow)
 
     val bais = new ByteArrayInputStream(ba, 0, numBytes)
     bais
@@ -155,7 +103,6 @@ class AISPayloadArmoringInputStream(jis: InputStream) extends InputStream {
 }
 
 class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputStream {
-  import AISPayloadArmoringTransformer._
 
   private lazy val dec = BitsCharsetAISPayloadArmoring.newDecoder()
 
@@ -164,6 +111,7 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputSt
   private var closed = false
 
   class FormatInfoForAISDecode extends FormatInfo {
+    // TODO: do byteOrder and bitOrder even get used?
     override def byteOrder: ByteOrder = ByteOrder.BigEndian
     override def bitOrder: BitOrder = BitOrder.MostSignificantBitFirst
     override def encodingErrorPolicy: EncodingErrorPolicy = EncodingErrorPolicy.Replace
@@ -183,13 +131,13 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputSt
 
   override def close(): Unit = {
     if (!closed) {
-      val ba = baos.toByteArray()
+      val ba = baos.toByteArray
       val dis = InputSourceDataInputStream(ba)
       val finfo = new FormatInfoForAISDecode()
       val cb = CharBuffer.allocate(256)
       while ({ val numDecoded = dec.decode(dis, finfo, cb); numDecoded > 0 }) {
         cb.flip()
-        IOUtils.write(cb, jos, iso8859)
+        IOUtils.write(cb, jos, StandardCharsets.ISO_8859_1)
         cb.clear()
       }
       jos.close()

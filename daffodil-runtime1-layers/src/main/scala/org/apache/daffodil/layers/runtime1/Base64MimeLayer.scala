@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.layers
+package org.apache.daffodil.layers.runtime1
 
 import java.io.InputStream
 import java.io.OutputStream
@@ -26,27 +26,18 @@ import org.apache.daffodil.runtime1.layers.api.JLayerLengthKind
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
-final class BuggyLayer
+final class Base64MimeLayer
   extends Layer(
-    "buggy",
-    supportedLayerLengthKinds = Seq(JLayerLengthKind.Explicit).asJava,
-    supportedLayerLengthUnits = Seq().asJava,
+    layerName = "base64_MIME",
+    supportedLayerLengthKinds = Seq(JLayerLengthKind.BoundaryMark).asJava,
+    supportedLayerLengthUnits = Nil.asJava,
     isRequiredLayerEncoding = false,
     optLayerVariables = Optional.empty(),
   ) {
 
-  override def wrapLayerDecoder(jis: InputStream, lr: LayerRuntime): InputStream =
-    new BuggyInputStream(jis)
+  override def wrapLayerEncoder(jos: OutputStream, lrd: LayerRuntime): OutputStream =
+    java.util.Base64.getMimeEncoder().wrap(jos)
 
-  override def wrapLayerEncoder(jos: OutputStream, lr: LayerRuntime): OutputStream =
-    jos
-}
-
-final class BuggyInputStream(is: InputStream) extends InputStream {
-
-  def read(): Int = {
-    val b = is.read()
-    if (b != '0') b else throw new java.io.IOException("bad input stream")
-  }
-
+  override def wrapLayerDecoder(jis: InputStream, lrd: LayerRuntime): InputStream =
+    java.util.Base64.getMimeDecoder.wrap(jis)
 }

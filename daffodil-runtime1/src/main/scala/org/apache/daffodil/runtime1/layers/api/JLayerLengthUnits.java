@@ -14,33 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.daffodil.runtime1.layers.api;
 
-package org.apache.daffodil.runtime1.layers
-
-import org.apache.daffodil.tdml.Runner
-
-import org.junit.AfterClass
-import org.junit.Test
-
-object TestLayers {
-  private val testDir = "/org/apache/daffodil/layers/"
-  private val runner: Runner = Runner(testDir, "layers.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset()
-  }
-}
-
-class TestLayers {
-
-  import TestLayers._
-
-  @Test def test_gzipLayer1(): Unit = { runner.runOneTest("gzipLayer1") }
-  @Test def test_foldedIMFBase64Layers1(): Unit = {
-    runner.trace.runOneTest("foldedIMFBase64Layers1")
-  }
-  @Test def test_foldedIMF1(): Unit = { runner.runOneTest("foldedIMF1") }
-  @Test def test_layersErr1(): Unit = { runner.runOneTest("layersErr1") }
-  @Test def test_base64GzipLayers1(): Unit = { runner.runOneTest("base64GzipLayers1") }
-
+public enum JLayerLengthUnits {
+    Bits, Bytes, Characters
 }

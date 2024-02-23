@@ -142,8 +142,8 @@ c0a8 0001 c0a8 00c7
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Insufficient bits</tdml:error>
-      <tdml:error>160</tdml:error>
+      <tdml:error>Insufficient data</tdml:error>
+      <tdml:error>20</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -15,77 +15,39 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.layers.runtime1
+package org.apache.daffodil.layers.runtime1;
 
-import org.apache.daffodil.io.ExplicitLengthLimitingStream
-import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.runtime1.layers._
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
+import org.apache.daffodil.runtime1.layers.api.JLayerLengthKind;
+import org.apache.daffodil.runtime1.layers.api.JLayerLengthUnits;
+import org.apache.daffodil.runtime1.layers.api.Layer;
+import org.apache.daffodil.runtime1.layers.api.LayerRuntime;
 
-final class GZIPLayerCompiler extends LayerCompiler("gzip") {
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Optional;
 
-  override def compileLayer(layerCompileInfo: LayerCompileInfo): GZIPTransformerFactory = {
+public class GZipLayer extends Layer {
 
-    layerCompileInfo.SDEUnless(
-      layerCompileInfo.optLayerLengthKind.isEmpty ||
-        (layerCompileInfo.optLayerLengthKind.get eq LayerLengthKind.Explicit),
-      "Only dfdlx:layerLengthKind 'explicit' is supported, but '%s' was specified",
-      layerCompileInfo.optLayerLengthKind.get.toString,
-    )
-
-    val xformer = new GZIPTransformerFactory(name)
-    xformer
-  }
-}
-
-final class GZIPTransformerFactory(name: String) extends LayerTransformerFactory(name) {
-
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo) = {
-    val xformer = new GZIPTransformer(name, layerRuntimeInfo)
-    xformer
-  }
-}
-
-class GZIPTransformer(name: String, layerRuntimeInfo: LayerRuntimeInfo)
-  extends LayerTransformer(name, layerRuntimeInfo) {
-
-  override def wrapLayerDecoder(jis: java.io.InputStream) = {
-    val s = new java.util.zip.GZIPInputStream(jis)
-    s
+  public GZipLayer() {
+    super(
+    "gzip",
+            Arrays.asList(JLayerLengthKind.Explicit, JLayerLengthKind.Implicit),
+            Arrays.asList(JLayerLengthUnits.Bytes),
+            false,
+            Optional.empty()
+    );
   }
 
-  override def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
-    val layerLengthInBytes = layerRuntimeInfo.optLayerLength(state).get
-    val s = new ExplicitLengthLimitingStream(jis, layerLengthInBytes)
-    s
+  @Override
+  public InputStream wrapLayerDecoder(InputStream jis, LayerRuntime lrd) throws IOException {
+    return new java.util.zip.GZIPInputStream(jis);
   }
 
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
-    val s = GZIPFixedOutputStream(jos)
-    s
-  }
-
-  override protected def wrapLimitingStream(
-    state: ParseOrUnparseState,
-    jis: java.io.OutputStream,
-  ) = {
-    jis // just return jis. The way the length will be used/stored is by way of
-    // taking the content length of the enclosing element. That will measure the
-    // length relative to the "ultimate" data output stream.
-  }
-}
-
-object GZIPFixedOutputStream {
-
-  private val fixIsNeeded = !scala.util.Properties.isJavaAtLeast("16")
-
-  /**
-   * Create a GZIPOutputStream that, if necessary, proxies writes through an
-   * OutputStream that fixes inconsistencies between Java versions
-   */
-  def apply(os: java.io.OutputStream) = {
-    val fixedOS = if (fixIsNeeded) new GZIPFixedOutputStream(os) else os
-    new java.util.zip.GZIPOutputStream(fixedOS)
+  @Override
+  public OutputStream wrapLayerEncoder(OutputStream jos, LayerRuntime lrd) throws IOException {
+    return GZIPFixedOutputStream.apply(jos);
   }
 }
 
@@ -103,25 +65,53 @@ object GZIPFixedOutputStream {
  * GZIPFixedOutputStream, this will always write a value of 255, making all Java
  * versions prior to 16 consistent with Java 16+ behavior.
  */
-class GZIPFixedOutputStream private (os: java.io.OutputStream) extends java.io.OutputStream {
+class GZIPFixedOutputStream extends OutputStream {
+
+  private static final boolean fixIsNeeded;
+  static {
+          // prior to java 16
+          String verString = System.getProperty("java.version");
+          String verFirstDigits = verString.substring(0, verString.indexOf("."));
+          int ver = Integer.parseInt(verFirstDigits);
+          fixIsNeeded = (ver < 16);
+  }
+
+  /**
+   * Create a GZIPOutputStream that, if necessary, proxies writes through an
+   * OutputStream that fixes inconsistencies between Java versions
+   */
+  public static OutputStream apply(OutputStream os) throws IOException {
+    OutputStream fixedOS = fixIsNeeded ? new GZIPFixedOutputStream(os) : os;
+    return new java.util.zip.GZIPOutputStream(fixedOS);
+  }
+
+  private final OutputStream os;
+
+  public GZIPFixedOutputStream(OutputStream os) {
+    this.os = os;
+  }
 
   /**
    * The next byte position that byte will be written to. If this is negative,
    * that means we have already fixed the output and everything should just
    * pass straight through.
    */
-  private var bytePosition = 0
+  private int bytePosition = 0;
 
-  override def close(): Unit = os.close()
-  override def flush(): Unit = os.flush()
+  @Override
+  public void close() throws IOException { os.close(); }
 
-  override def write(b: Array[Byte], off: Int, len: Int): Unit = {
+  @Override
+  public void flush() throws IOException { os.flush(); }
+
+  @Override
+  public void write(byte[] b, int off, int len) throws IOException {
     if (bytePosition < 0) {
       // The bad byte has been fixed, pass all writes directly through to the
       // underlying OutputStream. This may be more efficient than the default
       // OutputStream write() function, which writes the bytes from this array
       // one at a time
-      os.write(b, off, len)
+      os.write(b, off, len);
     } else {
       // The bad byte has not been fixed yet. Unless a newer version of Java
       // has made changes, the GZIPOutputStreamm will have passed in a 10 byte
@@ -130,27 +120,28 @@ class GZIPFixedOutputStream private (os: java.io.OutputStream) extends java.io.O
       // bytes one at a time and will call the write(int) method that will fix
       // that byte. Calling write() one at a time is maybe inefficient but for
       // such a small array it should not have a noticeable effect.
-      super.write(b, off, len)
+      super.write(b, off, len);
     }
   }
 
-  override def write(b: Int): Unit = {
+  @Override
+  public void write(int b) throws IOException {
     if (bytePosition < 0) {
       // The bad byte has already been fixed, simply pass this byte through to
       // the underlying OutputStream
-      os.write(b)
+      os.write(b);
     } else if (bytePosition < 9) {
       // The bad byte has not been fixed, and we haven't reached it yet, simply
       // pass this byte through and increment our byte position
-      os.write(b)
-      bytePosition += 1
+      os.write(b);
+      bytePosition += 1;
     } else if (bytePosition == 9) {
       // This is the bad byte, it is a 0 on some Java versions. Write 255
       // instead of to match Java 16+ behavior. Also, set bytePosition to -1 to
       // signify that we have fixed the bad byte and that all other writes
       // should just pass directly to the underlying OutputStream
-      os.write(255)
-      bytePosition = -1
+      os.write(255);
+      bytePosition = -1;
     }
   }
 }

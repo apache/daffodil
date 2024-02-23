@@ -141,6 +141,38 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     assertEquals(text, textBack)
   }
 
+  val GZIPLayer0Schema =
+    SchemaUtils.dfdlTestSchema(
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <dfdl:format ref="tns:GeneralFormat" representation="binary"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+                <xs:sequence dfdlx:layerTransform="gzip" dfdlx:layerLengthKind="implicit">
+                  <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+                </xs:sequence>
+        </xs:complexType>
+      </xs:element>,
+      elementFormDefault = "unqualified",
+    )
+
+  def makeGZIPLayer0Data() = {
+    val gzipData: Array[Byte] = makeGZIPData(text)
+    gzipData
+  }
+
+  @Test
+  def testGZIPLayer0(): Unit = {
+    val sch = GZIPLayer0Schema
+    val data = makeGZIPLayer0Data()
+    val infoset = <ex:e1 xmlns:ex={example}><s1>{
+      text
+    }</s1></ex:e1>
+    val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
+    TestUtils.assertEqualsXMLElements(infoset, actual)
+
+    TestUtils.testUnparsingBinary(sch, infoset, data)
+  }
+
   val GZIPLayer1Schema =
     SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
@@ -299,8 +331,8 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val ipsumLorem2 =
     s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
-  ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
-  /////////////////////          1         2         3         4         5         6         7           8
+  ///// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
+  /////          1         2         3         4         5         6         7           8
   val ipsumLorem2Unfolded =
     s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad"""
 
@@ -346,8 +378,8 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val ipsumLorem4 =
     s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt\r\n"""
-  ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
-  /////////////////////          1         2         3         4         5         6         7           8
+  ///// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
+  /////          1         2         3         4         5         6         7           8
   val ipsumLorem4Unfolded =
     s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt\n"""
 
@@ -379,8 +411,8 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val ipsumLorem5 =
     s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labore et dolore magna aliqua."""
-  ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
-  /////////////////////          1         2         3         4         5         6         7           8         9         A
+  ///// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
+  /////          1         2         3         4         5         6         7           8         9         A
 
   val ipsumLorem5Unfolded =
     s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""
@@ -395,8 +427,8 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val ipsumLorem6 =
     s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\r\n tempor incididunt ut labor"""
-  ///////////////////// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901234567890123456789012345678901234567890
-  /////////////////////          1         2         3         4         5         6         7           8         9         A
+  ///// 123456789012345678901234567890123456789012345678901234567890123456789012 3 4567890123456789012345678901 2 34567890123456789012345678901234567890
+  /////          1         2         3         4         5         6         7           8         9         A
 
   val ipsumLorem6Unfolded =
     s"""Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labor"""

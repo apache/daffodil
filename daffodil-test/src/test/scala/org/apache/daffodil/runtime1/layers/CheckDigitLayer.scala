@@ -18,27 +18,41 @@
 package org.apache.daffodil.runtime1.layers
 
 import java.nio.ByteBuffer
+import java.util.Optional
+import scala.collection.JavaConverters._
 
 import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.VariableRuntimeData
+import org.apache.daffodil.runtime1.api.DFDLPrimType
+import org.apache.daffodil.runtime1.layers.api.JLayerLengthKind
+import org.apache.daffodil.runtime1.layers.api.JLayerLengthUnits
+import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.runtime1.layers.api.LayerChecksumMixin
+import org.apache.daffodil.runtime1.layers.api.LayerRuntime
+import org.apache.daffodil.runtime1.layers.api.LayerVariables
 
-final class CheckDigitExplicit(
-  name: String,
-  layerRuntimeInfo: LayerRuntimeInfo,
-  outputVar: VariableRuntimeData,
-  inputVars: Seq[VariableRuntimeData],
-) extends ByteBufferExplicitLengthLayerTransform[Int](
-    layerRuntimeInfo,
-    name,
-    inputVars,
-    outputVar,
-  ) {
+object CheckDigitLayer {
+  val name: String = "checkDigit"
+  val vars: LayerVariables = LayerVariables(
+    prefix = "cd",
+    namespace = "urn:org.apache.daffodil.layers.checkDigit",
+    variables = Seq(
+      // variable name is the same as the layer name "checkDigit"
+      (name, DFDLPrimType.Int), // index 0
+      // variable name is "checkDigitParams"
+      (name + "Params", DFDLPrimType.String), // index 1
+    ).asJava,
+  )
+}
 
-  /**
-   * This layer does not have a fixed constant known length.
-   */
-  override protected def layerBuiltInConstantLength = None
+class CheckDigitLayer()
+  extends Layer(
+    layerName = CheckDigitLayer.name,
+    supportedLayerLengthKinds = Seq(JLayerLengthKind.Explicit).asJava,
+    supportedLayerLengthUnits = Seq(JLayerLengthUnits.Bytes).asJava,
+    isRequiredLayerEncoding = true,
+    optLayerVariables = Optional.of(CheckDigitLayer.vars),
+  )
+  with LayerChecksumMixin {
 
   //
   // Our example here takes a parameter which is a flag indicating if it is to
@@ -54,8 +68,6 @@ final class CheckDigitExplicit(
     else Params(isVerbose = false)
   }
 
-  case class CheckDigitException(str: String) extends Exception(str)
-
   /**
    * Shared by both parsing and unparsing.
    *
@@ -63,19 +75,19 @@ final class CheckDigitExplicit(
    *
    * The checkDigit is the total of all digits, viewed as a string, the last digit of that total.
    */
-  protected def compute(
-    state: ParseOrUnparseState,
+  override def compute(
+    layerRuntime: LayerRuntime,
     isUnparse: Boolean,
-    inputs: Seq[Any],
     byteBuffer: ByteBuffer,
   ) = {
-    assert(inputs.length == 1)
-    val charset = layerRuntimeInfo.optLayerCharset(state).get
-    assert(charset.newDecoder().maxCharsPerByte() == 1) // is a SBCS charset
-    val isVerbose = parseParams(inputs(0).asInstanceOf[String]).isVerbose
-    val s = new String(byteBuffer.array(), charset)
+    val paramVar = layerRuntime.variable(1)
+    val isVerbose = parseParams(layerRuntime.getString(paramVar)).isVerbose
+    val s = new String(byteBuffer.array(), layerRuntime.layerCharset.name)
     val digits: Seq[Int] = s.filter { _.isDigit }.map { _.asDigit }
     val num = digits.sum
+    //
+    // TODO: verify if this is correct. I believe this is supposed to keep adding the digits together until
+    //  it gets a sum with only 1 digit and that is the check digit value.
     val checkDigit = num.toString.last.asDigit
     if (isVerbose)
       Logger.log.info(s"Check digit for '$s' is '$checkDigit'")
