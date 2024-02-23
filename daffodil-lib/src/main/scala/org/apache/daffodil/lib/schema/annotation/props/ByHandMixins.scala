@@ -394,8 +394,8 @@ object BinaryBooleanTrueRepType {
 
       if (i < 0)
         element.schemaDefinitionError(
-          "For property 'binaryBooleanFalseRep', value must be an empty string or a non-negative integer. Found: %d",
-          i,
+          "For property 'binaryBooleanFalseRep', value must be an empty string or a non-negative integer. Found: %s",
+          i.toString,
         )
       MaybeULong(i)
     }
@@ -418,8 +418,8 @@ object BinaryBooleanFalseRepType {
 
     if (i < 0)
       element.schemaDefinitionError(
-        "For property 'binaryBooleanFalseRep', value must be a non-negative integer. Found: %d",
-        i,
+        "For property 'binaryBooleanFalseRep', value must be a non-negative integer. Found: %s",
+        i.toString,
       )
     ULong(i)
   }

@@ -17,7 +17,7 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
+import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
 import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
@@ -25,17 +25,12 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 class LayeredSequenceUnparser(
   ctxt: SequenceRuntimeData,
   layerTransformerFactory: LayerTransformerFactory,
-  layerRuntimeInfo: LayerRuntimeInfo,
   childUnparser: SequenceChildUnparser,
 ) extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
-
-  override lazy val runtimeDependencies =
-    layerRuntimeInfo.evaluatables.toVector
 
   override def nom = "LayeredSequence"
 
   override def unparse(state: UState): Unit = {
-    val layerTransformer = layerTransformerFactory.newInstance(layerRuntimeInfo)
 
     val originalDOS = state.dataOutputStream
 
@@ -54,8 +49,12 @@ class LayeredSequenceUnparser(
     // occurs with the state at this point.
     val formatInfoPre = state.asInstanceOf[UStateMain].cloneForSuspension(layerUnderlyingDOS)
 
+    val layerRuntime = new LayerRuntimeImpl(formatInfoPre, ctxt)
+
+    val layerTransformer = layerTransformerFactory.newInstance(layerRuntime)
+
     // mark the original DOS as finished--no more data will be unparsed to it.
-    // If known, this will carry bit position forward to the layerUnerlyingDOS,
+    // If known, this will carry bit position forward to the layerUnderlyingDOS,
     // or could even make that DOS direct. Note that it is important to use the
     // cloned state from above. This is because the setFinished function stores
     // the formatInfo (as finishedFormatInfo) to be used when delivering
@@ -69,13 +68,11 @@ class LayeredSequenceUnparser(
 
     // New layerDOS is where the layer will unparse into. Ultimately anything written
     // to layerDOS ends up, post transform, in layerUnderlyingDOS
-    val layerDOS = layerTransformer.addLayer(layerUnderlyingDOS, state, formatInfoPre)
+    val layerDOS = layerTransformer.addLayer(layerUnderlyingDOS, layerRuntime)
 
     // unparse the layer body into layerDOS
     state.dataOutputStream = layerDOS
     super.unparse(state)
-    layerTransformer.endLayerForUnparse(state)
-
     // now we're done unparsing the layer, so finalize the last DOS in the
     // chain. Note that there might be suspensions so some parts of the
     // layerDOS chain may not be finished. When those suspensions are all

@@ -22,52 +22,26 @@ import java.io.OutputStream
 import java.util.ArrayDeque
 import java.util.Deque
 
-import org.apache.daffodil.io.ExplicitLengthLimitingStream
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthKind
-import org.apache.daffodil.runtime1.layers._
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
+import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
-final class FourByteSwapLayerCompiler extends LayerCompiler("fourbyteswap") {
+final class TwoByteSwapLayer extends ByteSwap("twobyteswap", 2)
+final class FourByteSwapLayer extends ByteSwap("fourbyteswap", 4)
 
-  override def compileLayer(layerCompileInfo: LayerCompileInfo): LayerTransformerFactory = {
+abstract class ByteSwap(name: String, count: Int) extends Layer(name) {
+  override def wrapLayerEncoder(jos: OutputStream, lrd: LayerRuntime): OutputStream =
+    new ByteSwapOutputStream(count, jos)
 
-    layerCompileInfo.optLayerLengthKind match {
-      case Some(LayerLengthKind.Explicit) => // ok
-      case None =>
-        layerCompileInfo.SDE(
-          "The property dfdlx:layerLengthKind must be defined and have value 'explicit'.",
-        )
-      case Some(other) =>
-        layerCompileInfo.SDE(
-          "The property dfdlx:layerLengthKind must be 'explicit' but was '$other'.",
-        )
-    }
-
-    layerCompileInfo.SDEUnless(
-      layerCompileInfo.optLayerLengthOptConstantValue.isDefined,
-      "The property dfdlx:layerLength must be defined.",
-    )
-
-    val xformer = new ByteSwapTransformerFactory(4, name)
-    xformer
-  }
-}
-
-/**
- * LayerTransformerFactory for ByteSwapTransformer instances.
- *
- * Requires that layerLengthKind="explicit".
- */
-final class ByteSwapTransformerFactory(wordsize: Int, name: String)
-  extends LayerTransformerFactory(name) {
-
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo) =
-    new ByteSwapTransformer(wordsize, name, layerRuntimeInfo)
+  override def wrapLayerDecoder(jis: InputStream, lrd: LayerRuntime): InputStream =
+    new ByteSwapInputStream(count, jis)
 }
 
 /**
  * An input stream wrapper that re-orders bytes according to wordsize.
+ *
+ * This is streaming - does not require buffering up the data. So can be used on
+ * very large data objects.
  *
  * Bytes within the wrapped input stream are re-ordered wordsize bytes at a time.
  * For example, if the wrapped input stream contains 10 bytes and wordsize is
@@ -153,6 +127,8 @@ class ByteSwapInputStream(wordsize: Int, jis: InputStream) extends InputStream {
 /**
  * An output stream wrapper that re-orders bytes according to wordsize.
  *
+ * This is streaming, so is suitable for use on very large data.
+ *
  * Bytes sent to the wrapped output stream are re-ordered wordsize bytes at a
  * time.  For example, if 10 bytes are written and wordsize is 4, then the
  * bytes are written to the wrapped output stream in the
@@ -182,38 +158,5 @@ class ByteSwapOutputStream(wordsize: Int, jos: OutputStream) extends OutputStrea
         jos.write(stack.pop())
       }
     }
-  }
-}
-
-/**
- * A LayerTransformer that re-orders bytes for the over/underlying layer.
- */
-class ByteSwapTransformer(wordsize: Int, name: String, layerRuntimeInfo: LayerRuntimeInfo)
-  extends LayerTransformer(name, layerRuntimeInfo) {
-
-  override def wrapLayerDecoder(jis: java.io.InputStream) = {
-    val s = new ByteSwapInputStream(wordsize, jis)
-    s
-  }
-
-  override def wrapLimitingStream(state: ParseOrUnparseState, jis: java.io.InputStream) = {
-    val layerLengthInBytes = layerRuntimeInfo.optLayerLength(state).get
-
-    val s = new ExplicitLengthLimitingStream(jis, layerLengthInBytes)
-    s
-  }
-
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
-    val s = new ByteSwapOutputStream(wordsize, jos)
-    s
-  }
-
-  override protected def wrapLimitingStream(
-    state: ParseOrUnparseState,
-    jos: java.io.OutputStream,
-  ) = {
-    jos // just return jos. The way the length will be used/stored is by way of
-    // taking the content length of the enclosing element. That will measure the
-    // length relative to the "ultimate" data output stream.
   }
 }

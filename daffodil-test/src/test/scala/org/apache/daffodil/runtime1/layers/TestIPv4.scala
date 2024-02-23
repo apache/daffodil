@@ -25,7 +25,7 @@ import org.junit.Test
 object TestIPv4 {
 
   val testDir = "/org/apache/daffodil/layers/"
-  val runner = Runner(testDir, "IPv4.tdml")
+  val runner = Runner(testDir, "TestIPv4.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset

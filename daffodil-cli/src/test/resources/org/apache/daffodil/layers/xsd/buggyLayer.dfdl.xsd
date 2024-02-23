@@ -34,8 +34,7 @@
       <dfdl:format ref="buggy:GeneralFormat" />
 
       <dfdl:defineFormat name="buggyFormat">
-        <dfdl:format dfdlx:layerTransform="buggy" dfdlx:layerLengthKind="explicit" dfdlx:layerLengthUnits="bytes"
-                     dfdlx:layerEncoding="ascii" />
+        <dfdl:format dfdlx:layerTransform="buggy" />
       </dfdl:defineFormat>
 
     </appinfo>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="true">
+
+  <tdml:parserTestCase name="gzipLayer1" root="root" model="exampleGzipLayer.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[
+      000000D41F8B08000000000000FF4D904176C3200C44AF3207C8F33DBA6F0F40CCD8568391
+      8B44D3DC3EC2C9A2EFB1013EF3357C6E6288F5DDCD61BA137BCA443FE0FC73F8967C5C4B75
+      D6CC0C575C8984857714A93414ADEB848F25D800B794036045632A67C605E2B86B2F19553D
+      805FBE889F2ECE70E2AA4DEA3AA2E3519EF065842E58D2AEDD02530F8DB640832A8F26F3B9
+      4DF511CA712437BE27ADDE34F739F8598F20D7CD875566460BEBB4CB10CAD989C9846D684D
+      F6A33CA2F9ED6CFEBF5DCC7168C4169ABDBEE46D139B9E8B9C8E093C010000616674657247
+      7A6970]]>
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <len>212</len>
+          <data>
+            <contents>
+              <text><![CDATA[This is just some made up text that is intended to be a few lines long. If this had been real text, it would not have been quite so boring to read. Use of famous quotes or song lyrics or anything like that introduces copyright notice issues, so it is easier to simply make up a few lines of pointless text like this.]]></text>
+            </contents>
+          </data>
+          <after>afterGzip</after>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <!-- useful rulers 
+           1         2         3         4         5         6         7         8
+12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+  -->
+
+  <tdml:parserTestCase
+    name="foldedIMFBase64Layers1"
+    root="root"
+    model="exampleLineFoldedLayer.dfdl.xsd"
+    roundTrip="onePass"><!-- two pass because this standardizes line endings to CRLF -->
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;%LF;--frontier%CR;%LF;Comment: This simulates a header field that is so long it will get folded%CR;%LF; into multiple lines of text because it is too long and my job is at the%CR;%LF; redundancy department is where I work.%CR;%LF;Content-Transfer-Encoding: base64%CR;%LF;%CR;%LF;TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdCwg%CR;%LF;c2VkIGRvIGVpdXNtb2QgdGVtcG9yIGluY2lkaWR1bnQgdXQgbGFib3JlIGV0IGRvbG9yZSBtYWdu%CR;%LF;YSBhbGlxdWEuIFV0IGVuaW0gYWQ=%CR;%LF;--frontier--]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <marker>frontier</marker>
+          <contents>
+            <comment><![CDATA[This simulates a header field that is so long it will get folded into multiple lines of text because it is too long and my job is at the redundancy department is where I work.]]></comment>
+            <contentTransferEncoding>base64</contentTransferEncoding>
+            <body>
+              <value><![CDATA[Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad]]></value>
+            </body>
+          </contents>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="foldedIMF1" root="root" model="exampleLineFoldedLayer2.dfdl.xsd" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[boundary=frontier%CR;%LF;xxx]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <marker>frontier</marker>
+          <nothing />
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  
+
+
+  <tdml:parserTestCase name="layersErr1" root="root" model="exampleLineFoldedLayer3Err.dfdl.xsd" roundTrip="true">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>layerTransform</tdml:error>
+      <tdml:error>separator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:unparserTestCase name="base64GzipLayers1" root="file" model="exampleGzipLayer2.dfdl.xsd" roundTrip="true">
+    <tdml:document>
+      <!--
+      This data is gzipped, then base64 encoded:
+
+  last,first,middle,DOB
+  smith,robert,brandon,1988-03-24
+  johnson,john,henry,1986-01-23
+  jones,arya,cat,1986-02-19
+
+  We gzip that, and then we must prepend that with the length (as a binary 4-byte int) before we base64 encode.
+    -->
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[AAAAcx+LCAAAAAAAAP8tyUEKgCAQheG94E1mIDWittG+M0xpaNQIo5tuX0Kb98P7LioVjiTf3sn7%CR;%LF;K8CyzlqVO9UIkrcgFTYh9pnBTOOInUPba3XmyOX7WiEGlqfxgJ1B6xpzKEDyEOxUf7JoJq1e/RI4%CR;%LF;wXIAAAA=--END--]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:file>
+          <gzLength>115</gzLength>
+          <data>
+            <contents>
+              <header>
+                <title>last</title>
+                <title>first</title>
+                <title>middle</title>
+                <title>DOB</title>
+              </header>
+              <record>
+                <item>smith</item>
+                <item>robert</item>
+                <item>brandon</item>
+                <item>1988-03-24</item>
+              </record>
+              <record>
+                <item>johnson</item>
+                <item>john</item>
+                <item>henry</item>
+                <item>1986-01-23</item>
+              </record>
+              <record>
+                <item>jones</item>
+                <item>arya</item>
+                <item>cat</item>
+                <item>1986-02-19</item>
+              </record>
+            </contents>
+          </data>
+        </ex:file>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

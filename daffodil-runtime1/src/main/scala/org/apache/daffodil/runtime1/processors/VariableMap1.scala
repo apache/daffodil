@@ -315,9 +315,10 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
    * Performance of this is linear in number of variables, this should not be used in
    * performance critical sections.
    */
-  def find(qName: GlobalQName): Option[VariableInstance] = {
+  def find(qName: RefQName): Option[VariableInstance] = {
     getVariableRuntimeData(qName).map { vrd => vTable(vrd.vmapIndex).head }
   }
+  def find(qName: GlobalQName): Option[VariableInstance] = find(qName.toRefQName)
 
   /**
    * Performance of this is linear in number of variables, this should not be used in
@@ -331,8 +332,8 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
    * Performance of this is linear in number of variables, this should not be used in
    * performance critical sections.
    */
-  def getVariableRuntimeData(qName: GlobalQName): Option[VariableRuntimeData] = {
-    vrds.find { _.globalQName == qName }
+  def getVariableRuntimeData(qName: RefQName): Option[VariableRuntimeData] = {
+    vrds.find { _.globalQName.matches(qName) }
   }
 
   lazy val context = Assert.invariantFailed("unused.")

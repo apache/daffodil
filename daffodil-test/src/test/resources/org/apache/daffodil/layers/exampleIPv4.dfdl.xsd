@@ -89,7 +89,7 @@
         </xs:appinfo>
       </xs:annotation>
 
-      <xs:sequence dfdl:ref="chksum:IPv4ChecksumLayer">
+      <xs:sequence dfdlx:layerTransform='IPv4Checksum'><!-- always exactly 20 bytes long -->
         <xs:sequence>
         <xs:element name="Version" type="tns:bit" dfdl:length="4"/>
         <xs:element name="IHL" type="tns:bit" dfdl:length="4"/>

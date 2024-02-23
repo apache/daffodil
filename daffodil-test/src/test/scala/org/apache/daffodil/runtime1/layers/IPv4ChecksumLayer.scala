@@ -20,46 +20,46 @@ package org.apache.daffodil.runtime1.layers
 import java.nio.ByteBuffer
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.VariableRuntimeData
+import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
+import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
 import passera.unsigned.UShort
 
 /**
  *  The layer transform computes the checksum of the header data.
  *  per IETF RFC 791.
- *
- *  The data has a well-known fixed length, so layerLengthKind is always 'implicit'.
  */
-final class IPv4Checksum(
-  name: String,
-  layerRuntimeInfo: LayerRuntimeInfo,
-  outputVar: VariableRuntimeData,
-) extends ByteBufferExplicitLengthLayerTransform[Int](
-    layerRuntimeInfo,
-    name,
-    inputVars = Seq(),
-    outputVar: VariableRuntimeData,
+final class IPv4ChecksumLayer()
+  extends ChecksumLayer(
+    "IPv4Checksum",
+    "urn:org.apache.daffodil.layers.IPv4Checksum",
   ) {
 
   /**
    * This layer is always exactly 20 bytes long.
    */
-  override protected def layerBuiltInConstantLength = Some(20L)
-
+  private def lenInBytes = 20
   private def chksumShortIndex = 5
 
-  override protected def compute(
-    state: ParseOrUnparseState,
+  /**
+   * Computes the checksum value.
+   * When unparsing this also modifies the output bytes to have the checksum at the
+   * middle location as per the IPv4 spec.
+   * The LayerChecksumMixin assigns the computed checksum value to the first variable.
+   * @param layerCompileInfo structure providing access to state such as variables, when needed.
+   * @param isUnparse true if the checksum is for unparsing.
+   * @param byteBuffer contains the 20 bytes to be used to compute this checksum.
+   * @return the computed checksum value as a 32-bit signed Int.
+   */
+  override def compute(
+    layerCompileInfo: LayerRuntime,
     isUnparse: Boolean,
-    inputs: Seq[Any],
     byteBuffer: ByteBuffer,
-  ) = {
+  ): Int = {
     val shortBuf = byteBuffer.asShortBuffer()
-
     var i = 0
     var chksum: Int = 0
-    val nShorts = layerBuiltInConstantLength.get / 2
+    val nShorts = lenInBytes / 2
     while (i < nShorts) {
       if (i == chksumShortIndex) {
         // for the checksum calculation treat the incoming checksum field of the data as 0
@@ -95,4 +95,5 @@ final class IPv4Checksum(
 
     finalChecksum
   }
+
 }

@@ -33,7 +33,7 @@
   Example: for 10:22:18.234 The sum is 23, so the check-digit is 3.
   -->
 
-  <parserTestCase name="test_checkDigit_01" root="r" model="checkDigit.dfdl.xsd">
+  <parserTestCase name="test_checkDigit_01" root="r" model="exampleCheckDigit.dfdl.xsd">
     <document>2021-09-25:1</document>
     <infoset><dfdlInfoset>
       <ex:r xmlns="">
@@ -44,16 +44,16 @@
     </dfdlInfoset></infoset>
   </parserTestCase>
 
-  <parserTestCase name="test_checkDigit_01e" root="r" model="checkDigit.dfdl.xsd">
+  <parserTestCase name="test_checkDigit_01e" root="r" model="exampleCheckDigit.dfdl.xsd">
     <document>2021-09-2</document>
     <errors>
       <error>Parse Error</error>
       <error>insufficient</error>
-      <error>80</error>
+      <error>10</error>
     </errors>
   </parserTestCase>
 
-  <parserTestCase name="test_checkDigit_02" root="r" model="checkDigit.dfdl.xsd"
+  <parserTestCase name="test_checkDigit_02" root="r" model="exampleCheckDigit.dfdl.xsd"
     roundTrip="none">
     <document>2021-09-25:7</document>
     <infoset><dfdlInfoset>
@@ -69,7 +69,7 @@
     </validationErrors>
   </parserTestCase>
 
-  <unparserTestCase name="test_checkDigit_01u" root="r" model="checkDigit.dfdl.xsd"
+  <unparserTestCase name="test_checkDigit_01u" root="r" model="exampleCheckDigit.dfdl.xsd"
     roundTrip="none">
     <document>2021-09-25:1</document>
     <infoset><dfdlInfoset>

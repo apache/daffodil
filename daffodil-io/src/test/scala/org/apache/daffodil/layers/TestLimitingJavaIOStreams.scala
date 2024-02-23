@@ -21,12 +21,10 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 
-import org.apache.daffodil.io.BoundaryMarkLimitingStream
-import org.apache.daffodil.io.ExplicitLengthLimitingStream
-import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.io.BoundaryMarkLimitingInputStream
+import org.apache.daffodil.io.RegexLimitingInputStream
 import org.apache.daffodil.lib.exceptions.Assert
 
-import collection.JavaConverters._
 import org.apache.commons.io.IOUtils
 import org.junit.Assert._
 import org.junit.Test
@@ -86,7 +84,7 @@ ZyBzb2x1dGlvbnMuCg=="""
       .toInputStream(data + terminator + afterTerminator, StandardCharsets.UTF_8)
       .asInstanceOf[ByteArrayInputStream]
     val delimitedStream =
-      BoundaryMarkLimitingStream(is, terminator, iso8859, targetChunkSize = 4)
+      new BoundaryMarkLimitingInputStream(is, terminator, iso8859, targetChunkSize = 4)
     val b64 = java.util.Base64.getMimeDecoder().wrap(delimitedStream)
     val actualData = IOUtils.toString(b64, iso8859)
     assertEquals("solutions.", actualData)
@@ -103,7 +101,7 @@ ZyBzb2x1dGlvbnMuCg=="""
       .toInputStream(data + terminator + afterTerminator, "ascii")
       .asInstanceOf[ByteArrayInputStream]
     val delimitedStream =
-      BoundaryMarkLimitingStream(is, terminator, iso8859, targetChunkSize = 1)
+      new BoundaryMarkLimitingInputStream(is, terminator, iso8859, targetChunkSize = 1)
     val b64 = java.util.Base64.getMimeDecoder().wrap(delimitedStream)
     val actualData = IOUtils.toString(b64, iso8859)
     assertEquals("solutions.", actualData)
@@ -119,36 +117,12 @@ ZyBzb2x1dGlvbnMuCg=="""
       .toInputStream(data + terminator + afterTerminator, "ascii")
       .asInstanceOf[ByteArrayInputStream]
     val delimitedStream =
-      BoundaryMarkLimitingStream(is, terminator, iso8859, targetChunkSize = 1)
+      new BoundaryMarkLimitingInputStream(is, terminator, iso8859, targetChunkSize = 1)
     val b64 = java.util.Base64.getMimeDecoder().wrap(delimitedStream)
     val actualData = IOUtils.toString(b64, iso8859)
     assertEquals("ple", actualData)
     val actualAfterData = IOUtils.toString(is, iso8859)
     assertEquals(afterTerminator, actualAfterData)
-  }
-
-  /**
-   * Illustrates that if we clamp the gzip stream at a finite length,
-   * that we can then do precise consumption of bytes, as would be expected.
-   *
-   * So this is the technique needed for GZIP, since otherwise it reads too far ahead.
-   * Unlike Java 8 Base64, which stops when it self-detects the last byte of the
-   * encoded data, GZIP doesn't do that. It seems to always read past the end. This
-   * may be an artifact of the implementation, or inherent in the GZIP data format.
-   */
-  @Test def testGZIPDecoderWithLimit1(): Unit = {
-    val inputData = zipped ++ additionalText.getBytes(iso8859)
-    val inputStream = new ByteArrayInputStream(inputData)
-    val limitedStream = new ExplicitLengthLimitingStream(inputStream, zipped.length)
-    val expected = text
-
-    val decodedStream = new java.util.zip.GZIPInputStream(limitedStream, 5)
-    val lines = IOUtils.readLines(decodedStream, iso8859).asScala.toSeq
-    assertEquals(1, lines.length)
-    assertEquals(expected, lines(0))
-    val additionalLines = IOUtils.readLines(inputStream, iso8859).asScala.toSeq
-    assertEquals(1, additionalLines.length)
-    assertEquals(additionalText, additionalLines(0))
   }
 
   /**
@@ -162,52 +136,52 @@ ZyBzb2x1dGlvbnMuCg=="""
     val inputString = beforeDelim + delim + afterDelim
     val inputBytes = inputString.getBytes("utf-8")
     val bais = new ByteArrayInputStream(inputBytes)
-    val rls = new RegexLimitingStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", utf8)
-    val baos = new ByteArrayOutputStream()
-    var c: Int = -1
-    while ({
-      c = rls.read()
-      c != -1
-    }) {
-      baos.write(c)
-    }
-    baos.close()
-    val actualBeforeDelim = new String(baos.toByteArray())
-    val afterBaos = new ByteArrayOutputStream()
-    while ({
-      c = bais.read()
-      c != -1
-    }) {
-      afterBaos.write(c)
-    }
-    afterBaos.close()
-    val actualAfterDelim = new String(afterBaos.toByteArray())
+    val rls = new RegexLimitingInputStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", utf8)
+    val actualBeforeDelim = IOUtils.toString(rls, utf8)
+    // after the regex match the bais stream should be positioned immediately after the \r\n delim match.
+    val actualAfterDelim = IOUtils.toString(bais, utf8)
     assertEquals(beforeDelim, actualBeforeDelim)
     assertEquals(afterDelim, actualAfterDelim)
-
   }
 
   /**
    * Shows that the match, if the delim regex isn't matched at all,
-   * contains the entire available ipput data.
+   * contains the entire available input data.
    */
   @Test def testRegexDelimStream2() = {
     val beforeDelim = "12345\r\n\t67890\r\n\tabcde"
-
     val inputString = beforeDelim
     val inputBytes = inputString.getBytes("utf-8")
     val bais = new ByteArrayInputStream(inputBytes)
-    val rls = new RegexLimitingStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n\t", utf8, 4)
-    val baos = new ByteArrayOutputStream()
-    var c: Int = -1
-    while ({
-      c = rls.read()
-      c != -1
-    }) {
-      baos.write(c)
-    }
-    baos.close()
-    val actualBeforeDelim = new String(baos.toByteArray())
+    val rls = new RegexLimitingInputStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n\t", utf8)
+    val actualBeforeDelim = IOUtils.toString(rls, utf8)
+    assertEquals(beforeDelim, actualBeforeDelim)
+  }
+
+  /**
+ * Shows that the match if the delim is immediately followed by end-of-data
+ * that also matches.
+ */
+  @Test def testRegexDelimStream3() = {
+    val beforeDelim = "12345\r\n\t67890\r\n\tabcde"
+    val inputString = beforeDelim + "\r\n"
+    val inputBytes = inputString.getBytes("utf-8")
+    val bais = new ByteArrayInputStream(inputBytes)
+    val rls = new RegexLimitingInputStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n\t", utf8)
+    val actualBeforeDelim = IOUtils.toString(rls, utf8)
+    assertEquals(beforeDelim, actualBeforeDelim)
+  }
+
+  /**
+   * Shows that the match if the delim is never found
+   */
+  @Test def testRegexDelimStream4() = {
+    val beforeDelim = "1234567890tabcde"
+    val inputString = beforeDelim
+    val inputBytes = inputString.getBytes("utf-8")
+    val bais = new ByteArrayInputStream(inputBytes)
+    val rls = new RegexLimitingInputStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n\t", utf8)
+    val actualBeforeDelim = IOUtils.toString(rls, utf8)
     assertEquals(beforeDelim, actualBeforeDelim)
   }
 }

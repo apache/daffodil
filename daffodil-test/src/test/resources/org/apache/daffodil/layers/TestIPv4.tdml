@@ -29,7 +29,7 @@
   defaultRoundTrip="none">
 
 
-  <tdml:parserTestCase name="IPv4_1" root="IPv4Header" model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
+  <tdml:parserTestCase name="IPv4_1" root="IPv4Header" model="exampleIPv4.dfdl.xsd"
     roundTrip="none">
     <tdml:document>
       <!--
@@ -70,7 +70,7 @@ c0a8 0001 c0a8 00c7
   </tdml:parserTestCase>
 
 
-  <tdml:unparserTestCase name="IPv4_array" root="testArray" model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
+  <tdml:unparserTestCase name="IPv4_array" root="testArray" model="exampleIPv4.dfdl.xsd"
                        roundTrip="none">
     <tdml:document>
       <!--
@@ -132,7 +132,7 @@ c0a8 0001 c0a8 00c7
     </tdml:infoset>
   </tdml:unparserTestCase>
 
-  <tdml:parserTestCase name="IPv4_1e" root="IPv4Header"  model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
+  <tdml:parserTestCase name="IPv4_1e" root="IPv4Header"  model="exampleIPv4.dfdl.xsd"
                        roundTrip="none">
     <tdml:document>
       <!-- Will get not enough data error from the layer -->
@@ -142,12 +142,12 @@ c0a8 0001 c0a8 00c7
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Insufficient bits</tdml:error>
-      <tdml:error>160</tdml:error>
+      <tdml:error>Insufficient data</tdml:error>
+      <tdml:error>20</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="IPv4_2" root="IPv4Header" model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
+  <tdml:parserTestCase name="IPv4_2" root="IPv4Header" model="exampleIPv4.dfdl.xsd"
                        roundTrip="none">
     <tdml:document>
       <!--
@@ -187,7 +187,7 @@ c0a8 0001 c0a8 00c7
   </tdml:parserTestCase>
 
 
-  <tdml:unparserTestCase name="IPv4_1u" root="IPv4Header" model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
+  <tdml:unparserTestCase name="IPv4_1u" root="IPv4Header" model="exampleIPv4.dfdl.xsd"
                        roundTrip="none">
     <tdml:document>
       <!--
@@ -227,7 +227,7 @@ c0a8 0001 c0a8 00c7
     </tdml:infoset>
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="IPv4_2u" root="IPv4Header" model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
+  <tdml:unparserTestCase name="IPv4_2u" root="IPv4Header" model="exampleIPv4.dfdl.xsd"
                          roundTrip="none">
     <tdml:document>
       <!--

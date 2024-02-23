@@ -18,49 +18,18 @@
 package org.apache.daffodil.layers
 
 import java.io.InputStream
+import java.io.OutputStream
 
-import org.apache.daffodil.runtime1.layers.LayerCompileInfo
-import org.apache.daffodil.runtime1.layers.LayerCompiler
-import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
-import org.apache.daffodil.runtime1.layers.LayerTransformer
-import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
+import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
-final class BuggyLayerCompiler extends LayerCompiler("buggy") {
+final class BuggyLayer extends Layer("buggy") {
 
-  override def compileLayer(layerCompileInfo: LayerCompileInfo): BuggyTransformerFactory = {
-    new BuggyTransformerFactory(name)
-  }
-}
-
-final class BuggyTransformerFactory(name: String) extends LayerTransformerFactory(name) {
-
-  override def newInstance(layerRuntimeInfo: LayerRuntimeInfo) = {
-    new BuggyTransformer(name, layerRuntimeInfo)
-  }
-}
-
-class BuggyTransformer(name: String, layerRuntimeInfo: LayerRuntimeInfo)
-  extends LayerTransformer(name, layerRuntimeInfo) {
-
-  override def wrapLayerDecoder(jis: InputStream) = {
+  override def wrapLayerDecoder(jis: InputStream, lr: LayerRuntime): InputStream =
     new BuggyInputStream(jis)
-  }
 
-  override def wrapLimitingStream(state: ParseOrUnparseState, jis: InputStream) = {
-    jis
-  }
-
-  override protected def wrapLayerEncoder(jos: java.io.OutputStream): java.io.OutputStream = {
+  override def wrapLayerEncoder(jos: OutputStream, lr: LayerRuntime): OutputStream =
     jos
-  }
-
-  override protected def wrapLimitingStream(
-    state: ParseOrUnparseState,
-    jis: java.io.OutputStream,
-  ) = {
-    jis
-  }
 }
 
 final class BuggyInputStream(is: InputStream) extends InputStream {

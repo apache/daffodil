@@ -17,26 +17,27 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.layers.LayerExecutionException
-import org.apache.daffodil.runtime1.layers.LayerNotEnoughDataException
-import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
+import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
 import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
+import org.apache.daffodil.runtime1.layers.api.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
 class LayeredSequenceParser(
   rd: SequenceRuntimeData,
   layerTransformerFactory: LayerTransformerFactory,
-  layerRuntimeInfo: LayerRuntimeInfo,
   bodyParser: SequenceChildParser,
 ) extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
 
-  override lazy val runtimeDependencies =
-    layerRuntimeInfo.evaluatables.toVector
-
   override def parse(state: PState): Unit = {
 
-    val layerTransformer = layerTransformerFactory.newInstance(layerRuntimeInfo)
+    // TODO: Separate the creation of layer transformers into layerParseTransformers and layer
+    //   unparse transformers. Right now they're blended onto one object.
+    //   It should be possible to define only a layer parser if a schema (and its requried layers)
+    //   are intended to be used only to parse data.
+
+    val layerRuntimeImpl = new LayerRuntimeImpl(state, rd)
+    val layerTransformer = layerTransformerFactory.newInstance(layerRuntimeImpl)
     val savedDIS = state.dataInputStream
 
     val isAligned = savedDIS.align(layerTransformer.mandatoryLayerAlignmentInBits, state)
@@ -48,25 +49,16 @@ class LayeredSequenceParser(
       )
 
     try {
-      val newDIS = layerTransformer.addLayer(savedDIS, state)
+      val newDIS = layerTransformer.addLayer(savedDIS, layerRuntimeImpl)
 
       state.dataInputStream = newDIS
-      layerTransformer.startLayerForParse(state)
       super.parse(state)
       layerTransformer.removeLayer(newDIS)
     } catch {
-      case le: LayerNotEnoughDataException =>
-        PENotEnoughBits(
-          state,
-          le.schemaFileLocation,
-          le.dataLocation,
-          le.nBytesRequired * 8,
-        )
+      case pe: ParseError =>
+        state.setFailed(pe)
       case e: Exception =>
-        throw LayerExecutionException(
-          s"Unexpected exception in layer transformer '${layerTransformer.layerName}': $e",
-          e,
-        )
+        throw new LayerUnexpectedException(rd.layerName, e)
     } finally {
       state.dataInputStream = savedDIS
     }

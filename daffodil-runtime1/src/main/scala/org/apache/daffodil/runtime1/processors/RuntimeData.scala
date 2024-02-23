@@ -59,7 +59,9 @@ import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
 import org.apache.daffodil.runtime1.dsom.FacetTypes
 import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
-import org.apache.daffodil.runtime1.infoset.PartialNextElementResolver;
+import org.apache.daffodil.runtime1.infoset.PartialNextElementResolver
+import org.apache.daffodil.runtime1.layers.api.LayerCompileInfo
+import org.apache.daffodil.runtime1.layers.api.LayerVariable;
 object NoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.util.regex.Matcher
 
@@ -935,6 +937,7 @@ final class SequenceRuntimeData(
   maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
   maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv],
   val isHidden: Boolean,
+  maybeLayerName: Maybe[String],
 ) extends ModelGroupRuntimeData(
     positionArg,
     partialNextElementResolverDelay,
@@ -956,6 +959,21 @@ final class SequenceRuntimeData(
     maybeCheckBitOrderAndCharsetEvArg,
   )
   with SequenceMetadata
+  with LayerCompileInfo {
+
+  def hasLayer = maybeLayerName.isDefined
+
+  override def layerName(): String = maybeLayerName.get
+
+  override def layerVariable(namespaceURI: String, localName: String): LayerVariable = {
+    val varNamespace = NS(namespaceURI)
+    val qName = RefQName(None, localName, varNamespace)
+    val vrd: VariableRuntimeData = variableMap.getVariableRuntimeData(qName).getOrElse {
+      SDE("Variable '%s' is not defined.", qName.toExtendedSyntax)
+    }
+    vrd
+  }
+}
 
 /*
  * These Delay-type args are part of how we
@@ -1023,7 +1041,8 @@ final class VariableRuntimeData(
     pathArg,
     namespacesArg,
     unqualifiedPathStepPolicyArg,
-  ) {
+  )
+  with LayerVariable {
 
   /**
    * Cyclic structures require initialization
@@ -1038,4 +1057,5 @@ final class VariableRuntimeData(
 
   def createVariableInstance(): VariableInstance = VariableInstance(rd = this)
 
+  override def dfdlPrimType: DFDLPrimType = primType.dfdlType
 }

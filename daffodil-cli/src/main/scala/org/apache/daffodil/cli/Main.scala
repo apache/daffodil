@@ -70,7 +70,7 @@ import org.apache.daffodil.runtime1.debugger.DebuggerExitException
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
 import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
-import org.apache.daffodil.runtime1.layers.LayerExecutionException
+import org.apache.daffodil.runtime1.layers.api.LayerException
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ExternalVariableException
@@ -1964,8 +1964,8 @@ class Main(
           Logger.log.error(e.message)
           ExitCode.ConfigError
         }
-        case e: LayerExecutionException => {
-          Logger.log.error(e.message, e)
+        case e: LayerException => {
+          Logger.log.error(e.getMessage, e)
           ExitCode.LayerExecutionError
         }
         case e: Exception => {

@@ -27,8 +27,8 @@
 # of the layering features of Daffodil. They can be reused to create "real"
 # layering, but one should expect to have to adapt their code substantially.
 #
-org.apache.daffodil.runtime1.layers.AISPayloadArmoringLayerCompiler
-org.apache.daffodil.runtime1.layers.CheckDigitLayerCompiler
-org.apache.daffodil.runtime1.layers.IPv4ChecksumLayerCompiler
+org.apache.daffodil.runtime1.layers.AISPayloadArmoringLayer
+org.apache.daffodil.runtime1.layers.CheckDigitLayer
+org.apache.daffodil.runtime1.layers.IPv4ChecksumLayer
 
 

@@ -30,14 +30,11 @@ import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicy
 import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolicyMixin
-import org.apache.daffodil.lib.schema.annotation.props.gen.LayerLengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.Sequence_AnnotationMixin
 import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.runtime1.layers.LayerCompiler
-import org.apache.daffodil.runtime1.layers.LayerCompilerRegistry
 import org.apache.daffodil.runtime1.processors.SeparatorParseEv
 import org.apache.daffodil.runtime1.processors.SeparatorUnparseEv
 
@@ -60,13 +57,9 @@ abstract class SequenceTermBase(
 
   def separatorPosition: SeparatorPosition
 
-  def isLayered: Boolean
-
   def separatorParseEv: SeparatorParseEv
 
   def separatorUnparseEv: SeparatorUnparseEv
-
-  def layerLengthUnits: LayerLengthUnits
 
   def isOrdered: Boolean
 
@@ -75,6 +68,9 @@ abstract class SequenceTermBase(
    */
   def isHidden: Boolean = false
 
+  lazy val optionLayerTransform = findPropertyOption("layerTransform").toOption
+
+  def isLayered = optionLayerTransform.isDefined
 }
 
 /**
@@ -86,8 +82,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
   extends SequenceTermBase(xml, Option(lexicalParent), position)
   with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
-  with SeparatorSuppressionPolicyMixin
-  with LayeringRuntimeValuedPropertiesMixin {
+  with SeparatorSuppressionPolicyMixin {
 
   requiredEvaluationsIfActivated(checkIfValidUnorderedSequence)
   requiredEvaluationsIfActivated(checkIfNonEmptyAndDiscrimsOrAsserts)
@@ -221,36 +216,6 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     case SequenceKind.Unordered => false
   }
 
-  private val layeredSequenceAllowedProps = Set(
-    "ref",
-    "layerTransform",
-    "layerEncoding",
-    "layerLengthKind",
-    "layerLength",
-    "layerLengthUnits",
-    "layerBoundaryMark",
-  )
-
-  private lazy val optionLayerTransform = findPropertyOption("layerTransform").toOption
-
-  final lazy val layerCompiler: LayerCompiler = {
-
-    // need to check that only layering properties are specified
-    val localProps = this.formatAnnotation.justThisOneProperties
-    val localKeys = localProps.keySet
-    val disallowedKeys = localKeys.filterNot(k => layeredSequenceAllowedProps.contains(k))
-    if (disallowedKeys.size > 0)
-      SDE(
-        "Sequence has dfdlx:layerTransform specified, so cannot have non-layering properties: %s",
-        disallowedKeys.mkString(", "),
-      )
-
-    optionLayerTransform.map { xformName =>
-      LayerCompilerRegistry.find(xformName, this)
-    }.get
-  }
-
-  final def isLayered = optionLayerTransform.isDefined
 }
 
 /**
@@ -370,9 +335,6 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
 
   override def separatorUnparseEv: SeparatorUnparseEv =
     Assert.usageError("Not to be called on choice branches.")
-
-  override def layerLengthUnits: LayerLengthUnits =
-    Assert.usageError("Not to be called for choice branches.")
 
   override def isOrdered = true
 

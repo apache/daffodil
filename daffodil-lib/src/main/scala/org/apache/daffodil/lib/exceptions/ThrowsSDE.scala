@@ -55,7 +55,7 @@ trait ThrowsSDE {
     throw th // good place for a breakpoint
   }
 
-  final def schemaDefinitionError(str: String, args: Any*): Nothing =
+  final def schemaDefinitionError(str: String, args: AnyRef*): Nothing =
     SDE(str, args: _*) // long form synonym
 
   /**

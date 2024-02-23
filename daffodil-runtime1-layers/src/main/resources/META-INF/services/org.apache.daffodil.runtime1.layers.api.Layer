@@ -15,9 +15,12 @@
 #
 # These are the layers that are built-in to Daffodil's runtime1.
 #
-org.apache.daffodil.layers.runtime1.Base64MIMELayerCompiler
-org.apache.daffodil.layers.runtime1.FourByteSwapLayerCompiler
-org.apache.daffodil.layers.runtime1.GZIPLayerCompiler
-org.apache.daffodil.layers.runtime1.LineFoldedIMFLayerCompiler
-org.apache.daffodil.layers.runtime1.LineFoldedICalendarLayerCompiler
+org.apache.daffodil.layers.runtime1.Base64MimeLayer
+org.apache.daffodil.layers.runtime1.FourByteSwapLayer
+org.apache.daffodil.layers.runtime1.TwoByteSwapLayer
+org.apache.daffodil.layers.runtime1.GZipLayer
+org.apache.daffodil.layers.runtime1.LineFoldedIMFLayer
+org.apache.daffodil.layers.runtime1.LineFoldedICalendarLayer
+org.apache.daffodil.layers.runtime1.BoundaryMarkLayer
+org.apache.daffodil.layers.runtime1.FixedLengthLayer
 

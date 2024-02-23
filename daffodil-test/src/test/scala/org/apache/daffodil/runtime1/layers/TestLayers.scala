@@ -23,11 +23,11 @@ import org.junit.AfterClass
 import org.junit.Test
 
 object TestLayers {
-  val testDir = "/org/apache/daffodil/layers/"
-  val runner = Runner(testDir, "layers.tdml")
+  private val testDir = "/org/apache/daffodil/layers/"
+  private val runner: Runner = Runner(testDir, "TestLayers.tdml")
 
   @AfterClass def shutDown(): Unit = {
-    runner.reset
+    runner.reset()
   }
 }
 

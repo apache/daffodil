@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.io
+package org.apache.daffodil.runtime1.layers
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 
-import org.apache.daffodil.io.processors.charset.BitsCharsetAISPayloadArmoring
+import org.apache.daffodil.io.FormatInfoForUnitTest
+import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.util.Misc
 
 import org.junit.Assert._

@@ -22,10 +22,8 @@
            xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
            xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
-           xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
            xmlns:cd="urn:org.apache.daffodil.layers.checkDigit"
            xmlns:ex="http://example.com"
-           xmlns:tns="http://example.com"
            targetNamespace="http://example.com">
 
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
@@ -36,7 +34,9 @@
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="tns:GeneralFormat" encoding="ascii" />
+
+      <dfdl:format ref="ex:GeneralFormat" encoding="ascii" />
+
     </appinfo>
   </annotation>
 
@@ -45,13 +45,15 @@
       <sequence>
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:newVariableInstance ref="cd:checkDigit"/>
             <dfdl:newVariableInstance ref="cd:checkDigitParams" defaultValue="verbose"/>
+            <dfdl:newVariableInstance ref="cd:checkDigitEncoding" defaultValue="ascii"/>
+            <dfdl:newVariableInstance ref="cd:checkDigit"/>
+            <dfdl:newVariableInstance ref="cd:checkDigitLayerLength" defaultValue="10"/>
           </appinfo>
         </annotation>
         <sequence>
-          <sequence dfdl:ref="cd:checkDigitExplicit" dfdlx:layerLength="10">
-            <element name="value" type="tns:dateType"/>
+          <sequence dfdlx:layerTransform="checkDigit">
+            <element name="value" type="ex:dateType"/>
           </sequence>
           <element name="checkDigit" type="cd:checkDigitType" dfdl:initiator=":"
                    dfdl:outputValueCalc='{ $cd:checkDigit }'/>
@@ -73,8 +75,7 @@
   </element>
 
   <simpleType name="dateType"
-              dfdl:lengthKind="explicit"
-              dfdl:length="10"
+              dfdl:lengthKind="delimited"
               dfdl:calendarPatternKind="explicit"
               dfdl:calendarPattern="yyyy-MM-dd">
     <restriction base="xs:date"/>

@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.lib.util
 
+import java.util.Optional
+
 import org.apache.daffodil.lib.exceptions.Assert
 
 /**
@@ -107,12 +109,21 @@ object Maybe {
     case Some(x) => One(x)
   }
 
+  implicit def toOptional[T <: AnyRef](m: Maybe[T]): Optional[T] =
+    if (m.isEmpty) Optional.empty() else Optional.of(m.get)
+
+  implicit def fromOptional[T <: AnyRef](o: Optional[T]): Maybe[T] =
+    if (o.isEmpty) Nope else One(o.get())
+
   /**
    * Maybe(null) returns Nope
    * Maybe(not-null) returns One(not-null)
    */
   @inline
   final def apply[T <: AnyRef](value: T) = if (value == null) Nope else new Maybe[T](value)
+
+  @inline
+  def apply[T <: AnyRef](o: Optional[T]): Maybe[T] = fromOptional(o)
 
   @inline
   final def fromMaybeAnyRef[T <: AnyRef](anyref: Maybe[AnyRef]) = Maybe(

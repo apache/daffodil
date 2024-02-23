@@ -14,27 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.daffodil.io
 
-import java.nio.charset.Charset
+package org.apache.daffodil.layers.runtime1
 
-class LayerBoundaryMarkInsertingJavaOutputStream(
-  jos: java.io.OutputStream,
-  boundaryMark: String,
-  charset: Charset,
-) extends java.io.FilterOutputStream(jos) {
+import java.io.InputStream
+import java.io.OutputStream
 
-  private var closed = false
+import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
-  private val boundaryMarkBytes = boundaryMark.getBytes(charset)
+final class Base64MimeLayer extends Layer("base64_MIME") {
 
-  override def close(): Unit = {
-    if (!closed) {
-      jos.write(boundaryMarkBytes)
-      jos.flush()
-      jos.close()
-      closed = true
-    }
-  }
+  override def wrapLayerEncoder(jos: OutputStream, lrd: LayerRuntime): OutputStream =
+    java.util.Base64.getMimeEncoder().wrap(jos)
 
+  override def wrapLayerDecoder(jis: InputStream, lrd: LayerRuntime): InputStream =
+    java.util.Base64.getMimeDecoder.wrap(jis)
 }

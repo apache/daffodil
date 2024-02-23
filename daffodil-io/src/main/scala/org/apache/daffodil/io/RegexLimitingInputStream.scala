@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.io
 
-import java.io.FilterInputStream
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.charset.Charset
@@ -26,109 +25,6 @@ import java.util.Scanner
 import java.util.regex.Pattern
 
 import org.apache.daffodil.lib.exceptions.Assert
-
-/**
- * This class can be used with any InputStream to restrict what is
- * read from it to N bytes.
- *
- * This can be used to forcibly stop consumption of data from a stream at
- * a length obtained explicitly.
- *
- * Thread safety: This is inherently stateful - so not thread safe to use
- * this object from more than one thread.
- */
-class ExplicitLengthLimitingStream(in: InputStream, limit: Long) extends FilterInputStream(in) {
-
-  private var numRemaining = limit
-
-  override def read(buf: Array[Byte], off: Int, len: Int): Int = {
-    Assert.invariant(numRemaining >= 0)
-    if (numRemaining == 0) -1
-    else if (len == 0) 0
-    else {
-      val requestSize = math.min(numRemaining, len).toInt
-      val actualSize = in.read(buf, off, requestSize)
-      if (actualSize == -1)
-        numRemaining = 0
-      else
-        numRemaining -= actualSize
-      actualSize
-    }
-  }
-
-  private val readBuf = new Array[Byte](1)
-
-  override def read(): Int = {
-    readBuf(0) = 0
-    val n = read(readBuf, 0, 1)
-    if (n == -1)
-      -1
-    else {
-      Assert.invariant(n == 1)
-      val i = readBuf(0).toInt
-      val b = i & 0xff
-      b
-    }
-  }
-}
-
-/**
- * Can be used with any InputStream to restrict what is
- * read from it to stop before a boundary mark string.
- *
- * The boundary mark string is exactly that, a string of characters. Not a
- * regex, nor anything involving DFDL Character Entities or Character Class
- * Entities. (No %WSP; no %NL; )
- *
- * This can be used to forcibly stop consumption of data from a stream at
- * a length obtained from a delimiter.
- *
- * The boundary mark string is consumed from the underlying stream (if found), and
- * the underlying stream is left positioned at the byte after the boundary mark
- * string.
- *
- * Thread safety: This is inherently stateful - so not thread safe to use
- * this object from more than one thread.
- */
-object BoundaryMarkLimitingStream {
-
-  def apply(
-    inputStream: InputStream,
-    boundaryMark: String,
-    charset: Charset,
-    targetChunkSize: Int = 32 * 1024,
-  ): InputStream = {
-
-    Assert.usage(targetChunkSize >= 1)
-    Assert.usage(boundaryMark.length >= 1)
-
-    val boundaryMarkIn8859 =
-      new String(boundaryMark.getBytes(charset), StandardCharsets.ISO_8859_1)
-
-    val quotedBoundaryMark =
-      Pattern.quote(boundaryMarkIn8859) // in case pattern has non-regex-safe characters in it
-
-    val result = new RegexLimitingStream(
-      inputStream,
-      quotedBoundaryMark,
-      boundaryMarkIn8859,
-      charset,
-      targetChunkSize,
-    )
-    result
-  }
-
-}
-
-class StreamIterator[T](s: Stream[T]) extends Iterator[T] {
-  private var str = s
-  override def hasNext = !str.isEmpty
-  override def next() = {
-    val res = str.head
-    str = str.tail
-    res
-  }
-}
 
 /**
  * Can be used with any InputStream to restrict what is
@@ -154,16 +50,16 @@ class StreamIterator[T](s: Stream[T]) extends Iterator[T] {
  * Thread safety: This is inherently stateful - so not thread safe to use
  * this object from more than one thread.
  */
-class RegexLimitingStream(
+class RegexLimitingInputStream(
   inputStream: InputStream,
   regexForDelimiter: String,
   maximumLengthDelimiterExample: String,
   charset: Charset,
-  targetChunkSize: Int = 32 * 1024,
+  targetChunkSize: Int = 32 * 1024, // TODO: should this be smaller? Limited by a tunable?
 ) extends InputStream {
 
   Assert.usage(targetChunkSize >= 1)
-  Assert.usage(maximumLengthDelimiterExample.length >= 1)
+  Assert.usage(maximumLengthDelimiterExample.nonEmpty)
 
   private val in = inputStream
 
@@ -215,7 +111,7 @@ class RegexLimitingStream(
   private lazy val charsIter = {
     val cks = chunks
     val streamChars = cks.flatten
-    val iter = new StreamIterator(streamChars)
+    val iter = streamChars.iterator // new StreamIterator(streamChars)
     iter
   }
 
@@ -249,10 +145,10 @@ class RegexLimitingStream(
       //
       val rdr = new InputStreamReader(in, StandardCharsets.ISO_8859_1)
       val scanner = new Scanner(rdr)
-      val matchString = scanner.findWithinHorizon(pattern, 0)
-      val matchLength = checkScan(matchString, scanner)
+      val beforeMatchString = scanner.findWithinHorizon(pattern, 0)
+      val delimMatchLength = checkScan(beforeMatchString, scanner)
       //
-      // the trick is that the length of the matchString could be shorter than the
+      // the trick is that the length of the beforeMatchString could be shorter than the
       // number of characters (aka bytes) pulled from the input stream because in
       // scanning, the scanner or reader might buffer up extra decoded characters that
       // strictly speaking aren't needed to obtain the match.
@@ -263,14 +159,18 @@ class RegexLimitingStream(
       // Decoding errors, and the complexities they create over how big the string
       // is, vs. how many bytes were consumed... those can't happen with iso-8859-1.
       //
-      in.reset() // might have to backup farther than the matchString length
-      in.skip(matchString.length + matchLength) // advance exactly the right number of bytes
-      if (matchLength > 0)
+      // We need to position our stream exactly after the characters that are terminated by the match
+      // being found.
+      in.reset()
+      in.skip(
+        beforeMatchString.length + delimMatchLength,
+      ) // advance exactly the right number of bytes (past the regex match)
+      if (delimMatchLength > 0)
         noMoreChunks = true
-      if (matchString.isEmpty())
+      if (beforeMatchString.isEmpty)
         Stream()
       else
-        matchString #:: chunks
+        beforeMatchString #:: chunks
     }
   }
 

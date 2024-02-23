@@ -215,7 +215,7 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
    */
   def inherentType: NodeInfo.Kind
 
-  def resolveRef(qnameString: String) = {
+  def resolveRef(qnameString: String): RefQName = {
     QName
       .resolveRef(qnameString, namespaces, tunable.unqualifiedPathStepPolicy)
       .recover { case _: Throwable =>
@@ -1459,10 +1459,9 @@ case class VariableRef(val qnameString: String) extends PrimaryExpression(Nil) {
   }
   override def text = "$" + qnameString
 
-  lazy val theQName: GlobalQName = {
+  lazy val theQName: RefQName = {
     val refQ = resolveRef(qnameString)
-    val global = QName.createGlobal(refQ.local, refQ.namespace, namespaces)
-    global
+    refQ
   }
 
   lazy val vrd = compileInfo.variableMap
