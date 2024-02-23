@@ -59,7 +59,9 @@ import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
 import org.apache.daffodil.runtime1.dsom.FacetTypes
 import org.apache.daffodil.runtime1.dsom.ImplementsThrowsSDE
-import org.apache.daffodil.runtime1.infoset.PartialNextElementResolver;
+import org.apache.daffodil.runtime1.infoset.PartialNextElementResolver
+import org.apache.daffodil.runtime1.layers.LayerRuntimeData
+
 object NoWarn { ImplicitsSuppressUnusedImportWarning() }
 import java.util.regex.Matcher
 
@@ -957,6 +959,7 @@ final class SequenceRuntimeData(
   maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
   maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv],
   val isHidden: Boolean,
+  maybeLayerRuntimeDataDelay: Delay[Maybe[LayerRuntimeData]],
 ) extends ModelGroupRuntimeData(
     positionArg,
     partialNextElementResolverDelay,
@@ -977,7 +980,16 @@ final class SequenceRuntimeData(
     maybeCheckByteAndBitOrderEvArg,
     maybeCheckBitOrderAndCharsetEvArg,
   )
-  with SequenceMetadata
+  with SequenceMetadata {
+
+  override protected def initializeFunction(): Unit = {
+    super.initializeFunction()
+    if (hasLayer) layerRuntimeData
+  }
+
+  final def hasLayer: Boolean = maybeLayerRuntimeDataDelay.value.isDefined
+  final def layerRuntimeData: LayerRuntimeData = maybeLayerRuntimeDataDelay.value.get
+}
 
 /*
  * These Delay-type args are part of how we
@@ -1059,5 +1071,4 @@ final class VariableRuntimeData(
     maybeDefaultValueExprDelay.value
 
   def createVariableInstance(): VariableInstance = VariableInstance(rd = this)
-
 }

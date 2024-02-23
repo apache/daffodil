@@ -37,11 +37,13 @@ import org.junit.Test
 class TestBase64 {
   Assert.usage(scala.util.Properties.isJavaAtLeast("1.8"))
 
+  val crlf = "\r\n"
+
   val text = """This is just some made up text that is intended to be
 a few lines long. If this had been real text, it would not have been quite
 so boring to read. Use of famous quotes or song lyrics or anything like that
 introduces copyright notice issues, so it is easier to simply make up
-a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", " ")
+a few lines of pointless text like this.""".replace(crlf, "\n").replace("\n", " ")
 
   val b64Text = """VGhpcyBpcyBqdXN0IHNvbWUgbWFkZSB1cCB0ZXh0IHRoYXQgaXMgaW50Z
 W5kZWQgdG8gYmUgYSBmZXcgbGluZXMgbG9uZy4gSWYgdGhpcyBoYWQgYmVlbiByZWFsIHRleHQsI
@@ -49,7 +51,7 @@ Gl0IHdvdWxkIG5vdCBoYXZlIGJlZW4gcXVpdGUgc28gYm9yaW5nIHRvIHJlYWQuIFVzZSBvZiBmY
 W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
 2VzIGNvcHlyaWdodCBub3RpY2UgaXNzdWVzLCBzbyBpdCBpcyBlYXNpZXIgdG8gc2ltcGx5IG1ha
 2UgdXAgYSBmZXcgbGluZXMgb2YgcG9pbnRsZXNzIHRleHQgbGlrZSB0aGlzLg==
-""".replace("\r\n", "\n").replace("\n", "").sliding(76, 76).mkString("\r\n")
+""".replace(crlf, "\n").replace("\n", "").sliding(76, 76).mkString(crlf)
 
   /**
    * Same encoded data, but shot through with extra CRLFs
@@ -105,7 +107,7 @@ W1vdXMgcXVvdGVzIG9yIHNvbmcgbHlyaWNzIG9yIGFueXRoaW5nIGxpa2UgdGhhdCBpbnRyb2R1Y
 
   @Test def testBase64_decode_consumes_final_CRLF(): Unit = {
 
-    val data = b64Text ++ "\r\n" // add extra CRLF
+    val data = b64Text ++ crlf // add extra CRLF
 
     val actual = new String(java.util.Base64.getMimeDecoder.decode(data))
 

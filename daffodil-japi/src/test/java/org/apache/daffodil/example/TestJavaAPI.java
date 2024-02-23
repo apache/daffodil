@@ -113,7 +113,7 @@ public class TestJavaAPI {
             result = Daffodil.compiler().reload(Channels.newChannel(bais));
         } catch (InvalidParserException e) {
             fail("Unable to reload data processor");
-         }
+        }
         return result;
     }
 
@@ -131,22 +131,23 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        assertTrue(debugger.lines.size() > 0);
-        assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
-        assertTrue(debugger.getCommand().equals("trace"));
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            assertTrue(debugger.lines.size() > 0);
+            assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+            assertTrue(debugger.getCommand().equals("trace"));
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
-        UnparseResult res2 = dp.unparse(inputter, wbc);
-        err = res2.isError();
-        assertFalse(err);
-        assertEquals("42", bos.toString());
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+            UnparseResult res2 = dp.unparse(inputter, wbc);
+            err = res2.isError();
+            assertFalse(err);
+            assertEquals("42", bos.toString());
+        }
     }
 
     // This is a duplicate of test testJavaAPI1 that serializes the parser
@@ -178,22 +179,23 @@ public class TestJavaAPI {
         // and byte buffer.
         byte[] ba = FileUtils.readFileToByteArray(data);
         ByteBuffer bb = ByteBuffer.wrap(ba);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(bb);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = parser.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        assertTrue(debugger.lines.size() > 0);
-        assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
-        assertTrue(debugger.getCommand().equals("trace"));
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(bb)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = parser.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            assertTrue(debugger.lines.size() > 0);
+            assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+            assertTrue(debugger.getCommand().equals("trace"));
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
-        UnparseResult res2 = dp.unparse(inputter, wbc);
-        err = res2.isError();
-        assertFalse(err);
-        assertEquals("42", bos.toString());
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+            UnparseResult res2 = dp.unparse(inputter, wbc);
+            err = res2.isError();
+            assertFalse(err);
+            assertEquals("42", bos.toString());
+        }
     }
 
     // This is a duplicate of test testJavaAPI1 that serializes the parser
@@ -240,29 +242,30 @@ public class TestJavaAPI {
         // the constructor for creating an InputSourceDataInputStream from a byte array
         // and byte buffer.
         byte[] ba = FileUtils.readFileToByteArray(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(ba);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(ba)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
 
-        // TODO: NEED a java friendly way to get the status of the outputter.
-        // Scala enums don't work well
-        // assertTrue(outputter.getStatus() != Status.DONE); // This is a hack
-        // so that Java doesn't have to know about Nope/Maybe, need to figure
-        // out better api that is Java compatible
-        assertTrue(res.isError());
-        java.util.List<Diagnostic> diags = res.getDiagnostics();
-        assertEquals(1, diags.size());
-        Diagnostic d = diags.get(0);
-        // System.err.println(d.getMessage());
-        assertTrue(d.getMessage().contains("int"));
-        assertTrue(d.getMessage().contains("Not an int"));
-        assertTrue(d.getDataLocations().toString().contains("10"));
-        java.util.List<LocationInSchemaFile> locs = d.getLocationsInSchemaFiles();
-        assertEquals(1, locs.size());
-        LocationInSchemaFile loc = locs.get(0);
-        assertTrue(loc.toString().contains("mySchema1.dfdl.xsd"));
-        // above is mySchema1 as it reports the element ref location,
-        // not element decl.
+            // TODO: NEED a java friendly way to get the status of the outputter.
+            // Scala enums don't work well
+            // assertTrue(outputter.getStatus() != Status.DONE); // This is a hack
+            // so that Java doesn't have to know about Nope/Maybe, need to figure
+            // out better api that is Java compatible
+            assertTrue(res.isError());
+            java.util.List<Diagnostic> diags = res.getDiagnostics();
+            assertEquals(1, diags.size());
+            Diagnostic d = diags.get(0);
+            // System.err.println(d.getMessage());
+            assertTrue(d.getMessage().contains("int"));
+            assertTrue(d.getMessage().contains("Not an int"));
+            assertTrue(d.getDataLocations().toString().contains("10"));
+            java.util.List<LocationInSchemaFile> locs = d.getLocationsInSchemaFiles();
+            assertEquals(1, locs.size());
+            LocationInSchemaFile loc = locs.get(0);
+            assertTrue(loc.toString().contains("mySchema1.dfdl.xsd"));
+            // above is mySchema1 as it reports the element ref location,
+            // not element decl.
+        }
     }
 
     /**
@@ -282,21 +285,22 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData16.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        assertEquals(2, res.location().bytePos1b());
-        assertEquals(9, res.location().bitPos1b());
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            assertEquals(2, res.location().bytePos1b());
+            assertEquals(9, res.location().bitPos1b());
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
-        UnparseResult res2 = dp.unparse(inputter, wbc);
-        err = res2.isError();
-        assertFalse(err);
-        assertEquals("9", bos.toString());
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+            UnparseResult res2 = dp.unparse(inputter, wbc);
+            err = res2.isError();
+            assertFalse(err);
+            assertEquals("9", bos.toString());
+        }
     }
 
     // This is a duplicate of test testJavaAPI3 that serializes the parser
@@ -322,21 +326,22 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData16.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = parser.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        assertEquals(2, res.location().bytePos1b());
-        assertEquals(9, res.location().bitPos1b());
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = parser.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            assertEquals(2, res.location().bytePos1b());
+            assertEquals(9, res.location().bitPos1b());
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
-        UnparseResult res2 = dp.unparse(inputter, wbc);
-        err = res2.isError();
-        assertFalse(err);
-        assertEquals("9", bos.toString());
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+            UnparseResult res2 = dp.unparse(inputter, wbc);
+            err = res2.isError();
+            assertFalse(err);
+            assertEquals("9", bos.toString());
+        }
     }
 
     @Test
@@ -350,21 +355,22 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData2.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        assertEquals(5, res.location().bytePos1b());
-        assertEquals(33, res.location().bitPos1b());
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            assertEquals(5, res.location().bytePos1b());
+            assertEquals(33, res.location().bitPos1b());
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
-        UnparseResult res2 = dp.unparse(inputter, wbc);
-        err = res2.isError();
-        assertFalse(err);
-        assertEquals("data", bos.toString());
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+            UnparseResult res2 = dp.unparse(inputter, wbc);
+            err = res2.isError();
+            assertFalse(err);
+            assertEquals("data", bos.toString());
+        }
     }
 
     @Test
@@ -376,23 +382,24 @@ public class TestJavaAPI {
         dp = reserializeDataProcessor(dp);
 
         java.io.File file = getResource("/test/japi/myData3.dat"); // contains 5
-                                                                   // bytes
+        // bytes
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        assertEquals(5, res.location().bytePos1b());
-        assertEquals(33, res.location().bitPos1b());
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            assertEquals(5, res.location().bytePos1b());
+            assertEquals(33, res.location().bitPos1b());
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
-        UnparseResult res2 = dp.unparse(inputter, wbc);
-        err = res2.isError();
-        assertFalse(err);
-        assertEquals("data", bos.toString());
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+            UnparseResult res2 = dp.unparse(inputter, wbc);
+            err = res2.isError();
+            assertFalse(err);
+            assertEquals("data", bos.toString());
+        }
     }
 
     /***
@@ -437,19 +444,20 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
-        UnparseResult res2 = dp.unparse(inputter, wbc);
-        err = res2.isError();
-        assertFalse(err);
-        assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+            UnparseResult res2 = dp.unparse(inputter, wbc);
+            err = res2.isError();
+            assertFalse(err);
+            assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
+        }
     }
 
     /**
@@ -470,19 +478,20 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
-        UnparseResult res2 = dp.unparse(inputter, wbc);
-        err = res2.isError();
-        assertFalse(err);
-        assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+            UnparseResult res2 = dp.unparse(inputter, wbc);
+            err = res2.isError();
+            assertFalse(err);
+            assertTrue(bos.toString().contains("Return-Path: <bob@smith.com>"));
+        }
     }
 
     /**
@@ -499,31 +508,32 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/01very_simple.txt");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
 
-        org.jdom2.Document doc1 = outputter.getResult();
+            org.jdom2.Document doc1 = outputter.getResult();
 
-        java.io.ByteArrayOutputStream bos1 = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc1 = java.nio.channels.Channels.newChannel(bos1);
-        JDOMInfosetInputter inputter1 = new JDOMInfosetInputter(doc1);
-        UnparseResult res2 = dp.unparse(inputter1, wbc1);
-        err = res2.isError();
-        assertFalse(err);
-        assertTrue(bos1.toString().contains("Return-Path: <bob@smith.com>"));
+            java.io.ByteArrayOutputStream bos1 = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc1 = java.nio.channels.Channels.newChannel(bos1);
+            JDOMInfosetInputter inputter1 = new JDOMInfosetInputter(doc1);
+            UnparseResult res2 = dp.unparse(inputter1, wbc1);
+            err = res2.isError();
+            assertFalse(err);
+            assertTrue(bos1.toString().contains("Return-Path: <bob@smith.com>"));
 
-        org.jdom2.Document doc2 = outputter.getResult();
+            org.jdom2.Document doc2 = outputter.getResult();
 
-        java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc2 = java.nio.channels.Channels.newChannel(bos2);
-        JDOMInfosetInputter inputter2 = new JDOMInfosetInputter(doc2);
-        UnparseResult res3 = dp.unparse(inputter2, wbc2);
-        err = res3.isError();
-        assertFalse(err);
-        assertTrue(bos2.toString().contains("Return-Path: <bob@smith.com>"));
+            java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc2 = java.nio.channels.Channels.newChannel(bos2);
+            JDOMInfosetInputter inputter2 = new JDOMInfosetInputter(doc2);
+            UnparseResult res3 = dp.unparse(inputter2, wbc2);
+            err = res3.isError();
+            assertFalse(err);
+            assertTrue(bos2.toString().contains("Return-Path: <bob@smith.com>"));
+        }
     }
 
     /**
@@ -540,17 +550,18 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData4.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        org.jdom2.Document doc = outputter.getResult();
-        org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-        xo.setFormat(Format.getPrettyFormat());
-        org.jdom2.Element rootNode = doc.getRootElement();
-        org.jdom2.Element hidden = rootNode.getChild("hiddenElement", rootNode.getNamespace());
-        assertTrue(null == hidden);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            org.jdom2.Document doc = outputter.getResult();
+            org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+            xo.setFormat(Format.getPrettyFormat());
+            org.jdom2.Element rootNode = doc.getRootElement();
+            org.jdom2.Element hidden = rootNode.getChild("hiddenElement", rootNode.getNamespace());
+            assertTrue(null == hidden);
+        }
     }
 
     /**
@@ -567,30 +578,31 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData5.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        org.jdom2.Document doc = outputter.getResult();
-        org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-        xo.setFormat(Format.getPrettyFormat());
-        // xo.output(doc, System.out);
-        org.jdom2.Element rootNode = doc.getRootElement();
-        org.jdom2.Element elementGroup = rootNode.getChild("elementGroup", null); // local
-                                                                                  // element
-                                                                                  // names
-                                                                                  // are
-                                                                                  // unqualified
-        assertTrue(null != elementGroup);
-        org.jdom2.Element groupE2 = elementGroup.getChild("e2", null);
-        assertTrue(null != groupE2);
-        org.jdom2.Element groupE3 = elementGroup.getChild("e3", null);
-        assertTrue(null != groupE3);
-        org.jdom2.Element rootE2 = rootNode.getChild("e2", null);
-        assertTrue(null == rootE2);
-        org.jdom2.Element rootE3 = rootNode.getChild("e3", null);
-        assertTrue(null == rootE3);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            org.jdom2.Document doc = outputter.getResult();
+            org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+            xo.setFormat(Format.getPrettyFormat());
+            // xo.output(doc, System.out);
+            org.jdom2.Element rootNode = doc.getRootElement();
+            org.jdom2.Element elementGroup = rootNode.getChild("elementGroup", null); // local
+            // element
+            // names
+            // are
+            // unqualified
+            assertTrue(null != elementGroup);
+            org.jdom2.Element groupE2 = elementGroup.getChild("e2", null);
+            assertTrue(null != groupE2);
+            org.jdom2.Element groupE3 = elementGroup.getChild("e3", null);
+            assertTrue(null != groupE3);
+            org.jdom2.Element rootE2 = rootNode.getChild("e2", null);
+            assertTrue(null == rootE2);
+            org.jdom2.Element rootE3 = rootNode.getChild("e3", null);
+            assertTrue(null == rootE3);
+        }
     }
 
     @Test
@@ -609,14 +621,15 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
 
-        assertTrue(debugger.lines.size() > 0);
-        assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+            assertTrue(debugger.lines.size() > 0);
+            assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+        }
     }
 
     @Test
@@ -639,19 +652,20 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        org.jdom2.Document doc = outputter.getResult();
-        org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-        xo.setFormat(Format.getPrettyFormat());
-        String docString = xo.outputString(doc);
-        boolean containsVar1 = docString.contains("var1Value");
-        boolean containsVar1Value = docString.contains("externallySet");
-        assertTrue(containsVar1);
-        assertTrue(containsVar1Value);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            org.jdom2.Document doc = outputter.getResult();
+            org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+            xo.setFormat(Format.getPrettyFormat());
+            String docString = xo.outputString(doc);
+            boolean containsVar1 = docString.contains("var1Value");
+            boolean containsVar1Value = docString.contains("externallySet");
+            assertTrue(containsVar1);
+            assertTrue(containsVar1Value);
+        }
     }
 
     @Test
@@ -673,22 +687,23 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        org.jdom2.Document doc = outputter.getResult();
-        org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-        xo.setFormat(Format.getPrettyFormat());
-        String docString = xo.outputString(doc);
-        boolean containsVar1 = docString.contains("var1Value");
-        boolean containsVar1Value = docString.contains("externallySet");
-        assertTrue(containsVar1);
-        assertTrue(containsVar1Value);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            org.jdom2.Document doc = outputter.getResult();
+            org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+            xo.setFormat(Format.getPrettyFormat());
+            String docString = xo.outputString(doc);
+            boolean containsVar1 = docString.contains("var1Value");
+            boolean containsVar1Value = docString.contains("externallySet");
+            assertTrue(containsVar1);
+            assertTrue(containsVar1Value);
 
-        assertTrue(debugger.lines.size() > 0);
-        assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+            assertTrue(debugger.lines.size() > 0);
+            assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+        }
     }
 
     @Test
@@ -736,19 +751,20 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        assertTrue(res.isError());
-        assertFalse(res.isProcessingError());
-        assertTrue(res.isValidationError());
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            assertTrue(res.isError());
+            assertFalse(res.isProcessingError());
+            assertTrue(res.isValidationError());
 
-        java.util.List<Diagnostic> diags = res.getDiagnostics();
-        assertEquals(1, diags.size());
-        Diagnostic d = diags.get(0);
-        assertTrue(d.getMessage().contains("maxInclusive"));
-        assertTrue(d.getMessage().contains("e2"));
-        assertTrue(d.getMessage().contains("20"));
+            java.util.List<Diagnostic> diags = res.getDiagnostics();
+            assertEquals(1, diags.size());
+            Diagnostic d = diags.get(0);
+            assertTrue(d.getMessage().contains("maxInclusive"));
+            assertTrue(d.getMessage().contains("e2"));
+            assertTrue(d.getMessage().contains("20"));
+        }
     }
 
     @Test
@@ -762,104 +778,108 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        assertTrue(res.isError());
-        assertFalse(res.isProcessingError());
-        assertTrue(res.isValidationError());
-        long actualLength = res.location().bytePos1b() - 1;
-        assertEquals(file.length(), actualLength);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            assertTrue(res.isError());
+            assertFalse(res.isProcessingError());
+            assertTrue(res.isValidationError());
+            long actualLength = res.location().bytePos1b() - 1;
+            assertEquals(file.length(), actualLength);
 
-        java.util.List<Diagnostic> diags = res.getDiagnostics();
-        assertEquals(3, diags.size());
-        Diagnostic d0 = diags.get(0);
-        Diagnostic d1 = diags.get(1);
-        Diagnostic d2 = diags.get(2);
+            java.util.List<Diagnostic> diags = res.getDiagnostics();
+            assertEquals(3, diags.size());
+            Diagnostic d0 = diags.get(0);
+            Diagnostic d1 = diags.get(1);
+            Diagnostic d2 = diags.get(2);
 
-        assertTrue(d0.getMessage().contains("42"));
-        assertTrue(d0.getMessage().contains("e2"));
-        assertTrue(d0.getMessage().contains("not valid"));
+            assertTrue(d0.getMessage().contains("42"));
+            assertTrue(d0.getMessage().contains("e2"));
+            assertTrue(d0.getMessage().contains("not valid"));
 
-        assertTrue(d1.getMessage().contains("42"));
-        assertTrue(d1.getMessage().contains("maxInclusive"));
-        assertTrue(d1.getMessage().contains("20"));
+            assertTrue(d1.getMessage().contains("42"));
+            assertTrue(d1.getMessage().contains("maxInclusive"));
+            assertTrue(d1.getMessage().contains("20"));
 
-        assertTrue(d2.getMessage().contains("maxInclusive"));
-        assertTrue(d2.getMessage().contains("e2"));
-        assertTrue(d2.getMessage().contains("20"));
+            assertTrue(d2.getMessage().contains("maxInclusive"));
+            assertTrue(d2.getMessage().contains("e2"));
+            assertTrue(d2.getMessage().contains("20"));
+        }
     }
 
     @Test
     public void testJavaAPI18() throws IOException, ClassNotFoundException {
-      // Demonstrate that we can use the API to continue a parse where we left off
-      org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        // Demonstrate that we can use the API to continue a parse where we left off
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 
-      java.io.File schemaFile = getResource("/test/japi/mySchema3.dfdl.xsd");
-      ProcessorFactory pf = c.compileFile(schemaFile,"e4", null);
-      DataProcessor dp = pf.onPath("/");
-      dp = reserializeDataProcessor(dp);
+        java.io.File schemaFile = getResource("/test/japi/mySchema3.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile,"e4", null);
+        DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
 
-      java.io.File file = getResource("/test/japi/myData2.dat");
-      java.io.FileInputStream fis = new java.io.FileInputStream(file);
-      InputSourceDataInputStream input = new InputSourceDataInputStream(fis);
+        java.io.File file = getResource("/test/japi/myData2.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        try (InputSourceDataInputStream input = new InputSourceDataInputStream(fis)) {
 
-      JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-      ParseResult res = null;
-      boolean err = false;
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = null;
+            boolean err = false;
 
-      res = dp.parse(input, outputter);
-      err = res.isError();
-      assertFalse(err);
-      assertEquals(5, res.location().bytePos1b());
-      assertEquals("data", outputter.getResult().getRootElement().getText());
+            res = dp.parse(input, outputter);
+            err = res.isError();
+            assertFalse(err);
+            assertEquals(5, res.location().bytePos1b());
+            assertEquals("data", outputter.getResult().getRootElement().getText());
 
-      outputter.reset();
-      res = dp.parse(input, outputter);
-      err = res.isError();
-      assertFalse(err);
-      assertEquals(9, res.location().bytePos1b());
-      assertEquals("left", outputter.getResult().getRootElement().getText());
+            outputter.reset();
+            res = dp.parse(input, outputter);
+            err = res.isError();
+            assertFalse(err);
+            assertEquals(9, res.location().bytePos1b());
+            assertEquals("left", outputter.getResult().getRootElement().getText());
 
-      outputter.reset();
-      res = dp.parse(input, outputter);
-      err = res.isError();
-      assertFalse(err);
-      assertFalse(input.hasData());
-      assertEquals(13, res.location().bytePos1b());
-      assertEquals("over", outputter.getResult().getRootElement().getText());
+            outputter.reset();
+            res = dp.parse(input, outputter);
+            err = res.isError();
+            assertFalse(err);
+            assertFalse(input.hasData());
+            assertEquals(13, res.location().bytePos1b());
+            assertEquals("over", outputter.getResult().getRootElement().getText());
+        }
     }
 
     @Test
     public void testJavaAPI19() throws IOException, ClassNotFoundException {
-      // Demonstrate that we cannot use the API to continue a parse with an invalid InputSource
-      // ie. after a runtime SDE. This test needs to be run with an input file larger than 256MB
-      org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        // Demonstrate that we cannot use the API to continue a parse with an invalid InputSource
+        // ie. after a runtime SDE. This test needs to be run with an input file larger than 256MB
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 
-      java.io.File schemaFile = getResource("/test/japi/ambig_elt.dfdl.xsd");
-      ProcessorFactory pf = c.compileFile(schemaFile, "root", null);
-      DataProcessor dp = pf.onPath("/");
-      dp = reserializeDataProcessor(dp);
+        java.io.File schemaFile = getResource("/test/japi/ambig_elt.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile, "root", null);
+        DataProcessor dp = pf.onPath("/");
+        dp = reserializeDataProcessor(dp);
 
-      java.io.File file = getResource("/test/japi/myData19.dat");
-      java.io.FileInputStream fis = new java.io.FileInputStream(file);
-      InputSourceDataInputStream input = new InputSourceDataInputStream(fis);
+        java.io.File file = getResource("/test/japi/myData19.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        try (InputSourceDataInputStream input = new InputSourceDataInputStream(fis)) {
 
-      JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-      ParseResult res = null;
-      boolean err = false;
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = null;
+            boolean err = false;
 
-      res = dp.parse(input, outputter);
-      err = res.isError();
-      assertTrue(err);
+            res = dp.parse(input, outputter);
+            err = res.isError();
+            assertTrue(err);
 
-      outputter.reset();
-      try {
-		  res = dp.parse(input, outputter);
-      } catch (Exception e) {
-		  assertTrue(e.getMessage().contains("Usage error"));
-		  assertTrue(e.getMessage().contains("invalid input source"));
-      }
+            outputter.reset();
+            try {
+                res = dp.parse(input, outputter);
+
+            } catch (Exception e) {
+                assertTrue(e.getMessage().contains("Usage error"));
+                assertTrue(e.getMessage().contains("invalid input source"));
+            }
+        }
     }
 
     @Test
@@ -875,65 +895,66 @@ public class TestJavaAPI {
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fisDP = new java.io.FileInputStream(file);
         java.io.FileInputStream fisSAX = new java.io.FileInputStream(file);
-        InputSourceDataInputStream disDP = new InputSourceDataInputStream(fisDP);
-        InputSourceDataInputStream disSAX = new InputSourceDataInputStream(fisSAX);
-        ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
-        XMLTextInfosetOutputter outputter = new XMLTextInfosetOutputter(xmlBos, true);
-        ParseResult res = dp.parse(disDP, outputter);
-        String infosetDPString = xmlBos.toString();
+        try (InputSourceDataInputStream disDP = new InputSourceDataInputStream(fisDP)) {
+            InputSourceDataInputStream disSAX = new InputSourceDataInputStream(fisSAX);
+            ByteArrayOutputStream xmlBos = new ByteArrayOutputStream();
+            XMLTextInfosetOutputter outputter = new XMLTextInfosetOutputter(xmlBos, true);
+            ParseResult res = dp.parse(disDP, outputter);
+            String infosetDPString = xmlBos.toString();
 
-        org.jdom2.input.sax.SAXHandler contentHandler = new org.jdom2.input.sax.SAXHandler();
-        SAXErrorHandlerForJAPITest errorHandler = new SAXErrorHandlerForJAPITest();
-        // since SAXHandler uses a blank prefix when the below isn't set to true, it introduces
-        // an undesired no-prefixed xmlns mapping
-        parseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);
-        parseXMLReader.setContentHandler(contentHandler);
-        parseXMLReader.setErrorHandler(errorHandler);
-        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
-                Paths.get(System.getProperty("java.io.tmpdir")));
-        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX(),
-                "daffodil-sapi-");
-        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX(),
-                ".sax.blob");
-        parseXMLReader.parse(disSAX);
-        ParseResult resSAX = (ParseResult) parseXMLReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT());
-        boolean err = errorHandler.isError();
-        ArrayList<Diagnostic> diags = errorHandler.getDiagnostics();
-        Format pretty = Format.getPrettyFormat().setLineSeparator(System.getProperty("line.separator"));
-        String infosetSAXString = new  org.jdom2.output.XMLOutputter(pretty).outputString(contentHandler.getDocument());
+            org.jdom2.input.sax.SAXHandler contentHandler = new org.jdom2.input.sax.SAXHandler();
+            SAXErrorHandlerForJAPITest errorHandler = new SAXErrorHandlerForJAPITest();
+            // since SAXHandler uses a blank prefix when the below isn't set to true, it introduces
+            // an undesired no-prefixed xmlns mapping
+            parseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);
+            parseXMLReader.setContentHandler(contentHandler);
+            parseXMLReader.setErrorHandler(errorHandler);
+            parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
+                    Paths.get(System.getProperty("java.io.tmpdir")));
+            parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX(),
+                    "daffodil-sapi-");
+            parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX(),
+                    ".sax.blob");
+            parseXMLReader.parse(disSAX);
+            ParseResult resSAX = (ParseResult) parseXMLReader.getProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_PARSERESULT());
+            boolean err = errorHandler.isError();
+            ArrayList<Diagnostic> diags = errorHandler.getDiagnostics();
+            Format pretty = Format.getPrettyFormat().setLineSeparator(System.getProperty("line.separator"));
+            String infosetSAXString = new org.jdom2.output.XMLOutputter(pretty).outputString(contentHandler.getDocument());
 
-        assertFalse(err);
-        assertTrue(diags.isEmpty());
-        assertEquals(infosetDPString, infosetSAXString);
+            assertFalse(err);
+            assertTrue(diags.isEmpty());
+            assertEquals(infosetDPString, infosetSAXString);
 
-        // test unparse
-        ByteArrayOutputStream unparseBos = new java.io.ByteArrayOutputStream();
-        WritableByteChannel wbc = java.nio.channels.Channels.newChannel(unparseBos);
+            // test unparse
+            ByteArrayOutputStream unparseBos = new java.io.ByteArrayOutputStream();
+            WritableByteChannel wbc = java.nio.channels.Channels.newChannel(unparseBos);
 
-        // prep for SAX unparse
-        DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(wbc);
-        try {
-            org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
-                    .newSAXParser().getXMLReader();
-            setSecureDefaults(unparseXMLReader);
-            unparseXMLReader.setContentHandler(unparseContentHandler);
-            unparseXMLReader.setErrorHandler(errorHandler);
-            unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true);
-            unparseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);
-            ByteArrayInputStream is = new ByteArrayInputStream(infosetSAXString.getBytes());
-            // kickstart unparse
-            unparseXMLReader.parse(new org.xml.sax.InputSource(is));
-        } catch (javax.xml.parsers.ParserConfigurationException | org.xml.sax.SAXException e) {
-            fail("Error: " + e);
+            // prep for SAX unparse
+            DaffodilUnparseContentHandler unparseContentHandler = dp.newContentHandlerInstance(wbc);
+            try {
+                org.xml.sax.XMLReader unparseXMLReader = javax.xml.parsers.SAXParserFactory.newInstance()
+                        .newSAXParser().getXMLReader();
+                setSecureDefaults(unparseXMLReader);
+                unparseXMLReader.setContentHandler(unparseContentHandler);
+                unparseXMLReader.setErrorHandler(errorHandler);
+                unparseXMLReader.setFeature(SAX_NAMESPACES_FEATURE, true);
+                unparseXMLReader.setFeature(SAX_NAMESPACE_PREFIXES_FEATURE, true);
+                ByteArrayInputStream is = new ByteArrayInputStream(infosetSAXString.getBytes());
+                // kickstart unparse
+                unparseXMLReader.parse(new org.xml.sax.InputSource(is));
+            } catch (javax.xml.parsers.ParserConfigurationException | org.xml.sax.SAXException e) {
+                fail("Error: " + e);
+            }
+
+            UnparseResult saxUr = unparseContentHandler.getUnparseResult();
+            wbc.close();
+
+            boolean saxErr = saxUr.isError();
+            assertFalse(saxErr);
+            assertTrue(saxUr.getDiagnostics().isEmpty());
+            assertEquals("42", unparseBos.toString());
         }
-
-        UnparseResult saxUr = unparseContentHandler.getUnparseResult();
-        wbc.close();
-
-        boolean saxErr = saxUr.isError();
-        assertFalse(saxErr);
-        assertTrue(saxUr.getDiagnostics().isEmpty());
-        assertEquals("42", unparseBos.toString());
     }
 
     @Test
@@ -948,30 +969,31 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myDataBroken.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
 
-        org.jdom2.input.sax.SAXHandler contentHandler = new org.jdom2.input.sax.SAXHandler();
-        SAXErrorHandlerForJAPITest errorHandler = new SAXErrorHandlerForJAPITest();
-        parseXMLReader.setContentHandler(contentHandler);
-        parseXMLReader.setErrorHandler(errorHandler);
-        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
-                Paths.get(System.getProperty("java.io.tmpdir")));
-        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX(), "daffodil-sapi-");
-        parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX(), ".sax.blob");
-        parseXMLReader.parse(dis);
-        boolean err = errorHandler.isError();
-        ArrayList<Diagnostic> diags = errorHandler.getDiagnostics();
+            org.jdom2.input.sax.SAXHandler contentHandler = new org.jdom2.input.sax.SAXHandler();
+            SAXErrorHandlerForJAPITest errorHandler = new SAXErrorHandlerForJAPITest();
+            parseXMLReader.setContentHandler(contentHandler);
+            parseXMLReader.setErrorHandler(errorHandler);
+            parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY(),
+                    Paths.get(System.getProperty("java.io.tmpdir")));
+            parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX(), "daffodil-sapi-");
+            parseXMLReader.setProperty(DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX(), ".sax.blob");
+            parseXMLReader.parse(dis);
+            boolean err = errorHandler.isError();
+            ArrayList<Diagnostic> diags = errorHandler.getDiagnostics();
 
-        assertTrue(err);
-        assertEquals(1, diags.size());
-        Diagnostic d = diags.get(0);
-        assertTrue(d.getMessage().contains("int"));
-        assertTrue(d.getMessage().contains("Not an int"));
-        assertTrue(d.getDataLocations().toString().contains("10"));
-        java.util.List<LocationInSchemaFile> locs = d.getLocationsInSchemaFiles();
-        assertEquals(1, locs.size());
-        LocationInSchemaFile loc = locs.get(0);
-        assertTrue(loc.toString().contains("mySchema1.dfdl.xsd"));
+            assertTrue(err);
+            assertEquals(1, diags.size());
+            Diagnostic d = diags.get(0);
+            assertTrue(d.getMessage().contains("int"));
+            assertTrue(d.getMessage().contains("Not an int"));
+            assertTrue(d.getDataLocations().toString().contains("10"));
+            java.util.List<LocationInSchemaFile> locs = d.getLocationsInSchemaFiles();
+            assertEquals(1, locs.size());
+            LocationInSchemaFile loc = locs.get(0);
+            assertTrue(loc.toString().contains("mySchema1.dfdl.xsd"));
+        }
     }
 
     @Test
@@ -996,22 +1018,23 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        org.jdom2.Document doc = outputter.getResult();
-        org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-        xo.setFormat(Format.getPrettyFormat());
-        String docString = xo.outputString(doc);
-        boolean containsVar1 = docString.contains("var1Value");
-        boolean containsVar1Value = docString.contains("var1ValueFromMap");
-        assertTrue(containsVar1);
-        assertTrue(containsVar1Value);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            org.jdom2.Document doc = outputter.getResult();
+            org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+            xo.setFormat(Format.getPrettyFormat());
+            String docString = xo.outputString(doc);
+            boolean containsVar1 = docString.contains("var1Value");
+            boolean containsVar1Value = docString.contains("var1ValueFromMap");
+            assertTrue(containsVar1);
+            assertTrue(containsVar1Value);
 
-        assertTrue(debugger.lines.size() > 0);
-        assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+            assertTrue(debugger.lines.size() > 0);
+            assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+        }
     }
 
     @Test
@@ -1139,15 +1162,16 @@ public class TestJavaAPI {
         {
             byte[] ba = {};
             ByteBuffer bb = ByteBuffer.wrap(ba);
-            InputSourceDataInputStream dis = new InputSourceDataInputStream(bb);
-            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-            ParseResult res = dp.parse(dis, outputter);
-            assertFalse(res.isError());
-            org.jdom2.Document doc = outputter.getResult();
-            org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-            xo.setFormat(Format.getPrettyFormat());
-            String docString = xo.outputString(doc);
-            assertTrue(docString.contains("<ex1var>200</ex1var>"));
+            try (InputSourceDataInputStream dis = new InputSourceDataInputStream(bb)) {
+                JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+                ParseResult res = dp.parse(dis, outputter);
+                assertFalse(res.isError());
+                org.jdom2.Document doc = outputter.getResult();
+                org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+                xo.setFormat(Format.getPrettyFormat());
+                String docString = xo.outputString(doc);
+                assertTrue(docString.contains("<ex1var>200</ex1var>"));
+            }
         }
 
         // can set an external variable after a parse
@@ -1159,15 +1183,16 @@ public class TestJavaAPI {
         {
             byte[] ba = {};
             ByteBuffer bb = ByteBuffer.wrap(ba);
-            InputSourceDataInputStream dis = new InputSourceDataInputStream(bb);
-            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-            ParseResult res = dp.parse(dis, outputter);
-            assertFalse(res.isError());
-            org.jdom2.Document doc = outputter.getResult();
-            org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-            xo.setFormat(Format.getPrettyFormat());
-            String docString = xo.outputString(doc);
-            assertTrue(docString.contains("<ex1var>300</ex1var>"));
+            try (InputSourceDataInputStream dis = new InputSourceDataInputStream(bb)) {
+                JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+                ParseResult res = dp.parse(dis, outputter);
+                assertFalse(res.isError());
+                org.jdom2.Document doc = outputter.getResult();
+                org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+                xo.setFormat(Format.getPrettyFormat());
+                String docString = xo.outputString(doc);
+                assertTrue(docString.contains("<ex1var>300</ex1var>"));
+            }
         }
     }
 
@@ -1177,12 +1202,12 @@ public class TestJavaAPI {
 
         String expectedData = "42";
         TestInfosetEvent expectedEvents[] = {
-            TestInfosetEvent.startDocument(),
-            TestInfosetEvent.startComplex("e1", "http://example.com"),
-            TestInfosetEvent.startSimple("e2", "http://example.com", expectedData),
-            TestInfosetEvent.endSimple("e2", "http://example.com"),
-            TestInfosetEvent.endComplex("e1", "http://example.com"),
-            TestInfosetEvent.endDocument()
+                TestInfosetEvent.startDocument(),
+                TestInfosetEvent.startComplex("e1", "http://example.com"),
+                TestInfosetEvent.startSimple("e2", "http://example.com", expectedData),
+                TestInfosetEvent.endSimple("e2", "http://example.com"),
+                TestInfosetEvent.endComplex("e1", "http://example.com"),
+                TestInfosetEvent.endDocument()
         };
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
@@ -1192,20 +1217,21 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        TestInfosetOutputter outputter = new TestInfosetOutputter();
-        ParseResult pr = dp.parse(dis, outputter);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            TestInfosetOutputter outputter = new TestInfosetOutputter();
+            ParseResult pr = dp.parse(dis, outputter);
 
-        assertFalse(pr.isError());
-        assertArrayEquals(expectedEvents, outputter.events.toArray());
+            assertFalse(pr.isError());
+            assertArrayEquals(expectedEvents, outputter.events.toArray());
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        TestInfosetInputter inputter = new TestInfosetInputter(expectedEvents);
-        UnparseResult ur = dp.unparse(inputter, wbc);
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            TestInfosetInputter inputter = new TestInfosetInputter(expectedEvents);
+            UnparseResult ur = dp.unparse(inputter, wbc);
 
-        assertFalse(ur.isError());
-        assertEquals(expectedData, bos.toString());
+            assertFalse(ur.isError());
+            assertEquals(expectedData, bos.toString());
+        }
     }
 
     @Test
@@ -1287,7 +1313,7 @@ public class TestJavaAPI {
     }
 
     public void doXMLTextEscapeStyleTest(String expect, String data, String schemaType)
-        throws IOException, ClassNotFoundException {
+            throws IOException, ClassNotFoundException {
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
         java.io.File schemaFile = getResource("/test/japi/mySchemaCDATA.dfdl.xsd");
@@ -1295,19 +1321,20 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
 
         ByteArrayInputStream is = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
-        InputSourceDataInputStream input = new InputSourceDataInputStream(is);
-        ByteArrayOutputStream bosDP = new ByteArrayOutputStream();
-        XMLTextInfosetOutputter outputter = new XMLTextInfosetOutputter(bosDP, true, XMLTextEscapeStyle.CDATA);
-        ParseResult res = dp.parse(input, outputter);
-        boolean err = res.isError();
+        try (InputSourceDataInputStream input = new InputSourceDataInputStream(is)) {
+            ByteArrayOutputStream bosDP = new ByteArrayOutputStream();
+            XMLTextInfosetOutputter outputter = new XMLTextInfosetOutputter(bosDP, true, XMLTextEscapeStyle.CDATA);
+            ParseResult res = dp.parse(input, outputter);
+            boolean err = res.isError();
 
-        String infosetDPString = bosDP.toString();
-        int start = infosetDPString.indexOf(".com\">") + 6;
-        int end = infosetDPString.indexOf("</tns");
-        String value = infosetDPString.substring(start, end);
+            String infosetDPString = bosDP.toString();
+            int start = infosetDPString.indexOf(".com\">") + 6;
+            int end = infosetDPString.indexOf("</tns");
+            String value = infosetDPString.substring(start, end);
 
-        assertFalse(err);
-        assertEquals(expect, value);
+            assertFalse(err);
+            assertEquals(expect, value);
+        }
     }
 
     @Test
@@ -1318,31 +1345,32 @@ public class TestJavaAPI {
         DataProcessor dp = pf.onPath("/");
         dp = dp.withValidationMode(ValidationMode.Full);
 
-        byte[] data = new byte[] { 0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04 };
+        byte[] data = new byte[]{0x00, 0x00, 0x00, 0x04, 0x01, 0x02, 0x03, 0x04};
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
-        InputSourceDataInputStream input = new InputSourceDataInputStream(data);
+        try (InputSourceDataInputStream input = new InputSourceDataInputStream(data)) {
 
-        Path blobRoot = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil", "japi");
-        Files.createDirectories(blobRoot);
-        Path blobDir = Files.createTempDirectory(blobRoot, "blob-");
+            Path blobRoot = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil", "japi");
+            Files.createDirectories(blobRoot);
+            Path blobDir = Files.createTempDirectory(blobRoot, "blob-");
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        XMLTextInfosetOutputter output = new XMLTextInfosetOutputter(bos, true);
-        output.setBlobAttributes(blobDir, "pre-", ".suf");
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            XMLTextInfosetOutputter output = new XMLTextInfosetOutputter(bos, true);
+            output.setBlobAttributes(blobDir, "pre-", ".suf");
 
-        ParseResult res = dp.parse(input, output);
-        List<Path> blobPaths = JavaConverters.seqAsJavaList(output.getBlobPaths());
+            ParseResult res = dp.parse(input, output);
+            List<Path> blobPaths = JavaConverters.seqAsJavaList(output.getBlobPaths());
 
-        try {
-            assertFalse(res.isError());
-            assertTrue(blobPaths.size() == 1);
-            assertTrue(blobPaths.get(0).toString().contains("blob-"));
-            assertTrue(blobPaths.get(0).toString().contains("pre-"));
-            assertTrue(blobPaths.get(0).toString().contains(".suf"));
-        } finally {
-            Iterator<Path> pathIter = blobPaths.iterator();
-            while (pathIter.hasNext()) Files.delete(pathIter.next());
-            Files.delete(blobDir);
+            try {
+                assertFalse(res.isError());
+                assertTrue(blobPaths.size() == 1);
+                assertTrue(blobPaths.get(0).toString().contains("blob-"));
+                assertTrue(blobPaths.get(0).toString().contains("pre-"));
+                assertTrue(blobPaths.get(0).toString().contains(".suf"));
+            } finally {
+                Iterator<Path> pathIter = blobPaths.iterator();
+                while (pathIter.hasNext()) Files.delete(pathIter.next());
+                Files.delete(blobDir);
+            }
         }
     }
 
@@ -1362,21 +1390,22 @@ public class TestJavaAPI {
 
         java.io.File file = getResource("/test/japi/myData16.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-        boolean err = res.isError();
-        assertFalse(err);
-        assertEquals(5, res.location().bytePos1b());
-        assertEquals(33, res.location().bitPos1b());
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            boolean err = res.isError();
+            assertFalse(err);
+            assertEquals(5, res.location().bytePos1b());
+            assertEquals(33, res.location().bitPos1b());
 
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
-        JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
-        UnparseResult res2 = dp.unparse(inputter, wbc);
-        err = res2.isError();
-        assertFalse(err);
-        assertEquals("9100", bos.toString());
+            java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+            java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos);
+            JDOMInfosetInputter inputter = new JDOMInfosetInputter(outputter.getResult());
+            UnparseResult res2 = dp.unparse(inputter, wbc);
+            err = res2.isError();
+            assertFalse(err);
+            assertEquals("9100", bos.toString());
+        }
     }
 
     /***

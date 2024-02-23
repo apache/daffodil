@@ -23,11 +23,12 @@ import org.junit.AfterClass
 import org.junit.Test
 
 object TestLayers {
+
   val testDir = "/org/apache/daffodil/layers/"
-  val runner = Runner(testDir, "layers.tdml")
+  val runner = Runner(testDir, "TestLayers.tdml")
 
   @AfterClass def shutDown(): Unit = {
-    runner.reset
+    runner.reset()
   }
 }
 
@@ -35,12 +36,30 @@ class TestLayers {
 
   import TestLayers._
 
-  @Test def test_gzipLayer1(): Unit = { runner.runOneTest("gzipLayer1") }
-  @Test def test_foldedIMFBase64Layers1(): Unit = {
-    runner.runOneTest("foldedIMFBase64Layers1")
+  @Test def testAllTypes(): Unit = { runner.runOneTest("testAllTypes") }
+
+  @Test def testOk1(): Unit = { runner.runOneTest("testOk1") }
+  @Test def testOk2(): Unit = { runner.runOneTest("testOk2") }
+  @Test def testOk3(): Unit = { runner.runOneTest("testOk3") }
+  @Test def testOk4(): Unit = { runner.runOneTest("testOk4") }
+
+  //
+  // All the various ways a layer author can misconfigure a layer
+  // These all result in SDE.
+  //
+  @Test def testBadTypeInLayerCode1(): Unit = { runner.runOneTest("testBadTypeInLayerCode1") }
+  @Test def testBadTypeInLayerCode2(): Unit = { runner.runOneTest("testBadTypeInLayerCode2") }
+  @Test def testBadNotInMETAINFServices(): Unit = {
+    runner.runOneTest("testBadNotInMETAINFServices")
   }
-  @Test def test_foldedIMF1(): Unit = { runner.runOneTest("foldedIMF1") }
-  @Test def test_layersErr1(): Unit = { runner.runOneTest("layersErr1") }
-  @Test def test_base64GzipLayers1(): Unit = { runner.runOneTest("base64GzipLayers1") }
+  @Test def testBadMissingSetter(): Unit = { runner.runOneTest("testBadMissingSetter") }
+  @Test def testBadMissingSetterArg(): Unit = { runner.runOneTest("testBadMissingSetterArg") }
+  @Test def testBadMissingGetter(): Unit = { runner.runOneTest("testBadMissingGetter") }
+  @Test def testBadMissingSetterVar(): Unit = { runner.runOneTest("testBadMissingSetterVar") }
+  @Test def testBadMissingGetterVar(): Unit = { runner.runOneTest("testBadMissingGetterVar") }
+  @Test def testBadMissingDefaultConstructor(): Unit = {
+    runner.runOneTest("testBadMissingDefaultConstructor")
+  }
+  @Test def testBadNotALayer(): Unit = { runner.runOneTest("testBadNotALayer") }
 
 }
