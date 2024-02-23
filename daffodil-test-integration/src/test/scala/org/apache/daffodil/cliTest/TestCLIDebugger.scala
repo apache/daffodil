@@ -71,8 +71,16 @@ class TestCLIDebugger {
     * not provided). If this test ever fails, it probably means SBT fixed the jline issue and we
     * can remove "fork = true" and "envs = envs" from these tests and move them back to the
     * daffodil-test project.
-   */
-  @Test def test_CLI_Debugger_sbt_jline_broken(): Unit = {
+    *
+    * Update: newer versions of SBT have updated jline, which fixes incompatibility issues so
+    * this test no longer fails (because the CLI command succeeds). However, SBT hasn't fixed
+    * the underlying class loader issue, so a newer version of jline could potentially break
+    * things again. The test is only commented out in case we ever want to reenable it. Also
+    * keeping the other debugger tests as integration tests that fork--they don't take that much
+    * longer to run when forking and saves us time if a jline update breaks things again.
+    */
+  // @Test
+  def test_CLI_Debugger_sbt_jline_broken(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
