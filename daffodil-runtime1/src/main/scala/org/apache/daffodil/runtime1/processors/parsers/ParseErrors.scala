@@ -143,8 +143,8 @@ trait DoSDEMixin {
         val sde = new RuntimeSchemaDefinitionError(
           state.getContext().schemaFileLocation,
           state,
-          Maybe(e),
-          Nope,
+          e,
+          null,
         )
         state.setFailed(sde)
         state.toss(sde)

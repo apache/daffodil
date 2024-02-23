@@ -193,7 +193,8 @@ abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends Reci
 case class VRef(vrd: VariableRuntimeData, context: ThrowsSDE) extends RecipeOp {
 
   override def run(dstate: DState): Unit = {
-    if (dstate.parseOrUnparseState.isEmpty) throw new VariableHasNoValue(vrd.globalQName, vrd)
+    if (dstate.parseOrUnparseState.isEmpty)
+      throw new VariableHasNoValue(vrd.globalQName, vrd)
     val value = dstate.parseOrUnparseState.get.getVariable(vrd, context)
     dstate.setCurrentValue(value)
   }

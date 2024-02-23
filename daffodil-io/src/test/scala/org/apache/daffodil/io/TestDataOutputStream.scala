@@ -54,7 +54,7 @@ class TestDataOutputStream {
 
     out.putLong(-1L, 32, beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(-1, buf(0))
     assertEquals(-1, buf(1))
@@ -74,7 +74,7 @@ class TestDataOutputStream {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0x80.toByte, buf(0))
     if (buf.length > 1)
@@ -90,7 +90,7 @@ class TestDataOutputStream {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xc0.toByte, buf(0))
     if (buf.length > 1)
@@ -106,7 +106,7 @@ class TestDataOutputStream {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0x4a.toByte, buf(0))
     if (buf.length > 1)
@@ -122,7 +122,7 @@ class TestDataOutputStream {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xa5.toByte, buf(0))
     if (buf.length > 1)
@@ -138,7 +138,7 @@ class TestDataOutputStream {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xd2.toByte, buf(0))
     assertEquals(0x80.toByte, buf(1))
@@ -155,7 +155,7 @@ class TestDataOutputStream {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     val res = 0x25a5a5a5a5a5a5a5L << 1
     var i = 0
@@ -178,7 +178,7 @@ class TestDataOutputStream {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     val res = 0xa5a5a5a5a5a5a5a5L
     var i = 0
@@ -209,7 +209,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(-1, buf(0))
     assertEquals(-1, buf(1))
@@ -232,7 +232,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0x80.toByte, buf(0))
     if (buf.length > 1)
@@ -251,7 +251,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xc0.toByte, buf(0))
     if (buf.length > 1)
@@ -270,7 +270,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0x4a.toByte, buf(0))
     if (buf.length > 1)
@@ -290,7 +290,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xa5.toByte, buf(0))
     if (buf.length > 1)
@@ -309,7 +309,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xd2.toByte, buf(0))
     assertEquals(0x80.toByte, buf(1))
@@ -329,7 +329,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     val res = 0x25a5a5a5a5a5a5a5L << 1
     var i = 0
@@ -355,7 +355,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     val res = 0xa5a5a5a5a5a5a5a5L
     var i = 0
@@ -387,7 +387,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(-1, buf(0))
     assertEquals(-1, buf(1))
@@ -415,7 +415,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xc0.toByte, buf(0))
     if (buf.length > 1)
@@ -435,7 +435,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xb0.toByte, buf(0))
     if (buf.length > 1)
@@ -455,7 +455,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0x4a.toByte, buf(0))
     assertEquals(0x94.toByte, buf(1))
@@ -476,7 +476,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xa5.toByte, buf(0))
     assertEquals(0xa5.toByte, buf(1))
@@ -497,7 +497,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0x77.toByte, buf(0))
     assertEquals(0xab.toByte, buf(1))
@@ -519,7 +519,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     val res = 0xa5a5a5a5a5a5a5a5L
     var i = 0
@@ -546,7 +546,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     val res1 = 0x4b4b4b4b4b4b4b4aL
     var i = 0
@@ -582,7 +582,7 @@ class TestDataOutputStream {
     direct.setFinished(beFinfo)
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     val res1 = 0xa5a5a5a5a5a5a5a5L
     var i = 0
@@ -615,7 +615,7 @@ class TestDataOutputStream {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0x50.toByte, buf(0))
     if (buf.length > 1)

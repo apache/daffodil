@@ -187,6 +187,11 @@ abstract class InputSource {
    */
   def compact(): Unit
 
+  /**
+   * Release resources. Cascades the close call to any underlying input streams.
+   */
+  def close(): Unit
+
   private var _debugging = false
   protected var _isValid = true
 
@@ -220,6 +225,8 @@ class BucketingInputSource(
     var refCount = 0
     val bytes = new Array[Byte](bucketSize)
   }
+
+  override def close(): Unit = inputStream.close()
 
   /**
   * The maximum number of buckets that can be cached in the buckets array. Note
@@ -614,4 +621,8 @@ class ByteBufferInputSource(byteBuffer: ByteBuffer) extends InputSource {
    * For a byte buffer, this is always true.
    */
   override def hasReachedEndOfData = true
+
+  override def close(): Unit = {
+    // do nothing. No resources to release.
+  }
 }

@@ -43,6 +43,7 @@ import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSizeEncoder
 import org.apache.daffodil.io.processors.charset.CharsetUtils
+import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.api.DaffodilConfig
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
 import org.apache.daffodil.lib.api.DaffodilTunables
@@ -1073,7 +1074,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         try {
           processor.parse(dataToParse, lengthLimitInBits)
         } catch {
-          case t: Throwable => toss(t, implString)
+          case t: Throwable =>
+            toss(t, implString)
         }
 
       // we should never need blobs if we're expecting an error even if we
@@ -1692,7 +1694,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       try {
         processor.unparse(infosetXML, outStream)
       } catch {
-        case t: Throwable => toss(t, implString)
+        case t: Throwable =>
+          toss(t, implString)
       }
 
     val dataErrors = {
@@ -1905,18 +1908,20 @@ object VerifyTestCase {
       override def regexMatchBitPositionBuffer: LongBuffer = doNotUse
     }
 
-    val dis = InputSourceDataInputStream(bytes)
-    val finfo = new FormatInfoForTDMLDecode
-    val cb = CharBuffer.allocate(256)
-    val sb = new StringBuilder(256)
-    while ({
-      val numDecoded = decoder.decode(dis, finfo, cb); numDecoded > 0
-    }) {
-      cb.flip()
-      sb.append(cb)
-      cb.clear()
+    using(InputSourceDataInputStream(bytes)) { dis =>
+      val finfo = new FormatInfoForTDMLDecode
+      val cb = CharBuffer.allocate(256)
+      val sb = new StringBuilder(256)
+      while ({
+        val numDecoded = decoder.decode(dis, finfo, cb);
+        numDecoded > 0
+      }) {
+        cb.flip()
+        sb.append(cb)
+        cb.clear()
+      }
+      sb.toString
     }
-    sb.toString
   }
 
   def verifyTextData(

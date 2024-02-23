@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.example
 
+import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.processors.parsers.PState
@@ -54,11 +55,12 @@ class TestCustomDebuggerAPI {
 
     val file = Misc.getRequiredResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file.toURL.getFile)
-    val input = new InputSourceDataInputStream(fis)
-    dp.parse(input, new NullInfosetOutputter())
+    using(new InputSourceDataInputStream(fis)) { input =>
+      dp.parse(input, new NullInfosetOutputter())
 
-    assertEquals(6, dbg.nodes)
-    assertTrue(dbg.inited)
-    assertTrue(dbg.finished)
+      assertEquals(6, dbg.nodes)
+      assertTrue(dbg.inited)
+      assertTrue(dbg.finished)
+    }
   }
 }

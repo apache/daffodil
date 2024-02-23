@@ -18,8 +18,11 @@
 package org.apache.daffodil.core.runtime1
 
 import org.apache.daffodil.core.dsom.SchemaSet
+import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
+import org.apache.daffodil.runtime1.layers.LayerRuntimeData
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.SchemaSetRuntimeData
@@ -32,6 +35,7 @@ trait SchemaSetRuntime1Mixin {
 
   requiredEvaluationsAlways(parser)
   requiredEvaluationsAlways(unparser)
+  requiredEvaluationsAlways(allLayers)
   requiredEvaluationsAlways(root.elementRuntimeData.initialize)
 
   override lazy val variableMap: VariableMap = LV('variableMap) {
@@ -53,6 +57,18 @@ trait SchemaSetRuntime1Mixin {
     unp
   }.value
 
+  private lazy val layerRuntimeCompiler = new LayerRuntimeCompiler
+
+  lazy val allLayers: Seq[LayerRuntimeData] = LV('allLayers) {
+    val lrds: Seq[LayerRuntimeData] = self.allSchemaComponents
+      .collect {
+        case stb: SequenceTermBase if (stb.isLayered) => stb
+      }
+      .map { _.optionLayerRuntimeData.get }
+    layerRuntimeCompiler.compileAll(lrds) // for checking only. We're not saving this.
+    lrds
+  }.value
+
   def onPath(xpath: String): DFDL.DataProcessor = {
     checkNotError()
     if (xpath != "/")
@@ -65,7 +81,7 @@ trait SchemaSetRuntime1Mixin {
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null
     val ssrd =
-      new SchemaSetRuntimeData(p, u, rootERD, variableMap)
+      new SchemaSetRuntimeData(p, u, rootERD, variableMap, allLayers, layerRuntimeCompiler)
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(
         s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.",

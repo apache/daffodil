@@ -18,12 +18,14 @@
 package org.apache.daffodil.runtime1.dpath
 
 import java.io.Serializable
+import java.lang.{ Boolean => JBoolean }
 import java.lang.{ Byte => JByte }
 import java.lang.{ Double => JDouble }
 import java.lang.{ Float => JFloat }
 import java.lang.{ Integer => JInt }
 import java.lang.{ Long => JLong }
 import java.lang.{ Short => JShort }
+import java.lang.{ String => JString }
 import java.math.{ BigDecimal => JBigDecimal }
 import java.math.{ BigInteger => JBigInt }
 import java.net.URI
@@ -61,6 +63,8 @@ import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueShort
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueTime
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueURI
+
+import com.ibm.icu.util.{ Calendar => ICUCalendar }
 
 /**
  * We need to have a data structure that lets us represent a type, and
@@ -932,6 +936,33 @@ object NodeInfo extends Enum {
         DFDLTimeConversion.fromXMLString(s)
       }
     }
+
+    def toJavaType(dfdlType: DFDLPrimType): Class[_] = {
+      dfdlType match {
+        case DFDLPrimType.String => classOf[JString]
+        case DFDLPrimType.Int => classOf[JInt]
+        case DFDLPrimType.Byte => classOf[JByte]
+        case DFDLPrimType.Short => classOf[JShort]
+        case DFDLPrimType.Long => classOf[JLong]
+        case DFDLPrimType.Integer => classOf[JBigInt]
+        case DFDLPrimType.Decimal => classOf[JBigDecimal]
+        case DFDLPrimType.UnsignedInt => classOf[JLong]
+        case DFDLPrimType.UnsignedByte => classOf[JShort]
+        case DFDLPrimType.UnsignedShort => classOf[JInt]
+        case DFDLPrimType.UnsignedLong => classOf[JBigInt]
+        case DFDLPrimType.NonNegativeInteger => classOf[JBigInt]
+        case DFDLPrimType.Double => classOf[JDouble]
+        case DFDLPrimType.Float => classOf[JFloat]
+        case DFDLPrimType.HexBinary => classOf[Array[Byte]]
+        case DFDLPrimType.AnyURI => classOf[java.net.URI]
+        case DFDLPrimType.Boolean => classOf[JBoolean]
+        case DFDLPrimType.DateTime => classOf[ICUCalendar]
+        case DFDLPrimType.Date => classOf[ICUCalendar]
+        case DFDLPrimType.Time => classOf[ICUCalendar]
+      }
+    }
+
+    def toJavaTypeString(dfdlType: DFDLPrimType): String = toJavaType(dfdlType).toString
   }
 
   //

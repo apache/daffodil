@@ -128,7 +128,7 @@ sealed class NS protected (uriArg: URI) extends Serializable { // protected cons
   override def equals(other: Any): Boolean = {
     if (this eq other.asInstanceOf[AnyRef]) return true
     Assert.invariant(
-      this.toString != other.toString,
+      this.toString != other.toString, // these do not allocate strings each time they are called.
     ) // this fails if the cache isn't being used
     false
   }

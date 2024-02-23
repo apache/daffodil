@@ -563,9 +563,14 @@ object Currency {
       """  def EUR = convertToTYPE(findProperty("EUR").value)
 """
     } else {
-      """  def EUR = {
+      """
+  def EUR = {
     val cp = findProperty("EUR")
     convertToTYPE(cp.value, cp.location)
+  }
+  def EUROption = findPropertyOption("EUR") match {
+    case Found(s, ll, _, _) => Some(convertToTYPE(s, ll))
+    case _ => None
   }
 """
     }

@@ -52,12 +52,15 @@ import org.junit.Test
 class TestJavaIOStreams {
   Assert.usage(scala.util.Properties.isJavaAtLeast("1.8"))
 
+  val crlfRegex = "\\r\\n(?!(?:\\t|\\ ))"
+  val crlf = "\r\n"
+
   val text = """Daffodil is an open source implementation of the DFDL
 specification that uses these DFDL schemas to parse fixed format data into an
 infoset, which is most commonly represented as either XML or JSON. This
 allows the use of well-established XML or JSON technologies and libraries to
 consume, inspect, and manipulate fixed format data in existing solutions."""
-    .replace("\r\n", "\n")
+    .replace(crlf, "\n")
     .replace("\n", " ")
 
   val b64Text = """RGFmZm9kaWwgaXMgYW4gb3BlbiBzb3VyY2UgaW1wbGVtZW50YXRpb24gb2YgdGhlIERGREwgc3Bl

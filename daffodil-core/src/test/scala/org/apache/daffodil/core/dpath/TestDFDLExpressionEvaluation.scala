@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dpath
 
+import java.nio.ByteBuffer
 import scala.util.parsing.combinator.Parsers
 
 import org.apache.daffodil.core.compiler._
@@ -62,13 +63,14 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val compiledExpr = exprCompiler.compile(expr)
     val doc = infosetRootElem.parent.asInstanceOf[InfosetDocument]
 
-    val dis = InputSourceDataInputStream(
-      java.nio.ByteBuffer.allocate(0),
-    ) // fake. Zero bits available.
-    val outputter = new NullInfosetOutputter()
-    val pstate = PState.createInitialPState(doc, erd, dis, outputter, dp, areDebugging = false)
-    val result = compiledExpr.evaluate(pstate)
-    body(result)
+    // Below, dis is fake. Zero bits available.
+    using(InputSourceDataInputStream(ByteBuffer.allocate(0))) { dis =>
+      val outputter = new NullInfosetOutputter()
+      val pstate =
+        PState.createInitialPState(doc, erd, dis, outputter, dp, areDebugging = false)
+      val result = compiledExpr.evaluate(pstate)
+      body(result)
+    }
   }
 
   @Test def test_a() = {

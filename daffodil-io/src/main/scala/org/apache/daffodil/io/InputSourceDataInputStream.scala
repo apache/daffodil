@@ -94,7 +94,8 @@ private[io] class MarkPool() extends Pool[MarkState] {
  * Underlying representation is an InputSource containing all input data.
  */
 final class InputSourceDataInputStream private (val inputSource: InputSource)
-  extends DataInputStreamImplMixin {
+  extends DataInputStreamImplMixin
+  with java.io.Closeable {
 
   import DataInputStream._
 
@@ -110,6 +111,11 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   override final val cst = new MarkState
   val markStack = new MStackOf[MarkState]
   val markPool = new MarkPool()
+
+  /**
+   * Creators of this class are responsible to call close when done.
+   */
+  override def close(): Unit = inputSource.close()
 
   @inline
   override final def bitPos0b: Long = cst.bitPos0b

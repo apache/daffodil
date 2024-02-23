@@ -707,7 +707,7 @@ object Misc {
       case (null, c) => getSomeMessage(c).get
       case (m, c) => {
         val Some(cmsg) = getSomeMessage(c)
-        cmsg + " (within " + m + ")"
+        cmsg + " (within " + th.getClass.getSimpleName + " " + m + ")"
       }
     }
     Some(res)

@@ -319,6 +319,25 @@ object TestUtils {
     val theTry = Timer.getResult(compileAndSave(compiler, schemaSource, nullChannel))
     theTry.get
   }
+
+  /**
+   * Gets some sort of a message from a throwable. Includes messages from all
+   * classes in the cause chain. If there is no message, just uses the class name.
+   * @param cause
+   * @return
+   */
+  def getAMessage(cause: Throwable): String = {
+    val n1 = Misc.getNameFromClass(cause)
+    val m = cause.getMessage
+    val c = cause.getCause
+    val s = (m, c) match {
+      case (null, null) => Misc.getNameFromClass(cause)
+      case (null, c) => getAMessage(c)
+      case (m, null) => m
+      case (m, c) => m + " " + getAMessage(c)
+    }
+    n1 + s"($s)"
+  }
 }
 
 /**

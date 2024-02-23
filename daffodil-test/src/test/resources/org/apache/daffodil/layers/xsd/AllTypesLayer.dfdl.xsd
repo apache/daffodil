@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+           xmlns:fn="http://www.w3.org/2005/xpath-functions"
+           xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+           xmlns:tl="urn:org.apache.daffodil.layers.xsd.AllTypesLayer"
+           targetNamespace="urn:org.apache.daffodil.layers.xsd.AllTypesLayer">
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+
+      <dfdl:defineVariable name="b1" type="xs:byte"/>
+      <dfdl:defineVariable name="ub1" type="xs:unsignedByte"/>
+      <dfdl:defineVariable name="s1" type="xs:short"/>
+      <dfdl:defineVariable name="us1" type="xs:unsignedShort"/>
+      <dfdl:defineVariable name="i1" type="xs:int"/>
+      <dfdl:defineVariable name="ui1" type="xs:unsignedInt"/>
+      <dfdl:defineVariable name="l1" type="xs:long"/>
+      <dfdl:defineVariable name="ul1" type="xs:unsignedLong"/>
+      <dfdl:defineVariable name="integer1" type="xs:integer"/>
+      <dfdl:defineVariable name="nni1" type="xs:nonNegativeInteger"/>
+      <dfdl:defineVariable name="dec1" type="xs:decimal"/>
+      <dfdl:defineVariable name="f1" type="xs:float"/>
+      <dfdl:defineVariable name="d1" type="xs:double"/>
+      <dfdl:defineVariable name="string1" type="xs:string"/>
+      <dfdl:defineVariable name="hex1" type="xs:hexBinary"/>
+
+      <dfdl:defineVariable name="date1" type="xs:date"/>
+      <dfdl:defineVariable name="time1" type="xs:time"/>
+      <dfdl:defineVariable name="dt1" type="xs:dateTime"/>
+
+      <dfdl:defineVariable name="bool1" type="xs:boolean"/>
+
+      <dfdl:defineVariable name="b2" type="xs:byte"/>
+      <dfdl:defineVariable name="ub2" type="xs:unsignedByte"/>
+      <dfdl:defineVariable name="s2" type="xs:short"/>
+      <dfdl:defineVariable name="us2" type="xs:unsignedShort"/>
+      <dfdl:defineVariable name="i2" type="xs:int"/>
+      <dfdl:defineVariable name="ui2" type="xs:unsignedInt"/>
+      <dfdl:defineVariable name="l2" type="xs:long"/>
+      <dfdl:defineVariable name="ul2" type="xs:unsignedLong"/>
+      <dfdl:defineVariable name="integer2" type="xs:integer"/>
+      <dfdl:defineVariable name="nni2" type="xs:nonNegativeInteger"/>
+      <dfdl:defineVariable name="dec2" type="xs:decimal"/>
+      <dfdl:defineVariable name="f2" type="xs:float"/>
+      <dfdl:defineVariable name="d2" type="xs:double"/>
+      <dfdl:defineVariable name="string2" type="xs:string"/>
+      <dfdl:defineVariable name="hex2" type="xs:hexBinary"/>
+
+      <dfdl:defineVariable name="date2" type="xs:date"/>
+      <dfdl:defineVariable name="time2" type="xs:time"/>
+      <dfdl:defineVariable name="dt2" type="xs:dateTime"/>
+
+      <dfdl:defineVariable name="bool2" type="xs:boolean"/>
+
+
+    </xs:appinfo>
+  </xs:annotation>
+
+
+</xs:schema>
