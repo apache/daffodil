@@ -634,7 +634,7 @@ trait ExistsKind {
     Assert.invariant(dstate.currentNode ne null)
     val res = dstate.mode match {
       case UnparserNonBlocking => {
-        // we are evaluating an expresion while unparsing in non blocking mode.
+        // we are evaluating an expression while unparsing in non blocking mode.
         // This means this throwable must have come from an evaluatable using
         // only backwards references. Backwards references are known to be
         // final (even if isFinal isn't set yet), so because an exception was

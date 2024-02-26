@@ -764,6 +764,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
       local, // path: String,
       local, // val name: String,
       false, // val isArray: Boolean,
+      false, // val isOptional: Boolean,
       LocalDeclQName(None, local, NS(namespaceURI)), // val namedQName: NamedQName,
       None, // val optPrimType: Option[PrimType],
       null, // sfl: SchemaFileLocation,

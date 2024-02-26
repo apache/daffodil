@@ -27,16 +27,21 @@ case class FNCount(recipe: CompiledDPath, argType: NodeInfo.Kind)
   override def run(dstate: DState): Unit = {
     val res = exists(recipe, dstate)
     if (res) {
-      dstate.mode match {
-        case UnparserBlocking | UnparserNonBlocking => {
-          // we are unparsing, so asking for an array count is asking for the
-          // final count, not however many are in there at this point
-          // so we have to know if the array is closed or not.
-          dstate.setCurrentValue(dstate.finalArrayLength)
+      if (dstate.currentNode.isArray) {
+        dstate.mode match {
+          case UnparserBlocking | UnparserNonBlocking => {
+            // we are unparsing, so asking for an array count is asking for the
+            // final count, not however many are in there at this point
+            // so we have to know if the array is closed or not.
+            dstate.setCurrentValue(dstate.finalArrayLength)
+          }
+          case _: ParserMode => {
+            dstate.setCurrentValue(dstate.arrayLength)
+          }
         }
-        case _: ParserMode => {
-          dstate.setCurrentValue(dstate.arrayLength)
-        }
+      } else {
+        // optional element is known to exist
+        dstate.setCurrentValue(1)
       }
     } else {
       dstate.setCurrentValue(0)

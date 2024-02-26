@@ -213,7 +213,7 @@
           <xs:element name="a" type="xs:int" />
           <xs:element name="a" type="xs:int" />
           <xs:element name="a" type="xs:int" />
-          <xs:element name="ivc" type="xs:int" dfdl:inputValueCalc="{ fn:count(../ex:a) }"/>
+          <xs:element name="ivc" type="xs:int" dfdl:inputValueCalc="{ fn:exists(../ex:a) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>

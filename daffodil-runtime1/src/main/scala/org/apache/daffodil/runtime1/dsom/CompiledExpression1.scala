@@ -344,6 +344,7 @@ class DPathElementCompileInfo(
   path: String,
   val name: String,
   val isArray: Boolean,
+  val isOptional: Boolean,
   val namedQName: NamedQName,
   val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,
