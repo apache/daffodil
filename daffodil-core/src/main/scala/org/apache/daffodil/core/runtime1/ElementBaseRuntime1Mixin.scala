@@ -151,6 +151,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       slashPath,
       name,
       isArray,
+      isOptional,
       namedQName,
       optPrimType,
       schemaFileLocation,

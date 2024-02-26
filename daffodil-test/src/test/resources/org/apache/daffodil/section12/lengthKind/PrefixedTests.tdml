@@ -448,7 +448,7 @@
       <xs:restriction base="xs:integer" /> 
     </xs:simpleType>
 
-    <xs:simpleType name="prefixExpression" dfdl:lengthKind="explicit" dfdl:length="{ fn:count(.) }">
+    <xs:simpleType name="prefixExpression" dfdl:lengthKind="explicit" dfdl:length="{ fn:exists(.) }">
       <xs:restriction base="xs:integer" /> 
     </xs:simpleType>
 
