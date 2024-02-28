@@ -23,20 +23,35 @@ import org.apache.daffodil.runtime1.layers.api.LayerRuntime;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
+
+import static java.lang.Math.min;
 
 public final class GZipLayer extends Layer {
 
-  public GZipLayer() {
-    super("gzip");
+  private static Boolean fixNeeded = null;
+
+  public static boolean fixIsNeeded() {
+    if (Objects.isNull(fixNeeded)) {
+      // prior to java 16
+      String versionString = System.getProperty("java.version");
+
+      // Extract the major version using string manipulation
+      int majorVersion;
+      if (versionString.startsWith("1.8")) {
+        majorVersion = 8;
+      } else {
+        String[] parts = versionString.split("\\.");
+        assert(parts.length > 0);
+        majorVersion = Integer.parseInt(parts[0]);
+      }
+      fixNeeded = (majorVersion < 16);
+    }
+    return fixNeeded;
   }
 
-  private static final boolean fixIsNeeded;
-  static {
-    // prior to java 16
-    String verString = System.getProperty("java.version");
-    String verFirstDigits = verString.substring(0, verString.indexOf("."));
-    int ver = Integer.parseInt(verFirstDigits);
-    fixIsNeeded = (ver < 16);
+  public GZipLayer() {
+    super("gzip");
   }
 
   @Override
@@ -46,7 +61,7 @@ public final class GZipLayer extends Layer {
 
   @Override
   public OutputStream wrapLayerEncoder(OutputStream jos, LayerRuntime lrd) throws IOException {
-    OutputStream fixedOS = fixIsNeeded ? new GZIPFixedOutputStream(jos) : jos;
+    OutputStream fixedOS = fixIsNeeded() ? new GZIPFixedOutputStream(jos) : jos;
     return new java.util.zip.GZIPOutputStream(fixedOS);
   }
 }
