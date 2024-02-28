@@ -16,18 +16,25 @@
  */
 package org.apache.daffodil.runtime1.layers.api;
 
+/**
+ * LayerException represents an exception that can occur during the usage of layers in a program.
+ * It extends the RuntimeException class, making it an unchecked exception.
+ */
 public class LayerException extends RuntimeException {
 
-  public LayerException(String msg, Throwable cause) {
-    super(msg, cause);
-  }
+  /**
+   * Creates a new instance of LayerException with the specified message and cause.
+   *
+   * @param msg the detail message. It is saved for later retrieval by the getMessage() method.
+   * @param cause the cause. It is saved for later retrieval by the getCause() method.
+   *              A null value is permitted, and indicates that the cause is nonexistent or unknown.
+   */
+  public LayerException(String msg, Throwable cause) { super(msg, cause); }
 
-  public LayerException(String msg) {
-    super(msg);
-  }
+  public LayerException(String msg) { this(msg, null); }
 
   public LayerException(Throwable cause) {
-    super(cause);
+    this(null, cause);
   }
 }
 

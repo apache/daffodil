@@ -22,5 +22,8 @@ import org.apache.daffodil.runtime1.api.DFDLPrimType;
  * Variable values are obtained or set using LayerVariable objects.
  */
 public interface LayerVariable {
+    /**
+     * @return The DFDL primitive type of the LayerVariable.
+     */
     DFDLPrimType dfdlPrimType();
 }

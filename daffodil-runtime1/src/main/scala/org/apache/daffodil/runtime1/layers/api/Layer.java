@@ -67,7 +67,7 @@ public abstract class Layer {
   /**
    * Called exactly once when the schema is compiled to do extra checking that the layer is being used properly.
    * The thrown exception becomes a SchemaDefinitionError at schema compile time.
-   *
+   * <p/>
    * Example checks are:
    * - layerEncoding is constant and is a single-byte charset
    * - layerLength, if constant, is within a maximum value range
@@ -75,17 +75,28 @@ public abstract class Layer {
    * These things can be required to be constant by this check, or it can check their values for legality
    * if they happen to be constant. Since these are runtime-valued properties (can be expressions), then if the
    * layer allowed that, they must also be checked at runtime.
-   *
+   * <p/>
    * You don't have to check that the variables are defined and declared in matching manner, that happens automatically.
-   *
-   * @throws LayerException on any error.
-   *
    */
   public void check(LayerCompileInfo layerPropertyInfo) throws LayerException { /* nothing */ }
 
 
+  /**
+   * Wraps a layer decoder around an input stream, using the provided LayerRuntime for runtime information and stateful services.
+   *
+   * @param jis The input stream to be wrapped.
+   * @param lr The LayerRuntime object providing runtime information and stateful services.
+   * @return An input stream with the layer decoder wrapped around it.
+   */
   public InputStream wrapLayerDecoder(InputStream jis, LayerRuntime lr) throws IOException { return null; }
 
+  /**
+   * Wraps a layer encoder around an output stream, using the provided LayerRuntime for runtime information and stateful services.
+   *
+   * @param jos The output stream to be wrapped.
+   * @param lr The LayerRuntime object providing runtime information and stateful services.
+   * @return An output stream with the layer encoder wrapped around it.
+   */
   public OutputStream wrapLayerEncoder(OutputStream jos, LayerRuntime lr) throws IOException { return null; }
 
 }

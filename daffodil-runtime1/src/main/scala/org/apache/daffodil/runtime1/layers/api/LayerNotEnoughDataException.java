@@ -16,9 +16,20 @@
  */
 package org.apache.daffodil.runtime1.layers.api;
 
+/**
+ * LayerNotEnoughDataException is a custom exception class that represents an exception that occurs
+ * when there is insufficient data for a layer in a program. It is a subclass of LayerException.
+ */
 public class LayerNotEnoughDataException extends LayerException {
 
+    /**
+     * Creates a new instance of LayerNotEnoughDataException with the specified number of needed bytes and available bytes.
+     *
+     * @param numNeededBytes    the number of bytes needed by the layer
+     * @param numAvailableBytes the number of bytes available for the layer
+     */
     public LayerNotEnoughDataException(int numNeededBytes, int numAvailableBytes) {
-        super("Insufficient data for layer. Needed " + numNeededBytes + " bytes, but only " + numAvailableBytes + " were available.");
+        super("Insufficient data for layer. Needed " + numNeededBytes +
+                " bytes, but only " + numAvailableBytes + " were available.");
     }
 }
