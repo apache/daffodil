@@ -25,11 +25,11 @@ import org.apache.daffodil.runtime1.layers.api.LayerException
  * Factory for a layer transformer.
  *
  * This is the serialized object which is saved as part of a processor.
- * It constructs the layer transformer at runtime when newInstance() is called.
+ * It constructs the layer at runtime when newInstance() is called.
  *
- * This allows the layer instance itself to be stateful.
+ * This allows the layer instance itself to be stateful and not serializable.
  */
-class LayerTransformerFactory(val layerCompileInfo: LayerCompileInfo) extends Serializable {
+class LayerFactory(val layerCompileInfo: LayerCompileInfo) extends Serializable {
 
   private def layerTransformName = layerCompileInfo.layerName
 
@@ -44,7 +44,7 @@ class LayerTransformerFactory(val layerCompileInfo: LayerCompileInfo) extends Se
    *           state-based information for the parse or unparse
    * @return the LayerTransformer properly initialized/constructed for this layer
    */
-  def newInstance(lr: LayerRuntimeImpl): LayerTransformer = {
+  def newInstance(lr: LayerRuntimeImpl): LayerDriver = {
     val optLayerInstance = LayerRegistry.findLayer(layerTransformName)
     val spiLayerInstance: Layer = optLayerInstance.getOrElse {
       lr.runtimeSchemaDefinitionError(
@@ -57,9 +57,9 @@ class LayerTransformerFactory(val layerCompileInfo: LayerCompileInfo) extends Se
     // Rather, it is going to load it once. So we have to make new instances
     // ourselves. But Layers are required to have a zero-arg constructor, so
     // we can just call it.
-    val newInstance = spiLayerInstance.getClass().getConstructor().newInstance()
+    val newInstance = spiLayerInstance.getClass.getConstructor().newInstance()
 
-    new LayerTransformer(layerCompileInfo, layer = newInstance)
+    new LayerDriver(layerCompileInfo, layer = newInstance)
   }
 
 }

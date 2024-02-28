@@ -18,14 +18,14 @@
 package org.apache.daffodil.runtime1.processors.parsers
 
 import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
-import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
+import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.layers.api.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
 class LayeredSequenceParser(
-  rd: SequenceRuntimeData,
-  layerTransformerFactory: LayerTransformerFactory,
-  bodyParser: SequenceChildParser,
+                             rd: SequenceRuntimeData,
+                             layerTransformerFactory: LayerFactory,
+                             bodyParser: SequenceChildParser,
 ) extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
 

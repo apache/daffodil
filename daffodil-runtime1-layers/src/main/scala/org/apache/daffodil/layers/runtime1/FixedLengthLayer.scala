@@ -32,9 +32,11 @@ import org.apache.daffodil.runtime1.layers.api.LayerVariable
 import org.apache.commons.io.IOUtils
 
 /**
- * Suitable only for checksums computed over small sections of data, not large data streams or whole files.
+ * Suitable only for small sections of data, not large data streams or whole files.
  *
- * The entire region of data the checksum is being computed over, will be pulled into a byte buffer in memory.
+ * The entire fixed length region of the data will be pulled into a byte buffer in memory.
+ *
+ * TODO: Enhance to make this streaming.
  */
 final class FixedLengthLayer extends Layer("fixedLength") {
 
@@ -78,6 +80,8 @@ class FixedLengthInputStream(
   private lazy val bais = {
     val ba = new Array[Byte](layerLength.toInt)
     val nRead = IOUtils.read(jis, ba)
+    if (nRead < layerLength)
+      lr.processingError(s"Insufficient data for fixed-length layer. Needed $layerLength bytes, but only $nRead were available.")
     val buf = ByteBuffer.wrap(ba)
     new ByteArrayInputStream(ba)
   }
@@ -129,7 +133,8 @@ class FixedLengthOutputStream(
       isOpen = false
       val ba = baos.toByteArray
       val baLen = ba.length
-      Assert.invariant(baLen <= layerLength)
+      if (baLen != layerLength)
+        lr.processingError(s"Insufficient output data for fixed-length layer. Needed $layerLength bytes, but only $baLen were unparsed.")
       jos.write(ba)
       // assign checksum to the first variable.
       jos.close() // required so that closes propagate, and the buffering output streams recombine/collapse again.

@@ -22,12 +22,8 @@
   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
   targetNamespace="urn:org.apache.daffodil.layers.boundaryMark">
 
-  <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
-
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-
-      <dfdl:format ref="bm:GeneralFormat" />
 
       <dfdl:defineVariable name="boundaryMark" type="xs:string"/>
       <dfdl:defineVariable name="layerEncoding" type="xs:string"/>

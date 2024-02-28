@@ -85,7 +85,7 @@ trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequen
       Maybe.Nope,
       Maybe.Nope,
       isHidden = false,
-      Maybe.toMaybe(optionLayerTransform),
+      Maybe.Nope,
     )
   }
 

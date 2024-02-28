@@ -34,14 +34,6 @@ import java.nio.charset.Charset;
 public interface LayerRuntime extends LayerCompileInfo {
 
   /**
-   * Retrieves the Charset object associated with the given layer encoding from the LayerRuntime.
-   *
-   * @param layerEncoding the encoding of the layer
-   * @return the Charset object associated with the layer encoding
-   */
-  Charset getCharset(String layerEncoding);
-
-  /**
    * Throws a processing error with the specified message.
    *
    * @param msg the error message

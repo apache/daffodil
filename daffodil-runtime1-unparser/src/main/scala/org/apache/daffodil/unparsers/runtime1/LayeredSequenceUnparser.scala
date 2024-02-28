@@ -18,14 +18,14 @@
 package org.apache.daffodil.unparsers.runtime1
 
 import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
-import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
+import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
 
 class LayeredSequenceUnparser(
-  ctxt: SequenceRuntimeData,
-  layerTransformerFactory: LayerTransformerFactory,
-  childUnparser: SequenceChildUnparser,
+                               ctxt: SequenceRuntimeData,
+                               layerTransformerFactory: LayerFactory,
+                               childUnparser: SequenceChildUnparser,
 ) extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
 
   override def nom = "LayeredSequence"

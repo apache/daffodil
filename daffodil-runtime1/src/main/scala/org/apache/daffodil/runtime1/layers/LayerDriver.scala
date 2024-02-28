@@ -38,12 +38,12 @@ import org.apache.daffodil.runtime1.processors.unparsers.UState
 import passera.unsigned.ULong
 
 /**
- * Shared functionality of all LayerTransformers.
+ * Driving mechanism that incorporates a layer at runtime to transform the data stream.
  *
- * A layer transformer is created at runtime as part of a single parse/unparse call.
+ * A layer driver is created at runtime as part of a single parse/unparse call.
  * Hence, they can be stateful without causing thread-safety issues.
  */
-class LayerTransformer(layerCompileInfo: LayerCompileInfo, layer: Layer) {
+class LayerDriver(layerCompileInfo: LayerCompileInfo, layer: Layer) {
 
   private def wrapJavaInputStream(
     s: InputSourceDataInputStream,
@@ -110,6 +110,14 @@ class LayerTransformer(layerCompileInfo: LayerCompileInfo, layer: Layer) {
   }
 }
 
+/**
+ * Turns Daffodil's bits-capable InputSourceDataInputStream objects into ordinary
+ * java InputStream API for byte-oriented reads.
+ *
+ * @param s the Daffodil InputSourceDataInputStream
+ * @param finfo the format info (a view trait on a PState/UState) needed for bit order considerations.
+ * @returns a java.io.InputStream which when read from, delegates to the InputSourceDataInputStream
+ */
 class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extends InputStream {
 
   private lazy val id = Misc.getNameFromClass(this)
@@ -145,6 +153,12 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extend
   override def markSupported() = true
 }
 
+/**
+ * Turns a Daffodil DataOutputStream into an ordinary java.io.OutputStream.
+ *
+ * @param dos   The DataOutputStream to write the data to.
+ * @param finfo The FormatInfo used for writing the data (bit order needed, etc.)
+ */
 class JavaIOOutputStream(dos: DataOutputStream, finfo: FormatInfo) extends OutputStream {
 
   private var closed = false

@@ -18,8 +18,8 @@ package org.apache.daffodil.core.layers
 
 import org.apache.daffodil.core.dsom.SequenceGroupTermBase
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.layers.LayerRegistry
-import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.layers.api.LayerCompileInfo
 
@@ -29,15 +29,13 @@ object LayerCompiler {
    * Compiles the layer doing all compile time checks, into a serializable runtime object
    * which is a LayerTransformerFactory
    *
-   * Digests the properties and definition of the layer and does compile-time checking
+   * Digests the definition of the layer and does compile-time checking
    * for consistency and completeness of the definition.
-   *
-   * Chooses the right length-limiter class, and instantiates it.
    *
    * Constructs a LayerTransformerFactory which is the serializable runtime data structure
    * used by the LayerParser, and LayerUnparser at runtime.
    */
-  def compileLayer(sq: SequenceGroupTermBase): LayerTransformerFactory = {
+  def compileLayer(sq: SequenceGroupTermBase): LayerFactory = {
     val lc = new LayerCompiler(sq)
     val res = lc.compile()
     res
@@ -79,11 +77,11 @@ private class LayerCompiler private (sq: SequenceGroupTermBase) {
    */
   lazy val layerCompileInfo = srd.asInstanceOf[LayerCompileInfo]
 
-  def compile(): LayerTransformerFactory = {
+  def compile(): LayerFactory = {
 
     layer.check(layerCompileInfo) // layer's own checks. E.g., some require layerEncoding.
 
-    new LayerTransformerFactory(layerCompileInfo)
+    new LayerFactory(layerCompileInfo)
   }
 
 }
