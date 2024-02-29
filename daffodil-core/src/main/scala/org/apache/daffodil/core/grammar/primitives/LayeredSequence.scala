@@ -21,6 +21,7 @@ import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.core.layers.LayerCompiler
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.processors.parsers.LayeredSequenceParser
 import org.apache.daffodil.runtime1.processors.parsers.{ Parser => DaffodilParser }
 import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilUnparser }
@@ -32,21 +33,20 @@ case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
   private val srd = sq.sequenceRuntimeData
   private val trd = bodyTerm.termRuntimeData
 
-  private val layerTransformerFactory = LayerCompiler.compileLayer(sq)
-  private val layerCompileInfo = layerTransformerFactory.layerCompileInfo
+  private val layerFactory: LayerFactory = LayerCompiler.compileLayer(sq)
 
-  override def toString() =
+  override def toString(): String =
     "<" + Misc.getNameFromClass(this) + ">" +
       bodyTerm.toString() +
       "</" + Misc.getNameFromClass(this) + ">"
 
-  lazy val bodyParser = bodyTerm.parser
-  lazy val bodyUnparser = bodyTerm.unparser
+  private lazy val bodyParser = bodyTerm.parser
+  private lazy val bodyUnparser = bodyTerm.unparser
 
   override lazy val parser: DaffodilParser =
-    new LayeredSequenceParser(srd, layerTransformerFactory, bodyParser)
+    new LayeredSequenceParser(srd, layerFactory, bodyParser)
 
   override lazy val unparser: DaffodilUnparser = {
-    new LayeredSequenceUnparser(srd, layerTransformerFactory, bodyUnparser)
+    new LayeredSequenceUnparser(srd, layerFactory, bodyUnparser)
   }
 }

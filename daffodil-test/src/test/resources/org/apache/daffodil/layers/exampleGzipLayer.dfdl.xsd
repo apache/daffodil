@@ -21,11 +21,14 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:gz="urn:org.apache.daffodil.layers.gzip"
   xmlns:ex="http://example.com"
   targetNamespace="http://example.com">
 
 
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <import namespace="urn:org.apache.daffodil.layers.gzip"
+           schemaLocation="/org/apache/daffodil/layers/xsd/gzipLayer.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
@@ -55,7 +58,7 @@
             <sequence>
               <element name="contents">
                 <complexType>
-                  <sequence dfdlx:layerTransform="gzip">
+                  <sequence dfdl:ref="gz:gzip">
                     <group ref="ex:compressedGroupContents"/>
                   </sequence>
                 </complexType>

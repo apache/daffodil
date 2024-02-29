@@ -18,21 +18,28 @@ package org.apache.daffodil.core.layers
 
 import org.apache.daffodil.core.dsom.SequenceGroupTermBase
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.layers.LayerRegistry
+import org.apache.daffodil.runtime1.layers.LayerRuntimeData
 import org.apache.daffodil.runtime1.layers.api.Layer
-import org.apache.daffodil.runtime1.layers.api.LayerCompileInfo
 
 object LayerCompiler {
 
   /**
-   * Compiles the layer doing all compile time checks, into a serializable runtime object
-   * which is a LayerTransformerFactory
+   * Compiles the layer.
    *
-   * Digests the definition of the layer and does compile-time checking
-   * for consistency and completeness of the definition.
+   * This is mostly checking for errant use of DFDL properties that
+   * can't be used on layers.
    *
-   * Constructs a LayerTransformerFactory which is the serializable runtime data structure
+   * The real compilation - creating runtime data structures based
+   * on constructor signatures and DFDL variables that are in the
+   * layer's namespace, that is called here, but it is part of
+   * the daffodil runtime because that step has to be carried out
+   * *also* at runtime to verify that the dynamically loaded layer
+   * classes are compatible with the variables and their definitions.
+   *
+   * Constructs a LayerFactory which is the serializable runtime data structure
    * used by the LayerParser, and LayerUnparser at runtime.
    */
   def compileLayer(sq: SequenceGroupTermBase): LayerFactory = {
@@ -47,41 +54,47 @@ object LayerCompiler {
  * @param sq
  */
 private class LayerCompiler private (sq: SequenceGroupTermBase) {
+
   Assert.usage(sq.isLayered)
 
   private def srd = sq.sequenceRuntimeData
+  private def lrd = sq.optionLayerRuntimeData.get
+
+  private def layerQName: RefQName = lrd.layerQName
+  private def layerName = layerQName.local
+  private def layerNamespace = layerQName.namespace
 
   private val layeredSequenceAllowedProps = Seq(
     "ref",
     "layerTransform",
   )
-
-  private lazy val layerTransformName: String = sq.optionLayerTransform.get
-
-  private lazy val layer: Layer = {
+  private def checkOnlyAllowedProperties(): Unit = {
     // need to check that only layering properties are specified
     val localProps = sq.formatAnnotation.justThisOneProperties
     val localKeys = localProps.keySet
     val disallowedKeys = localKeys.filterNot(k => layeredSequenceAllowedProps.contains(k))
-    if (disallowedKeys.size > 0)
+    if (disallowedKeys.nonEmpty)
       sq.SDE(
         "Sequence has dfdlx:layerTransform specified, so cannot have non-layering properties: %s",
         disallowedKeys.mkString(", "),
       )
-    LayerRegistry.find(layerTransformName, sq)
+  }
+
+  private lazy val layer: Layer = {
+    checkOnlyAllowedProperties()
+    LayerRegistry.find(lrd.spiName, sq)
   }
 
   /**
    * Gathers all the DFDL schema provided information about  the layer
-   * from the layer properties.
+   * from the layer properties
    */
-  lazy val layerCompileInfo = srd.asInstanceOf[LayerCompileInfo]
+  private def layerRuntimeData: LayerRuntimeData = srd.layerRuntimeData
 
   def compile(): LayerFactory = {
 
-    layer.check(layerCompileInfo) // layer's own checks. E.g., some require layerEncoding.
-
-    new LayerFactory(layerCompileInfo)
+    LayerFactory.computeLayerVarsRuntime(layerRuntimeData, layer)
+    new LayerFactory(layerRuntimeData)
   }
 
 }

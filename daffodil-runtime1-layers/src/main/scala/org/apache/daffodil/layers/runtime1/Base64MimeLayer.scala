@@ -23,11 +23,12 @@ import java.io.OutputStream
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
-final class Base64MimeLayer extends Layer("base64_MIME") {
+final class Base64MimeLayer
+  extends Layer("base64_MIME", "urn:org.apache.daffodil.layers.base64_MIME") {
 
-  override def wrapLayerEncoder(jos: OutputStream, lrd: LayerRuntime): OutputStream =
+  override def wrapLayerOutput(jos: OutputStream, lrd: LayerRuntime): OutputStream =
     java.util.Base64.getMimeEncoder().wrap(jos)
 
-  override def wrapLayerDecoder(jis: InputStream, lrd: LayerRuntime): InputStream =
+  override def wrapLayerInput(jis: InputStream, lrd: LayerRuntime): InputStream =
     java.util.Base64.getMimeDecoder.wrap(jis)
 }

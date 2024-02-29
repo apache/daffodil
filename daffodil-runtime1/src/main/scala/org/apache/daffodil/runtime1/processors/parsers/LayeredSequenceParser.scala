@@ -17,15 +17,15 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
 import org.apache.daffodil.runtime1.layers.LayerFactory
+import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
 import org.apache.daffodil.runtime1.layers.api.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
 class LayeredSequenceParser(
-                             rd: SequenceRuntimeData,
-                             layerTransformerFactory: LayerFactory,
-                             bodyParser: SequenceChildParser,
+  rd: SequenceRuntimeData,
+  layerFactory: LayerFactory,
+  bodyParser: SequenceChildParser,
 ) extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
 
@@ -36,29 +36,29 @@ class LayeredSequenceParser(
     //   It should be possible to define only a layer parser if a schema (and its requried layers)
     //   are intended to be used only to parse data.
 
-    val layerRuntimeImpl = new LayerRuntimeImpl(state, rd)
-    val layerTransformer = layerTransformerFactory.newInstance(layerRuntimeImpl)
+    val layerRuntimeImpl = new LayerRuntimeImpl(state, rd.layerRuntimeData)
+    val layerDriver = layerFactory.newInstance(layerRuntimeImpl)
     val savedDIS = state.dataInputStream
 
-    val isAligned = savedDIS.align(layerTransformer.mandatoryLayerAlignmentInBits, state)
+    val isAligned = savedDIS.align(layerDriver.mandatoryLayerAlignmentInBits, state)
     if (!isAligned)
       PE(
         state,
         "Unable to align to the mandatory layer alignment of %s(bits)",
-        layerTransformer.mandatoryLayerAlignmentInBits,
+        layerDriver.mandatoryLayerAlignmentInBits,
       )
 
     try {
-      val newDIS = layerTransformer.addLayer(savedDIS, layerRuntimeImpl)
+      val newDIS = layerDriver.addInputLayer(savedDIS, layerRuntimeImpl)
 
       state.dataInputStream = newDIS
       super.parse(state)
-      layerTransformer.removeLayer(newDIS)
+      layerDriver.removeLayer(newDIS, layerRuntimeImpl)
     } catch {
       case pe: ParseError =>
         state.setFailed(pe)
       case e: Exception =>
-        throw new LayerUnexpectedException(rd.layerName, e)
+        throw new LayerUnexpectedException(layerRuntimeImpl, e)
     } finally {
       state.dataInputStream = savedDIS
     }

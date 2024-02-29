@@ -20,7 +20,7 @@
            xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-           xmlns:tns="urn:org.apache.daffodil.layers.IPv4Checksum"
+           xmlns:chksum="urn:org.apache.daffodil.layers.IPv4Checksum"
            targetNamespace="urn:org.apache.daffodil.layers.IPv4Checksum">
 
   <xs:annotation>
@@ -29,23 +29,25 @@
 
       Per the checksum algorithm described in IETF RFC791.
 
-      The data has a well-known fixed layer length. Hence, layerLengthKind is 'implicit'.
+      The data has a well-known fixed layer length of 20 bytes.
 
-      If the data doesn't match this expected fixed length, issue PE/UE.
+      If the data doesn't match this expected fixed length, it is a processing error.
 
-      This checksum is written into the result variable.
+      The checksum is written into the result variable.
     </xs:documentation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
 
       <dfdl:defineVariable name="IPv4Checksum" type="xs:unsignedShort"/>
 
-      <dfdl:defineVariable name="IPv4ChecksumLayerLength" type="xs:unsignedShort" defaultValue="20"/>
+      <dfdl:defineFormat name="IPv4Checksum">
+        <dfdl:format dfdlx:layerTransform="chksum:IPv4Checksum"/>
+      </dfdl:defineFormat>
 
     </xs:appinfo>
   </xs:annotation>
 
   <xs:simpleType name="IPv4Checksum"
-    dfdl:lengthKind="explicit" dfdl:length="16" dfdl:lengthUnits="bits">
+    dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="16" dfdl:lengthUnits="bits">
     <xs:restriction base="xs:unsignedShort"/>
   </xs:simpleType>
 

@@ -22,15 +22,12 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-  xmlns:ipv4="urn:org.apache.daffodil.layers.IPv4"
   xmlns:chksum="urn:org.apache.daffodil.layers.IPv4Checksum"
   xmlns:ex="http://example.com"
-  xmlns:tns="http://example.com"
-  defaultRoundTrip="none">
+  defaultRoundTrip="onePass">
 
 
-  <tdml:parserTestCase name="IPv4_1" root="IPv4Header" model="exampleIPv4.dfdl.xsd"
-    roundTrip="none">
+  <tdml:parserTestCase name="IPv4_1" root="IPv4Header" model="exampleIPv4.dfdl.xsd">
     <tdml:document>
       <!--
       see https://en.wikipedia.org/wiki/IPv4_header_checksum
@@ -48,7 +45,7 @@ c0a8 0001 c0a8 00c7
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ipv4:IPv4Header>
+        <ex:IPv4Header>
           <Version>4</Version>
           <IHL>5</IHL>
           <DSCP>0</DSCP>
@@ -64,14 +61,13 @@ c0a8 0001 c0a8 00c7
           <IPDest>C0A800C7</IPDest>
           <FakeData>115</FakeData>
           <ComputedChecksum>47201</ComputedChecksum>
-        </ipv4:IPv4Header>
+        </ex:IPv4Header>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 
-  <tdml:unparserTestCase name="IPv4_array" root="testArray" model="exampleIPv4.dfdl.xsd"
-                       roundTrip="none">
+  <tdml:unparserTestCase name="IPv4_array" root="testArray" model="exampleIPv4.dfdl.xsd">
     <tdml:document>
       <!--
       see https://en.wikipedia.org/wiki/IPv4_header_checksum
@@ -92,7 +88,7 @@ c0a8 0001 c0a8 00c7
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ipv4:testArray>
+        <ex:testArray>
         <IPv4Header>
           <Version>4</Version>
           <IHL>5</IHL>
@@ -127,7 +123,7 @@ c0a8 0001 c0a8 00c7
           <FakeData>115</FakeData>
           <ComputedChecksum>47201</ComputedChecksum>
         </IPv4Header>
-        </ipv4:testArray>
+        </ex:testArray>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
@@ -148,10 +144,10 @@ c0a8 0001 c0a8 00c7
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="IPv4_2" root="IPv4Header" model="exampleIPv4.dfdl.xsd"
-                       roundTrip="none">
+    roundTrip="none">
     <tdml:document>
       <!--
-      similar, but the data has a 1 in the indentification which
+      similar, but the data has a 1 in the identification which
       makes the stored checksum in the middle of the data incorrect.
       -->
       <tdml:documentPart type="byte"><![CDATA[
@@ -162,7 +158,7 @@ c0a8 0001 c0a8 00c7
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ipv4:IPv4Header>
+        <ex:IPv4Header>
           <Version>4</Version>
           <IHL>5</IHL>
           <DSCP>0</DSCP>
@@ -178,7 +174,7 @@ c0a8 0001 c0a8 00c7
           <IPDest>C0A800C7</IPDest>
           <FakeData>115</FakeData>
           <ComputedChecksum>47200</ComputedChecksum>
-        </ipv4:IPv4Header>
+        </ex:IPv4Header>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:validationErrors>
@@ -188,7 +184,7 @@ c0a8 0001 c0a8 00c7
 
 
   <tdml:unparserTestCase name="IPv4_1u" root="IPv4Header" model="exampleIPv4.dfdl.xsd"
-                       roundTrip="none">
+    roundTrip="none">
     <tdml:document>
       <!--
       see https://en.wikipedia.org/wiki/IPv4_header_checksum
@@ -206,7 +202,7 @@ c0a8 0001 c0a8 00c7
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ipv4:IPv4Header>
+        <ex:IPv4Header>
           <Version>4</Version>
           <IHL>5</IHL>
           <DSCP>0</DSCP>
@@ -222,13 +218,13 @@ c0a8 0001 c0a8 00c7
           <IPDest>C0A800C7</IPDest>
           <FakeData>115</FakeData>
           <ComputedChecksum>0</ComputedChecksum> <!-- ignored when unparsing -->
-        </ipv4:IPv4Header>
+        </ex:IPv4Header>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
 
   <tdml:unparserTestCase name="IPv4_2u" root="IPv4Header" model="exampleIPv4.dfdl.xsd"
-                         roundTrip="none">
+    roundTrip="none">
     <tdml:document>
       <!--
       see https://en.wikipedia.org/wiki/IPv4_header_checksum
@@ -246,7 +242,7 @@ c0a8 0001 c0a8 00c7
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ipv4:IPv4Header>
+        <ex:IPv4Header>
           <Version>4</Version>
           <IHL>5</IHL>
           <DSCP>0</DSCP>
@@ -262,7 +258,7 @@ c0a8 0001 c0a8 00c7
           <IPDest>C0A800C7</IPDest>
           <FakeData>115</FakeData>
           <ComputedChecksum>0</ComputedChecksum><!-- ignored unparsing -->
-        </ipv4:IPv4Header>
+        </ex:IPv4Header>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>

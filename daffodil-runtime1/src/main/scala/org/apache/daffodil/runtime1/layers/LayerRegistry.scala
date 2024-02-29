@@ -21,8 +21,9 @@ import org.apache.daffodil.lib.util.SimpleNamedServiceLoader
 import org.apache.daffodil.runtime1.layers.api.Layer
 
 /**
- * Transformers have factories. This lets you find the transformer factory
- * by the name obtained from dfdlx:layerTransform.
+ * Uses Java SPI to dynamically load Layer classes from the class path.
+ * (The classes must be listed in an M.services file with the name
+ * corresponding the the Layer class full name)
  */
 object LayerRegistry {
 
@@ -30,23 +31,32 @@ object LayerRegistry {
     SimpleNamedServiceLoader.loadClass[Layer](classOf[Layer])
 
   /**
-   * Given name, finds the factory for the transformer. SDE otherwise.
-   *
-   * The state is passed in order to provide diagnostic context if not found.
+   * This is used to find the Layer corresponding to the use of a Layer
+   * at schema compilation time. SDE otherwise.
    */
-  def find(name: String, context: ThrowsSDE): Layer = {
-    val maybeCompiler: Option[Layer] = layerMap.get(name)
-    if (maybeCompiler.isEmpty) {
+  def find(spiName: String, context: ThrowsSDE): Layer = {
+    val optLayer: Option[Layer] = layerMap.get(spiName)
+    if (optLayer.isEmpty) {
       val choices = layerMap.keySet.mkString(", ")
       context.SDE(
         "The dfdlx:layerTransform '%s' was not found. Available choices are: %s",
-        name,
+        spiName,
         choices,
       )
     } else {
-      maybeCompiler.get
+      optLayer.get
     }
   }
 
-  def findLayer(name: String): Option[Layer] = layerMap.get(name)
+  /**
+   * This is used to find a Layer when creating an instance at runtime.
+   *
+   * It is the caller's responsibility to issue the proper error if this is
+   * not found.
+   *
+   * @param spiName the name of the schema according to the SPI loader. The Layer.name() method
+   *                returns this string. This string includes both name and namespace information.
+   * @return
+   */
+  def findLayer(spiName: String): Option[Layer] = layerMap.get(spiName)
 }

@@ -102,16 +102,16 @@ class VariableInstance private (val rd: VariableRuntimeData) extends Serializabl
   // either the defaultValue expression or by an external binding
   var firstInstanceInitialValue: DataValuePrimitiveNullable = DataValue.NoValue
 
-  def setState(s: VariableState) = {
+  def setState(s: VariableState): Unit = {
     this.state = s
   }
 
-  def setValue(v: DataValuePrimitiveNullable) = {
+  def setValue(v: DataValuePrimitiveNullable): Unit = {
     this.value = v
   }
 
   /* This is used to set a default value with the appropriate state */
-  def setDefaultValue(v: DataValuePrimitiveNullable) = {
+  def setDefaultValue(v: DataValuePrimitiveNullable): Unit = {
     Assert.invariant(
       (this.state == VariableUndefined || this.state == VariableInProcess) && v.isDefined,
     )
@@ -126,7 +126,7 @@ class VariableInstance private (val rd: VariableRuntimeData) extends Serializabl
     state: VariableState = state,
     value: DataValuePrimitiveNullable = value,
     rd: VariableRuntimeData = rd,
-  ) = {
+  ): VariableInstance = {
     val inst = new VariableInstance(rd)
     inst.state = state
     inst.value = value
@@ -141,7 +141,7 @@ object VariableUtils {
     currentVMap: VariableMap,
     bindings: Seq[Binding],
     referringContext: ThrowsSDE,
-  ) = {
+  ): Unit = {
     bindings.foreach { b =>
       currentVMap.setExtVariable(b.varQName, b.varValue, referringContext)
     }
@@ -209,17 +209,17 @@ class VariableCircularDefinition(qname: NamedQName, context: VariableRuntimeData
 final class VariableBox(initialVMap: VariableMap) {
   private var vmap_ : VariableMap = initialVMap
 
-  def vmap = vmap_
+  def vmap: VariableMap = vmap_
 
   def setVMap(newMap: VariableMap): Unit = {
     vmap_ = newMap
   }
 
-  def cloneForSuspension(): VariableBox = new VariableBox(vmap.cloneForSuspension)
+  def cloneForSuspension(): VariableBox = new VariableBox(vmap.cloneForSuspension())
 }
 
 object VariableMap {
-  def apply(vrds: Seq[VariableRuntimeData] = Nil) = {
+  def apply(vrds: Seq[VariableRuntimeData] = Nil): VariableMap = {
     val table = new Array[Seq[VariableInstance]](vrds.size)
     vrds.foreach { vrd =>
       table(vrd.vmapIndex) = Seq(vrd.createVariableInstance())
@@ -257,10 +257,12 @@ object VariableMap {
  * defined at compile time. Although this adds extra complexity compared to a Map since we must
  * carry around an index, the performance gains are worth it.
  */
-class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[VariableInstance]])
-  extends Serializable {
+class VariableMap private (
+  val vrds: Seq[VariableRuntimeData],
+  vTable: Array[Seq[VariableInstance]],
+) extends Serializable {
 
-  override def toString(): String = {
+  override def toString: String = {
     "VariableMap(" + vTable.mkString(" | ") + ")"
   }
 
@@ -278,8 +280,8 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
   }
 
   def cloneForSuspension(): VariableMap = {
-    val newTable = new Array[Seq[VariableInstance]](vTable.size)
-    Array.copy(vTable, 0, newTable, 0, vTable.size)
+    val newTable = new Array[Seq[VariableInstance]](vTable.length)
+    Array.copy(vTable, 0, newTable, 0, vTable.length)
     new VariableMap(vrds, newTable)
   }
 
@@ -415,7 +417,7 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
     newValue: DataValuePrimitive,
     referringContext: ThrowsSDE,
     pstate: ParseOrUnparseState,
-  ) = {
+  ): Unit = {
     val varQName = vrd.globalQName
     val variableInstances = vTable(vrd.vmapIndex)
     val variable = variableInstances.head
@@ -492,7 +494,7 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
   /**
    * Assigns an external variable and sets the variables state to VariableSet
    */
-  def setExtVariable(bindingQName: RefQName, newValue: String, referringContext: ThrowsSDE) = {
+  def setExtVariable(bindingQName: RefQName, newValue: String, referringContext: ThrowsSDE): Unit = {
 
     val optVariableInstances =
       if (bindingQName.namespace == UnspecifiedNamespace) {
@@ -532,7 +534,7 @@ class VariableMap private (vrds: Seq[VariableRuntimeData], vTable: Array[Seq[Var
         // a parse/unparse is started. So this array should contain only a
         // single instance
         Assert.invariant(variableInstances.size == 1)
-        val variable = variableInstances(0)
+        val variable = variableInstances.head
         if (!variable.rd.external) {
           throw new ExternalVariableException(
             "Variable cannot be set externally: " + variable.rd.globalQName,

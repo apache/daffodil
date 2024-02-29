@@ -45,14 +45,14 @@
       <sequence>
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:newVariableInstance ref="cd:checkDigitParams" defaultValue="verbose"/>
-            <dfdl:newVariableInstance ref="cd:checkDigitEncoding" defaultValue="ascii"/>
+            <dfdl:newVariableInstance ref="cd:params" defaultValue="verbose"/>
+            <dfdl:newVariableInstance ref="cd:digitEncoding" defaultValue="ascii"/>
             <dfdl:newVariableInstance ref="cd:checkDigit"/>
-            <dfdl:newVariableInstance ref="cd:checkDigitLayerLength" defaultValue="10"/>
+            <dfdl:newVariableInstance ref="cd:length" defaultValue="10"/>
           </appinfo>
         </annotation>
         <sequence>
-          <sequence dfdlx:layerTransform="checkDigit">
+          <sequence dfdl:ref="cd:checkDigit">
             <element name="value" type="ex:dateType"/>
           </sequence>
           <element name="checkDigit" type="cd:checkDigitType" dfdl:initiator=":"

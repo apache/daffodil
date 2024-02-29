@@ -16,48 +16,65 @@
  */
 package org.apache.daffodil.runtime1.layers
 
-import java.nio.charset.Charset
-
-import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.runtime1.infoset.DataValue
+import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.runtime1.layers.api.LayerException
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
-import org.apache.daffodil.runtime1.layers.api.LayerVariable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
-import org.apache.daffodil.runtime1.processors.VariableRuntimeData
+import org.apache.daffodil.runtime1.processors.ProcessingError
 import org.apache.daffodil.runtime1.processors.parsers.PState
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
-class LayerRuntimeImpl(val state: ParseOrUnparseState, val srd: SequenceRuntimeData)
+class LayerRuntimeImpl(val state: ParseOrUnparseState, lrd: LayerRuntimeData)
   extends LayerRuntime {
 
+  final override def layerName(): String = lrd.localName
+
+  final def layerRuntimeData: LayerRuntimeData = lrd
+
+  final def finfo: FormatInfo = state
+
   override def processingError(cause: Throwable): Nothing =
-    processingError(Maybe(cause), Maybe.Nope)
+    lrd.toss(toProcessingError(new LayerException(this, cause)))
 
   override def processingError(msg: String): Nothing =
-    processingError(Maybe.Nope, Maybe(msg))
+    lrd.toss(toProcessingError(new LayerException(this, msg)))
 
-  private def processingError(mCause: Maybe[Throwable], mMsg: Maybe[String]): Nothing = {
+  def toProcessingError(layerException: LayerException): ProcessingError = {
+    val mCause = Maybe(layerException.getCause)
+    val mMsg = Maybe(layerException.getMessage)
     val diagnostic = state match {
       case ps: PState =>
         new ParseError(
-          rd = Maybe(srd.schemaFileLocation),
+          rd = Maybe(lrd.schemaFileLocation),
           loc = Maybe(state.currentLocation),
           causedBy = mCause,
           kind = mMsg,
         )
       case us: UState =>
         new UnparseError(
-          rd = Maybe(srd.schemaFileLocation),
+          rd = Maybe(lrd.schemaFileLocation),
           loc = Maybe(state.currentLocation),
           causedBy = mCause,
           kind = mMsg,
         )
     }
-    throw diagnostic
+    diagnostic
+  }
+
+  def toSchemaDefinitionError(mCause: Maybe[Throwable], mMsg: Maybe[String]): Diagnostic = {
+    val ctxt = state.getContext()
+    val rsde = new RuntimeSchemaDefinitionError(
+      ctxt.schemaFileLocation,
+      state,
+      mCause.orNull,
+      mMsg.orNull,
+    )
+    rsde
   }
 
   override def runtimeSchemaDefinitionError(msg: String, args: AnyRef*): Nothing =
@@ -65,52 +82,4 @@ class LayerRuntimeImpl(val state: ParseOrUnparseState, val srd: SequenceRuntimeD
 
   override def runtimeSchemaDefinitionError(cause: Throwable): Nothing =
     state.SDE(cause)
-
-  override def getString(variable: LayerVariable): String =
-    state
-      .getVariable(variable.asInstanceOf[VariableRuntimeData], srd)
-      .getString
-
-  override def setString(variable: LayerVariable, s: String): Unit =
-    state.setVariable(
-      variable.asInstanceOf[VariableRuntimeData],
-      DataValue.toDataValue(s),
-      srd,
-    )
-
-  override def getInt(variable: LayerVariable): Int =
-    state
-      .getVariable(variable.asInstanceOf[VariableRuntimeData], srd)
-      .getInt
-
-  override def setInt(variable: LayerVariable, v: Int): Unit =
-    state.setVariable(
-      variable.asInstanceOf[VariableRuntimeData],
-      DataValue.toDataValue(v),
-      srd,
-    )
-
-  override def schemaDefinitionError(msg: String, args: AnyRef*): Unit =
-    runtimeSchemaDefinitionError(msg, args)
-
-  override def getCharset(layerEncoding: String): Charset = Charset.forName(layerEncoding)
-
-  override def layerVariable(namespaceURI: String, varName: String): LayerVariable =
-    srd.layerVariable(namespaceURI, varName)
-
-  override def getLong(variable: LayerVariable): Long =
-    state
-      .getVariable(variable.asInstanceOf[VariableRuntimeData], srd)
-      .getLong
-
-  override def setLong(variable: LayerVariable, v: Long): Unit =
-    state.setVariable(
-      variable.asInstanceOf[VariableRuntimeData],
-      DataValue.toDataValue(v),
-      srd,
-    )
-
-  override def layerName(): String = srd.layerName()
-
-  override def schemaFileLocation(): SchemaFileLocation = srd.schemaFileLocation
 }

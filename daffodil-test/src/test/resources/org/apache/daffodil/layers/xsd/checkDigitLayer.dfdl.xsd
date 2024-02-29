@@ -19,6 +19,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:cd="urn:org.apache.daffodil.layers.checkDigit"
   targetNamespace="urn:org.apache.daffodil.layers.checkDigit">
 
@@ -30,10 +31,13 @@
       <dfdl:format ref="cd:GeneralFormat" />
 
       <dfdl:defineVariable name="checkDigit" type="xs:unsignedShort"/>
-      <dfdl:defineVariable name="checkDigitLayerLength" type="xs:unsignedShort"/>
-      <dfdl:defineVariable name="checkDigitParams" type="xs:string" defaultValue=""/>
-      <dfdl:defineVariable name="checkDigitEncoding" type="xs:string"/>
-     
+      <dfdl:defineVariable name="length" type="xs:unsignedShort"/>
+      <dfdl:defineVariable name="params" type="xs:string" defaultValue=""/>
+      <dfdl:defineVariable name="digitEncoding" type="xs:string"/>
+
+      <dfdl:defineFormat name="checkDigit">
+        <dfdl:format dfdlx:layerTransform="cd:checkDigit"/>
+      </dfdl:defineFormat>
     </appinfo>
   </annotation>
 

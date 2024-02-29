@@ -20,16 +20,18 @@
   xmlns="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-  xmlns:fl="urn:org.apache.daffodil.layers.fixedLength"
-  targetNamespace="urn:org.apache.daffodil.layers.fixedLength">
+  xmlns:bswap="urn:org.apache.daffodil.layers.byteSwap"
+  targetNamespace="urn:org.apache.daffodil.layers.byteSwap">
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
 
-      <dfdl:defineVariable name="fixedLength" type="xs:unsignedInt"/>
+      <dfdl:defineFormat name="twobyteswap">
+        <dfdl:format dfdlx:layerTransform="bswap:twobyteswap"/>
+      </dfdl:defineFormat>
 
-      <dfdl:defineFormat name="fixedLength">
-        <dfdl:format dfdlx:layerTransform="fl:fixedLength"/>
+      <dfdl:defineFormat name="fourbyteswap">
+        <dfdl:format dfdlx:layerTransform="bswap:fourbyteswap"/>
       </dfdl:defineFormat>
 
     </appinfo>

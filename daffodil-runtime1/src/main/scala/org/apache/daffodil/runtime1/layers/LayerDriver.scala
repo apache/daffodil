@@ -32,7 +32,6 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.layers.api.Layer
-import org.apache.daffodil.runtime1.layers.api.LayerCompileInfo
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 import passera.unsigned.ULong
@@ -43,19 +42,23 @@ import passera.unsigned.ULong
  * A layer driver is created at runtime as part of a single parse/unparse call.
  * Hence, they can be stateful without causing thread-safety issues.
  */
-class LayerDriver(layerCompileInfo: LayerCompileInfo, layer: Layer) {
+class LayerDriver(
+  layerRuntimeData: LayerRuntimeData,
+  layer: Layer,
+  layerVarsRuntime: LayerVarsRuntime,
+) {
 
   private def wrapJavaInputStream(
     s: InputSourceDataInputStream,
     layerRuntimeImpl: LayerRuntimeImpl,
   ): InputStream =
-    new JavaIOInputStream(s, layerRuntimeImpl.state)
+    new JavaIOInputStream(s, layerRuntimeImpl.finfo)
 
   private def wrapJavaOutputStream(
     s: DataOutputStream,
     layerRuntimeImpl: LayerRuntimeImpl,
   ): OutputStream =
-    new JavaIOOutputStream(s, layerRuntimeImpl.state)
+    new JavaIOOutputStream(s, layerRuntimeImpl.finfo)
 
   /**
    *  Override these if we ever have transformers that don't have these
@@ -63,12 +66,12 @@ class LayerDriver(layerCompileInfo: LayerCompileInfo, layer: Layer) {
    */
   val mandatoryLayerAlignmentInBits: Int = 8
 
-  final def addLayer(
+  final def addInputLayer(
     s: InputSourceDataInputStream,
     layerRuntimeImpl: LayerRuntimeImpl,
   ): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s, layerRuntimeImpl)
-    val decodedInputStream = layer.wrapLayerDecoder(jis, layerRuntimeImpl)
+    val decodedInputStream = layer.wrapLayerInput(jis, layerRuntimeImpl)
     val newDIS = InputSourceDataInputStream(decodedInputStream)
     newDIS.cst.setPriorBitOrder(
       BitOrder.MostSignificantBitFirst,
@@ -77,16 +80,24 @@ class LayerDriver(layerCompileInfo: LayerCompileInfo, layer: Layer) {
     newDIS
   }
 
-  final def removeLayer(s: InputSourceDataInputStream): Unit = {
-    // nothing for now
+  /**
+   * Parsing works as a tree traversal, so when the parser unwinds from
+   * parsing the layer we can invoke this to handle cleanups, and
+   * finalization issues like assigning the result variables
+   */
+  final def removeLayer(
+    s: InputSourceDataInputStream,
+    layerRuntimeImpl: LayerRuntimeImpl,
+  ): Unit = {
+    layerVarsRuntime.callGettersToPopulateResultVars(layer, layerRuntimeImpl)
   }
 
-  final def addLayer(
+  final def addOutputLayer(
     s: DataOutputStream,
     layerRuntimeImpl: LayerRuntimeImpl,
   ): DirectOrBufferedDataOutputStream = {
     val jos = wrapJavaOutputStream(s, layerRuntimeImpl)
-    val encodedOutputStream = layer.wrapLayerEncoder(jos, layerRuntimeImpl)
+    val encodedOutputStream = layer.wrapLayerOutput(jos, layerRuntimeImpl)
     val newDOS = DirectOrBufferedDataOutputStream(
       encodedOutputStream,
       null,
@@ -101,12 +112,15 @@ class LayerDriver(layerCompileInfo: LayerCompileInfo, layer: Layer) {
     newDOS
   }
 
+  /**
+   * Unparsing is very asynchronous due to suspensions.
+   * So just because the unparser has returned from unparsing the layer doesn't
+   * mean data isn't going to be delivered to this layer output stream later.
+   *
+   * So there is little cleanup or wrap-up we can do in this case.
+   */
   final def removeLayer(s: DirectOrBufferedDataOutputStream, state: UState): Unit = {
-    //
-    // Because the layer may have suspensions that will write to it long after
-    // this unparser has left the stack, it is not clear we can do any
-    // cleanup of resources here.
-    //
+    // do nothing
   }
 }
 
@@ -116,7 +130,7 @@ class LayerDriver(layerCompileInfo: LayerCompileInfo, layer: Layer) {
  *
  * @param s the Daffodil InputSourceDataInputStream
  * @param finfo the format info (a view trait on a PState/UState) needed for bit order considerations.
- * @returns a java.io.InputStream which when read from, delegates to the InputSourceDataInputStream
+ * @return a java.io.InputStream which when read from, delegates to the InputSourceDataInputStream
  */
 class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extends InputStream {
 
@@ -137,8 +151,11 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extend
     // do nothing
   }
 
+  /**
+   * @param readlimit Ignored. The limits of daffodil's input system are specified
+   *                  elsewhere. See BucketingInputSource in the daffodil-io module.
+   */
   override def mark(readlimit: Int): Unit = {
-    Assert.usage(maybeSavedMark.isEmpty)
     maybeSavedMark = One(s.mark(id))
   }
 
@@ -162,8 +179,6 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extend
 class JavaIOOutputStream(dos: DataOutputStream, finfo: FormatInfo) extends OutputStream {
 
   private var closed = false
-
-  def nBytesWritten = nBytes
 
   private var nBytes = 0
 

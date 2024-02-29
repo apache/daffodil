@@ -51,16 +51,16 @@ public final class GZipLayer extends Layer {
   }
 
   public GZipLayer() {
-    super("gzip");
+    super("gzip", "urn:org.apache.daffodil.layers.gzip");
   }
 
   @Override
-  public InputStream wrapLayerDecoder(InputStream jis, LayerRuntime lrd) throws IOException {
+  public InputStream wrapLayerInput(InputStream jis, LayerRuntime lrd) throws IOException {
     return new java.util.zip.GZIPInputStream(jis);
   }
 
   @Override
-  public OutputStream wrapLayerEncoder(OutputStream jos, LayerRuntime lrd) throws IOException {
+  public OutputStream wrapLayerOutput(OutputStream jos, LayerRuntime lrd) throws IOException {
     OutputStream fixedOS = fixIsNeeded() ? new GZIPFixedOutputStream(jos) : jos;
     return new java.util.zip.GZIPOutputStream(fixedOS);
   }

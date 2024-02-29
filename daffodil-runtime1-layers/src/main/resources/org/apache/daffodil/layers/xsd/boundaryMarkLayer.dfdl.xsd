@@ -19,6 +19,7 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
   targetNamespace="urn:org.apache.daffodil.layers.boundaryMark">
 
@@ -27,6 +28,10 @@
 
       <dfdl:defineVariable name="boundaryMark" type="xs:string"/>
       <dfdl:defineVariable name="layerEncoding" type="xs:string"/>
+
+      <dfdl:defineFormat name="boundaryMark">
+        <dfdl:format dfdlx:layerTransform="bm:boundaryMark"/>
+      </dfdl:defineFormat>
 
     </appinfo>
   </annotation>

@@ -16,7 +16,7 @@
  */
 package org.apache.daffodil.runtime1.layers.api;
 
-import java.nio.charset.Charset;
+import org.apache.daffodil.runtime1.layers.LayerRuntimeData;
 
 /**
  * Runtime information and stateful services available to the layer when
@@ -31,7 +31,9 @@ import java.nio.charset.Charset;
  * This object contains the processor state, but hidden behind an API so that only relevant
  * aspects of the processor state are visible.
  */
-public interface LayerRuntime extends LayerCompileInfo {
+public interface LayerRuntime {
+
+  String layerName();
 
   /**
    * Throws a processing error with the specified message.
@@ -67,39 +69,4 @@ public interface LayerRuntime extends LayerCompileInfo {
    */
   void runtimeSchemaDefinitionError(Throwable cause);
 
-  /**
-   * @param variable The LayerVariable object for which to retrieve the string value.
-   * @return The string value associated with the given LayerVariable.
-   */
-  String getString(LayerVariable variable);
-
-  /**
-   * @param variable the LayerVariable to set the string value for
-   * @param s the string value to be set
-   */
-  void setString(LayerVariable variable, String s);
-
-  /**
-   * @param variable The LayerVariable from which to retrieve the integer value.
-   * @return The integer value associated with the provided LayerVariable.
-   */
-  int getInt(LayerVariable variable);
-
-  /**
-   * @param variable The LayerVariable to set the value for.
-   * @param v The integer value to set.
-   */
-  void setInt(LayerVariable variable, int v);
-
-  /**
-   * @param variable The LayerVariable for which the long value is to be retrieved.
-   * @return The long value associated with the given LayerVariable.
-   */
-  long getLong(LayerVariable variable);
-
-  /**
-   * @param variable the LayerVariable to set the value for
-   * @param v the long value to set
-   */
-  void setLong(LayerVariable variable, long v);
 }

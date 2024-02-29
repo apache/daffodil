@@ -22,8 +22,8 @@
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
            xmlns:chksum="urn:org.apache.daffodil.layers.IPv4Checksum"
-           xmlns:tns="urn:org.apache.daffodil.layers.IPv4"
-           targetNamespace="urn:org.apache.daffodil.layers.IPv4" >
+           xmlns:ipv4="http://example.com"
+           targetNamespace="http://example.com" >
 
   <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
@@ -34,7 +34,7 @@
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="basicBigEndianBinary">
         <dfdl:format
-          ref="tns:GeneralFormat"
+          ref="ipv4:GeneralFormat"
           representation="binary"
           binaryNumberRep="binary"
           byteOrder="bigEndian"
@@ -44,16 +44,16 @@
           occursCountKind="implicit"
           lengthUnits="bits"/>
       </dfdl:defineFormat>
-      <dfdl:format ref="tns:basicBigEndianBinary"/>
+      <dfdl:format ref="ipv4:basicBigEndianBinary"/>
     </xs:appinfo>
   </xs:annotation>
 
-  <xs:element name="IPv4Header" type="tns:IPv4Header"/>
+  <xs:element name="IPv4Header" type="ipv4:IPv4Header"/>
 
   <xs:element name="testArray">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="IPv4Header" type="tns:IPv4Header" maxOccurs="unbounded"/>
+        <xs:element name="IPv4Header" type="ipv4:IPv4Header" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -89,22 +89,22 @@
         </xs:appinfo>
       </xs:annotation>
 
-      <xs:sequence dfdlx:layerTransform='IPv4Checksum'><!-- always exactly 20 bytes long -->
+      <xs:sequence dfdl:ref='chksum:IPv4Checksum'><!-- always exactly 20 bytes long -->
         <xs:sequence>
-        <xs:element name="Version" type="tns:bit" dfdl:length="4"/>
-        <xs:element name="IHL" type="tns:bit" dfdl:length="4"/>
-        <xs:element name="DSCP" type="tns:bit" dfdl:length="6"/>
-        <xs:element name="ECN" type="tns:bit" dfdl:length="2"/>
-        <xs:element name="Length" type="tns:bit" dfdl:length="16"
+        <xs:element name="Version" type="ipv4:bit" dfdl:length="4"/>
+        <xs:element name="IHL" type="ipv4:bit" dfdl:length="4"/>
+        <xs:element name="DSCP" type="ipv4:bit" dfdl:length="6"/>
+        <xs:element name="ECN" type="ipv4:bit" dfdl:length="2"/>
+        <xs:element name="Length" type="ipv4:bit" dfdl:length="16"
           dfdl:outputValueCalc='{ ../FakeData }'/>
-        <xs:element name="Identification" type="tns:bit" dfdl:length="16"/>
-        <xs:element name="Flags" type="tns:bit" dfdl:length="3"/>
-        <xs:element name="FragmentOffset" type="tns:bit" dfdl:length="13"/>
-        <xs:element name="TTL" type="tns:bit" dfdl:length="8"/>
-        <xs:element name="Protocol" type="tns:bit" dfdl:length="8"/>
+        <xs:element name="Identification" type="ipv4:bit" dfdl:length="16"/>
+        <xs:element name="Flags" type="ipv4:bit" dfdl:length="3"/>
+        <xs:element name="FragmentOffset" type="ipv4:bit" dfdl:length="13"/>
+        <xs:element name="TTL" type="ipv4:bit" dfdl:length="8"/>
+        <xs:element name="Protocol" type="ipv4:bit" dfdl:length="8"/>
         <xs:element name="Checksum" type="chksum:IPv4Checksum"/>
-        <xs:element name="IPSrc" type="tns:hexByte" dfdl:length="4"/>
-        <xs:element name="IPDest" type="tns:hexByte" dfdl:length="4"/>
+        <xs:element name="IPSrc" type="ipv4:hexByte" dfdl:length="4"/>
+        <xs:element name="IPDest" type="ipv4:hexByte" dfdl:length="4"/>
       </xs:sequence>
       </xs:sequence>
       <!--
@@ -113,7 +113,7 @@
 
       We just want the tests to rule out deadlock in this case.
       -->
-      <xs:element name="FakeData" type="tns:bit"
+      <xs:element name="FakeData" type="ipv4:bit"
                   dfdl:inputValueCalc='{ ../Length }'/>
       <!--
       We want the schema author to have all options on what to do if the

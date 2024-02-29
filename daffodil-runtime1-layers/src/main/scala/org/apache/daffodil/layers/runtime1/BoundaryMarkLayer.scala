@@ -18,47 +18,54 @@ package org.apache.daffodil.layers.runtime1
 
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.charset.Charset
 
 import org.apache.daffodil.io.BoundaryMarkInsertingJavaOutputStream
 import org.apache.daffodil.io.BoundaryMarkLimitingInputStream
-import org.apache.daffodil.runtime1.api.DFDLPrimType
 import org.apache.daffodil.runtime1.layers.api.Layer
-import org.apache.daffodil.runtime1.layers.api.LayerCompileInfo
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
-import org.apache.daffodil.runtime1.layers.api.LayerVariable
 
-final class BoundaryMarkLayer extends Layer("boundaryMark") {
-  var boundaryMarkVar: LayerVariable = _
-  var layerEncodingVar: LayerVariable = _
+/**
+ * A layer which isolates text data by way of a boundary mark string.
+ * This is like a terminating delimiter of a DFDL element or sequence/choice group,
+ * except that there is no escaping mechanism, so the data cannot in any way
+ * contain the boundary mark string, and elements within the layer can have
+ * any dfdl:lengthKind, but this does not affect the search for the boundary mark.
+ *
+ * For example, when using an element with dfdl:lengthKind="delimited" and a dfdl:terminator="END",
+ * if that element contains a child element with dfdl:lengthKind="explicit", then the
+ * search for the "END" terminator is suspended for the length of the child element, and
+ * that search resumes after the child element's length has been parsed.
+ *
+ * In contrast to this, if a boundary mark layer is used with the boundaryMark variable
+ * bound to "END", then the data stream is decoded as characters in the charset encoding
+ * given by the layerEncoding variable, and the layer continues until the "END" is found.
+ * The dfdl:lengthKind of any child element enclosed within the layer, or even the lengths
+ * of other layers found within the scope of this boundary mark layer are not considered and do not
+ * disrupt the search for the boundary mark string.
+ *
+ * This layer does not populate any DFDL variables with results.
+ * This layer defines two DFDL variables which provide required parameters.
+ * @param boundaryMark a string which is the boundary marker. Searching for this string is
+ *                     done without any notion of escaping. When parsing the data in the
+ *                     layer is up to but not including that of the boundary mark string,
+ *                     which is removed from the data-stream on parsing, and inserted into
+ *                     the data stream on unparsing.
+ * @param layerEncoding a string which is the name of the character set encoding used to
+ *                      decode characters during the search for the boundary mark, and used
+ *                      to encode characters when inserting the boundary mark when unparsing.
+ */
+final class BoundaryMarkLayer(val boundaryMark: String, val layerEncoding: String)
+  extends Layer("boundaryMark", "urn:org.apache.daffodil.layers.boundaryMark") {
 
-  override def check(lpi: LayerCompileInfo): Unit = {
-    if (boundaryMarkVar == null) {
-      boundaryMarkVar =
-        lpi.layerVariable("urn:org.apache.daffodil.layers.boundaryMark", "boundaryMark")
-      if (boundaryMarkVar.dfdlPrimType != DFDLPrimType.String)
-        lpi.schemaDefinitionError("boundaryMark variable does not have 'xs:string' type.")
-      layerEncodingVar =
-        lpi.layerVariable("urn:org.apache.daffodil.layers.boundaryMark", "layerEncoding")
-      if (layerEncodingVar.dfdlPrimType != DFDLPrimType.String)
-        lpi.schemaDefinitionError("layerEncoding variable does not have 'xs:string' type.")
-    }
-  }
+  /** no arg contructor required for SPI class loading */
+  def this() = this("dummy", "ascii")
 
-  override def wrapLayerDecoder(jis: InputStream, lr: LayerRuntime): InputStream = {
-    check(lr)
-    val boundaryMark = lr.getString(boundaryMarkVar)
-    val layerEncoding = lr.getString(layerEncodingVar)
-    val charset = lr.getCharset(layerEncoding)
-    val s = new BoundaryMarkLimitingInputStream(jis, boundaryMark, charset)
-    s
-  }
+  private lazy val charset = Charset.forName(layerEncoding)
 
-  override def wrapLayerEncoder(jos: OutputStream, lr: LayerRuntime): OutputStream = {
-    check(lr)
-    val boundaryMark = lr.getString(boundaryMarkVar)
-    val layerEncoding = lr.getString(layerEncodingVar)
-    val charset = lr.getCharset(layerEncoding)
-    val s = new BoundaryMarkInsertingJavaOutputStream(jos, boundaryMark, charset)
-    s
-  }
+  override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream =
+    new BoundaryMarkLimitingInputStream(jis, boundaryMark, charset)
+
+  override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream =
+    new BoundaryMarkInsertingJavaOutputStream(jos, boundaryMark, charset)
 }

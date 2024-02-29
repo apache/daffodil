@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime1.layers
 
+import java.lang.{ Integer => JInt }
 import java.nio.ByteBuffer
 
 import org.apache.daffodil.lib.exceptions.Assert
@@ -28,12 +29,23 @@ import passera.unsigned.UShort
 /**
  *  The layer transform computes the checksum of the header data.
  *  per IETF RFC 791.
+ *
+ *  It has a single DFDL result variable named IPv4Checksum.
  */
 final class IPv4ChecksumLayer()
   extends ChecksumLayer(
     "IPv4Checksum",
     "urn:org.apache.daffodil.layers.IPv4Checksum",
+    20,
   ) {
+
+  /**
+   * Result DFDL variable value getter. This getter is called to obtain the value for,
+   * and populate the DFDL variable named checkDigit, in the layer's target namespace.
+   * @return the check digit value
+   */
+  def getDFDLResultVariable_IPv4Checksum: JInt =
+    getChecksum
 
   /**
    * This layer is always exactly 20 bytes long.

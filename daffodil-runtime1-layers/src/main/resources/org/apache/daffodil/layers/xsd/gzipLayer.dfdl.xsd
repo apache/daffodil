@@ -20,16 +20,14 @@
   xmlns="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-  xmlns:fl="urn:org.apache.daffodil.layers.fixedLength"
-  targetNamespace="urn:org.apache.daffodil.layers.fixedLength">
+  xmlns:gz="urn:org.apache.daffodil.layers.gzip"
+  targetNamespace="urn:org.apache.daffodil.layers.gzip">
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
 
-      <dfdl:defineVariable name="fixedLength" type="xs:unsignedInt"/>
-
-      <dfdl:defineFormat name="fixedLength">
-        <dfdl:format dfdlx:layerTransform="fl:fixedLength"/>
+      <dfdl:defineFormat name="gzip">
+        <dfdl:format dfdlx:layerTransform="gz:gzip"/>
       </dfdl:defineFormat>
 
     </appinfo>

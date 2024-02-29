@@ -17,12 +17,12 @@
 
 package org.apache.daffodil.layers.runtime1
 
+import java.io.ByteArrayOutputStream
+import java.util.zip.GZIPOutputStream
+
 import org.apache.commons.io.IOUtils
 import org.junit.Assert._
 import org.junit.Test
-
-import java.io.ByteArrayOutputStream
-import java.util.zip.GZIPOutputStream
 
 class TestGzipLayer {
 
@@ -39,7 +39,7 @@ class TestGzipLayer {
   @Test def testByte9() = {
     val baos = new ByteArrayOutputStream()
     val baosRaw = new ByteArrayOutputStream()
-    val gzos = gl.wrapLayerEncoder(baos, null)
+    val gzos = gl.wrapLayerOutput(baos, null)
     val gzosRaw = new GZIPOutputStream(baosRaw)
     val data = "testing 1, 2, 3"
     IOUtils.write(data, gzos, "ascii")
@@ -49,11 +49,11 @@ class TestGzipLayer {
     val byte9 = baos.toByteArray.apply(9)
     val byte9Raw = baosRaw.toByteArray.apply(9)
     if (GZipLayer.fixIsNeeded()) {
-      assertEquals(0, byte9Raw.toInt & 0xFF)
-      assertEquals(255, byte9.toInt & 0xFF)
+      assertEquals(0, byte9Raw.toInt & 0xff)
+      assertEquals(255, byte9.toInt & 0xff)
     } else {
-      assertEquals(255, byte9Raw.toInt & 0xFF)
-      assertEquals(255, byte9.toInt & 0xFF)
+      assertEquals(255, byte9Raw.toInt & 0xff)
+      assertEquals(255, byte9.toInt & 0xff)
     }
   }
 }

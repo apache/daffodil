@@ -39,18 +39,21 @@ class TestLayers {
     SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
       <xs:import namespace="urn:org.apache.daffodil.layers.boundaryMark"
-        schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>,
+        schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>
+      <xs:import namespace="urn:org.apache.daffodil.layers.base64_MIME"
+                 schemaLocation="/org/apache/daffodil/layers/xsd/base64_MIMELayer.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit"
-                  xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark">
+                  xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
+                  xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME">
         <xs:complexType>
           <xs:sequence>
             <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="ascii"/>
               <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
             </xs:appinfo></xs:annotation>
-            <xs:sequence dfdlx:layerTransform="boundaryMark">
-              <xs:sequence dfdlx:layerTransform="base64_MIME" >
+            <xs:sequence dfdl:ref="bm:boundaryMark">
+              <xs:sequence dfdl:ref="b64:base64_MIME" >
                 <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
               </xs:sequence>
             </xs:sequence>
@@ -74,19 +77,22 @@ class TestLayers {
   val B64Layer2Schema =
     SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-      <xs:import namespace="urn:org.apache.daffodil.layers.boundaryMark"
-                 schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>,
+          <xs:import namespace="urn:org.apache.daffodil.layers.boundaryMark"
+                     schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>
+          <xs:import namespace="urn:org.apache.daffodil.layers.base64_MIME"
+                     schemaLocation="/org/apache/daffodil/layers/xsd/base64_MIMELayer.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind='delimited'/>,
       <xs:element name="e1" dfdl:lengthKind="implicit"
-                  xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark">
+                  xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
+                  xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME">
         <xs:complexType>
           <xs:sequence>
             <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
               <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
             </xs:appinfo></xs:annotation>
-            <xs:sequence dfdlx:layerTransform="boundaryMark">
-              <xs:sequence dfdlx:layerTransform="base64_MIME">
+            <xs:sequence dfdl:ref="bm:boundaryMark">
+              <xs:sequence dfdl:ref="b64:base64_MIME">
                 <xs:element name="s1" type="xs:string"/>
               </xs:sequence>
             </xs:sequence>
@@ -111,18 +117,21 @@ class TestLayers {
     SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
       <xs:import namespace="urn:org.apache.daffodil.layers.boundaryMark"
-                 schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>,
+                 schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>
+      <xs:import namespace="urn:org.apache.daffodil.layers.base64_MIME"
+                 schemaLocation="/org/apache/daffodil/layers/xsd/base64_MIMELayer.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind='delimited'/>,
       <xs:element name="e1" dfdl:lengthKind="implicit"
-                  xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark">
+                  xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
+                  xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME">
         <xs:complexType>
           <xs:sequence>
             <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
               <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
             </xs:appinfo></xs:annotation>
-            <xs:sequence dfdlx:layerTransform="boundaryMark">
-              <xs:sequence dfdlx:layerTransform="base64_MIME">
+            <xs:sequence dfdl:ref="bm:boundaryMark">
+              <xs:sequence dfdl:ref="b64:base64_MIME">
                 <xs:element name="s1" type="xs:string"/>
               </xs:sequence>
             </xs:sequence>
@@ -174,11 +183,14 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val GZIPLayer0Schema =
     SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
-      <dfdl:format ref="tns:GeneralFormat" representation="binary"/>,
-      <xs:element name="e1" dfdl:lengthKind="implicit">
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+      <xs:import namespace="urn:org.apache.daffodil.layers.gzip"
+        schemaLocation="/org/apache/daffodil/layers/xsd/gzipLayer.dfdl.xsd"/>,
+      <dfdl:format ref="ex:GeneralFormat" representation="binary"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit"
+                  xmlns:gz="urn:org.apache.daffodil.layers.gzip">
         <xs:complexType>
-                <xs:sequence dfdlx:layerTransform="gzip">
+                <xs:sequence dfdl:ref="gz:gzip">
                   <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
                 </xs:sequence>
         </xs:complexType>
@@ -207,9 +219,12 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   // FIXME: use prefixed length kind to simplify this example.
   val GZIPLayer1Schema =
     SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+      <xs:import namespace="urn:org.apache.daffodil.layers.gzip"
+                 schemaLocation="/org/apache/daffodil/layers/xsd/gzipLayer.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="binary"/>,
-      <xs:element name="e1" dfdl:lengthKind="implicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit"
+                  xmlns:gz="urn:org.apache.daffodil.layers.gzip">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="len" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="4"
@@ -219,7 +234,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
                 <xs:sequence>
                   <xs:element name="data">
                     <xs:complexType>
-                      <xs:sequence dfdlx:layerTransform="gzip">
+                      <xs:sequence dfdl:ref="gz:gzip">
                         <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
                       </xs:sequence>
                     </xs:complexType>
@@ -262,10 +277,16 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   def makeB64GZIPSchema(term: String, layerTerm: String) = SchemaUtils.dfdlTestSchema(
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <xs:import namespace="urn:org.apache.daffodil.layers.boundaryMark"
-               schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>,
+               schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>
+        <xs:import namespace="urn:org.apache.daffodil.layers.gzip"
+                   schemaLocation="/org/apache/daffodil/layers/xsd/gzipLayer.dfdl.xsd"/>
+        <xs:import namespace="urn:org.apache.daffodil.layers.base64_MIME"
+                   schemaLocation="/org/apache/daffodil/layers/xsd/base64_MIMELayer.dfdl.xsd"/>,
     <dfdl:format ref="tns:GeneralFormat" representation="binary"/>,
     <xs:element name="e1" dfdl:lengthKind="implicit"
-                xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark">
+                xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
+                xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME"
+                xmlns:gz="urn:org.apache.daffodil.layers.gzip">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"
@@ -275,8 +296,8 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
               <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
               <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue={layerTerm}/>
             </xs:appinfo></xs:annotation>
-            <xs:sequence dfdlx:layerTransform="boundaryMark">
-              <xs:sequence dfdlx:layerTransform="base64_MIME">
+            <xs:sequence dfdl:ref="bm:boundaryMark">
+              <xs:sequence dfdl:ref="b64:base64_MIME">
                 <xs:sequence>
                   <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../x1/data, 'bytes') }"/>
                   <xs:element name="x1" dfdl:lengthKind="explicit" dfdl:length="{ ../len }">
@@ -284,7 +305,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
                       <xs:sequence>
                         <xs:element name="data">
                           <xs:complexType>
-                            <xs:sequence dfdlx:layerTransform="gzip">
+                            <xs:sequence dfdl:ref="gz:gzip">
                               <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
                             </xs:sequence>
                           </xs:complexType>
@@ -354,11 +375,14 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val lineFoldLayer1Schema =
     SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+      <xs:import namespace="urn:org.apache.daffodil.layers.lineFolded"
+        schemaLocation="/org/apache/daffodil/layers/xsd/lineFoldedLayer.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="e1" dfdl:lengthKind="implicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit"
+                  xmlns:lf="urn:org.apache.daffodil.layers.lineFolded">
         <xs:complexType>
-          <xs:sequence dfdlx:layerTransform="lineFolded_IMF">
+          <xs:sequence dfdl:ref="lf:lineFolded_IMF">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -401,11 +425,14 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
 
   val lineFoldLayer2Schema =
     SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+      <xs:import namespace="urn:org.apache.daffodil.layers.lineFolded"
+                 schemaLocation="/org/apache/daffodil/layers/xsd/lineFoldedLayer.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="e1" dfdl:lengthKind="implicit">
+      <xs:element name="e1" dfdl:lengthKind="implicit"
+                  xmlns:lf="urn:org.apache.daffodil.layers.lineFolded">
         <xs:complexType>
-          <xs:sequence dfdlx:layerTransform="lineFolded_IMF">
+          <xs:sequence dfdl:ref="lf:lineFolded_IMF">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -452,11 +479,14 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
    */
   val lineFoldLayer3Schema =
     SchemaUtils.dfdlTestSchema(
-      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+      <xs:import namespace="urn:org.apache.daffodil.layers.lineFolded"
+                 schemaLocation="/org/apache/daffodil/layers/xsd/lineFoldedLayer.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="100">
+      <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="100"
+                  xmlns:lf="urn:org.apache.daffodil.layers.lineFolded">
         <xs:complexType>
-          <xs:sequence dfdlx:layerTransform="lineFolded_IMF">
+          <xs:sequence dfdl:ref="lf:lineFolded_IMF">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -506,21 +536,24 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
       <xs:import namespace="urn:org.apache.daffodil.layers.fixedLength"
-                 schemaLocation="/org/apache/daffodil/layers/xsd/fixedLengthLayer.dfdl.xsd"/>,
+                 schemaLocation="/org/apache/daffodil/layers/xsd/fixedLengthLayer.dfdl.xsd"/>
+      <xs:import namespace="urn:org.apache.daffodil.layers.byteSwap"
+                 schemaLocation="/org/apache/daffodil/layers/xsd/byteSwapLayer.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" bitOrder="leastSignificantBitFirst"
                    byteOrder="littleEndian" alignmentUnits="bits" alignment="1"
                    lengthKind="explicit" lengthUnits="bits"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit"
-                  xmlns:fl="urn:org.apache.daffodil.layers.fixedLength">
+                  xmlns:fl="urn:org.apache.daffodil.layers.fixedLength"
+                  xmlns:bswap="urn:org.apache.daffodil.layers.byteSwap">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s0" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
             <xs:element name="s1" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
-            <xs:sequence dfdlx:layerTransform="fixedLength">
+            <xs:sequence dfdl:ref="fl:fixedLength">
               <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:newVariableInstance ref="fl:fixedLength" defaultValue="6"/>
               </xs:appinfo></xs:annotation>
-              <xs:sequence dfdlx:layerTransform="fourbyteswap">
+              <xs:sequence dfdl:ref="bswap:fourbyteswap">
                 <xs:sequence>
                   <xs:element name="s2" type="xs:hexBinary" dfdl:length="4"/>
                   <xs:element name="s3" type="xs:hexBinary" dfdl:length="24"/>

@@ -17,60 +17,62 @@
 
 package org.apache.daffodil.runtime1.layers
 
+import java.lang.{ Integer => JInt }
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
 import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.runtime1.api.DFDLPrimType
 import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
-import org.apache.daffodil.runtime1.layers.api.LayerCompileInfo
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
-import org.apache.daffodil.runtime1.layers.api.LayerVariable
 
-class CheckDigitLayer()
+object CheckDigitLayer {
+  private def ns = "urn:org.apache.daffodil.layers.checkDigit"
+}
+
+/** Check digit example layer
+ *
+ * Computes a check digit by adding together the digits of a number and taking the
+ * final digit of that sum.
+ *
+ * The resulting check digit is stored into the DFDL variable:
+ *   - checkDigit - an xs:unsignedShort to which the check digit value is assigned.
+ * The arguments to this constructor are taken from the three layer DFDL variables that
+ * define parameters for this check digit calculation:
+ *   - length - an xs:unsignedShort giving the length (in bytes) of the data over
+ *   which the check-digit is to be computed.
+ *   Only digits in this data region contribute to the check digit value.
+ *   Other characters are ignored.
+ *   There must be at least one digit in the region or it is a processing error.
+ *   - params is a string which can contain 'verbose' (case insensitive) which turns on logging
+ *   - digitEncoding is a string which is the name of a character set encoding which
+ *   defines the character set of the digits.
+ *   This must match the dfdl:encoding for the DFDL element declaration using this layer.
+ *
+ * @param length the value of the length DFDL variable
+ * @param params the value of the params DFDL variable
+ * @param digitEncoding the value of the digitEncoding DFDL variable
+ */
+class CheckDigitLayer(length: JInt, var params: String, var digitEncoding: String)
   extends ChecksumLayer(
-    "checkDigit",
-    "urn:org.apache.daffodil.layers.checkDigit",
+    "checkDigit", // name of the layer, also happens to be the name of the output variable.
+    CheckDigitLayer.ns,
+    length,
   ) {
 
-  private def ns = "urn:org.apache.daffodil.layers.checkDigit"
+  /**
+   * Result DFDL variable value getter. This getter is called to obtain the value for,
+   * and populate the DFDL variable named checkDigit, in the layer's target namespace.
+   * @return the check digit value
+   */
+  def getDFDLResultVariable_checkDigit: JInt =
+    getChecksum
 
-  private var paramVar: LayerVariable = _
-  private var checkDigitEncodingVar: LayerVariable = _
-  private var charset: Charset = _
-  private var isVerbose = false
-  private var isInitialized = false
+  /** no-arg constructor is required for SPI loading of the class */
+  def this() = this(0, "", "ascii")
 
-  override def check(lci: LayerCompileInfo): Unit = {
-    if (paramVar == null) {
-      super.check(lci)
-      paramVar = lci.layerVariable(ns, "checkDigitParams")
-      checkDigitEncodingVar = lci.layerVariable(ns, "checkDigitEncoding")
+  private lazy val charset = Charset.forName(digitEncoding)
 
-      if (paramVar.dfdlPrimType != DFDLPrimType.String)
-        lci.schemaDefinitionError(
-          "The 'checkDigitParameters' variable is not of type 'xs:string'.",
-        )
-      if (checkDigitEncodingVar.dfdlPrimType != DFDLPrimType.String)
-        lci.schemaDefinitionError(
-          "The 'checkDigitEncoding' variable is not of type 'xs:string'.",
-        )
-    }
-  }
-
-  //
-  // Our example here takes a parameter which is a flag indicating if it is to
-  // issue warning messages to help with debugging.
-  //
-  // But really this is just to show that a layer transform can read variables
-  // as well as write them.
-  //
-  case class Params(isVerbose: Boolean)
-
-  private def parseParams(paramString: String) = {
-    if (paramString.toLowerCase.contains("verbose")) Params(isVerbose = true)
-    else Params(isVerbose = false)
-  }
+  private lazy val isVerbose = params.toLowerCase.contains("verbose")
 
   /**
    * Shared by both parsing and unparsing.
@@ -84,11 +86,6 @@ class CheckDigitLayer()
     isUnparse: Boolean,
     byteBuffer: ByteBuffer,
   ): Int = {
-    if (!isInitialized) {
-      charset = layerRuntime.getCharset(layerRuntime.getString(checkDigitEncodingVar))
-      isVerbose = parseParams(layerRuntime.getString(paramVar)).isVerbose
-      isInitialized = true
-    }
     val s = new String(byteBuffer.array(), charset)
     val digits: Seq[Int] = s.filter { _.isDigit }.map { _.asDigit }
     if (digits.isEmpty)

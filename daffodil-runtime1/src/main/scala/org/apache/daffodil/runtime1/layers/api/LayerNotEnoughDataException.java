@@ -28,8 +28,8 @@ public class LayerNotEnoughDataException extends LayerException {
      * @param numNeededBytes    the number of bytes needed by the layer
      * @param numAvailableBytes the number of bytes available for the layer
      */
-    public LayerNotEnoughDataException(int numNeededBytes, int numAvailableBytes) {
-        super("Insufficient data for layer. Needed " + numNeededBytes +
+    public LayerNotEnoughDataException(LayerRuntime lr, int numNeededBytes, int numAvailableBytes) {
+        super(lr, "Insufficient data for layer '" + lr.layerName() + "'. Needed " + numNeededBytes +
                 " bytes, but only " + numAvailableBytes + " were available.");
     }
 }

@@ -16,9 +16,9 @@
  */
 package org.apache.daffodil.runtime1.layers.api;
 
-import java.nio.ByteBuffer;
-
 import org.apache.daffodil.runtime1.layers.ChecksumLayerBase;
+
+import java.nio.ByteBuffer;
 
 /**
  * Suitable only for checksums computed over small sections of data, not large data streams or whole files.
@@ -27,8 +27,8 @@ import org.apache.daffodil.runtime1.layers.ChecksumLayerBase;
  */
 public abstract class ChecksumLayer extends ChecksumLayerBase {
 
-  public ChecksumLayer(String layerName, String layerNamespace) {
-    super(layerName, layerNamespace);
+  public ChecksumLayer(String layerName, String layerNamespace, int checksumLayerLength) {
+    super(layerName, layerNamespace, checksumLayerLength);
   }
 
   /**

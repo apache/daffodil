@@ -23,6 +23,8 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
+  xmlns:gz="urn:org.apache.daffodil.layers.gzip"
+  xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME"
   xmlns:ex="http://example.com"
   targetNamespace="http://example.com">
 
@@ -30,6 +32,10 @@
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
   <import namespace="urn:org.apache.daffodil.layers.boundaryMark"
           schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>
+  <import namespace="urn:org.apache.daffodil.layers.gzip"
+          schemaLocation="/org/apache/daffodil/layers/xsd/gzipLayer.dfdl.xsd"/>
+  <import namespace="urn:org.apache.daffodil.layers.base64_MIME"
+          schemaLocation="/org/apache/daffodil/layers/xsd/base64_MIMELayer.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
@@ -59,13 +65,13 @@
   <complexType name="fileType">
     <sequence>
       <group ref="ex:boundaryMarkEncoding"/>
-      <sequence dfdlx:layerTransform="boundaryMark">
+      <sequence dfdl:ref="bm:boundaryMark">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="--END--"/>
           </appinfo>
         </annotation>
-        <sequence dfdlx:layerTransform="base64_MIME">
+        <sequence dfdl:ref="b64:base64_MIME">
           <sequence>
             <!--
                 now the gzip details, including the 4-byte gzLength element that stores how long
@@ -86,7 +92,7 @@
                       <!--
                          now the gzipped layered sequence itself
                        -->
-                      <sequence dfdlx:layerTransform="gzip">
+                      <sequence dfdl:ref="gz:gzip">
                         <!--
                           finally, inside that, we have the original fileTypeGroup group reference.
                           -->

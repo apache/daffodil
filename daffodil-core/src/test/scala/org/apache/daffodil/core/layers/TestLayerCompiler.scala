@@ -14,29 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.apache.daffodil.layers
+package org.apache.daffodil.core.layers
 
 import java.io.InputStream
 import java.io.OutputStream
 
+import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
-final class BuggyLayer extends Layer("buggy", "urn:org.apache.daffodil.layers.buggy") {
+import org.junit.Test
 
-  override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream =
-    new BuggyInputStream(jis)
+class TestLayerCompiler {
 
-  override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream =
-    jos
+  @Test def testClassAnalyzer1(): Unit = {
+    val constructorInfo = LayerFactory.analyzeClass(new LayerForTesting)
+    println(constructorInfo)
+  }
 }
 
-final class BuggyInputStream(is: InputStream) extends InputStream {
+class LayerForTesting(
+  firstIntArg: java.lang.Integer,
+  secondStringArg: String,
+  thirdDateArg: com.ibm.icu.util.Calendar,
+) extends Layer("test", "urn:layerForTesting") {
 
-  def read(): Int = {
-    val b = is.read()
-    if (b != '0') b else throw new java.io.IOException("bad input stream")
-  }
+  def this() = this(null, null, null)
 
+  override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream = jis
+
+  override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream = jos
 }

@@ -79,18 +79,23 @@ import org.apache.daffodil.runtime1.layers.api.LayerRuntime
  * data.
  */
 
-sealed abstract class LineFoldedLayerBase(mode: LineFoldMode) extends Layer(mode.dfdlName) {
+sealed abstract class LineFoldedLayerBase(mode: LineFoldMode)
+  extends Layer(mode.dfdlName, "urn:org.apache.daffodil.layers.lineFolded") {
 
-  override def wrapLayerDecoder(jis: InputStream, lr: LayerRuntime): InputStream =
+  override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream =
     new LineFoldedInputStream(mode, jis)
 
-  override def wrapLayerEncoder(jos: OutputStream, lr: LayerRuntime): OutputStream =
+  override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream =
     new LineFoldedOutputStream(mode, jos)
 }
 
-final class LineFoldedIMFLayer extends LineFoldedLayerBase(LineFoldMode.IMF)
+final class LineFoldedIMFLayer extends LineFoldedLayerBase(LineFoldMode.IMF) {
+  // default zero-arg constructor is all we need
+}
 
-final class LineFoldedICalendarLayer extends LineFoldedLayerBase(LineFoldMode.iCalendar)
+final class LineFoldedICalendarLayer extends LineFoldedLayerBase(LineFoldMode.iCalendar) {
+  // default zero-arg constructor is all we need
+}
 
 /**
  * FIXME: Doesn't enforce 998 max line length limit.

@@ -23,39 +23,27 @@ import java.io.OutputStream
 import java.nio.ByteBuffer
 
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.api.DFDLPrimType
 import org.apache.daffodil.runtime1.layers.api.Layer
-import org.apache.daffodil.runtime1.layers.api.LayerCompileInfo
 import org.apache.daffodil.runtime1.layers.api.LayerNotEnoughDataException
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
-import org.apache.daffodil.runtime1.layers.api.LayerVariable
 
 import org.apache.commons.io.IOUtils
 
 /**
- * Suitable only for checksums computed over small sections of data, not large data streams or whole files.
+ * A base class for ChecksumLayer - hides details from the API user who is deriving a
+ * concrete class from ChecksumLayer.
  *
- * The entire region of data the checksum is being computed over, will be pulled into a byte buffer in memory.
+ * Suitable only for checksums computed over small sections of data, not large data streams or whole files.
  */
+abstract class ChecksumLayerBase(
+  layerLocalName: String,
+  layerNamespace: String,
+  val length: Int,
+) extends Layer(layerLocalName, layerNamespace) {
 
-abstract class ChecksumLayerBase(layerName: String, protected final val layerNamespace: String)
-  extends Layer(layerName) {
-
-  var checksumVar: LayerVariable = _
-  var checksumLayerLengthVar: LayerVariable = _
-
-  override def check(lci: LayerCompileInfo): Unit = {
-    if (checksumVar == null) {
-      checksumVar = lci.layerVariable(layerNamespace, layerName)
-      checksumLayerLengthVar = lci.layerVariable(layerNamespace, layerName + "LayerLength")
-      if (checksumVar.dfdlPrimType != DFDLPrimType.UnsignedShort)
-        lci.schemaDefinitionError(s"Layer variable '$layerName' is not an 'xs:unsignedShort.")
-      if (checksumLayerLengthVar.dfdlPrimType != DFDLPrimType.UnsignedShort)
-        lci.schemaDefinitionError(
-          s"Layer variable '${layerName + "LayerLength"}' is not an 'xs:unsignedShort'.",
-        )
-    }
-  }
+  private var checksum: Int = -1
+  final protected def getChecksum: Int = checksum
+  final def setChecksum(checksum: Int): Unit = { this.checksum = checksum }
 
   def compute(
     layerRuntime: LayerRuntime,
@@ -63,13 +51,11 @@ abstract class ChecksumLayerBase(layerName: String, protected final val layerNam
     byteBuffer: ByteBuffer,
   ): Int
 
-  final override def wrapLayerDecoder(jis: InputStream, lr: LayerRuntime): InputStream = {
-    check(lr)
+  final override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream = {
     new ChecksumDecoderInputStream(this, jis, lr)
   }
 
-  final override def wrapLayerEncoder(jos: OutputStream, lr: LayerRuntime): OutputStream = {
-    check(lr)
+  final override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream = {
     new ChecksumEncoderOutputStream(this, jos, lr)
   }
 }
@@ -80,25 +66,18 @@ class ChecksumDecoderInputStream(
   lr: LayerRuntime,
 ) extends InputStream {
 
-  private val checksumLayerLength = {
-    val res = lr.getInt(layer.checksumLayerLengthVar)
-    Assert.invariant(res > 0)
-    res
-  }
-
   private def doubleCheckLength(actualDataLen: Int): Unit = {
-    val neededLen = checksumLayerLength
+    val neededLen = layer.length
     if (neededLen > actualDataLen)
-      lr.processingError(new LayerNotEnoughDataException(neededLen, actualDataLen))
+      lr.processingError(new LayerNotEnoughDataException(lr, neededLen, actualDataLen))
   }
 
   private lazy val bais = {
-    val ba = new Array[Byte](checksumLayerLength)
+    val ba = new Array[Byte](layer.length)
     val nRead = IOUtils.read(jis, ba)
     doubleCheckLength(nRead)
     val buf = ByteBuffer.wrap(ba)
-    val checksum = layer.compute(lr, isUnparse = false, buf)
-    lr.setInt(layer.checksumVar, checksum)
+    layer.setChecksum(layer.compute(lr, isUnparse = false, buf))
     new ByteArrayInputStream(ba)
   }
 
@@ -111,33 +90,27 @@ class ChecksumEncoderOutputStream(
   lr: LayerRuntime,
 ) extends OutputStream {
 
-  private val checksumLayerLength = {
-    val res = lr.getInt(layer.checksumLayerLengthVar)
-    Assert.invariant(res > 0)
-    res
-  }
-
-  private lazy val baos = new ByteArrayOutputStream(checksumLayerLength)
+  private lazy val baos = new ByteArrayOutputStream(layer.length)
 
   private var count: Long = 0
 
   override def write(b: Int): Unit = {
     baos.write(b)
     count += 1
-    if (count == checksumLayerLength) {
+    if (count == layer.length) {
       // we can auto-close it in this case
       close()
-    } else if (count > checksumLayerLength) {
+    } else if (count > layer.length) {
       //
       // This could happen if the layer logically unparses as one of two choice branches where they
       // are supposed to be all the same length, but one is in fact longer than expected by the bufLen.
       lr.processingError(
         new IndexOutOfBoundsException(
-          s"Written data amount exceeded fixed layer length of $checksumLayerLength.",
+          s"Written data amount exceeded fixed layer length of ${layer.length}.",
         ),
       )
     } else {
-      // Assert.invariant(count < checksumLayerLength)
+      // Assert.invariant(count < length)
       // ok. We're still accumulating data
     }
   }
@@ -149,12 +122,16 @@ class ChecksumEncoderOutputStream(
       isOpen = false
       val ba = baos.toByteArray
       val baLen = ba.length
-      Assert.invariant(baLen <= checksumLayerLength)
+      Assert.invariant(baLen <= layer.length)
       val buf = ByteBuffer.wrap(ba)
-      val checksum = layer.compute(lr, isUnparse = true, buf)
+      layer.setChecksum(layer.compute(lr, isUnparse = true, buf))
       jos.write(ba)
-      // assign checksum to the first variable.
-      lr.setInt(layer.checksumVar, checksum)
+      //
+      // FIXME: This close belongs elsewhere. The need to do this close is not a checksum-specific
+      //   thing, it's going to be needed by any layer. However, it is not happening in the right places,
+      //   because if you take this out, unparsing gets suspension deadlocks. (VERIFY THAT THIS IS STILL TRUE)
+      //   note that the close on the jos does a setFinished on the underlying daffodil DataOutputStream.
+      //
       jos.close() // required so that closes propagate, and the buffering output streams recombine/collapse again.
     }
   }

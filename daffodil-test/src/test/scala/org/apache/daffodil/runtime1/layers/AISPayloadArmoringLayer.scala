@@ -41,16 +41,17 @@ import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
 import org.apache.commons.io.IOUtils
 
-final class AISPayloadArmoringLayer extends Layer("aisPayloadArmor") {
+final class AISPayloadArmoringLayer
+  extends Layer("aisPayloadArmor", "urn:org.apache.daffodil.layers.ais") {
 
   /**
    * Decoding AIS payload armoring is encoding the ASCII text into the
    * underlying binary data.
    */
-  override def wrapLayerDecoder(jis: InputStream, lr: LayerRuntime): InputStream =
+  override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream =
     new AISPayloadArmoringInputStream(jis)
 
-  override def wrapLayerEncoder(jos: OutputStream, lr: LayerRuntime): OutputStream =
+  override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream =
     new AISPayloadArmoringOutputStream(jos)
 }
 

@@ -34,7 +34,7 @@
       <dfdl:format ref="buggy:GeneralFormat" />
 
       <dfdl:defineFormat name="buggyFormat">
-        <dfdl:format dfdlx:layerTransform="buggy" />
+        <dfdl:format dfdlx:layerTransform="buggy:buggy" />
       </dfdl:defineFormat>
 
     </appinfo>

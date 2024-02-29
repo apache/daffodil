@@ -17,15 +17,15 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
 import org.apache.daffodil.runtime1.layers.LayerFactory
+import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
 
 class LayeredSequenceUnparser(
-                               ctxt: SequenceRuntimeData,
-                               layerTransformerFactory: LayerFactory,
-                               childUnparser: SequenceChildUnparser,
+  ctxt: SequenceRuntimeData,
+  layerFactory: LayerFactory,
+  childUnparser: SequenceChildUnparser,
 ) extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
 
   override def nom = "LayeredSequence"
@@ -49,9 +49,9 @@ class LayeredSequenceUnparser(
     // occurs with the state at this point.
     val formatInfoPre = state.asInstanceOf[UStateMain].cloneForSuspension(layerUnderlyingDOS)
 
-    val layerRuntime = new LayerRuntimeImpl(formatInfoPre, ctxt)
+    val layerRuntime = new LayerRuntimeImpl(formatInfoPre, ctxt.layerRuntimeData)
 
-    val layerTransformer = layerTransformerFactory.newInstance(layerRuntime)
+    val layerDriver = layerFactory.newInstance(layerRuntime)
 
     // mark the original DOS as finished--no more data will be unparsed to it.
     // If known, this will carry bit position forward to the layerUnderlyingDOS,
@@ -68,7 +68,7 @@ class LayeredSequenceUnparser(
 
     // New layerDOS is where the layer will unparse into. Ultimately anything written
     // to layerDOS ends up, post transform, in layerUnderlyingDOS
-    val layerDOS = layerTransformer.addLayer(layerUnderlyingDOS, layerRuntime)
+    val layerDOS = layerDriver.addOutputLayer(layerUnderlyingDOS, layerRuntime)
 
     // unparse the layer body into layerDOS
     state.dataOutputStream = layerDOS
@@ -83,6 +83,11 @@ class LayeredSequenceUnparser(
     // use may be delayed to after the actual UState has been changed. The
     // UState has almost certainly changed since the last cloneForSuspension
     // call, so we need a new clone to finish this DOS.
+    //
+    // TODO: Analyze this carefully. Do we really need to clone state and allow
+    //  for suspension here, or is the fact that the layer will eventually close
+    //  due to writes to it sufficient?
+    //
     val layerDOSLast = layerDOS.lastInChain
     val formatInfoPost = state.asInstanceOf[UStateMain].cloneForSuspension(layerDOSLast)
     layerDOSLast.setFinished(formatInfoPost)
@@ -90,7 +95,7 @@ class LayeredSequenceUnparser(
     // clean up resources - note however, that due to suspensions, the whole
     // layer stack is potentially still needed, so not clear what can be
     // cleaned up at this point.
-    layerTransformer.removeLayer(layerDOS, state)
+    layerDriver.removeLayer(layerDOS, state)
 
     // reset the state so subsequent unparsers write to the following DOS
     state.dataOutputStream = layerFollowingDOS

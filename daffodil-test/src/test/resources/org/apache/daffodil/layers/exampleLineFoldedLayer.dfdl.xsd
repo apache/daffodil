@@ -21,14 +21,20 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
+  xmlns:lf="urn:org.apache.daffodil.layers.lineFolded"
+  xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME"
   xmlns:ex="http://example.com"
   targetNamespace="http://example.com">
 
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
   <import namespace="urn:org.apache.daffodil.layers.boundaryMark"
           schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>
+  <import namespace="urn:org.apache.daffodil.layers.lineFolded"
+          schemaLocation="/org/apache/daffodil/layers/xsd/lineFoldedLayer.dfdl.xsd"/>
+  <import namespace="urn:org.apache.daffodil.layers.base64_MIME"
+          schemaLocation="/org/apache/daffodil/layers/xsd/base64_MIMELayer.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
@@ -47,7 +53,7 @@
 
   <element name="root" dfdl:lengthKind="implicit">
     <complexType>
-      <sequence dfdlx:layerTransform="lineFolded_IMF">
+      <sequence dfdl:ref="lf:lineFolded_IMF">
         <sequence>
           <element name="marker" type="xs:string"
                    dfdl:initiator="boundary=" dfdl:terminator="%CR;%LF;"/>
@@ -62,7 +68,7 @@
                   <complexType>
                     <choice dfdl:choiceDispatchKey="{ ../contentTransferEncoding }">
                       <sequence dfdl:choiceBranchKey="base64">
-                        <sequence dfdlx:layerTransform="boundaryMark">
+                        <sequence dfdl:ref="bm:boundaryMark">
                           <annotation>
                             <appinfo source="http://www.ogf.org/dfdl/">
                               <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
@@ -71,7 +77,7 @@
                                   }"/>
                             </appinfo>
                           </annotation>
-                          <sequence dfdlx:layerTransform="base64_MIME">
+                          <sequence dfdl:ref="b64:base64_MIME">
                             <element name="value" type="xs:string"/>
                           </sequence>
                         </sequence>

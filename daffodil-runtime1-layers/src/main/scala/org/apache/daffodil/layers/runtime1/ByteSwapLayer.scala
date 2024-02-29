@@ -26,14 +26,21 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
-final class TwoByteSwapLayer extends ByteSwap("twobyteswap", 2)
-final class FourByteSwapLayer extends ByteSwap("fourbyteswap", 4)
+final class TwoByteSwapLayer extends ByteSwap("twobyteswap", 2) {
+  // default zero-arg constructor is all we need
+}
 
-abstract class ByteSwap(name: String, count: Int) extends Layer(name) {
-  override def wrapLayerEncoder(jos: OutputStream, lrd: LayerRuntime): OutputStream =
+final class FourByteSwapLayer extends ByteSwap("fourbyteswap", 4) {
+  // default zero-arg constructor is all we need.
+}
+
+abstract class ByteSwap(name: String, count: Int)
+  extends Layer(name, "urn:org.apache.daffodil.layers.byteSwap") {
+
+  override def wrapLayerOutput(jos: OutputStream, lrd: LayerRuntime): OutputStream =
     new ByteSwapOutputStream(count, jos)
 
-  override def wrapLayerDecoder(jis: InputStream, lrd: LayerRuntime): InputStream =
+  override def wrapLayerInput(jis: InputStream, lrd: LayerRuntime): InputStream =
     new ByteSwapInputStream(count, jis)
 }
 

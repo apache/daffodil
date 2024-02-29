@@ -50,7 +50,7 @@ trait SequenceTermRuntime1Mixin { self: SequenceTermBase =>
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv,
       isHidden,
-      Maybe.toMaybe(optionLayerTransform),
+      Delay('maybeLayerRuntimeData, this, Maybe.toMaybe(optionLayerRuntimeData)),
     )
   }
 
@@ -85,7 +85,7 @@ trait ChoiceBranchImpliedSequenceRuntime1Mixin { self: ChoiceBranchImpliedSequen
       Maybe.Nope,
       Maybe.Nope,
       isHidden = false,
-      Maybe.Nope,
+      Delay('maybeLayerRuntimeData, this, Maybe.Nope),
     )
   }
 

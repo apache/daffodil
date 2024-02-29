@@ -113,12 +113,12 @@ Example Multifragment sentence:
           <xs:element name="sequentialMessageID" type="xs:string" dfdl:ref="ais:text"/>
           <xs:element name="AISChannel" type="xs:string" dfdl:ref="ais:text"/>
           <!-- could add enum. One of A, B, 1, 2 -->
-          <xs:sequence dfdlx:layerTransform="boundaryMark">
+          <xs:sequence dfdl:ref="bm:boundaryMark">
             <!-- until the ',' is found -->
             <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue=","/>
             </xs:appinfo></xs:annotation>
-            <xs:sequence dfdlx:layerTransform="aisPayloadArmor">
+            <xs:sequence dfdlx:layerTransform="ais:aisPayloadArmor">
               <xs:sequence>
                 <!-- now using default format which is ais:binary -->
                 <xs:element name="messageType" type="xs:unsignedInt" dfdl:length="6"/>

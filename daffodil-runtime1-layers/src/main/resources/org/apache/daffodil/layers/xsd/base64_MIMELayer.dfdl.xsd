@@ -20,18 +20,17 @@
   xmlns="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-  xmlns:fl="urn:org.apache.daffodil.layers.fixedLength"
-  targetNamespace="urn:org.apache.daffodil.layers.fixedLength">
+  xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME"
+  targetNamespace="urn:org.apache.daffodil.layers.base64_MIME">
 
+  <!--
+  This layer does not define any variables for parameters or results
+  -->
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-
-      <dfdl:defineVariable name="fixedLength" type="xs:unsignedInt"/>
-
-      <dfdl:defineFormat name="fixedLength">
-        <dfdl:format dfdlx:layerTransform="fl:fixedLength"/>
+      <dfdl:defineFormat name="base64_MIME">
+        <dfdl:format dfdlx:layerTransform="b64:base64_MIME"/>
       </dfdl:defineFormat>
-
     </appinfo>
   </annotation>
 

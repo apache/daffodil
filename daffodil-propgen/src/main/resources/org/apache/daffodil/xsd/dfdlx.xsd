@@ -37,7 +37,10 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="dfdlx:alignmentKind" />
       <xs:enumeration value="dfdlx:choiceBranchKeyRanges" />
-      <xs:enumeration value="dfdlx:emptyElementParsePolicy"/> <!-- deprecated -->
+
+      <!-- deprecated -->
+      <xs:enumeration value="dfdlx:emptyElementParsePolicy"/>
+
       <xs:enumeration value="dfdlx:objectKind"/>
       <xs:enumeration value="dfdlx:parseUnparsePolicy"/>
       <xs:enumeration value="dfdlx:repType"/>
@@ -93,11 +96,14 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:attribute name="emptyElementParsePolicy" type="dfdlx:EmptyElementParsePolicyEnum"/> <!-- deprecated -->
+  <!-- deprecated -->
+  <xs:attribute name="emptyElementParsePolicy" type="dfdlx:EmptyElementParsePolicyEnum"/>
   <xs:simpleType name="EmptyElementParsePolicyEnum">
     <xs:restriction base="xs:string">
       <xs:enumeration value="treatAsEmpty" />
-      <xs:enumeration value="treatAsMissing" /> <!-- deprecated -->
+
+      <!-- deprecated -->
+      <xs:enumeration value="treatAsMissing" />
     </xs:restriction>
   </xs:simpleType>
   
@@ -122,12 +128,8 @@
   </xs:attributeGroup>
 
   <xs:attributeGroup name="ExtLayeringAGQualified">
-    <xs:attribute form="qualified" name="layerTransform" type="dfdlx:LayerTransformType" />
+    <xs:attribute form="qualified" name="layerTransform" type="xsd:QName" />
   </xs:attributeGroup>
-
-  <xs:simpleType name="LayerTransformType">
-    <xs:restriction base="xs:NCName" />
-  </xs:simpleType>
 
   <xs:attributeGroup name="ObjectKindAG">
     <xs:attribute form="qualified" name="objectKind" type="dfdlx:ObjectKindType" />

@@ -15,16 +15,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-
 <schema
   xmlns="http://www.w3.org/2001/XMLSchema"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:lf="urn:org.apache.daffodil.layers.lineFolded"
   xmlns:ex="http://example.com"
   targetNamespace="http://example.com">
 
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+  <import namespace="urn:org.apache.daffodil.layers.lineFolded"
+          schemaLocation="/org/apache/daffodil/layers/xsd/lineFoldedLayer.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
@@ -43,7 +46,7 @@
 
   <element name="root" dfdl:lengthKind="implicit">
     <complexType>
-      <sequence dfdlx:layerTransform="lineFolded_IMF" xmlns:foo="urn:Foo" foo:bar="shouldBeIgnored">
+      <sequence dfdl:ref="lf:lineFolded_IMF" xmlns:foo="urn:Foo" foo:bar="shouldBeIgnored">
         <sequence>
           <element name="marker" dfdl:initiator="boundary=" type="xs:string" dfdl:terminator="%CR;%LF;" />
           <element name="nothing" type="xs:string" dfdl:initiator="xxx" />
