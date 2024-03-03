@@ -18,7 +18,9 @@
 package org.apache.daffodil.io
 
 import java.io.File
+import java.io.OutputStream
 import java.nio.file.Path
+import scala.annotation.tailrec
 
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
@@ -36,11 +38,11 @@ import passera.unsigned.ULong
  * This simple extension just gives us a public method for access to the underlying byte array.
  * That way we don't have to make a copy just to access the bytes.
  */
-class ByteArrayOutputStreamWithGetBuf() extends java.io.ByteArrayOutputStream {
+class ByteArrayOutputStreamWithGetBuf extends java.io.ByteArrayOutputStream {
   def setBuf(bufArg: Array[Byte]): Unit = {
     buf = bufArg
   }
-  def getBuf = buf
+  def getBuf: Array[Byte] = buf
 }
 
 private[io] class ByteArrayOrFileOutputStream(
@@ -53,7 +55,7 @@ private[io] class ByteArrayOrFileOutputStream(
 
   // This will be the file object that can represent either a generated
   // temporary file or an existing blob file
-  var maybeFile: Maybe[File] = {
+  private var maybeFile: Maybe[File] = {
     if (maybeExistingFile.isDefined)
       Maybe(maybeExistingFile.get.toFile)
     else
@@ -63,7 +65,7 @@ private[io] class ByteArrayOrFileOutputStream(
   // Keep track of whether or not this is a temporary file. If it is an existing
   // file, i.e. a blob file, we do not want to delete it as that is handled
   // elsewhere.
-  lazy val isTempFile = (!maybeExistingFile.isDefined && isFile)
+  lazy val isTempFile: Boolean = !maybeExistingFile.isDefined && isFile
 
   // This is only used to determine if we need to switch to a file based output
   // stream
@@ -90,12 +92,12 @@ private[io] class ByteArrayOrFileOutputStream(
             throw new FileIOException(
               "Unable to create temporary file in %s: %s".format(
                 tempDirPath.getPath,
-                e.getMessage(),
+                e.getMessage,
               ),
             )
         }
       val newStream: java.io.OutputStream = new java.io.FileOutputStream(maybeFile.get)
-      stream.flush
+      stream.flush()
       stream.asInstanceOf[ByteArrayOutputStreamWithGetBuf].writeTo(newStream)
       stream = newStream
       isFile = true
@@ -103,40 +105,40 @@ private[io] class ByteArrayOrFileOutputStream(
       nBytes += lengthInBytes
   }
 
-  override def write(b: Array[Byte]) = {
+  override def write(b: Array[Byte]): Unit = {
     checkBuffer(b.length)
     stream.write(b)
   }
 
-  override def write(b: Array[Byte], off: Int, len: Int) = {
+  override def write(b: Array[Byte], off: Int, len: Int): Unit = {
     checkBuffer(len)
     stream.write(b, off, len)
   }
 
-  override def write(b: Int) = {
+  override def write(b: Int): Unit = {
     checkBuffer(1)
     stream.write(b)
   }
 
-  override def close() = stream.close()
+  override def close(): Unit = stream.close()
 
-  def getBuf() = {
+  def getBuf: Array[Byte] = {
     Assert.usage(!isFile, "Attempted to call getBuf on FileOutputStream")
     stream.asInstanceOf[ByteArrayOutputStreamWithGetBuf].getBuf
   }
 
   def getFile: File = maybeFile.get
 
-  def hexDump: String = {
+  private def hexDump: String = {
     if (isFile)
       maybeFile.get.toString
     else
-      (0 to (nBytes.toInt - 1))
-        .map { i => "%2x".format(getBuf()(i).toInt & 0xff) }
+      (0 until nBytes.toInt)
+        .map { i => "%2x".format(getBuf(i).toInt & 0xff) }
         .mkString(".")
   }
 
-  override def toString = hexDump
+  override def toString: String = hexDump
 }
 
 /**
@@ -162,7 +164,7 @@ private[io] class ByteArrayOrFileOutputStream(
  * buffer. When direct, all output goes into a "real" DataOutputStream.
  *
  * The isLayer parameter defines whether or not this instance originated from a
- * layer or not. This is important to specify because this class is reponsible
+ * layer or not. This is important to specify because this class is responsible
  * for closing the associated Java OutputStream, ultimately being written to
  * the underlying underlying DataOutputStream. However, if the DataOutputStream
  * is not related to a layer, that means the associated Java OutputStream came
@@ -192,7 +194,7 @@ class DirectOrBufferedDataOutputStream private[io] (
   val maybeExistingFile: Maybe[Path],
 ) extends DataOutputStreamImplMixin {
 
-  type ThisType = DirectOrBufferedDataOutputStream
+  private type ThisType = DirectOrBufferedDataOutputStream
 
   override def putULong(
     unsignedLong: ULong,
@@ -203,7 +205,11 @@ class DirectOrBufferedDataOutputStream private[io] (
     res
   }
 
-  override def putLong(signedLong: Long, bitLengthFrom1To64: Int, finfo: FormatInfo) = {
+  override def putLong(
+    signedLong: Long,
+    bitLengthFrom1To64: Int,
+    finfo: FormatInfo,
+  ): Boolean = {
     val res = putLongChecked(signedLong.longValue, bitLengthFrom1To64, finfo)
     res
   }
@@ -233,12 +239,12 @@ class DirectOrBufferedDataOutputStream private[io] (
    * Two of these are equal if they are eq.
    * This matters because we compare them to see if we are making forward progress
    */
-  override def equals(other: Any) = AnyRef.equals(other)
+  override def equals(other: Any): Boolean = AnyRef.equals(other)
 
-  override def hashCode() = AnyRef.hashCode()
+  override def hashCode(): Int = AnyRef.hashCode()
 
-  override def toString = {
-    lazy val buf = bufferingJOS.getBuf()
+  override def toString: String = {
+    lazy val buf = bufferingJOS.getBuf
     lazy val max16ByteArray = buf.slice(0, 16)
     lazy val upTo16BytesInHex = Misc.bytes2Hex(max16ByteArray)
     val toDisplay = "DOS(id=" + id + ", " + dosState +
@@ -281,14 +287,14 @@ class DirectOrBufferedDataOutputStream private[io] (
    *
    * If reused, this must be reset.
    */
-  protected val bufferingJOS =
+  private val bufferingJOS =
     new ByteArrayOrFileOutputStream(maxBufferSizeInBytes, tempDirPath, maybeExistingFile)
 
   /**
    * Switched to point a either the buffering or direct java output stream in order
    * to change modes from buffering to direct (and back if these objects get reused.)
    */
-  protected var _javaOutputStream: java.io.OutputStream = bufferingJOS
+  private var _javaOutputStream: java.io.OutputStream = bufferingJOS
 
   final def isBuffering: Boolean = {
     val res = getJavaOutputStream()._eq_(bufferingJOS)
@@ -303,7 +309,7 @@ class DirectOrBufferedDataOutputStream private[io] (
     ) // these are born buffering, and evolve into direct.
   }
 
-  override def getJavaOutputStream() = {
+  override def getJavaOutputStream(): OutputStream = {
     Assert.usage(_javaOutputStream ne null)
     _javaOutputStream
   }
@@ -317,7 +323,8 @@ class DirectOrBufferedDataOutputStream private[io] (
 
   override def maybeNextInChain: Maybe[DataOutputStream] = _following
 
-  def lastInChain: DirectOrBufferedDataOutputStream =
+  @tailrec
+  private def lastInChain: DirectOrBufferedDataOutputStream =
     if (_following.isEmpty) this
     else _following.get.lastInChain
 
@@ -361,7 +368,7 @@ class DirectOrBufferedDataOutputStream private[io] (
     finfo: FormatInfo,
   ): DirectOrBufferedDataOutputStream = {
 
-    // create a special buffered blob data outputstream and split the current
+    // create a special buffered blob data output stream and split the current
     // DOS to it. When this normal DOS is finished, the blob DOS will handle
     // delivering the blob data to it without loading the whole blob into
     // memory all at once.
@@ -423,7 +430,7 @@ class DirectOrBufferedDataOutputStream private[io] (
     Assert.usage(isBuffering)
     Assert.usage(oldDirectDOS.isDirect)
 
-    setJavaOutputStream(oldDirectDOS.getJavaOutputStream)
+    setJavaOutputStream(oldDirectDOS.getJavaOutputStream())
     Assert.invariant(isDirect)
     this.setAbsStartingBitPos0b(ULong(0))
 
@@ -485,7 +492,7 @@ class DirectOrBufferedDataOutputStream private[io] (
           first.isFinished // continue until AFTER we merge forward into the first non-finished successor
         Assert.invariant(first.isBuffering)
 
-        Logger.log.debug(s"merging direct DOS ${directStream} into DOS ${first}")
+        Logger.log.debug(s"merging direct DOS $directStream into DOS $first")
         val dabp = directStream.maybeAbsBitPos0b.getULong
         if (first.maybeAbsStartingBitPos0b.isEmpty) {
           first.setAbsStartingBitPos0b(dabp)
@@ -503,7 +510,7 @@ class DirectOrBufferedDataOutputStream private[io] (
         first.convertToDirect(directStream) // first is now the direct stream
         directStream.setDOSState(Uninitialized) // old direct stream is now dead
         directStream = first // long live the new direct stream!
-        Logger.log.debug(s"New direct DOS ${directStream}")
+        Logger.log.debug(s"New direct DOS $directStream")
 
       }
       if (directStream._following.isDefined) {
@@ -537,7 +544,8 @@ class DirectOrBufferedDataOutputStream private[io] (
           // OutputStream from a user and they are responsible for closing it.
           directStream.getJavaOutputStream().flush()
           if (directStream.isLayer) {
-            directStream.getJavaOutputStream().close()
+            val jos: OutputStream = directStream.getJavaOutputStream()
+            jos.close()
           }
           directStream.setDOSState(Uninitialized) // not just finished. We're dead now.
         } else {
@@ -615,7 +623,7 @@ class DirectOrBufferedDataOutputStream private[io] (
         if (pmabp.isDefined) {
           val pabp = pmabp.getULong
           this.setAbsStartingBitPos0b(pabp)
-          Logger.log.debug(s"for ${this} propagated absolute starting bit pos ${pabp}")
+          Logger.log.debug(s"for $this propagated absolute starting bit pos $pabp")
           super.maybeAbsBitPos0b // will get the right value this time.
         } else {
           // prior doesn't have an abs bit pos.
@@ -673,15 +681,7 @@ class DirectOrBufferedDataOutputStream private[io] (
       bits = (bits << shift1) >>> shift1
       nBitsRemaining = bitLengthFrom1To64 - nBitsOfFragToBeFilled
 
-      if (nFragBitsAfter == 8) {
-        // we filled the entire frag byte. Write it out, then zero it
-        realStream.write(newFragByte.toByte)
-        setFragmentLastByte(0, 0)
-      } else {
-        // we did not fill up the frag byte. We added bits to it (at least 1), but
-        // it's not filled up yet.
-        setFragmentLastByte(newFragByte.toInt, nFragBitsAfter)
-      }
+      handleFragmentLastByte(nFragBitsAfter, newFragByte, realStream)
 
     }
     // at this point we have bits and nBitsRemaining
@@ -715,6 +715,22 @@ class DirectOrBufferedDataOutputStream private[io] (
     }
   }
 
+  private def handleFragmentLastByte(
+    nFragBitsAfter: Int,
+    newFragByte: Int,
+    realStream: OutputStream,
+  ): Unit = {
+    if (nFragBitsAfter == 8) {
+      // we filled the entire frag byte. Write it out, then zero it
+      realStream.write(newFragByte.toByte)
+      setFragmentLastByte(0, 0)
+    } else {
+      // we did not fill up the frag byte. We added bits to it (at least 1), but
+      // it's not filled up yet.
+      setFragmentLastByte(newFragByte, nFragBitsAfter)
+    }
+  }
+
   final override protected def putLong_LE_MSBFirst(
     signedLong: Long,
     bitLengthFrom1To64: Int,
@@ -733,7 +749,7 @@ class DirectOrBufferedDataOutputStream private[io] (
     // that byte, since we're storing data MSBF.
     //
     val nWholeBytesAtStart = bitLengthFrom1To64 / 8
-    val nUsedBitsLastByte = (bitLengthFrom1To64 % 8)
+    val nUsedBitsLastByte = bitLengthFrom1To64 % 8
     val nUnusedBitsLastByte = if (nUsedBitsLastByte == 0) 0 else 8 - nUsedBitsLastByte
     val indexOfLastByteLE = nWholeBytesAtStart - (if (nUnusedBitsLastByte > 0) 0 else 1)
 
@@ -772,21 +788,12 @@ class DirectOrBufferedDataOutputStream private[io] (
       val newFragBitsMask = (0x80.toByte >> (nBitsOfFragToBeFilled - 1)) & 0xff
       val LSByte = unionByteBuffer.get(0)
       val bitsToGoIntoFragInPosition =
-        (((LSByte & newFragBitsMask) & 0xff) >>> fragmentLastByteLimit).toInt
+        ((LSByte & newFragBitsMask) & 0xff) >>> fragmentLastByteLimit
 
       val newFragByte =
         Bits.asUnsignedByte((fragmentLastByte | bitsToGoIntoFragInPosition).toByte)
-      Assert.invariant(newFragByte <= 255 && newFragByte >= 0)
 
-      if (nFragBitsAfter == 8) {
-        // we filled the entire frag byte. Write it out, then zero it
-        realStream.write(newFragByte.toByte)
-        setFragmentLastByte(0, 0)
-      } else {
-        // we did not fill up the frag byte. We added bits to it (at least 1), but
-        // it's not filled up yet.
-        setFragmentLastByte(newFragByte, nFragBitsAfter)
-      }
+      handleFragmentLastByte(nFragBitsAfter, newFragByte, realStream)
 
       //
       // Now we have to remove the bits that went into the
@@ -867,15 +874,7 @@ class DirectOrBufferedDataOutputStream private[io] (
       bits = bits >>> nBitsOfFragToBeFilled
       nBitsRemaining = bitLengthFrom1To64 - nBitsOfFragToBeFilled
 
-      if (nFragBitsAfter == 8) {
-        // we filled the entire frag byte. Write it out, then zero it
-        realStream.write(newFragByte.toByte)
-        setFragmentLastByte(0, 0)
-      } else {
-        // we did not fill up the frag byte. We added bits to it (at least 1), but
-        // it's not filled up yet.
-        setFragmentLastByte(newFragByte, nFragBitsAfter)
-      }
+      handleFragmentLastByte(nFragBitsAfter, newFragByte, realStream)
 
     }
     // at this point we have bits and nBitsRemaining
@@ -888,7 +887,7 @@ class DirectOrBufferedDataOutputStream private[io] (
       Assert.invariant(fragmentLastByteLimit == 0) // there is no frag byte.
       val nWholeBytes = nBitsRemaining / 8
       val nFragBits = nBitsRemaining % 8
-      val fragUsedBitsMask = ((1 << nFragBits) - 1)
+      val fragUsedBitsMask = (1 << nFragBits) - 1
 
       var shiftedBits = bits
 
@@ -919,12 +918,12 @@ class DirectOrBufferedDataOutputStream private[io] (
     val bufferNBits =
       this.relBitPos0b // don't have to subtract a starting offset. It's always zero in buffered case.
     val bufOS = this.bufferingJOS
-    val nBytes = (bufferNBits / 8)
+    val nBytes = bufferNBits / 8
     val nFragBits = this.fragmentLastByteLimit
 
     val wholeBytesWritten = {
       if (bufOS.isFile) {
-        bufOS.close
+        bufOS.close()
         val nBitsPut =
           try {
             directDOS.putFile(bufOS.getFile.toPath, bufferNBits.toLong, chunkSizeInBytes, finfo)
@@ -1009,7 +1008,7 @@ class DirectOrBufferedDataOutputStream private[io] (
 class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream, finfo: FormatInfo)
   extends Exception {
 
-  override def getMessage() = {
+  override def getMessage: String = {
     "Data output stream %s with bitOrder '%s' which is not on a byte boundary (%s bits past last byte boundary), cannot be populated with bitOrder '%s'."
       .format(
         directDOS,
@@ -1024,7 +1023,7 @@ class FileIOException(message: String) extends Exception(message)
 
 object DirectOrBufferedDataOutputStream {
 
-  var nextLayerID = 0
+  private var nextLayerID = 0
 
   /**
    * This is over here to be sure it isn't operating on other members
@@ -1096,7 +1095,7 @@ object DirectOrBufferedDataOutputStream {
     maxBufferSizeInBytes: Long,
     tempDirPath: File,
     maybeExistingFile: Maybe[Path] = Maybe.Nope,
-  ) = {
+  ): DirectOrBufferedDataOutputStream = {
     val dbdos = new DirectOrBufferedDataOutputStream(
       creator,
       isLayer,

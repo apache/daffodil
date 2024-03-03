@@ -494,7 +494,11 @@ class VariableMap private (
   /**
    * Assigns an external variable and sets the variables state to VariableSet
    */
-  def setExtVariable(bindingQName: RefQName, newValue: String, referringContext: ThrowsSDE): Unit = {
+  def setExtVariable(
+    bindingQName: RefQName,
+    newValue: String,
+    referringContext: ThrowsSDE,
+  ): Unit = {
 
     val optVariableInstances =
       if (bindingQName.namespace == UnspecifiedNamespace) {

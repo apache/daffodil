@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.runtime1.layers
 
+import java.io.FilterInputStream
+import java.io.FilterOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -58,7 +60,7 @@ class LayerDriver(
     s: DataOutputStream,
     layerRuntimeImpl: LayerRuntimeImpl,
   ): OutputStream =
-    new JavaIOOutputStream(s, layerRuntimeImpl.finfo)
+    new JavaIOOutputStream(s, layer, layerRuntimeImpl, layerVarsRuntime)
 
   /**
    *  Override these if we ever have transformers that don't have these
@@ -71,7 +73,8 @@ class LayerDriver(
     layerRuntimeImpl: LayerRuntimeImpl,
   ): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s, layerRuntimeImpl)
-    val decodedInputStream = layer.wrapLayerInput(jis, layerRuntimeImpl)
+    val decodedInputStream =
+      new AssuredCloseInputStream(layer.wrapLayerInput(jis, layerRuntimeImpl), jis)
     val newDIS = InputSourceDataInputStream(decodedInputStream)
     newDIS.cst.setPriorBitOrder(
       BitOrder.MostSignificantBitFirst,
@@ -85,7 +88,7 @@ class LayerDriver(
    * parsing the layer we can invoke this to handle cleanups, and
    * finalization issues like assigning the result variables
    */
-  final def removeLayer(
+  final def removeInputLayer(
     s: InputSourceDataInputStream,
     layerRuntimeImpl: LayerRuntimeImpl,
   ): Unit = {
@@ -97,7 +100,8 @@ class LayerDriver(
     layerRuntimeImpl: LayerRuntimeImpl,
   ): DirectOrBufferedDataOutputStream = {
     val jos = wrapJavaOutputStream(s, layerRuntimeImpl)
-    val encodedOutputStream = layer.wrapLayerOutput(jos, layerRuntimeImpl)
+    val encodedOutputStream =
+      new AssuredCloseOutputStream(layer.wrapLayerOutput(jos, layerRuntimeImpl), jos)
     val newDOS = DirectOrBufferedDataOutputStream(
       encodedOutputStream,
       null,
@@ -114,14 +118,30 @@ class LayerDriver(
 
   /**
    * Unparsing is very asynchronous due to suspensions.
-   * So just because the unparser has returned from unparsing the layer doesn't
-   * mean data isn't going to be delivered to this layer output stream later.
-   *
-   * So there is little cleanup or wrap-up we can do in this case.
+   * So what is done here has to arrange for the layer stream to be closed,
+   * but in the future when everything that has been written to it
+   * but was suspended, has actually been written.
    */
-  final def removeLayer(s: DirectOrBufferedDataOutputStream, state: UState): Unit = {
+  final def removeOutputLayer(s: DirectOrBufferedDataOutputStream, state: UState): Unit = {
     // do nothing
   }
+
+  private final class AssuredCloseInputStream(stream: InputStream, inner: InputStream)
+    extends FilterInputStream(stream) {
+    override def close(): Unit = {
+      stream.close()
+      inner.close()
+    }
+  }
+
+  private final class AssuredCloseOutputStream(stream: OutputStream, inner: OutputStream)
+    extends FilterOutputStream(stream) {
+    override def close(): Unit = {
+      stream.close()
+      inner.close()
+    }
+  }
+
 }
 
 /**
@@ -176,7 +196,14 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extend
  * @param dos   The DataOutputStream to write the data to.
  * @param finfo The FormatInfo used for writing the data (bit order needed, etc.)
  */
-class JavaIOOutputStream(dos: DataOutputStream, finfo: FormatInfo) extends OutputStream {
+class JavaIOOutputStream(
+  dos: DataOutputStream,
+  layer: Layer,
+  lri: LayerRuntimeImpl,
+  lvr: LayerVarsRuntime,
+) extends OutputStream {
+
+  private def finfo = lri.finfo
 
   private var closed = false
 
@@ -190,6 +217,10 @@ class JavaIOOutputStream(dos: DataOutputStream, finfo: FormatInfo) extends Outpu
   override def close(): Unit = {
     if (!closed) {
       dos.setFinished(finfo)
+      //
+      // This is where we can reliably wrap-up the layer processing.
+      //
+      lvr.callGettersToPopulateResultVars(layer, lri)
       closed = true
     }
   }

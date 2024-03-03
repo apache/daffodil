@@ -250,7 +250,8 @@ trait SequenceDefMixin
 
   def groupMembersNotShared: Seq[Term]
 
-  protected final def isMyFormatAnnotation(a: DFDLAnnotation): Boolean = a.isInstanceOf[DFDLSequence]
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation): Boolean =
+    a.isInstanceOf[DFDLSequence]
 
   protected final def annotationFactory(node: Node): Option[DFDLAnnotation] = {
     node match {

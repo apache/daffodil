@@ -16,6 +16,7 @@
  */
 package org.apache.daffodil.io
 
+import java.io.FilterOutputStream
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
@@ -73,7 +74,7 @@ class BoundaryMarkInsertingJavaOutputStream(
   jos: java.io.OutputStream,
   boundaryMark: String,
   charset: Charset,
-) extends java.io.FilterOutputStream(jos) {
+) extends FilterOutputStream(jos) {
 
   private var closed = false
 

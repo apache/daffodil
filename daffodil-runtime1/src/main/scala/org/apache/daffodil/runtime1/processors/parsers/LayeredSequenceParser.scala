@@ -53,7 +53,7 @@ class LayeredSequenceParser(
 
       state.dataInputStream = newDIS
       super.parse(state)
-      layerDriver.removeLayer(newDIS, layerRuntimeImpl)
+      layerDriver.removeInputLayer(newDIS, layerRuntimeImpl)
     } catch {
       case pe: ParseError =>
         state.setFailed(pe)

@@ -97,10 +97,7 @@ class ChecksumEncoderOutputStream(
   override def write(b: Int): Unit = {
     baos.write(b)
     count += 1
-    if (count == layer.length) {
-      // we can auto-close it in this case
-      close()
-    } else if (count > layer.length) {
+    if (count > layer.length) {
       //
       // This could happen if the layer logically unparses as one of two choice branches where they
       // are supposed to be all the same length, but one is in fact longer than expected by the bufLen.
@@ -109,9 +106,6 @@ class ChecksumEncoderOutputStream(
           s"Written data amount exceeded fixed layer length of ${layer.length}.",
         ),
       )
-    } else {
-      // Assert.invariant(count < length)
-      // ok. We're still accumulating data
     }
   }
 
@@ -126,13 +120,7 @@ class ChecksumEncoderOutputStream(
       val buf = ByteBuffer.wrap(ba)
       layer.setChecksum(layer.compute(lr, isUnparse = true, buf))
       jos.write(ba)
-      //
-      // FIXME: This close belongs elsewhere. The need to do this close is not a checksum-specific
-      //   thing, it's going to be needed by any layer. However, it is not happening in the right places,
-      //   because if you take this out, unparsing gets suspension deadlocks. (VERIFY THAT THIS IS STILL TRUE)
-      //   note that the close on the jos does a setFinished on the underlying daffodil DataOutputStream.
-      //
-      jos.close() // required so that closes propagate, and the buffering output streams recombine/collapse again.
+      jos.flush()
     }
   }
 }

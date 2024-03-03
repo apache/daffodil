@@ -47,6 +47,10 @@ class LayeredSequenceUnparser(
     // since the flushing of the layer might be delayed due to suspensions. By
     // getting an immutable state, we ensure that the flushing of the layer
     // occurs with the state at this point.
+    //
+    // TODO: we're not unparsing here, just writing bytes, so perhaps we do not
+    // need this cloned state? Everything in layers is byte-centric, so there is
+    // no issue of fragment bytes.
     val formatInfoPre = state.asInstanceOf[UStateMain].cloneForSuspension(layerUnderlyingDOS)
 
     val layerRuntime = new LayerRuntimeImpl(formatInfoPre, ctxt.layerRuntimeData)
@@ -73,29 +77,25 @@ class LayeredSequenceUnparser(
     // unparse the layer body into layerDOS
     state.dataOutputStream = layerDOS
     super.unparse(state)
-    // now we're done unparsing the layer, so finalize the last DOS in the
-    // chain. Note that there might be suspensions so some parts of the
-    // layerDOS chain may not be finished. When those suspensions are all
-    // finished, the layerDOS content will be written to the
-    // layerUnderlyingDOS, which will subsequently be finished. Like above, it
-    // is important to pass an immutable UState into the setFinished function
-    // because that state is stored in the DOS (as finishedFormatInfo) and its
-    // use may be delayed to after the actual UState has been changed. The
-    // UState has almost certainly changed since the last cloneForSuspension
-    // call, so we need a new clone to finish this DOS.
+    // now we're done unparsing the layer recursively.
+    // While doing that unparsing, the data output stream may have been split, so the
+    // DOS in the state may no longer be the layerDOS.
     //
-    // TODO: Analyze this carefully. Do we really need to clone state and allow
-    //  for suspension here, or is the fact that the layer will eventually close
-    //  due to writes to it sufficient?
+    // However, it is when whatever DOS is in the state at this point, that, when that
+    // DOS is consolidated and written out, that is when the layer is finished
+    // and the wrap-up of the layer (such as writing output variables) can occur.
     //
-    val layerDOSLast = layerDOS.lastInChain
-    val formatInfoPost = state.asInstanceOf[UStateMain].cloneForSuspension(layerDOSLast)
-    layerDOSLast.setFinished(formatInfoPost)
+    val endOfLayerUnparseDOS = state.dataOutputStream
+    val formatInfoPost = state.asInstanceOf[UStateMain].cloneForSuspension(endOfLayerUnparseDOS)
+
+    // setFinished on this end-of-layer-unparse data-output-stream  ensures
+    // that the layerDOS gets close() called on it.
+    endOfLayerUnparseDOS.setFinished(formatInfoPost)
 
     // clean up resources - note however, that due to suspensions, the whole
     // layer stack is potentially still needed, so not clear what can be
     // cleaned up at this point.
-    layerDriver.removeLayer(layerDOS, state)
+    layerDriver.removeOutputLayer(layerDOS, state)
 
     // reset the state so subsequent unparsers write to the following DOS
     state.dataOutputStream = layerFollowingDOS

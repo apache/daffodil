@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.layers.api;
 import org.apache.daffodil.lib.xml.QName;
 import org.apache.daffodil.runtime1.layers.LayerUtils;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
