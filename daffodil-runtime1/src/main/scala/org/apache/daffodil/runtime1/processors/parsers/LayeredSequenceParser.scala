@@ -31,9 +31,9 @@ class LayeredSequenceParser(
 
   override def parse(state: PState): Unit = {
 
-    // TODO: Separate the creation of layer transformers into layerParseTransformers and layer
-    //   unparse transformers. Right now they're blended onto one object.
-    //   It should be possible to define only a layer parser if a schema (and its requried layers)
+    // TODO: Separate the creation of layer into layerParse and layer
+    //   unparse. Right now they're blended onto one object.
+    //   It should be possible to define only a layer parser if a schema (and its required layers)
     //   are intended to be used only to parse data.
 
     val layerRuntimeImpl = new LayerRuntimeImpl(state, rd.layerRuntimeData)

@@ -208,7 +208,7 @@ object LayerFactory {
 }
 
 /**
- * Factory for a layer transformer.
+ * Factory for a layer
  *
  * This is the serialized object which is saved as part of a processor.
  * It constructs the layer at runtime when newInstance() is called.
@@ -227,7 +227,7 @@ class LayerFactory(val layerRuntimeData: LayerRuntimeData) extends Serializable 
    *
    * @param lri the layer runtime info which includes both static and runtime
    *           state-based information for the parse or unparse
-   * @return the LayerTransformer properly initialized/constructed for this layer
+   * @return the Layer properly initialized/constructed for this layer
    */
   def newInstance(lri: LayerRuntimeImpl): LayerDriver = {
     val optCache = alreadyCheckedLayers.get(lri.layerRuntimeData.spiName)

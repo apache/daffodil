@@ -938,7 +938,7 @@ class TestCLIParsing {
     )
     runCLI(args"parse -s $schema") { cli =>
       cli.sendLine("0", inputDone = true)
-      cli.expectErr("Unexpected exception in layer transformer 'buggy'")
+      cli.expectErr("Unexpected exception in layer 'buggy'")
     }(ExitCode.LayerExecutionError)
   }
 

@@ -30,7 +30,7 @@ public class LayerUnexpectedException extends LayerException {
      * @param cause the cause of the exception. It is saved for later retrieval by the getCause() method.
      */
     public LayerUnexpectedException(LayerRuntime layerRuntime, Throwable cause) {
-        super(layerRuntime, "Unexpected exception in layer transformer '" + layerRuntime.layerName() +
+        super(layerRuntime, "Unexpected exception in layer '" + layerRuntime.layerName() +
                 "'.\nCause: " + cause.getClass().getName() + " Message: " +
                 cause.getMessage() + ".", cause);
     }

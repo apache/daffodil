@@ -234,7 +234,7 @@ daffodil/
 ├── daffodil-macro-lib/         - Defines Daffodil's Scala 2.x macros
 ├── daffodil-propgen/           - Contains generators to generate more source code
 ├── daffodil-runtime1/          - Contains Daffodil's Scala parser
-├── daffodil-runtime1-layers/   - Contains Daffodil's Scala layer transformers
+├── daffodil-runtime1-layers/   - Contains Daffodil's Scala layers 
 ├── daffodil-runtime1-unparser/ - Contains Daffodil's Scala unparser
 ├── daffodil-sapi/              - Contains Daffodil's Scala API
 ├── daffodil-schematron/
