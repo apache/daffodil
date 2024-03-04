@@ -29,7 +29,7 @@
       <dfdl:defineVariable name="fixedLength" type="xs:unsignedInt"/>
 
       <dfdl:defineFormat name="fixedLength">
-        <dfdl:format dfdlx:layerTransform="fl:fixedLength"/>
+        <dfdl:format dfdlx:layer="fl:fixedLength"/>
       </dfdl:defineFormat>
 
     </appinfo>

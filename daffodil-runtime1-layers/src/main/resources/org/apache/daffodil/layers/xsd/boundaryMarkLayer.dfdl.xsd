@@ -30,7 +30,7 @@
       <dfdl:defineVariable name="layerEncoding" type="xs:string"/>
 
       <dfdl:defineFormat name="boundaryMark">
-        <dfdl:format dfdlx:layerTransform="bm:boundaryMark"/>
+        <dfdl:format dfdlx:layer="bm:boundaryMark"/>
       </dfdl:defineFormat>
 
     </appinfo>

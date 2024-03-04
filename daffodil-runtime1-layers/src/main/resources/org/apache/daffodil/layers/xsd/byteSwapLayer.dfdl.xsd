@@ -27,11 +27,11 @@
     <appinfo source="http://www.ogf.org/dfdl/">
 
       <dfdl:defineFormat name="twobyteswap">
-        <dfdl:format dfdlx:layerTransform="bswap:twobyteswap"/>
+        <dfdl:format dfdlx:layer="bswap:twobyteswap"/>
       </dfdl:defineFormat>
 
       <dfdl:defineFormat name="fourbyteswap">
-        <dfdl:format dfdlx:layerTransform="bswap:fourbyteswap"/>
+        <dfdl:format dfdlx:layer="bswap:fourbyteswap"/>
       </dfdl:defineFormat>
 
     </appinfo>

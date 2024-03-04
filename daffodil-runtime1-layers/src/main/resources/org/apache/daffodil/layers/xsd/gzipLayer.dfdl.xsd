@@ -27,7 +27,7 @@
     <appinfo source="http://www.ogf.org/dfdl/">
 
       <dfdl:defineFormat name="gzip">
-        <dfdl:format dfdlx:layerTransform="gz:gzip"/>
+        <dfdl:format dfdlx:layer="gz:gzip"/>
       </dfdl:defineFormat>
 
     </appinfo>

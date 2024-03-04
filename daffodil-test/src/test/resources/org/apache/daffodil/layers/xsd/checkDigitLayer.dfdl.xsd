@@ -36,7 +36,7 @@
       <dfdl:defineVariable name="digitEncoding" type="xs:string"/>
 
       <dfdl:defineFormat name="checkDigit">
-        <dfdl:format dfdlx:layerTransform="cd:checkDigit"/>
+        <dfdl:format dfdlx:layer="cd:checkDigit"/>
       </dfdl:defineFormat>
     </appinfo>
   </annotation>

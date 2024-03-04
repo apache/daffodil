@@ -39,7 +39,7 @@ object LayerRegistry {
     if (optLayer.isEmpty) {
       val choices = layerMap.keySet.mkString(", ")
       context.SDE(
-        "The dfdlx:layerTransform '%s' was not found. Available choices are: %s",
+        "The dfdlx:layer '%s' was not found. Available choices are: %s",
         spiName,
         choices,
       )

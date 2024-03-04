@@ -40,7 +40,7 @@
       <dfdl:defineVariable name="IPv4Checksum" type="xs:unsignedShort"/>
 
       <dfdl:defineFormat name="IPv4Checksum">
-        <dfdl:format dfdlx:layerTransform="chksum:IPv4Checksum"/>
+        <dfdl:format dfdlx:layer="chksum:IPv4Checksum"/>
       </dfdl:defineFormat>
 
     </xs:appinfo>

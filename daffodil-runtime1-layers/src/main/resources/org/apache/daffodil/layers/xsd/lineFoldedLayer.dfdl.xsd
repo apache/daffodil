@@ -29,11 +29,11 @@
       <!-- lineFolded layers do not have any DFDL variables for parameter or results -->
 
       <dfdl:defineFormat name="lineFolded_IMF">
-        <dfdl:format dfdlx:layerTransform="lf:lineFolded_IMF"/>
+        <dfdl:format dfdlx:layer="lf:lineFolded_IMF"/>
       </dfdl:defineFormat>
 
       <dfdl:defineFormat name="lineFolded_iCalendar">
-        <dfdl:format dfdlx:layerTransform="lf:lineFolded_iCalendar"/>
+        <dfdl:format dfdlx:layer="lf:lineFolded_iCalendar"/>
       </dfdl:defineFormat>
 
     </appinfo>

@@ -118,7 +118,7 @@ Example Multifragment sentence:
             <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue=","/>
             </xs:appinfo></xs:annotation>
-            <xs:sequence dfdlx:layerTransform="ais:aisPayloadArmor">
+            <xs:sequence dfdlx:layer="ais:aisPayloadArmor">
               <xs:sequence>
                 <!-- now using default format which is ais:binary -->
                 <xs:element name="messageType" type="xs:unsignedInt" dfdl:length="6"/>

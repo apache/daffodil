@@ -99,7 +99,7 @@
   <tdml:parserTestCase name="layersErr1" root="root" model="exampleLineFoldedLayer3Err.dfdl.xsd" roundTrip="true">
     <tdml:document />
     <tdml:errors>
-      <tdml:error>layerTransform</tdml:error>
+      <tdml:error>layer</tdml:error>
       <tdml:error>separator</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

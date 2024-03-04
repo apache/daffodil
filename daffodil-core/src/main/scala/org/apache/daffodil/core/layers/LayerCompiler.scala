@@ -66,7 +66,7 @@ private class LayerCompiler private (sq: SequenceGroupTermBase) {
 
   private val layeredSequenceAllowedProps = Seq(
     "ref",
-    "layerTransform",
+    "layer",
   )
   private def checkOnlyAllowedProperties(): Unit = {
     // need to check that only layering properties are specified
@@ -75,7 +75,7 @@ private class LayerCompiler private (sq: SequenceGroupTermBase) {
     val disallowedKeys = localKeys.filterNot(k => layeredSequenceAllowedProps.contains(k))
     if (disallowedKeys.nonEmpty)
       sq.SDE(
-        "Sequence has dfdlx:layerTransform specified, so cannot have non-layering properties: %s",
+        "Sequence has dfdlx:layer specified, so cannot have non-layering properties: %s",
         disallowedKeys.mkString(", "),
       )
   }

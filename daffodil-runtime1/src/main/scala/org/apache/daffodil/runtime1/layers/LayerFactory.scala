@@ -237,7 +237,7 @@ class LayerFactory(val layerRuntimeData: LayerRuntimeData) extends Serializable 
         lri.runtimeSchemaDefinitionError(
           new LayerException(
             lri,
-            s"Unable to load class for layerTransform '${lri.layerRuntimeData.layerQName.toQNameString}'.",
+            s"Unable to load class for layer '${lri.layerRuntimeData.layerQName.toQNameString}'.",
           ),
         )
       }

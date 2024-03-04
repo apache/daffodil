@@ -62,7 +62,7 @@ abstract class SequenceTermBase(
 
   def separatorUnparseEv: SeparatorUnparseEv
 
-  def layerTransformOption: Option[RefQName]
+  def layerOption: Option[RefQName]
 
   def isOrdered: Boolean
 
@@ -71,20 +71,17 @@ abstract class SequenceTermBase(
    */
   def isHidden: Boolean = false
 
-  // lazy val optionLayerTransform: Option[RefQName] = optLayerTransform
-  // findPropertyOption("layerTransform").toOption.map(resolveQName)
-
-  def isLayered: Boolean = layerTransformOption.isDefined
+  def isLayered: Boolean = layerOption.isDefined
 
   lazy val optionLayerRuntimeData: Option[LayerRuntimeData] =
-    layerTransformOption.map { layerTransform: RefQName =>
+    layerOption.map { layerProperty: RefQName =>
       val layerVars = variableMap.vrds.filter { vrd =>
-        vrd.globalQName.namespace == layerTransform.namespace
+        vrd.globalQName.namespace == layerProperty.namespace
       }
       val layerVarMap = layerVars.map { vrd => (vrd.globalQName.local, vrd) }.toMap
       val sfl = schemaFileLocation
       new LayerRuntimeData(
-        layerTransform,
+        layerProperty,
         schemaFileLocation = sfl,
         vmap = layerVarMap,
         this.sequenceRuntimeData,
@@ -345,7 +342,7 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
   override def separatorPosition: SeparatorPosition = SeparatorPosition.Infix
 
   override def isLayered: Boolean = false
-  override def layerTransformOption: Option[RefQName] = None
+  override def layerOption: Option[RefQName] = None
 
   override lazy val hasSeparator = false
   override lazy val hasTerminator = false

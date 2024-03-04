@@ -33,7 +33,7 @@ case class DeprecatedProperty(namespace: NS, property: String, replacement: Stri
 object DeprecatedProperty {
 
   private def deprecatedProperties: Seq[DeprecatedProperty] = Seq(
-    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerTransform", "dfdlx:layerTransform"),
+    DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layer" + "Transform", "dfdlx:layer"),
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerEncoding", "dfdlx:layerEncoding"),
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLengthKind", "dfdlx:layerLengthKind"),
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLength", "dfdlx:layerLength"),
