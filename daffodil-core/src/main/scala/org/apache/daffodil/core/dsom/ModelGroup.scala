@@ -18,8 +18,11 @@
 package org.apache.daffodil.core.dsom
 
 import java.lang.{ Integer => JInt }
+import scala.xml.Comment
+import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
+import scala.xml.Text
 
 import org.apache.daffodil.core.dsom.walker.ModelGroupView
 import org.apache.daffodil.core.grammar.ModelGroupGrammarMixin
@@ -33,6 +36,9 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
  *
  * Takes care of detecting group references, and constructing the
  * proper SequenceGroupRef or ChoiceGroupRef object.
+ *
+ * If you want to do source xml to source xml rewriting transformations
+ * (like macro expansions) do them here or in TermFactory
  */
 object ModelGroupFactory {
 
@@ -65,60 +71,142 @@ object ModelGroupFactory {
   }
 
   private def makeModelGroup(
-    child: Node,
+    xmlNode: Node,
     lexicalParent: SchemaComponent,
     position: JInt,
     isHidden: Boolean,
     nodesAlreadyTrying: Set[Node],
   ): ModelGroup = {
-    val childModelGroup: ModelGroup = child match {
-      case <sequence>{_*}</sequence> => {
-        // throwaway just so we can grab local properties to check for hidden, without
-        // special-case code
-        val seq = LocalSequence(child, lexicalParent, position)
-        if (seq.hiddenGroupRefOption.isDefined) {
-          // explicit check here, because we're about to discard this, and construct
-          // a SequenceGroupRef or ChoiceGroupRef, with isHidden = true. So this
-          // temporary sequence will be discarded after this.
-          seq.checkHiddenGroupRefHasNoChildren
-          //
-          // construct the group ref XML, then recursively process that,
-          // but set flag so it will be hidden.
-          //
-          val hgrXML = seq.hiddenGroupRefXML
-          ModelGroupFactory(
-            hgrXML,
-            lexicalParent,
-            position,
-            isHidden = true,
-            nodesAlreadyTrying,
-          )
-        } else {
-          LocalSequence(child, lexicalParent, position)
-        }
+    val childModelGroup: ModelGroup = xmlNode match {
+
+      case seqXML: Elem if seqXML.label == "sequence" => {
+        // seq is a throwaway just so we can grab local properties to check for things
+        // that require rewriting without special-case code
+        val seq = LocalSequence(xmlNode, lexicalParent, position)
+
+        //
+        // Check sequences for rewriting situations
+        //
+        if (seq.hiddenGroupRefOption.isDefined)
+          rewriteHiddenGroup(seq, lexicalParent, position, isHidden, nodesAlreadyTrying)
+        else if (
+          seq.isLayered &&
+          (seq.termChildren.length > 1 || seq.termChildren.head.isArray)
+        )
+          rewriteLayeredSequence(seq, lexicalParent, position, isHidden, nodesAlreadyTrying)
+        else
+          LocalSequence(xmlNode, lexicalParent, position) // No rewriting the sequence.
       }
-      case <choice>{_*}</choice> => Choice(child, lexicalParent, position)
+      case <choice>{_*}</choice> => Choice(xmlNode, lexicalParent, position)
       case <group>{_*}</group> => {
         val pos: Int = lexicalParent match {
           case ct: ComplexTypeBase => 1
           case mg: ModelGroup => position
           case gd: GlobalGroupDef => position
         }
-        val groupRef = GroupRefFactory(child, lexicalParent, pos, isHidden)
+        val groupRef = GroupRefFactory(xmlNode, lexicalParent, pos, isHidden)
         groupRef.asModelGroup
       }
       case _ => {
         Assert.invariantFailed(
-          "Unrecognized construct %s should be handled by caller.".format(child),
+          "Unrecognized construct %s should be handled by caller.".format(xmlNode),
         )
       }
     }
     childModelGroup
   }
+
+  /**
+   * Rewrite of XML for layered sequence with multiple children or an array child.
+   * This rewrites the schema so that the layered sequence has one non-array child only.
+   *
+   * @param seq                The LocalSequence to be rewritten.
+   * @param lexicalParent      The SchemaComponent representing the lexical parent.
+   * @param position           The position of the layered sequence within its enclosing model group
+   * @param isHidden           Indicates whether the sequence is hidden or not.
+   * @param nodesAlreadyTrying A set of nodes that have already been tried.
+   * @return The rewritten ModelGroup.
+   */
+  private def rewriteLayeredSequence(
+    seq: LocalSequence,
+    lexicalParent: SchemaComponent,
+    position: JInt,
+    isHidden: Boolean,
+    nodesAlreadyTrying: Set[Node],
+  ): ModelGroup = {
+    val realChildren: Seq[Node] = seq.apparentXMLChildren.filterNot {
+      // strip away all the trash nodes
+      case _: Text => true // whitespace nodes
+      case _: Comment => true
+      case _ => false
+    }
+    val newXML = realChildren match {
+      // If an annotation is first, that stays on the outer sequence
+      case Seq(annotation @ <annotation>{_*}</annotation>, terms @ _*) =>
+        <sequence dfdlx:layer={seq.xml.attribute("layer")}>
+          {annotation}
+          <sequence>
+            {terms}
+          </sequence>
+        </sequence>.copy(scope = seq.xml.scope) % seq.xml.attributes
+      case terms =>
+        // there is no annotation, so all children just go inside the inner sequence.
+        <sequence dfdlx:layer={seq.xml.attribute("layer")}>
+          <sequence>
+            {terms}
+          </sequence>
+        </sequence>.copy(scope = seq.xml.scope) % seq.xml.attributes
+    }
+    makeModelGroup(
+      newXML,
+      lexicalParent,
+      position,
+      isHidden,
+      nodesAlreadyTrying,
+    )
+  }
+
+  /**
+   * Rewrites a sequence with dfdl:hiddenGroupRef into a group reference + the isHidden flag.
+   *
+   * @param seq                The local sequence containing the hidden group.
+   * @param lexicalParent      The parent schema component of the hidden group.
+   * @param position           The position of the hidden group within the sequence.
+   * @param isHidden           Flag indicating whether the hidden group should be hidden.
+   * @param nodesAlreadyTrying Set of nodes that have already been processed.
+   * @return The processed hidden group.
+   */
+  private def rewriteHiddenGroup(
+    seq: LocalSequence,
+    lexicalParent: SchemaComponent,
+    position: JInt,
+    isHidden: Boolean,
+    nodesAlreadyTrying: Set[Node],
+  ) = {
+    // explicit check here, because we're about to discard this, and construct
+    // a SequenceGroupRef or ChoiceGroupRef, with isHidden = true. So this
+    // temporary sequence will be discarded after this.
+    seq.checkHiddenGroupRefHasNoChildren
+    //
+    // construct the group ref XML, then recursively process that,
+    // but set flag so it will be hidden.
+    //
+    val hgrXML = seq.hiddenGroupRefXML
+    ModelGroupFactory(
+      hgrXML,
+      lexicalParent,
+      position,
+      isHidden = true,
+      nodesAlreadyTrying,
+    )
+  }
 }
 
 /**
  * Factory for Terms
+ *
+ * If you want to do source XML to source XML rewrite transformations, do them
+ * here or in ModelGroupFactory.
  */
 object TermFactory {
 

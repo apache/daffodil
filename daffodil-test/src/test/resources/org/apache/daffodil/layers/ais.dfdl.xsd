@@ -119,25 +119,23 @@ Example Multifragment sentence:
               <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue=","/>
             </xs:appinfo></xs:annotation>
             <xs:sequence dfdlx:layer="ais:aisPayloadArmor">
-              <xs:sequence>
-                <!-- now using default format which is ais:binary -->
-                <xs:element name="messageType" type="xs:unsignedInt" dfdl:length="6"/>
-                <xs:element name="repeatIndicator" type="xs:unsignedInt" dfdl:length="2"/>
-                <xs:element name="userID" type="xs:unsignedInt" dfdl:length="30"/>
-                <xs:element name="navigationStatus" type="xs:unsignedInt" dfdl:length="4"/>
-                <xs:element name="rateOfTurn" type="xs:unsignedInt" dfdl:length="8"/>
-                <xs:element name="speedOverGround" type="xs:unsignedInt" dfdl:length="10"/>
-                <xs:element name="positionAccuracy" type="xs:boolean" dfdl:length="1"/>
-                <xs:element name="longitude" type="xs:int" dfdl:length="28"/>
-                <xs:element name="latitude" type="xs:int" dfdl:length="27"/>
-                <xs:element name="courseOverGround" type="xs:unsignedInt" dfdl:length="12"/>
-                <xs:element name="trueHeading" type="xs:unsignedInt" dfdl:length="9"/>
-                <xs:element name="timeStamp" type="xs:unsignedInt" dfdl:length="6"/>
-                <xs:element name="regional" type="xs:unsignedInt" dfdl:length="2"/>
-                <xs:element name="spare" type="xs:unsignedInt" dfdl:length="3"/>
-                <xs:element name="RAIM" type="xs:unsignedInt" dfdl:length="1"/>
-                <xs:element name="radioStatus" type="xs:unsignedInt" dfdl:length="19"/>
-              </xs:sequence>
+              <!-- now using default format which is ais:binary -->
+              <xs:element name="messageType" type="xs:unsignedInt" dfdl:length="6"/>
+              <xs:element name="repeatIndicator" type="xs:unsignedInt" dfdl:length="2"/>
+              <xs:element name="userID" type="xs:unsignedInt" dfdl:length="30"/>
+              <xs:element name="navigationStatus" type="xs:unsignedInt" dfdl:length="4"/>
+              <xs:element name="rateOfTurn" type="xs:unsignedInt" dfdl:length="8"/>
+              <xs:element name="speedOverGround" type="xs:unsignedInt" dfdl:length="10"/>
+              <xs:element name="positionAccuracy" type="xs:boolean" dfdl:length="1"/>
+              <xs:element name="longitude" type="xs:int" dfdl:length="28"/>
+              <xs:element name="latitude" type="xs:int" dfdl:length="27"/>
+              <xs:element name="courseOverGround" type="xs:unsignedInt" dfdl:length="12"/>
+              <xs:element name="trueHeading" type="xs:unsignedInt" dfdl:length="9"/>
+              <xs:element name="timeStamp" type="xs:unsignedInt" dfdl:length="6"/>
+              <xs:element name="regional" type="xs:unsignedInt" dfdl:length="2"/>
+              <xs:element name="spare" type="xs:unsignedInt" dfdl:length="3"/>
+              <xs:element name="RAIM" type="xs:unsignedInt" dfdl:length="1"/>
+              <xs:element name="radioStatus" type="xs:unsignedInt" dfdl:length="19"/>
             </xs:sequence><!-- end ais armoring layer -->
           </xs:sequence><!-- end boundary mark layer -->
         </xs:sequence><!-- end of comma separated sequence -->

@@ -47,17 +47,38 @@ class TestLayers {
                   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
                   xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME">
         <xs:complexType>
-          <xs:sequence>
-            <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="ascii"/>
-              <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
-            </xs:appinfo></xs:annotation>
             <xs:sequence dfdl:ref="bm:boundaryMark">
+              <!--
+              notice that the newVariableInstance bindings can be on the sequence
+              that has the layer reference on it. There need not be yet another
+              sequence wrapped around the outside.
+              -->
+              <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="ascii"/>
+                <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
+              </xs:appinfo></xs:annotation>
               <xs:sequence dfdl:ref="b64:base64_MIME" >
                 <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
+                <!--
+                this sequence tests that the contents of a layered sequence can be more than 1 child
+                when there is no annotation starting the sequence.
+                 -->
+                <xs:sequence>
+                  <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:assert test='{ $bm:layerEncoding eq "ascii" }'/>
+                  </xs:appinfo></xs:annotation>
+                </xs:sequence>
+              </xs:sequence>
+              <xs:sequence>
+                <!--
+                this sequence tests that the contents of a layered sequence can be more than 1 child
+                and the sequence can furthermore begin with an annotation block
+                 -->
+                <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test='{ $bm:layerEncoding eq "ascii" }'/>
+                </xs:appinfo></xs:annotation>
               </xs:sequence>
             </xs:sequence>
-          </xs:sequence>
         </xs:complexType>
       </xs:element>,
       elementFormDefault = "unqualified",
@@ -86,15 +107,13 @@ class TestLayers {
                   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
                   xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME">
         <xs:complexType>
-          <xs:sequence>
+          <xs:sequence dfdl:ref="bm:boundaryMark">
             <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
               <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
             </xs:appinfo></xs:annotation>
-            <xs:sequence dfdl:ref="bm:boundaryMark">
-              <xs:sequence dfdl:ref="b64:base64_MIME">
-                <xs:element name="s1" type="xs:string"/>
-              </xs:sequence>
+            <xs:sequence dfdl:ref="b64:base64_MIME">
+              <xs:element name="s1" type="xs:string"/>
             </xs:sequence>
           </xs:sequence>
         </xs:complexType>
@@ -126,11 +145,11 @@ class TestLayers {
                   xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME">
         <xs:complexType>
           <xs:sequence>
-            <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
-              <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
-            </xs:appinfo></xs:annotation>
             <xs:sequence dfdl:ref="bm:boundaryMark">
+              <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
+                <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
+              </xs:appinfo></xs:annotation>
               <xs:sequence dfdl:ref="b64:base64_MIME">
                 <xs:element name="s1" type="xs:string"/>
               </xs:sequence>
@@ -190,9 +209,9 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       <xs:element name="e1" dfdl:lengthKind="implicit"
                   xmlns:gz="urn:org.apache.daffodil.layers.gzip">
         <xs:complexType>
-                <xs:sequence dfdl:ref="gz:gzip">
-                  <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
-                </xs:sequence>
+          <xs:sequence dfdl:ref="gz:gzip">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
+          </xs:sequence>
         </xs:complexType>
       </xs:element>,
       elementFormDefault = "unqualified",
@@ -291,12 +310,11 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
         <xs:sequence>
           <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"
                       dfdl:terminator={term}/>
-          <xs:sequence>
-            <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
-              <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue={layerTerm}/>
-            </xs:appinfo></xs:annotation>
             <xs:sequence dfdl:ref="bm:boundaryMark">
+              <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
+                <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue={layerTerm}/>
+              </xs:appinfo></xs:annotation>
               <xs:sequence dfdl:ref="b64:base64_MIME">
                 <xs:sequence>
                   <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../x1/data, 'bytes') }"/>
@@ -316,7 +334,6 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
                 </xs:sequence>
               </xs:sequence>
             </xs:sequence>
-          </xs:sequence>
           <xs:element name="s3" type="xs:string" dfdl:lengthKind="delimited"/>
         </xs:sequence>
       </xs:complexType>

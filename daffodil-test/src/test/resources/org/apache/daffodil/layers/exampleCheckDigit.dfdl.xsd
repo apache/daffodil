@@ -45,32 +45,39 @@
       <sequence>
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:newVariableInstance ref="cd:params" defaultValue="verbose"/>
-            <dfdl:newVariableInstance ref="cd:digitEncoding" defaultValue="ascii"/>
+            <!-- This variable must live on past the end of the layer -->
             <dfdl:newVariableInstance ref="cd:checkDigit"/>
-            <dfdl:newVariableInstance ref="cd:length" defaultValue="10"/>
           </appinfo>
         </annotation>
-        <sequence>
-          <sequence dfdl:ref="cd:checkDigit">
-            <element name="value" type="ex:dateType"/>
-          </sequence>
-          <element name="checkDigit" type="cd:checkDigitType" dfdl:initiator=":"
-                   dfdl:outputValueCalc='{ $cd:checkDigit }'/>
-          <element name="computedCheckDigit" type="cd:checkDigitType"
-                   dfdl:inputValueCalc='{ $cd:checkDigit }'/>
-          <sequence>
-            <annotation>
-              <appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:assert
-                  failureType="recoverableError"
-                  test='{ checkDigit eq $cd:checkDigit }'
-                  message='{ fn:concat("Incorrect check digit: ", checkDigit, ". Should be: ", $cd:checkDigit, ".") }' />
-              </appinfo>
-            </annotation>
-          </sequence>
+        <sequence dfdl:ref="cd:checkDigit">
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <!--
+              These variables are just parameters to the layer logic, so can be
+              scoped to end exactly with the end of the layer.
+              -->
+              <dfdl:newVariableInstance ref="cd:params" defaultValue="verbose"/>
+              <dfdl:newVariableInstance ref="cd:digitEncoding" defaultValue="ascii"/>
+              <dfdl:newVariableInstance ref="cd:length" defaultValue="10"/>
+            </appinfo>
+          </annotation>
+          <element name="value" type="ex:dateType"/>
         </sequence>
-      </sequence>
+        <element name="checkDigit" type="cd:checkDigitType" dfdl:initiator=":"
+                 dfdl:outputValueCalc='{ $cd:checkDigit }'/>
+        <element name="computedCheckDigit" type="cd:checkDigitType"
+                 dfdl:inputValueCalc='{ $cd:checkDigit }'/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:assert
+                failureType="recoverableError"
+                test='{ checkDigit eq $cd:checkDigit }'
+                message='{ fn:concat("Incorrect check digit: ", checkDigit, ". Should be: ", $cd:checkDigit, ".") }'/>
+            </appinfo>
+          </annotation>
+        </sequence>
+      </sequence> <!-- checkDigit DFDL variable scope ends here -->
     </complexType>
   </element>
 

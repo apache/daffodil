@@ -42,20 +42,14 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
   }
 
   private lazy val layerContent = {
-    schemaDefinitionUnless(
-      groupMembers.length == 1,
-      "Layered sequence can have only 1 child term. %s were found: %s",
-      groupMembers.length,
-      groupMembers.mkString(", "),
-    )
-    val term = groupMembers(0)
-    schemaDefinitionWhen(term.isArray, "Layered sequence body cannot be an array.")
     this match {
-      case sgtb: SequenceGroupTermBase =>
+      case sgtb: SequenceGroupTermBase => {
+        val term = groupMembers.head
         LayeredSequence(
           sgtb,
           new ScalarOrderedSequenceChild(this, term, 1),
         ) // We use 1-based indexing for children.
+      }
       // $COVERAGE-OFF$
       case _ =>
         Assert.invariantFailed(
