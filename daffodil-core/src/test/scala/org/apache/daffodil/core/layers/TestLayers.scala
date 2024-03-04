@@ -216,7 +216,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     TestUtils.testUnparsingBinary(sch, infoset, data)
   }
 
-  // FIXME: use prefixed length kind to simplify this example.
+  // TODO: use prefixed length kind to simplify this example.
   val GZIPLayer1Schema =
     SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>

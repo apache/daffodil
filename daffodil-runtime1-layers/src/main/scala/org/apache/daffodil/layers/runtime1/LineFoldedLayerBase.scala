@@ -98,7 +98,7 @@ final class LineFoldedICalendarLayer extends LineFoldedLayerBase(LineFoldMode.iC
 }
 
 /**
- * FIXME: Doesn't enforce 998 max line length limit.
+ * TODO: Doesn't enforce 998 max line length limit.
  *
  * This is a state machine, so of course must be used only on a single thread.
  */
@@ -165,7 +165,7 @@ class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream) extends InputS
    * Does not detect errors such as isolated \r or isolated \n. Leaves those
    * alone.
    *
-   * FIXME: Does not implement line-length limit of 998.
+   * TODO: Does not implement line-length limit of 998.
    *
    * All this does is remove \r\n[\ \t], replacing with just the space or tab.(IMF)
    * or replace with nothing (iCalendar).
@@ -248,7 +248,7 @@ class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream) extends InputS
 }
 
 /*
- * FIXME: Currently this normalizes isolated \n and \r to \r\n, which is not symmetric
+ * TODO: Currently this normalizes isolated \n and \r to \r\n, which is not symmetric
  *  with the LineFoldedInputStream class. This needs to preserve isolated \n and \r.
  *  |
  *  Or, alternatively, the LineFoldedInputStream should remove any line-ending followed by
@@ -260,7 +260,7 @@ class LineFoldedInputStream(mode: LineFoldMode, jis: InputStream) extends InputS
  */
 class LineFoldedOutputStream(mode: LineFoldMode, jos: OutputStream) extends OutputStream {
   //
-  //  FIXME: To work properly this state machine needs more than just the line buffer as state. It needs to
+  //  TODO: To work properly this state machine needs more than just the line buffer as state. It needs to
   //   suspend the decision about what to do with isolated \r and \n until it sees the next character after (if any).
   //   Consider just an isolated \n. If write(\n) is the last call, then no subsequent character exists,
   //   but we can't know what do do with the \n until the close() happens.

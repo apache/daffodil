@@ -48,7 +48,7 @@
     <complexType>
       <sequence>
         <!--
-        FIXME: When dfdl:lengthKind 'prefixed' is working again and fully supported, use that instead in this example.
+        TODO: When dfdl:lengthKind 'prefixed' is working again and fully supported, use that instead in this example.
         -->
         <element name="len" type="xs:int" dfdl:representation="binary"
                  dfdl:outputValueCalc='{ dfdl:contentLength(../data/contents, "bytes") }'/>

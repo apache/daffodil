@@ -115,6 +115,11 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputSt
       val dis = InputSourceDataInputStream(ba)
       val finfo = new FormatInfoForAISDecode()
       val cb = CharBuffer.allocate(256)
+      //
+      // TODO: This is not a supportable API. We want to reuse the bitsCharset features of daffodil
+      //  for this non-byte-sized charset decoding. But this finfo object (a trait on the ParseOrUnparseState)
+      //  should not be part of the API
+      //
       while ({ val numDecoded = dec.decode(dis, finfo, cb); numDecoded > 0 }) {
         cb.flip()
         IOUtils.write(cb, jos, StandardCharsets.ISO_8859_1)

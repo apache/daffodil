@@ -311,10 +311,11 @@ class LayerVarsRuntime(
    * @param layer the layer from which we are getting the result values
    * @param lr the runtime environment for the layer
    *
-   * TODO: when unparsing how do we know when to call this. For checksum layers we call
-   *  when we've finished the output data, but that is easy since we can just
-   *  count the output bytes. How do we know for a regular layer that is
-   *  of undetermined size on unparsing.
+   * When parsing this is called in the unwinding when we remove the layer.
+   *
+   * When unparsing it's trickier. We call this from the close of the data output stream
+   * that underlies the layer. That is, from the close() method of
+   * `runtime1.layers.JavaIOOutputStream`.
    */
   def callGettersToPopulateResultVars(layer: Layer, lr: LayerRuntimeImpl): Unit = {
     resultVarPairs.foreach { case (vrd, method) =>

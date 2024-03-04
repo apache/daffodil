@@ -136,9 +136,6 @@ class FixedLengthOutputStream(
           s"Insufficient output data for fixed-length layer. Needed $layerLength bytes, but only $baLen were unparsed.",
         )
       jos.write(ba)
-
-      // TODO: Consider if this close should happen in the framework instead of here.
-      jos.close() // required so that closes propagate, and the buffering output streams recombine/collapse again.
     }
   }
 }

@@ -70,7 +70,6 @@ sealed abstract class PropertyLookupResult(val pname: String) extends Serializab
  * @param location            The lookup location where the property was found.
  * @param pname               The name of the property.
  * @param isFromDefaultFormat Indicates whether the property was found in the default format.
- * @extends PropertyLookupResult(pname) Indicates that Found is a subclass of PropertyLookupResult and overrides the pname parameter.
  */
 case class Found(
   value: String,
