@@ -544,7 +544,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
                    lengthKind="explicit" lengthUnits="bits"/>,
       <xs:element name="e1" dfdl:lengthKind="implicit"
                   xmlns:fl="urn:org.apache.daffodil.layers.fixedLength"
-                  xmlns:bswap="urn:org.apache.daffodil.layers.byteSwap">
+                  xmlns:bs="urn:org.apache.daffodil.layers.byteSwap">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="s0" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
@@ -553,7 +553,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
               <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:newVariableInstance ref="fl:fixedLength" defaultValue="6"/>
               </xs:appinfo></xs:annotation>
-              <xs:sequence dfdl:ref="bswap:fourbyteswap">
+              <xs:sequence dfdl:ref="bs:fourbyteswap">
                 <xs:sequence>
                   <xs:element name="s2" type="xs:hexBinary" dfdl:length="4"/>
                   <xs:element name="s3" type="xs:hexBinary" dfdl:length="24"/>

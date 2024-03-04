@@ -33,7 +33,6 @@ import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolic
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.Sequence_AnnotationMixin
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.layers.LayerRuntimeData
@@ -63,6 +62,8 @@ abstract class SequenceTermBase(
 
   def separatorUnparseEv: SeparatorUnparseEv
 
+  def layerTransformOption: Option[RefQName]
+
   def isOrdered: Boolean
 
   /**
@@ -70,13 +71,13 @@ abstract class SequenceTermBase(
    */
   def isHidden: Boolean = false
 
-  lazy val optionLayerTransform: Option[RefQName] =
-    findPropertyOption("layerTransform").toOption.map(resolveQName)
+  // lazy val optionLayerTransform: Option[RefQName] = optLayerTransform
+  // findPropertyOption("layerTransform").toOption.map(resolveQName)
 
-  def isLayered: Boolean = optionLayerTransform.isDefined
+  def isLayered: Boolean = layerTransformOption.isDefined
 
   lazy val optionLayerRuntimeData: Option[LayerRuntimeData] =
-    optionLayerTransform.map { layerTransform: RefQName =>
+    layerTransformOption.map { layerTransform: RefQName =>
       val layerVars = variableMap.vrds.filter { vrd =>
         vrd.globalQName.namespace == layerTransform.namespace
       }
@@ -99,7 +100,6 @@ abstract class SequenceTermBase(
  */
 abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, position: Int)
   extends SequenceTermBase(xml, Option(lexicalParent), position)
-  with Sequence_AnnotationMixin
   with SequenceRuntimeValuedPropertiesMixin
   with SeparatorSuppressionPolicyMixin {
 
@@ -345,6 +345,7 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
   override def separatorPosition: SeparatorPosition = SeparatorPosition.Infix
 
   override def isLayered: Boolean = false
+  override def layerTransformOption: Option[RefQName] = None
 
   override lazy val hasSeparator = false
   override lazy val hasTerminator = false

@@ -128,7 +128,7 @@
   </xs:attributeGroup>
 
   <xs:attributeGroup name="ExtLayeringAGQualified">
-    <xs:attribute form="qualified" name="layerTransform" type="xsd:QName" />
+    <xs:attribute form="qualified" name="layerTransform" type="xsd:QName" use='optional'/>
   </xs:attributeGroup>
 
   <xs:attributeGroup name="ObjectKindAG">
