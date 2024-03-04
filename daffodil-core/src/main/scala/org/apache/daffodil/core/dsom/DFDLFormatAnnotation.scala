@@ -32,7 +32,7 @@ case class DeprecatedProperty(namespace: NS, property: String, replacement: Stri
 
 object DeprecatedProperty {
 
-  private val deprecatedProperties: Seq[DeprecatedProperty] = Seq(
+  private def deprecatedProperties: Seq[DeprecatedProperty] = Seq(
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerTransform", "dfdlx:layerTransform"),
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerEncoding", "dfdlx:layerEncoding"),
     DeprecatedProperty(XMLUtils.DFDL_NAMESPACE, "layerLengthKind", "dfdlx:layerLengthKind"),
@@ -52,11 +52,15 @@ object DeprecatedProperty {
     DeprecatedProperty(XMLUtils.EXT_NS_NCSA, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy"),
   )
 
+  // introduced to eliminate linear search per property of the above list, which is expected
+  // to fail every time, so every property lookup scans the whole thing.
+  private lazy val deprecatedPropertyMap = deprecatedProperties.map { dp =>
+    ((dp.property, dp.namespace), dp)
+  }.toMap
+
   def warnIfDeprecated(propertyName: String, propertyNS: NS, context: SchemaComponent): Unit = {
 
-    val deprecation = deprecatedProperties.find { dp =>
-      dp.property == propertyName && dp.namespace == propertyNS
-    }
+    val deprecation = deprecatedPropertyMap.get((propertyName, propertyNS))
 
     if (deprecation.isDefined) {
       val warnID = propertyNS match {
