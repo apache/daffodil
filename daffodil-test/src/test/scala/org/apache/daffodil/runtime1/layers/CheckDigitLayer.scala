@@ -52,7 +52,7 @@ object CheckDigitLayer {
  * @param params the value of the params DFDL variable
  * @param digitEncoding the value of the digitEncoding DFDL variable
  */
-class CheckDigitLayer(length: JInt, var params: String, var digitEncoding: String)
+class CheckDigitLayer(length: JInt, params: String, digitEncoding: String)
   extends ChecksumLayer(
     "checkDigit", // name of the layer, also happens to be the name of the output variable.
     CheckDigitLayer.ns,

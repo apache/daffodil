@@ -42,7 +42,7 @@ import org.apache.commons.io.IOUtils
  *   This length is enforced on both parsing and unparsing the layer.
  * There are no output/result DFDL variables from this layer.
  */
-final class FixedLengthLayer(var fixedLength: JLong)
+final class FixedLengthLayer(fixedLength: JLong)
   extends Layer("fixedLength", "urn:org.apache.daffodil.layers.fixedLength") {
 
   Assert.invariant(fixedLength > 0)

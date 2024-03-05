@@ -65,13 +65,13 @@
   <complexType name="fileType">
     <sequence>
       <group ref="ex:boundaryMarkEncoding"/>
-      <sequence dfdl:ref="bm:boundaryMark">
+      <sequence dfdlx:layer="bm:boundaryMark">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="--END--"/>
           </appinfo>
         </annotation>
-        <sequence dfdl:ref="b64:base64_MIME">
+        <sequence dfdlx:layer="b64:base64_MIME">
           <sequence>
             <!--
                 now the gzip details, including the 4-byte gzLength element that stores how long
@@ -92,7 +92,7 @@
                       <!--
                          now the gzipped layered sequence itself
                        -->
-                      <sequence dfdl:ref="gz:gzip">
+                      <sequence dfdlx:layer="gz:gzip">
                         <!--
                           finally, inside that, we have the original fileTypeGroup group reference.
                           -->

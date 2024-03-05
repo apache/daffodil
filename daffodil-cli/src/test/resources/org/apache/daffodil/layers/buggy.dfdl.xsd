@@ -38,7 +38,7 @@
 
   <element name="r">
     <complexType>
-          <sequence dfdl:ref="buggy:buggyFormat">
+          <sequence dfdlx:layer="buggy:buggy">
             <element name="value" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
           </sequence>
     </complexType>

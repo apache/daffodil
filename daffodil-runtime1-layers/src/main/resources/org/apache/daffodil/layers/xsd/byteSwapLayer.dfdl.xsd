@@ -26,13 +26,10 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
 
-      <dfdl:defineFormat name="twobyteswap">
-        <dfdl:format dfdlx:layer="bswap:twobyteswap"/>
-      </dfdl:defineFormat>
-
-      <dfdl:defineFormat name="fourbyteswap">
-        <dfdl:format dfdlx:layer="bswap:fourbyteswap"/>
-      </dfdl:defineFormat>
+      <!--
+      The twobyteswap and fourbyteswap layers have no parameters nor
+      return variables
+      -->
 
     </appinfo>
   </annotation>

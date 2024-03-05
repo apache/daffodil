@@ -36,12 +36,13 @@ import org.apache.commons.io.IOUtils
  * Suitable only for checksums computed over small sections of data, not large data streams or whole files.
  */
 abstract class ChecksumLayerBase(
-  layerLocalName: String,
-  layerNamespace: String,
+  localName: String,
+  namespace: String,
   val length: Int,
-) extends Layer(layerLocalName, layerNamespace) {
+) extends Layer(localName, namespace) {
 
   private var checksum: Int = -1
+
   final protected def getChecksum: Int = checksum
   final def setChecksum(checksum: Int): Unit = { this.checksum = checksum }
 

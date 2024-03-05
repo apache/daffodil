@@ -25,13 +25,8 @@
 
   <!--
   This layer does not define any variables for parameters or results
+
+  The layer name is base64_MIME and it lives in the targetNamespace defined above.
   -->
-  <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:defineFormat name="base64_MIME">
-        <dfdl:format dfdlx:layer="b64:base64_MIME"/>
-      </dfdl:defineFormat>
-    </appinfo>
-  </annotation>
 
 </schema>

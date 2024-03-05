@@ -55,7 +55,7 @@ import org.apache.daffodil.runtime1.layers.api.LayerRuntime
  *                      decode characters during the search for the boundary mark, and used
  *                      to encode characters when inserting the boundary mark when unparsing.
  */
-final class BoundaryMarkLayer(val boundaryMark: String, val layerEncoding: String)
+final class BoundaryMarkLayer(boundaryMark: String, layerEncoding: String)
   extends Layer("boundaryMark", "urn:org.apache.daffodil.layers.boundaryMark") {
 
   /** no arg contructor required for SPI class loading */

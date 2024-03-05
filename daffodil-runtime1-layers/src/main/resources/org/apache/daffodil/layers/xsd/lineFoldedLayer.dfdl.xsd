@@ -26,15 +26,9 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
 
-      <!-- lineFolded layers do not have any DFDL variables for parameter or results -->
+      <!-- lineFolded layers do not have any DFDL variables for parameter or results
 
-      <dfdl:defineFormat name="lineFolded_IMF">
-        <dfdl:format dfdlx:layer="lf:lineFolded_IMF"/>
-      </dfdl:defineFormat>
-
-      <dfdl:defineFormat name="lineFolded_iCalendar">
-        <dfdl:format dfdlx:layer="lf:lineFolded_iCalendar"/>
-      </dfdl:defineFormat>
+      The two layers are named lineFolded_IMF and lineFolded_iCalendar -->
 
     </appinfo>
   </annotation>

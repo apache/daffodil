@@ -26,12 +26,10 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
 
+      <!-- These variables are both parameters to the boundaryMark layer -->
+
       <dfdl:defineVariable name="boundaryMark" type="xs:string"/>
       <dfdl:defineVariable name="layerEncoding" type="xs:string"/>
-
-      <dfdl:defineFormat name="boundaryMark">
-        <dfdl:format dfdlx:layer="bm:boundaryMark"/>
-      </dfdl:defineFormat>
 
     </appinfo>
   </annotation>

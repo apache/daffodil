@@ -26,11 +26,9 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
 
-      <dfdl:defineVariable name="fixedLength" type="xs:unsignedInt"/>
+      <!-- the fixedLength layer takes one parameter variable -->
 
-      <dfdl:defineFormat name="fixedLength">
-        <dfdl:format dfdlx:layer="fl:fixedLength"/>
-      </dfdl:defineFormat>
+      <dfdl:defineVariable name="fixedLength" type="xs:unsignedInt"/>
 
     </appinfo>
   </annotation>

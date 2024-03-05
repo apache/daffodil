@@ -47,7 +47,7 @@
 
   <element name="root" dfdl:lengthKind="implicit">
     <complexType>
-      <sequence dfdl:ref="lf:lineFolded_IMF" dfdl:separator="notAllowedInLayeredSequence"
+      <sequence dfdlx:layer="lf:lineFolded_IMF" dfdl:separator="notAllowedInLayeredSequence"
                    xmlns:foo="urn:Foo" foo:bar="shouldBeIgnored">
         <sequence>
           <xs:element name="marker" dfdl:initiator="boundary=" type="xs:string" dfdl:terminator="%CR;%LF;" />

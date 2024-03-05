@@ -49,7 +49,7 @@
             <dfdl:newVariableInstance ref="cd:checkDigit"/>
           </appinfo>
         </annotation>
-        <sequence dfdl:ref="cd:checkDigit">
+        <sequence dfdlx:layer="cd:checkDigit">
           <annotation>
             <appinfo source="http://www.ogf.org/dfdl/">
               <!--

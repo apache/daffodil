@@ -20,6 +20,7 @@
   xmlns="http://www.w3.org/2001/XMLSchema"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
   xmlns:lf="urn:org.apache.daffodil.layers.lineFolded"
@@ -53,7 +54,7 @@
 
   <element name="root" dfdl:lengthKind="implicit">
     <complexType>
-      <sequence dfdl:ref="lf:lineFolded_IMF">
+      <sequence dfdlx:layer="lf:lineFolded_IMF">
         <sequence>
           <element name="marker" type="xs:string"
                    dfdl:initiator="boundary=" dfdl:terminator="%CR;%LF;"/>
@@ -68,7 +69,7 @@
                   <complexType>
                     <choice dfdl:choiceDispatchKey="{ ../contentTransferEncoding }">
                       <sequence dfdl:choiceBranchKey="base64">
-                        <sequence dfdl:ref="bm:boundaryMark">
+                        <sequence dfdlx:layer="bm:boundaryMark">
                           <annotation>
                             <appinfo source="http://www.ogf.org/dfdl/">
                               <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
@@ -77,7 +78,7 @@
                                   }"/>
                             </appinfo>
                           </annotation>
-                          <sequence dfdl:ref="b64:base64_MIME">
+                          <sequence dfdlx:layer="b64:base64_MIME">
                             <element name="value" type="xs:string"/>
                           </sequence>
                         </sequence>

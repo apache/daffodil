@@ -16,10 +16,8 @@
  */
 package org.apache.daffodil.runtime1.layers.api;
 
-import org.apache.daffodil.lib.xml.QName;
 import org.apache.daffodil.runtime1.layers.LayerUtils;
 
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,8 +31,8 @@ import java.io.OutputStream;
  * The names of concrete classes derived from Layer are listed in a resources/M.services file
  * so that they can be found and dynamically loaded.
  * <p/>
- * The SPI creates an instance the class of which is used as a factory to create the
- * instances actually used by the Daffodil runtime. Compilation of the static information about
+ * The SPI creates an instance the class by calling a default (no-arg) constructor.
+ * Compilation of the static information about
  * the layer occurs only once and is then shared by all runtime instances.
  * <p/>
  * Instances of derived layer classes can be stateful. They are private to threads, and each time a layer
@@ -48,33 +46,59 @@ import java.io.OutputStream;
  * layer decode/encode logic, which is done as part of deriving one's Layer class from the
  * Layer base class.
  * <p/>
- * About variables: Layer logic may read and write variables. Variables being read are parameters to
- * the layer algorithm. Variables being written are outputs (such as checksums) from the layer algorithm.
+ * About variables: Layer logic may read and write DFDL variables.
+ * <p/>
+ * Every DFDL Variable in the layer's targetNamespace is used either at the start of the
+ * layer algorithm as a parameter to the layer or at the end of the layer algorithm it is
+ * assigned as a return value (such as a checksum) from the layer.
+ * <p/>
  * Variables being written must be undefined, since variables in DFDL are single-assignment.
+ * <p/>
  * Variables being read must be defined before being read by the layer, and this is true for both
  * parsing and unparsing. When unparsing, variables being read cannot be forward-referencing to parts
  * of the DFDL infoset that have not yet been unparsed.
  * <p/>
+ * A layer that wants to read parameters declares a second constructor. Each argument to this constructor
+ * must have a name and type that match a corresponding dfdl:defineVariable in the layer's namespace.
+ * <p/>
+ * A layer that wants to return a value after the layer algorithm completes defines a special recognizable
+ * getter method. The name of the getter is formed from prefixing the DFDL variable name with the string
+ * 'getDFDLResultVariable_'. The return type of the getter must match the type of the variable.
+ * <p/>
+ * For example, a result value getter for a DFDL variable named 'checksum' of type xs:unsignedShort would be:
+ * <pre>
+ *      Int getDFDLResultVariable_checksum() {
+ *          // returns the value created by the checksum algorithm.
+ *      }
+ * </pre>
+ * <p/>
+ * Initially, the types of DFDL variables layers can use are only
+ * <ul>
+ *     <li>xs:int</li>
+ *     <li>xs:unsignedShort</li>
+ *     <li>xs:string</li>
+ * </ul>
+ * In the Layer constructor, these DFDL types correspond to types java.lang.Integer (for both xs:int and xs:unsignedShort), and String.
  */
 public abstract class Layer {
 
-  protected final String layerLocalName;
-  protected final String layerNamespace;
+  private final String localName;
+  private final String targetNamespace;
 
   /**
    * Constructs a new Layer object with the given layer name and namespace.
    *
-   * @param layerLocalName      the local NCName of the layer. Must be usable as a Java identifier.
-   * @param layerNamespace the namespace of the layer. Must obey URI syntax.
+   * @param localName      the local NCName of the layer. Must be usable as a Java identifier.
+   * @param targetNamespace the namespace of the layer. Must obey URI syntax.
    * @throws IllegalArgumentException if arguments are null or do not obey required syntax.
    */
-  public Layer(String layerLocalName, String layerNamespace) {
+  public Layer(String localName, String targetNamespace) {
 
-    LayerUtils.requireJavaIdCompatible(layerLocalName, "layerLocalName");
-    LayerUtils.requireURICompatible(layerNamespace, "layerNamespace");
+    LayerUtils.requireJavaIdCompatible(localName, "layerLocalName");
+    LayerUtils.requireURICompatible(targetNamespace, "layerNamespace");
 
-    this.layerLocalName = layerLocalName;
-    this.layerNamespace = layerNamespace;
+    this.localName = localName;
+    this.targetNamespace = targetNamespace;
   }
 
   /** The spiName of the Layer class.
@@ -82,10 +106,10 @@ public abstract class Layer {
    * This method and the string it returns are required by the SPI loader.
    * @return A unique indentifier for the kind of layer. Contains both local and namespace components of the layer's complete name.
    */
-  public final String name() { return LayerUtils.spiName(layerLocalName, layerNamespace); }
+  public final String name() { return LayerUtils.spiName(localName, targetNamespace); }
 
-  public final String localName() { return this.layerLocalName; }
-  public final String namespace() { return this.layerNamespace; }
+  public final String localName() { return this.localName; }
+  public final String namespace() { return this.targetNamespace; }
 
   /**
    * Wraps a layer input interpreter around an input stream, using the provided LayerRuntime for runtime information and stateful services.

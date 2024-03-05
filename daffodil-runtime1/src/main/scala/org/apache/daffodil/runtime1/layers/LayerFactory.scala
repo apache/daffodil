@@ -31,6 +31,12 @@ import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
 object LayerFactory {
 
+  /**
+   * This prefix is appended onto the method names of getters that return values from the layer.
+   * These getters are called and the corresponding variables are set to have those values. 
+   */
+  private def varResultPrefix = "getDFDLResultVariable_"
+
   /** cache that maps spiName of layer to the LayerVarsRuntime */
   private lazy val alreadyCheckedLayers =
     new mutable.LinkedHashMap[String, LayerVarsRuntime]()
@@ -47,6 +53,7 @@ object LayerFactory {
    * It is called again at runtime after the Layer class is loaded by the SPI
    * to ensure that the loaded layer class constructor signature at least matches the layer
    * variables defined in the schema.
+   *
    * @param lrd
    * @param protoLayer the layer instance allocated by the SPI loader (zero-arg constructed)
    * @return
@@ -73,6 +80,7 @@ object LayerFactory {
                | constructor and a single additional constructor with arguments for
                | each of the layer's parameter variables.""".stripMargin
           }
+
           lrd.context.SDE(tooManyConstructorsMsg)
         }
 
@@ -89,13 +97,28 @@ object LayerFactory {
         val paramVRDs = params.map { p =>
           lrd.vmap.getOrElse(
             p.getName,
-            lrd.context.SDE(s"No layer DFDL variable named '$p.getName' was found."),
+            lrd.context.SDE(
+              s"No layer DFDL variable named '$p.getName' was found in namespace ${lrd.namespace}.",
+            ),
           )
         }.toSeq
 
         // Now we deal with the result getters and the corresponding vars
         //
         val allLayerVRDs = ListSet(lrd.vmap.toSeq.map(_._2): _*)
+        //
+        // verify only Int and String are allowed simple types for now.
+        // The rest of the code beyond here doesn't care what the type is, but we don't want to
+        // create a bunch of test code for layer things that aren't needed.
+        //
+        allLayerVRDs.foreach { vrd =>
+          lrd.context.schemaDefinitionUnless(
+            vrd.primType == PrimType.String ||
+              vrd.primType == PrimType.Int ||
+              vrd.primType == PrimType.UnsignedShort,
+            s"Layer variable ${vrd.globalQName.toQNameString} of type ${vrd.primType.dfdlType} must be of type xs:int, xs:unsignedShort, or xs:string.",
+          )
+        }
         val returnVRDs = allLayerVRDs -- paramVRDs // set subtraction
         val allMethods = c.getMethods
         val allVarResultGetters =
@@ -107,6 +130,7 @@ object LayerFactory {
         val returnVRDNames = returnVRDs.map(_.globalQName.local)
         val resultGettersNames = allVarResultGetters.map(_.getName.replace(varResultPrefix, ""))
         val nResultGetters = resultGettersNames.size
+
         def javaConstructorArgs =
           paramVRDs
             .map {
@@ -115,6 +139,7 @@ object LayerFactory {
               }
             }
             .mkString(", ")
+
         def badConstructorMsg: String = {
           s"""Layer class $c does not have a constructor with arguments for each of the layer's variables.
              | It should have a constructor with these arguments in any order, such as
@@ -158,9 +183,11 @@ object LayerFactory {
         // has a getter with matching name.
         val resultVarPairs = resultGettersNames.map { rgn: String =>
           val getter: Method =
-            allVarResultGetters.find { g: Method => g.getName.endsWith(rgn) }.getOrElse {
-              Assert.invariantFailed("no getter for getter name.")
-            }
+            allVarResultGetters
+              .find { g: Method => g.getName == varResultPrefix + rgn }
+              .getOrElse {
+                Assert.invariantFailed("no getter for getter name.")
+              }
           val vrd = returnVRDs.find { vrd => vrd.globalQName.local == rgn }.getOrElse {
             Assert.invariantFailed("no vrd for getter name.")
           }
@@ -175,34 +202,16 @@ object LayerFactory {
                |Layer getter have differing types: ${vrdClass.getName}
                | and ${gt.getName} respectively.""".stripMargin,
           )
+          lrd.context.schemaDefinitionUnless(
+            getter.getParameterCount == 0,
+            s"""Layer return variable getter ${getter.getName} must have no arguments.""",
+          )
         }
         val lrv = new LayerVarsRuntime(constructor, paramVRDs, resultVarPairs.toSeq)
         alreadyCheckedLayers.put(lrd.spiName, lrv)
         lrv
       }
     }
-  }
-
-  private def varResultPrefix = "getDFDLResultVariable_"
-
-  type ParameterVarsInfo = Seq[Seq[(String, Class[_])]]
-  type ResultVarsInfo = Seq[Method]
-
-  def analyzeClass(obj: Any): (ParameterVarsInfo, ResultVarsInfo) = {
-    val c = obj.getClass
-    val cs = c.getConstructors.toSeq
-    val constructorInfo = cs.map { c =>
-      val parms = c.getParameters.toSeq
-      parms.map { p =>
-        val pn: String = p.getName
-        val pt = p.getType
-        (pn, pt)
-      }
-    }
-    val getterInfo: Array[Method] = c.getMethods.filter {
-      _.getName.startsWith(varResultPrefix)
-    }
-    (constructorInfo, getterInfo)
   }
 
 }

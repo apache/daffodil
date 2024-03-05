@@ -65,8 +65,7 @@ private class LayerCompiler private (sq: SequenceGroupTermBase) {
   private def layerNamespace = layerQName.namespace
 
   private val layeredSequenceAllowedProps = Seq(
-    "ref",
-    "layer",
+    "layer", // no other properties are allowed.
   )
   private def checkOnlyAllowedProperties(): Unit = {
     // need to check that only layering properties are specified

@@ -26,9 +26,8 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
 
-      <dfdl:defineFormat name="gzip">
-        <dfdl:format dfdlx:layer="gz:gzip"/>
-      </dfdl:defineFormat>
+      <!-- the gzip layer has no parameter variables
+      nor return result variables. -->
 
     </appinfo>
   </annotation>

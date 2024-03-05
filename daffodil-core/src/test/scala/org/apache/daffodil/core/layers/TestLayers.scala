@@ -47,7 +47,7 @@ class TestLayers {
                   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
                   xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME">
         <xs:complexType>
-            <xs:sequence dfdl:ref="bm:boundaryMark">
+            <xs:sequence dfdlx:layer="bm:boundaryMark">
               <!--
               notice that the newVariableInstance bindings can be on the sequence
               that has the layer reference on it. There need not be yet another
@@ -57,7 +57,7 @@ class TestLayers {
                 <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="ascii"/>
                 <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
               </xs:appinfo></xs:annotation>
-              <xs:sequence dfdl:ref="b64:base64_MIME" >
+              <xs:sequence dfdlx:layer="b64:base64_MIME" >
                 <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="3"/>
                 <!--
                 this sequence tests that the contents of a layered sequence can be more than 1 child
@@ -107,12 +107,12 @@ class TestLayers {
                   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
                   xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME">
         <xs:complexType>
-          <xs:sequence dfdl:ref="bm:boundaryMark">
+          <xs:sequence dfdlx:layer="bm:boundaryMark">
             <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
               <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
             </xs:appinfo></xs:annotation>
-            <xs:sequence dfdl:ref="b64:base64_MIME">
+            <xs:sequence dfdlx:layer="b64:base64_MIME">
               <xs:element name="s1" type="xs:string"/>
             </xs:sequence>
           </xs:sequence>
@@ -145,12 +145,12 @@ class TestLayers {
                   xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME">
         <xs:complexType>
           <xs:sequence>
-            <xs:sequence dfdl:ref="bm:boundaryMark">
+            <xs:sequence dfdlx:layer="bm:boundaryMark">
               <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
                 <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="!"/>
               </xs:appinfo></xs:annotation>
-              <xs:sequence dfdl:ref="b64:base64_MIME">
+              <xs:sequence dfdlx:layer="b64:base64_MIME">
                 <xs:element name="s1" type="xs:string"/>
               </xs:sequence>
             </xs:sequence>
@@ -209,7 +209,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       <xs:element name="e1" dfdl:lengthKind="implicit"
                   xmlns:gz="urn:org.apache.daffodil.layers.gzip">
         <xs:complexType>
-          <xs:sequence dfdl:ref="gz:gzip">
+          <xs:sequence dfdlx:layer="gz:gzip">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -253,7 +253,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
                 <xs:sequence>
                   <xs:element name="data">
                     <xs:complexType>
-                      <xs:sequence dfdl:ref="gz:gzip">
+                      <xs:sequence dfdlx:layer="gz:gzip">
                         <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
                       </xs:sequence>
                     </xs:complexType>
@@ -310,12 +310,12 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
         <xs:sequence>
           <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"
                       dfdl:terminator={term}/>
-            <xs:sequence dfdl:ref="bm:boundaryMark">
+            <xs:sequence dfdlx:layer="bm:boundaryMark">
               <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
                 <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue={layerTerm}/>
               </xs:appinfo></xs:annotation>
-              <xs:sequence dfdl:ref="b64:base64_MIME">
+              <xs:sequence dfdlx:layer="b64:base64_MIME">
                 <xs:sequence>
                   <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ dfdl:contentLength(../x1/data, 'bytes') }"/>
                   <xs:element name="x1" dfdl:lengthKind="explicit" dfdl:length="{ ../len }">
@@ -323,7 +323,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
                       <xs:sequence>
                         <xs:element name="data">
                           <xs:complexType>
-                            <xs:sequence dfdl:ref="gz:gzip">
+                            <xs:sequence dfdlx:layer="gz:gzip">
                               <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
                             </xs:sequence>
                           </xs:complexType>
@@ -399,7 +399,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       <xs:element name="e1" dfdl:lengthKind="implicit"
                   xmlns:lf="urn:org.apache.daffodil.layers.lineFolded">
         <xs:complexType>
-          <xs:sequence dfdl:ref="lf:lineFolded_IMF">
+          <xs:sequence dfdlx:layer="lf:lineFolded_IMF">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -449,7 +449,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       <xs:element name="e1" dfdl:lengthKind="implicit"
                   xmlns:lf="urn:org.apache.daffodil.layers.lineFolded">
         <xs:complexType>
-          <xs:sequence dfdl:ref="lf:lineFolded_IMF">
+          <xs:sequence dfdlx:layer="lf:lineFolded_IMF">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -503,7 +503,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="100"
                   xmlns:lf="urn:org.apache.daffodil.layers.lineFolded">
         <xs:complexType>
-          <xs:sequence dfdl:ref="lf:lineFolded_IMF">
+          <xs:sequence dfdlx:layer="lf:lineFolded_IMF">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
@@ -566,11 +566,11 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           <xs:sequence>
             <xs:element name="s0" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
             <xs:element name="s1" type="xs:hexBinary" dfdl:length="4" dfdl:byteOrder="bigEndian" dfdl:bitOrder="mostSignificantBitFirst"/>
-            <xs:sequence dfdl:ref="fl:fixedLength">
+            <xs:sequence dfdlx:layer="fl:fixedLength">
               <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:newVariableInstance ref="fl:fixedLength" defaultValue="6"/>
               </xs:appinfo></xs:annotation>
-              <xs:sequence dfdl:ref="bs:fourbyteswap">
+              <xs:sequence dfdlx:layer="bs:fourbyteswap">
                 <xs:sequence>
                   <xs:element name="s2" type="xs:hexBinary" dfdl:length="4"/>
                   <xs:element name="s3" type="xs:hexBinary" dfdl:length="24"/>

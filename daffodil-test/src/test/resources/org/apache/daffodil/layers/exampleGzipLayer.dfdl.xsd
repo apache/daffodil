@@ -58,7 +58,7 @@
             <sequence>
               <element name="contents">
                 <complexType>
-                  <sequence dfdl:ref="gz:gzip">
+                  <sequence dfdlx:layer="gz:gzip">
                     <group ref="ex:compressedGroupContents"/>
                   </sequence>
                 </complexType>

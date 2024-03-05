@@ -21,9 +21,26 @@ import org.apache.daffodil.runtime1.layers.ChecksumLayerBase;
 import java.nio.ByteBuffer;
 
 /**
- * Suitable only for checksums computed over small sections of data, not large data streams or whole files.
+ * A checksum layer computes some sort of integer value from a region of the data stream. The term checksum is
+ * used generically here to subsume all sorts of CRCs, check digits, data hash, and digest calculations.
+ *
+ * This base is suitable only for checksums computed over small sections of data, not large data streams or whole files.
  *
  * The entire region of data the checksum is being computed over, will be pulled into a byte buffer in memory.
+ *
+ * The resulting checksum is the return value of the compute method.
+ *
+ * This is delivered into a DFDL variable for use by the DFDL schema. This variable can have any name
+ * such as 'crc', 'digest', or 'dataHash'.
+ *
+ * The derived implementation class must also define a getter method based on the name of the DFDL variable which
+ * will be assigned with the checksum value. For example if the checksum is actually a specific digest/hash calculation
+ * and the DFDL variable is named 'digest', then this getter must be defined:
+ *
+ *     Int getDFDLResultVariable_digest() { return getChecksum() }
+ *
+ * This will be called automatically to retrieve the integer value that was returned from the `compute` method, and
+ * the DFDL variable 'digest' will be assigned that value.
  */
 public abstract class ChecksumLayer extends ChecksumLayerBase {
 
@@ -32,8 +49,7 @@ public abstract class ChecksumLayer extends ChecksumLayerBase {
   }
 
   /**
-   * Override to compute the checksum of a buffer of data. The value computed is assigned to the first
-   * DFDL variable defined by the layer in the LayerInfo object.
+   * Override to compute the checksum of a buffer of data.
    *
    * @param layerRuntime layer context for the computation
    * @param isUnparse true if the direction is unparsing. Used because in some cases the computed checksum must
