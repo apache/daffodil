@@ -19,6 +19,13 @@ package org.apache.daffodil.runtime1.layers
 
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
+import java.lang.{ Boolean => JBoolean }
+import java.lang.{ Byte => JByte }
+import java.lang.{ Double => JDouble }
+import java.lang.{ Float => JFloat }
+import java.lang.{ Integer => JInt }
+import java.lang.{ Long => JLong }
+import java.lang.{ Short => JShort }
 import scala.collection.immutable.ListSet
 import scala.collection.mutable
 
@@ -34,7 +41,7 @@ object LayerFactory {
    * This prefix is appended onto the method names of getters that return values from the layer.
    * These getters are called and the corresponding variables are set to have those values. 
    */
-  private def varResultPrefix = "getDFDLResultVariable_"
+  private def varResultPrefix = "getLayerVariableResult_"
   private def varParamSetter = "setLayerVariableParameters"
 
   /** cache that maps spiName of layer to the LayerVarsRuntime */
@@ -121,7 +128,7 @@ object LayerFactory {
             typePairs.foreach { case (vrd, pt) =>
               val vrdClass = PrimType.toJavaType(vrd.primType.dfdlType)
               lrd.context.schemaDefinitionUnless(
-                vrdClass == pt,
+                compatibleTypes(vrdClass, pt),
                 s"""Layer setter argument ${vrd.globalQName.local} and the corresponding
                    |Layer DFDL variable have differing types: ${pt.getName}
                    | and ${vrdClass.getName} respectively.""".stripMargin,
@@ -198,7 +205,7 @@ object LayerFactory {
           val vrdClass = PrimType.toJavaType(vrd.primType.dfdlType)
           val gt = getter.getReturnType
           lrd.context.schemaDefinitionUnless(
-            vrdClass == gt,
+            compatibleTypes(vrdClass, gt),
             s"""Layer return variable ${vrd.globalQName.local} and the corresponding
                |Layer getter have differing types: ${vrdClass.getName}
                | and ${gt.getName} respectively.""".stripMargin,
@@ -213,6 +220,37 @@ object LayerFactory {
         alreadyCheckedLayers.put(lrd.spiName, lrv)
         lrv
       }
+    }
+  }
+
+  /**
+   * Tolerates both boxed and unboxed flavors of the primitive types
+   * @param vrdClass - layer variable's type as a class object
+   * @param pt - setter arg type, or getter result type from reflection
+   * @return true if the types are compatible meaning a DFDL variable can supply the parameter, or receive the result.
+   */
+  private def compatibleTypes(vrdClass: Class[_], pt: Class[_]): Boolean = {
+    vrdClass == pt || compatibleBoxedPrimType(vrdClass, pt)
+  }
+
+  private val LongPrimClass = classOf[Long]
+  private val IntPrimClass = classOf[Int]
+  private val ShortPrimClass = classOf[Short]
+  private val BytePrimClass = classOf[Byte]
+  private val FloatPrimClass = classOf[Float]
+  private val DoublePrimClass = classOf[Double]
+  private val BooleanPrimClass = classOf[Boolean]
+
+  private def compatibleBoxedPrimType(vrdClass: Class[_], pt: Class[_]): Boolean = {
+    pt match {
+      case LongPrimClass => vrdClass == classOf[JLong]
+      case IntPrimClass => vrdClass == classOf[JInt]
+      case ShortPrimClass => vrdClass == classOf[JShort]
+      case BytePrimClass => vrdClass == classOf[JByte]
+      case FloatPrimClass => vrdClass == classOf[JFloat]
+      case DoublePrimClass => vrdClass == classOf[JDouble]
+      case BooleanPrimClass => vrdClass == classOf[JBoolean]
+      case _ => false
     }
   }
 

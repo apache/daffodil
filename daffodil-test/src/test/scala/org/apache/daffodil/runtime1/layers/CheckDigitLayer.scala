@@ -64,7 +64,7 @@ class CheckDigitLayer
    * @param params the value of the params DFDL variable
    * @param digitEncoding the value of the digitEncoding DFDL variable
    */
-  def setLayerVariableParameters(length: JInt, params: String, digitEncoding: String): Unit = {
+  def setLayerVariableParameters(length: Int, params: String, digitEncoding: String): Unit = {
     setLength(length)
     this.params = params
     this.digitEncoding = digitEncoding
@@ -75,7 +75,7 @@ class CheckDigitLayer
    * and populate the DFDL variable named checkDigit, in the layer's target namespace.
    * @return the check digit value
    */
-  def getDFDLResultVariable_checkDigit: JInt =
+  def getLayerVariableResult_checkDigit: JInt =
     getChecksum
 
   /**

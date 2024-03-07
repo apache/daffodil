@@ -63,11 +63,11 @@ import java.io.OutputStream;
  * <p/>
  * A layer that wants to return a value after the layer algorithm completes defines a special recognizable
  * getter method. The name of the getter is formed from prefixing the DFDL variable name with the string
- * 'getDFDLResultVariable_'. The return type of the getter must match the type of the variable.
+ * 'getLayerVariableResult_'. The return type of the getter must match the type of the variable.
  * <p/>
  * For example, a result value getter for a DFDL variable named 'checksum' of type xs:unsignedShort would be:
  * <pre>
- *      Int getDFDLResultVariable_checksum() {
+ *      Int getLayerVariableResult_checksum() {
  *          // returns the value created by the checksum algorithm.
  *      }
  * </pre>

@@ -54,7 +54,7 @@ final class IPv4ChecksumLayer()
    * and populate the DFDL variable named checkDigit, in the layer's target namespace.
    * @return the check digit value
    */
-  def getDFDLResultVariable_IPv4Checksum: JInt = getChecksum
+  def getLayerVariableResult_IPv4Checksum: JInt = getChecksum
 
   /**
    * Computes the checksum value.

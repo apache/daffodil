@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.io.OutputStream
-import java.lang.{ Long => JLong }
 import java.nio.ByteBuffer
 
 import org.apache.daffodil.runtime1.layers.api.Layer
@@ -46,7 +45,7 @@ final class FixedLengthLayer
 
   private var fixedLength: Long = 0
 
-  def setLayerVariableParameters(fixedLength: JLong): Unit = {
+  def setLayerVariableParameters(fixedLength: Long): Unit = {
     this.fixedLength = fixedLength
   }
 
