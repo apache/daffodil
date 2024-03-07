@@ -45,21 +45,29 @@ import org.apache.daffodil.runtime1.layers.api.LayerRuntime
  * disrupt the search for the boundary mark string.
  *
  * This layer does not populate any DFDL variables with results.
+ *
  * This layer defines two DFDL variables which provide required parameters.
- * @param boundaryMark a string which is the boundary marker. Searching for this string is
- *                     done without any notion of escaping. When parsing the data in the
- *                     layer is up to but not including that of the boundary mark string,
- *                     which is removed from the data-stream on parsing, and inserted into
- *                     the data stream on unparsing.
- * @param layerEncoding a string which is the name of the character set encoding used to
- *                      decode characters during the search for the boundary mark, and used
- *                      to encode characters when inserting the boundary mark when unparsing.
  */
-final class BoundaryMarkLayer(boundaryMark: String, layerEncoding: String)
+final class BoundaryMarkLayer
   extends Layer("boundaryMark", "urn:org.apache.daffodil.layers.boundaryMark") {
 
-  /** no arg contructor required for SPI class loading */
-  def this() = this("dummy", "ascii")
+  private var boundaryMark: String = _
+  private var layerEncoding: String = _
+
+  /**
+   * @param boundaryMark  a string which is the boundary marker. Searching for this string is
+   *                      done without any notion of escaping. When parsing the data in the
+   *                      layer is up to but not including that of the boundary mark string,
+   *                      which is removed from the data-stream on parsing, and inserted into
+   *                      the data stream on unparsing.
+   * @param layerEncoding a string which is the name of the character set encoding used to
+   *                      decode characters during the search for the boundary mark, and used
+   *                      to encode characters when inserting the boundary mark when unparsing.
+   */
+  def setLayerVariableParameters(boundaryMark: String, layerEncoding: String): Unit = {
+    this.boundaryMark = boundaryMark
+    this.layerEncoding = layerEncoding
+  }
 
   private lazy val charset = Charset.forName(layerEncoding)
 
@@ -68,4 +76,5 @@ final class BoundaryMarkLayer(boundaryMark: String, layerEncoding: String)
 
   override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream =
     new BoundaryMarkInsertingJavaOutputStream(jos, boundaryMark, charset)
+
 }

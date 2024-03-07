@@ -47,16 +47,4 @@ object LayerRegistry {
       optLayer.get
     }
   }
-
-  /**
-   * This is used to find a Layer when creating an instance at runtime.
-   *
-   * It is the caller's responsibility to issue the proper error if this is
-   * not found.
-   *
-   * @param spiName the name of the schema according to the SPI loader. The Layer.name() method
-   *                returns this string. This string includes both name and namespace information.
-   * @return
-   */
-  def findLayer(spiName: String): Option[Layer] = layerMap.get(spiName)
 }

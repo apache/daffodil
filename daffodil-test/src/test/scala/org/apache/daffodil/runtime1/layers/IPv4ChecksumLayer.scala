@@ -36,16 +36,7 @@ final class IPv4ChecksumLayer()
   extends ChecksumLayer(
     "IPv4Checksum",
     "urn:org.apache.daffodil.layers.IPv4Checksum",
-    20,
   ) {
-
-  /**
-   * Result DFDL variable value getter. This getter is called to obtain the value for,
-   * and populate the DFDL variable named checkDigit, in the layer's target namespace.
-   * @return the check digit value
-   */
-  def getDFDLResultVariable_IPv4Checksum: JInt =
-    getChecksum
 
   /**
    * This layer is always exactly 20 bytes long.
@@ -53,21 +44,34 @@ final class IPv4ChecksumLayer()
   private def lenInBytes = 20
   private def chksumShortIndex = 5
 
+  override protected def init(lr: LayerRuntime): Unit = {
+    setLength(lenInBytes)
+    super.init(lr)
+  }
+
+  /**
+   * Result DFDL variable value getter. This getter is called to obtain the value for,
+   * and populate the DFDL variable named checkDigit, in the layer's target namespace.
+   * @return the check digit value
+   */
+  def getDFDLResultVariable_IPv4Checksum: JInt = getChecksum
+
   /**
    * Computes the checksum value.
    * When unparsing this also modifies the output bytes to have the checksum at the
    * middle location as per the IPv4 spec.
    * The LayerChecksumMixin assigns the computed checksum value to the first variable.
-   * @param layerCompileInfo structure providing access to state such as variables, when needed.
+   * @param layerRuntime structure providing access to state such as variables, when needed.
    * @param isUnparse true if the checksum is for unparsing.
    * @param byteBuffer contains the 20 bytes to be used to compute this checksum.
    * @return the computed checksum value as a 32-bit signed Int.
    */
   override def compute(
-    layerCompileInfo: LayerRuntime,
+    layerRuntime: LayerRuntime,
     isUnparse: Boolean,
     byteBuffer: ByteBuffer,
   ): Int = {
+    init(layerRuntime)
     val shortBuf = byteBuffer.asShortBuffer()
     var i = 0
     var chksum: Int = 0

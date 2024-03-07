@@ -20,6 +20,7 @@
 <schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns="http://www.w3.org/2001/XMLSchema"
         xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+        xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
         xmlns:buggy="urn:org.apache.daffodil.layers.buggy"
         xmlns:ex="http://example.com"
         targetNamespace="http://example.com">

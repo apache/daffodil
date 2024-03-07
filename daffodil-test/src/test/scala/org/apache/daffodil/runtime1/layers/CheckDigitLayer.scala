@@ -36,7 +36,7 @@ object CheckDigitLayer {
  *
  * The resulting check digit is stored into the DFDL variable:
  *   - checkDigit - an xs:unsignedShort to which the check digit value is assigned.
- * The arguments to this constructor are taken from the three layer DFDL variables that
+ * The arguments to this layer algorithm are taken from the three layer DFDL variables that
  * define parameters for this check digit calculation:
  *   - length - an xs:unsignedShort giving the length (in bytes) of the data over
  *   which the check-digit is to be computed.
@@ -47,17 +47,28 @@ object CheckDigitLayer {
  *   - digitEncoding is a string which is the name of a character set encoding which
  *   defines the character set of the digits.
  *   This must match the dfdl:encoding for the DFDL element declaration using this layer.
- *
- * @param length the value of the length DFDL variable
- * @param params the value of the params DFDL variable
- * @param digitEncoding the value of the digitEncoding DFDL variable
  */
-class CheckDigitLayer(length: JInt, params: String, digitEncoding: String)
+class CheckDigitLayer
   extends ChecksumLayer(
     "checkDigit", // name of the layer, also happens to be the name of the output variable.
     CheckDigitLayer.ns,
-    length,
   ) {
+
+  private var params: String = _
+  private var digitEncoding: String = _
+  private lazy val charset = Charset.forName(digitEncoding)
+  private lazy val isVerbose = params.toLowerCase.contains("verbose")
+
+  /**
+   * @param length the value of the length DFDL variable
+   * @param params the value of the params DFDL variable
+   * @param digitEncoding the value of the digitEncoding DFDL variable
+   */
+  def setLayerVariableParameters(length: JInt, params: String, digitEncoding: String): Unit = {
+    setLength(length)
+    this.params = params
+    this.digitEncoding = digitEncoding
+  }
 
   /**
    * Result DFDL variable value getter. This getter is called to obtain the value for,
@@ -66,13 +77,6 @@ class CheckDigitLayer(length: JInt, params: String, digitEncoding: String)
    */
   def getDFDLResultVariable_checkDigit: JInt =
     getChecksum
-
-  /** no-arg constructor is required for SPI loading of the class */
-  def this() = this(0, "", "ascii")
-
-  private lazy val charset = Charset.forName(digitEncoding)
-
-  private lazy val isVerbose = params.toLowerCase.contains("verbose")
 
   /**
    * Shared by both parsing and unparsing.

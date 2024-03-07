@@ -26,7 +26,6 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.layers.api.Layer
-import org.apache.daffodil.runtime1.layers.api.LayerException
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
 object LayerFactory {
@@ -36,6 +35,7 @@ object LayerFactory {
    * These getters are called and the corresponding variables are set to have those values. 
    */
   private def varResultPrefix = "getDFDLResultVariable_"
+  private def varParamSetter = "setLayerVariableParameters"
 
   /** cache that maps spiName of layer to the LayerVarsRuntime */
   private lazy val alreadyCheckedLayers =
@@ -65,73 +65,87 @@ object LayerFactory {
       // find another constructor and check that there is an argument
       // corresponding to each of the layer variables.
       val c = protoLayer.getClass
-      val allConstructors = c.getConstructors.toSeq
+      val constructor = c.getConstructors.find { c => c.getParameterCount == 0 }.getOrElse {
+        Assert.invariantFailed("SPI-loaded class without default constructor? Not possible.")
+      }
+      val allMethods = c.getMethods
+      val optParamSetter = allMethods.find { _.getName == varParamSetter }
+      val allVarResultGetters =
+        ListSet(allMethods.filter { m =>
+          val nom = m.getName
+          nom.startsWith(varResultPrefix)
+        }.toSeq: _*)
 
-      val constructor: Constructor[_] =
-        if (allConstructors.length == 1) {
-          // There is only the default constructor.
-          // That's ok if there are no variables for the layer, which we check later.
-          allConstructors.head
-        } else if (allConstructors.length == 2) {
-          allConstructors.filter(_.getParameterCount > 0).head
-        } else {
-          def tooManyConstructorsMsg: String = {
-            s"""Layer class $c has multiple non-default constructors. It should have a default (no args)
-               | constructor and a single additional constructor with arguments for
-               | each of the layer's parameter variables.""".stripMargin
-          }
-
-          lrd.context.SDE(tooManyConstructorsMsg)
-        }
-
-      if (lrd.vmap.isEmpty && allConstructors.length == 1) {
+      if (lrd.vmap.isEmpty && optParamSetter.isEmpty && allVarResultGetters.isEmpty) {
         // there are no vars, we're done
-        new LayerVarsRuntime(constructor, Nil, Nil)
+        new LayerVarsRuntime(constructor, None, Nil, Nil)
       } else {
-        // there is a constructor with args that are supposed to correspond to bound vars
-        val params = constructor.getParameters.toSeq
-        val nParams = params.length
-        val nVars = lrd.vmap.size
-
-        val paramTypes = constructor.getParameterTypes.toSeq
-        val paramVRDs = params.map { p =>
-          lrd.vmap.getOrElse(
-            p.getName,
-            lrd.context.SDE(
-              s"No layer DFDL variable named '$p.getName' was found in namespace ${lrd.namespace}.",
-            ),
-          )
-        }.toSeq
-
-        // Now we deal with the result getters and the corresponding vars
-        //
         val allLayerVRDs = ListSet(lrd.vmap.toSeq.map(_._2): _*)
-        //
-        // verify only Int and String are allowed simple types for now.
-        // The rest of the code beyond here doesn't care what the type is, but we don't want to
-        // create a bunch of test code for layer things that aren't needed.
-        //
-        allLayerVRDs.foreach { vrd =>
-          lrd.context.schemaDefinitionUnless(
-            vrd.primType == PrimType.String ||
-              vrd.primType == PrimType.Int ||
-              vrd.primType == PrimType.UnsignedShort,
-            s"Layer variable ${vrd.globalQName.toQNameString} of type ${vrd.primType.dfdlType} must be of type xs:int, xs:unsignedShort, or xs:string.",
-          )
-        }
+        // there is either a params setter, a result getter, or both.
+        val paramVRDs: Seq[VariableRuntimeData] =
+          optParamSetter.toSeq.flatMap { paramSetter =>
+            // there is a param setter with args that are supposed to correspond to bound vars
+            val params = paramSetter.getParameters.toSeq
+
+            val paramTypes = paramSetter.getParameterTypes.toSeq
+            val pVRDs: Seq[VariableRuntimeData] = params.map { p =>
+              lrd.vmap.getOrElse(
+                p.getName,
+                lrd.context.SDE(
+                  s"No layer DFDL variable named '$p.getName' was found in namespace ${lrd.namespace}.",
+                ),
+              )
+            }.toSeq
+
+            // Now we deal with the result getters and the corresponding vars
+            //
+
+            //
+            // verify only Int and String are allowed simple types for now.
+            // The rest of the code beyond here doesn't care what the type is, but we don't want to
+            // create a bunch of test code for layer things that aren't needed.
+            //
+            allLayerVRDs.foreach { vrd =>
+              lrd.context.schemaDefinitionUnless(
+                vrd.primType == PrimType.String ||
+                  vrd.primType == PrimType.Int ||
+                  vrd.primType == PrimType.UnsignedShort ||
+                  vrd.primType == PrimType.UnsignedInt,
+                s"Layer variable ${vrd.globalQName.toQNameString} of type ${vrd.primType.dfdlType} must" +
+                  s" be of type xs:int, xs:unsignedInt, xs:unsignedShort, or xs:string.",
+              )
+            }
+            // at this point the number of vars and number of setter args match
+
+            val typePairs = (pVRDs.zip(paramTypes)).toSeq
+            typePairs.foreach { case (vrd, pt) =>
+              val vrdClass = PrimType.toJavaType(vrd.primType.dfdlType)
+              lrd.context.schemaDefinitionUnless(
+                vrdClass == pt,
+                s"""Layer setter argument ${vrd.globalQName.local} and the corresponding
+                   |Layer DFDL variable have differing types: ${pt.getName}
+                   | and ${vrdClass.getName} respectively.""".stripMargin,
+              )
+            }
+            if (pVRDs.length != params.length) {
+              val msg =
+                s"""Layer class $c does not have a parameter setter method named $varParamSetter.
+                   | It should have this method with arguments for
+                   | each of the layer's parameter variables.""".stripMargin
+              lrd.context.SDE(msg)
+            }
+            pVRDs.toSeq
+          }
+        val nParams = paramVRDs.length
+        val nVars = lrd.vmap.size
         val returnVRDs = allLayerVRDs -- paramVRDs // set subtraction
-        val allMethods = c.getMethods
-        val allVarResultGetters =
-          ListSet(allMethods.filter { m =>
-            val nom = m.getName
-            nom.startsWith(varResultPrefix)
-          }.toSeq: _*)
+
         // each returnVRD needs to have a corresponding getter method
         val returnVRDNames = returnVRDs.map(_.globalQName.local)
         val resultGettersNames = allVarResultGetters.map(_.getName.replace(varResultPrefix, ""))
         val nResultGetters = resultGettersNames.size
 
-        def javaConstructorArgs =
+        def javaParamSetterArgs =
           paramVRDs
             .map {
               case vrd => {
@@ -141,25 +155,12 @@ object LayerFactory {
             .mkString(", ")
 
         def badConstructorMsg: String = {
-          s"""Layer class $c does not have a constructor with arguments for each of the layer's variables.
-             | It should have a constructor with these arguments in any order, such as
-             | ($javaConstructorArgs)""".stripMargin
+          s"""Layer class $c does not have a setter with arguments for each of the layer's variables.
+             | It should have a setter named $varParamSetter with these arguments in any order, such as
+             | ($javaParamSetterArgs)""".stripMargin
         }
 
         lrd.context.schemaDefinitionUnless(nParams + nResultGetters == nVars, badConstructorMsg)
-
-        // at this point the number of vars and number of constructor args match
-
-        val typePairs = (paramVRDs.zip(paramTypes)).toSeq
-        typePairs.foreach { case (vrd, pt) =>
-          val vrdClass = PrimType.toJavaType(vrd.primType.dfdlType)
-          lrd.context.schemaDefinitionUnless(
-            vrdClass == pt,
-            s"""Layer constructor argument ${vrd.globalQName.local} and the corresponding
-               |Layer DFDL variable have differing types: ${pt.getName}
-               | and ${vrdClass.getName} respectively.""".stripMargin,
-          )
-        }
 
         val returnVRDsWithoutGetters = returnVRDNames -- resultGettersNames
         val resultGettersWithoutVRDs = resultGettersNames -- returnVRDNames
@@ -207,7 +208,8 @@ object LayerFactory {
             s"""Layer return variable getter ${getter.getName} must have no arguments.""",
           )
         }
-        val lrv = new LayerVarsRuntime(constructor, paramVRDs, resultVarPairs.toSeq)
+        val lrv =
+          new LayerVarsRuntime(constructor, optParamSetter, paramVRDs, resultVarPairs.toSeq)
         alreadyCheckedLayers.put(lrd.spiName, lrv)
         lrv
       }
@@ -241,15 +243,8 @@ class LayerFactory(val layerRuntimeData: LayerRuntimeData) extends Serializable 
   def newInstance(lri: LayerRuntimeImpl): LayerDriver = {
     val optCache = alreadyCheckedLayers.get(lri.layerRuntimeData.spiName)
     val layerVarsRuntime: LayerVarsRuntime = optCache.getOrElse {
-      val optLayerInstance = LayerRegistry.findLayer(lri.layerRuntimeData.spiName)
-      val spiLayerInstance: Layer = optLayerInstance.getOrElse {
-        lri.runtimeSchemaDefinitionError(
-          new LayerException(
-            lri,
-            s"Unable to load class for layer '${lri.layerRuntimeData.layerQName.toQNameString}'.",
-          ),
-        )
-      }
+      val spiLayerInstance =
+        LayerRegistry.find(lri.layerRuntimeData.spiName, lri.layerRuntimeData.context)
       // Since layer implementations are dynamically loaded, we must re-verify that
       // the layer implementation matches the DFDL schema's layer variable definitions.
       // This prevents using a layer class file that doesn't match the schema, at
@@ -271,7 +266,7 @@ class LayerFactory(val layerRuntimeData: LayerRuntimeData) extends Serializable 
     // Rather, it is going to load it once, constructing it with the default zero-arg
     // constructor that they all must have.
 
-    val newInstance = layerVarsRuntime.callConstructorWithParameterVars(lri)
+    val newInstance = layerVarsRuntime.constructAndCallParamSetterWithParameterVars(lri)
 
     //
     // The layer driver object is responsible for calling getters for any return values and
@@ -285,7 +280,7 @@ class LayerFactory(val layerRuntimeData: LayerRuntimeData) extends Serializable 
 
 /**
  * Enables fast construction of the layer instance passing all parameter vars values
- * as arguments to the constructor.
+ * as arguments to the parameter setter method.
  *
  * Also contains the data structures which facilitate fast invocation of the getters for
  * any return result values, and assignment of those values to the layer result variables.
@@ -296,6 +291,7 @@ class LayerFactory(val layerRuntimeData: LayerRuntimeData) extends Serializable 
  */
 class LayerVarsRuntime(
   constructor: Constructor[_],
+  optParamSetter: Option[Method],
   paramVRDs: Seq[VariableRuntimeData],
   resultVarPairs: Seq[(VariableRuntimeData, Method)],
 ) {
@@ -308,10 +304,11 @@ class LayerVarsRuntime(
    *           runtime variable instances to be read and set.
    * @return
    */
-  def callConstructorWithParameterVars(lr: LayerRuntimeImpl): Layer = {
+  def constructAndCallParamSetterWithParameterVars(lr: LayerRuntimeImpl): Layer = {
     val args = paramVRDs.map { vrd => lr.state.getVariable(vrd, lr.state).value }
-    val newLayer = constructor.newInstance(args: _*).asInstanceOf[Layer]
-    newLayer
+    val newObj = constructor.newInstance().asInstanceOf[Layer]
+    optParamSetter.foreach(_.invoke(newObj, args: _*))
+    newObj
   }
 
   /**

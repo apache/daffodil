@@ -38,10 +38,34 @@ import org.apache.commons.io.IOUtils
 abstract class ChecksumLayerBase(
   localName: String,
   namespace: String,
-  val length: Int,
 ) extends Layer(localName, namespace) {
 
   private var checksum: Int = -1
+
+  private var length: Int = -1
+  private var isInitialized: Boolean = false
+
+  final def getLength: Int = length
+  final protected def setLength(len: Int): Unit = {
+    this.length = len
+  }
+
+  /**
+   * Initializes the layer.
+   *
+   * This method is called to ensure that `setLength` has been called before the streams are created.
+   * It can be overridden in subclasses, but those must run the `super.init(lr)`
+   *
+   * @param lr The LayerRuntime instance.
+   */
+  protected def init(lr: LayerRuntime): Unit = {
+    if (!isInitialized) {
+      isInitialized = true
+      if (length < 0) {
+        lr.processingError("layer length is < 0. ")
+      }
+    }
+  }
 
   final protected def getChecksum: Int = checksum
   final def setChecksum(checksum: Int): Unit = { this.checksum = checksum }
@@ -53,10 +77,12 @@ abstract class ChecksumLayerBase(
   ): Int
 
   final override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream = {
+    init(lr)
     new ChecksumDecoderInputStream(this, jis, lr)
   }
 
   final override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream = {
+    init(lr)
     new ChecksumEncoderOutputStream(this, jos, lr)
   }
 }
@@ -68,13 +94,13 @@ class ChecksumDecoderInputStream(
 ) extends InputStream {
 
   private def doubleCheckLength(actualDataLen: Int): Unit = {
-    val neededLen = layer.length
+    val neededLen = layer.getLength
     if (neededLen > actualDataLen)
       lr.processingError(new LayerNotEnoughDataException(lr, neededLen, actualDataLen))
   }
 
   private lazy val bais = {
-    val ba = new Array[Byte](layer.length)
+    val ba = new Array[Byte](layer.getLength)
     val nRead = IOUtils.read(jis, ba)
     doubleCheckLength(nRead)
     val buf = ByteBuffer.wrap(ba)
@@ -91,20 +117,20 @@ class ChecksumEncoderOutputStream(
   lr: LayerRuntime,
 ) extends OutputStream {
 
-  private lazy val baos = new ByteArrayOutputStream(layer.length)
+  private lazy val baos = new ByteArrayOutputStream(layer.getLength)
 
   private var count: Long = 0
 
   override def write(b: Int): Unit = {
     baos.write(b)
     count += 1
-    if (count > layer.length) {
+    if (count > layer.getLength) {
       //
       // This could happen if the layer logically unparses as one of two choice branches where they
       // are supposed to be all the same length, but one is in fact longer than expected by the bufLen.
       lr.processingError(
         new IndexOutOfBoundsException(
-          s"Written data amount exceeded fixed layer length of ${layer.length}.",
+          s"Written data amount exceeded fixed layer length of ${layer.getLength}.",
         ),
       )
     }
@@ -117,7 +143,7 @@ class ChecksumEncoderOutputStream(
       isOpen = false
       val ba = baos.toByteArray
       val baLen = ba.length
-      Assert.invariant(baLen <= layer.length)
+      Assert.invariant(baLen <= layer.getLength)
       val buf = ByteBuffer.wrap(ba)
       layer.setChecksum(layer.compute(lr, isUnparse = true, buf))
       jos.write(ba)

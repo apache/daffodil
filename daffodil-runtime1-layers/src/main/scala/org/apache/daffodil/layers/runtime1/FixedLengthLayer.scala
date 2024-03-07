@@ -23,7 +23,6 @@ import java.io.OutputStream
 import java.lang.{ Long => JLong }
 import java.nio.ByteBuffer
 
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
@@ -42,33 +41,35 @@ import org.apache.commons.io.IOUtils
  *   This length is enforced on both parsing and unparsing the layer.
  * There are no output/result DFDL variables from this layer.
  */
-final class FixedLengthLayer(fixedLength: JLong)
+final class FixedLengthLayer
   extends Layer("fixedLength", "urn:org.apache.daffodil.layers.fixedLength") {
 
-  Assert.invariant(fixedLength > 0)
+  private var fixedLength: Long = 0
 
-  /** Required for SPI class loading */
-  def this() = this(1)
+  def setLayerVariableParameters(fixedLength: JLong): Unit = {
+    this.fixedLength = fixedLength
+  }
+
+  private def check(lr: LayerRuntime): Unit = {
+    if (fixedLength < 1)
+      lr.processingError(
+        s"fixedLength value of $fixedLength must be 1 or greater.",
+      )
+    if (fixedLength > maxFixedLength)
+      lr.processingError(
+        s"fixedLength value of $fixedLength is above the maximum of $maxFixedLength.",
+      )
+  }
 
   private def maxFixedLength = Short.MaxValue
 
   override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream = {
-
-    if (fixedLength > maxFixedLength)
-      lr.processingError(
-        s"fixedLength value of $fixedLength is above the maximum of $maxFixedLength.",
-      )
-
+    check(lr)
     new FixedLengthInputStream(fixedLength.toInt, jis, lr)
   }
 
   override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream = {
-
-    if (fixedLength > maxFixedLength)
-      lr.processingError(
-        s"fixedLength value of $fixedLength is above the maximum of $maxFixedLength.",
-      )
-
+    check(lr)
     new FixedLengthOutputStream(fixedLength.toInt, jos, lr)
   }
 }
@@ -99,7 +100,7 @@ class FixedLengthOutputStream(
   lr: LayerRuntime,
 ) extends OutputStream {
 
-  private lazy val baos = new ByteArrayOutputStream(layerLength.toInt)
+  private lazy val baos = new ByteArrayOutputStream(layerLength)
 
   private var count: Long = 0
 
