@@ -43,32 +43,31 @@ import org.apache.commons.io.IOUtils
 final class FixedLengthLayer
   extends Layer("fixedLength", "urn:org.apache.daffodil.layers.fixedLength") {
 
-  private var fixedLength: Long = 0
+  private var fixedLength: Long = -1
+  private def maxFixedLength = Short.MaxValue
 
-  def setLayerVariableParameters(fixedLength: Long): Unit = {
+  /**
+   * Captures the fixedLength DFDL variable value and saves it.
+   *
+   * Also validates whether it is in acceptable range.
+   * @param fixedLength matches the name of the DFDL variable which will supply this value.
+   * @throws an Exception if the fixedLength is out of range. This turns into a Schema Definition Error.
+   */
+  private[layers] def setLayerVariableParameters(fixedLength: Long): Unit = {
     this.fixedLength = fixedLength
-  }
-
-  private def check(lr: LayerRuntime): Unit = {
     if (fixedLength < 1)
-      lr.processingError(
-        s"fixedLength value of $fixedLength must be 1 or greater.",
-      )
+      throw new Exception(s"fixedLength value of $fixedLength must be 1 or greater.")
     if (fixedLength > maxFixedLength)
-      lr.processingError(
+      throw new Exception(
         s"fixedLength value of $fixedLength is above the maximum of $maxFixedLength.",
       )
   }
 
-  private def maxFixedLength = Short.MaxValue
-
   override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream = {
-    check(lr)
     new FixedLengthInputStream(fixedLength.toInt, jis, lr)
   }
 
   override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream = {
-    check(lr)
     new FixedLengthOutputStream(fixedLength.toInt, jos, lr)
   }
 }

@@ -25,10 +25,6 @@ import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
-object CheckDigitLayer {
-  private def ns = "urn:org.apache.daffodil.layers.checkDigit"
-}
-
 /** Check digit example layer
  *
  * Computes a check digit by adding together the digits of a number and taking the
@@ -51,7 +47,7 @@ object CheckDigitLayer {
 class CheckDigitLayer
   extends ChecksumLayer(
     "checkDigit", // name of the layer, also happens to be the name of the output variable.
-    CheckDigitLayer.ns,
+    "urn:org.apache.daffodil.layers.checkDigit",
   ) {
 
   private var params: String = _
@@ -64,7 +60,7 @@ class CheckDigitLayer
    * @param params the value of the params DFDL variable
    * @param digitEncoding the value of the digitEncoding DFDL variable
    */
-  def setLayerVariableParameters(length: Int, params: String, digitEncoding: String): Unit = {
+  final private[layers] def setLayerVariableParameters(length: Int, params: String, digitEncoding: String): Unit = {
     setLength(length)
     this.params = params
     this.digitEncoding = digitEncoding

@@ -68,13 +68,8 @@ object LayerFactory {
   def computeLayerVarsRuntime(lrd: LayerRuntimeData, protoLayer: Layer): LayerVarsRuntime = {
     val optLayerVarsRuntime = alreadyCheckedLayers.get(protoLayer.name())
     optLayerVarsRuntime.getOrElse {
-      // we know there is a default zero arg constructor
-      // find another constructor and check that there is an argument
-      // corresponding to each of the layer variables.
       val c = protoLayer.getClass
-      val constructor = c.getConstructors.find { c => c.getParameterCount == 0 }.getOrElse {
-        Assert.invariantFailed("SPI-loaded class without default constructor? Not possible.")
-      }
+      val constructor = c.getConstructor()
       val allMethods = c.getMethods
       val optParamSetter = allMethods.find { _.getName == varParamSetter }
       val allVarResultGetters =
@@ -84,7 +79,7 @@ object LayerFactory {
         }.toSeq: _*)
 
       if (lrd.vmap.isEmpty && optParamSetter.isEmpty && allVarResultGetters.isEmpty) {
-        // there are no vars, we're done
+        // there are no vars, so no setter, and no getter(s). We're done
         new LayerVarsRuntime(constructor, None, Nil, Nil)
       } else {
         val allLayerVRDs = ListSet(lrd.vmap.toSeq.map(_._2): _*)
@@ -92,55 +87,32 @@ object LayerFactory {
         val paramVRDs: Seq[VariableRuntimeData] =
           optParamSetter.toSeq.flatMap { paramSetter =>
             // there is a param setter with args that are supposed to correspond to bound vars
+            // it is allowed for it to have zero args. Then it's purpose is just initialization, but it
+            // must still get called.
             val params = paramSetter.getParameters.toSeq
-
             val paramTypes = paramSetter.getParameterTypes.toSeq
-            val pVRDs: Seq[VariableRuntimeData] = params.map { p =>
-              lrd.vmap.getOrElse(
-                p.getName,
-                lrd.context.SDE(
-                  s"No layer DFDL variable named '$p.getName' was found in namespace ${lrd.namespace}.",
-                ),
-              )
-            }.toSeq
+            val pVRDs: Seq[VariableRuntimeData] = (params
+              .zip(paramTypes))
+              .map { case (p, pt) =>
+                val vrd = lrd.vmap.getOrElse(
+                  p.getName,
+                  lrd.context.SDE(
+                    s"No layer DFDL variable named '${p.getName}' was found in namespace ${lrd.namespace}.",
+                  ),
+                )
+                val vrdClass = PrimType.toJavaType(vrd.primType.dfdlType)
+                lrd.context.schemaDefinitionUnless(
+                  compatibleTypes(vrdClass, pt),
+                  s"""Layer setter argument ${vrd.globalQName.local} and the corresponding
+                   |Layer DFDL variable have differing types: ${pt.getName}
+                   | and ${vrdClass.getName} respectively.""".stripMargin,
+                )
+                vrd
+              }
+              .toSeq
 
             // Now we deal with the result getters and the corresponding vars
             //
-
-            //
-            // verify only Int and String are allowed simple types for now.
-            // The rest of the code beyond here doesn't care what the type is, but we don't want to
-            // create a bunch of test code for layer things that aren't needed.
-            //
-            allLayerVRDs.foreach { vrd =>
-              lrd.context.schemaDefinitionUnless(
-                vrd.primType == PrimType.String ||
-                  vrd.primType == PrimType.Int ||
-                  vrd.primType == PrimType.UnsignedShort ||
-                  vrd.primType == PrimType.UnsignedInt,
-                s"Layer variable ${vrd.globalQName.toQNameString} of type ${vrd.primType.dfdlType} must" +
-                  s" be of type xs:int, xs:unsignedInt, xs:unsignedShort, or xs:string.",
-              )
-            }
-            // at this point the number of vars and number of setter args match
-
-            val typePairs = (pVRDs.zip(paramTypes)).toSeq
-            typePairs.foreach { case (vrd, pt) =>
-              val vrdClass = PrimType.toJavaType(vrd.primType.dfdlType)
-              lrd.context.schemaDefinitionUnless(
-                compatibleTypes(vrdClass, pt),
-                s"""Layer setter argument ${vrd.globalQName.local} and the corresponding
-                   |Layer DFDL variable have differing types: ${pt.getName}
-                   | and ${vrdClass.getName} respectively.""".stripMargin,
-              )
-            }
-            if (pVRDs.length != params.length) {
-              val msg =
-                s"""Layer class $c does not have a parameter setter method named $varParamSetter.
-                   | It should have this method with arguments for
-                   | each of the layer's parameter variables.""".stripMargin
-              lrd.context.SDE(msg)
-            }
             pVRDs.toSeq
           }
         val nParams = paramVRDs.length
@@ -161,13 +133,13 @@ object LayerFactory {
             }
             .mkString(", ")
 
-        def badConstructorMsg: String = {
+        lrd.context.schemaDefinitionUnless(
+          nParams + nResultGetters == nVars,
           s"""Layer class $c does not have a setter with arguments for each of the layer's variables.
-             | It should have a setter named $varParamSetter with these arguments in any order, such as
-             | ($javaParamSetterArgs)""".stripMargin
-        }
-
-        lrd.context.schemaDefinitionUnless(nParams + nResultGetters == nVars, badConstructorMsg)
+             | It should have a setter named $varParamSetter with an argument for each layer parameter, in any order, such as
+             | '($javaParamSetterArgs)', and a getter for remaining layer variables, named with a specific
+             |  name prefix like: '${varResultPrefix + "varName()"}'.""".stripMargin,
+        )
 
         val returnVRDsWithoutGetters = returnVRDNames -- resultGettersNames
         val resultGettersWithoutVRDs = resultGettersNames -- returnVRDNames
@@ -187,7 +159,7 @@ object LayerFactory {
               )} have no corresponding layer variables."""
           },
         )
-        // at this point we know each variable that was not a parameter of the constructor
+        // at this point we know each variable that was not a parameter of the setter
         // has a getter with matching name.
         val resultVarPairs = resultGettersNames.map { rgn: String =>
           val getter: Method =

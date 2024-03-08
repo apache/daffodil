@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import java.lang.{ Integer => JInt }
 import java.nio.ByteBuffer
 
 import org.apache.daffodil.lib.exceptions.Assert
@@ -44,9 +43,16 @@ final class IPv4ChecksumLayer()
   private def lenInBytes = 20
   private def chksumShortIndex = 5
 
-  override protected def init(lr: LayerRuntime): Unit = {
+  /**
+   * Though this layer has no actual parameter DFDL variables, we still need
+   * this zero-arg version of this method as initialization because
+   * this is a checksum layer, and the base class requires that you call
+   * setLength to give it the fixed length of the layer.
+   *
+   * In the case of IPv4, this is just a constant. 
+   */
+  final private[layers] def setLayerVariableParameters(): Unit = {
     setLength(lenInBytes)
-    super.init(lr)
   }
 
   /**
@@ -54,7 +60,7 @@ final class IPv4ChecksumLayer()
    * and populate the DFDL variable named checkDigit, in the layer's target namespace.
    * @return the check digit value
    */
-  def getLayerVariableResult_IPv4Checksum: JInt = getChecksum
+  def getLayerVariableResult_IPv4Checksum: Int = getChecksum
 
   /**
    * Computes the checksum value.
@@ -71,7 +77,6 @@ final class IPv4ChecksumLayer()
     isUnparse: Boolean,
     byteBuffer: ByteBuffer,
   ): Int = {
-    init(layerRuntime)
     val shortBuf = byteBuffer.asShortBuffer()
     var i = 0
     var chksum: Int = 0

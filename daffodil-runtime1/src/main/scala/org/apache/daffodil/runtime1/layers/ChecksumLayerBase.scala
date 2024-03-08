@@ -46,29 +46,19 @@ abstract class ChecksumLayerBase(
   private var isInitialized: Boolean = false
 
   final def getLength: Int = length
-  final protected def setLength(len: Int): Unit = {
-    this.length = len
-  }
 
   /**
-   * Initializes the layer.
-   *
-   * This method is called to ensure that `setLength` has been called before the streams are created.
-   * It can be overridden in subclasses, but those must run the `super.init(lr)`
-   *
-   * @param lr The LayerRuntime instance.
+   * Must be called to specify the length, or it is a schema definition error.
+   * @param len The fixed length over which the checksum is computed.
    */
-  protected def init(lr: LayerRuntime): Unit = {
-    if (!isInitialized) {
-      isInitialized = true
-      if (length < 0) {
-        lr.processingError("layer length is < 0. ")
-      }
-    }
+  final protected def setLength(len: Int): Unit = {
+    this.length = len
+    if (len < 1) throw new Exception(s"The length is not greater than zero: $len.")
+    isInitialized = true
   }
 
   final protected def getChecksum: Int = checksum
-  final def setChecksum(checksum: Int): Unit = { this.checksum = checksum }
+  final private[layers] def setChecksum(checksum: Int): Unit = { this.checksum = checksum }
 
   def compute(
     layerRuntime: LayerRuntime,
@@ -77,12 +67,12 @@ abstract class ChecksumLayerBase(
   ): Int
 
   final override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream = {
-    init(lr)
+    if (!isInitialized) lr.runtimeSchemaDefinitionError("setLength method was never called.")
     new ChecksumDecoderInputStream(this, jis, lr)
   }
 
   final override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream = {
-    init(lr)
+    if (!isInitialized) lr.runtimeSchemaDefinitionError("setLength method was never called.")
     new ChecksumEncoderOutputStream(this, jos, lr)
   }
 }
