@@ -17,12 +17,13 @@
 
 package org.apache.daffodil.runtime1.layers.ipv4 // different subpackage on purpose to test package private methods
 
+import java.nio.ByteBuffer
+
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
-import passera.unsigned.UShort
 
-import java.nio.ByteBuffer
+import passera.unsigned.UShort
 
 /**
  *  The layer transform computes the checksum of the header data.
