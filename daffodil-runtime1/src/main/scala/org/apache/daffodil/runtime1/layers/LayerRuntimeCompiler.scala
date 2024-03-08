@@ -59,11 +59,12 @@ object LayerRuntimeCompiler {
    * to ensure that the loaded layer class constructor signature at least matches the layer
    * variables defined in the schema.
    *
-   * @param lrd
+   * @param lrd the layer static schema compiler-determined information
    * @param protoLayer the layer instance allocated by the SPI loader (zero-arg constructed)
-   * @return
+   * @return the runtime structure used to construct, optionally provide DFDL variable values
+   *         as parameters, initialize, optinally get results which are stored-back to DFDL variables.
    */
-  def computeLayerVarsRuntime(lrd: LayerRuntimeData, protoLayer: Layer): LayerVarsRuntime = {
+  private def computeLayerVarsRuntime(lrd: LayerRuntimeData, protoLayer: Layer): LayerVarsRuntime = {
     val optLayerVarsRuntime = alreadyCheckedLayers.get(protoLayer.name())
     optLayerVarsRuntime.getOrElse {
       val c = protoLayer.getClass
@@ -89,29 +90,26 @@ object LayerRuntimeCompiler {
             // must still get called.
             val params = paramSetter.getParameters.toSeq
             val paramTypes = paramSetter.getParameterTypes.toSeq
-            val pVRDs: Seq[VariableRuntimeData] = (params
-              .zip(paramTypes))
-              .map { case (p, pt) =>
-                val vrd = lrd.vmap.getOrElse(
-                  p.getName,
-                  lrd.context.SDE(
-                    s"No layer DFDL variable named '${p.getName}' was found in namespace ${lrd.namespace}.",
-                  ),
-                )
-                val vrdClass = PrimType.toJavaType(vrd.primType.dfdlType)
-                lrd.context.schemaDefinitionUnless(
-                  compatibleTypes(vrdClass, pt),
-                  s"""Layer setter argument ${vrd.globalQName.local} and the corresponding
+            val pVRDs: Seq[VariableRuntimeData] = (params zip paramTypes).map { case (p, pt) =>
+              val vrd = lrd.vmap.getOrElse(
+                p.getName,
+                lrd.context.SDE(
+                  s"No layer DFDL variable named '${p.getName}' was found in namespace ${lrd.namespace}.",
+                ),
+              )
+              val vrdClass = PrimType.toJavaType(vrd.primType.dfdlType)
+              lrd.context.schemaDefinitionUnless(
+                compatibleTypes(vrdClass, pt),
+                s"""Layer setter argument ${vrd.globalQName.local} and the corresponding
                    |Layer DFDL variable have differing types: ${pt.getName}
                    | and ${vrdClass.getName} respectively.""".stripMargin,
-                )
-                vrd
-              }
-              .toSeq
+              )
+              vrd
+            }
 
             // Now we deal with the result getters and the corresponding vars
             //
-            pVRDs.toSeq
+            pVRDs
           }
         val nParams = paramVRDs.length
         val nVars = lrd.vmap.size
@@ -125,9 +123,7 @@ object LayerRuntimeCompiler {
         def javaParamSetterArgs =
           paramVRDs
             .map {
-              case vrd => {
-                s"type: ${PrimType.toJavaTypeString(vrd.primType.dfdlType)} name: ${vrd.globalQName.local}"
-              }
+               vrd => s"type: ${PrimType.toJavaTypeString(vrd.primType.dfdlType)} name: ${vrd.globalQName.local}"
             }
             .mkString(", ")
 

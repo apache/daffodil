@@ -46,9 +46,9 @@ object LayerDriver {
     layerRuntimeImpl: LayerRuntimeImpl,
     layer: Layer,
     layerVarsRuntime: LayerVarsRuntime,
-  ) = {
+  ): LayerDriver = {
     val instance = new LayerDriver(layerRuntimeImpl, layer, layerVarsRuntime)
-    instance.init
+    instance.init()
     instance
   }
 }
@@ -74,7 +74,7 @@ class LayerDriver private (
   layerVarsRuntime: LayerVarsRuntime,
 ) {
 
-  private def init =
+  private def init(): Unit =
     layerVarsRuntime.callParamSetterWithParameterVars(layer, layerRuntimeImpl)
 
   private def wrapJavaInputStream(
@@ -216,7 +216,6 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extend
  * Turns a Daffodil DataOutputStream into an ordinary java.io.OutputStream.
  *
  * @param dos   The DataOutputStream to write the data to.
- * @param finfo The FormatInfo used for writing the data (bit order needed, etc.)
  */
 class JavaIOOutputStream(
   dos: DataOutputStream,
