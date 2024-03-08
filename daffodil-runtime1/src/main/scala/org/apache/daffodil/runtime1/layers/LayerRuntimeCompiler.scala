@@ -64,7 +64,10 @@ object LayerRuntimeCompiler {
    * @return the runtime structure used to construct, optionally provide DFDL variable values
    *         as parameters, initialize, optinally get results which are stored-back to DFDL variables.
    */
-  private def computeLayerVarsRuntime(lrd: LayerRuntimeData, protoLayer: Layer): LayerVarsRuntime = {
+  private def computeLayerVarsRuntime(
+    lrd: LayerRuntimeData,
+    protoLayer: Layer,
+  ): LayerVarsRuntime = {
     val optLayerVarsRuntime = alreadyCheckedLayers.get(protoLayer.name())
     optLayerVarsRuntime.getOrElse {
       val c = protoLayer.getClass
@@ -90,7 +93,7 @@ object LayerRuntimeCompiler {
             // must still get called.
             val params = paramSetter.getParameters.toSeq
             val paramTypes = paramSetter.getParameterTypes.toSeq
-            val pVRDs: Seq[VariableRuntimeData] = (params zip paramTypes).map { case (p, pt) =>
+            val pVRDs: Seq[VariableRuntimeData] = (params.zip(paramTypes)).map { case (p, pt) =>
               val vrd = lrd.vmap.getOrElse(
                 p.getName,
                 lrd.context.SDE(
@@ -122,8 +125,8 @@ object LayerRuntimeCompiler {
 
         def javaParamSetterArgs =
           paramVRDs
-            .map {
-               vrd => s"type: ${PrimType.toJavaTypeString(vrd.primType.dfdlType)} name: ${vrd.globalQName.local}"
+            .map { vrd =>
+              s"type: ${PrimType.toJavaTypeString(vrd.primType.dfdlType)} name: ${vrd.globalQName.local}"
             }
             .mkString(", ")
 
