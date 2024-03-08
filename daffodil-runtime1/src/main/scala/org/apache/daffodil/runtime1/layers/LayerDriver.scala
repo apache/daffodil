@@ -39,27 +39,51 @@ import org.apache.daffodil.runtime1.processors.unparsers.UState
 import passera.unsigned.ULong
 
 /**
- * Driving mechanism that incorporates a layer at runtime to transform the data stream.
+ * Mandatory factory to create and initialize the layer driver object.
+ */
+object LayerDriver {
+  def apply(
+    layerRuntimeImpl: LayerRuntimeImpl,
+    layer: Layer,
+    layerVarsRuntime: LayerVarsRuntime,
+  ) = {
+    val instance = new LayerDriver(layerRuntimeImpl, layer, layerVarsRuntime)
+    instance.init
+    instance
+  }
+}
+
+/**
+ * Driving mechanism that incorporates a layer at runtime into the I/O streams
+ * to transform the data stream and optionally receive parameter values from,
+ * and populate result values back into DFDL variables.
  *
  * A layer driver is created at runtime as part of a single parse/unparse call.
  * Hence, they can be stateful without causing thread-safety issues.
+ *
+ * @param layerRuntimeImpl runtime state including I/O streams to wrap, and the actual variable contents to read
+ *                         for initializing the layer from DFDL variables, and writable variables to write back
+ *                         and results from the layer to DFDL variables.
+ * @param layer            The Layer instance to parameterize, drive, and get results back from.
+ * @param layerVarsRuntime Result of the LayerRuntimeCompiler's compilation of the Layer class with the layer's
+ *                         DFDL Variables.
  */
-class LayerDriver(
-  layerRuntimeData: LayerRuntimeData,
+class LayerDriver private (
+  layerRuntimeImpl: LayerRuntimeImpl,
   layer: Layer,
   layerVarsRuntime: LayerVarsRuntime,
 ) {
 
+  private def init =
+    layerVarsRuntime.callParamSetterWithParameterVars(layer, layerRuntimeImpl)
+
   private def wrapJavaInputStream(
     s: InputSourceDataInputStream,
     layerRuntimeImpl: LayerRuntimeImpl,
-  ): InputStream =
+  ) =
     new JavaIOInputStream(s, layerRuntimeImpl.finfo)
 
-  private def wrapJavaOutputStream(
-    s: DataOutputStream,
-    layerRuntimeImpl: LayerRuntimeImpl,
-  ): OutputStream =
+  private def wrapJavaOutputStream(s: DataOutputStream, layerRuntimeImpl: LayerRuntimeImpl) =
     new JavaIOOutputStream(s, layer, layerRuntimeImpl, layerVarsRuntime)
 
   /**
@@ -76,9 +100,8 @@ class LayerDriver(
     val decodedInputStream =
       new AssuredCloseInputStream(layer.wrapLayerInput(jis, layerRuntimeImpl), jis)
     val newDIS = InputSourceDataInputStream(decodedInputStream)
-    newDIS.cst.setPriorBitOrder(
-      BitOrder.MostSignificantBitFirst,
-    ) // must initialize priorBitOrder
+    // must initialize priorBitOrder
+    newDIS.cst.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
     newDIS.setDebugging(s.areDebugging)
     newDIS
   }
@@ -91,9 +114,8 @@ class LayerDriver(
   final def removeInputLayer(
     s: InputSourceDataInputStream,
     layerRuntimeImpl: LayerRuntimeImpl,
-  ): Unit = {
+  ): Unit =
     layerVarsRuntime.callGettersToPopulateResultVars(layer, layerRuntimeImpl)
-  }
 
   final def addOutputLayer(
     s: DataOutputStream,

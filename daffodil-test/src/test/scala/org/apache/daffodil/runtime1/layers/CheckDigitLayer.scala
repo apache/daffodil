@@ -60,7 +60,11 @@ class CheckDigitLayer
    * @param params the value of the params DFDL variable
    * @param digitEncoding the value of the digitEncoding DFDL variable
    */
-  final private[layers] def setLayerVariableParameters(length: Int, params: String, digitEncoding: String): Unit = {
+  final private[layers] def setLayerVariableParameters(
+    length: Int,
+    params: String,
+    digitEncoding: String,
+  ): Unit = {
     setLength(length)
     this.params = params
     this.digitEncoding = digitEncoding

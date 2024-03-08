@@ -19,7 +19,7 @@ package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.core.grammar.Terminal
-import org.apache.daffodil.core.layers.LayerCompiler
+import org.apache.daffodil.core.layers.LayerSchemaCompiler
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.processors.parsers.LayeredSequenceParser
@@ -33,7 +33,7 @@ case class LayeredSequence(sq: SequenceGroupTermBase, bodyTerm: SequenceChild)
   private val srd = sq.sequenceRuntimeData
   private val trd = bodyTerm.termRuntimeData
 
-  private val layerFactory: LayerFactory = LayerCompiler.compileLayer(sq)
+  private val layerFactory: LayerFactory = LayerSchemaCompiler(sq)
 
   override def toString(): String =
     "<" + Misc.getNameFromClass(this) + ">" +

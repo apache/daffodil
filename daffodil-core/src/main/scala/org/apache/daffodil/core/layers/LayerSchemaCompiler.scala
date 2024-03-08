@@ -18,13 +18,10 @@ package org.apache.daffodil.core.layers
 
 import org.apache.daffodil.core.dsom.SequenceGroupTermBase
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.runtime1.layers.LayerFactory
-import org.apache.daffodil.runtime1.layers.LayerRegistry
-import org.apache.daffodil.runtime1.layers.LayerRuntimeData
-import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
 
-object LayerCompiler {
+object LayerSchemaCompiler {
 
   /**
    * Compiles the layer.
@@ -40,33 +37,24 @@ object LayerCompiler {
    * classes are compatible with the variables and their definitions.
    *
    * Constructs a LayerFactory which is the serializable runtime data structure
-   * used by the LayerParser, and LayerUnparser at runtime.
+   * used to create and initialize the layer instance which is used
+   * by the LayerParser, and LayerUnparser at runtime.
    */
-  def compileLayer(sq: SequenceGroupTermBase): LayerFactory = {
-    val lc = new LayerCompiler(sq)
-    val res = lc.compile()
+  def apply(sq: SequenceGroupTermBase): LayerFactory = {
+    val lc = new LayerSchemaCompiler(sq)
+    val res = lc.compile
     res
   }
 }
 
-/**
- *
- * @param sq
- */
-private class LayerCompiler private (sq: SequenceGroupTermBase) {
+private class LayerSchemaCompiler private (sq: SequenceGroupTermBase) {
 
   Assert.usage(sq.isLayered)
 
-  private def srd = sq.sequenceRuntimeData
   private def lrd = sq.optionLayerRuntimeData.get
 
-  private def layerQName: RefQName = lrd.layerQName
-  private def layerName = layerQName.local
-  private def layerNamespace = layerQName.namespace
+  private val layeredSequenceAllowedProps = Seq("layer") // no other properties are allowed.
 
-  private val layeredSequenceAllowedProps = Seq(
-    "layer", // no other properties are allowed.
-  )
   private def checkOnlyAllowedProperties(): Unit = {
     // need to check that only layering properties are specified
     val localProps = sq.formatAnnotation.justThisOneProperties
@@ -79,21 +67,21 @@ private class LayerCompiler private (sq: SequenceGroupTermBase) {
       )
   }
 
-  private lazy val layer: Layer = {
+  lazy val compile: LayerFactory = {
     checkOnlyAllowedProperties()
-    LayerRegistry.find(lrd.spiName, sq)
-  }
+    //
+    // This is called only for side-effect of checking that a LayerVarsRuntime
+    // can be constructed. That object is not serialized and saved as part of the
+    // processor. Rather, it will be recreated at runtime with hopefully the
+    // same results, which verifies that the layer class loaded at runtime from
+    // the classpath at least has the same DFDL variables signature as the one on the classpath
+    // when the schema was compiled.
+    //
+    LayerRuntimeCompiler.compile(lrd)
 
-  /**
-   * Gathers all the DFDL schema provided information about  the layer
-   * from the layer properties
-   */
-  private def layerRuntimeData: LayerRuntimeData = srd.layerRuntimeData
-
-  def compile(): LayerFactory = {
-
-    LayerFactory.computeLayerVarsRuntime(layerRuntimeData, layer)
-    new LayerFactory(layerRuntimeData)
+    // This is the actual result of compilation. This object is serialized as
+    // part of the processor.
+    new LayerFactory(lrd)
   }
 
 }

@@ -1,0 +1,82 @@
+/*
+ *  Licensed to the Apache Software Foundation (ASF) under one or more
+ *  contributor license agreements.  See the NOTICE file distributed with
+ *  this work for additional information regarding copyright ownership.
+ *  The ASF licenses this file to You under the Apache License, Version 2.0
+ *  (the "License"); you may not use this file except in compliance with
+ *  the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+package org.apache.daffodil.runtime1.layers
+
+import java.lang.reflect.Constructor
+import java.lang.reflect.Method
+
+import org.apache.daffodil.runtime1.infoset.DataValue
+import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.runtime1.processors.VariableRuntimeData
+
+/**
+ * Enables fast construction of the layer instance passing all parameter vars values
+ * as arguments to the parameter setter method.
+ *
+ * Also contains the data structures which facilitate fast invocation of the getters for
+ * any return result values, and assignment of those values to the layer result variables.
+ *
+ * This object is NOT serializable. It is transient. It is created and discarded
+ * when a DFDL schema that uses a layer is compiled. It is re-created at runtime when
+ * such a schema is used for parse/unparse.
+ */
+class LayerVarsRuntime(
+  constructor: Constructor[_],
+  optParamSetter: Option[Method],
+  paramVRDs: Seq[VariableRuntimeData],
+  resultVarPairs: Seq[(VariableRuntimeData, Method)],
+) {
+
+  def constructInstance(): Layer = constructor.newInstance().asInstanceOf[Layer]
+
+  /**
+   * Assembles the parameter variables in the proper order, and gets all their values, then
+   * calls the parameter setter to initialize the layer instance, providing all the
+   * parameter variables as args to the constructor.
+   *
+   * Note that zero parameters is an allowed case. In that case this calls the setter
+   * just for initialization of the layer.
+   *
+   * @param layer the layer instance to initialize
+   * @param lr     the layer runtime object which provides access to the state, including the
+   *               runtime variable instances to be read and set.
+   */
+  def callParamSetterWithParameterVars(layer: Layer, lr: LayerRuntimeImpl): Unit = {
+    val args = paramVRDs.map { vrd => lr.state.getVariable(vrd, lr.state).value }
+    optParamSetter.foreach(_.invoke(layer, args: _*))
+  }
+
+  /**
+   * Calls getter methods on the layer for the return value variables, and
+   * assigns the gotten result values to the return value variables.
+   * @param layer the layer from which we are getting the result values
+   * @param lr the runtime environment for the layer
+   *
+   * When parsing this is called in the unwinding when we remove the layer.
+   *
+   * When unparsing it's trickier. We call this from the close of the data output stream
+   * that underlies the layer. That is, from the close() method of
+   * `runtime1.layers.JavaIOOutputStream`.
+   */
+  def callGettersToPopulateResultVars(layer: Layer, lr: LayerRuntimeImpl): Unit = {
+    resultVarPairs.foreach { case (vrd, method) =>
+      val value = method.invoke(layer)
+      val dv = DataValue.unsafeFromAnyRef(value)
+      lr.state.setVariable(vrd, dv, lr.state)
+    }
+  }
+}

@@ -37,8 +37,8 @@ import org.apache.commons.io.IOUtils
  */
 abstract class ChecksumLayerBase(
   localName: String,
-  namespace: String,
-) extends Layer(localName, namespace) {
+  targetNamespace: String,
+) extends Layer(localName, targetNamespace) {
 
   private var checksum: Int = -1
 

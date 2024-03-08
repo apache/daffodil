@@ -29,6 +29,6 @@
 #
 org.apache.daffodil.runtime1.layers.AISPayloadArmoringLayer
 org.apache.daffodil.runtime1.layers.CheckDigitLayer
-org.apache.daffodil.runtime1.layers.IPv4ChecksumLayer
+org.apache.daffodil.runtime1.layers.ipv4.IPv4ChecksumLayer
 
 

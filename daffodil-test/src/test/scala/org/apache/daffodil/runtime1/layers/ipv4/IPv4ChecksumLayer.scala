@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.daffodil.runtime1.layers
-
-import java.nio.ByteBuffer
+package org.apache.daffodil.runtime1.layers.ipv4 // different subpackage on purpose to test package private methods
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
-
 import passera.unsigned.UShort
+
+import java.nio.ByteBuffer
 
 /**
  *  The layer transform computes the checksum of the header data.
@@ -51,7 +50,7 @@ final class IPv4ChecksumLayer()
    *
    * In the case of IPv4, this is just a constant. 
    */
-  final private[layers] def setLayerVariableParameters(): Unit = {
+  private[ipv4] def setLayerVariableParameters(): Unit = {
     setLength(lenInBytes)
   }
 
@@ -60,7 +59,7 @@ final class IPv4ChecksumLayer()
    * and populate the DFDL variable named checkDigit, in the layer's target namespace.
    * @return the check digit value
    */
-  def getLayerVariableResult_IPv4Checksum: Int = getChecksum
+  private[ipv4] def getLayerVariableResult_IPv4Checksum: Int = getChecksum
 
   /**
    * Computes the checksum value.

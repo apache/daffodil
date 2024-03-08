@@ -64,7 +64,10 @@ final class BoundaryMarkLayer
    *                      decode characters during the search for the boundary mark, and used
    *                      to encode characters when inserting the boundary mark when unparsing.
    */
-  private[layers] def setLayerVariableParameters(boundaryMark: String, layerEncoding: String): Unit = {
+  private[layers] def setLayerVariableParameters(
+    boundaryMark: String,
+    layerEncoding: String,
+  ): Unit = {
     this.boundaryMark = boundaryMark
     this.layerEncoding = layerEncoding
   }
