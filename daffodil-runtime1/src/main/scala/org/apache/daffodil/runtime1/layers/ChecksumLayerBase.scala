@@ -53,7 +53,7 @@ abstract class ChecksumLayerBase(
    */
   final protected def setLength(len: Int): Unit = {
     this.length = len
-    if (len < 1) throw new Exception(s"The length is not greater than zero: $len.")
+    if (len < 0) throw new Exception(s"The layer length is negative: $len.")
     isInitialized = true
   }
 
