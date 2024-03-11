@@ -28,6 +28,9 @@ import org.junit.Test
 
 class TestLengthLimitedLineFoldingStreams {
 
+  val crlfRegex = "\\r\\n(?!(?:\\t|\\ ))"
+  val crlf = "\r\n"
+
   /**
    * Has lines folded using IMF conventions.
    *
@@ -60,7 +63,7 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingInputStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.IMF, rls)
     val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ipsumLorem1UnfoldedFirstLine
@@ -92,7 +95,7 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingInputStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.iCalendar, rls)
     val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ipsumLorem1UnfoldedFirstLine
@@ -108,7 +111,7 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingInputStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.iCalendar, rls)
     val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ""
@@ -124,7 +127,7 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingInputStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.IMF, rls)
     val resultString = IOUtils.toString(lfs, iso8859)
     val expected = "   "
@@ -140,7 +143,7 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingInputStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.IMF, rls)
     val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ""
@@ -156,7 +159,7 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingInputStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.iCalendar, rls)
     val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ""

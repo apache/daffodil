@@ -28,7 +28,7 @@ import java.io.OutputStream;
  * All layers are derived from this class, and must have no-args default constructors.
  * <p/>
  * Derived classes will be dynamically loaded by Java's SPI system.
- * The names of concrete classes derived from Layer are listed in a resources/M.services file
+ * The names of concrete classes derived from Layer are listed in a resources/META-INF/services file
  * so that they can be found and dynamically loaded.
  * <p/>
  * The SPI creates an instance the class by calling a default (no-arg) constructor.

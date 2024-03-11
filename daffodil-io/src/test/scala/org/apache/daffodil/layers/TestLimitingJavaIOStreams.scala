@@ -49,12 +49,15 @@ class TestLimitingJavaIOStreams {
   val iso8859 = StandardCharsets.ISO_8859_1
   val utf8 = StandardCharsets.ISO_8859_1
 
+  val crlfRegex = "\\r\\n(?!(?:\\t|\\ ))"
+  val crlf = "\r\n"
+
   val text = """Daffodil is an open source implementation of the DFDL
 specification that uses these DFDL schemas to parse fixed format data into an
 infoset, which is most commonly represented as either XML or JSON. This
 allows the use of well-established XML or JSON technologies and libraries to
 consume, inspect, and manipulate fixed format data in existing solutions."""
-    .replace("\r\n", "\n")
+    .replace(crlf, "\n")
     .replace("\n", " ")
 
   val b64Text = """RGFmZm9kaWwgaXMgYW4gb3BlbiBzb3VyY2UgaW1wbGVtZW50YXRpb24gb2YgdGhlIERGREwgc3Bl
@@ -131,12 +134,12 @@ ZyBzb2x1dGlvbnMuCg=="""
    */
   @Test def testRegexDelimStream1() = {
     val beforeDelim = "12345\r\n\t67890\r\n\tabcde"
-    val delim = "\r\n"
+    val delim = crlf
     val afterDelim = "fghij"
     val inputString = beforeDelim + delim + afterDelim
     val inputBytes = inputString.getBytes("utf-8")
     val bais = new ByteArrayInputStream(inputBytes)
-    val rls = new RegexLimitingInputStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", utf8)
+    val rls = new RegexLimitingInputStream(bais, crlfRegex, crlf, utf8)
     val actualBeforeDelim = IOUtils.toString(rls, utf8)
     // after the regex match the bais stream should be positioned immediately after the \r\n delim match.
     val actualAfterDelim = IOUtils.toString(bais, utf8)
@@ -153,7 +156,7 @@ ZyBzb2x1dGlvbnMuCg=="""
     val inputString = beforeDelim
     val inputBytes = inputString.getBytes("utf-8")
     val bais = new ByteArrayInputStream(inputBytes)
-    val rls = new RegexLimitingInputStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n\t", utf8)
+    val rls = new RegexLimitingInputStream(bais, crlfRegex, "\r\n\t", utf8)
     val actualBeforeDelim = IOUtils.toString(rls, utf8)
     assertEquals(beforeDelim, actualBeforeDelim)
   }
@@ -164,10 +167,10 @@ ZyBzb2x1dGlvbnMuCg=="""
  */
   @Test def testRegexDelimStream3() = {
     val beforeDelim = "12345\r\n\t67890\r\n\tabcde"
-    val inputString = beforeDelim + "\r\n"
+    val inputString = beforeDelim + crlf
     val inputBytes = inputString.getBytes("utf-8")
     val bais = new ByteArrayInputStream(inputBytes)
-    val rls = new RegexLimitingInputStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n\t", utf8)
+    val rls = new RegexLimitingInputStream(bais, crlfRegex, "\r\n\t", utf8)
     val actualBeforeDelim = IOUtils.toString(rls, utf8)
     assertEquals(beforeDelim, actualBeforeDelim)
   }
@@ -180,7 +183,7 @@ ZyBzb2x1dGlvbnMuCg=="""
     val inputString = beforeDelim
     val inputBytes = inputString.getBytes("utf-8")
     val bais = new ByteArrayInputStream(inputBytes)
-    val rls = new RegexLimitingInputStream(bais, "\\r\\n(?!(?:\\t|\\ ))", "\r\n\t", utf8)
+    val rls = new RegexLimitingInputStream(bais, crlfRegex, "\r\n\t", utf8)
     val actualBeforeDelim = IOUtils.toString(rls, utf8)
     assertEquals(beforeDelim, actualBeforeDelim)
   }
