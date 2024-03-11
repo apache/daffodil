@@ -17,8 +17,11 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
+import java.lang.reflect.InvocationTargetException
+
 import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
+import org.apache.daffodil.runtime1.layers.api.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
 
@@ -53,10 +56,6 @@ class LayeredSequenceUnparser(
     // no issue of fragment bytes.
     val formatInfoPre = state.asInstanceOf[UStateMain].cloneForSuspension(layerUnderlyingDOS)
 
-    val layerRuntime = new LayerRuntimeImpl(formatInfoPre, ctxt.layerRuntimeData)
-
-    val layerDriver = layerFactory.newInstance(layerRuntime)
-
     // mark the original DOS as finished--no more data will be unparsed to it.
     // If known, this will carry bit position forward to the layerUnderlyingDOS,
     // or could even make that DOS direct. Note that it is important to use the
@@ -70,35 +69,48 @@ class LayeredSequenceUnparser(
     // create a new DOS where unparsers following this layer will unparse
     val layerFollowingDOS = layerUnderlyingDOS.addBuffered()
 
-    // New layerDOS is where the layer will unparse into. Ultimately anything written
-    // to layerDOS ends up, post transform, in layerUnderlyingDOS
-    val layerDOS = layerDriver.addOutputLayer(layerUnderlyingDOS, layerRuntime)
+    val layerRuntime = new LayerRuntimeImpl(formatInfoPre, ctxt.layerRuntimeData)
+    try {
+      val layerDriver = layerFactory.newInstance(layerRuntime)
 
-    // unparse the layer body into layerDOS
-    state.dataOutputStream = layerDOS
-    super.unparse(state)
-    // now we're done unparsing the layer recursively.
-    // While doing that unparsing, the data output stream may have been split, so the
-    // DOS in the state may no longer be the layerDOS.
-    //
-    // However, it is when whatever DOS is in the state at this point, that, when that
-    // DOS is consolidated and written out, that is when the layer is finished
-    // and the wrap-up of the layer (such as writing output variables) can occur.
-    //
-    val endOfLayerUnparseDOS = state.dataOutputStream
-    val formatInfoPost = state.asInstanceOf[UStateMain].cloneForSuspension(endOfLayerUnparseDOS)
+      // New layerDOS is where the layer will unparse into. Ultimately anything written
+      // to layerDOS ends up, post transform, in layerUnderlyingDOS
+      val layerDOS = layerDriver.addOutputLayer(layerUnderlyingDOS, layerRuntime)
 
-    // setFinished on this end-of-layer-unparse data-output-stream  ensures
-    // that the layerDOS gets close() called on it.
-    endOfLayerUnparseDOS.setFinished(formatInfoPost)
+      // unparse the layer body into layerDOS
+      state.dataOutputStream = layerDOS
+      super.unparse(state)
+      // now we're done unparsing the layer recursively.
+      // While doing that unparsing, the data output stream may have been split, so the
+      // DOS in the state may no longer be the layerDOS.
+      //
+      // However, it is when whatever DOS is in the state at this point, that, when that
+      // DOS is consolidated and written out, that is when the layer is finished
+      // and the wrap-up of the layer (such as writing output variables) can occur.
+      //
+      val endOfLayerUnparseDOS = state.dataOutputStream
+      val formatInfoPost =
+        state.asInstanceOf[UStateMain].cloneForSuspension(endOfLayerUnparseDOS)
 
-    // clean up resources - note however, that due to suspensions, the whole
-    // layer stack is potentially still needed, so not clear what can be
-    // cleaned up at this point.
-    layerDriver.removeOutputLayer(layerDOS, state)
+      // setFinished on this end-of-layer-unparse data-output-stream  ensures
+      // that the layerDOS gets close() called on it.
+      endOfLayerUnparseDOS.setFinished(formatInfoPost)
 
-    // reset the state so subsequent unparsers write to the following DOS
-    state.dataOutputStream = layerFollowingDOS
+      // clean up resources - note however, that due to suspensions, the whole
+      // layer stack is potentially still needed, so not clear what can be
+      // cleaned up at this point.
+      layerDriver.removeOutputLayer(layerDOS, state)
+
+      // reset the state so subsequent unparsers write to the following DOS
+    } catch {
+      case ite: InvocationTargetException =>
+        val cause = ite.getCause
+        throw new LayerUnexpectedException(layerRuntime, cause)
+      case e: Exception =>
+        throw new LayerUnexpectedException(layerRuntime, e)
+    } finally {
+      state.dataOutputStream = layerFollowingDOS
+    }
   }
 
 }

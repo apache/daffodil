@@ -17,6 +17,7 @@
 package org.apache.daffodil.runtime1.layers
 
 import java.lang.reflect.Constructor
+import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
 import org.apache.daffodil.runtime1.infoset.DataValue
@@ -57,7 +58,16 @@ class LayerVarsRuntime(
    */
   def callParamSetterWithParameterVars(layer: Layer, lr: LayerRuntimeImpl): Unit = {
     val args = paramVRDs.map { vrd => lr.state.getVariable(vrd, lr.state).value }
-    optParamSetter.foreach(_.invoke(layer, args: _*))
+    optParamSetter.foreach { paramSetter =>
+      try {
+        paramSetter.invoke(layer, args: _*)
+      } catch {
+        case ite: InvocationTargetException =>
+          // unwrap and re-throw. We don't care if it was reflective call.
+          val cause = ite.getCause
+          throw cause
+      }
+    }
   }
 
   /**
@@ -74,7 +84,15 @@ class LayerVarsRuntime(
    */
   def callGettersToPopulateResultVars(layer: Layer, lr: LayerRuntimeImpl): Unit = {
     resultVarPairs.foreach { case (vrd, method) =>
-      val value = method.invoke(layer)
+      val value =
+        try {
+          method.invoke(layer)
+        } catch {
+          case ite: InvocationTargetException =>
+            // unwrap because we don't care if it was a reflective call.
+            val cause = ite.getCause
+            throw cause
+        }
       val dv = DataValue.unsafeFromAnyRef(value)
       lr.state.setVariable(vrd, dv, lr.state)
     }

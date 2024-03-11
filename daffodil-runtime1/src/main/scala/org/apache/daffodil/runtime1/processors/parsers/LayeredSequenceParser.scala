@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import java.lang.reflect.InvocationTargetException
+
 import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
 import org.apache.daffodil.runtime1.layers.api.LayerUnexpectedException
@@ -31,34 +33,41 @@ class LayeredSequenceParser(
 
   override def parse(state: PState): Unit = {
 
-    // TODO: Separate the creation of layer into layerParse and layer
-    //   unparse. Right now they're blended onto one object.
-    //   It should be possible to define only a layer parser if a schema (and its required layers)
-    //   are intended to be used only to parse data.
-
-    val layerRuntimeImpl = new LayerRuntimeImpl(state, rd.layerRuntimeData)
-    val layerDriver = layerFactory.newInstance(layerRuntimeImpl)
     val savedDIS = state.dataInputStream
 
-    val isAligned = savedDIS.align(layerDriver.mandatoryLayerAlignmentInBits, state)
-    if (!isAligned)
-      PE(
-        state,
-        "Unable to align to the mandatory layer alignment of %s(bits)",
-        layerDriver.mandatoryLayerAlignmentInBits,
-      )
-
+    val layerRuntimeImpl = new LayerRuntimeImpl(state, rd.layerRuntimeData)
     try {
-      val newDIS = layerDriver.addInputLayer(savedDIS, layerRuntimeImpl)
+      try {
+        val layerDriver = layerFactory.newInstance(layerRuntimeImpl)
 
-      state.dataInputStream = newDIS
-      super.parse(state)
-      layerDriver.removeInputLayer(newDIS, layerRuntimeImpl)
+        val isAligned = savedDIS.align(layerDriver.mandatoryLayerAlignmentInBits, state)
+        if (!isAligned)
+          PE(
+            state,
+            "Unable to align to the mandatory layer alignment of %s(bits)",
+            layerDriver.mandatoryLayerAlignmentInBits,
+          )
+
+        val newDIS = layerDriver.addInputLayer(savedDIS, layerRuntimeImpl)
+
+        state.dataInputStream = newDIS
+        super.parse(state)
+        layerDriver.removeInputLayer(newDIS, layerRuntimeImpl)
+      } catch {
+        case ite: InvocationTargetException =>
+          // we unwrap these exceptions because we're not interested in
+          // the fact that they happened during a reflective call, but what
+          // are they?
+          val cause = ite.getCause
+          throw cause
+      }
     } catch {
       case pe: ParseError =>
         state.setFailed(pe)
       case e: Exception =>
-        throw new LayerUnexpectedException(layerRuntimeImpl, e)
+        state.setFailed(
+          layerRuntimeImpl.toProcessingError(new LayerUnexpectedException(layerRuntimeImpl, e)),
+        )
     } finally {
       state.dataInputStream = savedDIS
     }
