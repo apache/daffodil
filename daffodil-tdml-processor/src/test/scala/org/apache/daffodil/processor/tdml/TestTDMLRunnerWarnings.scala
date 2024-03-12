@@ -185,11 +185,6 @@ class TestTDMLRunnerWarnings {
               </ex:errUnparsing>
             </tdml:dfdlInfoset>
           </tdml:infoset>
-          <tdml:errors>
-            <tdml:error>Schema Definition Error</tdml:error>
-            <tdml:error>ambiguous</tdml:error>
-            <tdml:error>AmbigElt</tdml:error>
-          </tdml:errors>
           <tdml:warnings>
             <tdml:warning>This will not be found</tdml:warning>
           </tdml:warnings>

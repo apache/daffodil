@@ -98,7 +98,7 @@
 
   <tdml:errors>
     <tdml:error>Schema Definition Error</tdml:error>
-    <tdml:error>ambiguous</tdml:error>
+    <tdml:error>query-style</tdml:error>
     <tdml:error>AmbigElt</tdml:error>
   </tdml:errors>
 
