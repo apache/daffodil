@@ -279,7 +279,7 @@ trait ImplementsThrowsOrSavesSDE extends ImplementsThrowsSDE with SavesErrorsAnd
 
   def subsetError(msg: String, args: Any*) = {
     val msgTxt = msg.format(args: _*)
-    SDE("Subset " + msgTxt)
+    SDE("Subset: " + msgTxt)
   }
 
 }
