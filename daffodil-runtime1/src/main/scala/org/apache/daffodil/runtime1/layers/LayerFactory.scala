@@ -38,7 +38,7 @@ class LayerFactory(val layerRuntimeData: LayerRuntimeData) extends Serializable 
    *           state-based information for the parse or unparse
    * @return the Layer properly initialized/constructed for this layer
    */
-  def newInstance(lri: LayerRuntimeImpl): LayerDriver = {
+  def newInstance(lri: LayerRuntime): LayerDriver = {
     val layerVarsRuntime = LayerRuntimeCompiler.compile(lri.layerRuntimeData)
     val newInstance = layerVarsRuntime.constructInstance()
 

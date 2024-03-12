@@ -56,7 +56,7 @@ class LayerVarsRuntime(
    * @param lr     the layer runtime object which provides access to the state, including the
    *               runtime variable instances to be read and set.
    */
-  def callParamSetterWithParameterVars(layer: Layer, lr: LayerRuntimeImpl): Unit = {
+  def callParamSetterWithParameterVars(layer: Layer, lr: LayerRuntime): Unit = {
     val args = paramVRDs.map { vrd => lr.state.getVariable(vrd, lr.state).value }
     optParamSetter.foreach { paramSetter =>
       try {
@@ -82,7 +82,7 @@ class LayerVarsRuntime(
    * that underlies the layer. That is, from the close() method of
    * `runtime1.layers.JavaIOOutputStream`.
    */
-  def callGettersToPopulateResultVars(layer: Layer, lr: LayerRuntimeImpl): Unit = {
+  def callGettersToPopulateResultVars(layer: Layer, lr: LayerRuntime): Unit = {
     resultVarPairs.foreach { case (vrd, method) =>
       val value =
         try {

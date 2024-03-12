@@ -22,7 +22,7 @@ import java.lang.reflect.InvocationTargetException
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.LayerException
 import org.apache.daffodil.runtime1.layers.LayerFactory
-import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
+import org.apache.daffodil.runtime1.layers.LayerRuntime
 import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
@@ -71,7 +71,7 @@ class LayeredSequenceUnparser(
     // create a new DOS where unparsers following this layer will unparse
     val layerFollowingDOS = layerUnderlyingDOS.addBuffered()
 
-    val layerRuntime = new LayerRuntimeImpl(formatInfoPre, ctxt.layerRuntimeData)
+    val layerRuntime = new LayerRuntime(formatInfoPre, ctxt.layerRuntimeData)
     try {
       try {
         val layerDriver = layerFactory.newInstance(layerRuntime)

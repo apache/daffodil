@@ -18,7 +18,6 @@
 package org.apache.daffodil.layers.runtime1;
 
 import org.apache.daffodil.runtime1.layers.api.Layer;
-import org.apache.daffodil.runtime1.layers.api.LayerRuntime;
 
 import java.io.IOException;
 import java.io.InputStream;

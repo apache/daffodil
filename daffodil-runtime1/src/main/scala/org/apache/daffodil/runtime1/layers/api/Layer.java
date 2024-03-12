@@ -16,6 +16,7 @@
  */
 package org.apache.daffodil.runtime1.layers.api;
 
+import org.apache.daffodil.runtime1.layers.LayerRuntime;
 import org.apache.daffodil.runtime1.layers.LayerUtils;
 
 import java.io.IOException;
@@ -119,7 +120,6 @@ public abstract class Layer {
    */
   public final void setLayerRuntime(LayerRuntime lr) {
     this.layerRuntime = lr;
-    assert(lr.layerName().equals(localName));
   }
 
   /**
@@ -144,24 +144,24 @@ public abstract class Layer {
    *
    * @param msg describes the error
    */
-  public void runtimeSchemaDefinitionError(String msg, Object... args) { layerRuntime.runtimeSchemaDefinitionError(msg, args); }
+  public void runtimeSchemaDefinitionError(String msg) { layerRuntime.runtimeSchemaDefinitionError(msg); }
   public void runtimeSchemaDefinitionError(Throwable cause) { layerRuntime.runtimeSchemaDefinitionError(cause); }
 
   /**
-   * Wraps a layer input interpreter around an input stream, using the provided LayerRuntime for runtime information and stateful services.
+   * Wraps a layer input interpreter around an input stream, using the provided LayerRuntimeFoo for runtime information and stateful services.
    *
    * @param jis The input stream to be wrapped.
-   * @param lr The LayerRuntime object providing runtime information and stateful services.
+   * @param lr The LayerRuntimeFoo object providing runtime information and stateful services.
    * @return An input stream with the layer wrapped around it.
    * throws javo.io.IOException
    */
   public abstract InputStream wrapLayerInput(InputStream jis) throws IOException;
 
   /**
-   * Wraps a layer output interpreter around an output stream, using the provided LayerRuntime for runtime information and stateful services.
+   * Wraps a layer output interpreter around an output stream, using the provided LayerRuntimeFoo for runtime information and stateful services.
    *
    * @param jos The output stream to be wrapped.
-   * @param lr The LayerRuntime object providing runtime information and stateful services.
+   * @param lr The LayerRuntimeFoo object providing runtime information and stateful services.
    * @return An output stream with the layer wrapped around it.
    * throws javo.io.IOException
    */

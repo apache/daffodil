@@ -22,7 +22,7 @@ import java.lang.reflect.InvocationTargetException
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.LayerException
 import org.apache.daffodil.runtime1.layers.LayerFactory
-import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
+import org.apache.daffodil.runtime1.layers.LayerRuntime
 import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
@@ -37,7 +37,7 @@ class LayeredSequenceParser(
 
     val savedDIS = state.dataInputStream
 
-    val layerRuntimeImpl = new LayerRuntimeImpl(state, rd.layerRuntimeData)
+    val layerRuntimeImpl = new LayerRuntime(state, rd.layerRuntimeData)
     try {
       try {
         val layerDriver = layerFactory.newInstance(layerRuntimeImpl)

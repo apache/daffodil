@@ -18,7 +18,6 @@ package org.apache.daffodil.runtime1.layers
 
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.ProcessingError
 import org.apache.daffodil.runtime1.processors.parsers.PState
@@ -26,19 +25,19 @@ import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
-class LayerRuntimeImpl(val state: ParseOrUnparseState, lrd: LayerRuntimeData)
-  extends LayerRuntime {
+/**
+ * Glues together the state and the static layer runtime data
+ */
+class LayerRuntime(val state: ParseOrUnparseState, val layerRuntimeData: LayerRuntimeData) {
 
-  final override def layerName(): String = lrd.localName
-
-  final def layerRuntimeData: LayerRuntimeData = lrd
+  private def lrd = layerRuntimeData
 
   final def finfo: FormatInfo = state
 
-  override def processingError(cause: Throwable): Nothing =
+  def processingError(cause: Throwable): Nothing =
     state.toss(toProcessingError(cause))
 
-  override def processingError(msg: String): Nothing =
+  def processingError(msg: String): Nothing =
     state.toss(toProcessingError(msg))
 
   def toProcessingError(msg: String): ProcessingError = {
@@ -81,9 +80,9 @@ class LayerRuntimeImpl(val state: ParseOrUnparseState, lrd: LayerRuntimeData)
     diagnostic
   }
 
-  override def runtimeSchemaDefinitionError(msg: String, args: AnyRef*): Nothing =
-    state.SDE(msg, args: _*)
+  def runtimeSchemaDefinitionError(msg: String): Nothing =
+    state.SDE(msg)
 
-  override def runtimeSchemaDefinitionError(cause: Throwable): Nothing =
+  def runtimeSchemaDefinitionError(cause: Throwable): Nothing =
     state.SDE(cause)
 }

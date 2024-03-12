@@ -43,9 +43,9 @@ import passera.unsigned.ULong
  */
 object LayerDriver {
   def apply(
-    layerRuntimeImpl: LayerRuntimeImpl,
-    layer: Layer,
-    layerVarsRuntime: LayerVarsRuntime,
+             layerRuntimeImpl: LayerRuntime,
+             layer: Layer,
+             layerVarsRuntime: LayerVarsRuntime,
   ): LayerDriver = {
     val instance = new LayerDriver(layerRuntimeImpl, layer, layerVarsRuntime)
     instance.init()
@@ -69,9 +69,9 @@ object LayerDriver {
  *                         DFDL Variables.
  */
 class LayerDriver private (
-  layerRuntimeImpl: LayerRuntimeImpl,
-  layer: Layer,
-  layerVarsRuntime: LayerVarsRuntime,
+                            layerRuntimeImpl: LayerRuntime,
+                            layer: Layer,
+                            layerVarsRuntime: LayerVarsRuntime,
 ) {
 
   private def init(): Unit = {
@@ -82,12 +82,12 @@ class LayerDriver private (
   }
 
   private def wrapJavaInputStream(
-    s: InputSourceDataInputStream,
-    layerRuntimeImpl: LayerRuntimeImpl,
+                                   s: InputSourceDataInputStream,
+                                   layerRuntimeImpl: LayerRuntime,
   ) =
     new JavaIOInputStream(s, layerRuntimeImpl.finfo)
 
-  private def wrapJavaOutputStream(s: DataOutputStream, layerRuntimeImpl: LayerRuntimeImpl) =
+  private def wrapJavaOutputStream(s: DataOutputStream, layerRuntimeImpl: LayerRuntime) =
     new JavaIOOutputStream(s, layer, layerRuntimeImpl, layerVarsRuntime)
 
   /**
@@ -97,8 +97,8 @@ class LayerDriver private (
   val mandatoryLayerAlignmentInBits: Int = 8
 
   final def addInputLayer(
-    s: InputSourceDataInputStream,
-    layerRuntimeImpl: LayerRuntimeImpl,
+                           s: InputSourceDataInputStream,
+                           layerRuntimeImpl: LayerRuntime,
   ): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s, layerRuntimeImpl)
     val decodedInputStream =
@@ -116,14 +116,14 @@ class LayerDriver private (
    * finalization issues like assigning the result variables
    */
   final def removeInputLayer(
-    s: InputSourceDataInputStream,
-    layerRuntimeImpl: LayerRuntimeImpl,
+                              s: InputSourceDataInputStream,
+                              layerRuntimeImpl: LayerRuntime,
   ): Unit =
     layerVarsRuntime.callGettersToPopulateResultVars(layer, layerRuntimeImpl)
 
   final def addOutputLayer(
-    s: DataOutputStream,
-    layerRuntimeImpl: LayerRuntimeImpl,
+                            s: DataOutputStream,
+                            layerRuntimeImpl: LayerRuntime,
   ): DirectOrBufferedDataOutputStream = {
     val jos = wrapJavaOutputStream(s, layerRuntimeImpl)
     val encodedOutputStream =
@@ -222,10 +222,10 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extend
  * @param dos   The DataOutputStream to write the data to.
  */
 class JavaIOOutputStream(
-  dos: DataOutputStream,
-  layer: Layer,
-  lri: LayerRuntimeImpl,
-  lvr: LayerVarsRuntime,
+                          dos: DataOutputStream,
+                          layer: Layer,
+                          lri: LayerRuntime,
+                          lvr: LayerVarsRuntime,
 ) extends OutputStream {
 
   private def finfo = lri.finfo
