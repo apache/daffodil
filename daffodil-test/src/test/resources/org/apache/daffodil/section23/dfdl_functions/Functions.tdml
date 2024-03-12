@@ -5239,6 +5239,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
     <xs:element name="scalarArray">
       <xs:complexType>
         <xs:sequence>
@@ -5261,6 +5262,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
     <xs:element name="arrayOptional">
       <xs:complexType>
         <xs:sequence>
@@ -5276,9 +5278,7 @@
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="foo" type="xs:int" minOccurs="0" maxOccurs="1" dfdl:representation="binary"/>
-                <!-- throws ClassCastException, possible bug in Daffodil group evaluation -->
-                <!-- <xs:group ref="countGroup"/> -->
-                <xs:element name="count" type="xs:int" dfdl:representation="binary" dfdl:inputValueCalc="{ fn:count(../ex:foo) }"/>
+                <xs:group ref="countGroup"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -11693,11 +11693,19 @@
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>ex:foo</tdml:error>
-      <tdml:error>ambiguous</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:scalarOptional xmlns:ex="http://example.com">
+          <ex:scalar>
+            <ex:foo>1</ex:foo>
+            <ex:count>1</ex:count>
+          </ex:scalar>
+          <ex:optional>
+            <ex:count>0</ex:count>
+          </ex:optional>
+        </ex:scalarOptional>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <!--
@@ -11713,11 +11721,20 @@
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 01 00 00 00 01</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>ex:foo</tdml:error>
-      <tdml:error>ambiguous</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:scalarOptional xmlns:ex="http://example.com">
+          <ex:scalar>
+            <ex:foo>1</ex:foo>
+            <ex:count>1</ex:count>
+          </ex:scalar>
+          <ex:optional>
+            <ex:foo>1</ex:foo>
+            <ex:count>1</ex:count>
+          </ex:optional>
+        </ex:scalarOptional>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <!--
@@ -11753,20 +11770,11 @@
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 01 00 00 00 01</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:arrayOptional xmlns:ex="http://example.com">
-          <ex:array>
-            <ex:foo>1</ex:foo>
-            <ex:foo>1</ex:foo>
-            <ex:count>2</ex:count>
-          </ex:array>
-          <ex:optional>
-            <ex:count>0</ex:count>
-          </ex:optional>
-        </ex:arrayOptional>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:foo</tdml:error>
+      <tdml:error>ambiguous</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!--
@@ -11782,21 +11790,11 @@
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 01 00 00 00 01 00 00 00 01</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:arrayOptional xmlns:ex="http://example.com">
-          <ex:array>
-            <ex:foo>1</ex:foo>
-            <ex:foo>1</ex:foo>
-            <ex:count>2</ex:count>
-          </ex:array>
-          <ex:optional>
-            <ex:foo>1</ex:foo>
-            <ex:count>1</ex:count>
-          </ex:optional>
-        </ex:arrayOptional>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ex:foo</tdml:error>
+      <tdml:error>ambiguous</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--

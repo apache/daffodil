@@ -975,18 +975,16 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   }
 
   final lazy val checkAmbiguousPath: Unit = {
-    val (arraysOrOptionals, scalars) = stepElements.partition { se =>
-      se.isArray || se.isOptional
-    }
-    (arraysOrOptionals.length, scalars.length) match {
-      case (a, s) if (a > 0 && s > 0) =>
-        arraysOrOptionals.head.SDE(
-          "Path step is ambiguous. It can reference both an array or a non-array element, which is not allowed.\n" +
-            "One of the non-arrays is %s",
-          scalars.head.schemaFileLocation.toString,
-        )
-      case _ => // do nothing
-    }
+    val (arrays, nonArrays) = stepElements.partition { _.isArray }
+    schemaDefinitionWhen(
+      arrays.length > 0 && nonArrays.length > 0,
+      "Path step %s is ambiguous. It can reference both an array and a non-array element, which is not allowed.\n" +
+        "- Array: %s\n" +
+        "- Non-array: %s\n",
+      step,
+      arrays.head.schemaFileLocation.locationDescription,
+      nonArrays.head.schemaFileLocation.locationDescription,
+    )
   }
 
   /**
