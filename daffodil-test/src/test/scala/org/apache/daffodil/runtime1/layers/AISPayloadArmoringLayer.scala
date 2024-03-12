@@ -37,7 +37,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.UTF16Width
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.layers.api.Layer
-import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
 import org.apache.commons.io.IOUtils
 
@@ -48,10 +47,10 @@ final class AISPayloadArmoringLayer
    * Decoding AIS payload armoring is encoding the ASCII text into the
    * underlying binary data.
    */
-  override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream =
+  override def wrapLayerInput(jis: InputStream): InputStream =
     new AISPayloadArmoringInputStream(jis)
 
-  override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream =
+  override def wrapLayerOutput(jos: OutputStream): OutputStream =
     new AISPayloadArmoringOutputStream(jos)
 }
 

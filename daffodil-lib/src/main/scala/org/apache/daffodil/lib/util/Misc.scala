@@ -32,6 +32,8 @@ import java.nio.charset.StandardCharsets
 import java.nio.charset.{ Charset => JavaCharset }
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.Objects
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.io.Source
 
@@ -694,7 +696,7 @@ object Misc {
       case (null, c) => getSomeMessage(c).get
       case (m, c) => {
         val Some(cmsg) = getSomeMessage(c)
-        cmsg + " (within " + m + ")"
+        cmsg + " (within " + th.getClass.getSimpleName + " " + m + ")"
       }
     }
     Some(res)
@@ -707,5 +709,40 @@ object Misc {
       case _ => getSomeCause(c).get
     }
     Some(res)
+  }
+
+  /**
+   * Produces a sequence of throwables on the cause chain of a throwable. Ordered
+   * from the deepest (aka the root cause) first.
+ *
+   * @param th
+   * @param soFar
+   * @return
+   */
+  @tailrec
+  def getCauseChain(th: Throwable, soFar: Seq[Throwable] = Nil): Seq[Throwable] =
+    if (Objects.isNull(th.getCause))
+      soFar
+    else if (soFar.contains(th)) // defend against cycles.
+      soFar
+    else
+      getCauseChain(th.getCause, th +: soFar)
+
+  /**
+   * Produces a message string that contains every message and every throwable class name
+   * in the entire chain of throwables. Root, or innermost (deepest cause) first.
+   * @param th
+   * @return
+   */
+  def getComprehensiveMessage(th: Throwable): String = {
+    Objects.requireNonNull(th)
+    val causes = getCauseChain(th)
+    val classNamePlusMessage =
+      causes.map { c =>
+        val cname = c.getClass.getSimpleName
+        val m = (if (c.getMessage == null) "" else c.getMessage)
+        cname + m
+      }
+    classNamePlusMessage.mkString("\n")
   }
 }

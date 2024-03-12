@@ -39,7 +39,7 @@ class TestGzipLayer {
   @Test def testByte9() = {
     val baos = new ByteArrayOutputStream()
     val baosRaw = new ByteArrayOutputStream()
-    val gzos = gl.wrapLayerOutput(baos, null)
+    val gzos = gl.wrapLayerOutput(baos)
     val gzosRaw = new GZIPOutputStream(baosRaw)
     val data = "testing 1, 2, 3"
     IOUtils.write(data, gzos, "ascii")

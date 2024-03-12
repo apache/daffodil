@@ -85,6 +85,8 @@ public abstract class Layer {
   private final String localName;
   private final String targetNamespace;
 
+  private LayerRuntime layerRuntime;
+
   /**
    * Constructs a new Layer object with the given layer name and namespace.
    *
@@ -112,6 +114,40 @@ public abstract class Layer {
   public final String namespace() { return this.targetNamespace; }
 
   /**
+   * Called by the execution framework to give the context for reporting errors.
+   * @param lr
+   */
+  public final void setLayerRuntime(LayerRuntime lr) {
+    this.layerRuntime = lr;
+    assert(lr.layerName().equals(localName));
+  }
+
+  /**
+   * Use to report a processing error.
+   *
+   * When parsing a processing error can cause backtracking so that the parse
+   * can often recover from the error.
+   *
+   * When unparsing a processing error is fatal.
+   * @param msg describes the error
+   */
+  public void processingError(String msg) { layerRuntime.processingError(msg); }
+  public void processingError(Throwable cause) { layerRuntime.processingError(cause); }
+  /**
+   * Use to report a runtime schema definition error.
+   *
+   * This indicates that the layer is unable to
+   * work meaningfully because of the way it is configured. The schema itself is not well defined due to
+   * the way the layer is configured.
+   *
+   * This error type is always fatal whether parsing or unparsing.
+   *
+   * @param msg describes the error
+   */
+  public void runtimeSchemaDefinitionError(String msg, Object... args) { layerRuntime.runtimeSchemaDefinitionError(msg, args); }
+  public void runtimeSchemaDefinitionError(Throwable cause) { layerRuntime.runtimeSchemaDefinitionError(cause); }
+
+  /**
    * Wraps a layer input interpreter around an input stream, using the provided LayerRuntime for runtime information and stateful services.
    *
    * @param jis The input stream to be wrapped.
@@ -119,7 +155,7 @@ public abstract class Layer {
    * @return An input stream with the layer wrapped around it.
    * throws javo.io.IOException
    */
-  public abstract InputStream wrapLayerInput(InputStream jis, LayerRuntime lr) throws IOException;
+  public abstract InputStream wrapLayerInput(InputStream jis) throws IOException;
 
   /**
    * Wraps a layer output interpreter around an output stream, using the provided LayerRuntime for runtime information and stateful services.
@@ -129,6 +165,6 @@ public abstract class Layer {
    * @return An output stream with the layer wrapped around it.
    * throws javo.io.IOException
    */
-  public abstract OutputStream wrapLayerOutput(OutputStream jos, LayerRuntime lr) throws IOException;
+  public abstract OutputStream wrapLayerOutput(OutputStream jos) throws IOException;
 
 }

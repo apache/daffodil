@@ -24,8 +24,6 @@ import java.nio.ByteBuffer
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.layers.api.Layer
-import org.apache.daffodil.runtime1.layers.api.LayerNotEnoughDataException
-import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
 import org.apache.commons.io.IOUtils
 
@@ -61,32 +59,30 @@ abstract class ChecksumLayerBase(
   final private[layers] def setChecksum(checksum: Int): Unit = { this.checksum = checksum }
 
   def compute(
-    layerRuntime: LayerRuntime,
     isUnparse: Boolean,
     byteBuffer: ByteBuffer,
   ): Int
 
-  final override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream = {
-    if (!isInitialized) lr.runtimeSchemaDefinitionError("setLength method was never called.")
-    new ChecksumDecoderInputStream(this, jis, lr)
+  final override def wrapLayerInput(jis: InputStream): InputStream = {
+    if (!isInitialized) runtimeSchemaDefinitionError("setLength method was never called.")
+    new ChecksumDecoderInputStream(this, jis)
   }
 
-  final override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream = {
-    if (!isInitialized) lr.runtimeSchemaDefinitionError("setLength method was never called.")
-    new ChecksumEncoderOutputStream(this, jos, lr)
+  final override def wrapLayerOutput(jos: OutputStream): OutputStream = {
+    if (!isInitialized) runtimeSchemaDefinitionError("setLength method was never called.")
+    new ChecksumEncoderOutputStream(this, jos)
   }
 }
 
 class ChecksumDecoderInputStream(
   layer: ChecksumLayerBase,
   jis: InputStream,
-  lr: LayerRuntime,
 ) extends InputStream {
 
   private def doubleCheckLength(actualDataLen: Int): Unit = {
     val neededLen = layer.getLength
     if (neededLen > actualDataLen)
-      lr.processingError(new LayerNotEnoughDataException(lr, neededLen, actualDataLen))
+      layer.processingError(new LayerNotEnoughDataException(neededLen, actualDataLen))
   }
 
   private lazy val bais = {
@@ -94,7 +90,7 @@ class ChecksumDecoderInputStream(
     val nRead = IOUtils.read(jis, ba)
     doubleCheckLength(nRead)
     val buf = ByteBuffer.wrap(ba)
-    layer.setChecksum(layer.compute(lr, isUnparse = false, buf))
+    layer.setChecksum(layer.compute(isUnparse = false, buf))
     new ByteArrayInputStream(ba)
   }
 
@@ -104,7 +100,6 @@ class ChecksumDecoderInputStream(
 class ChecksumEncoderOutputStream(
   layer: ChecksumLayerBase,
   jos: OutputStream,
-  lr: LayerRuntime,
 ) extends OutputStream {
 
   private lazy val baos = new ByteArrayOutputStream(layer.getLength)
@@ -118,7 +113,7 @@ class ChecksumEncoderOutputStream(
       //
       // This could happen if the layer logically unparses as one of two choice branches where they
       // are supposed to be all the same length, but one is in fact longer than expected by the bufLen.
-      lr.processingError(
+      layer.processingError(
         new IndexOutOfBoundsException(
           s"Written data amount exceeded fixed layer length of ${layer.getLength}.",
         ),
@@ -135,7 +130,7 @@ class ChecksumEncoderOutputStream(
       val baLen = ba.length
       Assert.invariant(baLen <= layer.getLength)
       val buf = ByteBuffer.wrap(ba)
-      layer.setChecksum(layer.compute(lr, isUnparse = true, buf))
+      layer.setChecksum(layer.compute(isUnparse = true, buf))
       jos.write(ba)
       jos.flush()
     }

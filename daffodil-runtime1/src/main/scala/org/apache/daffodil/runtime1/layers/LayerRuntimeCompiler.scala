@@ -226,20 +226,6 @@ object LayerRuntimeCompiler {
   private lazy val layerMap: Map[String, Layer] =
     SimpleNamedServiceLoader.loadClass[Layer](classOf[Layer])
 
-  /**
-   * This is used to find the Layer corresponding to the use of a Layer
-   * at schema compilation time. SDE otherwise.
-   */
-  def find(spiName: String, lrd: LayerRuntimeData): LayerVarsRuntime = {
-    val optLayerVarsRuntime = alreadyCheckedLayers.get(spiName)
-    optLayerVarsRuntime.getOrElse {
-      val layer = findSPILayer(spiName, lrd)
-      val res = computeLayerVarsRuntime(lrd, layer)
-      alreadyCheckedLayers.put(spiName, res)
-      res
-    }
-  }
-
   private def findSPILayer(spiName: String, lrd: LayerRuntimeData): Layer = {
     val optLayer: Option[Layer] = layerMap.get(spiName)
     optLayer.getOrElse {
@@ -252,6 +238,30 @@ object LayerRuntimeCompiler {
     }
   }
 
-  def compile(layerRuntimeData: LayerRuntimeData): LayerVarsRuntime =
-    find(layerRuntimeData.spiName, layerRuntimeData)
+  /**
+   * Called twice. Once at schema compilation time, once when the compiled schema is reloaded.
+   *
+   * The two calls are necessary because the resulting structure, which is needed at runtime,
+   * is not serializable, so can't be saved from schema compilation time as part of the
+   * runtime data.
+   *
+   * Any errors that occur are schema definition errors.
+   *
+   * Note that user-written layer code is not run at this time, but method signatures
+   * of setters/getters are checked against the DFDL variables defined in
+   * the layer's target namespace.
+   *
+   * @param layerRuntimeData
+   * @return
+   */
+
+  def compile(layerRuntimeData: LayerRuntimeData): LayerVarsRuntime = {
+    val optLayerVarsRuntime = alreadyCheckedLayers.get(layerRuntimeData.spiName)
+    optLayerVarsRuntime.getOrElse {
+      val layer = findSPILayer(layerRuntimeData.spiName, layerRuntimeData)
+      val res = computeLayerVarsRuntime(layerRuntimeData, layer)
+      alreadyCheckedLayers.put(layerRuntimeData.spiName, res)
+      res
+    }
+  }
 }

@@ -17,10 +17,7 @@
 package org.apache.daffodil.runtime1.layers
 
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.util.Maybe
-import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
-import org.apache.daffodil.runtime1.layers.api.LayerException
 import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.ProcessingError
@@ -39,42 +36,49 @@ class LayerRuntimeImpl(val state: ParseOrUnparseState, lrd: LayerRuntimeData)
   final def finfo: FormatInfo = state
 
   override def processingError(cause: Throwable): Nothing =
-    lrd.toss(toProcessingError(new LayerException(this, cause)))
+    state.toss(toProcessingError(cause))
 
   override def processingError(msg: String): Nothing =
-    lrd.toss(toProcessingError(new LayerException(this, msg)))
+    state.toss(toProcessingError(msg))
 
-  def toProcessingError(layerException: LayerException): ProcessingError = {
-    val mCause = Maybe(layerException.getCause)
-    val mMsg = Maybe(layerException.getMessage)
+  def toProcessingError(msg: String): ProcessingError = {
     val diagnostic = state match {
       case ps: PState =>
         new ParseError(
           rd = Maybe(lrd.schemaFileLocation),
           loc = Maybe(state.currentLocation),
-          causedBy = mCause,
-          kind = mMsg,
+          causedBy = Maybe.Nope,
+          kind = Maybe(msg),
         )
       case us: UState =>
         new UnparseError(
           rd = Maybe(lrd.schemaFileLocation),
           loc = Maybe(state.currentLocation),
-          causedBy = mCause,
-          kind = mMsg,
+          causedBy = Maybe.Nope,
+          kind = Maybe(msg),
         )
     }
     diagnostic
   }
 
-  def toSchemaDefinitionError(mCause: Maybe[Throwable], mMsg: Maybe[String]): Diagnostic = {
-    val ctxt = state.getContext()
-    val rsde = new RuntimeSchemaDefinitionError(
-      ctxt.schemaFileLocation,
-      state,
-      mCause.orNull,
-      mMsg.orNull,
-    )
-    rsde
+  def toProcessingError(e: Throwable): ProcessingError = {
+    val diagnostic = state match {
+      case ps: PState =>
+        new ParseError(
+          rd = Maybe(lrd.schemaFileLocation),
+          loc = Maybe(state.currentLocation),
+          causedBy = Maybe(e),
+          kind = Maybe.Nope,
+        )
+      case us: UState =>
+        new UnparseError(
+          rd = Maybe(lrd.schemaFileLocation),
+          loc = Maybe(state.currentLocation),
+          causedBy = Maybe(e),
+          kind = Maybe.Nope,
+        )
+    }
+    diagnostic
   }
 
   override def runtimeSchemaDefinitionError(msg: String, args: AnyRef*): Nothing =

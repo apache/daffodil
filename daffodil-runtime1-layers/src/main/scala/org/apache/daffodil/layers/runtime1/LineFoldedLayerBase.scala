@@ -22,7 +22,6 @@ import java.io.OutputStream
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.layers.api.Layer
-import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 /*
  * This and related classes implement so called "line folding" from
  * IETF RFC 2822 Internet Message Format (IMF), and IETF RFC 5545 iCalendar.
@@ -82,10 +81,10 @@ import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 sealed abstract class LineFoldedLayerBase(mode: LineFoldMode)
   extends Layer(mode.dfdlName, "urn:org.apache.daffodil.layers.lineFolded") {
 
-  override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream =
+  override def wrapLayerInput(jis: InputStream): InputStream =
     new LineFoldedInputStream(mode, jis)
 
-  override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream =
+  override def wrapLayerOutput(jos: OutputStream): OutputStream =
     new LineFoldedOutputStream(mode, jos)
 }
 

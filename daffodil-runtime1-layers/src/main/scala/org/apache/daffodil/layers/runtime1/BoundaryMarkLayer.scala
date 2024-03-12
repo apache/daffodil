@@ -23,7 +23,6 @@ import java.nio.charset.Charset
 import org.apache.daffodil.io.BoundaryMarkInsertingJavaOutputStream
 import org.apache.daffodil.io.BoundaryMarkLimitingInputStream
 import org.apache.daffodil.runtime1.layers.api.Layer
-import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
 /**
  * A layer which isolates text data by way of a boundary mark string.
@@ -74,10 +73,10 @@ final class BoundaryMarkLayer
 
   private lazy val charset = Charset.forName(layerEncoding)
 
-  override def wrapLayerInput(jis: InputStream, lr: LayerRuntime): InputStream =
+  override def wrapLayerInput(jis: InputStream): InputStream =
     new BoundaryMarkLimitingInputStream(jis, boundaryMark, charset)
 
-  override def wrapLayerOutput(jos: OutputStream, lr: LayerRuntime): OutputStream =
+  override def wrapLayerOutput(jos: OutputStream): OutputStream =
     new BoundaryMarkInsertingJavaOutputStream(jos, boundaryMark, charset)
 
 }

@@ -19,9 +19,11 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import java.lang.reflect.InvocationTargetException
 
+import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.runtime1.layers.LayerException
 import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.layers.LayerRuntimeImpl
-import org.apache.daffodil.runtime1.layers.api.LayerUnexpectedException
+import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
 class LayeredSequenceParser(
@@ -64,11 +66,14 @@ class LayeredSequenceParser(
     } catch {
       case pe: ParseError =>
         state.setFailed(pe)
+      case sde: RuntimeSchemaDefinitionError =>
+        throw sde
+      case le: LayerException =>
+        state.setFailed(layerRuntimeImpl.toProcessingError(le))
       case e: Exception =>
-        state.setFailed(
-          layerRuntimeImpl.toProcessingError(new LayerUnexpectedException(layerRuntimeImpl, e)),
-        )
+        state.setFailed(layerRuntimeImpl.toProcessingError(new LayerUnexpectedException(e)))
     } finally {
+      // Restore the data stream to the original
       state.dataInputStream = savedDIS
     }
   }

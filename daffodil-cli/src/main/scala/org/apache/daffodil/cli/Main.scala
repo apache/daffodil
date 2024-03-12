@@ -70,7 +70,6 @@ import org.apache.daffodil.runtime1.debugger.DebuggerExitException
 import org.apache.daffodil.runtime1.debugger.InteractiveDebugger
 import org.apache.daffodil.runtime1.debugger.TraceDebuggerRunner
 import org.apache.daffodil.runtime1.externalvars.ExternalVariablesLoader
-import org.apache.daffodil.runtime1.layers.api.LayerException
 import org.apache.daffodil.runtime1.processors.DataLoc
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.ExternalVariableException
@@ -871,7 +870,7 @@ object Main {
     val BadExternalVariable = Value(33)
     val UserDefinedFunctionError = Value(34)
     val UnableToCreateProcessor = Value(35)
-    val LayerExecutionError = Value(36)
+    val LayerExecutionError = Value(36) // TODO: remove if remains unused.
 
     val Usage = Value(64)
   }
@@ -1963,10 +1962,6 @@ class Main(
         case e: DaffodilConfigException => {
           Logger.log.error(e.message)
           ExitCode.ConfigError
-        }
-        case e: LayerException => {
-          Logger.log.error(e.getMessage, e)
-          ExitCode.LayerExecutionError
         }
         case e: Exception => {
           bugFound(e)

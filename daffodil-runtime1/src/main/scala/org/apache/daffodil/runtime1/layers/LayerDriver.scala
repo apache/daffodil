@@ -74,8 +74,12 @@ class LayerDriver private (
   layerVarsRuntime: LayerVarsRuntime,
 ) {
 
-  private def init(): Unit =
+  private def init(): Unit = {
+    layer.setLayerRuntime(
+      layerRuntimeImpl,
+    ) // must be set before the next call so that can cause errors
     layerVarsRuntime.callParamSetterWithParameterVars(layer, layerRuntimeImpl)
+  }
 
   private def wrapJavaInputStream(
     s: InputSourceDataInputStream,
@@ -98,7 +102,7 @@ class LayerDriver private (
   ): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s, layerRuntimeImpl)
     val decodedInputStream =
-      new AssuredCloseInputStream(layer.wrapLayerInput(jis, layerRuntimeImpl), jis)
+      new AssuredCloseInputStream(layer.wrapLayerInput(jis), jis)
     val newDIS = InputSourceDataInputStream(decodedInputStream)
     // must initialize priorBitOrder
     newDIS.cst.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
@@ -123,7 +127,7 @@ class LayerDriver private (
   ): DirectOrBufferedDataOutputStream = {
     val jos = wrapJavaOutputStream(s, layerRuntimeImpl)
     val encodedOutputStream =
-      new AssuredCloseOutputStream(layer.wrapLayerOutput(jos, layerRuntimeImpl), jos)
+      new AssuredCloseOutputStream(layer.wrapLayerOutput(jos), jos)
     val newDOS = DirectOrBufferedDataOutputStream(
       encodedOutputStream,
       null,

@@ -21,7 +21,6 @@ import java.nio.ByteBuffer
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
-import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
 import passera.unsigned.UShort
 
@@ -51,9 +50,7 @@ final class IPv4ChecksumLayer()
    *
    * In the case of IPv4, this is just a constant. 
    */
-  private[ipv4] def setLayerVariableParameters(): Unit = {
-    setLength(lenInBytes)
-  }
+  private[ipv4] def setLayerVariableParameters(): Unit = setLength(lenInBytes)
 
   /**
    * Result DFDL variable value getter. This getter is called to obtain the value for,
@@ -72,11 +69,7 @@ final class IPv4ChecksumLayer()
    * @param byteBuffer contains the 20 bytes to be used to compute this checksum.
    * @return the computed checksum value as a 32-bit signed Int.
    */
-  override def compute(
-    layerRuntime: LayerRuntime,
-    isUnparse: Boolean,
-    byteBuffer: ByteBuffer,
-  ): Int = {
+  override def compute(isUnparse: Boolean, byteBuffer: ByteBuffer): Int = {
     val shortBuf = byteBuffer.asShortBuffer()
     var i = 0
     var chksum: Int = 0

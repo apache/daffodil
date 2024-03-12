@@ -31,7 +31,7 @@ import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.runtime1.api.MetadataHandler
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
-import org.apache.daffodil.runtime1.layers.api.LayerException
+import org.apache.daffodil.runtime1.layers.LayerException
 
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning()

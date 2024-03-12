@@ -14,27 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.daffodil.runtime1.layers;
 
-package org.apache.daffodil.layers
+import org.apache.daffodil.runtime1.layers.LayerException;
 
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 
-import org.apache.daffodil.runtime1.layers.api.Layer
+public class LayerUnexpectedException extends LayerException {
 
-final class BuggyLayer extends Layer("buggy", "urn:org.apache.daffodil.layers.buggy") {
-
-  override def wrapLayerInput(jis: InputStream): InputStream = new BuggyInputStream(jis)
-
-  override def wrapLayerOutput(jos: OutputStream): OutputStream = jos
-}
-
-final class BuggyInputStream(is: InputStream) extends InputStream {
-
-  def read(): Int = {
-    val b = is.read()
-    if (b != '0') b else throw new IOException("bad input stream")
-  }
-
+    public LayerUnexpectedException(Throwable cause) { super(cause); }
 }

@@ -71,7 +71,6 @@ public abstract class ChecksumLayer extends ChecksumLayerBase {
   /**
    * Override to compute the checksum of a buffer of data.
    *
-   * @param layerRuntime layer context for the computation
    * @param isUnparse true if the direction is unparsing. Used because in some cases the computed checksum must
    *                  be written into the byte buffer in a specific location.
    * @param byteBuffer the bytes over which the checksum is to be computed. This can be modified, (for example so as
@@ -82,7 +81,6 @@ public abstract class ChecksumLayer extends ChecksumLayerBase {
    * @return the checksum value as an Int (32-bit signed integer)
    */
   public abstract int compute(
-    LayerRuntime layerRuntime,
     boolean isUnparse,
     ByteBuffer byteBuffer
   );

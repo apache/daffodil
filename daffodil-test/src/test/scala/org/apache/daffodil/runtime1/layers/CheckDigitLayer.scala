@@ -17,13 +17,11 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import java.lang.{ Integer => JInt }
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
-import org.apache.daffodil.runtime1.layers.api.LayerRuntime
 
 /** Check digit example layer
  *
@@ -75,8 +73,7 @@ class CheckDigitLayer
    * and populate the DFDL variable named checkDigit, in the layer's target namespace.
    * @return the check digit value
    */
-  def getLayerVariableResult_checkDigit: JInt =
-    getChecksum
+  def getLayerVariableResult_checkDigit: Int = getChecksum
 
   /**
    * Shared by both parsing and unparsing.
@@ -85,15 +82,11 @@ class CheckDigitLayer
    *
    * The checkDigit is the total of all digits, viewed as a string, the last digit of that total.
    */
-  override def compute(
-    layerRuntime: LayerRuntime,
-    isUnparse: Boolean,
-    byteBuffer: ByteBuffer,
-  ): Int = {
+  override def compute(isUnparse: Boolean, byteBuffer: ByteBuffer): Int = {
     val s = new String(byteBuffer.array(), charset)
     val digits: Seq[Int] = s.filter { _.isDigit }.map { _.asDigit }
     if (digits.isEmpty)
-      layerRuntime.processingError("No digits in data to compute a check digit from.")
+      processingError("No digits in data to compute a check digit from.")
     val num = digits.sum
     //
     // A variation would be to keep adding the digits together until

@@ -55,15 +55,16 @@ public final class GZipLayer extends Layer {
   }
 
   @Override
-  public InputStream wrapLayerInput(InputStream jis, LayerRuntime lrd) throws IOException {
+  public InputStream wrapLayerInput(InputStream jis) throws IOException {
     return new java.util.zip.GZIPInputStream(jis);
   }
 
   @Override
-  public OutputStream wrapLayerOutput(OutputStream jos, LayerRuntime lrd) throws IOException {
+  public OutputStream wrapLayerOutput(OutputStream jos) throws IOException {
     OutputStream fixedOS = fixIsNeeded() ? new GZIPFixedOutputStream(jos) : jos;
     return new java.util.zip.GZIPOutputStream(fixedOS);
   }
+
 }
 
 /**
