@@ -26,9 +26,11 @@ object TestLayers {
 
   val testDir = "/org/apache/daffodil/layers/"
   val runner = Runner(testDir, "TestLayers.tdml")
+  val runnerB = Runner(testDir, "TestLayersBomb.tdml")
 
   @AfterClass def shutDown(): Unit = {
-    runner.reset
+    runner.reset()
+    runnerB.reset()
   }
 }
 
@@ -37,29 +39,44 @@ class TestLayers {
   import TestLayers._
 
   @Test def testAllTypes(): Unit = { runner.runOneTest("testAllTypes") }
-
   @Test def testOk1(): Unit = { runner.runOneTest("testOk1") }
   @Test def testOk2(): Unit = { runner.runOneTest("testOk2") }
   @Test def testOk3(): Unit = { runner.runOneTest("testOk3") }
   @Test def testOk4(): Unit = { runner.runOneTest("testOk4") }
-
   @Test def testBadTypeInLayerCode1(): Unit = { runner.runOneTest("testBadTypeInLayerCode1") }
   @Test def testBadTypeInLayerCode2(): Unit = { runner.runOneTest("testBadTypeInLayerCode2") }
   @Test def testBadNotInMETAINFServices(): Unit = {
     runner.runOneTest("testBadNotInMETAINFServices")
   }
-
   @Test def testBadMissingSetter(): Unit = { runner.runOneTest("testBadMissingSetter") }
-
   @Test def testBadMissingSetterArg(): Unit = { runner.runOneTest("testBadMissingSetterArg") }
-
   @Test def testBadMissingGetter(): Unit = { runner.runOneTest("testBadMissingGetter") }
   @Test def testBadMissingSetterVar(): Unit = { runner.runOneTest("testBadMissingSetterVar") }
   @Test def testBadMissingGetterVar(): Unit = { runner.runOneTest("testBadMissingGetterVar") }
-
   @Test def testBadMissingDefaultConstructor(): Unit = {
     runner.runOneTest("testBadMissingDefaultConstructor")
   }
   @Test def testBadNotALayer(): Unit = { runner.runOneTest("testBadNotALayer") }
+
+  @Test def testNoBomb(): Unit = runnerB.runOneTest("testNoBomb")
+  @Test def testBombSetterRSDE(): Unit = runnerB.runOneTest("testBombSetterRSDE")
+  @Test def testBombGetterRSDE(): Unit = runnerB.runOneTest("testBombGetterRSDE")
+  @Test def testBombCloseOutputRSDEp(): Unit = runnerB.runOneTest("testBombCloseOutputRSDEp")
+  @Test def testBombCloseOutputRSDEu(): Unit = runnerB.runOneTest("testBombCloseOutputRSDEu")
+
+  @Test def testBombWriteRSDEp(): Unit = runnerB.runOneTest("testBombWriteRSDEp")
+  @Test def testBombWriteRSDEu(): Unit = runnerB.runOneTest("testBombWriteRSDEu")
+
+  @Test def testBombReadRSDE(): Unit = runnerB.runOneTest("testBombReadRSDE")
+
+  // FIXME: Fails as the close is never called.
+  // @Test
+  def testBombCloseInputRSDE(): Unit = runnerB.runOneTest("testBombCloseInputRSDE")
+
+  @Test def testBombSetterProcErr(): Unit = runnerB.runOneTest("testBombSetterProcErr")
+
+  // FIXME: Fails with abort RegistersPool leaked 1 instance(s)
+  // @Test
+  def testBombReadProcErr(): Unit = runnerB.runOneTest("testBombReadProcErr")
 
 }

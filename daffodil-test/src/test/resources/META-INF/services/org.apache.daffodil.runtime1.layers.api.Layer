@@ -44,6 +44,8 @@ org.apache.daffodil.runtime1.layers.STL_BadMissingSetterVar
 org.apache.daffodil.runtime1.layers.STL_BadMissingGetterVar
 org.apache.daffodil.runtime1.layers.STL_BadMissingDefaultConstrutor
 org.apache.daffodil.runtime1.layers.STL_BadNotALayer # error intentional. This isn't a layer class
+org.apache.daffodil.runtime1.layers.STL_BombOutLayer
+
 
 
 

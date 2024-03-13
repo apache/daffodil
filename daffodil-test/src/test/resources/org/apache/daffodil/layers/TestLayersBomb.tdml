@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:tl="urn:STL"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="onePass">
+
+  <tdml:defineConfig name="NoBomb">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">nowhere</daf:bind>
+      <daf:bind name="tl:bombHow">noBomb</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testNoBomb" config="NoBomb"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <tdml:defineConfig name="SetterRSDE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">setter</daf:bind>
+      <daf:bind name="tl:bombHow">RSDE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombSetterRSDE" config="SetterRSDE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>setter</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="GetterRSDE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">getter</daf:bind>
+      <daf:bind name="tl:bombHow">RSDE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombGetterRSDE" config="GetterRSDE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>getter</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="CloseOutputRSDE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">closeOutput</daf:bind>
+      <daf:bind name="tl:bombHow">RSDE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombCloseOutputRSDEp" config="CloseOutputRSDE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd"
+                  roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <unparserTestCase name="testBombCloseOutputRSDEu" config="CloseOutputRSDE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd"
+                  roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>closeOutput</error>
+    </errors>
+  </unparserTestCase>
+
+  <tdml:defineConfig name="WriteRSDE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">write</daf:bind>
+      <daf:bind name="tl:bombHow">RSDE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombWriteRSDEp" config="WriteRSDE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd"
+                  roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <unparserTestCase name="testBombWriteRSDEu" config="WriteRSDE"
+                    root="root" model="useSimpleBombLayer.dfdl.xsd"
+                    roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>write</error>
+    </errors>
+  </unparserTestCase>
+
+  <tdml:defineConfig name="ReadRSDE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">read</daf:bind>
+      <daf:bind name="tl:bombHow">RSDE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombReadRSDE" config="ReadRSDE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>read</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="CloseInputRSDE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">closeInput</daf:bind>
+      <daf:bind name="tl:bombHow">RSDE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombCloseInputRSDE" config="CloseInputRSDE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>closeInput</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="SetterProcErr">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">setter</daf:bind>
+      <daf:bind name="tl:bombHow">procErr</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombSetterProcErr" config="SetterProcErr"
+                  root="root2" model="useSimpleBombLayer.dfdl.xsd">
+    <!--
+    This test illustrates how a processing error in the params setter
+    can be suppressed by backtracking.
+
+    The unparse will not even utilize the layer.
+    -->
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root2 xmlns="">
+          <data>A</data>
+        </ex:root2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <tdml:defineConfig name="ReadProcErr">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">read</daf:bind>
+      <daf:bind name="tl:bombHow">procErr</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombReadProcErr" config="ReadProcErr"
+                  root="root2" model="useSimpleBombLayer.dfdl.xsd">
+    <!--
+    This test illustrates how a processing error in the params setter
+    can be suppressed by backtracking.
+
+    The unparse will not even utilize the layer.
+    -->
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root2 xmlns="">
+          <data>A</data>
+        </ex:root2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!-- -->
+
+</testSuite>
