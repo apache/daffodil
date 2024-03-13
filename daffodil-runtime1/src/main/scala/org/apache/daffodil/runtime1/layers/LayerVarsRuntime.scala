@@ -16,10 +16,15 @@
  */
 package org.apache.daffodil.runtime1.layers
 
+import com.ibm.icu.util.Calendar
+import org.apache.daffodil.lib.calendar.DFDLDate
+import org.apache.daffodil.lib.calendar.DFDLDateTime
+import org.apache.daffodil.lib.calendar.DFDLTime
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
-
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
@@ -56,7 +61,14 @@ class LayerVarsRuntime(
    */
   def callParamSetterWithParameterVars(layer: Layer): Unit = {
     val state = layer.getLayerRuntime.state
-    val args = paramVRDs.map { vrd => state.getVariable(vrd, state).value }
+    val args = paramVRDs.map { vrd =>
+      vrd.primType match {
+        case PrimType.Date => state.getVariable(vrd, state).value.asInstanceOf[DFDLDate].calendar
+        case PrimType.Time => state.getVariable(vrd, state).value.asInstanceOf[DFDLTime].calendar
+        case PrimType.DateTime => state.getVariable(vrd, state).value.asInstanceOf[DFDLDateTime].calendar
+        case _ => state.getVariable(vrd, state).value
+      }
+    }
     optParamSetter.foreach { paramSetter =>
       try {
         paramSetter.invoke(layer, args: _*)
@@ -72,26 +84,45 @@ class LayerVarsRuntime(
   /**
    * Calls getter methods on the layer for the return value variables, and
    * assigns the gotten result values to the return value variables.
+   *
    * @param layer the layer from which we are getting the result values
    *
-   * When parsing this is called in the unwinding when we remove the layer.
+   *              When parsing this is called in the unwinding when we remove the layer.
    *
-   * When unparsing it's trickier. We call this from the close of the data output stream
-   * that underlies the layer. That is, from the close() method of
-   * `runtime1.layers.JavaIOOutputStream`.
+   *              When unparsing it's trickier. We call this from the close of the data output stream
+   *              that underlies the layer. That is, from the close() method of
+   *              `runtime1.layers.JavaIOOutputStream`.
    */
   def callGettersToPopulateResultVars(layer: Layer): Unit = {
     val state = layer.getLayerRuntime.state
     resultVarPairs.foreach { case (vrd, method) =>
-      val value =
-        try {
-          method.invoke(layer)
-        } catch {
-          case ite: InvocationTargetException =>
-            // unwrap because we don't care if it was a reflective call.
-            val cause = ite.getCause
-            throw cause
+      val value: AnyRef = {
+        val raw =
+          try {
+            method.invoke(layer)
+          } catch {
+            case ite: InvocationTargetException =>
+              // unwrap because we don't care if it was a reflective call.
+              val cause = ite.getCause
+              throw cause
+          }
+
+        vrd.primType match {
+          case PrimType.Date => {
+            val d = raw.asInstanceOf[Calendar]
+            DFDLDate(d, d.getTimeZone != null)
+          }
+          case PrimType.Time => {
+            val d = raw.asInstanceOf[Calendar]
+            DFDLTime(d, d.getTimeZone != null)
+          }
+          case PrimType.DateTime => {
+            val d = raw.asInstanceOf[Calendar]
+            DFDLDateTime(d, d.getTimeZone != null)
+          }
+          case _ => raw
         }
+      }
       val dv = DataValue.unsafeFromAnyRef(value)
       state.setVariable(vrd, dv, state)
     }

@@ -65,9 +65,9 @@ final class TestLayer1()
     d1: Double,
     string1: String,
     hex1: Array[Byte],
-//    date1: com.ibm.icu.util.Calendar,
-//    time1: com.ibm.icu.util.Calendar,
-//    dt1: com.ibm.icu.util.Calendar,
+    date1: com.ibm.icu.util.Calendar,
+    time1: com.ibm.icu.util.Calendar,
+    dt1: com.ibm.icu.util.Calendar,
   ): Unit = {
     this.b1 = b1
     this.ub1 = ub1
@@ -84,9 +84,9 @@ final class TestLayer1()
     this.d1 = d1
     this.string1 = string1
     this.hex1 = hex1
-//    this.date1 = date1
-//    this.time1 = time1
-//    this.dt1 = dt1
+    this.date1 = date1
+    this.time1 = time1
+    this.dt1 = dt1
   }
 
   def getLayerVariableResult_b2(): Byte = b1
@@ -104,9 +104,9 @@ final class TestLayer1()
   def getLayerVariableResult_d2(): Double = d1
   def getLayerVariableResult_string2(): String = string1
   def getLayerVariableResult_hex2(): Array[Byte] = hex1
-//  def getLayerVariableResult_date2(): com.ibm.icu.util.Calendar = date1
-//  def getLayerVariableResult_time2(): com.ibm.icu.util.Calendar = time1
-//  def getLayerVariableResult_dt2(): com.ibm.icu.util.Calendar = dt1
+  def getLayerVariableResult_date2(): com.ibm.icu.util.Calendar = date1
+  def getLayerVariableResult_time2(): com.ibm.icu.util.Calendar = time1
+  def getLayerVariableResult_dt2(): com.ibm.icu.util.Calendar = dt1
 
   override def wrapLayerInput(jis: InputStream): InputStream = jis
 

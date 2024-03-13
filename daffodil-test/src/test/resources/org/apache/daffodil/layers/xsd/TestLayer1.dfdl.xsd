@@ -41,11 +41,11 @@
       <dfdl:defineVariable name="d1" type="xs:double"/>
       <dfdl:defineVariable name="string1" type="xs:string"/>
       <dfdl:defineVariable name="hex1" type="xs:hexBinary"/>
-      <!--
+
       <dfdl:defineVariable name="date1" type="xs:date"/>
       <dfdl:defineVariable name="time1" type="xs:time"/>
       <dfdl:defineVariable name="dt1" type="xs:dateTime"/>
-      -->
+
       <dfdl:defineVariable name="b2" type="xs:byte"/>
       <dfdl:defineVariable name="ub2" type="xs:unsignedByte"/>
       <dfdl:defineVariable name="s2" type="xs:short"/>
@@ -61,11 +61,11 @@
       <dfdl:defineVariable name="d2" type="xs:double"/>
       <dfdl:defineVariable name="string2" type="xs:string"/>
       <dfdl:defineVariable name="hex2" type="xs:hexBinary"/>
-      <!--
+
       <dfdl:defineVariable name="date2" type="xs:date"/>
       <dfdl:defineVariable name="time2" type="xs:time"/>
       <dfdl:defineVariable name="dt2" type="xs:dateTime"/>
-      -->
+
     </xs:appinfo>
   </xs:annotation>
 

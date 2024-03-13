@@ -68,11 +68,11 @@
           <dfdl:newVariableInstance ref="tl:d1" defaultValue="-42E142"/>
           <dfdl:newVariableInstance ref="tl:string1" defaultValue="fourtyTwo"/>
           <dfdl:newVariableInstance ref="tl:hex1" defaultValue="{ xs:hexBinary('2A') }"/>
-          <!--
+
           <dfdl:newVariableInstance ref="tl:date1" defaultValue="{ xs:date('1942-04-02') }"/>
           <dfdl:newVariableInstance ref="tl:time1" defaultValue="{ xs:time('04:42:42') }"/>
           <dfdl:newVariableInstance ref="tl:dt1" defaultValue="{ xs:dateTime('1942-04-02T04:42:42') }"/>
-          -->
+
           <dfdl:newVariableInstance ref="tl:b2" />
           <dfdl:newVariableInstance ref="tl:ub2" />
           <dfdl:newVariableInstance ref="tl:s2" />
@@ -88,11 +88,11 @@
           <dfdl:newVariableInstance ref="tl:d2" />
           <dfdl:newVariableInstance ref="tl:string2" />
           <dfdl:newVariableInstance ref="tl:hex2" />
-          <!--
+
           <dfdl:newVariableInstance ref="tl:date2" />
           <dfdl:newVariableInstance ref="tl:time2" />
           <dfdl:newVariableInstance ref="tl:dt2" />
-          -->
+
         </appinfo>
       </annotation>
       <element name="b2" type="xs:byte"
@@ -125,14 +125,13 @@
                dfdl:inputValueCalc='{ $tl:string1 }'/>
       <element name="hex2" type="xs:hexBinary"
                dfdl:inputValueCalc='{ $tl:hex1 }'/>
-      <!--
+
       <element name="date2" type="xs:date"
                dfdl:inputValueCalc='{ $tl:date1 }'/>
       <element name="time2" type="xs:time"
                dfdl:inputValueCalc='{ $tl:time1 }'/>
       <element name="dt2" type="xs:dateTime"
                dfdl:inputValueCalc='{ $tl:dt1 }'/>
-      -->
 
     </sequence>
   </complexType>

@@ -43,6 +43,9 @@
           <d2>-4.2E143</d2>
           <string2>fourtyTwo</string2>
           <hex2>2A</hex2>
+          <date2>1942-04-02</date2>
+          <time2>04:42:42</time2>
+          <dt2>1942-04-02T04:42:42</dt2>
         </ex:root>
       </tdml:dfdlInfoset>
     </tdml:infoset>
