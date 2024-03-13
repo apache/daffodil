@@ -123,8 +123,8 @@ object LayerRuntimeCompiler {
         val resultGettersNames = allVarResultGetters.map(_.getName.replace(varResultPrefix, ""))
         val nResultGetters = resultGettersNames.size
 
-        def javaParamSetterArgs =
-          paramVRDs
+        val javaParamSetterArgs =
+          allLayerVRDs
             .map { vrd =>
               s"type: ${PrimType.toJavaTypeString(vrd.primType.dfdlType)} name: ${vrd.globalQName.local}"
             }
@@ -134,8 +134,8 @@ object LayerRuntimeCompiler {
           nParams + nResultGetters == nVars,
           s"""Layer class $c does not have a setter with arguments for each of the layer's variables.
              | It should have a setter named $varParamSetter with an argument for each layer parameter, in any order, such as
-             | '($javaParamSetterArgs)', and a getter for remaining layer variables, named with a specific
-             |  name prefix like: '${varResultPrefix + "varName()"}'.""".stripMargin,
+             | ($javaParamSetterArgs), and a getter for remaining layer variables, named with a specific
+             |  name prefix like: '${resultGettersNames.mkString(";\n")}'.""".stripMargin,
         )
 
         val returnVRDsWithoutGetters = returnVRDNames -- resultGettersNames
