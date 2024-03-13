@@ -25,7 +25,8 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:ex="http://example.com"
   xmlns:cd="urn:org.apache.daffodil.layers.checkDigit"
-  defaultRoundTrip="onePass">
+  defaultRoundTrip="onePass"
+  defaultValidation="limited">
 
   <!--
   The check digit is the result of taking all digits 0-9 of the layer data, adding them together, and taking only the least-significant digit of the resulting sum.
@@ -61,11 +62,11 @@
         <value>2021-09-25</value>
         <checkDigit>7</checkDigit>
         <computedCheckDigit>1</computedCheckDigit>
+        <invalidCheckDigit></invalidCheckDigit>
       </ex:r>
     </dfdlInfoset></infoset>
     <validationErrors>
-      <error>Incorrect check digit</error>
-      <error>7</error>
+      <error>invalidCheckDigit</error>
     </validationErrors>
   </parserTestCase>
 

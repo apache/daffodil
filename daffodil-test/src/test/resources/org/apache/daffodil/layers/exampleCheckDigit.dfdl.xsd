@@ -67,16 +67,9 @@
                  dfdl:outputValueCalc='{ $cd:checkDigit }'/>
         <element name="computedCheckDigit" type="cd:checkDigitType"
                  dfdl:inputValueCalc='{ $cd:checkDigit }'/>
-        <sequence>
-          <annotation>
-            <appinfo source="http://www.ogf.org/dfdl/">
-              <dfdl:assert
-                failureType="recoverableError"
-                test='{ checkDigit eq $cd:checkDigit }'
-                message='{ fn:concat("Incorrect check digit: ", checkDigit, ". Should be: ", $cd:checkDigit, ".") }'/>
-            </appinfo>
-          </annotation>
-        </sequence>
+        <element name="invalidCheckDigit" type="ex:alwaysInvalid" minOccurs="0"
+                 dfdl:occursCountKind="expression"
+                 dfdl:occursCount="{ if (../checkDigit eq ../computedCheckDigit) then 0 else 1 }"/>
       </sequence> <!-- checkDigit DFDL variable scope ends here -->
     </complexType>
   </element>
@@ -86,6 +79,12 @@
               dfdl:calendarPatternKind="explicit"
               dfdl:calendarPattern="yyyy-MM-dd">
     <restriction base="xs:date"/>
+  </simpleType>
+
+  <simpleType name="alwaysInvalid" dfdl:lengthKind="explicit" dfdl:length="0">
+    <restriction base="xs:string">
+      <minLength value="1"/>
+    </restriction>
   </simpleType>
 
 
