@@ -110,15 +110,15 @@ class LayerVarsRuntime(
         vrd.primType match {
           case PrimType.Date => {
             val d = raw.asInstanceOf[Calendar]
-            DFDLDate(d, d.getTimeZone != null)
+            DFDLDate(d, false)
           }
           case PrimType.Time => {
             val d = raw.asInstanceOf[Calendar]
-            DFDLTime(d, d.getTimeZone != null)
+            DFDLTime(d, false)
           }
           case PrimType.DateTime => {
             val d = raw.asInstanceOf[Calendar]
-            DFDLDateTime(d, d.getTimeZone != null)
+            DFDLDateTime(d, false)
           }
           case _ => raw
         }

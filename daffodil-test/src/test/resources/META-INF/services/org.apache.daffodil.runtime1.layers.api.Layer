@@ -30,7 +30,11 @@
 org.apache.daffodil.runtime1.layers.AISPayloadArmoringLayer
 org.apache.daffodil.runtime1.layers.CheckDigitLayer
 org.apache.daffodil.runtime1.layers.ipv4.IPv4ChecksumLayer
-org.apache.daffodil.runtime1.layers.TestLayer1
+org.apache.daffodil.runtime1.layers.AllTypesLayer
+org.apache.daffodil.runtime1.layers.STL_Ok1
+org.apache.daffodil.runtime1.layers.STL_Ok2
+org.apache.daffodil.runtime1.layers.STL_Ok3
+org.apache.daffodil.runtime1.layers.STL_Ok4
 
 
 

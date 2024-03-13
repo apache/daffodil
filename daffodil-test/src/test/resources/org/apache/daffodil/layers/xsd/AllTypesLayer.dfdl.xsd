@@ -20,8 +20,8 @@
            xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-           xmlns:tl="urn:org.apache.daffodil.layers.xsd.TestLayer1"
-           targetNamespace="urn:org.apache.daffodil.layers.xsd.TestLayer1">
+           xmlns:tl="urn:org.apache.daffodil.layers.xsd.AllTypesLayer"
+           targetNamespace="urn:org.apache.daffodil.layers.xsd.AllTypesLayer">
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">

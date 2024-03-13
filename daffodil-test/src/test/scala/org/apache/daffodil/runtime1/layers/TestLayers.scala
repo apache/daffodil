@@ -23,11 +23,12 @@ import org.junit.AfterClass
 import org.junit.Test
 
 object TestLayers {
-  private val testDir = "/org/apache/daffodil/layers/"
-  private val runner: Runner = Runner(testDir, "TestLayers.tdml")
+
+  val testDir = "/org/apache/daffodil/layers/"
+  val runner = Runner(testDir, "TestLayers.tdml")
 
   @AfterClass def shutDown(): Unit = {
-    runner.reset()
+    runner.reset
   }
 }
 
@@ -35,12 +36,11 @@ class TestLayers {
 
   import TestLayers._
 
-  @Test def test_gzipLayer1(): Unit = { runner.runOneTest("gzipLayer1") }
-  @Test def test_foldedIMFBase64Layers1(): Unit = {
-    runner.runOneTest("foldedIMFBase64Layers1")
-  }
-  @Test def test_foldedIMF1(): Unit = { runner.runOneTest("foldedIMF1") }
-  @Test def test_layersErr1(): Unit = { runner.runOneTest("layersErr1") }
-  @Test def test_base64GzipLayers1(): Unit = { runner.runOneTest("base64GzipLayers1") }
+  @Test def testAllTypes(): Unit = { runner.runOneTest("testAllTypes") }
+
+  @Test def testOk1(): Unit = { runner.runOneTest("testOk1") }
+  @Test def testOk2(): Unit = { runner.runOneTest("testOk2") }
+  @Test def testOk3(): Unit = { runner.runOneTest("testOk3") }
+  @Test def testOk4(): Unit = { runner.runOneTest("testOk4") }
 
 }

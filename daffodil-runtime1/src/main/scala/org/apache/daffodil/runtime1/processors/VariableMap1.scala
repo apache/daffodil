@@ -405,7 +405,8 @@ class VariableMap private (
       }
       case VariableBeingDefined => throw new VariableCircularDefinition(varQName, vrd)
       case VariableInProcess => throw new VariableSuspended(varQName, vrd)
-      case _ => throw new VariableHasNoValue(varQName, vrd)
+      case _ =>
+        throw new VariableHasNoValue(varQName, vrd)
     }
   }
 

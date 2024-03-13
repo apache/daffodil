@@ -22,20 +22,26 @@ import org.apache.daffodil.tdml.Runner
 import org.junit.AfterClass
 import org.junit.Test
 
-object Tests4TestLayer1 {
-
-  val testDir = "/org/apache/daffodil/layers/"
-  val runner = Runner(testDir, "TestLayer1.tdml")
+object TestGzipFoldB64 {
+  private val testDir = "/org/apache/daffodil/layers/"
+  private val runner: Runner = Runner(testDir, "TestGzipFoldB64.tdml")
 
   @AfterClass def shutDown(): Unit = {
-    runner.reset
+    runner.reset()
   }
 }
 
-class Tests4TestLayer1 {
 
-  import Tests4TestLayer1._
+class TestGzipFoldB64 {
 
-  @Test def testAllTypes(): Unit = { runner.runOneTest("testAllTypes") }
+  import TestGzipFoldB64._
+
+  @Test def test_gzipLayer1(): Unit = { runner.runOneTest("gzipLayer1") }
+  @Test def test_foldedIMFBase64Layers1(): Unit = {
+    runner.runOneTest("foldedIMFBase64Layers1")
+  }
+  @Test def test_foldedIMF1(): Unit = { runner.runOneTest("foldedIMF1") }
+  @Test def test_layersErr1(): Unit = { runner.runOneTest("layersErr1") }
+  @Test def test_base64GzipLayers1(): Unit = { runner.runOneTest("base64GzipLayers1") }
 
 }

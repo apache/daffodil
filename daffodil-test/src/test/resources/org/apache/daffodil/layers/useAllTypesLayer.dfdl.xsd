@@ -22,14 +22,14 @@
            xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-           xmlns:tl="urn:org.apache.daffodil.layers.xsd.TestLayer1"
+           xmlns:tl="urn:org.apache.daffodil.layers.xsd.AllTypesLayer"
            xmlns:ex="http://example.com"
            targetNamespace="http://example.com" >
 
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-  <import namespace="urn:org.apache.daffodil.layers.xsd.TestLayer1"
-             schemaLocation="/org/apache/daffodil/layers/xsd/TestLayer1.dfdl.xsd"/>
+  <import namespace="urn:org.apache.daffodil.layers.xsd.AllTypesLayer"
+             schemaLocation="/org/apache/daffodil/layers/xsd/AllTypesLayer.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
@@ -38,7 +38,8 @@
           ref="ex:GeneralFormat"
           representation="text"
           lengthKind="delimited"
-          encoding="iso-8859-1"/>
+          encoding="iso-8859-1"
+          calendarTimeZone=""/>
       </dfdl:defineFormat>
       <dfdl:format ref="ex:textual1"/>
     </appinfo>
@@ -47,10 +48,7 @@
   <element name="root" type="ex:root"/>
 
   <complexType name="root">
-    <!--
-    Modified with proposed checksum computation via layer transform
-    -->
-    <sequence dfdlx:layer='tl:testLayer1'>
+    <sequence>
       <annotation>
         <appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:newVariableInstance ref="tl:b1" defaultValue="42"/>
@@ -66,7 +64,7 @@
           <dfdl:newVariableInstance ref="tl:dec1" defaultValue="-42.42"/>
           <dfdl:newVariableInstance ref="tl:f1" defaultValue="42E-4"/>
           <dfdl:newVariableInstance ref="tl:d1" defaultValue="-42E142"/>
-          <dfdl:newVariableInstance ref="tl:string1" defaultValue="fourtyTwo"/>
+          <dfdl:newVariableInstance ref="tl:string1" defaultValue="fortyTwo"/>
           <dfdl:newVariableInstance ref="tl:hex1" defaultValue="{ xs:hexBinary('2A') }"/>
 
           <dfdl:newVariableInstance ref="tl:date1" defaultValue="{ xs:date('1942-04-02') }"/>
@@ -95,43 +93,46 @@
 
         </appinfo>
       </annotation>
-      <element name="b2" type="xs:byte"
-               dfdl:inputValueCalc='{ $tl:b1 }'/>
+    <sequence dfdlx:layer='tl:allTypesLayer'>
+      <element name="data" type="xs:string"/>
+    </sequence>
+    <element name="b2" type="xs:byte"
+               dfdl:inputValueCalc='{ $tl:b2 }'/>
       <element name="ub2" type="xs:unsignedByte"
-               dfdl:inputValueCalc='{ $tl:ub1 }'/>
+               dfdl:inputValueCalc='{ $tl:ub2 }'/>
       <element name="s2" type="xs:short"
-               dfdl:inputValueCalc='{ $tl:s1 }'/>
+               dfdl:inputValueCalc='{ $tl:s2 }'/>
       <element name="us2" type="xs:unsignedShort"
-               dfdl:inputValueCalc='{ $tl:us1 }'/>
+               dfdl:inputValueCalc='{ $tl:us2 }'/>
       <element name="i2" type="xs:int"
-               dfdl:inputValueCalc='{ $tl:i1 }'/>
+               dfdl:inputValueCalc='{ $tl:i2 }'/>
       <element name="ui2" type="xs:unsignedInt"
-               dfdl:inputValueCalc='{ $tl:ui1 }'/>
+               dfdl:inputValueCalc='{ $tl:ui2 }'/>
       <element name="l2" type="xs:long"
-               dfdl:inputValueCalc='{ $tl:l1 }'/>
+               dfdl:inputValueCalc='{ $tl:l2 }'/>
       <element name="ul2" type="xs:unsignedLong"
-               dfdl:inputValueCalc='{ $tl:ul1 }'/>
+               dfdl:inputValueCalc='{ $tl:ul2 }'/>
       <element name="integer2" type="xs:integer"
-               dfdl:inputValueCalc='{ $tl:integer1 }'/>
+               dfdl:inputValueCalc='{ $tl:integer2 }'/>
       <element name="nni2" type="xs:nonNegativeInteger"
-               dfdl:inputValueCalc='{ $tl:nni1 }'/>
+               dfdl:inputValueCalc='{ $tl:nni2 }'/>
       <element name="dec2" type="xs:decimal"
-               dfdl:inputValueCalc='{ $tl:dec1 }'/>
+               dfdl:inputValueCalc='{ $tl:dec2 }'/>
       <element name="f2" type="xs:float"
-               dfdl:inputValueCalc='{ $tl:f1 }'/>
+               dfdl:inputValueCalc='{ $tl:f2 }'/>
       <element name="d2" type="xs:double"
-               dfdl:inputValueCalc='{ $tl:d1 }'/>
+               dfdl:inputValueCalc='{ $tl:d2 }'/>
       <element name="string2" type="xs:string"
-               dfdl:inputValueCalc='{ $tl:string1 }'/>
+               dfdl:inputValueCalc='{ $tl:string2 }'/>
       <element name="hex2" type="xs:hexBinary"
-               dfdl:inputValueCalc='{ $tl:hex1 }'/>
+               dfdl:inputValueCalc='{ $tl:hex2 }'/>
 
       <element name="date2" type="xs:date"
-               dfdl:inputValueCalc='{ $tl:date1 }'/>
+               dfdl:inputValueCalc='{ $tl:date2 }'/>
       <element name="time2" type="xs:time"
-               dfdl:inputValueCalc='{ $tl:time1 }'/>
+               dfdl:inputValueCalc='{ $tl:time2 }'/>
       <element name="dt2" type="xs:dateTime"
-               dfdl:inputValueCalc='{ $tl:dt1 }'/>
+               dfdl:inputValueCalc='{ $tl:dt2 }'/>
 
     </sequence>
   </complexType>

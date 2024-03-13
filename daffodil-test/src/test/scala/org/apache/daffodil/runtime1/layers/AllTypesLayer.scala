@@ -24,10 +24,12 @@ import java.io.OutputStream
 
 import org.apache.daffodil.runtime1.layers.api.Layer
 
-final class TestLayer1()
+import com.ibm.icu.util.Calendar
+
+final class AllTypesLayer()
   extends Layer(
-    "testLayer1",
-    "urn:org.apache.daffodil.layers.xsd.TestLayer1",
+    "allTypesLayer",
+    "urn:org.apache.daffodil.layers.xsd.AllTypesLayer",
   ) {
 
   private var b1: Byte = 0
@@ -89,24 +91,32 @@ final class TestLayer1()
     this.dt1 = dt1
   }
 
-  def getLayerVariableResult_b2(): Byte = b1
-  def getLayerVariableResult_ub2(): Short = ub1
-  def getLayerVariableResult_s2(): Short = s1
-  def getLayerVariableResult_us2(): Int = us1
-  def getLayerVariableResult_i2(): Int = i1
-  def getLayerVariableResult_ui2(): Long = ui1
-  def getLayerVariableResult_l2(): Long = l1
-  def getLayerVariableResult_ul2(): java.math.BigInteger = ul1
-  def getLayerVariableResult_integer2(): java.math.BigInteger = integer1
-  def getLayerVariableResult_nni2(): java.math.BigInteger = nni1
-  def getLayerVariableResult_dec2(): java.math.BigDecimal = dec1
-  def getLayerVariableResult_f2(): Float = f1
-  def getLayerVariableResult_d2(): Double = d1
-  def getLayerVariableResult_string2(): String = string1
-  def getLayerVariableResult_hex2(): Array[Byte] = hex1
-  def getLayerVariableResult_date2(): com.ibm.icu.util.Calendar = date1
-  def getLayerVariableResult_time2(): com.ibm.icu.util.Calendar = time1
-  def getLayerVariableResult_dt2(): com.ibm.icu.util.Calendar = dt1
+  def getLayerVariableResult_b2(): Byte = (b1 + b1).toByte
+  def getLayerVariableResult_ub2(): Short = (ub1 + ub1).toShort
+  def getLayerVariableResult_s2(): Short = (s1 + s1).toShort
+  def getLayerVariableResult_us2(): Int = us1 + us1
+  def getLayerVariableResult_i2(): Int =
+    i1 + i1
+  def getLayerVariableResult_ui2(): Long = ui1 + ui1
+  def getLayerVariableResult_l2(): Long = l1 + l1
+  def getLayerVariableResult_ul2(): java.math.BigInteger = ul1.add(ul1)
+  def getLayerVariableResult_integer2(): java.math.BigInteger = integer1.add(integer1)
+  def getLayerVariableResult_nni2(): java.math.BigInteger = nni1.add(nni1)
+  def getLayerVariableResult_dec2(): java.math.BigDecimal = dec1.add(dec1)
+  def getLayerVariableResult_f2(): Float = f1 + f1
+  def getLayerVariableResult_d2(): Double = d1 + d1
+  def getLayerVariableResult_string2(): String = string1 + " " + string1
+  def getLayerVariableResult_hex2(): Array[Byte] = { val s1 = hex1.toSeq; (s1 ++ s1).toArray }
+  def getLayerVariableResult_date2(): Calendar = {
+    // calendar ops are mutators...
+    val d = date1.clone().asInstanceOf[Calendar]; d.add(Calendar.DATE, 1); d
+  }
+  def getLayerVariableResult_time2(): Calendar = {
+    val t = time1.clone().asInstanceOf[Calendar]; t.add(Calendar.HOUR, 1); t
+  }
+  def getLayerVariableResult_dt2(): Calendar = {
+    val dt = dt1.clone.asInstanceOf[Calendar]; dt.add(Calendar.DATE, 1); dt
+  }
 
   override def wrapLayerInput(jis: InputStream): InputStream = jis
 
