@@ -17,18 +17,14 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import java.lang.reflect.InvocationTargetException
-
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
+import org.apache.daffodil.runtime1.layers.LayerDriver
 import org.apache.daffodil.runtime1.layers.LayerException
-import org.apache.daffodil.runtime1.layers.LayerFactory
-import org.apache.daffodil.runtime1.layers.LayerRuntime
 import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
 class LayeredSequenceParser(
   rd: SequenceRuntimeData,
-  layerFactory: LayerFactory,
   bodyParser: SequenceChildParser,
 ) extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
@@ -36,42 +32,30 @@ class LayeredSequenceParser(
   override def parse(state: PState): Unit = {
 
     val savedDIS = state.dataInputStream
-
-    val layerRuntimeImpl = new LayerRuntime(state, rd.layerRuntimeData)
     try {
-      try {
-        val layerDriver = layerFactory.newInstance(layerRuntimeImpl)
+      val layerDriver = LayerDriver(state, rd.layerRuntimeData)
+      val isAligned = savedDIS.align(layerDriver.mandatoryLayerAlignmentInBits, state)
+      if (!isAligned)
+        PE(
+          state,
+          "Unable to align to the mandatory layer alignment of %s(bits)",
+          layerDriver.mandatoryLayerAlignmentInBits,
+        )
 
-        val isAligned = savedDIS.align(layerDriver.mandatoryLayerAlignmentInBits, state)
-        if (!isAligned)
-          PE(
-            state,
-            "Unable to align to the mandatory layer alignment of %s(bits)",
-            layerDriver.mandatoryLayerAlignmentInBits,
-          )
+      val newDIS = layerDriver.addInputLayer(savedDIS)
 
-        val newDIS = layerDriver.addInputLayer(savedDIS, layerRuntimeImpl)
-
-        state.dataInputStream = newDIS
-        super.parse(state)
-        layerDriver.removeInputLayer(newDIS, layerRuntimeImpl)
-      } catch {
-        case ite: InvocationTargetException =>
-          // we unwrap these exceptions because we're not interested in
-          // the fact that they happened during a reflective call, but what
-          // are they?
-          val cause = ite.getCause
-          throw cause
-      }
+      state.dataInputStream = newDIS
+      super.parse(state)
+      layerDriver.removeInputLayer(newDIS)
     } catch {
       case pe: ParseError =>
         state.setFailed(pe)
       case sde: RuntimeSchemaDefinitionError =>
         throw sde
       case le: LayerException =>
-        state.setFailed(layerRuntimeImpl.toProcessingError(le))
+        state.setFailed(state.toProcessingError(le))
       case e: Exception =>
-        state.setFailed(layerRuntimeImpl.toProcessingError(new LayerUnexpectedException(e)))
+        state.setFailed(state.toProcessingError(new LayerUnexpectedException(e)))
     } finally {
       // Restore the data stream to the original
       state.dataInputStream = savedDIS

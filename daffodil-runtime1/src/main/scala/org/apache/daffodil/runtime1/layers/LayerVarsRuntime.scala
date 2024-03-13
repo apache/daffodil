@@ -53,11 +53,10 @@ class LayerVarsRuntime(
    * just for initialization of the layer.
    *
    * @param layer the layer instance to initialize
-   * @param lr     the layer runtime object which provides access to the state, including the
-   *               runtime variable instances to be read and set.
    */
-  def callParamSetterWithParameterVars(layer: Layer, lr: LayerRuntime): Unit = {
-    val args = paramVRDs.map { vrd => lr.state.getVariable(vrd, lr.state).value }
+  def callParamSetterWithParameterVars(layer: Layer): Unit = {
+    val state = layer.getLayerRuntime.state
+    val args = paramVRDs.map { vrd => state.getVariable(vrd, state).value }
     optParamSetter.foreach { paramSetter =>
       try {
         paramSetter.invoke(layer, args: _*)
@@ -74,7 +73,6 @@ class LayerVarsRuntime(
    * Calls getter methods on the layer for the return value variables, and
    * assigns the gotten result values to the return value variables.
    * @param layer the layer from which we are getting the result values
-   * @param lr the runtime environment for the layer
    *
    * When parsing this is called in the unwinding when we remove the layer.
    *
@@ -82,7 +80,8 @@ class LayerVarsRuntime(
    * that underlies the layer. That is, from the close() method of
    * `runtime1.layers.JavaIOOutputStream`.
    */
-  def callGettersToPopulateResultVars(layer: Layer, lr: LayerRuntime): Unit = {
+  def callGettersToPopulateResultVars(layer: Layer): Unit = {
+    val state = layer.getLayerRuntime.state
     resultVarPairs.foreach { case (vrd, method) =>
       val value =
         try {
@@ -94,7 +93,7 @@ class LayerVarsRuntime(
             throw cause
         }
       val dv = DataValue.unsafeFromAnyRef(value)
-      lr.state.setVariable(vrd, dv, lr.state)
+      state.setVariable(vrd, dv, state)
     }
   }
 }

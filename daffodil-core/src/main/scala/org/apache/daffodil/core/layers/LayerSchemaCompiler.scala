@@ -18,7 +18,6 @@ package org.apache.daffodil.core.layers
 
 import org.apache.daffodil.core.dsom.SequenceGroupTermBase
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.layers.LayerFactory
 import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
 
 object LayerSchemaCompiler {
@@ -36,14 +35,12 @@ object LayerSchemaCompiler {
    * *also* at runtime to verify that the dynamically loaded layer
    * classes are compatible with the variables and their definitions.
    *
-   * Constructs a LayerFactory which is the serializable runtime data structure
-   * used to create and initialize the layer instance which is used
-   * by the LayerParser, and LayerUnparser at runtime.
+   * This compilation produces no output object, as the LayerRuntimeData
+   * already contains everything needed. 
    */
-  def apply(sq: SequenceGroupTermBase): LayerFactory = {
+  def compile(sq: SequenceGroupTermBase): Unit = {
     val lc = new LayerSchemaCompiler(sq)
-    val res = lc.compile
-    res
+    lc.compile
   }
 }
 
@@ -67,7 +64,7 @@ private class LayerSchemaCompiler private (sq: SequenceGroupTermBase) {
       )
   }
 
-  lazy val compile: LayerFactory = {
+  lazy val compile: Unit = {
     checkOnlyAllowedProperties()
     //
     // This is called only for side-effect of checking that a LayerVarsRuntime
@@ -78,10 +75,6 @@ private class LayerSchemaCompiler private (sq: SequenceGroupTermBase) {
     // when the schema was compiled.
     //
     LayerRuntimeCompiler.compile(lrd)
-
-    // This is the actual result of compilation. This object is serialized as
-    // part of the processor.
-    new LayerFactory(lrd)
   }
 
 }

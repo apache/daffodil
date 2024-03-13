@@ -71,7 +71,7 @@ object LayerRuntimeCompiler {
     val optLayerVarsRuntime = alreadyCheckedLayers.get(protoLayer.name())
     optLayerVarsRuntime.getOrElse {
       val c = protoLayer.getClass
-      val constructor = c.getConstructor()
+      val constructor = c.getConstructor() // cannot fail because SPI loader would have failed
       val allMethods = c.getMethods
       val optParamSetter = allMethods.find { _.getName == varParamSetter }
       val allVarResultGetters =
@@ -250,11 +250,7 @@ object LayerRuntimeCompiler {
    * Note that user-written layer code is not run at this time, but method signatures
    * of setters/getters are checked against the DFDL variables defined in
    * the layer's target namespace.
-   *
-   * @param layerRuntimeData
-   * @return
    */
-
   def compile(layerRuntimeData: LayerRuntimeData): LayerVarsRuntime = {
     val optLayerVarsRuntime = alreadyCheckedLayers.get(layerRuntimeData.spiName)
     optLayerVarsRuntime.getOrElse {

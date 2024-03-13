@@ -938,7 +938,7 @@ class TestCLIParsing {
     )
     runCLI(args"parse -s $schema") { cli =>
       cli.sendLine("0", inputDone = true)
-      cli.expectErr("Unexpected exception in layer 'buggy'")
+      cli.expectErr("Parse Error: bad input stream")
     }(ExitCode.ParseError)
   }
 

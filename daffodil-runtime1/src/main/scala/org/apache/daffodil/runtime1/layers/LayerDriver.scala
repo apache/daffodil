@@ -21,11 +21,11 @@ import java.io.FilterInputStream
 import java.io.FilterOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.lang.reflect.InvocationTargetException
 
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
-import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
@@ -34,6 +34,7 @@ import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.layers.api.Layer
+import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 import passera.unsigned.ULong
@@ -42,13 +43,13 @@ import passera.unsigned.ULong
  * Mandatory factory to create and initialize the layer driver object.
  */
 object LayerDriver {
-  def apply(
-             layerRuntimeImpl: LayerRuntime,
-             layer: Layer,
-             layerVarsRuntime: LayerVarsRuntime,
-  ): LayerDriver = {
-    val instance = new LayerDriver(layerRuntimeImpl, layer, layerVarsRuntime)
-    instance.init()
+  def apply(state: ParseOrUnparseState, lrd: LayerRuntimeData): LayerDriver = {
+    val lvr = LayerRuntimeCompiler.compile(lrd) // could fail if layer not SPI loaded
+    val lr = new LayerRuntime(state, lrd, lvr) // can't fail
+    val newLayer = lvr.constructInstance() // can't fail
+    newLayer.setLayerRuntime(lr) // can't fail
+    val instance = new LayerDriver(newLayer) // can't fail
+    lvr.callParamSetterWithParameterVars(newLayer) // could fail if user's method causes errors
     instance
   }
 }
@@ -61,34 +62,18 @@ object LayerDriver {
  * A layer driver is created at runtime as part of a single parse/unparse call.
  * Hence, they can be stateful without causing thread-safety issues.
  *
- * @param layerRuntimeImpl runtime state including I/O streams to wrap, and the actual variable contents to read
- *                         for initializing the layer from DFDL variables, and writable variables to write back
- *                         and results from the layer to DFDL variables.
  * @param layer            The Layer instance to parameterize, drive, and get results back from.
- * @param layerVarsRuntime Result of the LayerRuntimeCompiler's compilation of the Layer class with the layer's
- *                         DFDL Variables.
  */
-class LayerDriver private (
-                            layerRuntimeImpl: LayerRuntime,
-                            layer: Layer,
-                            layerVarsRuntime: LayerVarsRuntime,
-) {
+class LayerDriver private (val layer: Layer) {
 
-  private def init(): Unit = {
-    layer.setLayerRuntime(
-      layerRuntimeImpl,
-    ) // must be set before the next call so that can cause errors
-    layerVarsRuntime.callParamSetterWithParameterVars(layer, layerRuntimeImpl)
-  }
+  def layerRuntime: LayerRuntime = layer.getLayerRuntime
+  private def layerVarsRuntime = layerRuntime.layerVarsRuntime
 
-  private def wrapJavaInputStream(
-                                   s: InputSourceDataInputStream,
-                                   layerRuntimeImpl: LayerRuntime,
-  ) =
-    new JavaIOInputStream(s, layerRuntimeImpl.finfo)
+  private def wrapJavaInputStream(s: InputSourceDataInputStream) =
+    new JavaIOInputStream(s, layer)
 
-  private def wrapJavaOutputStream(s: DataOutputStream, layerRuntimeImpl: LayerRuntime) =
-    new JavaIOOutputStream(s, layer, layerRuntimeImpl, layerVarsRuntime)
+  private def wrapJavaOutputStream(s: DataOutputStream) =
+    new JavaIOOutputStream(s, layer)
 
   /**
    *  Override these if we ever have transformers that don't have these
@@ -96,11 +81,8 @@ class LayerDriver private (
    */
   val mandatoryLayerAlignmentInBits: Int = 8
 
-  final def addInputLayer(
-                           s: InputSourceDataInputStream,
-                           layerRuntimeImpl: LayerRuntime,
-  ): InputSourceDataInputStream = {
-    val jis = wrapJavaInputStream(s, layerRuntimeImpl)
+  final def addInputLayer(s: InputSourceDataInputStream): InputSourceDataInputStream = {
+    val jis = wrapJavaInputStream(s)
     val decodedInputStream =
       new AssuredCloseInputStream(layer.wrapLayerInput(jis), jis)
     val newDIS = InputSourceDataInputStream(decodedInputStream)
@@ -115,17 +97,16 @@ class LayerDriver private (
    * parsing the layer we can invoke this to handle cleanups, and
    * finalization issues like assigning the result variables
    */
-  final def removeInputLayer(
-                              s: InputSourceDataInputStream,
-                              layerRuntimeImpl: LayerRuntime,
-  ): Unit =
-    layerVarsRuntime.callGettersToPopulateResultVars(layer, layerRuntimeImpl)
+  final def removeInputLayer(s: InputSourceDataInputStream): Unit =
+    try {
+      layerVarsRuntime.callGettersToPopulateResultVars(layer)
+    } catch {
+      case ite: InvocationTargetException =>
+        layer.processingError(ite.getCause)
+    }
 
-  final def addOutputLayer(
-                            s: DataOutputStream,
-                            layerRuntimeImpl: LayerRuntime,
-  ): DirectOrBufferedDataOutputStream = {
-    val jos = wrapJavaOutputStream(s, layerRuntimeImpl)
+  final def addOutputLayer(s: DataOutputStream): DirectOrBufferedDataOutputStream = {
+    val jos = wrapJavaOutputStream(s)
     val encodedOutputStream =
       new AssuredCloseOutputStream(layer.wrapLayerOutput(jos), jos)
     val newDOS = DirectOrBufferedDataOutputStream(
@@ -175,11 +156,10 @@ class LayerDriver private (
  * java InputStream API for byte-oriented reads.
  *
  * @param s the Daffodil InputSourceDataInputStream
- * @param finfo the format info (a view trait on a PState/UState) needed for bit order considerations.
  * @return a java.io.InputStream which when read from, delegates to the InputSourceDataInputStream
  */
-class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extends InputStream {
-
+class JavaIOInputStream(s: InputSourceDataInputStream, layer: Layer) extends InputStream {
+  private def finfo = layer.getLayerRuntime.finfo
   private lazy val id = Misc.getNameFromClass(this)
 
   override def read(): Int = {
@@ -217,18 +197,15 @@ class JavaIOInputStream(s: InputSourceDataInputStream, finfo: FormatInfo) extend
 }
 
 /**
- * Turns a Daffodil DataOutputStream into an ordinary java.io.OutputStream.
+ * Turns a Daffodil bits-capable DataOutputStream into an ordinary java.io.OutputStream.
  *
  * @param dos   The DataOutputStream to write the data to.
  */
-class JavaIOOutputStream(
-                          dos: DataOutputStream,
-                          layer: Layer,
-                          lri: LayerRuntime,
-                          lvr: LayerVarsRuntime,
-) extends OutputStream {
+class JavaIOOutputStream(dos: DataOutputStream, layer: Layer) extends OutputStream {
 
-  private def finfo = lri.finfo
+  private def lr = layer.getLayerRuntime
+  private def lvr = lr.layerVarsRuntime
+  private def finfo = lr.finfo
 
   private var closed = false
 
@@ -245,8 +222,14 @@ class JavaIOOutputStream(
       //
       // This is where we can reliably wrap-up the layer processing.
       //
-      lvr.callGettersToPopulateResultVars(layer, lri)
-      closed = true
+      try {
+        lvr.callGettersToPopulateResultVars(layer)
+      } catch {
+        case ite: InvocationTargetException =>
+          layer.processingError(ite.getCause)
+      } finally {
+        closed = true
+      }
     }
   }
 }

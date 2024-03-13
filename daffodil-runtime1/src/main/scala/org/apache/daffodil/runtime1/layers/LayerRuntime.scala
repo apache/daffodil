@@ -17,68 +17,25 @@
 package org.apache.daffodil.runtime1.layers
 
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.ProcessingError
-import org.apache.daffodil.runtime1.processors.parsers.PState
-import org.apache.daffodil.runtime1.processors.parsers.ParseError
-import org.apache.daffodil.runtime1.processors.unparsers.UState
-import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
 
 /**
- * Glues together the state and the static layer runtime data
+ * Glues together the state and the static layer runtime data (created by the schema compiler)
+ * and the vars runtime (which is created at the start of runtime)
  */
-class LayerRuntime(val state: ParseOrUnparseState, val layerRuntimeData: LayerRuntimeData) {
-
-  private def lrd = layerRuntimeData
+class LayerRuntime(
+  val state: ParseOrUnparseState,
+  val layerRuntimeData: LayerRuntimeData,
+  val layerVarsRuntime: LayerVarsRuntime,
+) {
 
   final def finfo: FormatInfo = state
 
   def processingError(cause: Throwable): Nothing =
-    state.toss(toProcessingError(cause))
+    state.toss(state.toProcessingError(cause))
 
   def processingError(msg: String): Nothing =
-    state.toss(toProcessingError(msg))
-
-  def toProcessingError(msg: String): ProcessingError = {
-    val diagnostic = state match {
-      case ps: PState =>
-        new ParseError(
-          rd = Maybe(lrd.schemaFileLocation),
-          loc = Maybe(state.currentLocation),
-          causedBy = Maybe.Nope,
-          kind = Maybe(msg),
-        )
-      case us: UState =>
-        new UnparseError(
-          rd = Maybe(lrd.schemaFileLocation),
-          loc = Maybe(state.currentLocation),
-          causedBy = Maybe.Nope,
-          kind = Maybe(msg),
-        )
-    }
-    diagnostic
-  }
-
-  def toProcessingError(e: Throwable): ProcessingError = {
-    val diagnostic = state match {
-      case ps: PState =>
-        new ParseError(
-          rd = Maybe(lrd.schemaFileLocation),
-          loc = Maybe(state.currentLocation),
-          causedBy = Maybe(e),
-          kind = Maybe.Nope,
-        )
-      case us: UState =>
-        new UnparseError(
-          rd = Maybe(lrd.schemaFileLocation),
-          loc = Maybe(state.currentLocation),
-          causedBy = Maybe(e),
-          kind = Maybe.Nope,
-        )
-    }
-    diagnostic
-  }
+    state.toss(state.toProcessingError(msg))
 
   def runtimeSchemaDefinitionError(msg: String): Nothing =
     state.SDE(msg)
