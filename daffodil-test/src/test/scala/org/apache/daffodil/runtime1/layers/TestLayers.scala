@@ -43,4 +43,23 @@ class TestLayers {
   @Test def testOk3(): Unit = { runner.runOneTest("testOk3") }
   @Test def testOk4(): Unit = { runner.runOneTest("testOk4") }
 
+  @Test def testBadTypeInLayerCode1(): Unit = { runner.runOneTest("testBadTypeInLayerCode1") }
+  @Test def testBadTypeInLayerCode2(): Unit = { runner.runOneTest("testBadTypeInLayerCode2") }
+  @Test def testBadNotInMETAINFServices(): Unit = {
+    runner.runOneTest("testBadNotInMETAINFServices")
+  }
+
+  @Test def testBadMissingSetter(): Unit = { runner.runOneTest("testBadMissingSetter") }
+
+  @Test def testBadMissingSetterArg(): Unit = { runner.runOneTest("testBadMissingSetterArg") }
+
+  @Test def testBadMissingGetter(): Unit = { runner.runOneTest("testBadMissingGetter") }
+  @Test def testBadMissingSetterVar(): Unit = { runner.runOneTest("testBadMissingSetterVar") }
+  @Test def testBadMissingGetterVar(): Unit = { runner.runOneTest("testBadMissingGetterVar") }
+
+  @Test def testBadMissingDefaultConstructor(): Unit = {
+    runner.runOneTest("testBadMissingDefaultConstructor")
+  }
+  @Test def testBadNotALayer(): Unit = { runner.runOneTest("testBadNotALayer") }
+
 }

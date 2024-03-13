@@ -16,18 +16,19 @@
  */
 package org.apache.daffodil.runtime1.layers
 
-import com.ibm.icu.util.Calendar
+import java.lang.reflect.Constructor
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
+
 import org.apache.daffodil.lib.calendar.DFDLDate
 import org.apache.daffodil.lib.calendar.DFDLDateTime
 import org.apache.daffodil.lib.calendar.DFDLTime
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
-
-import java.lang.reflect.Constructor
-import java.lang.reflect.InvocationTargetException
-import java.lang.reflect.Method
 import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
+
+import com.ibm.icu.util.Calendar
 
 /**
  * Enables fast construction of the layer instance passing all parameter vars values
@@ -63,9 +64,12 @@ class LayerVarsRuntime(
     val state = layer.getLayerRuntime.state
     val args = paramVRDs.map { vrd =>
       vrd.primType match {
-        case PrimType.Date => state.getVariable(vrd, state).value.asInstanceOf[DFDLDate].calendar
-        case PrimType.Time => state.getVariable(vrd, state).value.asInstanceOf[DFDLTime].calendar
-        case PrimType.DateTime => state.getVariable(vrd, state).value.asInstanceOf[DFDLDateTime].calendar
+        case PrimType.Date =>
+          state.getVariable(vrd, state).value.asInstanceOf[DFDLDate].calendar
+        case PrimType.Time =>
+          state.getVariable(vrd, state).value.asInstanceOf[DFDLTime].calendar
+        case PrimType.DateTime =>
+          state.getVariable(vrd, state).value.asInstanceOf[DFDLDateTime].calendar
         case _ => state.getVariable(vrd, state).value
       }
     }
@@ -110,15 +114,15 @@ class LayerVarsRuntime(
         vrd.primType match {
           case PrimType.Date => {
             val d = raw.asInstanceOf[Calendar]
-            DFDLDate(d, false)
+            DFDLDate(d, hasTimeZone = false)
           }
           case PrimType.Time => {
             val d = raw.asInstanceOf[Calendar]
-            DFDLTime(d, false)
+            DFDLTime(d, hasTimeZone = false)
           }
           case PrimType.DateTime => {
             val d = raw.asInstanceOf[Calendar]
-            DFDLDateTime(d, false)
+            DFDLDateTime(d, hasTimeZone = false)
           }
           case _ => raw
         }

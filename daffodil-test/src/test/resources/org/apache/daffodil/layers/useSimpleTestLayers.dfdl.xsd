@@ -23,13 +23,20 @@
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
            xmlns:tl="urn:STL"
-           xmlns:ex="http://example.com"
+           xmlns:tl1="urn:STL1"
+           xmlns:tl2="urn:STL2"
+
+        xmlns:ex="http://example.com"
            targetNamespace="http://example.com" >
 
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <import namespace="urn:STL"
              schemaLocation="/org/apache/daffodil/layers/xsd/SimpleTestLayer.dfdl.xsd"/>
+  <import namespace="urn:STL1"
+          schemaLocation="/org/apache/daffodil/layers/xsd/SimpleTestLayerNoIntVar.dfdl.xsd"/>
+  <import namespace="urn:STL2"
+          schemaLocation="/org/apache/daffodil/layers/xsd/SimpleTestLayerNoStringVar.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
@@ -142,6 +149,232 @@
             </appinfo>
           </annotation>
           <sequence dfdlx:layer='tl:stlOk4'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadTypeInLayerCode1">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl:stlBadTypeInLayerCode1'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadTypeInLayerCode2">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl:stlBadTypeInLayerCode2'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadNotInMETAINFServices">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl:stlBadNotInMETAINFServices'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadMissingSetter">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl:stlBadMissingSetter'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadMissingSetterArg">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl:stlBadMissingSetterArg'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadMissingGetter">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl:stlBadMissingGetter'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadMissingSetterVar">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <!-- <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/> -->
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <dfdl:newVariableInstance ref="tl1:stringVar"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl1:stlBadMissingSetterVar'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+            <element name="intVarOut" type="xs:int"
+                     dfdl:inputValueCalc='{ 42 }'/>
+            <element name="stringVarOut" type="xs:string"
+                     dfdl:inputValueCalc='{ $tl1:stringVar }'/>
+      </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadMissingGetterVar">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl2:intVar" defaultValue="{ intVarIn }"/>
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar"/> -->
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl2:stlBadMissingGetterVar'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+            <element name="intVarOut" type="xs:int"
+                     dfdl:inputValueCalc='{ $tl2:intVar }'/>
+            <element name="stringVarOut" type="xs:string"
+                     dfdl:inputValueCalc='{ "forty two" }'/>
+      </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadMissingDefaultConstructor">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl:stlBadMissingDefaultConstructor'>
+            <element name="data" type="xs:string"/>
+          </sequence>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="rootBadNotALayer">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <!-- <dfdl:newVariableInstance ref="tl:stringVar" defaultValue="{ stringVarIn }"/>-->
+              <!-- <dfdl:newVariableInstance ref="tl:intVar"/>-->
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer='tl:stlBadNotALayer'>
             <element name="data" type="xs:string"/>
           </sequence>
           <group ref="ex:outVars"/>

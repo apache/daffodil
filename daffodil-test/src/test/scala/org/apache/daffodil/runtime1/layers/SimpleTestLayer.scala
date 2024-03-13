@@ -21,6 +21,7 @@ package org.apache.daffodil.runtime1.layers
 
 import java.io.InputStream
 import java.io.OutputStream
+
 import org.apache.daffodil.runtime1.layers.api.Layer
 
 abstract class TLayer(n: String, ns: String) extends Layer(n, ns) {
@@ -64,4 +65,115 @@ final class STL_Ok4() extends TLayer("stlOk4", "urn:STL") {
   }
   def getLayerVariableResult_intVar(): Int = intVar + intVar
   //  def getLayerVariableResult_stringVar(): String = stringVar + " " + stringVar
+}
+
+final class STL_BadTypeInLayerCode1() extends TLayer("stlBadTypeInLayerCode1", "urn:STL") {
+
+  private var myOtherIntVar: String = null
+
+  private[layers] def setLayerVariableParameters(intVar: String): Unit = { // type is String, should be Int
+    this.myOtherIntVar = intVar
+    this.stringVar = "forty two"
+  }
+  //  def getLayerVariableResult_intVar(): Int = intVar + intVar
+  def getLayerVariableResult_stringVar(): String = stringVar + " " + stringVar
+}
+
+final class STL_BadTypeInLayerCode2() extends TLayer("stlBadTypeInLayerCode2", "urn:STL") {
+
+  private var myOtherStringVar: Int = 0
+
+  private[layers] def setLayerVariableParameters(intVar: Int): Unit = {
+    this.intVar = intVar
+    this.stringVar = "forty two"
+  }
+  //  def getLayerVariableResult_intVar(): Int = intVar + intVar
+  def getLayerVariableResult_stringVar(): Int = intVar * 2 // type is Int, should be String
+}
+
+final class STL_NotInMETAINFServices() extends TLayer("stlBadNotInMETAINFServices", "urn:STL") {
+
+  private[layers] def setLayerVariableParameters(intVar: Int): Unit = { // type is String, should be Int
+    this.intVar = intVar
+    this.stringVar = "forty two"
+  }
+  //  def getLayerVariableResult_intVar(): Int = intVar + intVar
+  def getLayerVariableResult_stringVar(): String = stringVar + " " + stringVar
+}
+
+final class STL_BadMissingSetter() extends TLayer("stlBadMissingSetter", "urn:STL") {
+
+//  private[layers] def setLayerVariableParameters(intVar: Int): Unit = {  // Whoops. Error is that the setter is missing
+//    this.intVar = intVar
+//    this.stringVar = "forty two"
+//  }
+
+  def getLayerVariableResult_stringVar(): String = stringVar + " " + stringVar
+}
+
+final class STL_BadMissingSetterArg() extends TLayer("stlBadMissingSetterArg", "urn:STL") {
+
+  private[layers] def setLayerVariableParameters()
+    : Unit = { // Whoops. Error is that the setter arg intVar is missing
+    this.intVar = 42
+    this.stringVar = "forty two"
+  }
+
+  def getLayerVariableResult_stringVar(): String = stringVar + " " + stringVar
+}
+
+final class STL_BadMissingGetter() extends TLayer("stlBadMissingGetter", "urn:STL") {
+
+  private[layers] def setLayerVariableParameters(intVar: Int): Unit = {
+    this.intVar = intVar
+    this.stringVar = "forty two"
+  }
+
+  // Whoops. Error is that the getter isn't defined.
+  // def getLayerVariableResult_stringVar(): String = stringVar + " " + stringVar
+}
+
+final class STL_BadMissingSetterVar() extends TLayer("stlBadMissingSetterVar", "urn:STL1") {
+
+  private[layers] def setLayerVariableParameters(intVar: Int): Unit = { // Whoops. Error is that there is no var named intVar
+    this.intVar = 42
+    this.stringVar = "forty two"
+  }
+
+  def getLayerVariableResult_stringVar(): String = stringVar + " " + stringVar
+}
+
+final class STL_BadMissingGetterVar() extends TLayer("stlBadMissingGetterVar", "urn:STL2") {
+
+  private[layers] def setLayerVariableParameters(intVar: Int): Unit = {
+    this.intVar = 42
+    this.stringVar = "forty two"
+  }
+
+  def getLayerVariableResult_stringVar(): String =
+    stringVar + " " + stringVar // Whoops. Error is that there is no var named stringVar
+}
+
+final class STL_BadMissingDefaultConstrutor(intArg: Int)
+  extends TLayer("stlBadMissingDefaultConstructor", "urn:STL") {
+
+  private[layers] def setLayerVariableParameters(intVar: Int): Unit = {
+    this.intVar = intVar + intArg
+    this.stringVar = "forty two"
+  }
+
+  def getLayerVariableResult_stringVar(): String = stringVar + " " + stringVar
+}
+
+final class STL_BadNotALayer() { // extends TLayer("stlBadMissingDefaultConstructor", "urn:STL") {
+
+  var intVar: Int = 0
+  var stringVar: String = null
+
+  private[layers] def setLayerVariableParameters(intVar: Int): Unit = {
+    this.intVar = intVar
+    this.stringVar = "forty two"
+  }
+
+  def getLayerVariableResult_stringVar(): String = stringVar + " " + stringVar
 }

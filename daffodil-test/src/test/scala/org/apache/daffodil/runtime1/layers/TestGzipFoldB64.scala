@@ -31,7 +31,6 @@ object TestGzipFoldB64 {
   }
 }
 
-
 class TestGzipFoldB64 {
 
   import TestGzipFoldB64._

@@ -26,9 +26,7 @@
   defaultRoundTrip="true">
 
   <parserTestCase name="testAllTypes" root="root" model="useAllTypesLayer.dfdl.xsd">
-    <document>
-      <documentPart type="text"/>
-    </document>
+    <document/>
     <infoset>
       <dfdlInfoset>
         <ex:root xmlns="">
@@ -58,9 +56,7 @@
 
 
   <parserTestCase name="testOk1" root="rootOk1" model="useSimpleTestLayers.dfdl.xsd">
-    <document>
-      <documentPart type="text"/>
-    </document>
+    <document/>
     <infoset>
       <dfdlInfoset>
         <ex:rootOk1 xmlns="">
@@ -75,9 +71,7 @@
   </parserTestCase>
 
   <parserTestCase name="testOk2" root="rootOk2" model="useSimpleTestLayers.dfdl.xsd">
-    <document>
-      <documentPart type="text"/>
-    </document>
+    <document/>
     <infoset>
       <dfdlInfoset>
         <ex:rootOk2 xmlns="">
@@ -92,9 +86,7 @@
   </parserTestCase>
 
   <parserTestCase name="testOk3" root="rootOk3" model="useSimpleTestLayers.dfdl.xsd">
-    <document>
-      <documentPart type="text"/>
-    </document>
+    <document/>
     <infoset>
       <dfdlInfoset>
         <ex:rootOk3 xmlns="">
@@ -109,9 +101,7 @@
   </parserTestCase>
 
   <parserTestCase name="testOk4" root="rootOk4" model="useSimpleTestLayers.dfdl.xsd">
-    <document>
-      <documentPart type="text"/>
-    </document>
+    <document/>
     <infoset>
       <dfdlInfoset>
         <ex:rootOk4 xmlns="">
@@ -123,6 +113,129 @@
         </ex:rootOk4>
       </dfdlInfoset>
     </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="testBadTypeInLayerCode1" root="rootBadTypeInLayerCode1" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>intVar</error>
+      <error>differing types</error>
+      <error>java.lang.String</error>
+      <error>java.lang.Integer</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadTypeInLayerCode2" root="rootBadTypeInLayerCode2" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>stringVar</error>
+      <error>differing types</error>
+      <error>java.lang.String</error>
+      <error>int</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadNotInMETAINFServices" root="rootBadNotInMETAINFServices" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>dfdlx:layer</error>
+      <error>{urn:STL}stlBadNotInMETAINFServices</error>
+      <error>not found</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingSetter" root="rootBadMissingSetter" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>STL_BadMissingSetter</error>
+      <error>does not have a setter</error>
+      <error>setLayerVariableParameters</error>
+      <error>intVar</error>
+      <error>stringVar</error>
+      <error>getter for remaining layer variables</error>
+      <error>getLayerVariableResult_</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingSetterArg" root="rootBadMissingSetterArg" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>STL_BadMissingSetterArg</error>
+      <error>does not have a setter</error>
+      <error>setLayerVariableParameters</error>
+      <error>intVar</error>
+      <error>stringVar</error>
+      <error>getter for remaining layer variables</error>
+      <error>getLayerVariableResult_</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingGetter" root="rootBadMissingGetter" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>STL_BadMissingGetter</error>
+      <error>does not have a setter</error>
+      <error>setLayerVariableParameters</error>
+      <error>intVar</error>
+      <error>stringVar</error>
+      <error>getter for remaining layer variables</error>
+      <error>getLayerVariableResult_</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingSetterVar" root="rootBadMissingSetterVar" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>No layer DFDL variable</error>
+      <error>namespace</error>
+      <error>urn:STL1</error>
+      <error>intVar</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingGetterVar" root="rootBadMissingGetterVar" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <!--
+      TODO: This could be improved. This doesn't mention that there is a getter
+       named getLayerVariableResult_stringVar() of type string, but no corresponding
+       DFDL variable named 'stringVar' of that type.
+       -->
+      <error>Schema Definition Error</error>
+      <error>STL_BadMissingGetterVar</error>
+      <error>does not have a setter</error>
+      <error>setLayerVariableParameters</error>
+      <error>intVar</error>
+      <error>getter for remaining layer variables</error>
+      <error>getLayerVariableResult_</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadMissingDefaultConstructor" root="rootBadMissingDefaultConstructor" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>dfdlx:layer</error>
+      <error>not found</error>
+      <error>stlBadMissingDefaultConstructor</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="testBadNotALayer" root="rootBadNotALayer" model="useSimpleTestLayers.dfdl.xsd">
+    <document/>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>dfdlx:layer</error>
+      <error>not found</error>
+      <error>stlBadNotALayer</error>
+    </errors>
   </parserTestCase>
 
 </testSuite>

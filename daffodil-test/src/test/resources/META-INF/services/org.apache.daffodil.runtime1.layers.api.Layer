@@ -35,6 +35,21 @@ org.apache.daffodil.runtime1.layers.STL_Ok1
 org.apache.daffodil.runtime1.layers.STL_Ok2
 org.apache.daffodil.runtime1.layers.STL_Ok3
 org.apache.daffodil.runtime1.layers.STL_Ok4
+org.apache.daffodil.runtime1.layers.STL_BadTypeInLayerCode1
+org.apache.daffodil.runtime1.layers.STL_BadTypeInLayerCode2
+org.apache.daffodil.runtime1.layers.STL_BadMissingSetter
+org.apache.daffodil.runtime1.layers.STL_BadMissingSetterArg
+org.apache.daffodil.runtime1.layers.STL_BadMissingGetter
+org.apache.daffodil.runtime1.layers.STL_BadMissingSetterVar
+org.apache.daffodil.runtime1.layers.STL_BadMissingGetterVar
+org.apache.daffodil.runtime1.layers.STL_BadMissingDefaultConstrutor
+org.apache.daffodil.runtime1.layers.STL_BadNotALayer # error intentional. This isn't a layer class
+
+
+
+
+
+
 
 
 

@@ -135,7 +135,7 @@ object LayerRuntimeCompiler {
           s"""Layer class $c does not have a setter with arguments for each of the layer's variables.
              | It should have a setter named $varParamSetter with an argument for each layer parameter, in any order, such as
              | ($javaParamSetterArgs), and a getter for remaining layer variables, named with a specific
-             |  name prefix like: '${resultGettersNames.mkString(";\n")}'.""".stripMargin,
+             |  name prefix like: ' $varResultPrefix '.""".stripMargin,
         )
 
         val returnVRDsWithoutGetters = returnVRDNames -- resultGettersNames
