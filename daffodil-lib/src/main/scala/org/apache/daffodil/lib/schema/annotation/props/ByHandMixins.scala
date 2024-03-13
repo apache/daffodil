@@ -197,8 +197,8 @@ trait SeparatorSuppressionPolicyMixin extends PropertyMixin {
         spString match {
           case "required" => SeparatorSuppressionPolicy.Never
           case "suppressed" => SeparatorSuppressionPolicy.AnyEmpty
-          case "suppressedAtEndStrict" => SeparatorSuppressionPolicy.TrailingEmpty
-          case "suppressedAtEndLax" => SeparatorSuppressionPolicy.TrailingEmptyStrict
+          case "suppressedAtEndLax" => SeparatorSuppressionPolicy.TrailingEmpty
+          case "suppressedAtEndStrict" => SeparatorSuppressionPolicy.TrailingEmptyStrict
           case _ => Assert.invariantFailed("illegal string for separatorPolicy")
         }
       }
