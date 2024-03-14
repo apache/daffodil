@@ -17,7 +17,6 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.LayerDriver
 import org.apache.daffodil.runtime1.layers.LayerException
 import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
@@ -52,14 +51,10 @@ class LayeredSequenceParser(
         state.dataInputStream = savedDIS
       }
     } catch {
-      case pe: ParseError =>
-        state.setFailed(pe)
-      case sde: RuntimeSchemaDefinitionError =>
-        throw sde
       case le: LayerException =>
-        state.setFailed(state.toProcessingError(le))
+        state.toss(state.toProcessingError(le))
       case e: Exception =>
-        state.setFailed(state.toProcessingError(new LayerUnexpectedException(e)))
+        state.toss(state.toProcessingError(new LayerUnexpectedException(e)))
     }
   }
 }

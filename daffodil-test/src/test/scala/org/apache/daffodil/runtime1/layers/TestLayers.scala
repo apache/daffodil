@@ -75,4 +75,5 @@ class TestLayers {
 
   @Test def testBombReadProcErr(): Unit = runnerB.runOneTest("testBombReadProcErr")
 
+  @Test def testBombCloseInputProcErr(): Unit = runnerB.runOneTest("testBombCloseInputProcErr")
 }

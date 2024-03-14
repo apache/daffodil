@@ -254,7 +254,8 @@
 
     We want the speculative parsing to just try another path.
 
-    The unparse will not even utilize the layer.
+    The unparse will not even utilize the layer because the branch
+    in the parse result is the one without the layer in it.
     -->
     <document>A</document>
     <infoset>
@@ -266,6 +267,37 @@
     </infoset>
   </parserTestCase>
 
+  <tdml:defineConfig name="CloseInputProcErr">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">closeInput</daf:bind>
+      <daf:bind name="tl:bombHow">procErr</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombCloseInputProcErr" config="CloseInputProcErr"
+                  root="root2" model="useSimpleBombLayer.dfdl.xsd">
+    <!--
+    This test illustrates how a processing error in a layer
+    a parse error in the close() method can backtrack the parser.
+
+    This is important. Imagine the parser is speculating forward, and
+    a layer is used. But the data isn't suitable for the layer so the
+    stream close() method throws an error.
+
+    We want the speculative parsing to just try another path.
+
+    The unparse will not even utilize the layer because the branch
+    in the parse result is the one without the layer in it.
+    -->
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root2 xmlns="">
+          <data>A</data>
+        </ex:root2>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
   <!-- -->
 
 </testSuite>
