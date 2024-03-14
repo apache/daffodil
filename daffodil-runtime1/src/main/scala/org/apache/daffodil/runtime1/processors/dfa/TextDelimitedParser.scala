@@ -54,111 +54,112 @@ abstract class TextDelimitedParserBase(
     val lmt = new LongestMatchTracker()
 
     val fieldReg: Registers = state.dfaRegistersPool.getFromPool("TextDelimitedParserBase1")
+    try { // to insure the fieldReg are returned to the pool even if there is an unexpected throw from the I/O layer
+      fieldReg.reset(state, input, delimIter) // Initialization
 
-    fieldReg.reset(state, input, delimIter) // Initialization
+      var stillSearching: Boolean = true
+      var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
+      while (stillSearching) {
 
-    var stillSearching: Boolean = true
-    var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
-    while (stillSearching) {
+        Assert.invariant(beforeDelimiter =#= DataInputStream.MarkPos.NoMarkPos)
+        field.run(fieldReg)
+        beforeDelimiter = input.markPos
 
-      Assert.invariant(beforeDelimiter =#= DataInputStream.MarkPos.NoMarkPos)
-      field.run(fieldReg)
-      beforeDelimiter = input.markPos
+        fieldReg.status match {
+          case StateKind.EndOfData => stillSearching = false
+          case StateKind.Failed => stillSearching = false
+          case StateKind.Paused => {
 
-      fieldReg.status match {
-        case StateKind.EndOfData => stillSearching = false
-        case StateKind.Failed => stillSearching = false
-        case StateKind.Paused => {
-
-          delimIter.reset()
-          while (delimIter.hasNext()) {
-            val d = delimIter.next()
-            input.resetPos(beforeDelimiter)
-            beforeDelimiter = input.markPos
-            val delimReg: Registers =
-              state.dfaRegistersPool.getFromPool("TextDelimitedParserBase2")
-            delimReg.reset(state, input, delimIter)
-            d.run(delimReg)
-            if (delimReg.status == StateKind.Succeeded) {
-              lmt.successfulMatch(
-                delimReg.matchStartPos,
-                delimReg.delimString,
-                d,
-                delimIter.currentIndex,
-              )
+            delimIter.reset()
+            while (delimIter.hasNext()) {
+              val d = delimIter.next()
+              input.resetPos(beforeDelimiter)
+              beforeDelimiter = input.markPos
+              val delimReg: Registers =
+                state.dfaRegistersPool.getFromPool("TextDelimitedParserBase2")
+              delimReg.reset(state, input, delimIter)
+              d.run(delimReg)
+              if (delimReg.status == StateKind.Succeeded) {
+                lmt.successfulMatch(
+                  delimReg.matchStartPos,
+                  delimReg.delimString,
+                  d,
+                  delimIter.currentIndex,
+                )
+              }
+              state.dfaRegistersPool.returnToPool(delimReg)
             }
-            state.dfaRegistersPool.returnToPool(delimReg)
-          }
-          if (!lmt.longestMatches.isEmpty) { stillSearching = false }
-          else {
-            // resume field parse
-            // TODO: Please explain here why this is the way one resumes the field dfa?
-            // TODO: The above assignment to the actionNum is the only reason that actionNum can't just
-            // be a local variable in the run-the-rules loop.
-            //
-            // I'd like this code better if the flow was different.
-            //
-            // Right now: When scanning to isolate a field, when we hit a character that could be the first
-            // character of some delimiter, we return with status PAUSED, which means PAUSE to see if there is
-            // a complete delimiter.
-            // If so then we're done with the field. If not, however, then we go around the loop and resume ...
-            // and the rub is we resume in the middle of the rules for the current state. This is subtle, and
-            // error prone.
-            //
-            // A better flow would (a) encapsulate all this redundant code better (b) on encountering the
-            // first character of a delimiter, transition to a state that represents that we found a possible
-            // first character of a delimiter. Then that
-            // state's rules would be guarded by finding the longest match delimiter. If found transition to a
-            // state indicating a field has been isolated. If the delimiter is not found, then accumulate the character
-            // as a constituent of the field, and transition to the start state.
-            //
-            input.resetPos(
-              beforeDelimiter,
-            ) // reposition input to where we were trying to find a delimiter (but did not)
-            beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
-            fieldReg.actionNum =
-              fieldReg.actionNum + 1 // but force it to goto next rule so it won't just retry what it just did.
-            stillSearching = true
+            if (!lmt.longestMatches.isEmpty) {
+              stillSearching = false
+            } else {
+              // resume field parse
+              // TODO: Please explain here why this is the way one resumes the field dfa?
+              // TODO: The above assignment to the actionNum is the only reason that actionNum can't just
+              // be a local variable in the run-the-rules loop.
+              //
+              // I'd like this code better if the flow was different.
+              //
+              // Right now: When scanning to isolate a field, when we hit a character that could be the first
+              // character of some delimiter, we return with status PAUSED, which means PAUSE to see if there is
+              // a complete delimiter.
+              // If so then we're done with the field. If not, however, then we go around the loop and resume ...
+              // and the rub is we resume in the middle of the rules for the current state. This is subtle, and
+              // error prone.
+              //
+              // A better flow would (a) encapsulate all this redundant code better (b) on encountering the
+              // first character of a delimiter, transition to a state that represents that we found a possible
+              // first character of a delimiter. Then that
+              // state's rules would be guarded by finding the longest match delimiter. If found transition to a
+              // state indicating a field has been isolated. If the delimiter is not found, then accumulate the character
+              // as a constituent of the field, and transition to the start state.
+              //
+              input.resetPos(
+                beforeDelimiter,
+              ) // reposition input to where we were trying to find a delimiter (but did not)
+              beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
+              fieldReg.actionNum =
+                fieldReg.actionNum + 1 // but force it to goto next rule so it won't just retry what it just did.
+              stillSearching = true
+            }
           }
         }
       }
-    }
-    Assert.invariant(beforeDelimiter != DataInputStream.MarkPos.NoMarkPos)
-    input.resetPos(beforeDelimiter)
-    val result = {
-      if (lmt.longestMatches.isEmpty) {
-        // there were no delimiter matches
-        if (isDelimRequired) Nope
-        else {
+      Assert.invariant(beforeDelimiter != DataInputStream.MarkPos.NoMarkPos)
+      input.resetPos(beforeDelimiter)
+      val result = {
+        if (lmt.longestMatches.isEmpty) {
+          // there were no delimiter matches
+          if (isDelimRequired) Nope
+          else {
+            val fieldValue: Maybe[String] = {
+              val str = fieldReg.resultString.toString
+              // TODO: Performance - avoid this copying of the string. We should be able to trim
+              // on a CharSequence which is a base of both String and StringBuilder
+              // Difficulty is the only common base to String and StringBuilder is CharSequence which is
+              // pretty sparse.
+              val fieldNoPadding = trimByJustification(str)
+              One(fieldNoPadding)
+            }
+            One(new ParseResult(fieldValue, Nope, lmt.longestMatches))
+          }
+        } else {
           val fieldValue: Maybe[String] = {
-            val str = fieldReg.resultString.toString
-            // TODO: Performance - avoid this copying of the string. We should be able to trim
-            // on a CharSequence which is a base of both String and StringBuilder
-            // Difficulty is the only common base to String and StringBuilder is CharSequence which is
-            // pretty sparse.
+            val str = fieldReg.resultString.toString // TODO: Performance see above.
             val fieldNoPadding = trimByJustification(str)
             One(fieldNoPadding)
           }
-          One(new ParseResult(fieldValue, Nope, lmt.longestMatches))
-        }
-      } else {
-        val fieldValue: Maybe[String] = {
-          val str = fieldReg.resultString.toString // TODO: Performance see above.
-          val fieldNoPadding = trimByJustification(str)
-          One(fieldNoPadding)
-        }
-        val delim: Maybe[String] = {
-          One(lmt.longestMatchedString)
-        }
+          val delim: Maybe[String] = {
+            One(lmt.longestMatchedString)
+          }
 
-        One(new ParseResult(fieldValue, delim, lmt.longestMatches))
+          One(new ParseResult(fieldValue, delim, lmt.longestMatches))
+        }
       }
+      result
+    } finally {
+      state.dfaRegistersPool.returnToPool(fieldReg)
+      state.dfaRegistersPool.finalCheck
     }
-
-    state.dfaRegistersPool.returnToPool(fieldReg)
-    state.dfaRegistersPool.finalCheck
-
-    result
   }
 
 }

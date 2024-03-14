@@ -83,8 +83,11 @@ class LayerDriver private (val layer: Layer) {
 
   final def addInputLayer(s: InputSourceDataInputStream): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s)
-    val decodedInputStream =
-      new AssuredCloseInputStream(layer.wrapLayerInput(jis), jis)
+    // This wrapLayerInput could fail via a throw. It's calling layer code.
+    val wrapped = layer.wrapLayerInput(jis)
+    // This assured close thing is just in case the user's layer stream doesn't propagate
+    // the close. That would be incorrect of it, but we want to tolerate that not happening.
+    val decodedInputStream = new AssuredCloseInputStream(wrapped, jis)
     val newDIS = InputSourceDataInputStream(decodedInputStream)
     // must initialize priorBitOrder
     newDIS.cst.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
@@ -99,10 +102,12 @@ class LayerDriver private (val layer: Layer) {
    */
   final def removeInputLayer(s: InputSourceDataInputStream): Unit =
     try {
-      layerVarsRuntime.callGettersToPopulateResultVars(layer)
+      layerVarsRuntime.callGettersToPopulateResultVars(layer) // could throw.
     } catch {
       case ite: InvocationTargetException =>
         layer.processingError(ite.getCause)
+    } finally {
+      s.close()
     }
 
   final def addOutputLayer(s: DataOutputStream): DirectOrBufferedDataOutputStream = {
@@ -174,7 +179,7 @@ class JavaIOInputStream(s: InputSourceDataInputStream, layer: Layer) extends Inp
   override def available(): Int = 0
 
   override def close(): Unit = {
-    // do nothing
+    // do nothing. Important. We do not want the close to cascade beyond here.
   }
 
   /**

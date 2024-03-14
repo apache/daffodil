@@ -69,14 +69,10 @@ class TestLayers {
 
   @Test def testBombReadRSDE(): Unit = runnerB.runOneTest("testBombReadRSDE")
 
-  // FIXME: Fails as the close is never called.
-  // @Test
-  def testBombCloseInputRSDE(): Unit = runnerB.runOneTest("testBombCloseInputRSDE")
+  @Test def testBombCloseInputRSDE(): Unit = runnerB.runOneTest("testBombCloseInputRSDE")
 
   @Test def testBombSetterProcErr(): Unit = runnerB.runOneTest("testBombSetterProcErr")
 
-  // FIXME: Fails with abort RegistersPool leaked 1 instance(s)
-  // @Test
-  def testBombReadProcErr(): Unit = runnerB.runOneTest("testBombReadProcErr")
+  @Test def testBombReadProcErr(): Unit = runnerB.runOneTest("testBombReadProcErr")
 
 }

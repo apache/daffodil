@@ -45,6 +45,7 @@ import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.DataDumper
 import org.apache.daffodil.io.FormatInfo
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.api.DaffodilConfig
 import org.apache.daffodil.lib.api.DaffodilConfigException
 import org.apache.daffodil.lib.api.DaffodilTunables
@@ -1141,142 +1142,142 @@ class Main(
                 new FileInputStream(f)
               }
             }
-            val inStream = InputSourceDataInputStream(input)
+            using(InputSourceDataInputStream(input)) { inStream =>
+              val output = parseOpts.output.toOption match {
+                case Some("-") | None => STDOUT
+                case Some(file) => new FileOutputStream(file)
+              }
 
-            val output = parseOpts.output.toOption match {
-              case Some("-") | None => STDOUT
-              case Some(file) => new FileOutputStream(file)
-            }
+              val infosetType = parseOpts.infosetType.toOption.get
+              val infosetHandler = InfosetType.getInfosetHandler(
+                parseOpts.infosetType.toOption.get,
+                processor,
+                parseOpts.schema.toOption,
+                forPerformance = false,
+              )
 
-            val infosetType = parseOpts.infosetType.toOption.get
-            val infosetHandler = InfosetType.getInfosetHandler(
-              parseOpts.infosetType.toOption.get,
-              processor,
-              parseOpts.schema.toOption,
-              forPerformance = false,
-            )
+              var lastParseBitPosition = 0L
+              var keepParsing = true
+              var exitCode = ExitCode.Success
 
-            var lastParseBitPosition = 0L
-            var keepParsing = true
-            var exitCode = ExitCode.Success
+              while (keepParsing) {
+                val infosetResult =
+                  Timer.getResult("parsing", infosetHandler.parse(inStream, output))
+                val parseResult = infosetResult.parseResult
 
-            while (keepParsing) {
-              val infosetResult =
-                Timer.getResult("parsing", infosetHandler.parse(inStream, output))
-              val parseResult = infosetResult.parseResult
+                val finfo = parseResult.resultState.asInstanceOf[FormatInfo]
+                val loc = parseResult.resultState.currentLocation.asInstanceOf[DataLoc]
+                displayDiagnostics(parseResult)
 
-              val finfo = parseResult.resultState.asInstanceOf[FormatInfo]
-              val loc = parseResult.resultState.currentLocation.asInstanceOf[DataLoc]
-              displayDiagnostics(parseResult)
-
-              if (parseResult.isProcessingError || parseResult.isValidationError) {
-                keepParsing = false
-                exitCode = ExitCode.ParseError
-              } else {
-                // Success. Some InfosetHandlers do not write the result to the output
-                // stream when parsing (e.g. they just create Scala objects). Since we are
-                // parsing, ask the InfosetHandler to serialize the result if it has an
-                // implementation so that the user can see an XML represenation regardless
-                // of the infoset type.
-                infosetResult.write(output)
-                output.flush()
-
-                if (!inStream.hasData()) {
-                  // not even 1 more bit is available.
-                  // do not try to keep parsing, nothing left to parse
+                if (parseResult.isProcessingError || parseResult.isValidationError) {
                   keepParsing = false
+                  exitCode = ExitCode.ParseError
                 } else {
-                  // There is more data available.
-                  if (parseOpts.stream.toOption.get) {
-                    // Streaming mode
-                    if (lastParseBitPosition == loc.bitPos0b) {
-                      // this parse consumed no data, that means this would get
-                      // stuck in an infinite loop if we kept trying to stream,
-                      // so we need to quit
+                  // Success. Some InfosetHandlers do not write the result to the output
+                  // stream when parsing (e.g. they just create Scala objects). Since we are
+                  // parsing, ask the InfosetHandler to serialize the result if it has an
+                  // implementation so that the user can see an XML represenation regardless
+                  // of the infoset type.
+                  infosetResult.write(output)
+                  output.flush()
+
+                  if (!inStream.hasData()) {
+                    // not even 1 more bit is available.
+                    // do not try to keep parsing, nothing left to parse
+                    keepParsing = false
+                  } else {
+                    // There is more data available.
+                    if (parseOpts.stream.toOption.get) {
+                      // Streaming mode
+                      if (lastParseBitPosition == loc.bitPos0b) {
+                        // this parse consumed no data, that means this would get
+                        // stuck in an infinite loop if we kept trying to stream,
+                        // so we need to quit
+                        val remainingBits =
+                          if (loc.bitLimit0b.isDefined) {
+                            (loc.bitLimit0b.get - loc.bitPos0b).toString
+                          } else {
+                            "at least " + (inStream.inputSource.knownBytesAvailable * 8)
+                          }
+                        Logger.log.error(
+                          s"Left over data after consuming 0 bits while streaming. Stopped after consuming ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining.",
+                        )
+                        keepParsing = false
+                        exitCode = ExitCode.LeftOverData
+                      } else {
+                        // last parse did consume data, and we know there is more
+                        // data to come, so try to parse again.
+                        lastParseBitPosition = loc.bitPos0b
+                        keepParsing = true
+                        output.write(0) // NUL-byte separates streams
+                      }
+                    } else {
+                      // not streaming mode, and there is more data available,
+                      // so show left over data warning
+                      val Dump = new DataDumper
+                      val bitsAlreadyConsumed = (loc.bitPos0b % 8).toInt
+                      val firstByteString = if (bitsAlreadyConsumed != 0) {
+                        val bitsToDisplay = 8 - bitsAlreadyConsumed
+                        val pbp = inStream.inputSource.position + 1
+                        val firstByteBitArray = inStream.getByteArray(bitsToDisplay, finfo)
+                        val fbs = firstByteBitArray(0).toBinaryString
+                          .takeRight(8)
+                          .reverse
+                          .padTo(8, '0')
+                          .reverse
+                        val bits = if (finfo.bitOrder == BitOrder.MostSignificantBitFirst) {
+                          "x" * bitsAlreadyConsumed + fbs.dropRight(bitsAlreadyConsumed)
+                        } else {
+                          fbs.takeRight(bitsToDisplay) + "x" * bitsAlreadyConsumed
+                        }
+                        val dumpString =
+                          f"\nLeft over data starts with partial byte. Left over data (Binary) at byte $pbp is: (0b$bits)"
+                        dumpString
+                      } else ""
+                      val curBytePosition1b = inStream.inputSource.position + 1
+                      val bytesAvailable = inStream.inputSource.knownBytesAvailable
+                      val bytesLimit = math.min(8, bytesAvailable).toInt
+                      val destArray = new Array[Byte](bytesLimit)
+                      val destArrayFilled = inStream.inputSource.get(destArray, 0, bytesLimit)
+                      val dumpString =
+                        if (destArrayFilled)
+                          Dump
+                            .dump(
+                              Dump.TextOnly(Some("utf-8")),
+                              0,
+                              destArray.length * 8,
+                              ByteBuffer.wrap(destArray),
+                              includeHeadingLine = false,
+                            )
+                            .mkString("\n")
+                        else ""
+                      val dataText =
+                        if (destArrayFilled)
+                          s"\nLeft over data (UTF-8) starting at byte ${curBytePosition1b} is: (${dumpString}...)"
+                        else ""
+                      val dataHex =
+                        if (destArrayFilled)
+                          s"\nLeft over data (Hex) starting at byte ${curBytePosition1b} is: (0x${destArray.map { a =>
+                              f"$a%02x"
+                            }.mkString}...)"
+                        else ""
                       val remainingBits =
                         if (loc.bitLimit0b.isDefined) {
                           (loc.bitLimit0b.get - loc.bitPos0b).toString
                         } else {
-                          "at least " + (inStream.inputSource.knownBytesAvailable * 8)
+                          "at least " + (bytesAvailable * 8)
                         }
-                      Logger.log.error(
-                        s"Left over data after consuming 0 bits while streaming. Stopped after consuming ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining.",
-                      )
+                      val leftOverDataMessage =
+                        s"Left over data. Consumed ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining." + firstByteString + dataHex + dataText
+                      Logger.log.error(leftOverDataMessage)
                       keepParsing = false
                       exitCode = ExitCode.LeftOverData
-                    } else {
-                      // last parse did consume data, and we know there is more
-                      // data to come, so try to parse again.
-                      lastParseBitPosition = loc.bitPos0b
-                      keepParsing = true
-                      output.write(0) // NUL-byte separates streams
                     }
-                  } else {
-                    // not streaming mode, and there is more data available,
-                    // so show left over data warning
-                    val Dump = new DataDumper
-                    val bitsAlreadyConsumed = (loc.bitPos0b % 8).toInt
-                    val firstByteString = if (bitsAlreadyConsumed != 0) {
-                      val bitsToDisplay = 8 - bitsAlreadyConsumed
-                      val pbp = inStream.inputSource.position + 1
-                      val firstByteBitArray = inStream.getByteArray(bitsToDisplay, finfo)
-                      val fbs = firstByteBitArray(0).toBinaryString
-                        .takeRight(8)
-                        .reverse
-                        .padTo(8, '0')
-                        .reverse
-                      val bits = if (finfo.bitOrder == BitOrder.MostSignificantBitFirst) {
-                        "x" * bitsAlreadyConsumed + fbs.dropRight(bitsAlreadyConsumed)
-                      } else {
-                        fbs.takeRight(bitsToDisplay) + "x" * bitsAlreadyConsumed
-                      }
-                      val dumpString =
-                        f"\nLeft over data starts with partial byte. Left over data (Binary) at byte $pbp is: (0b$bits)"
-                      dumpString
-                    } else ""
-                    val curBytePosition1b = inStream.inputSource.position + 1
-                    val bytesAvailable = inStream.inputSource.knownBytesAvailable
-                    val bytesLimit = math.min(8, bytesAvailable).toInt
-                    val destArray = new Array[Byte](bytesLimit)
-                    val destArrayFilled = inStream.inputSource.get(destArray, 0, bytesLimit)
-                    val dumpString =
-                      if (destArrayFilled)
-                        Dump
-                          .dump(
-                            Dump.TextOnly(Some("utf-8")),
-                            0,
-                            destArray.length * 8,
-                            ByteBuffer.wrap(destArray),
-                            includeHeadingLine = false,
-                          )
-                          .mkString("\n")
-                      else ""
-                    val dataText =
-                      if (destArrayFilled)
-                        s"\nLeft over data (UTF-8) starting at byte ${curBytePosition1b} is: (${dumpString}...)"
-                      else ""
-                    val dataHex =
-                      if (destArrayFilled)
-                        s"\nLeft over data (Hex) starting at byte ${curBytePosition1b} is: (0x${destArray.map { a =>
-                            f"$a%02x"
-                          }.mkString}...)"
-                      else ""
-                    val remainingBits =
-                      if (loc.bitLimit0b.isDefined) {
-                        (loc.bitLimit0b.get - loc.bitPos0b).toString
-                      } else {
-                        "at least " + (bytesAvailable * 8)
-                      }
-                    val leftOverDataMessage =
-                      s"Left over data. Consumed ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining." + firstByteString + dataHex + dataText
-                    Logger.log.error(leftOverDataMessage)
-                    keepParsing = false
-                    exitCode = ExitCode.LeftOverData
                   }
                 }
               }
+              exitCode
             }
-            exitCode
           }
         }
         rc

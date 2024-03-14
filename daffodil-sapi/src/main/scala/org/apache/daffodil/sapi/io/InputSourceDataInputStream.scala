@@ -66,4 +66,6 @@ class InputSourceDataInputStream private[sapi] (
    * been consumed or some data is left-over.
    */
   def hasData(): Boolean = dis.isDefinedForLength(1)
+
+  def close(): Unit = dis.close()
 }

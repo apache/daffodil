@@ -245,8 +245,14 @@
   <parserTestCase name="testBombReadProcErr" config="ReadProcErr"
                   root="root2" model="useSimpleBombLayer.dfdl.xsd">
     <!--
-    This test illustrates how a processing error in the params setter
-    can be suppressed by backtracking.
+    This test illustrates how a processing error in a layer
+    read method can backtrack the parser.
+
+    This is important. Imagine the parser is speculating forward, and
+    a gzip layer is used. But the data isn't gzip data so the
+    gzip stream read() method throws an error.
+
+    We want the speculative parsing to just try another path.
 
     The unparse will not even utilize the layer.
     -->

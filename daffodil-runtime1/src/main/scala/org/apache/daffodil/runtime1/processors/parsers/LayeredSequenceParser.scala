@@ -43,10 +43,14 @@ class LayeredSequenceParser(
         )
 
       val newDIS = layerDriver.addInputLayer(savedDIS)
-
-      state.dataInputStream = newDIS
-      super.parse(state)
-      layerDriver.removeInputLayer(newDIS)
+      try {
+        state.dataInputStream = newDIS
+        super.parse(state)
+      } finally {
+        layerDriver.removeInputLayer(newDIS)
+        // Restore the data stream to the original
+        state.dataInputStream = savedDIS
+      }
     } catch {
       case pe: ParseError =>
         state.setFailed(pe)
@@ -56,9 +60,6 @@ class LayeredSequenceParser(
         state.setFailed(state.toProcessingError(le))
       case e: Exception =>
         state.setFailed(state.toProcessingError(new LayerUnexpectedException(e)))
-    } finally {
-      // Restore the data stream to the original
-      state.dataInputStream = savedDIS
     }
   }
 }
