@@ -99,6 +99,27 @@
 		</daf:tunables>
 	</tdml:defineConfig>
 
+	<tdml:defineConfig name="cfg_invalidRestrictionPolicyError">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:invalidRestrictionPolicy>error</daf:invalidRestrictionPolicy>
+		</daf:tunables>
+	</tdml:defineConfig>
+
+	<tdml:defineConfig name="cfg_invalidRestrictionPolicyValidate">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:invalidRestrictionPolicy>validate</daf:invalidRestrictionPolicy>
+		</daf:tunables>
+	</tdml:defineConfig>
+
+	<tdml:defineConfig name="cfg_invalidRestrictionPolicyIgnore">
+		<daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xs="http://www.w3.org/2001/XMLSchema">
+			<daf:invalidRestrictionPolicy>ignore</daf:invalidRestrictionPolicy>
+		</daf:tunables>
+	</tdml:defineConfig>
+
 	<tdml:defineSchema name="unqualifiedPathStep" elementFormDefault="unqualified">
 		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
@@ -810,5 +831,79 @@
     </tdml:errors>
 
   </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="intPatternRestriction">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+    <xs:element name="int">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:pattern value=".*[05]" /> <!-- must be a multiple of 5 -->
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase
+    name="invalidRestrictionPolicyError_01" root="int"
+    model="intPatternRestriction"
+    config="cfg_invalidRestrictionPolicyError"
+    validation="limited">
+    <tdml:document>201</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Pattern restriction</tdml:error>
+      <tdml:error>string</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="invalidRestrictionPolicyIgnore_01" root="int"
+    model="intPatternRestriction"
+    config="cfg_invalidRestrictionPolicyIgnore"
+    validation="limited">
+    <tdml:document>201</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:int>201</ex:int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors /> <!-- make sure there are no validation errors -->
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="invalidRestrictionPolicyValidate_01" root="int"
+    model="intPatternRestriction"
+    config="cfg_invalidRestrictionPolicyValidate"
+    validation="limited">
+    <tdml:document>201</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:int>201</ex:int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>failed facet checks</tdml:error>
+      <tdml:error>pattern</tdml:error>
+      <tdml:error>.*[05]</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+    name="invalidRestrictionPolicyValidate_02" root="int"
+    model="intPatternRestriction"
+    config="cfg_invalidRestrictionPolicyValidate"
+    validation="limited">
+    <tdml:document>200</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:int>200</ex:int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors /> <!-- make sure there are no validation errors -->
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

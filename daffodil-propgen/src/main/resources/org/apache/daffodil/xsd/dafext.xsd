@@ -261,6 +261,19 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="invalidRestrictionPolicy" type="daf:TunableInvalidRestrictionPolicy" default="error" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              DFDL only allows a subset of restrictions that XML Schema defines. For example, DFDL
+              disallows the use of the xs:pattern restriction on simple types other than xs:string.
+              This tunable configures this behavior to allow use of some of these restrictions. The
+              allowed values are:
+              - error: disallow the restriction, create a schema definition error
+              - ignore: allow the restriction but do not use it during validation
+              - validate: allow the resriction and use it to validate the canonicalized infoset
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="maxBinaryDecimalVirtualPoint" default="200" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -664,6 +677,14 @@
       <xs:enumeration value="daffodil" />
       <xs:enumeration value="daffodilC" />
       <xs:enumeration value="ibm" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TunableInvalidRestrictionPolicy">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="error" />
+      <xs:enumeration value="ignore" />
+      <xs:enumeration value="validate" />
     </xs:restriction>
   </xs:simpleType>
 

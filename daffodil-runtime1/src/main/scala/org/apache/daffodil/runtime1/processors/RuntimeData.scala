@@ -328,7 +328,7 @@ final class SimpleTypeRuntimeData(
 
     lazy val (patternMatchers, optEnumMatcher) = this.matchers
 
-    if (e.patternValues.isDefinedAt(0)) {
+    if (e.patternValues.nonEmpty) {
       val check = checkPatterns(currentElement, patternMatchers)
       if (!check) {
         // The escaping is important here as error messages were impossible to figure out when control chars were involved.
