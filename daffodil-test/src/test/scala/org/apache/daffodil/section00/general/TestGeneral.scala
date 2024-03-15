@@ -165,4 +165,17 @@ class TestGeneral {
     tunables_runner.runOneTest("maxHexBinaryUnparseError")
   }
 
+  @Test def test_invalidRestrictionPolicyError_01(): Unit = {
+    tunables_runner.runOneTest("invalidRestrictionPolicyError_01")
+  }
+  @Test def test_invalidRestrictionPolicyIgnore_01(): Unit = {
+    tunables_runner.runOneTest("invalidRestrictionPolicyIgnore_01")
+  }
+  @Test def test_invalidRestrictionPolicyValidate_01(): Unit = {
+    tunables_runner.runOneTest("invalidRestrictionPolicyValidate_01")
+  }
+  @Test def test_invalidRestrictionPolicyValidate_02(): Unit = {
+    tunables_runner.runOneTest("invalidRestrictionPolicyValidate_02")
+  }
+
 }
