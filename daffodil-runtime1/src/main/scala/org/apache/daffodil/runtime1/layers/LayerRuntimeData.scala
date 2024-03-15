@@ -31,7 +31,7 @@ import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 class LayerRuntimeData(
   val layerQName: RefQName,
   val schemaFileLocation: SchemaFileLocation,
-  val vmap: Map[String, VariableRuntimeData],
+  val qNameToVRD: Map[String, VariableRuntimeData],
   val context: ThrowsSDE,
 ) extends Serializable {
 

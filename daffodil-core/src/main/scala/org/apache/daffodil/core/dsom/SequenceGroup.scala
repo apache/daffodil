@@ -78,12 +78,12 @@ abstract class SequenceTermBase(
       val layerVars = variableMap.vrds.filter { vrd =>
         vrd.globalQName.namespace == layerProperty.namespace
       }
-      val layerVarMap = layerVars.map { vrd => (vrd.globalQName.local, vrd) }.toMap
+      val qNameToVRD = layerVars.map { vrd => (vrd.globalQName.local, vrd) }.toMap
       val sfl = schemaFileLocation
       new LayerRuntimeData(
         layerProperty,
         schemaFileLocation = sfl,
-        vmap = layerVarMap,
+        qNameToVRD,
         this.sequenceRuntimeData,
       )
     }

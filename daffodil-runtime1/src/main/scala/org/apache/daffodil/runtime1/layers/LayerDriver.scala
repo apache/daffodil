@@ -124,7 +124,8 @@ class LayerDriver private (val layer: Layer) {
   private def escalateThrowFromWrap(t: Throwable): Nothing = {
     val lr = layer.getLayerRuntime
     t match {
-      case rsde: RuntimeSchemaDefinitionError => throw rsde
+      case rsde: RuntimeSchemaDefinitionError =>
+        throw rsde
       case pe: ProcessingError if pe.maybeCause.isDefined =>
         lr.runtimeSchemaDefinitionError(pe.maybeCause.get)
       case pe: ProcessingError if pe.maybeFormatString.isDefined =>
@@ -237,10 +238,14 @@ class LayerDriver private (val layer: Layer) {
 
     private def handleOutputStreamException(exception: Exception) = {
       exception match {
-        case u: UnsuppressableException => throw u
-        case rsde: RuntimeSchemaDefinitionError => throw rsde
-        case pe: ProcessingError => throw pe
-        case re: RuntimeException => throw re
+        case u: UnsuppressableException =>
+          throw u
+        case rsde: RuntimeSchemaDefinitionError =>
+          throw rsde
+        case pe: ProcessingError =>
+          throw pe
+        case re: RuntimeException =>
+          throw re
         case e: Exception =>
           layer.getLayerRuntime.processingError(new LayerUnexpectedException(e))
       }

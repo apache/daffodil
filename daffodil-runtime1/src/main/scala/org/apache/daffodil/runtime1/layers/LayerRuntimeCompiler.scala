@@ -80,11 +80,11 @@ object LayerRuntimeCompiler {
           nom.startsWith(varResultPrefix)
         }.toSeq: _*)
 
-      if (lrd.vmap.isEmpty && optParamSetter.isEmpty && allVarResultGetters.isEmpty) {
+      if (lrd.qNameToVRD.isEmpty && optParamSetter.isEmpty && allVarResultGetters.isEmpty) {
         // there are no vars, so no setter, and no getter(s). We're done
         new LayerVarsRuntime(constructor, None, Nil, Nil)
       } else {
-        val allLayerVRDs = ListSet(lrd.vmap.toSeq.map(_._2): _*)
+        val allLayerVRDs = ListSet(lrd.qNameToVRD.toSeq.map(_._2): _*)
         // there is either a params setter, a result getter, or both.
         val paramVRDs: Seq[VariableRuntimeData] =
           optParamSetter.toSeq.flatMap { paramSetter =>
@@ -94,7 +94,7 @@ object LayerRuntimeCompiler {
             val params = paramSetter.getParameters.toSeq
             val paramTypes = paramSetter.getParameterTypes.toSeq
             val pVRDs: Seq[VariableRuntimeData] = (params.zip(paramTypes)).map { case (p, pt) =>
-              val vrd = lrd.vmap.getOrElse(
+              val vrd = lrd.qNameToVRD.getOrElse(
                 p.getName,
                 lrd.context.SDE(
                   s"No layer DFDL variable named '${p.getName}' was found in namespace ${lrd.namespace}.",
@@ -115,7 +115,7 @@ object LayerRuntimeCompiler {
             pVRDs
           }
         val nParams = paramVRDs.length
-        val nVars = lrd.vmap.size
+        val nVars = lrd.qNameToVRD.size
         val returnVRDs = allLayerVRDs -- paramVRDs // set subtraction
 
         // each returnVRD needs to have a corresponding getter method

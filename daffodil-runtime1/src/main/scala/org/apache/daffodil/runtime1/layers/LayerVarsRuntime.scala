@@ -70,7 +70,10 @@ class LayerVarsRuntime(
           state.getVariable(vrd, state).value.asInstanceOf[DFDLTime].calendar
         case PrimType.DateTime =>
           state.getVariable(vrd, state).value.asInstanceOf[DFDLDateTime].calendar
-        case _ => state.getVariable(vrd, state).value
+        case _ => {
+          val v: AnyRef = state.getVariable(vrd, state).value
+          v
+        }
       }
     }
     optParamSetter.foreach { paramSetter =>

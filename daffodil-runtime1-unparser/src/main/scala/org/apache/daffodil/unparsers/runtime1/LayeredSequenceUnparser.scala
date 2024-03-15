@@ -99,8 +99,10 @@ class LayeredSequenceUnparser(
       // cleaned up at this point.
       layerDriver.removeOutputLayer(layerDOS, state)
     } catch {
-      case u: UnsuppressableException => throw u
-      case re: RuntimeException => throw re
+      case u: UnsuppressableException =>
+        throw u
+      case re: RuntimeException =>
+        throw re
       case pe: UnparseError =>
         throw pe
       case sde: RuntimeSchemaDefinitionError =>

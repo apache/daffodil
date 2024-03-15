@@ -379,7 +379,26 @@ class VariableMap private (
       case _ => // Do nothing
     }
 
-    val variable = vTable(vrd.vmapIndex).head
+    // The VRD may not be the one used to compute the vmapIndex.
+    val variable = {
+      val varAtIndex = vTable(vrd.vmapIndex).head
+      if (false && varAtIndex.rd.vmapIndex == vrd.vmapIndex) {
+        varAtIndex
+      } else {
+        // the VRD passed in is likely from the global decls, but what is in the vtable
+        // is not the same index, so it's for newVariableInstance, not
+        // the global variable declaration.
+        // Assert.invariant(!varAtIndex.rd.globalQName.matches(vrd.globalQName.toRefQName))
+        //
+        // In this case, we need to discover the right VRD to use with the right index.
+        //
+        // FIXME: This is a linear search. Really we need a new way to cache
+        // variables in the LayerRuntimeData since VRDs aren't stable.
+        val correctVRD = getVariableRuntimeData(vrd.globalQName.toRefQName).get
+        val varAtCorrectIndex = vTable(correctVRD.vmapIndex).head
+        varAtCorrectIndex
+      }
+    }
     variable.state match {
       case VariableRead if (variable.value.isDefined) => variable.value.getNonNullable
       case VariableDefined | VariableSet if (variable.value.isDefined) => {
