@@ -18,7 +18,6 @@
 package org.apache.daffodil.runtime1.layers
 
 import java.io.FilterInputStream
-import java.io.FilterOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.lang.reflect.InvocationTargetException
@@ -28,13 +27,16 @@ import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.schema.annotation.props.gen.BitOrder
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe.Nope
 import org.apache.daffodil.lib.util.Maybe.One
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
+import org.apache.daffodil.runtime1.processors.ProcessingError
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 import passera.unsigned.ULong
@@ -84,7 +86,12 @@ class LayerDriver private (val layer: Layer) {
   final def addInputLayer(s: InputSourceDataInputStream): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s)
     // This wrapLayerInput could fail via a throw. It's calling layer code.
-    val wrapped = layer.wrapLayerInput(jis)
+    val wrapped =
+      try {
+        layer.wrapLayerInput(jis)
+      } catch {
+        case t: Throwable => escalateThrowFromWrap(t)
+      }
     // This assured close thing is just in case the user's layer stream doesn't propagate
     // the close. That would be incorrect of it, but we want to tolerate that not happening.
     val decodedInputStream = new AssuredCloseInputStream(wrapped, jis)
@@ -110,10 +117,33 @@ class LayerDriver private (val layer: Layer) {
       s.close()
     }
 
+  /**
+   * Escalate processing errors and thrown exceptions to RSDE
+   * @param t a thrown thing: exception, PE, UE, RSDE, etc.
+   */
+  private def escalateThrowFromWrap(t: Throwable): Nothing = {
+    val lr = layer.getLayerRuntime
+    t match {
+      case rsde: RuntimeSchemaDefinitionError => throw rsde
+      case pe: ProcessingError if pe.maybeCause.isDefined =>
+        lr.runtimeSchemaDefinitionError(pe.maybeCause.get)
+      case pe: ProcessingError if pe.maybeFormatString.isDefined =>
+        lr.runtimeSchemaDefinitionError(pe.maybeFormatString.get)
+      case e: Exception =>
+        lr.runtimeSchemaDefinitionError(e)
+      case _ => throw t
+    }
+  }
+
   final def addOutputLayer(s: DataOutputStream): DirectOrBufferedDataOutputStream = {
     val jos = wrapJavaOutputStream(s)
-    val encodedOutputStream =
-      new AssuredCloseOutputStream(layer.wrapLayerOutput(jos), jos)
+    val wrappedStream =
+      try {
+        layer.wrapLayerOutput(jos)
+      } catch {
+        case t: Throwable => escalateThrowFromWrap(t)
+      }
+    val encodedOutputStream = new ThrowProtectedAssuredCloseOutputStream(wrappedStream, jos)
     val newDOS = DirectOrBufferedDataOutputStream(
       encodedOutputStream,
       null,
@@ -146,14 +176,77 @@ class LayerDriver private (val layer: Layer) {
     }
   }
 
-  private final class AssuredCloseOutputStream(stream: OutputStream, inner: OutputStream)
-    extends FilterOutputStream(stream) {
-    override def close(): Unit = {
-      stream.close()
-      inner.close()
-    }
-  }
+  /**
+   * Besides making sure the inner stream gets closed, this also
+   * provides handling of exceptions thrown by the layer-author's code
+   * (or things that that code calls).
+   *
+   * This is needed because unparsing can involve suspensions, so these
+   * calls can happen long after the call stack of unparsers is over; hence,
+   * any nested try/catches around the actual unparser calls may not be
+   * surrounding these actions.
+   *
+   * To get sensible behavior even if these throws happen late due to
+   * suspensions, we have to encapsulate here with our own throw/catches.
+   *
+   * @param stream the stream we're encapsulating
+   * @param inner the stream we're assuring will be closed even if a close on the primary stream doesn't propagate the stream
+   */
+  private final class ThrowProtectedAssuredCloseOutputStream(
+    stream: OutputStream,
+    inner: OutputStream,
+  ) extends OutputStream {
 
+    /**
+     * We hope this isn't get used because a try-catch around every individual write of a byte
+     * is inefficient certainly.
+     * @param b
+     */
+    override def write(b: Int): Unit = {
+      try {
+        stream.write(b)
+      } catch {
+        case e: Exception => handleOutputStreamException(e)
+      }
+    }
+
+    /**
+     * We hope this is the way most writes are done and with fairly large buffers to amortize the
+     * cost of the try/catch logic over many bytes of output.
+     * @param b
+     * @param off
+     * @param len
+     */
+    override def write(b: Array[Byte], off: Int, len: Int): Unit = {
+      try {
+        stream.write(b, off, len)
+      } catch {
+        case e: Exception => handleOutputStreamException(e)
+      }
+    }
+
+    override def close(): Unit = {
+      try {
+        stream.close()
+        inner.close()
+      } catch {
+        case e: Exception =>
+          handleOutputStreamException(e)
+      }
+    }
+
+    private def handleOutputStreamException(exception: Exception) = {
+      exception match {
+        case u: UnsuppressableException => throw u
+        case rsde: RuntimeSchemaDefinitionError => throw rsde
+        case pe: ProcessingError => throw pe
+        case re: RuntimeException => throw re
+        case e: Exception =>
+          layer.getLayerRuntime.processingError(new LayerUnexpectedException(e))
+      }
+    }
+
+  }
 }
 
 /**

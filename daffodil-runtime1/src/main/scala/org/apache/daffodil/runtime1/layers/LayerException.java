@@ -20,9 +20,8 @@ import java.util.Objects;
 
 /**
  * LayerException represents an exception that can occur during the usage of layers in a program.
- * It extends the RuntimeException class, making it an unchecked exception.
  */
-public class LayerException extends RuntimeException {
+public class LayerException extends Exception {
 
   public LayerException(String msg, Throwable cause) {
     super(msg, cause);

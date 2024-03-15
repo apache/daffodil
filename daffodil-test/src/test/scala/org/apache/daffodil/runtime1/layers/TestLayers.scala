@@ -26,11 +26,9 @@ object TestLayers {
 
   val testDir = "/org/apache/daffodil/layers/"
   val runner = Runner(testDir, "TestLayers.tdml")
-  val runnerB = Runner(testDir, "TestLayersBomb.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset()
-    runnerB.reset()
   }
 }
 
@@ -39,10 +37,16 @@ class TestLayers {
   import TestLayers._
 
   @Test def testAllTypes(): Unit = { runner.runOneTest("testAllTypes") }
+
   @Test def testOk1(): Unit = { runner.runOneTest("testOk1") }
   @Test def testOk2(): Unit = { runner.runOneTest("testOk2") }
   @Test def testOk3(): Unit = { runner.runOneTest("testOk3") }
   @Test def testOk4(): Unit = { runner.runOneTest("testOk4") }
+
+  //
+  // All the various ways a layer author can misconfigure a layer
+  // These all result in SDE.
+  //
   @Test def testBadTypeInLayerCode1(): Unit = { runner.runOneTest("testBadTypeInLayerCode1") }
   @Test def testBadTypeInLayerCode2(): Unit = { runner.runOneTest("testBadTypeInLayerCode2") }
   @Test def testBadNotInMETAINFServices(): Unit = {
@@ -58,22 +62,4 @@ class TestLayers {
   }
   @Test def testBadNotALayer(): Unit = { runner.runOneTest("testBadNotALayer") }
 
-  @Test def testNoBomb(): Unit = runnerB.runOneTest("testNoBomb")
-  @Test def testBombSetterRSDE(): Unit = runnerB.runOneTest("testBombSetterRSDE")
-  @Test def testBombGetterRSDE(): Unit = runnerB.runOneTest("testBombGetterRSDE")
-  @Test def testBombCloseOutputRSDEp(): Unit = runnerB.runOneTest("testBombCloseOutputRSDEp")
-  @Test def testBombCloseOutputRSDEu(): Unit = runnerB.runOneTest("testBombCloseOutputRSDEu")
-
-  @Test def testBombWriteRSDEp(): Unit = runnerB.runOneTest("testBombWriteRSDEp")
-  @Test def testBombWriteRSDEu(): Unit = runnerB.runOneTest("testBombWriteRSDEu")
-
-  @Test def testBombReadRSDE(): Unit = runnerB.runOneTest("testBombReadRSDE")
-
-  @Test def testBombCloseInputRSDE(): Unit = runnerB.runOneTest("testBombCloseInputRSDE")
-
-  @Test def testBombSetterProcErr(): Unit = runnerB.runOneTest("testBombSetterProcErr")
-
-  @Test def testBombReadProcErr(): Unit = runnerB.runOneTest("testBombReadProcErr")
-
-  @Test def testBombCloseInputProcErr(): Unit = runnerB.runOneTest("testBombCloseInputProcErr")
 }

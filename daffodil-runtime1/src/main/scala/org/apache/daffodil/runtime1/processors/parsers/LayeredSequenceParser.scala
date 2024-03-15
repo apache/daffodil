@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
+import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.runtime1.layers.LayerDriver
 import org.apache.daffodil.runtime1.layers.LayerException
 import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
@@ -51,6 +52,8 @@ class LayeredSequenceParser(
         state.dataInputStream = savedDIS
       }
     } catch {
+      case u: UnsuppressableException => throw u
+      case re: RuntimeException => throw re
       case le: LayerException =>
         state.toss(state.toProcessingError(le))
       case e: Exception =>

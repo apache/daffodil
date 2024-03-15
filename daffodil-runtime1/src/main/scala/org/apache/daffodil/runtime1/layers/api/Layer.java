@@ -133,6 +133,16 @@ public abstract class Layer {
    * @param msg describes the error
    */
   public void processingError(String msg) { layerRuntime.processingError(msg); }
+
+  /**
+   * Use to report a processing error.
+   * <p/>
+   * When parsing a processing error can cause backtracking so that the parse
+   * can often recover from the error.
+   * <p/>
+   * When unparsing a processing error is fatal.
+   * @param cause a throwable object that describes the error
+   */
   public void processingError(Throwable cause) { layerRuntime.processingError(cause); }
   /**
    * Use to report a runtime schema definition error.
@@ -146,6 +156,18 @@ public abstract class Layer {
    * @param msg describes the error
    */
   public void runtimeSchemaDefinitionError(String msg) { layerRuntime.runtimeSchemaDefinitionError(msg); }
+
+  /**
+   * Use to report a runtime schema definition error.
+   * <p/>
+   * This indicates that the layer is unable to
+   * work meaningfully because of the way it is configured. The schema itself is not well defined due to
+   * the way the layer is configured.
+   * <p/>
+   * This error type is always fatal whether parsing or unparsing.
+   * <p/>
+   * @param cause a throwable object that describes the error
+   */
   public void runtimeSchemaDefinitionError(Throwable cause) { layerRuntime.runtimeSchemaDefinitionError(cause); }
 
   /**

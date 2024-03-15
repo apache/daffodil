@@ -17,19 +17,23 @@
 -->
 
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-           xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-           xmlns:fn="http://www.w3.org/2005/xpath-functions"
-           xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
-           xmlns:tl="urn:STL"
-           xmlns:ex="http://example.com"
-           targetNamespace="http://example.com" >
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+        xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+        xmlns:fn="http://www.w3.org/2005/xpath-functions"
+        xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+        xmlns:tl="urn:STL"
+        xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
+        xmlns:ex="http://example.com"
+        targetNamespace="http://example.com">
 
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <import namespace="urn:STL"
              schemaLocation="/org/apache/daffodil/layers/xsd/SimpleBombOutLayer.dfdl.xsd"/>
+
+  <import namespace="urn:org.apache.daffodil.layers.boundaryMark"
+          schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>
 
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
@@ -94,6 +98,53 @@
         <group ref="ex:rootGroup"/>
         <element name="data" type="xs:string"/>
       </choice>
+    </complexType>
+  </element>
+
+  <!-- This element has a layer which in the middle of it is
+  a field with outputValueCalc, which depends on something which
+  is AFTER the layer ends.
+
+  As a result, the layer must complete unwinding from the unparse
+  nest of calls without finishing the unparsing of the layer contents.
+  A suspension evaluated later will allow the writing to the layer to complete.
+
+  So, an exception happening in the write to the layer, or in the close of the
+  output layer stream must happen without any of the usual nest of try/catches
+  surrounding it.
+
+  This illustrates why the wrapping of the output stream must encapsulate it
+  with a stream which wraps a try/catch around each API call to the written output
+  stream, because otherwise we cannot catch these errors and handle them
+  intelligently.
+
+  See ThrowProtectedAssuredCloseOutputStream
+  -->
+
+  <element name="root3">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+              <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="//"/>
+              <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer="bm:boundaryMark">
+            <sequence dfdlx:layer="tl:stlBombOutLayer">
+              <element name="copy" type="xs:string" dfdl:terminator=";"
+                       dfdl:outputValueCalc='{ ../afterLayer }'/>
+              <element name="data" type="xs:string" dfdl:terminator=";"/>
+            </sequence>
+          </sequence>
+          <element name="afterLayer" type="xs:string"/>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
     </complexType>
   </element>
 
