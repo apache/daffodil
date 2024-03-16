@@ -373,7 +373,7 @@ sealed abstract class NamedQName(prefix: Option[String], local: String, namespac
     Assert.usage(!namespace.isUnspecified)
   }
 
-  def toRefQName = RefQName(prefix, local, namespace)
+  lazy val toRefQName = RefQName(prefix, local, namespace)
 }
 
 /**
@@ -417,19 +417,27 @@ final case class LocalDeclQName(prefix: Option[String], local: String, namespace
 final case class GlobalQName(prefix: Option[String], local: String, namespace: NS)
   extends NamedQName(prefix, local, namespace) {
 
+  /**
+   * This gets called a lot, even in runtime assertions, so let's make this
+   * as fast as possible.
+   * @param other
+   * @tparam Q
+   * @return
+   */
   override def matches[Q <: QNameBase](other: Q): Boolean = {
-    other match {
-      // StepQNames match against global names in the case of a path
-      // step that refers to an element that is defined in its
-      // group, via an element reference.
-      case StepQName(_, `local`, `namespace`) => true // exact match
-      case StepQName(_, _, _) => false
-      // RefQNames match against global names in element references,
-      // group references, type references (i.e., type="..."), etc.
-      case RefQName(_, `local`, `namespace`) => true // exact match
-      case RefQName(_, _, _) => false
-      case _ => Assert.usageError("other must be a StepQName or RefQName")
-    }
+    other.local == this.local && other.namespace == this.namespace
+//    other match {
+//      // StepQNames match against global names in the case of a path
+//      // step that refers to an element that is defined in its
+//      // group, via an element reference.
+//      case StepQName(_, `local`, `namespace`) => true // exact match
+//      case StepQName(_, _, _) => false
+//      // RefQNames match against global names in element references,
+//      // group references, type references (i.e., type="..."), etc.
+//      case RefQName(_, `local`, `namespace`) => true // exact match
+//      case RefQName(_, _, _) => false
+//      case _ => Assert.usageError("other must be a StepQName or RefQName")
+//    }
   }
 }
 
@@ -454,8 +462,8 @@ final case class RefQName(prefix: Option[String], local: String, namespace: NS)
     }
   }
 
-  def toStepQName = StepQName(prefix, local, namespace)
-  def toGlobalQName = GlobalQName(prefix, local, namespace)
+  lazy val toStepQName = StepQName(prefix, local, namespace)
+  lazy val toGlobalQName = GlobalQName(prefix, local, namespace)
 }
 
 /**

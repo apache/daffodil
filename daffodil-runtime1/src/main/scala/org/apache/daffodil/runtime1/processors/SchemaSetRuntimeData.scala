@@ -18,6 +18,7 @@
 package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
 import org.apache.daffodil.runtime1.processors.parsers.Parser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
@@ -53,4 +54,6 @@ final class SchemaSetRuntimeData(
    */
   def originalVariables = variables.copy
 
+  @transient // not serialized, but we need one per schema set to use at runtime.
+  lazy val layerRuntimeCompiler = new LayerRuntimeCompiler
 }

@@ -37,6 +37,7 @@ import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
 
 object SchemaSet {
   def apply(
@@ -683,7 +684,13 @@ final class SchemaSet private (
     startingGlobalComponents,
   )
 
-  lazy val allSchemaComponents = allSchemaComponentsSet.toIndexedSeq
+  lazy val allSchemaComponents: Seq[SchemaComponent] = allSchemaComponentsSet.toIndexedSeq
+
+  /**
+   * For use at schema compile time. We also need an instance for use at runtime.
+   * but that is accessed from the processor state.
+   */
+  lazy val layerRuntimeCompiler = new LayerRuntimeCompiler
 }
 
 object TransitiveClosureSchemaComponents {

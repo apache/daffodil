@@ -379,25 +379,24 @@ class VariableMap private (
       case _ => // Do nothing
     }
 
-    // The VRD may not be the one used to compute the vmapIndex.
     val variable = {
+      // The vrd.vmapIndex cannot be out of range of the vTable, because the vTable size
+      // accommodates as many variables as are in the top-level schema.
       val varAtIndex = vTable(vrd.vmapIndex).head
-      if (false && varAtIndex.rd.vmapIndex == vrd.vmapIndex) {
-        varAtIndex
-      } else {
-        // the VRD passed in is likely from the global decls, but what is in the vtable
-        // is not the same index, so it's for newVariableInstance, not
-        // the global variable declaration.
-        // Assert.invariant(!varAtIndex.rd.globalQName.matches(vrd.globalQName.toRefQName))
-        //
-        // In this case, we need to discover the right VRD to use with the right index.
-        //
-        // FIXME: This is a linear search. Really we need a new way to cache
-        // variables in the LayerRuntimeData since VRDs aren't stable.
-        val correctVRD = getVariableRuntimeData(vrd.globalQName.toRefQName).get
-        val varAtCorrectIndex = vTable(correctVRD.vmapIndex).head
-        varAtCorrectIndex
+      val varAtIndexVRD = varAtIndex.rd
+      if (varAtIndexVRD != vrd) {
+        // The variable at that index does not have our VRD.
+        // A newVariableInstance must be in place for this variable, but we're trying to access
+        // using a different VRD (probably the top-level VRD you get from the schemaSet variable map.
+        // These MUST, however, be for the same variable, and so will have the same index
+        // into the vtable.
+        // PERFORMANCE: this is perhaps a little expensive.
+        // Rather than just taking this out, consider interning QNames instead so that this
+        // becomes an object EQ check on the QName objects.
+        val isSameVar = varAtIndexVRD.globalQName.matches(vrd.globalQName.toRefQName)
+        Assert.invariant(isSameVar)
       }
+      varAtIndex
     }
     variable.state match {
       case VariableRead if (variable.value.isDefined) => variable.value.getNonNullable

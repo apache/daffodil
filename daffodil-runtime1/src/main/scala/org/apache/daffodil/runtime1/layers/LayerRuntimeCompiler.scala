@@ -33,7 +33,7 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.VariableRuntimeData
 
-object LayerRuntimeCompiler {
+class LayerRuntimeCompiler {
 
   /**
    * This prefix is appended onto the method names of getters that return values from the layer.

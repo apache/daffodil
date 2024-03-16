@@ -46,7 +46,7 @@ import passera.unsigned.ULong
  */
 object LayerDriver {
   def apply(state: ParseOrUnparseState, lrd: LayerRuntimeData): LayerDriver = {
-    val lvr = LayerRuntimeCompiler.compile(lrd) // could fail if layer not SPI loaded
+    val lvr = state.layerRuntimeCompiler.compile(lrd) // could fail if layer not SPI loaded
     val lr = new LayerRuntime(state, lrd, lvr) // can't fail
     val newLayer = lvr.constructInstance() // can't fail
     newLayer.setLayerRuntime(lr) // can't fail

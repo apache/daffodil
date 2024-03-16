@@ -18,7 +18,6 @@ package org.apache.daffodil.core.layers
 
 import org.apache.daffodil.core.dsom.SequenceGroupTermBase
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
 
 object LayerSchemaCompiler {
 
@@ -74,7 +73,7 @@ private class LayerSchemaCompiler private (sq: SequenceGroupTermBase) {
     // the classpath at least has the same DFDL variables signature as the one on the classpath
     // when the schema was compiled.
     //
-    LayerRuntimeCompiler.compile(lrd)
+    sq.schemaSet.layerRuntimeCompiler.compile(lrd)
   }
 
 }
