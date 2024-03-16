@@ -49,14 +49,18 @@ class LayeredSequenceParser(
         state.dataInputStream = newDIS
         super.parse(state)
       } finally {
-        layerDriver.removeInputLayer(newDIS)
-        // Restore the data stream to the original
-        state.dataInputStream = savedDIS
+        try {
+          layerDriver.removeInputLayer(newDIS) // calls layer getters, so can throw
+        } finally {
+          // Restore the data stream to the original.
+          state.dataInputStream = savedDIS
+        }
       }
     } catch {
       case u: UnsuppressableException => throw u
       case re: RuntimeException => throw re
-      case pe: ProcessingError => throw pe
+      case pe: ProcessingError =>
+        throw pe
       case rsde: RuntimeSchemaDefinitionError => throw rsde
       case le: LayerException =>
         state.toss(state.toProcessingError(le))

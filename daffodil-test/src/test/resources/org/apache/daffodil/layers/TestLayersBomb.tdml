@@ -330,7 +330,7 @@
 
   <tdml:defineConfig name="GetterProcErr">
     <daf:externalVariableBindings>
-      <daf:bind name="tl:bombWhere">setter</daf:bind>
+      <daf:bind name="tl:bombWhere">getter</daf:bind>
       <daf:bind name="tl:bombHow">procErr</daf:bind>
     </daf:externalVariableBindings>
   </tdml:defineConfig>
