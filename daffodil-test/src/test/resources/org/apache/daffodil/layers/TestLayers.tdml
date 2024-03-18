@@ -49,6 +49,7 @@
           <date2 xsi:type="xs:date">1942-04-03</date2>
           <time2 xsi:type="xs:time">05:42:42</time2>
           <dt2 xsi:type="xs:dateTime">1942-04-03T04:42:42</dt2>
+          <bool2>false</bool2>
         </ex:root>
       </dfdlInfoset>
     </infoset>

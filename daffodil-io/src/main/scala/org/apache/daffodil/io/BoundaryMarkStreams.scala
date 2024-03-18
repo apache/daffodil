@@ -52,13 +52,13 @@ class BoundaryMarkLimitingInputStream(
   Assert.usage(targetChunkSize >= 1)
   Assert.usage(boundaryMark.nonEmpty)
 
-  private val boundaryMarkIn8859 =
+  private lazy val boundaryMarkIn8859 =
     new String(boundaryMark.getBytes(charset), StandardCharsets.ISO_8859_1)
 
-  private val quotedBoundaryMark =
+  private lazy val quotedBoundaryMark =
     Pattern.quote(boundaryMarkIn8859) // in case pattern has non-regex-safe characters in it
 
-  private val delegateStream = new RegexLimitingInputStream(
+  private lazy val delegateStream = new RegexLimitingInputStream(
     inputStream,
     quotedBoundaryMark,
     boundaryMarkIn8859,
@@ -78,7 +78,7 @@ class BoundaryMarkInsertingJavaOutputStream(
 
   private var closed = false
 
-  private val boundaryMarkBytes = boundaryMark.getBytes(charset)
+  private lazy val boundaryMarkBytes = boundaryMark.getBytes(charset)
 
   override def close(): Unit = {
     if (!closed) {

@@ -94,9 +94,9 @@ abstract class PackedBinaryDecimalBaseUnparser(
     val bigDec = number.asInstanceOf[JBigDecimal]
     if (bigDec.movePointRight(binaryDecimalVirtualPoint).scale != 0) {
       e.schemaDefinitionError(
-        "Decimal point of number '%s' does not match the binaryVirtualDecmialPoint: %s",
+        "Decimal point of number '%s' does not match the binaryVirtualDecmialPoint: %d",
         bigDec,
-        binaryDecimalVirtualPoint.toString,
+        binaryDecimalVirtualPoint,
       )
     }
     bigDec.unscaledValue

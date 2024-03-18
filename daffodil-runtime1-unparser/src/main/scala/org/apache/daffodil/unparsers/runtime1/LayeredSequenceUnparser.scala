@@ -20,7 +20,6 @@ package org.apache.daffodil.unparsers.runtime1
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.LayerDriver
-import org.apache.daffodil.runtime1.layers.LayerException
 import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
@@ -95,9 +94,8 @@ class LayeredSequenceUnparser(
       endOfLayerUnparseDOS.setFinished(formatInfoPost)
 
       // clean up resources - note however, that due to suspensions, the whole
-      // layer stack is potentially still needed, so not clear what can be
-      // cleaned up at this point.
-      layerDriver.removeOutputLayer(layerDOS, state)
+      // layer stack is potentially still needed, so
+      // nothing can be cleaned up at this point.
     } catch {
       case u: UnsuppressableException =>
         throw u
@@ -107,10 +105,8 @@ class LayeredSequenceUnparser(
         throw pe
       case sde: RuntimeSchemaDefinitionError =>
         throw sde
-      case le: LayerException =>
-        throw le
       case e: Exception =>
-        throw new LayerUnexpectedException(e)
+        state.toss(state.toProcessingError(new LayerUnexpectedException(e)))
     } finally {
       // reset the state so subsequent unparsers write to the following DOS
       state.dataOutputStream = layerFollowingDOS

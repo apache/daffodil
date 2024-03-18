@@ -93,7 +93,9 @@ case class NotFound(
   override val pname: String,
 ) extends PropertyLookupResult(pname) {
   override def isDefined = false
+  // $COVERAGE-OFF$
   override def isFromDefaultFormat: Boolean = Assert.usageError("Not meaningful for NotFound.")
+  // $COVERAGE-ON$
 }
 
 /**

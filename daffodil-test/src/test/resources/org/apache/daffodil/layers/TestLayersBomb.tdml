@@ -335,7 +335,7 @@
     </daf:externalVariableBindings>
   </tdml:defineConfig>
 
-  <parserTestCase name="testBombGetterProcErr" config="GetterProcErr"
+  <unparserTestCase name="testBombGetterProcErr" config="GetterProcErr"
                   root="root2" model="useSimpleBombLayer.dfdl.xsd">
     <!--
     This test illustrates how a processing error in the params setter
@@ -351,7 +351,7 @@
         </ex:root2>
       </dfdlInfoset>
     </infoset>
-  </parserTestCase>
+  </unparserTestCase>
 
   <tdml:defineConfig name="ReadProcErr">
     <daf:externalVariableBindings>
@@ -428,7 +428,24 @@
                   root="root" model="useSimpleBombLayer.dfdl.xsd">
     <document>A</document>
     <errors>
-      <error>Runtime Schema Definition Error</error>
+      <error>Parse Error</error>
+      <error>Bombed out at</error>
+      <error>wrapInput</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="WrapInputProcErrWithCause">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">wrapInput</daf:bind>
+      <daf:bind name="tl:bombHow">procErrWithCause</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombWrapInputProcErrWithCause" config="WrapInputProcErrWithCause"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Parse Error</error>
       <error>Bombed out at</error>
       <error>wrapInput</error>
     </errors>
@@ -456,7 +473,7 @@
       </dfdlInfoset>
     </infoset>
     <errors>
-      <error>Runtime Schema Definition Error</error>
+      <error>Unparse Error</error>
       <error>Bombed out at</error>
       <error>wrapOutput</error>
     </errors>
@@ -565,6 +582,35 @@
       <error>Unparse Error</error>
       <error>Bombed out at</error>
       <error>write</error>
+    </errors>
+  </unparserTestCase>
+
+  <unparserTestCase name="testBombGetterProcErrWithSuspension" config="GetterProcErr"
+                    root="root3" model="useSimpleBombLayer.dfdl.xsd">
+    <!--
+    This test illustrates how a processing error in the params setter
+    can be suppressed by backtracking.
+
+    The unparse will not even utilize the layer.
+    -->
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root3 xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <copy>something</copy>
+          <data>A</data>
+          <afterLayer>something</afterLayer>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root3>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Unparse Error</error>
+      <error>Bombed out at</error>
+      <error>getter</error>
     </errors>
   </unparserTestCase>
 
@@ -693,7 +739,7 @@
                   root="root" model="useSimpleBombLayer.dfdl.xsd">
     <document>A</document>
     <errors>
-      <error>Runtime Schema Definition Error</error>
+      <error>Parse Error</error>
       <error>Bombed out at</error>
       <error>wrapInput</error>
     </errors>
@@ -721,7 +767,7 @@
       </dfdlInfoset>
     </infoset>
     <errors>
-      <error>Runtime Schema Definition Error</error>
+      <error>Unparse Error</error>
       <error>Bombed out at</error>
       <error>wrapOutput</error>
     </errors>

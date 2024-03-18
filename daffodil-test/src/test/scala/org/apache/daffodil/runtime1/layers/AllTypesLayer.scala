@@ -50,6 +50,7 @@ final class AllTypesLayer()
   private var date1: com.ibm.icu.util.Calendar = null
   private var time1: com.ibm.icu.util.Calendar = null
   private var dt1: com.ibm.icu.util.Calendar = null
+  private var bool1: Boolean = false
 
   private[layers] def setLayerVariableParameters(
     b1: Byte,
@@ -70,6 +71,7 @@ final class AllTypesLayer()
     date1: com.ibm.icu.util.Calendar,
     time1: com.ibm.icu.util.Calendar,
     dt1: com.ibm.icu.util.Calendar,
+    bool1: Boolean,
   ): Unit = {
     this.b1 = b1
     this.ub1 = ub1
@@ -89,6 +91,7 @@ final class AllTypesLayer()
     this.date1 = date1
     this.time1 = time1
     this.dt1 = dt1
+    this.bool1 = bool1
   }
 
   def getLayerVariableResult_b2(): Byte = (b1 + b1).toByte
@@ -117,6 +120,7 @@ final class AllTypesLayer()
   def getLayerVariableResult_dt2(): Calendar = {
     val dt = dt1.clone.asInstanceOf[Calendar]; dt.add(Calendar.DATE, 1); dt
   }
+  def getLayerVariableResult_bool2(): Boolean = !bool1
 
   override def wrapLayerInput(jis: InputStream): InputStream = jis
 

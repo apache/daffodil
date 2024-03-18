@@ -53,6 +53,8 @@ final class BoundaryMarkLayer
   private var boundaryMark: String = _
   private var layerEncoding: String = _
 
+  private val maxBoundaryMarkLength: Int = Short.MaxValue
+
   /**
    * @param boundaryMark  a string which is the boundary marker. Searching for this string is
    *                      done without any notion of escaping. When parsing the data in the
@@ -68,6 +70,12 @@ final class BoundaryMarkLayer
     layerEncoding: String,
   ): Unit = {
     this.boundaryMark = boundaryMark
+    if (boundaryMark.isEmpty)
+      processingError("The boundaryMark variable value may not be empty string.")
+    if (boundaryMark.length > maxBoundaryMarkLength)
+      processingError(
+        s"The boundaryMark string length may not be greater than the limit: $maxBoundaryMarkLength",
+      )
     this.layerEncoding = layerEncoding
   }
 

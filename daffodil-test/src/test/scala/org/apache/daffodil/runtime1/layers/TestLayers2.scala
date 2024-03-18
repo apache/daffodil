@@ -75,6 +75,7 @@ class TestLayers2 {
   @Test def testBombCloseInputProcErr(): Unit = runnerB.runOneTest("testBombCloseInputProcErr")
   // In the wrap methods, a processing error is escalated to an RSDE.
   @Test def testBombWrapInputProcErr(): Unit = runnerB.runOneTest("testBombWrapInputProcErr")
+  @Test def testBombWrapInputProcErrWithCause(): Unit = runnerB.runOneTest("testBombWrapInputProcErrWithCause")
   @Test def testBombWrapOutputProcErr(): Unit = runnerB.runOneTest("testBombWrapOutputProcErr")
   //
   // In the write and close (output) methods, a processing error is an Unparse Error, which
@@ -87,6 +88,10 @@ class TestLayers2 {
     runnerB.runOneTest("testBombCloseOutputProcErr")
   @Test def testBombCloseOutputProcErrWithSuspension(): Unit =
     runnerB.runOneTest("testBombCloseOutputProcErrWithSuspension")
+  @Test def testBombGetterProcErrWithSuspension(): Unit =
+    runnerB.runOneTest("testBombGetterProcErrWithSuspension")
+
+
   //
   // Throwing from each place in the API
   //

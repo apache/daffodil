@@ -72,11 +72,12 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
     final case object ThrowRE extends Kind
     final case object ThrowEX extends Kind
     final case object ProcErr extends Kind
+    final case object ProcErrWithCause extends Kind
     final case object RSDE extends Kind
     final case object NoBomb extends Kind
     final case object Abort extends Kind
     override lazy val values: Array[Kind] =
-      Array(ThrowRE, ThrowEX, ProcErr, RSDE, NoBomb, Abort)
+      Array(ThrowRE, ThrowEX, ProcErr, ProcErrWithCause, RSDE, NoBomb, Abort)
 
     def apply(name: String): Kind = apply(name, context)
     override def apply(name: String, context: ThrowsSDE): Kind =
@@ -103,6 +104,8 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
               throw new Exception(msg)
             case ProcErr =>
               processingError(msg)
+            case ProcErrWithCause =>
+              processingError(new Exception(msg))
             case RSDE =>
               runtimeSchemaDefinitionError(msg)
             case NoBomb =>
@@ -160,13 +163,13 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
   class STL_OutputStream(os: OutputStream) extends OutputStream {
 
     override def write(b: Int): Unit = {
-      bomb(Write)
       os.write(b)
+      bomb(Write)
     }
 
     override def close(): Unit = {
-      bomb(CloseOutput)
       os.close()
+      bomb(CloseOutput)
     }
   }
 }

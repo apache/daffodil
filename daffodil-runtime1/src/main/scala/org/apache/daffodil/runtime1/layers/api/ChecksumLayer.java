@@ -36,7 +36,7 @@ import java.nio.ByteBuffer;
  * will be assigned with the checksum value. For example if the checksum is actually a specific digest/hash calculation
  * and the DFDL variable is named 'digest', then this getter must be defined:
  * <p/>
- *     Int getLayerVariableResult_digest() { return getChecksum() }
+ *     int getLayerVariableResult_digest() { return getChecksum() }
  * <p/>
  * This will be called automatically to retrieve the integer value that was returned from the `compute` method, and
  * the DFDL variable 'digest' will be assigned that value.

@@ -70,6 +70,7 @@
           <dfdl:newVariableInstance ref="tl:date1" defaultValue="{ xs:date('1942-04-02') }"/>
           <dfdl:newVariableInstance ref="tl:time1" defaultValue="{ xs:time('04:42:42') }"/>
           <dfdl:newVariableInstance ref="tl:dt1" defaultValue="{ xs:dateTime('1942-04-02T04:42:42') }"/>
+          <dfdl:newVariableInstance ref="tl:bool1" defaultValue="true"/>
 
           <dfdl:newVariableInstance ref="tl:b2" />
           <dfdl:newVariableInstance ref="tl:ub2" />
@@ -90,6 +91,7 @@
           <dfdl:newVariableInstance ref="tl:date2" />
           <dfdl:newVariableInstance ref="tl:time2" />
           <dfdl:newVariableInstance ref="tl:dt2" />
+          <dfdl:newVariableInstance ref="tl:bool2" />
 
         </appinfo>
       </annotation>
@@ -133,6 +135,8 @@
                dfdl:inputValueCalc='{ $tl:time2 }'/>
       <element name="dt2" type="xs:dateTime"
                dfdl:inputValueCalc='{ $tl:dt2 }'/>
+      <element name="bool2" type="xs:boolean"
+               dfdl:inputValueCalc='{ $tl:bool2 }'/>
 
     </sequence>
   </complexType>

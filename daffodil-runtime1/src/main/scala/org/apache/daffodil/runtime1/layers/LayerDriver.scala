@@ -21,7 +21,6 @@ import java.io.FilterInputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.lang.reflect.InvocationTargetException
-
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
@@ -37,8 +36,6 @@ import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.ProcessingError
-import org.apache.daffodil.runtime1.processors.unparsers.UState
-
 import passera.unsigned.ULong
 
 /**
@@ -86,12 +83,7 @@ class LayerDriver private (val layer: Layer) {
   final def addInputLayer(s: InputSourceDataInputStream): InputSourceDataInputStream = {
     val jis = wrapJavaInputStream(s)
     // This wrapLayerInput could fail via a throw. It's calling layer code.
-    val wrapped =
-      try {
-        layer.wrapLayerInput(jis)
-      } catch {
-        case t: Throwable => escalateThrowFromWrap(t)
-      }
+    val wrapped = layer.wrapLayerInput(jis)
     // This assured close thing is just in case the user's layer stream doesn't propagate
     // the close. That would be incorrect of it, but we want to tolerate that not happening.
     val decodedInputStream = new AssuredCloseInputStream(wrapped, jis)
@@ -118,32 +110,13 @@ class LayerDriver private (val layer: Layer) {
     }
 
   /**
-   * Escalate processing errors and thrown exceptions to RSDE
-   * @param t a thrown thing: exception, PE, UE, RSDE, etc.
+   * Note that there is addOutputLayer, but there is no remove output layer because
+   * unparsing is very asynchronous due to suspensions. The unwinding of this
+   * layering for unparsing can only happen in the close() of the layer stream.
    */
-  private def escalateThrowFromWrap(t: Throwable): Nothing = {
-    val lr = layer.getLayerRuntime
-    t match {
-      case rsde: RuntimeSchemaDefinitionError =>
-        throw rsde
-      case pe: ProcessingError if pe.maybeCause.isDefined =>
-        lr.runtimeSchemaDefinitionError(pe.maybeCause.get)
-      case pe: ProcessingError if pe.maybeFormatString.isDefined =>
-        lr.runtimeSchemaDefinitionError(pe.maybeFormatString.get)
-      case e: Exception =>
-        lr.runtimeSchemaDefinitionError(e)
-      case _ => throw t
-    }
-  }
-
   final def addOutputLayer(s: DataOutputStream): DirectOrBufferedDataOutputStream = {
     val jos = wrapJavaOutputStream(s)
-    val wrappedStream =
-      try {
-        layer.wrapLayerOutput(jos)
-      } catch {
-        case t: Throwable => escalateThrowFromWrap(t)
-      }
+    val wrappedStream = layer.wrapLayerOutput(jos)
     val encodedOutputStream = new ThrowProtectedAssuredCloseOutputStream(wrappedStream, jos)
     val newDOS = DirectOrBufferedDataOutputStream(
       encodedOutputStream,
@@ -157,16 +130,6 @@ class LayerDriver private (val layer: Layer) {
     newDOS.setAbsStartingBitPos0b(ULong(0L))
     newDOS.setDebugging(s.areDebugging)
     newDOS
-  }
-
-  /**
-   * Unparsing is very asynchronous due to suspensions.
-   * So what is done here has to arrange for the layer stream to be closed,
-   * but in the future when everything that has been written to it
-   * but was suspended, has actually been written.
-   */
-  final def removeOutputLayer(s: DirectOrBufferedDataOutputStream, state: UState): Unit = {
-    // do nothing
   }
 
   private final class AssuredCloseInputStream(stream: InputStream, inner: InputStream)
@@ -207,7 +170,8 @@ class LayerDriver private (val layer: Layer) {
       try {
         stream.write(b)
       } catch {
-        case e: Exception => handleOutputStreamException(e)
+        case e: Exception =>
+          handleOutputStreamException(e)
       }
     }
 
@@ -222,7 +186,8 @@ class LayerDriver private (val layer: Layer) {
       try {
         stream.write(b, off, len)
       } catch {
-        case e: Exception => handleOutputStreamException(e)
+        case e: Exception =>
+          handleOutputStreamException(e)
       }
     }
 
