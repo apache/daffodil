@@ -17,27 +17,30 @@
 
 package org.apache.daffodil.core.layers
 
+import scala.xml.Elem
+
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
+
 import org.junit.Assert.assertTrue
 import org.junit.Test
-
-import scala.xml.Elem
 
 class TestBoundaryMarkLayer {
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
   def bm1Schema(bm: String, encoding: String = "iso-8859-1"): Elem =
     SchemaUtils.dfdlTestSchema(
-        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
           <xs:import namespace="urn:org.apache.daffodil.layers.boundaryMark"
                      schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>,
-        <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>
-          <dfdl:defineVariable name="bmark" type="xs:string" external="true" defaultValue={ bm }/>,
+      <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>
+          <dfdl:defineVariable name="bmark" type="xs:string" external="true" defaultValue={
+        bm
+      }/>,
       <xs:element name="e1" dfdl:lengthKind="implicit"
                   xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark">
         <xs:complexType>
@@ -46,7 +49,7 @@ class TestBoundaryMarkLayer {
               <xs:annotation>
                 <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="{ $ex:bmark }"/>
-                  <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue={ encoding }/>
+                  <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue={encoding}/>
                 </xs:appinfo>
               </xs:annotation>
               <xs:element name="s1" type="xs:string"/>

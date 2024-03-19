@@ -79,10 +79,19 @@ final class BoundaryMarkLayer
     this.layerEncoding = layerEncoding
   }
 
-  private lazy val charset = Charset.forName(layerEncoding)
+  private lazy val charset =
+    try {
+      Charset.forName(layerEncoding)
+    } catch {
+      // the runtime exceptions thrown by forName want to be
+      // caught and turned into regular Exceptions.
+      // That's not generally true, but it is for encodings/charsets.
+      case re: RuntimeException => throw new Exception(re)
+    }
 
-  override def wrapLayerInput(jis: InputStream): InputStream =
+  override def wrapLayerInput(jis: InputStream): InputStream = {
     new BoundaryMarkLimitingInputStream(jis, boundaryMark, charset)
+  }
 
   override def wrapLayerOutput(jos: OutputStream): OutputStream =
     new BoundaryMarkInsertingJavaOutputStream(jos, boundaryMark, charset)

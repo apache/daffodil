@@ -81,7 +81,7 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
 
     def apply(name: String): Kind = apply(name, context)
     override def apply(name: String, context: ThrowsSDE): Kind =
-      stringToEnum("Loc", name, context)
+      stringToEnum("Kind", name, context)
   }
   import Kind._
 

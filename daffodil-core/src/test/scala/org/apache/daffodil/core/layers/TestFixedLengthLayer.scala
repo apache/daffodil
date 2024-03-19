@@ -17,16 +17,17 @@
 
 package org.apache.daffodil.core.layers
 
+import scala.xml.Elem
+
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
+
 import org.junit.Assert.assertTrue
 import org.junit.Test
-
-import scala.xml.Elem
 
 class TestFixedLengthLayer {
   val example = XMLUtils.EXAMPLE_NAMESPACE
@@ -37,7 +38,9 @@ class TestFixedLengthLayer {
       <xs:import namespace="urn:org.apache.daffodil.layers.fixedLength"
                  schemaLocation="/org/apache/daffodil/layers/xsd/fixedLengthLayer.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>
-      <dfdl:defineVariable name="flLayerLen" type="xs:int" external="true" defaultValue={ flLayerLen.toString }/>,
+      <dfdl:defineVariable name="flLayerLen" type="xs:int" external="true" defaultValue={
+        flLayerLen.toString
+      }/>,
       <xs:element name="e1" dfdl:lengthKind="implicit"
                   xmlns:fl="urn:org.apache.daffodil.layers.fixedLength">
         <xs:complexType>

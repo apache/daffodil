@@ -1057,7 +1057,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         try {
           processor.parse(dataToParse, lengthLimitInBits)
         } catch {
-          case t: Throwable => toss(t, implString)
+          case t: Throwable =>
+            toss(t, implString)
         }
 
       // we should never need blobs if we're expecting an error even if we
@@ -1681,7 +1682,8 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       try {
         processor.unparse(infosetXML, outStream)
       } catch {
-        case t: Throwable => toss(t, implString)
+        case t: Throwable =>
+          toss(t, implString)
       }
 
     val dataErrors = {

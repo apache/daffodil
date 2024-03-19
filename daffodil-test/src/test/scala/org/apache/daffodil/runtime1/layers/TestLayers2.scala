@@ -17,9 +17,14 @@
 
 package org.apache.daffodil.runtime1.layers
 
+import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.exceptions.Abort
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.TDMLException
 
 import org.junit.AfterClass
+import org.junit.Assert.fail
 import org.junit.Test
 
 object TestLayers2 {
@@ -73,9 +78,9 @@ class TestLayers2 {
   @Test def testBombGetterProcErr(): Unit = runnerB.runOneTest("testBombGetterProcErr")
   @Test def testBombReadProcErr(): Unit = runnerB.runOneTest("testBombReadProcErr")
   @Test def testBombCloseInputProcErr(): Unit = runnerB.runOneTest("testBombCloseInputProcErr")
-  // In the wrap methods, a processing error is escalated to an RSDE.
   @Test def testBombWrapInputProcErr(): Unit = runnerB.runOneTest("testBombWrapInputProcErr")
-  @Test def testBombWrapInputProcErrWithCause(): Unit = runnerB.runOneTest("testBombWrapInputProcErrWithCause")
+  @Test def testBombWrapInputProcErrWithCause(): Unit =
+    runnerB.runOneTest("testBombWrapInputProcErrWithCause")
   @Test def testBombWrapOutputProcErr(): Unit = runnerB.runOneTest("testBombWrapOutputProcErr")
   //
   // In the write and close (output) methods, a processing error is an Unparse Error, which
@@ -91,24 +96,15 @@ class TestLayers2 {
   @Test def testBombGetterProcErrWithSuspension(): Unit =
     runnerB.runOneTest("testBombGetterProcErrWithSuspension")
 
-
   //
   // Throwing from each place in the API
-  //
-  // In the setter, getter, read and close methods, a throw of an exception
-  // behaves the same as a processingError() call, i.e., causes backtracking.
   //
   @Test def testBombSetterThrowEX(): Unit = runnerB.runOneTest("testBombSetterThrowEX")
   @Test def testBombGetterThrowEX(): Unit = runnerB.runOneTest("testBombGetterThrowEX")
   @Test def testBombReadThrowEX(): Unit = runnerB.runOneTest("testBombReadThrowEX")
   @Test def testBombCloseInputThrowEX(): Unit = runnerB.runOneTest("testBombCloseInputThrowEX")
-  // In the wrap methods, a processing error is escalated to an RSDE.
   @Test def testBombWrapInputThrowEX(): Unit = runnerB.runOneTest("testBombWrapInputThrowEX")
   @Test def testBombWrapOutputThrowEX(): Unit = runnerB.runOneTest("testBombWrapOutputThrowEX")
-  //
-  // In the write and close (output) methods, a processing error is an Unparse Error, which
-  // terminates unparsing, but in the right way.
-  //
   @Test def testBombWriteThrowEX(): Unit = runnerB.runOneTest("testBombWriteThrowEX")
   @Test def testBombWriteThrowEXWithSuspension(): Unit =
     runnerB.runOneTest("testBombWriteThrowEXWithSuspension")
@@ -116,4 +112,89 @@ class TestLayers2 {
     runnerB.runOneTest("testBombCloseOutputThrowEX")
   @Test def testBombCloseOutputThrowEXWithSuspension(): Unit =
     runnerB.runOneTest("testBombCloseOutputThrowEXWithSuspension")
+
+  //
+  // Runtime Exception thrown from each place in the API
+  //
+  //
+  abstract class Handle(kind: String) {
+    def apply(testName: String) = {
+      val contains = testName
+        .replace("testBomb", "")
+        .replace(kind, "")
+        .replace("WithSuspension", "")
+        .toLowerCase
+      val e = f(testName)
+      val cMsg = getAMessage(e)
+      // println(s">>>>\n     $cMsg\n<<<<<")
+      if (cMsg == null)
+        fail("no cause message")
+      if (!cMsg.toLowerCase.contains(contains))
+        fail(s"'$cMsg' does not contain '$contains'.")
+    }
+
+    def f(s: String): Throwable
+  }
+
+  def handle(testName: String) = {
+    val h = new Handle("ThrowRE") {
+      def f(s: String) =
+        intercept[TDMLException] {
+          runnerB.runOneTest(testName)
+        }.asInstanceOf[Exception]
+    }
+    h(testName)
+  }
+
+  private def getAMessage(cause: Throwable): String = {
+    val m = cause.getMessage
+    val c = cause.getCause
+    (m, c) match {
+      case (null, null) => Misc.getNameFromClass(cause)
+      case (null, c) => getAMessage(c)
+      case (m, null) => m
+      case (m, c) => m + " " + getAMessage(c)
+    }
+  }
+
+  @Test def testBombSetterThrowRE(): Unit = handle("testBombSetterThrowRE")
+  @Test def testBombGetterThrowRE(): Unit = handle("testBombGetterThrowRE")
+  @Test def testBombCloseOutputThrowRE(): Unit = handle("testBombCloseOutputThrowRE")
+  @Test def testBombCloseOutputThrowREWithSuspension(): Unit = handle(
+    "testBombCloseOutputThrowREWithSuspension",
+  )
+  @Test def testBombWriteThrowRE(): Unit = handle("testBombWriteThrowRE")
+  @Test def testBombWriteThrowREWithSuspension(): Unit = handle(
+    "testBombWriteThrowREWithSuspension",
+  )
+  @Test def testBombReadThrowRE(): Unit = handle("testBombReadThrowRE")
+  @Test def testBombCloseInputThrowRE(): Unit = handle("testBombCloseInputThrowRE")
+  @Test def testBombWrapInputThrowRE(): Unit = handle("testBombWrapInputThrowRE")
+  @Test def testBombWrapOutputThrowRE(): Unit = handle("testBombWrapOutputThrowRE")
+
+  def handleA(testName: String): Unit = {
+    val h = new Handle("Abort") {
+      def f(s: String) =
+        intercept[Abort] {
+          runnerB.runOneTest(testName)
+        }
+    }
+    h(testName)
+  }
+
+  @Test def testBombSetterAbort(): Unit = handleA("testBombSetterAbort")
+  @Test def testBombGetterAbort(): Unit = handleA("testBombGetterAbort")
+  @Test def testBombCloseOutputAbort(): Unit = handleA("testBombCloseOutputAbort")
+  @Test def testBombCloseOutputAbortWithSuspension(): Unit = handleA(
+    "testBombCloseOutputAbortWithSuspension",
+  )
+  @Test def testBombWriteAbort(): Unit = handleA("testBombWriteAbort")
+  @Test def testBombWriteAbortWithSuspension(): Unit = handleA(
+    "testBombWriteAbortWithSuspension",
+  )
+  @Test def testBombReadAbort(): Unit = handleA("testBombReadAbort")
+  @Test def testBombCloseInputAbort(): Unit = handleA("testBombCloseInputAbort")
+  @Test def testBombWrapInputAbort(): Unit = handleA("testBombWrapInputAbort")
+  @Test def testBombWrapOutputAbort(): Unit = handleA("testBombWrapOutputAbort")
+
 }

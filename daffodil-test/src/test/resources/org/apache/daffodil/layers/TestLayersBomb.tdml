@@ -880,6 +880,448 @@
     </errors>
   </unparserTestCase>
 
-  <!-- -->
+
+  <!-- Runtime Exception -->
+
+  <tdml:defineConfig name="SetterThrowRE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">setter</daf:bind>
+      <daf:bind name="tl:bombHow">throwRE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombSetterThrowRE" config="SetterThrowRE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>setter</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="GetterThrowRE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">getter</daf:bind>
+      <daf:bind name="tl:bombHow">throwRE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombGetterThrowRE" config="GetterThrowRE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>getter</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="CloseOutputThrowRE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">closeOutput</daf:bind>
+      <daf:bind name="tl:bombHow">throwRE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <unparserTestCase name="testBombCloseOutputThrowRE" config="CloseOutputThrowRE"
+                    root="root" model="useSimpleBombLayer.dfdl.xsd"
+                    roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>closeOutput</error>
+    </errors>
+  </unparserTestCase>
+
+  <unparserTestCase name="testBombCloseOutputThrowREWithSuspension" config="CloseOutputThrowRE"
+                    root="root3" model="useSimpleBombLayer.dfdl.xsd"
+                    roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root3 xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <copy>something</copy>
+          <data>A</data>
+          <afterLayer>something</afterLayer>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root3>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>closeOutput</error>
+    </errors>
+  </unparserTestCase>
+
+  <tdml:defineConfig name="WriteThrowRE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">write</daf:bind>
+      <daf:bind name="tl:bombHow">throwRE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <unparserTestCase name="testBombWriteThrowRE" config="WriteThrowRE"
+                    root="root" model="useSimpleBombLayer.dfdl.xsd"
+                    roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>write</error>
+    </errors>
+  </unparserTestCase>
+
+  <unparserTestCase name="testBombWriteThrowREWithSuspension" config="WriteThrowRE"
+                    root="root3" model="useSimpleBombLayer.dfdl.xsd"
+                    roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root3 xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <copy>something</copy>
+          <data>A</data>
+          <afterLayer>something</afterLayer>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root3>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>write</error>
+    </errors>
+  </unparserTestCase>
+
+  <tdml:defineConfig name="ReadThrowRE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">read</daf:bind>
+      <daf:bind name="tl:bombHow">throwRE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombReadThrowRE" config="ReadThrowRE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>read</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="CloseInputThrowRE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">closeInput</daf:bind>
+      <daf:bind name="tl:bombHow">throwRE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombCloseInputThrowRE" config="CloseInputThrowRE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>closeInput</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="WrapInputThrowRE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">wrapInput</daf:bind>
+      <daf:bind name="tl:bombHow">throwRE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombWrapInputThrowRE" config="WrapInputThrowRE"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>wrapInput</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="WrapOutputThrowRE">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">wrapOutput</daf:bind>
+      <daf:bind name="tl:bombHow">throwRE</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <unparserTestCase name="testBombWrapOutputThrowRE" config="WrapOutputThrowRE"
+                    root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>wrapOutput</error>
+    </errors>
+  </unparserTestCase>
+
+  <!-- Abort -->
+
+  <tdml:defineConfig name="SetterAbort">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">setter</daf:bind>
+      <daf:bind name="tl:bombHow">abort</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombSetterAbort" config="SetterAbort"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>setter</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="GetterAbort">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">getter</daf:bind>
+      <daf:bind name="tl:bombHow">abort</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombGetterAbort" config="GetterAbort"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>getter</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="CloseOutputAbort">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">closeOutput</daf:bind>
+      <daf:bind name="tl:bombHow">abort</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <unparserTestCase name="testBombCloseOutputAbort" config="CloseOutputAbort"
+                    root="root" model="useSimpleBombLayer.dfdl.xsd"
+                    roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>closeOutput</error>
+    </errors>
+  </unparserTestCase>
+
+  <unparserTestCase name="testBombCloseOutputAbortWithSuspension" config="CloseOutputAbort"
+                    root="root3" model="useSimpleBombLayer.dfdl.xsd"
+                    roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root3 xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <copy>something</copy>
+          <data>A</data>
+          <afterLayer>something</afterLayer>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root3>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>closeOutput</error>
+    </errors>
+  </unparserTestCase>
+
+  <tdml:defineConfig name="WriteAbort">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">write</daf:bind>
+      <daf:bind name="tl:bombHow">abort</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <unparserTestCase name="testBombWriteAbort" config="WriteAbort"
+                    root="root" model="useSimpleBombLayer.dfdl.xsd"
+                    roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>write</error>
+    </errors>
+  </unparserTestCase>
+
+  <unparserTestCase name="testBombWriteAbortWithSuspension" config="WriteAbort"
+                    root="root3" model="useSimpleBombLayer.dfdl.xsd"
+                    roundTrip="none">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root3 xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <copy>something</copy>
+          <data>A</data>
+          <afterLayer>something</afterLayer>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root3>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>write</error>
+    </errors>
+  </unparserTestCase>
+
+  <tdml:defineConfig name="ReadAbort">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">read</daf:bind>
+      <daf:bind name="tl:bombHow">abort</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombReadAbort" config="ReadAbort"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>read</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="CloseInputAbort">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">closeInput</daf:bind>
+      <daf:bind name="tl:bombHow">abort</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombCloseInputAbort" config="CloseInputAbort"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>closeInput</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="WrapInputAbort">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">wrapInput</daf:bind>
+      <daf:bind name="tl:bombHow">abort</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <parserTestCase name="testBombWrapInputAbort" config="WrapInputAbort"
+                  root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>wrapInput</error>
+    </errors>
+  </parserTestCase>
+
+  <tdml:defineConfig name="WrapOutputAbort">
+    <daf:externalVariableBindings>
+      <daf:bind name="tl:bombWhere">wrapOutput</daf:bind>
+      <daf:bind name="tl:bombHow">abort</daf:bind>
+    </daf:externalVariableBindings>
+  </tdml:defineConfig>
+
+  <unparserTestCase name="testBombWrapOutputAbort" config="WrapOutputAbort"
+                    root="root" model="useSimpleBombLayer.dfdl.xsd">
+    <document>A</document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:root xmlns="">
+          <intVarIn>42</intVarIn>
+          <stringVarIn>forty two</stringVarIn>
+          <data>A</data>
+          <intVarOut>42</intVarOut>
+          <stringVarOut>forty two forty two</stringVarOut>
+        </ex:root>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Runtime Schema Definition Error</error>
+      <error>Bombed out at</error>
+      <error>wrapOutput</error>
+    </errors>
+  </unparserTestCase>
+
 
 </testSuite>

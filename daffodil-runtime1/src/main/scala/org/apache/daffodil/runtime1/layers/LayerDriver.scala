@@ -21,6 +21,7 @@ import java.io.FilterInputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.lang.reflect.InvocationTargetException
+
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.DirectOrBufferedDataOutputStream
@@ -36,6 +37,7 @@ import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.api.Layer
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.ProcessingError
+
 import passera.unsigned.ULong
 
 /**
@@ -210,13 +212,22 @@ class LayerDriver private (val layer: Layer) {
         case pe: ProcessingError =>
           throw pe
         case re: RuntimeException =>
-          throw re
+          throw new LayerRuntimeException(re)
         case e: Exception =>
           layer.getLayerRuntime.processingError(new LayerUnexpectedException(e))
       }
     }
 
   }
+}
+
+/**
+ * This is used to encapsulate runtime exceptions that are thrown out of layer code.
+ */
+class LayerRuntimeException(msg: String, cause: Throwable)
+  extends RuntimeException(msg, cause) {
+  def this(msg: String) = this(msg, null)
+  def this(cause: Throwable) = this(null, cause)
 }
 
 /**
