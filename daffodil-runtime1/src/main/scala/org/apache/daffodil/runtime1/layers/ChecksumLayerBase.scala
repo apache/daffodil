@@ -46,12 +46,12 @@ abstract class ChecksumLayerBase(
   final def getLength: Int = length
 
   /**
-   * Must be called to specify the length, or it is a schema definition error.
+   * Must be called to specify the length, or it is a fatal API usage error.
    * @param len The fixed length over which the checksum is computed.
    */
   final protected def setLength(len: Int): Unit = {
     this.length = len
-    if (len < 0) throw new Exception(s"The layer length is negative: $len.")
+    if (len < 0) processingError(s"The layer length is negative: $len.")
     isInitialized = true
   }
 
@@ -63,13 +63,22 @@ abstract class ChecksumLayerBase(
     byteBuffer: ByteBuffer,
   ): Int
 
+  private def checkInitialized() = {
+    if (!isInitialized) {
+      // this is a RuntimeException, so will be fatal whether parsing or unparsing.
+      throw new IllegalStateException(
+        "ChecksumLayer API usage: setLength method was never called.",
+      )
+    }
+  }
+
   final override def wrapLayerInput(jis: InputStream): InputStream = {
-    if (!isInitialized) runtimeSchemaDefinitionError("setLength method was never called.")
+    checkInitialized()
     new ChecksumDecoderInputStream(this, jis)
   }
 
   final override def wrapLayerOutput(jos: OutputStream): OutputStream = {
-    if (!isInitialized) runtimeSchemaDefinitionError("setLength method was never called.")
+    checkInitialized()
     new ChecksumEncoderOutputStream(this, jos)
   }
 }

@@ -390,11 +390,9 @@ class VariableMap private (
         // using a different VRD (probably the top-level VRD you get from the schemaSet variable map.
         // These MUST, however, be for the same variable, and so will have the same index
         // into the vtable.
-        // PERFORMANCE: this is perhaps a little expensive.
-        // Rather than just taking this out, consider interning QNames instead so that this
-        // becomes an object EQ check on the QName objects.
-        val isSameVar = varAtIndexVRD.globalQName.matches(vrd.globalQName.toRefQName)
-        Assert.invariant(isSameVar)
+        Assert.invariant(
+          (varAtIndexVRD eq vrd) || (varAtIndexVRD.globalQName eq vrd.globalQName),
+        )
       }
       varAtIndex
     }

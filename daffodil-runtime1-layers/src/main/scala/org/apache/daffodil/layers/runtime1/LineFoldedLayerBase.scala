@@ -88,13 +88,9 @@ sealed abstract class LineFoldedLayerBase(mode: LineFoldMode)
     new LineFoldedOutputStream(mode, jos)
 }
 
-final class LineFoldedIMFLayer extends LineFoldedLayerBase(LineFoldMode.IMF) {
-  // default zero-arg constructor is all we need
-}
+final class LineFoldedIMFLayer extends LineFoldedLayerBase(LineFoldMode.IMF)
 
-final class LineFoldedICalendarLayer extends LineFoldedLayerBase(LineFoldMode.iCalendar) {
-  // default zero-arg constructor is all we need
-}
+final class LineFoldedICalendarLayer extends LineFoldedLayerBase(LineFoldMode.iCalendar)
 
 /**
  * TODO: Doesn't enforce 998 max line length limit.

@@ -426,18 +426,6 @@ final case class GlobalQName(prefix: Option[String], local: String, namespace: N
    */
   override def matches[Q <: QNameBase](other: Q): Boolean = {
     other.local == this.local && other.namespace == this.namespace
-//    other match {
-//      // StepQNames match against global names in the case of a path
-//      // step that refers to an element that is defined in its
-//      // group, via an element reference.
-//      case StepQName(_, `local`, `namespace`) => true // exact match
-//      case StepQName(_, _, _) => false
-//      // RefQNames match against global names in element references,
-//      // group references, type references (i.e., type="..."), etc.
-//      case RefQName(_, `local`, `namespace`) => true // exact match
-//      case RefQName(_, _, _) => false
-//      case _ => Assert.usageError("other must be a StepQName or RefQName")
-//    }
   }
 }
 

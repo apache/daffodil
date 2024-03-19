@@ -97,7 +97,7 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
       defv.direction,
       Delay('maybeDefaultValueExpr2, this, maybeDefaultValueExpr),
       defv.typeQName,
-      defv.namedQName.asInstanceOf[GlobalQName],
+      globalVRD.globalQName, // important that this is the exact same globalQName object as is used by the globalVRD.
       defv.primType,
       this.tunable.unqualifiedPathStepPolicy,
       // This is a really important invariant. The index of the NVI's VRD

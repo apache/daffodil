@@ -25,13 +25,9 @@ import java.util.Deque
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.layers.api.Layer
 
-final class TwoByteSwapLayer extends ByteSwap("twobyteswap", 2) {
-  // default zero-arg constructor is all we need
-}
+final class TwoByteSwapLayer extends ByteSwap("twobyteswap", 2)
 
-final class FourByteSwapLayer extends ByteSwap("fourbyteswap", 4) {
-  // default zero-arg constructor is all we need.
-}
+final class FourByteSwapLayer extends ByteSwap("fourbyteswap", 4)
 
 abstract class ByteSwap(name: String, count: Int)
   extends Layer(name, "urn:org.apache.daffodil.layers.byteSwap") {
