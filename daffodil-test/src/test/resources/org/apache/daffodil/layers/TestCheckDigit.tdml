@@ -34,7 +34,7 @@
   Example: for 10:22:18.234 The sum is 23, so the check-digit is 3.
   -->
 
-  <parserTestCase name="test_checkDigit_01" root="r" model="exampleCheckDigit.dfdl.xsd">
+  <parserTestCase name="test_checkDigit_ok_01" root="r" model="exampleCheckDigit.dfdl.xsd">
     <document>2021-09-25:1</document>
     <infoset><dfdlInfoset>
       <ex:r xmlns="">
@@ -45,7 +45,7 @@
     </dfdlInfoset></infoset>
   </parserTestCase>
 
-  <parserTestCase name="test_checkDigit_01e" root="r" model="exampleCheckDigit.dfdl.xsd">
+  <parserTestCase name="test_checkDigit_bad_parse_short_01" root="r" model="exampleCheckDigit.dfdl.xsd">
     <document>2021-09-2</document>
     <errors>
       <error>Parse Error</error>
@@ -54,7 +54,7 @@
     </errors>
   </parserTestCase>
 
-  <parserTestCase name="test_checkDigit_02" root="r" model="exampleCheckDigit.dfdl.xsd"
+  <parserTestCase name="test_checkDigit_bad_invalid" root="r" model="exampleCheckDigit.dfdl.xsd"
     roundTrip="none">
     <document>2021-09-25:7</document>
     <infoset><dfdlInfoset>
@@ -70,7 +70,7 @@
     </validationErrors>
   </parserTestCase>
 
-  <unparserTestCase name="test_checkDigit_01u" root="r" model="exampleCheckDigit.dfdl.xsd"
+  <unparserTestCase name="test_checkDigit_unparse_ok_01" root="r" model="exampleCheckDigit.dfdl.xsd"
     roundTrip="none">
     <document>2021-09-25:1</document>
     <infoset><dfdlInfoset>

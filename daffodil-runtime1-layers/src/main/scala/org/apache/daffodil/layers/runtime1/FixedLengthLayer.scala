@@ -22,6 +22,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
 
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.layers.LayerNotEnoughDataException
 import org.apache.daffodil.runtime1.layers.api.Layer
 
@@ -60,8 +61,7 @@ final class FixedLengthLayer
    */
   private[layers] def setLayerVariableParameters(fixedLength: Long): Unit = {
     this.fixedLength = fixedLength.toInt
-    if (fixedLength < 1)
-      processingError(s"fixedLength value of $fixedLength must be 1 or greater.")
+    Assert.invariant(fixedLength >= 0) // variable is unsignedInt, so this can't be negative
     if (fixedLength > maxFixedLength)
       processingError(
         s"fixedLength value of $fixedLength is above the maximum of $maxFixedLength.",

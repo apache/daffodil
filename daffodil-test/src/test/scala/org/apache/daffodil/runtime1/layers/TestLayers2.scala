@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.layers
 
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.exceptions.Abort
-import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 
@@ -116,7 +116,6 @@ class TestLayers2 {
   //
   // Runtime Exception thrown from each place in the API
   //
-  //
   abstract class Handle(kind: String) {
     def apply(testName: String) = {
       val contains = testName
@@ -125,8 +124,8 @@ class TestLayers2 {
         .replace("WithSuspension", "")
         .toLowerCase
       val e = f(testName)
-      val cMsg = getAMessage(e)
-      // println(s">>>>\n     $cMsg\n<<<<<")
+      val cMsg = TestUtils.getAMessage(e)
+      // println(s">>>>\n     $cMsg\n<<<<<") // keep this.
       if (cMsg == null)
         fail("no cause message")
       if (!cMsg.toLowerCase.contains(contains))
@@ -144,17 +143,6 @@ class TestLayers2 {
         }.asInstanceOf[Exception]
     }
     h(testName)
-  }
-
-  private def getAMessage(cause: Throwable): String = {
-    val m = cause.getMessage
-    val c = cause.getCause
-    (m, c) match {
-      case (null, null) => Misc.getNameFromClass(cause)
-      case (null, c) => getAMessage(c)
-      case (m, null) => m
-      case (m, c) => m + " " + getAMessage(c)
-    }
   }
 
   @Test def testBombSetterThrowRE(): Unit = handle("testBombSetterThrowRE")

@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.layers
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
 
@@ -50,7 +51,20 @@ class CheckDigitLayer
 
   private var params: String = _
   private var digitEncoding: String = _
-  private lazy val charset = Charset.forName(digitEncoding)
+
+  /**
+   * Lazy so that if the digitEncoding is not a valid charset, that we get
+   * a processing error at runtime, not a unrecoverable/fatal error.
+   */
+  private lazy val charset =
+    try {
+      Charset.forName(digitEncoding)
+    } catch {
+      case re: RuntimeException => {
+        processingError(re)
+        Assert.impossible("prior statement ends with throw")
+      }
+    }
   private lazy val isVerbose = params.toLowerCase.contains("verbose")
 
   /**
@@ -59,7 +73,7 @@ class CheckDigitLayer
    * @param digitEncoding the value of the digitEncoding DFDL variable
    */
   final private[layers] def setLayerVariableParameters(
-    length: Int,
+    length: Short,
     params: String,
     digitEncoding: String,
   ): Unit = {

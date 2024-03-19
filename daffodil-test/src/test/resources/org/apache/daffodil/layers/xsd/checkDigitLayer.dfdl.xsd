@@ -31,7 +31,10 @@
       <dfdl:format ref="cd:GeneralFormat" />
 
       <dfdl:defineVariable name="checkDigit" type="xs:unsignedShort"/>
-      <dfdl:defineVariable name="length" type="xs:unsignedShort"/>
+      <!-- this length changed to signed short for testing purposes, so
+           we can give it a negative length and be sure checks run to
+           handle that. -->
+      <dfdl:defineVariable name="length" type="xs:short"/>
       <dfdl:defineVariable name="params" type="xs:string" defaultValue=""/>
       <dfdl:defineVariable name="digitEncoding" type="xs:string"/>
 

@@ -93,7 +93,7 @@ class TestFixedLengthLayer {
     assertTrue(m.contains("cannot convert '-1'"))
   }
 
-  @Test def testfixedLengthLayerBadToBigLen1(): Unit = {
+  @Test def testfixedLengthLayerBadTooBigLen1(): Unit = {
     val sch = fl1Schema(65536)
     val data = "ABC"
     val infoset = abcInfoset
@@ -121,6 +121,21 @@ class TestFixedLengthLayer {
     }
     val msg = e.getMessage.toLowerCase()
     assertTrue(msg.contains("insufficient data"))
+  }
+
+  @Test def testfixedLengthLayerBadUnparseDataShort1(): Unit = {
+    val sch = fl1Schema(2)
+    val data = "A"
+    val infoset = <ex:e1 xmlns:ex={example}>
+      <s1>A</s1>
+      <after>D</after>
+    </ex:e1>
+
+    val e = intercept[UnparseError] {
+      TestUtils.testUnparsing(sch, infoset, data, areTracing = false)
+    }
+    val msg = e.getMessage.toLowerCase()
+    assertTrue(msg.contains("insufficient output data"))
   }
 
   @Test def testfixedLengthLayerBadUnparseDataLong1(): Unit = {

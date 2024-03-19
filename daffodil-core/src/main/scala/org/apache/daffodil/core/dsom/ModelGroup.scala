@@ -108,9 +108,11 @@ object ModelGroupFactory {
         groupRef.asModelGroup
       }
       case _ => {
+        // $COVERAGE-OFF$
         Assert.invariantFailed(
           "Unrecognized construct %s should be handled by caller.".format(xmlNode),
         )
+        // $COVERAGE_ON$
       }
     }
     childModelGroup
