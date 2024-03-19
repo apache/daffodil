@@ -243,4 +243,18 @@ class TestCLITunables {
     }
   }
 
+  @Test def test_CLI_Parsing_ReloadingWithTunables(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+    )
+
+    withTempFile { parser =>
+      runCLI(args"save-parser -s $schema -r matrix $parser") { _ => }(ExitCode.Success)
+
+      runCLI(args"parse --parser $parser -TsuppressSchemaDefinitionWarnings=all") { cli =>
+        cli.expectErr("Option 'parser' conflicts with option 'T'")
+      }(ExitCode.Usage)
+    }
+  }
+
 }
