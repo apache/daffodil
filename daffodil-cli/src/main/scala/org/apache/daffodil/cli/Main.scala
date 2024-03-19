@@ -405,9 +405,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Input file to parse. If not specified, or a value of -, reads from stdin.",
     )
 
-    requireOne(schema, parser) // must have one of --schema or --parser
-    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
-    validateFileIsFile(config) // --config must be a file that exists
+    // must have one of --schema or --parser
+    requireOne(schema, parser)
+
+    // if --parser is provided, cannot also provide --root or -T
+    conflicts(parser, List(rootNS, tunables))
+
+    // --config must be a file that exists
+    validateFileIsFile(config)
 
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) =>
@@ -510,9 +515,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Input file to unparse. If not specified, or a value of -, reads from stdin.",
     )
 
-    requireOne(schema, parser) // must have one of --schema or --parser
-    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
-    validateFileIsFile(config) // --config must be a file that exists
+    // must have one of --schema or --parser
+    requireOne(schema, parser)
+
+    // if --parser is provided, cannot also provide --root or -T
+    conflicts(parser, List(rootNS, tunables))
+
+    // --config must be a file that exists
+    validateFileIsFile(config)
 
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) =>
@@ -706,9 +716,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Input file or directory containing input files to parse or unparse",
     )
 
-    requireOne(schema, parser) // must have one of --schema or --parser
-    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
-    validateFileIsFile(config) // --config must be a file that exists
+    // must have one of --schema or --parser
+    requireOne(schema, parser)
+
+    // if --parser is provided, cannot also provide --root or -T
+    conflicts(parser, List(rootNS, tunables))
+
+    // --config must be a file that exists
+    validateFileIsFile(config)
 
     validateOpt(infosetType, schema) {
       case (Some(InfosetType.EXISA), None) =>
