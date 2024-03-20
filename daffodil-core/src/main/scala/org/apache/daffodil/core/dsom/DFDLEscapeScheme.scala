@@ -35,6 +35,7 @@ import org.apache.daffodil.runtime1.processors.EscapeSchemeCharParseEv
 import org.apache.daffodil.runtime1.processors.EscapeSchemeCharUnparseEv
 import org.apache.daffodil.runtime1.processors.EscapeSchemeParseEv
 import org.apache.daffodil.runtime1.processors.EscapeSchemeUnparseEv
+import org.apache.daffodil.runtime1.processors.ExtraEscapedCharsEv
 
 final class DFDLEscapeScheme(
   node: Node,
@@ -120,10 +121,26 @@ final class DFDLEscapeScheme(
     }
   }.value
 
-  final lazy val optionExtraEscapedCharacters = LV('optionExtraEscapedCharacters) {
+  final lazy val optionExtraEscapedCharactersEv = LV('optionExtraEscapedCharacters) {
+    val qn = this.qNameForProperty("extraEscapedCharacters")
     extraEscapedCharactersRaw match {
       case Found("", _, _, _) => Nope
-      case Found(v, _, _, _) => One(v)
+      case found @ Found(v, _, _, _) => {
+        val typeIfStaticallyKnown = NodeInfo.String
+        val typeIfRuntimeKnown = NodeInfo.NonEmptyString
+        val ci = defES.pointOfUse.dpathCompileInfo
+        val expr = ExpressionCompilers.String.compileDelimiter(
+          qn,
+          typeIfStaticallyKnown,
+          typeIfRuntimeKnown,
+          found,
+          this,
+          ci,
+        )
+        val ev = new ExtraEscapedCharsEv(expr, ci)
+        ev.compile(tunable)
+        One(ev)
+      }
     }
   }.value
 
@@ -150,7 +167,7 @@ final class DFDLEscapeScheme(
           escapeBlockStart,
           escapeBlockEnd,
           optionEscapeEscapeCharacterEv,
-          optionExtraEscapedCharacters,
+          optionExtraEscapedCharactersEv,
           generateEscapeBlock,
           ci,
         )
@@ -158,7 +175,7 @@ final class DFDLEscapeScheme(
         new EscapeSchemeCharUnparseEv(
           escapeCharacterEv,
           optionEscapeEscapeCharacterEv,
-          optionExtraEscapedCharacters,
+          optionExtraEscapedCharactersEv,
           ci,
         )
     }

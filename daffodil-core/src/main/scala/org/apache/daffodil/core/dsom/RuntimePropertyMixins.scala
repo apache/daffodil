@@ -637,7 +637,16 @@ trait ElementRuntimeValuedPropertiesMixin
             f(es.optionEscapeEscapeCharacterEv.get)
           else
             ReferencedElementInfos.None
-        ee ++ propExprElts(es.optionEscapeCharacterRaw, es.escapeCharacterEv, f)
+        val extraEscapeChars =
+          if (es.optionExtraEscapedCharactersEv.isDefined)
+            f(es.optionExtraEscapedCharactersEv.get)
+          else
+            ReferencedElementInfos.None
+        ee ++ extraEscapeChars ++ propExprElts(
+          es.optionEscapeCharacterRaw,
+          es.escapeCharacterEv,
+          f,
+        )
       } else {
         ReferencedElementInfos.None
       }

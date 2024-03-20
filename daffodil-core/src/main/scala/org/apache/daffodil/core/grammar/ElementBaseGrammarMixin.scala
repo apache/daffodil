@@ -1409,7 +1409,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val hasDynamicEscapeScheme =
-    this.optionEscapeScheme.isDefined && !this.optionEscapeScheme.get.escapeSchemeParseEv.isConstant
+    this.optionEscapeScheme.isDefined && (!this.optionEscapeScheme.get.escapeSchemeParseEv.isConstant || !this.optionEscapeScheme.get.escapeSchemeUnparseEv.isConstant)
 
   private def withEscapeScheme(body: Gram) = {
     if (hasDynamicEscapeScheme) DynamicEscapeSchemeCombinatorElement(this, body)
