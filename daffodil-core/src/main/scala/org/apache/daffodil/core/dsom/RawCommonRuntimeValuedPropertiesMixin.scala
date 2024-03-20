@@ -94,9 +94,8 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin extends PropertyMixin {
   protected final lazy val escapeBlockStartRaw = requireProperty(optionEscapeBlockStartRaw)
   protected final lazy val optionEscapeBlockEndRaw = findPropertyOption("escapeBlockEnd")
   protected final lazy val escapeBlockEndRaw = requireProperty(optionEscapeBlockEndRaw)
-  protected final lazy val optionExtraEscapedCharactersRaw = findPropertyOption(
-    "extraEscapedCharacters",
-  )
+  protected final lazy val optionExtraEscapedCharactersRaw =
+    findPropertyOption("extraEscapedCharacters", expressionAllowed = true)
   protected final lazy val extraEscapedCharactersRaw = requireProperty(
     optionExtraEscapedCharactersRaw,
   )
