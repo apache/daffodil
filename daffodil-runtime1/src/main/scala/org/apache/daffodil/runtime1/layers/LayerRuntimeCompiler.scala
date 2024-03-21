@@ -238,8 +238,19 @@ class LayerRuntimeCompiler {
     }
   }
 
+  private def compile(layerRuntimeData: LayerRuntimeData): LayerVarsRuntime = {
+    val optLayerVarsRuntime = alreadyCheckedLayers.get(layerRuntimeData.spiName)
+    optLayerVarsRuntime.getOrElse {
+      val layer = findSPILayer(layerRuntimeData.spiName, layerRuntimeData)
+      val res = computeLayerVarsRuntime(layerRuntimeData, layer)
+      alreadyCheckedLayers.put(layerRuntimeData.spiName, res)
+      res
+    }
+  }
+
   /**
-   * Called twice. Once at schema compilation time, once when the compiled schema is reloaded.
+   * Called twice. Once during schema compilation time (for when the compiled schema
+   * is immediately used), once when a compiled schema is reloaded.
    *
    * The two calls are necessary because the resulting structure, which is needed at runtime,
    * is not serializable, so can't be saved from schema compilation time as part of the
@@ -251,13 +262,18 @@ class LayerRuntimeCompiler {
    * of setters/getters are checked against the DFDL variables defined in
    * the layer's target namespace.
    */
-  def compile(layerRuntimeData: LayerRuntimeData): LayerVarsRuntime = {
-    val optLayerVarsRuntime = alreadyCheckedLayers.get(layerRuntimeData.spiName)
-    optLayerVarsRuntime.getOrElse {
-      val layer = findSPILayer(layerRuntimeData.spiName, layerRuntimeData)
-      val res = computeLayerVarsRuntime(layerRuntimeData, layer)
-      alreadyCheckedLayers.put(layerRuntimeData.spiName, res)
-      res
+  def compileAll(lrds: Seq[LayerRuntimeData]): Unit = {
+    lrds.foreach { compile(_) }
+  }
+
+  /**
+   * Requires that the argument is for a layer that has already been runtime compiled.
+   * @param lrd
+   * @return the LayerVarsRuntime object for the layer.
+   */
+  def getLayerVarsRuntime(lrd: LayerRuntimeData): LayerVarsRuntime = {
+    alreadyCheckedLayers.get(lrd.spiName).getOrElse {
+      Assert.invariantFailed("layer was not already compiled.")
     }
   }
 }

@@ -488,8 +488,6 @@ abstract class ParseOrUnparseState protected (
     )
   }
 
-  lazy val layerRuntimeCompiler = dataProc.get.ssrd.layerRuntimeCompiler
-
   final override def schemaFileLocation = getContext().schemaFileLocation
 
   def dataStream: Maybe[DataStreamCommon]

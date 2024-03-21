@@ -273,6 +273,9 @@ class Compiler private (
       val dpObj = objInput.readObject()
       objInput.close()
       val dp = dpObj.asInstanceOf[DataProcessor]
+      // must recompile the layers since the data structure that creates
+      // is not serializable
+      dp.ssrd.compileLayers()
       dp
     } catch {
       case _: ZipException =>

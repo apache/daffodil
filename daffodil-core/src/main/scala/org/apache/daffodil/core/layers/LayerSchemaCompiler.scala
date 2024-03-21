@@ -66,14 +66,8 @@ private class LayerSchemaCompiler private (sq: SequenceGroupTermBase) {
   lazy val compile: Unit = {
     checkOnlyAllowedProperties()
     //
-    // This is called only for side-effect of checking that a LayerVarsRuntime
-    // can be constructed. That object is not serialized and saved as part of the
-    // processor. Rather, it will be recreated at runtime with hopefully the
-    // same results, which verifies that the layer class loaded at runtime from
-    // the classpath at least has the same DFDL variables signature as the one on the classpath
-    // when the schema was compiled.
-    //
-    sq.schemaSet.layerRuntimeCompiler.compile(lrd)
+    // Note: does not check layer vars against layer code setters/getters.
+    // That checking is done elsewhere.
   }
 
 }
