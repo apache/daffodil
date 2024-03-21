@@ -31,7 +31,7 @@ import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.runtime1.api.MetadataHandler
 import org.apache.daffodil.runtime1.infoset.InfosetOutputter
-import org.apache.daffodil.runtime1.layers.LayerRuntimeException
+import org.apache.daffodil.runtime1.layers.LayerFatalException
 
 object INoWarn4 {
   ImplicitsSuppressUnusedImportWarning()
@@ -502,7 +502,7 @@ class DataProcessor(
         state.setFailed(e)
       }
       case us: UnsuppressableException => throw us
-      case lre: LayerRuntimeException => throw lre
+      case lre: LayerFatalException => throw lre
       case x: Throwable => {
         val sw = new java.io.StringWriter()
         val pw = new java.io.PrintWriter(sw)

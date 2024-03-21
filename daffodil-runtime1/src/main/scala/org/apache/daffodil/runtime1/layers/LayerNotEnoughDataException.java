@@ -16,13 +16,11 @@
  */
 package org.apache.daffodil.runtime1.layers;
 
-import org.apache.daffodil.runtime1.layers.LayerException;
-
 /**
  * LayerNotEnoughDataException is a custom exception class that represents an exception that occurs
  * when there is insufficient data for a layer in a program.
  */
-public class LayerNotEnoughDataException extends LayerException {
+public class LayerNotEnoughDataException extends LayerProcessingException {
 
     /**
      * Creates a new instance of LayerNotEnoughDataException with the specified

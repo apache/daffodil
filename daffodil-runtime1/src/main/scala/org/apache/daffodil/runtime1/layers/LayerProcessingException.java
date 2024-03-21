@@ -19,18 +19,18 @@ package org.apache.daffodil.runtime1.layers;
 import java.util.Objects;
 
 /**
- * LayerException represents an exception that can occur during the usage of layers in a program.
+ * LayerProcessingException represents an exception that can occur during the usage of layers in a program.
  */
-public class LayerException extends Exception {
+public class LayerProcessingException extends Exception {
 
-  public LayerException(String msg, Throwable cause) {
+  public LayerProcessingException(String msg, Throwable cause) {
     super(msg, cause);
     if (Objects.isNull(msg)) Objects.requireNonNull(cause);
     if (Objects.isNull(cause)) Objects.requireNonNull(msg);
   }
 
-  public LayerException(String msg) { this(msg, null); }
+  public LayerProcessingException(String msg) { this(msg, null); }
 
-  public LayerException(Throwable cause) { this(null, cause); }
+  public LayerProcessingException(Throwable cause) { this(null, cause); }
 }
 

@@ -20,7 +20,7 @@ package org.apache.daffodil.unparsers.runtime1
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.LayerDriver
-import org.apache.daffodil.runtime1.layers.LayerRuntimeException
+import org.apache.daffodil.runtime1.layers.LayerFatalException
 import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
@@ -100,10 +100,10 @@ class LayeredSequenceUnparser(
     } catch {
       case u: UnsuppressableException =>
         throw u
-      case lre: LayerRuntimeException =>
+      case lre: LayerFatalException =>
         throw lre
       case re: RuntimeException =>
-        throw new LayerRuntimeException(re)
+        throw new LayerFatalException(re)
       case pe: UnparseError =>
         throw pe
       case sde: RuntimeSchemaDefinitionError =>

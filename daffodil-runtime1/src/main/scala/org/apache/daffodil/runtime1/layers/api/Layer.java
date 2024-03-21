@@ -166,17 +166,15 @@ public abstract class Layer {
    *
    * @param jis The input stream to be wrapped.
    * @return An input stream with the layer wrapped around it.
-   * throws java.io.IOException
    */
-  public abstract InputStream wrapLayerInput(InputStream jis) throws IOException;
+  public abstract InputStream wrapLayerInput(InputStream jis);
 
   /**
    * Wraps a layer output interpreter around an output stream, using the provided LayerRuntimeFoo for runtime information and stateful services.
    *
    * @param jos The output stream to be wrapped.
    * @return An output stream with the layer wrapped around it.
-   * throws java.io.IOException
    */
-  public abstract OutputStream wrapLayerOutput(OutputStream jos) throws IOException;
+  public abstract OutputStream wrapLayerOutput(OutputStream jos);
 
 }

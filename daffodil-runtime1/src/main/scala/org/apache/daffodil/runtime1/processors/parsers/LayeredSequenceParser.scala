@@ -20,8 +20,8 @@ package org.apache.daffodil.runtime1.processors.parsers
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.LayerDriver
-import org.apache.daffodil.runtime1.layers.LayerException
-import org.apache.daffodil.runtime1.layers.LayerRuntimeException
+import org.apache.daffodil.runtime1.layers.LayerFatalException
+import org.apache.daffodil.runtime1.layers.LayerProcessingException
 import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.ProcessingError
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
@@ -59,14 +59,14 @@ class LayeredSequenceParser(
       }
     } catch {
       case u: UnsuppressableException => throw u
-      case lre: LayerRuntimeException =>
+      case lre: LayerFatalException =>
         throw lre
       case re: RuntimeException =>
-        throw new LayerRuntimeException(re)
+        throw new LayerFatalException(re)
       case pe: ProcessingError =>
         throw pe
       case rsde: RuntimeSchemaDefinitionError => throw rsde
-      case le: LayerException =>
+      case le: LayerProcessingException =>
         state.toss(state.toProcessingError(le))
       case e: Exception =>
         state.toss(state.toProcessingError(new LayerUnexpectedException(e)))

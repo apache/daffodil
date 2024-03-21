@@ -16,10 +16,8 @@
  */
 package org.apache.daffodil.runtime1.layers;
 
-import org.apache.daffodil.runtime1.layers.LayerException;
 
-
-public class LayerUnexpectedException extends LayerException {
+public class LayerUnexpectedException extends LayerProcessingException {
 
     public LayerUnexpectedException(Throwable cause) { super(cause); }
 }

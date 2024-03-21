@@ -213,7 +213,7 @@ class LayerDriver private (val layer: Layer) {
         case pe: ProcessingError =>
           throw pe
         case re: RuntimeException =>
-          throw new LayerRuntimeException(re)
+          throw new LayerFatalException(re)
         case e: Exception =>
           layer.getLayerRuntime.processingError(new LayerUnexpectedException(e))
       }
@@ -225,8 +225,7 @@ class LayerDriver private (val layer: Layer) {
 /**
  * This is used to encapsulate runtime exceptions that are thrown out of layer code.
  */
-class LayerRuntimeException(msg: String, cause: Throwable)
-  extends RuntimeException(msg, cause) {
+class LayerFatalException(msg: String, cause: Throwable) extends RuntimeException(msg, cause) {
   def this(msg: String) = this(msg, null)
   def this(cause: Throwable) = this(null, cause)
 }
