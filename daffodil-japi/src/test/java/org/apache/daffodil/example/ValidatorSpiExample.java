@@ -54,11 +54,12 @@ public class ValidatorSpiExample {
 
         java.io.File file = getResource("/test/japi/myData5.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
 
-        assertFalse(res.isValidationError());
+            assertFalse(res.isValidationError());
+        }
     }
 
     @Test
@@ -73,10 +74,11 @@ public class ValidatorSpiExample {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
 
-        assertTrue(res.isValidationError());
+            assertTrue(res.isValidationError());
+        }
     }
 }

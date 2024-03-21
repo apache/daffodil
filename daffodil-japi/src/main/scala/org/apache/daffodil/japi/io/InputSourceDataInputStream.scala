@@ -67,5 +67,14 @@ class InputSourceDataInputStream private[japi] (
    */
   def hasData(): Boolean = dis.isDefinedForLength(1)
 
+  /**
+   * Closes the underlying resource.
+   *
+   * This method is used to close the underlying resource associated with the current instance.
+   * It is typically used to release any system resources that have been acquired during
+   * the lifespan of the instance.
+   *
+   * @throws IOException if an I/O error occurs during the close operation.
+   */
   def close(): Unit = dis.close()
 }

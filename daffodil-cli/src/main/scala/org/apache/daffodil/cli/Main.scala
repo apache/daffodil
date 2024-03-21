@@ -1385,11 +1385,12 @@ class Main(
                       })
                     case Right(bytes) =>
                       Timer.getTimeResult({
-                        val input = InputSourceDataInputStream(bytes)
-                        val infosetResult =
-                          infosetHandler.parse(input, nullOutputStreamForParse)
-                        val parseResult = infosetResult.parseResult
-                        parseResult
+                        using(InputSourceDataInputStream(bytes)) { input =>
+                          val infosetResult =
+                            infosetHandler.parse(input, nullOutputStreamForParse)
+                          val parseResult = infosetResult.parseResult
+                          parseResult
+                        }
                       })
                   }
 

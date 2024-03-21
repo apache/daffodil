@@ -27,6 +27,7 @@ import org.apache.daffodil.io.processors.charset.BitsCharsetDecoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetDefinition
 import org.apache.daffodil.io.processors.charset.BitsCharsetEncoder
 import org.apache.daffodil.io.processors.charset.BitsCharsetNonByteSize
+import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.BinaryFloatRep
@@ -111,21 +112,24 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputSt
   override def close(): Unit = {
     if (!closed) {
       val ba = baos.toByteArray
-      val dis = InputSourceDataInputStream(ba)
-      val finfo = new FormatInfoForAISDecode()
-      val cb = CharBuffer.allocate(256)
-      //
-      // TODO: This is not a supportable API. We want to reuse the bitsCharset features of daffodil
-      //  for this non-byte-sized charset decoding. But this finfo object (a trait on the ParseOrUnparseState)
-      //  should not be part of the API
-      //
-      while ({ val numDecoded = dec.decode(dis, finfo, cb); numDecoded > 0 }) {
-        cb.flip()
-        IOUtils.write(cb, jos, StandardCharsets.ISO_8859_1)
-        cb.clear()
+      using(InputSourceDataInputStream(ba)) { dis =>
+        val finfo = new FormatInfoForAISDecode()
+        val cb = CharBuffer.allocate(256)
+        //
+        // TODO: This is not a supportable API. We want to reuse the bitsCharset features of daffodil
+        //  for this non-byte-sized charset decoding. But this finfo object (a trait on the ParseOrUnparseState)
+        //  should not be part of the API
+        //
+        while ({
+          val numDecoded = dec.decode(dis, finfo, cb); numDecoded > 0
+        }) {
+          cb.flip()
+          IOUtils.write(cb, jos, StandardCharsets.ISO_8859_1)
+          cb.clear()
+        }
+        jos.close() // closes jos, not the ISDIS which gets auto-closed.
+        closed = true
       }
-      jos.close()
-      closed = true
     }
   }
 
