@@ -326,14 +326,16 @@ object TestUtils {
    * @return
    */
   def getAMessage(cause: Throwable): String = {
+    val n1 = Misc.getNameFromClass(cause)
     val m = cause.getMessage
     val c = cause.getCause
-    (m, c) match {
+    val s = (m, c) match {
       case (null, null) => Misc.getNameFromClass(cause)
       case (null, c) => getAMessage(c)
       case (m, null) => m
       case (m, c) => m + " " + getAMessage(c)
     }
+    n1 + s"($s)"
   }
 }
 

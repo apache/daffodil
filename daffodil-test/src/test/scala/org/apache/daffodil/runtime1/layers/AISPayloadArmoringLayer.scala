@@ -90,8 +90,10 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputSt
 
   private var closed = false
 
-  class FormatInfoForAISDecode extends FormatInfo {
-    // TODO: do byteOrder and bitOrder even get used?
+  object FormatInfoForAISDecode extends FormatInfo {
+    // Q: do byteOrder and bitOrder even get used?
+    // A: yes, by decode verifying the consistency of the BitsCharset with this
+    //    as the pre-existing context.
     override def byteOrder: ByteOrder = ByteOrder.BigEndian
     override def bitOrder: BitOrder = BitOrder.MostSignificantBitFirst
     override def encodingErrorPolicy: EncodingErrorPolicy = EncodingErrorPolicy.Replace
@@ -113,7 +115,7 @@ class AISPayloadArmoringOutputStream(jos: java.io.OutputStream) extends OutputSt
     if (!closed) {
       val ba = baos.toByteArray
       using(InputSourceDataInputStream(ba)) { dis =>
-        val finfo = new FormatInfoForAISDecode()
+        val finfo = FormatInfoForAISDecode
         val cb = CharBuffer.allocate(256)
         //
         // TODO: This is not a supportable API. We want to reuse the bitsCharset features of daffodil

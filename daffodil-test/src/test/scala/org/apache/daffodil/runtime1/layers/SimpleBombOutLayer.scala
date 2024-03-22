@@ -91,6 +91,8 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
   private var bombWhere: Loc = _
   private var bombHow: Kind = _
 
+  setProcessingErrorException(classOf[Exception])
+
   private def bomb(loc: Loc): Unit = {
     loc match {
       case Nowhere => // ok

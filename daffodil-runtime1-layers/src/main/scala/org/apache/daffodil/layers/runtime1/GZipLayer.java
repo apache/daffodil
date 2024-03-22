@@ -18,7 +18,6 @@
 package org.apache.daffodil.layers.runtime1;
 
 import org.apache.daffodil.runtime1.layers.api.Layer;
-import os.write;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,8 +25,6 @@ import java.io.OutputStream;
 import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import static java.lang.Math.min;
 
 public final class GZipLayer extends Layer {
 
@@ -54,29 +51,19 @@ public final class GZipLayer extends Layer {
 
   public GZipLayer() {
     super("gzip", "urn:org.apache.daffodil.layers.gzip");
+    // convert IOExceptions to Processing Errors
+    setProcessingErrorException(IOException.class);
   }
 
   @Override
-  public InputStream wrapLayerInput(InputStream jis) {
-    InputStream gzs = null;
-      try {
-          gzs = new GZIPInputStream(jis);
-      } catch (IOException e) {
-          processingError(e);
-      }
-      return gzs;
+  public InputStream wrapLayerInput(InputStream jis) throws Exception {
+    return new GZIPInputStream(jis);
   }
 
   @Override
-  public OutputStream wrapLayerOutput(OutputStream jos){
+  public OutputStream wrapLayerOutput(OutputStream jos) throws Exception {
     OutputStream fixedOS = fixIsNeeded() ? new GZIPFixedOutputStream(jos) : jos;
-    OutputStream gzs = null;
-      try {
-          gzs = new GZIPOutputStream(fixedOS);
-      } catch (IOException e) {
-          processingError(e);
-      }
-      return gzs;
+    return new GZIPOutputStream(fixedOS);
   }
 
 }
@@ -123,7 +110,7 @@ class GZIPFixedOutputStream extends OutputStream {
       // underlying OutputStream. This may be more efficient than the default
       // OutputStream write() function, which writes the bytes from this array
       // one at a time
-      write(b, off, len);
+      os.write(b, off, len);
     } else {
       // The bad byte has not been fixed yet. Unless a newer version of Java
       // has made changes, the GZIPOutputStreamm will have passed in a 10 byte
@@ -141,18 +128,18 @@ class GZIPFixedOutputStream extends OutputStream {
     if (bytePosition < 0) {
       // The bad byte has already been fixed, simply pass this byte through to
       // the underlying OutputStream
-      write(b);
+      os.write(b);
     } else if (bytePosition < 9) {
       // The bad byte has not been fixed, and we haven't reached it yet, simply
       // pass this byte through and increment our byte position
-      write(b);
+      os.write(b);
       bytePosition += 1;
     } else if (bytePosition == 9) {
       // This is the bad byte, it is a 0 on some Java versions. Write 255
       // instead of to match Java 16+ behavior. Also, set bytePosition to -1 to
       // signify that we have fixed the bad byte and that all other writes
       // should just pass directly to the underlying OutputStream
-      write(255);
+      os.write(255);
       bytePosition = -1;
     }
   }

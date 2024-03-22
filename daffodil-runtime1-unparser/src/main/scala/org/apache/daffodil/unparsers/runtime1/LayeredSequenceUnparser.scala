@@ -17,11 +17,7 @@
 
 package org.apache.daffodil.unparsers.runtime1
 
-import org.apache.daffodil.lib.exceptions.UnsuppressableException
-import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.layers.LayerDriver
-import org.apache.daffodil.runtime1.layers.LayerFatalException
-import org.apache.daffodil.runtime1.layers.LayerUnexpectedException
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 import org.apache.daffodil.runtime1.processors.unparsers._
 
@@ -67,9 +63,10 @@ class LayeredSequenceUnparser(
 
     // create a new DOS where unparsers following this layer will unparse
     val layerFollowingDOS = layerUnderlyingDOS.addBuffered()
-
+    var layerDriver: LayerDriver = null
     try {
-      val layerDriver = LayerDriver(formatInfoPre, ctxt.layerRuntimeData)
+      layerDriver = LayerDriver(formatInfoPre, ctxt.layerRuntimeData)
+      layerDriver.init() // could fail if layer setter code causes errors
 
       // New layerDOS is where the layer will unparse into. Ultimately anything written
       // to layerDOS ends up, post transform, in layerUnderlyingDOS
@@ -98,18 +95,10 @@ class LayeredSequenceUnparser(
       // layer stack is potentially still needed, so
       // nothing can be cleaned up at this point.
     } catch {
-      case u: UnsuppressableException =>
-        throw u
-      case lre: LayerFatalException =>
-        throw lre
-      case re: RuntimeException =>
-        throw new LayerFatalException(re)
-      case pe: UnparseError =>
-        throw pe
-      case sde: RuntimeSchemaDefinitionError =>
-        throw sde
-      case e: Exception =>
-        state.toss(state.toProcessingError(new LayerUnexpectedException(e)))
+      case t: Throwable if (layerDriver ne null) => layerDriver.handleThrowable(t)
+      case t: Throwable => LayerDriver.handleThrowableWithoutLayer(t)
+      // otherwise we have no layer driver, so we were unable to load the layer.
+      // just let that propagate.
     } finally {
       // reset the state so subsequent unparsers write to the following DOS
       state.dataOutputStream = layerFollowingDOS

@@ -19,8 +19,9 @@ package org.apache.daffodil.runtime1.layers
 
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
+import java.nio.charset.IllegalCharsetNameException
+import java.nio.charset.UnsupportedCharsetException
 
-import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
 
@@ -52,19 +53,15 @@ class CheckDigitLayer
   private var params: String = _
   private var digitEncoding: String = _
 
+  setProcessingErrorException(classOf[IllegalCharsetNameException])
+  setProcessingErrorException(classOf[UnsupportedCharsetException])
+
   /**
    * Lazy so that if the digitEncoding is not a valid charset, that we get
    * a processing error at runtime, not a unrecoverable/fatal error.
    */
-  private lazy val charset =
-    try {
-      Charset.forName(digitEncoding)
-    } catch {
-      case re: RuntimeException => {
-        processingError(re)
-        Assert.impossible("prior statement ends with throw")
-      }
-    }
+  private lazy val charset = Charset.forName(digitEncoding)
+
   private lazy val isVerbose = params.toLowerCase.contains("verbose")
 
   /**

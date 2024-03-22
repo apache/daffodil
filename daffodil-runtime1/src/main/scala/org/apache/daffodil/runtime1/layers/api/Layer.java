@@ -19,9 +19,10 @@ package org.apache.daffodil.runtime1.layers.api;
 import org.apache.daffodil.runtime1.layers.LayerRuntime;
 import org.apache.daffodil.runtime1.layers.LayerUtils;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is the primary API class for writing layers.
@@ -167,7 +168,7 @@ public abstract class Layer {
    * @param jis The input stream to be wrapped.
    * @return An input stream with the layer wrapped around it.
    */
-  public abstract InputStream wrapLayerInput(InputStream jis);
+  public abstract InputStream wrapLayerInput(InputStream jis) throws Exception;
 
   /**
    * Wraps a layer output interpreter around an output stream, using the provided LayerRuntimeFoo for runtime information and stateful services.
@@ -175,6 +176,37 @@ public abstract class Layer {
    * @param jos The output stream to be wrapped.
    * @return An output stream with the layer wrapped around it.
    */
-  public abstract OutputStream wrapLayerOutput(OutputStream jos);
+  public abstract OutputStream wrapLayerOutput(OutputStream jos) throws Exception;
+
+  private ArrayList<Class<? extends Exception>> peExceptions = new ArrayList<>();
+
+  /**
+   * Adds an exception class to the list of exceptions that will be automatically converted
+   * into processing errors.
+   * <p/>
+   * The purpose of this is to allow one to use java/scala libraries that may throw
+   * exceptions when encountering bad data. Such exceptions should be translated into
+   * processing errors, which will allow the parser to backtrack and try other alternatives
+   * which may work for that data.
+   * <p/>
+   * When considering whether a thrown Exception is to be converted to a processing error
+   * RuntimeException classes are handled separately from Exception classes.
+   * Hence calling
+   * <pre>
+   *     setProcessingErrorException(Exception.class);
+   * </pre>
+   * will NOT cause all RuntimeExceptions to also be converted into processing errors.
+   * It will, however, cause all classes derived from Exception that are NOT RuntimeExceptions
+   * to be caught and converted into Processing Errors.
+   *
+   * @param e the exception class to be added to the list of processing error exceptions
+   */
+  public final void setProcessingErrorException(Class<? extends Exception> e) {
+    peExceptions.add(e);
+  }
+
+  public final List<Class<? extends Exception>> getProcessingErrorExceptions() {
+    return peExceptions;
+  }
 
 }

@@ -151,6 +151,9 @@ object XMLUtils {
     list
   }
 
+  // FIXME: DAFFODIL-2883 - this needs checkForExistingPUA to be false so that data
+  //  which contains unicode PUA characters doesn't cause an SDE. Needs to be either
+  //  accepted or optionally cause a ParseError.
   private val remapXMLToPUA =
     new RemapXMLIllegalCharToPUA(checkForExistingPUA = true, replaceCRWithLF = true)
 

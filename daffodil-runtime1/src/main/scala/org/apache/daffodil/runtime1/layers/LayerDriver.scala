@@ -20,7 +20,7 @@ package org.apache.daffodil.runtime1.layers
 import java.io.FilterInputStream
 import java.io.InputStream
 import java.io.OutputStream
-import java.lang.reflect.InvocationTargetException
+import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 
 import org.apache.daffodil.io.DataInputStream.Mark
 import org.apache.daffodil.io.DataOutputStream
@@ -51,8 +51,20 @@ object LayerDriver {
     val newLayer = lvr.constructInstance() // can't fail
     newLayer.setLayerRuntime(lr) // can't fail
     val instance = new LayerDriver(newLayer) // can't fail
-    lvr.callParamSetterWithParameterVars(newLayer) // could fail if user's method causes errors
     instance
+  }
+
+  def handleThrowableWithoutLayer(t: Throwable) = {
+    t match {
+      case u: UnsuppressableException => throw t
+      case pe: ProcessingError => throw pe // already a PE. Do not further mess with it.
+      case rsde: RuntimeSchemaDefinitionError =>
+        throw rsde
+      case re: RuntimeException =>
+        throw new LayerFatalException(re)
+      case e: Exception =>
+        throw new LayerFatalException(e)
+    }
   }
 }
 
@@ -68,7 +80,40 @@ object LayerDriver {
  */
 class LayerDriver private (val layer: Layer) {
 
+  def init(): Unit = {
+    try {
+      // timing here is subtle.
+      // This could throw, but the steps after this are necessary
+      // in order to properly handle the thrown exception
+      //
+      layer.getLayerRuntime.layerVarsRuntime.callParamSetterWithParameterVars(this.layer)
+    } finally {
+      //
+      // because we want to deal with RuntimeException as if it was NOT a subclass of
+      // Exception, we first divide up the classes as to whether they are RuntimeExceptions or not.
+      val (runtimeExceptionSubClasses, regularExceptionSubclasses) =
+        layer.getProcessingErrorExceptions.partition { c =>
+          classOf[RuntimeException].isAssignableFrom(c)
+        }
+
+      setLayerThrowHandler(new LayerThrowHandler() {
+        override def handleThrow(t: Throwable): Unit = {
+          val tc = t.getClass
+          val isRuntimeException = classOf[RuntimeException].isAssignableFrom(tc)
+          if (isRuntimeException) {
+            if (runtimeExceptionSubClasses.exists { ec => ec.isAssignableFrom(tc) })
+              layer.processingError(t)
+          } else {
+            if (regularExceptionSubclasses.exists { ec => ec.isAssignableFrom(tc) })
+              layer.processingError(t)
+          }
+        }
+      })
+    }
+  }
+
   def layerRuntime: LayerRuntime = layer.getLayerRuntime
+
   private def layerVarsRuntime = layerRuntime.layerVarsRuntime
 
   private def wrapJavaInputStream(s: InputSourceDataInputStream) =
@@ -78,8 +123,8 @@ class LayerDriver private (val layer: Layer) {
     new JavaIOOutputStream(s, layer)
 
   /**
-   *  Override these if we ever have transformers that don't have these
-   *  requirements.
+   * Override these if we ever have transformers that don't have these
+   * requirements.
    */
   val mandatoryLayerAlignmentInBits: Int = 8
 
@@ -89,7 +134,7 @@ class LayerDriver private (val layer: Layer) {
     val wrapped = layer.wrapLayerInput(jis)
     // This assured close thing is just in case the user's layer stream doesn't propagate
     // the close. That would be incorrect of it, but we want to tolerate that not happening.
-    val decodedInputStream = new AssuredCloseInputStream(wrapped, jis)
+    val decodedInputStream = new ThrowProtectedAssuredCloseInputStream(wrapped, jis)
     val newDIS = InputSourceDataInputStream(decodedInputStream)
     // must initialize priorBitOrder
     newDIS.cst.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
@@ -105,9 +150,6 @@ class LayerDriver private (val layer: Layer) {
   final def removeInputLayer(s: InputSourceDataInputStream): Unit =
     try {
       layerVarsRuntime.callGettersToPopulateResultVars(layer) // could throw.
-    } catch {
-      case ite: InvocationTargetException =>
-        layer.processingError(ite.getCause)
     } finally {
       s.close()
     }
@@ -135,11 +177,50 @@ class LayerDriver private (val layer: Layer) {
     newDOS
   }
 
-  private final class AssuredCloseInputStream(stream: InputStream, inner: InputStream)
-    extends FilterInputStream(stream) {
+  def handleThrowable(t: Throwable) = {
+    t match {
+      case u: UnsuppressableException => throw t
+      case pe: ProcessingError => throw pe // already a PE. Do not further mess with it.
+      case _ =>
+        // if the layer supplies a handler, then
+        // we invoke it.
+        val layerHandler = getLayerThrowHandler
+        if (layerHandler ne null)
+          layerHandler.handleThrow(t)
+        // if we get here, the layer handler didn't exist or
+        // it didn't handle the throwable.
+        LayerDriver.handleThrowableWithoutLayer(t)
+    }
+  }
+
+  private final class ThrowProtectedAssuredCloseInputStream(
+    stream: InputStream,
+    inner: InputStream,
+  ) extends FilterInputStream(stream) {
+
+    override def read(): Int = {
+      try {
+        super.read()
+      } catch {
+        case t: Throwable => handleThrowable(t)
+      }
+    }
+
+    override def read(b: Array[Byte], off: Int, len: Int): Int = {
+      try {
+        super.read(b, off, len)
+      } catch {
+        case t: Throwable => handleThrowable(t)
+      }
+    }
+
     override def close(): Unit = {
-      stream.close()
-      inner.close()
+      try {
+        stream.close()
+        inner.close()
+      } catch {
+        case t: Throwable => handleThrowable(t)
+      }
     }
   }
 
@@ -157,7 +238,7 @@ class LayerDriver private (val layer: Layer) {
    * suspensions, we have to encapsulate here with our own throw/catches.
    *
    * @param stream the stream we're encapsulating
-   * @param inner the stream we're assuring will be closed even if a close on the primary stream doesn't propagate the stream
+   * @param inner  the stream we're assuring will be closed even if a close on the primary stream doesn't propagate the stream
    */
   private final class ThrowProtectedAssuredCloseOutputStream(
     stream: OutputStream,
@@ -167,20 +248,22 @@ class LayerDriver private (val layer: Layer) {
     /**
      * We hope this isn't get used because a try-catch around every individual write of a byte
      * is inefficient certainly.
+     *
      * @param b
      */
     override def write(b: Int): Unit = {
       try {
         stream.write(b)
       } catch {
-        case e: Exception =>
-          handleOutputStreamException(e)
+        case t: Throwable =>
+          handleThrowable(t)
       }
     }
 
     /**
      * We hope this is the way most writes are done and with fairly large buffers to amortize the
      * cost of the try/catch logic over many bytes of output.
+     *
      * @param b
      * @param off
      * @param len
@@ -189,8 +272,8 @@ class LayerDriver private (val layer: Layer) {
       try {
         stream.write(b, off, len)
       } catch {
-        case e: Exception =>
-          handleOutputStreamException(e)
+        case t: Throwable =>
+          handleThrowable(t)
       }
     }
 
@@ -199,27 +282,37 @@ class LayerDriver private (val layer: Layer) {
         stream.close()
         inner.close()
       } catch {
-        case e: Exception =>
-          handleOutputStreamException(e)
+        case t: Throwable =>
+          handleThrowable(t)
       }
     }
-
-    private def handleOutputStreamException(exception: Exception) = {
-      exception match {
-        case u: UnsuppressableException =>
-          throw u
-        case rsde: RuntimeSchemaDefinitionError =>
-          throw rsde
-        case pe: ProcessingError =>
-          throw pe
-        case re: RuntimeException =>
-          throw new LayerFatalException(re)
-        case e: Exception =>
-          layer.getLayerRuntime.processingError(new LayerUnexpectedException(e))
-      }
-    }
-
   }
+
+  private var lth: LayerThrowHandler = null
+
+  trait LayerThrowHandler {
+    def handleThrow(t: Throwable): Unit
+  }
+
+  /**
+   * If you set a layer throw handler, then if the layer code throws
+   * anything, the handler is invoked and can convert specific kinds of
+   * exceptions into processing errors or runtime SDEs.
+   *
+   * If the handler does not throw or call processingError or
+   * runtimeSchemaDefinitionError, then the throw is treated as
+   * if there was no handler, and propagates generally as a fatal error.
+   *
+   * @param lth the throw handler
+   */
+  def setLayerThrowHandler(lth: LayerThrowHandler): Unit = {
+    this.lth = lth
+  }
+
+  def getLayerThrowHandler: LayerThrowHandler = {
+    return this.lth
+  }
+
 }
 
 /**
@@ -303,9 +396,6 @@ class JavaIOOutputStream(dos: DataOutputStream, layer: Layer) extends OutputStre
       //
       try {
         lvr.callGettersToPopulateResultVars(layer)
-      } catch {
-        case ite: InvocationTargetException =>
-          layer.processingError(ite.getCause)
       } finally {
         closed = true
       }

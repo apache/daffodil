@@ -19,9 +19,12 @@ package org.apache.daffodil.layers.runtime1
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
+import java.nio.charset.IllegalCharsetNameException
+import java.nio.charset.UnsupportedCharsetException
 
 import org.apache.daffodil.io.BoundaryMarkInsertingJavaOutputStream
 import org.apache.daffodil.io.BoundaryMarkLimitingInputStream
+import org.apache.daffodil.runtime1.layers.ScalaLayerHelper
 import org.apache.daffodil.runtime1.layers.api.Layer
 
 /**
@@ -48,14 +51,21 @@ import org.apache.daffodil.runtime1.layers.api.Layer
  * This layer defines two DFDL variables which provide required parameters.
  */
 final class BoundaryMarkLayer
-  extends Layer("boundaryMark", "urn:org.apache.daffodil.layers.boundaryMark") {
+  extends Layer("boundaryMark", "urn:org.apache.daffodil.layers.boundaryMark")
+  with ScalaLayerHelper {
 
   private var boundaryMark: String = _
-  private var layerEncoding: String = _
+  private var charset: Charset = _
 
   private val maxBoundaryMarkLength: Int = Short.MaxValue
 
+  // initialization. These exceptions get converted to processing errors
+  setProcessingErrorException(classOf[IllegalCharsetNameException])
+  setProcessingErrorException(classOf[UnsupportedCharsetException])
+
   /**
+   * Provides the layer's parameter variables to the layer.
+   *
    * @param boundaryMark  a string which is the boundary marker. Searching for this string is
    *                      done without any notion of escaping. When parsing the data in the
    *                      layer is up to but not including that of the boundary mark string,
@@ -71,23 +81,13 @@ final class BoundaryMarkLayer
   ): Unit = {
     this.boundaryMark = boundaryMark
     if (boundaryMark.isEmpty)
-      processingError("The boundaryMark variable value may not be empty string.")
+      procError("The boundaryMark variable value may not be empty string.")
     if (boundaryMark.length > maxBoundaryMarkLength)
-      processingError(
+      procError(
         s"The boundaryMark string length may not be greater than the limit: $maxBoundaryMarkLength",
       )
-    this.layerEncoding = layerEncoding
+    this.charset = Charset.forName(layerEncoding)
   }
-
-  private lazy val charset =
-    try {
-      Charset.forName(layerEncoding)
-    } catch {
-      // the runtime exceptions thrown by forName want to be
-      // caught and turned into regular Exceptions.
-      // That's not generally true, but it is for encodings/charsets.
-      case re: RuntimeException => throw new Exception(re)
-    }
 
   override def wrapLayerInput(jis: InputStream): InputStream = {
     new BoundaryMarkLimitingInputStream(jis, boundaryMark, charset)

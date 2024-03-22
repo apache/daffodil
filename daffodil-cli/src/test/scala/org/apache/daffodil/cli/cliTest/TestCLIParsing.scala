@@ -938,8 +938,8 @@ class TestCLIParsing {
     )
     runCLI(args"parse -s $schema") { cli =>
       cli.sendLine("0", inputDone = true)
-      cli.expectErr("Parse Error: bad input stream")
-    }(ExitCode.ParseError)
+      cli.expectErr("bad input stream")
+    }(ExitCode.BugFound)
   }
 
   @Test def test_CLI_util_expectException(): Unit = {
