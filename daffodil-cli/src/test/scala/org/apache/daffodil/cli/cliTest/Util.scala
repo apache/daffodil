@@ -52,22 +52,20 @@ object Util {
 
   private val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
-  private val daffodilRoot = sys.env.getOrElse("DAFFODIL_HOME", ".")
-
   private val daffodilBinPath = {
     val ext = if (isWindows) ".bat" else ""
-    Paths.get(daffodilRoot, s"daffodil-cli/target/universal/stage/bin/daffodil$ext")
+    Paths.get(s"daffodil-cli/target/universal/stage/bin/daffodil$ext")
   }
 
   /**
-   * Convert the daffodilRoot + parameter to a java Path. The string
+   * Convert the parameter to a java Path. The string
    * parameter should contain unix path separators and it will be interpreted
    * correctly regardless of operating system. When converted to a string to
-   * send to the CLI, it will use the correct line separator for the
+   * send to the CLI, it will use the correct path separator for the
    * operating system
    */
   def path(string: String): Path = {
-    Paths.get(daffodilRoot, string)
+    Paths.get(string)
   }
 
   def devNull(): String = if (isWindows) "NUL" else "/dev/null"
