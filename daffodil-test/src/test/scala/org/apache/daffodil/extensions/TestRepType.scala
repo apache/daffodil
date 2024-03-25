@@ -94,6 +94,15 @@ class TestRepType {
   @Test def test_repType_length_facet_03(): Unit = {
     runner.runOneTest("repType_length_facet_03")
   }
+  @Test def test_repType_length_facet_04(): Unit = {
+    runner.runOneTest("repType_length_facet_04")
+  }
+  @Test def test_repType_length_facet_05(): Unit = {
+    runner.runOneTest("repType_length_facet_05")
+  }
+  @Test def test_repType_length_facet_06(): Unit = {
+    runner.runOneTest("repType_length_facet_06")
+  }
 
   @Test def test_repType_negative_01(): Unit = { runner.runOneTest("repType_negative_01") }
   @Test def test_repType_negative_02(): Unit = { runner.runOneTest("repType_negative_02") }

@@ -34,6 +34,7 @@ trait SimpleTypeRuntime1Mixin { self: SimpleTypeDefBase =>
         noFacetChecks,
         optRestriction.toSeq.flatMap { r => if (r.hasPattern) r.patternValues else Nil },
         optRestriction.flatMap { r => toOpt(r.hasEnumeration, r.enumerationValues.get) },
+        optRestriction.flatMap { r => toOpt(r.hasLength, r.lengthValue) },
         optRestriction.flatMap { r => toOpt(r.hasMinLength, r.minLengthValue) },
         optRestriction.flatMap { r => toOpt(r.hasMaxLength, r.maxLengthValue) },
         optRestriction.flatMap { r => toOpt(r.hasMinInclusive, r.minInclusiveValue) },

@@ -83,8 +83,8 @@ trait ElementBase
   requiredEvaluationsIfActivated(isSimpleType)
   requiredEvaluationsIfActivated(if (hasPattern) patternValues)
   requiredEvaluationsIfActivated(if (hasEnumeration) enumerationValues)
-  requiredEvaluationsIfActivated(if (hasMinLength) minLength)
-  requiredEvaluationsIfActivated(if (hasMaxLength) maxLength)
+  requiredEvaluationsIfActivated(if (hasMinLength || hasLength) minLength)
+  requiredEvaluationsIfActivated(if (hasMaxLength || hasLength) maxLength)
   requiredEvaluationsIfActivated(if (hasMinInclusive) minInclusive)
   requiredEvaluationsIfActivated(if (hasMaxInclusive) maxInclusive)
   requiredEvaluationsIfActivated(if (hasMinExclusive) minExclusive)
@@ -711,8 +711,8 @@ trait ElementBase
       Assert.invariant(repElement.lengthKind =:= LengthKind.Implicit)
       // it's a string with implicit length. get from facets
       schemaDefinitionUnless(
-        repElement.hasMaxLength,
-        "String with dfdl:lengthKind='implicit' must have an XSD maxLength facet value.",
+        repElement.hasMaxLength || repElement.hasLength,
+        "String with dfdl:lengthKind='implicit' must have a length or maxLength facet value.",
       )
       val ml = repElement.maxLength
       ml.longValue()
@@ -941,8 +941,9 @@ trait ElementBase
 
   private lazy val hasPattern: Boolean = typeDef.optRestriction.exists(_.hasPattern)
   private lazy val hasEnumeration: Boolean = typeDef.optRestriction.exists(_.hasEnumeration)
-  protected lazy val hasMinLength = typeDef.optRestriction.exists(_.hasMinLength)
-  protected lazy val hasMaxLength = typeDef.optRestriction.exists(_.hasMaxLength)
+  protected lazy val hasLength: Boolean = typeDef.optRestriction.exists(_.hasLength)
+  protected lazy val hasMinLength: Boolean = typeDef.optRestriction.exists(_.hasMinLength)
+  protected lazy val hasMaxLength: Boolean = typeDef.optRestriction.exists(_.hasMaxLength)
   private lazy val hasMinInclusive = typeDef.optRestriction.exists(_.hasMinInclusive)
   private lazy val hasMaxInclusive = typeDef.optRestriction.exists(_.hasMaxInclusive)
   private lazy val hasMinExclusive = typeDef.optRestriction.exists(_.hasMinExclusive)
@@ -963,18 +964,19 @@ trait ElementBase
   /**
    * Compute minLength and maxLength together to share error-checking
    * and case dispatch that would otherwise have to be repeated.
+   *
+   * Also set them to the value of length, in the case we've used the length facet
    */
   final lazy val (minLength: java.math.BigDecimal, maxLength: java.math.BigDecimal) =
     computeMinMaxLength
-  // TODO: why are we using java.math.BigDecimal, when scala has a much
-  // nicer decimal class?
+
   private val zeroBD = new java.math.BigDecimal(0)
   private val unbBD = new java.math.BigDecimal(-1) // TODO: should this be a tunable limit?
 
   private def computeMinMaxLength: (java.math.BigDecimal, java.math.BigDecimal) = {
     schemaDefinitionUnless(
       isSimpleType,
-      "Facets minLength and maxLength are allowed only on types string and hexBinary.",
+      "The length facet or minLength/maxLength facets are not allowed on complex types",
     )
     typeDef match {
       case _ if hasRepType => {
@@ -986,7 +988,7 @@ trait ElementBase
         val pt = prim.primType
         schemaDefinitionWhen(
           (pt == PrimType.String || pt == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
-          "Facets minLength and maxLength must be defined for type %s with lengthKind='implicit'",
+          "The length facet or minLength/maxLength facets must be defined for type %s with lengthKind='implicit'",
           pt.name,
         )
         //
@@ -1001,12 +1003,17 @@ trait ElementBase
         val pt = st.primType
         val typeOK = pt == PrimType.String || pt == PrimType.HexBinary
         schemaDefinitionWhen(
-          !typeOK && (hasMinLength || hasMaxLength),
-          "Facets minLength and maxLength are not allowed on types derived from type %s.\nThey are allowed only on typed derived from string and hexBinary.",
+          !typeOK && (hasLength || hasMinLength || hasMaxLength),
+          "The length facet or minLength/maxLength facets are not allowed on types derived from type %s.\nThey are allowed only on types derived from string and hexBinary.",
           pt.name,
         )
-        val res = (hasMinLength, hasMaxLength, lengthKind) match {
-          case (true, true, LengthKind.Implicit) => {
+        val res = (hasLength, hasMinLength, hasMaxLength, lengthKind) match {
+          case (true, false, false, _) => (r.lengthValue, r.lengthValue)
+          case (true, _, _, _) =>
+            Assert.invariantFailed(
+              "Facet length cannot be defined with minLength and maxLength facets",
+            )
+          case (false, true, true, LengthKind.Implicit) => {
             schemaDefinitionUnless(
               r.minLengthValue.compareTo(r.maxLengthValue) == 0,
               "The minLength and maxLength must be equal for type %s with lengthKind='implicit'. Values were minLength of %s, maxLength of %s.",
@@ -1016,7 +1023,7 @@ trait ElementBase
             )
             (r.minLengthValue, r.maxLengthValue)
           }
-          case (true, true, _) => {
+          case (false, true, true, _) => {
             schemaDefinitionWhen(
               r.minLengthValue.compareTo(r.maxLengthValue) > 0,
               // always true, so we don't bother to specify the type in the message.
@@ -1026,13 +1033,13 @@ trait ElementBase
             )
             (r.minLengthValue, r.maxLengthValue)
           }
-          case (_, _, LengthKind.Implicit) =>
+          case (false, _, _, LengthKind.Implicit) =>
             SDE(
               "When lengthKind='implicit', both minLength and maxLength facets must be specified.",
             )
-          case (false, true, _) => (zeroBD, r.maxLengthValue)
-          case (false, false, _) => (zeroBD, unbBD)
-          case (true, false, _) => (r.minLengthValue, unbBD)
+          case (false, false, true, _) => (zeroBD, r.maxLengthValue)
+          case (false, false, false, _) => (zeroBD, unbBD)
+          case (false, true, false, _) => (r.minLengthValue, unbBD)
           case _ => Assert.impossible()
         }
         res

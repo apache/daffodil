@@ -96,6 +96,12 @@
           <xs:minLength value="10" />
         </xs:restriction>
       </xs:simpleType>
+
+      <xs:simpleType name="stLen10">
+        <xs:restriction base="xs:string">
+          <xs:length value="10" />
+        </xs:restriction>
+      </xs:simpleType>
       
       <xs:simpleType name="st3to10">
         <xs:restriction base="xs:string">
@@ -117,7 +123,9 @@
       <xs:element name="e11" type="ex:st10" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:textStringPadCharacter="#" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
       
       <xs:element name="e12" type="ex:st10" dfdl:lengthKind="explicit" dfdl:length="{ 2 }" dfdl:textStringPadCharacter="#" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
-      
+
+      <xs:element name="e12_dfdlLength2" type="ex:stLen10" dfdl:lengthKind="explicit" dfdl:length="{ 2 }" dfdl:textStringPadCharacter="#" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
+
       <xs:element name="e13" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence  dfdl:separator="," >
@@ -437,6 +445,23 @@
       <tdml:warning>Explicit dfdl:length</tdml:warning>
       <tdml:warning>out of range</tdml:warning>
       <tdml:warning>facet minLength</tdml:warning>
+    </tdml:warnings>
+    <tdml:document>O#</tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparsePaddedString11" model="delimitedStringsPadding" root="e12_dfdlLength2"
+                         description="ensure length facet results in a similar warning to min/maxLength facets"
+   roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e12_dfdlLength2 xmlns:ex="http://example.com">O</ex:e12_dfdlLength2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Explicit dfdl:length</tdml:warning>
+      <tdml:warning>out of range</tdml:warning>
+      <tdml:warning>facet length</tdml:warning>
     </tdml:warnings>
     <tdml:document>O#</tdml:document>
   </tdml:unparserTestCase>

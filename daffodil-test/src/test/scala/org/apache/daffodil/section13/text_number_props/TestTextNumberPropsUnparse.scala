@@ -76,6 +76,7 @@ class TestTextNumberPropsUnparse {
   }
 
   @Test def test_unparsePaddedString10(): Unit = { runner.runOneTest("unparsePaddedString10") }
+  @Test def test_unparsePaddedString11(): Unit = { runner.runOneTest("unparsePaddedString11") }
 
   @Test def test_unparsePaddedStringTruncate01(): Unit = {
     runner.runOneTest("unparsePaddedStringTruncate01")

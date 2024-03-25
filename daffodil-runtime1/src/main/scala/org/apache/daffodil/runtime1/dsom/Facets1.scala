@@ -24,6 +24,7 @@ object Facet extends Enum {
   sealed abstract trait Type extends EnumValueType
   case object enumeration extends Type
   case object fractionDigits extends Type
+  case object length extends Type
   case object maxExclusive extends Type
   case object maxInclusive extends Type
   case object maxLength extends Type
