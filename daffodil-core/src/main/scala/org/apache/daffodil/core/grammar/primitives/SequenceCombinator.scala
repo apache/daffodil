@@ -71,7 +71,9 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
   // the mta parser differently to avoid this
   private lazy val sepUnparser = sepGram.unparser
 
-  lazy val sequenceChildren = sequenceChildrenArg.toVector
+  lazy val sequenceChildren = {
+    sequenceChildrenArg.toVector
+  }
 
   override lazy val parser: Parser = sq.hasSeparator match {
     case true =>

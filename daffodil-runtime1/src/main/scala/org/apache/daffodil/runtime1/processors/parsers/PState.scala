@@ -61,6 +61,7 @@ import org.apache.daffodil.runtime1.processors.NonTermRuntimeData
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.ProcessorResult
 import org.apache.daffodil.runtime1.processors.RuntimeData
+import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.VariableInstance
 import org.apache.daffodil.runtime1.processors.VariableMap
@@ -584,6 +585,23 @@ final class PState private (
         throw toThrow
       }
     }
+  }
+
+  /**
+   * This function is used for cases where a parse must be performed after there
+   * has already been a failed parse of an enclosing element/sequence. Most
+   * common example of this would be a choice branch containing a sequence with
+   * an annotated assert expression. According to 9.5.2 of the DFDL spec this
+   * assert expression needs to be parsed regardless of whether or not the
+   * enclosing sequence content parses or not as the assert expression may be
+   * used as a discriminator for the choice branch.
+   */
+  def withTempSuccess(func: (PState) => Unit): Unit = {
+    val priorProcessorStatus = processorStatus
+    setSuccess()
+    func(this)
+    if (processorStatus eq Success)
+      _processorStatus = priorProcessorStatus
   }
 
   def suspensions = Seq.empty
