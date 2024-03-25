@@ -36,77 +36,51 @@ class ScalaxbTests {
     assertEquals(Some("dpaext"), testSuite.suiteName)
   }
 
-  // currently failing, not sure why scalaxb isn't handling comments. is the xsd too strict and somehow excludes allowing comments?
-  @Test def testReadingComments(): Unit =
-    scalaxb.fromXML[TestSuite](
-      scala.xml.XML.load(
-        getClass
-          .getClassLoader()
-          .getResourceAsStream("test-suite/IPv4-with-comments.tdml"),
-      )
-    )
-
   @Test def testReading(): Unit = {
     val testSuite =
       scalaxb.fromXML[TestSuite](
-        scala.xml.XML.load(
-          getClass
-            .getClassLoader()
-            .getResourceAsStream("test-suite/IPv4.tdml"),
-        )
+        scala.xml.Utility.trim(
+          scala.xml.XML.load(
+            getClass
+              .getClassLoader()
+              .getResourceAsStream("test-suite/IPv4.tdml"),
+          ),
+        ),
       )
 
     assertNotNull(testSuite)
     assertEquals(None, testSuite.suiteName)
 
-    val testcase =
+    val expectedParserTestCase =
       scalaxb.fromXML[ParserTestCaseType](
-        <tdml:parserTestCase name="IPv4_1" root="IPv4Header" model="org/apache/daffodil/layers/IPv4.dfdl.xsd" roundTrip="none"/>
-      )
-    val doc =
-      scalaxb.fromXML[DocumentType](
-        <tdml:document xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
-          <tdml:documentPart type="byte">{scala.xml.PCData("4500 0073 0000 4000 4011 b861 c0a8 0001 c0a8 00c7")}</tdml:documentPart>
-        </tdml:document>
-      )
-    val infoset =
-      scalaxb.fromXML[InfosetType](
-        <tdml:infoset xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
-          <tdml:dfdlInfoset>
-            <ipv4:IPv4Header>
-              <Version>4</Version>
-              <IHL>5</IHL>
-              <DSCP>0</DSCP>
-              <ECN>0</ECN>
-              <Length>115</Length>
-              <Identification>0</Identification>
-              <Flags>2</Flags>
-              <FragmentOffset>0</FragmentOffset>
-              <TTL>64</TTL>
-              <Protocol>17</Protocol>
-              <Checksum>47201</Checksum>
-              <IPSrc>C0A80001</IPSrc>
-              <IPDest>C0A800C7</IPDest>
-              <FakeData>115</FakeData>
-              <ComputedChecksum>47201</ComputedChecksum>
-            </ipv4:IPv4Header>
-          </tdml:dfdlInfoset>
-        </tdml:infoset>
-      )
-    val expectedParserTestCase = 
-      scalaxb.fromXML[ParserTestCaseType](
-        <tdml:parserTestCase name="IPv4_1" root="IPv4Header" model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
-    roundTrip="none" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-  xmlns:ipv4="urn:org.apache.daffodil.layers.IPv4"
-  xmlns:chksum="urn:org.apache.daffodil.layers.IPv4Checksum"
-  xmlns:ex="http://example.com"
-  xmlns:tns="http://example.com">
+        scala.xml.Utility.trim(
+          <tdml:parserTestCase name="IPv4_1" root="IPv4Header" model="org/apache/daffodil/layers/IPv4.dfdl.xsd"
+    roundTrip="none"
+    xmlns:tns="http://example.com"
+    xmlns:ex="http://example.com"
+    xmlns:chksum="urn:org.apache.daffodil.layers.IPv4Checksum"
+    xmlns:ipv4="urn:org.apache.daffodil.layers.IPv4"
+    xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+    xmlns:fn="http://www.w3.org/2005/xpath-functions"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  >
           <tdml:document>
-            <tdml:documentPart type="byte">{scala.xml.PCData("4500 0073 0000 4000 4011 b861 c0a8 0001 c0a8 00c7")}</tdml:documentPart>
+            {
+            scala.xml.Comment("""
+      see https://en.wikipedia.org/wiki/IPv4_header_checksum
+      for working through the details of this IPv4 Header
+
+      The first line of 5 words is the part 1 of the header
+      The second line is the checksum
+      The third line of 4 words is the part 2 of the header (src, dest addresses)
+      """)
+          }
+      <tdml:documentPart type="byte">{
+            scala.xml.PCData("\n4500 0073 0000 4000 4011\nb861\nc0a8 0001 c0a8 00c7\n       ")
+          }</tdml:documentPart>
           </tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
@@ -129,14 +103,16 @@ class ScalaxbTests {
               </ipv4:IPv4Header>
             </tdml:dfdlInfoset>
           </tdml:infoset>
-        </tdml:parserTestCase>
+        </tdml:parserTestCase>,
+        ),
       )
     val actualParserTestCase: ParserTestCaseType =
-      testSuite
-        .testSuiteChoices
-        .headOption
+      testSuite.testSuiteChoices.headOption
         .map(_.as[ParserTestCaseType])
-        .getOrElse(throw new AssertionError("first test case is missing")) // fail() returns Unit so mimic JUnit
+        .getOrElse(
+          throw new AssertionError("first test case is missing"),
+        ) // fail() returns Unit so mimic JUnit
+
     assertEquals(expectedParserTestCase, actualParserTestCase)
   }
 }
