@@ -118,6 +118,9 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
   lazy val localBaseFacets: ElemFacets = {
     val myFacets: Queue[FacetValue] = Queue.empty // val not var - it's a mutable collection
     if (localPatternValue.length > 0) { myFacets.enqueue((Facet.pattern, localPatternValue)) }
+    if (localLengthValue.length > 0) {
+      myFacets.enqueue((Facet.length, localLengthValue))
+    }
     if (localMinLengthValue.length > 0) {
       myFacets.enqueue((Facet.minLength, localMinLengthValue))
     }
@@ -162,6 +165,10 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
       val rPattern = remoteBaseFacets.filter { case (f, v) => f == Facet.pattern }
       val cPattern = lPattern.union(rPattern)
       cPattern.foreach(x => combined.enqueue(x))
+    }
+    if (hasLength) {
+      val cValue = getCombinedValue(Facet.length)
+      combined.enqueue((Facet.length, cValue.toString()))
     }
     if (hasMinLength) {
       val cValue = getCombinedValue(Facet.minLength)

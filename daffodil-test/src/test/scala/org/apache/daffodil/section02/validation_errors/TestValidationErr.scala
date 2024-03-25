@@ -168,6 +168,41 @@ class TestValidationErr {
   @Test def test_validation_inputValueCalc_03(): Unit = {
     runner.runOneTest("validation_inputValueCalc_03")
   }
+  @Test def test_validation_inputValueCalc_04(): Unit = {
+    runner.runOneTest("validation_inputValueCalc_04")
+  }
+  @Test def test_validation_inputValueCalc_05(): Unit = {
+    runner.runOneTest("validation_inputValueCalc_05")
+  }
+  @Test def test_validation_inputValueCalc_06(): Unit = {
+    runner.runOneTest("validation_inputValueCalc_06")
+  }
+  @Test def test_validation_inputValueCalc_07(): Unit = {
+    runner.runOneTest("validation_inputValueCalc_07")
+  }
+
+  @Test def test_validation_testFacets_01(): Unit = {
+    runner.runOneTest("validation_testFacets_01")
+  }
+  @Test def test_validation_testFacets_02(): Unit = {
+    runner.runOneTest("validation_testFacets_02")
+  }
+  @Test def test_validation_testFacets_03(): Unit = {
+    runner.runOneTest("validation_testFacets_03")
+  }
+  @Test def test_validation_testFacets_04(): Unit = {
+    runner.runOneTest("validation_testFacets_04")
+  }
+  @Test def test_validation_testFacets2_01(): Unit = {
+    runner.runOneTest("validation_testFacets2_01")
+  }
+  @Test def test_validation_testFacets2_02(): Unit = {
+    runner.runOneTest("validation_testFacets2_02")
+  }
+
+  @Test def test_validation_testFacets3_01(): Unit = {
+    runner.runOneTest("validation_testFacets3_01")
+  }
 
   @Test def test_floatExclusiveValid(): Unit = { runner.runOneTest("floatExclusiveValid") }
   @Test def test_floatExclusiveInf(): Unit = { runner.runOneTest("floatExclusiveInf") }

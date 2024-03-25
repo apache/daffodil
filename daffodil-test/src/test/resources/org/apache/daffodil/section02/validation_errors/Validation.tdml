@@ -385,7 +385,24 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-    
+
+    <xs:element name="eString_minMaxLen7" dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ 'string' }">
+      <xs:simpleType>
+          <xs:restriction base="xs:string">
+              <xs:minLength value="7"/>
+              <xs:maxLength value="7"/>
+          </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="eString_len7" dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ 'string' }">
+      <xs:simpleType>
+          <xs:restriction base="xs:string">
+              <xs:length value="7"/>
+          </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
     <xs:element name="e3" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ 'string' }">
       <xs:simpleType>
         <xs:restriction base="xs:string">
@@ -396,7 +413,7 @@
 
   </tdml:defineSchema>
 
-  <tdml:defineSchema name="TestFacets">
+    <tdml:defineSchema name="TestFacets">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
@@ -407,8 +424,47 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-    
-    <xs:element name="e3_2" dfdl:lengthKind="delimited">
+
+    <xs:element name="eHexBinary_minMaxLen7" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1">
+        <xs:simpleType>
+            <xs:restriction base="xs:hexBinary">
+                <xs:minLength value="7"/>
+                <xs:maxLength value="7"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="eHexBinary_len7" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1">
+        <xs:simpleType>
+            <xs:restriction base="xs:hexBinary">
+                <xs:length value="7"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="eHexBinary_len0" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1">
+        <xs:simpleType>
+            <xs:restriction base="xs:hexBinary">
+                <xs:length value="0"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+
+     <xs:element name="eString_localLen2" dfdl:lengthKind="implicit">
+        <xs:simpleType>
+            <xs:restriction base="ex:stringBaseLen2">
+                <xs:length value="2"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:element>
+
+    <xs:simpleType name="stringBaseLen2">
+        <xs:restriction base="xs:string">
+            <xs:length value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+      <xs:element name="e3_2" dfdl:lengthKind="delimited">
       <xs:simpleType>
         <xs:restriction base="ex:stMaxLength_2">
           <xs:maxLength value="1" />
@@ -643,7 +699,111 @@
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
-  
+
+    <tdml:parserTestCase name="validation_testFacets_01"
+                         root="eHexBinary_minMaxLen7" model="TestFacets"
+                         description="validates hexBinary against min/maxLength facet"
+                         validation="limited">
+
+    <tdml:document>
+        <tdml:documentPart type="byte">deadbeefdafada</tdml:documentPart>
+    </tdml:document>
+
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <ex:eHexBinary_minMaxLen7>DEADBEEFDAFADA</ex:eHexBinary_minMaxLen7>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="validation_testFacets_02"
+                         root="eHexBinary_len7" model="TestFacets"
+                         description="validates hexBinary against length facet"
+                         validation="limited">
+
+    <tdml:document>
+        <tdml:documentPart type="byte">deadbeefdafada</tdml:documentPart>
+    </tdml:document>
+
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <ex:eHexBinary_len7>DEADBEEFDAFADA</ex:eHexBinary_len7>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="validation_testFacets_03"
+                         root="eHexBinary_len0" model="TestFacets"
+                         description="validates against length facet"
+                         validation="limited">
+
+        <tdml:document>
+            <tdml:documentPart type="byte">deadbeefdafada</tdml:documentPart>
+        </tdml:document>
+
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <ex:eHexBinary_len0>DEADBEEFDAFADA</ex:eHexBinary_len0>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+
+        <tdml:validationErrors>
+
+            <tdml:error>eHexBinary_len0</tdml:error>
+            <tdml:error>failed facet checks</tdml:error>
+            <tdml:error>facet length (0)</tdml:error>
+
+        </tdml:validationErrors>
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="validation_testFacets_04"
+                         root="eString_localLen2" model="TestFacets"
+                         description="verify local length must be equal to base length"
+                         validation="limited">
+
+        <tdml:document>12</tdml:document>
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <eString_localLen2>12</eString_localLen2>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+    </tdml:parserTestCase>
+
+    <tdml:defineSchema name="TestFacets3">
+        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        <dfdl:format ref="ex:GeneralFormat" />
+        <xs:element name="eString_localLen1" dfdl:lengthKind="implicit">
+            <xs:simpleType>
+                <xs:restriction base="ex:stringBaseLen2">
+                    <xs:length value="1"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:element>
+
+        <xs:simpleType name="stringBaseLen2">
+            <xs:restriction base="xs:string">
+                <xs:length value="2"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </tdml:defineSchema>
+
+    <tdml:parserTestCase name="validation_testFacets3_01"
+                         root="eString_localLen1" model="TestFacets3"
+                         description="verify local length must be equal to base length"
+                         validation="limited">
+
+        <tdml:document>12</tdml:document>
+
+        <tdml:errors>
+            <tdml:error>Schema Definition Error</tdml:error>
+            <tdml:error>length-valid-restriction</tdml:error>
+            <tdml:error>value of length</tdml:error>
+            <tdml:error>must be = the value of that of the base type</tdml:error>
+        </tdml:errors>
+    </tdml:parserTestCase>
+
+
 <!--
     Test name: checkEnumeration_Pass_limited
        Schema: TestFacets
@@ -1921,7 +2081,139 @@
 
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="floatExclusiveValid"
+    <tdml:parserTestCase name="validation_inputValueCalc_04"
+                         root="eString_minMaxLen7" model="inputValueCalc"
+                         description="Section 17 - the value created using inputValueCalc is validated using minLength/maxLength facets"
+                         validation="limited">
+
+        <tdml:document></tdml:document>
+
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <eString_minMaxLen7>string</eString_minMaxLen7>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+
+        <tdml:validationErrors>
+            <tdml:error>Validation Error</tdml:error>
+            <tdml:error>failed facet checks due to: facet minLength (7)</tdml:error>
+        </tdml:validationErrors>
+
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="validation_inputValueCalc_05"
+                         root="eString_len7" model="inputValueCalc"
+                         description="Section 17 - the value created using inputValueCalc is validated using length facets"
+                         validation="limited">
+
+        <tdml:document></tdml:document>
+
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <eString_len7>string</eString_len7>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+
+        <tdml:validationErrors>
+            <tdml:error>Validation Error</tdml:error>
+            <tdml:error>failed facet checks due to: facet length (7)</tdml:error>
+        </tdml:validationErrors>
+
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="validation_inputValueCalc_06"
+                         root="eString_minMaxLen7" model="inputValueCalc"
+                         description="Section 17 - the value created using inputValueCalc is validated using minLength/maxLength facets"
+                         validation="on">
+
+        <tdml:document></tdml:document>
+
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <eString_minMaxLen7>string</eString_minMaxLen7>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+
+        <tdml:validationErrors>
+            <tdml:error>Validation Error</tdml:error>
+            <tdml:error>failed facet checks due to: facet minLength (7)</tdml:error>
+        </tdml:validationErrors>
+
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="validation_inputValueCalc_07"
+                         root="eString_len7" model="inputValueCalc"
+                         description="Section 17 - the value created using inputValueCalc is validated using length facets"
+                         validation="on">
+
+        <tdml:document></tdml:document>
+
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <eString_len7>string</eString_len7>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+
+        <tdml:validationErrors>
+            <tdml:error>Validation Error</tdml:error>
+            <tdml:error>failed facet checks due to: facet length (7)</tdml:error>
+        </tdml:validationErrors>
+
+    </tdml:parserTestCase>
+
+    <tdml:defineSchema name="TestFacets2">
+        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        <dfdl:format ref="ex:GeneralFormat" />
+        <xs:element name="eHexBinary_lenMinMaxLen7" dfdl:lengthKind="delimited" dfdl:encoding="ISO-8859-1">
+            <xs:simpleType>
+                <xs:restriction base="xs:hexBinary">
+                    <xs:length value="7"/>
+                    <xs:minLength value="7"/>
+                    <xs:maxLength value="7"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:element>
+    </tdml:defineSchema>
+
+    <tdml:parserTestCase name="validation_testFacets2_01"
+                         root="eHexBinary_lenMinMaxLen7" model="TestFacets2"
+                         description="checks that length cannot be used with min/maxLength"
+                         validation="limited">
+
+        <tdml:document>
+            <tdml:documentPart type="byte">deadbeef</tdml:documentPart>
+        </tdml:document>
+
+        <!-- this is a Xerces Error -->
+        <tdml:errors>
+            <tdml:error>Schema Definition Error</tdml:error>
+            <tdml:error>due to length-minLength-maxLength</tdml:error>
+            <tdml:error>not have a minLength facet if the current restriction has the minLength facet</tdml:error>
+            <tdml:error>and the current restriction or base has the length facet</tdml:error>
+        </tdml:errors>
+
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="validation_testFacets2_02"
+                         root="eHexBinary_lenMinMaxLen7" model="TestFacets2"
+                         description="checks that length cannot be used with min/maxLength"
+                         validation="on">
+
+        <tdml:document>
+            <tdml:documentPart type="byte">deadbeef</tdml:documentPart>
+        </tdml:document>
+
+        <!-- this is a Xerces Error -->
+        <tdml:errors>
+            <tdml:error>Schema Definition Error</tdml:error>
+            <tdml:error>due to length-minLength-maxLength</tdml:error>
+            <tdml:error>not have a minLength facet if the current restriction has the minLength facet</tdml:error>
+            <tdml:error>and the current restriction or base has the length facet</tdml:error>
+        </tdml:errors>
+
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="floatExclusiveValid"
     root="floatExclusive" model="TestFacets"
     validation="on">
 

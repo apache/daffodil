@@ -229,6 +229,7 @@ final class SimpleTypeRuntimeData(
   val noFacetChecks: Boolean,
   val patternValues: Seq[FacetTypes.FacetValueR],
   val enumerationValues: Option[String],
+  val length: Option[java.math.BigDecimal],
   val minLength: Option[java.math.BigDecimal],
   val maxLength: Option[java.math.BigDecimal],
   val minInclusive: Option[java.math.BigDecimal],
@@ -345,24 +346,20 @@ final class SimpleTypeRuntimeData(
         return Error("facet enumeration(s): %s".format(e.enumerationValues.mkString(",")))
       }
     }
-
+    // Check length
+    e.length.foreach { length =>
+      if (!checkLength(currentElement, length, e, primType))
+        return Error("facet length (%s)".format(length))
+    }
     // Check minLength
     e.minLength.foreach { minLength =>
-      val minAsLong = minLength.longValue()
-      val isMinLengthGreaterThanEqToZero = minAsLong.compareTo(0L) >= 0
-      if (isMinLengthGreaterThanEqToZero) {
-        if (!checkMinLength(currentElement, minLength, e, primType))
-          return Error("facet minLength (%s)".format(minLength))
-      }
+      if (!checkMinLength(currentElement, minLength, e, primType))
+        return Error("facet minLength (%s)".format(minLength))
     }
     // Check maxLength
     e.maxLength.foreach { maxLength =>
-      val maxAsLong = maxLength.longValue()
-      val isMaxLengthGreaterThanEqToZero = maxAsLong.compareTo(0L) >= 0
-      if (isMaxLengthGreaterThanEqToZero) {
-        if (!checkMaxLength(currentElement, maxLength, e, primType))
-          return Error("facet maxLength (%s)".format(maxLength))
-      }
+      if (!checkMaxLength(currentElement, maxLength, e, primType))
+        return Error("facet maxLength (%s)".format(maxLength))
     }
     // Check minInclusive
     e.minInclusive.foreach { minInclusive =>
@@ -407,7 +404,32 @@ final class SimpleTypeRuntimeData(
     // Note: dont check occurs counts // if(!checkMinMaxOccurs(e, pstate.arrayIterationPos)) { return java.lang.Boolean.FALSE }
     OK
   }
+  private def checkLength(
+    diNode: DISimple,
+    lenValue: java.math.BigDecimal,
+    e: ThrowsSDE,
+    primType: PrimType,
+  ): java.lang.Boolean = {
+    val lenAsLong = lenValue.longValueExact()
+    primType match {
+      case PrimType.String => {
+        val data = diNode.dataValue.getString
+        val dataLen = data.length.toLong
+        val isDataLengthEqual = dataLen.compareTo(lenAsLong) == 0
+        if (isDataLengthEqual) java.lang.Boolean.TRUE
+        else java.lang.Boolean.FALSE
+      }
+      case PrimType.HexBinary => {
+        val data = diNode.dataValue.getByteArray
 
+        val dataLen = data.length.toLong
+        val isDataLengthEqual = dataLen.compareTo(lenAsLong) == 0
+        if (isDataLengthEqual) java.lang.Boolean.TRUE
+        else java.lang.Boolean.FALSE
+      }
+      case _ => e.SDE("Facet length is only valid for string and hexBinary.")
+    }
+  }
   private def checkMinLength(
     diNode: DISimple,
     minValue: java.math.BigDecimal,
@@ -431,7 +453,7 @@ final class SimpleTypeRuntimeData(
         if (isDataLengthEqual) java.lang.Boolean.TRUE
         else java.lang.Boolean.FALSE
       }
-      case _ => e.SDE("MinLength facet is only valid for string and hexBinary.")
+      case _ => e.SDE("Facet minLength is only valid for string and hexBinary.")
     }
   }
 
@@ -460,7 +482,7 @@ final class SimpleTypeRuntimeData(
         if (isDataLengthEqual) java.lang.Boolean.TRUE
         else java.lang.Boolean.FALSE
       }
-      case _ => e.SDE("MaxLength facet is only valid for string and hexBinary.")
+      case _ => e.SDE("Facet maxLength is only valid for string and hexBinary.")
     }
   }
 

@@ -147,7 +147,7 @@ abstract class SimpleTypeDefBase(xml: Node, lexicalParent: SchemaComponent)
     optRestriction
       .map { r =>
         if (
-          r.hasPattern || r.hasEnumeration || r.hasMinLength || r.hasMaxLength ||
+          r.hasPattern || r.hasEnumeration || r.hasLength || r.hasMinLength || r.hasMaxLength ||
           r.hasMinInclusive || r.hasMaxInclusive || r.hasMinExclusive || r.hasMaxExclusive ||
           r.hasTotalDigits || r.hasFractionDigits
         ) false

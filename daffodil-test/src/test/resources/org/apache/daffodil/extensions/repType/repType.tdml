@@ -758,7 +758,7 @@
           <xs:element name="field" dfdlx:repType="tns:rep">
             <xs:simpleType>
               <xs:restriction base="xs:string">
-                <!-- "t" is actually the only valid value due to min/maxLength -->
+                <!-- "one" is actually the only valid value due to min/maxLength -->
                 <xs:enumeration value="one" dfdlx:repValues="1" />
                 <xs:enumeration value="t" dfdlx:repValues="2" />
                 <xs:enumeration value="three" dfdlx:repValues="3" />
@@ -771,9 +771,29 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="field" dfdlx:repType="tns:rep">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <!-- "t" is actually the only valid value due to length -->
+                <xs:enumeration value="one" dfdlx:repValues="1" />
+                <xs:enumeration value="t" dfdlx:repValues="2" />
+                <xs:enumeration value="three" dfdlx:repValues="3" />
+                <xs:length value="1" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="repType_length_facet_01" model="repType-LengthFacets.dfdl.xsd" validation="limited">
+  <tdml:parserTestCase name="repType_length_facet_01"
+                       root="root1"
+                       model="repType-LengthFacets.dfdl.xsd" validation="limited">
     <tdml:document>
       <tdml:documentPart type="byte">01</tdml:documentPart>
     </tdml:document>
@@ -786,7 +806,9 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="repType_length_facet_02" model="repType-LengthFacets.dfdl.xsd" validation="limited">
+  <tdml:parserTestCase name="repType_length_facet_02"
+                       root="root1"
+                       model="repType-LengthFacets.dfdl.xsd" validation="limited">
     <tdml:document>
       <tdml:documentPart type="byte">02</tdml:documentPart>
     </tdml:document>
@@ -804,7 +826,9 @@
     </tdml:validationErrors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="repType_length_facet_03" model="repType-LengthFacets.dfdl.xsd" validation="limited">
+  <tdml:parserTestCase name="repType_length_facet_03"
+                       root="root1"
+                       model="repType-LengthFacets.dfdl.xsd" validation="limited">
     <tdml:document>
       <tdml:documentPart type="byte">03</tdml:documentPart>
     </tdml:document>
@@ -819,6 +843,59 @@
       <tdml:error>ex:field</tdml:error>
       <tdml:error>maxLength</tdml:error>
       <tdml:error>3</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repType_length_facet_04"
+                       root="root2"
+                       model="repType-LengthFacets.dfdl.xsd" validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <field>one</field>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>ex:field</tdml:error>
+      <tdml:error>facet length (1)</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repType_length_facet_05"
+                       root="root2"
+                       model="repType-LengthFacets.dfdl.xsd" validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="byte">02</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <field>t</field>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="repType_length_facet_06"
+                       root="root2"
+                       model="repType-LengthFacets.dfdl.xsd" validation="limited">
+    <tdml:document>
+      <tdml:documentPart type="byte">03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <field>three</field>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>ex:field</tdml:error>
+      <tdml:error>facet length (1)</tdml:error>
     </tdml:validationErrors>
   </tdml:parserTestCase>
 

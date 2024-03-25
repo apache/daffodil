@@ -51,6 +51,9 @@ trait Facets { self: Restriction =>
   private def fractionDigits(xml: Node): String = {
     retrieveFacetValueFromRestrictionBase(xml, Facet.fractionDigits)
   }
+  private def length(xml: Node): String = {
+    retrieveFacetValueFromRestrictionBase(xml, Facet.length)
+  }
   private def maxExclusive(xml: Node): String = {
     retrieveFacetValueFromRestrictionBase(xml, Facet.maxExclusive)
   }
@@ -93,8 +96,27 @@ trait Facets { self: Restriction =>
   final lazy val localMaxInclusiveValue: String = maxInclusive(xml)
   final lazy val localMinExclusiveValue: String = minExclusive(xml)
   final lazy val localMaxExclusiveValue: String = maxExclusive(xml)
-  final lazy val localMinLengthValue: String = minLength(xml)
-  final lazy val localMaxLengthValue: String = maxLength(xml)
+  final lazy val localLengthValue: String = length(xml)
+  final lazy val localMinLengthValue: String = {
+    val ml = minLength(xml)
+    // Xerces checks for the case where length and min/maxLength are used together,
+    // so we won't get to this code in those cases unless Xerces validation is turned off
+    Assert.usage(
+      ml.isEmpty || localLengthValue.isEmpty,
+      "Facets length and minLength cannot be specified together",
+    )
+    ml
+  }
+  final lazy val localMaxLengthValue: String = {
+    val ml = maxLength(xml)
+    // Xerces checks for the case where length and min/maxLength are used together,
+    // so we won't get to this code in those cases unless Xerces validation is turned off
+    Assert.usage(
+      ml.isEmpty || localLengthValue.isEmpty,
+      "Facets length and maxLength cannot be specified together",
+    )
+    ml
+  }
   final lazy val localTotalDigitsValue: String = totalDigits(xml)
   final lazy val localFractionDigitsValue: String = fractionDigits(xml)
   final lazy val localEnumerationValue: String = {
@@ -140,6 +162,8 @@ trait Facets { self: Restriction =>
     (localEnumerationValue.length > 0) || (getRemoteFacetValues(Facet.enumeration).size > 0)
   final lazy val hasPattern: Boolean =
     (localPatternValue.length > 0) || (getRemoteFacetValues(Facet.pattern).size > 0)
+  final lazy val hasLength: Boolean =
+    (localLengthValue != "") || (getRemoteFacetValues(Facet.length).size > 0)
   final lazy val hasMinLength: Boolean =
     (localMinLengthValue != "") || (getRemoteFacetValues(Facet.minLength).size > 0)
   final lazy val hasMaxLength: Boolean =
@@ -230,6 +254,8 @@ trait Facets { self: Restriction =>
   // TODO: Tidy up.  Can likely replace getFacetValue with a similar call to combinedBaseFacets
   // as combinedBaseFacets should contain the 'narrowed' values.
   //
+  final lazy val lengthValue: java.math.BigDecimal =
+    getFacetValue(localLengthValue, Facet.length, hasLength)
   final lazy val minLengthValue: java.math.BigDecimal =
     getFacetValue(localMinLengthValue, Facet.minLength, hasMinLength)
   final lazy val maxLengthValue: java.math.BigDecimal =
@@ -247,12 +273,6 @@ trait Facets { self: Restriction =>
   final lazy val fractionDigitsValue: java.math.BigDecimal =
     getFacetValue(localFractionDigitsValue, Facet.fractionDigits, hasFractionDigits)
 
-  //  private def errorOnLocalLessThanBaseFacet(local: Long, base: Long, theFacetType: Facet.Type) = {
-  //    if (local < base) SDE("SimpleTypes: The local %s (%s) was less than the base %s (%s) ", theFacetType, local, theFacetType, base)
-  //  }
-  //  private def errorOnLocalGreaterThanBaseFacet(local: Long, base: Long, theFacetType: Facet.Type) = {
-  //    if (local > base) SDE("SimpleTypes: The local %s (%s) was greater than the base %s (%s) ", theFacetType, local, theFacetType, base)
-  //  }
   private def errorOnLocalLessThanBaseFacet(
     local: BigInteger,
     base: BigInteger,
@@ -313,14 +333,21 @@ trait Facets { self: Restriction =>
         base,
       )
   }
-
-  //  private def getRemoteFacets(theFacetType: Facet.Type): Seq[FacetValueR] = {
-  //    val remoteValues = remoteBaseFacets.filter { case (f, _) => f == theFacetType }
-  //    if (remoteValues.size > 0) {
-  //      val res: Seq[FacetValueR] = remoteValues.map { case (f, v) => (f, v.r) }
-  //      res
-  //    } else Seq.empty
-  //  }
+  private def errorOnLocalNotEqualToBaseFacet(
+    local: BigInteger,
+    base: BigInteger,
+    theFacetType: Facet.Type,
+  ) = {
+    val res = local.compareTo(base)
+    if (res != 0)
+      SDE(
+        "SimpleTypes: The local %s (%s) was not equal to the base %s (%s) ",
+        theFacetType,
+        local,
+        theFacetType,
+        base,
+      )
+  }
 
   private def getRemoteFacetValues(theFacetType: Facet.Type): Seq[FacetValue] = {
     val res = remoteBaseFacets.filter { case (f, _) => f == theFacetType }
@@ -385,6 +412,10 @@ trait Facets { self: Restriction =>
     facetType match {
       case Facet.minLength => {
         errorOnLocalLessThanBaseFacet(theLocalFacet, theRemoteFacet, facetType)
+        localFacet
+      }
+      case Facet.length => {
+        errorOnLocalNotEqualToBaseFacet(theLocalFacet, theRemoteFacet, facetType)
         localFacet
       }
       case Facet.maxLength | Facet.fractionDigits => {
@@ -679,7 +710,7 @@ trait Facets { self: Restriction =>
     //  a negative number, zero, or a positive number as this BigInteger is numerically less than,
     //  equal to, or greater than o, which must be a BigInteger.
     facetType match {
-      case Facet.minLength | Facet.maxLength | Facet.fractionDigits => {
+      case Facet.length | Facet.minLength | Facet.maxLength | Facet.fractionDigits => {
         // Non-negative Integers.  BigInt
         narrowNonNegativeFacets(localFacet, remoteFacet, facetType)
       }
