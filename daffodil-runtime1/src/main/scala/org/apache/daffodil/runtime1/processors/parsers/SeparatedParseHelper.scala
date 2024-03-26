@@ -63,7 +63,7 @@ sealed abstract class SeparatorParseHelper(
           cause,
         )
       case _ =>
-        sep.PE(pstate, "Failed to parse %s separator. Cause: %s.", kind, cause)
+        sep.PE(pstate, "Failed to find %s separator. Cause: %s.", kind, cause)
     }
   }
 }

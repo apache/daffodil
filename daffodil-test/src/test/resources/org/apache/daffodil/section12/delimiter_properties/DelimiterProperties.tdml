@@ -742,9 +742,12 @@
     model="ReqFieldMissingAndSepIsPrefixOfTerminator">
     <tdml:document><![CDATA[$A$$]]></tdml:document>
     <tdml:errors>
-    <tdml:error>Parse Error</tdml:error>
-    <tdml:error>Found out of scope delimiter</tdml:error>
-    <tdml:error>$$</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>prefix separator</tdml:error>
+      <tdml:error>Found enclosing delimiter: '$$'</tdml:error>
+      <tdml:error>during scan for local delimiter(s): '$'</tdml:error>
+      <tdml:error>Separator '$' from</tdml:error>
+      <tdml:error>ex:E1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -752,9 +755,12 @@
     model="ReqFieldMissingAndSepIsPrefixOfTerminator">
     <tdml:document><![CDATA[A$$B$$]]></tdml:document>
     <tdml:errors>
-    <tdml:error>Parse Error</tdml:error>
-    <tdml:error>Found out of scope delimiter</tdml:error>
-    <tdml:error>$$</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>infix separator</tdml:error>
+      <tdml:error>Found enclosing delimiter: '$$'</tdml:error>
+      <tdml:error>during scan for local delimiter(s): '$'</tdml:error>
+      <tdml:error>Separator '$' from</tdml:error>
+      <tdml:error>ex:E2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -762,8 +768,12 @@
     model="ReqFieldMissingAndSepIsPrefixOfTerminator">
     <tdml:document><![CDATA[A$$B$$]]></tdml:document>
     <tdml:errors>
-    <tdml:error>Found out of scope delimiter</tdml:error>
-    <tdml:error>$$</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>postfix separator</tdml:error>
+      <tdml:error>Found enclosing delimiter: '$$'</tdml:error>
+      <tdml:error>during scan for local delimiter(s): '$'</tdml:error>
+      <tdml:error>Separator '$' from</tdml:error>
+      <tdml:error>ex:E3</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

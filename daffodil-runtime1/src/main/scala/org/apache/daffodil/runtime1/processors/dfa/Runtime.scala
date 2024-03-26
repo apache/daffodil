@@ -19,6 +19,7 @@ package org.apache.daffodil.runtime1.processors.dfa
 
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.processors.parsers.DelimiterTextType
 
 /**
@@ -133,6 +134,17 @@ trait DFAField extends DFA {
   final override def run(r: Registers): Unit = runLoop(r, DFA.EndOfData, StateKind.EndOfData)
 }
 
+object DFADelimiter {
+  private val controlOrWhitespace = "\\p{C}|\\p{Z}".r
+
+  private def containsCtrlOrWS(s: String) = controlOrWhitespace.findFirstMatchIn(s).isDefined
+
+  def strForDiagnostic(s: String) =
+    if (containsCtrlOrWS(s))
+      s"'$s' ('${Misc.remapStringToVisibleGlyphs(s)}')"
+    else s"'$s'"
+}
+
 trait DFADelimiter extends DFA {
   def delimType: DelimiterTextType.Type
   def lookingFor: String
@@ -147,6 +159,9 @@ trait DFADelimiter extends DFA {
   final val isES = lookingFor == "%ES;"
 
   def unparseValue: String
+
+  lazy val strForDiagnostic: String = DFADelimiter.strForDiagnostic(lookingFor)
+
 }
 
 /**

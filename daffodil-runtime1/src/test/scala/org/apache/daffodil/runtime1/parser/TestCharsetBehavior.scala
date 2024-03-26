@@ -476,7 +476,7 @@ class TestUnicodeErrorTolerance {
     val inreader = new InputStreamReader(input, decoder)
     val cb = new StringBuffer;
     for (i <- 0 to 255) cb.appendCodePoint(inreader.read())
-    val act = Misc.remapControlsAndLineEndingsToVisibleGlyphs(
+    val act = Misc.remapStringToVisibleGlyphs(
       XMLUtils.remapXMLIllegalCharactersToPUA(cb.toString()),
     )
     //

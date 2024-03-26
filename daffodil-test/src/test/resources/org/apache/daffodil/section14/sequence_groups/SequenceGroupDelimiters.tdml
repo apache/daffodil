@@ -588,7 +588,7 @@
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Failed to parse infix separator</tdml:error>
+      <tdml:error>Failed to find infix separator</tdml:error>
       <tdml:error>Separator ';' not found</tdml:error>
     </tdml:errors>
 

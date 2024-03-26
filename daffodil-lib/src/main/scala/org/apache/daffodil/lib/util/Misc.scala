@@ -24,9 +24,9 @@ import java.io.IOException
 import java.net.URI
 import java.net.URLClassLoader
 import java.nio.ByteBuffer
-import java.nio.CharBuffer
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
+import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
 import java.nio.charset.StandardCharsets
 import java.nio.charset.{ Charset => JavaCharset }
@@ -37,6 +37,8 @@ import scala.io.Source
 
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions.Assert
+
+import passera.unsigned.UByte
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
@@ -424,7 +426,7 @@ object Misc {
 
   /**
    * This function creates a representation of data which doesn't
-   * contain any whitespace characters that jump around the screen.
+   * contain any control or whitespace characters that jump around the screen.
    * It replaces those with characters that have a simple glyph.
    *
    * The point of this is when you display the stream of data for
@@ -434,13 +436,40 @@ object Misc {
    * Replacing these with the picture characters (designed for this purpose)
    * in the unicode x2400 block helps.
    */
-  def remapControlsAndLineEndingsToVisibleGlyphs(s: String) = {
-    s.map { remapControlOrLineEndingToVisibleGlyphs(_) }.mkString
+  def remapStringToVisibleGlyphs(s: String) =
+    nonGlyphToVisibleGlyphsRemapper.remap(s)
+
+  object nonGlyphToVisibleGlyphsRemapper extends CharacterSetRemapper {
+    override protected def remap(prev: Char, curr: Char, next: Char): Int =
+      remapControlOrLineEndingToVisibleGlyphs(curr)
   }
 
-  def remapControlOrLineEndingToVisibleGlyphs(c: Char) = {
+  /**
+   * For debugger displays, data dumps, etc.
+   *
+   * Control characters, line-endings, spaces, and various others do not have a glyph that is displayed.
+   * They also can cause text to be split across lines, bells to ring, characters to be overwritten, etc.
+   *
+   * Convert to a character that has a glyph. Unicode provides some control-picture
+   * characters for this purpose. Note that this by-definition loses information, and many characters
+   * will map to the unicode replacement character. It is expected this display would be complemented
+   * by a hex dump or other means of understanding the actual representation of these remapped
+   * characters.
+   *
+   * Keep in mind this is a Unicode to Unicode transformation. It is not starting from byte values.
+   * See `byteToChar(b)` for how to got from raw byte values to unicode chars.
+   * @param c a unicode character that may or may not have a glyph.
+   * @param replaceControlPictures when true means the Unicode control pictures characters are replaced by
+   *                               the Unicode replacement character. When false these characters are preserved.
+   *                               Defaults to false.
+   * @return a unicode character that definitely has a glyph.
+   */
+  def remapControlOrLineEndingToVisibleGlyphs(
+    c: Char,
+    replaceControlPictures: Boolean = false,
+  ): Char = {
     val URC =
-      0x2426 // Unicode control picture character for substutition (also looks like arabic q-mark)
+      0x2426 // Unicode control picture character for substitution (also looks like arabic q-mark)
     val code = c.toInt match {
       //
       // C0 Control pictures
@@ -448,8 +477,15 @@ object Misc {
       case 0x20 => 0x2423 // For space we use the SP we use the ␣ (Unicode OPEN BOX)
       case 0x7f => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
       //
+      // We remap these into the Unicode Latin Extended B codepoints by
+      // adding 0x100 to their basic value.
+      //
+      case n if (n >= 0x80 && n <= 0x9f) =>
+        n + 0x100
+      case 0xa0 => 0x2422 // non-break space => ␢ (blank symbol or little b with stroke)
+      case 0xad => 0x002d // soft hyphen => hyphen
+      //
       // Unicode separators & joiners
-      case 0x00a0 => URC // no-break space
       case 0x200b => URC // zero width space
       case 0x2028 => URC // line separator
       case 0x2029 => URC // paragraph separator
@@ -477,122 +513,83 @@ object Misc {
       //
       //
       // Special case - if incoming character is one of the glyph
-      // characters we're remapping onto, then change to URC
+      // characters we're remapping onto, then we could issue
+      // a substitution character, but there are things that depend
+      // on these being preserved. So we have a flag to control this.
       //
-      case n if (n > 0x2400 && n < 0x2423) => URC
+      case n if (n > 0x2400 && n < 0x2423 && replaceControlPictures) => URC
       case _ => c
     }
     code.toChar
   }
 
-  private val bytesCharset =
-    JavaCharset.forName("windows-1252") // same as iso-8859-1 but has a few more glyphs.
-  private val bytesDecoder = {
-    val decoder = bytesCharset.newDecoder()
-    decoder.onMalformedInput(CodingErrorAction.REPLACE)
-    decoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
-    decoder
+  private lazy val byteToCharTable = {
+    val cs = Charset.forName("windows-1252")
+    val dec = cs
+      .newDecoder()
+      .onUnmappableCharacter(CodingErrorAction.REPLACE)
+      .onMalformedInput(CodingErrorAction.REPORT)
+    val bb = ByteBuffer.wrap((0 to 255).map { i => i.toByte }.toArray)
+    val cb = dec.decode(bb)
+    assert(cb.position == 0)
+    assert(cb.limit == 256)
+    // These 5 are unmapped by Windows-1252 but we want to turn any
+    // byte into a legit character. So these We add 0x100
+    // to get unicode codepoints.
+    cb.put(0x81, 0x181.toChar)
+    cb.put(0x8d, 0x18d.toChar)
+    cb.put(0x8f, 0x18f.toChar)
+    cb.put(0x90, 0x190.toChar)
+    cb.put(0x9d, 0x19d.toChar)
+    val res = cb.toString
+    res
   }
 
   /**
-   * Used when creating a debugging dump of data, where the data might be binary stuff
-   * but we want to show some sort of glyph for each byte.
+   * Convert a byte to a unicode character assuming the byte is iso-8859-1
+   * (or really, windows-1252 which has a few more glyph chars but is otherwise
+   * the same as iso-8859-1)
    *
-   * This uses windows-1252 for all the places it has glyphs, and other unicode
-   * glyph characters to replace the control characters and unused characters.
+   * This is a super pain to do using Java charsets because they
+   * don't provide an API to convert one character, only byte buffers
+   * into char buffers.
    *
-   * This allows printing a data dump to the screen, without worry that the control
-   * characters will ring bells or cause the text to jump around, and unmapped
-   * characters will not look like spaces, nor all look like the same unicde replacement
-   * character.
+   * So we just use a lookup table.
+   * @param b a byte containing a code point of windows-1252 encoding
+   * @return a unicode equivalent character
    */
-  def remapBytesToVisibleGlyphs(bb: ByteBuffer, cb: CharBuffer): Unit = {
-    val numBytes = bb.remaining()
-    bytesDecoder.decode(bb, cb, true)
-    cb.flip
-    var i = 0
-    while (i < numBytes) {
-      val newCodepoint = remapOneByteToVisibleGlyph(bb.get(i))
-      if (newCodepoint != -1) {
-        cb.put(i, newCodepoint.toChar)
-      }
-      i += 1
-    }
+  def byteToChar(b: Byte): Char = {
+    byteToCharTable(UByte(b).toInt)
   }
 
   /**
-   * For unicode codepoints in the range 0 to 255, or signed -128 to 127,
-   * make sure there is a visible glyph.
+   * This function creates a representation of data which doesn't
+   * contain any control or whitespace characters that jump around the screen.
+   * It replaces those with characters that have a simple glyph.
+   *
+   * The point of this is when you display the stream of data for
+   * debugging, or for a diagnostic message, and it is mostly single-byte text
+   * characters, then the characters which control position like CR, LF, FF,
+   * VT, HT, BS, etc. all make it hard to figure out what is going on.
+   * Replacing these with the picture characters (designed for this purpose)
+   * in the unicode x2400 block helps.
    */
-  def remapCodepointToVisibleGlyph(codepoint: Int): Int = {
-    if (codepoint > 255 || codepoint < -128) return codepoint
-    val b = codepoint.toByte
-    val r = remapOneByteToVisibleGlyph(b)
-    if (r == -1) codepoint else r
-  }
-
-  def remapStringToVisibleGlyphs(s: String) = {
-    s.map { c => remapCodepointToVisibleGlyph(c.toInt).toChar }
-  }
-
   def remapBytesToStringOfVisibleGlyphs(ba: Array[Byte]): String = {
-    ba.map { b => remapCodepointToVisibleGlyph(b.toInt).toChar }.mkString
-  }
-
-  def remapByteToVisibleGlyph(b: Byte): Int = {
-    val bb = ByteBuffer.allocate(1)
-    bb.put(0, b)
-    val cb = CharBuffer.allocate(1)
-    remapBytesToVisibleGlyphs(bb, cb)
-    cb.get(0).toChar.toInt
-  }
-
-  /**
-   * Remaps a byte to a unicode codepoint for a visible picture, or -1 if
-   * no remapping is needed.
-   *
-   * A difficulty is that there do not seem to be generally available Unicode fonts
-   * which are truly monospaced for every Unicode character. So since we are
-   * trying to produce data dumps that are monospaced, the tabular layout is off a bit.
-   *
-   * Even if there was such a font, it wouldn't be the default font.
-   *
-   * Courier New seems to work well. It is monospaced for every character we use
-   * in this remap stuff. But not for the "double wide" Kanji or other wide oriental
-   * characters.
-   */
-  private def remapOneByteToVisibleGlyph(b: Byte): Int = {
-    Bits.asUnsignedByte(b) match {
-      //
-      // replace C0 controls with unicode control pictures
-      //
-      case n if (n <= 0x1f) => n + 0x2400
-      //
-      // replace space and DEL with control pictures
-      //
-      case 0x20 => 0x2423 // For space we use the SP we use the ␣ (Unicode OPEN BOX)
-      case 0x7f => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
-      //
-      // replace undefined characters in the C1 control space with
-      // glyph characters. These are the only codepoints in the C1
-      // space which do not have a glyph defined by windows-1252
-      //
-      // We remap these into the Unicode Latin Extended B codepoints by
-      // adding 0x100 to their basic value.
-      //
-      case 0x81 => 0x0181
-      case 0x8d => 0x018d
-      case 0x8f => 0x018f
-      case 0x90 => 0x0190
-      case 0x9d => 0x019d
-      //
-      // Non-break space
-      //
-      case 0xa0 => 0x2422 // little b with stroke
-      case 0xad => 0x002d // soft hyphen becomes hyphen
-      case regular => -1 // all other cases -1 means we just use the regular character glyph.
+    val len = ba.length
+    if (len == 0) ""
+    else {
+      val sb = new StringBuilder(ba.length)
+      var i: Int = 0
+      while (i < ba.length) {
+        sb.append(remapControlOrLineEndingToVisibleGlyphs(byteToChar(ba(i))))
+        i += 1
+      }
+      sb.toString()
     }
   }
+
+  def remapOneByteToVisibleGlyph(b: Byte) =
+    remapControlOrLineEndingToVisibleGlyphs(byteToChar(b))
 
   /**
    * True if this charset encoding is suitable for display using the

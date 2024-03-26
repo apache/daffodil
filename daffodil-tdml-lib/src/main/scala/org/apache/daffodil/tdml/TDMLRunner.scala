@@ -1981,13 +1981,13 @@ object VerifyTestCase {
     lazy val actual8859String =
       StandardCharsets.ISO_8859_1.newDecoder().decode(ByteBuffer.wrap(actualBytes)).toString()
     lazy val displayableActual =
-      Misc.remapControlsAndLineEndingsToVisibleGlyphs(actual8859String)
+      Misc.remapStringToVisibleGlyphs(actual8859String)
 
     val expectedBytes = IOUtils.toByteArray(expectedData)
     lazy val expected8859String =
       StandardCharsets.ISO_8859_1.newDecoder().decode(ByteBuffer.wrap(expectedBytes)).toString()
     lazy val displayableExpected =
-      Misc.remapControlsAndLineEndingsToVisibleGlyphs(expected8859String)
+      Misc.remapStringToVisibleGlyphs(expected8859String)
 
     lazy val expectedAndActualDisplayStrings = "\n" +
       "Excected data (as iso8859-1): " + displayableExpected + "\n" +

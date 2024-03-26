@@ -17,9 +17,6 @@
 
 package org.apache.daffodil.io
 
-import java.nio.ByteBuffer
-import java.nio.CharBuffer
-
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -41,12 +38,8 @@ class TestDumpDisplay {
    */
   @Test def testAllPrintableChars() = {
 
-    // val bytes = 0 to 255 map { _.toByte }
-    val bb = ByteBuffer.allocate(256)
-    (0 to 255).foreach { n => bb.put(n, n.toByte) }
-    val cb = CharBuffer.allocate(256)
-    Misc.remapBytesToVisibleGlyphs(bb, cb)
-    val res = cb.toString
+    val bytes: Array[Byte] = (0 to 255).map { _.toByte }.toArray
+    val res = Misc.remapBytesToStringOfVisibleGlyphs(bytes)
     val exp =
       //
       // C0 Controls - use unicode control picture characters.
@@ -72,7 +65,15 @@ class TestDumpDisplay {
         "¡¢£¤¥¦§¨©ª«¬" +
         "-" + // 0xAD soft hyphen mapped to regular hyphen (because soft hyphen seems to be a zero-width in many fonts.
         "®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
-    assertEquals(exp, res)
+    assertEquals(exp.length, res.length)
+    val sb = new StringBuilder()
+    ((exp.zip(res)).zip(0 to res.length)).foreach { case ((exp, res), i) =>
+      if (exp != res) {
+        sb.append(s"At index $i expected '$exp' but actual was '$res'\n")
+      }
+    }
+    val msg = sb.toString()
+    if (msg.nonEmpty) fail(msg)
   }
 
 }
