@@ -640,7 +640,7 @@ class DataDumper {
                 homogenizeChars(uCodePoint)
               }
             } else {
-              homogenizeChars(Misc.remapCodepointToVisibleGlyph(allChars(0)))
+              homogenizeChars(Misc.remapControlOrLineEndingToVisibleGlyphs(allChars(0)))
             }
           remapped = r
           nCols = n
@@ -661,8 +661,8 @@ class DataDumper {
         //
         // FIXME: This will be really broken for EBCDIC-based encodings. Pass the encoding
         // so that the glyph routine can be ascii/ebcdic sensitive.
-        val remapped = Misc.remapByteToVisibleGlyph(byteValue)
-        (remapped.toChar.toString, 1, 1)
+        val remapped = Misc.remapOneByteToVisibleGlyph(byteValue)
+        (remapped.toString, 1, 1)
       }
     }
   }

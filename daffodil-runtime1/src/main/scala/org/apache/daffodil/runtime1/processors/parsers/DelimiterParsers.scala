@@ -28,10 +28,14 @@ import org.apache.daffodil.runtime1.processors.LocalTypedDelimiterIterator
 import org.apache.daffodil.runtime1.processors.RemoteTerminatingMarkupAndLocalTypedDelimiterIterator
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.dfa.DFADelimiter
+import org.apache.daffodil.runtime1.processors.dfa.ParseResult
 import org.apache.daffodil.runtime1.processors.dfa.TextParser
 
 object DelimiterTextType extends Enum {
-  abstract sealed trait Type extends EnumValueType
+  abstract sealed trait Type extends EnumValueType {
+    override lazy val toString =
+      Misc.initialLowerCase(getClass().getSimpleName.replace("$", ""))
+  }
   case object Initiator extends Type
   case object Separator extends Type
   case object Terminator extends Type
@@ -73,6 +77,34 @@ class DelimiterTextParser(
     foundLocalDFAIndex >= 0
   }
 
+  private def localDelimiters(state: PState): Seq[DFADelimiter] = {
+    val localIndexStart = state.mpstate.delimitersLocalIndexStack.top
+    val inScopeDelimiters = state.mpstate.delimiters
+    val res = inScopeDelimiters.slice(localIndexStart, inScopeDelimiters.length)
+    res
+  }
+
+  private def didNotFindExpectedDelimiter(foundDelimiter: ParseResult, start: PState): Unit = {
+    val localDelims = localDelimiters(start)
+    val foundDFA = foundDelimiter.matchedDFAs(0)
+    PE(
+      start,
+      """Found enclosing delimiter: %s during scan for local delimiter(s): %s.
+         | The expected delimiter(s) were: %s.
+         | The enclosing delimiter was from %s %s.
+         |""".stripMargin,
+      foundDFA.strForDiagnostic,
+      localDelims.map { d => d.strForDiagnostic }.mkString(", "),
+      localDelims
+        .map { d =>
+          s"  ${d.delimType.toString} ${d.strForDiagnostic} from ${d.location} ${d.location.locationDescription}."
+        }
+        .mkString("\n", "\n", ""),
+      foundDFA.location,
+      foundDFA.location.locationDescription,
+    )
+  }
+
   override def parse(start: PState): Unit = {
 
     val maybeDelimIter =
@@ -108,15 +140,9 @@ class DelimiterTextParser(
     if (foundDelimiter.isDefined) {
       if (!containsLocalMatch(foundDelimiter.get.matchedDFAs, start)) {
         // It was a remote delimiter but we should have found a local one.
-        PE(
-          start,
-          "Found out of scope delimiter: '%s' '%s'",
-          foundDelimiter.get.matchedDFAs(0).lookingFor,
-          Misc.remapStringToVisibleGlyphs(foundDelimiter.get.matchedDelimiterValue.get),
-        )
+        didNotFindExpectedDelimiter(foundDelimiter.get, start)
         return
       }
-
       // Consume the found local delimiter but also check if it was supposed to match
       // a non-zero number of bits and throw a runtime SDE if necessary
       val nChars = foundDelimiter.get.matchedDelimiterValue.get.length

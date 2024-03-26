@@ -1136,10 +1136,10 @@ Differences were (path, expected, actual):
       // prefix of the other and index is where the prefix ends, or index is
       // the first difference found. Either way, we can safely use slice() to
       // get at most some number of characters at that index for context.
-      val contextA = Misc.remapControlsAndLineEndingsToVisibleGlyphs(
+      val contextA = Misc.remapStringToVisibleGlyphs(
         dataA.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF),
       )
-      val contextB = Misc.remapControlsAndLineEndingsToVisibleGlyphs(
+      val contextB = Misc.remapStringToVisibleGlyphs(
         dataB.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF),
       )
       val path = zPath + ".charAt(" + (index + 1) + ")"

@@ -151,14 +151,15 @@ class TestCLIParsing {
     }(ExitCode.BadExternalVariable)
   }
 
-  @Test def test_CLI_Parsing_SimpleParse_DFDL1197_fix(): Unit = {
+  @Test
+  def test_CLI_Parsing_SimpleParse_DFDL1197_fix(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section12/delimiter_properties/testOptionalInfix.dfdl.xsd",
     )
 
     runCLI(args"-vv parse -s $schema") { cli =>
       cli.sendLine("1/3", inputDone = true)
-      cli.expectErr("<Sequence><Separator/><RepMinMax name='s1'>")
+      cli.expectErr("<Sequence><separator/><RepMinMax name='s1'>")
     }(ExitCode.LeftOverData)
   }
 
