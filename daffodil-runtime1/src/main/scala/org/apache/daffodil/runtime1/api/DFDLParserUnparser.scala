@@ -237,7 +237,11 @@ object DFDL {
    * occurs, this usually represents a bug in Daffodil
    */
   class DaffodilUnhandledSAXException(description: String, cause: Exception)
-    extends SAXException(description, cause)
+    extends SAXException(description, cause) {
+    def this(msg: String) = this(msg, null)
+
+    def this(cause: Exception) = this(null, cause)
+  }
 
   trait ParseResult extends Result with WithDiagnostics {
     def resultState: State
