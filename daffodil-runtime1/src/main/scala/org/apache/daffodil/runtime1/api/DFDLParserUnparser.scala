@@ -236,8 +236,12 @@ object DFDL {
    * Thrown by the DaffodilUnparseConentHandler when an unexpected error
    * occurs, this usually represents a bug in Daffodil
    */
-  class DaffodilUnhandledSAXException(description: String, cause: Exception)
-    extends SAXException(description, cause)
+  class DaffodilUnhandledSAXException(description: String, cause: Throwable)
+    extends SAXException(description, new Exception(cause)) {
+    def this(msg: String) = this(msg, null)
+
+    def this(cause: Throwable) = this(null, cause)
+  }
 
   trait ParseResult extends Result with WithDiagnostics {
     def resultState: State

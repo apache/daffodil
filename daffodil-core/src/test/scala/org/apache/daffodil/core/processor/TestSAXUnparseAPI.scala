@@ -23,8 +23,10 @@ import java.io.ByteArrayOutputStream
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.xml.DaffodilSAXParserFactory
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.api.DFDL.DaffodilUnhandledSAXException
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.xml.sax.InputSource
@@ -199,5 +201,35 @@ class TestSAXUnparseAPI {
     assertTrue(m.contains("Mixed content"))
     assertTrue(m.contains("prior to end"))
     assertTrue(m.contains("{http://example.com}list"))
+  }
+
+  @Test def testDaffodilUnhandledSAXException_creation_bothMessageAndCause(): Unit = {
+    val message = "Error Message"
+    val thr = new IllegalArgumentException("Illegal Argument Message")
+    val e = new DaffodilUnhandledSAXException(message, thr)
+    assertEquals(message, e.getMessage)
+    // we call getCause twice here, because the cause is wrapped in an Exception before
+    // being returned
+    assertEquals(thr, e.getCause.getCause)
+  }
+
+  @Test def testDaffodilUnhandledSAXException_creation_onlyMessage(): Unit = {
+    val message = "Error Message"
+    val e = new DaffodilUnhandledSAXException(message)
+    assertEquals(message, e.getMessage)
+    // we call getCause twice here, because the cause is wrapped in an Exception before
+    // being returned
+    assertNull(e.getCause.getCause)
+  }
+
+  @Test def testDaffodilUnhandledSAXException_creation_onlyCause(): Unit = {
+    val thr = new IllegalArgumentException("Illegal Argument Message")
+    val e = new DaffodilUnhandledSAXException(thr)
+    // when the detailMessage is null as is the case when no message is passed in,
+    // getMessage returns the embedded exception as a string
+    assertEquals(thr.toString, e.getMessage)
+    // we call getCause twice here, because the cause is wrapped in an Exception before
+    // being returned
+    assertEquals(thr, e.getCause.getCause)
   }
 }
