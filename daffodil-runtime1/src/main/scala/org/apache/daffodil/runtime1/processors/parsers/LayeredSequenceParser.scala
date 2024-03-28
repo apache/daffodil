@@ -17,58 +17,46 @@
 
 package org.apache.daffodil.runtime1.processors.parsers
 
-import org.apache.daffodil.runtime1.layers.LayerExecutionException
-import org.apache.daffodil.runtime1.layers.LayerNotEnoughDataException
-import org.apache.daffodil.runtime1.layers.LayerRuntimeInfo
-import org.apache.daffodil.runtime1.layers.LayerTransformerFactory
+import org.apache.daffodil.runtime1.layers.LayerDriver
 import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
 class LayeredSequenceParser(
   rd: SequenceRuntimeData,
-  layerTransformerFactory: LayerTransformerFactory,
-  layerRuntimeInfo: LayerRuntimeInfo,
   bodyParser: SequenceChildParser,
 ) extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
 
-  override lazy val runtimeDependencies =
-    layerRuntimeInfo.evaluatables.toVector
-
   override def parse(state: PState): Unit = {
 
-    val layerTransformer = layerTransformerFactory.newInstance(layerRuntimeInfo)
+    var layerDriver: LayerDriver = null
     val savedDIS = state.dataInputStream
-
-    val isAligned = savedDIS.align(layerTransformer.mandatoryLayerAlignmentInBits, state)
-    if (!isAligned)
-      PE(
-        state,
-        "Unable to align to the mandatory layer alignment of %s(bits)",
-        layerTransformer.mandatoryLayerAlignmentInBits,
-      )
-
     try {
-      val newDIS = layerTransformer.addLayer(savedDIS, state)
+      layerDriver = LayerDriver(state, rd.layerRuntimeData)
+      layerDriver.init() // could fail if user's method causes errors
 
-      state.dataInputStream = newDIS
-      layerTransformer.startLayerForParse(state)
-      super.parse(state)
-      layerTransformer.removeLayer(newDIS)
-    } catch {
-      case le: LayerNotEnoughDataException =>
-        PENotEnoughBits(
+      val isAligned = savedDIS.align(layerDriver.mandatoryLayerAlignmentInBits, state)
+      if (!isAligned)
+        PE(
           state,
-          le.schemaFileLocation,
-          le.dataLocation,
-          le.nBytesRequired * 8,
+          "Unable to align to the mandatory layer alignment of %s(bits)",
+          layerDriver.mandatoryLayerAlignmentInBits,
         )
-      case e: Exception =>
-        throw LayerExecutionException(
-          s"Unexpected exception in layer transformer '${layerTransformer.layerName}': $e",
-          e,
-        )
-    } finally {
-      state.dataInputStream = savedDIS
+
+      val newDIS = layerDriver.addInputLayer(savedDIS)
+      try {
+        state.dataInputStream = newDIS
+        super.parse(state)
+      } finally {
+        try {
+          layerDriver.removeInputLayer(newDIS) // calls layer getters, so can throw
+        } finally {
+          // Restore the data stream to the original.
+          state.dataInputStream = savedDIS
+        }
+      }
+    } catch {
+      case t: Throwable if layerDriver ne null => layerDriver.handleThrowable(t)
+      case t: Throwable => LayerDriver.handleThrowableWithoutLayer(t)
     }
   }
 }

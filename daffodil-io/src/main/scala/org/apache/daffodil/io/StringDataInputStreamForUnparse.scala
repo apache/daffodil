@@ -51,6 +51,10 @@ final class StringDataInputStreamForUnparse extends DataInputStreamImplMixin {
     dis.asIteratorChar
   }
 
+  override def close(): Unit = {
+    if (dis != null) dis.close()
+  }
+
   override def bitLimit0b = dis.bitLimit0b
   override def bitPos0b: Long = dis.bitPos0b
   override def discard(mark: DataInputStream.Mark): Unit = dis.discard(mark)

@@ -32,6 +32,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.net.URI;
 
+import static java.util.Objects.nonNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -69,11 +70,12 @@ public class TestCustomDebuggerAPI {
 
         String file = Misc.getRequiredResource("/test/japi/myData2.dat").toURL().getFile();
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        ParseResult res = dp.parse(dis, new NullInfosetOutputter());
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            ParseResult res = dp.parse(dis, new NullInfosetOutputter());
 
-        assertEquals(6, dbg.nodes);
-        assertTrue(dbg.inited);
-        assertTrue(dbg.finished);
+            assertEquals(6, dbg.nodes);
+            assertTrue(dbg.inited);
+            assertTrue(dbg.finished);
+        }
     }
 }

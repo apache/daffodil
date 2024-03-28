@@ -206,6 +206,25 @@ object QName {
   def createGlobal(name: String, targetNamespace: NS, scope: scala.xml.NamespaceBinding) = {
     GlobalQName(optPrefix(scope, targetNamespace), name, targetNamespace)
   }
+
+  /**
+   * Printing utility for QNames. Allows you control over the individual components.
+   * @param prefix if defined, will be included in printed representation
+   * @param local the local name (NCName)
+   * @param namespace an NS object
+   * @return
+   */
+  def toPrettyString(prefix: Option[String], local: String, namespace: NS): String = {
+    (prefix, local, namespace) match {
+      case (Some(pre), local, NoNamespace) =>
+        Assert.invariantFailed("QName has prefix, but NoNamespace")
+      case (Some(pre), local, UnspecifiedNamespace) => pre + ":" + local
+      case (None, local, NoNamespace) => "{}" + local
+      case (None, local, UnspecifiedNamespace) => local
+      case (None, local, ns) => "{" + ns + "}" + local
+      case (Some(pre), local, ns) => pre + ":" + local
+    }
+  }
 }
 
 protected sealed abstract class QNameSyntaxExceptionBase(
@@ -268,17 +287,7 @@ trait QNameBase extends Serializable {
    *
    * Incorrectly defined names are not tolerated.
    */
-  def toPrettyString: String = {
-    (prefix, local, namespace) match {
-      case (Some(pre), local, NoNamespace) =>
-        Assert.invariantFailed("QName has prefix, but NoNamespace")
-      case (Some(pre), local, UnspecifiedNamespace) => pre + ":" + local
-      case (None, local, NoNamespace) => "{}" + local
-      case (None, local, UnspecifiedNamespace) => local
-      case (None, local, ns) => "{" + ns + "}" + local
-      case (Some(pre), local, ns) => pre + ":" + local
-    }
-  }
+  def toPrettyString: String = QName.toPrettyString(prefix, local, namespace)
 
   /**
    * displays all components that are available.
@@ -364,7 +373,7 @@ sealed abstract class NamedQName(prefix: Option[String], local: String, namespac
     Assert.usage(!namespace.isUnspecified)
   }
 
-  def toRefQName = RefQName(prefix, local, namespace)
+  lazy val toRefQName = RefQName(prefix, local, namespace)
 }
 
 /**
@@ -408,19 +417,15 @@ final case class LocalDeclQName(prefix: Option[String], local: String, namespace
 final case class GlobalQName(prefix: Option[String], local: String, namespace: NS)
   extends NamedQName(prefix, local, namespace) {
 
+  /**
+   * This gets called a lot, even in runtime assertions, so let's make this
+   * as fast as possible.
+   * @param other
+   * @tparam Q
+   * @return
+   */
   override def matches[Q <: QNameBase](other: Q): Boolean = {
-    other match {
-      // StepQNames match against global names in the case of a path
-      // step that refers to an element that is defined in its
-      // group, via an element reference.
-      case StepQName(_, `local`, `namespace`) => true // exact match
-      case StepQName(_, _, _) => false
-      // RefQNames match against global names in element references,
-      // group references, type references (i.e., type="..."), etc.
-      case RefQName(_, `local`, `namespace`) => true // exact match
-      case RefQName(_, _, _) => false
-      case _ => Assert.usageError("other must be a StepQName or RefQName")
-    }
+    other.local == this.local && other.namespace == this.namespace
   }
 }
 
@@ -445,8 +450,8 @@ final case class RefQName(prefix: Option[String], local: String, namespace: NS)
     }
   }
 
-  def toStepQName = StepQName(prefix, local, namespace)
-  def toGlobalQName = GlobalQName(prefix, local, namespace)
+  lazy val toStepQName = StepQName(prefix, local, namespace)
+  lazy val toGlobalQName = GlobalQName(prefix, local, namespace)
 }
 
 /**
@@ -512,7 +517,8 @@ protected trait RefQNameFactoryBase[T] {
         }
         val ns = (prefix, optURI) match {
           case (None, None) => NoNamespace
-          case (Some(pre), None) => throw new QNameUndefinedPrefixException(pre)
+          case (Some(pre), None) =>
+            throw new QNameUndefinedPrefixException(pre)
           case (_, Some(ns)) => NS(ns)
         }
         val res = constructor(prefix, local, ns)

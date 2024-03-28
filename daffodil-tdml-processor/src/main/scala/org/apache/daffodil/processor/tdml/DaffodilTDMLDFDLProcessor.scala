@@ -30,6 +30,7 @@ import scala.xml.Node
 import org.apache.daffodil.core.compiler.Compiler
 import org.apache.daffodil.core.dsom.ExpressionCompilers
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.api._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.externalvars.Binding
@@ -279,29 +280,30 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
     xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX, blobPrefix)
     xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, blobSuffix)
 
-    val dis = InputSourceDataInputStream(dpInputStream)
-    val sis = InputSourceDataInputStream(saxInputStream)
+    using(InputSourceDataInputStream(dpInputStream)) { dis =>
+      using(InputSourceDataInputStream(saxInputStream)) { sis =>
+        // The length limit here should be the length of the document
+        // under test. Only set a limit when the end of the document
+        // do not match a byte boundary.
+        if (lengthLimitInBits % 8 != 0) {
+          Assert.usage(lengthLimitInBits >= 0)
+          dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+          sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+        }
 
-    // The length limit here should be the length of the document
-    // under test. Only set a limit when the end of the document
-    // do not match a byte boundary.
-    if (lengthLimitInBits % 8 != 0) {
-      Assert.usage(lengthLimitInBits >= 0)
-      dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
-      sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+        val actual = dp.parse(dis, outputter)
+        xri.parse(sis)
+
+        if (!actual.isError && !errorHandler.isError) {
+          verifySameParseOutput(outputter.xmlStream, saxOutputStream)
+        }
+        val dpParseDiag = actual.getDiagnostics.map(_.getMessage())
+        val saxParseDiag = errorHandler.getDiagnostics.map(_.getMessage())
+        verifySameDiagnostics(dpParseDiag, saxParseDiag)
+
+        new DaffodilTDMLParseResult(actual, outputter)
+      }
     }
-
-    val actual = dp.parse(dis, outputter)
-    xri.parse(sis)
-
-    if (!actual.isError && !errorHandler.isError) {
-      verifySameParseOutput(outputter.xmlStream, saxOutputStream)
-    }
-    val dpParseDiag = actual.getDiagnostics.map(_.getMessage())
-    val saxParseDiag = errorHandler.getDiagnostics.map(_.getMessage())
-    verifySameDiagnostics(dpParseDiag, saxParseDiag)
-
-    new DaffodilTDMLParseResult(actual, outputter)
   }
 
   def doUnparseWithBothApis(

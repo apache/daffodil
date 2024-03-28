@@ -453,6 +453,10 @@ class InfosetWalker private (
       outputterFunc
     } catch {
       case e: Exception => {
+        // FIXME: DAFFODIL-2884 This escalates a parser data exception to an SDE
+        //  Which breaks if string-as-xml encounters a string that is malformed XML.
+        //  We get the error thrown by the xml parser here outside of parsing, which is
+        //  too late.
         val cause = e.getCause
         val msg = if (cause == null) e.toString else cause.toString
         context.SDE("Failed to %s: %s", desc, msg)

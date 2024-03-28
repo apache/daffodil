@@ -23,6 +23,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 import org.apache.daffodil.io.InputSourceDataInputStream
+import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
@@ -137,8 +138,9 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
   override def parse(input: InputSource): Unit = {
     val is = input.getByteStream
     if (is != null) {
-      val isdis = InputSourceDataInputStream(is)
-      parse(isdis)
+      using(InputSourceDataInputStream(is)) { isdis =>
+        parse(isdis)
+      }
     } else {
       throw new IOException("InputSource must be backed by InputStream")
     }
@@ -169,13 +171,15 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
   }
 
   def parse(stream: InputStream): Unit = {
-    val isdis = InputSourceDataInputStream(stream)
-    parse(isdis)
+    using(InputSourceDataInputStream(stream)) { isdis =>
+      parse(isdis)
+    }
   }
 
   def parse(arr: Array[Byte]): Unit = {
-    val isdis = InputSourceDataInputStream(arr)
-    parse(isdis)
+    using(InputSourceDataInputStream(arr)) { isdis =>
+      parse(isdis)
+    }
   }
 
   private def handleDiagnostics(pr: DFDL.ParseResult): Unit = {

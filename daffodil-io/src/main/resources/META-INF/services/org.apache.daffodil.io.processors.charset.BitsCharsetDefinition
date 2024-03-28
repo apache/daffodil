@@ -24,7 +24,6 @@ org.apache.daffodil.io.processors.charset.BitsCharset5BitPackedLSBFDefinition
 org.apache.daffodil.io.processors.charset.BitsCharset6BitDFI264DUI001Definition
 org.apache.daffodil.io.processors.charset.BitsCharset6BitDFI311DUI002Definition
 org.apache.daffodil.io.processors.charset.BitsCharset6BitICAOAircraftIDDefinition
-org.apache.daffodil.io.processors.charset.BitsCharsetAISPayloadArmoringDefinition
 org.apache.daffodil.io.processors.charset.BitsCharsetBase4LSBFDefinition
 org.apache.daffodil.io.processors.charset.BitsCharsetBase4MSBFDefinition
 org.apache.daffodil.io.processors.charset.BitsCharsetBinaryLSBFDefinition

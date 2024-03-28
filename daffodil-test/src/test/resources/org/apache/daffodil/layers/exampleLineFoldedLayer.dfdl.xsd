@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<schema
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
+  xmlns:lf="urn:org.apache.daffodil.layers.lineFolded"
+  xmlns:b64="urn:org.apache.daffodil.layers.base64_MIME"
+  xmlns:ex="http://example.com"
+  targetNamespace="http://example.com">
+
+  <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+  <import namespace="urn:org.apache.daffodil.layers.boundaryMark"
+          schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>
+  <import namespace="urn:org.apache.daffodil.layers.lineFolded"
+          schemaLocation="/org/apache/daffodil/layers/xsd/lineFoldedLayer.dfdl.xsd"/>
+  <import namespace="urn:org.apache.daffodil.layers.base64_MIME"
+          schemaLocation="/org/apache/daffodil/layers/xsd/base64_MIMELayer.dfdl.xsd"/>
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+
+      <dfdl:defineFormat name="general">
+        <dfdl:format
+          ref="ex:GeneralFormat"
+          lengthKind="delimited"
+          outputNewLine="%CR;%LF;"/>
+      </dfdl:defineFormat>
+
+      <dfdl:format ref="ex:general"/>
+
+    </appinfo>
+  </annotation>
+
+  <element name="root" dfdl:lengthKind="implicit">
+    <complexType>
+      <sequence dfdlx:layer="lf:lineFolded_IMF">
+        <sequence>
+          <element name="marker" type="xs:string"
+                   dfdl:initiator="boundary=" dfdl:terminator="%CR;%LF;"/>
+          <element name="contents" dfdl:lengthKind="implicit"
+                   dfdl:initiator="{ fn:concat('--', ../marker, '%CR;%LF;') }">
+            <complexType>
+              <sequence>
+                <element name="comment" dfdl:initiator="Comment:%SP;" type="xs:string" dfdl:terminator="%CR;%LF;"/>
+                <element name="contentTransferEncoding" dfdl:initiator="Content-Transfer-Encoding:%SP;" type="xs:string"
+                         dfdl:terminator="%CR;%LF;"/>
+                <element name="body" dfdl:lengthKind="implicit" dfdl:initiator="%CR;%LF;">
+                  <complexType>
+                    <choice dfdl:choiceDispatchKey="{ ../contentTransferEncoding }">
+                      <sequence dfdl:choiceBranchKey="base64">
+                        <sequence dfdlx:layer="bm:boundaryMark">
+                          <annotation>
+                            <appinfo source="http://www.ogf.org/dfdl/">
+                              <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
+                              <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="{
+                                   fn:concat(dfdl:decodeDFDLEntities('%CR;%LF;'),'--', ../../marker, '--')
+                                  }"/>
+                            </appinfo>
+                          </annotation>
+                          <sequence dfdlx:layer="b64:base64_MIME">
+                            <element name="value" type="xs:string"/>
+                          </sequence>
+                        </sequence>
+                      </sequence>
+                      <!--
+                      This is where other choice branches than base64 would go.
+                       -->
+                    </choice>
+                  </complexType>
+                </element>
+              </sequence>
+            </complexType>
+          </element>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

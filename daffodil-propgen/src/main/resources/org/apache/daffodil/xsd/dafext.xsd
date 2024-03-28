@@ -632,7 +632,9 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="treatAsEmpty" />
       <xs:enumeration value="treatAsAbsent" />
-      <xs:enumeration value="treatAsMissing" /> <!-- deprecated -->
+
+      <!-- deprecated -->
+      <xs:enumeration value="treatAsMissing" />
     </xs:restriction>
   </xs:simpleType>
 

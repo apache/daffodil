@@ -550,4 +550,10 @@ trait DataInputStream extends DataStreamCommon {
    */
   final def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean =
     macro IOMacros.withBitLengthLimitMacroForInput
+
+  /**
+   * Closes any underlying I/O streams/channels that are part of the implementation
+   * of this and frees related resources.
+   */
+  def close(): Unit
 }

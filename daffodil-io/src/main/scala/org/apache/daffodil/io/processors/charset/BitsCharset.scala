@@ -69,6 +69,9 @@ trait BitsCharset extends Serializable {
    */
   def isEbcdicFamily(): Boolean = false
 
+  /**
+   * @return the width, in bits of a character, or Nope if the character set is variable width.
+   */
   def maybeFixedWidth: MaybeInt
 
   final def padCharWidthInBits = {

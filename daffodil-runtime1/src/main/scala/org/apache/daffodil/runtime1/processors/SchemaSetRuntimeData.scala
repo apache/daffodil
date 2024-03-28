@@ -18,6 +18,9 @@
 package org.apache.daffodil.runtime1.processors
 
 import org.apache.daffodil.lib.exceptions.ThrowsSDE
+import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
+import org.apache.daffodil.runtime1.layers.LayerRuntimeData
+import org.apache.daffodil.runtime1.layers.LayerVarsRuntime
 import org.apache.daffodil.runtime1.processors.parsers.Parser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 
@@ -29,6 +32,8 @@ final class SchemaSetRuntimeData(
    * The original variables determined by the schema compiler.
    */
   variables: VariableMap,
+  allLayers: Seq[LayerRuntimeData],
+  @transient layerRuntimeCompilerArg: LayerRuntimeCompiler,
 ) extends Serializable
   with ThrowsSDE {
 
@@ -53,4 +58,26 @@ final class SchemaSetRuntimeData(
    */
   def originalVariables = variables.copy
 
+  /**
+   * This deals with the situation where schema compilation
+   * immediately is followed by execution so there is no serialize/deserialize.
+   * We still need the layers to have been compiled before the
+   * execution begins, so we use the LayerRuntimeCompiler from
+   * the schema compiler in that case. Otherwise if the compiled
+   * schema is loaded then this is recreated and all the compilations
+   * done after deserialization completes.
+   */
+  @transient private lazy val layerRuntimeCompiler =
+    if (layerRuntimeCompilerArg ne null) layerRuntimeCompilerArg
+    else new LayerRuntimeCompiler
+
+  def getLayerVarsRuntime(lrd: LayerRuntimeData): LayerVarsRuntime = {
+    layerRuntimeCompiler.getLayerVarsRuntime(lrd)
+  }
+
+  /**
+   * Intended to be called after a schema is re-loaded.
+   * Ensures that all the layers have had their layerRuntimeData compiled.
+   */
+  def compileLayers(): Unit = layerRuntimeCompiler.compileAll(allLayers)
 }

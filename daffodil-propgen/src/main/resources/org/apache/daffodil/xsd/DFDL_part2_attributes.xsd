@@ -102,7 +102,9 @@
     <xsd:attribute ref="daf:parseUnparsePolicy"/> <!-- backwards compatibility -->
     <xsd:attribute ref="dfdlx:parseUnparsePolicy"/>
     <xsd:attribute name="emptyElementParsePolicy" type="dfdl:EmptyElementParsePolicyEnum"/>
-    <xsd:attribute ref="dfdlx:emptyElementParsePolicy"/> <!-- deprecated -->
+
+    <!-- deprecated -->
+    <xsd:attribute ref="dfdlx:emptyElementParsePolicy"/>
 
     <xsd:attribute name="encoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />

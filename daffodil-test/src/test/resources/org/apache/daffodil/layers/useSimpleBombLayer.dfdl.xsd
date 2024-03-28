@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+        xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+        xmlns:fn="http://www.w3.org/2005/xpath-functions"
+        xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+        xmlns:tl="urn:STL"
+        xmlns:bm="urn:org.apache.daffodil.layers.boundaryMark"
+        xmlns:ex="http://example.com"
+        targetNamespace="http://example.com">
+
+  <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+  <import namespace="urn:STL"
+             schemaLocation="/org/apache/daffodil/layers/xsd/SimpleBombOutLayer.dfdl.xsd"/>
+
+  <import namespace="urn:org.apache.daffodil.layers.boundaryMark"
+          schemaLocation="/org/apache/daffodil/layers/xsd/boundaryMarkLayer.dfdl.xsd"/>
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:defineFormat name="textual1">
+        <dfdl:format
+          ref="ex:GeneralFormat"
+          representation="text"
+          lengthKind="delimited"
+          encoding="iso-8859-1"/>
+      </dfdl:defineFormat>
+      <dfdl:format ref="ex:textual1"/>
+    </appinfo>
+  </annotation>
+
+  <group name="inVars">
+      <sequence>
+        <element name="intVarIn" type="xs:int"
+                 dfdl:inputValueCalc='{ 42 }'/>
+        <element name="stringVarIn" type="xs:string"
+                 dfdl:inputValueCalc='{ "forty two" }'/>
+      </sequence>
+  </group>
+
+  <group name="outVars">
+    <sequence>
+      <element name="intVarOut" type="xs:int"
+               dfdl:inputValueCalc='{ $tl:intVar }'/>
+      <element name="stringVarOut" type="xs:string"
+               dfdl:inputValueCalc='{ $tl:stringVar }'/>
+    </sequence>
+  </group>
+
+  <group name="rootGroup">
+    <sequence>
+      <group ref="ex:inVars"/>
+      <sequence>
+        <annotation>
+          <appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+            <dfdl:newVariableInstance ref="tl:stringVar" />
+          </appinfo>
+        </annotation>
+        <sequence dfdlx:layer='tl:stlBombOutLayer'>
+          <element name="data" type="xs:string"/>
+        </sequence>
+        <group ref="ex:outVars"/>
+      </sequence>
+    </sequence>
+  </group>
+
+  <element name="root">
+    <complexType>
+      <sequence>
+        <group ref="ex:rootGroup"/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="root2">
+    <complexType>
+      <choice>
+        <group ref="ex:rootGroup"/>
+        <element name="data" type="xs:string"/>
+      </choice>
+    </complexType>
+  </element>
+
+  <!-- This element has a layer which in the middle of it is
+  a field with outputValueCalc, which depends on something which
+  is AFTER the layer ends.
+
+  As a result, the layer must complete unwinding from the unparse
+  nest of calls without finishing the unparsing of the layer contents.
+  A suspension evaluated later will allow the writing to the layer to complete.
+
+  So, an exception happening in the write to the layer, or in the close of the
+  output layer stream must happen without any of the usual nest of try/catches
+  surrounding it.
+
+  This illustrates why the wrapping of the output stream must encapsulate it
+  with a stream which wraps a try/catch around each API call to the written output
+  stream, because otherwise we cannot catch these errors and handle them
+  intelligently.
+
+  See ThrowProtectedAssuredCloseOutputStream
+  -->
+
+  <element name="root3">
+    <complexType>
+      <sequence>
+        <group ref="ex:inVars"/>
+        <sequence>
+          <annotation>
+            <appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:newVariableInstance ref="tl:intVar" defaultValue="{ intVarIn }"/>
+              <dfdl:newVariableInstance ref="tl:stringVar"/>
+              <dfdl:newVariableInstance ref="bm:boundaryMark" defaultValue="//"/>
+              <dfdl:newVariableInstance ref="bm:layerEncoding" defaultValue="iso-8859-1"/>
+            </appinfo>
+          </annotation>
+          <sequence dfdlx:layer="bm:boundaryMark">
+            <sequence dfdlx:layer="tl:stlBombOutLayer">
+              <element name="copy" type="xs:string" dfdl:terminator=";"
+                       dfdl:outputValueCalc='{ ../afterLayer }'/>
+              <element name="data" type="xs:string" dfdl:terminator=";"/>
+            </sequence>
+          </sequence>
+          <element name="afterLayer" type="xs:string"/>
+          <group ref="ex:outVars"/>
+        </sequence>
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

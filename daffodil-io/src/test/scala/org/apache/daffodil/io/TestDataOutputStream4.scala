@@ -74,7 +74,7 @@ class TestDataOutputStream4 {
   }
 
   private def checkResults(baos: ByteArrayOrFileOutputStream): Unit = {
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xb4.toByte, buf(0))
     assertEquals(0xb4.toByte, buf(1))

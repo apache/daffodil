@@ -39,7 +39,11 @@ class TestBinaryInput_01 {
   var startOver: DataInputStream.Mark = null
   var dis: DataInputStream = null
 
-  def fromBytes(ba: Array[Byte], byteOrd: ByteOrder, bitOrd: BitOrder) = {
+  def fromBytes(
+    ba: Array[Byte],
+    byteOrd: ByteOrder,
+    bitOrd: BitOrder,
+  ): (DataInputStream, FakeFormatInfo) = {
     dis = InputSourceDataInputStream(ba)
     val finfo = new FakeFormatInfo(bitOrd, byteOrd)
     startOver = dis.mark("TestBinaryInput_01")

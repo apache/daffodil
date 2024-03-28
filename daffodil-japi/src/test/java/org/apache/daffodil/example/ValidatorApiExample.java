@@ -49,11 +49,11 @@ public class ValidatorApiExample {
 
         java.io.File file = getResource("/test/japi/myData5.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
-
-        assertFalse(res.isValidationError());
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            assertFalse(res.isValidationError());
+        }
     }
 
     @Test
@@ -65,11 +65,12 @@ public class ValidatorApiExample {
 
         java.io.File file = getResource("/test/japi/myData.dat");
         java.io.FileInputStream fis = new java.io.FileInputStream(file);
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
 
-        assertTrue(res.isValidationError());
+            assertTrue(res.isValidationError());
+        }
     }
 
     @Test // Verifies that Daffodil-2456 is a false report. Not a bug.
@@ -83,21 +84,22 @@ public class ValidatorApiExample {
         DataProcessor dp = pf.onPath("/").withValidationMode(ValidationMode.Full);
 
         java.io.InputStream fis = new ByteArrayInputStream("0".getBytes());
-        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
-        JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
-        ParseResult res = dp.parse(dis, outputter);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
 
-        assertTrue(res.isValidationError());
+            assertTrue(res.isValidationError());
 
-        for (Diagnostic d: res.getDiagnostics()) {
-            // doublecheck - all the errors are validation errors.
-            // System.err.println(d.getMessage());
-            assertTrue(d.getMessage().contains("Validation Error"));
+            for (Diagnostic d : res.getDiagnostics()) {
+                // doublecheck - all the errors are validation errors.
+                // System.err.println(d.getMessage());
+                assertTrue(d.getMessage().contains("Validation Error"));
+            }
+            assertTrue(res.isError());
+            // XMLOutputter xout = new XMLOutputter();
+            // xout.output(outputter.getResult(), System.out);
+            // Now get the well formed, though invalid result.
+            assertNotNull(outputter.getResult()); // Daffodil-2456 said this fails. It doesn't. Not reproducible.
         }
-        assertTrue(res.isError());
-        // XMLOutputter xout = new XMLOutputter();
-        // xout.output(outputter.getResult(), System.out);
-        // Now get the well formed, though invalid result.
-        assertNotNull(outputter.getResult()); // Daffodil-2456 said this fails. It doesn't. Not reproducible.
     }
 }

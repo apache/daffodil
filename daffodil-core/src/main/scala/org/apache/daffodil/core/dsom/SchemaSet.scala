@@ -685,7 +685,8 @@ final class SchemaSet private (
     startingGlobalComponents,
   )
 
-  lazy val allSchemaComponents = allSchemaComponentsSet.toIndexedSeq
+  lazy val allSchemaComponents: Seq[SchemaComponent] = allSchemaComponentsSet.toIndexedSeq
+
 }
 
 object TransitiveClosureSchemaComponents {

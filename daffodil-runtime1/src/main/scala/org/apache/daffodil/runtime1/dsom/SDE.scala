@@ -59,8 +59,8 @@ class RelativePathPastRootError(schemaContext: SchemaFileLocation, kind: String,
 class RuntimeSchemaDefinitionError(
   schemaContext: SchemaFileLocation,
   runtimeContext: ParseOrUnparseState,
-  causedBy: Maybe[Throwable],
-  fmtString: Maybe[String],
+  causedBy: Throwable,
+  fmtString: String,
   args: Any*,
 ) extends SchemaDefinitionDiagnosticBase(
     Maybe(schemaContext),
@@ -69,8 +69,8 @@ class RuntimeSchemaDefinitionError(
       case _ => Maybe(runtimeContext)
     }),
     None,
-    causedBy,
-    fmtString,
+    Maybe(causedBy),
+    Maybe(fmtString),
     args: _*,
   ) {
 
@@ -83,7 +83,7 @@ class RuntimeSchemaDefinitionError(
     fmtString: String,
     args: Any*,
   ) =
-    this(schemaContext, runtimeContext, Nope, Maybe(fmtString), args: _*)
+    this(schemaContext, runtimeContext, null, fmtString, args: _*)
 }
 
 class RuntimeSchemaDefinitionWarning(

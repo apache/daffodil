@@ -117,12 +117,12 @@ trait BitsCharsetNonByteSize extends BitsCharset {
 }
 
 /**
- * Hyjack a JavaCharsetEncoder to drive the encodeLoop.
+ * Hijack a JavaCharsetEncoder to drive the encodeLoop.
  *
  * This avoids us reimplementing all the error handling and flush/end logic.
  *
  * TODO: Similar to our decoders, we should create custom encoders. Then we
- * wouldn't need all this complex code related to proxying java charsets.
+ *  wouldn't need all this complex code related to proxying java charsets.
  */
 protected final class ProxyJavaCharsetEncoder(
   cs: JavaCharset,

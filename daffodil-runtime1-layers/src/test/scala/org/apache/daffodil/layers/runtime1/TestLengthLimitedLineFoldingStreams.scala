@@ -20,12 +20,16 @@ package org.apache.daffodil.layers.runtime1
 import java.io._
 import java.nio.charset.StandardCharsets
 
-import org.apache.daffodil.io.RegexLimitingStream
+import org.apache.daffodil.io.RegexLimitingInputStream
 
+import org.apache.commons.io.IOUtils
 import org.junit.Assert._
 import org.junit.Test
 
 class TestLengthLimitedLineFoldingStreams {
+
+  val crlfRegex = "\\r\\n(?!(?:\\t|\\ ))"
+  val crlf = "\r\n"
 
   /**
    * Has lines folded using IMF conventions.
@@ -59,19 +63,9 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.IMF, rls)
-
-    val baos = new ByteArrayOutputStream()
-    var c: Int = -1
-    while ({
-      c = lfs.read()
-      c != -1
-    }) {
-      baos.write(c)
-    }
-    baos.close()
-    val resultString = new String(baos.toByteArray())
+    val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ipsumLorem1UnfoldedFirstLine
     assertEquals(expected, resultString)
   }
@@ -101,19 +95,9 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.iCalendar, rls)
-
-    val baos = new ByteArrayOutputStream()
-    var c: Int = -1
-    while ({
-      c = lfs.read()
-      c != -1
-    }) {
-      baos.write(c)
-    }
-    baos.close()
-    val resultString = new String(baos.toByteArray())
+    val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ipsumLorem1UnfoldedFirstLine
     assertEquals(expected, resultString)
   }
@@ -127,19 +111,9 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.iCalendar, rls)
-
-    val baos = new ByteArrayOutputStream()
-    var c: Int = -1
-    while ({
-      c = lfs.read()
-      c != -1
-    }) {
-      baos.write(c)
-    }
-    baos.close()
-    val resultString = new String(baos.toByteArray())
+    val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ""
     assertEquals(expected, resultString)
   }
@@ -153,19 +127,9 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.IMF, rls)
-
-    val baos = new ByteArrayOutputStream()
-    var c: Int = -1
-    while ({
-      c = lfs.read()
-      c != -1
-    }) {
-      baos.write(c)
-    }
-    baos.close()
-    val resultString = new String(baos.toByteArray())
+    val resultString = IOUtils.toString(lfs, iso8859)
     val expected = "   "
     assertEquals(expected, resultString)
   }
@@ -179,19 +143,9 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.IMF, rls)
-
-    val baos = new ByteArrayOutputStream()
-    var c: Int = -1
-    while ({
-      c = lfs.read()
-      c != -1
-    }) {
-      baos.write(c)
-    }
-    baos.close()
-    val resultString = new String(baos.toByteArray())
+    val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ""
     assertEquals(expected, resultString)
   }
@@ -205,19 +159,9 @@ esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
     //
     // regex is CRLF not followed by a tab or space.
     //
-    val rls = new RegexLimitingStream(bba, "\\r\\n(?!(?:\\t|\\ ))", "\r\n", iso8859)
+    val rls = new RegexLimitingInputStream(bba, crlfRegex, "\r\n", iso8859)
     val lfs = new LineFoldedInputStream(LineFoldMode.iCalendar, rls)
-
-    val baos = new ByteArrayOutputStream()
-    var c: Int = -1
-    while ({
-      c = lfs.read()
-      c != -1
-    }) {
-      baos.write(c)
-    }
-    baos.close()
-    val resultString = new String(baos.toByteArray())
+    val resultString = IOUtils.toString(lfs, iso8859)
     val expected = ""
     assertEquals(expected, resultString)
   }

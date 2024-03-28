@@ -52,7 +52,7 @@ class TestDataOutputStream2 {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xbe.toByte, buf(0))
     assertEquals(0xef.toByte, buf(1))
@@ -80,7 +80,7 @@ class TestDataOutputStream2 {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xbe.toByte, buf(0))
     assertEquals(0x80.toByte, buf(1))
@@ -108,7 +108,7 @@ class TestDataOutputStream2 {
 
     out.setFinished(beFinfo)
 
-    val buf = baos.getBuf()
+    val buf = baos.getBuf
 
     assertEquals(0xbe.toByte, buf(0))
     assertEquals(0xee.toByte, buf(1))

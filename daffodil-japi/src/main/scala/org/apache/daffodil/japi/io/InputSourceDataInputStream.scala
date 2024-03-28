@@ -30,7 +30,7 @@ import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataIn
  */
 class InputSourceDataInputStream private[japi] (
   private[japi] val dis: SInputSourceDataInputStream,
-) {
+) extends java.io.Closeable {
 
   /**
    * Create an InputSourceDataInputStream from a java.io.InputStream
@@ -66,4 +66,15 @@ class InputSourceDataInputStream private[japi] (
    * been consumed or some data is left-over.
    */
   def hasData(): Boolean = dis.isDefinedForLength(1)
+
+  /**
+   * Closes the underlying resource.
+   *
+   * This method is used to close the underlying resource associated with the current instance.
+   * It is typically used to release any system resources that have been acquired during
+   * the lifespan of the instance.
+   *
+   * throws IOException if an I/O error occurs during the close operation.
+   */
+  def close(): Unit = dis.close()
 }
