@@ -2016,6 +2016,12 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "checkConstraints", DFDL), args) => {
         DFDLCheckConstraintsExpr(functionQNameString, functionQName, args)
       }
+      case (RefQName(_, "checkRangeInclusive", DFDL), args) => {
+        DFDLCheckRangeInclusiveExpr(functionQNameString, functionQName, args)
+      }
+      case (RefQName(_, "checkRangeExclusive", DFDL), args) => {
+        DFDLCheckRangeExclusiveExpr(functionQNameString, functionQName, args)
+      }
       case (RefQName(_, "decodeDFDLEntities", DFDL), args) => {
         FNOneArgExpr(
           functionQNameString,
@@ -3039,6 +3045,101 @@ case class DFDLCheckConstraintsExpr(
 
   override lazy val inherentType = NodeInfo.Boolean
 
+}
+
+case class DFDLCheckRangeInclusiveExpr(
+  nameAsParsed: String,
+  fnQName: RefQName,
+  args: List[Expression],
+) extends FunctionCallBase(nameAsParsed, fnQName, args) {
+
+  lazy val List(arg1, arg2, arg3) = { checkArgCount(3); args }
+
+  override lazy val children = args
+
+  override lazy val compiledDPath = {
+    checkArgCount(3)
+    val argDPath = args(0).compiledDPath
+    val rangeFrom = args(1).compiledDPath
+    val rangeTo = args(2).compiledDPath
+    val c = conversions
+    val res = new CompiledDPath(DFDLCheckRangeInclusive(argDPath, rangeFrom, rangeTo) +: c)
+    res
+  }
+  override def targetTypeForSubexpression(subexpr: Expression): NodeInfo.Kind = {
+    val targetType = (arg1.inherentType, arg2.inherentType, arg3.inherentType) match {
+      case (
+            testType: NodeInfo.Numeric.Kind,
+            minType: NodeInfo.Numeric.Kind,
+            maxType: NodeInfo.Numeric.Kind,
+          ) => {
+        val rangeType = NodeInfoUtils.generalizeArgTypesForComparisonOp(
+          "checkRangeInclusive",
+          minType,
+          maxType,
+        )
+        val targetType = NodeInfoUtils.generalizeArgTypesForComparisonOp(
+          "checkRangeInclusive",
+          testType,
+          rangeType,
+        )
+        targetType
+      }
+      case (test, min, max) =>
+        SDE(s"Cannot call $nameAsParsed with non-numeric types: $test, $min, $max")
+    }
+    targetType
+  }
+
+  override lazy val inherentType: NodeInfo.Kind = NodeInfo.Boolean
+
+}
+
+case class DFDLCheckRangeExclusiveExpr(
+  nameAsParsed: String,
+  fnQName: RefQName,
+  args: List[Expression],
+) extends FunctionCallBase(nameAsParsed, fnQName, args) {
+
+  lazy val List(arg1, arg2, arg3) = { checkArgCount(3); args }
+
+  override lazy val children = args
+
+  override lazy val compiledDPath = {
+    checkArgCount(3)
+    val argDPath = args(0).compiledDPath
+    val rangeFrom = args(1).compiledDPath
+    val rangeTo = args(2).compiledDPath
+    val c = conversions
+    val res = new CompiledDPath(DFDLCheckRangeExclusive(argDPath, rangeFrom, rangeTo) +: c)
+    res
+  }
+  override def targetTypeForSubexpression(subexpr: Expression): NodeInfo.Kind = {
+    val targetType = (arg1.inherentType, arg2.inherentType, arg3.inherentType) match {
+      case (
+            testType: NodeInfo.Numeric.Kind,
+            minType: NodeInfo.Numeric.Kind,
+            maxType: NodeInfo.Numeric.Kind,
+          ) => {
+        val rangeType = NodeInfoUtils.generalizeArgTypesForComparisonOp(
+          "checkRangeExclusive",
+          minType,
+          maxType,
+        )
+        val targetType = NodeInfoUtils.generalizeArgTypesForComparisonOp(
+          "checkRangeExclusive",
+          testType,
+          rangeType,
+        )
+        targetType
+      }
+      case (test, min, max) =>
+        SDE(s"Cannot call $nameAsParsed with non-numeric types: $test, $min, $max")
+    }
+    targetType
+  }
+
+  override lazy val inherentType: NodeInfo.Kind = NodeInfo.Boolean
 }
 
 /**

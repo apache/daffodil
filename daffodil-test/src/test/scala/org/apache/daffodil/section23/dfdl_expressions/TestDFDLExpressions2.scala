@@ -135,6 +135,33 @@ class TestDFDLExpressions2 {
   @Test def test_idiv18(): Unit = { runner.runOneTest("idiv18") }
   @Test def test_idiv19(): Unit = { runner.runOneTest("idiv19") }
   @Test def test_idiv20(): Unit = { runner.runOneTest("idiv20") }
+  @Test def test_DFDLCheckRange_01(): Unit = {
+    runner.runOneTest("DFDLCheckRange_01")
+  }
+
+  @Test def test_DFDLCheckRange_02(): Unit = {
+    runner.runOneTest("DFDLCheckRange_02")
+  }
+
+  @Test def test_DFDLCheckRange_03(): Unit = {
+    runner.runOneTest("DFDLCheckRange_03")
+  }
+
+  @Test def test_DFDLCheckRange_04(): Unit = {
+    runner.runOneTest("DFDLCheckRange_04")
+  }
+
+  @Test def test_DFDLCheckRange_05(): Unit = {
+    runner.runOneTest("DFDLCheckRange_05")
+  }
+
+  @Test def test_DFDLCheckRange_06(): Unit = {
+    runner.runOneTest("DFDLCheckRange_06")
+  }
+
+  @Test def test_DFDLCheckRange_07(): Unit = {
+    runner.runOneTest("DFDLCheckRange_07")
+  }
 
   @Test def test_add01(): Unit = { runner.runOneTest("add01") }
 

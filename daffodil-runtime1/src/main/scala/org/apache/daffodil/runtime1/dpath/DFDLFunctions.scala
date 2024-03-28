@@ -17,10 +17,13 @@
 
 package org.apache.daffodil.runtime1.dpath
 
+import java.math.BigInteger
+
 import org.apache.daffodil.lib.calendar.DFDLCalendarConversion
 import org.apache.daffodil.lib.cookers.EntityReplacer
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
+import org.apache.daffodil.runtime1.infoset.DataValue
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueBool
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueShort
@@ -35,6 +38,94 @@ case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRe
       val res = DFDLCheckConstraintsFunction.executeCheck(dstate.currentSimple).isOK
       dstate.currentElement.setValid(res)
       dstate.setCurrentValue(res)
+    }
+  }
+}
+
+case class DFDLCheckRangeInclusive(
+  dataRecipe: CompiledDPath,
+  minRecipe: CompiledDPath,
+  maxRecipe: CompiledDPath,
+) extends RecipeOpWithSubRecipes(dataRecipe, minRecipe, maxRecipe) {
+  override def run(dstate: DState): Unit = {
+    val saved = dstate.currentNode
+    dataRecipe.run(dstate)
+    val dataVal = dstate.currentValue
+    dstate.setCurrentNode(saved)
+    minRecipe.run(dstate)
+    val minVal = dstate.currentValue
+    dstate.setCurrentNode(saved)
+    maxRecipe.run(dstate)
+    val maxVal = dstate.currentValue
+
+    val res = executeCheck(
+      dataVal: DataValue.DataValuePrimitiveNullable,
+      minVal: DataValue.DataValuePrimitiveNullable,
+      maxVal: DataValue.DataValuePrimitiveNullable,
+    )
+    dstate.setCurrentValue(res)
+  }
+
+  def executeCheck(
+    dataVal: DataValue.DataValuePrimitiveNullable,
+    minVal: DataValue.DataValuePrimitiveNullable,
+    maxVal: DataValue.DataValuePrimitiveNullable,
+  ): Boolean = {
+    (dataVal.value, minVal.value, maxVal.value) match {
+      case (data: Integer, min: Integer, max: Integer) => data >= min && data <= max
+      case (data: java.lang.Double, min: java.lang.Double, max: java.lang.Double) =>
+        data >= min && data <= max
+      case (data: java.lang.Float, min: java.lang.Float, max: java.lang.Float) =>
+        data >= min && data <= max
+      case (data: java.math.BigDecimal, min: java.math.BigDecimal, max: java.math.BigDecimal) =>
+        data.compareTo(min) >= 0 && data.compareTo(max) <= 0
+      case (data: BigInteger, min: BigInteger, max: BigInteger) =>
+        data.compareTo(min) >= 0 && data.compareTo(max) <= 0
+      case (_, _, _) => false
+    }
+  }
+}
+
+case class DFDLCheckRangeExclusive(
+  dataRecipe: CompiledDPath,
+  minRecipe: CompiledDPath,
+  maxRecipe: CompiledDPath,
+) extends RecipeOpWithSubRecipes(dataRecipe, minRecipe, maxRecipe) {
+  override def run(dstate: DState): Unit = {
+    val saved = dstate.currentNode
+    dataRecipe.run(dstate)
+    val dataVal = dstate.currentValue
+    dstate.setCurrentNode(saved)
+    minRecipe.run(dstate)
+    val minVal = dstate.currentValue
+    dstate.setCurrentNode(saved)
+    maxRecipe.run(dstate)
+    val maxVal = dstate.currentValue
+
+    val res = executeCheck(
+      dataVal: DataValue.DataValuePrimitiveNullable,
+      minVal: DataValue.DataValuePrimitiveNullable,
+      maxVal: DataValue.DataValuePrimitiveNullable,
+    )
+    dstate.setCurrentValue(res)
+  }
+
+  def executeCheck(
+    dataVal: DataValue.DataValuePrimitiveNullable,
+    minVal: DataValue.DataValuePrimitiveNullable,
+    maxVal: DataValue.DataValuePrimitiveNullable,
+  ): Boolean = {
+    (dataVal.value, minVal.value, maxVal.value) match {
+      case (data: Integer, min: Integer, max: Integer) => data >= min && data < max
+      case (data: java.lang.Double, min: java.lang.Double, max: java.lang.Double) =>
+        data >= min && data < max
+      case (data: java.lang.Float, min: java.lang.Float, max: java.lang.Float) =>
+        data >= min && data < max
+      case (data: java.math.BigDecimal, min: java.math.BigDecimal, max: java.math.BigDecimal) =>
+        data.compareTo(min) >= 0 && data.compareTo(max) < 0
+      case (data: BigInteger, min: BigInteger, max: BigInteger) =>
+        data.compareTo(min) >= 0 && data.compareTo(max) < 0
+      case (_, _, _) => false
     }
   }
 }
