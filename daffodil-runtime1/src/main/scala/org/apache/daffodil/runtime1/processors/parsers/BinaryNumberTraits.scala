@@ -82,31 +82,34 @@ trait PrefixedLengthParserMixin {
 
     state.infoset = plElement
 
-    val parsedLen: JLong =
-      try {
-        prefixedLengthParser.parse1(state)
-        // Return zero if there was an error parsing, the caller of this
-        // evaluatable should check the processorStatus to see if anything
-        // failed and ignore this zero. If there was no error, return the value
-        // as a long.
-        if (state.processorStatus ne Success) 0
-        else Numbers.asLong(plElement.dataValue.getAnyRef)
-      } finally {
-        // reset back to the original infoset and throw away the detatched
-        // element
-        state.infoset = savedInfoset
-      }
-    if (parsedLen < 0) {
-      state.SDE("Prefixed length result must be non-negative, but was: %d", parsedLen)
+    try {
+      prefixedLengthParser.parse1(state)
+    } finally {
+      // reset back to the original infoset and throw away the detatched
+      // element
+      state.infoset = savedInfoset
     }
-    val adjustedLen = parsedLen - prefixedLengthAdjustmentInUnits
-    if (adjustedLen < 0) {
-      state.SDE(
+
+    if (state.processorStatus eq Success) {
+      val parsedLen = Numbers.asLong(plElement.dataValue.getAnyRef)
+      state.schemaDefinitionWhen(
+        parsedLen < 0,
+        "Prefixed length result must be non-negative, but was: %d",
+        parsedLen,
+      )
+      val adjustedLen = parsedLen - prefixedLengthAdjustmentInUnits
+      state.schemaDefinitionWhen(
+        adjustedLen < 0,
         "Prefixed length result must be non-negative after dfdl:prefixIncludesPrefixLength adjustment , but was: %d",
         adjustedLen,
       )
+      adjustedLen
+    } else {
+      // Return zero if there was an error parsing the prefix length, the caller of this
+      // function should check the processorStatus to see if anything failed and ignore
+      // this zero and lead to back tracking
+      0
     }
-    adjustedLen
   }
 
   /**
@@ -116,33 +119,37 @@ trait PrefixedLengthParserMixin {
    */
   def getPrefixedLengthInBits(state: PState): Long = {
     val lenInUnits = getPrefixedLengthInUnits(state)
-    val lenInBits = lengthUnits match {
-      case LengthUnits.Bits => lenInUnits
-      case LengthUnits.Bytes => lenInUnits * 8
-      case LengthUnits.Characters => {
-        val mfw = state.encoder.bitsCharset.maybeFixedWidth
-        Assert.invariant(
-          mfw.isDefined,
-          "Prefixed length for text data in non-fixed width encoding.",
-        )
-        lenInUnits * mfw.get
+    if (state.processorStatus eq Success) {
+      val lenInBits = lengthUnits match {
+        case LengthUnits.Bits => lenInUnits
+        case LengthUnits.Bytes => lenInUnits * 8
+        case LengthUnits.Characters => {
+          val mfw = state.encoder.bitsCharset.maybeFixedWidth
+          Assert.invariant(
+            mfw.isDefined,
+            "Prefixed length for text data in non-fixed width encoding.",
+          )
+          lenInUnits * mfw.get
+        }
       }
+      // Now we save the contentLength that we obtained from the prefix
+      // so that the dfdl:contentLength function can be called on the prefixed length element
+      // at parse time.
+      val mLenInBits = MaybeULong(lenInBits)
+      state.infoset match {
+        case ci: DIComplex => {
+          ci.contentLength.maybeComputedLengthInBits = mLenInBits
+          ci.valueLength.maybeComputedLengthInBits = mLenInBits
+        }
+        case si: DISimple => {
+          si.contentLength.maybeComputedLengthInBits = mLenInBits
+          // Note value length for simple types is handled elsewhere as we don't
+          // have any information about padding/trimming here.
+        }
+      }
+      lenInBits
+    } else {
+      0
     }
-    // Now we save the contentLength that we obtained from the prefix
-    // so that the dfdl:contentLength function can be called on the prefixed length element
-    // at parse time.
-    val mLenInBits = MaybeULong(lenInBits)
-    state.infoset match {
-      case ci: DIComplex => {
-        ci.contentLength.maybeComputedLengthInBits = mLenInBits
-        ci.valueLength.maybeComputedLengthInBits = mLenInBits
-      }
-      case si: DISimple => {
-        si.contentLength.maybeComputedLengthInBits = mLenInBits
-        // Note value length for simple types is handled elsewhere as we don't
-        // have any information about padding/trimming here.
-      }
-    }
-    lenInBits
   }
 }
