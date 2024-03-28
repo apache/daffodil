@@ -79,6 +79,9 @@ class TestLengthKindPrefixed {
   @Test def test_pl_text_string_txt_bytes_not_enough_prefix_data() = {
     runner.runOneTest("pl_text_string_txt_bytes_not_enough_prefix_data")
   }
+  @Test def test_pl_text_string_txt_bytes_not_enough_prefix_data_includes_backtrack() = {
+    runner.runOneTest("pl_text_string_txt_bytes_not_enough_prefix_data_includes_backtrack")
+  }
   // DFDL-2030, nested prefixed lengths not supported
   // @Test def test_pl_text_string_pl_txt_bytes() = { runner.runOneTest("pl_text_string_pl_txt_bytes") }
   @Test def test_pl_text_int_txt_bytes() = { runner.runOneTest("pl_text_int_txt_bytes") }
