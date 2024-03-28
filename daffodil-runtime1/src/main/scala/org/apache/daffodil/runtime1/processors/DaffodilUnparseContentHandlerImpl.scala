@@ -413,7 +413,7 @@ class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Out
           case Left(e) => {
             // unparse threw an unexpected exception, this is likely a bug. We don't
             // have an UnparseResult so just rethrow the exception as a SAXException.
-            throw new DaffodilUnhandledSAXException(e.getMessage, e)
+            throw new DaffodilUnhandledSAXException(e)
           }
           // $COVERAGE-ON$
         }
