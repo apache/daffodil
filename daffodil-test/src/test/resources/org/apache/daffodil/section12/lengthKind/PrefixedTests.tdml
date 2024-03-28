@@ -255,6 +255,15 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="pl_text_string_txt_bytes_includes_backtrack">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element ref="ex:pl_text_string_txt_bytes_includes" />
+          <xs:element name="alldata" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:defineSchema name="lengthKindPrefixed-bin.dfdl.xsd">
@@ -2852,6 +2861,21 @@
       <tdml:error>16 out of range</tdml:error>
       <tdml:error>between 1 and 8</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_text_string_txt_bytes_not_enough_prefix_data_includes_backtrack"
+    root="pl_text_string_txt_bytes_includes_backtrack"
+    model="lengthKindPrefixed-text.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="text">01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:pl_text_string_txt_bytes_includes_backtrack>
+          <alldata>01</alldata>
+        </ex:pl_text_string_txt_bytes_includes_backtrack>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
