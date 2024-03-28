@@ -39,6 +39,29 @@ case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRe
   }
 }
 
+case class DFDLCheckRange(
+  dataRecipe: CompiledDPath,
+  minRecipe: CompiledDPath,
+  maxRecipe: CompiledDPath,
+  compare: CompareOpBase,
+) extends RecipeOpWithSubRecipes(dataRecipe, minRecipe, maxRecipe) {
+  override def run(dstate: DState): Unit = {
+    val saved = dstate.currentNode
+    dataRecipe.run(dstate)
+    val dataVal = dstate.currentValue.getNonNullable
+    dstate.setCurrentNode(saved)
+    minRecipe.run(dstate)
+    val minVal = dstate.currentValue.getNonNullable
+    dstate.setCurrentNode(saved)
+    maxRecipe.run(dstate)
+    val maxVal = dstate.currentValue.getNonNullable
+
+    val res =
+      compare.operate(minVal, dataVal).getBoolean && compare.operate(dataVal, maxVal).getBoolean
+    dstate.setCurrentValue(res)
+  }
+}
+
 case class DFDLDecodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   override def computeValue(str: DataValuePrimitive, dstate: DState): DataValueString = {

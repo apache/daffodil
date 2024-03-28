@@ -25,26 +25,7 @@ import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.dsom.GlobalSimpleTypeDef
 import org.apache.daffodil.core.dsom.RepTypeQuasiElementDecl
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.runtime1.dpath.LE_Byte
-import org.apache.daffodil.runtime1.dpath.LE_Int
-import org.apache.daffodil.runtime1.dpath.LE_Integer
-import org.apache.daffodil.runtime1.dpath.LE_Long
-import org.apache.daffodil.runtime1.dpath.LE_NonNegativeInteger
-import org.apache.daffodil.runtime1.dpath.LE_Short
-import org.apache.daffodil.runtime1.dpath.LE_UnsignedByte
-import org.apache.daffodil.runtime1.dpath.LE_UnsignedInt
-import org.apache.daffodil.runtime1.dpath.LE_UnsignedLong
-import org.apache.daffodil.runtime1.dpath.LE_UnsignedShort
-import org.apache.daffodil.runtime1.dpath.LT_Byte
-import org.apache.daffodil.runtime1.dpath.LT_Int
-import org.apache.daffodil.runtime1.dpath.LT_Integer
-import org.apache.daffodil.runtime1.dpath.LT_Long
-import org.apache.daffodil.runtime1.dpath.LT_NonNegativeInteger
-import org.apache.daffodil.runtime1.dpath.LT_Short
-import org.apache.daffodil.runtime1.dpath.LT_UnsignedByte
-import org.apache.daffodil.runtime1.dpath.LT_UnsignedInt
-import org.apache.daffodil.runtime1.dpath.LT_UnsignedLong
-import org.apache.daffodil.runtime1.dpath.LT_UnsignedShort
+import org.apache.daffodil.runtime1.dpath.ComparisonOps
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dpath.NumberCompareOp
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueNumber
@@ -100,21 +81,12 @@ trait RepTypeMixin { self: ElementBase =>
     repTypeCompareLT: NumberCompareOp,
     repTypeCompareLE: NumberCompareOp,
   ) = LV('repTypeComparers) {
-    repTypeElementDecl.primType match {
-      case NodeInfo.Integer => (LT_Integer, LE_Integer)
-      case NodeInfo.Long => (LT_Long, LE_Long)
-      case NodeInfo.Int => (LT_Int, LE_Int)
-      case NodeInfo.Short => (LT_Short, LE_Short)
-      case NodeInfo.Byte => (LT_Byte, LE_Byte)
-      case NodeInfo.NonNegativeInteger => (LT_NonNegativeInteger, LE_NonNegativeInteger)
-      case NodeInfo.UnsignedLong => (LT_UnsignedLong, LE_UnsignedLong)
-      case NodeInfo.UnsignedInt => (LT_UnsignedInt, LE_UnsignedInt)
-      case NodeInfo.UnsignedShort => (LT_UnsignedShort, LE_UnsignedShort)
-      case NodeInfo.UnsignedByte => (LT_UnsignedByte, LE_UnsignedByte)
-      // $COVERAGE-OFF$
-      case _ => Assert.invariantFailed("repType should only be an integer type")
-      // $COVERAGE-ON$
-    }
+    Assert.invariant(
+      repTypeElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
+      "repType should only be an integer type",
+    )
+    val comparisonOps = ComparisonOps.forType(repTypeElementDecl.primType)
+    (comparisonOps.lt, comparisonOps.le)
   }.value
 
   lazy val (

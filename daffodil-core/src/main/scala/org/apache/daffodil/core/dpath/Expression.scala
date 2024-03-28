@@ -258,117 +258,23 @@ case class ComparisonExpression(op: String, adds: List[Expression])
   with BooleanExpression {
 
   lazy val compareOp: CompareOpBase = {
-    import NodeInfo.PrimType._
-    import NodeInfo.ArrayIndex
-    (op, convergedArgType) match {
-      case ("<", _) => subsetError("Unsupported operation '%s'. Use 'lt' instead.", op)
-      case (">", _) => subsetError("Unsupported operation '%s'. Use 'gt' instead.", op)
-      case ("<=", _) => subsetError("Unsupported operation '%s'. Use 'le' instead.", op)
-      case (">=", _) => subsetError("Unsupported operation '%s'. Use 'ge' instead.", op)
-      case ("=", _) => subsetError("Unsupported operation '%s'. Use 'eq' instead.", op)
-      case ("!=", _) => subsetError("Unsupported operation '%s'. Use 'ne' instead.", op)
-
-      case ("eq", HexBinary) => EQ_CompareByteArray
-      case ("ne", HexBinary) => NE_CompareByteArray
-      case ("eq", _) => EQ_Compare
-      case ("ne", _) => NE_Compare
-
-      case ("lt", Boolean) => LT_Boolean
-      case ("gt", Boolean) => GT_Boolean
-      case ("le", Boolean) => LE_Boolean
-      case ("ge", Boolean) => GE_Boolean
-
-      case ("lt", Date) => LT_Date
-      case ("gt", Date) => GT_Date
-      case ("le", Date) => LE_Date
-      case ("ge", Date) => GE_Date
-
-      case ("lt", Time) => LT_Time
-      case ("gt", Time) => GT_Time
-      case ("le", Time) => LE_Time
-      case ("ge", Time) => GE_Time
-
-      case ("lt", DateTime) => LT_DateTime
-      case ("gt", DateTime) => GT_DateTime
-      case ("le", DateTime) => LE_DateTime
-      case ("ge", DateTime) => GE_DateTime
-
-      case ("lt", String) => LT_String
-      case ("gt", String) => GT_String
-      case ("le", String) => LE_String
-      case ("ge", String) => GE_String
-
-      case ("lt", Decimal) => LT_Decimal
-      case ("gt", Decimal) => GT_Decimal
-      case ("le", Decimal) => LE_Decimal
-      case ("ge", Decimal) => GE_Decimal
-
-      case ("lt", Integer) => LT_Integer
-      case ("gt", Integer) => GT_Integer
-      case ("le", Integer) => LE_Integer
-      case ("ge", Integer) => GE_Integer
-
-      case ("lt", NonNegativeInteger) => LT_NonNegativeInteger
-      case ("gt", NonNegativeInteger) => GT_NonNegativeInteger
-      case ("le", NonNegativeInteger) => LE_NonNegativeInteger
-      case ("ge", NonNegativeInteger) => GE_NonNegativeInteger
-
-      case ("lt", UnsignedLong) => LT_UnsignedLong
-      case ("gt", UnsignedLong) => GT_UnsignedLong
-      case ("le", UnsignedLong) => LE_UnsignedLong
-      case ("ge", UnsignedLong) => GE_UnsignedLong
-
-      case ("lt", Long) => LT_Long
-      case ("gt", Long) => GT_Long
-      case ("le", Long) => LE_Long
-      case ("ge", Long) => GE_Long
-
-      case ("lt", UnsignedInt) => LT_UnsignedInt
-      case ("gt", UnsignedInt) => GT_UnsignedInt
-      case ("le", UnsignedInt) => LE_UnsignedInt
-      case ("ge", UnsignedInt) => GE_UnsignedInt
-
-      case ("lt", ArrayIndex) => LT_UnsignedInt
-      case ("gt", ArrayIndex) => GT_UnsignedInt
-      case ("le", ArrayIndex) => LE_UnsignedInt
-      case ("ge", ArrayIndex) => GE_UnsignedInt
-
-      case ("lt", Int) => LT_Int
-      case ("gt", Int) => GT_Int
-      case ("le", Int) => LE_Int
-      case ("ge", Int) => GE_Int
-
-      case ("lt", UnsignedShort) => LT_UnsignedShort
-      case ("gt", UnsignedShort) => GT_UnsignedShort
-      case ("le", UnsignedShort) => LE_UnsignedShort
-      case ("ge", UnsignedShort) => GE_UnsignedShort
-
-      case ("lt", Short) => LT_Short
-      case ("gt", Short) => GT_Short
-      case ("le", Short) => LE_Short
-      case ("ge", Short) => GE_Short
-
-      case ("lt", UnsignedByte) => LT_UnsignedByte
-      case ("gt", UnsignedByte) => GT_UnsignedByte
-      case ("le", UnsignedByte) => LE_UnsignedByte
-      case ("ge", UnsignedByte) => GE_UnsignedByte
-
-      case ("lt", Byte) => LT_Byte
-      case ("gt", Byte) => GT_Byte
-      case ("le", Byte) => LE_Byte
-      case ("ge", Byte) => GE_Byte
-
-      case ("lt", Float) => LT_Float
-      case ("gt", Float) => GT_Float
-      case ("le", Float) => LE_Float
-      case ("ge", Float) => GE_Float
-
-      case ("lt", Double) => LT_Double
-      case ("gt", Double) => GT_Double
-      case ("le", Double) => LE_Double
-      case ("ge", Double) => GE_Double
-
-      case _ => subsetError("Unsupported operation '%s' on type %s.", op, convergedArgType)
+    val comparisonOps = ComparisonOps.forType(convergedArgType)
+    import NodeInfo.PrimType.HexBinary
+    op match {
+      case "<" => subsetError("Unsupported operation '%s'. Use 'lt' instead.", op)
+      case ">" => subsetError("Unsupported operation '%s'. Use 'gt' instead.", op)
+      case "<=" => subsetError("Unsupported operation '%s'. Use 'le' instead.", op)
+      case ">=" => subsetError("Unsupported operation '%s'. Use 'ge' instead.", op)
+      case "=" => subsetError("Unsupported operation '%s'. Use 'eq' instead.", op)
+      case "!=" => subsetError("Unsupported operation '%s'. Use 'ne' instead.", op)
+      case "eq" => comparisonOps.eq
+      case "ne" => comparisonOps.ne
+      case "lt" if convergedArgType != HexBinary => comparisonOps.lt
+      case "gt" if convergedArgType != HexBinary => comparisonOps.gt
+      case "le" if convergedArgType != HexBinary => comparisonOps.le
+      case "ge" if convergedArgType != HexBinary => comparisonOps.ge
+      case _ =>
+        subsetError(s"Unsupported operation '$op' on type $convergedArgType.")
     }
   }
 
@@ -2016,6 +1922,12 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "checkConstraints", DFDL), args) => {
         DFDLCheckConstraintsExpr(functionQNameString, functionQName, args)
       }
+      case (RefQName(_, "checkRangeInclusive", DFDL), args) => {
+        DFDLCheckRangeExpr(functionQNameString, functionQName, args, isExclusive = false)
+      }
+      case (RefQName(_, "checkRangeExclusive", DFDL), args) => {
+        DFDLCheckRangeExpr(functionQNameString, functionQName, args, isExclusive = true)
+      }
       case (RefQName(_, "decodeDFDLEntities", DFDL), args) => {
         FNOneArgExpr(
           functionQNameString,
@@ -3038,6 +2950,56 @@ case class DFDLCheckConstraintsExpr(
     NodeInfo.AnyAtomic
 
   override lazy val inherentType = NodeInfo.Boolean
+
+}
+
+case class DFDLCheckRangeExpr(
+  nameAsParsed: String,
+  fnQName: RefQName,
+  args: List[Expression],
+  isExclusive: Boolean,
+) extends FunctionCallBase(nameAsParsed, fnQName, args) {
+
+  lazy val List(arg1, arg2, arg3) = { checkArgCount(3); args }
+
+  override lazy val children = args
+
+  override lazy val compiledDPath = {
+    val argDPath = arg1.compiledDPath
+    val rangeFrom = arg2.compiledDPath
+    val rangeTo = arg3.compiledDPath
+    val c = conversions
+    val comparisonOps = ComparisonOps.forType(convergedArgType)
+    val compare = if (isExclusive) comparisonOps.lt else comparisonOps.le
+    val res = new CompiledDPath(DFDLCheckRange(argDPath, rangeFrom, rangeTo, compare) +: c)
+    res
+  }
+
+  // we set the calculation to a lazy val so it's evaluated only once for each
+  // call to targetTypeForSubexpression since we don't care about the specific
+  // value of subexpr in targetTypeForSubexpression, and we need all 3 sub
+  // expressions to come to the right target target for the args
+  lazy val convergedArgType: NodeInfo.Kind = {
+    import NodeInfo._
+    val targetType = (arg1.inherentType, arg2.inherentType, arg3.inherentType) match {
+      case (testType: Numeric.Kind, minType: Numeric.Kind, maxType: Numeric.Kind) => {
+        val rangeType =
+          NodeInfoUtils.generalizeArgTypesForComparisonOp(nameAsParsed, minType, maxType)
+        val targetType =
+          NodeInfoUtils.generalizeArgTypesForComparisonOp(nameAsParsed, testType, rangeType)
+        targetType
+      }
+      case (test, min, max) =>
+        SDE(s"Cannot call $nameAsParsed with non-numeric types: $test, $min, $max")
+    }
+    targetType
+  }
+
+  override def targetTypeForSubexpression(subexpr: Expression): NodeInfo.Kind = {
+    convergedArgType
+  }
+
+  override lazy val inherentType: NodeInfo.Kind = NodeInfo.Boolean
 
 }
 

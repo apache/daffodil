@@ -7684,4 +7684,357 @@ blastoff
     <tdml:infoset><tdml:dfdlInfoset><add01>4</add01></tdml:dfdlInfoset></tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="DFDLCheckRange">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+    <xs:element name="literalMinMax_int">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:integer"/>
+          <xs:element name="isInRangeInc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeInclusive(../ex:data, 0, 8) }"/>
+          <xs:element name="isInRangeExc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeExclusive(../ex:data, 0, 8) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="expMinMax_double">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|">
+            <xs:element name="data" dfdl:lengthKind="delimited" type="xs:double"/>
+            <xs:element name="min" dfdl:lengthKind="delimited" type="xs:double"/>
+            <xs:element name="max" dfdl:lengthKind="delimited" type="xs:double"/>
+          </xs:sequence>
+          <xs:element name="isInRangeInc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeInclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+          <xs:element name="isInRangeExc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeExclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="expMinMax_float">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|">
+            <xs:element name="data" dfdl:lengthKind="delimited" type="xs:float"/>
+            <xs:element name="min" dfdl:lengthKind="delimited" type="xs:float"/>
+            <xs:element name="max" dfdl:lengthKind="delimited" type="xs:float"/>
+          </xs:sequence>
+          <xs:element name="isInRangeInc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeInclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+          <xs:element name="isInRangeExc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeExclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="expMinMax_decimal">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|">
+            <xs:element name="data" dfdl:lengthKind="delimited" type="xs:decimal"/>
+            <xs:element name="min" dfdl:lengthKind="delimited" type="xs:decimal"/>
+            <xs:element name="max" dfdl:lengthKind="delimited" type="xs:decimal"/>
+          </xs:sequence>
+          <xs:element name="isInRangeInc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeInclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+          <xs:element name="isInRangeExc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeExclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="expMinMax_mixedIntAndFloat">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|">
+            <xs:element name="data" dfdl:lengthKind="delimited" type="xs:integer"/>
+            <xs:element name="min" dfdl:lengthKind="delimited" type="xs:float"/>
+            <xs:element name="max" dfdl:lengthKind="delimited" type="xs:float"/>
+          </xs:sequence>
+          <xs:element name="isInRangeInc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeInclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+          <xs:element name="isInRangeExc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeExclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="expMinMax_string_inc">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|">
+            <xs:element name="data" dfdl:lengthKind="delimited" type="xs:string"/>
+            <xs:element name="min" dfdl:lengthKind="delimited" type="xs:string"/>
+            <xs:element name="max" dfdl:lengthKind="delimited" type="xs:string"/>
+          </xs:sequence>
+          <xs:element name="isInRangeInc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeInclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="expMinMax_string_exc">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:separatorPosition="infix" dfdl:separator="|">
+            <xs:element name="data" dfdl:lengthKind="delimited" type="xs:string"/>
+            <xs:element name="min" dfdl:lengthKind="delimited" type="xs:string"/>
+            <xs:element name="max" dfdl:lengthKind="delimited" type="xs:string"/>
+          </xs:sequence>
+          <xs:element name="isInRangeExc" type="xs:boolean"
+                      dfdl:inputValueCalc="{ dfdl:checkRangeExclusive(../ex:data, ../ex:min, ../ex:max) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="DFDLCheckRange_01" validation="on"
+                       root="literalMinMax_int" model="DFDLCheckRange">
+    <tdml:document>8</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <literalMinMax_int>
+          <data>8</data>
+          <isInRangeInc>true</isInRangeInc>
+          <isInRangeExc>false</isInRangeExc>
+        </literalMinMax_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DFDLCheckRange_02" validation="on"
+                       root="expMinMax_double" model="DFDLCheckRange">
+    <tdml:document>2.3|2.3|2.5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expMinMax_double>
+          <data>2.3</data>
+          <min>2.3</min>
+          <max>2.5</max>
+          <isInRangeInc>true</isInRangeInc>
+          <isInRangeExc>false</isInRangeExc>
+        </expMinMax_double>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DFDLCheckRange_03" validation="on"
+                       root="expMinMax_float" model="DFDLCheckRange">
+    <tdml:document>2.5|2.3|2.5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expMinMax_float>
+          <data>2.5</data>
+          <min>2.3</min>
+          <max>2.5</max>
+          <isInRangeInc>true</isInRangeInc>
+          <isInRangeExc>false</isInRangeExc>
+        </expMinMax_float>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DFDLCheckRange_04" validation="on"
+                       root="expMinMax_decimal" model="DFDLCheckRange">
+    <tdml:document>2.5|2.3|2.5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expMinMax_decimal>
+          <data>2.5</data>
+          <min>2.3</min>
+          <max>2.5</max>
+          <isInRangeInc>true</isInRangeInc>
+          <isInRangeExc>false</isInRangeExc>
+        </expMinMax_decimal>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DFDLCheckRange_05" validation="on"
+                       root="expMinMax_mixedIntAndFloat" model="DFDLCheckRange">
+    <tdml:document>1|1.9|2.5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expMinMax_mixedIntAndFloat>
+          <data>1</data>
+          <min>1.9</min>
+          <max>2.5</max>
+          <isInRangeInc>false</isInRangeInc>
+          <isInRangeExc>false</isInRangeExc>
+        </expMinMax_mixedIntAndFloat>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DFDLCheckRange_06" validation="on"
+                       root="literalMinMax_int" model="DFDLCheckRange">
+    <tdml:document>9</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <literalMinMax_int>
+          <data>9</data>
+          <isInRangeInc>false</isInRangeInc>
+          <isInRangeExc>false</isInRangeExc>
+        </literalMinMax_int>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DFDLCheckRange_07" validation="on"
+                       root="expMinMax_string_inc" model="DFDLCheckRange">
+    <tdml:document>2|1.9|2.5</tdml:document>
+    
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot call dfdl:checkRangeInclusive</tdml:error>
+      <tdml:error>with non-numeric types</tdml:error>
+      <tdml:error>string, string, string</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="DFDLCheckRange_08" validation="on"
+                       root="expMinMax_string_exc" model="DFDLCheckRange">
+    <tdml:document>2|1.9|2.5</tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot call dfdl:checkRangeExclusive</tdml:error>
+      <tdml:error>with non-numeric types</tdml:error>
+      <tdml:error>string, string, string</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="HexBinaryComparisons">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" />
+    <xs:element name="equalsNotEquals">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="data2" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="equals" type="xs:boolean"
+                      dfdl:inputValueCalc="{ ../ex:data1 eq ../ex:data2 }"/>
+          <xs:element name="notEquals" type="xs:boolean"
+                      dfdl:inputValueCalc="{ ../ex:data1 ne ../ex:data2  }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="lessThan">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="data2" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="lt" type="xs:boolean"
+                      dfdl:inputValueCalc="{ ../ex:data1 lt ../ex:data2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="lessThanOrEquals">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="data2" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="le" type="xs:boolean"
+                      dfdl:inputValueCalc="{ ../ex:data1 le ../ex:data2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="greaterThan">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="data2" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="gt" type="xs:boolean"
+                      dfdl:inputValueCalc="{ ../ex:data1 gt ../ex:data2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="greaterThanOrEquals">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="data1" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="data2" dfdl:lengthKind="explicit" dfdl:length="2" type="xs:hexBinary"/>
+          <xs:element name="ge" type="xs:boolean"
+                      dfdl:inputValueCalc="{ ../ex:data1 ge ../ex:data2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="hexBinaryComparison_01" validation="on"
+                       root="equalsNotEquals" model="HexBinaryComparisons">
+    <tdml:document>
+      <tdml:documentPart type="byte">deadbeef</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <equalsNotEquals>
+          <data1>DEAD</data1>
+          <data2>BEEF</data2>
+          <equals>false</equals>
+          <notEquals>true</notEquals>
+        </equalsNotEquals>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinaryComparison_02" validation="on"
+                       root="lessThan" model="HexBinaryComparisons">
+    <tdml:document>
+      <tdml:documentPart type="byte">deadbeef</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unsupported operation 'lt'</tdml:error>
+      <tdml:error>on type hexBinary</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinaryComparison_03" validation="on"
+                       root="lessThanOrEquals" model="HexBinaryComparisons">
+    <tdml:document>
+      <tdml:documentPart type="byte">deadbeef</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unsupported operation 'le'</tdml:error>
+      <tdml:error>on type hexBinary</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinaryComparison_04" validation="on"
+                       root="greaterThan" model="HexBinaryComparisons">
+    <tdml:document>
+      <tdml:documentPart type="byte">deadbeef</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unsupported operation 'gt'</tdml:error>
+      <tdml:error>on type hexBinary</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="hexBinaryComparison_05" validation="on"
+                       root="greaterThanOrEquals" model="HexBinaryComparisons">
+    <tdml:document>
+      <tdml:documentPart type="byte">deadbeef</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unsupported operation 'ge'</tdml:error>
+      <tdml:error>on type hexBinary</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

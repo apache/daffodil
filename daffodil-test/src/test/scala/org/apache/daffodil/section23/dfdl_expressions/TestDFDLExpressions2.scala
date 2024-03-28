@@ -17,9 +17,13 @@
 
 package org.apache.daffodil.section23.dfdl_expressions
 
+import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.tdml.Runner
 
 import org.junit.AfterClass
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 object TestDFDLExpressions2 {
@@ -135,6 +139,84 @@ class TestDFDLExpressions2 {
   @Test def test_idiv18(): Unit = { runner.runOneTest("idiv18") }
   @Test def test_idiv19(): Unit = { runner.runOneTest("idiv19") }
   @Test def test_idiv20(): Unit = { runner.runOneTest("idiv20") }
+  @Test def test_DFDLCheckRange_01(): Unit = {
+    runner.runOneTest("DFDLCheckRange_01")
+  }
+
+  @Test def test_DFDLCheckRange_02(): Unit = {
+    runner.runOneTest("DFDLCheckRange_02")
+  }
+
+  @Test def test_DFDLCheckRange_03(): Unit = {
+    runner.runOneTest("DFDLCheckRange_03")
+  }
+
+  @Test def test_DFDLCheckRange_04(): Unit = {
+    runner.runOneTest("DFDLCheckRange_04")
+  }
+
+  @Test def test_DFDLCheckRange_05(): Unit = {
+    runner.runOneTest("DFDLCheckRange_05")
+  }
+
+  @Test def test_DFDLCheckRange_06(): Unit = {
+    runner.runOneTest("DFDLCheckRange_06")
+  }
+
+  @Test def test_DFDLCheckRange_07(): Unit = {
+    runner.runOneTest("DFDLCheckRange_07")
+  }
+
+  @Test def test_DFDLCheckRange_08(): Unit = {
+    runner.runOneTest("DFDLCheckRange_08")
+  }
+
+  @Test def test_hexBinaryComparison_01(): Unit = {
+    runner.runOneTest("hexBinaryComparison_01")
+  }
+
+  @Test def test_hexBinaryComparison_02(): Unit = {
+    runner.runOneTest("hexBinaryComparison_02")
+  }
+  @Test def test_hexBinaryComparison_03(): Unit = {
+    runner.runOneTest("hexBinaryComparison_03")
+  }
+  @Test def test_hexBinaryComparison_04(): Unit = {
+    runner.runOneTest("hexBinaryComparison_04")
+  }
+  @Test def test_hexBinaryComparison_05(): Unit = {
+    runner.runOneTest("hexBinaryComparison_05")
+  }
+
+  @Test def test_hexBinaryComparison_06(): Unit = {
+    import org.apache.daffodil.runtime1.dpath.ComparisonOps
+    import org.apache.daffodil.runtime1.dpath.NodeInfo
+    val compOps = ComparisonOps.forType(NodeInfo.HexBinary)
+
+    val ba1 = Array[Byte](0xde.toByte, 0xad.toByte)
+    val ba2 = Array[Byte](0xbe.toByte, 0xef.toByte)
+
+    val eEQ = compOps.eq.operate(ba1, ba2).getBoolean
+    val eNE = compOps.ne.operate(ba1, ba2).getBoolean
+    val eLT = intercept[UsageException] {
+      compOps.lt.operate(ba1, ba2)
+    }
+    val eLE = intercept[UsageException] {
+      compOps.le.operate(ba1, ba2)
+    }
+    val eGT = intercept[UsageException] {
+      compOps.gt.operate(ba1, ba2)
+    }
+    val eGE = intercept[UsageException] {
+      compOps.ge.operate(ba1, ba2)
+    }
+    assertFalse(eEQ)
+    assertTrue(eNE)
+    assertTrue(eLT.getMessage.contains("Unsupported operation LT"))
+    assertTrue(eLE.getMessage.contains("Unsupported operation LE"))
+    assertTrue(eGT.getMessage.contains("Unsupported operation GT"))
+    assertTrue(eGE.getMessage.contains("Unsupported operation GE"))
+  }
 
   @Test def test_add01(): Unit = { runner.runOneTest("add01") }
 
