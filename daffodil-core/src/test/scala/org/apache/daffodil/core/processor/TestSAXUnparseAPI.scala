@@ -205,31 +205,34 @@ class TestSAXUnparseAPI {
 
   @Test def testDaffodilUnhandledSAXException_creation_bothMessageAndCause(): Unit = {
     val message = "Error Message"
-    val thr = new IllegalArgumentException("Illegal Argument Message")
-    val e = new DaffodilUnhandledSAXException(message, thr)
-    assertEquals(message, e.getMessage)
-    // we call getCause twice here, because the cause is wrapped in an Exception before
-    // being returned
-    assertEquals(thr, e.getCause.getCause)
+    val expectedException = new IllegalArgumentException("Illegal Argument Message")
+    val actualException = new DaffodilUnhandledSAXException(message, expectedException)
+    assertEquals(message, actualException.getMessage)
+    assertEquals(expectedException, actualException.getCause)
   }
 
   @Test def testDaffodilUnhandledSAXException_creation_onlyMessage(): Unit = {
     val message = "Error Message"
-    val e = new DaffodilUnhandledSAXException(message)
-    assertEquals(message, e.getMessage)
-    // we call getCause twice here, because the cause is wrapped in an Exception before
-    // being returned
-    assertNull(e.getCause.getCause)
+    val actualException = new DaffodilUnhandledSAXException(message)
+    assertEquals(message, actualException.getMessage)
+    assertNull(actualException.getCause)
   }
 
   @Test def testDaffodilUnhandledSAXException_creation_onlyCause(): Unit = {
-    val thr = new IllegalArgumentException("Illegal Argument Message")
-    val e = new DaffodilUnhandledSAXException(thr)
+    val expectedException = new IllegalArgumentException("Illegal Argument Message")
+    val actualException = new DaffodilUnhandledSAXException(expectedException)
     // when the detailMessage is null as is the case when no message is passed in,
-    // getMessage returns the embedded exception as a string
-    assertEquals(thr.toString, e.getMessage)
-    // we call getCause twice here, because the cause is wrapped in an Exception before
-    // being returned
-    assertEquals(thr, e.getCause.getCause)
+    // getMessage returns the detailMessage from the embedded exception
+    assertEquals(expectedException.getMessage, actualException.getMessage)
+    assertEquals(expectedException, actualException.getCause)
   }
+  @Test def testDaffodilUnhandledSAXException_creation_onlyCauseNoCauseMessage(): Unit = {
+    val expectedException = new IllegalArgumentException()
+    val actualException = new DaffodilUnhandledSAXException(expectedException)
+    // when the detailMessage is null as is the case when no message is passed in,
+    // getMessage returns the detailMessage from the embedded exception
+    assertNull(actualException.getMessage)
+    assertEquals(expectedException, actualException.getCause)
+  }
+
 }
