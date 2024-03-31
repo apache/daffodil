@@ -136,7 +136,31 @@
     <tdml:document><![CDATA[1]]></tdml:document>
 
   </tdml:unparserTestCase>
-  
+
+  <tdml:unparserTestCase name="delimOptPresentQualified02_additionalByte" root="r1"
+                         model="qualified" roundTrip="true">
+
+    <tdml:infoset >
+      <tdml:dfdlInfoset>
+        <ex:r1>
+          <ex:opt>12</ex:opt>
+        </ex:r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[12]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Schema context: ex:opt</tdml:error>
+      <tdml:error>org</tdml:error>
+      <tdml:error>apache</tdml:error>
+      <tdml:error>daffodil</tdml:error>
+      <tdml:error>section00</tdml:error>
+      <tdml:error>general</tdml:error>
+      <tdml:error>testElementFormDefault.tdml</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
 <!--
   Test Name: delimOptPresentQualified03
      Schema: elementFormDefaultQualified.dfdl.xsd

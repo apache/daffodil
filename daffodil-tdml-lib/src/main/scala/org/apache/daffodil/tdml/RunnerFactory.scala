@@ -20,6 +20,7 @@ package org.apache.daffodil.tdml
 import java.nio.file.Paths
 
 import org.apache.daffodil.lib.api.TDMLImplementation
+import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.util.Misc
 
 /**
@@ -203,13 +204,14 @@ class Runner private (
   // synchronized to ensure we only ever create one per Runner.
   def getTS = this.synchronized {
     if (ts == null) {
-      val elemOrURI: Any = source match {
+      val elemOrURISchemaSource: Any = source match {
         case Left(l) => l
         case Right(r) =>
-          if (r.startsWith("/")) Misc.getRequiredResource(r) else new java.net.URI(r)
+          val uri = if (r.startsWith("/")) Misc.getRequiredResource(r) else new java.net.URI(r)
+          URISchemaSource(new java.io.File(r), uri)
       }
       ts = new DFDLTestSuite(
-        elemOrURI,
+        elemOrURISchemaSource,
         optTDMLImplementation,
         validateTDMLFile,
         validateDFDLSchemas,

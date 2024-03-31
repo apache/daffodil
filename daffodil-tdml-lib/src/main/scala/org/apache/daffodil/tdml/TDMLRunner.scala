@@ -171,7 +171,7 @@ private[tdml] object DFDLTestSuite {
  */
 
 class DFDLTestSuite private[tdml] (
-  aNodeFileOrURL: Any,
+  aNodeFileOrURISchemaSource: Any,
   val optTDMLImplementation: Option[TDMLImplementation],
   validateTDMLFile: Boolean,
   val validateDFDLSchemas: Boolean,
@@ -185,11 +185,12 @@ class DFDLTestSuite private[tdml] (
 
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
 
-  aNodeFileOrURL match {
-    case _: URI => // ok
+  aNodeFileOrURISchemaSource match {
+    case _: URISchemaSource => // ok
     case _: File => // ok
     case _: scala.xml.Node => // ok
-    case x => Assert.usageError("argument was not a scala.xmlNode, File, or URI: " + x)
+    case x =>
+      Assert.usageError("argument was not a scala.xmlNode, File, or URISchemaSource: " + x)
   }
 
   /*
@@ -298,7 +299,7 @@ class DFDLTestSuite private[tdml] (
       None
     }
 
-  lazy val (tsRaw, tsURI) = aNodeFileOrURL match {
+  lazy val (tsRaw, tsURISchemaSource) = aNodeFileOrURISchemaSource match {
     case tsNode: Node => {
       //
       // We were passed a literal schema node. This is for unit testing
@@ -307,7 +308,11 @@ class DFDLTestSuite private[tdml] (
       val tmpDir = new File(TMP_DIR, "daffodil")
       tmpDir.mkdirs()
 
-      val src = UnitTestSchemaSource(tsNode, "", Some(tmpDir))
+      val nameHint = Seq((tsNode \@ "suiteName"), (tsNode \ "defineSchema" \@ "name"))
+        .filterNot(Misc.isNullOrBlank)
+        .mkString("_")
+
+      val src = UnitTestSchemaSource(tsNode, nameHint, Some(tmpDir))
 
       loader.load(
         src,
@@ -315,29 +320,30 @@ class DFDLTestSuite private[tdml] (
         addPositionAttributes = true,
       ) // want line numbers for TDML
       //
-      (tsNode, src.uriForLoading)
+      (tsNode, src)
     }
     case tdmlFile: File => {
       Logger.log.info(s"loading TDML file: ${tdmlFile}")
       val uri = tdmlFile.toURI()
+      val schemaSource = URISchemaSource(tdmlFile, uri)
       val newNode =
         loader.load(
-          URISchemaSource(tdmlFile, uri),
+          schemaSource,
           optTDMLSchema,
           addPositionAttributes = true,
         )
-      val res = (newNode, uri)
+      val res = (newNode, schemaSource)
       Logger.log.debug(s"done loading TDML file: ${tdmlFile}")
       res
     }
-    case uri: URI => {
+    case uriSchemaSource: URISchemaSource => {
       val newNode =
         loader.load(
-          URISchemaSource(Misc.uriToDiagnosticFile(uri), uri),
+          uriSchemaSource,
           optTDMLSchema,
           addPositionAttributes = true,
         )
-      val res = (newNode, uri)
+      val res = (newNode, uriSchemaSource)
       res
     }
     case _ => Assert.usageError("not a Node, File, or URL")
@@ -423,7 +429,10 @@ class DFDLTestSuite private[tdml] (
     if (isTDMLFileValid)
       testCases.map { _.run() }
     else {
-      throw TDMLException(s"TDML file ${tsURI} is not valid.", None)
+      throw TDMLException(
+        s"TDML file ${tsURISchemaSource.diagnosticFile.getPath} is not valid.",
+        None,
+      )
     }
   }
 
@@ -475,7 +484,7 @@ class DFDLTestSuite private[tdml] (
    * directory as the tdml file, and some other variations.
    */
   def findTDMLResource(resName: String): Option[URI] = {
-    Misc.searchResourceOption(resName, Some(tsURI))
+    Misc.searchResourceOption(resName, Some(tsURISchemaSource.uri))
   }
 
   def findEmbeddedSchema(modelName: String): Option[DefinedSchema] = {
@@ -2080,9 +2089,14 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   val dfdlTopLevels = defineFormats ++ defaultFormats ++ defineVariables ++ defineEscapeSchemes
   val xsdTopLevels = globalElementDecls ++ globalSimpleTypeDefs ++
     globalComplexTypeDefs ++ globalGroupDefs
-  val fileName = parent.ts.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
-    case Some(seqNodes) => seqNodes.toString
-    case None => ""
+  private val parentDiagnosticFileName = parent.tsURISchemaSource.diagnosticFile.getPath
+  val fileName = if (parentDiagnosticFileName.nonEmpty) {
+    parentDiagnosticFileName
+  } else {
+    parent.ts.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
+      case Some(seqNodes) => seqNodes.toString
+      case None => ""
+    }
   }
   lazy val xsdSchema =
     SchemaUtils.dfdlTestSchema(

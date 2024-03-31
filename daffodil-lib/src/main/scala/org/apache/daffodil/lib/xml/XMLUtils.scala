@@ -1216,6 +1216,15 @@ Differences were (path, expected, actual):
   }
 
   /**
+   * Look for the dafint:file attribute that should be set for every embedded schema
+   */
+  def getOptTDMLFileFromNode(node: Node): Option[File] = {
+    node
+      .attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME)
+      .map(uriStringNode => new File(uriStringNode.text))
+  }
+
+  /**
    * for quick tests, we use literal scala nodes. However, the underlying
    * infrastructure wants to be all file centric for diagnostic-message
    * reasons (line numbers for errors)

@@ -100,7 +100,7 @@ object SchemaUtils {
   ): Elem = {
     val fileAttrib =
       if (fileName == "") Null
-      else Attribute(XMLUtils.INT_PREFIX, "file", Text(fileName), Null)
+      else Attribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, Text(fileName), Null)
     val targetNamespaceAttrib =
       if (targetNamespace == NoNamespace) Null
       else Attribute(None, "targetNamespace", Text(targetNamespace.uri.toString), Null)
@@ -110,7 +110,7 @@ object SchemaUtils {
         import XMLUtils._
         <ignore xmlns:xsd={xsdURI} xmlns:dfdl={dfdlURI} xmlns:xsi={xsiURI} xmlns:fn={
           fnURI
-        } xmlns:math={mathURI} xmlns:dafint={dafintURI}/>.scope
+        } xmlns:math={mathURI}/>.scope
       }
     scope = XMLUtils.combineScopes("xs", XMLUtils.xsdURI, scope) // always need this one
     if (useDefaultNamespace) {
@@ -120,6 +120,7 @@ object SchemaUtils {
       scope = XMLUtils.combineScopes("tns", targetNamespace, scope)
     scope = XMLUtils.combineScopes("ex", targetNamespace, scope)
     scope = XMLUtils.combineScopes("dfdlx", XMLUtils.DFDLX_NAMESPACE, scope)
+    scope = XMLUtils.combineScopes(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
 
     val schemaNode =
       <xs:schema elementFormDefault={elementFormDefault}>
