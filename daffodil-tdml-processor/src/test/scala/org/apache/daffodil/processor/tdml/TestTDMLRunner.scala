@@ -21,6 +21,7 @@ import java.io.File
 
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.using
+import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.Runner
@@ -950,6 +951,31 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
       exc
         .getMessage()
         .contains("Duplicate definitions found for parser or unparser test cases: dupTestCase"),
+    )
+  }
+
+  @Test def testNullTestSuite(): Unit = {
+    val testSuite: scala.xml.Elem = null
+    val runner = new Runner(testSuite)
+    val exc = intercept[UsageException] {
+      runner.runAllTests()
+    }
+    assertTrue(
+      exc.getMessage.contains(
+        "argument was not a scala.xmlNode, File, or URISchemaSource: null",
+      ),
+    )
+  }
+
+  @Test def testEmptyNodeTestSuite(): Unit = {
+    val testSuite: scala.xml.Elem = <node/>
+    val runner = new Runner(testSuite)
+    val exc = intercept[TDMLException] {
+      runner.runAllTests()
+    }
+    assertTrue(
+      exc.getMessage().contains("TDML file") &&
+        exc.getMessage().contains("is not valid"),
     )
   }
 

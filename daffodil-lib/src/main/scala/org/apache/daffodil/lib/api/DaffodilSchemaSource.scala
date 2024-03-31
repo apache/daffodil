@@ -213,4 +213,9 @@ case class EmbeddedSchemaSource(node: Node, nameHint: String, optTmpDir: Option[
     XMLUtils.convertNodeToTempFile(node, optTmpDir.orNull, nameHint),
   ) {
   override val blameName = nameHint
+
+  override val diagnosticFile =
+    XMLUtils
+      .getOptTDMLFileFromNode(node)
+      .getOrElse(super.diagnosticFile)
 }

@@ -43,6 +43,9 @@ class TestElementFormDefaultGeneral {
   @Test def test_delimOptPresentQualified02(): Unit = {
     runner.runOneTest("delimOptPresentQualified02")
   }
+  @Test def test_delimOptPresentQualified02_additionalByte(): Unit = {
+    runner.runOneTest("delimOptPresentQualified02_additionalByte")
+  }
   @Test def test_delimOptPresentQualified03(): Unit = {
     runner.runOneTest("delimOptPresentQualified03")
   }
