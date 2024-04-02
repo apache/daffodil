@@ -1034,4 +1034,31 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     runner.reset()
     assertTrue(exc.getMessage.contains("only compatible with Daffodil 300.400.500"))
   }
+
+  @Test def testMissingErrorAndInfosetForParserTestCase(): Unit = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName"
+                      xmlns:tns={tns}
+                      xmlns:tdml={tdml}
+                      xmlns:dfdl={dfdl}
+                      xmlns:xsd={xsd}
+                      xmlns:xs={xsd}
+                      xmlns:xsi={xsi}>
+        <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <dfdl:format ref="tns:GeneralFormat"/>
+          <xsd:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2"/>
+        </tdml:defineSchema>
+        <parserTestCase xmlns={tdml} name="testCase" root="data" model="mySchema">
+          <document>25</document>
+        </parserTestCase>
+      </tdml:testSuite>
+    val runner = new Runner(testSuite)
+    val exc = intercept[TDMLException] {
+      runner.runOneTest("testCase")
+    }
+    runner.reset()
+    assertTrue(exc.getMessage.contains("Either tdml:infoset or tdml:error"))
+    assertTrue(exc.getMessage.contains("must be present in the test"))
+  }
 }

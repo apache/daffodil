@@ -1043,8 +1043,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           }
         }
       }
-
-      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
+      case _ =>
+        throw TDMLException(
+          "Either tdml:infoset or tdml:errors must be present in the test.",
+          implString,
+        )
     }
   }
 
