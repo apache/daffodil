@@ -259,6 +259,7 @@ class TestTDMLRunner2 {
               </tns:array>
             </tdml:dfdlInfoset>
           </tdml:infoset>
+          <tdml:validationErrors/>
         </tdml:parserTestCase>
       </tdml:testSuite>
 
@@ -268,7 +269,11 @@ class TestTDMLRunner2 {
     }
     runner.reset
     val msg = e.getMessage()
-    assertTrue(msg.contains("Validation errors found where none were expected"))
+    assertTrue(
+      msg.contains(
+        "ignoreUnexpectedDiags = false and test does not expect ValidationError diagnostics"
+      )
+    )
   }
 
   /**

@@ -1898,14 +1898,6 @@
       <tdml:error>Initiator 'C' not found</tdml:error>
     </tdml:errors>
 
-    <tdml:validationErrors>
-        
-      <!-- Validation error for branch1:e1  -->
-      <tdml:error>Validation Error</tdml:error>
-      <tdml:error>nonNegA failed facet checks due to: facet minInclusive (30)</tdml:error>
-
-    </tdml:validationErrors>
-
   </tdml:parserTestCase>
   
   <!--

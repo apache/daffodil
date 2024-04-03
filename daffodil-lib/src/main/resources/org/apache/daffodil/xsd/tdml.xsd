@@ -75,6 +75,7 @@
       <attribute name="defaultValidation" type="tns:validationType" use="optional"/>
       <attribute name="defaultConfig" type="xs:string" use="optional"/>
       <attribute name="defaultImplementations" type="tns:implementationsType" use="optional"/>
+      <attribute name="defaultIgnoreUnexpectedWarnings" type="xs:boolean" use="optional"/>
     </complexType>
     <unique name="unique-parserTestCase-name">
       <selector xpath="parserTestCase"/>
@@ -184,6 +185,7 @@
     <attribute name="unsupported" type="xs:boolean" use="optional" default="false"/>
     <attribute name="validation" type="tns:validationType" use="optional"/>
     <attribute name="implementations" type="tns:implementationsType" use="optional"/>
+    <attribute name="ignoreUnexpectedWarnings" type="xs:boolean" use="optional"/>
 
   </attributeGroup>
 
@@ -348,7 +350,7 @@
       <xs:simpleType>
         <xs:restriction base="xs:string">
           <xs:enumeration value="all"/>
-          <xs:enumeration value="any"/>
+          <xs:enumeration value="none"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>

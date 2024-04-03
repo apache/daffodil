@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite 
+  suiteName="tdml errors/warnings match attribute"
+  description="Tests for TDML Runner errors/warnings match attribute any, all and none"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  defaultRoundTrip="false">
+
+  <tdml:defineSchema name="noWarnings">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" encoding="utf-8" representation="text"/>
+    <xs:element name="elem" type="xs:string">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/" />
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="causesWarnings">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" encoding="utf-8" representation="text"/>
+    <xs:element name="elem" type="xs:string">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" />
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="getsWarningExpectsWarnings" root="elem"
+                       model="causesWarnings"
+                       description="">
+    <tdml:document><![CDATA[test]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>test</elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:warnings match="none">
+      <tdml:warning>THIS WILL NOT MATCH</tdml:warning>
+    </tdml:warnings>
+
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>The xs:appinfo source attribute value 'http://www.ogf.org/dfdl/dfdl-1.0/' should be 'http://www.ogf.org/dfdl/'.</tdml:warning>
+    </tdml:warnings>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+      name="getsWarningExpectsNoWarnings" root="elem"
+      model="causesWarnings"
+      description=""
+      ignoreUnexpectedWarnings="false">
+    <tdml:document><![CDATA[test]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>test</elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase
+      name="noWarningExpectsNoWarnings" root="elem"
+      model="noWarnings"
+      description=""
+      ignoreUnexpectedWarnings="false">
+    <tdml:document><![CDATA[test]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>test</elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="causesErrors" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" occursCountKind="implicit"/>
+
+    <xs:element name="causesUnparseError" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:string" dfdl:length="1"/>
+          <xs:element name="AmbigElt" type="xs:string" dfdl:length="1"/>
+          <xs:element name="B" type="xs:string" dfdl:length="1"/>
+          <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" minOccurs="0"/>
+          <xs:element name="UnparseFails" type="xs:string" dfdl:length="1"
+                      dfdl:outputValueCalc="{ ../AmbigElt }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="causesValidationError" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" dfdl:length="1" dfdl:inputValueCalc="{ 'A' }">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="[^A-FH-OQ-Z]"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="getUnparserWarningWhenExpectingError"
+                         root="causesUnparseError" model="causesErrors">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:causesUnparseError>
+          <A>1</A>
+          <AmbigElt>2</AmbigElt>
+          <B>3</B>
+          <AmbigElt>4</AmbigElt>
+        </ex:causesUnparseError>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document><![CDATA[12344]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+    <tdml:errors match="none">
+      <tdml:error>WILL NOT MATCH ON THIS</tdml:error>
+    </tdml:errors>
+
+    <tdml:warnings match="none">
+      <tdml:warning>WILL NOT MATCH ON THIS</tdml:warning>
+    </tdml:warnings>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>AmbigElt</tdml:warning>
+      <tdml:warning>query-style</tdml:warning>
+    </tdml:warnings>
+  </tdml:unparserTestCase>
+
+
+  <tdml:parserTestCase name="expectsAnyValidationError" root="causesValidationError"
+                       model="causesErrors" validation="on">
+
+    <tdml:document/>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:causesValidationError>
+          <A>A</A>
+        </ex:causesValidationError>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:validationErrors>
+      <tdml:error>value 'A' of element 'A' is not valid</tdml:error>
+    </tdml:validationErrors>
+    <tdml:validationErrors match="none">
+      <tdml:error>WILL NOT MATCH ON THIS</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

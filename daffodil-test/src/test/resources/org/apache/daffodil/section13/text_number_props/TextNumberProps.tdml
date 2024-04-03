@@ -4089,13 +4089,12 @@
 
   <tdml:parserTestCase name="nanInvalidType" root="nanInvalidType"
     model="textprops"
+    ignoreUnexpectedWarnings="false"
     description="Attempt to read nan for an invalid type.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[NOTANUMBER]]]></tdml:documentPart>
     </tdml:document>
-
-    <tdml:warnings />
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
@@ -4108,13 +4107,12 @@
 
   <tdml:parserTestCase name="infInvalidType" root="infInvalidType"
     model="textprops"
+    ignoreUnexpectedWarnings="false"
     description="Attempt to read inf for an invalid type.">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[INFINITY]]]></tdml:documentPart>
     </tdml:document>
-
-    <tdml:warnings />
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
