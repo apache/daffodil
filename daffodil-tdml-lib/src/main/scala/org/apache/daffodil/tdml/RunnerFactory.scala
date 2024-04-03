@@ -149,7 +149,8 @@ class Runner private (
   compileAllTopLevel: Boolean = false,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
-  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault
+  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
+  defaultIgnoreUnexpectedWarningsDefault: Boolean = true
 ) {
 
   /**
@@ -220,7 +221,8 @@ class Runner private (
         defaultValidationDefault,
         defaultImplementationsDefault,
         Runner.defaultShouldDoErrorComparisonOnCrossTests,
-        Runner.defaultShouldDoWarningComparisonOnCrossTests
+        Runner.defaultShouldDoWarningComparisonOnCrossTests,
+        defaultIgnoreUnexpectedWarningsDefault
       )
     }
     ts
