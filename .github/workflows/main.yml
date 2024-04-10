@@ -102,7 +102,10 @@ jobs:
 
       - name: Install Dependencies (macOS)
         if: runner.os == 'macOS'
-        run: brew install libmxml
+        run: |
+          brew tap-new local/libmxml
+          brew extract --version 3.3.1 libmxml local/libmxml
+          brew install libmxml@3.3.1
 
       - name: Install Dependencies (Linux)
         if: runner.os == 'Linux'
