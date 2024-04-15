@@ -22,7 +22,7 @@ object Dependencies {
   lazy val common = core ++ infoset ++ test
 
   lazy val core = Seq(
-    "com.lihaoyi" %% "os-lib" % "0.9.3", // for writing/compiling C source files
+    "com.lihaoyi" %% "os-lib" % "0.10.0", // for writing/compiling C source files
     "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
     "org.scala-lang.modules" %% "scala-parser-combinators" % "2.3.0",
     "com.ibm.icu" % "icu4j" % "74.2",
