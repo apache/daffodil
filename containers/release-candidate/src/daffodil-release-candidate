@@ -234,6 +234,8 @@ DAFFODIL_TUTORIALS_DIR=$DAFFODIL_SITE_DIR/site/tutorials
 DAFFODIL_DIST_DIR=$REPO_ROOT/$DAFFODIL_DIST
 DAFFODIL_RELEASE_DIR=$DAFFODIL_DIST_DIR/$VERSION-$PRE_RELEASE
 
+export SOURCE_DATE_EPOCH=$(git show --no-patch --format=%ct HEAD)
+
 if [ -d "$DAFFODIL_RELEASE_DIR" ]; then echo -e "\n!!! $PROJECT_NAME release directory already exists: $DAFFODIL_RELEASE_DIR !!! "; exit; fi
 
 git -C $DAFFODIL_CODE_DIR config --local user.name  "$GIT_COMMIT_NAME"
