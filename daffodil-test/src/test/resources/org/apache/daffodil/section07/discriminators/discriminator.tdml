@@ -1131,4 +1131,59 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="discrimOnChoiceArray">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" length="1" />
+
+    <xs:element name="r1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="type" type="xs:string" />
+          <xs:element name="max" type="xs:int" />
+          <xs:element name="values" dfdl:lengthKind="implicit">
+            <xs:complexType>
+              <xs:choice dfdl:choiceDispatchKey="{ ../ex:type }">
+                <xs:element name="a" dfdl:choiceBranchKey="a" type="xs:int" maxOccurs="unbounded">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator test="{ . lt ../../ex:max }" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="b" dfdl:choiceBranchKey="b" type="xs:int" maxOccurs="unbounded">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator test="{ . lt ../../ex:max }" />
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="remaining" type="xs:string" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="discrimOnChoiceArray_01" model="discrimOnChoiceArray" root="r1">
+    <tdml:document>b51234567890</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r1>
+          <type>b</type>
+          <max>5</max>
+          <values>
+            <b>1</b>
+            <b>2</b>
+            <b>3</b>
+            <b>4</b>
+          </values>
+          <remaining>567890</remaining>
+        </ex:r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

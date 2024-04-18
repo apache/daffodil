@@ -346,7 +346,7 @@ object ChoiceBranchImpliedSequence {
  * handled as a degenerate sequence having only one element decl within it.
  */
 final class ChoiceBranchImpliedSequence private (rawGM: Term)
-  extends SequenceTermBase(rawGM.xml, rawGM.optLexicalParent, rawGM.position)
+  extends SequenceTermBase(<sequence />, rawGM.optLexicalParent, rawGM.position)
   with SequenceDefMixin
   with ChoiceBranchImpliedSequenceRuntime1Mixin {
 

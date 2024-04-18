@@ -91,6 +91,9 @@ class TestDiscriminators {
   @Test def test_discrimPEvalueLengthEnclosingParent1(): Unit = {
     runner.runOneTest("discrimPEvalueLengthEnclosingParent1")
   }
+  @Test def test_discrimOnChoiceArray_01(): Unit = {
+    runner.runOneTest("discrimOnChoiceArray_01")
+  }
 
   @Test def test_multipleDiscriminators1(): Unit = {
     runner2.runOneTest("multipleDiscriminators1")
