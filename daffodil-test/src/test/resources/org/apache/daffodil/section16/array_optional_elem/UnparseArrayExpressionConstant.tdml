@@ -102,6 +102,16 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="r7" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="sca" type="xs:int" />
+          <xs:element name="req" type="xs:string" minOccurs="1"  maxOccurs="5" dfdl:occursCount="{../ex:sca}"/>
+          <xs:element name="req2" type="xs:string" minOccurs="1" maxOccurs="5" dfdl:occursCountKind="parsed"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
 <!--
@@ -336,6 +346,34 @@
     </tdml:infoset>
     <tdml:document><![CDATA[123]]></tdml:document>
 
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: exprReqAbsentArray_01
+     Schema: s1
+       Root: r7
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression.
+-->
+
+  <tdml:unparserTestCase name="exprReqAbsentArray_01" root="r7"
+    model="s1" roundTrip="true">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r7>
+          <sca>0</sca>
+          <req2>2</req2>
+          <req2>2</req2>
+          <req2>2</req2>
+        </r7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Expected 1 additional</tdml:error>
+      <tdml:error>req</tdml:error>
+      <tdml:error>req2</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

@@ -97,7 +97,6 @@ class OrderedUnseparatedSequenceUnparser(
           val erd = unparser.erd
           var numOccurrences = 0
           val maxReps = unparser.maxRepeats(state)
-          val minReps = unparser.minRepeats(state)
 
           //
           // The number of occurrances we unparse is always exactly driven
@@ -107,78 +106,66 @@ class OrderedUnseparatedSequenceUnparser(
           // startArray event. If we don't then
           // the element must be entirely optional, so we get no events for it
           // at all.
-          //
-          if (state.inspect) {
-            val ev = state.inspectAccessor
+
+          // we must have an event
+          Assert.invariant(state.inspect, "No event for unparing.")
+
+          val ev = state.inspectAccessor
+          if (ev.erd eq erd) {
+            // must be a start event for this array/optional unparser
             val isArr = ev.isArray
-            if (ev.isStart && (isArr || ev.erd.isOptional)) {
-              val eventNQN = ev.namedQName
-              if (ev.erd eq erd) {
-                //
-                // StartArray for this unparser's array element
-                //
-                unparser.startArrayOrOptional(state)
-                while ({
-                  doUnparser = unparser.shouldDoUnparser(unparser, state)
-                  doUnparser
-                }) {
-                  if (isArr)
-                    if (state.dataProc.isDefined)
-                      state.dataProc.get.beforeRepetition(state, this)
+            Assert.invariant(ev.isStart && (isArr || ev.erd.isOptional))
 
-                  unparseOne(unparser, erd, state)
-                  numOccurrences += 1
-                  state.moveOverOneArrayIterationIndexOnly()
-                  state.moveOverOneOccursIndexOnly()
-                  state.moveOverOneGroupIndexOnly() // array elements are always represented.
+            //
+            // StartArray for this unparser's array element
+            //
+            unparser.startArrayOrOptional(state)
+            while ({
+              doUnparser = unparser.shouldDoUnparser(unparser, state)
+              doUnparser
+            }) {
+              if (isArr)
+                if (state.dataProc.isDefined)
+                  state.dataProc.get.beforeRepetition(state, this)
 
-                  if (isArr)
-                    if (state.dataProc.isDefined)
-                      state.dataProc.get.afterRepetition(state, this)
-                }
+              unparseOne(unparser, erd, state)
+              numOccurrences += 1
+              state.moveOverOneArrayIterationIndexOnly()
+              state.moveOverOneOccursIndexOnly()
+              state.moveOverOneGroupIndexOnly() // array elements are always represented.
 
-                unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
-                  state,
-                  unparser,
-                  numOccurrences,
-                  maxReps,
-                  state.arrayIterationPos - 1,
-                )
-                unparser.endArrayOrOptional(erd, state)
-              } else {
-                //
-                // start array but not for the expected array,
-                // rather for some other array. Not this one. So we
-                // don't unparse anything here, and we'll go on to the next
-                // sequence child, which hopefully will be a matching array.
-                //
-                // minReps has to be 0, meaning it is allowed to have zero
-                // occurrences (not necessarily valid, but allowed),
-                // because we got zero instances of this array
-                //
-                Assert.invariant(minReps == 0L)
-              }
-            } else if (ev.isStart) {
-              Assert.invariant(!isArr && !ev.erd.isOptional)
-              //
-              // start of scalar.
-              // That has to be for a different element later in the sequence
-              // since this one has a RepUnparser (i.e., is NOT scalar)
-              val eventNQN = ev.namedQName
-              Assert.invariant(eventNQN != erd.namedQName)
-            } else {
-              Assert.invariant(ev.isEnd && ev.erd.isComplexType)
-              unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
-                state,
-                unparser,
-                numOccurrences,
-                maxReps,
-                0,
-              )
+              if (isArr)
+                if (state.dataProc.isDefined)
+                  state.dataProc.get.afterRepetition(state, this)
             }
+
+            // DAFFODIL-115: if the number of occurrences is less than minOccurs we are supposed
+            // to check if the element is defaultable and add elements until we reach that
+            // number. Daffodil does not currently support defaulting during unparsing.
+
+            unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
+              state,
+              unparser,
+              numOccurrences,
+              maxReps,
+              state.arrayIterationPos - 1,
+            )
+            unparser.endArrayOrOptional(erd, state)
           } else {
-            // no event (state.inspect returned false)
-            Assert.invariantFailed("No event for unparing.")
+            // this is either a start event for a following element or an end event for a
+            // parent element. Either way, we never saw a start event for this array/optional,
+            // which means there were zero occurrenes. Make sure that is allowed for this array
+            //
+            // DAFFODIL-115: if the number of occurrences is less than minOccurs we are supposed
+            // to check if the element is defaultable and add elements until we reach that
+            // number. Daffodil does not currently support defaulting during unparsing.
+            unparser.checkFinalOccursCountBetweenMinAndMaxOccurs(
+              state,
+              unparser,
+              numOccurrences,
+              maxReps,
+              0,
+            )
           }
 
           state.arrayIterationIndexStack.pop()
