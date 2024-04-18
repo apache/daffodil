@@ -69,6 +69,9 @@ class TestUnparseArrayOptionalElem {
   @Test def test_exprOptParsedData_04(): Unit = {
     runner_expr.runOneTest("exprOptParsedData_04")
   }
+  @Test def test_exprReqAbsentArray_01(): Unit = {
+    runner_expr.runOneTest("exprReqAbsentArray_01")
+  }
 
   @Test def test_fixedUnparseArrayTooManyElements01(): Unit = {
     runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01")
