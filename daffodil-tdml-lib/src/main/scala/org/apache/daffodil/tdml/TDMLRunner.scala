@@ -960,22 +960,56 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     if (
       !isCrossTest(implString.get) ||
       parent.shouldDoErrorComparisonOnCrossTests
-    )
-      VerifyTestCase.verifyAllDiagnosticsFound(
-        diagnostics,
-        Some(errors),
-        implString,
-      )
+    ) {
+      errors.matchAttrib match {
+        case "all" =>
+          VerifyTestCase.verifyAllDiagnosticsFound(
+            diagnostics,
+            Some(errors),
+            implString,
+          )
+        case "any" =>
+          VerifyTestCase.verifyAnyOfDiagnosticsFound(
+            diagnostics,
+            Some(errors),
+            implString,
+          )
+        case "none" =>
+          VerifyTestCase.verifyNoneOfDiagnosticsFound(
+            diagnostics,
+            Some(errors),
+            implString,
+          )
+      }
+    }
 
     if (
       !isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests
-    )
-      VerifyTestCase.verifyAllDiagnosticsFound(
-        diagnostics,
-        optWarnings,
-        implString,
-      )
+    ) {
+      optWarnings.map { warnings =>
+        warnings.matchAttrib match {
+          case "all" =>
+            VerifyTestCase.verifyAllDiagnosticsFound(
+              diagnostics,
+              optWarnings,
+              implString,
+            )
+          case "any" =>
+            VerifyTestCase.verifyAnyOfDiagnosticsFound(
+              diagnostics,
+              optWarnings,
+              implString,
+            )
+          case "none" =>
+            VerifyTestCase.verifyNoneOfDiagnosticsFound(
+              diagnostics,
+              optWarnings,
+              implString,
+            )
+        }
+      }
+    }
   }
 }
 
@@ -1004,8 +1038,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val dataToParse = optDataToParse.get
 
-    (optExpectedInfoset, optExpectedErrors) match {
-      case (Some(_), None) => {
+    val optExpectedErrorMatchAttr = optExpectedErrors.map(_.matchAttrib)
+
+    (optExpectedInfoset, optExpectedErrors, optExpectedErrorMatchAttr) match {
+      case (Some(_), None, None) => {
         compileResult match {
           case Left(diags) => throw TDMLException(diags, implString)
           case Right((diags, proc)) => {
@@ -1024,7 +1060,27 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         }
       }
 
-      case (None, Some(errors)) => {
+      case (Some(_), Some(errors), Some("none")) => {
+        compileResult match {
+          case Left(diags) => throw TDMLException(diags, implString)
+          case Right((diags, proc)) => {
+            processor = proc
+            checkDiagnosticMessages(diags, errors, optExpectedWarnings, implString)
+            runParseExpectSuccess(
+              dataToParse,
+              nBits,
+              optExpectedWarnings,
+              optExpectedValidationErrors,
+              validationMode,
+              roundTrip,
+              implString,
+              diags,
+            )
+          }
+        }
+      }
+
+      case (None, Some(errors), _) => {
         compileResult match {
           case Left(diags) =>
             checkDiagnosticMessages(diags, errors, optExpectedWarnings, implString)
@@ -1186,38 +1242,82 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val resultXmlNode = actual.getResult
     VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset, implString)
 
-    (shouldValidate, expectsValidationError) match {
-      case (_, true) => {
+    val validationErrorMatchAttrib = optExpectedValidationErrors.map(_.matchAttrib)
+
+    (shouldValidate, expectsValidationError, validationErrorMatchAttrib) match {
+      case (_, true, Some(matchAttrib)) => {
         // Note that even if shouldValidate is false, we still need to check
         // for validation diagnostics because failed assertions with
         // failureType="recoverableError" are treated as validation errors
-        VerifyTestCase.verifyAllDiagnosticsFound(
-          actual.getDiagnostics,
-          optExpectedValidationErrors,
-          implString,
-        ) // verify all validation errors were found
-        Assert.invariant(actual.isValidationError)
+        matchAttrib match {
+          case "all" =>
+            VerifyTestCase.verifyAllDiagnosticsFound(
+              actual.getDiagnostics,
+              optExpectedValidationErrors,
+              implString,
+            ) // verify all validation errors were found
+            Assert.invariant(actual.isValidationError)
+          case "any" =>
+            VerifyTestCase.verifyAnyOfDiagnosticsFound(
+              actual.getDiagnostics,
+              optExpectedValidationErrors,
+              implString,
+            ) // verify all validation errors were found
+            Assert.invariant(actual.isValidationError)
+          case "none" =>
+            VerifyTestCase.verifyNoneOfDiagnosticsFound(
+              actual.getDiagnostics,
+              optExpectedValidationErrors,
+              implString,
+            )
+          case _ =>
+            Assert.invariantFailed("match attribute should only be 'all', 'any' or 'none'")
+        }
       }
-      case (true, false) => {
+      case (_, true, None) =>
+        Assert.invariantFailed("match='all' is the default value for match")
+      case (true, false, _) => {
         VerifyTestCase.verifyNoValidationErrorsFound(
           actual,
           implString,
         ) // Verify no validation errors from parser
         Assert.invariant(!actual.isValidationError)
       }
-      case (false, false) => // Nothing to do here.
+      case (false, false, _) => // Nothing to do here.
     }
 
-    val allDiags = compileWarnings ++ actual.getDiagnostics
     if (
       !isCrossTest(implString.get) ||
       parent.shouldDoWarningComparisonOnCrossTests
-    )
-      VerifyTestCase.verifyAllDiagnosticsFound(
-        allDiags,
-        optExpectedWarnings,
-        implString,
-      )
+    ) {
+      val optWarningsMatchAttrib = optExpectedWarnings.map(_.matchAttrib)
+      val allDiags = compileWarnings ++ actual.getDiagnostics
+      optWarningsMatchAttrib match {
+        case Some("all") =>
+          VerifyTestCase.verifyAllDiagnosticsFound(
+            allDiags,
+            optExpectedWarnings,
+            implString,
+          )
+        case Some("any") => {
+          VerifyTestCase.verifyAnyOfDiagnosticsFound(
+            allDiags,
+            optExpectedWarnings,
+            implString,
+          )
+        }
+        case Some("none") =>
+          VerifyTestCase.verifyNoneOfDiagnosticsFound(
+            allDiags,
+            optExpectedWarnings,
+            implString,
+          )
+        case Some(_) =>
+          Assert.invariantFailed("match attribute should only be 'all', 'any' or 'none'")
+        case None => // do nothing since there are no warnings to check against
+      }
+
+    }
   }
 
   /**
@@ -1847,12 +1947,99 @@ object VerifyTestCase {
   }
 
   /**
-   * Strip location info from schema context off diag string message
-   * @param msg diag string message
-   * @return diag message without location information
+   * Do diagnostics verification
+   *
+   * @param actualDiags                               Actual diagnostics produced
+   * @param expectedDiags                             Expected diagnostics from test cases
+   * @param implString                                Implementation string
    */
-  def stripLocationInformation(msg: String): String = {
-    msg.replaceAll("Location line.*", "")
+  def verifyAnyOfDiagnosticsFound(
+    actualDiags: Seq[Diagnostic],
+    expectedDiags: Option[ErrorWarningBase],
+    implString: Option[String],
+  ) = {
+
+    val actualDiagMsgs = actualDiags.map {
+      _.toString()
+    }
+    val expectedDiagMsgs = expectedDiags
+      .map {
+        _.messages
+      }
+      .getOrElse(Nil)
+
+    if (expectedDiags.isDefined && actualDiags.isEmpty) {
+      throw TDMLException(
+        """"Diagnostic message(s) were expected but not found."""" +
+          "\n" +
+          """Expected: """ + expectedDiagMsgs.mkString("\n") +
+          (if (actualDiagMsgs.isEmpty)
+             "\n No diagnostic messages were issued."
+           else
+             "\n The actual diagnostics messages were: " + actualDiagMsgs.mkString("\n")),
+        implString,
+      )
+    }
+
+    // must find at least one expected warning message within some
+    // actual warning message.
+    val wasFound = expectedDiags.exists { expectedDiag =>
+      expectedDiag.messages.exists { expectedMsg =>
+        val wasFound = actualDiags.exists { actualDiag =>
+          val actualDiagMsg = actualDiag.getMessage()
+          actualDiag.isError == expectedDiag.isError &&
+          actualDiagMsg.toLowerCase.contains(expectedMsg.toLowerCase)
+        }
+        wasFound
+      }
+    }
+    if (!wasFound) {
+      throw TDMLException(
+        s"""Did not find any of the diagnostic ${expectedDiags.head.diagnosticType} message """" +
+          expectedDiagMsgs.mkString("\n") +
+          """" in any of the actual diagnostic messages: """ + "\n" +
+          actualDiagMsgs.mkString("\n"),
+        implString,
+      )
+    }
+  }
+
+  def verifyNoneOfDiagnosticsFound(
+    actualDiags: Seq[Diagnostic],
+    expectedDiags: Option[ErrorWarningBase],
+    implString: Option[String],
+  ): Unit = {
+
+    val actualDiagMsgs = actualDiags.map {
+      _.toString()
+    }
+    val expectedDiagMsgs = expectedDiags
+      .map {
+        _.messages
+      }
+      .getOrElse(Nil)
+
+    // must not find any of the expected warning message within some
+    // actual warning message.
+    val wasFound = expectedDiags.exists { expectedDiag =>
+      expectedDiag.messages.exists { expectedMsg =>
+        val wasFound = actualDiags.exists { actualDiag =>
+          val actualDiagMsg = actualDiag.getMessage()
+          actualDiag.isError == expectedDiag.isError &&
+          actualDiagMsg.toLowerCase.contains(expectedMsg.toLowerCase)
+        }
+        wasFound
+      }
+    }
+    if (wasFound) {
+      throw TDMLException(
+        s"""Found one of diagnostic ${expectedDiags.head.diagnosticType} message """" +
+          expectedDiagMsgs.mkString("\n") +
+          """" in some of the actual diagnostic messages: """ + "\n" +
+          actualDiagMsgs.mkString("\n"),
+        implString,
+      )
+    }
   }
 
   def verifyNoValidationErrorsFound(actual: TDMLResult, implString: Option[String]) = {
@@ -2766,7 +2953,11 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
 }
 
 abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
-  lazy val matchAttrib = (n \ "@match").text
+  lazy val matchAttrib = if ((n \ "@match").text == "") {
+    "all"
+  } else {
+    (n \ "@match").text
+  }
 
   def isError: Boolean
   def diagnosticType: String

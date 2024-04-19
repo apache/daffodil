@@ -349,6 +349,7 @@
         <xs:restriction base="xs:string">
           <xs:enumeration value="all"/>
           <xs:enumeration value="any"/>
+          <xs:enumeration value="none"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
