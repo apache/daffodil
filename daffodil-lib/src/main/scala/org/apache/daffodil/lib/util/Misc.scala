@@ -160,6 +160,26 @@ object Misc {
   }
 
   /**
+   * Split a jar URI into its two component parts: 1) the path to a jar file 2) the resource
+   * path within that jar file. By definition, these two parts are delimited by the last
+   * occurrence of an exclamation point. If the resource path part contains an exclamation point
+   * it should have already been escaped using "%21", which is the URI escape code for an
+   * exclamation point.
+   *
+   * Note that it is important that we look for the last index of an exclamation point, since it
+   * is possible some tools have added support for nested jars, and could have multiple
+   * exclamation points for each nesting.
+   */
+  def splitJarUri(uri: URI): (String, String) = {
+    Assert.invariant(uri.getScheme == "jar")
+    var uriStr = uri.toString
+    val exclamIdx = uriStr.lastIndexOf("!")
+    val jarPart = uriStr.substring(0, exclamIdx)
+    val pathPart = uriStr.substring(exclamIdx + 1)
+    (jarPart, pathPart)
+  }
+
+  /**
    * Java 20 deprecated the 2-arg URL constructor which worked to create relative URIs
    * within the same Jar file.
    *
@@ -172,23 +192,19 @@ object Misc {
    *
    *    `jar:file:/..absolute path to jar file.jar!/absolute path from root inside jar to file``
    *
-   * We split at the !/, make a relative path on just the inside-jar-file part, then glue
-   * back together.
-   *
+   * We split this URI into its component parts, make a relative path on just the resource path
+   * inside the jar, then glue back together.
    *
    * @param contextURI
    * @param relPath
    * @return Some(uri) for an existing relative path within the same jar file, or None if it does not exist.
    */
   def optRelativeJarFileURI(contextURI: URI, relPath: String): Option[URI] = {
-    val parts = contextURI.toString.split("\\!\\/")
-    Assert.invariant(parts.length == 2)
-    val jarPart = parts(0)
-    val pathPart = parts(1)
-    Assert.invariant(pathPart ne null)
+    val (jarPart, pathPart) = Misc.splitJarUri(contextURI)
+    Assert.invariant(pathPart.startsWith("/"))
     val contextURIPathOnly = URI.create(pathPart)
     val resolvedURIPathOnly = contextURIPathOnly.resolve(relPath)
-    val newJarPathURI = URI.create(jarPart + "!/" + resolvedURIPathOnly.toString)
+    val newJarPathURI = URI.create(jarPart + "!" + resolvedURIPathOnly.toString)
     try {
       newJarPathURI.toURL.openStream().close()
       // that worked, so we can open it so it exists.
@@ -711,7 +727,10 @@ object Misc {
    */
   def uriToDiagnosticFile(uri: URI): File = {
     uri.getScheme match {
-      case "jar" => Paths.get(uri.toString.split("\\.jar!").last).toFile
+      case "jar" => {
+        val (_, pathPart) = Misc.splitJarUri(uri)
+        Paths.get(pathPart).toFile
+      }
       case "file" => Paths.get(uri).toFile
       case _ => Paths.get(uri.getPath).toFile
     }
