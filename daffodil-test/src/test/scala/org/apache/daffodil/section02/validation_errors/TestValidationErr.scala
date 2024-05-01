@@ -223,4 +223,8 @@ class TestValidationErr {
   @Test def test_doubleInclusiveNaN(): Unit = { runner.runOneTest("doubleInclusiveNaN") }
 
   @Test def test_optional_element_1(): Unit = { runner.runOneTest("optional_element_1") }
+
+  @Test def test_runtimeSdeWithRestrictdion_1(): Unit = {
+    runner.runOneTest("runtimeSdeWithRestriction_1")
+  }
 }

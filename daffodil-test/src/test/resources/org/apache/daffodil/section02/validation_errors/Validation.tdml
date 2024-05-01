@@ -2495,4 +2495,42 @@
     <tdml:validationErrors />
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="runtimeSdeWithRestriction">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat"
+      representation="binary"
+      bitOrder="mostSignificantBitFirst"
+      lengthKind="explicit"
+      lengthUnits="bits"
+      alignmentUnits="bits"
+      alignment="1"
+      byteOrder="littleEndian" />
+
+    <xs:element name="a" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="x" type="xs:int" dfdl:length="1" />
+          <xs:element name="y" dfdl:length="7" dfdl:encoding="X-DFDL-US-ASCII-7-BIT-PACKED" dfdl:bitOrder="leastSignificantBitFirst"> <!-- causes runtime sde -->
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="[a-z]" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="runtimeSdeWithRestriction_1" root="a"
+    model="runtimeSdeWithRestriction"
+    validation="on">
+    <tdml:document>a</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:bitOrder</tdml:error>
+      <tdml:error>byte boundary</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

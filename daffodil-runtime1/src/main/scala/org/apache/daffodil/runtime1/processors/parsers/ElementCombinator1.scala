@@ -29,10 +29,9 @@ import org.apache.daffodil.runtime1.infoset._
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.Success
-import org.apache.daffodil.runtime1.processors.TermRuntimeData
 
 abstract class ElementParserBase(
-  rd: TermRuntimeData,
+  erd: ElementRuntimeData,
   name: String,
   patDiscrimParser: Maybe[Parser],
   patAssertParser: Array[Parser],
@@ -43,7 +42,7 @@ abstract class ElementParserBase(
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser],
   eRepTypeParser: Maybe[Parser],
-) extends CombinatorParser(rd) {
+) extends CombinatorParser(erd) {
 
   override lazy val runtimeDependencies = Vector()
 
@@ -198,6 +197,14 @@ abstract class ElementParserBase(
         eAfterParser.get.parse1(pstate)
 
       if (pstate.processorStatus ne Success) return
+
+      val shouldValidate = erd.isSimpleType &&
+        pstate.dataProc.isDefined && pstate.dataProc.value.validationMode != ValidationMode.Off
+
+      if (shouldValidate) {
+        validate(pstate)
+      }
+
     } finally {
       parseEnd(pstate)
       if (pstate.dataProc.isDefined) pstate.dataProc.value.endElement(pstate, this)
@@ -266,23 +273,16 @@ class ElementParser(
     val currentElement = pstate.infoset
     val priorElement = currentElement.diParent
 
+    // set the context back to the parent infoset element if we have one. We might not have one
+    // if we are the root element.
+    if (priorElement ne null) pstate.setInfoset(priorElement, One(currentElement))
+
     if (pstate.processorStatus eq Success) {
-      val shouldValidate =
-        (pstate.dataProc.isDefined) && pstate.dataProc.value.validationMode != ValidationMode.Off
-      if (shouldValidate && erd.isSimpleType) {
-        // Execute checkConstraints
-        validate(pstate)
-      }
-      if (priorElement ne null) pstate.setInfoset(priorElement, One(currentElement))
       move(pstate)
-    } else { // failure.
-      if (priorElement ne null) {
-        // We set the context back to the parent infoset element here
-        // But we do not remove the child here. That's done at the
-        // point of uncertainty when it restores the state of the
-        // element after a failure.
-        pstate.setInfoset(priorElement, One(currentElement))
-      }
+    } else {
+      // nothing to be done here. Note that even though we failed we do not need to remove this
+      // new element that we created. That is done at the point of uncertainty when it restores
+      // the state of the infoset after a failure.
     }
   }
 }
