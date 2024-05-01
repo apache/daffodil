@@ -1064,7 +1064,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   ): Unit = {
 
     try {
-      processor = processor.withExternalDFDLVariables(externalVarBindings)
+      processor = processor
+        .withExternalDFDLVariables(externalVarBindings)
+        .withValidationMode(validationMode)
     } catch {
       case e: Exception => throw TDMLException(e, implString)
     }
