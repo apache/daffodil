@@ -52,7 +52,7 @@ class TestDsomCompiler3 {
         <xs:sequence dfdl:separator="">
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
     )
 
     val tmpDir = new File("./dfdl_tmp")

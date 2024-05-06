@@ -29,7 +29,7 @@ import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 class NilStringLiteralForUnparserEv(
   tci: DPathCompileInfo,
   maybeOutputNewLineEv: Maybe[OutputNewLineEv],
-  stringLiteralRaw: String,
+  stringLiteralRaw: String
 ) extends Evaluatable[String](tci)
   with InfosetCachedEvaluatable[String] {
 
@@ -63,7 +63,7 @@ class NilStringLiteralForUnparserEv(
       } else {
         tci.schemaDefinitionUnless(
           maybeOutputNewLineEv.isDefined,
-          "Property dfdl:outputNewLine is required, but it is not defined.",
+          "Property dfdl:outputNewLine is required, but it is not defined."
         )
         val nl = maybeOutputNewLineEv.get.evaluate(state)
         val sl = chunks.mkString(nl)

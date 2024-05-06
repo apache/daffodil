@@ -36,7 +36,7 @@ class TestMiddleEndAttributes2 {
             </xs:sequence>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val sset = SchemaSet(testSchema)

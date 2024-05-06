@@ -27,7 +27,7 @@ object IBMTestsThatPass {
     "/test-suite/ibm-contributed/",
     "dpaext1.tdml",
     validateTDMLFile = true,
-    validateDFDLSchemas = false,
+    validateDFDLSchemas = false
   )
   val runner2 = Runner("/test-suite/ibm-contributed/dpaext2.tdml")
 

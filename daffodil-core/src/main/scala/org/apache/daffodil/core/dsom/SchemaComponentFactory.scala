@@ -97,7 +97,7 @@ trait CommonContextMixin extends NestingLexicalMixin with CommonContextView {
           schemaDefinitionError(
             "Prefix 'xsi' must be bound to the namespace '%s', but was bound to the namespace '%s'.",
             xsiURI,
-            s,
+            s
           )
         case (null, _) => scope
       }

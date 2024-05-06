@@ -33,7 +33,7 @@ import passera.unsigned.ULong
 abstract class BinaryBooleanParserBase(
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
-  lengthUnits: LengthUnits,
+  lengthUnits: LengthUnits
 ) extends PrimParser {
 
   def getBitLength(state: PState): Int
@@ -51,7 +51,7 @@ abstract class BinaryBooleanParserBase(
       PE(
         start,
         "Number of bits %d out of range for xs:boolean, must be between 1 and 32 bits.",
-        nBits,
+        nBits
       )
       return
     }
@@ -91,7 +91,7 @@ class BinaryBooleanParser(
   binaryBooleanFalseRep: ULong,
   lengthEv: Evaluatable[JLong],
   lengthUnits: LengthUnits,
-  lengthKind: LengthKind,
+  lengthKind: LengthKind
 ) extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits) {
 
   override lazy val runtimeDependencies = Vector(lengthEv)
@@ -113,7 +113,7 @@ class BinaryBooleanPrefixedLengthParser(
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits)
   with PrefixedLengthParserMixin {
 

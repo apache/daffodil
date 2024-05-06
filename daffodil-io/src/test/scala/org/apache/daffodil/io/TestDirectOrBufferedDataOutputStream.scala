@@ -41,7 +41,7 @@ class TestDirectOrBufferedDataOutputStream {
   def newDirectOrBufferedDataOutputStream(
     jos: java.io.OutputStream,
     creator: DirectOrBufferedDataOutputStream,
-    bo: BitOrder = BitOrder.MostSignificantBitFirst,
+    bo: BitOrder = BitOrder.MostSignificantBitFirst
   ) = {
     val os = DirectOrBufferedDataOutputStream(
       jos,
@@ -50,7 +50,7 @@ class TestDirectOrBufferedDataOutputStream {
       4096,
       2000 * (1 << 20),
       new File("."),
-      Maybe.Nope,
+      Maybe.Nope
     )
     os.setPriorBitOrder(bo)
     os
@@ -149,7 +149,7 @@ class TestDirectOrBufferedDataOutputStream {
     assertTrue(buf1.isFinished)
 
     layered.setFinished(
-      finfo,
+      finfo
     ) // collapses layered into buf1. Since buf1 is finished already, this melds them, outputs everything
     // and leaves the whole thing finished.
     // leaves layered dead/unusable.

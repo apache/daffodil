@@ -31,7 +31,7 @@ class TestInputValueCalc {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:string" dfdl:inputValueCalc="{ xs:string(42) }" />,
+      <xs:element name="data" type="xs:string" dfdl:inputValueCalc="{ xs:string(42) }" />
     )
     val (_, actual) = TestUtils.testString(testSchema, "")
     val expected: Node = <data>42</data>
@@ -50,7 +50,7 @@ class TestInputValueCalc {
             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../tns:e1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val (_, actual) = TestUtils.testString(testSchema, "A")
@@ -70,7 +70,7 @@ class TestInputValueCalc {
             <xs:element name="e2" type="xs:int" dfdl:inputValueCalc="{ ../tns:e1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val (_, actual) = TestUtils.testString(testSchema, "8")

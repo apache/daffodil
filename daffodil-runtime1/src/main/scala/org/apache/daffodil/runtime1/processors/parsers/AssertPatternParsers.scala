@@ -70,7 +70,7 @@ class AssertPatternParser(
   override val discrim: Boolean,
   testPattern: String,
   override val messageExpr: CompiledExpression[AnyRef],
-  override val failureType: FailureType,
+  override val failureType: FailureType
 ) extends PrimParser
   with AssertParserMixin {
   override lazy val runtimeDependencies = Vector()

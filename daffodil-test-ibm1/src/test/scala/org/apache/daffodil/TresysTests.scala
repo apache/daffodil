@@ -47,13 +47,13 @@ object TresysTests {
   val runnerMD = Runner(
     "/test-suite/tresys-contributed/",
     "multiple-diagnostics.tdml",
-    compileAllTopLevel = true,
+    compileAllTopLevel = true
   )
   val runnerMD_NV = Runner(
     "/test-suite/tresys-contributed/",
     "multiple-diagnostics.tdml",
     compileAllTopLevel = true,
-    validateDFDLSchemas = false,
+    validateDFDLSchemas = false
   )
   val runnerNG = Runner("/test-suite/tresys-contributed/nested_group_ref.tdml")
   val runnerNSD = Runner("/test-suite/tresys-contributed/nested-separator-delimited.tdml")
@@ -61,7 +61,7 @@ object TresysTests {
     "/test-suite/tresys-contributed/",
     "runtime-diagnostics.tdml",
     compileAllTopLevel = true,
-    validateTDMLFile = false,
+    validateTDMLFile = false
   )
   val runnerSQ = Runner("/test-suite/tresys-contributed/sequence.tdml")
 

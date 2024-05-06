@@ -79,7 +79,7 @@ final class StringDataInputStreamForUnparse extends DataInputStreamImplMixin {
   override def getUnsignedBigInt(bitLengthFrom1: Int, finfo: FormatInfo): JBigInt = doNotUse
   override def getUnsignedLong(
     bitLengthFrom1To64: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): passera.unsigned.ULong = doNotUse
   override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo): Array[Byte] = doNotUse
   override def getByteArray(bitLengthFrom1: Int, finfo: FormatInfo, array: Array[Byte]): Unit =

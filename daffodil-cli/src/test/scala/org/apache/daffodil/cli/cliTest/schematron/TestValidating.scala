@@ -41,7 +41,7 @@ class TestValidating {
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
 
     runCLI(args"""parse --validate schematron="${jsonEscape(
-        schematron.toString,
+        schematron.toString
       )}" -s $schema $input""") { cli =>
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
       cli.expectErr("[error] Validation Error: never fails")
@@ -55,7 +55,7 @@ class TestValidating {
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
 
     runCLI(args"""parse --validate schematron="${jsonEscape(
-        schematron.toString,
+        schematron.toString
       )}" -s $schema $input""") { cli =>
       cli.expect("<never-fails>2f6481e6-542c-11eb-ae93-0242ac130002</never-fails>")
     }(ExitCode.Success)
@@ -68,7 +68,7 @@ class TestValidating {
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/uuid.txt")
 
     runCLI(args"""parse --validate schematron="${jsonEscape(
-        schematron.toString,
+        schematron.toString
       )}" -s $schema $input""") { cli =>
       cli.expectErr("Bad arguments")
       cli.expectErr("does-no-exist/title-rules.sch")

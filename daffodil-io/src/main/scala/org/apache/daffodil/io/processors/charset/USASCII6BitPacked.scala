@@ -40,7 +40,7 @@ final class BitsCharsetUSASCII6BitPackedLSBFDefinition
 final class BitsCharsetUSASCII6BitPackedDefinition
   extends BitsCharsetDefinition(
     BitsCharsetUSASCII6BitPackedLSBF,
-    Some("X-DFDL-US-ASCII-6-BIT-PACKED"),
+    Some("X-DFDL-US-ASCII-6-BIT-PACKED")
   )
 
 object BitsCharsetUSASCII6BitPackedMSBF

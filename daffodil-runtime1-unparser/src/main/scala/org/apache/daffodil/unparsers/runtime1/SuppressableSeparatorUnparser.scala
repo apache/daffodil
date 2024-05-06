@@ -36,7 +36,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 final class SuppressableSeparatorUnparserSuspendableOperation(
   sepMtaAlignmentMaybe: MaybeInt,
   sepUnparser: Unparser,
-  override val rd: TermRuntimeData,
+  override val rd: TermRuntimeData
 ) extends SuspendableOperation
   with StreamSplitter
   with AlignmentFillUnparserSuspendableMixin {
@@ -72,7 +72,7 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
     val splitter = RegionSplitUnparser(rd)
     splitter.unparse(s) // splits the DOS so all the potentially ZL stuff is isolated.
     maybeDOSForStartOfSeparatedRegionBeforePostfixSeparator = Maybe(
-      splitter.dataOutputStream.maybeNextInChain.get,
+      splitter.dataOutputStream.maybeNextInChain.get
     )
   }
 
@@ -97,7 +97,7 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
         Assert.usage(maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator.isDefined)
         getDOSFromAtoB(
           maybeDOSForStartOfSeparatedRegionBeforePostfixSeparator.get,
-          maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator.get,
+          maybeDOSForEndOfSeparatedRegionBeforePostfixSeparator.get
         )
       } else
         Seq()
@@ -199,7 +199,7 @@ final class SuppressableSeparatorUnparserSuspendableOperation(
 final class SuppressableSeparatorUnparser private (
   sepUnparser: Unparser,
   override val context: TermRuntimeData,
-  override val suspendableOperation: SuspendableOperation,
+  override val suspendableOperation: SuspendableOperation
 ) extends PrimUnparser
   with SuspendableUnparser {
 
@@ -213,7 +213,7 @@ object SuppressableSeparatorUnparser {
   def apply(
     sepUnparser: Unparser,
     context: TermRuntimeData,
-    suspendableOperation: SuspendableOperation,
+    suspendableOperation: SuspendableOperation
   ) = {
     val res = new SuppressableSeparatorUnparser(sepUnparser, context, suspendableOperation)
     Processor.initialize(res)

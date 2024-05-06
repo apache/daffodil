@@ -33,7 +33,7 @@ class TestGrammar extends GrammarMixin {
   val fakeDecl =
     GlobalElementDecl(
       <xs:element name="foo" type="xs:int" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>,
-      Fakes.fakeSD,
+      Fakes.fakeSD
     )
   val fakeTerm = fakeDecl.asRoot
 

@@ -37,7 +37,7 @@ object PointOfUncertaintyMacros {
    * ensuring that Marks are always cleaned up appropriately.
    */
   def withPointOfUncertainty[A, B](
-    c: Context,
+    c: Context
   )(pouID: c.Expr[String], context: c.Tree)(func: c.Expr[A => B]) = {
 
     import c.universe._

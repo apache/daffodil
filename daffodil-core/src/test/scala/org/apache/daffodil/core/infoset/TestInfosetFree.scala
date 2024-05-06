@@ -94,7 +94,7 @@ object TestInfosetFree {
         detailedOutputter,
         walkHidden = true, // let's ensure any hidden elements are free
         ignoreBlocks = true, // there should be no blocks, but ignore them just to be sure
-        releaseUnneededInfoset = false,
+        releaseUnneededInfoset = false
       ) // do not free the infoset
       infosetWalker.walk(lastWalk = true)
 
@@ -128,7 +128,7 @@ class TestInfosetFree {
               dfdl:length="1" dfdl:lengthKind="explicit" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val actualXML = TestInfosetFree.test(testSchema, "123".getBytes)
@@ -160,7 +160,7 @@ class TestInfosetFree {
             <xs:sequence dfdl:hiddenGroupRef="tns:hidden" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val actualXML = TestInfosetFree.test(testSchema, "1".getBytes)
@@ -186,7 +186,7 @@ class TestInfosetFree {
               dfdl:lengthKind="explicit" dfdl:length="{ ../tns:fieldLen }" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val actualXML = TestInfosetFree.test(testSchema, "1123".getBytes)
@@ -217,7 +217,7 @@ class TestInfosetFree {
               dfdl:lengthKind="explicit" dfdl:length="1" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val actualXML = TestInfosetFree.test(testSchema, "3123".getBytes)
@@ -256,7 +256,7 @@ class TestInfosetFree {
               dfdl:lengthKind="explicit" dfdl:length="{ ../tns:fieldLen[dfdl:occursIndex()] }" />
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val actualXML = TestInfosetFree.test(testSchema, "3123122333".getBytes)

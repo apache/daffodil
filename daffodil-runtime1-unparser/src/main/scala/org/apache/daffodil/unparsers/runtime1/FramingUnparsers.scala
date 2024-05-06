@@ -43,7 +43,7 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
     val dos = ustate.dataOutputStream
     if (dos.maybeAbsBitPos0b.isEmpty) {
       Logger.log.debug(
-        s"${this} ${ustate} Unable to align to ${alignmentInBits} bits because there is no absolute bit position.",
+        s"${this} ${ustate} Unable to align to ${alignmentInBits} bits because there is no absolute bit position."
       )
     }
     dos.maybeAbsBitPos0b.isDefined
@@ -65,7 +65,7 @@ trait AlignmentFillUnparserSuspendableMixin { this: SuspendableOperation =>
 
 class AlignmentFillUnparserSuspendableOperation(
   override val alignmentInBits: Int,
-  override val rd: TermRuntimeData,
+  override val rd: TermRuntimeData
 ) extends SuspendableOperation
   with AlignmentFillUnparserSuspendableMixin
 

@@ -47,11 +47,11 @@ object ExternalVariablesLoader {
   def loadVariables(
     bindings: Seq[Binding],
     referringContext: ThrowsSDE,
-    vmap: VariableMap,
+    vmap: VariableMap
   ): VariableMap = {
     Assert.usage(
       referringContext != null,
-      "loadVariables expects 'referringContext' to not be null!",
+      "loadVariables expects 'referringContext' to not be null!"
     )
     VariableUtils.setExternalVariables(vmap, bindings, referringContext)
     vmap
@@ -82,7 +82,7 @@ object ExternalVariablesLoader {
     val dafextURI = XMLUtils.dafextURI
     val node = ldr.load(
       URISchemaSource(file, file.toURI),
-      Some(dafextURI),
+      Some(dafextURI)
     )
     nodeToBindings(node)
   }

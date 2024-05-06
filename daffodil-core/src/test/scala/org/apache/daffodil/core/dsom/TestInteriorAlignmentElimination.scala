@@ -92,7 +92,7 @@ class TestInteriorAlignmentElimination {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     //
     // in the below hex string, it is the 6666 that is the alignment fill.

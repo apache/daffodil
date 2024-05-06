@@ -108,13 +108,13 @@ object DataProcessor {
     ssrd: SchemaSetRuntimeData,
     tunables: DaffodilTunables,
     variableMap: VariableMap, // must be explicitly reset by save method
-    validationMode: ValidationMode.Type, // must be explicitly turned off by save method
+    validationMode: ValidationMode.Type // must be explicitly turned off by save method
   ) extends DataProcessor(ssrd, tunables, variableMap, validationMode) {
 
     override def withValidationMode(mode: ValidationMode.Type): DataProcessor = {
       if (mode == ValidationMode.Full) {
         throw new InvalidUsageException(
-          "'Full' validation not allowed when using a restored parser.",
+          "'Full' validation not allowed when using a restored parser."
         )
       }
       super.withValidationMode(mode)
@@ -139,7 +139,7 @@ class DataProcessor(
   val validationMode: ValidationMode.Type = ValidationMode.Off,
   protected val areDebugging: Boolean = false,
   protected val optDebugger: Option[Debugger] = None,
-  protected val diagnostics: Seq[Diagnostic] = Seq.empty,
+  protected val diagnostics: Seq[Diagnostic] = Seq.empty
 ) extends DFDL.DataProcessor
   with Serializable
   with MultipleEventHandler {
@@ -174,7 +174,7 @@ class DataProcessor(
     validationMode: ValidationMode.Type = validationMode,
     areDebugging: Boolean = areDebugging,
     optDebugger: Option[Debugger] = optDebugger,
-    diagnostics: Seq[Diagnostic] = diagnostics,
+    diagnostics: Seq[Diagnostic] = diagnostics
   ) = new DataProcessor(
     ssrd,
     tunables,
@@ -182,7 +182,7 @@ class DataProcessor(
     validationMode,
     areDebugging,
     optDebugger,
-    diagnostics,
+    diagnostics
   )
 
   // This thread local state is used by the PState when it needs buffers for
@@ -212,7 +212,7 @@ class DataProcessor(
   def withValidationMode(mode: ValidationMode.Type): DataProcessor = copy(validationMode = mode)
 
   def withValidator(validator: Validator): DataProcessor = withValidationMode(
-    ValidationMode.Custom(validator),
+    ValidationMode.Custom(validator)
   )
 
   lazy val validator: Validator = {
@@ -220,7 +220,7 @@ class DataProcessor(
       case ValidationMode.Custom(cv) => cv
       case _ =>
         val cfg = XercesValidatorFactory.makeConfig(
-          ssrd.elementRuntimeData.schemaURIStringsForFullValidation,
+          ssrd.elementRuntimeData.schemaURIStringsForFullValidation
         )
         XercesValidatorFactory.makeValidator(cfg)
     }
@@ -281,7 +281,7 @@ class DataProcessor(
   }
 
   override def newContentHandlerInstance(
-    output: DFDL.Output,
+    output: DFDL.Output
   ): DFDL.DaffodilUnparseContentHandler =
     new DaffodilUnparseContentHandlerImpl(this, output)
 
@@ -307,7 +307,7 @@ class DataProcessor(
       variableMap = ssrd.originalVariables, // reset to original variables defined in schema
       validationMode =
         ValidationMode.Off, // explicitly turn off, so restored processor won't be validating
-      diagnostics = Seq.empty, // don't save any warnings that were generated
+      diagnostics = Seq.empty // don't save any warnings that were generated
     )
 
     try {
@@ -367,7 +367,7 @@ class DataProcessor(
           teeOutputter.setBlobAttributes(
             output.getBlobDirectory(),
             output.getBlobPrefix(),
-            output.getBlobSuffix(),
+            output.getBlobSuffix()
           )
           (teeOutputter, One(bos))
         case _ =>
@@ -426,7 +426,7 @@ class DataProcessor(
       try {
         Assert.usageErrorUnless(
           state.dataInputStreamIsValid,
-          "Attempted to use an invalid input source. This can happen due to our position in the input source not being properly reset after failed parse could not backtrack to its original position",
+          "Attempted to use an invalid input source. This can happen due to our position in the input source not being properly reset after failed parse could not backtrack to its original position"
         )
 
         // Force the evaluation of any defineVariable's with non-constant default
@@ -477,7 +477,7 @@ class DataProcessor(
       case pe: ParseError => {
         // if we get one here, then someone threw instead of returning a status.
         Assert.invariantFailed(
-          "ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please.",
+          "ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please."
         )
       }
       case procErr: ProcessingError => {
@@ -650,7 +650,7 @@ class DataProcessor(
         Nope,
         One(state.currentLocation),
         "Expected no remaining events, but received %s.",
-        ev.get,
+        ev.get
       )
     }
   }
@@ -658,7 +658,7 @@ class DataProcessor(
 
 class ParseResult(
   override val resultState: PState,
-  val validationResult: Option[ValidationResult],
+  val validationResult: Option[ValidationResult]
 ) extends DFDL.ParseResult
   with WithDiagnosticsImpl
 

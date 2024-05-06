@@ -74,7 +74,7 @@ object DFDLCalendarConversion {
   def datePartFromXMLString(string: String, calendar: Calendar): String = {
     @inline
     def invalidValue = throw new IllegalArgumentException(
-      "Invalid date string: %s".format(string),
+      "Invalid date string: %s".format(string)
     )
 
     if (string.length == 0) invalidValue
@@ -130,7 +130,7 @@ object DFDLCalendarConversion {
   def timePartFromXMLString(string: String, calendar: Calendar): String = {
     @inline
     def invalidValue = throw new IllegalArgumentException(
-      "Invalid time string: %s".format(string),
+      "Invalid time string: %s".format(string)
     )
 
     if (string.length < 8) invalidValue
@@ -217,7 +217,7 @@ object DFDLCalendarConversion {
   def timeZonePartFromXMLString(string: String, calendar: Calendar): String = {
     @inline
     def invalidValue = throw new IllegalArgumentException(
-      "Invalid time zone string: %s".format(string),
+      "Invalid time zone string: %s".format(string)
     )
 
     if (string == "") {
@@ -280,7 +280,7 @@ trait DFDLCalendarConversion {
   @inline
   final protected def invalidCalendar(string: String): Nothing = {
     throw new IllegalArgumentException(
-      "Failed to parse %s from string: %s".format(calendarType, string),
+      "Failed to parse %s from string: %s".format(calendarType, string)
     )
   }
 

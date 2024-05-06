@@ -179,7 +179,7 @@ object Util {
     envs: Map[String, String] = Map(),
     fork: Boolean = false,
     timeout: Int = 10,
-    debug: Boolean = false,
+    debug: Boolean = false
   )(testFunc: (CLITester) => Unit)(expectedExitCode: ExitCode.Value): Unit = {
 
     val (toIn, fromOut, fromErr, cliThreadOrProc: Either[CLIThread, Process]) =
@@ -338,7 +338,7 @@ object Util {
   private class TestThread(
     testFunc: (CLITester) => Unit,
     tester: CLITester,
-    cli: Either[Thread, Process],
+    cli: Either[Thread, Process]
   ) extends Thread {
 
     var optException: Option[Throwable] = None
@@ -379,7 +379,7 @@ object Util {
     args: Array[String],
     in: InputStream,
     out: OutputStream,
-    err: OutputStream,
+    err: OutputStream
   ) extends Thread {
     var exitCode: ExitCode.Value = _
 

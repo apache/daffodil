@@ -35,13 +35,13 @@ case class LiteralValueNilOfSpecifiedLength(e: ElementBase)
     parsingPadChar,
     justificationTrim,
     e.ignoreCaseBool,
-    e.elementRuntimeData,
+    e.elementRuntimeData
   )
 
   override lazy val unparser = new LiteralValueNilOfSpecifiedLengthUnparser(
     e.elementRuntimeData,
     e.nilStringLiteralForUnparserEv,
-    e.lengthKind == LengthKind.Pattern,
+    e.lengthKind == LengthKind.Pattern
   )
 }
 
@@ -54,7 +54,7 @@ case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
     parsingPadChar,
     justificationTrim,
     e.ignoreCaseBool,
-    e.elementRuntimeData,
+    e.elementRuntimeData
   )
 
   private lazy val nilLitCharacter = e.cookedNilValuesForUnparse.head(0)
@@ -65,7 +65,7 @@ case class LiteralCharacterNilOfSpecifiedLength(e: ElementBase)
       e.maybeUnparseTargetLengthInBitsEv.get,
       e.maybeLengthEv,
       e.maybeCharsetEv,
-      nilLitCharacter,
+      nilLitCharacter
     )
 }
 

@@ -105,7 +105,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
           WarnID.PatternEncodingSlashW,
           "The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
           encInfo.knownEncodingName,
-          thePattern,
+          thePattern
         )
     }
   }
@@ -137,7 +137,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
         SDE("You may not specify both testPattern attribute and a body expression.")
       case (TestKind.Pattern, None, _, None) =>
         SDE(
-          "You must specify either a testPattern attribute or a body expression. for testKind='pattern'",
+          "You must specify either a testPattern attribute or a body expression. for testKind='pattern'"
         )
       case (TestKind.Pattern, Some(bdy), None, None) => bdy // pattern as body of assert element
       case (TestKind.Pattern, _, Some(tst), _) =>
@@ -145,7 +145,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
       case (TestKind.Expression, _, _, Some(pat)) =>
         SDE(
           "You cannot specify testPattern='%s' for testKind='expression' (which is the default test kind.)",
-          pat,
+          pat
         )
       case _ => Assert.invariantFailed("unexpected case.")
     }
@@ -154,7 +154,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     if (testKind == TestKind.Expression)
       schemaDefinitionUnless(
         rawTxt.startsWith("{") && !rawTxt.startsWith("{{") && rawTxt.endsWith("}"),
-        "Expression must begin with a single '{' and end with a '}'",
+        "Expression must begin with a single '{' and end with a '}'"
       )
     rawTxt
   }

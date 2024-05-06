@@ -254,7 +254,7 @@ class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Out
     uri: String,
     localName: String,
     qName: String,
-    atts: Attributes,
+    atts: Attributes
   ): Unit = {
     // If we are handling a startElement() event and the current eventType is
     // defined, it must mean that the currentEvent is a StartElement event for a
@@ -428,7 +428,7 @@ class DaffodilUnparseContentHandlerImpl(dp: DFDL.DataProcessor, output: DFDL.Out
   private def setLocalNameAndNamespaceUri(
     uri: String,
     localName: String,
-    qName: String,
+    qName: String
   ): Unit = {
     lazy val qNameArr = qName.split(":")
     lazy val qNamePrefix = if (qNameArr.length > 1) { // there is a prefix

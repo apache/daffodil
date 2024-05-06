@@ -106,7 +106,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
     )
       SDE(
         "Both a simple type and a complex type definition found for %s.",
-        namedTypeQName.get.toPrettyString,
+        namedTypeQName.get.toPrettyString
       )
     res
   }
@@ -122,7 +122,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
       case (Some(ity), Some(nty)) =>
         SDE(
           "Must have one of an immediate type or a named type (%s) but not both",
-          namedTypeQName.get.toPrettyString,
+          namedTypeQName.get.toPrettyString
         )
       case (None, None) =>
         SDE("Must have an immediate type, or a named type, but neither was found.")
@@ -161,7 +161,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
     schemaDefinitionWhen(
       dv =:= "" && !(primType =:= PrimType.String),
       "Type was %s, but only type xs:string can have XSD default=\"\".",
-      primType.toString,
+      primType.toString
     )
     dv
   }

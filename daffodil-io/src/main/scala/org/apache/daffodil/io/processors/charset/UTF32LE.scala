@@ -33,7 +33,7 @@ class BitsCharsetDecoderUTF32LE extends BitsCharsetDecoderCreatesSurrogates {
 
   protected override def decodeOneUnicodeChar(
     dis: InputSourceDataInputStream,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Char = {
     val byte4 = getByte(dis, 0)
     val byte3 = getByte(dis, 8)

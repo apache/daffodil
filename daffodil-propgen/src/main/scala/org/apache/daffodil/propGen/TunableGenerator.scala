@@ -140,7 +140,7 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
             throw new Exception("Tunable missing mandatory name attribute: " + tunableNode)
           if (schemaType == "")
             throw new Exception(
-              "Tunable missing mandatory type or restriction base attribute: " + schemaName,
+              "Tunable missing mandatory type or restriction base attribute: " + schemaName
             )
           if (schemaDefault == "")
             throw new Exception("Tunable missing mandatory default attribute: " + schemaName)
@@ -211,7 +211,7 @@ class PrimitiveTunable(
   override val name: String,
   schemaType: String,
   schemaDefault: String,
-  node: scala.xml.Node,
+  node: scala.xml.Node
 ) extends TunableBase {
 
   private val scalaType = schemaType match {
@@ -244,7 +244,7 @@ class PrimitiveTunable(
     restrictionCheck(">=", minInclusive),
     restrictionCheck("<=", maxInclusive),
     restrictionCheck(">", minExclusive),
-    restrictionCheck("<", maxExclusive),
+    restrictionCheck("<", maxExclusive)
   ).flatten.mkString("\n")
 
   override val scalaDefinition = s"""val ${name}: ${scalaType} = ${scalaDefault}"""
@@ -287,7 +287,7 @@ class EnumListTunable(
   override val name: String,
   schemaType: String,
   schemaDefault: String,
-  listType: String,
+  listType: String
 ) extends TunableBase {
 
   val scalaDefault = {
@@ -317,7 +317,7 @@ class EnumListTunable(
 class TunableEnumDefinition(
   schemaRootConfig: scala.xml.Node,
   schemaRootExt: scala.xml.Node,
-  simpleTypeNode: scala.xml.Node,
+  simpleTypeNode: scala.xml.Node
 ) {
   private val nodeName = (simpleTypeNode \@ "name").stripPrefix("Tunable")
   private val scalaType = nodeName.head.toUpper + nodeName.tail

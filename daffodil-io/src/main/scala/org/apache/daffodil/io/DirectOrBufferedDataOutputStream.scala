@@ -48,7 +48,7 @@ class ByteArrayOutputStreamWithGetBuf extends java.io.ByteArrayOutputStream {
 private[io] class ByteArrayOrFileOutputStream(
   maxBufferSizeInBytes: Long,
   tempDirPath: File,
-  maybeExistingFile: Maybe[Path],
+  maybeExistingFile: Maybe[Path]
 ) extends java.io.OutputStream {
 
   var isFile: Boolean = maybeExistingFile.isDefined
@@ -80,7 +80,7 @@ private[io] class ByteArrayOrFileOutputStream(
   private def checkBuffer(lengthInBytes: Long): Unit = {
     if (!isFile && (nBytes + lengthInBytes > maxBufferSizeInBytes)) {
       Logger.log.warn(
-        s"Switching to file based output stream. If this is performance critical, you may want to consider re-organizing your schema to avoid this if possible.",
+        s"Switching to file based output stream. If this is performance critical, you may want to consider re-organizing your schema to avoid this if possible."
       )
       maybeFile =
         try {
@@ -92,8 +92,8 @@ private[io] class ByteArrayOrFileOutputStream(
             throw new FileIOException(
               "Unable to create temporary file in %s: %s".format(
                 tempDirPath.getPath,
-                e.getMessage,
-              ),
+                e.getMessage
+              )
             )
         }
       val newStream: java.io.OutputStream = new java.io.FileOutputStream(maybeFile.get)
@@ -191,7 +191,7 @@ class DirectOrBufferedDataOutputStream private[io] (
   val chunkSizeInBytes: Int,
   val maxBufferSizeInBytes: Long,
   val tempDirPath: File,
-  val maybeExistingFile: Maybe[Path],
+  val maybeExistingFile: Maybe[Path]
 ) extends DataOutputStreamImplMixin {
 
   private type ThisType = DirectOrBufferedDataOutputStream
@@ -199,7 +199,7 @@ class DirectOrBufferedDataOutputStream private[io] (
   override def putULong(
     unsignedLong: ULong,
     bitLengthFrom1To64: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean = {
     val res = putLongChecked(unsignedLong.longValue, bitLengthFrom1To64, finfo)
     res
@@ -208,7 +208,7 @@ class DirectOrBufferedDataOutputStream private[io] (
   override def putLong(
     signedLong: Long,
     bitLengthFrom1To64: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean = {
     val res = putLongChecked(signedLong.longValue, bitLengthFrom1To64, finfo)
     res
@@ -305,7 +305,7 @@ class DirectOrBufferedDataOutputStream private[io] (
     Assert.usage(newOutputStream ne null)
     _javaOutputStream = newOutputStream
     Assert.usage(
-      newOutputStream ne bufferingJOS,
+      newOutputStream ne bufferingJOS
     ) // these are born buffering, and evolve into direct.
   }
 
@@ -355,7 +355,7 @@ class DirectOrBufferedDataOutputStream private[io] (
       chunkSizeInBytes,
       maxBufferSizeInBytes,
       tempDirPath,
-      Maybe.Nope,
+      Maybe.Nope
     )
     addBufferedDOS(buffered)
     buffered
@@ -365,7 +365,7 @@ class DirectOrBufferedDataOutputStream private[io] (
     path: Path,
     lengthInBits: Long,
     blobChunkSizeInBytes: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): DirectOrBufferedDataOutputStream = {
 
     // create a special buffered blob data output stream and split the current
@@ -378,7 +378,7 @@ class DirectOrBufferedDataOutputStream private[io] (
       blobChunkSizeInBytes,
       0,
       tempDirPath,
-      Maybe(path),
+      Maybe(path)
     )
     addBufferedDOS(bufferedBlob)
 
@@ -441,7 +441,7 @@ class DirectOrBufferedDataOutputStream private[io] (
     val absLargerLimit =
       math.max(
         if (mabl.isDefined) mabl.get else 0L,
-        if (maybeAbsBitLimit0b.isDefined) maybeAbsBitLimit0b.get else 0L,
+        if (maybeAbsBitLimit0b.isDefined) maybeAbsBitLimit0b.get else 0L
       )
     if (mabl.isDefined || maybeAbsBitLimit0b.isDefined) {
       val newRelLimit = absLargerLimit - this.maybeAbsStartingBitPos0b.get
@@ -503,7 +503,7 @@ class DirectOrBufferedDataOutputStream private[io] (
         DirectOrBufferedDataOutputStream.deliverBufferContent(
           directStream,
           first,
-          directStream.finishedFormatInfo.get,
+          directStream.finishedFormatInfo.get
         )
 
         // so now the first one is an EMPTY not necessarily a finished buffered DOS
@@ -515,14 +515,14 @@ class DirectOrBufferedDataOutputStream private[io] (
       }
       if (directStream._following.isDefined) {
         Assert.invariant(
-          !keepMerging,
+          !keepMerging
         ) // we stopped because we merged forward into an active stream.
         // that active stream isn't finished
         Assert.invariant(directStream.isActive)
         // we still have a following stream, but it might be finished or might still be active.
         Assert.invariant(
           directStream._following.get.isActive ||
-            directStream._following.get.isFinished,
+            directStream._following.get.isFinished
         )
       } else {
         // nothing following, so we're setting finished at the very end of everything.
@@ -642,7 +642,7 @@ class DirectOrBufferedDataOutputStream private[io] (
    */
   final override protected def putLong_BE_MSBFirst(
     signedLong: Long,
-    bitLengthFrom1To64: Int,
+    bitLengthFrom1To64: Int
   ): Boolean = {
     // Note: we don't have to check for bit limit. That check was already done.
     //
@@ -718,7 +718,7 @@ class DirectOrBufferedDataOutputStream private[io] (
   private def handleFragmentLastByte(
     nFragBitsAfter: Int,
     newFragByte: Int,
-    realStream: OutputStream,
+    realStream: OutputStream
   ): Unit = {
     if (nFragBitsAfter == 8) {
       // we filled the entire frag byte. Write it out, then zero it
@@ -733,7 +733,7 @@ class DirectOrBufferedDataOutputStream private[io] (
 
   final override protected def putLong_LE_MSBFirst(
     signedLong: Long,
-    bitLengthFrom1To64: Int,
+    bitLengthFrom1To64: Int
   ): Boolean = {
 
     // Note: we don't have to check for bit limit. That check was already done.
@@ -833,7 +833,7 @@ class DirectOrBufferedDataOutputStream private[io] (
 
   final override protected def putLong_LE_LSBFirst(
     signedLong: Long,
-    bitLengthFrom1To64: Int,
+    bitLengthFrom1To64: Int
   ): Boolean = {
 
     // Note: we don't have to check for bit limit. That check was already done.
@@ -913,7 +913,7 @@ class DirectOrBufferedDataOutputStream private[io] (
    */
   protected def deliverContent(
     directDOS: DirectOrBufferedDataOutputStream,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Unit = {
     val bufferNBits =
       this.relBitPos0b // don't have to subtract a starting offset. It's always zero in buffered case.
@@ -975,8 +975,8 @@ class DirectOrBufferedDataOutputStream private[io] (
             fragNum,
             nFragBits,
             finfo,
-            ignoreByteOrder = this.bufferingJOS.isFile,
-          ),
+            ignoreByteOrder = this.bufferingJOS.isFile
+          )
         )
       }
     }
@@ -1014,7 +1014,7 @@ class BitOrderChangeException(directDOS: DirectOrBufferedDataOutputStream, finfo
         directDOS,
         directDOS.priorBitOrder,
         directDOS.fragmentLastByteLimit,
-        finfo.bitOrder,
+        finfo.bitOrder
       )
   }
 }
@@ -1035,7 +1035,7 @@ object DirectOrBufferedDataOutputStream {
   private def deliverBufferContent(
     directDOS: DirectOrBufferedDataOutputStream,
     bufDOS: DirectOrBufferedDataOutputStream,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Unit = {
     Assert.invariant(bufDOS.isBuffering)
     Assert.invariant(!directDOS.isBuffering)
@@ -1045,7 +1045,7 @@ object DirectOrBufferedDataOutputStream {
     // deliver it to
     val maybeBufStartPos = bufDOS.maybeAbsStartingBitPos0b
     Assert.invariant(
-      maybeBufStartPos.isEmpty || maybeBufStartPos.get == directDOS.maybeAbsBitPos0b.get,
+      maybeBufStartPos.isEmpty || maybeBufStartPos.get == directDOS.maybeAbsBitPos0b.get
     )
 
     val finfoBitOrder = finfo.bitOrder // bit order we are supposed to write with
@@ -1094,7 +1094,7 @@ object DirectOrBufferedDataOutputStream {
     chunkSizeInBytes: Int,
     maxBufferSizeInBytes: Long,
     tempDirPath: File,
-    maybeExistingFile: Maybe[Path] = Maybe.Nope,
+    maybeExistingFile: Maybe[Path] = Maybe.Nope
   ): DirectOrBufferedDataOutputStream = {
     val dbdos = new DirectOrBufferedDataOutputStream(
       creator,
@@ -1102,7 +1102,7 @@ object DirectOrBufferedDataOutputStream {
       chunkSizeInBytes,
       maxBufferSizeInBytes,
       tempDirPath,
-      maybeExistingFile,
+      maybeExistingFile
     )
     dbdos.setJavaOutputStream(jos)
 

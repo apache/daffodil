@@ -46,7 +46,7 @@ abstract class StaticText(
   e: Term,
   eb: Term,
   kindString: String,
-  guard: Boolean = true,
+  guard: Boolean = true
 ) extends Text(e, eb, guard) {
 
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
@@ -58,7 +58,7 @@ abstract class DelimiterText(
   e: Term,
   eb: Term,
   delimiterType: DelimiterTextType.Type,
-  guard: Boolean = true,
+  guard: Boolean = true
 ) extends Text(e, eb, guard) {
 
   lazy val textParser = new TextParser(e.termRuntimeData)
@@ -73,7 +73,7 @@ abstract class DelimiterText(
     textParser,
     delimiterType,
     isDelimited,
-    e.mustMatchNonZeroData,
+    e.mustMatchNonZeroData
   )
   override lazy val unparser: DaffodilUnparser =
     new DelimiterTextUnparser(e.termRuntimeData, delimiterType)
@@ -101,7 +101,7 @@ abstract class StringDelimBase(e: Term, guard: Boolean) extends Terminal(e, guar
     optEscBlkStart: Option[String],
     optEscBlkEnd: Option[String],
     terminatingMarkup: Seq[String],
-    context: ThrowsSDE,
+    context: ThrowsSDE
   ): Unit = {
 
     // TODO: DFDL-451 - After conversing with Mike B. about this, we're putting this on the backburner.

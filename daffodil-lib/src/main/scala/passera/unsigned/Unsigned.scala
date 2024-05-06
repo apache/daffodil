@@ -31,7 +31,7 @@ import scala.math.ScalaNumericAnyConversions
 trait Unsigned[U <: Unsigned[U, Promoted, SignedPromoted], Promoted <: Unsigned[
   _,
   Promoted,
-  SignedPromoted,
+  SignedPromoted
 ], SignedPromoted]
   extends Any
   with ScalaNumericAnyConversions

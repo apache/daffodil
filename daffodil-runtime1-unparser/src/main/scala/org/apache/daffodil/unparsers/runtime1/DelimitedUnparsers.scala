@@ -37,7 +37,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 sealed class StringDelimitedUnparser(
   override val context: ElementRuntimeData,
   escapeScheme: Maybe[EscapeSchemeUnparseEv],
-  isDelimRequired: Boolean,
+  isDelimRequired: Boolean
 ) extends TextPrimUnparser {
 
   override lazy val runtimeDependencies = Vector()
@@ -78,7 +78,7 @@ sealed class StringDelimitedUnparser(
                   hasEscCharAsDelimiter,
                   theScheme.ec,
                   theScheme.eec,
-                  state,
+                  state
                 )
               } else {
                 val theScheme = scheme.asInstanceOf[EscapeSchemeBlockUnparserHelper]
@@ -95,7 +95,7 @@ sealed class StringDelimitedUnparser(
                 val generateEscapeBlock =
                   (theScheme.generateEscapeBlock == GenerateEscape.Always) ||
                     valueString.startsWith(
-                      theScheme.blockStart,
+                      theScheme.blockStart
                     ) || hasInscopeTerminatingDelimiters()
 
                 val thingsToEscape = theScheme.lookingFor // blockEnd and extraEscapedCharacters
@@ -109,7 +109,7 @@ sealed class StringDelimitedUnparser(
                   theScheme.blockStart,
                   theScheme.blockEnd,
                   generateEscapeBlock,
-                  state,
+                  state
                 )
               }
             }
@@ -125,7 +125,7 @@ sealed class StringDelimitedUnparser(
           state,
           "%s - Too many bits in field: IndexOutOfBounds. Insufficient space to write %s characters.",
           nom,
-          escapedValue.length,
+          escapedValue.length
         )
       Logger.log.debug(s"Ended at bit position ${outStream.relBitPos0b}")
     } catch {
@@ -148,7 +148,7 @@ sealed class StringDelimitedUnparser(
 class LiteralNilDelimitedEndOfDataUnparser(
   erd: ElementRuntimeData,
   slForUnparserEv: NilStringLiteralForUnparserEv,
-  isDelimRequired: Boolean,
+  isDelimRequired: Boolean
 ) extends StringDelimitedUnparser(erd, Nope, isDelimRequired) {
 
   final override def theString(ustate: UState) = slForUnparserEv.evaluate(ustate)

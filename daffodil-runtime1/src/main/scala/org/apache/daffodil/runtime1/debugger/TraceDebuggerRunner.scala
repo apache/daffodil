@@ -27,7 +27,7 @@ class TraceDebuggerRunner(out: PrintStream = System.out) extends InteractiveDebu
     "display info data",
     "display info infoset",
     "display info diff",
-    "trace",
+    "trace"
   ).iterator
 
   def init(id: InteractiveDebugger): Unit = {

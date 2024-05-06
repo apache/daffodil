@@ -45,7 +45,7 @@ object NilValueLiteralCharacterCooker
 
 object NilValueLogicalValueCooker
   extends NonEmptyListOfStringLiteralCharClass_ES_WithByteEntities(
-    "nilValue",
+    "nilValue"
   ) // Note. Same as LiteralValue Binary
 
 object NilValueLiteralValueBinaryCooker
@@ -112,7 +112,7 @@ object IntRangeCooker extends Converter[String, Seq[(JBigInt, JBigInt)]] {
   protected def convert(
     input: String,
     context: ThrowsSDE,
-    forUnparse: Boolean,
+    forUnparse: Boolean
   ): Seq[(JBigInt, JBigInt)] = {
     def run(xs: Seq[String]): Seq[(JBigInt, JBigInt)] = {
       xs match {

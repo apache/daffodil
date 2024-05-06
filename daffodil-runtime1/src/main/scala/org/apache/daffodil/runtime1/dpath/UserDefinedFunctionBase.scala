@@ -36,7 +36,7 @@ case class UserDefinedFunctionCall(
   functionQNameString: String,
   recipes: List[CompiledDPath],
   userDefinedFunction: UserDefinedFunction,
-  evaluateFxn: UserDefinedFunctionMethod,
+  evaluateFxn: UserDefinedFunctionMethod
 ) extends FNArgsList(recipes) {
 
   override def computeValue(values: List[DataValuePrimitive], dstate: DState) = {
@@ -55,13 +55,13 @@ case class UserDefinedFunctionCall(
               Maybe(dstate.compileInfo.schemaFileLocation),
               dstate.contextLocation,
               Maybe(te),
-              Maybe.Nope,
+              Maybe.Nope
             )
           case te: Exception =>
             throw new UserDefinedFunctionFatalErrorException(
               s"User Defined Function '$functionQNameString' Error",
               te,
-              userDefinedFunction.getClass.getName,
+              userDefinedFunction.getClass.getName
             )
         }
       }
@@ -72,13 +72,13 @@ case class UserDefinedFunctionCall(
           Maybe(dstate.compileInfo.schemaFileLocation),
           dstate.contextLocation,
           Maybe(e),
-          Maybe.Nope,
+          Maybe.Nope
         )
       case e: ExceptionInInitializerError =>
         throw new UserDefinedFunctionFatalErrorException(
           s"User Defined Function '$functionQNameString' Error",
           e,
-          userDefinedFunction.getClass.getName,
+          userDefinedFunction.getClass.getName
         )
     }
   }

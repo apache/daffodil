@@ -96,7 +96,7 @@ final class RemapXMLIllegalCharToPUA(checkForExistingPUA: Boolean, replaceCRWith
         // base class remap(s: String) method. Those chars are only
         // taken from Scala/Java strings, hence, the char codes cannot be beyond 0xFFFF
         Assert.impossibleCase(
-          "Scala/Java character code cannot be beyond 0xFFFF but was 0x%40X".format(bad),
+          "Scala/Java character code cannot be beyond 0xFFFF but was 0x%40X".format(bad)
         )
       // $COVERAGE-ON$
     }
@@ -107,7 +107,7 @@ final class RemapXMLIllegalCharToPUA(checkForExistingPUA: Boolean, replaceCRWith
 
 class RemapPUACharDetected(val char: Char)
   extends Exception(
-    "Pre-existing Private Use Area (PUA) character found in data: U+%04X.".format(char.toInt),
+    "Pre-existing Private Use Area (PUA) character found in data: U+%04X.".format(char.toInt)
   )
 
 /**

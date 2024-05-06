@@ -75,7 +75,7 @@ object MaybeFloat {
   private val undefValue = -1L
 
   @inline final def apply(v: Float) = new MaybeFloat(
-    java.lang.Float.floatToRawIntBits(v).toLong,
+    java.lang.Float.floatToRawIntBits(v).toLong
   )
 
   val Nope = new MaybeFloat(undefValue)

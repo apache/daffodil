@@ -52,5 +52,5 @@ case class SimpleNilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valu
 case class ComplexNilOrContentParser(
   ctxt: TermRuntimeData,
   emptyParser: Parser,
-  contentParser: Parser,
+  contentParser: Parser
 ) extends NilOrValueParser(ctxt, emptyParser, contentParser)

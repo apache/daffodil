@@ -45,7 +45,7 @@ class LayerVarsRuntime(
   constructor: Constructor[_],
   optParamSetter: Option[Method],
   paramVRDs: Seq[VariableRuntimeData],
-  resultVarPairs: Seq[(VariableRuntimeData, Method)],
+  resultVarPairs: Seq[(VariableRuntimeData, Method)]
 ) {
 
   def constructInstance(): Layer = constructor.newInstance().asInstanceOf[Layer]

@@ -46,7 +46,7 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
         One(state.currentLocation),
         "Length of xs:hexBinary exceeds maximum of %s bytes: %s",
         state.tunable.maxHexBinaryLengthInBytes,
-        valueLengthInBytes,
+        valueLengthInBytes
       )
     }
 
@@ -59,7 +59,7 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
         One(state.currentLocation),
         "Length of xs:hexBinary exceeds calculated length of %s bits: %s",
         valueLengthInBytes * 8,
-        lengthInBits,
+        lengthInBits
       )
     }
 
@@ -84,7 +84,7 @@ abstract class HexBinaryUnparserBase(override val context: ElementRuntimeData)
           One(context.schemaFileLocation),
           One(state.currentLocation),
           "Failed to write %d hexBinary bits",
-          bitsFromValueToPut,
+          bitsFromValueToPut
         )
       }
     }
@@ -112,7 +112,7 @@ class HexBinaryMinLengthInBytesUnparser(minLengthInBytes: Long, erd: ElementRunt
 
 final class HexBinarySpecifiedLengthUnparser(
   erd: ElementRuntimeData,
-  val lengthEv: UnparseTargetLengthInBitsEv,
+  val lengthEv: UnparseTargetLengthInBitsEv
 ) extends HexBinaryUnparserBase(erd) {
 
   override def getLengthInBits(state: UState): Long = {
@@ -136,7 +136,7 @@ final class HexBinaryLengthPrefixedUnparser(
   override val prefixedLengthERD: ElementRuntimeData,
   minLengthInBytes: Long,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends HexBinaryMinLengthInBytesUnparser(minLengthInBytes, erd)
   with KnownPrefixedLengthUnparserMixin {
 

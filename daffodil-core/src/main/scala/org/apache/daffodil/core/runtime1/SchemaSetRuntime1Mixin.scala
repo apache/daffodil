@@ -76,7 +76,7 @@ trait SchemaSetRuntime1Mixin {
     val rootERD = root.elementRuntimeData
     root.schemaDefinitionUnless(
       !rootERD.dpathElementCompileInfo.isOutputValueCalc,
-      "The root element cannot have the dfdl:outputValueCalc property.",
+      "The root element cannot have the dfdl:outputValueCalc property."
     )
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null
@@ -84,7 +84,7 @@ trait SchemaSetRuntime1Mixin {
       new SchemaSetRuntimeData(p, u, rootERD, variableMap, allLayers, layerRuntimeCompiler)
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(
-        s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}.",
+        s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}."
       )
     val dataProc =
       new DataProcessor(ssrd, tunable, variableMap.copy(), diagnostics = this.diagnostics)

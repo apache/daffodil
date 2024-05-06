@@ -31,14 +31,14 @@ class SchemaDefinitionError(
   schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],
   fmtString: String,
-  args: Any*,
+  args: Any*
 ) extends SchemaDefinitionDiagnosticBase(
     schemaContext,
     None,
     annotationContext,
     Nope,
     Maybe(fmtString),
-    args: _*,
+    args: _*
   ) {
 
   def this(sc: SchemaFileLocation, kind: String, args: Any*) =
@@ -61,7 +61,7 @@ class RuntimeSchemaDefinitionError(
   runtimeContext: ParseOrUnparseState,
   causedBy: Throwable,
   fmtString: String,
-  args: Any*,
+  args: Any*
 ) extends SchemaDefinitionDiagnosticBase(
     Maybe(schemaContext),
     (runtimeContext match { // TODO: this is ugly.
@@ -71,7 +71,7 @@ class RuntimeSchemaDefinitionError(
     None,
     Maybe(causedBy),
     Maybe(fmtString),
-    args: _*,
+    args: _*
   ) {
 
   override def isError = true
@@ -81,7 +81,7 @@ class RuntimeSchemaDefinitionError(
     schemaContext: SchemaFileLocation,
     runtimeContext: ParseOrUnparseState,
     fmtString: String,
-    args: Any*,
+    args: Any*
   ) =
     this(schemaContext, runtimeContext, null, fmtString, args: _*)
 }
@@ -91,14 +91,14 @@ class RuntimeSchemaDefinitionWarning(
   schemaContext: SchemaFileLocation,
   runtimeContext: ParseOrUnparseState,
   kind: String,
-  args: Any*,
+  args: Any*
 ) extends SchemaDefinitionDiagnosticBase(
     Some(schemaContext),
     Some(runtimeContext),
     None,
     Nope,
     Maybe(kind + s" (id: ${warnID})"),
-    args: _*,
+    args: _*
   ) {
 
   override def isError = false
@@ -111,14 +111,14 @@ class SchemaDefinitionWarning(
   schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],
   kind: String,
-  args: Any*,
+  args: Any*
 ) extends SchemaDefinitionDiagnosticBase(
     schemaContext,
     None,
     annotationContext,
     Nope,
     Maybe(kind + s" (id: ${warnID})"),
-    args: _*,
+    args: _*
   ) {
 
   def this(w: WarnID, sc: SchemaFileLocation, kind: String, args: Any*) =
@@ -134,21 +134,21 @@ class ValidationError(
   maybeRuntimeContext: Maybe[ParseOrUnparseState],
   maybeCause: Maybe[Throwable],
   maybeFormatString: Maybe[String],
-  args: Any*,
+  args: Any*
 ) extends SchemaDefinitionDiagnosticBase(
     maybeSchemaContext,
     maybeRuntimeContext,
     None,
     maybeCause,
     maybeFormatString,
-    args: _*,
+    args: _*
   ) {
 
   def this(
     schemaContext: SchemaFileLocation,
     runtimeContext: ParseOrUnparseState,
     formatString: String,
-    args: Any*,
+    args: Any*
   ) =
     this(Maybe(schemaContext), Maybe(runtimeContext), Nope, Maybe(formatString), args: _*)
 
@@ -160,7 +160,7 @@ class ValidationError(
         Nope,
       Maybe(runtimeContext),
       Maybe(cause),
-      Nope,
+      Nope
     )
 
   def this(formatString: String, args: Any*) =
@@ -176,14 +176,14 @@ class ValidationError(
 final class TunableLimitExceededError(
   annotationContext: SchemaFileLocation,
   kind: String,
-  args: Any*,
+  args: Any*
 ) extends SchemaDefinitionDiagnosticBase(
     Maybe(annotationContext),
     Nope,
     None,
     None,
     Maybe(kind),
-    args: _*,
+    args: _*
   ) {
 
   override def isError = true
@@ -196,13 +196,13 @@ abstract class SchemaDefinitionDiagnosticBase(
   private val annotationContext: Option[SchemaFileLocation],
   mc: Maybe[Throwable],
   mfmt: Maybe[String],
-  args: Any*,
+  args: Any*
 ) extends Diagnostic(
     sc,
     if (runtimeContext.isDefined) Maybe(runtimeContext.get.currentLocation) else Nope,
     mc,
     mfmt,
-    args: _*,
+    args: _*
   ) {
 
   override def equals(other: Any) = {
@@ -262,7 +262,7 @@ trait ImplementsThrowsOrSavesSDE extends ImplementsThrowsSDE with SavesErrorsAnd
         Some(schemaFileLocation),
         NoAnnotationContext,
         fmt,
-        args: _*,
+        args: _*
       )
       warn(sdw)
     }

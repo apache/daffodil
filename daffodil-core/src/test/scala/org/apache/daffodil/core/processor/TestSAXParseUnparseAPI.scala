@@ -45,7 +45,7 @@ class TestSAXParseUnparseAPI {
     val (
       parseXMLReader: DFDL.DaffodilParseXMLReader,
       baosParse: ByteArrayOutputStream,
-      inArray: Array[Byte],
+      inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
     val baisParse = new ByteArrayInputStream(inArray)
     val inputSourceParse = new InputSource(baisParse)
@@ -118,7 +118,7 @@ class TestSAXParseUnparseAPI {
     val (
       parseXMLReader: DFDL.DaffodilParseXMLReader,
       baosParse: ByteArrayOutputStream,
-      inArray: Array[Byte],
+      inArray: Array[Byte]
     ) = setupSAXParserTest(dp, baosUnparse.toString)
     val baisParse = new ByteArrayInputStream(inArray)
     val inputSourceParse = new InputSource(baisParse)
@@ -161,7 +161,7 @@ class TestSAXParseUnparseAPI {
     val (
       parseXMLReader: DFDL.DaffodilParseXMLReader,
       baosParse: ByteArrayOutputStream,
-      inArray: Array[Byte],
+      inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
     val baisParse = new ByteArrayInputStream(inArray)
     val inputSourceParse = new InputSource(baisParse)
@@ -193,7 +193,7 @@ class TestSAXParseUnparseAPI {
     val (
       parseXMLReader: DFDL.DaffodilParseXMLReader,
       baosParse: ByteArrayOutputStream,
-      inArray: Array[Byte],
+      inArray: Array[Byte]
     ) = setupSAXParserTest(dp, baosUnparse.toString)
     val baisParse = new ByteArrayInputStream(inArray)
     val inputSourceParse = new InputSource(baisParse)

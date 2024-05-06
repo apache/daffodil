@@ -40,7 +40,7 @@ package object unsigned {
   implicit def floatOps(x: Float) = new FloatOps(x)
   implicit def doubleOps(x: Double) = new DoubleOps(x)
   implicit def signedRichIntOps(x: scala.runtime.RichInt) = new SignedRichIntOps(
-    x.self.asInstanceOf[Int],
+    x.self.asInstanceOf[Int]
   )
   implicit def richUInt(x: UInt) = new RichUInt(x)
   implicit def richerUInt(x: UInt) = new RicherUInt(x.toInt)

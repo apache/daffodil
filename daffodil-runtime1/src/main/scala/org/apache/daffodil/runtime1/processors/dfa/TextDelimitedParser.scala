@@ -33,7 +33,7 @@ import org.apache.daffodil.runtime1.processors.parsers.PaddingRuntimeMixin
 abstract class TextDelimitedParserBase(
   override val justificationTrim: TextJustificationType.Type,
   override val parsingPadChar: MaybeChar,
-  override val context: TermRuntimeData,
+  override val context: TermRuntimeData
 ) extends DFAParser
   with PaddingRuntimeMixin {
 
@@ -47,7 +47,7 @@ abstract class TextDelimitedParserBase(
     input: DataInputStream,
     field: DFAField,
     delimIter: DelimiterIterator,
-    isDelimRequired: Boolean,
+    isDelimRequired: Boolean
   ): Maybe[ParseResult] = {
     Assert.invariant(field != null)
 
@@ -84,7 +84,7 @@ abstract class TextDelimitedParserBase(
                   delimReg.matchStartPos,
                   delimReg.delimString,
                   d,
-                  delimIter.currentIndex,
+                  delimIter.currentIndex
                 )
               }
               state.dfaRegistersPool.returnToPool(delimReg)
@@ -114,7 +114,7 @@ abstract class TextDelimitedParserBase(
               // as a constituent of the field, and transition to the start state.
               //
               input.resetPos(
-                beforeDelimiter,
+                beforeDelimiter
               ) // reposition input to where we were trying to find a delimiter (but did not)
               beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
               fieldReg.actionNum =
@@ -171,7 +171,7 @@ abstract class TextDelimitedParserBase(
 class TextDelimitedParser(
   justArg: TextJustificationType.Type,
   padCharArg: MaybeChar,
-  context: TermRuntimeData,
+  context: TermRuntimeData
 ) extends TextDelimitedParserBase(justArg, padCharArg, context) {
 
   lazy val name: String = "TextDelimitedParser"
@@ -185,7 +185,7 @@ class TextDelimitedParser(
 class TextDelimitedParserWithEscapeBlock(
   justArg: TextJustificationType.Type,
   padCharArg: MaybeChar,
-  context: TermRuntimeData,
+  context: TermRuntimeData
 ) extends TextDelimitedParserBase(justArg, padCharArg, context) {
 
   lazy val name: String = "TextDelimitedParserWithEscapeBlock"
@@ -211,7 +211,7 @@ class TextDelimitedParserWithEscapeBlock(
   protected def removeLeftPadding(
     state: PState,
     input: DataInputStream,
-    delimIter: DelimiterIterator,
+    delimIter: DelimiterIterator
   ): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Right
@@ -228,7 +228,7 @@ class TextDelimitedParserWithEscapeBlock(
   protected def removeRightPadding(
     state: PState,
     input: DataInputStream,
-    delimIter: DelimiterIterator,
+    delimIter: DelimiterIterator
   ): Unit = {
     justificationTrim match {
       case TextJustificationType.Center | TextJustificationType.Left
@@ -246,7 +246,7 @@ class TextDelimitedParserWithEscapeBlock(
     state: PState,
     input: DataInputStream,
     startBlock: DFADelimiter,
-    delimIter: DelimiterIterator,
+    delimIter: DelimiterIterator
   ): Boolean = {
     val startBlockRegister = state.dfaRegistersPool.getFromPool("parseStartBlock")
     startBlockRegister.reset(state, input, delimIter)
@@ -271,7 +271,7 @@ class TextDelimitedParserWithEscapeBlock(
     startBlock: DFADelimiter,
     endBlock: DFADelimiter,
     delimIter: DelimiterIterator,
-    isDelimRequired: Boolean,
+    isDelimRequired: Boolean
   ): Maybe[ParseResult] = {
 
     val lmt = new LongestMatchTracker()
@@ -324,7 +324,7 @@ class TextDelimitedParserWithEscapeBlock(
                     delimRegister.matchStartPos,
                     delimRegister.delimString,
                     d,
-                    delimIter.currentIndex,
+                    delimIter.currentIndex
                   )
                 }
                 state.dfaRegistersPool.returnToPool(delimRegister)
@@ -405,7 +405,7 @@ class TextDelimitedParserWithEscapeBlock(
     startBlock: DFADelimiter,
     endBlock: DFADelimiter,
     delimIter: DelimiterIterator,
-    isDelimRequired: Boolean,
+    isDelimRequired: Boolean
   ): Maybe[ParseResult] = {
     Assert.invariant(fieldEsc != null)
     Assert.invariant(field != null)

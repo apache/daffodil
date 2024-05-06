@@ -36,7 +36,7 @@ class ScalarElementUnseparatedSequenceChildParseResultHelper(
   override val erd: ElementRuntimeData,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean,
+  override val isEmptyRepNonZeroLength: Boolean
 ) extends UnseparatedSequenceChildParseResultHelper
   with ScalarElementSequenceChildParseResultHelper
   with NonPositionalLikeElementSequenceChildParseResultMixin
@@ -45,7 +45,7 @@ class RepElementUnseparatedSequenceChildParseResultHelper(
   override val erd: ElementRuntimeData,
   override val emptyElementParsePolicy: EmptyElementParsePolicy,
   override val isEmptyRepZeroLength: Boolean,
-  override val isEmptyRepNonZeroLength: Boolean,
+  override val isEmptyRepNonZeroLength: Boolean
 ) extends UnseparatedSequenceChildParseResultHelper
   with RepElementSequenceChildParseResultHelper
   with NonPositionalLikeElementSequenceChildParseResultMixin
@@ -53,7 +53,7 @@ class RepElementUnseparatedSequenceChildParseResultHelper(
 final class GroupUnseparatedSequenceChildParseResultHelper(
   override val mgrd: ModelGroupRuntimeData,
   override val isModelGroupRepPossiblyZeroLength: Boolean,
-  override val isModelGroupRepNonZeroLength: Boolean,
+  override val isModelGroupRepNonZeroLength: Boolean
 ) extends UnseparatedSequenceChildParseResultHelper
   with ModelGroupSequenceChildParseResultHelper
   with PositionalLikeGroupSequenceChildParseResultMixin {}

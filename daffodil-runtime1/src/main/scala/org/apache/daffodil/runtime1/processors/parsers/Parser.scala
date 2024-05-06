@@ -51,7 +51,7 @@ sealed trait Parser extends Processor {
 
   def PE(pstate: PState, s: String, args: Any*) = {
     pstate.setFailed(
-      new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*),
+      new ParseError(One(context.schemaFileLocation), One(pstate.currentLocation), s, args: _*)
     )
   }
 
@@ -60,7 +60,7 @@ sealed trait Parser extends Processor {
     sfl: SchemaFileLocation,
     dataLoc: DataLocation,
     s: String,
-    args: Any*,
+    args: Any*
   ) = {
     pstate.setFailed(new ParseError(One(sfl), One(dataLoc), s, args: _*))
   }
@@ -70,7 +70,7 @@ sealed trait Parser extends Processor {
     sfl: SchemaFileLocation,
     dataLoc: DataLocation,
     neededBits: Long,
-    source: InputSourceDataInputStream,
+    source: InputSourceDataInputStream
   ): Unit = {
     val startPos = dataLoc.bitPos1b - 1
     val remainingLimitedBits = {
@@ -106,7 +106,7 @@ sealed trait Parser extends Processor {
       dataLoc,
       "Insufficient bits in data. Needed %d bit(s) but found only %d available",
       neededBits,
-      remainingBits,
+      remainingBits
     )
   }
 
@@ -114,28 +114,28 @@ sealed trait Parser extends Processor {
     pstate: PState,
     sfl: SchemaFileLocation,
     dataLoc: DataLocation,
-    neededBits: Long,
+    neededBits: Long
   ): Unit = {
     PE(
       pstate,
       sfl,
       dataLoc,
       "Insufficient bits in data. Needed %d bit(s)",
-      neededBits,
+      neededBits
     )
   }
 
   def PENotEnoughBits(
     pstate: PState,
     neededBits: Long,
-    source: InputSourceDataInputStream,
+    source: InputSourceDataInputStream
   ): Unit = {
     PENotEnoughBits(
       pstate,
       pstate.schemaFileLocation,
       pstate.currentLocation,
       neededBits,
-      source,
+      source
     )
   }
 
@@ -343,7 +343,7 @@ case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoDa
     val rsde = new RuntimeSchemaDefinitionError(
       context.schemaFileLocation,
       state,
-      "This schema was compiled without parse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property.",
+      "This schema was compiled without parse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property."
     )
     context.toss(rsde)
   }

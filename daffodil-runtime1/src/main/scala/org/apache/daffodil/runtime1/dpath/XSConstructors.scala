@@ -54,7 +54,7 @@ case class XSDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
     val result = a.getAnyRef match {
       case _: DFDLTime =>
         throw new NumberFormatException(
-          "Casting from xs:time to xs:dateTime can never succeed.",
+          "Casting from xs:time to xs:dateTime can never succeed."
         )
       case _ => StringToDateTime.computeValue(a, dstate)
     }

@@ -75,7 +75,7 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin extends PropertyMixin {
   final lazy val optionEscapeEscapeCharacterRaw =
     findPropertyOption("escapeEscapeCharacter", expressionAllowed = true)
   protected final lazy val escapeEscapeCharacterRaw = requireProperty(
-    optionEscapeEscapeCharacterRaw,
+    optionEscapeEscapeCharacterRaw
   )
   protected final lazy val optionEscapeBlockStartRaw = findPropertyOption("escapeBlockStart")
   protected final lazy val escapeBlockStartRaw = requireProperty(optionEscapeBlockStartRaw)
@@ -84,7 +84,7 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin extends PropertyMixin {
   protected final lazy val optionExtraEscapedCharactersRaw =
     findPropertyOption("extraEscapedCharacters", expressionAllowed = true)
   protected final lazy val extraEscapedCharactersRaw = requireProperty(
-    optionExtraEscapedCharactersRaw,
+    optionExtraEscapedCharactersRaw
   )
 
 }
@@ -94,12 +94,12 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin extends RawCommonRuntimeValuedPr
   protected final lazy val optionTextStandardDecimalSeparatorRaw =
     findPropertyOption("textStandardDecimalSeparator", expressionAllowed = true)
   protected final lazy val textStandardDecimalSeparatorRaw = requireProperty(
-    optionTextStandardDecimalSeparatorRaw,
+    optionTextStandardDecimalSeparatorRaw
   )
   protected final lazy val optionTextStandardGroupingSeparatorRaw =
     findPropertyOption("textStandardGroupingSeparator", expressionAllowed = true)
   protected final lazy val textStandardGroupingSeparatorRaw = requireProperty(
-    optionTextStandardGroupingSeparatorRaw,
+    optionTextStandardGroupingSeparatorRaw
   )
 
   protected final lazy val optionBinaryFloatRepRaw =
@@ -111,22 +111,22 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin extends RawCommonRuntimeValuedPr
   protected final lazy val optionTextBooleanFalseRepRaw =
     findPropertyOption("textBooleanFalseRep", expressionAllowed = true)
   protected final lazy val textBooleanFalseRepRaw = requireProperty(
-    optionTextBooleanFalseRepRaw,
+    optionTextBooleanFalseRepRaw
   )
   protected final lazy val optionCalendarLanguageRaw =
     findPropertyOption("calendarLanguage", expressionAllowed = true)
   protected final lazy val calendarLanguageRaw = requireProperty(optionCalendarLanguageRaw)
   protected final lazy val optionBinaryBooleanTrueRepRaw = findPropertyOption(
-    "binaryBooleanTrueRep",
+    "binaryBooleanTrueRep"
   )
   protected final lazy val binaryBooleanTrueRepRaw = requireProperty(
-    optionBinaryBooleanTrueRepRaw,
+    optionBinaryBooleanTrueRepRaw
   )
   protected final lazy val optionBinaryBooleanFalseRepRaw = findPropertyOption(
-    "binaryBooleanFalseRep",
+    "binaryBooleanFalseRep"
   )
   protected final lazy val binaryBooleanFalseRepRaw = requireProperty(
-    optionBinaryBooleanFalseRepRaw,
+    optionBinaryBooleanFalseRepRaw
   )
 
 }

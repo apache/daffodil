@@ -30,7 +30,7 @@ import org.apache.daffodil.japi.infoset._
 import org.apache.daffodil.lib.api.{ ValidationMode => SValidationMode }
 import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.runtime1.debugger.{
-  InteractiveDebuggerRunner => SInteractiveDebuggerRunner,
+  InteractiveDebuggerRunner => SInteractiveDebuggerRunner
 }
 import org.apache.daffodil.runtime1.infoset.{ XMLTextEscapeStyle => SXMLTextEscapeStyle }
 
@@ -55,7 +55,7 @@ private[japi] object XMLTextEscapeStyleConversions {
       case _ =>
         throw new Exception(
           "Unrecognized value: %s for parameter: xmlTextEscapeStyle. Must be 'Standard' or 'CDATA'."
-            .format(style),
+            .format(style)
         )
     }
     sxmlTextEscapeStyle

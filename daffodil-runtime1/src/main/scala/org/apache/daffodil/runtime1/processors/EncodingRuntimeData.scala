@@ -78,7 +78,7 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
   }
 
   final lazy val knownEncodingWidthInBits = encodingMinimumCodePointWidthInBits(
-    knownEncodingCharset,
+    knownEncodingCharset
   )
 
   final def encodingMinimumCodePointWidthInBits(cs: BitsCharset) = {
@@ -117,7 +117,7 @@ final class EncodingRuntimeData(
   val isKnownEncoding: Boolean,
   val isScannable: Boolean,
   override val knownEncodingAlignmentInBits: Int,
-  val hasTextAlignment: Boolean,
+  val hasTextAlignment: Boolean
 ) extends KnownEncodingMixin
   with ImplementsThrowsSDE
   with Serializable {

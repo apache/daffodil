@@ -30,7 +30,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 
 case class ChoiceBranchMap(
   lookupTable: ProperlySerializableMap[ChoiceBranchEvent, Unparser],
-  unmappedDefault: Option[Unparser],
+  unmappedDefault: Option[Unparser]
 ) extends Serializable {
 
   def get(cbe: ChoiceBranchEvent): Maybe[Unparser] = {
@@ -77,7 +77,7 @@ class ChoiceBranchEmptyUnparser(val context: RuntimeData) extends PrimUnparserNo
 class ChoiceCombinatorUnparser(
   mgrd: ModelGroupRuntimeData,
   choiceBranchMap: ChoiceBranchMap,
-  choiceLengthInBits: MaybeInt,
+  choiceLengthInBits: MaybeInt
 ) extends CombinatorUnparser(mgrd)
   with ToBriefXMLImpl {
   override def nom = "Choice"
@@ -116,7 +116,7 @@ class ChoiceCombinatorUnparser(
             .map {
               _.qname.toExtendedSyntax
             }
-            .mkString(", "),
+            .mkString(", ")
         )
       }
       val childUnparser = maybeChildUnparser.get
@@ -145,7 +145,7 @@ class DelimiterStackUnparser(
   separatorOpt: Maybe[SeparatorUnparseEv],
   terminatorOpt: Maybe[TerminatorUnparseEv],
   ctxt: TermRuntimeData,
-  bodyUnparser: Unparser,
+  bodyUnparser: Unparser
 ) extends CombinatorUnparser(ctxt) {
   override def nom = "DelimiterStack"
 
@@ -189,7 +189,7 @@ class DelimiterStackUnparser(
 class DynamicEscapeSchemeUnparser(
   escapeScheme: EscapeSchemeUnparseEv,
   ctxt: TermRuntimeData,
-  bodyUnparser: Unparser,
+  bodyUnparser: Unparser
 ) extends CombinatorUnparser(ctxt) {
   override def nom = "EscapeSchemeStack"
 

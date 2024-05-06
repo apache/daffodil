@@ -177,11 +177,11 @@ class TestLayers2 {
   @Test def testBombGetterThrowRE(): Unit = handle("testBombGetterThrowRE")
   @Test def testBombCloseOutputThrowRE(): Unit = handle("testBombCloseOutputThrowRE")
   @Test def testBombCloseOutputThrowREWithSuspension(): Unit = handle(
-    "testBombCloseOutputThrowREWithSuspension",
+    "testBombCloseOutputThrowREWithSuspension"
   )
   @Test def testBombWriteThrowRE(): Unit = handle("testBombWriteThrowRE")
   @Test def testBombWriteThrowREWithSuspension(): Unit = handle(
-    "testBombWriteThrowREWithSuspension",
+    "testBombWriteThrowREWithSuspension"
   )
   @Test def testBombReadThrowRE(): Unit = handle("testBombReadThrowRE")
   @Test def testBombCloseInputThrowRE(): Unit = handle("testBombCloseInputThrowRE")
@@ -202,11 +202,11 @@ class TestLayers2 {
   @Test def testBombGetterAbort(): Unit = handleA("testBombGetterAbort")
   @Test def testBombCloseOutputAbort(): Unit = handleA("testBombCloseOutputAbort")
   @Test def testBombCloseOutputAbortWithSuspension(): Unit = handleA(
-    "testBombCloseOutputAbortWithSuspension",
+    "testBombCloseOutputAbortWithSuspension"
   )
   @Test def testBombWriteAbort(): Unit = handleA("testBombWriteAbort")
   @Test def testBombWriteAbortWithSuspension(): Unit = handleA(
-    "testBombWriteAbortWithSuspension",
+    "testBombWriteAbortWithSuspension"
   )
   @Test def testBombReadAbort(): Unit = handleA("testBombReadAbort")
   @Test def testBombCloseInputAbort(): Unit = handleA("testBombCloseInputAbort")

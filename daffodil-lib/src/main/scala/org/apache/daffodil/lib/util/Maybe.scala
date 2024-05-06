@@ -116,7 +116,7 @@ object Maybe {
 
   @inline
   final def fromMaybeAnyRef[T <: AnyRef](anyref: Maybe[AnyRef]) = Maybe(
-    anyref.v.asInstanceOf[T],
+    anyref.v.asInstanceOf[T]
   )
 
   val Nope = new Maybe[Nothing](NopeValue)
@@ -178,7 +178,7 @@ object Maybe {
       if (thing eq null) false
       else if (thing eq NopeValue)
         Assert.usageError(
-          "Maybe.WithNulls.isDefined not for use on Maybe[T] objects, but T (or null) objects.",
+          "Maybe.WithNulls.isDefined not for use on Maybe[T] objects, but T (or null) objects."
         )
       else true
     }

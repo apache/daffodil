@@ -24,5 +24,5 @@ class NonTextFoundInSimpleContentException(details: String)
 
 class IllegalContentWhereEventExpected(details: String)
   extends InvalidInfosetException(
-    "Illegal content where start or end event expected: " + details,
+    "Illegal content where start or end event expected: " + details
   )

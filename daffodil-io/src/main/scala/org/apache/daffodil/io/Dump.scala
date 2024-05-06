@@ -70,7 +70,7 @@ class DataDumper {
 
   def convertBitsToBytesUnits(
     startBitAddress0b: Long,
-    lengthInBits: Long,
+    lengthInBits: Long
   ): (Long, Int, Long) = {
     Assert.usage(startBitAddress0b >= 0)
     Assert.usage(lengthInBits >= 0)
@@ -118,7 +118,7 @@ class DataDumper {
     byteBuffer: ByteBuffer,
     maxLineLength: Int = defaultMaxLineLength,
     includeHeadingLine: Boolean = true,
-    indicatorInfo: Option[(Long, Int)] = None,
+    indicatorInfo: Option[(Long, Int)] = None
   ): Seq[String] = {
     val (shamStartByteAddress0b, lengthInBytes, _) =
       convertBitsToBytesUnits(shamStartBitAddress0b, lengthInBits)
@@ -139,7 +139,7 @@ class DataDumper {
           lengthInBytes,
           byteBuffer,
           enc,
-          indicatorInfoInBytes,
+          indicatorInfoInBytes
         )
       }
       case MixedHexLTR(optionCS) =>
@@ -149,7 +149,7 @@ class DataDumper {
           byteBuffer,
           includeHeadingLine,
           optEncName,
-          indicatorInfoInBytes,
+          indicatorInfoInBytes
         )
       case MixedHexRTL(None) =>
         dumpHexAndTextBytesLSBFirst(
@@ -157,7 +157,7 @@ class DataDumper {
           lengthInBytes,
           byteBuffer,
           includeHeadingLine,
-          optEncName,
+          optEncName
         )
       case _ => Assert.usageError("unsupported dump kind")
     }
@@ -178,7 +178,7 @@ class DataDumper {
     endByteAddress0b: Long,
     byteBuffer: ByteBuffer,
     decoder: Option[JavaCharsetDecoder],
-    textByteWidth: Int,
+    textByteWidth: Int
   ): Unit = {
     var i = rowStart0b + nPadBytesFromPriorLine
     txtsb ++= paddingFromPriorLine
@@ -249,7 +249,7 @@ class DataDumper {
     byteBuffer: ByteBuffer,
     includeHeadingLine: Boolean,
     optEncodingName: Option[String],
-    indicatorInfoInBytes: Option[(Long, Int)],
+    indicatorInfoInBytes: Option[(Long, Int)]
   ): Seq[String] = {
 
     Assert.usage(startByteAddress0b >= 0)
@@ -279,7 +279,7 @@ class DataDumper {
         lengthInBytes,
         hexHeader.length,
         addressHeader.length,
-        textByteWidth,
+        textByteWidth
       )
 
     var isFirstRow = true
@@ -349,7 +349,7 @@ class DataDumper {
           endByteAddress0b,
           byteBuffer,
           decoder,
-          textByteWidth,
+          textByteWidth
         )
 
         if (isLastRow) {
@@ -397,7 +397,7 @@ class DataDumper {
     lengthInBytes: Int,
     hexHeaderLength: Int,
     addressHeaderLength: Int,
-    textByteWidth: Int,
+    textByteWidth: Int
   ) = {
     indicatorInfoInBytes.map { case (goalIndByteAddress0b: Long, indLengthInBytes: Int) =>
       val indByteAddress0b = math.max(goalIndByteAddress0b, startByteAddress0b)
@@ -529,7 +529,7 @@ class DataDumper {
   }
 
   private def getReportingDecoder(
-    optEncodingName: Option[String],
+    optEncodingName: Option[String]
   ): Option[JavaCharsetDecoder] = {
     val cs = optEncodingName.map { JavaCharset.forName(_) }
     lazy val decoder = cs.map { _.newDecoder() }
@@ -544,7 +544,7 @@ class DataDumper {
     startingBytePos0b: Long,
     endingBytePos0b: Long,
     byteBuffer: ByteBuffer,
-    decoder: Option[JavaCharsetDecoder],
+    decoder: Option[JavaCharsetDecoder]
   ): (String, Int, Int) = {
 
     Assert.invariant(decoder.map { d => Misc.isAsciiBased(d.charset()) }.getOrElse(true))
@@ -559,7 +559,7 @@ class DataDumper {
         val INVALID_CODEPOINT = -1
         val lastAvailableBytePos0b = scala.math.min(
           endingBytePos0b,
-          startingBytePos0b + 5,
+          startingBytePos0b + 5
         ) // widest possible char representation is 6 bytes.
         val nBytes = (lastAvailableBytePos0b - startingBytePos0b).toInt + 1
         Assert.invariant(nBytes > 0) // have to have at least 1 byte left
@@ -633,7 +633,7 @@ class DataDumper {
                   (accForRemappedAndNcols, tupResultRemappedAndNcols) =>
                     (
                       accForRemappedAndNcols._1 + tupResultRemappedAndNcols._1, // concat remapped value for each char
-                      accForRemappedAndNcols._2 + tupResultRemappedAndNcols._2,
+                      accForRemappedAndNcols._2 + tupResultRemappedAndNcols._2
                     ) // add width value for each char
                 }
               } else {
@@ -677,7 +677,7 @@ class DataDumper {
     lengthInBytesRequested: Int,
     byteBuffer: ByteBuffer,
     optEncodingName: Option[String] = None,
-    indicatorInfoInBytes: Option[(Long, Int)] = None,
+    indicatorInfoInBytes: Option[(Long, Int)] = None
   ): Seq[String] = {
     Assert.usage(startByteAddress0b >= 0)
     Assert.usage(lengthInBytesRequested >= 0)
@@ -739,7 +739,7 @@ class DataDumper {
    * gets header line, width of a character, and encoding name to actually use
    */
   private def getTextParameters(
-    optEncodingName: Option[String],
+    optEncodingName: Option[String]
   ): (String, Int, Option[String]) = {
     //
     // this def and subsequent match-case are done this way to silence
@@ -770,7 +770,7 @@ class DataDumper {
     lengthInBytes: Int,
     byteBuffer: ByteBuffer,
     includeHeadingLine: Boolean = true,
-    optEncodingName: Option[String] = None,
+    optEncodingName: Option[String] = None
   ): Seq[String] = {
     val ltrDump = dumpHexAndTextBytes(
       startByteAddress0b,
@@ -778,7 +778,7 @@ class DataDumper {
       byteBuffer,
       includeHeadingLine,
       optEncodingName,
-      None,
+      None
     )
     val ltrLines =
       ltrDump.filterNot { _.length() == 0 }

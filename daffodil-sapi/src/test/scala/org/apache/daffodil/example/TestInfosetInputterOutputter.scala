@@ -37,7 +37,7 @@ case class TestInfosetEvent(
   localName: String = null,
   namespaceURI: String = null,
   simpleText: String = null,
-  isNilled: MaybeBoolean = MaybeBoolean.Nope,
+  isNilled: MaybeBoolean = MaybeBoolean.Nope
 )
 
 object TestInfosetEvent {
@@ -48,7 +48,7 @@ object TestInfosetEvent {
   def startComplex(
     name: String,
     namespace: String,
-    isNilled: MaybeBoolean = MaybeBoolean.Nope,
+    isNilled: MaybeBoolean = MaybeBoolean.Nope
   ) =
     TestInfosetEvent(StartElement, name, namespace, null, isNilled)
 
@@ -56,7 +56,7 @@ object TestInfosetEvent {
     name: String,
     namespace: String,
     text: String,
-    isNilled: MaybeBoolean = MaybeBoolean.Nope,
+    isNilled: MaybeBoolean = MaybeBoolean.Nope
   ) =
     TestInfosetEvent(StartElement, name, namespace, text, isNilled)
 
@@ -110,14 +110,14 @@ case class TestInfosetOutputter() extends InfosetOutputter {
         simple.metadata.name,
         simple.metadata.namespace,
         simple.getText,
-        if (simple.metadata.isNillable) MaybeBoolean(simple.isNilled) else MaybeBoolean.Nope,
-      ),
+        if (simple.metadata.isNillable) MaybeBoolean(simple.isNilled) else MaybeBoolean.Nope
+      )
     )
   }
 
   override def endSimple(simple: InfosetSimpleElement): Unit = {
     events.append(
-      TestInfosetEvent.endSimple(simple.metadata.name, simple.metadata.namespace),
+      TestInfosetEvent.endSimple(simple.metadata.name, simple.metadata.namespace)
     )
   }
 
@@ -126,14 +126,14 @@ case class TestInfosetOutputter() extends InfosetOutputter {
       TestInfosetEvent.startComplex(
         complex.metadata.name,
         complex.metadata.namespace,
-        if (complex.metadata.isNillable) MaybeBoolean(complex.isNilled) else MaybeBoolean.Nope,
-      ),
+        if (complex.metadata.isNillable) MaybeBoolean(complex.isNilled) else MaybeBoolean.Nope
+      )
     )
   }
 
   override def endComplex(complex: InfosetComplexElement): Unit = {
     events.append(
-      TestInfosetEvent.endComplex(complex.metadata.name, complex.metadata.namespace),
+      TestInfosetEvent.endComplex(complex.metadata.name, complex.metadata.namespace)
     )
   }
 

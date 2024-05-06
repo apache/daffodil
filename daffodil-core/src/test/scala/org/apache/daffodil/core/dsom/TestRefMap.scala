@@ -35,7 +35,7 @@ class TestRefMap {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="r" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>,
+      <xs:element name="r" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -58,7 +58,7 @@ class TestRefMap {
           <xs:sequence>
             <xs:element name="e" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
           </xs:sequence>
-        </xs:complexType>,
+        </xs:complexType>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -87,7 +87,7 @@ class TestRefMap {
           <xs:sequence>
             <xs:element name="e" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
           </xs:sequence>
-        </xs:group>,
+        </xs:group>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -123,7 +123,7 @@ class TestRefMap {
             <xs:element name="e" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
             <xs:element name="f" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
           </xs:choice>
-        </xs:group>,
+        </xs:group>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -170,7 +170,7 @@ class TestRefMap {
             <xs:element name="e1" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:outputValueCalc="{ 0 }"/>
             <xs:element name="f1" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
           </xs:choice>
-        </xs:group>,
+        </xs:group>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -218,7 +218,7 @@ class TestRefMap {
               <xs:element name="f1" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
             </xs:sequence>
           </xs:complexType>
-        </xs:element>,
+        </xs:element>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -276,7 +276,7 @@ class TestRefMap {
               <xs:element name="f1" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
             </xs:sequence>
           </xs:complexType>
-        </xs:element>,
+        </xs:element>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -330,7 +330,7 @@ class TestRefMap {
               <xs:element name="f1" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
             </xs:sequence>
           </xs:complexType>
-        </xs:element>,
+        </xs:element>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -392,7 +392,7 @@ class TestRefMap {
               <xs:element name="f0" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
             </xs:sequence>
           </xs:complexType>
-        </xs:element>,
+        </xs:element>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -462,7 +462,7 @@ class TestRefMap {
               <xs:element name="f0" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
             </xs:sequence>
           </xs:complexType>
-        </xs:element>,
+        </xs:element>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -540,7 +540,7 @@ class TestRefMap {
               <xs:element name="f0" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
             </xs:sequence>
           </xs:complexType>
-        </xs:element>,
+        </xs:element>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -626,7 +626,7 @@ class TestRefMap {
               <xs:element name="f0" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
             </xs:sequence>
           </xs:complexType>
-        </xs:element>,
+        </xs:element>
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -676,7 +676,7 @@ class TestRefMap {
           </xs:sequence>
         </xs:group>,
       useDefaultNamespace = false,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val compiler = Compiler()
     val sset = compiler.compileNode(testSchema).sset
@@ -723,7 +723,7 @@ class TestRefMap {
       ++
         restOfXML,
     useDefaultNamespace = false,
-    elementFormDefault = "unqualified",
+    elementFormDefault = "unqualified"
   )
 
   lazy val restOfXML =
@@ -808,7 +808,7 @@ class TestRefMap {
     val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
     assertTrue(isError)
     assertTrue(
-      msgs.toLowerCase.contains("Relative path '../../rr/f' past root element".toLowerCase),
+      msgs.toLowerCase.contains("Relative path '../../rr/f' past root element".toLowerCase)
     )
   }
 
@@ -830,7 +830,7 @@ class TestRefMap {
       ++
         restOfXML,
     useDefaultNamespace = false,
-    elementFormDefault = "unqualified",
+    elementFormDefault = "unqualified"
   )
 
   /**
@@ -881,7 +881,7 @@ class TestRefMap {
         ++
         restOfXML2,
     useDefaultNamespace = false,
-    elementFormDefault = "unqualified",
+    elementFormDefault = "unqualified"
   )
 
   /**

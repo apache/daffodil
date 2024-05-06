@@ -156,7 +156,7 @@ class PrettyPrinter(step: Int) {
       case co: Comment => sb.append(n.toString)
       case _ =>
         Assert.invariantFailed(
-          "XML infoset node did not contain only other elements, PI or comments: " + n,
+          "XML infoset node did not contain only other elements, PI or comments: " + n
         )
     }
   }

@@ -67,7 +67,7 @@ trait DFA {
   final protected def runLoop(
     r: Registers,
     terminateLoopOnState: Int,
-    finalStatus: StateKind.StateKind,
+    finalStatus: StateKind.StateKind
   ): Unit = {
     Assert.invariant(r.actionNum >= 0)
     r.status = StateKind.Parsing
@@ -89,7 +89,7 @@ final class DFADelimiterImpl(
   override val delimType: DelimiterTextType.Type,
   val states: Array[State],
   val lookingFor: String,
-  override val location: SchemaFileLocation,
+  override val location: SchemaFileLocation
 ) extends DFADelimiter
   with Serializable {
 
@@ -101,7 +101,7 @@ final class DFADelimiterImplUnparse(
   val states: Array[State],
   val lookingFor: String,
   val unparseValue: String,
-  override val location: SchemaFileLocation,
+  override val location: SchemaFileLocation
 ) extends DFADelimiter
   with Serializable {}
 

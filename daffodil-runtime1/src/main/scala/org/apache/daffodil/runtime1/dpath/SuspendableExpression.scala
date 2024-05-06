@@ -47,12 +47,12 @@ trait SuspendableExpression extends Suspension {
     var v: DataValuePrimitiveNullable = DataValue.NoValue
     if (!isBlocked) {
       Logger.log.debug(
-        s"Starting suspendable expression for ${rd.diagnosticDebugName}, expr=${expr.prettyExpr}",
+        s"Starting suspendable expression for ${rd.diagnosticDebugName}, expr=${expr.prettyExpr}"
       )
     } else {
       this.setUnblocked()
       Logger.log.debug(
-        s"Retrying suspendable expression for ${rd.diagnosticDebugName}, expr=${expr.prettyExpr}",
+        s"Retrying suspendable expression for ${rd.diagnosticDebugName}, expr=${expr.prettyExpr}"
       )
     }
     while (v.isEmpty && !this.isBlocked) {
@@ -60,13 +60,13 @@ trait SuspendableExpression extends Suspension {
       if (v.isEmpty) {
         Assert.invariant(this.isBlocked)
         Logger.log.debug(
-          s"UnparserBlocking suspendable expression for ${rd.diagnosticDebugName}, expr=${expr.prettyExpr}",
+          s"UnparserBlocking suspendable expression for ${rd.diagnosticDebugName}, expr=${expr.prettyExpr}"
         )
       } else {
         Assert.invariant(this.isDone)
         Assert.invariant(ustate.currentInfosetNodeMaybe.isDefined)
         Logger.log.debug(
-          s"Completed suspendable expression for ${rd.diagnosticDebugName}, expr=$expr.prettyExpr{}",
+          s"Completed suspendable expression for ${rd.diagnosticDebugName}, expr=$expr.prettyExpr{}"
         )
         processExpressionResult(ustate, v.getNonNullable)
       }

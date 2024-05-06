@@ -31,7 +31,7 @@ trait Facets { self: Restriction =>
 
   private def retrieveFacetValueFromRestrictionBase(
     xml: Node,
-    facetName: Facet.Type,
+    facetName: Facet.Type
   ): String = {
     val res = xml \\ "restriction" \ facetName.toString() \ "@value"
     if (res.length > 0) res.head.text else ""
@@ -39,7 +39,7 @@ trait Facets { self: Restriction =>
 
   private def retrieveFacetValuesFromRestrictionBase(
     xml: Node,
-    facetName: Facet.Type,
+    facetName: Facet.Type
   ): Seq[String] = {
     val res = xml \\ "restriction" \ facetName.toString() \\ "@value"
     val ret = if (res.length > 0) res.map(n => n.text).toList else List.empty
@@ -103,7 +103,7 @@ trait Facets { self: Restriction =>
     // so we won't get to this code in those cases unless Xerces validation is turned off
     Assert.usage(
       ml.isEmpty || localLengthValue.isEmpty,
-      "Facets length and minLength cannot be specified together",
+      "Facets length and minLength cannot be specified together"
     )
     ml
   }
@@ -113,7 +113,7 @@ trait Facets { self: Restriction =>
     // so we won't get to this code in those cases unless Xerces validation is turned off
     Assert.usage(
       ml.isEmpty || localLengthValue.isEmpty,
-      "Facets length and maxLength cannot be specified together",
+      "Facets length and maxLength cannot be specified together"
     )
     ml
   }
@@ -236,7 +236,7 @@ trait Facets { self: Restriction =>
         valuesRemapped
       case (_, InvalidRestrictionPolicy.Error) =>
         SDE(
-          "Pattern restriction is only allowed to be applied to string and types derived from string.",
+          "Pattern restriction is only allowed to be applied to string and types derived from string."
         )
       case (_, InvalidRestrictionPolicy.Ignore) =>
         Nil
@@ -276,7 +276,7 @@ trait Facets { self: Restriction =>
   private def errorOnLocalLessThanBaseFacet(
     local: BigInteger,
     base: BigInteger,
-    theFacetType: Facet.Type,
+    theFacetType: Facet.Type
   ) = {
     val res = local.compareTo(base)
     if (res < 0)
@@ -285,13 +285,13 @@ trait Facets { self: Restriction =>
         theFacetType,
         local,
         theFacetType,
-        base,
+        base
       )
   }
   private def errorOnLocalGreaterThanBaseFacet(
     local: BigInteger,
     base: BigInteger,
-    theFacetType: Facet.Type,
+    theFacetType: Facet.Type
   ) = {
     val res = local.compareTo(base)
     if (res > 0)
@@ -300,13 +300,13 @@ trait Facets { self: Restriction =>
         theFacetType,
         local,
         theFacetType,
-        base,
+        base
       )
   }
   private def errorOnLocalLessThanBaseFacet(
     local: java.math.BigDecimal,
     base: java.math.BigDecimal,
-    theFacetType: Facet.Type,
+    theFacetType: Facet.Type
   ) = {
     val res = local.compareTo(base)
     if (res < 0)
@@ -315,13 +315,13 @@ trait Facets { self: Restriction =>
         theFacetType,
         local,
         theFacetType,
-        base,
+        base
       )
   }
   private def errorOnLocalGreaterThanBaseFacet(
     local: java.math.BigDecimal,
     base: java.math.BigDecimal,
-    theFacetType: Facet.Type,
+    theFacetType: Facet.Type
   ) = {
     val res = local.compareTo(base)
     if (res > 0)
@@ -330,13 +330,13 @@ trait Facets { self: Restriction =>
         theFacetType,
         local,
         theFacetType,
-        base,
+        base
       )
   }
   private def errorOnLocalNotEqualToBaseFacet(
     local: BigInteger,
     base: BigInteger,
-    theFacetType: Facet.Type,
+    theFacetType: Facet.Type
   ) = {
     val res = local.compareTo(base)
     if (res != 0)
@@ -345,7 +345,7 @@ trait Facets { self: Restriction =>
         theFacetType,
         local,
         theFacetType,
-        base,
+        base
       )
   }
 
@@ -368,7 +368,7 @@ trait Facets { self: Restriction =>
     theLocalValue: String,
     theRemoteValue: String,
     theType: Facet.Type,
-    exists: Boolean,
+    exists: Boolean
   ): java.math.BigDecimal = {
     if (!exists) SDE("The facet %s was not found.", theType)
     else if (theLocalValue != "" && theRemoteValue != "") {
@@ -384,7 +384,7 @@ trait Facets { self: Restriction =>
   private def getFacetValue(
     theLocalValue: String,
     theType: Facet.Type,
-    exists: Boolean,
+    exists: Boolean
   ): java.math.BigDecimal = {
     val remoteFacets = getRemoteFacetValues(theType)
     if (!exists) SDE("The facet %s was not found.", theType)
@@ -403,7 +403,7 @@ trait Facets { self: Restriction =>
   private def narrowNonNegativeFacets(
     localFacet: String,
     remoteFacet: String,
-    facetType: Facet.Type,
+    facetType: Facet.Type
   ): String = {
     val theLocalFacet = new BigInteger(localFacet)
     val theRemoteFacet = new BigInteger(remoteFacet)
@@ -432,7 +432,7 @@ trait Facets { self: Restriction =>
   private def narrowPositiveIntegerFacets(
     localFacet: String,
     remoteFacet: String,
-    facetType: Facet.Type,
+    facetType: Facet.Type
   ): String = {
     val theLocalFacet = new BigInteger(localFacet)
     val theRemoteFacet = new BigInteger(remoteFacet)
@@ -453,7 +453,7 @@ trait Facets { self: Restriction =>
   private def narrowValueSpaceFacets(
     localFacet: String,
     remoteFacet: String,
-    facetType: Facet.Type,
+    facetType: Facet.Type
   ) = {
     val (theLocalFacet, theRemoteFacet) =
       checkValueSpaceFacetRange(localFacet, remoteFacet, facetType)
@@ -489,7 +489,7 @@ trait Facets { self: Restriction =>
           facet,
           "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx",
           PrimType.DateTime.toString(),
-          this,
+          this
         )
       case PrimType.Date =>
         dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString(), this)
@@ -501,7 +501,7 @@ trait Facets { self: Restriction =>
 
   private def checkValueSpaceFacetRange(
     localFacet: String,
-    facetType: Facet.Type,
+    facetType: Facet.Type
   ): java.math.BigDecimal = {
     // Necessary for min/max Inclusive/Exclusive Facets
 
@@ -519,7 +519,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of Int range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -528,7 +528,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of Byte range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -537,7 +537,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of Short range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -546,7 +546,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of Long range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -556,7 +556,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of Integer range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -565,7 +565,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of unsigned int range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -574,7 +574,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of unsigned byte range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -583,7 +583,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of unsigned short range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -592,7 +592,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of unsigned long range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -601,7 +601,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of Double range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -610,7 +610,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of Float range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -620,7 +620,7 @@ trait Facets { self: Restriction =>
               SDE(
                 "%s facet value (%s) was found to be outside of NonNegativeInteger range.",
                 facetType,
-                localFacet,
+                localFacet
               )
             }
           }
@@ -633,7 +633,7 @@ trait Facets { self: Restriction =>
           case PrimType.String => { /* Nothing to do here */ }
           case _ =>
             Assert.usageError(
-              "checkValueSpaceFacetRange - Unrecognized primitive type: " + primType.name,
+              "checkValueSpaceFacetRange - Unrecognized primitive type: " + primType.name
             )
         }
       }
@@ -645,7 +645,7 @@ trait Facets { self: Restriction =>
   private def checkValueSpaceFacetRange(
     localFacet: String,
     remoteFacet: String,
-    facetType: Facet.Type,
+    facetType: Facet.Type
   ): (java.math.BigDecimal, java.math.BigDecimal) = {
     // Neccessary for min/max Inclusive/Exclusive Facets
 
@@ -699,7 +699,7 @@ trait Facets { self: Restriction =>
   protected def doNumericFacetNarrowing(
     localFacet: String,
     remoteFacet: String,
-    facetType: Facet.Type,
+    facetType: Facet.Type
   ) = {
     // Assumes both local and remote facets exist
     // Only for Numeric facets

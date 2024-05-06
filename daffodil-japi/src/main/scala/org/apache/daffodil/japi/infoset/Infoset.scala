@@ -33,20 +33,20 @@ import org.apache.daffodil.runtime1.infoset.{ JsonInfosetInputter => SJsonInfose
 import org.apache.daffodil.runtime1.infoset.{ JsonInfosetOutputter => SJsonInfosetOutputter }
 import org.apache.daffodil.runtime1.infoset.{ NullInfosetOutputter => SNullInfosetOutputter }
 import org.apache.daffodil.runtime1.infoset.{
-  ScalaXMLInfosetInputter => SScalaXMLInfosetInputter,
+  ScalaXMLInfosetInputter => SScalaXMLInfosetInputter
 }
 import org.apache.daffodil.runtime1.infoset.{
-  ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter,
+  ScalaXMLInfosetOutputter => SScalaXMLInfosetOutputter
 }
 import org.apache.daffodil.runtime1.infoset.{ W3CDOMInfosetInputter => SW3CDOMInfosetInputter }
 import org.apache.daffodil.runtime1.infoset.{
-  W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter,
+  W3CDOMInfosetOutputter => SW3CDOMInfosetOutputter
 }
 import org.apache.daffodil.runtime1.infoset.{
-  XMLTextInfosetInputter => SXMLTextInfosetInputter,
+  XMLTextInfosetInputter => SXMLTextInfosetInputter
 }
 import org.apache.daffodil.runtime1.infoset.{
-  XMLTextInfosetOutputter => SXMLTextInfosetOutputter,
+  XMLTextInfosetOutputter => SXMLTextInfosetOutputter
 }
 
 /**
@@ -87,7 +87,7 @@ abstract class InfosetInputter extends SInfosetInputter {
    */
   def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String =
     getSimpleText(primType)
 
@@ -259,8 +259,8 @@ class XMLTextInfosetOutputter private (outputter: SXMLTextInfosetOutputter)
     new SXMLTextInfosetOutputter(
       os,
       pretty,
-      XMLTextEscapeStyleConversions.styleToScala(XMLTextEscapeStyle.Standard),
-    ),
+      XMLTextEscapeStyleConversions.styleToScala(XMLTextEscapeStyle.Standard)
+    )
   )
 
   /**
@@ -277,14 +277,14 @@ class XMLTextInfosetOutputter private (outputter: SXMLTextInfosetOutputter)
   def this(
     os: java.io.OutputStream,
     pretty: Boolean,
-    xmlTextEscapeStyle: XMLTextEscapeStyle,
+    xmlTextEscapeStyle: XMLTextEscapeStyle
   ) = {
     this(
       new SXMLTextInfosetOutputter(
         os,
         pretty,
-        XMLTextEscapeStyleConversions.styleToScala(xmlTextEscapeStyle),
-      ),
+        XMLTextEscapeStyleConversions.styleToScala(xmlTextEscapeStyle)
+      )
     )
   }
 
@@ -432,7 +432,7 @@ abstract class InfosetInputterProxy extends InfosetInputter {
   override def getNamespaceURI() = infosetInputter.getNamespaceURI()
   override def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String = {
     infosetInputter.getSimpleText(primType, runtimeProperties)
   }

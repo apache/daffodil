@@ -59,7 +59,7 @@ private class LayerSchemaCompiler private (sq: SequenceGroupTermBase) {
     if (disallowedKeys.nonEmpty)
       sq.SDE(
         "Sequence has dfdlx:layer specified, so cannot have non-layering properties: %s",
-        disallowedKeys.mkString(", "),
+        disallowedKeys.mkString(", ")
       )
   }
 

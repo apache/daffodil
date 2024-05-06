@@ -74,7 +74,7 @@ final class DaffodilCTDMLDFDLProcessorFactory(compiler: Compiler)
     useSerializedProcessor: Boolean,
     optRootName: Option[String] = None,
     optRootNamespace: Option[String] = None,
-    tunables: Map[String, String],
+    tunables: Map[String, String]
   ): TDML.CompileResult = {
 
     // Compile the DFDL schema into diagnostics and/or a processor factory
@@ -147,7 +147,7 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
     val inputSizeInBits = os.size(infile) * 8
     assert(
       inputSizeInBits == lengthLimitInBits,
-      s"$infile has $inputSizeInBits bits, but needed $lengthLimitInBits bits",
+      s"$infile has $inputSizeInBits bits, but needed $lengthLimitInBits bits"
     )
 
     // Parse the input file using the executable and capture its exit status
@@ -210,7 +210,7 @@ final class DaffodilCTDMLDFDLProcessor(executable: os.Path) extends TDMLDFDLProc
   // Complete a round trip from data to infoset and back to data
   override def unparse(
     parseResult: TDMLParseResult,
-    outStream: OutputStream,
+    outStream: OutputStream
   ): TDMLUnparseResult = {
     val infosetXML = parseResult.getResult
     val res = unparse(infosetXML, outStream)
@@ -225,7 +225,7 @@ final class DaffodilCTDMLParseResult(
   finalBitPos0b: Long,
   outfile: os.Path,
   processorResult: ProcessorResult,
-  messages: String = "",
+  messages: String = ""
 ) extends TDMLParseResult {
 
   private var diagnostics: Seq[Diagnostic] = processorResult match {
@@ -287,7 +287,7 @@ object DaffodilCTDMLDataLocation {
 final class DaffodilCTDMLUnparseResult(
   override val finalBitPos0b: Long,
   processorResult: ProcessorResult,
-  messages: String = "",
+  messages: String = ""
 ) extends TDMLUnparseResult {
 
   private val diagnostics: Seq[Diagnostic] = processorResult match {

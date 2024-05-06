@@ -31,14 +31,14 @@ abstract class ThinDiagnostic(
   dataContext: Maybe[DataLocation],
   maybeCause: Maybe[Throwable],
   maybeFormatString: Maybe[String],
-  args: Any*,
+  args: Any*
 ) extends Diagnostic(
     false, // thin, i.e., not isThick
     schemaContext,
     dataContext,
     maybeCause,
     maybeFormatString,
-    args: _*,
+    args: _*
   ) {
   Assert.invariant(maybeCause.isDefined || maybeFormatString.isDefined)
 }
@@ -55,12 +55,12 @@ abstract class Diagnostic protected (
   private val dataContext: Maybe[DataLocation],
   private val maybeCause: Maybe[Throwable],
   private val maybeFormatString: Maybe[String],
-  private val args: Any*,
+  private val args: Any*
 ) extends Exception(
     maybeFormatString.orNull,
     maybeCause.orNull,
     isThick,
-    isThick,
+    isThick
   ) {
 
   /**
@@ -72,14 +72,14 @@ abstract class Diagnostic protected (
     dataContext: Maybe[DataLocation],
     maybeCause: Maybe[Throwable],
     maybeFormatString: Maybe[String],
-    args: Any*,
+    args: Any*
   ) = this(
     true, // isThick
     schemaContext,
     dataContext,
     maybeCause,
     maybeFormatString,
-    args: _*,
+    args: _*
   )
 
   final def toss =
@@ -202,7 +202,7 @@ abstract class Diagnostic protected (
           case e: IllegalArgumentException =>
             Assert.abort(
               e.getMessage() + """\nFormat string "%s" did not accept these arguments: %s."""
-                .format(maybeFormatString.get, args.mkString(", ")),
+                .format(maybeFormatString.get, args.mkString(", "))
             )
         }
       } else maybeFormatString.get
@@ -289,8 +289,8 @@ trait WithDiagnostics {
       !isError,
       new IllegalStateException(
         "Must call isError() to ensure there are no errors",
-        getDiagnostics.find(_.isError).get,
-      ),
+        getDiagnostics.find(_.isError).get
+      )
     )
   }
 }

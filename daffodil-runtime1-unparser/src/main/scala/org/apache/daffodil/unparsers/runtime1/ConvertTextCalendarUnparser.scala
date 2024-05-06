@@ -31,7 +31,7 @@ case class ConvertTextCalendarUnparser(
   override val context: ElementRuntimeData,
   pattern: String,
   calendarEv: CalendarEv,
-  dateTimeFormatterEv: DateTimeFormatterEv,
+  dateTimeFormatterEv: DateTimeFormatterEv
 ) extends TextPrimUnparser {
 
   /**
@@ -51,8 +51,8 @@ case class ConvertTextCalendarUnparser(
         Assert.invariantFailed(
           "ConvertTextCalendar received unsupported type. %s of type %s.".format(
             x,
-            Misc.getNameFromClass(x),
-          ),
+            Misc.getNameFromClass(x)
+          )
         )
     }
 
@@ -100,7 +100,7 @@ case class ConvertTextCalendarUnparser(
       infosetCalendar.get(Calendar.DAY_OF_MONTH),
       infosetCalendar.get(Calendar.HOUR_OF_DAY),
       infosetCalendar.get(Calendar.MINUTE),
-      infosetCalendar.get(Calendar.SECOND),
+      infosetCalendar.get(Calendar.SECOND)
     )
     calendar.set(Calendar.MILLISECOND, infosetCalendar.get(Calendar.MILLISECOND))
     calendar.setTimeZone(infosetCalendar.getTimeZone)

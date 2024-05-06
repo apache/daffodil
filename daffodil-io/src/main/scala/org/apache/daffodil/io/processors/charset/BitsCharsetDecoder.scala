@@ -72,7 +72,7 @@ abstract class BitsCharsetDecoder {
     dis: InputSourceDataInputStream,
     finfo: FormatInfo,
     chars: CharBuffer,
-    bitPositions: LongBuffer = null,
+    bitPositions: LongBuffer = null
   ): Int = {
     Assert.invariant(bitPositions == null || (chars.remaining <= bitPositions.remaining))
 
@@ -100,7 +100,7 @@ abstract class BitsCharsetDecoder {
    */
   @inline private def decodeOneHandleMalformed(
     dis: InputSourceDataInputStream,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): MaybeChar = {
     try {
       val c = decodeOneChar(dis, finfo)
@@ -143,7 +143,7 @@ abstract class BitsCharsetDecoderByteSize extends BitsCharsetDecoder {
   // gets the next byte from the data, returns an int in the range 0 to 255
   @inline protected final def getByte(
     dis: InputSourceDataInputStream,
-    bitsConsumedSoFar: Int,
+    bitsConsumedSoFar: Int
   ): Int = {
     if (!dis.isDefinedForLength(8)) {
       throw new BitsCharsetDecoderMalformedException(bitsConsumedSoFar)
@@ -176,14 +176,14 @@ abstract class BitsCharsetDecoderByteSize extends BitsCharsetDecoder {
 abstract class BitsCharsetDecoderCreatesSurrogates extends BitsCharsetDecoderByteSize {
 
   class BitsCharsetDecoderSurrogateState(
-    var lowSurrogate: MaybeChar = MaybeChar.Nope,
+    var lowSurrogate: MaybeChar = MaybeChar.Nope
   ) extends BitsCharsetDecoderState
 
   protected var state = new BitsCharsetDecoderSurrogateState()
 
   final protected override def decodeOneChar(
     dis: InputSourceDataInputStream,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Char = {
     if (state.lowSurrogate.isDefined) {
       val low = state.lowSurrogate.get

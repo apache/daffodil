@@ -55,7 +55,7 @@ case class BacktrackingException(position: Long, maxBacktrackLength: Int)
   extends ThinException(
     "Attempted to backtrack to byte %d, which exceeds maximum backtrack length of %d",
     position,
-    maxBacktrackLength,
+    maxBacktrackLength
   )
 
 /**
@@ -218,7 +218,7 @@ abstract class InputSource {
 class BucketingInputSource(
   inputStream: java.io.InputStream,
   bucketSize: Int = 1 << 13,
-  maxCacheSizeInBytes: Int = 256 * (1 << 20),
+  maxCacheSizeInBytes: Int = 256 * (1 << 20)
 ) extends InputSource {
 
   private class Bucket {
@@ -319,7 +319,7 @@ class BucketingInputSource(
         inputStream.read(
           buckets(lastBucketIndex).bytes,
           bytesFilledInLastBucket,
-          emptyBytesInLastBucket,
+          emptyBytesInLastBucket
         )
 
       // check for bad inputStream behavior. It's not our fault!
@@ -467,7 +467,7 @@ class BucketingInputSource(
           byteIndex.toInt,
           dest,
           destOffset,
-          bytesToGetFromCurrentBucket,
+          bytesToGetFromCurrentBucket
         )
 
         destOffset += bytesToGetFromCurrentBucket

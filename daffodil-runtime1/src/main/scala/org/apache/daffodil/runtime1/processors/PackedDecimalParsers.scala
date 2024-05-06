@@ -31,7 +31,7 @@ class PackedDecimalKnownLengthParser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
-  val lengthInBits: Int,
+  val lengthInBits: Int
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 
@@ -47,7 +47,7 @@ class PackedDecimalRuntimeLengthParser(
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
@@ -65,7 +65,7 @@ class PackedDecimalPrefixedLengthParser(
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with PrefixedLengthParserMixin {
 
@@ -87,7 +87,7 @@ class PackedIntegerRuntimeLengthParser(
   signed: Boolean,
   packedSignCodes: PackedSignCodes,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends PackedBinaryIntegerBaseParser(e, signed)
   with HasRuntimeExplicitLength {
 
@@ -102,7 +102,7 @@ class PackedIntegerKnownLengthParser(
   e: ElementRuntimeData,
   signed: Boolean,
   packedSignCodes: PackedSignCodes,
-  val lengthInBits: Int,
+  val lengthInBits: Int
 ) extends PackedBinaryIntegerBaseParser(e, signed)
   with HasKnownLengthInBits {
 
@@ -120,7 +120,7 @@ class PackedIntegerPrefixedLengthParser(
   signed: Boolean,
   packedSignCodes: PackedSignCodes,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends PackedBinaryIntegerBaseParser(e, signed)
   with PrefixedLengthParserMixin {
 

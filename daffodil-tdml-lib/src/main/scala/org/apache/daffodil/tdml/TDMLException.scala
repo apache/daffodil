@@ -64,10 +64,10 @@ trait TDMLException { self: Exception =>
 class TDMLExceptionImpl(
   override val msg: String,
   override val causes: Seq[Throwable],
-  override val implementation: Option[String],
+  override val implementation: Option[String]
 ) extends Exception(
     TDMLException.msgWithImpl(msg, implementation),
-    if (causes.length > 0) causes(0) else null,
+    if (causes.length > 0) causes(0) else null
   )
   with TDMLException {
 
@@ -81,7 +81,7 @@ class TDMLExceptionImpl(
       .map { cause => Misc.getNameFromClass(cause) + ": " + cause.getMessage() }
       .mkString("\n"),
     causes,
-    implementation,
+    implementation
   )
 }
 
@@ -93,7 +93,7 @@ class TDMLDiagnostic(diag: String, implementation: Option[String])
     Maybe.Nope,
     Maybe.Nope,
     Maybe.Nope,
-    Maybe(TDMLException.msgWithImpl(diag, implementation)),
+    Maybe(TDMLException.msgWithImpl(diag, implementation))
   ) {
   override def isError = true
   override def modeName = "TDML"
@@ -112,9 +112,9 @@ class TDMLDiagnostic(diag: String, implementation: Option[String])
 class TDMLTestNotCompatibleException(
   testName: String,
   override val implementation: Option[String],
-  cause: Option[Throwable] = None,
+  cause: Option[Throwable] = None
 ) extends TDMLExceptionImpl(
     "Test '%s' not compatible with implementation.".format(testName),
     cause.toSeq,
-    implementation,
+    implementation
   )

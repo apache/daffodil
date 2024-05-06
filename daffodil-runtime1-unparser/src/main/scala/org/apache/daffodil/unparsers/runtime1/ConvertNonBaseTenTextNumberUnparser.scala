@@ -26,7 +26,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 
 case class ConvertNonBaseTenTextNumberUnparser(
   override val context: ElementRuntimeData,
-  base: Int,
+  base: Int
 ) extends TextPrimUnparser {
 
   override lazy val runtimeDependencies = Vector()
@@ -43,7 +43,7 @@ case class ConvertNonBaseTenTextNumberUnparser(
             state,
             "Unable to unparse negative values when dfdl:textStandardBase=\"%d\": %s",
             base,
-            bi.toString,
+            bi.toString
           )
         }
         bi.toString(base)
@@ -55,7 +55,7 @@ case class ConvertNonBaseTenTextNumberUnparser(
             state,
             "Unable to unparse negative values when dfdl:textStandardBase=\"%d\": %s",
             base,
-            l.toString,
+            l.toString
           )
         }
         base match {

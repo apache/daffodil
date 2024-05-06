@@ -41,7 +41,7 @@ object CreateDelimiterDFA {
     ci: DPathCompileInfo,
     delimiter: Seq[DelimBase],
     delimiterStr: String,
-    outputNewLine: String,
+    outputNewLine: String
   ): DFADelimiter = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
@@ -54,7 +54,7 @@ object CreateDelimiterDFA {
       allStates.reverse.toArray,
       delimiterStr,
       unparseValue,
-      ci.schemaFileLocation,
+      ci.schemaFileLocation
     )
   }
 
@@ -67,7 +67,7 @@ object CreateDelimiterDFA {
     ci: DPathCompileInfo,
     delimiter: Seq[DelimBase],
     delimiterStr: String,
-    ignoreCase: Boolean,
+    ignoreCase: Boolean
   ): DFADelimiter = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
@@ -78,7 +78,7 @@ object CreateDelimiterDFA {
       delimType,
       allStates.reverse.toArray,
       delimiterStr,
-      ci.schemaFileLocation,
+      ci.schemaFileLocation
     )
   }
 
@@ -90,7 +90,7 @@ object CreateDelimiterDFA {
     delimType: DelimiterTextType.Type,
     ci: DPathCompileInfo,
     delimiterStr: String,
-    ignoreCase: Boolean,
+    ignoreCase: Boolean
   ): DFADelimiter = {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr, ignoreCase)
@@ -106,7 +106,7 @@ object CreateDelimiterDFA {
     delimType: DelimiterTextType.Type,
     ci: DPathCompileInfo,
     delimiterStr: String,
-    outputNewLine: String,
+    outputNewLine: String
   ): DFADelimiter = {
     val d = new Delimiter()
     d.compileDelimiter(delimiterStr, false)
@@ -122,7 +122,7 @@ object CreateDelimiterDFA {
     delimType: DelimiterTextType.Type,
     ci: DPathCompileInfo,
     delimiters: Seq[String],
-    outputNewLine: String,
+    outputNewLine: String
   ): Array[DFADelimiter] = {
     delimiters.map(d => apply(delimType, ci, d, outputNewLine)).toArray
   }
@@ -135,7 +135,7 @@ object CreateDelimiterDFA {
     delimType: DelimiterTextType.Type,
     ci: DPathCompileInfo,
     delimiters: Seq[String],
-    ignoreCase: Boolean,
+    ignoreCase: Boolean
   ): Array[DFADelimiter] = {
     delimiters.map(d => apply(delimType, ci, d, ignoreCase)).toArray
   }
@@ -148,7 +148,7 @@ object CreateDelimiterDFA {
     nextState: Int,
     stateNum: Int,
     allStates: ArrayBuffer[State],
-    ignoreCase: Boolean,
+    ignoreCase: Boolean
   ): DelimStateBase = {
 
     val theState = d match {
@@ -177,7 +177,7 @@ object CreateDelimiterDFA {
   private def buildTransitions(
     delim: Seq[DelimBase],
     allStates: ArrayBuffer[State],
-    ignoreCase: Boolean,
+    ignoreCase: Boolean
   ): State = {
     assert(!delim.isEmpty)
     buildTransitions(null, delim.reverse, allStates, ignoreCase)
@@ -187,7 +187,7 @@ object CreateDelimiterDFA {
     nextState: DelimStateBase,
     delim: Seq[DelimBase],
     allStates: ArrayBuffer[State],
-    ignoreCase: Boolean,
+    ignoreCase: Boolean
   ): State = {
 
     if (delim.isEmpty && nextState != null) {
@@ -201,7 +201,7 @@ object CreateDelimiterDFA {
       if (nextState == null) DFA.FinalState else nextState.stateNum,
       delim.length - 1,
       allStates,
-      ignoreCase,
+      ignoreCase
     )
     val rest = delim.tail
 

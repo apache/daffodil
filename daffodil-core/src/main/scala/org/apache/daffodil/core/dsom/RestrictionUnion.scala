@@ -93,7 +93,7 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
       QName.resolveRef(baseQNameString, xml.scope, tunable.unqualifiedPathStepPolicy)
     schemaDefinitionUnless(
       tryBaseQName.isSuccess,
-      "Failed to resolve base property reference for xs:restriction: " + tryBaseQName.failed.get.getMessage,
+      "Failed to resolve base property reference for xs:restriction: " + tryBaseQName.failed.get.getMessage
     )
     tryBaseQName.get
   }
@@ -264,7 +264,7 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
         "All types in a simple type union must have the same primitive type." +
           "The first type's primitive type '%s' does not match: %s.",
         fmpt.globalQName.toQNameString,
-        nonMatch.map { _.primType.globalQName.toQNameString }.mkString(", "),
+        nonMatch.map { _.primType.globalQName.toQNameString }.mkString(", ")
       )
       fmpt
     }
@@ -294,7 +294,7 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
     schemaDefinitionUnless(
       directMemberTypes.length > 0,
       "A simpleType union must have 2 or more member types. Only %d were found.",
-      directMemberTypes.length,
+      directMemberTypes.length
     )
     directMemberTypes
   }
@@ -305,7 +305,7 @@ sealed trait TypeChecks { self: Restriction =>
     date: String,
     format: String,
     dateType: String,
-    context: ThrowsSDE,
+    context: ThrowsSDE
   ): JBigDecimal = {
     val df = new SimpleDateFormat(format)
     df.setCalendar(new GregorianCalendar())
@@ -331,7 +331,7 @@ sealed trait TypeChecks { self: Restriction =>
                 dateType,
                 format,
                 e2.getMessage(),
-                e1.getMessage(),
+                e1.getMessage()
               )
           }
         }
@@ -342,7 +342,7 @@ sealed trait TypeChecks { self: Restriction =>
   private def convertStringToBigDecimal(
     value: String,
     primType: PrimType,
-    context: ThrowsSDE,
+    context: ThrowsSDE
   ): JBigDecimal = {
     primType match {
       case PrimType.DateTime =>
@@ -350,7 +350,7 @@ sealed trait TypeChecks { self: Restriction =>
           value,
           "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx",
           PrimType.DateTime.toString(),
-          context,
+          context
         )
       case PrimType.Date =>
         dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
@@ -363,7 +363,7 @@ sealed trait TypeChecks { self: Restriction =>
   def checkRangeReturnsValue(
     value: String,
     primType: PrimType,
-    theContext: ThrowsSDE,
+    theContext: ThrowsSDE
   ): (Boolean, Option[JBigDecimal]) = {
     // EmptyString is only valid for hexBinary and String
     if ((value == null | value.length() == 0)) {
@@ -516,7 +516,7 @@ sealed trait TypeChecks { self: Restriction =>
     if (checkMin < 0)
       context.SDE(
         "Value (%s) was found to be more negative than allowed by Int.MinValue.",
-        value.intValue(),
+        value.intValue()
       )
     true
   }
@@ -529,7 +529,7 @@ sealed trait TypeChecks { self: Restriction =>
   protected def isInUnsignedXXXRange(
     value: JBigDecimal,
     numBits: Int,
-    typeName: String,
+    typeName: String
   ): Boolean = {
     Assert.usage(numBits <= 64, "isInUnsignedXXXRange: numBits must be <= 64.")
     val max = new JBigDecimal(JBigInt.ONE.shiftLeft(numBits)).subtract(new JBigDecimal(1))

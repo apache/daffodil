@@ -126,7 +126,7 @@ abstract class CompiledExpression[+T <: AnyRef](val qName: NamedQName, value: An
    */
   def evaluateForwardReferencing(
     state: ParseOrUnparseState,
-    whereBlockedLocation: Suspension,
+    whereBlockedLocation: Suspension
   ): Maybe[T]
 
   override def toString(): String = "CompiledExpression(" + value.toString + ")"
@@ -150,7 +150,7 @@ final case class ConstantExpression[+T <: AnyRef](qn: NamedQName, kind: NodeInfo
 
   final def evaluateForwardReferencing(
     state: ParseOrUnparseState,
-    whereBlockedLocation: Suspension,
+    whereBlockedLocation: Suspension
   ): Maybe[T] = {
     // whereBlockedLocation is ignored since a constant expression cannot block.
     whereBlockedLocation.setDone
@@ -209,7 +209,7 @@ class DPathCompileInfo(
   val namespaces: scala.xml.NamespaceBinding,
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
-  val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+  val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
 ) extends ImplementsThrowsSDE
   with PreSerialization
   with HasSchemaFileLocation {
@@ -351,14 +351,14 @@ class DPathElementCompileInfo(
   override val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
   val shortSchemaComponentDesignator: String,
   val isOutputValueCalc: Boolean,
-  val isDistinguishedRoot: Boolean,
+  val isDistinguishedRoot: Boolean
 ) extends DPathCompileInfo(
     parentsDelay.asInstanceOf[Delay[Seq[DPathCompileInfo]]],
     variableMap,
     namespaces,
     path,
     sfl,
-    unqualifiedPathStepPolicy,
+    unqualifiedPathStepPolicy
   ) {
 
   /**
@@ -441,7 +441,7 @@ class DPathElementCompileInfo(
    */
   final def findNamedChild(
     step: StepQName,
-    expr: ImplementsThrowsOrSavesSDE,
+    expr: ImplementsThrowsOrSavesSDE
   ): DPathElementCompileInfo = {
     val matches = findNamedMatches(step, elementChildrenCompileInfo, expr)
     indicateReferencedByExpression(matches)
@@ -450,7 +450,7 @@ class DPathElementCompileInfo(
 
   final def findRoot(
     step: StepQName,
-    expr: ImplementsThrowsOrSavesSDE,
+    expr: ImplementsThrowsOrSavesSDE
   ): DPathElementCompileInfo = {
     val matches = findNamedMatches(step, Seq(this), expr)
     indicateReferencedByExpression(matches)
@@ -460,7 +460,7 @@ class DPathElementCompileInfo(
   private def findNamedMatches(
     step: StepQName,
     possibles: Seq[DPathElementCompileInfo],
-    expr: ImplementsThrowsOrSavesSDE,
+    expr: ImplementsThrowsOrSavesSDE
   ): Seq[DPathElementCompileInfo] = {
     val matchesERD: Seq[DPathElementCompileInfo] = step.findMatches(possibles)
 
@@ -489,7 +489,7 @@ class DPathElementCompileInfo(
 
   final def findNamedChildren(
     step: StepQName,
-    possibles: Seq[DPathElementCompileInfo],
+    possibles: Seq[DPathElementCompileInfo]
   ): Seq[DPathElementCompileInfo] = {
     val matchesERD = step.findMatches(possibles)
     val retryMatchesERD =
@@ -516,7 +516,7 @@ class DPathElementCompileInfo(
    */
   final def noMatchError(
     step: StepQName,
-    possibles: Seq[DPathElementCompileInfo] = this.elementChildrenCompileInfo,
+    possibles: Seq[DPathElementCompileInfo] = this.elementChildrenCompileInfo
   ) = {
     //
     // didn't find a exact match.
@@ -554,7 +554,7 @@ class DPathElementCompileInfo(
       SDE(
         "No element corresponding to step %s found,\nbut elements with the same local name were found (%s).\nPerhaps a prefix is incorrect or missing on the step name?",
         step.toPrettyString,
-        interestingCandidates,
+        interestingCandidates
       )
     } else {
       //
@@ -565,7 +565,7 @@ class DPathElementCompileInfo(
         SDE(
           "No element corresponding to step %s found. Possibilities for this step include: %s.",
           step.toPrettyString,
-          interestingCandidates,
+          interestingCandidates
         )
       else
         SDE("No element corresponding to step %s found.", step.toPrettyString)
@@ -575,13 +575,13 @@ class DPathElementCompileInfo(
   final def queryMatchWarning(
     step: StepQName,
     matches: Seq[DPathElementCompileInfo],
-    expr: ImplementsThrowsOrSavesSDE,
+    expr: ImplementsThrowsOrSavesSDE
   ) = {
     expr.SDW(
       WarnID.QueryStylePathExpression,
       "Statically ambiguous or query-style paths not supported in step path: '%s'. Matches are at locations:\n%s",
       step,
-      matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", ""),
+      matches.map(_.schemaFileLocation.locationDescription).mkString("- ", "\n- ", "")
     )
   }
 }

@@ -121,7 +121,7 @@ abstract class InfosetInputter
    */
   def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String
 
   /**
@@ -182,7 +182,7 @@ abstract class InfosetInputter
         UnparseError(
           One(infoStack.top.erd.schemaFileLocation),
           Nope,
-          "Infoset does not start with StartDocument event",
+          "Infoset does not start with StartDocument event"
         )
       }
     } catch {
@@ -190,7 +190,7 @@ abstract class InfosetInputter
         UnparseError(
           One(infoStack.top.erd.schemaFileLocation),
           Nope,
-          "Infoset does not start with StartDocument event: " + e.getMessage,
+          "Infoset does not start with StartDocument event: " + e.getMessage
         )
     }
 
@@ -348,7 +348,7 @@ abstract class InfosetInputter
           Nope,
           "Nilled complex element %s has content %s.",
           c.erd.namedQName.toExtendedSyntax,
-          erd.namedQName.toExtendedSyntax,
+          erd.namedQName.toExtendedSyntax
         )
       }
       if (erd.isArray) {
@@ -371,7 +371,7 @@ abstract class InfosetInputter
         Nope,
         "Simple type element %s cannot have children elements %s.",
         top.erd.namedQName.toExtendedSyntax,
-        node.erd.namedQName.toExtendedSyntax,
+        node.erd.namedQName.toExtendedSyntax
       )
     } else {
       // Top of stack indicates an array
@@ -422,7 +422,7 @@ abstract class InfosetInputter
           One(elem.erd.schemaFileLocation),
           Nope,
           "Element %s defines nil property, but is not nillable",
-          erd.namedQName.toExtendedSyntax,
+          erd.namedQName.toExtendedSyntax
         )
       }
       if (optNilled.get) {
@@ -444,7 +444,7 @@ abstract class InfosetInputter
             One(elem.erd.schemaFileLocation),
             Nope,
             "Nilled simple element %s has content",
-            erd.namedQName.toExtendedSyntax,
+            erd.namedQName.toExtendedSyntax
           )
         }
       } else if (!erd.dpathElementCompileInfo.isOutputValueCalc) {

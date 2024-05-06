@@ -218,28 +218,28 @@ class Delimiter {
                 "(\\r\\n)|" + // CRLF
                 "((?<!\\r)\\n)|" + // LF not preceded by CR
                 "(\\r(?!\\n))|" + // CR not followed by LF
-                "\\u0085|\\u2028)",
+                "\\u0085|\\u2028)"
             )
           }
           case wsp: WSPDelim => {
             sb.append(
               "(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)",
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)"
             )
           } // Single space
           case wsp: WSPPlusDelim => {
             sb.append(
               "(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+",
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)+"
             )
           } // One or more spaces
           case wsp: WSPStarDelim => {
             sb.append(
               "(\\s|\\u0020|\\u0009|\\u000A|\\u000B|\\u000C|\\u000D|\\u0085" +
                 "|\\u00A0|\\u1680|\\u180E|\\u2000|\\u2001|\\u2002|\\u2003|\\u2004|\\u2005|\\u2006|" +
-                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*",
+                "\\u2007|\\u2008|\\u2009|\\u200A|\\u2028|\\u2029|\\u202F|\\u205F|\\u3000)*"
             )
           } // None or more spaces
           case ws: ESDelim => // noop
@@ -339,7 +339,7 @@ class Delimiter {
           // last character in delimStr was a single isolated '%'.
           // This shouldn't happen
           Assert.invariantFailed(
-            "delimStr should not end in an isolated single %. DelimStr = " + delimStr,
+            "delimStr should not end in an isolated single %. DelimStr = " + delimStr
           )
         }
         if (delimStr.charAt(idx + 1) == '%') {
@@ -589,7 +589,7 @@ trait WSP extends CharacterClass {
     PSP,
     NARROW,
     MED,
-    IDE,
+    IDE
   )
 }
 

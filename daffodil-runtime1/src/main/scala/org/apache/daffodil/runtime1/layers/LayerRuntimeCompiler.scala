@@ -66,7 +66,7 @@ class LayerRuntimeCompiler {
    */
   private def computeLayerVarsRuntime(
     lrd: LayerRuntimeData,
-    protoLayer: Layer,
+    protoLayer: Layer
   ): LayerVarsRuntime = {
     val optLayerVarsRuntime = alreadyCheckedLayers.get(protoLayer.name())
     optLayerVarsRuntime.getOrElse {
@@ -97,15 +97,15 @@ class LayerRuntimeCompiler {
               val vrd = lrd.qNameToVRD.getOrElse(
                 p.getName,
                 lrd.context.SDE(
-                  s"No layer DFDL variable named '${p.getName}' was found in namespace ${lrd.namespace}.",
-                ),
+                  s"No layer DFDL variable named '${p.getName}' was found in namespace ${lrd.namespace}."
+                )
               )
               val vrdClass = PrimType.toJavaType(vrd.primType.dfdlType)
               lrd.context.schemaDefinitionUnless(
                 compatibleTypes(vrdClass, pt),
                 s"""Layer setter argument ${vrd.globalQName.local} and the corresponding
                    |Layer DFDL variable have differing types: ${pt.getName}
-                   | and ${vrdClass.getName} respectively.""".stripMargin,
+                   | and ${vrdClass.getName} respectively.""".stripMargin
               )
               vrd
             }
@@ -135,7 +135,7 @@ class LayerRuntimeCompiler {
           s"""Layer class $c does not have a setter with arguments for each of the layer's variables.
              | It should have a setter named $varParamSetter with an argument for each layer parameter, in any order, such as
              | ($javaParamSetterArgs), and a getter for remaining layer variables, named with a specific
-             |  name prefix like: ' $varResultPrefix '.""".stripMargin,
+             |  name prefix like: ' $varResultPrefix '.""".stripMargin
         )
 
         val returnVRDsWithoutGetters = returnVRDNames -- resultGettersNames
@@ -143,8 +143,8 @@ class LayerRuntimeCompiler {
         lrd.context.schemaDefinitionUnless(
           returnVRDsWithoutGetters.isEmpty,
           s"""The layer variables ${returnVRDsWithoutGetters.mkString(
-              ",",
-            )} have no corresponding getters.""",
+              ","
+            )} have no corresponding getters."""
         )
         lrd.context.schemaDefinitionUnless(
           resultGettersWithoutVRDs.isEmpty, {
@@ -152,9 +152,9 @@ class LayerRuntimeCompiler {
               this.varResultPrefix + vname
             }
             s"""The getters ${getterFullNames.mkString(
-                ",",
+                ","
               )} have no corresponding layer variables."""
-          },
+          }
         )
         // at this point we know each variable that was not a parameter of the setter
         // has a getter with matching name.
@@ -177,11 +177,11 @@ class LayerRuntimeCompiler {
             compatibleTypes(vrdClass, gt),
             s"""Layer return variable ${vrd.globalQName.local} and the corresponding
                |Layer getter have differing types: ${vrdClass.getName}
-               | and ${gt.getName} respectively.""".stripMargin,
+               | and ${gt.getName} respectively.""".stripMargin
           )
           lrd.context.schemaDefinitionUnless(
             getter.getParameterCount == 0,
-            s"""Layer return variable getter ${getter.getName} must have no arguments.""",
+            s"""Layer return variable getter ${getter.getName} must have no arguments."""
           )
         }
         val lrv =
@@ -233,7 +233,7 @@ class LayerRuntimeCompiler {
       lrd.context.SDE(
         "The dfdlx:layer '%s' was not found. Available choices are: %s",
         spiName,
-        choices,
+        choices
       )
     }
   }

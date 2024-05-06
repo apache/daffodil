@@ -53,7 +53,7 @@ class TestTunables {
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
     )
 
     val c = Compiler()

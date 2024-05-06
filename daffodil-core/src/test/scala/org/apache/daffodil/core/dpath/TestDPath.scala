@@ -41,7 +41,7 @@ class TestDPath {
           </xs:element>
         </xs:sequence>
       </xs:complexType>
-    </xs:element>,
+    </xs:element>
   )
 
   @Test def test_twoUpwardSteps(): Unit = {
@@ -65,7 +65,7 @@ class TestDPath {
           <xs:element name="d" type="xs:int" dfdl:inputValueCalc="{ ../../b }"/>
         </xs:sequence>
       </xs:complexType>
-    </xs:element>,
+    </xs:element>
   )
 
   @Test def test_twoUpwardStepsAcrossElementReference(): Unit = {
@@ -83,7 +83,7 @@ class TestDPath {
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    <xs:element name="c" type="xs:int" dfdl:inputValueCalc="{ ../b }"/>,
+    <xs:element name="c" type="xs:int" dfdl:inputValueCalc="{ ../b }"/>
   )
 
   @Test def test_oneUpwardStepsAcrossElementReference(): Unit = {

@@ -96,10 +96,10 @@ case class DownArrayOccurrence(nqn: NamedQName, indexRecipe: CompiledDPath)
     dstate.setCurrentNode(savedCurrentElement)
     val childArrayElementERD =
       dstate.withRetryIfBlocking(
-        savedCurrentElement.getChildArray(nqn, dstate.tunable).asInstanceOf[DIArray].erd,
+        savedCurrentElement.getChildArray(nqn, dstate.tunable).asInstanceOf[DIArray].erd
       )
     val arr = dstate.withRetryIfBlocking(
-      savedCurrentElement.getChildArray(childArrayElementERD, dstate.tunable),
+      savedCurrentElement.getChildArray(childArrayElementERD, dstate.tunable)
     )
     val occurrence =
       dstate.withRetryIfBlocking(arr(index)) // will throw on out of bounds

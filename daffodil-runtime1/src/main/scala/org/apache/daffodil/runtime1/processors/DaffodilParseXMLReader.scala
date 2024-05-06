@@ -154,7 +154,7 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
     // validate that the features are not false/false
     if (!saxNamespaceFeatureValue && !saxNamespacePrefixesFeatureValue) {
       throw new SAXException(
-        "Illegal State: Namespaces and NamespacePrefixes features cannot both be false",
+        "Illegal State: Namespaces and NamespacePrefixes features cannot both be false"
       )
     }
     // creates SAXInfosetOutputter object and calls setBlobAttributes on it
@@ -163,7 +163,7 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
     sio.setBlobAttributes(
       saxBlobDirectoryPropertyValue,
       saxBlobPrefixPropertyValue,
-      saxBlobSuffixPropertyValue,
+      saxBlobSuffixPropertyValue
     )
     val pr = dp.parse(isdis, sio)
     saxParseResultPropertyValue = pr.asInstanceOf[ParseResult]
@@ -217,8 +217,8 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
       message + ": " + name + ".\n" +
         "Supported features are: " +
         Seq(XMLUtils.SAX_NAMESPACES_FEATURE, XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE).mkString(
-          ", ",
-        ),
+          ", "
+        )
     )
   }
 }

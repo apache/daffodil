@@ -45,7 +45,7 @@ class TestInfosetInputterFromReader2 {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val compiler = Compiler()
     val pf = compiler.compileNode(sch)

@@ -28,7 +28,7 @@ import org.apache.daffodil.udf.UserDefinedFunctionProvider
 class StringFunctionsProvider extends UserDefinedFunctionProvider {
   case class CustomException(
     private val message: String = "",
-    private val cause: Throwable = None.orNull,
+    private val cause: Throwable = None.orNull
   ) extends Exception(message, cause)
 
   override def getUserDefinedFunctionClasses = {
@@ -43,7 +43,7 @@ class StringFunctionsProvider extends UserDefinedFunctionProvider {
  */
 @UserDefinedFunctionIdentification(
   name = "rev-words",
-  namespaceURI = "http://example.com/scala/udf",
+  namespaceURI = "http://example.com/scala/udf"
 )
 class ReverseWords extends UserDefinedFunction {
 
@@ -66,7 +66,7 @@ class ReverseWords extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "reverse",
-  namespaceURI = "http://example.com/scala/udf",
+  namespaceURI = "http://example.com/scala/udf"
 )
 class Reverse extends UserDefinedFunction {
 

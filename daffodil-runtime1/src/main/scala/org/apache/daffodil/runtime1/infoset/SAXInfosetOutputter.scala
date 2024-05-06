@@ -33,7 +33,7 @@ import org.xml.sax.helpers.AttributesImpl
 class SAXInfosetOutputter(
   xmlReader: DFDL.DaffodilParseXMLReader,
   val namespacesFeature: Boolean,
-  val namespacePrefixesFeature: Boolean,
+  val namespacePrefixesFeature: Boolean
 ) extends InfosetOutputter {
 
   /**
@@ -105,7 +105,7 @@ class SAXInfosetOutputter(
 
   private def doStartPrefixMapping(
     elem: InfosetElement,
-    contentHandler: ContentHandler,
+    contentHandler: ContentHandler
   ): Unit = {
     val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(elem)
     var n = nsbStart
@@ -133,7 +133,7 @@ class SAXInfosetOutputter(
    */
   private def doAttributesPrefixMapping(
     elem: InfosetElement,
-    attrs: AttributesImpl,
+    attrs: AttributesImpl
   ): AttributesImpl = {
     val (nsbStart: NamespaceBinding, nsbEnd: NamespaceBinding) = getNsbStartAndEnd(elem)
     var n = nsbStart
@@ -154,7 +154,7 @@ class SAXInfosetOutputter(
    */
   private def shadowRedefined(
     start: NamespaceBinding,
-    stop: NamespaceBinding,
+    stop: NamespaceBinding
   ): NamespaceBinding = {
     def prefixList(x: NamespaceBinding): List[String] =
       if ((x == null) || (x eq stop)) Nil

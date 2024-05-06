@@ -48,7 +48,7 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData) extend
         One(context.schemaFileLocation),
         One(state.currentLocation),
         "Blob URI must be a file: %s",
-        value.toString,
+        value.toString
       )
     }
 
@@ -63,7 +63,7 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData) extend
             One(context.schemaFileLocation),
             One(state.currentLocation),
             "Unable to open blob for reading: %s",
-            value.toString,
+            value.toString
           )
       }
 
@@ -73,7 +73,7 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData) extend
         One(state.currentLocation),
         "Blob length (%d bits) exceeds explicit length value: %d bits",
         fileSizeInBytes * 8,
-        lengthInBits,
+        lengthInBits
       )
     }
 
@@ -98,7 +98,7 @@ abstract class BlobUnparserBase(override val context: ElementRuntimeData) extend
 
 final class BlobSpecifiedLengthUnparser(
   erd: ElementRuntimeData,
-  val lengthEv: UnparseTargetLengthInBitsEv,
+  val lengthEv: UnparseTargetLengthInBitsEv
 ) extends BlobUnparserBase(erd) {
 
   override def getLengthInBits(state: UState): Long = {

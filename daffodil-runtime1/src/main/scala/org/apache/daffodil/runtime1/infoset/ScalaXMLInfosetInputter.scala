@@ -74,7 +74,7 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
 
   override def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String = {
     val text = {
       val sb = new StringBuilder()
@@ -126,7 +126,7 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
         val nilAttrValueSeq = nilAttrValueOpt.get
         if (nilAttrValueSeq.length > 1) {
           throw new InvalidInfosetException(
-            "multiple xsi:nil properties for element " + elem.label,
+            "multiple xsi:nil properties for element " + elem.label
           )
         }
         val nilAttrValue = nilAttrValueSeq.head.toString
@@ -136,7 +136,7 @@ class ScalaXMLInfosetInputter(rootNode: Node) extends InfosetInputter {
           MaybeBoolean(false)
         } else {
           throw new InvalidInfosetException(
-            "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.label,
+            "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.label
           )
         }
       }

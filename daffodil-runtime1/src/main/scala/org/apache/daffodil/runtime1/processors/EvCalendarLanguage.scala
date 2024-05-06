@@ -42,7 +42,7 @@ object LocaleConverter extends Converter[String, ULocale] {
       context.schemaDefinitionError(
         "dfdl:calendarLanguage property syntax error. Must match '%s' (ex: 'en_us' or 'de_1996'), but was '%s'.",
         regex,
-        b,
+        b
       )
     }
   }
@@ -50,11 +50,11 @@ object LocaleConverter extends Converter[String, ULocale] {
 
 class CalendarLanguageEv(
   calendarLanguageExpr: CompiledExpression[String],
-  eci: DPathElementCompileInfo,
+  eci: DPathElementCompileInfo
 ) extends EvaluatableConvertedExpression[String, ULocale](
     calendarLanguageExpr,
     LocaleConverter,
-    eci,
+    eci
   )
   with InfosetCachedEvaluatable[ULocale] {
   override lazy val runtimeDependencies = Vector()
@@ -66,7 +66,7 @@ class CalendarEv(
   firstDay: Int,
   calendarDaysInFirstWeek: Int,
   calendarCheckPolicy: Boolean,
-  eci: DPathElementCompileInfo,
+  eci: DPathElementCompileInfo
 ) extends Evaluatable[Calendar](eci)
   with InfosetCachedEvaluatable[Calendar] {
 
@@ -102,7 +102,7 @@ class DateTimeFormatterEv(
   calendarEv: CalendarEv,
   localeEv: CalendarLanguageEv,
   pattern: String,
-  eci: DPathElementCompileInfo,
+  eci: DPathElementCompileInfo
 ) extends Evaluatable[ThreadLocal[SimpleDateFormat]](eci)
   with InfosetCachedEvaluatable[ThreadLocal[SimpleDateFormat]] {
 

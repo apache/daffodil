@@ -106,7 +106,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOu
         attributes,
         diSimple.metadata.minimizedScope,
         minimizeEmpty = true,
-        children: _*,
+        children: _*
       )
 
     stack.top.append(elem)
@@ -131,7 +131,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOu
         attributes,
         diComplex.metadata.minimizedScope,
         minimizeEmpty = true,
-        children: _*,
+        children: _*
       )
 
     stack.top.append(elem)
@@ -145,7 +145,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOu
   def getResult(): scala.xml.Node = {
     Assert.usage(
       resultNode.isDefined,
-      "No result to get. Must check isError parse result before calling getResult",
+      "No result to get. Must check isError parse result before calling getResult"
     )
     resultNode.get
   }

@@ -167,7 +167,7 @@ class TestRemapPUAToXML() {
     val actual = puaToXML.remap(input)
     assertEquals(
       "elephant" + elephant + "isolatedHigh" + highSurrogate + "isolatedLow" + lowSurrogate,
-      actual,
+      actual
     )
   }
 

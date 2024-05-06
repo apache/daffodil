@@ -56,7 +56,7 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser) extends CombinatorP
 class DelimiterStackParser(
   delimiters: Array[DelimiterParseEv],
   ctxt: RuntimeData,
-  bodyParser: Parser,
+  bodyParser: Parser
 ) extends CombinatorParser(ctxt) {
 
   override lazy val childProcessors = Vector(bodyParser)
@@ -98,7 +98,7 @@ class DelimiterStackParser(
 class DynamicEscapeSchemeParser(
   escapeScheme: EscapeSchemeParseEv,
   ctxt: TermRuntimeData,
-  bodyParser: Parser,
+  bodyParser: Parser
 ) extends CombinatorParser(ctxt) {
 
   override lazy val childProcessors = Vector(bodyParser)
@@ -143,7 +143,7 @@ class ChoiceBranchEmptyParser(val context: RuntimeData) extends PrimParserNoData
 abstract class ChoiceDispatchCombinatorParserBase(
   rd: TermRuntimeData,
   dispatchBranchKeyMap: ProperlySerializableMap[String, (Parser, Boolean)],
-  dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)],
+  dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)]
 ) extends CombinatorParser(rd) {
 
   override def nom = "ChoiceDispatch"
@@ -239,9 +239,9 @@ class ChoiceDispatchCombinatorParser(
   rd: TermRuntimeData,
   dispatchKeyEv: ChoiceDispatchKeyEv,
   dispatchBranchKeyMap: ProperlySerializableMap[String, (Parser, Boolean)],
-  dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)],
+  dispatchKeyRangeMap: Vector[(RangeBound, RangeBound, Parser, Boolean)]
 ) extends ChoiceDispatchCombinatorParserBase(rd, dispatchBranchKeyMap, dispatchKeyRangeMap) {
   override def computeDispatchKey(pstate: PState): Maybe[String] = Maybe(
-    dispatchKeyEv.evaluate(pstate),
+    dispatchKeyEv.evaluate(pstate)
   )
 }

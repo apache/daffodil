@@ -29,7 +29,7 @@ import com.ibm.icu.util.Calendar
 final class AllTypesLayer()
   extends Layer(
     "allTypesLayer",
-    "urn:org.apache.daffodil.layers.xsd.AllTypesLayer",
+    "urn:org.apache.daffodil.layers.xsd.AllTypesLayer"
   ) {
 
   private var b1: Byte = 0
@@ -71,7 +71,7 @@ final class AllTypesLayer()
     date1: com.ibm.icu.util.Calendar,
     time1: com.ibm.icu.util.Calendar,
     dt1: com.ibm.icu.util.Calendar,
-    bool1: Boolean,
+    bool1: Boolean
   ): Unit = {
     this.b1 = b1
     this.ub1 = ub1

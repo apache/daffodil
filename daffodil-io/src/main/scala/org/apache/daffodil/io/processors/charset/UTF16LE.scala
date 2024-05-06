@@ -33,7 +33,7 @@ class BitsCharsetDecoderUTF16LE extends BitsCharsetDecoderCreatesSurrogates {
 
   protected override def decodeOneUnicodeChar(
     dis: InputSourceDataInputStream,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Char = {
     val byte2 = getByte(dis, 0)
     val byte1 = getByte(dis, 8)

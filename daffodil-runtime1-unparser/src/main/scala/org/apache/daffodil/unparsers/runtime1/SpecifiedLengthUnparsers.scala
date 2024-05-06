@@ -55,7 +55,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   eUnparser: Unparser,
   erd: ElementRuntimeData,
   targetLengthInBitsEv: UnparseTargetLengthInBitsEv,
-  maybeTargetLengthInCharactersEv: Maybe[UnparseTargetLengthInCharactersEv],
+  maybeTargetLengthInCharactersEv: Maybe[UnparseTargetLengthInCharactersEv]
 ) extends CombinatorUnparser(erd) {
 
   override lazy val runtimeDependencies = Vector()
@@ -163,7 +163,7 @@ final class SpecifiedLengthExplicitImplicitUnparser(
       "Variable width character encoding '%s', dfdl:lengthKind '%s' and dfdl:lengthUnits '%s' are not supported for complex types.",
       getCharset(state).name,
       lengthKind.toString,
-      lengthUnits.toString,
+      lengthUnits.toString
     )
 
     Assert.invariant(erd.isSimpleType)
@@ -380,7 +380,7 @@ trait CalculatedPrefixedLengthUnparserMixin {
             // This is checked for statically, so should not get here.
             // $COVERAGE-OFF$
             Assert.invariantFailed(
-              "Not supported: prefixed length with variable-width or non-constant encoding.",
+              "Not supported: prefixed length with variable-width or non-constant encoding."
             )
             // $COVERAGE-ON$
           }
@@ -398,7 +398,7 @@ class SpecifiedLengthPrefixedUnparser(
   prefixedLengthUnparser: Unparser,
   prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends CombinatorUnparser(erd)
   with CaptureUnparsingValueLength
   with CalculatedPrefixedLengthUnparserMixin {
@@ -447,7 +447,7 @@ class SpecifiedLengthPrefixedUnparser(
         elem,
         plElem,
         lengthUnits,
-        prefixedLengthAdjustmentInUnits,
+        prefixedLengthAdjustmentInUnits
       )
 
       // Run the suspension--we know the suspension will not be able to succeed

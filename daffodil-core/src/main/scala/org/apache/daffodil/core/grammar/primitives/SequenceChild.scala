@@ -138,7 +138,7 @@ abstract class SequenceChild(protected val sq: SequenceTermBase, child: Term, gr
               eb.isPotentiallyTrailing,
               this.isDeclaredLast,
               sq.separatorSuppressionPolicy,
-              eb.maxOccurs,
+              eb.maxOccurs
             ) match {
               case (false, _, AnyEmpty, _) => NonPositional
               case (false, _, _, UNB) if !eb.isLastDeclaredRepresentedInSequence =>
@@ -404,7 +404,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           trd,
           sepParser,
           sq.separatorPosition,
-          separatedHelper,
+          separatedHelper
         )
       case (_: ModelGroup, HasSep) => {
         Assert.invariant(term.isInstanceOf[ModelGroup])
@@ -414,7 +414,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           mgrd,
           sepParser,
           sq.separatorPosition,
-          separatedHelper,
+          separatedHelper
         )
       }
       case (_, UnSep) =>
@@ -422,7 +422,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           childParser,
           srd,
           trd,
-          unseparatedHelper,
+          unseparatedHelper
         )
     }
     res
@@ -441,7 +441,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           term.isPotentiallyTrailing,
           isKnownStaticallyNotToSuppressSeparator,
           isPositional,
-          isDeclaredLast,
+          isDeclaredLast
         )
       } else {
         new ScalarOrderedUnseparatedSequenceChildUnparser(childUnparser, srd, trd)
@@ -463,21 +463,21 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           mgrd,
           sscb,
           isModelGroupRepPossiblyZeroLength,
-          isModelGroupRepNonZeroLength,
+          isModelGroupRepNonZeroLength
         )
       case Positional | PositionalNever =>
         new PositionalGroupSeparatedSequenceChildParseResultHelper(
           mgrd,
           sscb,
           isModelGroupRepPossiblyZeroLength,
-          isModelGroupRepNonZeroLength,
+          isModelGroupRepNonZeroLength
         )
       case NonPositional =>
         new NonPositionalGroupSeparatedSequenceChildParseResultHelper(
           mgrd,
           sscb,
           isModelGroupRepPossiblyZeroLength,
-          isModelGroupRepNonZeroLength,
+          isModelGroupRepNonZeroLength
         )
     }
   }
@@ -507,7 +507,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           isd,
           eep,
           isEmptyRepZeroLength,
-          isEmptyRepNonZeroLength,
+          isEmptyRepNonZeroLength
         )
       case Positional | PositionalNever =>
         new PositionalScalarElementSeparatedSequenceChildParseResultHelper(
@@ -516,7 +516,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           isd,
           eep,
           isEmptyRepZeroLength,
-          isEmptyRepNonZeroLength,
+          isEmptyRepNonZeroLength
         )
       case NonPositional =>
         new NonPositionalScalarElementSeparatedSequenceChildParseResultHelper(
@@ -525,7 +525,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
           isd,
           eep,
           isEmptyRepZeroLength,
-          isEmptyRepNonZeroLength,
+          isEmptyRepNonZeroLength
         )
     }
   }
@@ -541,7 +541,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
     new GroupUnseparatedSequenceChildParseResultHelper(
       mgrd,
       isModelGroupRepPossiblyZeroLength,
-      isModelGroupRepNonZeroLength,
+      isModelGroupRepNonZeroLength
     )
   }
 
@@ -550,7 +550,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
       erd,
       eep,
       isEmptyRepZeroLength,
-      isEmptyRepNonZeroLength,
+      isEmptyRepNonZeroLength
     )
   }
 }
@@ -558,7 +558,7 @@ class ScalarOrderedSequenceChild(sq: SequenceTermBase, term: Term, groupIndex: I
 sealed abstract class RepElementSequenceChild(
   sq: SequenceTermBase,
   protected val e: ElementBase,
-  groupIndex: Int,
+  groupIndex: Int
 ) extends SequenceChild(sq, e, groupIndex) {
   import SeparatedSequenceChildBehavior._
 
@@ -578,7 +578,7 @@ sealed abstract class RepElementSequenceChild(
           e.isPotentiallyTrailing,
           isKnownStaticallyNotToSuppressSeparator,
           isPositional,
-          isDeclaredLast,
+          isDeclaredLast
         )
       }
       case false => new RepOrderedUnseparatedSequenceChildUnparser(childUnparser, srd, erd)
@@ -599,7 +599,7 @@ sealed abstract class RepElementSequenceChild(
           isd,
           eep,
           isEmptyRepZeroLength,
-          isEmptyRepNonZeroLength,
+          isEmptyRepNonZeroLength
         )
       case Positional | PositionalNever =>
         new PositionalRepElementSeparatedSequenceChildParseResultHelper(
@@ -608,7 +608,7 @@ sealed abstract class RepElementSequenceChild(
           isd,
           eep,
           isEmptyRepZeroLength,
-          isEmptyRepNonZeroLength,
+          isEmptyRepNonZeroLength
         )
       case NonPositional =>
         new NonPositionalRepElementSeparatedSequenceChildParseResultHelper(
@@ -617,7 +617,7 @@ sealed abstract class RepElementSequenceChild(
           isd,
           eep,
           isEmptyRepZeroLength,
-          isEmptyRepNonZeroLength,
+          isEmptyRepNonZeroLength
         )
     }
   }
@@ -627,7 +627,7 @@ sealed abstract class RepElementSequenceChild(
       erd,
       eep,
       isEmptyRepZeroLength,
-      isEmptyRepNonZeroLength,
+      isEmptyRepNonZeroLength
     )
   }
 }
@@ -636,7 +636,7 @@ class RepOrderedExactlyNSequenceChild(
   sq: SequenceTermBase,
   e: ElementBase,
   groupIndex: Int,
-  repeatCount: Long,
+  repeatCount: Long
 ) extends RepElementSequenceChild(sq, e, groupIndex) {
 
   lazy val sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
@@ -647,7 +647,7 @@ class RepOrderedExactlyNSequenceChild(
         erd,
         sepParser,
         sq.separatorPosition,
-        separatedHelper,
+        separatedHelper
       )
     case false =>
       new RepOrderedExactlyNUnseparatedSequenceChildParser(
@@ -655,7 +655,7 @@ class RepOrderedExactlyNSequenceChild(
         srd,
         erd,
         unseparatedHelper,
-        repeatCount,
+        repeatCount
       )
   }
 
@@ -664,7 +664,7 @@ class RepOrderedExactlyNSequenceChild(
 class RepOrderedExpressionOccursCountSequenceChild(
   sq: SequenceTermBase,
   e: ElementBase,
-  groupIndex: Int,
+  groupIndex: Int
 ) extends RepElementSequenceChild(sq, e, groupIndex) {
 
   lazy val sequenceChildParser: SequenceChildParser = sq.hasSeparator match {
@@ -676,7 +676,7 @@ class RepOrderedExpressionOccursCountSequenceChild(
         erd,
         sepParser,
         sq.separatorPosition,
-        separatedHelper,
+        separatedHelper
       )
     case false =>
       new RepOrderedExpressionOccursCountUnseparatedSequenceChildParser(
@@ -684,7 +684,7 @@ class RepOrderedExpressionOccursCountSequenceChild(
         e.occursCountEv,
         srd,
         erd,
-        unseparatedHelper,
+        unseparatedHelper
       )
   }
 
@@ -704,7 +704,7 @@ class RepOrderedExpressionOccursCountSequenceChild(
         e.isPotentiallyTrailing,
         true,
         isPositional,
-        isDeclaredLast,
+        isDeclaredLast
       )
     }
     case false => new RepOrderedUnseparatedSequenceChildUnparser(childUnparser, srd, erd)
@@ -722,14 +722,14 @@ class RepOrderedWithMinMaxSequenceChild(sq: SequenceTermBase, e: ElementBase, gr
         erd,
         sepParser,
         sq.separatorPosition,
-        separatedHelper,
+        separatedHelper
       )
     case false =>
       new RepOrderedWithMinMaxUnseparatedSequenceChildParser(
         childParser,
         srd,
         erd,
-        unseparatedHelper,
+        unseparatedHelper
       )
   }
 }

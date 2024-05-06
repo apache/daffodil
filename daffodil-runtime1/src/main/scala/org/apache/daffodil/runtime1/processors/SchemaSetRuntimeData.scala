@@ -33,7 +33,7 @@ final class SchemaSetRuntimeData(
    */
   variables: VariableMap,
   allLayers: Seq[LayerRuntimeData],
-  @transient layerRuntimeCompilerArg: LayerRuntimeCompiler,
+  @transient layerRuntimeCompilerArg: LayerRuntimeCompiler
 ) extends Serializable
   with ThrowsSDE {
 

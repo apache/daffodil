@@ -73,7 +73,7 @@ final class LiteralValueNilOfSpecifiedLengthParser(
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
   override val ignoreCase: Boolean,
-  erd: ElementRuntimeData,
+  erd: ElementRuntimeData
 ) extends LiteralNilOfSpecifiedLengthParserBase(erd) {
 
   private val eName = erd.name
@@ -97,7 +97,7 @@ final class LiteralCharacterNilOfSpecifiedLengthParser(
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
   override val ignoreCase: Boolean,
-  erd: ElementRuntimeData,
+  erd: ElementRuntimeData
 ) extends LiteralNilOfSpecifiedLengthParserBase(erd) {
 
   private val eName = erd.name

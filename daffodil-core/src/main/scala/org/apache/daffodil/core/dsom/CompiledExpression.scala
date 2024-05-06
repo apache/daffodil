@@ -63,7 +63,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,
-    compileInfo: DPathCompileInfo,
+    compileInfo: DPathCompileInfo
   ): CompiledExpression[T] = {
 
     compileInfo.initialize
@@ -79,7 +79,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           compileInfoWhereExpressionWasLocated,
           isEvaluatedAbove,
           host,
-          compileInfo,
+          compileInfo
         )
       } else {
         convertLiteralToConstant(
@@ -88,7 +88,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           exprOrLiteral,
           namespaces,
           compileInfoWhereExpressionWasLocated,
-          isEvaluatedAbove,
+          isEvaluatedAbove
         )
       }
     res
@@ -114,7 +114,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     property: Found,
     host: BasicComponent,
     compileInfo: DPathCompileInfo,
-    isEvaluatedAbove: Boolean = false,
+    isEvaluatedAbove: Boolean = false
   ): CompiledExpression[T] = {
 
     compileExpression(
@@ -125,7 +125,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       compileInfo,
       isEvaluatedAbove,
       host,
-      compileInfo,
+      compileInfo
     )
   }
 
@@ -154,7 +154,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     runtimeNodeInfoKind: NodeInfo.Kind,
     property: Found,
     host: BasicComponent,
-    compileInfo: DPathCompileInfo,
+    compileInfo: DPathCompileInfo
   ): CompiledExpression[T] = {
 
     val isEvaluatedAbove = false
@@ -169,7 +169,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       compileInfoWhereExpressionWasLocated,
       isEvaluatedAbove,
       host,
-      compileInfo,
+      compileInfo
     )
 
     if (compiled1.isConstant || (staticNodeInfoKind == runtimeNodeInfoKind)) {
@@ -183,7 +183,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
         compileInfoWhereExpressionWasLocated,
         isEvaluatedAbove,
         host,
-        compileInfo,
+        compileInfo
       )
       compiled2
     }
@@ -215,7 +215,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,
-    compileInfo: DPathCompileInfo,
+    compileInfo: DPathCompileInfo
   ): CompiledExpression[T] = {
 
     // Treat this as an expression--validate and compile it
@@ -233,7 +233,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       namespaces,
       compileInfo,
       isEvaluatedAbove,
-      host,
+      host
     )
     val compiledDPath = compiler.compile(expr)
     compiledDPath
@@ -245,7 +245,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     exprOrLiteral: String,
     namespaces: NamespaceBinding,
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
-    isEvaluatedAbove: Boolean,
+    isEvaluatedAbove: Boolean
   ): CompiledExpression[T] = {
 
     // This string is not a real expression, we need to convert it to it's
@@ -271,7 +271,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
                 msg,
                 exprOrLiteral,
                 nodeInfoKind,
-                e.getMessage,
+                e.getMessage
               )
             }
           }
@@ -282,7 +282,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       case _ => {
         val msg = "No known primitive type to convert logical value to: %s"
         Assert.invariantFailed(
-          msg + compileInfoWhereExpressionWasLocated.schemaFileLocation.toString,
+          msg + compileInfoWhereExpressionWasLocated.schemaFileLocation.toString
         )
       }
       // $COVERAGE-ON$

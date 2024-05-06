@@ -207,7 +207,7 @@ case class DFDLUnsignedLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
   val maxHexDigits = 16
 
   protected def convert(longValue: DataValueLong, dstate: DState): DataValueBigInt = asBigInt(
-    longValue.getLong,
+    longValue.getLong
   )
 
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValuePrimitive = {

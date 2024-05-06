@@ -37,7 +37,7 @@ import org.apache.daffodil.runtime1.processors.VariableRuntimeData
  */
 abstract class ExpressionEvaluationParser(
   expr: CompiledExpression[AnyRef],
-  override val context: RuntimeData,
+  override val context: RuntimeData
 ) extends PrimParserNoData {
 
   override lazy val runtimeDependencies = Vector()
@@ -70,7 +70,7 @@ class IVCParser(expr: CompiledExpression[AnyRef], e: ElementRuntimeData)
 final class SetVariableParser(
   expr: CompiledExpression[AnyRef],
   decl: VariableRuntimeData,
-  trd: TermRuntimeData,
+  trd: TermRuntimeData
 ) extends ExpressionEvaluationParser(expr, decl) {
 
   override val context = trd
@@ -121,7 +121,7 @@ final class AssertExpressionEvaluationParser(
   override val discrim: Boolean, // are we a discriminator or not.
   decl: RuntimeData,
   expr: CompiledExpression[AnyRef],
-  override val failureType: FailureType,
+  override val failureType: FailureType
 ) extends ExpressionEvaluationParser(expr, decl)
   with AssertParserMixin {
 

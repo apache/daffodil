@@ -49,7 +49,7 @@ case class DFDLXLeftShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
   override def computeValue(
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValuePrimitive = {
 
     val shiftLong = arg2.getLong
@@ -61,7 +61,7 @@ case class DFDLXLeftShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
         "dfdlx:leftShift not supported for shift greater or equal to %s for %s. Shift was %s",
         width,
         argType.globalQName,
-        shift,
+        shift
       )
 
     argType match {
@@ -76,7 +76,7 @@ case class DFDLXLeftShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
       // $COVERAGE-OFF$
       case _ =>
         Assert.invariantFailed(
-          s"Should not have gotten ${argType.globalQName} for left shift argument type",
+          s"Should not have gotten ${argType.globalQName} for left shift argument type"
         )
       // $COVERAGE-ON$
     }
@@ -97,7 +97,7 @@ case class DFDLXRightShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
   override def computeValue(
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValuePrimitive = {
     val shiftLong = arg2.getLong
     val shift = shiftLong.toInt
@@ -108,7 +108,7 @@ case class DFDLXRightShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
         "dfdlx:rightShift not supported for shift greater or equal to %s for %s. Shift was %s",
         width,
         argType.globalQName,
-        shift,
+        shift
       )
     argType match {
       case NodeInfo.Long => arg1.getLong >> shift
@@ -122,7 +122,7 @@ case class DFDLXRightShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
       // $COVERAGE-OFF$
       case _ =>
         Assert.invariantFailed(
-          s"Should not have gotten ${argType.globalQName} for right shift argument type",
+          s"Should not have gotten ${argType.globalQName} for right shift argument type"
         )
       // $COVERAGE-ON$
     }
@@ -133,7 +133,7 @@ case class DFDLXBitAnd(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
   override def computeValue(
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValuePrimitive = {
     argType match {
       case NodeInfo.Long => arg1.getLong & arg2.getLong
@@ -156,7 +156,7 @@ case class DFDLXBitOr(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
   override def computeValue(
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValuePrimitive = {
     argType match {
       case NodeInfo.Long => arg1.getLong | arg2.getLong
@@ -197,7 +197,7 @@ case class DFDLXBitXor(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
   override def computeValue(
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValuePrimitive = {
     argType match {
       case NodeInfo.Long => arg1.getLong ^ arg2.getLong
@@ -252,7 +252,7 @@ case object DAFError extends RecipeOp {
         val fe = new FNErrorFunctionException(
           maybeSFL,
           dstate.contextLocation,
-          "The error function was called.",
+          "The error function was called."
         )
         throw fe
       }
@@ -265,7 +265,7 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath]) extends FNTwoArgs(recipe
   def computeValue(
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValuePrimitive = {
     val offset = arg1.getLong
     val lBitSize = arg2.getLong
@@ -284,7 +284,7 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath]) extends FNTwoArgs(recipe
       dstate.SDE(
         "Look-ahead distance of %s bits exceeds implementation defined limit of %s bits",
         totalLookahead,
-        maxLookahead,
+        maxLookahead
       )
     }
     // Safe since we guard on totalLookahead
@@ -313,7 +313,7 @@ case class DFDLXLookAhead(recipes: List[CompiledDPath]) extends FNTwoArgs(recipe
           One("Insufficient bits available to satisfy dfdlx:lookAhead(%s,%s)."),
           offset,
           bitSize,
-          totalLookahead,
+          totalLookahead
         )
       }
       val mark = dis.markPos

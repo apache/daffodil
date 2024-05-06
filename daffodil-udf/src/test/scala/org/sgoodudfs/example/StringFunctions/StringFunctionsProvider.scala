@@ -36,7 +36,7 @@ class StringFunctionsProvider extends UserDefinedFunctionProvider {
  */
 @UserDefinedFunctionIdentification(
   name = "rev-words",
-  namespaceURI = "http://example.com/scala/sudfs",
+  namespaceURI = "http://example.com/scala/sudfs"
 )
 class ReverseWords extends UserDefinedFunction {
 
@@ -59,7 +59,7 @@ class ReverseWords extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "reverse",
-  namespaceURI = "http://example.com/scala/sudfs",
+  namespaceURI = "http://example.com/scala/sudfs"
 )
 class Reverse extends UserDefinedFunction {
 
@@ -81,7 +81,7 @@ class Reverse extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "sayHello",
-  namespaceURI = "http://example.com/scala/sudfs",
+  namespaceURI = "http://example.com/scala/sudfs"
 )
 class SayHello extends UserDefinedFunction {
 

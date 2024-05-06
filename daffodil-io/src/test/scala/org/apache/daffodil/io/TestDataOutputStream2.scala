@@ -43,7 +43,7 @@ class TestDataOutputStream2 {
       4096,
       2000 * (1 << 20),
       new File("."),
-      Maybe.Nope,
+      Maybe.Nope
     )
 
     val bb = ByteBuffer.wrap(List(0xa5.toByte, 0xbe.toByte, 0xef.toByte).toArray)
@@ -71,7 +71,7 @@ class TestDataOutputStream2 {
       4096,
       2000 * (1 << 20),
       new File("."),
-      Maybe.Nope,
+      Maybe.Nope
     )
 
     val bb = ByteBuffer.wrap(List(0xa5.toByte, 0xbe.toByte, 0xef.toByte).toArray)
@@ -99,7 +99,7 @@ class TestDataOutputStream2 {
       4096,
       2000 * (1 << 20),
       new File("."),
-      Maybe.Nope,
+      Maybe.Nope
     )
 
     val bb = ByteBuffer.wrap(List(0xa5.toByte, 0xbe.toByte, 0xef.toByte).toArray)

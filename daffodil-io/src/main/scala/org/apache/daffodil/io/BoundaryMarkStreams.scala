@@ -46,7 +46,7 @@ class BoundaryMarkLimitingInputStream(
   inputStream: InputStream,
   boundaryMark: String,
   charset: Charset,
-  targetChunkSize: Int = 32 * 1024,
+  targetChunkSize: Int = 32 * 1024
 ) extends InputStream {
 
   Assert.usage(targetChunkSize >= 1)
@@ -63,7 +63,7 @@ class BoundaryMarkLimitingInputStream(
     quotedBoundaryMark,
     boundaryMarkIn8859,
     charset,
-    targetChunkSize,
+    targetChunkSize
   )
 
   override def read(): Int = delegateStream.read()
@@ -80,7 +80,7 @@ class BoundaryMarkLimitingInputStream(
 class BoundaryMarkInsertingJavaOutputStream(
   jos: java.io.OutputStream,
   boundaryMark: String,
-  charset: Charset,
+  charset: Charset
 ) extends FilterOutputStream(jos) {
 
   private var closed = false

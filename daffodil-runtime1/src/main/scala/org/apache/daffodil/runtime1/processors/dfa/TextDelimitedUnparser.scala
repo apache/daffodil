@@ -62,7 +62,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
     blockStart: String,
     blockEnd: String,
     generateEscapeBlock: Boolean,
-    state: UState,
+    state: UState
   ): (String, Boolean) = {
 
     val (resultString, shouldGenerateEscapeBlock) =
@@ -83,7 +83,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
     delims: Array[DFADelimiter],
     blockEnd: DFADelimiter,
     escapeEscapeChar: MaybeChar,
-    state: UState,
+    state: UState
   ): (String, Boolean) = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
@@ -148,7 +148,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
                 One(context.schemaFileLocation),
                 One(state.currentLocation),
                 "escapeEscapeCharacter was not defined but the escapeBlockEnd (%s) was present in the data.",
-                blockEnd.lookingFor,
+                blockEnd.lookingFor
               )
             }
             case StateKind.Succeeded => {
@@ -217,7 +217,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
                 val (_, matchedReg) = longestMatch(successes).get
                 val delim = matchedReg.delimString
                 fieldReg.appendToField(
-                  delim,
+                  delim
                 ) // the delim just becomes field content, because we already had an escape block start.
                 successes.foreach { case (d, r) => state.dfaRegistersPool.returnToPool(r) }
                 successes.clear
@@ -259,7 +259,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
     hasEscCharAsDelimiter: Boolean,
     escapeChar: Char,
     escapeEscapeChar: MaybeChar,
-    state: UState,
+    state: UState
   ): (String, Boolean) = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
@@ -268,7 +268,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
         One(context.schemaFileLocation),
         One(state.currentLocation),
         "The dfdl:terminator and dfdl:separator may not begin with the dfdl:escapeCharacter: '%s'.",
-        escapeChar,
+        escapeChar
       )
 
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
@@ -352,7 +352,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData) extends Delim
                   One(context.schemaFileLocation),
                   One(state.currentLocation),
                   "escapeEscapeCharacter was not defined but the escapeCharacter (%s) was present in the data.",
-                  escapeChar,
+                  escapeChar
                 )
             } else { fieldReg.appendToField(escapeChar) }
 

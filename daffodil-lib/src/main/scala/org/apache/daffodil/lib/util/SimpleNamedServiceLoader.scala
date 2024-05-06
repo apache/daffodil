@@ -57,7 +57,7 @@ object SimpleNamedServiceLoader {
       case (name, Seq(lc)) => Some((name, lc))
       case (name, seq) => {
         Logger.log.warn(
-          s"Duplicate classes for $thingName found. Ignored: ${seq.map { Misc.getNameFromClass(_) }.mkString(", ")}.",
+          s"Duplicate classes for $thingName found. Ignored: ${seq.map { Misc.getNameFromClass(_) }.mkString(", ")}."
         )
         None
       }

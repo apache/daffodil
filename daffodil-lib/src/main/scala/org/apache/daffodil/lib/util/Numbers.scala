@@ -111,7 +111,7 @@ trait Numbers {
       case bd: JBigDecimal => bd.intValue()
       case _ =>
         errorThrower(
-          "Unsupported conversion to Int. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to Int. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
     JInt.valueOf(value)
@@ -128,7 +128,7 @@ trait Numbers {
       case bd: JBigDecimal => bd.byteValue()
       case _ =>
         errorThrower(
-          "Unsupported conversion to Byte. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to Byte. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
     JByte.valueOf(value)
@@ -145,7 +145,7 @@ trait Numbers {
       case bd: JBigDecimal => bd.shortValue()
       case _ =>
         errorThrower(
-          "Unsupported conversion to Short. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to Short. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
     JShort.valueOf(value)
@@ -163,7 +163,7 @@ trait Numbers {
       case bd: JBigDecimal => bd.longValue()
       case _ =>
         errorThrower(
-          "Unsupported conversion to Long. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to Long. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
     JLong.valueOf(value)
@@ -185,7 +185,7 @@ trait Numbers {
       case jn: JNumber => new JBigInt(jn.toString())
       case _ =>
         errorThrower(
-          "Unsupported conversion to BigInt. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to BigInt. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
     value
@@ -207,7 +207,7 @@ trait Numbers {
       case jn: JNumber => JBigInt.valueOf(jn.longValue())
       case _ =>
         errorThrower(
-          "Unsupported conversion to BigInt. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to BigInt. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
     value
@@ -231,7 +231,7 @@ trait Numbers {
       case bd: JBigDecimal => bd.floatValue()
       case _ =>
         errorThrower(
-          "Unsupported conversion to Float. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to Float. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
     JFloat.valueOf(value)
@@ -255,7 +255,7 @@ trait Numbers {
       case bd: JBigDecimal => bd.doubleValue()
       case _ =>
         errorThrower(
-          "Unsupported conversion to Double. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to Double. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
     JDouble.valueOf(value)
@@ -287,8 +287,8 @@ trait Numbers {
         errorThrower(
           "Unsupported conversion to BigDecimal. %s of type %s".format(
             n,
-            Misc.getNameFromClass(n),
-          ),
+            Misc.getNameFromClass(n)
+          )
         )
     }
     value
@@ -316,8 +316,8 @@ trait Numbers {
         errorThrower(
           "Unsupported conversion to BigDecimal. %s of type %s".format(
             n,
-            Misc.getNameFromClass(n),
-          ),
+            Misc.getNameFromClass(n)
+          )
         )
     }
     value
@@ -329,7 +329,7 @@ trait Numbers {
       case b: Boolean => JBoolean.valueOf(b)
       case _ =>
         errorThrower(
-          "Unsupported conversion to Boolean. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to Boolean. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
   }
@@ -345,7 +345,7 @@ trait Numbers {
       case jn: JNumber => jn
       case _ =>
         errorThrower(
-          "Unsupported conversion to Number. %s of type %s".format(n, Misc.getNameFromClass(n)),
+          "Unsupported conversion to Number. %s of type %s".format(n, Misc.getNameFromClass(n))
         )
     }
   }

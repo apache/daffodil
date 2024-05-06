@@ -55,7 +55,7 @@ case class PackedSignCodes(
   positive: List[Int],
   negative: List[Int],
   unsigned: List[Int],
-  zero_sign: List[Int],
+  zero_sign: List[Int]
 ) {}
 
 object DecimalUtils {
@@ -116,14 +116,14 @@ object DecimalUtils {
   def packedToBigDecimal(
     num: Array[Byte],
     scale: Int,
-    signCodes: PackedSignCodes,
+    signCodes: PackedSignCodes
   ): JBigDecimal = {
     new JBigDecimal(packedToBigInteger(num, signCodes), scale)
   }
 
   def packedFromBigIntegerLength(
     absBigIntAsString: String,
-    minLengthInBits: Int,
+    minLengthInBits: Int
   ): (Int, Int) = {
     Assert.invariant(absBigIntAsString(0) != '-')
     val numDigits = absBigIntAsString.length
@@ -139,7 +139,7 @@ object DecimalUtils {
   def packedFromBigInteger(
     bigInt: JBigInteger,
     minLengthInBits: Int,
-    signCodes: PackedSignCodes,
+    signCodes: PackedSignCodes
   ): Array[Byte] = {
     val negative = (bigInt.signum != 1)
     val inChars = bigInt.abs.toString
@@ -324,7 +324,7 @@ object DecimalUtils {
   def ibm4690FromBigIntegerLength(
     absBigIntAsString: String,
     minLengthInBits: Int,
-    negative: Boolean,
+    negative: Boolean
   ): (Int, Int) = {
     Assert.invariant(absBigIntAsString(0) != '-')
     val numDigits = if (negative) absBigIntAsString.length + 1 else absBigIntAsString.length
@@ -529,7 +529,7 @@ object DecimalUtils {
   def zonedToNumber(
     num: String,
     optZonedStyle: Option[TextZonedSignStyle],
-    opl: OverpunchLocation.Value,
+    opl: OverpunchLocation.Value
   ): String = {
     val opindex = opl match {
       case OverpunchLocation.Start => 0
@@ -572,7 +572,7 @@ object DecimalUtils {
   def zonedFromNumber(
     num: String,
     optZonedStyle: Option[TextZonedSignStyle],
-    opl: OverpunchLocation.Value,
+    opl: OverpunchLocation.Value
   ): String = {
     val positive = (num.charAt(0) != '-')
     val inStr = positive match {

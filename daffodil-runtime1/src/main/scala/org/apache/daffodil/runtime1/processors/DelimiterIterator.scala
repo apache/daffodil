@@ -98,7 +98,7 @@ abstract class DelimiterIterator(val delimiters: mutable.ArrayBuffer[DFADelimite
 
 class AllTerminatingMarkupDelimiterIterator(
   d: mutable.ArrayBuffer[DFADelimiter],
-  override val firstLocalIndex: Int,
+  override val firstLocalIndex: Int
 ) extends DelimiterIterator(d)
   with DelimitersRangeAll {
 
@@ -113,7 +113,7 @@ class AllTerminatingMarkupDelimiterIterator(
 class LocalTypedDelimiterIterator(
   delimType: DelimiterTextType.Type,
   d: mutable.ArrayBuffer[DFADelimiter],
-  override val firstLocalIndex: Int,
+  override val firstLocalIndex: Int
 ) extends DelimiterIterator(d)
   with DelimitersRangeLocal {
 
@@ -126,7 +126,7 @@ class LocalTypedDelimiterIterator(
 class RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(
   localType: DelimiterTextType.Type,
   d: mutable.ArrayBuffer[DFADelimiter],
-  override val firstLocalIndex: Int,
+  override val firstLocalIndex: Int
 ) extends DelimiterIterator(d)
   with DelimitersRangeAll {
 

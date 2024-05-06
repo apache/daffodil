@@ -60,7 +60,7 @@ case class ConvertZonedNumberPrim(e: ElementBase)
             s"""The dfdl:textNumberPattern '%s' contains 'V' (virtual decimal point).
              |Other than the leading or trailing '+' sign indicator,
              |it can contain only digits 0-9.""".stripMargin('|'),
-            pattern,
+            pattern
           )
         }
     } else if (hasP) {
@@ -74,13 +74,13 @@ case class ConvertZonedNumberPrim(e: ElementBase)
             """The dfdl:textNumberPattern '%s' contains 'P' (decimal scaling position symbol(s)).
             |However, it did not match the allowed syntax which allows the sign indicator
             |plus digits on only one side of the P symbols.""".stripMargin,
-            pattern,
+            pattern
           )
         case (Some(rl(_, ps, digits, _)), None) => ps.length + digits.length
         case (None, Some(rr(_, digits, ps, _))) => -ps.length // negate value.
         case _ =>
           Assert.invariantFailed(
-            "Should not match both left P and right P regular expressions.",
+            "Should not match both left P and right P regular expressions."
           )
       }
     } else {
@@ -100,7 +100,7 @@ case class ConvertZonedNumberPrim(e: ElementBase)
 
     e.schemaDefinitionWhen(
       patternWithoutEscapedChars.contains(";"),
-      "Negative patterns may not be used in textNumberPattern for textNumberRep='zoned'",
+      "Negative patterns may not be used in textNumberPattern for textNumberRep='zoned'"
     )
 
     e.primType match {
@@ -111,29 +111,29 @@ case class ConvertZonedNumberPrim(e: ElementBase)
         if (e.textNumberCheckPolicy == TextNumberCheckPolicy.Lax) {
           if (
             (patternWithoutEscapedChars(0) != '+') && (patternWithoutEscapedChars(
-              patternWithoutEscapedChars.length - 1,
+              patternWithoutEscapedChars.length - 1
             ) != '+')
           )
             e.SDE(
-              "textNumberPattern must have '+' at the beginning or the end of the pattern when textNumberRep='zoned' and textNumberPolicy='lax' for unsigned numbers",
+              "textNumberPattern must have '+' at the beginning or the end of the pattern when textNumberRep='zoned' and textNumberPolicy='lax' for unsigned numbers"
             )
         }
       }
       case _ => {
         if (
           (patternWithoutEscapedChars(0) != '+') && (patternWithoutEscapedChars(
-            patternWithoutEscapedChars.length - 1,
+            patternWithoutEscapedChars.length - 1
           ) != '+')
         )
           e.SDE(
-            "textNumberPattern must have '+' at the beginning or the end of the pattern when textNumberRep='zoned' for signed numbers",
+            "textNumberPattern must have '+' at the beginning or the end of the pattern when textNumberRep='zoned' for signed numbers"
           )
       }
     }
 
     if (
       (patternWithoutEscapedChars(0) == '+') && (patternWithoutEscapedChars(
-        patternWithoutEscapedChars.length - 1,
+        patternWithoutEscapedChars.length - 1
       ) == '+')
     )
       e.SDE("The textNumberPattern may either begin or end with a '+', not both.")
@@ -145,7 +145,7 @@ case class ConvertZonedNumberPrim(e: ElementBase)
           e.SDE(
             """The dfdl:textNumberPattern has a virtual decimal point 'V' or decimal scaling 'P' and dfdl:textNumberRep='zoned'.
             | The type must be xs:decimal but was: %s.""".stripMargin,
-            e.primType.globalQName.toPrettyString,
+            e.primType.globalQName.toPrettyString
           )
       }
     }
@@ -181,7 +181,7 @@ case class ConvertZonedNumberPrim(e: ElementBase)
       roundingIncrement,
       Nil,
       MaybeInt.Nope,
-      e.primType,
+      e.primType
     )
     ev.compile(tunable)
     ev
@@ -203,7 +203,7 @@ case class ConvertZonedNumberPrim(e: ElementBase)
       textNumberFormatEv,
       e.optTextZonedSignStyle,
       e.elementRuntimeData,
-      textDecimalVirtualPoint,
+      textDecimalVirtualPoint
     )
 
   override lazy val unparser: Unparser =
@@ -211,6 +211,6 @@ case class ConvertZonedNumberPrim(e: ElementBase)
       opl,
       e.optTextZonedSignStyle,
       e.elementRuntimeData,
-      textDecimalVirtualPoint,
+      textDecimalVirtualPoint
     )
 }

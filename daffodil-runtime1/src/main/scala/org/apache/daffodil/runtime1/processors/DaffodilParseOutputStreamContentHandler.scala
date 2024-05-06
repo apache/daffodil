@@ -191,7 +191,7 @@ class DaffodilParseOutputStreamContentHandler(out: OutputStream, pretty: Boolean
     uri: String,
     localName: String,
     qName: String,
-    atts: Attributes,
+    atts: Attributes
   ): Unit = {
     // the pop/true removes whatever is on the stack which is our previous guess for whether we
     // would need a newline after the previous end tag. As we are currently at the start of a new

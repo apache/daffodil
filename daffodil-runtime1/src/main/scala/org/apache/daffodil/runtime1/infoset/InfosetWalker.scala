@@ -77,7 +77,7 @@ object InfosetWalker {
     ignoreBlocks: Boolean,
     releaseUnneededInfoset: Boolean,
     walkSkipMin: Int = 32,
-    walkSkipMax: Int = 2048,
+    walkSkipMax: Int = 2048
   ): InfosetWalker = {
 
     // Determine the container of the root node and the index in which it
@@ -106,7 +106,7 @@ object InfosetWalker {
       ignoreBlocks,
       releaseUnneededInfoset,
       walkSkipMin,
-      walkSkipMax,
+      walkSkipMax
     )
   }
 
@@ -180,7 +180,7 @@ class InfosetWalker private (
   ignoreBlocks: Boolean,
   releaseUnneededInfoset: Boolean,
   walkSkipMin: Int,
-  walkSkipMax: Int,
+  walkSkipMax: Int
 ) {
 
   /**
@@ -522,7 +522,7 @@ class InfosetWalker private (
             doOutputter(
               outputter.startComplex(complex),
               "start infoset complex element",
-              complex.erd,
+              complex.erd
             )
           } else {
             val array = child.asInstanceOf[DIArray]
@@ -561,7 +561,7 @@ class InfosetWalker private (
       moveToContainer()
       containerNodeStack.top.freeChildIfNoLongerNeeded(
         containerIndexStack.top,
-        releaseUnneededInfoset,
+        releaseUnneededInfoset
       )
       moveToNextSibling()
     }

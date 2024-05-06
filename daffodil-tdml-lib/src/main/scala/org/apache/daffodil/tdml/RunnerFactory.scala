@@ -49,7 +49,7 @@ object Runner {
     compileAllTopLevel: Boolean = false,
     defaultRoundTripDefault: RoundTrip = defaultRoundTripDefaultDefault,
     defaultValidationDefault: String = defaultValidationDefaultDefault,
-    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault,
+    defaultImplementationsDefault: Seq[String] = defaultImplementationsDefaultDefault
   ): Runner = {
 
     // Prepend forward slash to turn dir/file into classpath resource
@@ -72,7 +72,7 @@ object Runner {
       compileAllTopLevel,
       defaultRoundTripDefault,
       defaultValidationDefault,
-      defaultImplementationsDefault,
+      defaultImplementationsDefault
     )
   }
 
@@ -149,7 +149,7 @@ class Runner private (
   compileAllTopLevel: Boolean = false,
   defaultRoundTripDefault: RoundTrip = Runner.defaultRoundTripDefaultDefault,
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
-  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
+  defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault
 ) {
 
   /**
@@ -160,7 +160,7 @@ class Runner private (
   def this(path: String) =
     this(
       if (path.startsWith("/")) Right(path)
-      else Right("/" + path),
+      else Right("/" + path)
     )
 
   /**
@@ -173,7 +173,7 @@ class Runner private (
   def this(dir: String, file: String) =
     this(
       if (dir.endsWith("/")) dir + file
-      else dir + "/" + file,
+      else dir + "/" + file
     )
 
   /**
@@ -220,7 +220,7 @@ class Runner private (
         defaultValidationDefault,
         defaultImplementationsDefault,
         Runner.defaultShouldDoErrorComparisonOnCrossTests,
-        Runner.defaultShouldDoWarningComparisonOnCrossTests,
+        Runner.defaultShouldDoWarningComparisonOnCrossTests
       )
     }
     ts

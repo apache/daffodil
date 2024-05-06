@@ -51,7 +51,7 @@ case class DelimiterStackCombinatorSequence(sq: SequenceTermBase, body: Gram)
   lazy val parser: DaffodilParser = new DelimiterStackParser(
     (pInit.toList ++ pSep.toList ++ pTerm.toList).toArray,
     sq.runtimeData,
-    body.parser,
+    body.parser
   )
 
   override lazy val unparser: DaffodilUnparser =
@@ -73,7 +73,7 @@ case class DelimiterStackCombinatorChoice(ch: ChoiceTermBase, body: Gram)
   lazy val parser: DaffodilParser = new DelimiterStackParser(
     (pInit.toList ++ pTerm.toList).toArray,
     ch.runtimeData,
-    body.parser,
+    body.parser
   )
 
   override lazy val unparser: DaffodilUnparser =

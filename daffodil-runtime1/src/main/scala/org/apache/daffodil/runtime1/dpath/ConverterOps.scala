@@ -64,7 +64,7 @@ case object DateTimeToDate extends Converter {
       case dt: DFDLDateTime => dt.toDate
       case _ =>
         throw new NumberFormatException(
-          "xs:dateTime expected but an invalid type was received.",
+          "xs:dateTime expected but an invalid type was received."
         )
     }
   }
@@ -75,7 +75,7 @@ case object DateTimeToTime extends Converter {
       case dt: DFDLDateTime => dt.toTime
       case _ =>
         throw new NumberFormatException(
-          "xs:dateTime expected but an invalid type was received.",
+          "xs:dateTime expected but an invalid type was received."
         )
     }
   }

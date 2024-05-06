@@ -34,7 +34,7 @@ trait DaffodilTunablesStaticMixin {
 
   final def configPlusMoreTunablesMap(
     tunablesMap: Map[String, String],
-    optDafConfig: Option[DaffodilConfig],
+    optDafConfig: Option[DaffodilConfig]
   ): Map[String, String] = {
     val configFileTunablesMap = optDafConfig.map { _.tunablesMap }.getOrElse(Map.empty)
     // Note, ++ on Maps replaces any key/value pair from the left with that on the

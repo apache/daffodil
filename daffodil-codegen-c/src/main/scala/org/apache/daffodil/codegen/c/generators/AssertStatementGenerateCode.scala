@@ -30,7 +30,7 @@ trait AssertStatementGenerateCode {
     name: String,
     exprText: String,
     recoverable: Boolean,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val indent = if (cgState.hasChoice) INDENT else NO_INDENT
     val exprWOBraces = exprText.stripPrefix("{").stripSuffix("}").trim()

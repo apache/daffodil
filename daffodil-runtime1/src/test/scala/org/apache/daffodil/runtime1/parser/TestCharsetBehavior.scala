@@ -57,7 +57,7 @@ object Converter {
     in: InputStream,
     out: OutputStream,
     inDecoder: CharsetDecoder,
-    outEncoder: CharsetEncoder,
+    outEncoder: CharsetEncoder
   ) = {
     val i = new BufferedReader(new InputStreamReader(in, inDecoder));
     val o = new BufferedWriter(new OutputStreamWriter(out, outEncoder));
@@ -128,7 +128,7 @@ class TestUnicodeErrorTolerance {
     val inBuf = Array[Int]( // 3 byte encoding of 2nd half of surrogate pair for U+1d4d0
       0xed,
       0xb3,
-      0x90,
+      0x90
     )
     val input = new ByteArrayInputStream(inBuf);
 
@@ -205,7 +205,7 @@ class TestUnicodeErrorTolerance {
       0xf0,
       0x90,
       0x80,
-      0x80,
+      0x80
     )
     val input = new ByteArrayInputStream(inBuf);
     val act = Converter.parse(input, decoder)
@@ -244,7 +244,7 @@ class TestUnicodeErrorTolerance {
       0xf4,
       0x90,
       0x80,
-      0x80,
+      0x80
     )
     val input = new ByteArrayInputStream(inBuf);
     val e =
@@ -441,7 +441,7 @@ class TestUnicodeErrorTolerance {
       0xe2,
       0xcf,
       0xbf,
-      0xbf,
+      0xbf
     ) // a bad 4-byte sequence, but bad in 2nd byte. = 3 errors
     val act = replaceBadCharacters(inBuf)
     assertEquals("\uFFFD\u03ff\uFFFD", act)
@@ -477,7 +477,7 @@ class TestUnicodeErrorTolerance {
     val cb = new StringBuffer;
     for (i <- 0 to 255) cb.appendCodePoint(inreader.read())
     val act = Misc.remapStringToVisibleGlyphs(
-      XMLUtils.remapXMLIllegalCharactersToPUA(cb.toString()),
+      XMLUtils.remapXMLIllegalCharactersToPUA(cb.toString())
     )
     //
     //    val act = Converter.parse(input, decoder) // nope. Uses readLine, not just read. Trips over line endings.

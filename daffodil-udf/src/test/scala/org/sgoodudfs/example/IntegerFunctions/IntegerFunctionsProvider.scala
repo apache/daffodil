@@ -36,7 +36,7 @@ class IntegerFunctionsProvider extends UserDefinedFunctionProvider {
  */
 @UserDefinedFunctionIdentification(
   name = "addBoxed",
-  namespaceURI = "http://example.com/scala/iudfs",
+  namespaceURI = "http://example.com/scala/iudfs"
 )
 class BoxedAddition extends UserDefinedFunction {
 
@@ -57,7 +57,7 @@ class BoxedAddition extends UserDefinedFunction {
    */
 @UserDefinedFunctionIdentification(
   name = "addPrimitive",
-  namespaceURI = "http://example.com/scala/iudfs",
+  namespaceURI = "http://example.com/scala/iudfs"
 )
 class PrimitivesAddition extends UserDefinedFunction {
 

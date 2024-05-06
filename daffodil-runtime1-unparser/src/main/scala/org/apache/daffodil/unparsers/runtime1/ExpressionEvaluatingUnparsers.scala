@@ -31,12 +31,12 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 final class SetVariableSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],
   override val rd: VariableRuntimeData,
-  referencingContext: NonTermRuntimeData,
+  referencingContext: NonTermRuntimeData
 ) extends SuspendableExpression {
 
   override protected def processExpressionResult(
     ustate: UState,
-    v: DataValuePrimitive,
+    v: DataValuePrimitive
   ): Unit = {
     ustate.setVariable(rd, v, referencingContext)
   }
@@ -57,7 +57,7 @@ final class SetVariableSuspendableExpression(
 final class SetVariableUnparser(
   val expr: CompiledExpression[AnyRef],
   override val context: VariableRuntimeData,
-  referencingContext: NonTermRuntimeData,
+  referencingContext: NonTermRuntimeData
 ) extends PrimUnparserNoData {
 
   override lazy val runtimeDependencies = Vector()
@@ -76,12 +76,12 @@ final class SetVariableUnparser(
 final class NewVariableInstanceDefaultValueSuspendableExpression(
   override val expr: CompiledExpression[AnyRef],
   override val rd: VariableRuntimeData,
-  nvi: VariableInstance,
+  nvi: VariableInstance
 ) extends SuspendableExpression {
 
   override protected def processExpressionResult(
     ustate: UState,
-    v: DataValuePrimitive,
+    v: DataValuePrimitive
   ): Unit = {
     nvi.setDefaultValue(v) // This also sets variable state to VariableDefined
   }

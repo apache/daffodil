@@ -68,13 +68,13 @@ trait ThrowsSDE {
   final def schemaDefinitionUnless(
     testThatWillThrowIfFalse: Boolean,
     str: String,
-    args: Any*,
+    args: Any*
   ): Unit = macro SDEMacros.schemaDefinitionUnlessMacro
 
   final def schemaDefinitionWhen(
     testThatWillThrowIfTrue: Boolean,
     str: String,
-    args: Any*,
+    args: Any*
   ): Unit = macro SDEMacros.schemaDefinitionWhenMacro
 
   final def notYetImplemented(msg: String, args: Any*): Nothing =
@@ -117,7 +117,7 @@ trait SavesErrorsAndWarnings {
     warnID: WarnID,
     testThatWillWarnIfFalse: Boolean,
     str: String,
-    args: Any*,
+    args: Any*
   ): Unit = macro SDEMacros.schemaDefinitionWarningUnlessSuppressMacro
 
   /**
@@ -127,7 +127,7 @@ trait SavesErrorsAndWarnings {
     warnID: WarnID,
     testThatWillWarnIfTrue: Boolean,
     str: String,
-    args: Any*,
+    args: Any*
   ): Unit = macro SDEMacros.schemaDefinitionWarningWhenSuppressMacro
 
   /**
@@ -142,7 +142,7 @@ trait SavesErrorsAndWarnings {
     propertyLocation: LookupLocation,
     otherPropertyLocation: LookupLocation,
     str: String,
-    args: Any*,
+    args: Any*
   ): Nothing = {
     //
     // only if there is more than one location to discuss, do we

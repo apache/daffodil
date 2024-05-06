@@ -37,14 +37,14 @@ object SeparatorParseStatus {
 sealed abstract class SeparatorParseHelper(
   protected val sep: Parser,
   protected val childParser: Parser,
-  scParserArg: Separated,
+  scParserArg: Separated
 ) extends Serializable {
 
   protected val scParser = scParserArg.asInstanceOf[SequenceChildParser with Separated]
 
   def parseOneWithSeparator(
     state: PState,
-    requiredOptional: RequiredOptionalStatus,
+    requiredOptional: RequiredOptionalStatus
   ): ParseAttemptStatus
 
   /**
@@ -60,7 +60,7 @@ sealed abstract class SeparatorParseHelper(
           erd.prefixedName,
           pstate.mpstate.arrayIterationPos,
           kind,
-          cause,
+          cause
         )
       case _ =>
         sep.PE(pstate, "Failed to find %s separator. Cause: %s.", kind, cause)
@@ -76,7 +76,7 @@ final class PrefixSeparatorHelper(sep: Parser, childParser: Parser, scParserArg:
 
   override def parseOneWithSeparator(
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus,
+    requiredOptional: RequiredOptionalStatus
   ): ParseAttemptStatus =
     parseOneWithInfixOrPrefixSeparator(true, pstate, requiredOptional)
 }
@@ -89,7 +89,7 @@ final class InfixSeparatorHelper(sep: Parser, childParser: Parser, scParserArg: 
 
   override def parseOneWithSeparator(
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus,
+    requiredOptional: RequiredOptionalStatus
   ): ParseAttemptStatus = {
 
     val infixSepShouldBePresent =
@@ -106,7 +106,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
   final protected def parseOneWithInfixOrPrefixSeparator(
     shouldParseTheSep: Boolean,
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus,
+    requiredOptional: RequiredOptionalStatus
   ): ParseAttemptStatus = {
 
     val sepStatus =
@@ -119,7 +119,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
             // Create a point of uncertainty with which to reset if we find errors
             pstate.withPointOfUncertainty(
               "parseOneWithInfixOrPrefixSeparator",
-              childParser.context,
+              childParser.context
             ) { pou =>
               sep.parse1(pstate)
 
@@ -155,7 +155,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
             scParser,
             prevBitPosBeforeChild,
             pstate,
-            requiredOptional,
+            requiredOptional
           )
         pas
       }
@@ -171,7 +171,7 @@ trait InfixPrefixSeparatorHelperMixin { self: SeparatorParseHelper =>
           prevBitPosBeforeChild,
           pstate,
           isZL = true,
-          requiredOptional,
+          requiredOptional
         )
       }
     }
@@ -183,13 +183,13 @@ final class PostfixSeparatorHelper(
   sep: Parser,
   child: Parser,
   scParserArg: Separated,
-  isSimpleDelimited: Boolean,
+  isSimpleDelimited: Boolean
 ) extends SeparatorParseHelper(sep, child, scParserArg) {
   import ParseAttemptStatus._
 
   override def parseOneWithSeparator(
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus,
+    requiredOptional: RequiredOptionalStatus
   ): ParseAttemptStatus = {
 
     val prevBitPosBeforeChild = pstate.bitPos0b
@@ -211,7 +211,7 @@ final class PostfixSeparatorHelper(
             scParser,
             prevBitPosBeforeChild,
             pstate,
-            requiredOptional,
+            requiredOptional
           )
         sep.parse1(pstate)
         if (pstate.processorStatus eq Success) {
@@ -237,7 +237,7 @@ final class PostfixSeparatorHelper(
             prevBitPosBeforeChild,
             pstate,
             hasZLChildAttempt,
-            requiredOptional,
+            requiredOptional
           )
         }
       } else {
@@ -274,7 +274,7 @@ final class PostfixSeparatorHelper(
                 scParser,
                 prevBitPosBeforeChild,
                 pstate,
-                requiredOptional,
+                requiredOptional
               )
             val res = pas match {
               case AbsentRep => {
@@ -293,7 +293,7 @@ final class PostfixSeparatorHelper(
               prevBitPosBeforeChild,
               pstate,
               isZL,
-              requiredOptional,
+              requiredOptional
             )
           }
         } else {
@@ -307,7 +307,7 @@ final class PostfixSeparatorHelper(
             prevBitPosBeforeChild,
             pstate,
             isZL,
-            requiredOptional,
+            requiredOptional
           )
         }
       }

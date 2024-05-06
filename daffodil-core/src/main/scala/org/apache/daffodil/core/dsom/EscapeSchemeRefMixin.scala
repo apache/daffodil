@@ -49,7 +49,7 @@ trait EscapeSchemeRefMixin { self: Term =>
       case _: NotFound => {
         SDW(
           WarnID.EscapeSchemeRefUndefined,
-          "Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.",
+          "Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema."
         )
         None
       }

@@ -44,7 +44,7 @@ trait NextElementResolver { self: InfosetInputter =>
   final def nextElement(
     name: String,
     nameSpace: String,
-    hasNamespace: Boolean,
+    hasNamespace: Boolean
   ): ElementRuntimeData = {
     Logger.log.debug(s"NextERDResovler -> trdStack: $trdStack")
     val iter = trdStack.iter
@@ -122,7 +122,7 @@ trait NextElementResolver { self: InfosetInputter =>
     iter: ResettableIterator[TermRuntimeData],
     name: String,
     namespace: String,
-    optTRD: Option[TermRuntimeData],
+    optTRD: Option[TermRuntimeData]
   ): Maybe[ElementRuntimeData] = {
     val allTRDs = {
       iter.reset()
@@ -175,7 +175,7 @@ sealed trait PartialNextElementResolver extends Serializable {
   def maybeNextElement(
     name: String,
     nameSpace: String,
-    hasNamespace: Boolean,
+    hasNamespace: Boolean
   ): Maybe[ElementRuntimeData]
 
   // TODO: PERFORMANCE: We really should be interning all QNames so that comparison of QNames can be pointer equality
@@ -187,7 +187,7 @@ sealed trait PartialNextElementResolver extends Serializable {
     maybeNextElement(
       nqn.local,
       if (hasNamespace) nqn.namespace.toStringOrNullIfNoNS else null,
-      hasNamespace,
+      hasNamespace
     )
 
   def currentPossibleNextElements: Seq[ElementRuntimeData]
@@ -204,7 +204,7 @@ class DoNotUseThisResolver(trd: TermRuntimeData) extends PartialNextElementResol
   override def maybeNextElement(
     local: String,
     namespace: String,
-    hasNamespace: Boolean,
+    hasNamespace: Boolean
   ): Maybe[ElementRuntimeData] =
     Assert.invariantFailed("This resolver should never be used.")
 
@@ -219,11 +219,11 @@ class NoNextElement(trd: TermRuntimeData, isRequiredStreamingUnparserEvent: Bool
   override def maybeNextElement(
     local: String,
     namespace: String,
-    hasNamespace: Boolean,
+    hasNamespace: Boolean
   ): Maybe[ElementRuntimeData] = {
     if (isRequiredStreamingUnparserEvent)
       One(
-        new UnexpectedElementErrorERD(Some(trd), local, namespace, currentPossibleNamedQNames),
+        new UnexpectedElementErrorERD(Some(trd), local, namespace, currentPossibleNamedQNames)
       )
     else
       Nope
@@ -238,7 +238,7 @@ class NoNextElement(trd: TermRuntimeData, isRequiredStreamingUnparserEvent: Bool
 class OnlyOnePossibilityForNextElement(
   trd: TermRuntimeData,
   val nextERD: ElementRuntimeData,
-  isRequiredStreamingUnparserEvent: Boolean,
+  isRequiredStreamingUnparserEvent: Boolean
 ) extends PartialNextElementResolver {
 
   val nqn = nextERD.namedQName
@@ -246,7 +246,7 @@ class OnlyOnePossibilityForNextElement(
   override def maybeNextElement(
     local: String,
     namespace: String,
-    hasNamespace: Boolean,
+    hasNamespace: Boolean
   ): Maybe[ElementRuntimeData] = {
     val matches =
       if (hasNamespace) {
@@ -262,7 +262,7 @@ class OnlyOnePossibilityForNextElement(
     if (!matches) {
       if (isRequiredStreamingUnparserEvent) {
         One(
-          new UnexpectedElementErrorERD(Some(trd), local, namespace, currentPossibleNamedQNames),
+          new UnexpectedElementErrorERD(Some(trd), local, namespace, currentPossibleNamedQNames)
         )
       } else {
         Nope
@@ -281,7 +281,7 @@ class SeveralPossibilitiesForNextElement(
   trd: TermRuntimeData,
   nextERDMap: Map[QNameBase, ElementRuntimeData],
   hasDuplicateLocalNames: Boolean,
-  isRequiredStreamingUnparserEvent: Boolean,
+  isRequiredStreamingUnparserEvent: Boolean
 ) extends PartialNextElementResolver {
   Assert.usage(nextERDMap.size > 1, "should be more than one mapping")
 
@@ -301,7 +301,7 @@ class SeveralPossibilitiesForNextElement(
   override def maybeNextElement(
     local: String,
     namespace: String,
-    hasNamespace: Boolean,
+    hasNamespace: Boolean
   ): Maybe[ElementRuntimeData] = {
     Logger.log.debug(s"""
       NextERDResovler -> trd: $trd\n
@@ -312,7 +312,7 @@ class SeveralPossibilitiesForNextElement(
         val sqn = StepQName(
           None,
           local,
-          NS(namespace),
+          NS(namespace)
         ) // these will match in a hash table of NamedQNames.
         nextERDMap.get(sqn.asInstanceOf[QNameBase])
       } else {
@@ -350,7 +350,7 @@ class SeveralPossibilitiesForNextElement(
     val res = optnextERD
     if (isRequiredStreamingUnparserEvent && res.isEmpty) {
       One(
-        new UnexpectedElementErrorERD(Some(trd), local, namespace, currentPossibleNamedQNames),
+        new UnexpectedElementErrorERD(Some(trd), local, namespace, currentPossibleNamedQNames)
       )
     } else {
       toMaybe(res)

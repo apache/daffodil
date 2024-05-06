@@ -37,7 +37,7 @@ class ParseError(
   val loc: Maybe[DataLocation],
   causedBy: Maybe[Throwable],
   kind: Maybe[String],
-  args: Any*,
+  args: Any*
 ) extends ProcessingError("Parse", rd, loc, causedBy, kind, args: _*) {
   def this(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], kind: String, args: Any*) =
     this(rd, loc, Maybe.Nope, Maybe(kind), args: _*)
@@ -47,19 +47,19 @@ class ParseError(
 
 final class CharsetNotByteAlignedError(
   pstate: PState,
-  cause: BitsCharsetDecoderUnalignedCharDecodeException,
+  cause: BitsCharsetDecoderUnalignedCharDecodeException
 ) extends ParseError(
     Maybe.toMaybe(pstate.maybeERD.toScalaOption.map { _.schemaFileLocation }),
     One(pstate.currentLocation),
     One(cause),
-    Nope,
+    Nope
   )
 
 class AssertionFailed(
   rd: SchemaFileLocation,
   state: PState,
   msg: String,
-  details: Maybe[String] = Nope,
+  details: Maybe[String] = Nope
 ) extends ParseError(One(rd), One(state.currentLocation), "Assertion failed: %s", msg) {
   override def componentText: String = {
 
@@ -74,7 +74,7 @@ class ChoiceBranchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[
     One(rd),
     One(state.currentLocation),
     "Alternative failed. Reason(s): %s",
-    errors,
+    errors
   )
 
 class EntireChoiceFailed(rd: SchemaFileLocation, state: PState, diags: Seq[Diagnostic])
@@ -82,7 +82,7 @@ class EntireChoiceFailed(rd: SchemaFileLocation, state: PState, diags: Seq[Diagn
     One(rd),
     One(state.currentLocation),
     "All choice alternatives failed. Reason(s): %s",
-    diags,
+    diags
   ) {
 
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap {
@@ -108,7 +108,7 @@ class ChoiceDispatchNoMatch(rd: SchemaFileLocation, state: PState, val key: Stri
     One(rd),
     One(state.currentLocation),
     "Choice dispatch key (%s) failed to match any of the branch keys.",
-    key,
+    key
   )
 
 class ChoiceDispatchFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
@@ -116,7 +116,7 @@ class ChoiceDispatchFailed(rd: SchemaFileLocation, state: PState, val errors: Se
     One(rd),
     One(state.currentLocation),
     "Choice dispatch branch failed: %s",
-    errors,
+    errors
   )
 
 class GeneralParseFailure(msg: String) extends ThinDiagnostic(Nope, Nope, Nope, Maybe(msg)) {
@@ -144,7 +144,7 @@ trait DoSDEMixin {
           state.getContext().schemaFileLocation,
           state,
           e,
-          null,
+          null
         )
         state.setFailed(sde)
         state.toss(sde)

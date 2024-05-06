@@ -100,7 +100,7 @@ trait BitsCharsetNonByteSize extends BitsCharset {
           // ok. unmapped on purpose.
         } else
           Assert.invariantFailed(
-            "Char with code %n found. Character codes must be < 256.".format(c.toInt),
+            "Char with code %n found. Character codes must be < 256.".format(c.toInt)
           )
       }
     }
@@ -126,7 +126,7 @@ trait BitsCharsetNonByteSize extends BitsCharset {
  */
 protected final class ProxyJavaCharsetEncoder(
   cs: JavaCharset,
-  real: BitsCharsetNonByteSizeEncoder,
+  real: BitsCharsetNonByteSizeEncoder
 ) extends JavaCharsetEncoder(cs, 1.0f, 1.0f) {
   override def encodeLoop(in: CharBuffer, out: ByteBuffer): CoderResult =
     real.encodeLoop(in, out)
@@ -141,7 +141,7 @@ protected final class ProxyJavaCharsetEncoder(
 
 final class BitsCharsetNonByteSizeEncoder(
   override val bitsCharset: BitsCharsetNonByteSize,
-  replacementChar: Int,
+  replacementChar: Int
 ) extends BitsCharsetEncoder {
 
   final def bitWidthOfACodeUnit: Int = bitsCharset.bitWidthOfACodeUnit

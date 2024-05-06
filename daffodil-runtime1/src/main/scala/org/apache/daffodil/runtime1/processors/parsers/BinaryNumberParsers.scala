@@ -65,7 +65,7 @@ class BinaryDecimalKnownLengthParser(
   e: ElementRuntimeData,
   signed: YesNo,
   binaryDecimalVirtualPoint: Int,
-  val lengthInBits: Int,
+  val lengthInBits: Int
 ) extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {}
 
@@ -74,7 +74,7 @@ class BinaryDecimalRuntimeLengthParser(
   signed: YesNo,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {}
 
@@ -85,7 +85,7 @@ class BinaryDecimalPrefixedLengthParser(
   signed: YesNo,
   binaryDecimalVirtualPoint: Int,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
   with PrefixedLengthParserMixin {
 
@@ -99,7 +99,7 @@ class BinaryDecimalPrefixedLengthParser(
 abstract class BinaryDecimalParserBase(
   override val context: ElementRuntimeData,
   signed: YesNo,
-  binaryDecimalVirtualPoint: Int,
+  binaryDecimalVirtualPoint: Int
 ) extends PrimParser {
   override lazy val runtimeDependencies = Vector()
 
@@ -126,14 +126,14 @@ class BinaryIntegerRuntimeLengthParser(
   val e: ElementRuntimeData,
   signed: Boolean,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends BinaryIntegerBaseParser(e, signed)
   with HasRuntimeExplicitLength {}
 
 class BinaryIntegerKnownLengthParser(
   e: ElementRuntimeData,
   signed: Boolean,
-  val lengthInBits: Int,
+  val lengthInBits: Int
 ) extends BinaryIntegerBaseParser(e, signed)
   with HasKnownLengthInBits {}
 
@@ -143,7 +143,7 @@ class BinaryIntegerPrefixedLengthParser(
   override val prefixedLengthERD: ElementRuntimeData,
   signed: Boolean,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends BinaryIntegerBaseParser(e, signed)
   with PrefixedLengthParserMixin {
 
@@ -156,7 +156,7 @@ class BinaryIntegerPrefixedLengthParser(
 
 abstract class BinaryIntegerBaseParser(
   override val context: ElementRuntimeData,
-  signed: Boolean,
+  signed: Boolean
 ) extends PrimParser {
   override lazy val runtimeDependencies = Vector()
 
@@ -174,7 +174,7 @@ abstract class BinaryIntegerBaseParser(
           start,
           "Number of bits %d out of range, must be between 1 and %d bits.",
           nBits,
-          width,
+          width
         )
     }
     val dis = start.dataInputStream

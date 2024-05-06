@@ -47,7 +47,7 @@ class TestMiddleEndAttributes3 {
             <xs:element name="TransportLayer" type="xs:byte" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../PayloadLength }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val sset = SchemaSet(testSchema)
@@ -96,7 +96,7 @@ class TestMiddleEndAttributes3 {
             </xs:choice>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val sset = SchemaSet(testSchema)

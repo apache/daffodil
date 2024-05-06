@@ -174,7 +174,7 @@ import passera.unsigned.ULong
 class SimpleTypeRetryUnparserSuspendableOperation(
   override val rd: ElementRuntimeData,
   maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv],
-  vUnparser: Unparser,
+  vUnparser: Unparser
 ) extends SuspendableOperation {
 
   override protected def maybeKnownLengthInBits(ustate: UState): MaybeULong = {
@@ -207,7 +207,7 @@ class SimpleTypeRetryUnparserSuspendableOperation(
 class SimpleTypeRetryUnparser(
   override val context: ElementRuntimeData,
   maybeUnparserTargetLengthInBitsEv: Maybe[UnparseTargetLengthInBitsEv],
-  vUnparser: Unparser,
+  vUnparser: Unparser
 ) extends PrimUnparser
   with SuspendableUnparser {
 
@@ -218,7 +218,7 @@ class SimpleTypeRetryUnparser(
   def suspendableOperation = new SimpleTypeRetryUnparserSuspendableOperation(
     context,
     maybeUnparserTargetLengthInBitsEv,
-    vUnparser,
+    vUnparser
   )
 
 }
@@ -241,7 +241,7 @@ class CaptureStartOfContentLengthUnparser(override val context: ElementRuntimeDa
 
 class CaptureEndOfContentLengthUnparser(
   override val context: ElementRuntimeData,
-  maybeFixedLengthInBits: MaybeULong,
+  maybeFixedLengthInBits: MaybeULong
 ) extends PrimUnparser {
 
   override lazy val runtimeDependencies = Vector()
@@ -315,7 +315,7 @@ class CaptureEndOfValueLengthUnparser(override val context: ElementRuntimeData)
  */
 class TargetLengthOperation(
   override val rd: ElementRuntimeData,
-  targetLengthEv: UnparseTargetLengthInBitsEv,
+  targetLengthEv: UnparseTargetLengthInBitsEv
 ) extends SuspendableOperation {
 
   override val isReadOnly = true
@@ -335,7 +335,7 @@ class TargetLengthOperation(
     // regular evaluation - can only look backwards
     //
     targetLengthEv.evaluate(
-      ustate,
+      ustate
     ) // can we successfully evaluate without blocking (blocking would throw)
     true
   }
@@ -437,11 +437,11 @@ trait SkipTheBits { self: SuspendableOperation =>
     }
     if (skipInBits == 0) {
       Logger.log.debug(
-        s"${Misc.getNameFromClass(this)} no fill for ${rd.diagnosticDebugName} DOS ${ustate.dataOutputStream}.",
+        s"${Misc.getNameFromClass(this)} no fill for ${rd.diagnosticDebugName} DOS ${ustate.dataOutputStream}."
       )
     } else {
       Logger.log.debug(
-        s"${Misc.getNameFromClass(this)} filled ${skipInBits} bits for ${rd.diagnosticDebugName} DOS ${ustate.dataOutputStream}.",
+        s"${Misc.getNameFromClass(this)} filled ${skipInBits} bits for ${rd.diagnosticDebugName} DOS ${ustate.dataOutputStream}."
       )
     }
   }
@@ -452,7 +452,7 @@ class ElementUnusedUnparserSuspendableOperation(
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   override val maybeLengthEv: Maybe[LengthEv],
   override val maybeCharsetEv: Maybe[CharsetEv],
-  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
+  override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv]
 ) extends SuspendableOperation
   with SkipTheBits
   with NeedValueAndTargetLengthMixin {
@@ -476,7 +476,7 @@ class ElementUnusedUnparser(
   targetLengthEv: UnparseTargetLengthInBitsEv,
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
-  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
+  maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv]
 ) extends PrimUnparser
   with SuspendableUnparser {
 
@@ -488,14 +488,14 @@ class ElementUnusedUnparser(
       targetLengthEv,
       maybeLengthEv,
       maybeCharsetEv,
-      maybeLiteralNilEv,
+      maybeLiteralNilEv
     )
 
 }
 
 class ChoiceUnusedUnparserSuspendableOperation(
   override val rd: ModelGroupRuntimeData,
-  targetLengthInBits: Long,
+  targetLengthInBits: Long
 ) extends SuspendableOperation
   with StreamSplitter
   with SkipTheBits {
@@ -571,7 +571,7 @@ class ChoiceUnusedUnparserSuspendableOperation(
         ustate,
         "Data too long for dfdl:choiceLength (%s bits) by %s bits. Unable to truncate.",
         targetLengthInBits,
-        -skipInBits,
+        -skipInBits
       )
     skipTheBits(ustate, skipInBits)
   }
@@ -580,7 +580,7 @@ class ChoiceUnusedUnparserSuspendableOperation(
 class ChoiceUnusedUnparser(
   override val context: ModelGroupRuntimeData,
   targetLengthInBits: Long,
-  suspendableOp: SuspendableOperation,
+  suspendableOp: SuspendableOperation
 ) extends PrimUnparser
   with SuspendableUnparser {
 
@@ -637,7 +637,7 @@ trait PaddingUnparserMixin extends NeedValueAndTargetLengthMixin { self: Suspend
               One(self.rd.schemaFileLocation),
               One(state.currentLocation),
               "MalformedInputException: \n%s",
-              m.getMessage(),
+              m.getMessage()
             )
           }
           case u: UnmappableCharacterException => {
@@ -645,7 +645,7 @@ trait PaddingUnparserMixin extends NeedValueAndTargetLengthMixin { self: Suspend
               One(self.rd.schemaFileLocation),
               One(state.currentLocation),
               "UnmappableCharacterException: \n%s",
-              u.getMessage(),
+              u.getMessage()
             )
           }
         }
@@ -661,7 +661,7 @@ class OnlyPaddingUnparserSuspendableOperation(
   override val maybeLengthEv: Maybe[LengthEv],
   override val maybeCharsetEv: Maybe[CharsetEv],
   override val maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  override val maybePadChar: MaybeChar,
+  override val maybePadChar: MaybeChar
 ) extends SuspendableOperation
   with PaddingUnparserMixin
 
@@ -674,7 +674,7 @@ class OnlyPaddingUnparser(
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  maybePadChar: MaybeChar,
+  maybePadChar: MaybeChar
 ) extends TextPrimUnparser
   with SuspendableUnparser {
 
@@ -687,7 +687,7 @@ class OnlyPaddingUnparser(
       maybeLengthEv,
       maybeCharsetEv,
       maybeLiteralNilEv,
-      maybePadChar,
+      maybePadChar
     )
 }
 
@@ -696,7 +696,7 @@ class NilLiteralCharacterUnparserSuspendableOperation(
   override val targetLengthEv: UnparseTargetLengthInBitsEv,
   override val maybeLengthEv: Maybe[LengthEv],
   override val maybeCharsetEv: Maybe[CharsetEv],
-  literalNilChar: Char,
+  literalNilChar: Char
 ) extends SuspendableOperation
   with PaddingUnparserMixin {
 
@@ -731,7 +731,7 @@ class NilLiteralCharacterUnparser(
   val targetLengthEv: UnparseTargetLengthInBitsEv,
   val maybeLengthEv: Maybe[LengthEv],
   val maybeCharsetEv: Maybe[CharsetEv],
-  literalNilChar: Char,
+  literalNilChar: Char
 ) extends TextPrimUnparser
   with SuspendableUnparser {
 
@@ -742,7 +742,7 @@ class NilLiteralCharacterUnparser(
     targetLengthEv,
     maybeLengthEv,
     maybeCharsetEv,
-    literalNilChar,
+    literalNilChar
   )
 
 }
@@ -753,14 +753,14 @@ class RightCenteredPaddingUnparserSuspendaableOperation(
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  maybePadChar: MaybeChar,
+  maybePadChar: MaybeChar
 ) extends OnlyPaddingUnparserSuspendableOperation(
     rd,
     targetLengthEv,
     maybeLengthEv,
     maybeCharsetEv,
     maybeLiteralNilEv,
-    maybePadChar,
+    maybePadChar
   ) {
 
   override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
@@ -775,14 +775,14 @@ class RightCenteredPaddingUnparser(
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  maybePadChar: MaybeChar,
+  maybePadChar: MaybeChar
 ) extends OnlyPaddingUnparser(
     rd,
     targetLengthEv,
     maybeLengthEv,
     maybeCharsetEv,
     maybeLiteralNilEv,
-    maybePadChar,
+    maybePadChar
   ) {
 
   override def suspendableOperation =
@@ -792,7 +792,7 @@ class RightCenteredPaddingUnparser(
       maybeLengthEv,
       maybeCharsetEv,
       maybeLiteralNilEv,
-      maybePadChar,
+      maybePadChar
     )
 }
 
@@ -802,14 +802,14 @@ class LeftCenteredPaddingUnparserSuspendableOperation(
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  maybePadChar: MaybeChar,
+  maybePadChar: MaybeChar
 ) extends OnlyPaddingUnparserSuspendableOperation(
     rd,
     targetLengthEv,
     maybeLengthEv,
     maybeCharsetEv,
     maybeLiteralNilEv,
-    maybePadChar,
+    maybePadChar
   ) {
 
   override def numPadChars(skipInBits: Long, charWidthInBits: Long) = {
@@ -827,14 +827,14 @@ class LeftCenteredPaddingUnparser(
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  maybePadChar: MaybeChar,
+  maybePadChar: MaybeChar
 ) extends OnlyPaddingUnparser(
     rd,
     targetLengthEv,
     maybeLengthEv,
     maybeCharsetEv,
     maybeLiteralNilEv,
-    maybePadChar,
+    maybePadChar
   ) {
 
   override def suspendableOperation =
@@ -844,7 +844,7 @@ class LeftCenteredPaddingUnparser(
       maybeLengthEv,
       maybeCharsetEv,
       maybeLiteralNilEv,
-      maybePadChar,
+      maybePadChar
     )
 }
 
@@ -854,13 +854,13 @@ class RightFillUnparserSuspendableOperation(
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  override val maybePadChar: MaybeChar,
+  override val maybePadChar: MaybeChar
 ) extends ElementUnusedUnparserSuspendableOperation(
     rd,
     targetLengthEv,
     maybeLengthEv,
     maybeCharsetEv,
-    maybeLiteralNilEv,
+    maybeLiteralNilEv
   )
   with PaddingUnparserMixin {
 
@@ -890,13 +890,13 @@ class RightFillUnparser(
   maybeLengthEv: Maybe[LengthEv],
   maybeCharsetEv: Maybe[CharsetEv],
   maybeLiteralNilEv: Maybe[NilStringLiteralForUnparserEv],
-  val maybePadChar: MaybeChar,
+  val maybePadChar: MaybeChar
 ) extends ElementUnusedUnparser(
     rd,
     targetLengthEv,
     maybeLengthEv,
     maybeCharsetEv,
-    maybeLiteralNilEv,
+    maybeLiteralNilEv
   ) {
 
   override def suspendableOperation =
@@ -906,7 +906,7 @@ class RightFillUnparser(
       maybeLengthEv,
       maybeCharsetEv,
       maybeLiteralNilEv,
-      maybePadChar,
+      maybePadChar
     )
 
 }
@@ -916,7 +916,7 @@ class PrefixLengthSuspendableOperation(
   elem: DIElement,
   plElem: DISimple,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends SuspendableOperation
   with CalculatedPrefixedLengthUnparserMixin {
 

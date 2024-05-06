@@ -43,7 +43,7 @@ class TestDsomCompilerUnparse1 {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s1>1</s1><s2>2</s2></ex:e1>
     val areTracing = false
@@ -65,7 +65,7 @@ class TestDsomCompilerUnparse1 {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s1>1</s1><s2>2</s2></ex:e1>
     TestUtils.testUnparsing(sch, infoset, "[1,2]")
@@ -86,7 +86,7 @@ class TestDsomCompilerUnparse1 {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s1>1</s1><s2>2</s2></ex:e1>
     TestUtils.testUnparsing(sch, infoset, "[1,2]")
@@ -114,7 +114,7 @@ class TestDsomCompilerUnparse1 {
           <xs:minLength value="3"/>
         </xs:restriction>
       </xs:simpleType>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s1>1</s1><s2>2</s2><s3>3</s3></ex:e1>
     TestUtils.testUnparsing(sch, infoset, "!#1__,__2,_3_#!")
@@ -141,7 +141,7 @@ class TestDsomCompilerUnparse1 {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s1>one, two</s1><s2>, three and four*/</s2></ex:e1>
     val areTracing = false

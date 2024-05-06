@@ -105,7 +105,7 @@ class TestInfosetInputter {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
     )
     val infosetXML = <foo xmlns={XMLUtils.EXAMPLE_NAMESPACE}>Hello</foo>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
@@ -133,7 +133,7 @@ class TestInfosetInputter {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>,
+      <xs:element nillable="true" dfdl:nilValue="nil" dfdl:nilKind="literalValue" name="foo" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:string"/>
     )
     val infosetXML = <foo xsi:nil="true" xmlns={XMLUtils.EXAMPLE_NAMESPACE} xmlns:xsi={
       XMLUtils.XSI_NAMESPACE
@@ -169,7 +169,7 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val infosetXML = <bar xmlns={XMLUtils.EXAMPLE_NAMESPACE}><foo>Hello</foo></bar>
 
@@ -223,7 +223,7 @@ class TestInfosetInputter {
             <xs:element name="baz" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val infosetXML = <bar xmlns={
       XMLUtils.EXAMPLE_NAMESPACE
@@ -282,7 +282,7 @@ class TestInfosetInputter {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val infosetXML = <quux xmlns={XMLUtils.EXAMPLE_NAMESPACE}>
                        <bar1><foo1>Hello</foo1><baz1>World</baz1></bar1>
@@ -353,7 +353,7 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val infosetXML = <bar xmlns={
       XMLUtils.EXAMPLE_NAMESPACE
@@ -399,7 +399,7 @@ class TestInfosetInputter {
             <xs:element name="baz" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val infosetXML = <bar xmlns={
       XMLUtils.EXAMPLE_NAMESPACE
@@ -450,7 +450,7 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val infosetXML = <bar xmlns={
       XMLUtils.EXAMPLE_NAMESPACE
@@ -503,7 +503,7 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val infosetXML = <bar xmlns={
       XMLUtils.EXAMPLE_NAMESPACE
@@ -558,7 +558,7 @@ class TestInfosetInputter {
             <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val infosetXML = <bar xmlns={XMLUtils.EXAMPLE_NAMESPACE}><foo>Hello</foo></bar>
     val (ic, rootERD) = infosetInputter(sch, infosetXML)
@@ -610,7 +610,7 @@ class TestInfosetInputter {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val infosetXML = <e xmlns={
       XMLUtils.EXAMPLE_NAMESPACE

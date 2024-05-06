@@ -30,7 +30,7 @@ class TestDataLoc {
       Int.MaxValue.toLong + 2,
       MaybeULong.Nope,
       Left(null),
-      Maybe.Nope,
+      Maybe.Nope
     )
     assertEquals(2147483649L, dl.bitPos1b)
     assertEquals(2147483648L, dl.bitPos0b)
@@ -43,7 +43,7 @@ class TestDataLoc {
       ((Int.MaxValue.toLong + 1) * 8) + 1,
       MaybeULong.Nope,
       Left(null),
-      Maybe.Nope,
+      Maybe.Nope
     )
     assertEquals(17179869185L, dl.bitPos1b)
     assertEquals(17179869184L, dl.bitPos0b)

@@ -42,7 +42,7 @@ class TestBinaryInput_01 {
   def fromBytes(
     ba: Array[Byte],
     byteOrd: ByteOrder,
-    bitOrd: BitOrder,
+    bitOrd: BitOrder
   ): (DataInputStream, FakeFormatInfo) = {
     dis = InputSourceDataInputStream(ba)
     val finfo = new FakeFormatInfo(bitOrd, byteOrd)
@@ -185,9 +185,9 @@ class TestBinaryInput_01 {
     val bigInt = getBigInt(finfo, dis, 0, 256)
     assertEquals(
       new JBigInt(
-        "38178759144797737047702418052138682097409903778432721523410841200294898527847",
+        "38178759144797737047702418052138682097409903778432721523410841200294898527847"
       ),
-      bigInt,
+      bigInt
     )
   }
 
@@ -196,9 +196,9 @@ class TestBinaryInput_01 {
     val (dis, finfo) = fromString("Thirty-two character long string", LE, msbFirst)
     assertEquals(
       new JBigInt(
-        "46783304350265979503919546124020768339208030665592297039403372142674722777172",
+        "46783304350265979503919546124020768339208030665592297039403372142674722777172"
       ),
-      getBigInt(finfo, dis, 0, 256),
+      getBigInt(finfo, dis, 0, 256)
     )
   }
 

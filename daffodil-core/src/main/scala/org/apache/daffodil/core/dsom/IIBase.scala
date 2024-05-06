@@ -127,7 +127,7 @@ object IIUtils {
 abstract class IIBase(
   final override val xml: Node,
   xsdArg: XMLSchemaDocument,
-  val seenBefore: IIMap,
+  val seenBefore: IIMap
 ) extends SchemaComponent
   with NestingLexicalMixin {
   final override def optLexicalParent = Option(xsdArg)
@@ -169,7 +169,7 @@ abstract class IIBase(
           if (notSeenThisBefore) seenBefore.value + mapTuple
           else seenBefore.value
         v
-      },
+      }
     )
     res
   }.value
@@ -205,7 +205,7 @@ abstract class IIBase(
           schemaDefinitionWarningWhen(
             WarnID.DeprecatedRelativeSchemaLocation,
             relToAbs,
-            s"Resolving relative schemaLocations absolutely is deprecated. Did you mean /$slText",
+            s"Resolving relative schemaLocations absolutely is deprecated. Did you mean /$slText"
           )
           // if isBootStrapSD is true, we assume we are using the fakeXMLSchemaDocument, which means
           // we will be passing in and receiving back an absolute diagnosticFilepath from resolveSchemaLocation.

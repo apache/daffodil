@@ -55,7 +55,7 @@ class TestFixedLengthLayer {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
   val abcInfoset =

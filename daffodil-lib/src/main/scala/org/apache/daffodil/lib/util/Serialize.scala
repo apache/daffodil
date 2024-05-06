@@ -27,7 +27,7 @@ trait PreSerialization extends Serializable {
   val me = this.getClass()
   Assert.usage(
     PreSerialization.classHasWriteObjectMethod(me),
-    String.format("Class %s does not implement the method writeObject.", me.getName()),
+    String.format("Class %s does not implement the method writeObject.", me.getName())
   )
 
   /**
@@ -66,8 +66,8 @@ trait PreSerialization extends Serializable {
         Assert.abort(
           "Could not serialize member of class %s, found within class %s".format(
             ns.getMessage(),
-            Misc.getNameFromClass(this),
-          ),
+            Misc.getNameFromClass(this)
+          )
         )
       }
     }

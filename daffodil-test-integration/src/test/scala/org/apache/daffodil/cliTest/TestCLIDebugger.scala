@@ -58,11 +58,11 @@ class TestCLIDebugger {
     "-Dorg.jline.terminal.provider=dumb",
     "-Dorg.jline.terminal.dumb=true",
     "-Dorg.jline.terminal.dumb.color=false",
-    "-Dfile.encoding=UTF-8",
+    "-Dfile.encoding=UTF-8"
   )
 
   val envs = Map(
-    "DAFFODIL_JAVA_OPTS" -> javaOpts.mkString(" "),
+    "DAFFODIL_JAVA_OPTS" -> javaOpts.mkString(" ")
   )
 
   /**
@@ -82,7 +82,7 @@ class TestCLIDebugger {
   // @Test
   def test_CLI_Debugger_sbt_jline_broken(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -96,7 +96,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_invalidExpressions(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -109,7 +109,7 @@ class TestCLIDebugger {
 
       cli.sendLine("eval (func())")
       cli.expect(
-        "error: expression evaluation failed: Schema Definition Error: Unsupported function:",
+        "error: expression evaluation failed: Schema Definition Error: Unsupported function:"
       )
       cli.expect("(debug)")
 
@@ -131,7 +131,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_invalidCommandError(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -145,7 +145,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_dataAndWrapLength(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
@@ -166,7 +166,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_simpleDebugger(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -179,7 +179,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_displaysTesting(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -216,7 +216,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_removeHidden(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
@@ -238,7 +238,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_removeHidden2(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
@@ -258,7 +258,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_breakpointTesting4(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
@@ -309,7 +309,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_breakOnValueOfElement(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
@@ -361,7 +361,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_pointsOfUncertaintyInfo(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input5.txt")
 
@@ -388,7 +388,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_breakpointTesting(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -424,7 +424,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_breakpointTesting2(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
@@ -455,7 +455,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_SDE_message(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
@@ -465,7 +465,7 @@ class TestCLIDebugger {
       cli.sendLine("display info infoset")
       cli.sendLine("break cell")
       cli.sendLine(
-        "condition 1 fn:count(../cell) eq 3",
+        "condition 1 fn:count(../cell) eq 3"
       ) // ../cell is wrong. Needs to be ../tns:cell
 
       cli.sendLine("continue")
@@ -478,7 +478,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_breakpointTesting3(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
@@ -513,7 +513,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_settingInfosetLines(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
@@ -551,7 +551,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_infoBitPosition(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -578,7 +578,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_childIndex(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input4.txt")
 
@@ -606,7 +606,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_infoPath(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -631,7 +631,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_dataAndWrapLength2(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
@@ -655,7 +655,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_groupIndex01(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt")
 
@@ -683,7 +683,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_validation1(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt")
 
@@ -702,7 +702,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_infodata(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
@@ -720,10 +720,10 @@ class TestCLIDebugger {
 
       cli.expect("""                                  │                                    │""")
       cli.expect(
-        """    87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~""",
+        """    87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~"""
       )
       cli.expect(
-        """    00000000: 302c 312c 322c 332c 342c 352c 36         0~,~1~,~2~,~3~,~4~,~5~,~6~      """,
+        """    00000000: 302c 312c 322c 332c 342c 352c 36         0~,~1~,~2~,~3~,~4~,~5~,~6~      """
       )
       cli.sendLine("continue")
     }(ExitCode.Success)
@@ -731,7 +731,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_undefined_command(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
@@ -751,7 +751,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_delimiterStack(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input2.txt")
 
@@ -784,10 +784,10 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_utf16_encoding(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/utf16schema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/utf16schema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/hextest.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/hextest.txt"
     )
 
     runCLI(args"-d parse -s $schema -r e2 $input", fork = true, envs = envs) { cli =>
@@ -802,7 +802,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_infoset(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -822,7 +822,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_InfoHidden_1(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd"
     )
 
     withTempFile { input =>
@@ -855,7 +855,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_InfoHidden_2(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section14/sequence_groups/SequencesWithHiddenRefs.dfdl.xsd"
     )
 
     withTempFile { input =>
@@ -888,7 +888,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_InfoHidden_3(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd"
     )
 
     withTempFile { input =>
@@ -928,7 +928,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_InfoHidden_4(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section15/choice_groups/ChoicesInHiddenContexts.dfdl.xsd"
     )
 
     withTempFile { input =>
@@ -996,10 +996,10 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_simpleDebugger_unparse(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input12.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input12.txt"
     )
 
     runCLI(args"-d unparse -s $schema -r e1 $input", fork = true, envs = envs) { cli =>
@@ -1016,7 +1016,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_prefixLength(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/prefixed_length.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/prefixed_length.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/prefix.txt")
 
@@ -1040,7 +1040,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_variables(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -1054,7 +1054,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_data_text(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -1070,7 +1070,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_data_binary(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -1086,7 +1086,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_diff_01(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section07/variables/variables_01.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section07/variables/variables_01.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -1114,7 +1114,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_diff_02(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -1148,7 +1148,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_diff_03(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input6.txt")
 
@@ -1176,10 +1176,10 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_diff_04(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml"
     )
 
     runCLI(args"-d unparse -s $schema -r matrix -o $devNull $input", fork = true, envs = envs) {
@@ -1216,10 +1216,10 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_info_diff_05(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_03.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt.xml",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt.xml"
     )
 
     runCLI(args"-d unparse -r list -s $schema -o $devNull $input", fork = true, envs = envs) {
@@ -1253,7 +1253,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_parse_unparser_not_available(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input3.txt")
 
@@ -1262,7 +1262,7 @@ class TestCLIDebugger {
 
       cli.sendLine("info parser")
       cli.expect(
-        "parser: <Element name='matrix'><DelimiterStackParser>...</DelimiterStackParser></Element>",
+        "parser: <Element name='matrix'><DelimiterStackParser>...</DelimiterStackParser></Element>"
       )
 
       cli.sendLine("info unparser")
@@ -1275,10 +1275,10 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Debugger_unparse_parser_not_available(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml"
     )
 
     runCLI(args"-d unparse -s $schema $input", fork = true, envs = envs) { cli =>
@@ -1297,7 +1297,7 @@ class TestCLIDebugger {
 
   @Test def test_CLI_Tdml_Debug_singleTest(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml"
     )
 
     runCLI(args"-d test $tdml byte_entities_6_08", fork = true, envs = envs) { cli =>

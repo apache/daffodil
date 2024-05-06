@@ -40,7 +40,7 @@ import com.ibm.icu.text.DecimalFormat
 case class ConvertTextCombinatorParser(
   rd: TermRuntimeData,
   valueParser: Parser,
-  converterParser: Parser,
+  converterParser: Parser
 ) extends CombinatorParser(rd) {
 
   override lazy val runtimeDependencies = Vector()
@@ -84,7 +84,7 @@ trait TextDecimalVirtualPointMixin {
           // ICU only returns doubles if they are -INF, INF, NaN, or negative zero, which do not
           // need scaling
           Assert.invariant(
-            d.isNaN || d.isInfinite || JDouble.doubleToLongBits(d) == 0x8000000000000000L,
+            d.isNaN || d.isInfinite || JDouble.doubleToLongBits(d) == 0x8000000000000000L
           )
           d
         }
@@ -162,7 +162,7 @@ case class ConvertTextStandardNumberParser(
   textNumberFormatEv: TextNumberFormatEv,
   zeroRepsRegex: List[Regex],
   override val context: ElementRuntimeData,
-  override val textDecimalVirtualPoint: Int,
+  override val textDecimalVirtualPoint: Int
 ) extends TextPrimParser
   with TextDecimalVirtualPointMixin {
 
@@ -225,7 +225,7 @@ case class ConvertTextStandardNumberParser(
                 start,
                 "Unable to parse %s from text: %s",
                 context.optPrimType.get.globalQName,
-                str,
+                str
               )
               return
             }
@@ -235,7 +235,7 @@ case class ConvertTextStandardNumberParser(
             // zero. We will later pass this value in primNumber.fromNumber, which will fail if
             // the primitive type does not allow NaN/Infinity
             Assert.invariant(
-              d.isNaN || d.isInfinite || JDouble.doubleToLongBits(d) == 0x8000000000000000L,
+              d.isNaN || d.isInfinite || JDouble.doubleToLongBits(d) == 0x8000000000000000L
             )
             d
           }
@@ -257,7 +257,7 @@ case class ConvertTextStandardNumberParser(
                 start,
                 "Unable to parse %s from text: %s",
                 context.optPrimType.get.globalQName,
-                str,
+                str
               )
               return
             }
@@ -266,7 +266,7 @@ case class ConvertTextStandardNumberParser(
           // $COVERAGE-OFF$
           case num: JNumber => {
             Assert.invariantFailed(
-              "ICU returned an unexpected type. Expected either Double, ICU BigDecimal, or Long, but got " + num.getClass.getName,
+              "ICU returned an unexpected type. Expected either Double, ICU BigDecimal, or Long, but got " + num.getClass.getName
             )
           }
           // $COVERAGE-ON$
@@ -295,7 +295,7 @@ case class ConvertTextStandardNumberParser(
               start,
               "Unable to parse %s from text: %s",
               context.optPrimType.get.globalQName,
-              str,
+              str
             )
             return
           }

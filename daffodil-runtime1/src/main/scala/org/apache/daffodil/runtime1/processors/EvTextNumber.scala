@@ -43,7 +43,7 @@ class TextStandardDecimalSeparatorEv(expr: CompiledExpression[String], tci: DPat
   extends EvaluatableConvertedExpression[String, List[String]](
     expr,
     TextStandardDecimalSeparatorCooker,
-    tci,
+    tci
   )
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Vector()
@@ -53,7 +53,7 @@ class TextStandardGroupingSeparatorEv(expr: CompiledExpression[String], tci: DPa
   extends EvaluatableConvertedExpression[String, String](
     expr,
     TextStandardGroupingSeparatorCooker,
-    tci,
+    tci
   )
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
@@ -63,7 +63,7 @@ class TextStandardExponentRepEv(expr: CompiledExpression[String], tci: DPathComp
   extends EvaluatableConvertedExpression[String, String](
     expr,
     TextStandardExponentRepCooker,
-    tci,
+    tci
   )
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
@@ -83,7 +83,7 @@ class TextNumberFormatEv(
   roundingIncrement: MaybeDouble,
   zeroRepsRaw: List[String],
   icuPadPosition: MaybeInt,
-  primType: PrimType,
+  primType: PrimType
 ) extends Evaluatable[DecimalFormat](tci)
   with InfosetCachedEvaluatable[DecimalFormat] {
 
@@ -93,7 +93,7 @@ class TextNumberFormatEv(
   private def checkUnique(
     decimalSep: MaybeChar,
     groupingSep: MaybeChar,
-    exponentRep: Maybe[String],
+    exponentRep: Maybe[String]
   ): Unit = {
 
     val mm = new mutable.HashMap[String, mutable.Set[String]]
@@ -127,7 +127,7 @@ class TextNumberFormatEv(
   private def generateNumFormat(
     decimalSep: MaybeChar,
     groupingSep: MaybeChar,
-    exponentRep: Maybe[String],
+    exponentRep: Maybe[String]
   ): DecimalFormat = {
 
     val dfs = new DecimalFormatSymbols()
@@ -203,7 +203,7 @@ class TextNumberFormatEv(
         // ICU only supports a single decimal separator
         tci.SDE(
           "More than one textStandardDecimalSeparator '%s'. Only a single one is supported.",
-          seps.mkString(" "),
+          seps.mkString(" ")
         )
       }
       MaybeChar(seps.head(0))
@@ -236,11 +236,11 @@ class TextBooleanTrueRepEv(
   exprT: CompiledExpression[String],
   falseRepEv: TextBooleanFalseRepEv,
   mustBeSameLength: Boolean,
-  tci: DPathCompileInfo,
+  tci: DPathCompileInfo
 ) extends EvaluatableConvertedExpression[String, List[String]](
     exprT,
     TextBooleanTrueRepCooker,
-    tci,
+    tci
   )
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Vector()
@@ -260,7 +260,7 @@ class TextBooleanTrueRepEv(
         textBooleanFalseReps.exists(x => x.length != falseLength)
       ) {
         tci.schemaDefinitionError(
-          "If dfdl:lengthKind is 'explicit' or 'implicit' and either dfdl:textPadKind or dfdl:textTrimKind  is 'none' then both dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length.",
+          "If dfdl:lengthKind is 'explicit' or 'implicit' and either dfdl:textPadKind or dfdl:textTrimKind  is 'none' then both dfdl:textBooleanTrueRep and dfdl:textBooleanFalseRep must have the same length."
         )
       }
       textBooleanTrueReps
@@ -274,7 +274,7 @@ class TextBooleanFalseRepEv(expr: CompiledExpression[String], tci: DPathCompileI
   extends EvaluatableConvertedExpression[String, List[String]](
     expr,
     TextBooleanFalseRepCooker,
-    tci,
+    tci
   )
   with InfosetCachedEvaluatable[List[String]] {
   override lazy val runtimeDependencies = Vector()

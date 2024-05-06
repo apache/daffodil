@@ -150,7 +150,7 @@ object XMLTextInfoset {
             xsr.getAttributePrefix(i),
             xsr.getAttributeNamespace(i),
             xsr.getAttributeLocalName(i),
-            xsr.getAttributeValue(i),
+            xsr.getAttributeValue(i)
           )
         }
       }
@@ -283,7 +283,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
     // should now be at the END_ELEMENT for our simple type
     if (xsr.getEventType() != END_ELEMENT) {
       throw new XMLStreamException(
-        "Expected end of element following end of " + XMLTextInfoset.stringAsXml,
+        "Expected end of element following end of " + XMLTextInfoset.stringAsXml
       )
     }
 
@@ -292,13 +292,13 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
 
   override def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String = {
 
     val txt =
       if (
         primType == NodeInfo.String && runtimeProperties.get(
-          XMLTextInfoset.stringAsXml,
+          XMLTextInfoset.stringAsXml
         ) == "true"
       ) {
         try {
@@ -307,7 +307,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
           case xse: XMLStreamException => {
             val lineNum = evAlloc.allocate(xsr).getLocation.getLineNumber
             throw new InvalidInfosetException(
-              "Error on line " + lineNum + ": " + xse.getMessage,
+              "Error on line " + lineNum + ": " + xse.getMessage
             )
           }
         }
@@ -318,7 +318,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
           } catch {
             case xse: XMLStreamException => {
               throw new NonTextFoundInSimpleContentException(
-                "Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber,
+                "Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber
               )
             }
           }
@@ -355,7 +355,7 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
           "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' on line " + evAlloc
             .allocate(xsr)
             .getLocation
-            .getLineNumber,
+            .getLineNumber
         )
       }
     res
@@ -417,11 +417,11 @@ class XMLTextInfosetInputter(input: java.io.InputStream) extends InfosetInputter
             "DOCTYPE/DTD Not supported. Error on line " + evAlloc
               .allocate(xsr)
               .getLocation
-              .getLineNumber,
+              .getLineNumber
           )
         case other =>
           throw new IllegalContentWhereEventExpected(
-            "Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber + " : " + other,
+            "Error on line " + evAlloc.allocate(xsr).getLocation.getLineNumber + " : " + other
           )
       }
     }

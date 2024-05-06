@@ -38,7 +38,7 @@ case class ConvertTextCalendarParser(
   pattern: String,
   hasTZ: Boolean,
   calendarEv: CalendarEv,
-  dateTimeFormatterEv: DateTimeFormatterEv,
+  dateTimeFormatterEv: DateTimeFormatterEv
 ) extends TextPrimParser {
 
   override lazy val runtimeDependencies = Vector(calendarEv, dateTimeFormatterEv)
@@ -97,7 +97,7 @@ case class ConvertTextCalendarParser(
       calendar.getTime
       if (
         (calendar.get(Calendar.YEAR) > start.tunable.maxValidYear) || (calendar.get(
-          Calendar.YEAR,
+          Calendar.YEAR
         ) < start.tunable.minValidYear)
       )
         throw new TunableLimitExceededError(
@@ -105,7 +105,7 @@ case class ConvertTextCalendarParser(
           "Year value of %s is not within the limits of the tunables minValidYear (%s) and maxValidYear (%s)",
           calendar.get(Calendar.YEAR),
           start.tunable.minValidYear,
-          start.tunable.maxValidYear,
+          start.tunable.maxValidYear
         )
     } catch {
       case e: IllegalArgumentException => {
@@ -131,7 +131,7 @@ case class ConvertBinaryCalendarSecMilliParser(
   hasTZ: Boolean,
   binCalRep: BinaryCalendarRep,
   epochCal: Calendar,
-  lengthInBits: Int,
+  lengthInBits: Int
 ) extends PrimParser {
 
   override lazy val runtimeDependencies = Vector()
@@ -159,7 +159,7 @@ case class ConvertBinaryCalendarSecMilliParser(
       cal.setTimeInMillis(newTime)
       if (
         (cal.get(Calendar.YEAR) > start.tunable.maxValidYear) || (cal.get(
-          Calendar.YEAR,
+          Calendar.YEAR
         ) < start.tunable.minValidYear)
       )
         throw new TunableLimitExceededError(
@@ -167,7 +167,7 @@ case class ConvertBinaryCalendarSecMilliParser(
           "Year value of %s is not within the limits of the tunables minValidYear (%s) and maxValidYear (%s)",
           cal.get(Calendar.YEAR),
           start.tunable.minValidYear,
-          start.tunable.maxValidYear,
+          start.tunable.maxValidYear
         )
     } catch {
       case e: IllegalArgumentException => {
@@ -175,7 +175,7 @@ case class ConvertBinaryCalendarSecMilliParser(
           start,
           "%s milliseconds from the binaryCalendarEpoch is out of range of valid values: %s.",
           millisToAdd,
-          e.getMessage(),
+          e.getMessage()
         )
         return
       }

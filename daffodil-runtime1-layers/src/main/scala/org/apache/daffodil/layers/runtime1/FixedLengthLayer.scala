@@ -64,7 +64,7 @@ final class FixedLengthLayer
     Assert.invariant(fixedLength >= 0) // variable is unsignedInt, so this can't be negative
     if (fixedLength > maxFixedLength)
       processingError(
-        s"fixedLength value of $fixedLength is above the maximum of $maxFixedLength.",
+        s"fixedLength value of $fixedLength is above the maximum of $maxFixedLength."
       )
   }
 
@@ -108,8 +108,8 @@ final class FixedLengthLayer
         // are supposed to be all the same length, but one is in fact longer than expected by the bufLen.
         processingError(
           new IndexOutOfBoundsException(
-            s"Written data amount exceeded fixed layer length of $fixedLength.",
-          ),
+            s"Written data amount exceeded fixed layer length of $fixedLength."
+          )
         )
       } else {
         // ok. We're still accumulating data
@@ -125,7 +125,7 @@ final class FixedLengthLayer
         val baLen = ba.length
         if (baLen != fixedLength)
           processingError(
-            s"Insufficient output data for fixed-length layer. Needed $fixedLength bytes, but only $baLen were unparsed.",
+            s"Insufficient output data for fixed-length layer. Needed $fixedLength bytes, but only $baLen were unparsed."
           )
         jos.write(ba)
       }

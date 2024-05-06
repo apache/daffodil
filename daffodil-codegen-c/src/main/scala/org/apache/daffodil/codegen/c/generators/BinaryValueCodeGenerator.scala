@@ -32,17 +32,17 @@ trait BinaryValueCodeGenerator {
     e: ElementBase,
     addField: String => Unit,
     validateFixed: String => Unit,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     // For the time being this is a very limited back end.
     // So there are some restrictions to enforce.
     e.schemaDefinitionUnless(
       e.bitOrder eq BitOrder.MostSignificantBitFirst,
-      "Only dfdl:bitOrder 'mostSignificantBitFirst' is supported.",
+      "Only dfdl:bitOrder 'mostSignificantBitFirst' is supported."
     )
     e.schemaDefinitionUnless(
       e.maybeByteOrderEv == Nope || e.byteOrderEv.isConstant,
-      "Runtime dfdl:byteOrder expressions not supported.",
+      "Runtime dfdl:byteOrder expressions not supported."
     )
 
     // Call the given partially applied function values with their remaining unbound argument (deref)
@@ -105,7 +105,7 @@ trait BinaryValueCodeGenerator {
     lengthInBits: Long,
     primType: String,
     deref: String,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
@@ -129,7 +129,7 @@ trait BinaryValueCodeGenerator {
   protected def valueValidateFixed(
     e: ElementBase,
     deref: String,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
@@ -152,7 +152,7 @@ trait BinaryValueCodeGenerator {
     e: ElementBase,
     deref: String,
     enums: Seq[String],
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
@@ -170,7 +170,7 @@ trait BinaryValueCodeGenerator {
       s"""$indent1$indent2    uint8_t $arraysName[][$hexEnumsLenMax] = ${hexEnumsInit.mkString(
           "{",
           ", ",
-          "}",
+          "}"
         )};\n"""
 
     val (enumsInit, extraInit, primType, valType, fieldArg) = e.optPrimType.get match {
@@ -185,7 +185,7 @@ trait BinaryValueCodeGenerator {
       s"""$indent1$indent2    $primType $enumsArray[] = ${enumsInit.mkString(
           "{",
           ", ",
-          "}",
+          "}"
         )};\n"""
 
     val initERDStatement = ""
@@ -205,7 +205,7 @@ trait BinaryValueCodeGenerator {
     deref: String,
     minEndpoint: String,
     maxEndpoint: String,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT

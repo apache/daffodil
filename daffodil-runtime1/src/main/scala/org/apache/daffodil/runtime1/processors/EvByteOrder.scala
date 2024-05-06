@@ -44,7 +44,7 @@ object Ok extends Ok()
 class CheckByteAndBitOrderEv(
   t: DPathCompileInfo,
   bitOrder: BitOrder,
-  maybeByteOrderEv: Maybe[ByteOrderEv],
+  maybeByteOrderEv: Maybe[ByteOrderEv]
 ) extends Evaluatable[Ok](t)
   with InfosetCachedEvaluatable[Ok] { // can't use unit here, not <: AnyRef
 
@@ -62,7 +62,7 @@ class CheckByteAndBitOrderEv(
               if (byteOrder =:= ByteOrder.BigEndian) {
                 t.schemaDefinitionError(
                   "Bit order 'leastSignificantBitFirst' requires byte order 'littleEndian', but byte order was '%s'.",
-                  byteOrder,
+                  byteOrder
                 )
               }
           }
@@ -102,7 +102,7 @@ class CheckBitOrderAndCharsetEv(t: DPathCompileInfo, bitOrder: BitOrder, charset
         "Encoding '%s' requires bit order '%s', but bit order was '%s'.",
         bitsCharset.name,
         bitsCharset.requiredBitOrder,
-        bitOrder,
+        bitOrder
       )
     }
     Ok

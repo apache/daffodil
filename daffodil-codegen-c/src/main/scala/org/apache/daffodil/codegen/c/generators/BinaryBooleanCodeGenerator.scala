@@ -29,7 +29,7 @@ trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
   def binaryBooleanGenerateCode(e: ElementBase, cgState: CodeGeneratorState): Unit = {
     // Make sure we know how to read and write the boolean element
     Assert.invariant(
-      e.binaryBooleanTrueRep.isEmpty || e.binaryBooleanTrueRep.getULong >= ULong(0),
+      e.binaryBooleanTrueRep.isEmpty || e.binaryBooleanTrueRep.getULong >= ULong(0)
     )
     Assert.invariant(e.binaryBooleanFalseRep >= ULong(0))
     Assert.invariant(e.elementLengthInBitsEv.isConstant)
@@ -47,7 +47,7 @@ trait BinaryBooleanCodeGenerator extends BinaryValueCodeGenerator {
     lengthInBits: Long,
     primType: String,
     deref: String,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT

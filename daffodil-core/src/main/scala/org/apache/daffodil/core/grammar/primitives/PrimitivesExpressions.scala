@@ -59,7 +59,7 @@ abstract class AssertBase(
   msgOpt: Option[String],
   discrim: Boolean, // are we a discriminator or not.
   assertKindName: String,
-  failureType: FailureType,
+  failureType: FailureType
 ) extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
 
   def this(
@@ -68,7 +68,7 @@ abstract class AssertBase(
     msgOpt: Option[String],
     discrim: Boolean, // are we a discriminator or not.
     assertKindName: String,
-    failureType: FailureType,
+    failureType: FailureType
   ) =
     this(
       decl,
@@ -78,7 +78,7 @@ abstract class AssertBase(
       msgOpt,
       discrim,
       assertKindName,
-      failureType,
+      failureType
     )
 
   override val baseName = assertKindName
@@ -99,7 +99,7 @@ abstract class AssertBase(
         exprComponent.dpathCompileInfo,
         false,
         this,
-        exprComponent.dpathCompileInfo,
+        exprComponent.dpathCompileInfo
       )
     } else {
       val typeString = if (discrim) "Discriminator" else "Assertion"
@@ -119,14 +119,14 @@ abstract class AssertBooleanPrimBase(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase,
   discrim: Boolean, // are we a discriminator or not.
-  assertKindName: String,
+  assertKindName: String
 ) extends AssertBase(
     decl,
     Found(stmt.testTxt, stmt, "test", false),
     stmt.messageAttrib,
     discrim,
     assertKindName,
-    stmt.failureType,
+    stmt.failureType
   )
 
 case class AssertBooleanPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
@@ -218,13 +218,13 @@ case class SetVariable(stmt: DFDLSetVariable, override val term: Term)
 
 abstract class NewVariableInstanceBase(
   decl: AnnotatedSchemaComponent,
-  stmt: DFDLNewVariableInstance,
+  stmt: DFDLNewVariableInstance
 ) extends Terminal(decl, true) {}
 
 case class NewVariableInstanceStart(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLNewVariableInstance,
-  override val term: Term,
+  override val term: Term
 ) extends NewVariableInstanceBase(decl, stmt) {
 
   lazy val parser: DaffodilParser = {
@@ -245,7 +245,7 @@ case class NewVariableInstanceStart(
 case class NewVariableInstanceEnd(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLNewVariableInstance,
-  override val term: Term,
+  override val term: Term
 ) extends NewVariableInstanceBase(decl, stmt) {
 
   lazy val parser: DaffodilParser = {
@@ -297,7 +297,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
       exprComponent.dpathCompileInfo,
       false,
       this,
-      exprComponent.dpathCompileInfo,
+      exprComponent.dpathCompileInfo
     )
   }.value
 }
@@ -360,7 +360,7 @@ abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discri
     discrim,
     testPattern,
     msgExpr,
-    stmt.failureType,
+    stmt.failureType
   )
 
   override def unparser: DaffodilUnparser =

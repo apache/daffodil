@@ -46,7 +46,7 @@ object Conversion {
   def conversionOps(
     st: NodeInfo.Kind,
     tt: NodeInfo.Kind,
-    context: Expression,
+    context: Expression
   ): List[RecipeOp] = {
     import NodeInfo._
     val ops: List[RecipeOp] = (st, tt) match {
@@ -293,7 +293,7 @@ object Conversion {
           "In expression %s, the type %s cannot be converted to %s.",
           context.wholeExpressionText,
           st.globalQName.toQNameString,
-          tt.globalQName.toQNameString,
+          tt.globalQName.toQNameString
         )
       }
     }

@@ -289,7 +289,7 @@ class CodeGeneratorState(private val root: ElementBase) {
   def addSimpleTypeStatements(
     initERDStatement: String,
     parseStatement: String,
-    unparseStatement: String,
+    unparseStatement: String
   ): Unit = {
     if (initERDStatement.nonEmpty) {
       if (hasChoice)
@@ -442,7 +442,7 @@ class CodeGeneratorState(private val root: ElementBase) {
         val fieldName = m.group(1).stripPrefix("../")
         val cFieldName = cStructFieldAccess(fieldName)
         cFieldName
-      },
+      }
     )
     // Match each named operator and replace it with a C operator
     val operator =
@@ -465,7 +465,7 @@ class CodeGeneratorState(private val root: ElementBase) {
           case "or" => "||"
         }
         cOperatorSymbol
-      },
+      }
     )
     exprWithOperators
   }
@@ -929,7 +929,7 @@ class CodeGeneratorState(private val root: ElementBase) {
         WarnID.IgnoreDFDLProperty,
         "Ignoring PrimType %s, using %s",
         e.optPrimType.get.toString,
-        primType.toString,
+        primType.toString
       )
     }
     primType
@@ -951,7 +951,7 @@ class CodeGeneratorState(private val root: ElementBase) {
           "occursCountKind %s minOccurs %d maxOccurs %d is not supported in C code generator",
           e.occursCountKind.toString,
           e.minOccurs,
-          e.maxOccurs,
+          e.maxOccurs
         )
     }
     arrayMaxOccurs
@@ -988,7 +988,7 @@ class CodeGeneratorState(private val root: ElementBase) {
           "getArraySize %s minOccurs %d maxOccurs %d is not supported in C code generator",
           e.occursCountKind.toString,
           e.minOccurs,
-          e.maxOccurs,
+          e.maxOccurs
         )
     }
     occursCount
@@ -1012,7 +1012,7 @@ class CodeGeneratorState(private val root: ElementBase) {
         val sb = new StringBuilder(m.group(1))
         makeLegalForC(sb)
         sb.mkString
-      },
+      }
     )
 
     // Convert exprPath to the appropriate field access indirection
@@ -1053,7 +1053,7 @@ class CodeGeneratorState(private val root: ElementBase) {
     else {
       e.schemaDefinitionUnless(
         e.elementLengthInBitsEv.isConstant,
-        "Runtime dfdl:length expressions are not supported.",
+        "Runtime dfdl:length expressions are not supported."
       )
       e.elementLengthInBitsEv.constValue.get
     }
@@ -1067,7 +1067,7 @@ class CodeGeneratorState(private val root: ElementBase) {
 class ComplexCGState(
   val C: String,
   val context: ElementBase = null,
-  val inArray: Boolean = false,
+  val inArray: Boolean = false
 ) {
   val declarations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()
   val offsetComputations: mutable.ArrayBuffer[String] = mutable.ArrayBuffer[String]()

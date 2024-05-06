@@ -81,7 +81,7 @@ class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int) {
 
     Assert.invariant(
       suspensionsOld.length != 1,
-      "Single suspended expression making no forward progress. " + suspensionsOld(0),
+      "Single suspended expression making no forward progress. " + suspensionsOld(0)
     )
 
     if (suspensionsOld.nonEmpty) {
@@ -89,7 +89,7 @@ class SuspensionTracker(suspensionWaitYoung: Int, suspensionWaitOld: Int) {
     }
 
     Logger.log.debug(
-      f"Suspension runs/tracked: ${suspensionStatRuns}%d/${suspensionStatTracked}%d (${(suspensionStatRuns.toFloat / suspensionStatTracked) * 100}%.2f%%)",
+      f"Suspension runs/tracked: ${suspensionStatRuns}%d/${suspensionStatTracked}%d (${(suspensionStatRuns.toFloat / suspensionStatTracked) * 100}%.2f%%)"
     )
   }
 
@@ -122,5 +122,5 @@ class SuspensionDeadlockException(suspExprs: Seq[Suspension])
     suspExprs(0).rd.schemaFileLocation,
     suspExprs(0).savedUstate,
     "Expressions/Unparsers are circularly deadlocked (mutually defined):\n%s",
-    suspExprs.groupBy { _.rd }.mapValues { _(0) }.values.mkString(" - ", "\n - ", ""),
+    suspExprs.groupBy { _.rd }.mapValues { _(0) }.values.mkString(" - ", "\n - ", "")
   )

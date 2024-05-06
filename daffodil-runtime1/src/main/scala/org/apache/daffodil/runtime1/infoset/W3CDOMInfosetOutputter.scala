@@ -95,7 +95,7 @@ class W3CDOMInfosetOutputter extends InfosetOutputter {
   def getResult(): Document = {
     Assert.usage(
       result.isDefined,
-      "No result to get. Must check isError parse result before calling getResult",
+      "No result to get. Must check isError parse result before calling getResult"
     )
     result.get
   }
@@ -110,7 +110,7 @@ class W3CDOMInfosetOutputter extends InfosetOutputter {
       } else {
         document.createElementNS(
           ie.metadata.namespace,
-          ie.metadata.toQName,
+          ie.metadata.toQName
         )
       }
 

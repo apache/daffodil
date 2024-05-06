@@ -82,7 +82,7 @@ trait BitsCharset extends Serializable {
         case StandardBitsCharsets.UTF_8 => 8
         case _ =>
           Assert.invariantFailed(
-            "Getting pad char width for unsupported variable-width charset: " + name,
+            "Getting pad char width for unsupported variable-width charset: " + name
           )
       }
     }
@@ -173,7 +173,7 @@ abstract class BitsCharsetEncoder extends IsResetMixin {
  */
 final class BitsCharsetWrappingJavaCharsetEncoder(
   override val bitsCharset: BitsCharsetJava,
-  enc: JavaCharsetEncoder,
+  enc: JavaCharsetEncoder
 ) extends BitsCharsetEncoder {
 
   def setInitialBitOffset(offset: Int): Unit = Assert.usageError("Not to be called.")

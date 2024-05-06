@@ -49,7 +49,7 @@ class TestOutputValueCalcForwardReference {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s2>2</s2></ex:e1>
     val areTracing = false
@@ -69,7 +69,7 @@ class TestOutputValueCalcForwardReference {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s3>3</s3></ex:e1>
     val areTracing = false
@@ -89,7 +89,7 @@ class TestOutputValueCalcForwardReference {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s2>2</s2></ex:e1>
     val areTracing = false
@@ -109,7 +109,7 @@ class TestOutputValueCalcForwardReference {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}></ex:e1>
     val areTracing = false
@@ -139,7 +139,7 @@ class TestOutputValueCalcForwardReference {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:bar xmlns:ex={example}><afterFoo>fghij</afterFoo></ex:bar>
     val areTracing = false
@@ -159,7 +159,7 @@ class TestOutputValueCalcForwardReference {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:bar xmlns:ex={
       example
@@ -169,7 +169,7 @@ class TestOutputValueCalcForwardReference {
       sch,
       infoset,
       "beforeFoo=12345, foo=abcde, afterFoo=67890",
-      areTracing,
+      areTracing
     )
   }
 
@@ -187,7 +187,7 @@ class TestOutputValueCalcForwardReference {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:bar xmlns:ex={
       example
@@ -197,7 +197,7 @@ class TestOutputValueCalcForwardReference {
       sch,
       infoset,
       "beforeFoo=12345, foo=abcde, foo2=pqrst!, afterFoo=67890",
-      areTracing,
+      areTracing
     )
   }
 

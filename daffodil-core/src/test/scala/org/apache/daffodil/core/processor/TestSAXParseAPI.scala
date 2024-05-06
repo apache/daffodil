@@ -129,7 +129,7 @@ class TestSAXParseAPI {
     val property: String = XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY
     val propertyVal: AnyRef = "/tmp/i/am/a/directory"
     val sns = intercept[SAXNotSupportedException](
-      xmlReader.setProperty(property, propertyVal),
+      xmlReader.setProperty(property, propertyVal)
     )
     assertTrue(sns.getMessage.contains("Unsupported value for property"))
   }
@@ -181,7 +181,7 @@ class TestSAXParseAPI {
     val xmlReader = dp.newXMLReaderInstance
     val input = new InputSource()
     val ioe = intercept[IOException](
-      xmlReader.parse(input),
+      xmlReader.parse(input)
     )
     assertTrue(ioe.getMessage.contains("InputSource must be backed by InputStream"))
   }
@@ -193,7 +193,7 @@ class TestSAXParseAPI {
     val (
       xmlReader: DFDL.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
-      inArray: Array[Byte],
+      inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
     val bais = new ByteArrayInputStream(inArray)
     val input = new InputSource(bais)
@@ -212,7 +212,7 @@ class TestSAXParseAPI {
     val (
       xmlReader: DFDL.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
-      inArray: Array[Byte],
+      inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
     val bais = new ByteArrayInputStream(inArray)
     xmlReader.parse(bais)
@@ -230,7 +230,7 @@ class TestSAXParseAPI {
     val (
       xmlReader: DFDL.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
-      inArray: Array[Byte],
+      inArray: Array[Byte]
     ) = setupSAXParserTest(dp, testData)
     xmlReader.parse(inArray)
     val actualInfoset = scala.xml.XML.loadString(baos.toString)
@@ -249,7 +249,7 @@ class TestSAXParseAPI {
     val eh = new BuilderErrorHandler
     xmlReader.setErrorHandler(eh)
     val spe = intercept[SAXParseException](
-      xmlReader.parse(inArray),
+      xmlReader.parse(inArray)
     )
     val pr =
       xmlReader.getProperty(XMLUtils.DAFFODIL_SAX_URN_PARSERESULT).asInstanceOf[ParseResult]
@@ -267,7 +267,7 @@ class TestSAXParseAPI {
       dpQualifiedWithNestedSchemas,
       qualifiedWithNestedSchemasData,
       namespaces = false,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithNestedSchemasExpectedInfoset, actualInfoset)
@@ -284,7 +284,7 @@ class TestSAXParseAPI {
       dpUnqualifiedNoNamespaces,
       unqualifiedNoNamespacesData,
       namespaces = false,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedNoNamespacesExpectedInfoset, actualInfoset)
@@ -300,7 +300,7 @@ class TestSAXParseAPI {
       dpUnqualifiedWithNestedQualified,
       unqualifiedWithNestedQualifiedData,
       namespaces = false,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedWithNestedQualifiedExpectedInfoset, actualInfoset)
@@ -315,7 +315,7 @@ class TestSAXParseAPI {
       dpQualifiedWithDefaultNamespaceSchemas,
       qualifiedWithDefaultNamespaceData,
       namespaces = false,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultNamespaceExpectedInfoset, actualInfoset)
@@ -330,7 +330,7 @@ class TestSAXParseAPI {
       dpQualifiedWithDefaultAndNestedSchemas,
       qualifiedWithDefaultAndNestedSchemasData,
       namespaces = false,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultAndNestedSchemasExpectedInfoset, actualInfoset)
@@ -345,7 +345,7 @@ class TestSAXParseAPI {
       dpQualifiedWithNestedSchemas,
       qualifiedWithNestedSchemasData,
       namespaces = true,
-      namespacePrefixes = false,
+      namespacePrefixes = false
     )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithNestedSchemasExpectedInfoset, actualInfoset)
@@ -360,7 +360,7 @@ class TestSAXParseAPI {
       dpUnqualifiedNoNamespaces,
       unqualifiedNoNamespacesData,
       namespaces = true,
-      namespacePrefixes = false,
+      namespacePrefixes = false
     )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedNoNamespacesExpectedInfoset, actualInfoset)
@@ -375,7 +375,7 @@ class TestSAXParseAPI {
       dpUnqualifiedWithNestedQualified,
       unqualifiedWithNestedQualifiedData,
       namespaces = true,
-      namespacePrefixes = false,
+      namespacePrefixes = false
     )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedWithNestedQualifiedExpectedInfoset, actualInfoset)
@@ -390,7 +390,7 @@ class TestSAXParseAPI {
       dpQualifiedWithDefaultNamespaceSchemas,
       qualifiedWithDefaultNamespaceData,
       namespaces = true,
-      namespacePrefixes = false,
+      namespacePrefixes = false
     )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultNamespaceExpectedInfoset, actualInfoset)
@@ -405,7 +405,7 @@ class TestSAXParseAPI {
       dpQualifiedWithDefaultAndNestedSchemas,
       qualifiedWithDefaultAndNestedSchemasData,
       namespaces = true,
-      namespacePrefixes = false,
+      namespacePrefixes = false
     )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultAndNestedSchemasExpectedInfoset, actualInfoset)
@@ -420,7 +420,7 @@ class TestSAXParseAPI {
       dpQualifiedWithNestedSchemas,
       qualifiedWithNestedSchemasData,
       namespaces = true,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithNestedSchemasExpectedInfoset, actualInfoset)
@@ -435,7 +435,7 @@ class TestSAXParseAPI {
       dpUnqualifiedNoNamespaces,
       unqualifiedNoNamespacesData,
       namespaces = true,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedNoNamespacesExpectedInfoset, actualInfoset)
@@ -450,7 +450,7 @@ class TestSAXParseAPI {
       dpUnqualifiedWithNestedQualified,
       unqualifiedWithNestedQualifiedData,
       namespaces = true,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(unqualifiedWithNestedQualifiedExpectedInfoset, actualInfoset)
@@ -465,7 +465,7 @@ class TestSAXParseAPI {
       dpQualifiedWithDefaultNamespaceSchemas,
       qualifiedWithDefaultNamespaceData,
       namespaces = true,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultNamespaceExpectedInfoset, actualInfoset)
@@ -480,7 +480,7 @@ class TestSAXParseAPI {
       dpQualifiedWithDefaultAndNestedSchemas,
       qualifiedWithDefaultAndNestedSchemasData,
       namespaces = true,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     assertTrue(!pr.isError)
     assertEquals(qualifiedWithDefaultAndNestedSchemasExpectedInfoset, actualInfoset)
@@ -495,7 +495,7 @@ class TestSAXParseAPI {
       dpQualifiedWithNestedSchemas,
       nillableElementData,
       namespaces = true,
-      namespacePrefixes = false,
+      namespacePrefixes = false
     )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
@@ -544,7 +544,7 @@ class TestSAXParseAPI {
       dpQualifiedWithNestedSchemas,
       nillableElementData,
       namespaces = true,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
@@ -593,7 +593,7 @@ class TestSAXParseAPI {
       dpQualifiedWithNestedSchemas,
       nillableElementData,
       namespaces = false,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
@@ -636,7 +636,7 @@ class TestSAXParseAPI {
       dpUnqualifiedNoNamespaces,
       unqualifiedNoNamespacesData,
       namespaces = true,
-      namespacePrefixes = false,
+      namespacePrefixes = false
     )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
@@ -671,7 +671,7 @@ class TestSAXParseAPI {
       dpUnqualifiedNoNamespaces,
       unqualifiedNoNamespacesData,
       namespaces = true,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE
@@ -706,7 +706,7 @@ class TestSAXParseAPI {
       dpUnqualifiedNoNamespaces,
       unqualifiedNoNamespacesData,
       namespaces = false,
-      namespacePrefixes = true,
+      namespacePrefixes = true
     )
     val actualOutput = baos.toString
     val xsiUri = XMLUtils.XSI_NAMESPACE

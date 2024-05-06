@@ -30,7 +30,7 @@ object Root {
     defXML: Node,
     parentArg: SchemaDocument,
     namedQNameArg: NamedQName,
-    globalElementDecl: GlobalElementDecl,
+    globalElementDecl: GlobalElementDecl
   ) = {
     val r = new Root(defXML, parentArg, namedQNameArg, globalElementDecl)
     r.initialize()
@@ -47,7 +47,7 @@ final class Root private (
   defXML: Node,
   parentArg: SchemaDocument,
   namedQNameArg: NamedQName,
-  globalElementDecl: GlobalElementDecl,
+  globalElementDecl: GlobalElementDecl
 ) extends AbstractElementRef(null, parentArg, 1)
   with RootGrammarMixin
   with RootView {

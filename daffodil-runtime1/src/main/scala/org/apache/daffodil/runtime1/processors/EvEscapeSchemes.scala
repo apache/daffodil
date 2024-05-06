@@ -45,7 +45,7 @@ class ExtraEscapedCharsEv(expr: CompiledExpression[String], ci: DPathCompileInfo
   extends EvaluatableConvertedExpression[String, Seq[String]](
     expr,
     ExtraEscapedCharactersCooker,
-    ci,
+    ci
   )
   with InfosetCachedEvaluatable[Seq[String]] {
   override lazy val runtimeDependencies = Vector()
@@ -100,7 +100,7 @@ abstract class EscapeSchemeUnparseEv(ci: DPathCompileInfo)
 class EscapeSchemeCharParseEv(
   escapeChar: EscapeCharEv,
   override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends EscapeSchemeParseEv(ci) {
 
   override val runtimeDependencies = Vector(escapeChar) ++ optEscapeEscapeChar.toList
@@ -116,7 +116,7 @@ class EscapeSchemeCharUnparseEv(
   escapeChar: EscapeCharEv,
   override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
   override val extraEscapedChars: Maybe[ExtraEscapedCharsEv],
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends EscapeSchemeUnparseEv(ci) {
 
   override val runtimeDependencies =
@@ -130,7 +130,7 @@ class EscapeSchemeCharUnparseEv(
       escChar,
       optEscEscChar,
       extEscChars,
-      ci,
+      ci
     )
   }
 }
@@ -139,7 +139,7 @@ class EscapeSchemeBlockParseEv(
   blockStart: String,
   blockEnd: String,
   override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends EscapeSchemeParseEv(ci) {
 
   override val runtimeDependencies = optEscapeEscapeChar.toList
@@ -159,7 +159,7 @@ class EscapeSchemeBlockUnparseEv(
   override val optEscapeEscapeChar: Maybe[EscapeEscapeCharEv],
   override val extraEscapedChars: Maybe[ExtraEscapedCharsEv],
   generateEscapeBlock: GenerateEscape,
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends EscapeSchemeUnparseEv(ci) {
 
   override val runtimeDependencies = optEscapeEscapeChar.toList ++ extraEscapedChars.toList
@@ -176,7 +176,7 @@ class EscapeSchemeBlockUnparseEv(
       be,
       extEscChars,
       generateEscapeBlock,
-      ci,
+      ci
     )
   }
 }

@@ -25,7 +25,7 @@ import java.lang.{
   Long => JLong,
   Number => JNumber,
   Short => JShort,
-  String => JString,
+  String => JString
 }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.net.URI

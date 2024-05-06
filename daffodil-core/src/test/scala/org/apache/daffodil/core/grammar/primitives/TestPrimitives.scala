@@ -123,7 +123,7 @@ class TestPrimitives {
 
   @Test def testVRegexZonedTwoSigns(): Unit = {
     assertTrue(
-      TextNumberPatternUtils.textNumber_V_DecimalVirtualPointForZoned("+012V34+").isEmpty,
+      TextNumberPatternUtils.textNumber_V_DecimalVirtualPointForZoned("+012V34+").isEmpty
     )
   }
 

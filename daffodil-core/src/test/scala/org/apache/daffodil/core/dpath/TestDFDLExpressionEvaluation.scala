@@ -40,7 +40,7 @@ import org.apache.daffodil.runtime1.processors.parsers.PState
 class TestDFDLExpressionEvaluation extends Parsers {
 
   def testExpr(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem, expr: String)(
-    body: Any => Unit,
+    body: Any => Unit
   ): Unit = {
     val schemaCompiler = Compiler()
       .withTunable("allowExternalPathExpressions", "true")
@@ -58,7 +58,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
       testSchema.scope,
       erd.dpathCompileInfo,
       false,
-      sset,
+      sset
     )
     val compiledExpr = exprCompiler.compile(expr)
     val doc = infosetRootElem.parent.asInstanceOf[InfosetDocument]
@@ -77,7 +77,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val schema = SchemaUtils.dfdlTestSchemaUnqualified(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>,
+      <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>
     )
 
     val data = <a xmlns="http://example.com">aaaaa</a>
@@ -96,7 +96,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
             <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val ex = "http://example.com"
     val data = <ex:b xmlns:ex={ex}><a>aaaaa</a></ex:b>
@@ -115,7 +115,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
             <xs:element name="a" maxOccurs="2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val data = <ex:b xmlns:ex="http://example.com"><a>aaaaa</a><a>bbbbb</a></ex:b>
     testExpr(schema, data, "{ fn:count(/tns:b/a) }") { (res: Any) =>
@@ -133,7 +133,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
             <xs:element name="a" maxOccurs="2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val data = <ex:b xmlns:ex="http://example.com"><a>aaaaa</a><a>bbbbb</a></ex:b>
     testExpr(schema, data, "{ /tns:b/a[1] }") { (res: Any) =>
@@ -151,7 +151,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
             <xs:element name="a" maxOccurs="2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val data = <ex:b xmlns:ex="http://example.com"><a>aaaaa</a><a>bbbbb</a></ex:b>
     testExpr(schema, data, "{ /tns:b/a[2] }") { (res: Any) =>
@@ -170,7 +170,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
             <xs:element name="a" type="xs:long" dfdl:inputValueCalc="{ ../i }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     TestUtils.testString(schema, "")

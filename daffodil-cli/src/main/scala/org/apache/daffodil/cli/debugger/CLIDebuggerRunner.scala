@@ -109,7 +109,7 @@ class CLIDebuggerCompleter(id: InteractiveDebugger) extends Completer {
   def complete(
     reader: LineReader,
     line: ParsedLine,
-    candidates: java.util.List[Candidate],
+    candidates: java.util.List[Candidate]
   ): Unit = {
     // JLine3 completely parses the line, taking care of delmiters/quotes/etc.,
     // and stores it in the ParsedLine, with delimeted fields split up in to the

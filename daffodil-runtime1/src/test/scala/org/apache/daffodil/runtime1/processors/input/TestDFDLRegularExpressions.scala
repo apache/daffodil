@@ -55,7 +55,7 @@ class TestDFDLRegularExpressions {
     assertEquals(None, test("beforeE"))
     assertEquals(
       Some("PPPbeforeEDstillBeforePPP", "D"),
-      test("PPPbeforeEDstillBeforePPPDafter"),
+      test("PPPbeforeEDstillBeforePPPDafter")
     )
     assertEquals(Some("beforeS", "D"), test("beforeSDstillBeforeDafter"))
     assertEquals(Some("beforeEEEDstillBefore", "D"), test("beforeEEEDstillBeforeDafter"))
@@ -79,7 +79,7 @@ class TestDFDLRegularExpressions {
     assertEquals(None, test2("beforeE"))
     assertEquals(
       Some("PPPbeforeEDstillBeforePPP", "D"),
-      test2("PPPbeforeEDstillBeforePPPDafter"),
+      test2("PPPbeforeEDstillBeforePPPDafter")
     )
     assertEquals(Some("beforeS", "D"), test2("beforeSDstillBeforeDafter"))
     assertEquals(Some("beforeEEEDstillBefore", "D"), test2("beforeEEEDstillBeforeDafter"))
@@ -91,7 +91,7 @@ class TestDFDLRegularExpressions {
       escape,
       delim,
       padChar,
-      TextStringJustification.Left,
+      TextStringJustification.Left
     )
     def test(x: String) = x match {
       case cp(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
@@ -122,7 +122,7 @@ class TestDFDLRegularExpressions {
       escape,
       delims,
       padChar,
-      TextStringJustification.Left,
+      TextStringJustification.Left
     )
     def test2(x: String) = x match {
       case cp2(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
@@ -157,7 +157,7 @@ class TestDFDLRegularExpressions {
       escape,
       delim,
       padChar,
-      TextStringJustification.Right,
+      TextStringJustification.Right
     )
     def test(x: String) = x match {
       case cp(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
@@ -191,7 +191,7 @@ class TestDFDLRegularExpressions {
       escape,
       delims,
       padChar,
-      TextStringJustification.Right,
+      TextStringJustification.Right
     )
     def test2(x: String) = x match {
       case cp2(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
@@ -226,7 +226,7 @@ class TestDFDLRegularExpressions {
       escape,
       delim,
       padChar,
-      TextStringJustification.Center,
+      TextStringJustification.Center
     )
     def test(x: String) = x match {
       case cp(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
@@ -252,7 +252,7 @@ class TestDFDLRegularExpressions {
     assertEquals(None, test("beforeE"))
     assertEquals(
       Some("beforePPPEDstillBefore", "D"),
-      test("PPPbeforePPPEDstillBeforePPPDafter"),
+      test("PPPbeforePPPEDstillBeforePPPDafter")
     )
     assertEquals(Some("beforeS", "D"), test("beforeSDstillBeforePPPDafter"))
     assertEquals(Some("beforeEEEDstillBefore", "D"), test("beforeEEEDstillBeforeDafter"))
@@ -263,7 +263,7 @@ class TestDFDLRegularExpressions {
       escape,
       delims,
       padChar,
-      TextStringJustification.Center,
+      TextStringJustification.Center
     )
     def test2(x: String) = x match {
       case cp2(ee1s, before, ee2s, delimAfterPad, ee3s, delimAfterEEs, after) => {
@@ -289,7 +289,7 @@ class TestDFDLRegularExpressions {
     assertEquals(None, test("beforeE"))
     assertEquals(
       Some("beforePPPEDstillBefore", "D"),
-      test2("PPPbeforePPPEDstillBeforePPPDafter"),
+      test2("PPPbeforePPPEDstillBeforePPPDafter")
     )
     assertEquals(Some("beforeS", "D"), test2("beforeSDstillBeforePPPDafter"))
     assertEquals(Some("beforeEEEDstillBefore", "D"), test2("beforeEEEDstillBeforeDafter"))
@@ -311,7 +311,7 @@ class TestDFDLRegularExpressions {
     assertEquals(None, test("beforeE"))
     assertEquals(
       Some("PPPbeforeEDstillBeforePPP", "D"),
-      test("PPPbeforeEDstillBeforePPPDafter"),
+      test("PPPbeforeEDstillBeforePPPDafter")
     )
     assertEquals(Some("beforeS", "D"), test("beforeSDstillBeforeDafter"))
 
@@ -330,7 +330,7 @@ class TestDFDLRegularExpressions {
     assertEquals(None, test2("beforeE"))
     assertEquals(
       Some("PPPbeforeEDstillBeforePPP", "D"),
-      test2("PPPbeforeEDstillBeforePPPDafter"),
+      test2("PPPbeforeEDstillBeforePPPDafter")
     )
     assertEquals(Some("beforeS", "D"), test2("beforeSDstillBeforeDafter"))
   }
@@ -341,7 +341,7 @@ class TestDFDLRegularExpressions {
       escapeEscape,
       delim,
       padChar,
-      TextStringJustification.Left,
+      TextStringJustification.Left
     )
     def test(x: String) = x match {
       case cp(before, delim, after) => Some((before, delim))
@@ -358,7 +358,7 @@ class TestDFDLRegularExpressions {
       escapeEscape,
       delims,
       padChar,
-      TextStringJustification.Left,
+      TextStringJustification.Left
     )
     def test2(x: String) = x match {
       case cp2(before, delim, after) => Some((before, delim))
@@ -378,7 +378,7 @@ class TestDFDLRegularExpressions {
       escapeEscape,
       delim,
       padChar,
-      TextStringJustification.Right,
+      TextStringJustification.Right
     )
     def test(x: String) = x match {
       case cp(before, delim, after) => Some((before, delim))
@@ -395,7 +395,7 @@ class TestDFDLRegularExpressions {
       escapeEscape,
       delims,
       padChar,
-      TextStringJustification.Right,
+      TextStringJustification.Right
     )
     def test2(x: String) = x match {
       case cp2(before, delim, after) => Some((before, delim))
@@ -415,7 +415,7 @@ class TestDFDLRegularExpressions {
       escapeEscape,
       delim,
       padChar,
-      TextStringJustification.Center,
+      TextStringJustification.Center
     )
     def test(x: String) = x match {
       case cp(before, delim, after) => Some((before, delim))
@@ -435,7 +435,7 @@ class TestDFDLRegularExpressions {
       escapeEscape,
       delims,
       padChar,
-      TextStringJustification.Center,
+      TextStringJustification.Center
     )
     def test2(x: String) = x match {
       case cp2(before, delim, after) => Some((before, delim))
@@ -481,20 +481,20 @@ class TestDFDLRegularExpressions {
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
     assertEquals(
       Some(("beforeEDstillBeforeSEDstillBefore", "D", "after")),
-      test("TbeforeEDstillBeforeSEDstillBeforeNDafter"),
+      test("TbeforeEDstillBeforeSEDstillBeforeNDafter")
     )
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
     assertEquals(
       Some(("beforeDstillBeforeENstillBefore", "D", "after")),
-      test("TbeforeDstillBeforeENstillBeforeNDafter"),
+      test("TbeforeDstillBeforeENstillBeforeNDafter")
     )
 
     // with blockstart/end, escapeEscape the escape of the first block end
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "D", "after")),
-      test("TbeforeDstillBeforeTstillBeforeSENDafter"),
+      test("TbeforeDstillBeforeTstillBeforeSENDafter")
     )
 
     // with blockstart, but escape it so it's not really a block.
@@ -523,47 +523,47 @@ class TestDFDLRegularExpressions {
     // no blockstart/end, but escape the delimiter
     assertEquals(
       Some(("beforeEDstillBefore", "D", "after")),
-      test2("beforeEDstillBeforeDafter"),
+      test2("beforeEDstillBeforeDafter")
     )
 
     // with blockstart/end
     assertEquals(
       Some(("beforeDstillBefore", "D", "after")),
-      test2("TbeforeDstillBeforeNDafter"),
+      test2("TbeforeDstillBeforeNDafter")
     )
 
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
     assertEquals(
       Some(("beforeEDstillBeforeSEDstillBefore", "D", "after")),
-      test2("TbeforeEDstillBeforeSEDstillBeforeNDafter"),
+      test2("TbeforeEDstillBeforeSEDstillBeforeNDafter")
     )
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
     assertEquals(
       Some(("beforeDstillBeforeENstillBefore", "D", "after")),
-      test2("TbeforeDstillBeforeENstillBeforeNDafter"),
+      test2("TbeforeDstillBeforeENstillBeforeNDafter")
     )
 
     // with blockstart/end, escapeEscape the escape of the first block end
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "D", "after")),
-      test2("TbeforeDstillBeforeTstillBeforeSENDafter"),
+      test2("TbeforeDstillBeforeTstillBeforeSENDafter")
     )
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(
       Some(("ETbefore", "D", "afterNstillafter")),
-      test2("ETbeforeDafterNstillafter"),
+      test2("ETbeforeDafterNstillafter")
     )
 
     assertEquals(
       Some(("beforeDstillBeforeENstillBefore", "C", "after")),
-      test2("TbeforeDstillBeforeENstillBeforeNCafter"),
+      test2("TbeforeDstillBeforeENstillBeforeNCafter")
     )
     assertEquals(
       Some(("beforeDstillBeforeENstillBefore", "F", "after")),
-      test2("TbeforeDstillBeforeENstillBeforeNFafter"),
+      test2("TbeforeDstillBeforeENstillBeforeNFafter")
     )
   }
 
@@ -575,7 +575,7 @@ class TestDFDLRegularExpressions {
       escape,
       padChar,
       delim,
-      TextStringJustification.Left,
+      TextStringJustification.Left
     )
     def test(x: String) = x match {
       case cp(before, delim, after, null, null, null) => {
@@ -601,38 +601,38 @@ class TestDFDLRegularExpressions {
     // no blockstart/end, but escape the delimiter
     assertEquals(
       Some(("PPPbeforeEDstillBefore", "D", "after")),
-      test("PPPbeforeEDstillBeforePPPDafter"),
+      test("PPPbeforeEDstillBeforePPPDafter")
     )
 
     // with blockstart/end
     assertEquals(
       Some(("PPPTbefore", "D", "stillBeforeNPPPDafter")),
-      test("PPPTbeforeDstillBeforeNPPPDafter"),
+      test("PPPTbeforeDstillBeforeNPPPDafter")
     )
 
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
     assertEquals(
       Some(("PPPTbeforeEDstillBeforeSE", "D", "stillBeforeNPPPDafter")),
-      test("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter"),
+      test("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter")
     )
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
     assertEquals(
       Some(("PPPTbefore", "D", "stillBeforeENstillBeforeNPPPDafter")),
-      test("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter"),
+      test("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter")
     )
 
     // with blockstart/end, escapeEscape the escape of the first block end
     assertEquals(
       Some(("PPPTbefore", "D", "stillBeforeTstillBeforeSENPPPDafter")),
-      test("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter"),
+      test("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter")
     )
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(
       Some(("PPPETbefore", "D", "afterNstillafter")),
-      test("PPPETbeforePPPDafterNstillafter"),
+      test("PPPETbeforePPPDafterNstillafter")
     )
 
     // here it would appear that the additional padding to the left of the block start
@@ -647,7 +647,7 @@ class TestDFDLRegularExpressions {
       escape,
       padChar,
       delims,
-      TextStringJustification.Left,
+      TextStringJustification.Left
     )
     def test2(x: String) = x match {
       case cp2(before, delim, after, null, null, null) => {
@@ -673,38 +673,38 @@ class TestDFDLRegularExpressions {
     // no blockstart/end, but escape the delimiter
     assertEquals(
       Some(("PPPbeforeEDstillBefore", "D", "after")),
-      test2("PPPbeforeEDstillBeforePPPDafter"),
+      test2("PPPbeforeEDstillBeforePPPDafter")
     )
 
     // with blockstart/end
     assertEquals(
       Some(("PPPTbefore", "D", "stillBeforeNPPPDafter")),
-      test2("PPPTbeforeDstillBeforeNPPPDafter"),
+      test2("PPPTbeforeDstillBeforeNPPPDafter")
     )
 
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
     assertEquals(
       Some(("PPPTbeforeEDstillBeforeSE", "D", "stillBeforeNPPPDafter")),
-      test2("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter"),
+      test2("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter")
     )
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
     assertEquals(
       Some(("PPPTbefore", "D", "stillBeforeENstillBeforeNPPPDafter")),
-      test2("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter"),
+      test2("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter")
     )
 
     // with blockstart/end, escapeEscape the escape of the first block end
     assertEquals(
       Some(("PPPTbefore", "D", "stillBeforeTstillBeforeSENPPPDafter")),
-      test2("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter"),
+      test2("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter")
     )
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(
       Some(("PPPETbefore", "D", "afterNstillafter")),
-      test2("PPPETbeforePPPDafterNstillafter"),
+      test2("PPPETbeforePPPDafterNstillafter")
     )
 
     // here it would appear that the additional padding to the left of the block start
@@ -713,11 +713,11 @@ class TestDFDLRegularExpressions {
 
     assertEquals(
       Some(("PPPTbefore", "C", "stillBeforeTstillBeforeSENPPPDafter")),
-      test2("PPPTbeforeCstillBeforeTstillBeforeSENPPPDafter"),
+      test2("PPPTbeforeCstillBeforeTstillBeforeSENPPPDafter")
     )
     assertEquals(
       Some(("PPPTbefore", "F", "stillBeforeTstillBeforeSENPPPDafter")),
-      test2("PPPTbeforeFstillBeforeTstillBeforeSENPPPDafter"),
+      test2("PPPTbeforeFstillBeforeTstillBeforeSENPPPDafter")
     )
   }
 
@@ -729,7 +729,7 @@ class TestDFDLRegularExpressions {
       escape,
       padChar,
       delim,
-      TextStringJustification.Right,
+      TextStringJustification.Right
     )
     def test(x: String) = x match {
       case cp(before, delim, after, null, null, null) => {
@@ -751,38 +751,38 @@ class TestDFDLRegularExpressions {
     // no blockstart/end, but escape the delimiter
     assertEquals(
       Some(("beforeEDstillBeforePPP", "D", "after")),
-      test("PPPbeforeEDstillBeforePPPDafter"),
+      test("PPPbeforeEDstillBeforePPPDafter")
     )
 
     // with blockstart/end
     assertEquals(
       Some(("beforeDstillBefore", "D", "after")),
-      test("PPPTbeforeDstillBeforeNDafter"),
+      test("PPPTbeforeDstillBeforeNDafter")
     )
 
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
     assertEquals(
       Some(("beforeEDstillBeforeSEDstillBefore", "D", "after")),
-      test("PPPTbeforeEDstillBeforeSEDstillBeforeNDafter"),
+      test("PPPTbeforeEDstillBeforeSEDstillBeforeNDafter")
     )
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
     assertEquals(
       Some(("beforeDstillBeforeENstillBefore", "D", "after")),
-      test("PPPTbeforeDstillBeforeENstillBeforeNDafter"),
+      test("PPPTbeforeDstillBeforeENstillBeforeNDafter")
     )
 
     // with blockstart/end, escapeEscape the escape of the first block end
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "D", "after")),
-      test("PPPTbeforeDstillBeforeTstillBeforeSENDafter"),
+      test("PPPTbeforeDstillBeforeTstillBeforeSENDafter")
     )
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(
       Some(("ETbeforePPP", "D", "afterNstillafter")),
-      test("PPPETbeforePPPDafterNstillafter"),
+      test("PPPETbeforePPPDafterNstillafter")
     )
 
     assertEquals(Some(("beforeD", "D", "after")), test("PPPTbeforeDNDafter"))
@@ -798,7 +798,7 @@ class TestDFDLRegularExpressions {
       escape,
       padChar,
       delims,
-      TextStringJustification.Right,
+      TextStringJustification.Right
     )
     def test2(x: String) = x match {
       case cp2(before, delim, after, null, null, null) => {
@@ -820,38 +820,38 @@ class TestDFDLRegularExpressions {
     // no blockstart/end, but escape the delimiter
     assertEquals(
       Some(("beforeEDstillBeforePPP", "D", "after")),
-      test2("PPPbeforeEDstillBeforePPPDafter"),
+      test2("PPPbeforeEDstillBeforePPPDafter")
     )
 
     // with blockstart/end
     assertEquals(
       Some(("beforeDstillBefore", "D", "after")),
-      test2("PPPTbeforeDstillBeforeNDafter"),
+      test2("PPPTbeforeDstillBeforeNDafter")
     )
 
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
     assertEquals(
       Some(("beforeEDstillBeforeSEDstillBefore", "D", "after")),
-      test2("PPPTbeforeEDstillBeforeSEDstillBeforeNDafter"),
+      test2("PPPTbeforeEDstillBeforeSEDstillBeforeNDafter")
     )
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
     assertEquals(
       Some(("beforeDstillBeforeENstillBefore", "D", "after")),
-      test2("PPPTbeforeDstillBeforeENstillBeforeNDafter"),
+      test2("PPPTbeforeDstillBeforeENstillBeforeNDafter")
     )
 
     // with blockstart/end, escapeEscape the escape of the first block end
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "D", "after")),
-      test2("PPPTbeforeDstillBeforeTstillBeforeSENDafter"),
+      test2("PPPTbeforeDstillBeforeTstillBeforeSENDafter")
     )
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(
       Some(("ETbeforePPP", "D", "afterNstillafter")),
-      test2("PPPETbeforePPPDafterNstillafter"),
+      test2("PPPETbeforePPPDafterNstillafter")
     )
 
     assertEquals(Some(("beforeD", "D", "after")), test2("PPPTbeforeDNDafter"))
@@ -862,11 +862,11 @@ class TestDFDLRegularExpressions {
 
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "C", "after")),
-      test2("PPPTbeforeDstillBeforeTstillBeforeSENCafter"),
+      test2("PPPTbeforeDstillBeforeTstillBeforeSENCafter")
     )
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "F", "after")),
-      test2("PPPTbeforeDstillBeforeTstillBeforeSENFafter"),
+      test2("PPPTbeforeDstillBeforeTstillBeforeSENFafter")
     )
   }
 
@@ -878,7 +878,7 @@ class TestDFDLRegularExpressions {
       escape,
       padChar,
       delim,
-      TextStringJustification.Center,
+      TextStringJustification.Center
     )
     def test(x: String) = x match {
       case cp(before, delim, after, null, null, null) => {
@@ -900,38 +900,38 @@ class TestDFDLRegularExpressions {
     // no blockstart/end, but escape the delimiter
     assertEquals(
       Some(("beforeEDstillBefore", "D", "after")),
-      test("PPPbeforeEDstillBeforePPPDafter"),
+      test("PPPbeforeEDstillBeforePPPDafter")
     )
 
     // with blockstart/end
     assertEquals(
       Some(("beforeDstillBefore", "D", "after")),
-      test("PPPTbeforeDstillBeforeNPPPDafter"),
+      test("PPPTbeforeDstillBeforeNPPPDafter")
     )
 
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
     assertEquals(
       Some(("beforeEDstillBeforeSEDstillBefore", "D", "after")),
-      test("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter"),
+      test("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter")
     )
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
     assertEquals(
       Some(("beforeDstillBeforeENstillBefore", "D", "after")),
-      test("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter"),
+      test("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter")
     )
 
     // with blockstart/end, escapeEscape the escape of the first block end
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "D", "after")),
-      test("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter"),
+      test("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter")
     )
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(
       Some(("ETbefore", "D", "afterNstillafter")),
-      test("PPPETbeforePPPDafterNstillafter"),
+      test("PPPETbeforePPPDafterNstillafter")
     )
 
     // Multiple Delimiters
@@ -942,7 +942,7 @@ class TestDFDLRegularExpressions {
       escape,
       padChar,
       delims,
-      TextStringJustification.Center,
+      TextStringJustification.Center
     )
     def test2(x: String) = x match {
       case cp2(before, delim, after, null, null, null) => {
@@ -964,47 +964,47 @@ class TestDFDLRegularExpressions {
     // no blockstart/end, but escape the delimiter
     assertEquals(
       Some(("beforeEDstillBefore", "D", "after")),
-      test2("PPPbeforeEDstillBeforePPPDafter"),
+      test2("PPPbeforeEDstillBeforePPPDafter")
     )
 
     // with blockstart/end
     assertEquals(
       Some(("beforeDstillBefore", "D", "after")),
-      test2("PPPTbeforeDstillBeforeNPPPDafter"),
+      test2("PPPTbeforeDstillBeforeNPPPDafter")
     )
 
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
     assertEquals(
       Some(("beforeEDstillBeforeSEDstillBefore", "D", "after")),
-      test2("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter"),
+      test2("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter")
     )
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
     assertEquals(
       Some(("beforeDstillBeforeENstillBefore", "D", "after")),
-      test2("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter"),
+      test2("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter")
     )
 
     // with blockstart/end, escapeEscape the escape of the first block end
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "D", "after")),
-      test2("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter"),
+      test2("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter")
     )
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(
       Some(("ETbefore", "D", "afterNstillafter")),
-      test2("PPPETbeforePPPDafterNstillafter"),
+      test2("PPPETbeforePPPDafterNstillafter")
     )
 
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "C", "after")),
-      test2("PPPTbeforeDstillBeforeTstillBeforeSENPPPCafter"),
+      test2("PPPTbeforeDstillBeforeTstillBeforeSENPPPCafter")
     )
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeSE", "F", "after")),
-      test2("PPPTbeforeDstillBeforeTstillBeforeSENPPPFafter"),
+      test2("PPPTbeforeDstillBeforeTstillBeforeSENPPPFafter")
     )
   }
 }

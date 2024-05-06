@@ -33,7 +33,7 @@ trait ByteChunkWriter { self: PrimParser =>
    * blobChunkSizeInBytes tunable.
    */
   def writeBitsInChunks(start: PState, nBits: Long)(
-    writeChunk: (Array[Byte], Int) => Unit,
+    writeChunk: (Array[Byte], Int) => Unit
   ): Unit = {
     val dis = start.dataInputStream
     val startLoc = start.currentLocation

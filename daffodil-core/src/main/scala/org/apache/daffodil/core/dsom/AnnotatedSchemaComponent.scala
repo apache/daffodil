@@ -57,7 +57,7 @@ object ResolvesProperties {
    */
   val localOnlyProperties = Seq(
     "choiceBranchKey",
-    "hiddenGroupRef",
+    "hiddenGroupRef"
   )
 }
 
@@ -72,7 +72,7 @@ trait ResolvesLocalProperties extends FindPropertyMixin { self: AnnotatedSchemaC
   protected override def lookupProperty(pname: String): PropertyLookupResult = {
     Assert.usage(
       ResolvesProperties.localOnlyProperties.contains(pname),
-      "Property '%s' is not a valid local-only property.".format(pname),
+      "Property '%s' is not a valid local-only property.".format(pname)
     )
     val fa = formatAnnotation
     val opt = fa.justThisOneProperties.get(pname)
@@ -116,7 +116,7 @@ trait ResolvesScopedProperties extends FindPropertyMixin { self: Term =>
         NotFound(
           Seq(),
           nd,
-          pn,
+          pn
         ) // we want the places we searched shown as default locations searched
     }
     fixup
@@ -124,7 +124,7 @@ trait ResolvesScopedProperties extends FindPropertyMixin { self: Term =>
 
   private def findPropertyInSources(
     pname: String,
-    sources: Seq[ChainPropProvider],
+    sources: Seq[ChainPropProvider]
   ): PropertyLookupResult = {
     //
     // Important - use of stream here insures we don't lookup
@@ -188,7 +188,7 @@ trait ResolvesScopedProperties extends FindPropertyMixin { self: Term =>
 /** Convenience class for implemening AnnotatedSchemaComponent trait */
 abstract class AnnotatedSchemaComponentImpl(
   final override val xml: Node,
-  final override val optLexicalParent: Option[SchemaComponent],
+  final override val optLexicalParent: Option[SchemaComponent]
 ) extends AnnotatedSchemaComponent {
 
   def this(xml: Node, lexicalParent: SchemaComponent) =
@@ -232,7 +232,7 @@ abstract class AnnotatedSchemaComponentImpl(
 case class PropEnv(
   localProps: Seq[Set[(String, String)]],
   defaultPropSource: Seq[Set[(String, String)]],
-  optNext: Option[scala.xml.Node],
+  optNext: Option[scala.xml.Node]
 )
 
 case class ShareKey(xml: scala.xml.Node, env: PropEnv) {
@@ -411,7 +411,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
             ai.child.flatMap(n => Option(n.namespace)).find(isDfdlNamespace).foreach { _ =>
               SDW(
                 WarnID.AppinfoNoSource,
-                """xs:appinfo without source attribute. Is source="http://www.ogf.org/dfdl/" missing?""",
+                """xs:appinfo without source attribute. Is source="http://www.ogf.org/dfdl/" missing?"""
               )
             }
             false
@@ -440,7 +440,7 @@ trait AnnotatedMixin { self: AnnotatedSchemaComponent =>
               !hasRightSource && isAcceptable,
               "The xs:appinfo source attribute value '%s' should be '%s'.",
               sourceNS,
-              officialAppinfoSourceAttributeNS,
+              officialAppinfoSourceAttributeNS
             )
             (hasRightSource || isAcceptable)
           }

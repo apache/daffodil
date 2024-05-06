@@ -165,7 +165,7 @@ class TestScalaAPI {
       assertTrue(debugger.lines.size > 0)
       assertTrue(
         debugger.lines
-          .contains("----------------------------------------------------------------- 1\n"),
+          .contains("----------------------------------------------------------------- 1\n")
       )
       assertTrue(debugger.getCommand().equals("trace"))
 
@@ -218,7 +218,7 @@ class TestScalaAPI {
       assertTrue(debugger.lines.size > 0)
       assertTrue(
         debugger.lines
-          .contains("----------------------------------------------------------------- 1\n"),
+          .contains("----------------------------------------------------------------- 1\n")
       )
       assertTrue(debugger.getCommand().equals("trace"))
 
@@ -262,7 +262,7 @@ class TestScalaAPI {
       assertEquals(1, locs.size)
       val loc = locs(0)
       assertTrue(
-        loc.toString().contains("mySchema1.dfdl.xsd"),
+        loc.toString().contains("mySchema1.dfdl.xsd")
       ) // reports the element ref, not element decl.
     }
   }
@@ -621,7 +621,7 @@ class TestScalaAPI {
       assertTrue(debugger.lines.size > 0)
       assertTrue(
         debugger.lines
-          .contains("----------------------------------------------------------------- 1\n"),
+          .contains("----------------------------------------------------------------- 1\n")
       )
     }
   }
@@ -691,7 +691,7 @@ class TestScalaAPI {
       assertTrue(debugger.lines.size > 0)
       assertTrue(
         debugger.lines
-          .contains("----------------------------------------------------------------- 1\n"),
+          .contains("----------------------------------------------------------------- 1\n")
       )
     }
   }
@@ -728,7 +728,7 @@ class TestScalaAPI {
       case e: InvalidUsageException =>
         assertEquals(
           "'Full' validation not allowed when using a restored parser.",
-          e.getMessage(),
+          e.getMessage()
         )
     }
   }
@@ -931,15 +931,15 @@ class TestScalaAPI {
       parseXMLReader.setErrorHandler(errorHandler)
       parseXMLReader.setProperty(
         DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY,
-        Paths.get(System.getProperty("java.io.tmpdir")),
+        Paths.get(System.getProperty("java.io.tmpdir"))
       )
       parseXMLReader.setProperty(
         DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX,
-        "daffodil-sapi-",
+        "daffodil-sapi-"
       )
       parseXMLReader.setProperty(
         DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX,
-        ".sax.blob",
+        ".sax.blob"
       )
       parseXMLReader.parse(inputSAX)
       val resSAX = parseXMLReader
@@ -1003,15 +1003,15 @@ class TestScalaAPI {
       parseXMLReader.setErrorHandler(errorHandler)
       parseXMLReader.setProperty(
         DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBDIRECTORY,
-        Paths.get(System.getProperty("java.io.tmpdir")),
+        Paths.get(System.getProperty("java.io.tmpdir"))
       )
       parseXMLReader.setProperty(
         DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBPREFIX,
-        "daffodil-sapi-",
+        "daffodil-sapi-"
       )
       parseXMLReader.setProperty(
         DaffodilParseXMLReader.DAFFODIL_SAX_URN_BLOBSUFFIX,
-        ".sax.blob",
+        ".sax.blob"
       )
       parseXMLReader.parse(input)
 
@@ -1026,7 +1026,7 @@ class TestScalaAPI {
       assertEquals(1, locs.size)
       val loc = locs.head
       assertTrue(
-        loc.toString().contains("mySchema1.dfdl.xsd"),
+        loc.toString().contains("mySchema1.dfdl.xsd")
       ) // reports the element ref, not element decl.
     }
   }
@@ -1191,7 +1191,7 @@ class TestScalaAPI {
       TestInfosetEvent.startSimple("e2", "http://example.com", expectedData),
       TestInfosetEvent.endSimple("e2", "http://example.com"),
       TestInfosetEvent.endComplex("e1", "http://example.com"),
-      TestInfosetEvent.endDocument(),
+      TestInfosetEvent.endDocument()
     )
 
     val c = Daffodil.compiler()
@@ -1209,7 +1209,7 @@ class TestScalaAPI {
       assertFalse(pr.isError())
       assertArrayEquals(
         expectedEvents.asInstanceOf[Array[Object]],
-        outputter.events.toArray.asInstanceOf[Array[Object]],
+        outputter.events.toArray.asInstanceOf[Array[Object]]
       )
 
       val bos = new java.io.ByteArrayOutputStream()
@@ -1234,10 +1234,10 @@ class TestScalaAPI {
         val cause = e.getCause
         assertTrue(cause.toString.contains("Must call isError"))
         assertTrue(
-          cause.getCause.toString.contains("Schema Definition Error"),
+          cause.getCause.toString.contains("Schema Definition Error")
         )
         assertTrue(
-          cause.getCause.toString.contains("Cannot resolve the name 'tns:nonExistent'"),
+          cause.getCause.toString.contains("Cannot resolve the name 'tns:nonExistent'")
         )
       }
     }

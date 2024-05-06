@@ -38,7 +38,7 @@ import org.apache.daffodil.lib.xml._
 class Binding(
   val varQName: RefQName,
   val varValue: String,
-  scope: scala.xml.NamespaceBinding = null,
+  scope: scala.xml.NamespaceBinding = null
 ) {
 
   override def toString() = {

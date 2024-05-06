@@ -43,7 +43,7 @@ class LongestMatchTracker {
     matchedStartPos: Int,
     matchedString: StringBuilder,
     dfa: DFADelimiter,
-    dfaIndex: Int,
+    dfaIndex: Int
   ): Unit = {
     if (longestMatches.isEmpty) {
       // first match, make it the longest
@@ -75,7 +75,7 @@ class LongestMatchTracker {
 class ParseResult(
   val field: Maybe[String],
   val matchedDelimiterValue: Maybe[String],
-  val matchedDFAs: ArrayBuffer[DFADelimiter],
+  val matchedDFAs: ArrayBuffer[DFADelimiter]
 ) {
 
   override def toString(): String = {

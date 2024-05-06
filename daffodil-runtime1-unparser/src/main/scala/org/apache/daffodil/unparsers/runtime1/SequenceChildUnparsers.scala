@@ -37,7 +37,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 abstract class SequenceChildUnparser(
   val childUnparser: Unparser,
   val srd: SequenceRuntimeData,
-  val trd: TermRuntimeData,
+  val trd: TermRuntimeData
 ) extends CombinatorUnparser(srd) {
 
   override def runtimeDependencies = Vector()
@@ -53,7 +53,7 @@ abstract class SequenceChildUnparser(
 abstract class RepeatingChildUnparser(
   override val childUnparser: Unparser,
   override val srd: SequenceRuntimeData,
-  val erd: ElementRuntimeData,
+  val erd: ElementRuntimeData
 ) extends SequenceChildUnparser(childUnparser, srd, erd)
   with MinMaxRepeatsMixin
   with EndArrayChecksMixin {
@@ -106,7 +106,7 @@ abstract class RepeatingChildUnparser(
           state,
           "Expected array end event for %s, but received %s.",
           erd.namedQName.toExtendedSyntax,
-          event,
+          event
         )
       }
     }
@@ -193,7 +193,7 @@ abstract class RepeatingChildUnparser(
     unparser: RepeatingChildUnparser,
     numOccurrences: Int,
     maxReps: Long,
-    arrPos: Long,
+    arrPos: Long
   ): Unit = {
     import OccursCountKind._
 
@@ -212,7 +212,7 @@ abstract class RepeatingChildUnparser(
         "Expected %s additional %s elements, but received %s.",
         minReps - numOccurrences,
         erd.namedQName,
-        ev,
+        ev
       )
     }
     //
@@ -247,7 +247,7 @@ abstract class RepeatingChildUnparser(
             "More than maxOccurs %s occurrences of %s in Infoset input: Expected no more events for %s, but received %s.",
             maxReps,
             erd.namedQName,
-            ev,
+            ev
           )
       }
     }

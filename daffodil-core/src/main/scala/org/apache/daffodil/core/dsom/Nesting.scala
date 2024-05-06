@@ -111,7 +111,7 @@ trait NestingLexicalMixin { self: SchemaComponent =>
                       case ed: ElementDeclMixin if (ed.namedTypeQName.isDefined) => // ok
                       case _ =>
                         Assert.invariantFailed(
-                          "referring component is not a ref object: " + frm,
+                          "referring component is not a ref object: " + frm
                         )
                     }
                     EnclosingComponentDef(refSpec.from, pos)
@@ -126,7 +126,7 @@ trait NestingLexicalMixin { self: SchemaComponent =>
                 case p: DFDLProperty => Nil
                 case _ =>
                   Assert.invariantFailed(
-                    "non-global component has schema document as lexical parent: " + this,
+                    "non-global component has schema document as lexical parent: " + this
                   )
               } // end match
             } // end case where lexical parent is SchemaDocument

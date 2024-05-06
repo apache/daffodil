@@ -169,7 +169,7 @@ class LayerDriver private (val layer: Layer) {
       isLayer = true,
       s.chunkSizeInBytes,
       s.maxBufferSizeInBytes,
-      s.tempDirPath,
+      s.tempDirPath
     )
     newDOS.setPriorBitOrder(BitOrder.MostSignificantBitFirst)
     newDOS.setAbsStartingBitPos0b(ULong(0L))
@@ -195,7 +195,7 @@ class LayerDriver private (val layer: Layer) {
 
   private final class ThrowProtectedAssuredCloseInputStream(
     stream: InputStream,
-    inner: InputStream,
+    inner: InputStream
   ) extends FilterInputStream(stream) {
 
     override def read(): Int = {
@@ -242,7 +242,7 @@ class LayerDriver private (val layer: Layer) {
    */
   private final class ThrowProtectedAssuredCloseOutputStream(
     stream: OutputStream,
-    inner: OutputStream,
+    inner: OutputStream
   ) extends OutputStream {
 
     /**
@@ -335,7 +335,7 @@ class LayerFatalException(msg: String, cause: Throwable) extends RuntimeExceptio
         else
           cause.getMessage
       },
-      cause,
+      cause
     )
 }
 

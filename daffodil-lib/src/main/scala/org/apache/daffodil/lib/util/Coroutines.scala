@@ -215,7 +215,7 @@ final class InvertControl[S](body: => Unit) extends MainCoroutine[Try[S]] with I
   private def gen: Stream[S] = {
     val x = resume(
       producer,
-      dummy,
+      dummy
     ) // producer isn't sent anything. It's just resumed to get another value.
     x match {
       case EndOfData => Stream.Empty

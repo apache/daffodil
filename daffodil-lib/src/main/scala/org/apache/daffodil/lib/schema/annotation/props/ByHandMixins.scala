@@ -74,7 +74,7 @@ object AlignmentType extends Enum[AnyRef] { // Note: Was using AlignmentUnits mi
         case e: NumberFormatException =>
           self.schemaDefinitionError(
             "For property 'alignment', value must be 'implicit' or an integer. Found: %s",
-            str,
+            str
           )
       }
     if (allowedAlignmentValues.contains(i)) {
@@ -86,7 +86,7 @@ object AlignmentType extends Enum[AnyRef] { // Note: Was using AlignmentUnits mi
       JInt.valueOf(i)
     } else
       self.schemaDefinitionError(
-        "For property 'alignment', value must be a power of 2 (and fit in a 32 bit integer). Found: " + str,
+        "For property 'alignment', value must be a power of 2 (and fit in a 32 bit integer). Found: " + str
       )
   }
 }
@@ -106,7 +106,7 @@ object TextNumberBase {
       case _ =>
         self.schemaDefinitionError(
           "For property textStandardBase, value must be 2, 8, 10, or 16. Found: %s",
-          str,
+          str
         )
     }
   }
@@ -132,7 +132,7 @@ trait TextStandardBaseMixin extends PropertyMixin {
       } else {
         SDW(
           WarnID.TextStandardBaseUndefined,
-          "dfdl:textStandardBase property is undefined. Defaulting to 10.",
+          "dfdl:textStandardBase property is undefined. Defaulting to 10."
         )
         "10"
       }
@@ -180,7 +180,7 @@ trait SeparatorSuppressionPolicyMixin extends PropertyMixin {
       case (Some(spValue), Some(sspStr)) => {
         SDW(
           WarnID.DeprecatedPropertySeparatorPolicy,
-          "Both separatorPolicy(deprecated) and separatorSuppressionPolicy are defined. The separatorPolicy will be ignored.",
+          "Both separatorPolicy(deprecated) and separatorSuppressionPolicy are defined. The separatorPolicy will be ignored."
         )
         SeparatorSuppressionPolicy(sspStr, this)
       }
@@ -192,7 +192,7 @@ trait SeparatorSuppressionPolicyMixin extends PropertyMixin {
       case (Some(spString), None) => {
         SDW(
           WarnID.DeprecatedPropertySeparatorPolicy,
-          "Property separatorPolicy is deprecated. Use separatorSuppressionPolicy instead.",
+          "Property separatorPolicy is deprecated. Use separatorSuppressionPolicy instead."
         )
         spString match {
           case "required" => SeparatorSuppressionPolicy.Never
@@ -204,7 +204,7 @@ trait SeparatorSuppressionPolicyMixin extends PropertyMixin {
       }
       case _ =>
         Assert.invariantFailed(
-          "combination of separatorPolicy and separatorSuppressionPolicy not understood",
+          "combination of separatorPolicy and separatorSuppressionPolicy not understood"
         )
     }
   }
@@ -388,14 +388,14 @@ object BinaryBooleanTrueRepType {
           case e: NumberFormatException =>
             element.schemaDefinitionError(
               "For property 'binaryBooleanTrueRep', value must be an empty string or a non-negative integer. Found: %s",
-              str,
+              str
             )
         }
 
       if (i < 0)
         element.schemaDefinitionError(
           "For property 'binaryBooleanFalseRep', value must be an empty string or a non-negative integer. Found: %d",
-          i,
+          i
         )
       MaybeULong(i)
     }
@@ -412,14 +412,14 @@ object BinaryBooleanFalseRepType {
         case e: NumberFormatException =>
           element.schemaDefinitionError(
             "For property 'binaryBooleanFalseRep', value must be an integer. Found: %s",
-            str,
+            str
           )
       }
 
     if (i < 0)
       element.schemaDefinitionError(
         "For property 'binaryBooleanFalseRep', value must be a non-negative integer. Found: %s",
-        i,
+        i
       )
     ULong(i)
   }
@@ -438,15 +438,15 @@ trait TextStandardExponentRepMixin extends PropertyMixin {
   protected final lazy val optionTextStandardExponentRepRaw =
     findPropertyOption("textStandardExponentRep", expressionAllowed = true)
   protected final lazy val textStandardExponentRepRaw = requireProperty(
-    optionTextStandardExponentRepRaw,
+    optionTextStandardExponentRepRaw
   )
 
   // Deprecated textStandardExponentCharacter
   protected final lazy val optionTextStandardExponentCharacterRaw = findPropertyOption(
-    "textStandardExponentCharacter",
+    "textStandardExponentCharacter"
   )
   protected final lazy val textStandardExponentCharacterRaw = requireProperty(
-    optionTextStandardExponentCharacterRaw,
+    optionTextStandardExponentCharacterRaw
   )
 
   lazy val textStandardExponentRep: Found = {
@@ -456,7 +456,7 @@ trait TextStandardExponentRepMixin extends PropertyMixin {
       case (Some(tsecStr), Some(tserStr)) => {
         SDW(
           WarnID.DeprecatedPropertySeparatorPolicy,
-          "Both textStandardExponentCharacter(deprecated) and textStandardExponentRep are defined. The textStandardExponentCharacter will be ignored.",
+          "Both textStandardExponentCharacter(deprecated) and textStandardExponentRep are defined. The textStandardExponentCharacter will be ignored."
         )
         textStandardExponentRepRaw
       }
@@ -468,13 +468,13 @@ trait TextStandardExponentRepMixin extends PropertyMixin {
       case (Some(tsecStr), None) => {
         SDW(
           WarnID.DeprecatedPropertySeparatorPolicy,
-          "Property textStandardExponentCharacter is deprecated. Use textStandardExponentRep instead.",
+          "Property textStandardExponentCharacter is deprecated. Use textStandardExponentRep instead."
         )
         textStandardExponentCharacterRaw
       }
       case _ =>
         Assert.invariantFailed(
-          "combination of textStandardExponentCharacter and textStandardExponentRep not understood",
+          "combination of textStandardExponentCharacter and textStandardExponentRep not understood"
         )
     }
   }
@@ -531,7 +531,7 @@ trait EmptyElementParsePolicyMixin extends PropertyMixin {
       SDW(
         WarnID.EmptyElementParsePolicyError,
         "Property 'dfdl:emptyElementParsePolicy' is required but not defined, using tunable '%s' by default.",
-        defaultEmptyElementParsePolicy,
+        defaultEmptyElementParsePolicy
       )
       defaultEmptyElementParsePolicy
     }

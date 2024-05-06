@@ -66,7 +66,7 @@ class RedactingScalaXMLInfosetInputter(rootNode: scala.xml.Node)
 
   override def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String = {
     var text = super.getSimpleText(primType, runtimeProperties)
 
@@ -93,7 +93,7 @@ class TestRuntimeProperties {
           <xs:element name="unFiltered" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
-    </xs:element>,
+    </xs:element>
   )
 
   @Test def testRuntimeProperties_01(): Unit = {
@@ -147,7 +147,7 @@ class TestRuntimeProperties {
           <xs:element name="unFiltered" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
-    </xs:element>,
+    </xs:element>
   )
 
   @Test def testRuntimeProperties_03(): Unit = {
@@ -171,7 +171,7 @@ class TestRuntimeProperties {
           <xs:element name="unFiltered" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
-    </xs:element>,
+    </xs:element>
   )
 
   @Test def testRuntimeProperties_04(): Unit = {
@@ -206,7 +206,7 @@ class TestRuntimeProperties {
           <xs:element name="unFiltered" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
-    </xs:element>,
+    </xs:element>
   )
 
   @Test def testRuntimeProperties_05(): Unit = {

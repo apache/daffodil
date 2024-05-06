@@ -41,7 +41,7 @@ abstract class ElementParserBase(
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser],
-  eRepTypeParser: Maybe[Parser],
+  eRepTypeParser: Maybe[Parser]
 ) extends CombinatorParser(erd) {
 
   override lazy val runtimeDependencies = Vector()
@@ -82,12 +82,12 @@ abstract class ElementParserBase(
       } else {
         val failureMessage = ccfResult.errMsg
         Logger.log.debug(
-          "Validation failed for ${context.toString} due to ${failureMessage}. The element was ${currentElement.namedQName}.",
+          "Validation failed for ${context.toString} due to ${failureMessage}. The element was ${currentElement.namedQName}."
         )
         pstate.validationError(
           "%s failed facet checks due to: %s",
           context.toString,
-          failureMessage,
+          failureMessage
         )
         currentElement.setValid(false)
         pstate
@@ -223,7 +223,7 @@ class ElementParser(
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
   eAfterParser: Maybe[Parser],
-  eRepTypeParser: Maybe[Parser],
+  eRepTypeParser: Maybe[Parser]
 ) extends ElementParserBase(
     erd,
     name,
@@ -235,7 +235,7 @@ class ElementParser(
     eBeforeParser,
     eParser,
     eAfterParser,
-    eRepTypeParser,
+    eRepTypeParser
   ) {
 
   def move(start: PState): Unit = {
@@ -297,7 +297,7 @@ class ElementParserInputValueCalc(
   testAssert: Array[Parser],
   eBeforeParser: Maybe[Parser],
   eParser: Maybe[Parser],
-  eAfterParser: Maybe[Parser],
+  eAfterParser: Maybe[Parser]
 ) extends ElementParser(
     erd,
     name,
@@ -309,7 +309,7 @@ class ElementParserInputValueCalc(
     eBeforeParser,
     eParser,
     eAfterParser,
-    Maybe.Nope,
+    Maybe.Nope
   ) {
 
   // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,

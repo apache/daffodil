@@ -104,7 +104,7 @@ trait InitiatedTerminatedMixin
         case eb: ElementBase => {
           if (eb.minOccurs < 1 && isInitiatedContentChoice) {
             SDE(
-              "The minOccurs attribute should not be zero when dfdl:initiatedContent is 'yes'.",
+              "The minOccurs attribute should not be zero when dfdl:initiatedContent is 'yes'."
             )
           }
         }

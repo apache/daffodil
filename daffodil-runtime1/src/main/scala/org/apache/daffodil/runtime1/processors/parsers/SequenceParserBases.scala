@@ -35,7 +35,7 @@ import org.apache.daffodil.runtime1.processors.Success
 abstract class SequenceParserBase(
   srd: SequenceRuntimeData,
   childParsers: Vector[Parser],
-  isOrdered: Boolean,
+  isOrdered: Boolean
 ) extends CombinatorParser(srd) {
   override def nom = "Sequence"
 
@@ -50,7 +50,7 @@ abstract class SequenceParserBase(
       throw new TunableLimitExceededError(
         childParser.trd.schemaFileLocation,
         "Array occurrences excceeds the maxOccursBounds tunable limit of %s",
-        pstate.tunable.maxOccursBounds,
+        pstate.tunable.maxOccursBounds
       )
     }
   }
@@ -60,13 +60,13 @@ abstract class SequenceParserBase(
     parser: RepeatingChildParser,
     currentPos: Long,
     priorPos: Long,
-    ais: ArrayIndexStatus,
+    ais: ArrayIndexStatus
   ): ArrayIndexStatus = {
     Assert.invariant(currentPos >= priorPos)
     if (currentPos == priorPos && pstate.groupPos > 1) {
       parser.PE(
         pstate,
-        "Array element parsed succesfully, but consumed no data and is stuck in an infinite loop as it is unbounded.",
+        "Array element parsed succesfully, but consumed no data and is stuck in an infinite loop as it is unbounded."
       )
       Done
     } else {
@@ -413,7 +413,7 @@ abstract class SequenceParserBase(
   private def parseOneInstance(
     parser: SequenceChildParser,
     pstate: PState,
-    roStatus: RequiredOptionalStatus,
+    roStatus: RequiredOptionalStatus
   ): (ArrayIndexStatus, ParseAttemptStatus) = {
 
     // Determine if we need a PoU. Note that we only have a point of
@@ -444,7 +444,7 @@ abstract class SequenceParserBase(
     parser: SequenceChildParser,
     pstate: PState,
     roStatus: RequiredOptionalStatus,
-    maybePoU: Maybe[PState.Mark],
+    maybePoU: Maybe[PState.Mark]
   ): (ArrayIndexStatus, ParseAttemptStatus) = {
 
     var ais: ArrayIndexStatus = ArrayIndexStatus.Uninitialized
@@ -466,7 +466,7 @@ abstract class SequenceParserBase(
     // check for consistency - failure comes with a PE in the PState.
     Assert.invariant(
       (pstate.processorStatus eq Success) ||
-        resultOfTry.isInstanceOf[FailedParseAttemptStatus],
+        resultOfTry.isInstanceOf[FailedParseAttemptStatus]
     )
 
     resultOfTry match {
@@ -477,7 +477,7 @@ abstract class SequenceParserBase(
         if (maybePoU.isDefined) {
           Assert.invariant(!isPoUResolved) // impossible for an absent rep to resolve the PoU
           pstate.resetToPointOfUncertainty(
-            maybePoU.get,
+            maybePoU.get
           ) // back out any side effects of the attempt to parse
         }
         pstate.dataInputStream.setBitPos0b(currentPos) // skip syntax such as a separator
@@ -517,7 +517,7 @@ abstract class SequenceParserBase(
                 "Failed to populate %s[%s]. Cause: %s",
                 erd.prefixedName,
                 pstate.mpstate.arrayIterationPos,
-                cause,
+                cause
               )
             }
             case _ => // ok

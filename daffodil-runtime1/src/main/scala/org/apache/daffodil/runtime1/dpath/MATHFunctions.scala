@@ -27,7 +27,7 @@ case class MATHPow(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
   override def computeValue(
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValueDouble = {
     val base = asDouble(arg1.getAnyRef).doubleValue()
     val exp = asDouble(arg2.getAnyRef).doubleValue()

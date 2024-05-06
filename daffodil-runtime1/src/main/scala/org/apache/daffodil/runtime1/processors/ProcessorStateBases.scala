@@ -93,7 +93,7 @@ case class TupleForDebugger(
   val variableMapForDebugger: VariableMap,
   val delimitedParseResult: Maybe[dfa.ParseResult],
   val withinHiddenNest: Boolean,
-  val suspensions: Seq[Suspension],
+  val suspensions: Seq[Suspension]
 ) extends StateForDebugger
 
 trait SetProcessorMixin {
@@ -140,7 +140,7 @@ abstract class ParseOrUnparseState protected (
   protected var variableBox: VariableBox,
   var diagnostics: List[Diagnostic],
   var dataProc: Maybe[DataProcessor],
-  val tunable: DaffodilTunables,
+  val tunable: DaffodilTunables
 ) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE
@@ -154,7 +154,7 @@ abstract class ParseOrUnparseState protected (
     vmap: VariableMap,
     diags: List[Diagnostic],
     dataProc: Maybe[DataProcessor],
-    tunable: DaffodilTunables,
+    tunable: DaffodilTunables
   ) =
     this(new VariableBox(vmap), diags, dataProc, tunable)
 
@@ -237,7 +237,7 @@ abstract class ParseOrUnparseState protected (
             case trd: TermRuntimeData => trd.defaultBitOrder
             case ntrd: NonTermRuntimeData =>
               Assert.usageError(
-                "Cannot ask for bitOrder for non-terms - NonTermRuntimeData: " + ntrd,
+                "Cannot ask for bitOrder for non-terms - NonTermRuntimeData: " + ntrd
               )
           }
       }
@@ -387,7 +387,7 @@ abstract class ParseOrUnparseState protected (
   def setVariable(
     vrd: VariableRuntimeData,
     newValue: DataValuePrimitive,
-    referringContext: ThrowsSDE,
+    referringContext: ThrowsSDE
   ): Unit
 
   def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE): DataValuePrimitive
@@ -484,7 +484,7 @@ abstract class ParseOrUnparseState protected (
       variableMap.copy(), // deep copy since variableMap is mutable
       delimitedParseResult,
       withinHiddenNest,
-      suspensions,
+      suspensions
     )
   }
 
@@ -595,14 +595,14 @@ abstract class ParseOrUnparseState protected (
           rd = Maybe(ps.schemaFileLocation),
           loc = Maybe(ps.currentLocation),
           causedBy = Maybe.Nope,
-          kind = Maybe(msg),
+          kind = Maybe(msg)
         )
       case us: UState =>
         new UnparseError(
           rd = Maybe(us.schemaFileLocation),
           loc = Maybe(us.currentLocation),
           causedBy = Maybe.Nope,
-          kind = Maybe(msg),
+          kind = Maybe(msg)
         )
     }
     diagnostic
@@ -615,14 +615,14 @@ abstract class ParseOrUnparseState protected (
           rd = Maybe(ps.schemaFileLocation),
           loc = Maybe(ps.currentLocation),
           causedBy = Maybe(e),
-          kind = Maybe.Nope,
+          kind = Maybe.Nope
         )
       case us: UState =>
         new UnparseError(
           rd = Maybe(us.schemaFileLocation),
           loc = Maybe(us.currentLocation),
           causedBy = Maybe(e),
-          kind = Maybe.Nope,
+          kind = Maybe.Nope
         )
     }
     diagnostic
@@ -643,7 +643,7 @@ abstract class ParseOrUnparseState protected (
 final class CompileState(
   tci: DPathCompileInfo,
   maybeDataProc: Maybe[DataProcessor],
-  tunable: DaffodilTunables,
+  tunable: DaffodilTunables
 ) extends ParseOrUnparseState(tci.variableMap, Nil, maybeDataProc, tunable) {
 
   def arrayIterationPos: Long = 1L
@@ -664,7 +664,7 @@ final class CompileState(
       infoset_.value
     else
       throw new InfosetNoInfosetException(
-        One(tci),
+        One(tci)
       ) // for expressions evaluated in debugger, default expressions for top-level variable decls.
 
   def currentNode = Maybe(infoset.asInstanceOf[DINode])
@@ -690,7 +690,7 @@ final class CompileState(
   override def setVariable(
     vrd: VariableRuntimeData,
     newValue: DataValuePrimitive,
-    referringContext: ThrowsSDE,
+    referringContext: ThrowsSDE
   ): Unit = Assert.usageError("Not to be used.")
   override def getVariable(vrd: VariableRuntimeData, referringContext: ThrowsSDE) =
     Assert.usageError("Not to be used.")

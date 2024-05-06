@@ -49,7 +49,7 @@ class TestParseIndividualMessages {
   val exactly4ByteSch = SchemaUtils.dfdlTestSchema(
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format representation="binary" byteOrder="bigEndian" binaryNumberRep="binary" ref="tns:GeneralFormat"/>,
-    <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>,
+    <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="4"/>
   )
 
   /**
@@ -91,7 +91,7 @@ class TestParseIndividualMessages {
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
     <dfdl:format representation="text" ref="tns:GeneralFormat"/>,
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="delimited"
-                  dfdl:terminator={term} />,
+                  dfdl:terminator={term} />
   )
 
   /**
@@ -104,7 +104,7 @@ class TestParseIndividualMessages {
   private def testHelperDaffodilParseDelimitedFromNetwork(
     data: String,
     terminator: String,
-    followingDataString: String,
+    followingDataString: String
   ) = {
     val sptr = new SocketPairTestRig {
       override def test(pos: OutputStream, cis: InputStream): Unit = {
@@ -148,7 +148,7 @@ class TestParseIndividualMessages {
       testHelperDaffodilParseDelimitedFromNetwork("1234", "$", "$")
     }
     fail(
-      "if we get here, then we intercepted a TimeoutException, which means Daffodil was hung.",
+      "if we get here, then we intercepted a TimeoutException, which means Daffodil was hung."
     )
   }
 

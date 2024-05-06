@@ -202,7 +202,7 @@ class TestXMLUtils {
       <test:bar xmlns:test="http://test/" xmlns:xsi={
         XMLUtils.XSI_NAMESPACE
       }><foo test:raz="raz" xsi:nil="true"/></test:bar>,
-      Utility.trim(res),
+      Utility.trim(res)
     )
   }
 

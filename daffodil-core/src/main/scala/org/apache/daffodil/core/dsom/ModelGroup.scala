@@ -53,14 +53,14 @@ object ModelGroupFactory {
     lexicalParent: SchemaComponent,
     position: Int,
     isHidden: Boolean,
-    nodesAlreadyTrying: Set[Node] = Set(),
+    nodesAlreadyTrying: Set[Node] = Set()
   ): ModelGroup = {
     if (nodesAlreadyTrying.contains(child)) {
       //
       // We are chasing our tail. Circular reference among named model groups/terms.
       //
       lexicalParent.schemaDefinitionError(
-        "Model group circular definitions. Group references, or hidden group references form a loop.",
+        "Model group circular definitions. Group references, or hidden group references form a loop."
       )
     } else {
       val moreNodesAlreadyTrying = nodesAlreadyTrying + child
@@ -75,7 +75,7 @@ object ModelGroupFactory {
     lexicalParent: SchemaComponent,
     position: JInt,
     isHidden: Boolean,
-    nodesAlreadyTrying: Set[Node],
+    nodesAlreadyTrying: Set[Node]
   ): ModelGroup = {
     val childModelGroup: ModelGroup = xmlNode match {
 
@@ -110,7 +110,7 @@ object ModelGroupFactory {
       case _ => {
         // $COVERAGE-OFF$
         Assert.invariantFailed(
-          "Unrecognized construct %s should be handled by caller.".format(xmlNode),
+          "Unrecognized construct %s should be handled by caller.".format(xmlNode)
         )
         // $COVERAGE_ON$
       }
@@ -134,7 +134,7 @@ object ModelGroupFactory {
     lexicalParent: SchemaComponent,
     position: JInt,
     isHidden: Boolean,
-    nodesAlreadyTrying: Set[Node],
+    nodesAlreadyTrying: Set[Node]
   ): ModelGroup = {
     val realChildren: Seq[Node] = seq.apparentXMLChildren.filterNot {
       // strip away all the trash nodes
@@ -164,7 +164,7 @@ object ModelGroupFactory {
       lexicalParent,
       position,
       isHidden,
-      nodesAlreadyTrying,
+      nodesAlreadyTrying
     )
   }
 
@@ -183,7 +183,7 @@ object ModelGroupFactory {
     lexicalParent: SchemaComponent,
     position: JInt,
     isHidden: Boolean,
-    nodesAlreadyTrying: Set[Node],
+    nodesAlreadyTrying: Set[Node]
   ) = {
     // explicit check here, because we're about to discard this, and construct
     // a SequenceGroupRef or ChoiceGroupRef, with isHidden = true. So this
@@ -199,7 +199,7 @@ object ModelGroupFactory {
       lexicalParent,
       position,
       isHidden = true,
-      nodesAlreadyTrying,
+      nodesAlreadyTrying
     )
   }
 }
@@ -222,7 +222,7 @@ object TermFactory {
     child: Node,
     lexicalParent: GroupDefLike,
     position: Int,
-    nodesAlreadyTrying: Set[Node] = Set(),
+    nodesAlreadyTrying: Set[Node] = Set()
   ) = {
     val childTerm: Term = child match {
       case <element>{_*}</element> => {
@@ -480,11 +480,11 @@ abstract class ModelGroup protected (index: Int)
         }
         term.schemaDefinitionUnless(
           term.hasInitiator,
-          "Enclosing group has initiatedContent='yes', but initiator is not defined.",
+          "Enclosing group has initiatedContent='yes', but initiator is not defined."
         )
         term.schemaDefinitionUnless(
           term.hasNonZeroLengthInitiator,
-          "Enclosing group has initiatedContent='yes', but initiator can match zero-length data.",
+          "Enclosing group has initiatedContent='yes', but initiator can match zero-length data."
         )
       }
     }

@@ -129,7 +129,7 @@ trait Suspension extends Serializable {
   private def splitDOS(
     ustate: UState,
     maybeKnownLengthInBits: MaybeULong,
-    original: DirectOrBufferedDataOutputStream,
+    original: DirectOrBufferedDataOutputStream
   ): Unit = {
     Assert.usage(ustate.currentInfosetNodeMaybe.isDefined)
 
@@ -162,7 +162,7 @@ trait Suspension extends Serializable {
       }
     } else {
       Logger.log.debug(
-        s"Buffered DOS created for ${ustate.currentInfosetNode.erd.diagnosticDebugName} without knowning absolute start bit pos: ${buffered}",
+        s"Buffered DOS created for ${ustate.currentInfosetNode.erd.diagnosticDebugName} without knowning absolute start bit pos: ${buffered}"
       )
     }
 
@@ -258,7 +258,7 @@ trait Suspension extends Serializable {
     maybeExc,
     maybeNodeOrVar,
     maybeInfo,
-    maybeIndex,
+    maybeIndex
   )
 
   private def isBlockedFirstTime: Boolean = {

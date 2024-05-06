@@ -77,14 +77,14 @@ final class BoundaryMarkLayer
    */
   private[layers] def setLayerVariableParameters(
     boundaryMark: String,
-    layerEncoding: String,
+    layerEncoding: String
   ): Unit = {
     this.boundaryMark = boundaryMark
     if (boundaryMark.isEmpty)
       procError("The boundaryMark variable value may not be empty string.")
     if (boundaryMark.length > maxBoundaryMarkLength)
       procError(
-        s"The boundaryMark string length may not be greater than the limit: $maxBoundaryMarkLength",
+        s"The boundaryMark string length may not be greater than the limit: $maxBoundaryMarkLength"
       )
     this.charset = Charset.forName(layerEncoding)
   }

@@ -26,14 +26,14 @@ import org.junit.Test
 class TestValidatorFactory {
   @Test def testMakeFactory(): Unit = {
     SchematronValidatorFactory.makeValidator(
-      ConfigFactory.parseString("schematron = sch/schematron-1.sch"),
+      ConfigFactory.parseString("schematron = sch/schematron-1.sch")
     )
   }
 
   @Test def testSchNotFound(): Unit = {
     intercept[ValidatorInitializationException] {
       SchematronValidatorFactory.makeValidator(
-        ConfigFactory.parseString("schematron = sch/schematron-xxx.sch"),
+        ConfigFactory.parseString("schematron = sch/schematron-xxx.sch")
       )
     }
   }

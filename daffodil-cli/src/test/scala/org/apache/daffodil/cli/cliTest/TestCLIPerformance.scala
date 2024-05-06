@@ -26,7 +26,7 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_2_Threads_2_Times(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -38,7 +38,7 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_2_Threads_2_Times_sax(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -50,7 +50,7 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_2_Threads_2_Times_exi(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -62,7 +62,7 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_2_Threads_2_Times_exisa(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -74,7 +74,7 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_3_Threads_20_Times(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt")
 
@@ -86,7 +86,7 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_5_Threads_50_Times(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input5.txt")
 
@@ -98,7 +98,7 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_2_Threads_2_Times_Negative(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input5.txt")
 
@@ -111,10 +111,10 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_Unparse_2_Threads_2_Times(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt"
     )
 
     runCLI(args"performance --unparse -N 2 -t 2 -s $schema -r e3 $input") { cli =>
@@ -125,10 +125,10 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_sax(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt"
     )
 
     runCLI(args"performance --unparse -I sax -N 2 -t 2 -s $schema -r e3 $input") { cli =>
@@ -139,10 +139,10 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_exi(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.exi",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.exi"
     )
 
     runCLI(args"performance --unparse -I exi -N 2 -t 2 -s $schema -r e3 $input") { cli =>
@@ -153,10 +153,10 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_exisa(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.exisa",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.exisa"
     )
 
     runCLI(args"performance --unparse -I exisa -N 2 -t 2 -s $schema -r e3 $input") { cli =>
@@ -167,10 +167,10 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_null(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt"
     )
 
     runCLI(args"performance --unparse -I null -N 2 -t 2 -s $schema -r e3 $input") { cli =>
@@ -181,10 +181,10 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_Unparse_3_Threads_20_Times(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt"
     )
 
     runCLI(args"performance --unparse -N 20 -t 3 -s $schema -r e3 $input") { cli =>
@@ -195,10 +195,10 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_Unparse_5_Threads_50_Times(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input14.txt"
     )
 
     runCLI(args"performance --unparse -N 50 -t 5 -s $schema -r e3 $input") { cli =>
@@ -209,10 +209,10 @@ class TestCLIPerformance {
 
   @Test def test_CLI_Performance_Unparse_2_Threads_2_Times_Negative(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input16.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input16.txt"
     )
 
     runCLI(args"performance --unparse -N 2 -t 2 -s $schema $input") { cli =>

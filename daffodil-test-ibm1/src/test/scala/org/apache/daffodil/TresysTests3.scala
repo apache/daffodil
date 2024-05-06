@@ -27,7 +27,7 @@ object TresysTests3 {
   val runnerBF = Runner(
     testDir,
     "bitFlagExpression.tdml",
-    compileAllTopLevel = false,
+    compileAllTopLevel = false
   ) // test has elements that have upward paths past root.
 
   val runnerAH = Runner(testDir, "AH.tdml", compileAllTopLevel = true)
@@ -37,7 +37,7 @@ object TresysTests3 {
     "AM.tdml",
     validateTDMLFile = true,
     validateDFDLSchemas = false,
-    compileAllTopLevel = true,
+    compileAllTopLevel = true
   )
 
   val runnerAU = Runner(
@@ -45,7 +45,7 @@ object TresysTests3 {
     "AU.tdml",
     validateTDMLFile = true,
     validateDFDLSchemas = false,
-    compileAllTopLevel = true,
+    compileAllTopLevel = true
   )
 
   val runnerBC = Runner(testDir, "BC.tdml")

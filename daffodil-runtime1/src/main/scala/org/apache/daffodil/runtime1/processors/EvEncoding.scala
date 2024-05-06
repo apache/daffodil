@@ -51,11 +51,11 @@ import org.apache.daffodil.runtime1.dsom._
  */
 abstract class EncodingEvBase(
   override val expr: CompiledExpression[String],
-  tci: DPathCompileInfo,
+  tci: DPathCompileInfo
 ) extends EvaluatableConvertedExpression[String, String](
     expr,
     EncodingCooker, // cooker insures upper-case and trimmed of whitespace.
-    tci,
+    tci
   )
   with InfosetCachedEvaluatable[String] {
   override lazy val runtimeDependencies = Vector()
@@ -93,7 +93,7 @@ abstract class CharsetEvBase(encodingEv: EncodingEvBase, tci: DPathCompileInfo)
         "Only encodings with byte-sized code units are allowed to be specified using a runtime-valued expression. " +
           "Encodings with 7 or fewer bits in their code units must be specified as a literal encoding name in the DFDL schema. " +
           "The encoding found was '%s'.",
-        bitsCharset.name,
+        bitsCharset.name
       )
     }
   }
@@ -105,7 +105,7 @@ abstract class CharsetEvBase(encodingEv: EncodingEvBase, tci: DPathCompileInfo)
       tci.schemaDefinitionError(
         "Unsupported encoding: %s. Supported encodings: %s",
         encString,
-        BitsCharsetDefinitionRegistry.supportedEncodingsString,
+        BitsCharsetDefinitionRegistry.supportedEncodingsString
       )
     }
     if (!encodingEv.isConstant) checkCharset(state, bc)
@@ -150,7 +150,7 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, tci: DPathCompileInf
                 " character ('%s') when the dfdl:encoding property is '%s' because that" +
                 " encoding is not a single-byte character set.",
               fillByteRaw,
-              bitsCharset.name,
+              bitsCharset.name
             )
           }
           case cs: BitsCharsetJava => {
@@ -163,7 +163,7 @@ class FillByteEv(fillByteRaw: String, charsetEv: CharsetEv, tci: DPathCompileInf
                   " occupies %d bytes",
                 bitsCharset.name,
                 cookedFillByte,
-                bytes.length,
+                bytes.length
               )
             }
             bytes(0).toInt

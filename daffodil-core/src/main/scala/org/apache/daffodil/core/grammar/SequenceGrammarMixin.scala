@@ -47,13 +47,13 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
         val term = groupMembers.head
         LayeredSequence(
           sgtb,
-          new ScalarOrderedSequenceChild(this, term, 1),
+          new ScalarOrderedSequenceChild(this, term, 1)
         ) // We use 1-based indexing for children.
       }
       // $COVERAGE-OFF$
       case _ =>
         Assert.invariantFailed(
-          "Layered sequences must be SequenceGroupTermBase, not just SequenceTermBase",
+          "Layered sequences must be SequenceGroupTermBase, not just SequenceTermBase"
         )
       // $COVERAGE-ON$
     }
@@ -160,14 +160,14 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
         e.SDE(
           "occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)",
           min,
-          max,
+          max
         )
       }
       case (e: EB, Ordered__, ___________, Expression, ___, __2) =>
         new RepOrderedExpressionOccursCountSequenceChild(this, e, groupIndex)
       case (e: EB, Ordered__, Never______, Implicit__, ___, UNB) =>
         e.SDE(
-          "separatorSuppressionPolicy='never' with occursCountKind='implicit' requires bounded maxOccurs.",
+          "separatorSuppressionPolicy='never' with occursCountKind='implicit' requires bounded maxOccurs."
         )
       case (e: EB, Ordered__, Never______, Implicit__, ___, max) =>
         new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
@@ -179,10 +179,10 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
             /****/
             ,
             ___,
-            __2,
+            __2
           ) if (ock ne null) =>
         e.SDE(
-          "separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.",
+          "separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'."
         )
       case (e: EB, Ordered__, Trailing___, Implicit__, ___, max) =>
         new RepOrderedWithMinMaxSequenceChild(this, e, groupIndex)
@@ -204,7 +204,7 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
         new ScalarOrderedSequenceChild(this, m, groupIndex)
       case (_____, _________, policy /**/, ock /**/, ___, __2) =>
         child.SDE(
-          "separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.",
+          "separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'."
         )
     }
     res
@@ -212,7 +212,7 @@ trait SequenceGrammarMixin extends GrammarMixin with SequenceTermRuntime1Mixin {
 
   private def unboundedPositionalError(e: ElementBase) =
     e.SDE(
-      "occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence",
+      "occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a positional sequence"
     )
 
   /**

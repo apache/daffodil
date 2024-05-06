@@ -85,7 +85,7 @@ class TestBlob {
    ***/
   @Test def test_1MB_blob(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/large_blob.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/large_blob.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/1MB.bin")
 
@@ -114,7 +114,7 @@ class TestBlob {
    ***/
   @Test def test_2GB_blob(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/large_blob.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/large_blob.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/2049MB.bin")
 
@@ -124,11 +124,11 @@ class TestBlob {
       withTempFile { unparse =>
         withBlobDir {
           runCLI(args"parse -s $schema -o $infoset $input", timeout = 120) { _ => }(
-            ExitCode.Success,
+            ExitCode.Success
           )
 
           runCLI(args"unparse -s $schema -o $unparse $infoset", timeout = 120) { _ => }(
-            ExitCode.Success,
+            ExitCode.Success
           )
 
           val blob = findInfosetBlob(infoset)
@@ -149,7 +149,7 @@ class TestBlob {
    ***/
   @Test def test_blob_backtracking(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/blob_backtracking.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/blob_backtracking.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/2049MB.bin")
 
@@ -172,7 +172,7 @@ class TestBlob {
    ***/
   @Test def test_blob_backtracking_streaming_fail(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/blob_backtracking.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/blob_backtracking.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/2049MB.bin")
 

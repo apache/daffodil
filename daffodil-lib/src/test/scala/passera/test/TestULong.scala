@@ -114,7 +114,7 @@ class TestULong {
   @Test def testULongFromHex(): Unit = {
     assertEquals(
       "7FFFFFFFFFFFFFFF",
-      ULong.fromHexString("7FFFFFFFFFFFFFFF").toHexString.toUpperCase,
+      ULong.fromHexString("7FFFFFFFFFFFFFFF").toHexString.toUpperCase
     )
   }
 }

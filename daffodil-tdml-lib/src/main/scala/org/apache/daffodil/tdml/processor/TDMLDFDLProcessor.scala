@@ -60,7 +60,7 @@ trait AbstractTDMLDFDLProcessorFactory {
     useSerializedProcessor: Boolean,
     optRootName: Option[String] = None,
     optRootNamespace: Option[String] = None,
-    tunables: Map[String, String],
+    tunables: Map[String, String]
   ): TDML.CompileResult
 }
 

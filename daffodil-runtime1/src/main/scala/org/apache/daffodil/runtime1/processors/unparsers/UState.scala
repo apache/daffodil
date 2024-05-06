@@ -74,7 +74,7 @@ abstract class UState(
   diagnosticsArg: List[Diagnostic],
   dataProcArg: Maybe[DataProcessor],
   tunable: DaffodilTunables,
-  areDebugging: Boolean,
+  areDebugging: Boolean
 ) extends ParseOrUnparseState(vbox, diagnosticsArg, dataProcArg, tunable)
   with Cursor[InfosetAccessor]
   with ThrowsSDE
@@ -83,7 +83,7 @@ abstract class UState(
   final override def setVariable(
     vrd: VariableRuntimeData,
     newValue: DataValuePrimitive,
-    referringContext: ThrowsSDE,
+    referringContext: ThrowsSDE
   ) =
     vbox.vmap.setVariable(vrd, newValue, referringContext, this)
 
@@ -96,7 +96,7 @@ abstract class UState(
    */
   final override def getVariable(
     vrd: VariableRuntimeData,
-    referringContext: ThrowsSDE,
+    referringContext: ThrowsSDE
   ): DataValuePrimitive =
     vbox.vmap.readVariable(vrd, referringContext, this)
 
@@ -319,7 +319,7 @@ abstract class UState(
    *  at that time.
    */
   private def splitOnUknownByteAlignmentBitOrderChange(
-    dos: DirectOrBufferedDataOutputStream,
+    dos: DirectOrBufferedDataOutputStream
   ): Unit = {
     val mabp = dos.maybeAbsBitPos0b
     val mabpDefined = mabp.isDefined
@@ -345,13 +345,13 @@ abstract class UState(
         SDE(
           "Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s. Should be 1 mod 8, was %s (mod 8)",
           bp1b,
-          bp1b % 8,
+          bp1b % 8
         )
       }
     }
     if (isSplitNeeded) {
       Assert.invariant(
-        dos.isBuffering,
+        dos.isBuffering
       ) // Direct DOS always has absolute position, so has to be buffering.
       //
       // Just splitting to start a new bitOrder on a byte boundary in a new
@@ -382,7 +382,7 @@ abstract class UState(
         case m: UStateMain => m.cloneForSuspension(dos)
         case _ =>
           Assert.invariantFailed(
-            "State must be a UStateMain when splitting for bit order change",
+            "State must be a UStateMain when splitting for bit order change"
           )
       }
 
@@ -420,7 +420,7 @@ final class UStateForSuspension(
   escapeSchemeEVCacheMaybe: Maybe[MStackOfMaybe[EscapeSchemeUnparserHelper]],
   delimiterStackMaybe: Maybe[MStackOf[DelimiterStackUnparseNode]],
   tunable: DaffodilTunables,
-  areDebugging: Boolean,
+  areDebugging: Boolean
 ) extends UState(vbox, mainUState.diagnostics, mainUState.dataProc, tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
@@ -499,7 +499,7 @@ final class UStateMain private (
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
   tunable: DaffodilTunables,
-  areDebugging: Boolean,
+  areDebugging: Boolean
 ) extends UState(vbox, diagnosticsArg, One(dataProcArg), tunable, areDebugging) {
 
   dState.setMode(UnparserBlocking)
@@ -511,7 +511,7 @@ final class UStateMain private (
     diagnosticsArg: List[Diagnostic],
     dataProcArg: DataProcessor,
     tunable: DaffodilTunables,
-    areDebugging: Boolean,
+    areDebugging: Boolean
   ) =
     this(
       inputter,
@@ -520,7 +520,7 @@ final class UStateMain private (
       diagnosticsArg,
       dataProcArg,
       tunable,
-      areDebugging,
+      areDebugging
     )
 
   override var dataOutputStream: DirectOrBufferedDataOutputStream = {
@@ -530,7 +530,7 @@ final class UStateMain private (
       isLayer = false,
       tunable.outputStreamChunkSizeInBytes,
       tunable.maxByteArrayOutputStreamBufferSizeInBytes,
-      tunable.tempFilePath,
+      tunable.tempFilePath
     )
     out
   }
@@ -570,7 +570,7 @@ final class UStateMain private (
       es,
       ds,
       tunable,
-      areDebugging,
+      areDebugging
     )
 
     clone.setProcessor(processor)
@@ -591,7 +591,7 @@ final class UStateMain private (
           false,
           tunable.outputStreamChunkSizeInBytes,
           tunable.maxByteArrayOutputStreamBufferSizeInBytes,
-          tunable.tempFilePath,
+          tunable.tempFilePath
         )
         (baos, dos)
       },
@@ -600,7 +600,7 @@ final class UStateMain private (
           case (baos, dos) =>
             baos.reset()
             dos.resetAllBitPos()
-        },
+        }
     )
 
   override def advance: Boolean = inputter.advance
@@ -618,7 +618,7 @@ final class UStateMain private (
     val m = inspectMaybe
     if (m.isEmpty)
       Assert.invariantFailed(
-        "An InfosetEvent was required for unparsing, but no InfosetEvent was available.",
+        "An InfosetEvent was required for unparsing, but no InfosetEvent was available."
       )
     m.get
   }
@@ -627,7 +627,7 @@ final class UStateMain private (
     val m = advanceMaybe
     if (m.isEmpty)
       Assert.invariantFailed(
-        "An InfosetEvent was required for unparsing, but no InfosetEvent was available.",
+        "An InfosetEvent was required for unparsing, but no InfosetEvent was available."
       )
     m.get
   }
@@ -740,7 +740,7 @@ object UState {
     outStream: java.io.OutputStream,
     dataProc: DFDL.DataProcessor,
     inputter: InfosetInputter,
-    areDebugging: Boolean,
+    areDebugging: Boolean
   ): UStateMain = {
     Assert.invariant(inputter.isInitialized)
 
@@ -758,7 +758,7 @@ object UState {
       diagnostics,
       dataProc.asInstanceOf[DataProcessor],
       dataProc.tunables,
-      areDebugging,
+      areDebugging
     )
     newState
   }

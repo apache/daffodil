@@ -31,7 +31,7 @@ trait PropertyReferencedElementInfosMixin {
   protected final def propExprElts(
     rawProp: PropertyLookupResult,
     evArg: => ContentValueReferencedElementInfoMixin,
-    f: F,
+    f: F
   ): Set[DPathElementCompileInfo] = {
     lazy val ev = evArg
     if (rawProp.isDefined) f(ev) else Set()

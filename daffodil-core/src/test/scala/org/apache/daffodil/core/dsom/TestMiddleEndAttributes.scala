@@ -40,7 +40,7 @@ class TestMiddleEndAttributes {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val sset = SchemaSet(testSchema)
@@ -67,7 +67,7 @@ class TestMiddleEndAttributes {
             <xs:element name="s2" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val sset = SchemaSet(testSchema)
@@ -97,7 +97,7 @@ class TestMiddleEndAttributes {
             <xs:element name="s5" type="xs:string" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="{ 1 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val sset = SchemaSet(testSchema)
@@ -130,7 +130,7 @@ class TestMiddleEndAttributes {
             </xs:choice>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val sset = SchemaSet(testSchema)
@@ -165,7 +165,7 @@ class TestMiddleEndAttributes {
             <xs:element ref="e1"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val sset = SchemaSet(testSchema)
@@ -206,7 +206,7 @@ class TestMiddleEndAttributes {
             <xs:element name="f" type="xs:string"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val sset = SchemaSet(testSchema)

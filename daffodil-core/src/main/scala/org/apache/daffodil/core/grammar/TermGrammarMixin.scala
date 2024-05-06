@@ -67,7 +67,7 @@ trait TermGrammarMixin extends AlignedMixin with BitOrderMixin with TermRuntime1
   final lazy val delimMTA = prod(
     "delimMTA", {
       hasDelimiters
-    },
+    }
   ) {
     // This is different from mtaBase because it passes in 'true' for the
     // last parameter to signify that it is MTA for a delimiter. mtaBase

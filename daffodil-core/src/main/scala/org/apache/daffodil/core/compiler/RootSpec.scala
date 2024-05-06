@@ -43,7 +43,7 @@ object RootSpec {
     if (optNamespace.isDefined && optName.isEmpty)
       Assert.usageError(
         "Cannot specify only a namespace without a name. Namespace argument was: "
-          + (if (ns eq NoNamespace) "\"\" " + ns else ns),
+          + (if (ns eq NoNamespace) "\"\" " + ns else ns)
       )
     optName.map { RootSpec(ns, _) }
   }

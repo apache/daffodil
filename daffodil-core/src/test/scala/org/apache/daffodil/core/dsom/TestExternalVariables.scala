@@ -67,7 +67,7 @@ class TestExternalVariables {
         <xs:choice>
           <xs:sequence/>
         </xs:choice>
-      </xs:group>,
+      </xs:group>
     )
     lazy val xsd_sset = SchemaSet(sch, "http://example.com", "fake")
     lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
@@ -91,7 +91,7 @@ class TestExternalVariables {
         <xs:choice>
           <xs:sequence/>
         </xs:choice>
-      </xs:group>,
+      </xs:group>
     )
     sch
   }
@@ -100,7 +100,7 @@ class TestExternalVariables {
     topLevelAnnotations: Seq[Node],
     theTargetNS: String,
     importSchemaLocation: String,
-    hasDefaultNamespace: Boolean = true,
+    hasDefaultNamespace: Boolean = true
   ) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
@@ -120,7 +120,7 @@ class TestExternalVariables {
         </xs:choice>
       </xs:group>,
       theTargetNS,
-      hasDefaultNamespace = hasDefaultNamespace,
+      hasDefaultNamespace = hasDefaultNamespace
     )
     sch
   }
@@ -142,7 +142,7 @@ class TestExternalVariables {
           <xs:sequence/>
         </xs:choice>
       </xs:group>,
-      "",
+      ""
     )
     sch
   }
@@ -153,7 +153,7 @@ class TestExternalVariables {
       topLevelAnnotations,
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"
         dfdl:inputValueCalc="{ $ex:var1 }" />,
-      theTargetNS,
+      theTargetNS
     )
     sch
   }
@@ -202,7 +202,7 @@ class TestExternalVariables {
     val sch = generateTestSchemaWithTarget(
       tla,
       XMLUtils.EXAMPLE_NAMESPACE,
-      source_no_ns.uriForLoading.toString,
+      source_no_ns.uriForLoading.toString
     )
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_success")
 
@@ -211,7 +211,7 @@ class TestExternalVariables {
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
       ("{}var2", "value2"), // NoNamespace
-      ("var3", "value3"),
+      ("var3", "value3")
     ) // Figure out the namespace
 
     val variables = ExternalVariablesLoader.mapToBindings(vars)
@@ -257,13 +257,13 @@ class TestExternalVariables {
     val sch = generateTestSchemaWithTarget(
       tla,
       XMLUtils.EXAMPLE_NAMESPACE,
-      source_no_ns.uriForLoading.toString,
+      source_no_ns.uriForLoading.toString
     )
     val source = UnitTestSchemaSource(sch, "test_no_namespace_success")
 
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
-      ("{}var2", "value2"),
+      ("{}var2", "value2")
     ) // NoNamespace
 
     val variables = ExternalVariablesLoader.mapToBindings(vars)
@@ -310,14 +310,14 @@ class TestExternalVariables {
       tla,
       XMLUtils.EXAMPLE_NAMESPACE,
       source_no_ns.uriForLoading.toString,
-      hasDefaultNamespace = false,
+      hasDefaultNamespace = false
     )
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_failure")
 
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
       ("{}var2", "value2"), // NoNamespace
-      ("var3", "value3"),
+      ("var3", "value3")
     ) // Figure out the namespace
 
     val c = Compiler(validateDFDLSchemas = false)
@@ -361,7 +361,7 @@ class TestExternalVariables {
 
     val outputter = new ScalaXMLInfosetOutputter()
     val input = InputSourceDataInputStream(
-      Channels.newInputStream(Misc.stringToReadableByteChannel("")),
+      Channels.newInputStream(Misc.stringToReadableByteChannel(""))
     )
 
     val res1 = dp1.parse(input, outputter)

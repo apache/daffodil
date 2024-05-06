@@ -37,7 +37,7 @@ trait WithDetachedParser {
   def runDetachedParser(
     pstate: PState,
     detachedParser: Parser,
-    erd: ElementRuntimeData,
+    erd: ElementRuntimeData
   ): DataValuePrimitiveNullable = {
     /*
      * The parse1 being called here is that of ElementCombinator1, which expects to begin and end in the parent
@@ -95,7 +95,7 @@ class RepTypeParser(
   repValuesMap: Map[DataValueNumber, DataValueString],
   repValueRangesMap: Seq[(DataValueNumber, DataValueNumber, DataValueString)],
   lt: NumberCompareOp,
-  le: NumberCompareOp,
+  le: NumberCompareOp
 ) extends CombinatorParser(e)
   with WithDetachedParser {
 
@@ -113,7 +113,7 @@ class RepTypeParser(
             .find { case (low, high, _) =>
               !lt.operate(repValue, low).getBoolean && le.operate(repValue, high).getBoolean
             }
-            .map(_._3),
+            .map(_._3)
         )
       optLogical match {
         case Some(logical) => pstate.simpleElement.setDataValue(logical)
@@ -121,7 +121,7 @@ class RepTypeParser(
           PE(
             pstate,
             "Value %s not found in enumeration dfdlx:repValues or dfdlx:repValueRanges",
-            repValue.value,
+            repValue.value
           )
       }
     }

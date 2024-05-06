@@ -40,7 +40,7 @@ class TestDataOutputStream4 {
       4096,
       2000 * (1 << 20),
       new File("."),
-      Maybe.Nope,
+      Maybe.Nope
     )
     direct.setPriorBitOrder(bitOrd)
 

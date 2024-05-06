@@ -42,7 +42,7 @@ trait PackedBinaryConversion {
 
 abstract class PackedBinaryDecimalBaseParser(
   override val context: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int,
+  binaryDecimalVirtualPoint: Int
 ) extends PrimParser
   with PackedBinaryConversion {
   override lazy val runtimeDependencies = Vector()
@@ -70,7 +70,7 @@ abstract class PackedBinaryDecimalBaseParser(
 
 abstract class PackedBinaryIntegerBaseParser(
   override val context: ElementRuntimeData,
-  signed: Boolean = false,
+  signed: Boolean = false
 ) extends PrimParser
   with PackedBinaryConversion {
   override lazy val runtimeDependencies = Vector()
@@ -103,20 +103,20 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
   e: ElementRuntimeData,
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
-  isDelimRequired: Boolean,
+  isDelimRequired: Boolean
 ) extends StringDelimitedParser(
     e,
     TextJustificationType.None,
     MaybeChar.Nope,
     textParser,
     fieldDFAEv,
-    isDelimRequired,
+    isDelimRequired
   )
   with PackedBinaryConversion {
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
     Assert.invariant(
-      e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1,
+      e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1
     )
 
     if (!parseResult.isDefined)
@@ -150,14 +150,14 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
   textParser: TextDelimitedParserBase,
   fieldDFAEv: FieldDFAParseEv,
   isDelimRequired: Boolean,
-  binaryDecimalVirtualPoint: Int,
+  binaryDecimalVirtualPoint: Int
 ) extends StringDelimitedParser(
     e,
     TextJustificationType.None,
     MaybeChar.Nope,
     textParser,
     fieldDFAEv,
-    isDelimRequired,
+    isDelimRequired
   )
   with PackedBinaryConversion {
 
@@ -175,7 +175,7 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
     Assert.invariant(
-      e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1,
+      e.encodingInfo.isKnownEncoding && e.encodingInfo.knownEncodingCharset =:= StandardBitsCharsets.ISO_8859_1
     )
 
     if (!parseResult.isDefined)

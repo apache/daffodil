@@ -28,7 +28,7 @@ object TestPropertySyntax {
     testDir1,
     "PropertySyntax.tdml",
     validateTDMLFile = false,
-    validateDFDLSchemas = false,
+    validateDFDLSchemas = false
   )
   val runner1V = Runner(testDir1, "PropertySyntax.tdml", validateTDMLFile = false)
 

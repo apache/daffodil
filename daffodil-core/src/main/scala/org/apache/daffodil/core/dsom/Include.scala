@@ -65,7 +65,7 @@ final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         schemaDefinitionError(
           "Included schema not found at location %s. %s",
           slText,
-          whereSearched,
+          whereSearched
         )
     }
   }.value

@@ -183,7 +183,7 @@ class StartStateUnambiguousEscapeChar(
   states: => ArrayBuffer[State],
   EEC: MaybeChar,
   EC: MaybeChar,
-  val stateNum: Int,
+  val stateNum: Int
 ) extends State(states) {
 
   val stateName: String = "StartState"
@@ -201,7 +201,7 @@ class StartStateUnambiguousEscapeChar(
       override def act(r: Registers): Unit = r.nextState = ECState
     },
     EndOfDataCharRule,
-    StartStateRule,
+    StartStateRule
   )
 }
 
@@ -230,7 +230,7 @@ class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
       override def test(r: Registers): Boolean = true
 
       override def act(r: Registers): Unit = r.nextState = DFA.FinalState
-    },
+    }
   )
 }
 
@@ -242,7 +242,7 @@ class StartStateEscapeBlock(
   states: => ArrayBuffer[State],
   val blockEnd: DFADelimiter,
   val EEC: MaybeChar,
-  val stateNum: Int,
+  val stateNum: Int
 ) extends State(states) {
   val stateName: String = "StartState"
 
@@ -264,7 +264,7 @@ class StartStateEscapeBlock(
       override def act(r: Registers): Unit = r.nextState = EECState
     },
     EndOfDataCharRule,
-    StartStateRule,
+    StartStateRule
   )
 }
 
@@ -272,7 +272,7 @@ class StartStateEscapeChar(
   states: => ArrayBuffer[State],
   val EEC: MaybeChar,
   val EC: Char,
-  val stateNum: Int,
+  val stateNum: Int
 ) extends State(states) {
 
   val stateName: String = "StartState"
@@ -300,7 +300,7 @@ class StartStateEscapeChar(
     PauseRule,
     NextStateECRule,
     EndOfDataCharRule,
-    StartStateRule,
+    StartStateRule
   )
 
   val rules_EEC_EC_SAME_NOT_TERM = ArrayBuffer(
@@ -313,7 +313,7 @@ class StartStateEscapeChar(
       override def act(r: Registers): Unit = r.nextState = ECState
     },
     EndOfDataCharRule,
-    StartStateRule,
+    StartStateRule
   )
 
   val rules_EEC_TERM_SAME_NOT_EC =
@@ -336,7 +336,7 @@ class StartStateEscapeChar(
     NextStateEECRule,
     NextStateECRule,
     EndOfDataCharRule,
-    StartStateRule,
+    StartStateRule
   )
 
   val rules_EC_EEC_TERM_SAME = ArrayBuffer(
@@ -367,7 +367,7 @@ class StartStateEscapeChar(
       override def act(r: Registers): Unit = r.nextState = ECState
     },
     EndOfDataCharRule,
-    StartStateRule,
+    StartStateRule
   )
 
   val rules_Unambiguous = ArrayBuffer(
@@ -379,7 +379,7 @@ class StartStateEscapeChar(
     },
     NextStateECRule,
     EndOfDataCharRule,
-    StartStateRule,
+    StartStateRule
   )
 
   /**
@@ -389,7 +389,7 @@ class StartStateEscapeChar(
    */
   override def run(r: Registers): Unit = {
     val rules = getRules(
-      r.delimitersIter,
+      r.delimitersIter
     ) // TODO: Performance - this should be determined at schema-compilation time.
     // even though the specific delimiters may be runtime determined, there are guaranteed to be delimiters, escape chars etc.
     // such that we can choose the right DFA based on what is defined even if the specific character(s) we're using
@@ -416,7 +416,7 @@ class StartStateEscapeChar(
         if (
           !couldBeFirstChar(escEsc, delimIter) && !couldBeFirstChar(
             EC,
-            delimIter,
+            delimIter
           ) && escEsc != EC
         ) {
           // EC != EEC != PTERM0
@@ -492,7 +492,7 @@ class ECState(states: => ArrayBuffer[State], val EC: Char, val stateNum: Int)
         r.advance()
         r.nextState = StartState
       }
-    },
+    }
   )
 }
 
@@ -500,7 +500,7 @@ class EECState(
   states: => ArrayBuffer[State],
   val EEC: MaybeChar,
   val EC: Char,
-  val stateNum: Int,
+  val stateNum: Int
 ) extends State(states) {
 
   val stateName = "EECState"
@@ -526,7 +526,7 @@ class EECState(
       }
     },
     LookAheadEndOfDataCharRule,
-    StartStateRule,
+    StartStateRule
   )
 }
 
@@ -534,7 +534,7 @@ class EECStateBlock(
   states: => ArrayBuffer[State],
   blockEnd: DFADelimiter,
   val EEC: MaybeChar,
-  val stateNum: Int,
+  val stateNum: Int
 ) extends State(states) {
 
   val stateName = "EECState"
@@ -575,7 +575,7 @@ class EECStateBlock(
       }
     },
     LookAheadEndOfDataCharRule,
-    StartStateRule,
+    StartStateRule
   )
 }
 
@@ -600,7 +600,7 @@ class CharState(
   char: Char,
   val nextState: Int,
   val stateNum: Int,
-  ignoreCase: Boolean,
+  ignoreCase: Boolean
 ) extends DelimStateBase(states) {
 
   stateName = "CharState(" + char + ")"
@@ -712,7 +712,7 @@ class WSPPlusState(states: => ArrayBuffer[State], val nextState: Int, val stateN
         r.matchedAtLeastOnce = false
         r.nextState = nextState
       }
-    },
+    }
   )
 }
 
@@ -735,7 +735,7 @@ class WSPStarState(states: => ArrayBuffer[State], val nextState: Int, val stateN
       override def test(r: Registers): Boolean = true
 
       override def act(r: Registers): Unit = r.nextState = nextState
-    },
+    }
   )
 }
 
@@ -801,7 +801,7 @@ class NLState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: I
         r.advance()
         r.nextState = nextState
       }
-    },
+    }
   )
 
   def checkMatch(charIn: Char): Boolean = isNLNotCR(charIn) || isCR(charIn)
@@ -822,7 +822,7 @@ class ESState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: I
       override def test(r: Registers): Boolean = true
 
       override def act(r: Registers): Unit = r.status = StateKind.Succeeded
-    },
+    }
   )
 
   def checkMatch(charIn: Char): Boolean =

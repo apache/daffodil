@@ -63,7 +63,7 @@ object PatternChecker {
           "Regular expression pattern '%s'.\n" +
             "This pattern will match with zero length, so it can always match.%s",
           pattern,
-          needCDATA,
+          needCDATA
         )
       }
     } catch {
@@ -71,7 +71,7 @@ object PatternChecker {
         context.SDE(
           "Invalid regular expression pattern '%s'.\nReason: %s.",
           pattern,
-          Misc.getSomeMessage(e).get,
+          Misc.getSomeMessage(e).get
         )
       }
     }

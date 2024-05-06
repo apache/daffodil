@@ -43,7 +43,7 @@ class TestMaybeTakPerf {
       taki(
         taki(MaybeInt(x - 1), MaybeInt(y), MaybeInt(z)),
         taki(MaybeInt(y - 1), MaybeInt(z), MaybeInt(x)),
-        taki(MaybeInt(z - 1), MaybeInt(x), MaybeInt(y)),
+        taki(MaybeInt(z - 1), MaybeInt(x), MaybeInt(y))
       )
     else
       sz
@@ -60,7 +60,7 @@ class TestMaybeTakPerf {
       taks(
         taks(Some(x - 1), Some(y), Some(z)),
         taks(Some(y - 1), Some(z), Some(x)),
-        taks(Some(z - 1), Some(x), Some(y)),
+        taks(Some(z - 1), Some(x), Some(y))
       )
     else
       sz
@@ -77,7 +77,7 @@ class TestMaybeTakPerf {
       takml(
         takml(MaybeULong(x - 1), MaybeULong(y), MaybeULong(z)),
         takml(MaybeULong(y - 1), MaybeULong(z), MaybeULong(x)),
-        takml(MaybeULong(z - 1), MaybeULong(x), MaybeULong(y)),
+        takml(MaybeULong(z - 1), MaybeULong(x), MaybeULong(y))
       )
     else
       sz
@@ -91,7 +91,7 @@ class TestMaybeTakPerf {
       takJ(
         takJ(JLong.valueOf(x - 1), JLong.valueOf(y), JLong.valueOf(z)),
         takJ(JLong.valueOf(y - 1), JLong.valueOf(z), JLong.valueOf(x)),
-        takJ(JLong.valueOf(z - 1), JLong.valueOf(x), JLong.valueOf(y)),
+        takJ(JLong.valueOf(z - 1), JLong.valueOf(x), JLong.valueOf(y))
       )
     else
       z
@@ -108,7 +108,7 @@ class TestMaybeTakPerf {
       takJs(
         takJs(Some(JLong.valueOf(x - 1)), Some(JLong.valueOf(y)), Some(JLong.valueOf(z))),
         takJs(Some(JLong.valueOf(y - 1)), Some(JLong.valueOf(z)), Some(JLong.valueOf(x))),
-        takJs(Some(JLong.valueOf(z - 1)), Some(JLong.valueOf(x)), Some(JLong.valueOf(y))),
+        takJs(Some(JLong.valueOf(z - 1)), Some(JLong.valueOf(x)), Some(JLong.valueOf(y)))
       )
     else
       sz
@@ -126,7 +126,7 @@ class TestMaybeTakPerf {
       takJm(
         takJm(One(JLong.valueOf(x - 1)), One(JLong.valueOf(y)), One(JLong.valueOf(z))),
         takJm(One(JLong.valueOf(y - 1)), One(JLong.valueOf(z)), One(JLong.valueOf(x))),
-        takJm(One(JLong.valueOf(z - 1)), One(JLong.valueOf(x)), One(JLong.valueOf(y))),
+        takJm(One(JLong.valueOf(z - 1)), One(JLong.valueOf(x)), One(JLong.valueOf(y)))
       )
     else
       sz
@@ -167,7 +167,7 @@ class TestMaybeTakPerf {
 
     slowdown = takSlowdown(
       takJ(JLong.valueOf(x), JLong.valueOf(y), JLong.valueOf(z)),
-      "JLong aka java.lang.Long",
+      "JLong aka java.lang.Long"
     )
     println("Boxed JLong numbers are %s times slower".format(slowdown))
 

@@ -47,14 +47,14 @@ class BinaryIntegerRuntimeLength(val e: ElementBase, signed: Boolean)
     e.elementRuntimeData,
     signed,
     e.lengthEv,
-    e.lengthUnits,
+    e.lengthUnits
   )
 
   override lazy val unparser: Unparser = new BinaryIntegerRuntimeLengthUnparser(
     e.elementRuntimeData,
     signed,
     e.lengthEv,
-    e.lengthUnits,
+    e.lengthUnits
   )
 }
 
@@ -83,7 +83,7 @@ class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
       plerd,
       signed,
       e.lengthUnits,
-      pladj,
+      pladj
     )
 
   override lazy val unparser: Unparser = {
@@ -103,7 +103,7 @@ class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
       maybeNBits,
       signed,
       e.lengthUnits,
-      pladj,
+      pladj
     )
   }
 }
@@ -115,7 +115,7 @@ class BinaryDecimalRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
     e.decimalSigned,
     e.binaryDecimalVirtualPoint,
     e.lengthEv,
-    e.lengthUnits,
+    e.lengthUnits
   )
 
   override lazy val unparser: Unparser = new BinaryDecimalRuntimeLengthUnparser(
@@ -123,7 +123,7 @@ class BinaryDecimalRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
     e.decimalSigned,
     e.binaryDecimalVirtualPoint,
     e.lengthEv,
-    e.lengthUnits,
+    e.lengthUnits
   )
 
 }
@@ -135,14 +135,14 @@ class BinaryDecimalKnownLength(val e: ElementBase, lengthInBits: Long)
     e.elementRuntimeData,
     e.decimalSigned,
     e.binaryDecimalVirtualPoint,
-    lengthInBits.toInt,
+    lengthInBits.toInt
   )
 
   override lazy val unparser: Unparser = new BinaryDecimalKnownLengthUnparser(
     e.elementRuntimeData,
     e.decimalSigned,
     e.binaryDecimalVirtualPoint,
-    lengthInBits.toInt,
+    lengthInBits.toInt
   )
 }
 
@@ -156,7 +156,7 @@ class BinaryDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) 
       e.decimalSigned,
       e.binaryDecimalVirtualPoint,
       e.lengthUnits,
-      e.prefixedLengthAdjustmentInUnits,
+      e.prefixedLengthAdjustmentInUnits
     )
 
   override lazy val unparser: Unparser =
@@ -167,7 +167,7 @@ class BinaryDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) 
       e.decimalSigned,
       e.binaryDecimalVirtualPoint,
       e.lengthUnits,
-      e.prefixedLengthAdjustmentInUnits,
+      e.prefixedLengthAdjustmentInUnits
     )
 
 }

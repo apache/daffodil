@@ -87,7 +87,7 @@ sealed trait DINode {
       case diSimple: DISimple => diSimple
       case _ => {
         erd.toss(
-          new InfosetWrongNodeType("simpleType", this),
+          new InfosetWrongNodeType("simpleType", this)
         ) // see comment with exception class definition for why this can happen
       }
     }
@@ -99,7 +99,7 @@ sealed trait DINode {
       case diComplex: DIComplex => diComplex
       case _ => {
         erd.toss(
-          new InfosetWrongNodeType("complexType", this),
+          new InfosetWrongNodeType("complexType", this)
         ) // see comment with exception class definition for why this can happen
       }
     }
@@ -111,7 +111,7 @@ sealed trait DINode {
       case diArray: DIArray => diArray
       case _ => {
         erd.toss(
-          new InfosetWrongNodeType("arrayType", this),
+          new InfosetWrongNodeType("arrayType", this)
         ) // see comment with exception class definition for why this can happen
       }
     }
@@ -203,9 +203,9 @@ case class InfosetAmbiguousNodeException(node: DIComplex, nqn: NamedQName)
     Nope,
     One(
       "Path step '%s' ambiguous. More than one infoset node corresponds to this name.\n" +
-        "Query-style expressions are not supported.",
+        "Query-style expressions are not supported."
     ),
-    nqn.toExtendedSyntax,
+    nqn.toExtendedSyntax
   )
   with InfosetException {
   def isError = true
@@ -227,7 +227,7 @@ case class InfosetComplexElementNotFinalException(override val node: DIComplex)
     Nope,
     Nope,
     "ComplexType element is not finalized.",
-    node,
+    node
   )
   with InfosetNodeNotFinalException
 
@@ -252,7 +252,7 @@ case class InfosetWrongNodeType(expectedType: String, val node: DINode)
     Nope,
     "Expression expected %s to be a %s node.",
     node.namedQName,
-    expectedType,
+    expectedType
   )
   with InfosetException
 
@@ -267,20 +267,20 @@ case class InfosetNoSuchChildElementException(val diComplex: DIComplex, nqn: Nam
     Nope,
     Nope,
     "Child element %s does not exist.",
-    nqn,
+    nqn
   )
   with InfosetException
   with RetryableException
 
 case class InfosetNoNextSiblingException(
   val diSimple: DISimple,
-  val info: DPathElementCompileInfo,
+  val info: DPathElementCompileInfo
 ) extends ProcessingError(
     "Expression Evaluation",
     Nope,
     Nope,
     "Element %s does not have a nextSibling",
-    info.namedQName,
+    info.namedQName
   )
   with InfosetException
   with RetryableException
@@ -291,7 +291,7 @@ case class InfosetNoInfosetException(val rd: Maybe[DPathCompileInfo])
     Nope,
     Nope,
     "There is no infoset%s",
-    (if (rd.isEmpty) "." else " for path %s.".format(rd.get.path)),
+    (if (rd.isEmpty) "." else " for path %s.".format(rd.get.path))
   )
   with InfosetException
   with RetryableException
@@ -304,36 +304,36 @@ case class InfosetNoInfosetException(val rd: Maybe[DPathCompileInfo])
 sealed abstract class InfosetNoDataExceptionBase(
   val diElement: DIElement,
   val erd: ElementRuntimeData,
-  message: String,
+  message: String
 ) extends ProcessingError(
     "Expression Evaluation",
     One(erd.schemaFileLocation),
     Nope,
     "%s %s",
     message,
-    erd.namedQName,
+    erd.namedQName
   )
   with InfosetException
   with RetryableException
 
 case class InfosetNoDataException(
   override val diElement: DIElement,
-  override val erd: ElementRuntimeData,
+  override val erd: ElementRuntimeData
 ) extends InfosetNoDataExceptionBase(diElement, erd, "Element does not have a value.")
 
 case class InfosetSelfReferencingException(
   override val diElement: DIElement,
-  override val erd: ElementRuntimeData,
+  override val erd: ElementRuntimeData
 ) extends InfosetNoDataExceptionBase(
     diElement,
     erd,
-    "Self referencing element does not have a value.",
+    "Self referencing element does not have a value."
   )
 
 case class InfosetArrayIndexOutOfBoundsException(
   val diArray: DIArray,
   val index: Long,
-  val length: Long,
+  val length: Long
 ) extends ProcessingError(
     "Expression Evaluation",
     Nope,
@@ -341,7 +341,7 @@ case class InfosetArrayIndexOutOfBoundsException(
     "Value %d is out of range for the '%s' array with length %d",
     index,
     diArray.erd.namedQName,
-    length,
+    length
   )
   with InfosetException
   with RetryableException
@@ -352,7 +352,7 @@ case class InfosetArrayIndexOutOfBoundsException(
 case class InfosetFatalArrayIndexOutOfBoundsException(
   val diArray: DIArray,
   val index: Long,
-  val length: Long,
+  val length: Long
 ) extends ProcessingError(
     "Expression Evaluation",
     Nope,
@@ -360,7 +360,7 @@ case class InfosetFatalArrayIndexOutOfBoundsException(
     "Value %d is out of range for the '%s' array with length %d",
     index,
     diArray.erd.namedQName,
-    length,
+    length
   )
   with InfosetException
 
@@ -370,7 +370,7 @@ case class InfosetNoRootException(val diElement: DIElement, val erd: ElementRunt
     Nope,
     Nope,
     "No root element reachable from element %s.",
-    erd.namedQName,
+    erd.namedQName
   )
   with InfosetException
   with RetryableException
@@ -381,7 +381,7 @@ case class InfosetNoParentException(val diElement: DIElement, val erd: ElementRu
     Nope,
     Nope,
     "No parent element for element %s.",
-    erd.namedQName,
+    erd.namedQName
   )
   with InfosetException
 
@@ -389,14 +389,14 @@ sealed abstract class InfosetLengthUnknownException(
   lengthState: LengthState,
   kind: String,
   val diElement: DIElement,
-  val erd: ElementRuntimeData,
+  val erd: ElementRuntimeData
 ) extends ProcessingError(
     "Expression Evaluation",
     Nope,
     Nope,
     "%s length unknown for element '%s'.",
     kind,
-    erd.namedQName,
+    erd.namedQName
   )
   with InfosetException
   with RetryableException
@@ -404,13 +404,13 @@ sealed abstract class InfosetLengthUnknownException(
 case class InfosetContentLengthUnknownException(
   lengthState: LengthState,
   override val diElement: DIElement,
-  override val erd: ElementRuntimeData,
+  override val erd: ElementRuntimeData
 ) extends InfosetLengthUnknownException(lengthState, "Content", diElement, erd)
 
 case class InfosetValueLengthUnknownException(
   lengthState: LengthState,
   override val diElement: DIElement,
-  override val erd: ElementRuntimeData,
+  override val erd: ElementRuntimeData
 ) extends InfosetLengthUnknownException(lengthState, "Value", diElement, erd)
 
 case class InfosetMultipleScalarError(val erd: ElementRuntimeData)
@@ -419,7 +419,7 @@ case class InfosetMultipleScalarError(val erd: ElementRuntimeData)
     Nope,
     Nope,
     "Multiple instances detected for scalar element %s",
-    erd.namedQName,
+    erd.namedQName
   )
 
 /**
@@ -558,7 +558,7 @@ sealed abstract class LengthState(ie: DIElement) {
         val thisRelStartPos0bInBits = this.maybeStartPos0bInBits.getULong
         val newStartBitPos0b = dos.toAbsolute(thisRelStartPos0bInBits)
         Logger.log.debug(
-          s"${flavor}gth for ${ie.name} new absolute start pos: ${newStartBitPos0b}",
+          s"${flavor}gth for ${ie.name} new absolute start pos: ${newStartBitPos0b}"
         )
         this.maybeStartDataOutputStream = Nope
         this.maybeStartPos0bInBits = MaybeULong(newStartBitPos0b.longValue)
@@ -638,12 +638,12 @@ sealed abstract class LengthState(ie: DIElement) {
       } else if (isStartAbsolute && isEndAbsolute) {
         val len = maybeEndPos0bInBits.get - maybeStartPos0bInBits.get
         Logger.log.debug(
-          s"${flavor}gth of ${ie.name} is ${len}, by absolute positions. ${toString}",
+          s"${flavor}gth of ${ie.name} is ${len}, by absolute positions. ${toString}"
         )
         MaybeULong(len)
       } else if (
         isStartRelative && isEndRelative && (maybeStartDataOutputStream.get._eq_(
-          maybeEndDataOutputStream.get,
+          maybeEndDataOutputStream.get
         ))
       ) {
         //
@@ -658,7 +658,7 @@ sealed abstract class LengthState(ie: DIElement) {
         val endPos = maybeEndPos0bInBits.get
         val len = endPos - startPos
         Logger.log.debug(
-          s"${flavor}gth of ${ie.name} is ${len}, by relative positions in same data stream. ${toString}",
+          s"${flavor}gth of ${ie.name} is ${len}, by relative positions in same data stream. ${toString}"
         )
         MaybeULong(len)
       } else if (
@@ -687,12 +687,12 @@ sealed abstract class LengthState(ie: DIElement) {
         if (!dos.isFinished) {
           // found a non-finished DOS, can't calculate length
           Logger.log.debug(
-            s"${flavor}gth of ${ie.name} is unknown due to unfinished output stream. ${toString}",
+            s"${flavor}gth of ${ie.name} is unknown due to unfinished output stream. ${toString}"
           )
           MaybeULong.Nope
         } else {
           Logger.log.debug(
-            s"${flavor}gth of ${ie.name} is ${len}, by relative positions in same data stream. ${toString}",
+            s"${flavor}gth of ${ie.name} is ${len}, by relative positions in same data stream. ${toString}"
           )
           MaybeULong(len.toLong)
         }
@@ -1160,7 +1160,7 @@ sealed trait DIElement
 final class DIArray(
   override val erd: ElementRuntimeData,
   val parent: DIComplex,
-  initialSize: Int, // TODO: really this needs to be adaptive, and resize upwards reasonably.
+  initialSize: Int // TODO: really this needs to be adaptive, and resize upwards reasonably.
 //A non-copying thing - list like, may be better, but we do need access to be
 //constant time.
 // FIXME: for streaming behavior, arrays are going to get elements removed from
@@ -1251,11 +1251,11 @@ final class DIArray(
   def apply(occursIndex1b: Long): DIElement = {
     if (occursIndex1b < 1)
       erd.toss(
-        new InfosetFatalArrayIndexOutOfBoundsException(this, occursIndex1b, length),
+        new InfosetFatalArrayIndexOutOfBoundsException(this, occursIndex1b, length)
       ) // no blocking.
     if (occursIndex1b > length)
       erd.toss(
-        new InfosetArrayIndexOutOfBoundsException(this, occursIndex1b, length),
+        new InfosetArrayIndexOutOfBoundsException(this, occursIndex1b, length)
       ) // can be retried after blocking.
     _contents(occursIndex1b.toInt - 1)
   }
@@ -1412,13 +1412,13 @@ sealed class DISimple(override val erd: ElementRuntimeData)
           case b: JBoolean => b
           case _: AtomicLong | _: AtomicInteger =>
             Assert.invariantFailed(
-              "Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)),
+              "Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x))
             )
           case n: java.lang.Number => n
           case u: java.net.URI => u
           case ar: AnyRef =>
             Assert.invariantFailed(
-              "Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x)),
+              "Unsupported type. %s of type %s.".format(x, Misc.getNameFromClass(x))
             )
         }
       }
@@ -1555,7 +1555,7 @@ sealed class DISimple(override val erd: ElementRuntimeData)
     if (isNilled) false
     else {
       val nodeKind = erd.optPrimType.getOrElse(
-        Assert.invariantFailed("optPrimType not defined for simple element"),
+        Assert.invariantFailed("optPrimType not defined for simple element")
       )
       if (nodeKind =:= NodeInfo.String) {
         dataValueAsString.length =#= 0
@@ -1749,7 +1749,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
 
   final def getChildArray(
     childERD: ElementRuntimeData,
-    tunable: DaffodilTunables,
+    tunable: DaffodilTunables
   ): DIArray = {
     Assert.usage(childERD.isArray)
 
@@ -1814,7 +1814,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
               "Element %s failed check of minOccurs='%s' and maxOccurs='unbounded', actual number of occurrences: %s",
               erd.namedQName,
               min,
-              occurrence,
+              occurrence
             )
           else if (!isUnbounded && (occurrence < min || occurrence > max))
             pstate.validationError(
@@ -1822,7 +1822,7 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
               erd.namedQName,
               min,
               max,
-              occurrence,
+              occurrence
             )
 
         } else {
@@ -2024,7 +2024,7 @@ object Infoset {
   */
   def newDetachedElement(
     state: ParseOrUnparseState,
-    erd: ElementRuntimeData,
+    erd: ElementRuntimeData
   ): DIElement = {
     val detachedDoc = Infoset.newDocument(erd).asInstanceOf[DIDocument]
     val detachedElem = Infoset.newElement(erd)

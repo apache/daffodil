@@ -55,7 +55,7 @@ abstract class DelimiterParseEv(
   delimType: DelimiterTextType.Type,
   override val expr: CompiledExpression[String],
   ignoreCase: Boolean,
-  override val ci: DPathCompileInfo,
+  override val ci: DPathCompileInfo
 ) extends Evaluatable[Array[DFADelimiter]](ci)
   with InfosetCachedEvaluatable[Array[DFADelimiter]]
   with DelimiterEvMixin[Array[DFADelimiter]] {
@@ -80,7 +80,7 @@ abstract class DelimiterUnparseEv(
   delimType: DelimiterTextType.Type,
   override val expr: CompiledExpression[String],
   outputNewLine: OutputNewLineEv,
-  override val ci: DPathCompileInfo,
+  override val ci: DPathCompileInfo
 ) extends Evaluatable[Array[DFADelimiter]](ci)
   with InfosetCachedEvaluatable[Array[DFADelimiter]]
   with DelimiterEvMixin[Array[DFADelimiter]] {
@@ -105,7 +105,7 @@ abstract class DelimiterUnparseEv(
 class InitiatorParseEv(
   expr: CompiledExpression[String],
   ignoreCase: Boolean,
-  tci: DPathCompileInfo,
+  tci: DPathCompileInfo
 ) extends DelimiterParseEv(DelimiterTextType.Initiator, expr, ignoreCase, tci) {
 
   override val converter = InitiatorCooker
@@ -114,7 +114,7 @@ class InitiatorParseEv(
 class InitiatorUnparseEv(
   expr: CompiledExpression[String],
   outputNewLine: OutputNewLineEv,
-  tci: DPathCompileInfo,
+  tci: DPathCompileInfo
 ) extends DelimiterUnparseEv(DelimiterTextType.Initiator, expr, outputNewLine, tci) {
 
   override val converter = InitiatorCooker
@@ -124,7 +124,7 @@ class TerminatorParseEv(
   expr: CompiledExpression[String],
   isLengthKindDelimited: Boolean,
   ignoreCase: Boolean,
-  tci: DPathCompileInfo,
+  tci: DPathCompileInfo
 ) extends DelimiterParseEv(DelimiterTextType.Terminator, expr, ignoreCase, tci) {
 
   override val converter =
@@ -135,7 +135,7 @@ class TerminatorUnparseEv(
   expr: CompiledExpression[String],
   isLengthKindDelimited: Boolean,
   outputNewLine: OutputNewLineEv,
-  tci: DPathCompileInfo,
+  tci: DPathCompileInfo
 ) extends DelimiterUnparseEv(DelimiterTextType.Terminator, expr, outputNewLine, tci) {
 
   override val converter =
@@ -145,7 +145,7 @@ class TerminatorUnparseEv(
 class SeparatorParseEv(
   expr: CompiledExpression[String],
   ignoreCase: Boolean,
-  tci: DPathCompileInfo,
+  tci: DPathCompileInfo
 ) extends DelimiterParseEv(DelimiterTextType.Separator, expr, ignoreCase, tci) {
 
   override val converter = SeparatorCooker
@@ -154,7 +154,7 @@ class SeparatorParseEv(
 class SeparatorUnparseEv(
   expr: CompiledExpression[String],
   outputNewLine: OutputNewLineEv,
-  tci: DPathCompileInfo,
+  tci: DPathCompileInfo
 ) extends DelimiterUnparseEv(DelimiterTextType.Separator, expr, outputNewLine, tci) {
 
   override val converter = SeparatorCooker

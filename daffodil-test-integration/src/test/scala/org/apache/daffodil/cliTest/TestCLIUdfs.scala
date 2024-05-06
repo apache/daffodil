@@ -44,7 +44,7 @@ class TestCLIUdfs {
    */
   @Test def test_noUdfsLoaded_regular_schema(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
 
     runCLI(args"-v parse -s $schema -r fn_func") { cli =>
@@ -62,7 +62,7 @@ class TestCLIUdfs {
    */
   @Test def test_noUdfsLoaded_udf_schema(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1") { cli =>
@@ -80,19 +80,19 @@ class TestCLIUdfs {
    */
   @Test def test_noUdfsLoaded_MissingClassInMetaInfFile(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/resources/org/badmetainf/nonexistentclass/",
+      "daffodil-udf/src/test/resources/org/badmetainf/nonexistentclass/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
       cli.send("strng", inputDone = true)
       cli.expectErr(
-        "[warn] User Defined Function Provider failed to load: org.apache.daffodil.udf.UserDefinedFunctionProvider:",
+        "[warn] User Defined Function Provider failed to load: org.apache.daffodil.udf.UserDefinedFunctionProvider:"
       )
       cli.expectErr(
-        "Provider org.nonexistentclass.example.StringFunctions.StringFunctionsProvider not found",
+        "Provider org.nonexistentclass.example.StringFunctions.StringFunctionsProvider not found"
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: jsudf:replace")
     }(ExitCode.UnableToCreateProcessor)
@@ -104,7 +104,7 @@ class TestCLIUdfs {
    */
   @Test def test_noUdfsLoaded_MissingMetaInfFile(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath()
 
@@ -119,10 +119,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_NoUdfClasses(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/functionclasses1/StringFunctions/",
+      "daffodil-udf/src/test/java/org/badudfs/functionclasses1/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
@@ -130,7 +130,7 @@ class TestCLIUdfs {
       cli.expectErr(
         "[warn] User Defined Function Provider ignored:" +
           " org.badudfs.functionclasses1.StringFunctions.StringFunctionsProvider." +
-          " No User Defined Functions found.",
+          " No User Defined Functions found."
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: jsudf:replace")
     }(ExitCode.UnableToCreateProcessor)
@@ -141,10 +141,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_emptyUdfClasses(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/functionclasses2/StringFunctions/",
+      "daffodil-udf/src/test/java/org/badudfs/functionclasses2/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
@@ -152,7 +152,7 @@ class TestCLIUdfs {
       cli.expectErr(
         "[warn] User Defined Function Provider ignored:" +
           " org.badudfs.functionclasses2.StringFunctions.StringFunctionsProvider." +
-          " No User Defined Functions found.",
+          " No User Defined Functions found."
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: jsudf:replace")
     }(ExitCode.UnableToCreateProcessor)
@@ -164,22 +164,22 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_nonUDF(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/nonUDF/StringFunctions/",
+      "daffodil-udf/src/test/java/org/badudfs/nonUDF/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.nonUDF.StringFunctions.FuncA." +
-          " Doesn't implement org.apache.daffodil.udf.UserDefinedFunction",
+          " Doesn't implement org.apache.daffodil.udf.UserDefinedFunction"
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.nonUDF.StringFunctions.Replace." +
-          " Doesn't implement org.apache.daffodil.udf.UserDefinedFunction",
+          " Doesn't implement org.apache.daffodil.udf.UserDefinedFunction"
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: jsudf:replace")
     }(ExitCode.UnableToCreateProcessor)
@@ -191,27 +191,27 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_nonAnn(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/annotations/StringFunctions/",
+      "daffodil-udf/src/test/java/org/badudfs/annotations/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.annotations.StringFunctions.FuncB." +
-          " Missing org.apache.daffodil.udf.UserDefinedFunctionIdentification annotation",
+          " Missing org.apache.daffodil.udf.UserDefinedFunctionIdentification annotation"
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.annotations.StringFunctions.Compare." +
-          " Annotation namespace field is empty or invalid.",
+          " Annotation namespace field is empty or invalid."
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.annotations.StringFunctions.Replace." +
-          " Annotation name field is empty or invalid.",
+          " Annotation name field is empty or invalid."
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: jsudf:replace")
     }(ExitCode.UnableToCreateProcessor)
@@ -226,42 +226,42 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_noEvaluate(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/java/org/badudfs/evaluate/StringFunctions/",
+      "daffodil-udf/src/test/java/org/badudfs/evaluate/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.evaluate.StringFunctions.Replace." +
-          " Missing evaluate method: urn:example:com:ext:badudfs:stringfunctions:replace",
+          " Missing evaluate method: urn:example:com:ext:badudfs:stringfunctions:replace"
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.evaluate.StringFunctions.FuncA." +
-          " Overloaded evaluate method: urn:example:com:ext:badudfs:stringfunctions:funcA",
+          " Overloaded evaluate method: urn:example:com:ext:badudfs:stringfunctions:funcA"
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.evaluate.StringFunctions.FuncB." +
-          " Unsupported return type: void",
+          " Unsupported return type: void"
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.evaluate.StringFunctions.FuncC." +
-          " Unsupported parameter type(s): String[],int[]",
+          " Unsupported parameter type(s): String[],int[]"
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.evaluate.StringFunctions.FuncD." +
-          " Unsupported parameter type(s): String[]",
+          " Unsupported parameter type(s): String[]"
       )
       cli.expectErr(
         "[warn] User Defined Function ignored:" +
           " org.badudfs.evaluate.StringFunctions.FuncE." +
-          " Unsupported return type: String[]",
+          " Unsupported return type: String[]"
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: jsudf:replace")
     }(ExitCode.UnableToCreateProcessor)
@@ -273,19 +273,19 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_CustomExceptionOnEvaluate(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfexceptions/evaluating/StringFunctions/",
+      "daffodil-udf/src/test/scala/org/sbadudfs/udfexceptions/evaluating/StringFunctions/"
     )
 
     runCLI(args"parse -s $schema -r user_func2", classpath) { cli =>
       cli.send("strng", inputDone = true)
       cli.expectErr(
-        "[error] User Defined Function 'ssudf:reverse' Error. Cause: org.sbadudfs.udfexceptions.evaluating.StringFunctions.Reverse$CustomException: UDF Error!",
+        "[error] User Defined Function 'ssudf:reverse' Error. Cause: org.sbadudfs.udfexceptions.evaluating.StringFunctions.Reverse$CustomException: UDF Error!"
       )
       cli.expectErr(
-        "at org.sbadudfs.udfexceptions.evaluating.StringFunctions.Reverse.evaluate(StringFunctionsProvider.scala",
+        "at org.sbadudfs.udfexceptions.evaluating.StringFunctions.Reverse.evaluate(StringFunctionsProvider.scala"
       )
     }(ExitCode.UserDefinedFunctionError)
   }
@@ -296,15 +296,15 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_ProcessingErrorOnEvaluate(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfexceptions/evaluating/StringFunctions/",
+      "daffodil-udf/src/test/scala/org/sbadudfs/udfexceptions/evaluating/StringFunctions/"
     )
 
     runCLI(args"parse -s $schema -r user_func3", classpath) { cli =>
       cli.expectErr(
-        "[error] Schema Definition Error: User Defined Function 'ssudf:rev-words' Error: UDF PE!",
+        "[error] Schema Definition Error: User Defined Function 'ssudf:rev-words' Error: UDF PE!"
       )
     }(ExitCode.UnableToCreateProcessor)
   }
@@ -315,21 +315,21 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_exceptionOnLoad(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfexceptions2/StringFunctions/",
+      "daffodil-udf/src/test/scala/org/sbadudfs/udfexceptions2/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func3", classpath) { cli =>
       cli.expectErr(
-        "[error] User Defined Function could not be initialized: {http://example.com/scala/udf}rev-words.",
+        "[error] User Defined Function could not be initialized: {http://example.com/scala/udf}rev-words."
       )
       cli.expectErr(
-        "Cause: org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords$CustomException: UDF Error!",
+        "Cause: org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords$CustomException: UDF Error!"
       )
       cli.expectErr(
-        "at org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords.<init>(StringFunctionsProvider.scala",
+        "at org.sbadudfs.udfexceptions2.StringFunctions.ReverseWords.<init>(StringFunctionsProvider.scala"
       )
     }(ExitCode.UserDefinedFunctionError)
   }
@@ -340,10 +340,10 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_exceptionOnLoadingUDFs(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfpexceptions/StringFunctions/",
+      "daffodil-udf/src/test/scala/org/sbadudfs/udfpexceptions/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func3", classpath) { cli =>
@@ -351,7 +351,7 @@ class TestCLIUdfs {
       cli.expectErr("org.sbadudfs.udfpexceptions.StringFunctions.StringFunctionsProvider")
       cli.expectErr("Error loading User Defined Functions:")
       cli.expectErr(
-        "org.sbadudfs.udfpexceptions.StringFunctions.StringFunctionsProvider$CustomException",
+        "org.sbadudfs.udfpexceptions.StringFunctions.StringFunctionsProvider$CustomException"
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")
     }(ExitCode.UnableToCreateProcessor)
@@ -363,18 +363,18 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_exceptionOnLoad(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/udfpexceptions2/StringFunctions/",
+      "daffodil-udf/src/test/scala/org/sbadudfs/udfpexceptions2/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func3", classpath) { cli =>
       cli.expectErr(
-        "[warn] User Defined Function Provider failed to load: org.apache.daffodil.udf.UserDefinedFunctionProvider",
+        "[warn] User Defined Function Provider failed to load: org.apache.daffodil.udf.UserDefinedFunctionProvider"
       )
       cli.expectErr(
-        "Provider org.sbadudfs.udfpexceptions2.StringFunctions.StringFunctionsProvider could not be instantiated",
+        "Provider org.sbadudfs.udfpexceptions2.StringFunctions.StringFunctionsProvider could not be instantiated"
       )
       cli.expectErr("[error] Schema Definition Error: Unsupported function: ssudf:rev-words")
     }(ExitCode.UnableToCreateProcessor)
@@ -387,15 +387,15 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_incorrectUDFObject(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses/StringFunctions/",
+      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func3", classpath) { cli =>
       cli.expectErr(
-        "[warn] User Defined Function class mismatch: {http://example.com/scala/udf}rev-words.",
+        "[warn] User Defined Function class mismatch: {http://example.com/scala/udf}rev-words."
       )
       cli.expectErr("Expected: class org.sbadudfs.functionclasses.StringFunctions.ReverseWords")
       cli.expectErr("Actual: class org.sbadudfs.functionclasses.StringFunctions.Reverse")
@@ -409,21 +409,21 @@ class TestCLIUdfs {
    */
   @Test def test_UDFPClass_incorrectUDFCreateImplementation(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses/StringFunctions/",
+      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses/StringFunctions/"
     )
 
     runCLI(args"-v parse -s $schema -r user_func2", classpath) { cli =>
       cli.expectErr(
-        "[error] User Defined Function could not be initialized: {http://example.com/scala/udf}reverse.",
+        "[error] User Defined Function could not be initialized: {http://example.com/scala/udf}reverse."
       )
       cli.expectErr(
-        "Cause: scala.MatchError: http://example.com/scala/udf:reverse (of class java.lang.String)",
+        "Cause: scala.MatchError: http://example.com/scala/udf:reverse (of class java.lang.String)"
       )
       cli.expectErr(
-        "at org.sbadudfs.functionclasses.StringFunctions.StringFunctionsProvider.createUserDefinedFunction(StringFunctionsProvider.scala",
+        "at org.sbadudfs.functionclasses.StringFunctions.StringFunctionsProvider.createUserDefinedFunction(StringFunctionsProvider.scala"
       )
     }(ExitCode.UserDefinedFunctionError)
   }
@@ -434,27 +434,27 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_serializability(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/",
+      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/"
     )
 
     runCLI(args"-vv save-parser -s $schema -r user_func4", classpath) { cli =>
       cli.expectErr(
-        "[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState => {http://example.com/scala/udf}get-nonserializable-state",
+        "[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState => {http://example.com/scala/udf}get-nonserializable-state"
       )
       cli.expectErr(
-        "[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetSerializableState => {http://example.com/scala/udf}get-serializable-state",
+        "[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetSerializableState => {http://example.com/scala/udf}get-serializable-state"
       )
       cli.expectErr(
-        "[warn] User Defined Function is not serializable: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState.",
+        "[warn] User Defined Function is not serializable: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState."
       )
       cli.expectErr(
-        "Could not serialize member of class: org.sbadudfs.functionclasses2.StringFunctions.SomeNonSerializableClass",
+        "Could not serialize member of class: org.sbadudfs.functionclasses2.StringFunctions.SomeNonSerializableClass"
       )
       cli.expectErr(
-        "[error] Schema Definition Error: Unsupported function: ssudf:get-nonserializable-state",
+        "[error] Schema Definition Error: Unsupported function: ssudf:get-nonserializable-state"
       )
     }(ExitCode.UnableToCreateProcessor)
   }
@@ -465,19 +465,19 @@ class TestCLIUdfs {
    */
   @Test def test_UDFClass_serializability2(): Unit = {
     val schema = path(
-      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd",
+      "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
     val classpath = udfClasspath(
-      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/",
+      "daffodil-udf/src/test/scala/org/sbadudfs/functionclasses2/StringFunctions/"
     )
 
     withTempFile { parser =>
       runCLI(args"-vv save-parser -s $schema -r user_func5 $parser", classpath) { cli =>
         cli.expectErr(
-          "[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState => {http://example.com/scala/udf}get-nonserializable-state",
+          "[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetNonSerializableState => {http://example.com/scala/udf}get-nonserializable-state"
         )
         cli.expectErr(
-          "[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetSerializableState => {http://example.com/scala/udf}get-serializable-state",
+          "[debug] User Defined Function loaded: org.sbadudfs.functionclasses2.StringFunctions.GetSerializableState => {http://example.com/scala/udf}get-serializable-state"
         )
       }(ExitCode.Success)
 

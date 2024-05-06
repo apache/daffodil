@@ -31,12 +31,12 @@ import scala.language.implicitConversions
 package object numerics {
   implicit def toRicherInt(x: Int): RicherInt = new RicherInt(x)
   implicit def toRicherInt(x: scala.runtime.RichInt) = new YetRicherInt(
-    x.self.asInstanceOf[Int],
+    x.self.asInstanceOf[Int]
   )
 
   implicit def toRicherLong(x: Long): RicherLong = new RicherLong(x)
   implicit def toRicherLong(x: scala.runtime.RichLong) = new YetRicherLong(
-    x.self.asInstanceOf[Long],
+    x.self.asInstanceOf[Long]
   )
 
   class RicherInt(x: Int) extends Proxy {

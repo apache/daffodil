@@ -26,7 +26,7 @@ import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 class LayerRuntime(
   val state: ParseOrUnparseState,
   val layerRuntimeData: LayerRuntimeData,
-  val layerVarsRuntime: LayerVarsRuntime,
+  val layerVarsRuntime: LayerVarsRuntime
 ) {
 
   final def finfo: FormatInfo = state

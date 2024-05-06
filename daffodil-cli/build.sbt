@@ -33,7 +33,7 @@ Windows / packageName := executableScriptName.value
 Universal / mappings ++= Seq(
   baseDirectory.value / "bin.LICENSE" -> "LICENSE",
   baseDirectory.value / "bin.NOTICE" -> "NOTICE",
-  baseDirectory.value / "README.md" -> "README.md",
+  baseDirectory.value / "README.md" -> "README.md"
 )
 
 // When the sbt-native-packger plugin creates a tar/zip/RPM/etc, it does not include the
@@ -156,7 +156,7 @@ lightOptions ++= Seq(
   "-sval", // validation does not currently work under Wine, this disables that
   "-sice:ICE61",
   "-loc",
-  ((Windows / sourceDirectory).value / "Product_en-us.wxl").toString,
+  ((Windows / sourceDirectory).value / "Product_en-us.wxl").toString
 )
 
 // Build an RTF version of the license file for display in the license
@@ -188,7 +188,7 @@ wixProductLicense := {
 // Use the wixFiles variable to add in the Daffodil-specific dialog
 // boxes and sequence.
 wixFiles ++= Seq(
-  (Windows / sourceDirectory).value / "WixUI_Daffodil.wxs",
+  (Windows / sourceDirectory).value / "WixUI_Daffodil.wxs"
 )
 
 // The sbt Native Packager plug-in assumes that we want to give the user
@@ -208,7 +208,7 @@ wixFeatures := {
 // out on the Package keyword.
 wixPackageInfo := wixPackageInfo.value.copy(
   installerVersion = "200",
-  comments = "!(loc.Comments)",
+  comments = "!(loc.Comments)"
 )
 
 // Fix the XML that is associated with the installable files and directories.
@@ -237,7 +237,7 @@ wixProductConfig := {
     <Icon Id="Daffodil.ico" SourceFile={
       ((Windows / sourceDirectory).value / "apache-daffodil.ico").toString
     } />,
-    <Property Id="ARPPRODUCTICON" Value="Daffodil.ico" />,
+    <Property Id="ARPPRODUCTICON" Value="Daffodil.ico" />
   )
 
   // String together the additional XML around the generated directory and file lists.
@@ -274,7 +274,7 @@ wixProductConfig := {
           "",
           "Key",
           """Software\Apache\Installed Products\Daffodil""",
-          attribs,
+          attribs
         )
       }
 

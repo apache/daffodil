@@ -51,7 +51,7 @@ object XMLSchemaDocument {
     ii: Option[IIBase],
     sfArg: Option[DFDLSchemaFile],
     seenBeforeArg: IIMap,
-    isBootStrapSD: Boolean,
+    isBootStrapSD: Boolean
   ) = {
     val xsd =
       new XMLSchemaDocument(xmlArg, schemaSetArg, ii, sfArg, seenBeforeArg, isBootStrapSD)
@@ -80,7 +80,7 @@ final class XMLSchemaDocument private (
    * this flag lets us import into a bootstrap 'fake' document
    * even though it does not have a namespace
    */
-  override val isBootStrapSD: Boolean,
+  override val isBootStrapSD: Boolean
 ) extends SchemaComponentImpl(xmlArg, sfArg.getOrElse(schemaSetArg))
   with SchemaDocIncludesAndImportsMixin {
 
@@ -126,22 +126,22 @@ final class XMLSchemaDocument private (
     schemaDefinitionWarningUnless(
       WarnID.UnsupportedAttributeSchemaLocation,
       !hasSchemaLocation,
-      "schemaLocation is ignored.",
+      "schemaLocation is ignored."
     )
     schemaDefinitionWarningUnless(
       WarnID.UnsupportedAttributeBlockDefault,
       !hasBlockDefault,
-      "blockDefault is ignored",
+      "blockDefault is ignored"
     )
     schemaDefinitionWarningUnless(
       WarnID.UnsupportedAttributeFinalDefault,
       !hasFinalDefault,
-      "finalDefault is ignored",
+      "finalDefault is ignored"
     )
     schemaDefinitionWarningUnless(
       WarnID.UnsupportedAttributeFormDefault,
       !hasAttributeFormDefault,
-      "attributeFormDefault is not part of DFDL and will be ignored",
+      "attributeFormDefault is not part of DFDL and will be ignored"
     )
     val res = hasSchemaLocation | hasBlockDefault | hasFinalDefault | hasAttributeFormDefault
     res

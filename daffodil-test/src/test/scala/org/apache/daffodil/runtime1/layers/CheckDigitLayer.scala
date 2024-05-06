@@ -47,7 +47,7 @@ import org.apache.daffodil.runtime1.layers.api.ChecksumLayer
 class CheckDigitLayer
   extends ChecksumLayer(
     "checkDigit", // name of the layer, also happens to be the name of the output variable.
-    "urn:org.apache.daffodil.layers.checkDigit",
+    "urn:org.apache.daffodil.layers.checkDigit"
   ) {
 
   private var params: String = _
@@ -72,7 +72,7 @@ class CheckDigitLayer
   final private[layers] def setLayerVariableParameters(
     length: Short,
     params: String,
-    digitEncoding: String,
+    digitEncoding: String
   ): Unit = {
     setLength(length)
     this.params = params

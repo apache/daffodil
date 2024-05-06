@@ -75,7 +75,7 @@ case class Found(
   value: String,
   location: LookupLocation,
   override val pname: String,
-  override val isFromDefaultFormat: Boolean,
+  override val isFromDefaultFormat: Boolean
 ) extends PropertyLookupResult(pname) {
   override def isDefined = true
 }
@@ -90,7 +90,7 @@ case class Found(
 case class NotFound(
   localWhereLooked: Seq[LookupLocation],
   defaultWhereLooked: Seq[LookupLocation],
-  override val pname: String,
+  override val pname: String
 ) extends PropertyLookupResult(pname) {
   override def isDefined = false
   // $COVERAGE-OFF$
@@ -161,7 +161,7 @@ trait FindPropertyMixin extends PropTypes {
    */
   def findPropertyOption(
     pname: String,
-    expressionAllowed: Boolean = false,
+    expressionAllowed: Boolean = false
   ): PropertyLookupResult = {
     val propCacheResult = propCache.get(pname)
     val propRes =
@@ -183,7 +183,7 @@ trait FindPropertyMixin extends PropTypes {
               WarnID.NonExpressionPropertyValueLooksLikeExpression,
               "Property %s looks like an expression but cannot be an expression: %s",
               pname,
-              v,
+              v
             )
           }
         }

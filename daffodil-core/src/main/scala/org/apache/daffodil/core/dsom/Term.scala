@@ -134,7 +134,7 @@ trait Term
           WarnID.IgnoreDFDLProperty,
           "DFDL property was ignored: %s=\"%s\"",
           prop,
-          value,
+          value
         )
       }
     }
@@ -290,7 +290,7 @@ trait Term
         case std: SimpleTypeBase => None
         case _ =>
           Assert.invariantFailed(
-            "immediatelyEnclosingModelGroup called on " + this + " with lexical parent " + lexicalParent,
+            "immediatelyEnclosingModelGroup called on " + this + " with lexical parent " + lexicalParent
           )
       }
       res

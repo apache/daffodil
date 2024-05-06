@@ -32,7 +32,7 @@ class TestPrimitives {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="abcd">
-      </xs:element>,
+      </xs:element>
     )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcdefgh", areTracing)
@@ -45,7 +45,7 @@ class TestPrimitives {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="efgh">
-      </xs:element>,
+      </xs:element>
     )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcdefgh", areTracing)
@@ -64,7 +64,7 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcd,efgh", areTracing)
@@ -83,7 +83,7 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcd,efgh", areTracing)
@@ -102,7 +102,7 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val (_, actual) = TestUtils.testString(sch, "abcd  \\\n  efgh")
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
@@ -127,7 +127,7 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcd}efgh}}}ijkl", areTracing)
@@ -163,7 +163,7 @@ class TestPrimitives {
             </xs:element>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "{a,b,c./d}//::", areTracing)
@@ -186,7 +186,7 @@ class TestPrimitives {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val (_, actual) = TestUtils.testString(sch, "abcd\u0000efgh")
 
@@ -199,7 +199,7 @@ class TestPrimitives {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" terminator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:initiator="%NUL;">
-      </xs:element>,
+      </xs:element>
     )
     val (_, actual) = TestUtils.testString(sch, "\u0000efgh")
     val expected: Node = <e1>efgh</e1>
@@ -211,7 +211,7 @@ class TestPrimitives {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" ignoreCase="no"/>,
       <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 4 }" dfdl:terminator="%NUL;">
-      </xs:element>,
+      </xs:element>
     )
     val (_, actual) = TestUtils.testString(sch, "abcd\u0000")
 

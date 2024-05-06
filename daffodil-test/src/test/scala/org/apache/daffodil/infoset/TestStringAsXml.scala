@@ -45,7 +45,7 @@ class TestStringAsXml {
   private def compileSchema(dfdlSchemaURI: URI) = {
     val c = Compiler()
     val pf = c.compileSource(
-      URISchemaSource(Misc.uriToDiagnosticFile(dfdlSchemaURI), dfdlSchemaURI),
+      URISchemaSource(Misc.uriToDiagnosticFile(dfdlSchemaURI), dfdlSchemaURI)
     )
     val dp = pf.onPath("/")
     dp.withValidationMode(ValidationMode.Full)
@@ -75,12 +75,12 @@ class TestStringAsXml {
   @Test def test_stringAsXml_01(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+      )
     )
     val parseData = Misc
       .getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat",
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat"
       )
       .toURL
       .openStream
@@ -88,7 +88,7 @@ class TestStringAsXml {
     val parseInfosetExpected = {
       val is = Misc
         .getRequiredResource(
-          "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml",
+          "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml"
         )
         .toURL
         .openStream
@@ -100,24 +100,24 @@ class TestStringAsXml {
     assertTrue(
       parseDiags
         .find(_.contains("xmlStr failed facet checks due to: facet maxLength"))
-        .isDefined,
+        .isDefined
     )
     // we still get the expected infoset, replace CRLF with LF because of git windows autocrlf
     assertEquals(
       parseInfosetExpected.replace("\r\n", "\n"),
-      parseInfosetActual.replace("\r\n", "\n"),
+      parseInfosetActual.replace("\r\n", "\n")
     )
 
     // validate the infoset using the handwritten WithPayload schema
     val xsdFile = new File(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessageWithXmlPayload.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessageWithXmlPayload.xsd"
+      )
     )
     val xsdFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
     val xsd = xsdFactory.newSchema(xsdFile)
     val source = new StreamSource(
-      new ByteArrayInputStream(parseInfosetActual.getBytes(StandardCharsets.UTF_8)),
+      new ByteArrayInputStream(parseInfosetActual.getBytes(StandardCharsets.UTF_8))
     )
     val validator = xsd.newValidator()
     val e = intercept[SAXParseException] {
@@ -129,12 +129,12 @@ class TestStringAsXml {
   @Test def test_stringAsXml_02(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+      )
     )
     val unparseInfoset = Misc
       .getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml",
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml"
       )
       .toURL
       .openStream
@@ -142,7 +142,7 @@ class TestStringAsXml {
     val unparseDataExpected = {
       val is = Misc
         .getRequiredResource(
-          "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml.dat",
+          "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_01.dat.xml.dat"
         )
         .toURL
         .openStream
@@ -154,13 +154,13 @@ class TestStringAsXml {
   @Test def test_stringAsXml_03(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+      )
     )
     val infoset1 = {
       val is = Misc
         .getRequiredResource(
-          "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_02.xml",
+          "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_02.xml"
         )
         .toURL
         .openStream
@@ -184,12 +184,12 @@ class TestStringAsXml {
   @Test def test_stringAsXml_04(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+      )
     )
     val parseData = Misc
       .getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_03.dat",
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_03.dat"
       )
       .toURL
       .openStream
@@ -200,12 +200,12 @@ class TestStringAsXml {
   @Test def test_stringAsXml_05(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+      )
     )
     val unparseInfoset = Misc
       .getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_04.xml",
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_04.xml"
       )
       .toURL
       .openStream
@@ -216,12 +216,12 @@ class TestStringAsXml {
   @Test def test_stringAsXml_06(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+      )
     )
     val unparseInfoset = Misc
       .getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_05.xml",
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_05.xml"
       )
       .toURL
       .openStream
@@ -232,12 +232,12 @@ class TestStringAsXml {
   @Test def test_stringAsXml_07(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+      )
     )
     val unparseInfoset = Misc
       .getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_06.xml",
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_06.xml"
       )
       .toURL
       .openStream
@@ -245,19 +245,19 @@ class TestStringAsXml {
     assertTrue(
       unparseDiags
         .find(_.contains("Expected end of element following end of stringAsXml"))
-        .isDefined,
+        .isDefined
     )
   }
 
   @Test def test_stringAsXml_08(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+      )
     )
     val unparseInfoset = Misc
       .getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_07.xml",
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_07.xml"
       )
       .toURL
       .openStream
@@ -268,12 +268,12 @@ class TestStringAsXml {
   @Test def test_stringAsXml_09(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/xsd/binMessage.dfdl.xsd"
+      )
     )
     val unparseInfoset = Misc
       .getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_08.dat",
+        "/org/apache/daffodil/infoset/stringAsXml/namespaced/binMessage_08.dat"
       )
       .toURL
       .openStream
@@ -284,12 +284,12 @@ class TestStringAsXml {
   @Test def test_stringAsXml_10(): Unit = {
     val dp = compileSchema(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/nonamespace/xsd/binMessage.dfdl.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/nonamespace/xsd/binMessage.dfdl.xsd"
+      )
     )
     val parseData = Misc
       .getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat",
+        "/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat"
       )
       .toURL
       .openStream
@@ -297,7 +297,7 @@ class TestStringAsXml {
     val parseInfosetExpected = {
       val is = Misc
         .getRequiredResource(
-          "/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat.xml",
+          "/org/apache/daffodil/infoset/stringAsXml/nonamespace/binMessage_01.dat.xml"
         )
         .toURL
         .openStream
@@ -309,24 +309,24 @@ class TestStringAsXml {
     assertTrue(
       parseDiags
         .find(_.contains("xmlStr failed facet checks due to: facet maxLength"))
-        .isDefined,
+        .isDefined
     )
     // we still get the expected infoset, replace CRLF with LF because of git windows autocrlf
     assertEquals(
       parseInfosetExpected.replace("\r\n", "\n"),
-      parseInfosetActual.replace("\r\n", "\n"),
+      parseInfosetActual.replace("\r\n", "\n")
     )
 
     // validate the infoset using the handwritten WithPayload schema
     val xsdFile = new File(
       Misc.getRequiredResource(
-        "/org/apache/daffodil/infoset/stringAsXml/nonamespace/xsd/binMessageWithXmlPayload.xsd",
-      ),
+        "/org/apache/daffodil/infoset/stringAsXml/nonamespace/xsd/binMessageWithXmlPayload.xsd"
+      )
     )
     val xsdFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
     val xsd = xsdFactory.newSchema(xsdFile)
     val source = new StreamSource(
-      new ByteArrayInputStream(parseInfosetActual.getBytes(StandardCharsets.UTF_8)),
+      new ByteArrayInputStream(parseInfosetActual.getBytes(StandardCharsets.UTF_8))
     )
     val validator = xsd.newValidator()
     val e = intercept[SAXParseException] {

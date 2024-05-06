@@ -26,7 +26,7 @@ object TestUnparseNegInfoset {
   val runner = Runner(
     "/org/apache/daffodil/unparser/",
     "unparseNegInfosetTest.tdml",
-    validateTDMLFile = false,
+    validateTDMLFile = false
   )
   @AfterClass def tearDown(): Unit = {
     runner.reset

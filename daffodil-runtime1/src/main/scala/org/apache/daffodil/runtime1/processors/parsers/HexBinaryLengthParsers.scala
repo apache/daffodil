@@ -43,7 +43,7 @@ sealed abstract class HexBinaryLengthParser(override val context: ElementRuntime
         start,
         "Length for xs:hexBinary exceeds maximum of %s bytes: %s",
         start.tunable.maxHexBinaryLengthInBytes,
-        nBytes,
+        nBytes
       )
     } else if (nBytes <= start.tunable.blobChunkSizeInBytes) {
       // For small hex binary that can fit in a single chunk, don't bother
@@ -100,7 +100,7 @@ final class HexBinaryLengthPrefixedParser(
   override val prefixedLengthParser: Parser,
   override val prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends HexBinaryLengthParser(erd)
   with PrefixedLengthParserMixin {
 

@@ -26,7 +26,7 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_simple(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -41,7 +41,7 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_stdout(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd"
     )
 
     runCLI(args"-v save-parser -s $schema") { cli =>
@@ -52,15 +52,15 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_withConfig(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd"
     )
     val config = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/daffodil_config_cli_test.xml"
     )
 
     withTempFile { parser =>
       runCLI(args"save-parser -s $schema -r row2 -c $config $parser") { _ => }(
-        ExitCode.Success,
+        ExitCode.Success
       )
 
       runCLI(args"parse --parser $parser -c $config") { cli =>
@@ -74,13 +74,13 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_namespaceUsed(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/charClassEntities.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input8.txt")
 
     withTempFile { parser =>
       runCLI(args"save-parser -s $schema -r {target}matrix $parser") { _ => }(
-        ExitCode.Success,
+        ExitCode.Success
       )
 
       runCLI(args"parse --parser $parser $input") { cli =>
@@ -91,7 +91,7 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_path(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -106,10 +106,10 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_MultSchema(): Unit = {
     val schema1 = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section07/defineFormat/defineFormat.dfdl.xsd"
     )
     val schema2 = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/charClassEntities.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -121,7 +121,7 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_verboseMode(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -137,7 +137,7 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_namespaceNoRoot(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -151,7 +151,7 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_emptyNamespace(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -166,19 +166,19 @@ class TestCLISaveParser {
 
   @Test def test_CLI_DFDL_1205_FullValidation_SavedParser_Incompatible(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/charClassEntities.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/charClassEntities.dfdl.xsd"
     )
     val input = path("daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input8.txt")
 
     withTempFile { parser =>
       runCLI(args"save-parser -s $schema -r {target}matrix $parser") { _ => }(
-        ExitCode.Success,
+        ExitCode.Success
       )
 
       runCLI(args"parse --parser $parser --validate on $input") { cli =>
         cli.expectErr("[error]")
         cli.expectErr(
-          "The validation mode must be 'limited' or 'off' when using a saved parser.",
+          "The validation mode must be 'limited' or 'off' when using a saved parser."
         )
       }(ExitCode.Usage)
     }
@@ -190,14 +190,14 @@ class TestCLISaveParser {
    */
   @Test def test_CLI_Saving_SaveParser_extVars(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section07/external_variables/external_variables.dfdl.xsd"
     )
 
     withTempFile { parser =>
       runCLI(args"save-parser -s $schema -r row2 $parser") { _ => }(ExitCode.Success)
 
       runCLI(
-        args"parse --parser $parser -D{http://example.com}var1=25 {http://example.com}var3=7",
+        args"parse --parser $parser -D{http://example.com}var1=25 {http://example.com}var3=7"
       ) { cli =>
         cli.sendLine("0", inputDone = true)
         cli.expect("<tns:row2 xmlns:tns=\"http://example.com\">")
@@ -209,7 +209,7 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_validate(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -218,7 +218,7 @@ class TestCLISaveParser {
       }(ExitCode.Usage)
 
       runCLI(args"save-parser -s $schema -r validation_check $parser") { _ => }(
-        ExitCode.Success,
+        ExitCode.Success
       )
 
       runCLI(args"parse --validate limited -P $parser") { cli =>
@@ -239,7 +239,7 @@ class TestCLISaveParser {
   /*@Test*/
   def test_CLI_Saving_SaveParser_debug(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -253,7 +253,7 @@ class TestCLISaveParser {
   /*@Test*/
   def test_CLI_Saving_SaveParser_trace(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -265,10 +265,10 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_unparse(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml"
     )
 
     withTempFile { parser =>
@@ -282,10 +282,10 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_unparse2(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input12.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input12.txt"
     )
 
     withTempFile { parser =>
@@ -299,10 +299,10 @@ class TestCLISaveParser {
 
   @Test def test_CLI_Saving_SaveParser_tunables(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/generalSchema.dfdl.xsd"
     )
     val input = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input12.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input12.txt"
     )
 
     withTempFile { parser =>
@@ -312,7 +312,7 @@ class TestCLISaveParser {
       runCLI(args"unparse --parser $parser $input") { cli =>
         cli.expectErr("[error]")
         cli.expectErr(
-          "Runtime Schema Definition Error: This schema was compiled without unparse support.",
+          "Runtime Schema Definition Error: This schema was compiled without unparse support."
         )
       }(ExitCode.UnparseError)
     }
@@ -323,7 +323,7 @@ class TestCLISaveParser {
    */
   @Test def test_CLI_Saving_SaveParser_error(): Unit = {
     val schema = path(
-      "daffodil-sapi/src/test/resources/test/sapi/mySchema6.dfdl.xsd",
+      "daffodil-sapi/src/test/resources/test/sapi/mySchema6.dfdl.xsd"
     )
 
     withTempFile { parser =>

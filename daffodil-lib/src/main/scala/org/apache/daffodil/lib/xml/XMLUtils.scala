@@ -277,13 +277,13 @@ object XMLUtils {
   }
 
   val XSD_NAMESPACE = NS(
-    "http://www.w3.org/2001/XMLSchema",
+    "http://www.w3.org/2001/XMLSchema"
   ) // removed trailing slash (namespaces care)
   val XSI_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema-instance")
   val XPATH_FUNCTION_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions")
   val XPATH_MATH_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions/math")
   val DFDL_NAMESPACE = NS(
-    "http://www.ogf.org/dfdl/dfdl-1.0/",
+    "http://www.ogf.org/dfdl/dfdl-1.0/"
   ) // dfdl ns does have a trailing slash
   val DFDLX_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/extensions")
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
@@ -324,7 +324,7 @@ object XMLUtils {
   private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA =
     "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012"
   private val DAFFODIL_EXTENSION_NAMESPACE_NCSA = NS(
-    DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA + ":ext",
+    DAFFODIL_EXTENSIONS_NAMESPACE_ROOT_NCSA + ":ext"
   )
   val EXT_PREFIX_NCSA = "daf"
   val EXT_NS_NCSA = NS(DAFFODIL_EXTENSION_NAMESPACE_NCSA.uri)
@@ -420,7 +420,7 @@ object XMLUtils {
       "date",
       "time",
       "dateTime",
-      "hexBinary",
+      "hexBinary"
     )
 
   def slashify(s: String): String = if (s == "" || s.endsWith("/")) s else s + "/"
@@ -500,7 +500,7 @@ object XMLUtils {
         NamespaceBinding(
           pre,
           uri,
-          combineScopes(moreBindingsWithoutConflict, outerWithoutDuplicate),
+          combineScopes(moreBindingsWithoutConflict, outerWithoutDuplicate)
         )
       }
     }
@@ -545,7 +545,7 @@ object XMLUtils {
           md,
           newScope,
           true,
-          (child.flatMap { ch => collapseScopes(ch, newScope) }): _*,
+          (child.flatMap { ch => collapseScopes(ch, newScope) }): _*
         )
       }
       case _ => x
@@ -622,7 +622,7 @@ object XMLUtils {
   def removeAttributes(
     n: Node,
     ns: Seq[NS] = Seq[NS](),
-    parentScope: Option[NamespaceBinding] = None,
+    parentScope: Option[NamespaceBinding] = None
   ): Node = {
     val res1 = removeAttributes1(n, ns, parentScope).asInstanceOf[scala.xml.Node]
     val res2 = removeMixedWhitespace(res1)
@@ -688,7 +688,7 @@ object XMLUtils {
   private def removeAttributes1(
     n: Node,
     ns: Seq[NS],
-    parentScope: Option[NamespaceBinding],
+    parentScope: Option[NamespaceBinding]
   ): NodeSeq = {
     val res = n match {
 
@@ -754,7 +754,7 @@ object XMLUtils {
             }
             case dafIntAttr @ PrefixedAttribute(pre, _, _, _)
                 if (pre ne null) && (dafIntAttr.getNamespace(
-                  e,
+                  e
                 ) == XMLUtils.DAFFODIL_INTERNAL_NAMESPACE.toString) => {
               Assert.invariant(pre != "")
               false // drop dafint attributes.
@@ -812,7 +812,7 @@ object XMLUtils {
     checkPrefixes: Boolean = false,
     checkNamespaces: Boolean = false,
     maybeFloatEpsilon: Option[Float] = None,
-    maybeDoubleEpsilon: Option[Double] = None,
+    maybeDoubleEpsilon: Option[Double] = None
   ): Unit = {
     val expectedMinimized = normalize(expected)
     val actualMinimized = normalize(actual)
@@ -823,7 +823,7 @@ object XMLUtils {
       checkPrefixes,
       checkNamespaces,
       maybeFloatEpsilon,
-      maybeDoubleEpsilon,
+      maybeDoubleEpsilon
     )
     if (diffs.length > 0) {
       throw new XMLDifferenceException(
@@ -842,8 +842,8 @@ Differences were (path, expected, actual):
           (if (checkPrefixes || checkNamespaces) "compared"
            else "ignored"),
           actual,
-          diffs.map { _.toString }.mkString("- ", "\n- ", "\n"),
-        ),
+          diffs.map { _.toString }.mkString("- ", "\n- ", "\n")
+        )
       )
     }
   }
@@ -859,7 +859,7 @@ Differences were (path, expected, actual):
     checkPrefixes: Boolean = false,
     checkNamespaces: Boolean = false,
     maybeFloatEpsilon: Option[Float] = None,
-    maybeDoubleEpsilon: Option[Double] = None,
+    maybeDoubleEpsilon: Option[Double] = None
   ) = {
     computeDiffOne(
       a,
@@ -873,7 +873,7 @@ Differences were (path, expected, actual):
       checkNamespaces,
       None,
       maybeFloatEpsilon,
-      maybeDoubleEpsilon,
+      maybeDoubleEpsilon
     )
   }
 
@@ -908,7 +908,7 @@ Differences were (path, expected, actual):
     checkNamespaces: Boolean,
     maybeType: Option[String],
     maybeFloatEpsilon: Option[Float],
-    maybeDoubleEpsilon: Option[Double],
+    maybeDoubleEpsilon: Option[Double]
   ): Seq[(String, String, String)] = {
     lazy val zPath = parentPathSteps.reverse.mkString("/")
     (an, bn) match {
@@ -938,8 +938,8 @@ Differences were (path, expected, actual):
             (
               zPath + "/" + labelA + "@xsi:nil",
               nilledA.map(_.toString).getOrElse(""),
-              nilledB.map(_.toString).getOrElse(""),
-            ),
+              nilledB.map(_.toString).getOrElse("")
+            )
           )
         } else if (typeA != typeB && typeA.isDefined && typeB.isDefined) {
           // different xsi:type (if both suppplied)
@@ -947,8 +947,8 @@ Differences were (path, expected, actual):
             (
               zPath + "/" + labelA + "@xsi:type",
               typeA.map(_.toString).getOrElse(""),
-              typeA.map(_.toString).getOrElse(""),
-            ),
+              typeA.map(_.toString).getOrElse("")
+            )
           )
         } else {
           val pathLabel = labelA + maybeIndex.map("[" + _ + "]").getOrElse("")
@@ -990,7 +990,7 @@ Differences were (path, expected, actual):
               checkNamespaces,
               maybeType,
               maybeFloatEpsilon,
-              maybeDoubleEpsilon,
+              maybeDoubleEpsilon
             )
           }
 
@@ -1002,8 +1002,8 @@ Differences were (path, expected, actual):
                 (
                   zPath + "/" + labelA + "::child@count)",
                   childrenA.length.toString,
-                  childrenB.length.toString,
-                ),
+                  childrenB.length.toString
+                )
               )
             } else {
               Nil
@@ -1047,7 +1047,7 @@ Differences were (path, expected, actual):
     tB: Text,
     maybeType: Option[String],
     maybeFloatEpsilon: Option[Float],
-    maybeDoubleEpsilon: Option[Double],
+    maybeDoubleEpsilon: Option[Double]
   ): Seq[(String, String, String)] = {
 
     val dataA = tA.toString
@@ -1115,7 +1115,7 @@ Differences were (path, expected, actual):
     dataB: String,
     maybeType: Option[String],
     maybeFloatEpsilon: Option[Float],
-    maybeDoubleEpsilon: Option[Double],
+    maybeDoubleEpsilon: Option[Double]
   ): Seq[(String, String, String)] = {
 
     val hasBlobType = maybeType.isDefined && maybeType.get == "xs:anyURI"
@@ -1140,10 +1140,10 @@ Differences were (path, expected, actual):
       // the first difference found. Either way, we can safely use slice() to
       // get at most some number of characters at that index for context.
       val contextA = Misc.remapStringToVisibleGlyphs(
-        dataA.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF),
+        dataA.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF)
       )
       val contextB = Misc.remapStringToVisibleGlyphs(
-        dataB.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF),
+        dataB.slice(index, index + CHARS_TO_SHOW_AFTER_DIFF)
       )
       val path = zPath + ".charAt(" + (index + 1) + ")"
       Seq((path, contextA, contextB))
@@ -1169,7 +1169,7 @@ Differences were (path, expected, actual):
     dataB: String,
     maybeType: Option[String],
     maybeFloatEpsilon: Option[Float],
-    maybeDoubleEpsilon: Option[Double],
+    maybeDoubleEpsilon: Option[Double]
   ): Boolean = {
     maybeFloatEpsilon.foreach { eps => Assert.usage(eps > 0.0) }
     maybeDoubleEpsilon.foreach { eps => Assert.usage(eps > 0.0) }
@@ -1270,7 +1270,7 @@ Differences were (path, expected, actual):
     is: java.io.InputStream,
     tmpDir: File,
     nameHint: String,
-    suffix: String,
+    suffix: String
   ) = {
     val prefix = prefixFromHint(nameHint)
     val tmpSchemaFile = File.createTempFile(prefix, suffix, tmpDir)
@@ -1323,7 +1323,7 @@ Differences were (path, expected, actual):
       c match {
         case '\'' =>
           sb.append(
-            "&#x27;",
+            "&#x27;"
           ) // don't use "&apos;" because it's not universally accepted (HTML doesn't have it in early versions)
         case '"' => sb.append("&quot;")
         case '&' => sb.append("&amp;")
@@ -1368,7 +1368,7 @@ Differences were (path, expected, actual):
           // sure to only include valid xml entities in the xmlEntityPattern.
           Assert.invariant(sb ne null)
           sb.toString()
-        },
+        }
       )
       res
     }
@@ -1437,7 +1437,7 @@ Differences were (path, expected, actual):
    */
   def resolveSchemaLocation(
     schemaLocation: String,
-    optContextURI: Option[DaffodilSchemaSource],
+    optContextURI: Option[DaffodilSchemaSource]
   ): Option[(URISchemaSource, Boolean)] = {
     val uri =
       try {
@@ -1446,7 +1446,7 @@ Differences were (path, expected, actual):
         case e: URISyntaxException =>
           throw new IllegalArgumentException(
             "schemaLocation is not a valid URI: " + schemaLocation,
-            e,
+            e
           )
       }
 

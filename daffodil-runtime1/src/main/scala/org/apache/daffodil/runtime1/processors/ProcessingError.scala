@@ -30,7 +30,7 @@ abstract class ProcessingError protected (
   dataContext: Maybe[DataLocation],
   val maybeCause: Maybe[Throwable], // use this OR the format string, Not both.
   val maybeFormatString: Maybe[String],
-  val args: Any*,
+  val args: Any*
 ) extends ThinDiagnostic(schemaContext, dataContext, maybeCause, maybeFormatString, args: _*) {
 
   override def isError = true
@@ -40,7 +40,7 @@ abstract class ProcessingError protected (
     rd: Maybe[SchemaFileLocation],
     loc: Maybe[DataLocation],
     fmtString: String,
-    args: Any*,
+    args: Any*
   ) = this(modeName, rd, loc, Maybe.Nope, Maybe(fmtString), args: _*)
 
   /**

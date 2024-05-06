@@ -120,7 +120,7 @@ class TestCheckDigit {
       theElement,
       elementFormDefault = "unqualified",
       useDefaultNamespace = false,
-      useTNS = false,
+      useTNS = false
     )
   }
 

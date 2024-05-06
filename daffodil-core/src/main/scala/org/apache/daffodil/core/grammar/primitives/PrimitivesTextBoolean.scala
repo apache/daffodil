@@ -30,12 +30,12 @@ case class ConvertTextBooleanPrim(e: ElementBase) extends Terminal(e, true) {
     e.elementRuntimeData,
     e.textBooleanTrueRepEv,
     e.textBooleanFalseRepEv,
-    e.ignoreCaseBool,
+    e.ignoreCaseBool
   )
 
   override lazy val unparser = new ConvertTextBooleanUnparser(
     e.elementRuntimeData,
     e.textBooleanTrueRepEv,
-    e.textBooleanFalseRepEv,
+    e.textBooleanFalseRepEv
   )
 }

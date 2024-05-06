@@ -26,7 +26,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Listing_negativeTest01(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml"
     )
 
     runCLI(args"test $tdml escape_entry1 escape_entry2-11 escape_entry1-5 escape_entry4_3") {
@@ -37,7 +37,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Listing_execRegex01(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml"
     )
 
     runCLI(args"test --regex $tdml escape_entry4_\d") { cli =>
@@ -47,7 +47,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Listing_listRegex02(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml"
     )
 
     runCLI(args"test -l --regex $tdml escape_entryb-\d+") { _ => }(ExitCode.Success)
@@ -55,7 +55,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Listing_listRegex01(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml"
     )
 
     runCLI(args"test -l --regex $tdml escape_entry4_\d+") { cli =>
@@ -68,7 +68,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Listing_execAll(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section31/escape_characters/Escapes.tdml"
     )
 
     runCLI(args"test $tdml") { cli =>
@@ -78,7 +78,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Listing_listAll(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml"
     )
 
     runCLI(args"test -l $tdml") { cli =>
@@ -92,7 +92,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Listing_singleTestList(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml"
     )
 
     runCLI(args"test -l $tdml byte_entities_6_08") { cli =>
@@ -102,7 +102,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Listing_singleTest(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml"
     )
 
     runCLI(args"test $tdml byte_entities_6_08") { cli =>
@@ -112,7 +112,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Trace_singleTest(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml"
     )
 
     runCLI(args"-t test $tdml byte_entities_6_08") { cli =>
@@ -125,10 +125,10 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_DebugFile_singleTest(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml"
     )
     val debugFile = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/debug.txt",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/debug.txt"
     )
 
     runCLI(args"-d $debugFile test $tdml byte_entities_6_08") { cli =>
@@ -140,19 +140,19 @@ class TestCLItdml {
 
   @Test def test_CLI_catch_TestNotCompatible(): Unit = {
     val tdml = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/testNonCompatibleImplementation.tdml",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/testNonCompatibleImplementation.tdml"
     )
 
     runCLI(args"test $tdml testNotCompatibleImplementation1") { cli =>
       cli.expect(
-        "[Skipped] testNotCompatibleImplementation1 (not compatible with implementation: daffodil)",
+        "[Skipped] testNotCompatibleImplementation1 (not compatible with implementation: daffodil)"
       )
     }(ExitCode.Success)
   }
 
   @Test def test_CLI_catch_TestBadArguments(): Unit = {
     val tdml = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/testNonCompatibleImplementation.tdml",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/testNonCompatibleImplementation.tdml"
     )
 
     runCLI(args"test -I notDaffodilC $tdml") { cli =>
@@ -162,7 +162,7 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_implementation(): Unit = {
     val tdml = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/testNonCompatibleImplementation.tdml",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/testNonCompatibleImplementation.tdml"
     )
 
     runCLI(args"test -I daffodilC $tdml testDaffodilCImplementation1") { cli =>
@@ -172,12 +172,12 @@ class TestCLItdml {
 
   @Test def test_CLI_Tdml_Listing_listVerbose(): Unit = {
     val tdml = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section07/assertions/assert.tdml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section07/assertions/assert.tdml"
     )
 
     runCLI(args"test -l -i --regex $tdml assertPattern.*") { cli =>
       cli.expect(
-        "assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R",
+        "assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R"
       )
     }(ExitCode.Success)
   }

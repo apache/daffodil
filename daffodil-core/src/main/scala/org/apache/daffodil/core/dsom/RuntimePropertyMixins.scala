@@ -91,7 +91,7 @@ trait TermRuntimeValuedPropertiesMixin
         if (encodingRaw.value.toUpperCase != "ISO-8859-1") {
           SDE(
             "xs:hexBinary with dfdl:lengthKind=\"delimited\" or dfdl:lengthKind=\"pattern\" must have dfdl:encoding=\"ISO-8859-1\", but was \"%s\"",
-            encodingRaw.value,
+            encodingRaw.value
           )
         }
         //
@@ -108,7 +108,7 @@ trait TermRuntimeValuedPropertiesMixin
           NodeInfo.NonEmptyString,
           encodingRaw,
           decl,
-          dpathCompileInfo,
+          dpathCompileInfo
         )
     }
   }.value
@@ -150,7 +150,7 @@ trait TermRuntimeValuedPropertiesMixin
         NodeInfo.NonEmptyString,
         outputNewLineRaw,
         decl,
-        dpathCompileInfo,
+        dpathCompileInfo
       )
     }
     val ev = new OutputNewLineEv(outputNewLineExpr, tci)
@@ -206,7 +206,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
       typeIfRuntimeKnown,
       initiatorRaw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
   }
 
@@ -234,7 +234,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
       typeIfRuntimeKnown,
       raw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
   }.value
 
@@ -245,7 +245,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
       terminatorExpr,
       isLengthKindDelimited,
       decl.ignoreCaseBool,
-      decl.tci,
+      decl.tci
     )
     ev.compile(tunable)
     ev
@@ -280,7 +280,7 @@ trait ElementRuntimeValuedPropertiesMixin
       NodeInfo.NonEmptyString,
       byteOrderRaw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
   }.value
 
@@ -318,7 +318,7 @@ trait ElementRuntimeValuedPropertiesMixin
       NodeInfo.Long,
       lengthRaw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
   }
 
@@ -341,7 +341,7 @@ trait ElementRuntimeValuedPropertiesMixin
       case (Text, _) =>
         SDE(
           "Type %s with dfdl:representation='text' cannot have dfdl:lengthKind='implicit'",
-          repElement.typeDef.typeNode.name,
+          repElement.typeDef.typeNode.name
         )
     }
     ev.compile(tunable)
@@ -355,7 +355,7 @@ trait ElementRuntimeValuedPropertiesMixin
         case LengthKind.Implicit => implicitLengthEv
         case _ =>
           Assert.usageError(
-            "should only be used for Explicit or Implicit length kinds: " + lengthKind,
+            "should only be used for Explicit or Implicit length kinds: " + lengthKind
           )
       }
     Assert.invariant(ev.isCompiled)
@@ -386,7 +386,7 @@ trait ElementRuntimeValuedPropertiesMixin
    */
   lazy val elementLengthInBitsEv: LengthInBitsEv = {
     Assert.usage(
-      (repElement.lengthKind eq LengthKind.Implicit) || (repElement.lengthKind eq LengthKind.Explicit),
+      (repElement.lengthKind eq LengthKind.Implicit) || (repElement.lengthKind eq LengthKind.Explicit)
     )
     import LengthKind._
     import NodeInfo._
@@ -395,7 +395,7 @@ trait ElementRuntimeValuedPropertiesMixin
       (
         repElement.lengthKind,
         repElement.impliedRepresentation,
-        repElement.typeDef.typeNode,
+        repElement.typeDef.typeNode
       ) match {
         case (Explicit, Binary, HexBinary) => (repElement.lengthUnits, explicitLengthEv)
         case (Implicit, Binary, HexBinary) => (LengthUnits.Bytes, implicitLengthEv)
@@ -426,7 +426,7 @@ trait ElementRuntimeValuedPropertiesMixin
       repElement.lengthKind,
       repElement.maybeCharsetEv,
       repElement.minLen,
-      eci,
+      eci
     )
     ev.compile(tunable)
     ev
@@ -553,7 +553,7 @@ trait ElementRuntimeValuedPropertiesMixin
           repElement.lengthEv,
           repElement.charsetEv,
           repElement.minLen,
-          eci,
+          eci
         )
         ev.compile(tunable)
         One(ev)
@@ -586,7 +586,7 @@ trait ElementRuntimeValuedPropertiesMixin
       occursCountRaw,
       decl,
       dpathCompileInfo,
-      isEvaluatedAbove,
+      isEvaluatedAbove
     )
   }.value
 
@@ -641,7 +641,7 @@ trait ElementRuntimeValuedPropertiesMixin
         ee ++ extraEscapeChars ++ propExprElts(
           es.optionEscapeCharacterRaw,
           es.escapeCharacterEv,
-          f,
+          f
         )
       } else {
         ReferencedElementInfos.None
@@ -660,7 +660,7 @@ trait ElementRuntimeValuedPropertiesMixin
       propExprElts(
         optionTextStandardGroupingSeparatorRaw,
         textStandardGroupingSeparatorEv,
-        f,
+        f
       ) ++
       propExprElts(optionTextStandardExponentRepRaw, textStandardExponentRepEv, f) ++
       propExprElts(optionBinaryFloatRepRaw, binaryFloatRepEv, f) ++
@@ -730,7 +730,7 @@ trait SequenceRuntimeValuedPropertiesMixin
         if (!inBoth.isEmpty) {
           SDE(
             "The dfdl:terminator and dfdl:separator properties must be distinct. Both contain: %s.",
-            inBoth.map { s => "'" + s + "'" }.mkString(", "),
+            inBoth.map { s => "'" + s + "'" }.mkString(", ")
           )
         }
       }
@@ -759,7 +759,7 @@ trait SequenceRuntimeValuedPropertiesMixin
         if (delims.exists { _.startsWith(ec) })
           SDE(
             "The dfdl:terminator and dfdl:separator may not begin with the dfdl:escapeCharacter: '%s'.",
-            ec,
+            ec
           )
 
         val maybeEecEv = childTerm.optionEscapeScheme.get.optionEscapeEscapeCharacterEv
@@ -768,7 +768,7 @@ trait SequenceRuntimeValuedPropertiesMixin
           if (delims.exists { _.startsWith(eec) })
             SDE(
               "The dfdl:terminator and dfdl:separator may not begin with the dfdl:escapeEscapeCharacter: '%s'.",
-              eec,
+              eec
             )
         }
       }
@@ -785,7 +785,7 @@ trait SequenceRuntimeValuedPropertiesMixin
       typeIfRuntimeKnown,
       separatorRaw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
   }
 
@@ -831,7 +831,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       NodeInfo.String,
       textStandardDecimalSeparatorRaw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
     c
   }.value
@@ -849,7 +849,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       NodeInfo.String,
       textStandardGroupingSeparatorRaw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
     c
   }.value
@@ -867,7 +867,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       NodeInfo.String,
       textStandardExponentRep,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
     c
   }.value
@@ -885,7 +885,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       NodeInfo.NonEmptyString,
       binaryFloatRepRaw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
   }.value
 
@@ -911,7 +911,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       NodeInfo.NonEmptyString,
       textBooleanTrueRepRaw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
   }.value
 
@@ -922,7 +922,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       NodeInfo.NonEmptyString,
       textBooleanFalseRepRaw,
       decl,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
   }.value
 
@@ -934,7 +934,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       textBooleanTrueRepExpr,
       textBooleanFalseRepEv,
       mustBeSameLength,
-      eci,
+      eci
     )
     ev.compile(tunable)
     ev
@@ -953,7 +953,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       NodeInfo.NonEmptyString,
       calendarLanguageRaw,
       decl,
-      eci,
+      eci
     )
     c
   }.value

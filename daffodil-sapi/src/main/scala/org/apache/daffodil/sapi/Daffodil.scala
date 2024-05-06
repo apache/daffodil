@@ -37,27 +37,27 @@ import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL.{
-  DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException,
+  DaffodilUnhandledSAXException => SDaffodilUnhandledSAXException
 }
 import org.apache.daffodil.runtime1.api.DFDL.{
-  DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler,
+  DaffodilUnparseContentHandler => SDaffodilUnparseContentHandler
 }
 import org.apache.daffodil.runtime1.api.DFDL.{
-  DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException,
+  DaffodilUnparseErrorSAXException => SDaffodilUnparseErrorSAXException
 }
 import org.apache.daffodil.runtime1.api.MetadataHandler
 import org.apache.daffodil.runtime1.debugger.Debugger
 import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.runtime1.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import org.apache.daffodil.runtime1.processors.{
-  DaffodilParseXMLReader => SDaffodilParseXMLReader,
+  DaffodilParseXMLReader => SDaffodilParseXMLReader
 }
 import org.apache.daffodil.runtime1.processors.{ DataProcessor => SDataProcessor }
 import org.apache.daffodil.runtime1.processors.{
-  ExternalVariableException => SExternalVariableException,
+  ExternalVariableException => SExternalVariableException
 }
 import org.apache.daffodil.runtime1.processors.{
-  InvalidUsageException => SInvalidUsageException,
+  InvalidUsageException => SInvalidUsageException
 }
 import org.apache.daffodil.runtime1.processors.{ ParseResult => SParseResult }
 import org.apache.daffodil.runtime1.processors.{ UnparseResult => SUnparseResult }
@@ -134,7 +134,7 @@ class Compiler private[sapi] (private var sCompiler: SCompiler) {
   def compileFile(
     schemaFile: File,
     optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None,
+    optRootNamespace: Option[String] = None
   ): ProcessorFactory = {
     val pf = sCompiler.compileFile(schemaFile, optRootName, optRootNamespace)
     new ProcessorFactory(pf)
@@ -155,7 +155,7 @@ class Compiler private[sapi] (private var sCompiler: SCompiler) {
   def compileSource(
     uri: URI,
     optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None,
+    optRootNamespace: Option[String] = None
   ): ProcessorFactory = {
     val source = URISchemaSource(Misc.uriToDiagnosticFile(uri), uri)
     val pf = sCompiler.compileSource(source, optRootName, optRootNamespace)
@@ -435,7 +435,7 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
   }
 
   def withValidator(validator: Validator): DataProcessor = withValidationMode(
-    ValidationMode.Custom(validator),
+    ValidationMode.Custom(validator)
   )
 
   /**
@@ -493,7 +493,7 @@ class DataProcessor private[sapi] (private var dp: SDataProcessor)
    */
   def newXMLReaderInstance(): DaffodilParseXMLReader =
     new DaffodilParseXMLReader(xmlrdr =
-      dp.newXMLReaderInstance.asInstanceOf[SDaffodilParseXMLReader],
+      dp.newXMLReaderInstance.asInstanceOf[SDaffodilParseXMLReader]
     )
 
   /**
@@ -578,7 +578,7 @@ class InvalidParserException(cause: org.apache.daffodil.core.compiler.InvalidPar
  * This exception will be thrown as a result of an invalid usage of the Daffodil API
  */
 class InvalidUsageException(
-  cause: org.apache.daffodil.runtime1.processors.InvalidUsageException,
+  cause: org.apache.daffodil.runtime1.processors.InvalidUsageException
 ) extends Exception(cause.getMessage(), cause.getCause())
 
 /**
@@ -597,7 +597,7 @@ class ExternalVariableException private[sapi] (message: String) extends Exceptio
  * used to get the UnparseResult and error diagnostics
  */
 class DaffodilUnparseErrorSAXException private[sapi] (
-  exception: SDaffodilUnparseErrorSAXException,
+  exception: SDaffodilUnparseErrorSAXException
 ) extends SAXException(exception.getMessage)
 
 /**
@@ -766,7 +766,7 @@ class DaffodilParseXMLReader private[sapi] (xmlrdr: SDaffodilParseXMLReader) ext
  * Accepts SAX callback events from any SAX XMLReader for unparsing
  */
 class DaffodilUnparseContentHandler private[sapi] (
-  sContentHandler: SDaffodilUnparseContentHandler,
+  sContentHandler: SDaffodilUnparseContentHandler
 ) extends ContentHandler {
 
   /**
@@ -807,7 +807,7 @@ class DaffodilUnparseContentHandler private[sapi] (
     uri: String,
     localName: String,
     qName: String,
-    atts: Attributes,
+    atts: Attributes
   ): Unit =
     try {
       sContentHandler.startElement(uri, localName, qName, atts)

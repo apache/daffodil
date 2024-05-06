@@ -234,7 +234,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
     schemaDefinitionUnless(
       !(sv && occursStopValue == ""),
-      "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.",
+      "Property occursCountKind='stopValue' requires a non-empty occursStopValue property."
     )
     schemaDefinitionUnless(!sv, "occursCountKind='stopValue' is not implemented.")
     sv

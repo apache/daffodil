@@ -30,7 +30,7 @@ trait Unseparated { self: SequenceChildUnparser =>
 class ScalarOrderedUnseparatedSequenceChildUnparser(
   childUnparser: Unparser,
   srd: SequenceRuntimeData,
-  trd: TermRuntimeData,
+  trd: TermRuntimeData
 ) extends SequenceChildUnparser(childUnparser, srd, trd)
   with Unseparated {
 
@@ -40,7 +40,7 @@ class ScalarOrderedUnseparatedSequenceChildUnparser(
 class RepOrderedUnseparatedSequenceChildUnparser(
   childUnparser: Unparser,
   srd: SequenceRuntimeData,
-  erd: ElementRuntimeData,
+  erd: ElementRuntimeData
 ) extends RepeatingChildUnparser(childUnparser, srd, erd)
   with Unseparated {
 
@@ -54,7 +54,7 @@ class RepOrderedUnseparatedSequenceChildUnparser(
 
 class OrderedUnseparatedSequenceUnparser(
   rd: SequenceRuntimeData,
-  childUnparsers: Seq[SequenceChildUnparser],
+  childUnparsers: Seq[SequenceChildUnparser]
 ) extends OrderedSequenceUnparserBase(rd, childUnparsers.toVector) {
 
   /**
@@ -63,7 +63,7 @@ class OrderedUnseparatedSequenceUnparser(
   protected def unparseOne(
     unparser: SequenceChildUnparser,
     trd: TermRuntimeData,
-    state: UState,
+    state: UState
   ): Unit = {
 
     unparser.unparse1(state)
@@ -148,7 +148,7 @@ class OrderedUnseparatedSequenceUnparser(
               unparser,
               numOccurrences,
               maxReps,
-              state.arrayIterationPos - 1,
+              state.arrayIterationPos - 1
             )
             unparser.endArrayOrOptional(erd, state)
           } else {
@@ -164,7 +164,7 @@ class OrderedUnseparatedSequenceUnparser(
               unparser,
               numOccurrences,
               maxReps,
-              0,
+              0
             )
           }
 

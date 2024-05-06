@@ -169,7 +169,7 @@ trait NoCacheEvaluatable[T <: AnyRef] { self: Evaluatable[T] =>
  */
 abstract class Evaluatable[+T <: AnyRef](
   protected val ci: DPathCompileInfo,
-  qNameArg: NamedQName = null,
+  qNameArg: NamedQName = null
 ) extends Serializable {
 
   type State = ParseOrUnparseState
@@ -254,7 +254,7 @@ abstract class Evaluatable[+T <: AnyRef](
   override def toString = "(%s@%x, %s)".format(
     qName,
     this.hashCode(),
-    (if (isConstant) "constant: " + constValue else "runtime"),
+    (if (isConstant) "constant: " + constValue else "runtime")
   )
 
   def toBriefXML(depth: Int = -1): String = if (isConstant) constValue.toString else toString
@@ -373,7 +373,7 @@ abstract class Evaluatable[+T <: AnyRef](
 final class EvalCache {
   private val ht =
     new java.util.LinkedHashMap[Evaluatable[
-      AnyRef,
+      AnyRef
     ], AnyRef] // linked so we can depend on order in unit tests.
 
   def get[T <: AnyRef](ev: Evaluatable[T]): Maybe[T] = {
@@ -452,7 +452,7 @@ trait ExprEvalMixin[T <: AnyRef]
  */
 abstract class EvaluatableExpression[ExprType <: AnyRef](
   override val expr: CompiledExpression[ExprType],
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends Evaluatable[ExprType](ci)
   with ExprEvalMixin[ExprType] {
 
@@ -502,6 +502,6 @@ trait EvaluatableConvertedExpressionMixin[ExprType <: AnyRef, +ConvertedType <: 
 abstract class EvaluatableConvertedExpression[ExprType <: AnyRef, +ConvertedType <: AnyRef](
   val expr: CompiledExpression[ExprType],
   val converter: Converter[ExprType, ConvertedType],
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends Evaluatable[ConvertedType](ci)
   with EvaluatableConvertedExpressionMixin[ExprType, ConvertedType]

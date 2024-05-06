@@ -50,7 +50,7 @@ abstract class FuzzData(
   val data: Array[Byte],
   offset: Int, // allows you not to clobber a prefix of the data
   endOffset: Int, // number of bytes at the end to not clobber
-  seed: Int = 1, // specify to get varied, but repeatable results
+  seed: Int = 1 // specify to get varied, but repeatable results
 ) extends Iterator[Array[Byte]] {
 
   protected val r = new Random(seed)
@@ -138,7 +138,7 @@ class FuzzParseTester(
   sch: Elem,
   data: Array[Byte],
   expected: Elem,
-  fuzzer: FuzzData,
+  fuzzer: FuzzData
 ) {
 
   private val p = TestUtils.compileSchema(sch)
@@ -158,7 +158,7 @@ class FuzzParseTester(
   protected def handleUnexpectedSuccess(
     actual: Node,
     testData: Array[Byte],
-    diff: XMLDifferenceException,
+    diff: XMLDifferenceException
   ): Unit = {
     // we didn't get a throw from this fuzzed data
     // but the XML output was not what was expected either
@@ -203,7 +203,7 @@ class LayerParseTester(
   data: Array[Byte],
   expected: Elem,
   fuzzer: FuzzData,
-  excludes: Seq[String],
+  excludes: Seq[String]
 ) extends FuzzParseTester(sch, data, expected, fuzzer) {
 
   var shouldFail = false

@@ -138,7 +138,7 @@ trait DataOutputStream extends DataStreamCommon {
    */
   protected def setMaybeRelBitLimit0b(
     newMaybeRelBitLimit0b: MaybeULong,
-    reset: Boolean = false,
+    reset: Boolean = false
   ): Boolean
 
   def resetMaybeRelBitLimit0b(savedBitLimit0b: MaybeULong): Unit
@@ -184,7 +184,7 @@ trait DataOutputStream extends DataStreamCommon {
     bigInt: JBigInt,
     bitLengthFrom1: Int,
     signed: Boolean,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean
 
   /**
@@ -208,7 +208,7 @@ trait DataOutputStream extends DataStreamCommon {
     ba: Array[Byte],
     bitLengthFrom1: Long,
     finfo: FormatInfo,
-    ignoreByteOrder: Boolean = false,
+    ignoreByteOrder: Boolean = false
   ): Boolean
 
   /**

@@ -29,14 +29,14 @@ object TestProcessingErrorsUnparse {
     testDir,
     "ProcessingErrorsUnparse.tdml",
     validateTDMLFile = false,
-    validateDFDLSchemas = false,
+    validateDFDLSchemas = false
   )
   val runner02Validate = Runner(
     testDir,
     "ProcessingErrorsUnparse.tdml",
     validateTDMLFile = true,
     validateDFDLSchemas = true,
-    compileAllTopLevel = true,
+    compileAllTopLevel = true
   )
 
   @AfterClass def shutDown(): Unit = {
