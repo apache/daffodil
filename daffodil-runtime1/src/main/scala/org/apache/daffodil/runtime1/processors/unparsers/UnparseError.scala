@@ -25,13 +25,13 @@ import org.apache.daffodil.runtime1.processors._
 class UnparseAlternativeFailed(
   rd: TermRuntimeData,
   loc: DataLocation,
-  val errors: Seq[Diagnostic],
+  val errors: Seq[Diagnostic]
 ) extends UnparseError(
     One(rd.schemaFileLocation),
     One(loc),
     Maybe.Nope,
     Maybe("Alternative failed. Reason(s): %s"),
-    errors,
+    errors
   )
 
 object UnparseError {
@@ -39,7 +39,7 @@ object UnparseError {
     rd: Maybe[SchemaFileLocation],
     loc: Maybe[DataLocation],
     formatString: String,
-    args: Any*,
+    args: Any*
   ) = {
     val ue = new UnparseError(rd, loc, Maybe.Nope, Maybe(formatString), args: _*)
     ue.toss
@@ -51,7 +51,7 @@ class UnparseError(
   loc: Maybe[DataLocation],
   causedBy: Maybe[Throwable],
   kind: Maybe[String],
-  args: Any*,
+  args: Any*
 ) extends ProcessingError("Unparse", rd, loc, causedBy, kind, args: _*) {
   def this(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], causedBy: Throwable) =
     this(rd, loc, Maybe(causedBy), Maybe.Nope)

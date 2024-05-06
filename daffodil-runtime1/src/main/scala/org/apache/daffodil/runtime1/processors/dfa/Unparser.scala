@@ -44,7 +44,7 @@ abstract class DelimitedUnparser extends Unparser {
    * match with the longer delimiter length is used as a tie breaker
    */
   protected def longestMatch(
-    matches: ArrayBuffer[(DFADelimiter, Registers)],
+    matches: ArrayBuffer[(DFADelimiter, Registers)]
   ): Maybe[(DFADelimiter, Registers)] = {
     val len = matches.length
     if (len == 0) return Nope

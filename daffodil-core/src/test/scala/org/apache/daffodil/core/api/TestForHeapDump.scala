@@ -58,7 +58,7 @@ class TestForHeapDump {
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       rootElem,
       elementFormDefault = "unqualified",
-      useDefaultNamespace = false,
+      useDefaultNamespace = false
     )
     val p = compileSchema(sch).withValidationMode(ValidationMode.Off)
     p
@@ -143,7 +143,7 @@ class TestForHeapDump {
         />,
       rootElem,
       elementFormDefault = "unqualified",
-      useDefaultNamespace = false,
+      useDefaultNamespace = false
     )
     val p = compileSchema(sch).withValidationMode(ValidationMode.Off)
     p

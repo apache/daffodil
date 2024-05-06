@@ -33,7 +33,7 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_C(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
@@ -44,7 +44,7 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_noLang_error(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
@@ -56,7 +56,7 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_unknownLang_error(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
@@ -68,7 +68,7 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_noSchema_error(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
@@ -80,7 +80,7 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_twoSchema_error(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
@@ -92,7 +92,7 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_verbose(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
@@ -106,12 +106,12 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_root(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
       runCLI(args"generate c -s $schema -r {http://example.com}ex_nums $tempDir") { _ => }(
-        ExitCode.Success,
+        ExitCode.Success
       )
       assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }
@@ -119,7 +119,7 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_root_error(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
@@ -132,7 +132,7 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_namespaceNoRoot_error(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
@@ -144,12 +144,12 @@ class TestCLIGenerate {
 
   @Test def test_CLI_Generate_tunable(): Unit = {
     val schema = path(
-      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd",
+      "daffodil-codegen-c/src/test/resources/org/apache/daffodil/codegen/c/ex_nums.dfdl.xsd"
     )
 
     withTempDir { tempDir =>
       runCLI(args"generate c -s $schema -T parseUnparsePolicy=parseOnly $tempDir") { _ => }(
-        ExitCode.Success,
+        ExitCode.Success
       )
       assertTrue(exists(tempDir.resolve("c/libruntime/generated_code.c")))
     }

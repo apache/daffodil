@@ -32,7 +32,7 @@ class BinaryBoolean(val e: ElementBase) extends Terminal(e, true) {
     e.binaryBooleanFalseRep,
     e.lengthEv,
     e.lengthUnits,
-    e.lengthKind,
+    e.lengthKind
   )
 
   override lazy val unparser: Unparser = new BinaryBooleanUnparser(
@@ -41,7 +41,7 @@ class BinaryBoolean(val e: ElementBase) extends Terminal(e, true) {
     e.binaryBooleanFalseRep,
     e.lengthEv,
     e.lengthUnits,
-    e.lengthKind,
+    e.lengthKind
   )
 }
 
@@ -53,7 +53,7 @@ class BinaryBooleanPrefixedLength(val e: ElementBase) extends Terminal(e, true) 
     e.binaryBooleanTrueRep,
     e.binaryBooleanFalseRep,
     e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits,
+    e.prefixedLengthAdjustmentInUnits
   )
 
   override lazy val unparser: Unparser = new BinaryBooleanPrefixedLengthUnparser(
@@ -63,6 +63,6 @@ class BinaryBooleanPrefixedLength(val e: ElementBase) extends Terminal(e, true) 
     e.binaryBooleanTrueRep,
     e.binaryBooleanFalseRep,
     e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits,
+    e.prefixedLengthAdjustmentInUnits
   )
 }

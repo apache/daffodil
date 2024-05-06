@@ -457,7 +457,7 @@ case class WholeExpression(
   ifor: Expression,
   nsBindingForPrefixResolution: NamespaceBinding,
   ci: DPathCompileInfo,
-  host: BasicComponent,
+  host: BasicComponent
 ) extends Expression {
 
   final override lazy val tunable: DaffodilTunables = host.tunable
@@ -466,7 +466,7 @@ case class WholeExpression(
 
   def init(): Unit = {
     this.setOOLAGContext(
-      host,
+      host
     ) // we are the root of expression, but we propagate diagnostics further.
     this.setContextsForChildren()
   }
@@ -524,14 +524,14 @@ case class WholeExpression(
             "Performing deprecated automatic conversion.",
           wholeExpressionText,
           inherentType,
-          targetType,
+          targetType
         )
       } else {
         SDE(
           "In expression %s, result type (%s) must be manually cast to the expected type (%s) with the approrpriate constructor.",
           wholeExpressionText,
           inherentType,
-          targetType,
+          targetType
         )
       }
     }
@@ -552,7 +552,7 @@ case class WholeExpression(
 case class IfExpression(ifthenelse: List[Expression]) extends ExpressionLists(ifthenelse) {
 
   override lazy val compiledDPath = new CompiledDPath(
-    IF(predicate.compiledDPath, thenPart.compiledDPath, elsePart.compiledDPath),
+    IF(predicate.compiledDPath, thenPart.compiledDPath, elsePart.compiledDPath)
   )
 
   override def text =
@@ -731,7 +731,7 @@ case class RelativePathExpression(stepsRaw: List[StepExpression], isEvaluatedAbo
         if (!steps(0).isInstanceOf[Up]) {
           SDE(
             """Path expression must be absolute or begin with a "../" upward step: %s""",
-            this.text,
+            this.text
           )
         }
         steps.tail
@@ -786,7 +786,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
         new RelativePathPastRootError(
           this.schemaFileLocation,
           "Relative path '%s' past root element.",
-          this.wholeExpressionText,
+          this.wholeExpressionText
         )
       }
     toss(err)
@@ -889,7 +889,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
         "- Non-array: %s\n",
       step,
       arrays.head.schemaFileLocation.locationDescription,
-      nonArrays.head.schemaFileLocation.locationDescription,
+      nonArrays.head.schemaFileLocation.locationDescription
     )
   }
 
@@ -943,7 +943,7 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
       subsetError(
         "Expression %s has different types at different points of usage.%s",
         relevantExpr.text,
-        details,
+        details
       )
     } else {
       allTypes.head
@@ -976,7 +976,7 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
                     qn,
                     wholePath.wholeExpressionText,
                     tname,
-                    sfl,
+                    sfl
                   )
                   msg
                 }
@@ -990,7 +990,7 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
                 detailStrings
             val detailMessage: String =
               "\nThe inconsistent type usages are listed here:\n%s".format(
-                detailPart.mkString("\n"),
+                detailPart.mkString("\n")
               )
             (wholePath, detailMessage)
           } else {
@@ -1132,7 +1132,7 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
         schemaDefinitionUnless(
           targetType == NodeInfo.Array,
           "Query-style paths not supported. Must have '[...]' after array-element's name. Offending path step: '%s'.",
-          step,
+          step
         )
         new DownArray(nqn)
       }
@@ -1145,7 +1145,7 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
         subsetError(
           "Indexing is only allowed on arrays. Offending path step: '%s%s'.",
           step,
-          pred.get.text,
+          pred.get.text
         )
       // the downward element step must be the same for all the possible elements, so
       // we can pick the first one arbitrarily.
@@ -1431,7 +1431,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           SDW(
             WarnID.DeprecatedFunctionDAFError,
             "Expression %s is deprecated. Use dfdlx:trace instead",
-            functionQNameString,
+            functionQNameString
           )
         }
         DFDLXTraceExpr(functionQNameString, functionQName, args)
@@ -1441,7 +1441,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         SDW(
           WarnID.DeprecatedFunctionDAFError,
           "Expression %s is deprecated. Use fn:error instead",
-          functionQNameString,
+          functionQNameString
         )
         DAFErrorExpr(functionQNameString, functionQName, args)
       }
@@ -1457,7 +1457,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Boolean,
           NodeInfo.AnyAtomic,
-          FNNot(_, _),
+          FNNot(_, _)
         )
 
       case (RefQName(_, "empty", FUNC), args) =>
@@ -1467,7 +1467,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Boolean,
           NodeInfo.Exists,
-          FNEmpty(_, _),
+          FNEmpty(_, _)
         )
 
       case (RefQName(_, "contains", FUNC), args) =>
@@ -1478,7 +1478,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.Boolean,
           NodeInfo.String,
           NodeInfo.String,
-          FNContains(_),
+          FNContains(_)
         )
 
       case (RefQName(_, "starts-with", FUNC), args) =>
@@ -1489,7 +1489,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.Boolean,
           NodeInfo.String,
           NodeInfo.String,
-          FNStartsWith(_),
+          FNStartsWith(_)
         )
 
       case (RefQName(_, "ends-with", FUNC), args) =>
@@ -1500,7 +1500,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.Boolean,
           NodeInfo.String,
           NodeInfo.String,
-          FNEndsWith(_),
+          FNEndsWith(_)
         )
 
       case (RefQName(_, "local-name", FUNC), args) if args.length == 0 =>
@@ -1509,7 +1509,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           functionQName,
           NodeInfo.String,
           NodeInfo.Exists,
-          FNLocalName0(_, _),
+          FNLocalName0(_, _)
         )
 
       case (RefQName(_, "local-name", FUNC), args) if args.length == 1 =>
@@ -1519,7 +1519,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.Exists,
-          FNLocalName1(_, _),
+          FNLocalName1(_, _)
         )
 
       case (RefQName(_, "namespace-uri", FUNC), args) if args.length == 0 =>
@@ -1528,7 +1528,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           functionQName,
           NodeInfo.String,
           NodeInfo.Exists,
-          FNNamespaceUri0(_, _),
+          FNNamespaceUri0(_, _)
         )
 
       case (RefQName(_, "namespace-uri", FUNC), args) if args.length == 1 =>
@@ -1538,7 +1538,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.Exists,
-          FNNamespaceUri1(_, _),
+          FNNamespaceUri1(_, _)
         )
 
       case (RefQName(_, "string", XSD), args) =>
@@ -1548,7 +1548,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.AnyAtomic,
-          XSString(_, _),
+          XSString(_, _)
         )
 
       case (RefQName(_, "dateTime", FUNC), args) =>
@@ -1559,7 +1559,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.DateTime,
           NodeInfo.Date,
           NodeInfo.Time,
-          FNDateTime(_),
+          FNDateTime(_)
         )
 
       case (RefQName(_, "dateTime", XSD), args) =>
@@ -1569,7 +1569,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.DateTime,
           NodeInfo.AnyAtomic,
-          XSDateTime(_, _),
+          XSDateTime(_, _)
         )
 
       case (RefQName(_, "date", XSD), args) =>
@@ -1579,7 +1579,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Date,
           NodeInfo.AnyAtomic,
-          XSDate(_, _),
+          XSDate(_, _)
         )
 
       case (RefQName(_, "time", XSD), args) =>
@@ -1589,7 +1589,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Time,
           NodeInfo.AnyAtomic,
-          XSTime(_, _),
+          XSTime(_, _)
         )
 
       case (RefQName(_, "hexBinary", XSD), args) =>
@@ -1599,7 +1599,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.HexBinary,
           NodeInfo.AnyAtomic,
-          XSHexBinary(_, _),
+          XSHexBinary(_, _)
         )
 
       case (RefQName(_, "hexBinary", DFDL), args) =>
@@ -1609,7 +1609,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.HexBinary,
           NodeInfo.AnyAtomic,
-          DFDLHexBinary(_, _),
+          DFDLHexBinary(_, _)
         )
 
       case (RefQName(_, "byte", DFDL), args) =>
@@ -1619,7 +1619,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Byte,
           NodeInfo.AnyAtomic,
-          DFDLByte(_, _),
+          DFDLByte(_, _)
         )
 
       case (RefQName(_, "unsignedByte", DFDL), args) =>
@@ -1629,7 +1629,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.UnsignedByte,
           NodeInfo.AnyAtomic,
-          DFDLUnsignedByte(_, _),
+          DFDLUnsignedByte(_, _)
         )
 
       case (RefQName(_, "short", DFDL), args) =>
@@ -1639,7 +1639,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Short,
           NodeInfo.AnyAtomic,
-          DFDLShort(_, _),
+          DFDLShort(_, _)
         )
 
       case (RefQName(_, "unsignedShort", DFDL), args) =>
@@ -1649,7 +1649,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.UnsignedShort,
           NodeInfo.AnyAtomic,
-          DFDLUnsignedShort(_, _),
+          DFDLUnsignedShort(_, _)
         )
 
       case (RefQName(_, "int", DFDL), args) =>
@@ -1659,7 +1659,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Int,
           NodeInfo.AnyAtomic,
-          DFDLInt(_, _),
+          DFDLInt(_, _)
         )
 
       case (RefQName(_, "unsignedInt", DFDL), args) =>
@@ -1669,7 +1669,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.UnsignedInt,
           NodeInfo.AnyAtomic,
-          DFDLUnsignedInt(_, _),
+          DFDLUnsignedInt(_, _)
         )
 
       case (RefQName(_, "long", DFDL), args) =>
@@ -1679,7 +1679,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Long,
           NodeInfo.AnyAtomic,
-          DFDLLong(_, _),
+          DFDLLong(_, _)
         )
 
       case (RefQName(_, "unsignedLong", DFDL), args) =>
@@ -1689,7 +1689,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.UnsignedLong,
           NodeInfo.AnyAtomic,
-          DFDLUnsignedLong(_, _),
+          DFDLUnsignedLong(_, _)
         )
 
       case (RefQName(_, "nilled", FUNC), args) =>
@@ -1699,7 +1699,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Boolean,
           NodeInfo.AnyType,
-          FNNilled(_, _),
+          FNNilled(_, _)
         )
 
       case (RefQName(_, "exists", FUNC), args) =>
@@ -1709,7 +1709,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Boolean,
           NodeInfo.Exists,
-          FNExists(_, _),
+          FNExists(_, _)
         )
 
       case (RefQName(_, "ceiling", FUNC), args) =>
@@ -1731,7 +1731,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.String,
-          FNConcat(_),
+          FNConcat(_)
         )
 
       // Note: there is no string-join function in DFDL
@@ -1748,7 +1748,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.String,
           NodeInfo.String,
           NodeInfo.Double,
-          FNSubstring2(_),
+          FNSubstring2(_)
         )
       case (RefQName(_, "substring", FUNC), args) if args.length == 3 =>
         FNThreeArgsExpr(
@@ -1759,7 +1759,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.String,
           NodeInfo.Double,
           NodeInfo.Double,
-          FNSubstring3(_),
+          FNSubstring3(_)
         )
 
       case (RefQName(_, "substring-before", FUNC), args) =>
@@ -1770,7 +1770,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.String,
           NodeInfo.String,
           NodeInfo.String,
-          FNSubstringBefore(_),
+          FNSubstringBefore(_)
         )
 
       case (RefQName(_, "substring-after", FUNC), args) =>
@@ -1781,7 +1781,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.String,
           NodeInfo.String,
           NodeInfo.String,
-          FNSubstringAfter(_),
+          FNSubstringAfter(_)
         )
 
       case (RefQName(_, "true", FUNC), Nil) => LiteralBooleanExpression(true)
@@ -1813,7 +1813,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.DateTime,
-          FNYearFromDateTime(_, _),
+          FNYearFromDateTime(_, _)
         )
       case (RefQName(_, "month-from-dateTime", FUNC), args) =>
         FNOneArgExpr(
@@ -1822,7 +1822,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.DateTime,
-          FNMonthFromDateTime(_, _),
+          FNMonthFromDateTime(_, _)
         )
       case (RefQName(_, "day-from-dateTime", FUNC), args) =>
         FNOneArgExpr(
@@ -1831,7 +1831,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.DateTime,
-          FNDayFromDateTime(_, _),
+          FNDayFromDateTime(_, _)
         )
       case (RefQName(_, "hours-from-dateTime", FUNC), args) =>
         FNOneArgExpr(
@@ -1840,7 +1840,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.DateTime,
-          FNHoursFromDateTime(_, _),
+          FNHoursFromDateTime(_, _)
         )
       case (RefQName(_, "minutes-from-dateTime", FUNC), args) =>
         FNOneArgExpr(
@@ -1849,7 +1849,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.DateTime,
-          FNMinutesFromDateTime(_, _),
+          FNMinutesFromDateTime(_, _)
         )
       case (RefQName(_, "seconds-from-dateTime", FUNC), args) =>
         FNOneArgExpr(
@@ -1858,7 +1858,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Decimal,
           NodeInfo.DateTime,
-          FNSecondsFromDateTime(_, _),
+          FNSecondsFromDateTime(_, _)
         )
       case (RefQName(_, "year-from-date", FUNC), args) =>
         FNOneArgExpr(
@@ -1867,7 +1867,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.Date,
-          FNYearFromDate(_, _),
+          FNYearFromDate(_, _)
         )
       case (RefQName(_, "month-from-date", FUNC), args) =>
         FNOneArgExpr(
@@ -1876,7 +1876,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.Date,
-          FNMonthFromDate(_, _),
+          FNMonthFromDate(_, _)
         )
       case (RefQName(_, "day-from-date", FUNC), args) =>
         FNOneArgExpr(
@@ -1885,7 +1885,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.Date,
-          FNDayFromDate(_, _),
+          FNDayFromDate(_, _)
         )
       case (RefQName(_, "hours-from-time", FUNC), args) =>
         FNOneArgExpr(
@@ -1894,7 +1894,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.Time,
-          FNHoursFromTime(_, _),
+          FNHoursFromTime(_, _)
         )
       case (RefQName(_, "minutes-from-time", FUNC), args) =>
         FNOneArgExpr(
@@ -1903,7 +1903,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Integer,
           NodeInfo.Time,
-          FNMinutesFromTime(_, _),
+          FNMinutesFromTime(_, _)
         )
       case (RefQName(_, "seconds-from-time", FUNC), args) =>
         FNOneArgExpr(
@@ -1912,7 +1912,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Decimal,
           NodeInfo.Time,
-          FNSecondsFromTime(_, _),
+          FNSecondsFromTime(_, _)
         )
 
       case (RefQName(_, "occursIndex", DFDL), args) => {
@@ -1934,7 +1934,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.String,
-          DFDLDecodeDFDLEntities(_, _),
+          DFDLDecodeDFDLEntities(_, _)
         )
       }
       case (RefQName(_, "encodeDFDLEntities", DFDL), args) => {
@@ -1944,7 +1944,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.String,
-          DFDLEncodeDFDLEntities(_, _),
+          DFDLEncodeDFDLEntities(_, _)
         )
       }
       case (RefQName(_, "containsDFDLEntities", DFDL), args) => {
@@ -1954,7 +1954,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Boolean,
           NodeInfo.String,
-          DFDLContainsDFDLEntities(_, _),
+          DFDLContainsDFDLEntities(_, _)
         )
       }
 
@@ -1974,7 +1974,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Double,
           NodeInfo.Long,
-          DFDLXDoubleFromRawLong(_, _),
+          DFDLXDoubleFromRawLong(_, _)
         )
       }
 
@@ -1985,7 +1985,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.Long,
           NodeInfo.Double,
-          DFDLXDoubleToRawLong(_, _),
+          DFDLXDoubleToRawLong(_, _)
         )
       }
 
@@ -1997,7 +1997,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.NonNegativeInteger,
           NodeInfo.UnsignedInt,
           NodeInfo.UnsignedInt,
-          DFDLXLookAhead(_),
+          DFDLXLookAhead(_)
         )
 
       // End DFDLX functions
@@ -2012,7 +2012,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           functionQName,
           args,
           NodeInfo.Integer,
-          FNRoundHalfToEven2(_),
+          FNRoundHalfToEven2(_)
         )
       }
 
@@ -2023,7 +2023,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.ArrayIndex,
           NodeInfo.String,
-          FNStringLength(_, _),
+          FNStringLength(_, _)
         )
       }
 
@@ -2035,7 +2035,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.Long,
           NodeInfo.Exists,
           NodeInfo.String,
-          DFDLContentLength(_),
+          DFDLContentLength(_)
         )
       // The above specifies Exists, because we want to know a node exists, but
       // it has to be a node, not a simple value. E.g., dfdl:contentLength("foobar", "bits") makes no sense.
@@ -2053,7 +2053,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.Long,
           NodeInfo.Exists,
           NodeInfo.String,
-          DFDLValueLength(_),
+          DFDLValueLength(_)
         )
       }
 
@@ -2064,7 +2064,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.String,
-          FNLowerCase(_, _),
+          FNLowerCase(_, _)
         )
 
       case (RefQName(_, "upper-case", FUNC), args) =>
@@ -2074,7 +2074,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.String,
-          FNUpperCase(_, _),
+          FNUpperCase(_, _)
         )
 
       case (RefQName(_, "timeZoneFromDateTime", DFDL), args) => {
@@ -2084,7 +2084,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.DateTime,
-          DFDLTimeZoneFromDFDLCalendar(_, _),
+          DFDLTimeZoneFromDFDLCalendar(_, _)
         )
       }
       case (RefQName(_, "timeZoneFromDate", DFDL), args) => {
@@ -2094,7 +2094,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.Date,
-          DFDLTimeZoneFromDFDLCalendar(_, _),
+          DFDLTimeZoneFromDFDLCalendar(_, _)
         )
       }
       case (RefQName(_, "timeZoneFromTime", DFDL), args) => {
@@ -2104,7 +2104,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           args,
           NodeInfo.String,
           NodeInfo.Time,
-          DFDLTimeZoneFromDFDLCalendar(_, _),
+          DFDLTimeZoneFromDFDLCalendar(_, _)
         )
       }
       case (RefQName(_, "pow", MATH), args) => {
@@ -2115,7 +2115,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.Double,
           NodeInfo.Double,
           NodeInfo.Numeric,
-          MATHPow(_),
+          MATHPow(_)
         )
       }
 
@@ -2177,7 +2177,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           val UserDefinedFunctionService.EvaluateMethodInfo(
             evaluateMethod,
             evaluateParamTypes,
-            evaluateReturnType,
+            evaluateReturnType
           ) =
             ei
 
@@ -2187,7 +2187,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
             args,
             evaluateParamTypes,
             evaluateReturnType,
-            UserDefinedFunctionCall(_, _, udf, evaluateMethod),
+            UserDefinedFunctionCall(_, _, udf, evaluateMethod)
           )
         }
       }
@@ -2201,7 +2201,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
 abstract class FunctionCallBase(
   functionQNameString: String,
   functionQName: RefQName,
-  expressions: List[Expression],
+  expressions: List[Expression]
 ) extends ExpressionLists(expressions) {
   override def text =
     functionQNameString + "(" + expressions.map { _.text }.mkString(", ") + ")"
@@ -2221,7 +2221,7 @@ abstract class FunctionCallBase(
   protected def argArrayOrOptionalErr() = {
     SDE(
       "The %s function requires an array or optional path expression.",
-      functionQName.toPrettyString,
+      functionQName.toPrettyString
     )
   }
 
@@ -2256,7 +2256,7 @@ abstract class FunctionCallBase(
     SDE(
       "The %s function requires no more than %s argument(s).",
       functionQName.toPrettyString,
-      n,
+      n
     )
   }
 
@@ -2268,7 +2268,7 @@ abstract class FunctionCallBase(
 abstract class FunctionCallArrayOrOptionalBase(
   nameAsParsed: String,
   fnQName: RefQName,
-  args: List[Expression],
+  args: List[Expression]
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   def funcName: String
@@ -2320,7 +2320,7 @@ case class FNExactlyOneExpr(nameAsParsed: String, fnQName: RefQName, args: List[
 case class FNRoundHalfToEvenExpr(
   nameAsParsed: String,
   fnQName: RefQName,
-  args: List[Expression],
+  args: List[Expression]
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   val (valueExpr, precisionExpr) = args match {
@@ -2330,7 +2330,7 @@ case class FNRoundHalfToEvenExpr(
       SDE(
         "The %n function requires 1 or 2 arguments. But %s were found.",
         fnQName.toPrettyString,
-        args.length,
+        args.length
       )
   }
 
@@ -2346,7 +2346,7 @@ case class FNRoundHalfToEvenExpr(
 
   override lazy val compiledDPath =
     new CompiledDPath(
-      FNRoundHalfToEven(valueExpr.compiledDPath, precisionExpr.compiledDPath) +: conversions,
+      FNRoundHalfToEven(valueExpr.compiledDPath, precisionExpr.compiledDPath) +: conversions
     )
 }
 
@@ -2359,14 +2359,14 @@ case class FNOneArgMathExpr(
   nameAsParsed: String,
   fnQName: RefQName,
   args: List[Expression],
-  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp,
+  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = {
     schemaDefinitionUnless(
       argInherentType.isSubtypeOf(NodeInfo.Numeric),
       "Argument must be of numeric type but was %s.",
-      argInherentType,
+      argInherentType
     )
     argInherentType
   }
@@ -2375,7 +2375,7 @@ case class FNOneArgMathExpr(
     schemaDefinitionUnless(
       args.length == 1,
       "Function %s takes 1 argument.",
-      fnQName.toPrettyString,
+      fnQName.toPrettyString
     )
     args(0).inherentType
   }
@@ -2402,7 +2402,7 @@ case class FNTwoArgsMathExpr(
   fnQName: RefQName,
   args: List[Expression],
   arg2Type: NodeInfo.Kind,
-  constructor: List[CompiledDPath] => RecipeOp,
+  constructor: List[CompiledDPath] => RecipeOp
 ) extends FNTwoArgsExprBase(
     nameAsParsed,
     fnQName,
@@ -2410,14 +2410,14 @@ case class FNTwoArgsMathExpr(
     NodeInfo.Numeric,
     NodeInfo.Numeric,
     arg2Type,
-    constructor,
+    constructor
   ) {
 
   override lazy val inherentType = {
     schemaDefinitionUnless(
       argInherentType.isSubtypeOf(NodeInfo.Numeric),
       "First argument must be of numeric type but was %s.",
-      argInherentType,
+      argInherentType
     )
     argInherentType
   }
@@ -2426,7 +2426,7 @@ case class FNTwoArgsMathExpr(
     schemaDefinitionUnless(
       args.length == 2,
       "Function %s takes 2 arguments.",
-      fnQName.toPrettyString,
+      fnQName.toPrettyString
     )
     args(0).inherentType
   }
@@ -2445,7 +2445,7 @@ case class DFDLXShiftExpr(
   nameAsParsed: String,
   fnQName: RefQName,
   args: List[Expression],
-  constructor: (List[CompiledDPath], NodeInfo.Kind) => RecipeOp,
+  constructor: (List[CompiledDPath], NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
   override lazy val inherentType = {
     val argInherentType = args(0).inherentType
@@ -2454,7 +2454,7 @@ case class DFDLXShiftExpr(
         argInherentType.isSubtypeOf(NodeInfo.PrimType.Long),
       "First argument for %s must be either xs:unsignedLong or xs:long or a subtype of those, but was %s.",
       nameAsParsed,
-      argInherentType.globalQName,
+      argInherentType.globalQName
     )
     argInherentType
   }
@@ -2484,7 +2484,7 @@ case class DFDLXBitBinaryExpr(
   nameAsParsed: String,
   fnQName: RefQName,
   args: List[Expression],
-  constructor: (List[CompiledDPath], NodeInfo.Kind) => RecipeOp,
+  constructor: (List[CompiledDPath], NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
   override lazy val inherentType = {
     val arg0Type = args(0).inherentType
@@ -2495,7 +2495,7 @@ case class DFDLXBitBinaryExpr(
         .isSubtypeOf(NodeInfo.PrimType.Long),
       "Both arguments for %s must be either xs:unsignedLong or xs:long or a subtype of those, but was %s.",
       nameAsParsed,
-      argInherentType.globalQName,
+      argInherentType.globalQName
     )
     argInherentType
   }
@@ -2516,17 +2516,17 @@ case class DFDLXBitUnaryExpr(
   nameAsParsed: String,
   fnQName: RefQName,
   args: List[Expression],
-  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp,
+  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
   override lazy val inherentType = {
     val arg0Type = args(0).inherentType
     schemaDefinitionUnless(
       arg0Type.isSubtypeOf(NodeInfo.PrimType.UnsignedLong) || arg0Type.isSubtypeOf(
-        NodeInfo.PrimType.Long,
+        NodeInfo.PrimType.Long
       ),
       "The argument passed for %s must be either xs:unsignedLong or xs:long or a subtype of those, but was %s.",
       nameAsParsed,
-      arg0Type.globalQName,
+      arg0Type.globalQName
     )
     arg0Type
   }
@@ -2547,7 +2547,7 @@ case class FNZeroArgExpr(
   fnQName: RefQName,
   resultType: NodeInfo.Kind,
   argType: NodeInfo.Kind,
-  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp,
+  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, Nil) {
 
   override lazy val inherentType = resultType
@@ -2568,7 +2568,7 @@ case class FNOneArgExpr(
   args: List[Expression],
   resultType: NodeInfo.Kind,
   argType: NodeInfo.Kind,
-  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp,
+  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType
@@ -2591,7 +2591,7 @@ case class FNOneArgExprConversionDisallowed(
   args: List[Expression],
   resultType: NodeInfo.Kind,
   argType: NodeInfo.Kind,
-  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp,
+  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType
@@ -2617,7 +2617,7 @@ abstract class FNTwoArgsExprBase(
   resultType: NodeInfo.Kind,
   arg1Type: NodeInfo.Kind,
   arg2Type: NodeInfo.Kind,
-  constructor: List[CompiledDPath] => RecipeOp,
+  constructor: List[CompiledDPath] => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType
@@ -2649,7 +2649,7 @@ case class FNTwoArgsExpr(
   resultType: NodeInfo.Kind,
   arg1Type: NodeInfo.Kind,
   arg2Type: NodeInfo.Kind,
-  constructor: List[CompiledDPath] => RecipeOp,
+  constructor: List[CompiledDPath] => RecipeOp
 ) extends FNTwoArgsExprBase(
     nameAsParsed,
     fnQName,
@@ -2657,7 +2657,7 @@ case class FNTwoArgsExpr(
     resultType,
     arg1Type,
     arg2Type,
-    constructor,
+    constructor
   )
 
 /*
@@ -2677,7 +2677,7 @@ case class FNTwoArgsExprInferedArgType(
   resultType: NodeInfo.Kind,
   arg1Type: NodeInfo.Kind,
   arg2Type: NodeInfo.Kind,
-  constructor: List[(CompiledDPath, NodeInfo.Kind)] => RecipeOp,
+  constructor: List[(CompiledDPath, NodeInfo.Kind)] => RecipeOp
 ) extends {
     private val constructor_ : List[CompiledDPath] => RecipeOp =
       (subExprs: List[CompiledDPath]) => {
@@ -2694,7 +2694,7 @@ case class FNTwoArgsExprInferedArgType(
     resultType,
     arg1Type,
     arg2Type,
-    constructor_,
+    constructor_
   )
 
 sealed abstract class LengthExprBase(
@@ -2704,7 +2704,7 @@ sealed abstract class LengthExprBase(
   resultType: NodeInfo.Kind,
   arg1Type: NodeInfo.Kind,
   arg2Type: NodeInfo.Kind,
-  constructor: List[CompiledDPath] => RecipeOp,
+  constructor: List[CompiledDPath] => RecipeOp
 ) extends FNTwoArgsExprBase(
     nameAsParsed,
     fnQName,
@@ -2712,7 +2712,7 @@ sealed abstract class LengthExprBase(
     resultType,
     arg1Type,
     arg2Type,
-    constructor,
+    constructor
   ) {
 
   protected final def leafReferencedElements = {
@@ -2741,7 +2741,7 @@ case class ContentLengthExpr(
   resultType: NodeInfo.Kind,
   arg1Type: NodeInfo.Kind,
   arg2Type: NodeInfo.Kind,
-  constructor: List[CompiledDPath] => RecipeOp,
+  constructor: List[CompiledDPath] => RecipeOp
 ) extends LengthExprBase(
     nameAsParsed,
     fnQName,
@@ -2749,7 +2749,7 @@ case class ContentLengthExpr(
     resultType,
     arg1Type,
     arg2Type,
-    constructor,
+    constructor
   ) {
 
   override lazy val leafContentLengthReferencedElements = leafReferencedElements
@@ -2762,7 +2762,7 @@ case class ValueLengthExpr(
   resultType: NodeInfo.Kind,
   arg1Type: NodeInfo.Kind,
   arg2Type: NodeInfo.Kind,
-  constructor: List[CompiledDPath] => RecipeOp,
+  constructor: List[CompiledDPath] => RecipeOp
 ) extends LengthExprBase(
     nameAsParsed,
     fnQName,
@@ -2770,7 +2770,7 @@ case class ValueLengthExpr(
     resultType,
     arg1Type,
     arg2Type,
-    constructor,
+    constructor
   ) {
 
   override lazy val leafValueLengthReferencedElements = leafReferencedElements
@@ -2784,7 +2784,7 @@ case class FNThreeArgsExpr(
   arg1Type: NodeInfo.Kind,
   arg2Type: NodeInfo.Kind,
   arg3Type: NodeInfo.Kind,
-  constructor: List[CompiledDPath] => RecipeOp,
+  constructor: List[CompiledDPath] => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType
@@ -2814,7 +2814,7 @@ case class XSConverterExpr(
   nameAsParsed: String,
   fnQName: RefQName,
   args: List[Expression],
-  resultType: NodeInfo.Kind,
+  resultType: NodeInfo.Kind
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType
@@ -2846,7 +2846,7 @@ case class FNArgListExpr(
   args: List[Expression],
   resultType: NodeInfo.Kind,
   argType: NodeInfo.Kind,
-  constructor: List[CompiledDPath] => RecipeOp,
+  constructor: List[CompiledDPath] => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType
@@ -2887,7 +2887,7 @@ case class DFDLOccursIndexExpr(nameAsParsed: String, fnQName: RefQName, args: Li
     schemaDefinitionUnless(
       args.length == 0,
       "Function %s takes no arguments.",
-      fnQName.toPrettyString,
+      fnQName.toPrettyString
     )
     new CompiledDPath(DFDLOccursIndex +: conversions)
   }
@@ -2933,7 +2933,7 @@ case class DFDLSetBitsExpr(nameAsParsed: String, fnQName: RefQName, args: List[E
 case class DFDLCheckConstraintsExpr(
   nameAsParsed: String,
   fnQName: RefQName,
-  args: List[Expression],
+  args: List[Expression]
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val children = args
@@ -2956,7 +2956,7 @@ case class DFDLCheckRangeExpr(
   nameAsParsed: String,
   fnQName: RefQName,
   args: List[Expression],
-  isExclusive: Boolean,
+  isExclusive: Boolean
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   lazy val List(arg1, arg2, arg3) = { checkArgCount(3); args }
@@ -3025,7 +3025,7 @@ case class DFDLXTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Ex
       SDE(
         "The second argument to %n must be a string literal, but was %s.",
         nameAsParsed,
-        other.text,
+        other.text
       )
     case _ => {
       argCountErr(2)
@@ -3060,7 +3060,7 @@ case class UserDefinedFunctionCallExpr(
   args: List[Expression],
   argTypes: List[NodeInfo.Kind],
   resultType: NodeInfo.Kind,
-  constructor: (String, List[CompiledDPath]) => RecipeOp,
+  constructor: (String, List[CompiledDPath]) => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType

@@ -40,12 +40,12 @@ class StringFunctionsProvider extends UserDefinedFunctionProvider {
  */
 @UserDefinedFunctionIdentification(
   name = "reverse",
-  namespaceURI = "http://example.com/scala/udf",
+  namespaceURI = "http://example.com/scala/udf"
 )
 class Reverse extends UserDefinedFunction {
   case class CustomException(
     private val message: String = "",
-    private val cause: Throwable = None.orNull,
+    private val cause: Throwable = None.orNull
   ) extends Exception(message, cause)
 
   /**
@@ -66,7 +66,7 @@ class Reverse extends UserDefinedFunction {
  */
 @UserDefinedFunctionIdentification(
   name = "rev-words",
-  namespaceURI = "http://example.com/scala/udf",
+  namespaceURI = "http://example.com/scala/udf"
 )
 class ReverseWords extends UserDefinedFunction {
 

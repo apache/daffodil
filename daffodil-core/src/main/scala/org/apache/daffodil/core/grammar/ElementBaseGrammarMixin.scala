@@ -129,12 +129,12 @@ trait ElementBaseGrammarMixin
           schemaDefinitionError(
             "%s is specified as a dfdl:prefixLengthType, but has a dfdl:lengthKind of %s",
             prefixLengthType,
-            prefixedLengthKind,
+            prefixedLengthKind
           )
         case LengthKind.Explicit if detachedElementDecl.optLengthConstant.isEmpty =>
           schemaDefinitionError(
             "%s is specified as a dfdl:prefixLengthType, but has an expression for dfdl:length",
-            prefixLengthType,
+            prefixLengthType
           )
         case LengthKind.Implicit | LengthKind.Explicit
             if prefixIncludesPrefixLength == YesNo.Yes &&
@@ -143,7 +143,7 @@ trait ElementBaseGrammarMixin
             "%s is specified as a dfdl:prefixLengthType where dfdl:prefixIncludesPrefixLength=\"yes\" " +
               "with dfdl:lengthKind %s, but has different dfdl:lengthUnits than the element",
             prefixLengthType,
-            prefixedLengthKind,
+            prefixedLengthKind
           )
         case _ => // ok
       }
@@ -152,38 +152,38 @@ trait ElementBaseGrammarMixin
         detachedElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
         "%s is specified as a dfdl:prefixLengthType, but its type xs:%s is not a subtype of xs:integer",
         prefixLengthType,
-        detachedElementDecl.primType.toString.toLowerCase,
+        detachedElementDecl.primType.toString.toLowerCase
       )
 
       schemaDefinitionWhen(
         detachedElementDecl.isOutputValueCalc,
         "%s is specified as a dfdl:prefixLengthType, but specifies dfdl:outputValueCalc",
-        prefixLengthType,
+        prefixLengthType
       )
       schemaDefinitionWhen(
         detachedElementDecl.hasInitiator,
         "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:initiator",
-        prefixLengthType,
+        prefixLengthType
       )
       schemaDefinitionWhen(
         detachedElementDecl.hasTerminator,
         "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:terminator",
-        prefixLengthType,
+        prefixLengthType
       )
       schemaDefinitionWhen(
         detachedElementDecl.alignment != 1,
         "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:alignment other than 1",
-        prefixLengthType,
+        prefixLengthType
       )
       schemaDefinitionWhen(
         detachedElementDecl.leadingSkip != 0,
         "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:leadingSkip other than 0",
-        prefixLengthType,
+        prefixLengthType
       )
       schemaDefinitionWhen(
         detachedElementDecl.trailingSkip != 0,
         "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:trailingSkip other than 0",
-        prefixLengthType,
+        prefixLengthType
       )
 
       if (
@@ -195,13 +195,13 @@ trait ElementBaseGrammarMixin
           name,
           prefixLengthType,
           detachedElementDecl.prefixLengthType,
-          detachedElementDecl.prefixedLengthElementDecl.prefixLengthType,
+          detachedElementDecl.prefixedLengthElementDecl.prefixLengthType
         )
       }
 
       subset(
         detachedElementDecl.lengthKind != LengthKind.Prefixed,
-        "Nested dfdl:lengthKind=\"prefixed\" is not supported.",
+        "Nested dfdl:lengthKind=\"prefixed\" is not supported."
       )
     }
   }
@@ -457,7 +457,7 @@ trait ElementBaseGrammarMixin
   private def captureLengthRegions(
     leftPaddingArg: => Gram,
     bodyArg: => Gram,
-    rightPadFillArg: => Gram,
+    rightPadFillArg: => Gram
   ) = {
     lazy val leftPadding = leftPaddingArg
     lazy val rightPadFill = rightPadFillArg
@@ -491,7 +491,7 @@ trait ElementBaseGrammarMixin
     schemaSet.sharedSimpleValueFactory.getShared(
       shareKey,
       captureLengthRegions(leftPadding, retry, rightPadding ~ rightFill) ~
-        terminatorRegion,
+        terminatorRegion
     )
   }
 
@@ -538,12 +538,12 @@ trait ElementBaseGrammarMixin
         case BinaryCalendarRep.BinaryMilliseconds => 64
         case _ =>
           schemaDefinitionError(
-            "Length of binary data '" + primType.name + "' with binaryCalendarRep='" + binaryCalendarRep + "' cannot be determined implicitly.",
+            "Length of binary data '" + primType.name + "' with binaryCalendarRep='" + binaryCalendarRep + "' cannot be determined implicitly."
           )
       }
     case _ =>
       schemaDefinitionError(
-        "Length of binary data '" + primType.name + "' cannot be determined implicitly.",
+        "Length of binary data '" + primType.name + "' cannot be determined implicitly."
       )
   }
 
@@ -590,7 +590,7 @@ trait ElementBaseGrammarMixin
       case LengthUnits.Characters =>
         SDE(
           "The lengthUnits for the binary type %s must be either 'bits' or 'bytes'. Not 'characters'.",
-          primType.name,
+          primType.name
         )
     }
     nbits
@@ -644,7 +644,7 @@ trait ElementBaseGrammarMixin
   private lazy val hexBinaryValue = prod("hexBinaryValue") {
     schemaDefinitionWhen(
       lengthUnits == LengthUnits.Characters,
-      "Hex binary Numbers must have dfdl:lengthUnits of \"bits\" or \"bytes\".",
+      "Hex binary Numbers must have dfdl:lengthUnits of \"bits\" or \"bytes\"."
     )
     lengthKind match {
       case LengthKind.Explicit => specifiedLengthHexBinary
@@ -736,7 +736,7 @@ trait ElementBaseGrammarMixin
         SDE(
           "dfdl:textStandardBase=\"%s\" cannot be used with %s",
           textStandardBaseDefaulted,
-          primType.globalQName,
+          primType.globalQName
         )
     }
   }
@@ -753,7 +753,7 @@ trait ElementBaseGrammarMixin
       ConvertZonedCombinator(
         this,
         new BCDIntegerKnownLength(this, binaryNumberKnownLengthInBits),
-        textConverter,
+        textConverter
       )
     }
   private lazy val bcdRuntimeLengthCalendar =
@@ -771,42 +771,42 @@ trait ElementBaseGrammarMixin
 
   private lazy val ibm4690PackedKnownLengthCalendar = prod(
     "ibm4690PackedKnownLengthCalendar",
-    binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed,
+    binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed
   ) {
     ConvertZonedCombinator(
       this,
       new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits),
-      textConverter,
+      textConverter
     )
   }
   private lazy val ibm4690PackedRuntimeLengthCalendar = prod(
     "ibm4690PackedRuntimeLengthCalendar",
-    binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed,
+    binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed
   ) {
     ConvertZonedCombinator(
       this,
       new IBM4690PackedIntegerRuntimeLength(this, false),
-      textConverter,
+      textConverter
     )
   }
   private lazy val ibm4690PackedDelimitedLengthCalendar = prod(
     "ibm4690PackedDelimitedLengthCalendar",
-    binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed,
+    binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed
   ) {
     ConvertZonedCombinator(
       this,
       new IBM4690PackedIntegerDelimitedEndOfData(this, false),
-      textConverter,
+      textConverter
     )
   }
   private lazy val ibm4690PackedPrefixedLengthCalendar = prod(
     "ibm4690PackedPrefixedLengthCalendar",
-    binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed,
+    binaryCalendarRep == BinaryCalendarRep.Ibm4690Packed
   ) {
     ConvertZonedCombinator(
       this,
       new IBM4690PackedIntegerPrefixedLength(this, false),
-      textConverter,
+      textConverter
     )
   }
 
@@ -818,9 +818,9 @@ trait ElementBaseGrammarMixin
           this,
           false,
           packedSignCodes,
-          binaryNumberKnownLengthInBits,
+          binaryNumberKnownLengthInBits
         ),
-        textConverter,
+        textConverter
       )
     }
   private lazy val packedRuntimeLengthCalendar =
@@ -828,7 +828,7 @@ trait ElementBaseGrammarMixin
       ConvertZonedCombinator(
         this,
         new PackedIntegerRuntimeLength(this, false, packedSignCodes),
-        textConverter,
+        textConverter
       )
     }
   private lazy val packedDelimitedLengthCalendar =
@@ -836,7 +836,7 @@ trait ElementBaseGrammarMixin
       ConvertZonedCombinator(
         this,
         new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes),
-        textConverter,
+        textConverter
       )
     }
   private lazy val packedPrefixedLengthCalendar =
@@ -844,7 +844,7 @@ trait ElementBaseGrammarMixin
       ConvertZonedCombinator(
         this,
         new PackedIntegerPrefixedLength(this, false, packedSignCodes),
-        textConverter,
+        textConverter
       )
     }
 
@@ -909,7 +909,7 @@ trait ElementBaseGrammarMixin
           if ((binaryNumberKnownLengthInBits != -1) && (binaryNumberKnownLengthInBits % 4) != 0) =>
         SDE(
           "The given length (%s bits) must be a multiple of 4 when using packed binary formats",
-          binaryNumberKnownLengthInBits,
+          binaryNumberKnownLengthInBits
         )
       case (BinaryNumberRep.Packed, LengthKind.Delimited, -1) =>
         new PackedIntegerDelimitedEndOfData(this, isSigned, packedSignCodes)
@@ -922,7 +922,7 @@ trait ElementBaseGrammarMixin
           this,
           isSigned,
           packedSignCodes,
-          binaryNumberKnownLengthInBits,
+          binaryNumberKnownLengthInBits
         )
       case (BinaryNumberRep.Ibm4690Packed, LengthKind.Delimited, -1) =>
         new IBM4690PackedIntegerDelimitedEndOfData(this, isSigned)
@@ -952,7 +952,7 @@ trait ElementBaseGrammarMixin
 
     schemaDefinitionWhen(
       lengthUnits == LengthUnits.Characters,
-      "Binary Numbers must have dfdl:lengthUnits of \"bits\" or \"bytes\".",
+      "Binary Numbers must have dfdl:lengthUnits of \"bits\" or \"bytes\"."
     )
 
     // We have to dispatch carefully here. We cannot force evaluation of properties
@@ -986,7 +986,7 @@ trait ElementBaseGrammarMixin
           case (_, _, floatRep) =>
             subsetError(
               "binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'",
-              floatRep.toString,
+              floatRep.toString
             )
         }
       }
@@ -997,14 +997,14 @@ trait ElementBaseGrammarMixin
             schemaFileLocation,
             "Property binaryDecimalVirtualPoint %s is greater than limit %s",
             binaryDecimalVirtualPoint,
-            tunable.maxBinaryDecimalVirtualPoint,
+            tunable.maxBinaryDecimalVirtualPoint
           )
         if (binaryDecimalVirtualPoint < tunable.minBinaryDecimalVirtualPoint)
           throw new TunableLimitExceededError(
             schemaFileLocation,
             "Property binaryDecimalVirtualPoint %s is less than limit %s",
             binaryDecimalVirtualPoint,
-            tunable.minBinaryDecimalVirtualPoint,
+            tunable.minBinaryDecimalVirtualPoint
           )
         if (
           binaryNumberKnownLengthInBits == -1 ||
@@ -1023,7 +1023,7 @@ trait ElementBaseGrammarMixin
               if ((binaryNumberKnownLengthInBits != -1) && (binaryNumberKnownLengthInBits % 4) != 0) =>
             SDE(
               "The given length (%s bits) must be a multiple of 4 when using packed binary formats",
-              binaryNumberKnownLengthInBits,
+              binaryNumberKnownLengthInBits
             )
           case (BinaryNumberRep.Packed, LengthKind.Delimited, -1) =>
             new PackedDecimalDelimitedEndOfData(this, packedSignCodes)
@@ -1069,7 +1069,7 @@ trait ElementBaseGrammarMixin
               case (_, n) =>
                 SDE(
                   "binary xs:dateTime must be 32 bits when binaryCalendarRep='binarySeconds'. Length in bits was %s.",
-                  n,
+                  n
                 )
             }
           case (_, BinaryCalendarRep.BinarySeconds) =>
@@ -1083,13 +1083,13 @@ trait ElementBaseGrammarMixin
               case (_, n) =>
                 SDE(
                   "binary xs:dateTime must be 64 bits when binaryCalendarRep='binaryMilliseconds'. Length in bits was %s.",
-                  n,
+                  n
                 )
             }
           case (_, BinaryCalendarRep.BinaryMilliseconds) =>
             SDE(
               "binaryCalendarRep='binaryMilliseconds' is not allowed with type %s",
-              primType.name,
+              primType.name
             )
           case _ => { // Packed Decimal representations
             if (
@@ -1098,12 +1098,12 @@ trait ElementBaseGrammarMixin
               SDE(
                 "The given length (%s bits) must be a multiple of 4 when using binaryCalendarRep='%s'.",
                 binaryNumberKnownLengthInBits,
-                binaryCalendarRep,
+                binaryCalendarRep
               )
             if (calendarPatternKind != CalendarPatternKind.Explicit)
               SDE(
                 "calendarPatternKind must be 'explicit' when binaryCalendarRep='%s'",
-                binaryCalendarRep,
+                binaryCalendarRep
               )
 
             binaryCalendarRep match {
@@ -1135,7 +1135,7 @@ trait ElementBaseGrammarMixin
                 notYetImplemented(
                   "Type %s when representation='binary' and binaryCalendarRep=%s",
                   primType.name,
-                  binaryCalendarRep.toString,
+                  binaryCalendarRep.toString
                 )
             }
           }
@@ -1156,7 +1156,7 @@ trait ElementBaseGrammarMixin
     schemaDefinitionWhen(
       lengthKind == LengthKind.Implicit,
       "Type %s cannot have lengthKind='implicit' when representation='text'",
-      pt.name,
+      pt.name
     )
 
     val res = primType match {
@@ -1211,7 +1211,7 @@ trait ElementBaseGrammarMixin
     schemaSet.sharedNilLitFactory.getShared(
       shareKey,
       nilLitSimpleOrComplex ~
-        nilElementTerminator,
+        nilElementTerminator
     )
 
   private lazy val nilLitSimpleOrComplex = prod("nilLitSimpleOrComplex") {
@@ -1226,7 +1226,7 @@ trait ElementBaseGrammarMixin
     // Note: the only allowed nil value for a complex type is ES. It's length will be zero always. (as of DFDL v1.0 - 2015-07-15)
     schemaDefinitionUnless(
       this.hasESNilValue && cookedNilValuesForParse.length == 1,
-      "Nillable complex type elements can only have '%ES;' as their dfdl:nilValue property.",
+      "Nillable complex type elements can only have '%ES;' as their dfdl:nilValue property."
     )
     captureLengthRegions(
       EmptyGram,
@@ -1234,7 +1234,7 @@ trait ElementBaseGrammarMixin
       //
       // Because nil complex can only be ES (e.g., length 0), there's no possible
       // ElementUnused region after a nil.
-      EmptyGram,
+      EmptyGram
     )
 
   }
@@ -1247,7 +1247,7 @@ trait ElementBaseGrammarMixin
 
   private lazy val nilLitContent = prod(
     "nilLitContent",
-    isNillable && (nilKind == NilKind.LiteralValue || nilKind == NilKind.LiteralCharacter),
+    isNillable && (nilKind == NilKind.LiteralValue || nilKind == NilKind.LiteralCharacter)
   ) {
 
     nilKind match {
@@ -1259,7 +1259,7 @@ trait ElementBaseGrammarMixin
           case LengthKind.Implicit if isSimpleType => {
             schemaDefinitionUnless(
               impliedRepresentation != Representation.Text,
-              "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.",
+              "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'."
             )
             LiteralValueNilOfSpecifiedLength(this)
           }
@@ -1397,7 +1397,7 @@ trait ElementBaseGrammarMixin
     schemaSet.sharedComplexContentFactory.getShared(
       shareKey,
       captureLengthRegions(EmptyGram, specifiedLength(complexContent), elementUnused) ~
-        terminatorRegion,
+        terminatorRegion
     )
 
   private lazy val scalarComplexContent = prod("scalarComplexContent", isComplexType) {
@@ -1470,7 +1470,7 @@ trait ElementBaseGrammarMixin
         dfdlScopeBegin,
         inputValueCalcPrim,
         dfdlScopeEnd,
-        EmptyGram,
+        EmptyGram
       )
     }
 
@@ -1487,7 +1487,7 @@ trait ElementBaseGrammarMixin
       dpathCompileInfo,
       isEvaluatedAbove = false,
       self,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
     expr
   }
@@ -1530,7 +1530,7 @@ trait ElementBaseGrammarMixin
         dfdlScopeBegin,
         scalarDefaultableSimpleContent,
         dfdlScopeEnd,
-        new RepType(this),
+        new RepType(this)
       )
     } else {
       new ElementCombinator(
@@ -1541,7 +1541,7 @@ trait ElementBaseGrammarMixin
             scalarDefaultableSimpleContent || scalarComplexContent
           }
         },
-        elementRightFraming ~ dfdlScopeEnd,
+        elementRightFraming ~ dfdlScopeEnd
       )
     }
     elem
@@ -1565,12 +1565,12 @@ trait ElementBaseGrammarMixin
         // If encoding is runtime-valued, this check could be done at runtime.
         //
         SDE(
-          "dfdl:encoding is a runtime expression, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' requires an explicit known single byte character set encoding (SBCS).",
+          "dfdl:encoding is a runtime expression, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' requires an explicit known single byte character set encoding (SBCS)."
         )
       } else if (knownEncodingWidthInBits != 8) {
         SDE(
           "dfdl:encoding '%s' is not a single-byte encoding, but dfdl:lengthKind 'implicit' for type xs:string and dfdl:lengthUnits 'bytes' a single byte character set encoding (SBCS) is required.",
-          knownEncodingName,
+          knownEncodingName
         )
       }
     }
@@ -1591,7 +1591,7 @@ trait ElementBaseGrammarMixin
         WarnID.InconsistentLengthKind,
         "dfdl:lengthKind '%s' is not consistent with dfdl:length specified (as %s). The dfdl:length will be ignored.",
         lengthKind,
-        lengthExpr.prettyExpr,
+        lengthExpr.prettyExpr
       )
     }
     if (
@@ -1602,12 +1602,12 @@ trait ElementBaseGrammarMixin
       SDE(
         "Elements of dfdl:lengthKind '%s' cannot have dfdl:lengthUnits '%s' with binary representation.",
         lengthKind,
-        lengthUnits,
+        lengthUnits
       )
     (inputValueCalcOption, outputValueCalcOption) match {
       case (_: Found, _: Found) =>
         SDE(
-          "Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.",
+          "Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element."
         )
       case _ => // ok
     }
@@ -1634,7 +1634,7 @@ trait ElementBaseGrammarMixin
         "Explicit dfdl:length of %s is out of range for facet %s='%s'.",
         len,
         m,
-        value,
+        value
       )
       if (hasLength && len != minLengthLong && len != maxLengthLong)
         warn("length", minLengthLong)
@@ -1672,7 +1672,7 @@ trait ElementBaseGrammarMixin
           WarnID.TextOutputMinLengthOutOfRange,
           "Explicit dfdl:length of %s is out of range for dfdl:textOutputMinLength='%s'.",
           len,
-          textOutputMinLength,
+          textOutputMinLength
         )
 
     }
@@ -1701,7 +1701,7 @@ trait ElementBaseGrammarMixin
     PrimType.UnsignedByte,
     PrimType.UnsignedShort,
     PrimType.UnsignedInt,
-    PrimType.UnsignedLong,
+    PrimType.UnsignedLong
   )
   val allowedBitTypesText = allowedBitTypes.map("xs:" + _.toString).toList.sorted.mkString(", ")
 
@@ -1714,11 +1714,11 @@ trait ElementBaseGrammarMixin
               if (tunable.allowBigIntegerBits)
                 elem.SDW(
                   WarnID.DeprecatedBigIntegerBits,
-                  s"In a future release, lengthUnits='bits' will only be supported for the following types: $allowedBitTypesText",
+                  s"In a future release, lengthUnits='bits' will only be supported for the following types: $allowedBitTypesText"
                 )
               else
                 elem.SDE(
-                  "lengthUnits='bits' is only supported for the following types: $allowedBitTypesText",
+                  "lengthUnits='bits' is only supported for the following types: $allowedBitTypesText"
                 )
           case None =>
         }

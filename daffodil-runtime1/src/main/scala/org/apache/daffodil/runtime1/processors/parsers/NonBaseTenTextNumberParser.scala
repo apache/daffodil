@@ -52,7 +52,7 @@ class ConvertNonBaseTenTextNumberParser(override val context: ElementRuntimeData
         "Unable to parse %s from base-%d text with leading sign: %s",
         context.optPrimType.get.globalQName,
         base,
-        baseStr,
+        baseStr
       )
       return
     }
@@ -69,7 +69,7 @@ class ConvertNonBaseTenTextNumberParser(override val context: ElementRuntimeData
             "Unable to parse %s from base-%d text due to invalid characters: %s",
             context.optPrimType.get.globalQName,
             base,
-            baseStr,
+            baseStr
           )
           return
       }

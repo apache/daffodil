@@ -121,7 +121,7 @@ class XercesValidator(schemaSources: Seq[javax.xml.transform.Source]) extends Va
 
   private def initializeValidator(
     validator: XercesValidatorImpl,
-    resolver: DFDLCatalogResolver,
+    resolver: DFDLCatalogResolver
   ): XercesValidatorImpl = {
     validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true)
     validator.setFeature(XMLUtils.XML_DISALLOW_DOCTYPE_FEATURE, true)
@@ -141,7 +141,7 @@ object XercesValidator {
     val is = uri.toURL.openStream()
     val stream = new StreamSource(is)
     stream.setSystemId(
-      uri.toString,
+      uri.toString
     ) // must set this so that relative URIs will be created for import/include files.
     stream
   })

@@ -57,7 +57,7 @@ class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
     new SchemaDefinitionError(
       xsfl,
       "Error loading schema due to %s",
-      errMessage,
+      errMessage
     )
   }
 
@@ -71,7 +71,7 @@ class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
       WarnID.XmlParser,
       xsfl,
       "Warning loading schema due to %s",
-      warnMessage,
+      warnMessage
     )
   }
 
@@ -118,7 +118,7 @@ class DFDLSchemaFileLoadErrorHandler(schemaFileLocation: SchemaFileLocation)
    * this call returns.
    */
   def fatalError(exception: SAXParseException) = error(
-    exception,
+    exception
   ) // same as non-fatal exception.
 }
 
@@ -131,7 +131,7 @@ final class DFDLSchemaFile(
   val sset: SchemaSet,
   schemaSourceArg: => DaffodilSchemaSource, // fileName, URL, or a scala.xml.Node
   val iiParent: IIBase,
-  seenBeforeArg: IIMap,
+  seenBeforeArg: IIMap
 ) extends SchemaComponentImpl(<file/>, sset) {
 
   private lazy val seenBefore = seenBeforeArg
@@ -194,7 +194,7 @@ final class DFDLSchemaFile(
         case e: java.io.IOException =>
           SDE(
             "Error loading schema due to %s.",
-            Misc.getSomeMessage(e).getOrElse("an unknown error."),
+            Misc.getSomeMessage(e).getOrElse("an unknown error.")
           )
       }
     res
@@ -233,7 +233,7 @@ final class DFDLSchemaFile(
 
   private def makeXMLSchemaDocument(
     before: IIMap,
-    sf: Option[DFDLSchemaFile],
+    sf: Option[DFDLSchemaFile]
   ): XMLSchemaDocument = {
     val sd = node match {
       case <schema>{_*}</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
@@ -246,7 +246,7 @@ final class DFDLSchemaFile(
           "The file %s did not contain a schema element as the document element. Found %s %s.",
           diagnosticDebugName,
           node.label,
-          ns.explainForMsg,
+          ns.explainForMsg
         )
       }
     }

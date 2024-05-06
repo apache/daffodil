@@ -68,11 +68,11 @@ object DaffodilConfig {
   }
 
   def fromURI(uri: URI) = fromSchemaSource(
-    URISchemaSource(Misc.uriToDiagnosticFile(uri), uri),
+    URISchemaSource(Misc.uriToDiagnosticFile(uri), uri)
   )
 
   def fromFile(file: File) = fromSchemaSource(
-    URISchemaSource(file, file.toURI),
+    URISchemaSource(file, file.toURI)
   )
 
 }
@@ -85,7 +85,7 @@ object DaffodilConfig {
  */
 final class DaffodilConfig private (
   val externalVariableBindings: Seq[Binding],
-  val tunablesMap: Map[String, String],
+  val tunablesMap: Map[String, String]
 ) {
   // no methods
 }

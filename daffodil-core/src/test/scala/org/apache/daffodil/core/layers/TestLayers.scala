@@ -81,7 +81,7 @@ class TestLayers {
             </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
   @Test def testParseB64Layer1(): Unit = {
@@ -118,7 +118,7 @@ class TestLayers {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
   @Test def testParseB64Layer2(): Unit = {
@@ -158,7 +158,7 @@ class TestLayers {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
   @Test def testParseB64Layer3(): Unit = {
@@ -214,7 +214,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
   def makeGZIPLayer0Data() = {
@@ -265,7 +265,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
   def makeGZIPLayer1Data() = {
@@ -338,7 +338,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
         </xs:sequence>
       </xs:complexType>
     </xs:element>,
-    elementFormDefault = "unqualified",
+    elementFormDefault = "unqualified"
   )
 
   def toB64(bytes: Array[Byte]) =
@@ -349,7 +349,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     layerTerm: String,
     before: String,
     after: String,
-    text: String,
+    text: String
   ) = {
     val gzipData = makeGZIPData(text)
     val dataLength = gzipData.length
@@ -404,7 +404,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "qualified",
+      elementFormDefault = "qualified"
     )
 
   /**
@@ -454,7 +454,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "qualified",
+      elementFormDefault = "qualified"
     )
 
   /**
@@ -508,7 +508,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "qualified",
+      elementFormDefault = "qualified"
     )
 
   val ipsumLorem5 =
@@ -584,7 +584,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "qualified",
+      elementFormDefault = "qualified"
     )
 
   @Test def testFourByteSwapLayer(): Unit = {

@@ -45,7 +45,7 @@ class BitsCharsetTest_Decoder_ISO_8859_13 extends BitsCharsetDecoderByteSize {
 
   protected override def decodeOneChar(
     dis: InputSourceDataInputStream,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Char = {
     val byte = getByte(dis, 0)
     decodeString(byte)

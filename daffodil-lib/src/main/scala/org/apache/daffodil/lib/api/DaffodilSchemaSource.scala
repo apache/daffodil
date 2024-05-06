@@ -144,7 +144,7 @@ class InputStreamSchemaSource(
   is: java.io.InputStream,
   tmpDir: Option[File],
   blameName: String,
-  extension: String,
+  extension: String
 ) extends DaffodilSchemaSource {
   lazy val tempSchemaFile =
     XMLUtils.convertInputStreamToTempFile(is, tmpDir.getOrElse(null), blameName, extension)
@@ -174,10 +174,10 @@ protected sealed abstract class NodeSchemaSourceBase(
   node: Node,
   nameHint: String,
   tmpDir: Option[File],
-  tempSchemaFileFromNode: File,
+  tempSchemaFileFromNode: File
 ) extends URISchemaSource(
     tempSchemaFileFromNode,
-    tempSchemaFileFromNode.toURI,
+    tempSchemaFileFromNode.toURI
   ) {
 
   def blameName: String
@@ -194,7 +194,7 @@ case class UnitTestSchemaSource(node: Node, nameHint: String, optTmpDir: Option[
     node,
     nameHint,
     optTmpDir,
-    XMLUtils.convertNodeToTempFile(node, optTmpDir.orNull, nameHint),
+    XMLUtils.convertNodeToTempFile(node, optTmpDir.orNull, nameHint)
   ) {
   override val blameName =
     if (nameHint != "") "unittest:" + nameHint
@@ -210,7 +210,7 @@ case class EmbeddedSchemaSource(node: Node, nameHint: String, optTmpDir: Option[
     node,
     nameHint,
     optTmpDir,
-    XMLUtils.convertNodeToTempFile(node, optTmpDir.orNull, nameHint),
+    XMLUtils.convertNodeToTempFile(node, optTmpDir.orNull, nameHint)
   ) {
   override val blameName = nameHint
 

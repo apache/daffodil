@@ -149,7 +149,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
           }
           case _ =>
             Left(
-              "you should provide no more than one argument for this option",
+              "you should provide no more than one argument for this option"
             ) // Error because we expect there to be at most one flag
         }
       }
@@ -173,7 +173,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       case _ =>
         throw new Exception(
           "Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator."
-            .format(s),
+            .format(s)
         )
     }
   })
@@ -186,8 +186,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
         throw new Exception(
           "Unrecognized infoset type: %s.  Must be one of %s".format(
             s,
-            InfosetType.values.mkString(", "),
-          ),
+            InfosetType.values.mkString(", ")
+          )
         )
     }
   })
@@ -197,7 +197,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     if (!optImplementation.isDefined) {
       throw new Exception(
         "Unrecognized TDML implementation '%s'.  Must be one of %s"
-          .format(s, TDMLImplementation.values.mkString(", ")),
+          .format(s, TDMLImplementation.values.mkString(", "))
       )
     }
     optImplementation.get
@@ -323,7 +323,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
   val debug = opt[Option[String]](
     argName = "file",
     descr =
-      "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided.",
+      "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided."
   )(optionalValueConverter[String](a => a))
   val trace = opt[Boolean](descr = "Run this program with verbose trace output")
   val verbose = tally(descr = "Increment verbosity level, one level for each -v")
@@ -346,71 +346,71 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val config = opt[File](
       short = 'c',
       argName = "file",
-      descr = "XML file containing configuration items",
+      descr = "XML file containing configuration items"
     )
     val vars = props[String](
       name = 'D',
       keyName = "variable",
       valueName = "value",
-      descr = "Variables to be used when parsing. Can be prefixed with {namespace}.",
+      descr = "Variables to be used when parsing. Can be prefixed with {namespace}."
     )
     val infosetType = opt[InfosetType.Type](
       short = 'I',
       argName = "infoset_type",
       descr = "Infoset type to output. Type can be: " + InfosetType.values.mkString(
-        ", ",
+        ", "
       ) + ". Defaults to 'xml'.",
-      default = Some(InfosetType.XML),
+      default = Some(InfosetType.XML)
     )
     val output = opt[String](
       argName = "file",
       descr =
-        "Output file to write infoset to. If not given or is -, infoset is written to stdout.",
+        "Output file to write infoset to. If not given or is -, infoset is written to stdout."
     )
     val parser =
       opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](
       argName = "path",
       descr = "Path from root element to node from which to start parsing",
-      hidden = true,
+      hidden = true
     )
     val rootNS = opt[RefQName](
       "root",
       argName = "node",
       descr =
-        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
+        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
     )
     val schema =
       opt[URISchemaSource](
         "schema",
         argName = "file",
-        descr = "DFDL schema to use to create parser",
+        descr = "DFDL schema to use to create parser"
       )(
-        fileResourceURIConverter,
+        fileResourceURIConverter
       )
     val stream = toggle(
       noshort = true,
       default = Some(false),
       descrYes =
         "When left over data exists, parse again with remaining data, separating infosets by a NUL character",
-      descrNo = "Stop after the first parse, throwing an error if left over data exists",
+      descrNo = "Stop after the first parse, throwing an error if left over data exists"
     )
     val tunables = props[String](
       name = 'T',
       keyName = "tunable",
       valueName = "value",
-      descr = "Tunable configuration options to change Daffodil's behavior",
+      descr = "Tunable configuration options to change Daffodil's behavior"
     )
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
       short = 'V',
       default = Some(ValidationMode.Off),
       argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name.",
+      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )
 
     val infile = trailArg[String](
       required = false,
-      descr = "Input file to parse. If not specified, or a value of -, reads from stdin.",
+      descr = "Input file to parse. If not specified, or a value of -, reads from stdin."
     )
 
     // must have one of --schema or --parser
@@ -462,69 +462,69 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val config = opt[File](
       short = 'c',
       argName = "file",
-      descr = "XML file containing configuration items",
+      descr = "XML file containing configuration items"
     )
     val vars = props[String](
       name = 'D',
       keyName = "variable",
       valueName = "value",
-      descr = "Variables to be used when parsing. Can be prefixed with {namespace}.",
+      descr = "Variables to be used when parsing. Can be prefixed with {namespace}."
     )
     val infosetType = opt[InfosetType.Type](
       short = 'I',
       argName = "infoset_type",
       descr = "Infoset type to output. Type can be: " + InfosetType.values.mkString(
-        ", ",
+        ", "
       ) + ". Defaults to 'xml'.",
-      default = Some(InfosetType.XML),
+      default = Some(InfosetType.XML)
     )
     val output = opt[String](
       argName = "file",
-      descr = "Output file to write data to. If not given or is -, data is written to stdout.",
+      descr = "Output file to write data to. If not given or is -, data is written to stdout."
     )
     val parser =
       opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](
       argName = "path",
       descr = "Path from root element to node from which to start unparsing",
-      hidden = true,
+      hidden = true
     )
     val rootNS = opt[RefQName](
       "root",
       argName = "node",
       descr =
-        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
+        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
     )
     val schema =
       opt[URISchemaSource](
         "schema",
         argName = "file",
-        descr = "DFDL schema to use to create parser",
+        descr = "DFDL schema to use to create parser"
       )(
-        fileResourceURIConverter,
+        fileResourceURIConverter
       )
     val stream = toggle(
       noshort = true,
       default = Some(false),
       descrYes = "Split the input data on the NUL character, and unparse each chuck separately",
-      descrNo = "Treat the entire input data as one infoset",
+      descrNo = "Treat the entire input data as one infoset"
     )
     val tunables = props[String](
       name = 'T',
       keyName = "tunable",
       valueName = "value",
-      descr = "Tunable configuration options to change Daffodil's behavior",
+      descr = "Tunable configuration options to change Daffodil's behavior"
     )
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
       short = 'V',
       default = Some(ValidationMode.Off),
       argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name.",
+      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )
 
     val infile = trailArg[String](
       required = false,
-      descr = "Input file to unparse. If not specified, or a value of -, reads from stdin.",
+      descr = "Input file to unparse. If not specified, or a value of -, reads from stdin."
     )
 
     // must have one of --schema or --parser
@@ -569,42 +569,42 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val config = opt[File](
       short = 'c',
       argName = "file",
-      descr = "XML file containing configuration items",
+      descr = "XML file containing configuration items"
     )
     val vars = props[String](
       name = 'D',
       keyName = "variable",
       valueName = "value",
-      descr = "Variables to be used when parsing. Can be prefixed with {namespace}.",
+      descr = "Variables to be used when parsing. Can be prefixed with {namespace}."
     )
     val path = opt[String](
       argName = "path",
       descr = "Path from root element to node from which to start parsing",
-      hidden = true,
+      hidden = true
     )
     val rootNS = opt[RefQName](
       "root",
       argName = "node",
       descr =
-        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
+        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
     )
     val schema = opt[URISchemaSource](
       "schema",
       required = true,
       argName = "file",
-      descr = "DFDL schema to use to create parser",
+      descr = "DFDL schema to use to create parser"
     )(fileResourceURIConverter)
     val tunables = props[String](
       name = 'T',
       keyName = "tunable",
       valueName = "value",
-      descr = "Tunable configuration options to change Daffodil's behavior",
+      descr = "Tunable configuration options to change Daffodil's behavior"
     )
 
     val outfile = trailArg[String](
       required = false,
       descr =
-        "Output file to save parser to. If not specified, or a value of -, saves to stdout.",
+        "Output file to save parser to. If not specified, or a value of -, saves to stdout."
     )
 
     requireOne(schema) // --schema must be provided
@@ -618,7 +618,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
               |
               |List or execute tests in a TDML file
               |
-              |Test Options:""".stripMargin,
+              |Test Options:""".stripMargin
     )
 
     descr("List or execute TDML tests")
@@ -629,7 +629,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       argName = "implementation",
       descr = "Implementation to run TDML tests. Choose one of %s. Defaults to %s."
         .format(TDMLImplementation.values.mkString(", "), TDMLImplementation.Daffodil.toString),
-      default = None,
+      default = None
     )
     val info =
       tally(descr = "Increment test result information output level, one level for each -i")
@@ -639,7 +639,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       trailArg[String](required = true, descr = "Test Data Markup Language (TDML) file")
     val testnames = trailArg[List[String]](
       required = false,
-      descr = "Name(s) of test cases in tdmlfile. If not given, all tests in tdmlfile are run.",
+      descr = "Name(s) of test cases in tdmlfile. If not given, all tests in tdmlfile are run."
     )
   }
 
@@ -661,75 +661,75 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val config = opt[File](
       short = 'c',
       argName = "file",
-      descr = "XML file containing configuration items",
+      descr = "XML file containing configuration items"
     )
     val vars = props[String](
       name = 'D',
       keyName = "variable",
       valueName = "value",
-      descr = "Variables to be used when parsing. Can be prefixed with {namespace}.",
+      descr = "Variables to be used when parsing. Can be prefixed with {namespace}."
     )
     val infosetType = opt[InfosetType.Type](
       short = 'I',
       argName = "infoset_type",
       descr = "Infoset type to output. Type can be: " + InfosetType.values.mkString(
-        ", ",
+        ", "
       ) + ". Defaults to 'xml'.",
-      default = Some(InfosetType.XML),
+      default = Some(InfosetType.XML)
     )
     val number = opt[Int](
       short = 'N',
       argName = "number",
       default = Some(1),
-      descr = "Total number of files to process. Defaults to 1.",
+      descr = "Total number of files to process. Defaults to 1."
     )
     val parser =
       opt[File](short = 'P', argName = "file", descr = "Previously saved parser to reuse")
     val path = opt[String](
       argName = "path",
       descr = "Path from root element to node from which to start parsing or unparsing",
-      hidden = true,
+      hidden = true
     )
     val rootNS = opt[RefQName](
       "root",
       argName = "node",
       descr =
-        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
+        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
     )
     val schema =
       opt[URISchemaSource](
         "schema",
         argName = "file",
-        descr = "DFDL schema to use to create parser",
+        descr = "DFDL schema to use to create parser"
       )(
-        fileResourceURIConverter,
+        fileResourceURIConverter
       )
     val threads = opt[Int](
       short = 't',
       argName = "threads",
       default = Some(1),
-      descr = "Number of threads to use. Defaults to 1.",
+      descr = "Number of threads to use. Defaults to 1."
     )
     val tunables = props[String](
       name = 'T',
       keyName = "tunable",
       valueName = "value",
-      descr = "Tunable configuration options to change Daffodil's behavior",
+      descr = "Tunable configuration options to change Daffodil's behavior"
     )
     val unparse = opt[Boolean](
       default = Some(false),
-      descr = "Perform unparse instead of parse for performance test",
+      descr = "Perform unparse instead of parse for performance test"
     )
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
       short = 'V',
       default = Some(ValidationMode.Off),
       argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name.",
+      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )
 
     val infile = trailArg[String](
       required = true,
-      descr = "Input file or directory containing input files to parse or unparse",
+      descr = "Input file or directory containing input files to parse or unparse"
     )
 
     // must have one of --schema or --parser
@@ -757,7 +757,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     shortSubcommandsHelp()
     footer(
       """|
-              |Run 'daffodil generate <language> --help' for subcommand specific options""".stripMargin,
+              |Run 'daffodil generate <language> --help' for subcommand specific options""".stripMargin
     )
 
     // Takes language by name so we can pass it to scallop.Subcommand and interpolate it into
@@ -782,31 +782,31 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       val config = opt[File](
         short = 'c',
         argName = "file",
-        descr = "XML file containing configuration items",
+        descr = "XML file containing configuration items"
       )
       val rootNS = opt[RefQName](
         "root",
         argName = "node",
         descr =
-          "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
+          "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
       )
       val schema = opt[URISchemaSource](
         "schema",
         required = true,
         argName = "file",
-        descr = "DFDL schema to use to create parser",
+        descr = "DFDL schema to use to create parser"
       )(fileResourceURIConverter)
       val tunables = props[String](
         name = 'T',
         keyName = "tunable",
         valueName = "value",
-        descr = "Tunable configuration options to change Daffodil's behavior",
+        descr = "Tunable configuration options to change Daffodil's behavior"
       )
 
       val outdir = trailArg[String](
         required = false,
         descr =
-          s"Output directory in which to create '$language' subdirectory. If not specified, uses current directory.",
+          s"Output directory in which to create '$language' subdirectory. If not specified, uses current directory."
       )
 
       requireOne(schema) // --schema must be provided
@@ -834,18 +834,18 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val output = opt[String](
       argName = "file",
       descr =
-        "Output file to write the encoded/decoded file to. If not given or is -, data is written to stdout.",
+        "Output file to write the encoded/decoded file to. If not given or is -, data is written to stdout."
     )
     val schema = opt[URISchemaSource](
       "schema",
       argName = "file",
-      descr = "DFDL schema to use for schema aware encoding/decoding.",
+      descr = "DFDL schema to use for schema aware encoding/decoding."
     )(fileResourceURIConverter)
     val decode =
       opt[Boolean](default = Some(false), descr = "Decode input file from EXI to XML.")
     val infile = trailArg[String](
       required = false,
-      descr = "Input XML file to encode. If not specified, or a value of -, reads from stdin.",
+      descr = "Input XML file to encode. If not specified, or a value of -, reads from stdin."
     )
   }
 
@@ -911,7 +911,7 @@ object Main {
 class Main(
   STDIN: InputStream = System.in,
   STDOUT: PrintStream = System.out,
-  STDERR: PrintStream = System.err,
+  STDERR: PrintStream = System.err
 ) {
   import Main._
 
@@ -920,7 +920,7 @@ class Main(
     "display info data",
     "display info infoset",
     "display info diff",
-    "trace",
+    "trace"
   )
 
   /* indents a multi-line string */
@@ -969,7 +969,7 @@ class Main(
    */
   def combineExternalVariables(
     vars: Map[String, String],
-    optDafConfig: Option[DaffodilConfig],
+    optDafConfig: Option[DaffodilConfig]
   ): Seq[Binding] = {
     val configFileVars: Seq[Binding] =
       optDafConfig.map { _.externalVariableBindings }.getOrElse(Seq())
@@ -983,7 +983,7 @@ class Main(
   def createProcessorFromParser(
     savedParser: File,
     path: Option[String],
-    mode: ValidationMode.Type,
+    mode: ValidationMode.Type
   ) = {
     try {
       val compiler = Compiler()
@@ -1018,7 +1018,7 @@ class Main(
           } else {
             if (System.console == null) {
               Logger.log.warn(
-                s"Using --debug on a non-interactive console may result in display issues",
+                s"Using --debug on a non-interactive console may result in display issues"
               )
             }
             conf.debug() match {
@@ -1038,7 +1038,7 @@ class Main(
     rootNS: Option[RefQName],
     path: Option[String],
     tunablesMap: Map[String, String],
-    mode: ValidationMode.Type,
+    mode: ValidationMode.Type
   ): Option[DFDL.DataProcessor] = {
     val compiler = {
       val c = Compiler().withTunables(tunablesMap)
@@ -1076,7 +1076,7 @@ class Main(
           displayDiagnostics(processorFactory)
           None
         }
-      },
+      }
     )
     res
   }
@@ -1085,7 +1085,7 @@ class Main(
     schemaSource: URISchemaSource,
     rootNS: Option[RefQName],
     tunables: Map[String, String],
-    language: String,
+    language: String
   ): Option[DFDL.CodeGenerator] = {
     val compiler = {
       val c = Compiler().withTunables(tunables)
@@ -1107,7 +1107,7 @@ class Main(
           displayDiagnostics(processorFactory)
           None
         }
-      },
+      }
     )
     cg
   }
@@ -1152,7 +1152,7 @@ class Main(
               parseOpts.rootNS.toOption,
               parseOpts.path.toOption,
               tunables,
-              validate,
+              validate
             )
           }
         }.map {
@@ -1181,7 +1181,7 @@ class Main(
                 parseOpts.infosetType(),
                 processor,
                 parseOpts.schema.map(_.uri).toOption,
-                forPerformance = false,
+                forPerformance = false
               )
 
               var lastParseBitPosition = 0L
@@ -1228,7 +1228,7 @@ class Main(
                             "at least " + (inStream.inputSource.knownBytesAvailable * 8)
                           }
                         Logger.log.error(
-                          s"Left over data after consuming 0 bits while streaming. Stopped after consuming ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining.",
+                          s"Left over data after consuming 0 bits while streaming. Stopped after consuming ${loc.bitPos0b} bit(s) with ${remainingBits} bit(s) remaining."
                         )
                         keepParsing = false
                         exitCode = ExitCode.LeftOverData
@@ -1275,7 +1275,7 @@ class Main(
                               0,
                               destArray.length * 8,
                               ByteBuffer.wrap(destArray),
-                              includeHeadingLine = false,
+                              includeHeadingLine = false
                             )
                             .mkString("\n")
                         else ""
@@ -1323,7 +1323,7 @@ class Main(
             createProcessorFromParser(
               performanceOpts.parser(),
               performanceOpts.path.toOption,
-              validate,
+              validate
             )
           } else {
             val tunables =
@@ -1333,7 +1333,7 @@ class Main(
               performanceOpts.rootNS.toOption,
               performanceOpts.path.toOption,
               tunables,
-              validate,
+              validate
             )
           }
         }.map {
@@ -1357,7 +1357,7 @@ class Main(
               performanceOpts.infosetType(),
               processor,
               performanceOpts.schema.map(_.uri).toOption,
-              forPerformance = true,
+              forPerformance = true
             )
 
             val dataSeq: Seq[Either[AnyRef, Array[Byte]]] = files.map { filePath =>
@@ -1434,7 +1434,7 @@ class Main(
               val rate = 1 / (nsTime / NSConvert)
               val status = if (error) "fail" else "pass"
               Logger.log.info(
-                s"run: ${runNum}, seconds: ${nsTime / NSConvert}, rate: ${rate}, status: ${status}",
+                s"run: ${runNum}, seconds: ${nsTime / NSConvert}, rate: ${rate}, status: ${status}"
               )
               rate
             }
@@ -1479,7 +1479,7 @@ class Main(
               unparseOpts.rootNS.toOption,
               unparseOpts.path.toOption,
               tunables,
-              validate,
+              validate
             )
           }
         }.map {
@@ -1522,7 +1522,7 @@ class Main(
               unparseOpts.infosetType(),
               processor,
               unparseOpts.schema.map(_.uri).toOption,
-              forPerformance = false,
+              forPerformance = false
             )
 
             while (keepUnparsing) {
@@ -1579,7 +1579,7 @@ class Main(
           saveOpts.rootNS.toOption,
           saveOpts.path.toOption,
           tunables,
-          validate,
+          validate
         )
 
         val output = saveOpts.outfile.toOption match {
@@ -1611,7 +1611,7 @@ class Main(
           } else {
             if (System.console == null) {
               Logger.log.warn(
-                s"Using --debug on a non-interactive console may result in display issues",
+                s"Using --debug on a non-interactive console may result in display issues"
               )
             }
             conf.debug() match {
@@ -1634,7 +1634,7 @@ class Main(
                 if (testOpts.regex()) {
                   val regex = testName.r
                   val matches = tdmlRunner.testCases.filter(testCase =>
-                    regex.pattern.matcher(testCase.tcName).matches,
+                    regex.pattern.matcher(testCase.tcName).matches
                   )
                   matches match {
                     case m if !m.isEmpty => m.map(testCase => (testCase.tcName, Some(testCase)))
@@ -1665,7 +1665,7 @@ class Main(
                       maxVals(0).max(name.length),
                       maxVals(1).max(test.model.length),
                       maxVals(2).max(test.rootName.length),
-                      maxVals(3).max(test.description.length),
+                      maxVals(3).max(test.description.length)
                     )
                 }
               }
@@ -1676,7 +1676,7 @@ class Main(
               testPair match {
                 case (name, Some(test)) =>
                   STDOUT.println(
-                    formatStr.format(name, test.model, test.rootName, test.description),
+                    formatStr.format(name, test.model, test.rootName, test.description)
                   )
                 case (name, None) =>
                   STDOUT.println(formatStr.format(name, "[Not Found]", "", ""))
@@ -1708,7 +1708,7 @@ class Main(
                   case e: TDMLTestNotCompatibleException => {
                     STDOUT.println(
                       "[Skipped] %s (not compatible with implementation: %s)"
-                        .format(name, e.implementation.getOrElse("<none>")),
+                        .format(name, e.implementation.getOrElse("<none>"))
                     )
                   }
                   case e: Throwable => {
@@ -1721,7 +1721,7 @@ class Main(
                         // JUnit as a dependency
                         STDOUT.println(
                           "[Skipped] %s (not compatible with implementation: %s)"
-                            .format(name, e.implementation.getOrElse("<none>")),
+                            .format(name, e.implementation.getOrElse("<none>"))
                         )
                       }
                       case _ => {
@@ -1755,8 +1755,8 @@ class Main(
               pass + fail + notfound,
               pass,
               fail,
-              notfound,
-            ),
+              notfound
+            )
           )
 
           if (fail == 0 && notfound == 0) ExitCode.Success else ExitCode.TestError
@@ -1782,7 +1782,7 @@ class Main(
           generateOpts.schema(),
           generateOpts.rootNS.toOption,
           tunables,
-          generateOpts.language,
+          generateOpts.language
         )
 
         // Ask the CodeGenerator to generate source code from the DFDL schema
@@ -1820,13 +1820,13 @@ class Main(
           try {
             Some(
               EXIInfosetHandler.createEXIFactory(
-                exiOpts.schema.map(_.uri).toOption,
-              ),
+                exiOpts.schema.map(_.uri).toOption
+              )
             )
           } catch {
             case e: EXIException => {
               Logger.log.error(
-                s"Error creating EXI grammar for the supplied schema: ${Misc.getSomeMessage(e).get}",
+                s"Error creating EXI grammar for the supplied schema: ${Misc.getSomeMessage(e).get}"
               )
               rc = ExitCode.Failure
               None

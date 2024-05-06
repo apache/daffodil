@@ -30,7 +30,7 @@ object DaffodilCExamplesGenerator {
   private def updateCExample(
     schemaFile: os.Path,
     optRootName: Option[String],
-    exampleDir: os.Path,
+    exampleDir: os.Path
   ): Unit = {
     // Generate example code from the sample schema
     val pf = Compiler().compileFile(schemaFile.toIO, optRootName)
@@ -49,7 +49,7 @@ object DaffodilCExamplesGenerator {
       generatedCodeHeader,
       exampleCodeHeader,
       replaceExisting = true,
-      createFolders = true,
+      createFolders = true
     )
     os.copy(generatedCodeFile, exampleCodeFile, replaceExisting = true, createFolders = true)
 
@@ -67,7 +67,7 @@ object DaffodilCExamplesGenerator {
     // We expect one mandatory parameter, the absolute location of the examples directory
     assert(
       args.length == 1,
-      s"Usage: $DaffodilCExamplesGenerator <examples directory location>",
+      s"Usage: $DaffodilCExamplesGenerator <examples directory location>"
     )
 
     // Get paths to our sample schemas and their corresponding example directories
@@ -85,8 +85,8 @@ object DaffodilCExamplesGenerator {
       (
         schemaDir / "variablelen.dfdl.xsd",
         Some("expressionElement"),
-        examplesDir / "variablelen",
-      ),
+        examplesDir / "variablelen"
+      )
     )
 
     // Update each example of generated C code

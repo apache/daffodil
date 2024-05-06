@@ -77,7 +77,7 @@ abstract class PackedBinaryBaseUnparser(override val context: ElementRuntimeData
         "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
         context.dpathElementCompileInfo.namedQName.toPrettyString,
         nBits,
-        dos.maybeRelBitLimit0b.get,
+        dos.maybeRelBitLimit0b.get
       )
     }
   }
@@ -86,7 +86,7 @@ abstract class PackedBinaryBaseUnparser(override val context: ElementRuntimeData
 
 abstract class PackedBinaryDecimalBaseUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int,
+  binaryDecimalVirtualPoint: Int
 ) extends PackedBinaryBaseUnparser(e) {
 
   override def getNumberToPut(ustate: UState): JNumber = {
@@ -96,7 +96,7 @@ abstract class PackedBinaryDecimalBaseUnparser(
       e.schemaDefinitionError(
         "Decimal point of number '%s' does not match the binaryVirtualDecmialPoint: %d",
         bigDec,
-        binaryDecimalVirtualPoint,
+        binaryDecimalVirtualPoint
       )
     }
     bigDec.unscaledValue
@@ -106,7 +106,7 @@ abstract class PackedBinaryDecimalBaseUnparser(
     dos: DataOutputStream,
     number: JNumber,
     nBits: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean = {
     val packedNum = fromBigInteger(number.asInstanceOf[JBigInteger], nBits)
     dos.putByteArray(packedNum, packedNum.length * 8, finfo)
@@ -129,7 +129,7 @@ abstract class PackedBinaryIntegerBaseUnparser(e: ElementRuntimeData)
     dos: DataOutputStream,
     number: JNumber,
     nBits: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean = {
     val packedNum = fromBigInteger(number.asInstanceOf[JBigInteger], nBits)
     dos.putByteArray(packedNum, packedNum.length * 8, finfo)

@@ -25,7 +25,7 @@ object DFDLRegularExpressions {
     escape: String,
     escapeEscape: String,
     delim: String,
-    dotMatchesAll: Boolean = true,
+    dotMatchesAll: Boolean = true
   ) = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
@@ -42,7 +42,7 @@ object DFDLRegularExpressions {
     delim: String,
     padChar: String,
     justification: TextStringJustification,
-    dotMatchesAll: Boolean = true,
+    dotMatchesAll: Boolean = true
   ) = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
@@ -82,7 +82,7 @@ object DFDLRegularExpressions {
     delim: String,
     padChar: String,
     justification: TextStringJustification,
-    dotMatchesAll: Boolean = true,
+    dotMatchesAll: Boolean = true
   ) = {
     val str =
       (if (dotMatchesAll) """(?s)""" else """""") +
@@ -114,7 +114,7 @@ object DFDLRegularExpressions {
     escapeEscape: String,
     escape: String,
     delim: String,
-    dotMatchesAll: Boolean = true,
+    dotMatchesAll: Boolean = true
   ) = {
     // Based upon assumption that String.format ignores extra arguments for which there
     // are no specifiers
@@ -149,7 +149,7 @@ object DFDLRegularExpressions {
     padChar: String,
     delim: String,
     justification: TextStringJustification,
-    dotMatchesAll: Boolean = true,
+    dotMatchesAll: Boolean = true
   ) = {
     // Based upon assumption that String.format ignores extra arguments for which there
     // are no specifiers

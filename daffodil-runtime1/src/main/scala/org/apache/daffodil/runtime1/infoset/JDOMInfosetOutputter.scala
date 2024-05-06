@@ -87,7 +87,7 @@ class JDOMInfosetOutputter extends InfosetOutputter {
   def getResult(): org.jdom2.Document = {
     Assert.usage(
       result.isDefined,
-      "No result to get. Must check isError parse result before calling getResult",
+      "No result to get. Must check isError parse result before calling getResult"
     )
     result.get
   }
@@ -100,7 +100,7 @@ class JDOMInfosetOutputter extends InfosetOutputter {
         new org.jdom2.Element(
           element.metadata.name,
           element.metadata.prefix,
-          element.metadata.namespace,
+          element.metadata.namespace
         )
 
     if (element.isNilled) {

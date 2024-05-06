@@ -26,7 +26,7 @@ class TestCLITunables {
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_01(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema -r test_01 -TunqualifiedPathStepPolicy=noNamespace") { cli =>
@@ -39,7 +39,7 @@ class TestCLITunables {
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_02(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema -r test_02 -TunqualifiedPathStepPolicy=noNamespace") { cli =>
@@ -50,7 +50,7 @@ class TestCLITunables {
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_03(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema -r test_03 -TunqualifiedPathStepPolicy=noNamespace") { cli =>
@@ -61,7 +61,7 @@ class TestCLITunables {
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_noNamespace_test_04(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema -r test_04 -TunqualifiedPathStepPolicy=noNamespace") { cli =>
@@ -74,7 +74,7 @@ class TestCLITunables {
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_01(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema -r test_01 -TunqualifiedPathStepPolicy=defaultNamespace") {
@@ -88,7 +88,7 @@ class TestCLITunables {
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_02(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema -r test_02 -TunqualifiedPathStepPolicy=defaultNamespace") {
@@ -102,7 +102,7 @@ class TestCLITunables {
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_03(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema -r test_03 -TunqualifiedPathStepPolicy=defaultNamespace") {
@@ -114,7 +114,7 @@ class TestCLITunables {
 
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_defaultNamespace_test_04(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema -r test_04 -TunqualifiedPathStepPolicy=defaultNamespace") {
@@ -127,11 +127,11 @@ class TestCLITunables {
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_01()
     : Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(
-      args"parse -s $schema -r test_01 -TunqualifiedPathStepPolicy=preferDefaultNamespace",
+      args"parse -s $schema -r test_01 -TunqualifiedPathStepPolicy=preferDefaultNamespace"
     ) { cli =>
       cli.send("12", inputDone = true)
       cli.expect("""<c xmlns="">2</c>""")
@@ -143,11 +143,11 @@ class TestCLITunables {
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_02()
     : Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(
-      args"parse -s $schema -r test_02 -TunqualifiedPathStepPolicy=preferDefaultNamespace",
+      args"parse -s $schema -r test_02 -TunqualifiedPathStepPolicy=preferDefaultNamespace"
     ) { cli =>
       cli.send("12", inputDone = true)
       cli.expect("""<c xmlns="">2</c>""")
@@ -159,11 +159,11 @@ class TestCLITunables {
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_03()
     : Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(
-      args"parse -s $schema -r test_03 -TunqualifiedPathStepPolicy=preferDefaultNamespace",
+      args"parse -s $schema -r test_03 -TunqualifiedPathStepPolicy=preferDefaultNamespace"
     ) { cli =>
       cli.send("12", inputDone = true)
       cli.expectErr("Schema Definition Error")
@@ -173,11 +173,11 @@ class TestCLITunables {
   @Test def test_CLI_Parsing_unqualifiedPathStepPolicy_preferDefaultNamespace_test_04()
     : Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/unqualified_path_step.dfdl.xsd"
     )
 
     runCLI(
-      args"parse -s $schema -r test_04 -TunqualifiedPathStepPolicy=preferDefaultNamespace",
+      args"parse -s $schema -r test_04 -TunqualifiedPathStepPolicy=preferDefaultNamespace"
     ) { cli =>
       cli.send("12", inputDone = true)
       cli.expect("""<c xmlns="">2</c>""")
@@ -191,7 +191,7 @@ class TestCLITunables {
    */
   @Test def test_CLI_Parsing_SuppressSDEWarnings1(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema -TsuppressSchemaDefinitionWarnings=all") { cli =>
@@ -206,7 +206,7 @@ class TestCLITunables {
    */
   @Test def test_CLI_Parsing_SuppressSDEWarnings2(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd"
     )
 
     runCLI(args"parse -s $schema") { cli =>
@@ -227,7 +227,7 @@ class TestCLITunables {
    */
   @Test def test_CLI_Parsing_ReloadingDoesNotRepeatWarnings(): Unit = {
     val schema = path(
-      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd",
+      "daffodil-cli/src/test/resources/org/apache/daffodil/cli/suppressWarnTest.dfdl.xsd"
     )
 
     withTempFile { parser =>
@@ -245,7 +245,7 @@ class TestCLITunables {
 
   @Test def test_CLI_Parsing_ReloadingWithTunables(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>

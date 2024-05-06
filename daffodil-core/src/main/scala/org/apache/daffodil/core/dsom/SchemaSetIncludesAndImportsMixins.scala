@@ -52,7 +52,7 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
       None,
       None,
       initialEmptyIIMap,
-      isBootStrapSD = true,
+      isBootStrapSD = true
     )
     fakeSD
   }
@@ -78,7 +78,7 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
             f.SDE(
               "Non-DFDL Schema file. Does not have DFDL namespace definition on schema root element.\n" +
                 "Add xmlns:dfdl='%s' to the root element.",
-              XMLUtils.DFDL_NAMESPACE,
+              XMLUtils.DFDL_NAMESPACE
             )
             false
           } else {
@@ -86,7 +86,7 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
               WarnID.IgnoreImport,
               "Non-DFDL Schema file ignored. Does not have DFDL namespace definition on schema root element.\n" +
                 "Add xmlns:dfdl='%s' to the root element if this file must be part of the DFDL schema.",
-              XMLUtils.DFDL_NAMESPACE,
+              XMLUtils.DFDL_NAMESPACE
             )
             false
           }

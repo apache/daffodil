@@ -109,7 +109,7 @@ trait GroupDefLike extends AnnotatedSchemaComponent with ProvidesDFDLStatementMi
 sealed abstract class GlobalGroupDef(
   defXML: Node,
   groupXML: Node,
-  schemaDocumentArg: SchemaDocument,
+  schemaDocumentArg: SchemaDocument
 ) extends AnnotatedSchemaComponentImpl(groupXML, schemaDocumentArg)
   with GroupDefLike
   with GlobalNonElementComponentMixin
@@ -128,7 +128,7 @@ sealed abstract class GlobalGroupDef(
     val found = findPropertyOption("choiceBranchKey")
     if (found.isDefined) {
       SDE(
-        "dfdl:choiceBranchKey cannot be specified on the choice/sequence child of a global group definition",
+        "dfdl:choiceBranchKey cannot be specified on the choice/sequence child of a global group definition"
       )
     }
   }
@@ -141,7 +141,7 @@ sealed abstract class GlobalGroupDef(
     if (dais.nonEmpty)
       SDW(
         WarnID.InvalidAnnotationPoint,
-        "Annotations placed directly on a group definition will be ignored by DFDL. Any annotation expected to be processed by DFDL should instead be placed on the group reference, sequence or choice.",
+        "Annotations placed directly on a group definition will be ignored by DFDL. Any annotation expected to be processed by DFDL should instead be placed on the group reference, sequence or choice."
       )
   }
 
@@ -164,7 +164,7 @@ object GlobalSequenceGroupDef {
 final class GlobalSequenceGroupDef private (
   defXMLArg: Node,
   seqXML: Node,
-  schemaDocument: SchemaDocument,
+  schemaDocument: SchemaDocument
 ) extends GlobalGroupDef(defXMLArg, seqXML, schemaDocument)
   with SequenceDefMixin {
 
@@ -187,6 +187,6 @@ object GlobalChoiceGroupDef {
 final class GlobalChoiceGroupDef private (
   defXMLArg: Node,
   choiceXML: Node,
-  schemaDocument: SchemaDocument,
+  schemaDocument: SchemaDocument
 ) extends GlobalGroupDef(defXMLArg, choiceXML, schemaDocument)
   with ChoiceDefMixin

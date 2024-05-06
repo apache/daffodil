@@ -22,7 +22,7 @@ import org.apache.daffodil.core.dsom.{
   GroupRef,
   InitiatedTerminatedMixin,
   ModelGroup,
-  SequenceTermBase,
+  SequenceTermBase
 }
 import org.apache.daffodil.core.grammar.primitives.AlignmentFill
 import org.apache.daffodil.core.grammar.primitives.DelimiterStackCombinatorChoice

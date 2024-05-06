@@ -100,12 +100,12 @@ class TestDisallowDocType {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="delimited"/>,
-      <xs:element name="e1" type="xs:string"/>,
+      <xs:element name="e1" type="xs:string"/>
     )
     val schString = testSchema.toString()
     var dp: DataProcessor = compileSchema(testSchema)
     val extVarURI = Misc.getRequiredResource(
-      "org/apache/daffodil/section00/general/hasDocType-external-vars.xml",
+      "org/apache/daffodil/section00/general/hasDocType-external-vars.xml"
     )
     val extVarFile = Paths.get(extVarURI).toFile
     assertTrue(extVarFile.exists)

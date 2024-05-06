@@ -86,7 +86,7 @@ sealed trait NillableZeroLengthMixin { self: ZeroLengthDetector =>
  */
 class NillableZeroLengthDetector extends ZeroLengthDetector with NillableZeroLengthMixin {
   override def isKnownNonZeroLength(diElement: DIElement) = isNillableKnownNonZeroLength(
-    diElement,
+    diElement
   )
   override def isKnownZeroLength(diElement: DIElement) = isNillableKnownZeroLength(diElement)
 }
@@ -149,7 +149,7 @@ sealed trait StringZeroLengthMixin { self: ZeroLengthDetector =>
  */
 class StringZeroLengthDetector extends ZeroLengthDetector with StringZeroLengthMixin {
   override def isKnownNonZeroLength(diElement: DIElement) = isStringKnownNonZeroLength(
-    diElement,
+    diElement
   )
   override def isKnownZeroLength(diElement: DIElement) = isStringKnownZeroLength(diElement)
 
@@ -207,7 +207,7 @@ sealed trait HexBinaryZeroLengthMixin { self: ZeroLengthDetector =>
  */
 class HexBinaryZeroLengthDetector extends ZeroLengthDetector with HexBinaryZeroLengthMixin {
   override def isKnownNonZeroLength(diElement: DIElement) = isHexBinaryKnownNonZeroLength(
-    diElement,
+    diElement
   )
   override def isKnownZeroLength(diElement: DIElement) = isHexBinaryKnownZeroLength(diElement)
 }

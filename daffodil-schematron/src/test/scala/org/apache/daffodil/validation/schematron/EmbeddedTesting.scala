@@ -54,7 +54,7 @@ trait EmbeddedTesting {
       val bos = new ByteArrayOutputStream()
       val r1 = dp.parse(
         new InputSourceDataInputStream(new ByteArrayInputStream(bytes)),
-        new XMLTextInfosetOutputter(bos, pretty = true),
+        new XMLTextInfosetOutputter(bos, pretty = true)
       )
       verbose match {
         case Always | AnyError if r1.isError() => r1.getDiagnostics.foreach(println)
@@ -79,7 +79,7 @@ trait EmbeddedTesting {
     val v = SchematronValidatorFactory.makeValidator(
       schema.toURL.openStream(),
       schema.toURL.toString(),
-      Xsd,
+      Xsd
     )
     val dp = pf.onPath("/").withValidator(v)
 

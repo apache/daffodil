@@ -331,7 +331,7 @@ class UnitTestTDMLRunner {
       0x0d.toByte,
       0x0a.toByte,
       'c'.toByte,
-      'd'.toByte,
+      'd'.toByte
     ).toList
     assertEquals(expected, actual.toList)
   }
@@ -777,7 +777,7 @@ class UnitTestTDMLRunner {
         <documentPart type="bits" byteOrder="RTL">/*FPI for URN*/                     XXX1 XXXX</documentPart>
         <documentPart type="bits" byteOrder="RTL">/*URN*/ XXXX00000 00000000 00000000 011X XXXX</documentPart>
       </document>,
-      null,
+      null
     )
     val doc1bits = doc.documentBits
     doc1bits.length
@@ -787,7 +787,7 @@ class UnitTestTDMLRunner {
             E3 67 00 80 55 67 92 1A FC 77 00 00 00
          ]]></documentPart>
       </document>,
-      null,
+      null
     )
     val doc2bits = doc2.documentBits
     assertEquals(doc2bits, doc1bits)
@@ -819,7 +819,7 @@ class UnitTestTDMLRunner {
         <documentPart type="bits" byteOrder="RTL">XXX1 XXXX                      //FPI for URN </documentPart>
         <documentPart type="bits" byteOrder="RTL">XXXX00000 00000000 00000000 011X XXXX  //URN </documentPart>
       </document>,
-      null,
+      null
     )
     val doc1bits = doc.documentBits
     doc1bits.length
@@ -829,7 +829,7 @@ class UnitTestTDMLRunner {
             E3 67 00 80 55 67 92 1A FC 77 00 00 00
          ]]></documentPart>
       </document>,
-      null,
+      null
     )
     val doc2bits = doc2.documentBits
     assertEquals(doc2bits, doc1bits)

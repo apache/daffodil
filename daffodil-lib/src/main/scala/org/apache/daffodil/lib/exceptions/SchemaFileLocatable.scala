@@ -42,7 +42,7 @@ object SchemaFileLocation {
       context.uriString,
       context.diagnosticFile,
       context.toString,
-      context.diagnosticDebugName,
+      context.diagnosticDebugName
     )
 }
 
@@ -52,7 +52,7 @@ class SchemaFileLocation protected (
   val uriString: String,
   val diagnosticFile: File,
   contextToString: String,
-  val diagnosticDebugName: String,
+  val diagnosticDebugName: String
 ) extends LocationInSchemaFile
   with Serializable {
 
@@ -150,14 +150,14 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
 
 class XercesSchemaFileLocation(
   val xercesError: SAXParseException,
-  val schemaFileLocation: SchemaFileLocation,
+  val schemaFileLocation: SchemaFileLocation
 ) extends SchemaFileLocation(
     Option(xercesError.getLineNumber.toString),
     Option(xercesError.getColumnNumber.toString),
     xercesError.getSystemId,
     schemaFileLocation.diagnosticFile,
     schemaFileLocation.toString,
-    schemaFileLocation.diagnosticDebugName,
+    schemaFileLocation.diagnosticDebugName
   ) {
   // we set this to blank string instead of "Schema File" since we don't have access to the element
   // that causes this error from Xerces and "Schema File" doesn't really add much more info compared

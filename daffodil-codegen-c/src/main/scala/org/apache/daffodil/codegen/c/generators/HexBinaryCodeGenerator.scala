@@ -35,7 +35,7 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   // Generate C code to parse and unparse a hexBinary specified length element
   def hexBinarySpecifiedLengthGenerateCode(
     e: ElementBase,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val addField = hexBinarySpecifiedLengthAddField(e, _, cgState)
     val validateFixed = hexBinaryValidateFixed(e, _, cgState)
@@ -46,7 +46,7 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   private def hexBinaryPrefixedLengthAddField(
     e: ElementBase,
     deref: String,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
@@ -90,7 +90,7 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   private def hexBinarySpecifiedLengthAddField(
     e: ElementBase,
     deref: String,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT
@@ -151,7 +151,7 @@ trait HexBinaryCodeGenerator extends BinaryValueCodeGenerator {
   private def hexBinaryValidateFixed(
     e: ElementBase,
     deref: String,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val indent1 = if (cgState.hasChoice) INDENT else NO_INDENT
     val indent2 = if (deref.nonEmpty) INDENT else NO_INDENT

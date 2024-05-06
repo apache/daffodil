@@ -29,7 +29,7 @@ class TestSDW {
       WarnID.DeprecatedBuiltInFormats,
       None,
       None,
-      "test message",
+      "test message"
     )
     val expected = "Schema Definition Warning: test message (id: deprecatedBuiltInFormats)"
     assertEquals(expected, sdw.getMessage)

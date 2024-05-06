@@ -40,7 +40,7 @@ import org.apache.daffodil.runtime1.processors.ExtraEscapedCharsEv
 final class DFDLEscapeScheme(
   node: Node,
   decl: AnnotatedSchemaComponent,
-  defES: DFDLDefineEscapeScheme,
+  defES: DFDLDefineEscapeScheme
 ) extends DFDLFormatAnnotation(node, decl)
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
@@ -91,7 +91,7 @@ final class DFDLEscapeScheme(
       NodeInfo.NonEmptyString,
       escapeCharacterRaw,
       this,
-      defES.pointOfUse.dpathCompileInfo,
+      defES.pointOfUse.dpathCompileInfo
     )
     val ev = new EscapeCharEv(expr, ci)
     ev.compile(tunable)
@@ -112,7 +112,7 @@ final class DFDLEscapeScheme(
           typeIfRuntimeKnown,
           found,
           this,
-          ci,
+          ci
         )
         val ev = new EscapeEscapeCharEv(expr, ci)
         ev.compile(tunable)
@@ -135,7 +135,7 @@ final class DFDLEscapeScheme(
           typeIfRuntimeKnown,
           found,
           this,
-          ci,
+          ci
         )
         val ev = new ExtraEscapedCharsEv(expr, ci)
         ev.compile(tunable)
@@ -151,7 +151,7 @@ final class DFDLEscapeScheme(
           escapeBlockStart,
           escapeBlockEnd,
           optionEscapeEscapeCharacterEv,
-          ci,
+          ci
         )
       case EscapeKind.EscapeCharacter =>
         new EscapeSchemeCharParseEv(escapeCharacterEv, optionEscapeEscapeCharacterEv, ci)
@@ -169,14 +169,14 @@ final class DFDLEscapeScheme(
           optionEscapeEscapeCharacterEv,
           optionExtraEscapedCharactersEv,
           generateEscapeBlock,
-          ci,
+          ci
         )
       case EscapeKind.EscapeCharacter =>
         new EscapeSchemeCharUnparseEv(
           escapeCharacterEv,
           optionEscapeEscapeCharacterEv,
           optionExtraEscapedCharactersEv,
-          ci,
+          ci
         )
     }
     esuev.compile(tunable)
@@ -220,7 +220,7 @@ object DFDLDefineEscapeScheme {
 final class DFDLDefineEscapeScheme private (
   node: Node,
   decl: SchemaDocument,
-  val pointOfUse: SchemaComponent,
+  val pointOfUse: SchemaComponent
 ) extends DFDLDefiningAnnotation(node, decl) { // Note: defineEscapeScheme isn't a format annotation itself.
 
   requiredEvaluationsAlways(escapeScheme)

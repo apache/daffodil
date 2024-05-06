@@ -74,7 +74,7 @@ object GroupRefFactory {
     refXML: Node,
     refLexicalParent: SchemaComponent,
     position: Int,
-    isHidden: Boolean,
+    isHidden: Boolean
   ) = {
     val f = new GroupRefFactory(refXML, refLexicalParent, position, isHidden)
     f.groupRef
@@ -94,7 +94,7 @@ final class GroupRefFactory private (
   refXML: Node,
   val refLexicalParent: SchemaComponent,
   position: Int,
-  isHidden: Boolean,
+  isHidden: Boolean
 ) extends SchemaComponentImpl(refXML, refLexicalParent)
   with NestingLexicalMixin
   with HasRefMixin {
@@ -121,7 +121,7 @@ object SequenceGroupRef {
     refXML: Node,
     refLexicalParent: SchemaComponent,
     positionArg: Int,
-    isHidden: Boolean,
+    isHidden: Boolean
   ) = {
     val sgr =
       new SequenceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
@@ -135,7 +135,7 @@ final class SequenceGroupRef private (
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
-  override val isHidden: Boolean,
+  override val isHidden: Boolean
 ) extends SequenceGroupTermBase(refXML, refLexicalParent, positionArg)
   with GroupRef {
 
@@ -161,7 +161,7 @@ object ChoiceGroupRef {
     refXML: Node,
     refLexicalParent: SchemaComponent,
     positionArg: Int,
-    isHidden: Boolean,
+    isHidden: Boolean
   ) = {
     val cgr =
       new ChoiceGroupRef(globalGroupDefArg, refXML, refLexicalParent, positionArg, isHidden)
@@ -175,7 +175,7 @@ final class ChoiceGroupRef private (
   refXML: Node,
   refLexicalParent: SchemaComponent,
   positionArg: Int,
-  override val isHidden: Boolean,
+  override val isHidden: Boolean
 ) extends ChoiceTermBase(refXML, Option(refLexicalParent), positionArg)
   with GroupRef {
 

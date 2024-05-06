@@ -152,7 +152,7 @@ abstract class FNTwoArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRe
   def computeValue(
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValuePrimitive
 
   override def toXML = toXML(recipes.map { _.toXML })
@@ -180,7 +180,7 @@ abstract class FNTwoArgsNodeAndValue(recipes: List[CompiledDPath])
   def computeValue(
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValuePrimitive
 
   override def toXML = toXML(recipes.map { _.toXML })
@@ -212,7 +212,7 @@ abstract class FNThreeArgs(recipes: List[CompiledDPath])
     arg1: DataValuePrimitive,
     arg2: DataValuePrimitive,
     arg3: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValuePrimitive
 
   override def toXML = toXML(recipes.map { _.toXML })

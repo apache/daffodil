@@ -30,7 +30,7 @@ class DebuggerRunnerForSAPITest extends DebuggerRunner {
     "display info data",
     "display eval ..",
     "display info diff",
-    "trace",
+    "trace"
   ).iterator
 
   def init(): Unit = {}

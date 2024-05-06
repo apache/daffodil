@@ -25,7 +25,7 @@ trait BinaryFloatCodeGenerator extends BinaryValueCodeGenerator {
   def binaryFloatGenerateCode(
     e: ElementBase,
     lengthInBits: Int,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val primType = if (lengthInBits == 32) "float" else "double"
     val addField = valueAddField(e, lengthInBits, primType, _, cgState)

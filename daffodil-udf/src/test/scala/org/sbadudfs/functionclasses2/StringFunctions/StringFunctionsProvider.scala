@@ -67,7 +67,7 @@ class SomeSerializableClass extends Serializable {
  */
 @UserDefinedFunctionIdentification(
   name = "get-nonserializable-state",
-  namespaceURI = "http://example.com/scala/udf",
+  namespaceURI = "http://example.com/scala/udf"
 )
 class GetNonSerializableState(state: SomeNonSerializableClass) extends UserDefinedFunction {
 
@@ -84,7 +84,7 @@ class GetNonSerializableState(state: SomeNonSerializableClass) extends UserDefin
  */
 @UserDefinedFunctionIdentification(
   name = "get-serializable-state",
-  namespaceURI = "http://example.com/scala/udf",
+  namespaceURI = "http://example.com/scala/udf"
 )
 class GetSerializableState(state: SomeSerializableClass) extends UserDefinedFunction {
 

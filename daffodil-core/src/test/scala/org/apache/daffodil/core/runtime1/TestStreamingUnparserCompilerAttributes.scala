@@ -147,7 +147,7 @@ class TestStreamingUnparserCompilerAttributes {
     val Seq(a: LE, b: LE, gr: CGR) = rg.groupMembers
     val Seq(c: LE, d: LE) = gr.groupMembers
     val Closed(Seq(PNE(`a`, false), PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) = poss(
-      a,
+      a
     )
     val Closed(Seq(PNE(`b`, false), PNE(`c`, false), PNE(`d`, false))) = poss(b)
     val Closed(Seq(PNE(`c`, false), PNE(`d`, false))) = poss(gr)

@@ -80,7 +80,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           </xs:choice>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
   def makeGZIPData(text: String) = {
@@ -191,7 +191,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
   /**
@@ -215,7 +215,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     "invalid block type",
     "Corrupt GZIP header",
     "invalid distance code",
-    "invalid literal/length code",
+    "invalid literal/length code"
   )
 
   val expected = <root xmlns="http://example.com">

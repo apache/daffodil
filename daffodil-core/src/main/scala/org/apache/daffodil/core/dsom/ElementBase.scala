@@ -104,15 +104,15 @@ trait ElementBase
     val optOVC = findPropertyOption("outputValueCalc", expressionAllowed = true)
     schemaDefinitionWhen(
       optOVC.isDefined && isOptional,
-      "dfdl:outputValueCalc cannot be defined on optional elements.",
+      "dfdl:outputValueCalc cannot be defined on optional elements."
     )
     schemaDefinitionWhen(
       optOVC.isDefined && isArray,
-      "dfdl:outputValueCalc cannot be defined on array elements.",
+      "dfdl:outputValueCalc cannot be defined on array elements."
     )
     schemaDefinitionWhen(
       optOVC.isDefined && isComplexType,
-      "dfdl:outputValueCalc cannot be defined on complexType elements.",
+      "dfdl:outputValueCalc cannot be defined on complexType elements."
     )
     // This should be an SDE, but is very useful for unit tests to be able to specify OVC on a single global element
     // self.schemaDefinitionWhen(optOVC.isDefined && self.isInstanceOf[GlobalElementDecl], "dfdl:outputValueCalc cannot be defined on global elements.")
@@ -298,7 +298,7 @@ trait ElementBase
   // FIXME: DAFFODIL-2282 works only if there is no difference among usages.
   private def pairsToNSBinding(
     pairs: List[(String, NS)],
-    parentNS: NamespaceBinding,
+    parentNS: NamespaceBinding
   ): NamespaceBinding = {
     if (pairs.isEmpty) parentNS
     else {
@@ -526,7 +526,7 @@ trait ElementBase
 
   private def getImplicitAlignmentInBits(
     thePrimType: PrimType,
-    theRepresentation: Representation,
+    theRepresentation: Representation
   ): Int = {
     (theRepresentation, thePrimType) match {
       case (Representation.Text, PrimType.AnyURI) =>
@@ -563,7 +563,7 @@ trait ElementBase
       case (
             Representation.Binary,
             PrimType.Integer | PrimType.Decimal | PrimType.Byte | PrimType.UnsignedByte |
-            PrimType.NonNegativeInteger,
+            PrimType.NonNegativeInteger
           ) =>
         8
       // Handle date types
@@ -574,7 +574,7 @@ trait ElementBase
           case _ =>
             schemaDefinitionError(
               "Implicit Alignment: binaryCalendarRep was %s but we expected BinarySeconds or BinaryMilliseconds.",
-              binaryCalendarRep,
+              binaryCalendarRep
             )
         }
     }
@@ -623,7 +623,7 @@ trait ElementBase
                 alignInBits,
                 implicitAlignmentInBits,
                 primType.name,
-                this.knownEncodingName,
+                this.knownEncodingName
               )
           }
           case Representation.Binary => {
@@ -641,7 +641,7 @@ trait ElementBase
                       SDE(
                         "The given alignment (%s bits) must be a multiple of 4 for %s when using packed binary formats",
                         alignInBits,
-                        primType.name,
+                        primType.name
                       )
                   }
                   case _ => /* Since this is non-textual data, no need to compare alignment to encoding's expected alignment */
@@ -666,7 +666,7 @@ trait ElementBase
             "Initiator text may leave the element incorrectly aligned. The text encoding of initiator characters is %s bits, " +
               "but the element alignment requires %s bits. Suggest consider whether both dfdl:initiator and dfdl:alignment should be specified for this element.",
             textAlign,
-            alignInBits,
+            alignInBits
           )
       }
       //
@@ -712,7 +712,7 @@ trait ElementBase
       // it's a string with implicit length. get from facets
       schemaDefinitionUnless(
         repElement.hasMaxLength || repElement.hasLength,
-        "String with dfdl:lengthKind='implicit' must have a length or maxLength facet value.",
+        "String with dfdl:lengthKind='implicit' must have a length or maxLength facet value."
       )
       val ml = repElement.maxLength
       ml.longValue()
@@ -784,7 +784,7 @@ trait ElementBase
                 "Number of bits %d out of range for binary %s, must be between 1 and %d bits.",
                 nBits,
                 primNumeric.globalQName,
-                width,
+                width
               )
             }
           }
@@ -868,7 +868,7 @@ trait ElementBase
     terminatorParseEv,
     emptyValueDelimiterPolicy,
     EVDP.Both,
-    EVDP.Terminator,
+    EVDP.Terminator
   )
 
   // See how this function takes the prop: => Any that is pass by name (aka lazy pass).
@@ -878,7 +878,7 @@ trait ElementBase
     expr: DelimiterParseEv,
     prop: => Any,
     true1: Any,
-    true2: Any,
+    true2: Any
   ): Boolean = {
     // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for
     // prop's value at all unless the first test is false.
@@ -976,7 +976,7 @@ trait ElementBase
   private def computeMinMaxLength: (java.math.BigDecimal, java.math.BigDecimal) = {
     schemaDefinitionUnless(
       isSimpleType,
-      "The length facet or minLength/maxLength facets are not allowed on complex types",
+      "The length facet or minLength/maxLength facets are not allowed on complex types"
     )
     typeDef match {
       case _ if hasRepType => {
@@ -989,7 +989,7 @@ trait ElementBase
         schemaDefinitionWhen(
           (pt == PrimType.String || pt == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
           "The length facet or minLength/maxLength facets must be defined for type %s with lengthKind='implicit'",
-          pt.name,
+          pt.name
         )
         //
         // We handle text numbers by getting a stringValue first, then
@@ -1005,13 +1005,13 @@ trait ElementBase
         schemaDefinitionWhen(
           !typeOK && (hasLength || hasMinLength || hasMaxLength),
           "The length facet or minLength/maxLength facets are not allowed on types derived from type %s.\nThey are allowed only on types derived from string and hexBinary.",
-          pt.name,
+          pt.name
         )
         val res = (hasLength, hasMinLength, hasMaxLength, lengthKind) match {
           case (true, false, false, _) => (r.lengthValue, r.lengthValue)
           case (true, _, _, _) =>
             Assert.invariantFailed(
-              "Facet length cannot be defined with minLength and maxLength facets",
+              "Facet length cannot be defined with minLength and maxLength facets"
             )
           case (false, true, true, LengthKind.Implicit) => {
             schemaDefinitionUnless(
@@ -1019,7 +1019,7 @@ trait ElementBase
               "The minLength and maxLength must be equal for type %s with lengthKind='implicit'. Values were minLength of %s, maxLength of %s.",
               pt.name,
               r.minLengthValue,
-              r.maxLengthValue,
+              r.maxLengthValue
             )
             (r.minLengthValue, r.maxLengthValue)
           }
@@ -1029,13 +1029,13 @@ trait ElementBase
               // always true, so we don't bother to specify the type in the message.
               "The minLength facet value must be less than or equal to the maxLength facet value. Values were minLength of %s, maxLength of %s.",
               r.minLengthValue,
-              r.maxLengthValue,
+              r.maxLengthValue
             )
             (r.minLengthValue, r.maxLengthValue)
           }
           case (false, _, _, LengthKind.Implicit) =>
             SDE(
-              "When lengthKind='implicit', both minLength and maxLength facets must be specified.",
+              "When lengthKind='implicit', both minLength and maxLength facets must be specified."
             )
           case (false, false, true, _) => (zeroBD, r.maxLengthValue)
           case (false, false, false, _) => (zeroBD, unbBD)
@@ -1067,7 +1067,7 @@ trait ElementBase
           SDE(
             "MinInclusive(%s) must be less than or equal to MaxExclusive(%s).",
             r.minInclusiveValue,
-            r.maxExclusiveValue,
+            r.maxExclusiveValue
           )
       }
       if (r.hasMaxInclusive) {
@@ -1076,7 +1076,7 @@ trait ElementBase
           SDE(
             "MinInclusive(%s) must be less than or equal to MaxInclusive(%s).",
             r.minInclusiveValue,
-            r.maxInclusiveValue,
+            r.maxInclusiveValue
           )
       }
       r.minInclusiveValue
@@ -1094,7 +1094,7 @@ trait ElementBase
           SDE(
             "MinExclusive(%s) must be less than or equal to MaxInclusive(%s)",
             r.minExclusiveValue,
-            r.maxInclusiveValue,
+            r.maxInclusiveValue
           )
       }
       if (r.hasMinInclusive) {
@@ -1103,7 +1103,7 @@ trait ElementBase
           SDE(
             "MinInclusive(%s) must be less than or equal to MaxInclusive(%s)",
             r.minInclusiveValue,
-            r.maxInclusiveValue,
+            r.maxInclusiveValue
           )
       }
       r.maxInclusiveValue
@@ -1121,7 +1121,7 @@ trait ElementBase
           SDE(
             "MinExclusive(%s) must be less than or equal to MaxInclusive(%s)",
             r.minExclusiveValue,
-            r.maxInclusiveValue,
+            r.maxInclusiveValue
           )
       }
       if (r.hasMaxExclusive) {
@@ -1130,7 +1130,7 @@ trait ElementBase
           SDE(
             "MinExclusive(%s) must be less than or equal to MaxExclusive(%s)",
             r.minExclusiveValue,
-            r.maxExclusiveValue,
+            r.maxExclusiveValue
           )
       }
       r.minExclusiveValue
@@ -1148,7 +1148,7 @@ trait ElementBase
           SDE(
             "MinInclusive(%s) must be less than or equal to MaxExclusive(%s)",
             r.minInclusiveValue,
-            r.maxExclusiveValue,
+            r.maxExclusiveValue
           )
       }
       if (r.hasMinExclusive) {
@@ -1157,7 +1157,7 @@ trait ElementBase
           SDE(
             "MinExclusive(%s) must be less than or equal to MaxExclusive(%s)",
             r.minExclusiveValue,
-            r.maxExclusiveValue,
+            r.maxExclusiveValue
           )
       }
       r.maxExclusiveValue
@@ -1176,7 +1176,7 @@ trait ElementBase
       else {
         SDE(
           "TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s",
-          st.primType.name,
+          st.primType.name
         )
       }
     }.get
@@ -1196,7 +1196,7 @@ trait ElementBase
       } else {
         SDE(
           "FractionDigits facet can only be applied to decimal. Restriction base is %s",
-          r.primType.name,
+          r.primType.name
         )
       }
     }.get
@@ -1232,12 +1232,12 @@ trait ElementBase
           SDW(
             WarnID.NoEmptyDefault,
             "Element with no empty representation. XSD default='%s' can only be used when unparsing.",
-            defaultValueAsString,
+            defaultValueAsString
           )
         schemaDefinitionWhen(
           isOptional,
           "Optional elements cannot have default values but default='%s' was found.",
-          defaultValueAsString,
+          defaultValueAsString
         )
         if (isArray && !isArrayWithAtLeastOneRequiredArrayElement) {
           (minOccurs, occursCountKind) match {
@@ -1245,12 +1245,12 @@ trait ElementBase
               SDE(
                 "XSD default='%s' can never be used since an element with dfdl:occursCountKind='%s' has no required occurrences.",
                 defaultValueAsString,
-                occursCountKind,
+                occursCountKind
               )
             case (0, _) =>
               SDE(
                 "XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
-                defaultValueAsString,
+                defaultValueAsString
               )
             case _ => // ok
           }
@@ -1291,7 +1291,7 @@ trait ElementBase
    */
   final def checkParseUnparsePolicyCompatibility(
     context: Option[ElementBase],
-    policy: ParseUnparsePolicy,
+    policy: ParseUnparsePolicy
   ): Unit = {
     elementChildren.foreach { child =>
       val childPolicy = child.defaultParseUnparsePolicy
@@ -1302,14 +1302,14 @@ trait ElementBase
             "Child element '%s' with dfdlx:parseUnparsePolicy='%s' is not compatible with root elements dfdlx:parseUnparsePolicy='%s'",
             child,
             childPolicy,
-            policy,
+            policy
           )
         } else {
           SDE(
             "Element '%s' with dfdlx:parseUnparsePolicy='%s' is not compatible with user supplied dfdlx:parseUnparsePolicy='%s'",
             child,
             childPolicy,
-            policy,
+            policy
           )
         }
       }
@@ -1347,7 +1347,7 @@ trait ElementBase
             this.toString,
             this.alignmentValueInBits,
             that.toString,
-            that.alignmentValueInBits,
+            that.alignmentValueInBits
           )
         }
       }
@@ -1391,13 +1391,13 @@ trait ElementBase
    * API
    */
   lazy val runtimeProperties: java.util.Map[String, String] = findPropertyOption(
-    "runtimeProperties",
+    "runtimeProperties"
   ).toOption match {
     case None => java.util.Collections.emptyMap()
     case Some(value) => {
       schemaDefinitionUnless(
         isSimpleType,
-        "dfdlx:runtimeProperties is only valid on simple types",
+        "dfdlx:runtimeProperties is only valid on simple types"
       )
       val map = new java.util.HashMap[String, String]()
       value.split("\\s+").filter(_ != "").foreach { v =>
@@ -1406,7 +1406,7 @@ trait ElementBase
         schemaDefinitionUnless(
           kv.length == 2 && kv(0).length > 0 && kv(1).length > 0,
           "dfdlx:runtimeProperties must be a space-separated list of \"key=value\" pairs: \"%s\" is invalid",
-          v,
+          v
         )
         map.put(kv(0), kv(1))
       }

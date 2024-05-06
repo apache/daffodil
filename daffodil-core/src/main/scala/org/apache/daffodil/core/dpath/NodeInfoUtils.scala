@@ -30,7 +30,7 @@ object NodeInfoUtils {
   def generalizeArgTypesForComparisonOp(
     op: String,
     inherent1: Numeric.Kind,
-    inherent2: Numeric.Kind,
+    inherent2: Numeric.Kind
   ): Numeric.Kind = {
 
     val argType: Numeric.Kind = (inherent1, inherent2) match {
@@ -70,8 +70,8 @@ object NodeInfoUtils {
           "Unsupported types for comparison op '%s' were %s and %s.".format(
             op,
             inherent1,
-            inherent2,
-          ),
+            inherent2
+          )
         )
     }
     argType
@@ -84,10 +84,10 @@ object NodeInfoUtils {
   def generalizeArgAndResultTypesForNumericOp(
     op: String,
     leftArgType: Numeric.Kind,
-    rightArgType: Numeric.Kind,
+    rightArgType: Numeric.Kind
   ): ( //
     Numeric.Kind, // first result is generalized arg type
-    Numeric.Kind, // second result is generalized result type
+    Numeric.Kind // second result is generalized result type
   ) = {
 
     /*

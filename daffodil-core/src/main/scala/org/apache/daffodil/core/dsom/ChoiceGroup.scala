@@ -88,7 +88,7 @@ trait ChoiceDefMixin extends AnnotatedSchemaComponent with GroupDefLike {
 abstract class ChoiceTermBase(
   final override val xml: Node,
   final override val optLexicalParent: Option[SchemaComponent],
-  final override val position: Int,
+  final override val position: Int
 ) extends ModelGroup(position)
   with Choice_AnnotationMixin
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
@@ -173,7 +173,7 @@ abstract class ChoiceTermBase(
     val branchesOk = groupMembers.map { branch =>
       if (!branch.isRepresented) {
         branch.schemaDefinitionErrorButContinue(
-          "Branch of choice cannot have the dfdl:inputValueCalc property.",
+          "Branch of choice cannot have the dfdl:inputValueCalc property."
         )
         false
       } else true

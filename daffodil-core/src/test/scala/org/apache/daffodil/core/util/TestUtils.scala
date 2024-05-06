@@ -93,7 +93,7 @@ object TestUtils {
   def testBinary(
     testSchema: Node,
     hexData: String,
-    areTracing: Boolean = false,
+    areTracing: Boolean = false
   ): (DFDL.ParseResult, Node) = {
     val b = Misc.hex2Bytes(hexData)
     testBinary(testSchema, b, areTracing)
@@ -102,7 +102,7 @@ object TestUtils {
   def testBinary(
     testSchema: Node,
     data: Array[Byte],
-    areTracing: Boolean,
+    areTracing: Boolean
   ): (DFDL.ParseResult, Node) = {
     val rbc = Misc.byteArrayToReadableByteChannel(data)
     runSchemaOnRBC(testSchema, rbc, areTracing)
@@ -118,7 +118,7 @@ object TestUtils {
     testSchema: scala.xml.Elem,
     infosetXML: Node,
     unparseTo: String,
-    areTracing: Boolean = false,
+    areTracing: Boolean = false
   ): Seq[Diagnostic] = {
     val compiler = Compiler().withTunable("allowExternalPathExpressions", "true")
     val pf = compiler.compileNode(testSchema)
@@ -161,7 +161,7 @@ object TestUtils {
     testSchema: scala.xml.Elem,
     infoset: Node,
     unparseTo: Array[Byte],
-    areTracing: Boolean = false,
+    areTracing: Boolean = false
   ): Unit = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
@@ -226,7 +226,7 @@ object TestUtils {
   def runSchemaOnRBC(
     testSchema: Node,
     data: ReadableByteChannel,
-    areTracing: Boolean = false,
+    areTracing: Boolean = false
   ): (DFDL.ParseResult, Node) = {
     runSchemaOnInputStream(testSchema, Channels.newInputStream(data), areTracing)
   }
@@ -234,7 +234,7 @@ object TestUtils {
   def runSchemaOnInputStream(
     testSchema: Node,
     is: InputStream,
-    areTracing: Boolean = false,
+    areTracing: Boolean = false
   ): (DFDL.ParseResult, Node) = {
     val p = compileSchema(testSchema)
     runDataProcessorOnInputStream(p, is, areTracing)
@@ -243,7 +243,7 @@ object TestUtils {
   def runDataProcessorOnInputStream(
     dp: DataProcessor,
     is: InputStream,
-    areTracing: Boolean = false,
+    areTracing: Boolean = false
   ): (DFDL.ParseResult, Node) = {
     val p1 =
       if (areTracing) {
@@ -276,13 +276,13 @@ object TestUtils {
     contentElements: Seq[Node],
     elementFormDefault: String = "unqualified",
     includeImports: Seq[Node] = defaultIncludeImports,
-    topLevels: Seq[Node] = defaultTopLevels,
+    topLevels: Seq[Node] = defaultTopLevels
   ): Root = {
     val testSchema = SchemaUtils.dfdlTestSchema(
       includeImports,
       topLevels,
       contentElements,
-      elementFormDefault = elementFormDefault,
+      elementFormDefault = elementFormDefault
     )
     val sset = SchemaSet(testSchema)
     sset.root
@@ -291,7 +291,7 @@ object TestUtils {
   private def compileAndSave(
     compiler: Compiler,
     schemaSource: URISchemaSource,
-    output: WritableByteChannel,
+    output: WritableByteChannel
   ) = {
     Try {
       val pf = compiler.compileSource(schemaSource)
@@ -302,7 +302,7 @@ object TestUtils {
           (pf, dp)
         } else {
           throw new Exception(
-            (dp.getDiagnostics ++ pf.getDiagnostics).map { _.getMessage() }.mkString("\n"),
+            (dp.getDiagnostics ++ pf.getDiagnostics).map { _.getMessage() }.mkString("\n")
           )
         }
       } else
@@ -379,7 +379,7 @@ class Fakes private () {
       <xs:sequence>
         <xs:sequence/>
       </xs:sequence>
-    </xs:group>,
+    </xs:group>
   )
   val DummyPrimitiveFactory = null
   val tunables = DaffodilTunables()
@@ -401,7 +401,7 @@ class Fakes private () {
     override def save(output: DFDL.Output): Unit = {}
     override def parse(
       input: InputSourceDataInputStream,
-      output: InfosetOutputter,
+      output: InfosetOutputter
     ): DFDL.ParseResult = null
     override def unparse(inputter: InfosetInputter, output: DFDL.Output): DFDL.UnparseResult =
       null
@@ -424,7 +424,7 @@ class Fakes private () {
 
     override def newXMLReaderInstance: DFDL.DaffodilParseXMLReader = null
     override def newContentHandlerInstance(
-      output: DFDL.Output,
+      output: DFDL.Output
     ): DFDL.DaffodilUnparseContentHandler = null
 
   }
@@ -449,7 +449,7 @@ object StreamParser {
     diags: Seq[Diagnostic], // diagnostics.
     isProcessingError: Boolean,
     isValidationError: Boolean,
-    bitPos1b: Long,
+    bitPos1b: Long
   ) {
 
     def toXML: Node = {

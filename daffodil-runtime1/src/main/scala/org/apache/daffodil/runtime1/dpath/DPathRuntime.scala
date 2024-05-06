@@ -83,7 +83,7 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
   def runExpressionForConstant(
     sfl: SchemaFileLocation,
     compileInfo: DPathCompileInfo,
-    tunable: DaffodilTunables,
+    tunable: DaffodilTunables
   ): DataValuePrimitiveNullable = {
 
     //
@@ -169,7 +169,7 @@ abstract class RecipeOp extends Serializable {
       scala.xml.Null,
       scala.xml.TopScope,
       children.isEmpty,
-      children: _*,
+      children: _*
     )
   }
 
@@ -214,7 +214,7 @@ case class Literal(v: DataValuePrimitive) extends RecipeOp {
 case class IF(
   predRecipe: CompiledDPath,
   thenPartRecipe: CompiledDPath,
-  elsePartRecipe: CompiledDPath,
+  elsePartRecipe: CompiledDPath
 ) extends RecipeOpWithSubRecipes(predRecipe, thenPartRecipe, elsePartRecipe) {
 
   override def run(dstate: DState): Unit = {
@@ -321,8 +321,8 @@ abstract class Converter extends RecipeOp {
               arg.getAnyRef.toString,
               fromTypeName,
               toTypeName,
-              msg,
-            ),
+              msg
+            )
           )
           throw err
         }
@@ -359,7 +359,7 @@ case class RuntimeAbortOp(expr: String) extends RecipeOp {
       case _: DStateForConstantFolding => throw new java.lang.IllegalStateException
       case _ =>
         Assert.invariantFailed(
-          s"Expression should not have been evaluated during runtime: $expr",
+          s"Expression should not have been evaluated during runtime: $expr"
         )
     }
   }

@@ -63,7 +63,7 @@ final class ProcessorFactory private (
   schemaSource: DaffodilSchemaSource,
   val validateDFDLSchemas: Boolean,
   checkAllTopLevel: Boolean,
-  tunables: DaffodilTunables,
+  tunables: DaffodilTunables
 ) extends DFDL.ProcessorFactory {
 
   def this(
@@ -72,14 +72,14 @@ final class ProcessorFactory private (
     schemaSource: DaffodilSchemaSource,
     validateDFDLSchemas: Boolean,
     checkAllTopLevel: Boolean,
-    tunables: DaffodilTunables,
+    tunables: DaffodilTunables
   ) =
     this(
       RootSpec.makeRootSpec(optRootName, optRootNamespace), // compute root-spec object
       schemaSource,
       validateDFDLSchemas,
       checkAllTopLevel,
-      tunables,
+      tunables
     )
 
   private def copy(optRootSpec: Option[RootSpec] = optRootSpec): ProcessorFactory =
@@ -88,7 +88,7 @@ final class ProcessorFactory private (
       schemaSource,
       validateDFDLSchemas,
       checkAllTopLevel,
-      tunables,
+      tunables
     )
 
   lazy val sset: SchemaSet =
@@ -126,7 +126,7 @@ final class ProcessorFactory private (
       case "c" => "org.apache.daffodil.codegen.c.DaffodilCCodeGenerator"
       case _ =>
         throw new InvalidParserException(
-          s"code generator; source language $language is not supported",
+          s"code generator; source language $language is not supported"
         )
     }
     import scala.language.existentials // Needed to make next line compile
@@ -170,7 +170,7 @@ class Compiler private (
    */
   private val checkAllTopLevel: Boolean,
   private val optRootName: Option[String],
-  private val optRootNamespace: Option[String],
+  private val optRootNamespace: Option[String]
 ) extends DFDL.Compiler {
 
   private def this(validateDFDLSchemas: Boolean = true) =
@@ -179,7 +179,7 @@ class Compiler private (
       tunables = DaffodilTunables(),
       checkAllTopLevel = true,
       optRootName = None,
-      optRootNamespace = None,
+      optRootNamespace = None
     )
 
   private def copy(
@@ -187,7 +187,7 @@ class Compiler private (
     tunables: DaffodilTunables = tunables,
     checkAllTopLevel: Boolean = checkAllTopLevel,
     optRootName: Option[String] = optRootName,
-    optRootNamespace: Option[String] = optRootNamespace,
+    optRootNamespace: Option[String] = optRootNamespace
   ) =
     new Compiler(validateDFDLSchemas, tunables, checkAllTopLevel, optRootName, optRootNamespace)
 
@@ -235,7 +235,7 @@ class Compiler private (
       requiredDataPrefix.foreach { c =>
         if (is.read() != c.toInt)
           throw new InvalidParserException(
-            "The saved parser is only compatible with an older version of Daffodil",
+            "The saved parser is only compatible with an older version of Daffodil"
           )
       }
 
@@ -251,7 +251,7 @@ class Compiler private (
       val savedVersion = new String(ab.toArray, "utf-8")
       if (savedVersion != curVersion) {
         throw new InvalidParserException(
-          "The saved parser is only compatible with Daffodil " + savedVersion + ". Current version is " + curVersion,
+          "The saved parser is only compatible with Daffodil " + savedVersion + ". Current version is " + curVersion
         )
       }
 
@@ -298,7 +298,7 @@ class Compiler private (
         val dependencyStr =
           if (src != null) (new File(src.getLocation.getFile)).getName else "a dependency"
         throw new InvalidParserException(
-          "The saved parser was created with a different version of " + dependencyStr + " with incompatible class: " + ex.classname,
+          "The saved parser was created with a different version of " + dependencyStr + " with incompatible class: " + ex.classname
         )
       //
       case ex @ (_: ClassNotFoundException | _: NoClassDefFoundError) =>
@@ -314,7 +314,7 @@ class Compiler private (
         // user switches depenency versions and the new version completely
         // removes a class.
         throw new InvalidParserException(
-          "The saved parser was created with a different set of dependencies containing a class no longer on the classpath: " + ex.getMessage,
+          "The saved parser was created with a different set of dependencies containing a class no longer on the classpath: " + ex.getMessage
         )
     }
   }
@@ -326,7 +326,7 @@ class Compiler private (
   def compileFile(
     file: File,
     optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None,
+    optRootNamespace: Option[String] = None
   ): ProcessorFactory = {
     val source = URISchemaSource(file, file.toURI)
     compileSource(source, optRootName, optRootNamespace)
@@ -344,7 +344,7 @@ class Compiler private (
   def compileSource(
     schemaSource: DaffodilSchemaSource,
     optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None,
+    optRootNamespace: Option[String] = None
   ): ProcessorFactory = {
     Compiler.compileSourceSynchronizer(this, schemaSource, optRootName, optRootNamespace)
   }
@@ -352,7 +352,7 @@ class Compiler private (
   private def compileSourceInternal(
     schemaSource: DaffodilSchemaSource,
     optRootNameArg: Option[String],
-    optRootNamespaceArg: Option[String],
+    optRootNamespaceArg: Option[String]
   ): ProcessorFactory = {
 
     val pf: ProcessorFactory = {
@@ -365,7 +365,7 @@ class Compiler private (
         schemaSource,
         validateDFDLSchemas,
         checkAllTopLevel,
-        tunables,
+        tunables
       )
     }
 
@@ -379,7 +379,7 @@ class Compiler private (
     xml: Node,
     optTmpDir: Option[File] = None,
     optRootName: Option[String] = None,
-    optRootNamespace: Option[String] = None,
+    optRootNamespace: Option[String] = None
   ): ProcessorFactory = {
     compileSource(UnitTestSchemaSource(xml, "anon", optTmpDir), optRootName, optRootNamespace)
   }
@@ -397,7 +397,7 @@ object Compiler {
     c: Compiler,
     schemaSource: DaffodilSchemaSource,
     optRootName: Option[String],
-    optRootNamespace: Option[String],
+    optRootNamespace: Option[String]
   ): ProcessorFactory = {
     synchronized {
       c.compileSourceInternal(schemaSource, optRootName, optRootNamespace)

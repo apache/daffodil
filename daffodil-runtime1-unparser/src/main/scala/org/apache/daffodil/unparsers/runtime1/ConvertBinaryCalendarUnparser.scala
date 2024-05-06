@@ -34,7 +34,7 @@ case class ConvertBinaryCalendarSecMilliUnparser(
   binCalRep: BinaryCalendarRep,
   epochTimeMillis: Long,
   lengthInBits: Int,
-  hasTZ: Boolean,
+  hasTZ: Boolean
 ) extends PrimUnparser {
 
   /**
@@ -46,7 +46,7 @@ case class ConvertBinaryCalendarSecMilliUnparser(
     dos: DataOutputStream,
     value: Long,
     nBits: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean = {
     dos.putLong(value, nBits, finfo)
   }
@@ -61,8 +61,8 @@ case class ConvertBinaryCalendarSecMilliUnparser(
         Assert.invariantFailed(
           "ConvertBinaryCalendar received unsupported type. %s of type %s.".format(
             x,
-            Misc.getNameFromClass(x),
-          ),
+            Misc.getNameFromClass(x)
+          )
         )
     }
 
@@ -95,7 +95,7 @@ case class ConvertBinaryCalendarSecMilliUnparser(
         "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
         context.dpathElementCompileInfo.namedQName.toPrettyString,
         lengthInBits,
-        dos.maybeRelBitLimit0b.get,
+        dos.maybeRelBitLimit0b.get
       )
     }
   }

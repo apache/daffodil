@@ -48,7 +48,7 @@ class TestEmbedded {
     val schema = path("daffodil-schematron/src/test/resources/xsd/unit_price.dfdl.xsd")
 
     runCLI(
-      args"""parse -r list --validate schematron="${jsonEscape(schema.toString)}" -s $schema""",
+      args"""parse -r list --validate schematron="${jsonEscape(schema.toString)}" -s $schema"""
     ) { cli =>
       cli.send("widget,monday,1,$5.00,$6.00", inputDone = true)
       cli.expect("</ex:list>")
@@ -60,7 +60,7 @@ class TestEmbedded {
     val schema = path("daffodil-schematron/src/test/resources/xsd/unit_price.dfdl.xsd")
 
     runCLI(
-      args"""parse -r list --validate schematron="${jsonEscape(schema.toString)}" -s $schema""",
+      args"""parse -r list --validate schematron="${jsonEscape(schema.toString)}" -s $schema"""
     ) { cli =>
       cli.send("widget,monday,5,$5.00,$25.00||gadget,tuesday,1,$10.00,$11.00", inputDone = true)
       cli.expect("</ex:list>")

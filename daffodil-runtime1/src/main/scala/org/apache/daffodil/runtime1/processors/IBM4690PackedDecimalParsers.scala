@@ -30,7 +30,7 @@ import org.apache.daffodil.runtime1.processors.Processor
 class IBM4690PackedDecimalKnownLengthParser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  val lengthInBits: Int,
+  val lengthInBits: Int
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 
@@ -45,7 +45,7 @@ class IBM4690PackedDecimalRuntimeLengthParser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
@@ -62,7 +62,7 @@ class IBM4690PackedDecimalPrefixedLengthParser(
   override val prefixedLengthERD: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with PrefixedLengthParserMixin {
 
@@ -83,7 +83,7 @@ class IBM4690PackedIntegerRuntimeLengthParser(
   val e: ElementRuntimeData,
   signed: Boolean,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends PackedBinaryIntegerBaseParser(e, signed)
   with HasRuntimeExplicitLength {
 
@@ -97,7 +97,7 @@ class IBM4690PackedIntegerRuntimeLengthParser(
 class IBM4690PackedIntegerKnownLengthParser(
   e: ElementRuntimeData,
   signed: Boolean,
-  val lengthInBits: Int,
+  val lengthInBits: Int
 ) extends PackedBinaryIntegerBaseParser(e, signed)
   with HasKnownLengthInBits {
 
@@ -114,7 +114,7 @@ class IBM4690PackedIntegerPrefixedLengthParser(
   override val prefixedLengthERD: ElementRuntimeData,
   signed: Boolean,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends PackedBinaryIntegerBaseParser(e, signed)
   with PrefixedLengthParserMixin {
 

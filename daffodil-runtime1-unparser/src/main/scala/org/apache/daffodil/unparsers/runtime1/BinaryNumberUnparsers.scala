@@ -49,7 +49,7 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
     dos: DataOutputStream,
     number: JNumber,
     nBits: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean
 
   def unparse(state: UState): Unit = {
@@ -71,7 +71,7 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
         "Insufficient space to unparse element %s, required %s bits, but only %s were available.",
         context.dpathElementCompileInfo.namedQName.toPrettyString,
         nBits,
-        dos.maybeRelBitLimit0b.get,
+        dos.maybeRelBitLimit0b.get
       )
     }
   }
@@ -85,7 +85,7 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
     dos: DataOutputStream,
     value: JNumber,
     nBits: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean = {
     if (nBits > 64) {
       dos.putBigInt(asBigInt(value), nBits, signed, finfo)
@@ -98,7 +98,7 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
 class BinaryIntegerKnownLengthUnparser(
   e: ElementRuntimeData,
   signed: Boolean,
-  override val lengthInBits: Int,
+  override val lengthInBits: Int
 ) extends BinaryIntegerBaseUnparser(e, signed)
   with HasKnownLengthInBits {
 
@@ -110,7 +110,7 @@ class BinaryIntegerRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   signed: Boolean,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends BinaryIntegerBaseUnparser(e, signed)
   with HasRuntimeExplicitLength {
 
@@ -124,7 +124,7 @@ class BinaryIntegerPrefixedLengthUnparser(
   maybeNBits: MaybeInt,
   signed: Boolean,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
   with KnownPrefixedLengthUnparserMixin {
 
@@ -161,7 +161,7 @@ class BinaryFloatUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnparse
     dos: DataOutputStream,
     value: JNumber,
     nBits: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean = {
     dos.putBinaryFloat(asFloat(value), finfo)
   }
@@ -178,7 +178,7 @@ class BinaryDoubleUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnpars
     dos: DataOutputStream,
     value: JNumber,
     nBits: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean = {
     dos.putBinaryDouble(asDouble(value), finfo)
   }
@@ -188,7 +188,7 @@ class BinaryDecimalKnownLengthUnparser(
   e: ElementRuntimeData,
   signed: YesNo,
   binaryDecimalVirtualPoint: Int,
-  val lengthInBits: Int,
+  val lengthInBits: Int
 ) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 
@@ -201,7 +201,7 @@ class BinaryDecimalRuntimeLengthUnparser(
   signed: YesNo,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
@@ -215,7 +215,7 @@ class BinaryDecimalPrefixedLengthUnparser(
   signed: YesNo,
   binaryDecimalVirtualPoint: Int,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
   with KnownPrefixedLengthUnparserMixin {
 
@@ -240,7 +240,7 @@ class BinaryDecimalPrefixedLengthUnparser(
 abstract class BinaryDecimalUnparserBase(
   e: ElementRuntimeData,
   signed: YesNo,
-  binaryDecimalVirtualPoint: Int,
+  binaryDecimalVirtualPoint: Int
 ) extends BinaryNumberBaseUnparser(e) {
 
   override def getNumberToPut(state: UState): JNumber = {
@@ -266,7 +266,7 @@ abstract class BinaryDecimalUnparserBase(
     dos: DataOutputStream,
     value: JNumber,
     nBits: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Boolean = {
     dos.putBigInt(asBigInt(value), nBits, signed == YesNo.Yes, finfo)
   }

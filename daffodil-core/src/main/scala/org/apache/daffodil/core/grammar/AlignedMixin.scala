@@ -142,7 +142,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   private lazy val priorAlignmentApprox: AlignmentMultipleOf = LV('priorAlignmentApprox) {
     if (this.isInstanceOf[Root] || this.isInstanceOf[QuasiElementDeclBase]) {
       AlignmentMultipleOf(
-        0,
+        0
       ) // root and quasi elements are aligned with anything // TODO: really? Why quasi-elements - they should have implicit alignment ?
     } else {
       val priorSibs = potentialPriorTerms

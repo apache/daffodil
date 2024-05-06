@@ -123,9 +123,9 @@ class TestInputSourceDataInputStream7 {
         "0110100",
         "0110011",
         "0110010",
-        "0110001",
+        "0110001"
       ),
-      chunks,
+      chunks
     )
 
   }

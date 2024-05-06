@@ -433,7 +433,7 @@ trait ConvertTextNumberMixin {
             """Invalid textNumberPattern.
               | The errors are about the pattern with the P (decimal scaling position)
               | and V (virtual decimal point) characters removed: %s""".stripMargin,
-            ex,
+            ex
           )
         } else {
           e.SDE("Invalid textNumberPattern: %s", ex)
@@ -460,9 +460,9 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
                | Other than the sign indicators, it can contain only
                | '#', then digits 0-9 then 'V' then digits 0-9.
                | The positive part of the dfdl:textNumberPattern is mandatory.""".stripMargin(
-              '|',
+              '|'
             ),
-            pattern,
+            pattern
           )
       }
     } else if (hasP) {
@@ -476,7 +476,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
             """The dfdl:textNumberPattern '%s' contains 'P' (virtual decimal point positioners).
             |However, it did not match the allowed syntax which allows the sign indicator
             |plus digits on only one side of the P symbols.""".stripMargin,
-            pattern,
+            pattern
           )
         case (Some(rl(_, ps, digits, _, negPre, negNum, _)), None) => {
           checkPosNegNumPartSyntax(ps + digits, negNum)
@@ -488,7 +488,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
         }
         case _ =>
           Assert.invariantFailed(
-            "Should not match both left P and right P regular expressions.",
+            "Should not match both left P and right P regular expressions."
           )
       }
     } else {
@@ -507,7 +507,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       // there is a negative part
       if (negNum.length == 1) {
         Assert.invariant(
-          negNum.matches("#|[0-9]"),
+          negNum.matches("#|[0-9]")
         ) // must be # or digit or wouldn't have matched.
         // do nothing. This is ok. (The negNum is ignored anyway)
       } else {
@@ -519,7 +519,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
           s"""The negative numeric part of the textNumberPattern: '${negNum}' is being ignored.
              | It should either be just '#' or should exactly
              | match the numeric part of the positive pattern,
-             | which is '${posNum}'.""".stripMargin,
+             | which is '${posNum}'.""".stripMargin
         )
       }
     }
@@ -547,20 +547,20 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
         !primNumeric.isInteger,
         "The dfdl:textNumberPattern has a virtual decimal point 'V', but the type is an integer-only type: %s." ++
           "The type must be xs:decimal, xs:double, or xs:float",
-        e.primType.globalQName.toPrettyString,
+        e.primType.globalQName.toPrettyString
       )
 
       e.schemaDefinitionUnless(
         e.textStandardBase == 10,
         "The dfdl:textNumberPattern 'V' (virtual decimal point) requires that " +
           "dfdl:textStandardBase is 10, but its value was %s",
-        e.textStandardBase,
+        e.textStandardBase
       )
     }
 
     e.schemaDefinitionWhen(
       pattern.startsWith(";"),
-      "The positive part of the dfdl:textNumberPattern is required. The dfdl:textNumberPattern cannot begin with ';'.",
+      "The positive part of the dfdl:textNumberPattern is required. The dfdl:textNumberPattern cannot begin with ';'."
     )
     val parsedPatternInfo = checkPatternWithICU(e)
 
@@ -634,7 +634,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       roundingIncrement,
       zeroRepsRaw,
       icuPadPosition,
-      e.primType,
+      e.primType
     )
     ev.compile(tunable)
     ev
@@ -645,7 +645,7 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       textNumberFormatEv,
       zeroRepsRegex,
       e.elementRuntimeData,
-      textDecimalVirtualPoint,
+      textDecimalVirtualPoint
     )
 
   override lazy val unparser: Unparser =
@@ -653,6 +653,6 @@ case class ConvertTextStandardNumberPrim(e: ElementBase)
       textNumberFormatEv,
       zeroRepUnparse,
       e.elementRuntimeData,
-      textDecimalVirtualPoint,
+      textDecimalVirtualPoint
     )
 }

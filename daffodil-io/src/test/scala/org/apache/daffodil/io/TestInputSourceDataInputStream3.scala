@@ -57,7 +57,7 @@ class TestInputSourceDataInputStream3 {
           16 * 8,
           lengthInBits,
           fb,
-          includeHeadingLine = true,
+          includeHeadingLine = true
         )
         .mkString("\n")
     val expected = """
@@ -83,7 +83,7 @@ class TestInputSourceDataInputStream3 {
           20 * 8,
           lengthInBits,
           fb,
-          includeHeadingLine = true,
+          includeHeadingLine = true
         )
         .mkString("\n")
     val expected = """

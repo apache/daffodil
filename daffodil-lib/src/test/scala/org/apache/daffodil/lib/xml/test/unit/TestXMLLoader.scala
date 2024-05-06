@@ -113,10 +113,10 @@ class TestXMLLoader {
     assertTrue(txt.contains("a"))
     assertTrue(txt.contains("b"))
     assertFalse(
-      txt.contains("<![CDATA["),
+      txt.contains("<![CDATA[")
     ) // correct, PCData.text returns only the contents, not the brackets
     assertFalse(
-      txt.contains("]]>"),
+      txt.contains("]]>")
     ) // correct, PCData.text returns only the contents, not the brackets
     assertTrue(txt.contains("a\nb")) // they preserve the contents
     assertTrue(body.isInstanceOf[scala.xml.PCData])
@@ -186,26 +186,26 @@ class TestXMLLoader {
       // Node, it will be the same as the one from the regular scala xml loader.
       assertEquals(
         xmlFromDafLoaderNormalized.text,
-        xmlFromScalaLoader.text,
+        xmlFromScalaLoader.text
       ) // both have LF only
       assertEquals("before\nafter\nendCDATAbefore\nafter\nendCDATA", xmlFromScalaLoader.text)
     }
 
     assertEquals( // retains CRLF and CR
       "<data>before\r\nafter\rend<![CDATA[CDATAbefore\r\nafter\rendCDATA]]></data>",
-      xmlFromDafLoaderNonNormalized.toString,
+      xmlFromDafLoaderNonNormalized.toString
     )
     assertEquals( // Converts CRLF/CR => LF
       "<data>before\nafter\nend<![CDATA[CDATAbefore\nafter\nendCDATA]]></data>",
-      xmlFromDafLoaderNormalized.toString,
+      xmlFromDafLoaderNormalized.toString
     )
     assertEquals( // retains CRLF and CR, but eliminates CDATA brackets.
       "before\r\nafter\rendCDATAbefore\r\nafter\rendCDATA",
-      xmlFromDafLoaderNonNormalized.text,
+      xmlFromDafLoaderNonNormalized.text
     )
     assertEquals( // Converts CRLF/CR => LF, but elimintes CDATA brackets.
       "before\nafter\nendCDATAbefore\nafter\nendCDATA",
-      xmlFromDafLoaderNormalized.text,
+      xmlFromDafLoaderNormalized.text
     )
 
   }

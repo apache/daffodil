@@ -22,7 +22,7 @@ import org.apache.daffodil.runtime1.processors.SequenceRuntimeData
 
 class LayeredSequenceParser(
   rd: SequenceRuntimeData,
-  bodyParser: SequenceChildParser,
+  bodyParser: SequenceChildParser
 ) extends OrderedUnseparatedSequenceParser(rd, Vector(bodyParser)) {
   override def nom = "LayeredSequence"
 
@@ -39,7 +39,7 @@ class LayeredSequenceParser(
         PE(
           state,
           "Unable to align to the mandatory layer alignment of %s(bits)",
-          layerDriver.mandatoryLayerAlignmentInBits,
+          layerDriver.mandatoryLayerAlignmentInBits
         )
 
       val newDIS = layerDriver.addInputLayer(savedDIS)

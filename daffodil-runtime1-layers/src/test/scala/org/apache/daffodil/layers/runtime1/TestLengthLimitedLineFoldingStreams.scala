@@ -44,7 +44,7 @@ minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea\r
 esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
 \tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""".replace(
     "\r\r\n",
-    "\r\n",
+    "\r\n"
   )
 
   val ipsumLorem1UnfoldedFirstLine =
@@ -82,7 +82,7 @@ minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea\r
 esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat\r
 \t\tnon proident, sunt in culpa qui officia deserunt mollit anim id est laborum.""".replace(
     "\r\r\n",
-    "\r\n",
+    "\r\n"
   )
 
   /**

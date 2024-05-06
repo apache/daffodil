@@ -51,7 +51,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
       NodeInfo.NonEmptyString,
       choiceDispatchKeyRaw,
       this,
-      dpathCompileInfo,
+      dpathCompileInfo
     )
   }
 
@@ -100,7 +100,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
         if (emptyBranches.length > 1)
           SDW(
             WarnID.MultipleChoiceBranches,
-            "Multiple choice branches with no required elements detected and the infoset does not specify a branch, selecting the first branch for unparsing",
+            "Multiple choice branches with no required elements detected and the infoset does not specify a branch, selecting the first branch for unparsing"
           )
         emptyBranches.headOption
       }
@@ -166,7 +166,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
                 .map { trd =>
                   "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription)
                 }
-                .mkString("\n"),
+                .mkString("\n")
             )
           } else {
             val eventType = event match {
@@ -187,7 +187,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
                 .map { trd =>
                   "%s at %s".format(trd.diagnosticDebugName, trd.locationDescription)
                 }
-                .mkString("\n"),
+                .mkString("\n")
             )
           }
         }
@@ -219,7 +219,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
       optIgnoreCase,
       fillByteEv,
       maybeCheckByteAndBitOrderEv,
-      maybeCheckBitOrderAndCharsetEv,
+      maybeCheckBitOrderAndCharsetEv
     )
   }
 }

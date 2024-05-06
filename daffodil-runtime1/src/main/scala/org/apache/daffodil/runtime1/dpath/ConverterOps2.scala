@@ -44,7 +44,7 @@ case object StringToDate extends Converter {
       case str: String => DFDLDateConversion.fromXMLString(str)
       case _ =>
         throw new NumberFormatException(
-          "xs:date only accepts String, Date or DateTime objects.",
+          "xs:date only accepts String, Date or DateTime objects."
         )
     }
     result
@@ -61,7 +61,7 @@ case object StringToDateTime extends Converter {
       case str: String => DFDLDateTimeConversion.fromXMLString(str)
       case _ =>
         throw new NumberFormatException(
-          "xs:dateTime only accepts String, Date or DateTime objects.",
+          "xs:dateTime only accepts String, Date or DateTime objects."
         )
     }
     result
@@ -78,7 +78,7 @@ case object StringToTime extends Converter {
       case str: String => DFDLTimeConversion.fromXMLString(str)
       case _ =>
         throw new NumberFormatException(
-          "xs:time only accepts String, DateTime or Time objects.",
+          "xs:time only accepts String, DateTime or Time objects."
         )
     }
     result
@@ -95,7 +95,7 @@ case object StringToHexBinary extends Converter with HexBinaryKind {
       case x =>
         throw new NumberFormatException(
           "%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String or HexBinary."
-            .format(x.toString),
+            .format(x.toString)
         )
     }
     result

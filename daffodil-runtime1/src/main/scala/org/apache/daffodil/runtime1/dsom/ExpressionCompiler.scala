@@ -34,7 +34,7 @@ trait ExpressionCompilerBase[T <: AnyRef] {
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,
-    compileInfo: DPathCompileInfo,
+    compileInfo: DPathCompileInfo
   ): CompiledExpression[T]
 }
 

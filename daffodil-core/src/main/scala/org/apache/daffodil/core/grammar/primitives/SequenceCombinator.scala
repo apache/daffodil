@@ -79,12 +79,12 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
         srd,
         sq.separatorPosition,
         sepParser,
-        sequenceChildren.flatMap { _.optSequenceChildParser },
+        sequenceChildren.flatMap { _.optSequenceChildParser }
       )
     case false =>
       new OrderedUnseparatedSequenceParser(
         srd,
-        sequenceChildren.flatMap { _.optSequenceChildParser },
+        sequenceChildren.flatMap { _.optSequenceChildParser }
       )
   }
   override lazy val unparser: Unparser = {
@@ -98,7 +98,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
         if (nonUnparseableIfHidden.nonEmpty) {
           SDE(
             "Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
-            nonUnparseableIfHidden.mkString("\n"),
+            nonUnparseableIfHidden.mkString("\n")
           )
         }
       case _ => {
@@ -117,7 +117,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
             sepMtaAlignmentMaybe,
             sepMtaUnparserMaybe,
             sepUnparser,
-            childUnparsers,
+            childUnparsers
           )
         case false =>
           new OrderedUnseparatedSequenceUnparser(srd, childUnparsers)
@@ -129,7 +129,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
 class UnorderedSequence(
   sq: SequenceTermBase,
   sequenceChildrenArg: Seq[SequenceChild],
-  alternatives: Seq[Gram],
+  alternatives: Seq[Gram]
 ) extends SequenceCombinator(sq, sequenceChildrenArg) {
 
   private lazy val sepMtaGram = sq.delimMTA
@@ -167,13 +167,13 @@ class UnorderedSequence(
           srd,
           sq.separatorPosition,
           sepParser,
-          sequenceChildren.flatMap { _.optSequenceChildParser },
+          sequenceChildren.flatMap { _.optSequenceChildParser }
         )
       }
       case false => {
         new UnorderedUnseparatedSequenceParser(
           srd,
-          sequenceChildren.flatMap { _.optSequenceChildParser },
+          sequenceChildren.flatMap { _.optSequenceChildParser }
         )
       }
     }
@@ -190,7 +190,7 @@ class UnorderedSequence(
         if (nonUnparseableIfHidden.nonEmpty) {
           SDE(
             "Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
-            nonUnparseableIfHidden.mkString("\n"),
+            nonUnparseableIfHidden.mkString("\n")
           )
         }
       case _ => {
@@ -209,7 +209,7 @@ class UnorderedSequence(
             sepMtaAlignmentMaybe,
             sepMtaUnparserMaybe,
             sepUnparser,
-            childUnparsers,
+            childUnparsers
           )
         case false =>
           new OrderedUnseparatedSequenceUnparser(srd, childUnparsers)

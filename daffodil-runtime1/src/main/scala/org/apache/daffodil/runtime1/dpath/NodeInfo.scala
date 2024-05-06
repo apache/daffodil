@@ -80,7 +80,7 @@ import com.ibm.icu.util.{ Calendar => ICUCalendar }
  */
 sealed abstract class TypeNode private (
   parentsDelay: Delay[Seq[NodeInfo.Kind]],
-  childrenDelay: Delay[Seq[NodeInfo.Kind]],
+  childrenDelay: Delay[Seq[NodeInfo.Kind]]
 ) extends Serializable
   with NodeInfo.Kind {
 
@@ -93,7 +93,7 @@ sealed abstract class TypeNode private (
   def this(parentArg: => NodeInfo.Kind) =
     this(
       Delay("TypeNode", Seq(parentArg)),
-      Delay("TypeNode", Seq[NodeInfo.Kind](NodeInfo.Nothing)),
+      Delay("TypeNode", Seq[NodeInfo.Kind](NodeInfo.Nothing))
     )
 
   /**
@@ -122,7 +122,7 @@ sealed abstract class TypeNode private (
 sealed abstract class PrimTypeNode(
   val dfdlType: DFDLPrimType,
   parent: NodeInfo.Kind,
-  childrenArg: => Seq[NodeInfo.Kind],
+  childrenArg: => Seq[NodeInfo.Kind]
 ) extends TypeNode(parent, childrenArg)
   with NodeInfo.PrimType {
 
@@ -345,9 +345,9 @@ object NodeInfo extends Enum {
       HexBinary,
       AnyURI,
       String,
-      NonEmptyString,
+      NonEmptyString
     ),
-    Nil,
+    Nil
   ) with Boolean.Kind
     with Complex.Kind
     with Array.Kind
@@ -400,7 +400,7 @@ object NodeInfo extends Enum {
   case object AnyAtomic
     extends TypeNode(
       AnySimpleType,
-      Seq(String, Numeric, Boolean, Opaque, AnyDateTime, AnyURI),
+      Seq(String, Numeric, Boolean, Opaque, AnyDateTime, AnyURI)
     )
     with AnyAtomicKind {
     type Kind = AnyAtomicKind
@@ -514,11 +514,11 @@ object NodeInfo extends Enum {
         } catch {
           case iae: IllegalArgumentException =>
             throw new InvalidPrimitiveDataException(
-              "Value '%s' is not a valid %s: %s".format(s, this.globalQName, iae.getMessage),
+              "Value '%s' is not a valid %s: %s".format(s, this.globalQName, iae.getMessage)
             )
           case uri: URISyntaxException =>
             throw new InvalidPrimitiveDataException(
-              "Value '%s' is not a valid %s: %s".format(s, this.globalQName, uri.getMessage),
+              "Value '%s' is not a valid %s: %s".format(s, this.globalQName, uri.getMessage)
             )
         }
       }
@@ -531,7 +531,7 @@ object NodeInfo extends Enum {
       def fromNumber(n: Number): DataValueNumber = {
         if (!isValid(n))
           throw new InvalidPrimitiveDataException(
-            "Value '%s' is out of range for type: %s".format(n, this.globalQName),
+            "Value '%s' is out of range for type: %s".format(n, this.globalQName)
           )
         val num = fromNumberNoCheck(n)
         num
@@ -546,13 +546,13 @@ object NodeInfo extends Enum {
           } catch {
             case nfe: NumberFormatException =>
               throw new InvalidPrimitiveDataException(
-                "Value '%s' is not a valid %s".format(st, this.globalQName),
+                "Value '%s' is not a valid %s".format(st, this.globalQName)
               )
           }
 
         if (!isValid(num.getNumber))
           throw new InvalidPrimitiveDataException(
-            "Value '%s' is out of range for type: %s".format(st, this.globalQName),
+            "Value '%s' is out of range for type: %s".format(st, this.globalQName)
           )
 
         num
@@ -788,7 +788,7 @@ object NodeInfo extends Enum {
       extends PrimTypeNode(
         DFDLPrimType.UnsignedLong,
         NonNegativeInteger,
-        List(UnsignedInt),
+        List(UnsignedInt)
       )
       with UnsignedLongKind
       with PrimNumeric
@@ -815,7 +815,7 @@ object NodeInfo extends Enum {
       extends PrimTypeNode(
         DFDLPrimType.UnsignedInt,
         UnsignedLong,
-        List(UnsignedShort, ArrayIndex),
+        List(UnsignedShort, ArrayIndex)
       )
       with UnsignedIntKind
       with PrimNumericInteger
@@ -982,7 +982,7 @@ object NodeInfo extends Enum {
     // There is no UnsignedInteger because the concrete type
     // NonNegativeInteger plays that role.
     Opaque,
-    AnyDateTime,
+    AnyDateTime
   )
   private lazy val allDFDLTypes: Seq[PrimTypeNode] = List(
     Float,
@@ -1004,7 +1004,7 @@ object NodeInfo extends Enum {
     AnyURI,
     Date,
     Time,
-    DateTime,
+    DateTime
   )
 
   private lazy val allTypes: Seq[TypeNode] =
@@ -1013,7 +1013,7 @@ object NodeInfo extends Enum {
       Array,
       ArrayIndex,
       NonEmptyString,
-      Nothing,
+      Nothing
     ) ++ allAbstractTypes
 
   initialize // initialize self - creates all cyclic structures

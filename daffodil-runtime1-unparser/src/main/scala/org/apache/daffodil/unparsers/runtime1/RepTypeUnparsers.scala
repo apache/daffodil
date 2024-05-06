@@ -31,7 +31,7 @@ class RepTypeUnparser(
   repTypeUnparser: Unparser,
   e: ElementRuntimeData,
   repTypeRuntimeData: ElementRuntimeData,
-  logicalValuesMap: Map[DataValueString, DataValueNumber],
+  logicalValuesMap: Map[DataValueString, DataValueNumber]
 ) extends CombinatorUnparser(e) {
 
   override def childProcessors = Vector(repTypeUnparser)
@@ -49,7 +49,7 @@ class RepTypeUnparser(
     val logicalValue = logicalValueNullable.getString
     val repValue = logicalValuesMap.getOrElse(
       logicalValue,
-      UE(ustate, "Value not found in enumeration: %s", logicalValue),
+      UE(ustate, "Value not found in enumeration: %s", logicalValue)
     )
 
     val origInfosetElement = ustate.currentInfosetNode

@@ -60,7 +60,7 @@ case object HexStringToUnsignedLong extends Converter {
       } catch {
         case nfe: NumberFormatException => {
           val e = new NumberFormatException(
-            "Cannot convert to type unsignedLong: " + nfe.getMessage(),
+            "Cannot convert to type unsignedLong: " + nfe.getMessage()
           )
           throw e
         }
@@ -74,7 +74,7 @@ case object IntegerToLong extends Converter {
 }
 case object IntToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
-    a.getInt,
+    a.getInt
   )
 }
 case object UnsignedLongToLong extends Converter {
@@ -86,26 +86,26 @@ case object UnsignedIntToLong extends Converter {
 }
 case object ArrayIndexToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
-    a.getAnyRef,
+    a.getAnyRef
   )
 }
 case object ShortToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
-    a.getShort,
+    a.getShort
   )
 }
 case object UnsignedShortToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
-    a.getInt,
+    a.getInt
   )
 }
 case object ByteToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
-    a.getByte,
+    a.getByte
   )
 }
 case object UnsignedByteToLong extends Converter {
   override def computeValue(a: DataValuePrimitive, dstate: DState): DataValueLong = asLong(
-    a.getShort,
+    a.getShort
   )
 }

@@ -49,7 +49,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
     val s = smg
     schemaDefinitionUnless(
       s.length == 1,
-      "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.",
+      "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference."
     )
     s
   }
@@ -74,7 +74,7 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
             if (dais != None) {
               this.SDW(
                 WarnID.InvalidAnnotationPoint,
-                "complexType is not a valid annotation point. Annotation ignored.",
+                "complexType is not a valid annotation point. Annotation ignored."
               )
             }
             None

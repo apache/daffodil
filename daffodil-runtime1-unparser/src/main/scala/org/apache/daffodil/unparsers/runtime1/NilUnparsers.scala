@@ -23,7 +23,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 class LiteralValueNilOfSpecifiedLengthUnparser(
   override val erd: ElementRuntimeData,
   slEv: NilStringLiteralForUnparserEv,
-  isForPattern: Boolean,
+  isForPattern: Boolean
 ) extends StringNoTruncateUnparser(erd) {
 
   override lazy val runtimeDependencies = Vector(slEv)

@@ -157,7 +157,7 @@ trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with SavesErrorsAnd
       .map { f => f.apply() }
       .foldLeft(
         className +
-          "(",
+          "("
       )(_ + _)
     val suffix = ")"
     val str = props + suffix

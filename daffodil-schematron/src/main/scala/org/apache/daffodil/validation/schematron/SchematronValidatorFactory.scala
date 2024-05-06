@@ -47,14 +47,14 @@ object SchematronValidatorFactory {
       case ConfigValueType.STRING => config.getString(SchematronValidator.name)
       case _ =>
         throw ValidatorInitializationException(
-          "invalid configuration: schematron path was not an object or string",
+          "invalid configuration: schematron path was not an object or string"
         )
     })
     val schStream =
       if (Files.exists(schPath)) new FileInputStream(schPath.toFile)
       else
         Option(getClass.getClassLoader.getResourceAsStream(schPath.toString)).getOrElse(
-          throw ValidatorInitializationException(s"schematron resource not found: $schPath"),
+          throw ValidatorInitializationException(s"schematron resource not found: $schPath")
         )
     val svrlOutPath: Option[Path] =
       if (config.hasPath(SchematronValidator.ConfigKeys.svrlOutputFile))
@@ -67,7 +67,7 @@ object SchematronValidatorFactory {
   def makeValidator(
     schematron: InputStream,
     schematronId: String,
-    srcfmt: SchSource,
+    srcfmt: SchSource
   ): SchematronValidator =
     makeValidator(schematron, schematronId, srcfmt, None)
 
@@ -75,7 +75,7 @@ object SchematronValidatorFactory {
     schematron: InputStream,
     schematronID: String,
     srcfmt: SchSource,
-    svrlPath: Option[Path],
+    svrlPath: Option[Path]
   ): SchematronValidator = {
     val factory = new TransformerFactoryImpl()
     factory.setURIResolver(DFDLCatalogResolver.get)

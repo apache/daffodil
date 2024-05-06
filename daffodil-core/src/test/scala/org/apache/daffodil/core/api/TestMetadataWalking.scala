@@ -54,7 +54,7 @@ class TestMetadataWalking {
   }
 
   def parseAndWalkData(dp: DataProcessor, infosetOutputter: InfosetOutputter)(
-    data: Array[Byte],
+    data: Array[Byte]
   ): ParseResult = {
     using(InputSourceDataInputStream(data)) { isdis =>
       val res = dp.parse(isdis, infosetOutputter)
@@ -129,7 +129,7 @@ class TestMetadataWalking {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      useTNS = false,
+      useTNS = false
     )
     val dp = compileAndWalkMetadata(sch, gatherMetadata)
     val md = gatherMetadata.getResult
@@ -185,11 +185,11 @@ class TestMetadataWalking {
             </xs:sequence>
            </xs:choice>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
       ),
       useTNS = false,
       useDefaultNamespace = false,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val dp = compileAndWalkMetadata(sch, gatherMetadata)
     val md = gatherMetadata.getResult
@@ -200,7 +200,7 @@ class TestMetadataWalking {
     }
     assertEquals(
       "Vector(ex:e1, cho, seq, seq, seq, s1, seq, cho, ex:e1)",
-      mdQNames.toString,
+      mdQNames.toString
     )
     val parser: Array[Byte] => ParseResult = parseAndWalkData(dp, gatherData)
     val inputData = "1;5;6;7;8.".getBytes("utf-8")
@@ -213,7 +213,7 @@ class TestMetadataWalking {
     }
     assertEquals(
       "Vector(ex:e1, s1_array, s1, s1, s1, s1, s1_array, ex:e1)",
-      itemQNames.toString,
+      itemQNames.toString
     )
     val itemValues = infosetItems.flatMap {
       case e: InfosetSimpleElement => Seq(e.getText)

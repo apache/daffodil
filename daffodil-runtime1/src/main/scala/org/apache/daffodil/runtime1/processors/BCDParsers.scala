@@ -30,7 +30,7 @@ import org.apache.daffodil.runtime1.processors.Processor
 class BCDDecimalKnownLengthParser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  val lengthInBits: Int,
+  val lengthInBits: Int
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 
@@ -44,7 +44,7 @@ class BCDDecimalRuntimeLengthParser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
@@ -60,7 +60,7 @@ class BCDDecimalPrefixedLengthParser(
   override val prefixedLengthERD: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with PrefixedLengthParserMixin {
 
@@ -79,7 +79,7 @@ class BCDDecimalPrefixedLengthParser(
 class BCDIntegerRuntimeLengthParser(
   val e: ElementRuntimeData,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends PackedBinaryIntegerBaseParser(e)
   with HasRuntimeExplicitLength {
 
@@ -104,7 +104,7 @@ class BCDIntegerPrefixedLengthParser(
   override val prefixedLengthParser: Parser,
   override val prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends PackedBinaryIntegerBaseParser(e)
   with PrefixedLengthParserMixin {
 

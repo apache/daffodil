@@ -36,7 +36,7 @@ class TestDFDLParser_New {
             <xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited" maxOccurs="4" minOccurs="0" dfdl:occursCountKind="implicit"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val (_, actual) = TestUtils.testString(sch, "5;6;7;8;.")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
@@ -54,7 +54,7 @@ class TestDFDLParser_New {
             <xs:element name="s1" type="xs:int" dfdl:lengthKind="delimited" maxOccurs="100" minOccurs="0" dfdl:occursCountKind="implicit"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
     val (_, actual) = TestUtils.testString(sch, "5;6;7;8!.")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>

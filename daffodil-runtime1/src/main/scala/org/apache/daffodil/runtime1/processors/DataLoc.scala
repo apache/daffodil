@@ -35,7 +35,7 @@ class DataLoc(
   val bitPos1b: Long,
   bitLimit1b: MaybeULong,
   eitherStream: Either[DataOutputStream, DataInputStream],
-  val maybeERD: Maybe[ElementRuntimeData],
+  val maybeERD: Maybe[ElementRuntimeData]
 ) extends DataLocation {
 
   // override def toString = "DataLoc(bitPos1b='%s', bitLimit1b='%s')".format(bitPos1b, bitLimit1b)
@@ -80,7 +80,7 @@ class DataLoc(
   def dump(
     rep: Option[Representation],
     prestate: DataLocation,
-    state: ParseOrUnparseState,
+    state: ParseOrUnparseState
   ): String = {
 
     val maybeEncodingName = optERD.flatMap { erd =>
@@ -108,17 +108,17 @@ class DataLoc(
   private def dumpStream(
     dumpKind: Dump.Kind,
     prestate: DataLocation,
-    state: ParseOrUnparseState,
+    state: ParseOrUnparseState
   ): String = {
 
     val startOfInterestRegionBits0b = prestate.bitPos1b - 1
     val endOfInterestRegionBits0b = state.bitPos0b
     val lengthOfInterestRegionInBits = math.min(
       math.max(endOfInterestRegionBits0b - startOfInterestRegionBits0b, 0),
-      state.tunable.maxDataDumpSizeInBytes,
+      state.tunable.maxDataDumpSizeInBytes
     )
     val regionSpecifier = Some(
-      (startOfInterestRegionBits0b, lengthOfInterestRegionInBits.toInt),
+      (startOfInterestRegionBits0b, lengthOfInterestRegionInBits.toInt)
     )
 
     val s = (eitherStream, prestate, state) match {
@@ -136,7 +136,7 @@ class DataLoc(
           howMuchPast.toInt * 8,
           pastBBuf,
           includeHeadingLine = true,
-          indicatorInfo = regionSpecifier,
+          indicatorInfo = regionSpecifier
         )
         pastDump.mkString("\n")
       }
@@ -161,7 +161,7 @@ class DataLoc(
             dataLength * 8,
             allDataBBuf,
             includeHeadingLine = true,
-            indicatorInfo = regionSpecifier,
+            indicatorInfo = regionSpecifier
           )
           .mkString("\n")
         dump

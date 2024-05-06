@@ -46,7 +46,7 @@ trait SimpleTypeRuntime1Mixin { self: SimpleTypeDefBase =>
         optUnion.orElse(optRestriction.flatMap { _.optUnion }).toSeq.flatMap {
           _.unionMemberTypes.map { _.simpleTypeRuntimeData }
         },
-        tunable.unqualifiedPathStepPolicy,
+        tunable.unqualifiedPathStepPolicy
       )
     strd
   }

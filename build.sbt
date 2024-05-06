@@ -50,7 +50,7 @@ lazy val daffodil = project
     // testIntegration, // integration tests must be run manually
     testStdLayout,
     tutorials,
-    udf,
+    udf
   )
   .settings(commonSettings, nopublish, ratSettings, unidocSettings, genCExamplesSettings)
 
@@ -80,7 +80,7 @@ lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
     lib % "test->test",
     udf,
     macroLib % "compile-internal, test-internal",
-    slf4jLogger % "test",
+    slf4jLogger % "test"
   )
   .settings(commonSettings, usesMacros)
 
@@ -91,7 +91,7 @@ lazy val runtime1Unparser =
       lib % "test->test",
       runtime1 % "test->test",
       runtime1Layers,
-      slf4jLogger % "test",
+      slf4jLogger % "test"
     )
     .settings(commonSettings)
 
@@ -110,16 +110,16 @@ lazy val codeGenC = Project("daffodil-codegen-c", file("daffodil-codegen-c"))
     Compile / ccTargets := ListSet(codeGenCLib),
     Compile / cSources := Map(
       codeGenCLib -> ((Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "codegen" / "c" / "files"
-        * GlobFilter("lib*") * GlobFilter("*.c")).get(),
+        * GlobFilter("lib*") * GlobFilter("*.c")).get()
     ),
     Compile / cIncludeDirectories := Map(
       codeGenCLib -> Seq(
         (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "codegen" / "c" / "files" / "libcli",
-        (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "codegen" / "c" / "files" / "libruntime",
-      ),
+        (Compile / resourceDirectory).value / "org" / "apache" / "daffodil" / "codegen" / "c" / "files" / "libruntime"
+      )
     ),
     Compile / cFlags := (Compile / cFlags).value
-      .withDefaultValue(Seq("-Wall", "-Wextra", "-Wpedantic", "-std=gnu11")),
+      .withDefaultValue(Seq("-Wall", "-Wextra", "-Wpedantic", "-std=gnu11"))
   )
 
 lazy val core = Project("daffodil-core", file("daffodil-core"))
@@ -129,7 +129,7 @@ lazy val core = Project("daffodil-core", file("daffodil-core"))
     lib % "test->test",
     runtime1 % "test->test",
     io % "test->test",
-    slf4jLogger % "test",
+    slf4jLogger % "test"
   )
   .settings(commonSettings)
 
@@ -156,7 +156,7 @@ lazy val cli = Project("daffodil-cli", file("daffodil-cli"))
     sapi,
     japi,
     schematron % Runtime,
-    slf4jLogger,
+    slf4jLogger
   ) // causes codegen-c/sapi/japi to be pulled into the helper zip/tar
   .settings(commonSettings, nopublish)
   .settings(libraryDependencies ++= Dependencies.cli)
@@ -200,7 +200,7 @@ lazy val testIntegration =
       Test / parallelExecution := false,
       Test / test := (Test / test).dependsOn(cli / Compile / stage).value,
       Test / testOnly := (Test / testOnly).dependsOn(cli / Compile / stage).evaluated,
-      Test / testQuick := (Test / testQuick).dependsOn(cli / Compile / stage).evaluated,
+      Test / testQuick := (Test / testQuick).dependsOn(cli / Compile / stage).evaluated
     )
 
 lazy val tutorials = Project("daffodil-tutorials", file("tutorials"))
@@ -236,8 +236,8 @@ lazy val commonSettings = Seq(
   scmInfo := Some(
     ScmInfo(
       browseUrl = url("https://github.com/apache/daffodil"),
-      connection = "scm:git:https://github.com/apache/daffodil",
-    ),
+      connection = "scm:git:https://github.com/apache/daffodil"
+    )
   ),
   licenses := Seq(License.Apache2),
   homepage := Some(url("https://daffodil.apache.org")),
@@ -246,7 +246,7 @@ lazy val commonSettings = Seq(
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
-  testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
+  testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1")
 )
 
 def buildScalacOptions(scalaVersion: String) = {
@@ -263,13 +263,13 @@ def buildScalacOptions(scalaVersion: String) = {
     "-Ywarn-inaccessible",
     // "-Ywarn-nullary-unit", // we cannot use this. It interferes with the Uniform Access Principle.
     // See https://stackoverflow.com/questions/7600910/difference-between-function-with-parentheses-and-without.
-    "-Ywarn-unused-import",
+    "-Ywarn-unused-import"
   )
 
   val scalaVersionSpecificOptions = CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, 12)) =>
       Seq(
-        "-Ywarn-unused:imports",
+        "-Ywarn-unused:imports"
       )
     case _ => Seq.empty
   }
@@ -294,7 +294,7 @@ val javaVersionSpecificOptions = {
 def buildJavacOptions() = {
   val commonOptions = Seq(
     "-Werror",
-    "-Xlint:deprecation",
+    "-Xlint:deprecation"
   )
 
   commonOptions ++ javaVersionSpecificOptions
@@ -304,7 +304,7 @@ lazy val nopublish = Seq(
   publish := {},
   publishLocal := {},
   publishM2 := {},
-  publish / skip := true,
+  publish / skip := true
 )
 
 // "usesMacros" is a list of settings that should be applied only to
@@ -330,7 +330,7 @@ lazy val usesMacros = Seq(
   // would otherwise cause a conflict.
   Compile / packageBin / mappings ++= (macroLib / Compile / packageBin / mappings).value
     .filter { case (f, _) => f.isDirectory || f.getPath.endsWith(".class") },
-  Compile / packageSrc / mappings ++= (macroLib / Compile / packageSrc / mappings).value,
+  Compile / packageSrc / mappings ++= (macroLib / Compile / packageSrc / mappings).value
 )
 
 lazy val libManagedSettings = Seq(
@@ -393,23 +393,23 @@ lazy val libManagedSettings = Seq(
     Seq(outFile)
   },
   Compile / sourceGenerators ++= Seq(
-    (Compile / genProps).taskValue,
+    (Compile / genProps).taskValue
   ),
   Compile / resourceGenerators ++= Seq(
     (Compile / genSchemas).taskValue,
-    (Compile / genVersion).taskValue,
-  ),
+    (Compile / genVersion).taskValue
+  )
 )
 
 lazy val ratSettings = Seq(
   ratLicenses := Seq(
-    ("BSD2 ", Rat.BSD2_LICENSE_NAME, Rat.LICENSE_TEXT_PASSERA),
+    ("BSD2 ", Rat.BSD2_LICENSE_NAME, Rat.LICENSE_TEXT_PASSERA)
   ),
   ratLicenseFamilies := Seq(
-    Rat.BSD2_LICENSE_NAME,
+    Rat.BSD2_LICENSE_NAME
   ),
   ratExcludes := Rat.excludes,
-  ratFailBinaries := true,
+  ratFailBinaries := true
 )
 
 lazy val unidocSettings = Seq(
@@ -418,7 +418,7 @@ lazy val unidocSettings = Seq(
     "-doc-title",
     "Apache Daffodil " + version.value + " Scala API",
     "-doc-root-content",
-    (sapi / baseDirectory).value + "/root-doc.txt",
+    (sapi / baseDirectory).value + "/root-doc.txt"
   ),
   JavaUnidoc / unidoc / unidocProjectFilter := inProjects(japi, udf),
   JavaUnidoc / unidoc / javacOptions := Seq(
@@ -427,14 +427,14 @@ lazy val unidocSettings = Seq(
     "-doctitle",
     "<h1>Apache Daffodil " + version.value + " Java API</h1>",
     "-notimestamp",
-    "-quiet",
+    "-quiet"
   ),
   JavaUnidoc / unidoc / unidocAllSources := (JavaUnidoc / unidoc / unidocAllSources).value.map {
     sources =>
       sources.filterNot { source =>
         source.toString.contains("$") || source.toString.contains("packageprivate")
       }
-  },
+  }
 )
 
 lazy val genCExamplesSettings = Seq(
@@ -472,5 +472,5 @@ lazy val genCExamplesSettings = Seq(
     val res = (Compile / compile).value
     (Compile / genCExamples).value
     res
-  },
+  }
 )

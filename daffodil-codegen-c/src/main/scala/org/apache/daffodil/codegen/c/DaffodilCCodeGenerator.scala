@@ -172,7 +172,7 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
         error(
           "Error compiling C files: %s wd: %s",
           Misc.getSomeMessage(e).get,
-          codeDir.toString,
+          codeDir.toString
         )
     }
 
@@ -208,7 +208,7 @@ class DaffodilCCodeGenerator(root: Root) extends DFDL.CodeGenerator {
         val exec2 = exec + ".exe"
         path.exists(dir =>
           Files.isExecutable(Paths.get(dir, exec))
-            || (isWin && Files.isExecutable(Paths.get(dir, exec2))),
+            || (isWin && Files.isExecutable(Paths.get(dir, exec2)))
         )
       }
     }
@@ -272,7 +272,7 @@ object DaffodilCCodeGenerator
           g.name,
           g.exprText,
           g.stmt.failureType == FailureType.RecoverableError,
-          cgState,
+          cgState
         )
       case g: BinaryBoolean => binaryBooleanGenerateCode(g.e, cgState)
       case g: BinaryDouble => binaryFloatGenerateCode(g.e, lengthInBits = 64, cgState)
@@ -322,7 +322,7 @@ object DaffodilCCodeGenerator
         case TestKind.Pattern =>
           g.SDW(
             WarnID.IgnoreDFDLProperty,
-            "Code generation not supported for dfdl:assert pattern stmts",
+            "Code generation not supported for dfdl:assert pattern stmts"
           )
         case TestKind.Expression =>
           val name = g.name
@@ -336,7 +336,7 @@ object DaffodilCCodeGenerator
 
   private def elementParseAndUnspecifiedLengthGenerateCode(
     g: ElementParseAndUnspecifiedLength,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     DaffodilCCodeGenerator.generateCode(g.eGram, cgState)
   }
@@ -347,7 +347,7 @@ object DaffodilCCodeGenerator
 
   private def orderedSequenceGenerateCode(
     g: OrderedSequence,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     for (gram <- g.sequenceChildren) {
       DaffodilCCodeGenerator.generateCode(gram, cgState)
@@ -360,7 +360,7 @@ object DaffodilCCodeGenerator
 
   private def repOrderedExactlyNSequenceChild(
     g: RepOrderedExactlyNSequenceChild,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     cgState.pushArray(g.context)
     DaffodilCCodeGenerator.generateCode(g.term.termContentBody, cgState)
@@ -369,7 +369,7 @@ object DaffodilCCodeGenerator
 
   private def repOrderedExpressionOccursCountSequenceChild(
     g: RepOrderedExpressionOccursCountSequenceChild,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     cgState.pushArray(g.context)
     DaffodilCCodeGenerator.generateCode(g.term.termContentBody, cgState)
@@ -378,14 +378,14 @@ object DaffodilCCodeGenerator
 
   private def repOrderedWithMinMaxSequenceChild(
     g: RepOrderedWithMinMaxSequenceChild,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     DaffodilCCodeGenerator.generateCode(g.term.termContentBody, cgState)
   }
 
   private def scalarOrderedSequenceChild(
     g: ScalarOrderedSequenceChild,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     DaffodilCCodeGenerator.generateCode(g.term.termContentBody, cgState)
   }
@@ -398,14 +398,14 @@ object DaffodilCCodeGenerator
 
   private def specifiedLengthExplicit(
     g: SpecifiedLengthExplicit,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     DaffodilCCodeGenerator.generateCode(g.eGram, cgState)
   }
 
   private def specifiedLengthImplicit(
     g: SpecifiedLengthImplicit,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     DaffodilCCodeGenerator.generateCode(g.eGram, cgState)
   }

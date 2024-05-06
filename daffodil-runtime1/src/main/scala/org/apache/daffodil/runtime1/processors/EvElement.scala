@@ -116,7 +116,7 @@ class ImplicitLengthEv(lengthValue: Long, ci: DPathElementCompileInfo)
 sealed abstract class LengthInBitsEvBase(
   ci: DPathCompileInfo,
   val lengthUnits: LengthUnits,
-  val lengthKind: LengthKind,
+  val lengthKind: LengthKind
 ) extends Evaluatable[MaybeJULong](ci)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
@@ -158,7 +158,7 @@ class LengthInBitsEv(
   lengthKind: LengthKind,
   override val maybeCharsetEv: Maybe[CharsetEv],
   val lengthEv: LengthEv,
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends LengthInBitsEvBase(ci, lengthUnits, lengthKind) {
 
   override lazy val runtimeDependencies = maybeCharsetEv.toList :+ lengthEv
@@ -180,7 +180,7 @@ class MinLengthInBitsEv(
   lengthKind: LengthKind,
   override val maybeCharsetEv: Maybe[CharsetEv],
   minLen: Long,
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends LengthInBitsEvBase(ci, lengthUnits, lengthKind) {
 
   override lazy val runtimeDependencies = maybeCharsetEv.toList
@@ -202,7 +202,7 @@ class MinLengthInBitsEv(
 class UnparseTargetLengthInBitsEv(
   val lengthInBitsEv: LengthInBitsEv,
   minLengthInBitsEv: MinLengthInBitsEv,
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends Evaluatable[MaybeJULong](ci)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
@@ -238,7 +238,7 @@ class UnparseTargetLengthInCharactersEv(
   val lengthEv: LengthEv,
   val charsetEv: CharsetEv,
   minLen: Long,
-  ci: DPathElementCompileInfo,
+  ci: DPathElementCompileInfo
 ) extends Evaluatable[MaybeJULong](ci)
   with InfosetCachedEvaluatable[MaybeJULong] {
 
@@ -257,7 +257,7 @@ class UnparseTargetLengthInCharactersEv(
 
   override protected def compute(state: ParseOrUnparseState): MaybeJULong = {
     Assert.usage(
-      charsetEv.evaluate(state).maybeFixedWidth.isEmpty,
+      charsetEv.evaluate(state).maybeFixedWidth.isEmpty
     ) // must be variable-width-chars
     val len = lengthEv.evaluate(state)
     val targetLen = scala.math.max(len, minLen)

@@ -42,7 +42,7 @@ object Transforms {
     sch: InputStream,
     schId: String,
     srcfmt: SchSource,
-    tf: TransformerFactory,
+    tf: TransformerFactory
   ): Templates =
     read(sch, schId, srcfmt.stages, tf)
 
@@ -50,7 +50,7 @@ object Transforms {
     sch: InputStream,
     schId: String,
     stages: Seq[String],
-    tf: TransformerFactory,
+    tf: TransformerFactory
   ): Templates = {
     val schSource = new StreamSource(sch)
     schSource.setSystemId(schId)

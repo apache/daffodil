@@ -26,7 +26,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 case class ConvertTextBooleanUnparser(
   erd: ElementRuntimeData,
   textBooleanTrueRepEv: TextBooleanTrueRepEv,
-  textBooleanFalseRepEv: TextBooleanFalseRepEv,
+  textBooleanFalseRepEv: TextBooleanFalseRepEv
 ) extends TextPrimUnparser {
 
   override def context = erd

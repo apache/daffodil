@@ -43,7 +43,7 @@ object CreatePaddingDFA {
       DelimiterTextType.Other,
       allStates.toArray,
       padChar.toString(),
-      rd.schemaFileLocation,
+      rd.schemaFileLocation
     )
   }
 
@@ -71,7 +71,7 @@ object CreatePaddingDFA {
       allStates.toArray,
       padChar.toString(),
       unparseValue,
-      rd.schemaFileLocation,
+      rd.schemaFileLocation
     )
   }
 }

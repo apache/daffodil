@@ -40,7 +40,7 @@ class TestBasicValidation {
       SchematronValidatorFactory.makeValidator(
         new ByteArrayInputStream(sch.getBytes),
         schFile,
-        Sch,
+        Sch
       )
 
     val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
@@ -55,7 +55,7 @@ class TestBasicValidation {
       SchematronValidatorFactory.makeValidator(
         new ByteArrayInputStream(sch.getBytes),
         schFile,
-        Sch,
+        Sch
       )
 
     val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))
@@ -71,7 +71,7 @@ class TestBasicValidation {
       SchematronValidatorFactory.makeValidator(
         new ByteArrayInputStream(sch.getBytes),
         schFile,
-        Sch,
+        Sch
       )
 
     val result = p.validateXML(new ByteArrayInputStream(xml.getBytes))

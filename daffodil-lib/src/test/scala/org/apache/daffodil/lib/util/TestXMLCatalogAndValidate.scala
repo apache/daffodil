@@ -112,7 +112,7 @@ class TestXMLCatalogAndValidate {
     System.setProperty("xml.catalog.files", tmpCatalogFileName.getAbsolutePath())
     System.setProperty(
       "xml.catalog.ignoreMissing",
-      "true",
+      "true"
     ) // silence warning about missing Catalog.properties
     // System.setProperty("xml.catalog.verbosity", "4") // has no effect... grr
 
@@ -344,7 +344,7 @@ class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
     label: String,
     attrs: MetaData,
     scope: NamespaceBinding,
-    children: List[Node],
+    children: List[Node]
   ): Elem = {
 
     // If we're the xs:schema node, then append attribute for _file_ as well.
@@ -391,7 +391,7 @@ class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
           XMLUtils.INT_PREFIX,
           XMLUtils.LINE_ATTRIBUTE_NAME,
           Text(elementStartLocator.line.toString),
-          Null,
+          Null
         )
     val colAttr =
       if (alreadyHasCol) Null
@@ -400,7 +400,7 @@ class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
           XMLUtils.INT_PREFIX,
           XMLUtils.COLUMN_ATTRIBUTE_NAME,
           Text(elementStartLocator.col.toString),
-          Null,
+          Null
         )
     val fileAttr =
       if (alreadyHasFile || !haveFileName) Null
@@ -420,14 +420,14 @@ class SchemaAwareFactoryAdapter() extends NoBindingFactoryAdapter {
     uri: String,
     _localName: String,
     qname: String,
-    attributes: org.xml.sax.Attributes,
+    attributes: org.xml.sax.Attributes
   ): Unit = {
     // System.err.println("startElement")
     val loc = Locator(
       saxLocator.getLineNumber,
       saxLocator.getColumnNumber,
       saxLocator.getSystemId,
-      saxLocator.getPublicId,
+      saxLocator.getPublicId
     )
     locatorStack.push(loc)
     super.startElement(uri, _localName, qname, attributes)
@@ -548,7 +548,7 @@ class MyResolver()
     nsURI: String,
     publicId: String,
     systemId: String,
-    baseURI: String,
+    baseURI: String
   ) = {
     //    println("resolveResource nsURI = %s, baseURI = %s".format(nsURI, baseURI))
     //    val resource = delegate.resolveURI(nsURI) // (type_, nsURI, publicId, systemId, baseURI)

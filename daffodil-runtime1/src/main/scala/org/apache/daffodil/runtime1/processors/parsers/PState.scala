@@ -172,7 +172,7 @@ final class PState private (
   dataProcArg: DataProcessor,
   var delimitedParseResult: Maybe[dfa.ParseResult],
   var blobPaths: Seq[Path],
-  tunable: DaffodilTunables,
+  tunable: DaffodilTunables
 ) // Runtime tunables obtained from DataProcessor)
   extends ParseOrUnparseState(vmap, diagnosticsArg, One(dataProcArg), tunable) {
 
@@ -373,7 +373,7 @@ final class PState private (
   override def setVariable(
     vrd: VariableRuntimeData,
     newValue: DataValuePrimitive,
-    referringContext: ThrowsSDE,
+    referringContext: ThrowsSDE
   ): Unit = {
     changingVariable()
     variableMap.setVariable(vrd, newValue, referringContext, this)
@@ -381,7 +381,7 @@ final class PState private (
 
   override def getVariable(
     vrd: VariableRuntimeData,
-    referringContext: ThrowsSDE,
+    referringContext: ThrowsSDE
   ): DataValuePrimitive = {
     // Skip the call to changingVariable if this variable has already been
     // read, which means another read will not actually change the state. This
@@ -422,7 +422,7 @@ final class PState private (
    * things like reflection that could cause breakage.
    */
   def withPointOfUncertainty[B](pouID: String, context: RuntimeData)(
-    func: PState.Mark => B,
+    func: PState.Mark => B
   ): B =
     macro PointOfUncertaintyMacros.withPointOfUncertainty[PState.Mark, B]
 
@@ -524,7 +524,7 @@ final class PState private (
           val mcbbo = trd.maybeCheckByteAndBitOrderEv
           if (mcboc.isDefined)
             mcboc.get.evaluate(
-              this,
+              this
             ) // Expressions must be evaluated on the element, not before it is created.
           if (mcbbo.isDefined) mcbbo.get.evaluate(this)
         }
@@ -535,7 +535,7 @@ final class PState private (
       if (!dis.isAligned(8))
         SDE(
           "Can only change dfdl:bitOrder on a byte boundary. Bit pos (1b) was %s.",
-          dis.bitPos1b,
+          dis.bitPos1b
         )
     }
   }
@@ -606,13 +606,13 @@ object PState {
           bitPos0b.toString,
           context.toString,
           context.locationDescription,
-          poolDebugLabel,
+          poolDebugLabel
         )
       else
         "bitPos: (uninitialized), context: %s [%s] (%s)".format(
           context.toString,
           context.locationDescription,
-          poolDebugLabel,
+          poolDebugLabel
         )
     }
 
@@ -720,7 +720,7 @@ object PState {
     dis: InputSourceDataInputStream,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
-    areDebugging: Boolean,
+    areDebugging: Boolean
   ): PState = {
 
     val tunables = dataProc.tunables
@@ -731,7 +731,7 @@ object PState {
       dis,
       output,
       dataProc,
-      areDebugging,
+      areDebugging
     )
   }
 
@@ -744,7 +744,7 @@ object PState {
     dis: InputSourceDataInputStream,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
-    areDebugging: Boolean,
+    areDebugging: Boolean
   ): PState = {
 
     /**
@@ -763,7 +763,7 @@ object PState {
       ignoreBlocks = false,
       releaseUnneededInfoset = !areDebugging && tunables.releaseUnneededInfoset,
       walkSkipMin = tunables.infosetWalkerSkipMin,
-      walkSkipMax = tunables.infosetWalkerSkipMax,
+      walkSkipMax = tunables.infosetWalkerSkipMax
     )
 
     dis.cst.setPriorBitOrder(root.defaultBitOrder)
@@ -778,7 +778,7 @@ object PState {
       dataProc.asInstanceOf[DataProcessor],
       Nope,
       Seq.empty,
-      tunables,
+      tunables
     )
     newState
   }
@@ -791,7 +791,7 @@ object PState {
     data: String,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
-    areDebugging: Boolean,
+    areDebugging: Boolean
   ): PState = {
     val in = InputSourceDataInputStream(data.getBytes(StandardCharsets.UTF_8))
     createInitialPState(root, in, output, dataProc, areDebugging)
@@ -805,7 +805,7 @@ object PState {
     input: java.nio.channels.ReadableByteChannel,
     output: InfosetOutputter,
     dataProc: DFDL.DataProcessor,
-    areDebugging: Boolean,
+    areDebugging: Boolean
   ): PState = {
     val dis = InputSourceDataInputStream(Channels.newInputStream(input))
     createInitialPState(root, dis, output, dataProc, areDebugging)

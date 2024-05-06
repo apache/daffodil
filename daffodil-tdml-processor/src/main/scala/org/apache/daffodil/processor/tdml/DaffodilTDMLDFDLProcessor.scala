@@ -61,7 +61,7 @@ import org.xml.sax.SAXParseException
 final class TDMLDFDLProcessorFactory private (
   private var compiler: Compiler,
   private var checkAllTopLevel: Boolean,
-  validateDFDLSchemasArg: Boolean,
+  validateDFDLSchemasArg: Boolean
 ) extends AbstractTDMLDFDLProcessorFactory {
 
   override def validateDFDLSchemas = validateDFDLSchemasArg
@@ -73,13 +73,13 @@ final class TDMLDFDLProcessorFactory private (
   def this() = this(
     compiler = Compiler(validateDFDLSchemas = true),
     checkAllTopLevel = false,
-    validateDFDLSchemasArg = true,
+    validateDFDLSchemasArg = true
   )
 
   private def copy(
     compiler: Compiler = compiler,
     checkAllTopLevel: Boolean = checkAllTopLevel,
-    validateDFDLSchemas: Boolean = validateDFDLSchemas,
+    validateDFDLSchemas: Boolean = validateDFDLSchemas
   ) =
     new TDMLDFDLProcessorFactory(compiler, checkAllTopLevel, validateDFDLSchemas)
 
@@ -101,7 +101,7 @@ final class TDMLDFDLProcessorFactory private (
    */
   private def generateProcessor(
     pf: DFDL.ProcessorFactory,
-    useSerializedProcessor: Boolean,
+    useSerializedProcessor: Boolean
   ): TDML.CompileResult = {
     val p = pf.onPath("/")
     if (p.isError) {
@@ -126,7 +126,7 @@ final class TDMLDFDLProcessorFactory private (
     schemaSource: DaffodilSchemaSource,
     useSerializedProcessor: Boolean,
     optRootName: Option[String],
-    optRootNamespace: Option[String],
+    optRootNamespace: Option[String]
   ): TDML.CompileResult = {
     val pf = compiler.compileSource(schemaSource, optRootName, optRootNamespace)
     if (pf.isError) {
@@ -143,7 +143,7 @@ final class TDMLDFDLProcessorFactory private (
     useSerializedProcessor: Boolean,
     optRootName: Option[String],
     optRootNamespace: Option[String],
-    tunables: Map[String, String],
+    tunables: Map[String, String]
   ): TDML.CompileResult = {
     if (schemaSource.isXSD) {
       val res =
@@ -197,12 +197,12 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
   }
 
   override def withValidationMode(
-    validationMode: ValidationMode.Type,
+    validationMode: ValidationMode.Type
   ): DaffodilTDMLDFDLProcessor =
     copy(dp = dp.withValidationMode(validationMode))
 
   override def withExternalDFDLVariables(
-    externalVarBindings: Seq[Binding],
+    externalVarBindings: Seq[Binding]
   ): DaffodilTDMLDFDLProcessor =
     copy(dp = dp.withExternalVariables(externalVarBindings))
 
@@ -226,7 +226,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
 
   override def unparse(
     infosetXML: scala.xml.Node,
-    outStream: java.io.OutputStream,
+    outStream: java.io.OutputStream
   ): TDMLUnparseResult = {
     val scalaInputter = new ScalaXMLInfosetInputter(infosetXML)
     // We can't compare against other inputters since we only have scala XML,
@@ -239,7 +239,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
 
   def unparse(
     parseResult: TDMLParseResult,
-    outStream: java.io.OutputStream,
+    outStream: java.io.OutputStream
   ): TDMLUnparseResult = {
     val dafpr = parseResult.asInstanceOf[DaffodilTDMLParseResult]
     val inputter = dafpr.inputter
@@ -250,7 +250,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
   def unparse(
     inputter: TDMLInfosetInputter,
     infosetXML: scala.xml.Node,
-    outStream: java.io.OutputStream,
+    outStream: java.io.OutputStream
   ): TDMLUnparseResult = {
     val bos = new ByteArrayOutputStream()
     val osw = new OutputStreamWriter(bos, StandardCharsets.UTF_8)
@@ -264,7 +264,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
   def doParseWithBothApis(
     dpInputStream: java.io.InputStream,
     saxInputStream: java.io.InputStream,
-    lengthLimitInBits: Long,
+    lengthLimitInBits: Long
   ): TDMLParseResult = {
     val outputter = new TDMLInfosetOutputter()
     outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
@@ -309,7 +309,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
   def doUnparseWithBothApis(
     dpInputter: TDMLInfosetInputter,
     saxInputStream: java.io.InputStream,
-    dpOutputStream: java.io.OutputStream,
+    dpOutputStream: java.io.OutputStream
   ): DaffodilTDMLUnparseResult = {
 
     val dpOutputChannel = java.nio.channels.Channels.newChannel(dpOutputStream)
@@ -339,7 +339,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
     saxOutputChannel.close()
     if (!actualDP.isError && !actualSAX.isError) {
       val dpis = new ByteArrayInputStream(
-        dpOutputStream.asInstanceOf[ByteArrayOutputStream].toByteArray,
+        dpOutputStream.asInstanceOf[ByteArrayOutputStream].toByteArray
       )
       if (actualDP.isScannable && actualSAX.isScannable) {
         VerifyTestCase.verifyTextData(dpis, saxOutputStream, actualSAX.encodingName, None)
@@ -356,7 +356,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
 
   def verifySameParseOutput(
     dpOutputStream: ByteArrayOutputStream,
-    saxOutputStream: ByteArrayOutputStream,
+    saxOutputStream: ByteArrayOutputStream
   ): Unit = {
     val dpParseOutputString = dpOutputStream.toString("UTF-8")
     val saxParseOutputString = saxOutputStream.toString("UTF-8")
@@ -369,14 +369,14 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
         dpParseXMLNodeOutput,
         saxParseXMLNodeOutput,
         checkNamespaces = true,
-        checkPrefixes = true,
+        checkPrefixes = true
       )
     } catch {
       case e: XMLDifferenceException => {
         throw TDMLException(
           """SAX parse output (actual) does not match DataProcessor Parse output (expected)""" +
             "\n" + e.getMessage,
-          None,
+          None
         )
       }
     }
@@ -384,7 +384,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
 
   private def verifySameDiagnostics(
     seqDiagExpected: Seq[String],
-    seqDiagActual: Seq[String],
+    seqDiagActual: Seq[String]
   ): Unit = {
     val expected = seqDiagExpected.sorted
     val actual = seqDiagActual.sorted
@@ -399,7 +399,7 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
            } else {
              "\nSAX Parse diagnostics: " + seqDiagActual
            }),
-        None,
+        None
       )
     }
   }
@@ -429,7 +429,7 @@ final class DaffodilTDMLParseResult(actual: DFDL.ParseResult, outputter: TDMLInf
 
 final class DaffodilTDMLUnparseResult(
   actual: DFDL.UnparseResult,
-  outStream: java.io.OutputStream,
+  outStream: java.io.OutputStream
 ) extends TDMLUnparseResult {
 
   private val ustate = actual.resultState.asInstanceOf[UState]

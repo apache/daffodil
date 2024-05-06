@@ -35,7 +35,7 @@ import passera.unsigned.ULong
 final class StringOfSpecifiedLengthParser(
   override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
-  erd: ElementRuntimeData,
+  erd: ElementRuntimeData
 ) extends TextPrimParser
   with StringOfSpecifiedLengthMixin {
 
@@ -64,7 +64,7 @@ trait CaptureParsingValueLength {
   final def captureValueLength(
     state: PState,
     startBitPos0b: ULong,
-    endBitPos0b: ULong,
+    endBitPos0b: ULong
   ): Unit = {
     val elem = state.infoset
     elem.valueLength.setAbsStartPos0bInBits(startBitPos0b)

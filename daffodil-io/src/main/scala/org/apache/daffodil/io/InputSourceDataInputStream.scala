@@ -231,7 +231,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   private def fillByteArray(
     array: Array[Byte],
     bitLengthFrom1: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Unit = {
     val isUnaligned = !isAligned(8)
     val fragmentBits = bitLengthFrom1 % 8
@@ -477,7 +477,7 @@ final class InputSourceDataInputStream private (val inputSource: InputSource)
   private def adjustBigIntArrayWithFragmentByte(
     array: Array[Byte],
     fragmentLength: Int,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Unit = {
 
     if (finfo.byteOrder == ByteOrder.LittleEndian) {

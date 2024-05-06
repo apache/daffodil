@@ -47,7 +47,7 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
       this.namedQName.asInstanceOf[GlobalQName],
       this.primType,
       this.tunable.unqualifiedPathStepPolicy,
-      vmapIndex = index,
+      vmapIndex = index
     )
     vrd
   }
@@ -63,7 +63,7 @@ trait DFDLDefineVariableRuntime1Mixin { self: DFDLDefineVariable =>
         compilationTargetType,
         Found(e, this.dpathCompileInfo, "defaultValue", false),
         this,
-        dpathCompileInfo,
+        dpathCompileInfo
       )
     }
 
@@ -103,7 +103,7 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
       // This is a really important invariant. The index of the NVI's VRD
       // must be identical to that of the global VRD for this variable,
       // So we take it from there.
-      vmapIndex = globalVRD.vmapIndex,
+      vmapIndex = globalVRD.vmapIndex
     )
     vrd
   }
@@ -117,7 +117,7 @@ trait DFDLNewVariableInstanceRuntime1Mixin { self: DFDLNewVariableInstance =>
         compilationTargetType,
         Found(e, this.dpathCompileInfo, "defaultValue", false),
         this,
-        dpathCompileInfo,
+        dpathCompileInfo
       )
     }
 

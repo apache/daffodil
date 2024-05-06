@@ -42,7 +42,7 @@ object TestDFDLExpressions {
     testDir4,
     "runtime-properties.tdml",
     validateTDMLFile = true,
-    validateDFDLSchemas = false,
+    validateDFDLSchemas = false
   )
   val runner_fun = Runner(testDir, "functions.tdml")
   val runner5 = Runner(testDir, "valueLength.tdml")

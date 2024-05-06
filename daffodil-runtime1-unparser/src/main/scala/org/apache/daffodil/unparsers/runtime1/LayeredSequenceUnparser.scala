@@ -23,7 +23,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 
 class LayeredSequenceUnparser(
   ctxt: SequenceRuntimeData,
-  childUnparser: SequenceChildUnparser,
+  childUnparser: SequenceChildUnparser
 ) extends OrderedUnseparatedSequenceUnparser(ctxt, Seq(childUnparser)) {
 
   override def nom = "LayeredSequence"

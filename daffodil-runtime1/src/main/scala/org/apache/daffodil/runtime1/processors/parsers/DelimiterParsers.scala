@@ -48,7 +48,7 @@ class DelimiterTextParser(
   textParser: TextParser,
   delimiterType: DelimiterTextType.Type,
   isDelimited: Boolean,
-  mustMatchNonZeroData: Boolean,
+  mustMatchNonZeroData: Boolean
 ) extends TextPrimParser {
 
   override lazy val runtimeDependencies = rd.encodingInfo.runtimeDependencies
@@ -58,7 +58,7 @@ class DelimiterTextParser(
 
   private def containsLocalMatch(
     matchedDelimiters: ArrayBuffer[DFADelimiter],
-    state: PState,
+    state: PState
   ): Boolean = {
     val localIndexStart = state.mpstate.delimitersLocalIndexStack.top
     val inScopeDelimiters = state.mpstate.delimiters
@@ -101,7 +101,7 @@ class DelimiterTextParser(
         }
         .mkString("\n", "\n", ""),
       foundDFA.location,
-      foundDFA.location.locationDescription,
+      foundDFA.location.locationDescription
     )
   }
 
@@ -113,8 +113,8 @@ class DelimiterTextParser(
           new LocalTypedDelimiterIterator(
             delimiterType,
             start.mpstate.delimiters,
-            start.mpstate.delimitersLocalIndexStack.top,
-          ),
+            start.mpstate.delimitersLocalIndexStack.top
+          )
         )
       } else if (
         delimiterType == DelimiterTextType.Initiator || !start.delimitedParseResult.isDefined
@@ -123,8 +123,8 @@ class DelimiterTextParser(
           new RemoteTerminatingMarkupAndLocalTypedDelimiterIterator(
             delimiterType,
             start.mpstate.delimiters,
-            start.mpstate.delimitersLocalIndexStack.top,
-          ),
+            start.mpstate.delimitersLocalIndexStack.top
+          )
         )
       } else {
         Nope
@@ -148,7 +148,7 @@ class DelimiterTextParser(
       val nChars = foundDelimiter.get.matchedDelimiterValue.get.length
       if (mustMatchNonZeroData && nChars == 0) {
         start.SDE(
-          "The initiator must match non-zero length data when dfdl:initiatedContent is 'yes'.",
+          "The initiator must match non-zero length data when dfdl:initiatedContent is 'yes'."
         )
       }
       val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars, start)

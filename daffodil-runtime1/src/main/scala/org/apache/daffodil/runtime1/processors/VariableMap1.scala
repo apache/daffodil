@@ -113,7 +113,7 @@ class VariableInstance private (val rd: VariableRuntimeData) extends Serializabl
   /* This is used to set a default value with the appropriate state */
   def setDefaultValue(v: DataValuePrimitiveNullable): Unit = {
     Assert.invariant(
-      (this.state == VariableUndefined || this.state == VariableInProcess) && v.isDefined,
+      (this.state == VariableUndefined || this.state == VariableInProcess) && v.isDefined
     )
     this.state = VariableDefined
     this.value = v
@@ -125,7 +125,7 @@ class VariableInstance private (val rd: VariableRuntimeData) extends Serializabl
   def copy(
     state: VariableState = state,
     value: DataValuePrimitiveNullable = value,
-    rd: VariableRuntimeData = rd,
+    rd: VariableRuntimeData = rd
   ): VariableInstance = {
     val inst = new VariableInstance(rd)
     inst.state = state
@@ -140,7 +140,7 @@ object VariableUtils {
   def setExternalVariables(
     currentVMap: VariableMap,
     bindings: Seq[Binding],
-    referringContext: ThrowsSDE,
+    referringContext: ThrowsSDE
   ): Unit = {
     bindings.foreach { b =>
       currentVMap.setExtVariable(b.varQName, b.varValue, referringContext)
@@ -152,7 +152,7 @@ object VariableUtils {
 abstract class VariableException(
   val qname: NamedQName,
   val context: VariableRuntimeData,
-  msg: String,
+  msg: String
 ) extends ThinDiagnostic(Maybe(context.schemaFileLocation), Nope, Nope, Maybe(msg)) {
   def isError = true
 
@@ -164,7 +164,7 @@ class VariableHasNoValue(qname: NamedQName, context: VariableRuntimeData)
     qname,
     context,
     "Variable map (runtime): variable %s has no value. It was not set, and has no default value."
-      .format(qname),
+      .format(qname)
   )
   with RetryableException
 
@@ -172,7 +172,7 @@ class VariableSuspended(qname: NamedQName, context: VariableRuntimeData)
   extends VariableException(
     qname,
     context,
-    "Variable map (runtime): variable %s is currently suspended".format(qname),
+    "Variable map (runtime): variable %s is currently suspended".format(qname)
   )
   with RetryableException
 
@@ -186,7 +186,7 @@ class VariableCircularDefinition(qname: NamedQName, context: VariableRuntimeData
     qname,
     context,
     "Variable map (runtime): variable %s is part of a circular definition with other variables"
-      .format(qname),
+      .format(qname)
   )
 
 /**
@@ -259,7 +259,7 @@ object VariableMap {
  */
 class VariableMap private (
   val vrds: Seq[VariableRuntimeData],
-  vTable: Array[Seq[VariableInstance]],
+  vTable: Array[Seq[VariableInstance]]
 ) extends Serializable {
 
   override def toString: String = {
@@ -360,21 +360,21 @@ class VariableMap private (
   def readVariable(
     vrd: VariableRuntimeData,
     referringContext: ThrowsSDE,
-    state: ParseOrUnparseState,
+    state: ParseOrUnparseState
   ): DataValuePrimitive = {
     val varQName = vrd.globalQName
     vrd.direction match {
       case VariableDirection.ParseOnly if (!state.isInstanceOf[PState]) =>
         state.SDE(
           "Attempting to read variable %s which is marked as parseOnly during unparsing".format(
-            varQName,
-          ),
+            varQName
+          )
         )
       case VariableDirection.UnparseOnly if (!state.isInstanceOf[UState]) =>
         state.SDE(
           "Attempting to read variable %s which is marked as unparseOnly during parsing".format(
-            varQName,
-          ),
+            varQName
+          )
         )
       case _ => // Do nothing
     }
@@ -391,7 +391,7 @@ class VariableMap private (
         // These MUST, however, be for the same variable, and so will have the same index
         // into the vtable.
         Assert.invariant(
-          (varAtIndexVRD eq vrd) || (varAtIndexVRD.globalQName eq vrd.globalQName),
+          (varAtIndexVRD eq vrd) || (varAtIndexVRD.globalQName eq vrd.globalQName)
         )
       }
       varAtIndex
@@ -433,7 +433,7 @@ class VariableMap private (
     vrd: VariableRuntimeData,
     newValue: DataValuePrimitive,
     referringContext: ThrowsSDE,
-    pstate: ParseOrUnparseState,
+    pstate: ParseOrUnparseState
   ): Unit = {
     val varQName = vrd.globalQName
     val variableInstances = vTable(vrd.vmapIndex)
@@ -444,7 +444,7 @@ class VariableMap private (
           "Cannot set variable %s twice. State was: %s. Existing value: %s",
           variable.rd.globalQName,
           VariableSet,
-          variable.value,
+          variable.value
         )
       }
 
@@ -459,7 +459,7 @@ class VariableMap private (
           "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
           variable.rd.globalQName,
           VariableSet,
-          variable.value,
+          variable.value
         )
         variable.setValue(newValue)
         variable.setState(VariableSet)
@@ -480,7 +480,7 @@ class VariableMap private (
             // newVariableInstance
             pstate.SDE(
               "Variable %s has an unparse direction and a default value, setting the variable may cause race conditions when combined with a forward referencing expression.",
-              varQName,
+              varQName
             )
           }
           case _ => // Do nothing
@@ -514,7 +514,7 @@ class VariableMap private (
   def setExtVariable(
     bindingQName: RefQName,
     newValue: String,
-    referringContext: ThrowsSDE,
+    referringContext: ThrowsSDE
   ): Unit = {
 
     val optVariableInstances =
@@ -558,7 +558,7 @@ class VariableMap private (
         val variable = variableInstances.head
         if (!variable.rd.external) {
           throw new ExternalVariableException(
-            "Variable cannot be set externally: " + variable.rd.globalQName,
+            "Variable cannot be set externally: " + variable.rd.globalQName
           )
         }
         variable.state match {
@@ -571,7 +571,7 @@ class VariableMap private (
                   val msg = "Value for variable %s is not a valid %s: %s".format(
                     variable.rd.globalQName,
                     variable.rd.primType.globalQName,
-                    newValue,
+                    newValue
                   )
                   throw new ExternalVariableException(msg)
                 }

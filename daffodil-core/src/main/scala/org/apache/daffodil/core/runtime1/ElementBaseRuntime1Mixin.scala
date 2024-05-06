@@ -36,12 +36,12 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
 
   // initialize cyclic structure
   requiredEvaluationsIfActivated(
-    dpathElementCompileInfo.initialize,
+    dpathElementCompileInfo.initialize
   )
 
   // initialize cyclic structure
   requiredEvaluationsIfActivated(
-    elementRuntimeData.initialize,
+    elementRuntimeData.initialize
   )
 
   /**
@@ -158,7 +158,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       tunable.unqualifiedPathStepPolicy,
       shortSchemaComponentDesignator,
       isOutputValueCalc,
-      isDistinguishedRoot,
+      isDistinguishedRoot
     )
     eci
   }
@@ -220,7 +220,7 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv,
       isQuasiElement,
-      runtimeProperties,
+      runtimeProperties
     )
     newERD
   }.value

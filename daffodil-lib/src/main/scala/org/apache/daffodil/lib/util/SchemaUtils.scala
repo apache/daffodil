@@ -44,14 +44,14 @@ object SchemaUtils {
     includeImports: Seq[Node],
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],
-    fileName: String = "",
+    fileName: String = ""
   ): Elem =
     dfdlTestSchema(
       includeImports,
       topLevelAnnotations,
       contentElements,
       fileName = fileName,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
   def dfdlTestSchemaWithTarget(
@@ -60,7 +60,7 @@ object SchemaUtils {
     contentElements: Seq[Node],
     theTargetNS: String,
     elementFormDefault: String = "qualified",
-    hasDefaultNamespace: Boolean = true,
+    hasDefaultNamespace: Boolean = true
   ): Elem = {
     val tns = if (theTargetNS == "" || theTargetNS == null) NoNamespace else NS(theTargetNS)
     val sch =
@@ -71,7 +71,7 @@ object SchemaUtils {
         targetNamespace = tns,
         defaultNamespace = tns,
         elementFormDefault = elementFormDefault,
-        useDefaultNamespace = hasDefaultNamespace,
+        useDefaultNamespace = hasDefaultNamespace
       )
     sch
   }
@@ -96,7 +96,7 @@ object SchemaUtils {
     defaultNamespace: NS = XMLUtils.targetNS,
     elementFormDefault: String = "qualified",
     useDefaultNamespace: Boolean = true,
-    useTNS: Boolean = true,
+    useTNS: Boolean = true
   ): Elem = {
     val fileAttrib =
       if (fileName == "") Null

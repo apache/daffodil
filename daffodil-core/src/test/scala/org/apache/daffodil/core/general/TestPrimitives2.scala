@@ -35,7 +35,7 @@ class TestPrimitives2 {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" nillable="true" dfdl:nilKind="literalValue" dfdl:lengthKind="delimited" type="xs:string" dfdl:nilValue="%WSP;nil%NL; foobar" dfdl:outputNewLine="%LF;"/>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example} xmlns:xsi={
       XMLUtils.XSI_NAMESPACE.toString()
@@ -48,7 +48,7 @@ class TestPrimitives2 {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" encoding="ascii" lengthUnits="bytes"/>,
       <xs:element name="e1" dfdl:nilValue="start%WSP;bla%%WSP;;;;foo%WSP*;bar%WSP+;baz%ES;quux%NL;boo%%baz%%NL;end" dfdl:outputNewLine="%LF;" nillable="true" dfdl:nilKind="literalValue" dfdl:lengthKind="delimited" type="xs:string"/>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example} xmlns:xsi={
       XMLUtils.XSI_NAMESPACE.toString()

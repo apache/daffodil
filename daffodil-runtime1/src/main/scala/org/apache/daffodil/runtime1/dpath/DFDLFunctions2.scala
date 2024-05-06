@@ -52,8 +52,8 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
             //
             val nyi = new IllegalArgumentException(
               "dfdl:%sLength's second argument of 'characters' is not yet supported.".format(
-                kind,
-              ),
+                kind
+              )
             )
             elt.erd.SDE(nyi)
             // lengthState(elt).lengthInCharacters
@@ -66,7 +66,7 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
   override def computeValue(
     anyNode: DataValuePrimitive,
     str: DataValuePrimitive,
-    dstate: DState,
+    dstate: DState
   ): DataValueLong = {
 
     val elt = anyNode.getAnyRef match {
@@ -75,8 +75,8 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
         throw new IllegalArgumentException(
           "dfdl:%sLength's first argument must be an Infoset Element. Argument was: %s".format(
             kind,
-            anyNode,
-          ),
+            anyNode
+          )
         )
     }
 
@@ -85,7 +85,7 @@ sealed abstract class DFDLLengthFunctionBase(kind: String, recipes: List[Compile
       case _ =>
         throw new IllegalArgumentException(
           "dfdl:%sLength's second argument must be one of the strings 'bits', 'bytes', or 'characters', but was: %s."
-            .format(kind, str),
+            .format(kind, str)
         )
     }
 

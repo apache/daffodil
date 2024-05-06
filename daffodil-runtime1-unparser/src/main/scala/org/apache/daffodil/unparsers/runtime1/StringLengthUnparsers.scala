@@ -69,7 +69,7 @@ class StringNoTruncateUnparser(erd: ElementRuntimeData)
 
 sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
   stringTruncationType: TextTruncationType.Type,
-  erd: ElementRuntimeData,
+  erd: ElementRuntimeData
 ) extends StringSpecifiedLengthUnparserBase(erd) {
 
   Assert.usage(stringTruncationType ne TextTruncationType.None)
@@ -81,7 +81,7 @@ sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
   protected final def truncateByJustification(
     ustate: UState,
     str: String,
-    nChars: Long,
+    nChars: Long
   ): String = {
     Assert.invariant(erd.optTruncateSpecifiedLengthString.isDefined)
     val nCharsToTrim = str.length - nChars.toInt
@@ -97,7 +97,7 @@ sealed abstract class StringSpecifiedLengthUnparserTruncateBase(
         // should be an error
         UE(
           ustate,
-          "Truncation required but disallowed when dfdl:truncateSpecifiedLengthString=\"yes\" and dfdl:textStringJustification=\"center\"",
+          "Truncation required but disallowed when dfdl:truncateSpecifiedLengthString=\"yes\" and dfdl:textStringJustification=\"center\""
         )
       }
       case TextTruncationType.None => {
@@ -117,7 +117,7 @@ class StringMaybeTruncateBitsUnparser(
   targetLengthInBitsEv: UnparseTargetLengthInBitsEv,
   stringTruncationType: TextTruncationType.Type,
   erd: ElementRuntimeData,
-  charsetEv: CharsetEv,
+  charsetEv: CharsetEv
 ) extends StringSpecifiedLengthUnparserTruncateBase(stringTruncationType, erd) {
 
   override lazy val runtimeDependencies = Vector(targetLengthInBitsEv, charsetEv)
@@ -228,7 +228,7 @@ class StringMaybeTruncateBitsUnparser(
 
     val nCharsWritten = dos.putString(valueToWrite, state)
     Assert.invariant(
-      nCharsWritten == valueToWrite.length,
+      nCharsWritten == valueToWrite.length
     ) // assertion because we figured this out above based on available space.
     //
     // Filling of unused bits is done elsewhere now
@@ -254,7 +254,7 @@ class StringMaybeTruncateBitsUnparser(
 class StringMaybeTruncateCharactersUnparser(
   lengthInCharactersEv: LengthEv,
   stringTruncationType: TextTruncationType.Type,
-  erd: ElementRuntimeData,
+  erd: ElementRuntimeData
 ) extends StringSpecifiedLengthUnparserTruncateBase(stringTruncationType, erd) {
 
   override lazy val runtimeDependencies = Vector(lengthInCharactersEv)

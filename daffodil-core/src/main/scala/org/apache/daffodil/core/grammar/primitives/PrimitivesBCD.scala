@@ -57,7 +57,7 @@ class BCDIntegerPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
     e.prefixedLengthBody.parser,
     e.prefixedLengthElementDecl.elementRuntimeData,
     e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits,
+    e.prefixedLengthAdjustmentInUnits
   )
 
   override lazy val unparser: Unparser = new BCDIntegerPrefixedLengthUnparser(
@@ -65,7 +65,7 @@ class BCDIntegerPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
     e.prefixedLengthBody.unparser,
     e.prefixedLengthElementDecl.elementRuntimeData,
     e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits,
+    e.prefixedLengthAdjustmentInUnits
   )
 }
 
@@ -74,14 +74,14 @@ class BCDDecimalRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     e.lengthEv,
-    e.lengthUnits,
+    e.lengthUnits
   )
 
   override lazy val unparser: Unparser = new BCDDecimalRuntimeLengthUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     e.lengthEv,
-    e.lengthUnits,
+    e.lengthUnits
   )
 
 }
@@ -90,13 +90,13 @@ class BCDDecimalKnownLength(val e: ElementBase, lengthInBits: Long) extends Term
   override lazy val parser = new BCDDecimalKnownLengthParser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
-    lengthInBits.toInt,
+    lengthInBits.toInt
   )
 
   override lazy val unparser: Unparser = new BCDDecimalKnownLengthUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
-    lengthInBits.toInt,
+    lengthInBits.toInt
   )
 }
 
@@ -108,7 +108,7 @@ class BCDDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
     e.prefixedLengthElementDecl.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits,
+    e.prefixedLengthAdjustmentInUnits
   )
 
   override lazy val unparser: Unparser = new BCDDecimalPrefixedLengthUnparser(
@@ -117,6 +117,6 @@ class BCDDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
     e.prefixedLengthElementDecl.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
     e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits,
+    e.prefixedLengthAdjustmentInUnits
   )
 }

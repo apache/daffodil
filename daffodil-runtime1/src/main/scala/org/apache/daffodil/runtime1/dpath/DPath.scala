@@ -23,7 +23,7 @@ import java.lang.{
   Float => JFloat,
   Integer => JInt,
   Long => JLong,
-  Short => JShort,
+  Short => JShort
 }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import java.net.URI
@@ -74,7 +74,7 @@ class ExpressionEvaluationException(e: Throwable, s: ParseOrUnparseState)
     One(s.schemaFileLocation),
     Nope,
     Maybe(e),
-    Nope,
+    Nope
   )
 // "Expression evaluation failed: %s",
 // Misc.getSomeMessage(e).get
@@ -87,7 +87,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](
   ci: DPathCompileInfo,
   isEvaluatedAbove: Boolean,
   override val contentReferencedElementInfos: Set[DPathElementCompileInfo],
-  override val valueReferencedElementInfos: Set[DPathElementCompileInfo],
+  override val valueReferencedElementInfos: Set[DPathElementCompileInfo]
 ) extends CompiledExpression[T](qn, dpathText)
   with DoSDEMixin {
 
@@ -117,7 +117,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](
         val pe =
           new ExpressionEvaluationException(
             e,
-            state,
+            state
           ) // One(ci.schemaFileLocation), One(pstate.currentLocation), msg)
         pstate.setFailed(pe.toParseError)
       }
@@ -185,9 +185,9 @@ final class RuntimeExpressionDPath[T <: AnyRef](
                 doSDE(
                   new InfosetSelfReferencingException(
                     state.dState.currentNode.asElement,
-                    state.dState.currentNode.erd,
+                    state.dState.currentNode.erd
                   ),
-                  ps,
+                  ps
                 )
               case _ => doSDE(e, ps)
             }
@@ -213,7 +213,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](
    */
   def evaluateForwardReferencing(
     state: ParseOrUnparseState,
-    whereBlockedInfo: Suspension,
+    whereBlockedInfo: Suspension
   ): Maybe[T] = {
     var value: Maybe[T] = Nope
     try {
@@ -234,7 +234,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](
           noArrayIndex.diArray,
           noArrayIndex.diArray.erd.dpathElementCompileInfo,
           noArrayIndex.index,
-          noArrayIndex,
+          noArrayIndex
         )
       case nd: InfosetNoDataExceptionBase
           if nd.erd.dpathElementCompileInfo.isOutputValueCalc => {
@@ -336,7 +336,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](
           } catch {
             case ovc: OutputValueCalcEvaluationException => {
               Assert.invariantFailed(
-                "OVC should always have a data value by the time it reaches here.",
+                "OVC should always have a data value by the time it reaches here."
               )
             }
           }
@@ -395,7 +395,7 @@ final class RuntimeExpressionDPath[T <: AnyRef](
               val e = new RuntimeSchemaDefinitionError(
                 ci.schemaFileLocation,
                 state,
-                "Non-empty string required.",
+                "Non-empty string required."
               )
               doSDE(e, state)
             }

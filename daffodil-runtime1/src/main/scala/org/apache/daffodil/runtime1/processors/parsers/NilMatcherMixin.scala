@@ -81,7 +81,7 @@ trait NilMatcherMixin {
    */
   private def combineDelimitersRegex(
     sepsRegex: Array[String],
-    termsRegex: Array[String],
+    termsRegex: Array[String]
   ): String = {
     val sb = new StringBuilder()
     sepsRegex.foreach(x => {

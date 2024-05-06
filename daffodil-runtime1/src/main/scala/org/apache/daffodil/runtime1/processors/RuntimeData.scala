@@ -158,7 +158,7 @@ sealed abstract class TermRuntimeData(
   val optIgnoreCase: Option[YesNo],
   val fillByteEv: FillByteEv,
   val maybeCheckByteAndBitOrderEv: Maybe[CheckByteAndBitOrderEv],
-  val maybeCheckBitOrderAndCharsetEv: Maybe[CheckBitOrderAndCharsetEv],
+  val maybeCheckBitOrderAndCharsetEv: Maybe[CheckBitOrderAndCharsetEv]
 ) extends RuntimeData
   with TermMetadata {
 
@@ -212,7 +212,7 @@ sealed class NonTermRuntimeData(
   val diagnosticDebugName: String,
   val path: String,
   override val namespaces: NamespaceBinding,
-  val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+  val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
 ) extends RuntimeData {}
 
 /**
@@ -241,14 +241,14 @@ final class SimpleTypeRuntimeData(
   val totalDigits: Option[java.math.BigDecimal],
   val fractionDigits: Option[java.math.BigDecimal],
   val unionMemberTypes: Seq[SimpleTypeRuntimeData],
-  unqualifiedPathStepPolicyArg: UnqualifiedPathStepPolicy,
+  unqualifiedPathStepPolicyArg: UnqualifiedPathStepPolicy
 ) extends NonTermRuntimeData(
     variableMapArg,
     schemaFileLocationArg,
     diagnosticDebugNameArg,
     pathArg,
     namespacesArg,
-    unqualifiedPathStepPolicyArg,
+    unqualifiedPathStepPolicyArg
   ) {
 
   import org.apache.daffodil.lib.util.OKOrError._
@@ -306,8 +306,8 @@ final class SimpleTypeRuntimeData(
             Error(
               "Value '%s' is not one of the union members: %s".format(
                 currentElement.dataValueAsString,
-                umts.map { umt => umt.diagnosticDebugName }.mkString(", "),
-              ),
+                umts.map { umt => umt.diagnosticDebugName }.mkString(", ")
+              )
             )
         }
       }
@@ -410,7 +410,7 @@ final class SimpleTypeRuntimeData(
     diNode: DISimple,
     lenValue: java.math.BigDecimal,
     e: ThrowsSDE,
-    primType: PrimType,
+    primType: PrimType
   ): java.lang.Boolean = {
     val lenAsLong = lenValue.longValueExact()
     primType match {
@@ -436,7 +436,7 @@ final class SimpleTypeRuntimeData(
     diNode: DISimple,
     minValue: java.math.BigDecimal,
     e: ThrowsSDE,
-    primType: PrimType,
+    primType: PrimType
   ): java.lang.Boolean = {
     val minAsLong = minValue.longValueExact()
     primType match {
@@ -463,7 +463,7 @@ final class SimpleTypeRuntimeData(
     diNode: DISimple,
     maxValue: java.math.BigDecimal,
     e: ThrowsSDE,
-    primType: PrimType,
+    primType: PrimType
   ): java.lang.Boolean = {
     val maxAsLong = maxValue.longValueExact()
     primType match {
@@ -492,7 +492,7 @@ final class SimpleTypeRuntimeData(
     diNode: DISimple,
     minValue: java.math.BigDecimal,
     primType: PrimType,
-    e: ThrowsSDE,
+    e: ThrowsSDE
   ): Boolean = {
     // we must handle float and double separately because diNode.dataValue
     // could be Inf/Nan, which cannot be converted to BigDecimal
@@ -507,7 +507,7 @@ final class SimpleTypeRuntimeData(
     diNode: DISimple,
     minValue: java.math.BigDecimal,
     primType: PrimType,
-    e: ThrowsSDE,
+    e: ThrowsSDE
   ): Boolean = {
     // we must handle float and double separately because diNode.dataValue
     // could be Inf/Nan, which cannot be converted to BigDecimal
@@ -522,7 +522,7 @@ final class SimpleTypeRuntimeData(
     diNode: DISimple,
     maxValue: java.math.BigDecimal,
     primType: PrimType,
-    e: ThrowsSDE,
+    e: ThrowsSDE
   ): Boolean = {
     // we must handle float and double separately because diNode.dataValue
     // could be Inf/Nan, which cannot be converted to BigDecimal
@@ -537,7 +537,7 @@ final class SimpleTypeRuntimeData(
     diNode: DISimple,
     maxValue: java.math.BigDecimal,
     primType: PrimType,
-    e: ThrowsSDE,
+    e: ThrowsSDE
   ): Boolean = {
     // we must handle float and double separately because diNode.dataValue
     // could be Inf/Nan, which cannot be converted to BigDecimal
@@ -692,7 +692,7 @@ sealed class ElementRuntimeData(
   maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
   maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv],
   val isQuasiElement: Boolean,
-  val runtimeProperties: java.util.Map[String, String],
+  val runtimeProperties: java.util.Map[String, String]
 ) extends TermRuntimeData(
     positionArg,
     partialNextElementResolverDelay,
@@ -706,7 +706,7 @@ sealed class ElementRuntimeData(
     optIgnoreCaseArg,
     fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
-    maybeCheckBitOrderAndCharsetEvArg,
+    maybeCheckBitOrderAndCharsetEvArg
   )
   with ElementMetadata
   with SimpleElementMetadata
@@ -777,12 +777,12 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     new DPathElementCompileInfo(
       Delay(
         'ErrorERDParents,
-        Seq[DPathElementCompileInfo](),
+        Seq[DPathElementCompileInfo]()
       ).force, // parentsArg: => Seq[DPathElementCompileInfo],
       null, // variableMap: => VariableMap,
       Delay(
         'ErrorERD,
-        Seq[DPathElementCompileInfo](),
+        Seq[DPathElementCompileInfo]()
       ).force, // elementChildrenCompileInfoDelay: Delay[Seq[DPathElementCompileInfo]],
       null, // namespaces: scala.xml.NamespaceBinding,
       local, // path: String,
@@ -795,7 +795,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
       null, // override val unqualifiedPathStepPolicy : UnqualifiedPathStepPolicy,
       null, // val sscd: String),
       false, // val isOutputValueCalc: Boolean
-      false, // val isDistinguishedRoot: Boolean
+      false // val isDistinguishedRoot: Boolean
     ),
     null, // SchemaFileLocation
     local, // diagnosticDebugName: String,
@@ -830,7 +830,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     Nope, // maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
     Nope, // maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv],
     false, // isQuasiElementArg: => Boolean
-    null, // runtimeProperties: java.util.Map[String,String]
+    null // runtimeProperties: java.util.Map[String,String]
   ) {
 
   override def toString() =
@@ -846,7 +846,7 @@ final class UnexpectedElementErrorERD(
   optTRD: Option[TermRuntimeData],
   local: String,
   namespaceURI: String,
-  val allPossibleNQNs: Seq[QNameBase],
+  val allPossibleNQNs: Seq[QNameBase]
 ) extends ErrorERD(local, namespaceURI) {}
 
 /**
@@ -858,7 +858,7 @@ final class NamespaceAmbiguousElementErrorERD(
   optTRD: Option[TermRuntimeData],
   local: String,
   namespaceURI: String,
-  val allPossibleNQNs: Seq[QNameBase],
+  val allPossibleNQNs: Seq[QNameBase]
 ) extends ErrorERD(local, namespaceURI) {
 
   /**
@@ -881,7 +881,7 @@ final class NamespaceAmbiguousElementErrorERD(
       Nope,
       "Found multiple matches for element %s because infoset implementation ignores namespaces. Matches are %s",
       sqnx,
-      allPossiblesString,
+      allPossiblesString
     )
   }
 }
@@ -911,7 +911,7 @@ sealed abstract class ModelGroupRuntimeData(
   optIgnoreCaseArg: Option[YesNo],
   fillByteEvArg: FillByteEv,
   maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
-  maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv],
+  maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv]
 ) extends TermRuntimeData(
     positionArg,
     partialNextElementResolverDelay,
@@ -925,7 +925,7 @@ sealed abstract class ModelGroupRuntimeData(
     optIgnoreCaseArg,
     fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
-    maybeCheckBitOrderAndCharsetEvArg,
+    maybeCheckBitOrderAndCharsetEvArg
   )
   with ModelGroupMetadata {
 
@@ -959,7 +959,7 @@ final class SequenceRuntimeData(
   maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
   maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv],
   val isHidden: Boolean,
-  maybeLayerRuntimeDataDelay: Delay[Maybe[LayerRuntimeData]],
+  maybeLayerRuntimeDataDelay: Delay[Maybe[LayerRuntimeData]]
 ) extends ModelGroupRuntimeData(
     positionArg,
     partialNextElementResolverDelay,
@@ -978,7 +978,7 @@ final class SequenceRuntimeData(
     optIgnoreCaseArg,
     fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
-    maybeCheckBitOrderAndCharsetEvArg,
+    maybeCheckBitOrderAndCharsetEvArg
   )
   with SequenceMetadata {
 
@@ -1014,7 +1014,7 @@ final class ChoiceRuntimeData(
   optIgnoreCaseArg: Option[YesNo],
   fillByteEvArg: FillByteEv,
   maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
-  maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv],
+  maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv]
 ) extends ModelGroupRuntimeData(
     positionArg,
     partialNextElementResolverDelay,
@@ -1033,7 +1033,7 @@ final class ChoiceRuntimeData(
     optIgnoreCaseArg,
     fillByteEvArg,
     maybeCheckByteAndBitOrderEvArg,
-    maybeCheckBitOrderAndCharsetEvArg,
+    maybeCheckBitOrderAndCharsetEvArg
   )
   with ChoiceMetadata
 
@@ -1049,14 +1049,14 @@ final class VariableRuntimeData(
   val globalQName: GlobalQName,
   val primType: NodeInfo.PrimType,
   unqualifiedPathStepPolicyArg: UnqualifiedPathStepPolicy,
-  val vmapIndex: Int,
+  val vmapIndex: Int
 ) extends NonTermRuntimeData(
     null, // no variable map
     schemaFileLocationArg,
     diagnosticDebugNameArg,
     pathArg,
     namespacesArg,
-    unqualifiedPathStepPolicyArg,
+    unqualifiedPathStepPolicyArg
   ) {
 
   /**

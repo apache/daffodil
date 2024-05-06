@@ -70,7 +70,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
                 schemaDefinitionUnless(
                   inc.targetNamespace =:= tns,
                   "Included schema does not have the same namespace as the file %s including it.",
-                  uriString,
+                  uriString
                 )
                 tns
               }
@@ -81,7 +81,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
             val res = checkImportCompatibleNS(
               imp.importElementNS,
               sdTargetNS,
-              xmlSchemaDocContainingTheImportStatement,
+              xmlSchemaDocContainingTheImportStatement
             )
             res
           }
@@ -103,18 +103,18 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
   def checkImportCompatibleNS(
     importElementNS: Option[NS],
     schemaDocsNS: NS,
-    schemaDocContainingTheImportStatement: XMLSchemaDocument,
+    schemaDocContainingTheImportStatement: XMLSchemaDocument
   ) = {
     (
       importElementNS,
       schemaDocsNS,
-      schemaDocContainingTheImportStatement.targetNamespace,
+      schemaDocContainingTheImportStatement.targetNamespace
     ) match {
       case (None, NoNamespace, NoNamespace) =>
         if (schemaDocContainingTheImportStatement.isBootStrapSD) NoNamespace
         else
           schemaDefinitionError(
-            "Namespaces of importing and imported schemas cannot both be no namespace.",
+            "Namespaces of importing and imported schemas cannot both be no namespace."
           )
       case (None, NoNamespace, _) => NoNamespace
       case (None, importedSchemaNS, _) =>
@@ -122,20 +122,20 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
         else
           schemaDefinitionError(
             "Import element specifies no namespace, but the imported schema has namespace %s.",
-            importedSchemaNS,
+            importedSchemaNS
           )
       case (Some(importElementNS), importedSchemaNS, _)
           if (importElementNS != importedSchemaNS) =>
         schemaDefinitionError(
           "Import element specifies namespace %s but namespace %s of imported schema does not match.",
           importElementNS,
-          importedSchemaNS,
+          importedSchemaNS
         )
       case (Some(importElementNS), _, importingSchemaNS)
           if (importElementNS == importingSchemaNS) =>
         schemaDefinitionError(
           "Importing schema namespace %s and imported schema namespace must be different.",
-          importingSchemaNS,
+          importingSchemaNS
         )
       case (Some(importElementNS), _, _) => importElementNS
     }
@@ -172,7 +172,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
   def getImportsOrIncludes(
     seenStart: IIMap,
     nodes: NodeSeq,
-    factory: (Node, XMLSchemaDocument, IIMap) => IIBase,
+    factory: (Node, XMLSchemaDocument, IIMap) => IIBase
   ): (IIMap, List[IIBase]) = {
     val res = nodes.foldLeft((seenStart, mtList)) {
       case ((seen, localList), iNode) => {

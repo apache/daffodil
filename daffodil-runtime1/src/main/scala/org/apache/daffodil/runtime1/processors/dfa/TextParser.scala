@@ -32,7 +32,7 @@ class TextParser(override val context: TermRuntimeData) extends DFAParser {
   def parse(
     state: PState,
     input: DataInputStream,
-    delimIter: DelimiterIterator,
+    delimIter: DelimiterIterator
   ): Maybe[ParseResult] = {
 
     val lmt = new LongestMatchTracker()

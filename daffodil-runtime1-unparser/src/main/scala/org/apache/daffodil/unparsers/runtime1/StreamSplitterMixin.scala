@@ -36,7 +36,7 @@ trait StreamSplitter {
    */
   def getDOSFromAtoB(
     beforeDOS: DataOutputStream,
-    afterDOS: DataOutputStream,
+    afterDOS: DataOutputStream
   ): Seq[DataOutputStream] = {
     val buf = Buffer[DataOutputStream]()
     var maybeNext = Maybe(beforeDOS)

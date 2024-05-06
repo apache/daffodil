@@ -59,7 +59,7 @@ class TestInfosetInputter1 {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
     )
 
     val str = "this is not XML"
@@ -76,7 +76,7 @@ class TestInfosetInputter1 {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
     )
 
     val str = """<this pretends to be xml"""
@@ -94,7 +94,7 @@ class TestInfosetInputter1 {
     val sch = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>,
+      <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
     )
 
     val str = "\u0000\u0000\uFFFF\uFFFF"
@@ -117,7 +117,7 @@ class TestInfosetInputter1 {
             <xs:element name="foo" type="xs:string" dfdl:lengthKind="delimited"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
   )
 
   /**

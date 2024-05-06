@@ -37,7 +37,7 @@ object NullInfosetInputter {
     localName: String = null,
     namespaceURI: String = null,
     simpleText: String = null,
-    isNilled: MaybeBoolean = MaybeBoolean.Nope,
+    isNilled: MaybeBoolean = MaybeBoolean.Nope
   )
 
   def toEvents(is: InputStream): Array[Event] = {
@@ -109,7 +109,7 @@ class NullInfosetInputter(events: Array[NullInfosetInputter.Event]) extends Info
   def getNamespaceURI(): String = curEvent.namespaceURI
   def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String = curEvent.simpleText
   def isNilled(): MaybeBoolean = curEvent.isNilled
 

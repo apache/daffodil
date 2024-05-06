@@ -28,7 +28,7 @@ object TestTextStandardBase {
     testDir,
     "TextStandardBase.tdml",
     validateTDMLFile = false,
-    validateDFDLSchemas = false,
+    validateDFDLSchemas = false
   )
 
   @AfterClass def shutDown(): Unit = {

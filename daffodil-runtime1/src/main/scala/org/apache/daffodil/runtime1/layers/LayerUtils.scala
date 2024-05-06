@@ -85,7 +85,7 @@ object LayerUtils {
     catch {
       case e: URISyntaxException =>
         throw new IllegalArgumentException(
-          "Arg " + what + " must be compatible with a URI syntax.",
+          "Arg " + what + " must be compatible with a URI syntax."
         )
     }
   }

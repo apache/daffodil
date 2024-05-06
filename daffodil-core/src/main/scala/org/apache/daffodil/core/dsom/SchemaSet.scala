@@ -44,14 +44,14 @@ object SchemaSet {
     schemaSource: DaffodilSchemaSource,
     shouldValidateDFDLSchemas: Boolean,
     checkAllTopLevel: Boolean,
-    tunables: DaffodilTunables,
+    tunables: DaffodilTunables
   ) = {
     val ss = new SchemaSet(
       optPFRootSpec,
       schemaSource,
       shouldValidateDFDLSchemas,
       checkAllTopLevel,
-      tunables,
+      tunables
     )
     ss.initialize()
     ss
@@ -62,7 +62,7 @@ object SchemaSet {
     rootNamespace: String = null,
     root: String = null,
     optTmpDir: Option[File] = None,
-    tunableOpt: Option[DaffodilTunables] = None,
+    tunableOpt: Option[DaffodilTunables] = None
   ) = {
     val ss = new SchemaSet(sch, rootNamespace, root, optTmpDir, tunableOpt)
     ss.initialize()
@@ -96,7 +96,7 @@ final class SchemaSet private (
   val schemaSource: DaffodilSchemaSource,
   val shouldValidateDFDLSchemas: Boolean,
   val checkAllTopLevel: Boolean,
-  val tunables: DaffodilTunables,
+  val tunables: DaffodilTunables
 ) extends SchemaComponentImpl(<schemaSet/>, None)
   with SchemaSetIncludesAndImportsMixin
   with SchemaSetGrammarMixin {
@@ -153,7 +153,7 @@ final class SchemaSet private (
     rootNamespace: String = null,
     root: String = null,
     optTmpDir: Option[File] = None,
-    tunableOpt: Option[DaffodilTunables] = None,
+    tunableOpt: Option[DaffodilTunables] = None
   ) =
     this(
       {
@@ -166,7 +166,7 @@ final class SchemaSet private (
       UnitTestSchemaSource(sch, Option(root).getOrElse("anon"), optTmpDir),
       false,
       false,
-      tunableOpt.getOrElse(DaffodilTunables()),
+      tunableOpt.getOrElse(DaffodilTunables())
     )
 
   lazy val schemaFileList = schemas.map(s => s.uriString)
@@ -295,7 +295,7 @@ final class SchemaSet private (
               .map {
                 _.locationDescription
               }
-              .mkString("\n"),
+              .mkString("\n")
           )
         }
         (idFields, locations)
@@ -324,7 +324,7 @@ final class SchemaSet private (
     schemaDefinitionUnless(
       candidates.length != 0,
       "No root element found for %s in any available namespace",
-      name,
+      name
     )
     schemaDefinitionUnless(
       candidates.length <= 1,
@@ -336,7 +336,7 @@ final class SchemaSet private (
           Assert.invariant(!tns.isUnspecified)
           gef.name + " " + tns.explainForMsg
         }
-      },
+      }
     )
     Assert.invariant(candidates.length == 1)
     val ge = candidates(0)
@@ -385,7 +385,7 @@ final class SchemaSet private (
           val firstElement = {
             schemaDefinitionUnless(
               gdecl.nonEmpty,
-              "No global elements in: " + firstSchemaDocument.uriString,
+              "No global elements in: " + firstSchemaDocument.uriString
             )
             gdecl.head
           }
@@ -430,7 +430,7 @@ final class SchemaSet private (
   def getGlobalSimpleTypeDefNoPrim(
     refQName: RefQName,
     prop: String,
-    context: ThrowsSDE,
+    context: ThrowsSDE
   ): GlobalSimpleTypeDef = {
     val gstd = getGlobalSimpleTypeDef(refQName)
     gstd.getOrElse {
@@ -510,7 +510,7 @@ final class SchemaSet private (
     theType: String,
     theDefaultValue: String,
     nsURI: String,
-    sdoc: SchemaDocument,
+    sdoc: SchemaDocument
   ) = {
     val dfv = DFDLDefineVariable(
       <dfdl:defineVariable name={theName}
@@ -519,7 +519,7 @@ final class SchemaSet private (
                              external="true"
                              xmlns:xs={XMLUtils.XSD_NAMESPACE.toString}/>,
       sdoc,
-      nsURI,
+      nsURI
     )
     dfv
   }
@@ -553,21 +553,21 @@ final class SchemaSet private (
       "xs:string",
       "bigEndian",
       nsURI,
-      schemaDocForGlobalVars,
+      schemaDocForGlobalVars
     )
     val binDFV = generateDefineVariable(
       "binaryFloatRep",
       "xs:string",
       "ieee",
       nsURI,
-      schemaDocForGlobalVars,
+      schemaDocForGlobalVars
     )
     val outDFV = generateDefineVariable(
       "outputNewLine",
       "xs:string",
       "%LF;",
       nsURI,
-      schemaDocForGlobalVars,
+      schemaDocForGlobalVars
     )
 
     Seq(encDFV, boDFV, binDFV, outDFV)
@@ -682,7 +682,7 @@ final class SchemaSet private (
   }
 
   private lazy val allSchemaComponentsSet = TransitiveClosureSchemaComponents(
-    startingGlobalComponents,
+    startingGlobalComponents
   )
 
   lazy val allSchemaComponents: Seq[SchemaComponent] = allSchemaComponentsSet.toIndexedSeq

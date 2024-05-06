@@ -139,7 +139,7 @@ final class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnota
    */
   private def lookupPropertyInSources(
     sources: Seq[LeafPropProvider],
-    pname: String,
+    pname: String
   ): PropertyLookupResult = {
     val allNotFound =
       for { source <- sources } yield {
@@ -250,7 +250,7 @@ trait OverlapCheckMixin {
               "Overlapping properties: %1$s overlaps between %2$s and %3$s. Overlap is not allowed.",
               propName,
               aLoc,
-              bLoc,
+              bLoc
             )
           }
         }

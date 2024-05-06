@@ -48,7 +48,7 @@ import org.apache.daffodil.runtime1.processors.SeparatorUnparseEv
 abstract class SequenceTermBase(
   final override val xml: Node,
   final override val optLexicalParent: Option[SchemaComponent],
-  final override val position: Int,
+  final override val position: Int
 ) extends ModelGroup(position)
   with SequenceGrammarMixin {
 
@@ -84,7 +84,7 @@ abstract class SequenceTermBase(
         layerProperty,
         schemaFileLocation = sfl,
         qNameToVRD,
-        this.sequenceRuntimeData,
+        this.sequenceRuntimeData
       )
     }
 
@@ -197,7 +197,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     })
     if (invalidChild.isDefined) {
       invalidChild.get.SDE(
-        "Member of an unordered sequence that is an optional or array element must have dfdl:occursCountKind='parsed'",
+        "Member of an unordered sequence that is an optional or array element must have dfdl:occursCountKind='parsed'"
       )
     }
   }
@@ -206,7 +206,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     val invalidChild = groupMembers.find(!_.isInstanceOf[ElementBase])
     if (invalidChild.isDefined) {
       invalidChild.get.SDE(
-        "Member of an unordered sequence must be an element declaration or element reference",
+        "Member of an unordered sequence must be an element declaration or element reference"
       )
     }
   }
@@ -221,7 +221,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     childrenGroupedByQName.foreach { case (qname, children) =>
       if (children.length > 1) {
         children.head.SDE(
-          "Two or more members of an unordered sequence have the same name and the same namespace",
+          "Two or more members of an unordered sequence have the same name and the same namespace"
         )
       }
     }
@@ -358,7 +358,7 @@ final class ChoiceBranchImpliedSequence private (rawGM: Term)
 
   override def findPropertyOption(
     pname: String,
-    expressionAllowed: Boolean = false,
+    expressionAllowed: Boolean = false
   ): PropertyLookupResult =
     rawGM.findPropertyOption(pname, expressionAllowed)
 

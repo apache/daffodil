@@ -37,7 +37,7 @@ trait RepTypeMixin { self: ElementBase =>
     val hasRT = isSimpleType && findPropertyOption("repType").isDefined
     schemaDefinitionWhen(
       hasRT && isOutputValueCalc,
-      "dfdl:outputValueCalc and dfdlx:repType cannot be defined on the same element",
+      "dfdl:outputValueCalc and dfdlx:repType cannot be defined on the same element"
     )
     hasRT
   }.value
@@ -50,7 +50,7 @@ trait RepTypeMixin { self: ElementBase =>
       gstd.primType.isInstanceOf[NodeInfo.Integer.Kind],
       "dfdlx:repType (%s) must resolve to a global simple type definition derived from xs:integer, but was %s",
       repType,
-      gstd.primType.globalQName,
+      gstd.primType.globalQName
     )
     gstd
   }.value
@@ -68,7 +68,7 @@ trait RepTypeMixin { self: ElementBase =>
       "QuasiElementForRepType",
       new UnprefixedAttribute("type", repType.toString, Null),
       repTypeNamespaces,
-      true,
+      true
     )
     RepTypeQuasiElementDecl(xmlElem, repTypeGSTD)
   }.value
@@ -79,11 +79,11 @@ trait RepTypeMixin { self: ElementBase =>
 
   lazy val (
     repTypeCompareLT: NumberCompareOp,
-    repTypeCompareLE: NumberCompareOp,
+    repTypeCompareLE: NumberCompareOp
   ) = LV('repTypeComparers) {
     Assert.invariant(
       repTypeElementDecl.primType.isSubtypeOf(NodeInfo.Integer),
-      "repType should only be an integer type",
+      "repType should only be an integer type"
     )
     val comparisonOps = ComparisonOps.forType(repTypeElementDecl.primType)
     (comparisonOps.lt, comparisonOps.le)
@@ -92,20 +92,20 @@ trait RepTypeMixin { self: ElementBase =>
   lazy val (
     repTypeParseValuesMap: Map[DataValueNumber, DataValueString],
     repTypeParseRangesMap: Seq[(DataValueNumber, DataValueNumber, DataValueString)],
-    repTypeUnparseMap: Map[DataValueString, DataValueNumber],
+    repTypeUnparseMap: Map[DataValueString, DataValueNumber]
   ) = LV('repTypeMaps) {
 
     schemaDefinitionUnless(
       primType.isInstanceOf[NodeInfo.String.Kind],
       "Type must derive from xs:string when dfdlx:repType (%s) is defined: %s",
       repType,
-      primType.globalQName,
+      primType.globalQName
     )
 
     schemaDefinitionWhen(
       typeDef.optRestriction.isEmpty,
       "A restriction is required when dfdlx:repType (%s) is defined",
-      repType,
+      repType
     )
 
     val restriction = typeDef.optRestriction.get
@@ -113,7 +113,7 @@ trait RepTypeMixin { self: ElementBase =>
     schemaDefinitionWhen(
       restriction.enumerations.isEmpty,
       "There must be at least one enumeration defined when dfdlx:repType (%s) is defined",
-      repType,
+      repType
     )
 
     val lt = repTypeCompareLT
@@ -125,7 +125,7 @@ trait RepTypeMixin { self: ElementBase =>
       enum.schemaDefinitionWhen(
         enum.repValuesRaw.isEmpty && enum.repValueRangesRaw.isEmpty,
         "All enumerations must define dfdlx:repValues and/or dfdlx:repValueRanges when dfdlx:repType (%s) is defined",
-        repType,
+        repType
       )
 
       val repValues: Seq[DataValueNumber] =
@@ -140,7 +140,7 @@ trait RepTypeMixin { self: ElementBase =>
               lt.operate(low, high).getBoolean,
               "dfdlx:repValueRanges low value (%s) must be less than high value (%s)",
               low.value,
-              high.value,
+              high.value
             )
             (low, high)
           }
@@ -161,7 +161,7 @@ trait RepTypeMixin { self: ElementBase =>
           if (lt.operate(l1, h1).getBoolean) "repValueRanges" else "repValues",
           if (lt.operate(l1, h1).getBoolean) l1.value + " " + h1.value else l1.value,
           if (lt.operate(l2, h2).getBoolean) "repValueRanges" else "repValues",
-          if (lt.operate(l2, h2).getBoolean) l2.value + " " + h2.value else l2.value,
+          if (lt.operate(l2, h2).getBoolean) l2.value + " " + h2.value else l2.value
         )
         (l2, h2)
       }
@@ -185,7 +185,7 @@ trait RepTypeMixin { self: ElementBase =>
           .orElse(repRanges.headOption.map(_._1))
           .getOrElse(
             // $COVERAGE-OFF$
-            Assert.invariantFailed("Must have at least one of repValues or repValuesRanges"),
+            Assert.invariantFailed("Must have at least one of repValues or repValuesRanges")
             // $COVERAGE-ON$
           )
         (enumValue, canonicalRep)

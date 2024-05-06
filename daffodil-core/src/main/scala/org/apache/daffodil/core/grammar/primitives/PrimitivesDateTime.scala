@@ -104,7 +104,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
           e.calendarTimeZone_location,
           e,
           "Unknown time zone '%s'",
-          e.calendarTimeZone,
+          e.calendarTimeZone
         )
       }
       Some(tz) // Valid time zone
@@ -144,7 +144,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
       firstDay,
       calendarDaysInFirstWeek,
       calendarCheckPolicy,
-      e.eci,
+      e.eci
     )
     cev.compile(e.tunable)
     cev
@@ -169,7 +169,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
 
     schemaDefinitionWhen(
       patternToCheck.length == 0,
-      "dfdl:calendarPatttern contains no pattern letters",
+      "dfdl:calendarPatttern contains no pattern letters"
     )
 
     patternToCheck.toSeq.foreach(char =>
@@ -177,13 +177,13 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
         if (e.representation == Representation.Binary)
           SDE(
             "Character '%s' not allowed in dfdl:calendarPattern for xs:%s with a binaryCalendarRep of '%s'"
-              .format(char, xsdType, e.binaryCalendarRep),
+              .format(char, xsdType, e.binaryCalendarRep)
           )
         else
           SDE(
-            "Character '%s' not allowed in dfdl:calendarPattern for xs:%s".format(char, xsdType),
+            "Character '%s' not allowed in dfdl:calendarPattern for xs:%s".format(char, xsdType)
           )
-      },
+      }
     )
 
     if (e.representation == Representation.Binary) {
@@ -192,7 +192,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
       if (patternToCheck.contains("eee") || patternToCheck.contains("MMM")) {
         SDE(
           "dfdl:calendarPattern must only contain characters that result in the presentation of digits for xs:%s with a binaryCalendarRep of '%s'"
-            .format(xsdType, e.binaryCalendarRep),
+            .format(xsdType, e.binaryCalendarRep)
         )
       }
     }
@@ -200,8 +200,8 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
       SDE(
         "More than %d fractional seconds unsupported in dfdl:calendarPattern for xs:%s".format(
           TextCalendarConstants.maxFractionalSeconds,
-          xsdType,
-        ),
+          xsdType
+        )
       )
     }
 
@@ -213,7 +213,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
       calendarEv,
       localeEv,
       pattern,
-      e.eci,
+      e.eci
     )
     ev.compile(e.tunable)
     ev
@@ -226,7 +226,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     pattern,
     hasTZ,
     calendarEv,
-    dateTimeFormatterEv,
+    dateTimeFormatterEv
   )
 
   override lazy val unparser =
@@ -234,7 +234,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
       e.elementRuntimeData,
       pattern,
       calendarEv,
-      dateTimeFormatterEv,
+      dateTimeFormatterEv
     )
 }
 
@@ -302,7 +302,7 @@ case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
 
       if (pos.getIndex != e.binaryCalendarEpoch.length || pos.getErrorIndex >= 0) {
         SDE(
-          "Failed to parse binaryCalendarEpoch - Format must match the pattern 'uuuu-MM-dd'T'HH:mm:ss' or 'uuuu-MM-dd'T'HH:mm:ssZZZZ'",
+          "Failed to parse binaryCalendarEpoch - Format must match the pattern 'uuuu-MM-dd'T'HH:mm:ss' or 'uuuu-MM-dd'T'HH:mm:ssZZZZ'"
         )
       }
     }
@@ -323,7 +323,7 @@ case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
     !epochCalendar.getTimeZone.equals(TimeZone.UNKNOWN_ZONE),
     e.binaryCalendarRep,
     epochCalendar,
-    lengthInBits.toInt,
+    lengthInBits.toInt
   )
 
   override lazy val unparser =
@@ -332,6 +332,6 @@ case class ConvertBinaryDateTimeSecMilliPrim(e: ElementBase, lengthInBits: Long)
       e.binaryCalendarRep,
       epochCalendar.getTimeInMillis,
       lengthInBits.toInt,
-      !epochCalendar.getTimeZone.equals(TimeZone.UNKNOWN_ZONE),
+      !epochCalendar.getTimeZone.equals(TimeZone.UNKNOWN_ZONE)
     )
 }

@@ -138,7 +138,7 @@ class TestPolymorphicUpwardRelativeExpressions {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val e = intercept[Exception] {
       TestUtils.testString(testSchema, "e2;1961-02-01;6;", areTracing = false)
@@ -249,7 +249,7 @@ class TestPolymorphicUpwardRelativeExpressions {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val (_, actual) = TestUtils.testString(testSchema, "e2;5;6;", areTracing = false)
     val expected =

@@ -59,7 +59,7 @@ class TestDump {
           dateStringLengthInBytes * 8,
           bb,
           includeHeadingLine = true,
-          indicatorInfo = Some(((1000 + 12) * 8), 6 * 8),
+          indicatorInfo = Some(((1000 + 12) * 8), 6 * 8)
         )
         .mkString("\n")
     //
@@ -90,7 +90,7 @@ class TestDump {
           lengthInBits,
           bb,
           includeHeadingLine = true,
-          indicatorInfo = Some((0, lengthInBits)),
+          indicatorInfo = Some((0, lengthInBits))
         )
         .mkString("\n")
     val expected = """
@@ -116,7 +116,7 @@ class TestDump {
           lengthInBits,
           bb,
           includeHeadingLine = true,
-          indicatorInfo = Some((8, 14 * 8)),
+          indicatorInfo = Some((8, 14 * 8))
         )
         .mkString("\n")
     val expected = """
@@ -161,7 +161,7 @@ class TestDump {
         lengthInBits,
         bb,
         includeHeadingLine = true,
-        indicatorInfo = Some((0, lengthInBits)),
+        indicatorInfo = Some((0, lengthInBits))
       )
       .mkString("\n")
     val expected = """
@@ -189,7 +189,7 @@ class TestDump {
         lengthInBits,
         bb,
         includeHeadingLine = true,
-        indicatorInfo = Some((16, 12 * 8)),
+        indicatorInfo = Some((16, 12 * 8))
       )
       .mkString("\n")
     val expected = """
@@ -408,7 +408,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
       0,
       lengthInbits,
       bb,
-      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)),
+      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8))
     )
     val dumpString = dump.mkString("\n")
     val expected =
@@ -430,7 +430,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
       0,
       lengthInbits,
       bb,
-      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)),
+      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8))
     )
     val dumpString = dump.mkString("\n")
 
@@ -462,7 +462,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
       0,
       lengthInbits,
       bb,
-      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)),
+      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8))
     )
     val dumpString = dump.mkString("\n")
     //
@@ -491,7 +491,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
       0,
       lengthInbits,
       bb,
-      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)),
+      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8))
     )
     val dumpString = dump.mkString("\n")
     //
@@ -516,7 +516,7 @@ cø€␀␀␀wü␚’gU€␀gä  63f8 8000 0000 77fc 1a92 6755 8000 67e4 :00
       0,
       lengthInbits,
       bb,
-      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8)),
+      indicatorInfo = Some((indicatorStartAtByte0b * 8, indicatorLengthInBytes * 8))
     )
     val dumpString = dump.mkString("\n")
     val expected =

@@ -37,7 +37,7 @@ class JsonInfosetOutputter private (writer: java.io.BufferedWriter, pretty: Bool
     // using a BufferedWriter provides significant performance improvements
     this(
       new java.io.BufferedWriter(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8)),
-      pretty,
+      pretty
     )
   }
 
@@ -107,7 +107,7 @@ class JsonInfosetOutputter private (writer: java.io.BufferedWriter, pretty: Bool
       val text =
         if (simple.metadata.dfdlType == DFDLPrimType.String) {
           new String(
-            stringEncoder.quoteAsString(simple.getText),
+            stringEncoder.quoteAsString(simple.getText)
           ) // escapes according to Json spec
         } else {
           simple.getText

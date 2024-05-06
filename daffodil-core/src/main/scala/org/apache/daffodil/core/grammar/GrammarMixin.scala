@@ -39,7 +39,7 @@ trait GrammarMixin {
   def prod(
     prodName: String,
     guard: Boolean = true,
-    forWhat: ParserOrUnparser = BothParserAndUnparser,
+    forWhat: ParserOrUnparser = BothParserAndUnparser
   )(gram: => Gram): Gram = {
     new Prod(prodName, grammarContext, guard, gram, forWhat)
   }

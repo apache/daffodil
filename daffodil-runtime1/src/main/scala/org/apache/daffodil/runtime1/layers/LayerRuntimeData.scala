@@ -32,7 +32,7 @@ class LayerRuntimeData(
   val layerQName: RefQName,
   val schemaFileLocation: SchemaFileLocation,
   val qNameToVRD: Map[String, VariableRuntimeData],
-  val context: ThrowsSDE,
+  val context: ThrowsSDE
 ) extends Serializable {
 
   final def localName: String = layerQName.local

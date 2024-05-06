@@ -98,7 +98,7 @@ object AssertMacros {
   }
 
   def notYetImplementedMacro2(
-    c: Context,
+    c: Context
   )(testThatWillThrowIfTrue: c.Tree, msg: c.Tree): c.Tree = {
     import c.universe._
 

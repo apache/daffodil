@@ -115,7 +115,7 @@ case object UnparserNonBlocking extends EvalMode
 case class DState(
   val maybeSsrd: Maybe[SchemaSetRuntimeData],
   tunable: DaffodilTunables,
-  val parseOrUnparseState: Maybe[ParseOrUnparseState],
+  val parseOrUnparseState: Maybe[ParseOrUnparseState]
 ) {
 
   import org.apache.daffodil.lib.util.Numbers._
@@ -289,7 +289,7 @@ case class DState(
     if (i == contents.length - 1) {
       throw new InfosetNoNextSiblingException(
         currentNode.asSimple,
-        currentNode.erd.dpathElementCompileInfo,
+        currentNode.erd.dpathElementCompileInfo
       )
     } else {
       contents(i + 1)
@@ -408,7 +408,7 @@ object DState {
 
 class DStateForConstantFolding(
   override val compileInfo: DPathCompileInfo,
-  tunable: DaffodilTunables,
+  tunable: DaffodilTunables
 ) extends DState(Nope, tunable, Nope) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 

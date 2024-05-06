@@ -30,36 +30,36 @@ object Dependencies {
     "xml-resolver" % "xml-resolver" % "1.2",
     "commons-io" % "commons-io" % "2.16.1",
     "com.typesafe" % "config" % "1.4.3",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
   )
 
   lazy val slf4jAPI = Seq(
-    "org.slf4j" % "slf4j-api" % "2.0.13",
+    "org.slf4j" % "slf4j-api" % "2.0.13"
   )
 
   lazy val infoset = Seq(
     "org.jdom" % "jdom2" % "2.0.6.1",
     "com.fasterxml.woodstox" % "woodstox-core" % "6.6.2",
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.16.1",
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.16.1"
   )
 
   lazy val cli = Seq(
     "org.jline" % "jline" % "3.25.1",
     "org.rogach" %% "scallop" % "5.1.0",
-    "net.sf.expectit" % "expectit-core" % "0.9.0" % "test",
+    "net.sf.expectit" % "expectit-core" % "0.9.0" % "test"
   )
 
   lazy val test = Seq(
     "junit" % "junit" % "4.13.2" % "test",
     "com.github.sbt" % "junit-interface" % "0.13.3" % "test",
-    "org.scalacheck" %% "scalacheck" % "1.18.0" % "test",
+    "org.scalacheck" %% "scalacheck" % "1.18.0" % "test"
   )
 
   lazy val schematron = Seq(
-    "net.sf.saxon" % "Saxon-HE" % "12.4",
+    "net.sf.saxon" % "Saxon-HE" % "12.4"
   )
 
   lazy val exi = Seq(
-    "com.siemens.ct.exi" % "exificient" % "1.0.7",
+    "com.siemens.ct.exi" % "exificient" % "1.0.7"
   )
 }

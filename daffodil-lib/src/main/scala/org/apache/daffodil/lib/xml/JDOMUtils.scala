@@ -73,7 +73,7 @@ object JDOMUtils {
           case ("xsi", null) | ("xsi", "") => xsiNS
           case (_, null) | (_, "") => {
             Assert.invariantFailed(
-              "attribute with prefix '%s', but no associated namespace".format(prefix),
+              "attribute with prefix '%s', but no associated namespace".format(prefix)
             )
           }
           case ("", uri) => org.jdom2.Namespace.getNamespace(uri)

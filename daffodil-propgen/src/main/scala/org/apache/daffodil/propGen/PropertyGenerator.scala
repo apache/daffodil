@@ -53,7 +53,7 @@ class PropertyGenerator(arg: Node) {
     "TunableParseUnparsePolicyTunable",
     "TunableSuppressSchemaDefinitionWarnings",
     "TunableUnqualifiedPathStepPolicy",
-    "dafint:daffodilAG",
+    "dafint:daffodilAG"
   )
 
   val excludedAttributes = List(
@@ -61,7 +61,7 @@ class PropertyGenerator(arg: Node) {
     "SeparatorSuppressionPolicy",
     "TextNumberBase",
     "TextOutputMinLength",
-    "TextStandardExponentRep",
+    "TextStandardExponentRep"
   )
 
   def excludeType(name: String) = {
@@ -180,7 +180,7 @@ class PropertyGenerator(arg: Node) {
       "if",
       "else",
       "trait",
-      "abstract",
+      "abstract"
     )
     val res = scalaKeywords.contains(s)
     res
@@ -191,7 +191,7 @@ class PropertyGenerator(arg: Node) {
     val name =
       attr(
         ag,
-        "name",
+        "name"
       ).get // let's try leaving AG suffix in place so we can distinguish generated type mixins from AG mixins.
     if (excludeType(name)) return ""
     val subAgs = ag \ "attributeGroup"
@@ -266,7 +266,7 @@ class PropertyGenerator(arg: Node) {
       val notScopedFormatProperties = List(
         "inputValueCalc",
         "outputValueCalc",
-        "hiddenGroupRef",
+        "hiddenGroupRef"
       ) // do these by-hand since they are not scoped.
       val excludedBecauseDoneByHand =
         List(
@@ -275,7 +275,7 @@ class PropertyGenerator(arg: Node) {
           "separatorSuppressionPolicy",
           "textOutputMinLength",
           "textStandardExponentCharacter",
-          "textStandardExponentRep",
+          "textStandardExponentRep"
         )
       val exclusions =
         notFormatProperties ++ notScopedFormatProperties ++ excludedBecauseDoneByHand
@@ -463,7 +463,7 @@ trait CurrencyMixin extends PropertyMixin {
       "textBooleanPadCharacter",
       "textCalendarPadCharacter",
       "calendarLanguage",
-      "choiceDispatchKey",
+      "choiceDispatchKey"
     )
     val res = runtimeValuedProperties.contains(propName)
     res
@@ -591,7 +591,7 @@ object Currency {
     pgName: String,
     pgList: Seq[(String, String)],
     agList: Seq[String],
-    enumList: Seq[String],
+    enumList: Seq[String]
   ) = {
     val traitName = initialUpperCase(pgName)
     val traitNames = (enumList ++ agList).map(initialUpperCase(_) + "Mixin")
@@ -698,7 +698,7 @@ object PropertyGenerator {
     "/org/apache/daffodil/xsd/DFDL_part1_simpletypes.xsd",
     "/org/apache/daffodil/xsd/DFDL_part2_attributes.xsd",
     "/org/apache/daffodil/xsd/DFDL_part3_model.xsd",
-    "/org/apache/daffodil/xsd/dfdlx.xsd",
+    "/org/apache/daffodil/xsd/dfdlx.xsd"
   )
 
   val daffodilConfigXML = getSchemaAsNode("/org/apache/daffodil/xsd/dafext.xsd")

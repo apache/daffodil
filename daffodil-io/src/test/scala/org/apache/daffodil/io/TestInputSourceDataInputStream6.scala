@@ -169,7 +169,7 @@ class TestInputSourceDataInputStream6 {
   @Test def testGetSomeStringDataEndsMidByte3(): Unit = {
     val dis = InputSourceDataInputStream("年月日".getBytes("utf-8"))
     dis.setBitLimit0b(
-      MaybeULong((8 * 6) + 10),
+      MaybeULong((8 * 6) + 10)
     ) // 1 more byte plus 2 extra bits after first 2 chars
     val ms = dis.getSomeString(3, beFinfo)
     assertTrue(ms.isDefined)
@@ -197,7 +197,7 @@ class TestInputSourceDataInputStream6 {
     iter.setFormatInfo(beFinfo)
     dis.skip(1, beFinfo)
     assertTrue(
-      iter.hasNext,
+      iter.hasNext
     ) // examining a character here requires aligning to mandatory alignment of 8 bit boundary.
     assertEquals(1, dis.bitPos0b)
     assertEquals('年', iter.next)
@@ -229,7 +229,7 @@ class TestInputSourceDataInputStream6 {
     iter.setFormatInfo(beFinfo)
     dis.skip(1, beFinfo)
     assertTrue(
-      iter.hasNext,
+      iter.hasNext
     ) // examining a character here requires aligning to mandatory alignment of 8 bit boundary.
     assertEquals(1, dis.bitPos0b)
     dis.skip(1, beFinfo) // this skip should invalidate the character cached by hasNext.
@@ -239,7 +239,7 @@ class TestInputSourceDataInputStream6 {
     val c = iter.next
     assertEquals(
       32,
-      dis.bitPos0b,
+      dis.bitPos0b
     ) // has next doesn't cause movement even to align to mandatory.
     assertEquals('年', c)
     assertTrue(iter.hasNext)

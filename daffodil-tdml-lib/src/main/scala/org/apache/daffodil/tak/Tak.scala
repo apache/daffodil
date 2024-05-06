@@ -61,7 +61,7 @@ object Tak {
     println("tak call count = " + callCount + " in " + nanos + "ns")
     takeons = (1.0 * nanos) / callCount
     println(
-      "Under current load, 1 CPU of this system executes " + takeons + " nanoseconds per tak call.",
+      "Under current load, 1 CPU of this system executes " + takeons + " nanoseconds per tak call."
     )
     println("So on this system, currently, 1 takeon = " + takeons + "ns")
     println("Done calibrating")

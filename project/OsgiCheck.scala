@@ -29,7 +29,7 @@ object OsgiCheckPlugin extends AutoPlugin {
     val osgiOwnedPackages =
       taskKey[Set[String]]("Get all packages owned by this project").withRank(BTask)
     val osgiOwnedPackagesWithOwner = taskKey[(Set[String], String)](
-      "Get a tuple of the osgiOwnedPackages and the project name that owns them",
+      "Get a tuple of the osgiOwnedPackages and the project name that owns them"
     ).withRank(Invisible)
     val osgiCheck = taskKey[Unit]("Check all subpackages for osgi conflicts").withRank(ATask)
   }
@@ -94,7 +94,7 @@ object OsgiCheckPlugin extends AutoPlugin {
           }
           throw new OsgiCheckException()
         }
-      },
+      }
     )
   }
 
@@ -102,7 +102,7 @@ object OsgiCheckPlugin extends AutoPlugin {
     Seq(
       // the osgiCheck does aggregation itself by inspecting all subproject, it does
       // not need to be aggregated
-      osgiCheck / aggregate := false,
+      osgiCheck / aggregate := false
     )
   }
 

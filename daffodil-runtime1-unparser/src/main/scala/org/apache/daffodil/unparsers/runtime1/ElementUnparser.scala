@@ -44,14 +44,14 @@ class ElementUnspecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser],
-  eReptypeUnparser: Maybe[Unparser],
+  eReptypeUnparser: Maybe[Unparser]
 ) extends ElementUnparserBase(
     erd,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    eReptypeUnparser,
+    eReptypeUnparser
   )
   with RegularElementUnparserStartEndStrategy
   with RepMoveMixin {
@@ -97,14 +97,14 @@ class ElementOVCUnspecifiedLengthUnparser(
   setVarUnparsers: Array[Unparser],
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
-  eAfterUnparser: Maybe[Unparser],
+  eAfterUnparser: Maybe[Unparser]
 ) extends ElementUnparserBase(
     erd,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    Nope,
+    Nope
   )
   with OVCStartEndStrategy
   with RepMoveMixin {
@@ -126,7 +126,7 @@ sealed abstract class ElementUnparserBase(
   val eBeforeUnparser: Maybe[Unparser],
   val eUnparser: Maybe[Unparser],
   val eAfterUnparser: Maybe[Unparser],
-  val eReptypeUnparser: Maybe[Unparser],
+  val eReptypeUnparser: Maybe[Unparser]
 ) extends CombinatorUnparser(erd)
   with RepMoveMixin
   with ElementUnparserStartEndStrategy {
@@ -287,14 +287,14 @@ class ElementSpecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser],
-  eReptypeUnparser: Maybe[Unparser],
+  eReptypeUnparser: Maybe[Unparser]
 ) extends ElementUnparserBase(
     context,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    eReptypeUnparser,
+    eReptypeUnparser
   )
   with RegularElementUnparserStartEndStrategy
   with ElementSpecifiedLengthMixin {
@@ -303,7 +303,7 @@ class ElementSpecifiedLengthUnparser(
 
   override def runContentUnparser(state: UState): Unit = {
     computeTargetLength(
-      state,
+      state
     ) // must happen before run() so that we can take advantage of knowing the length
     super.runContentUnparser(state) // setup unparsing, which will block for no valu
   }
@@ -315,14 +315,14 @@ class ElementSpecifiedLengthUnparser(
  */
 class ElementOVCSpecifiedLengthUnparserSuspendableExpression(
   callingUnparser: ElementOVCSpecifiedLengthUnparser,
-  override val expr: CompiledExpression[AnyRef],
+  override val expr: CompiledExpression[AnyRef]
 ) extends SuspendableExpression {
 
   override def rd = callingUnparser.erd
 
   override final protected def processExpressionResult(
     state: UState,
-    v: DataValuePrimitive,
+    v: DataValuePrimitive
   ): Unit = {
     val diSimple = state.currentInfosetNode.asSimple
 
@@ -346,14 +346,14 @@ class ElementOVCSpecifiedLengthUnparser(
   eBeforeUnparser: Maybe[Unparser],
   eUnparser: Maybe[Unparser],
   eAfterUnparser: Maybe[Unparser],
-  expr: CompiledExpression[AnyRef],
+  expr: CompiledExpression[AnyRef]
 ) extends ElementUnparserBase(
     context,
     setVarUnparsers,
     eBeforeUnparser,
     eUnparser,
     eAfterUnparser,
-    Nope,
+    Nope
   )
   with OVCStartEndStrategy
   with ElementSpecifiedLengthMixin {
@@ -367,7 +367,7 @@ class ElementOVCSpecifiedLengthUnparser(
 
   override def runContentUnparser(state: UState): Unit = {
     computeTargetLength(
-      state,
+      state
     ) // must happen before run() so that we can take advantage of knowing the length
     suspendableExpression.run(state) // run the expression. It might or might not have a value.
     super.runContentUnparser(state) // setup unparsing, which will block for no valu
@@ -429,7 +429,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
               One(state.currentLocation),
               "Expected element start event for %s, but received %s.",
               erd.namedQName.toExtendedSyntax,
-              event,
+              event
             )
           }
           event.info.element
@@ -454,7 +454,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
             Nope,
             "Nilled complex element %s has content from %s",
             parentComplex.erd.namedQName.toExtendedSyntax,
-            newElem.erd.namedQName.toExtendedSyntax,
+            newElem.erd.namedQName.toExtendedSyntax
           )
         }
 
@@ -470,7 +470,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
             lastChild.isFinal = true
             parentComplex.freeChildIfNoLongerNeeded(
               parentComplex.numChildren - 1,
-              state.releaseUnneededInfoset,
+              state.releaseUnneededInfoset
             )
           }
         }
@@ -513,7 +513,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
             One(state.currentLocation),
             "Expected element end event for %s, but received %s.",
             erd.namedQName.toExtendedSyntax,
-            event,
+            event
           )
         }
       }
@@ -543,7 +543,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
         else cur.diParent
       curContainer.freeChildIfNoLongerNeeded(
         curContainer.numChildren - 1,
-        state.releaseUnneededInfoset,
+        state.releaseUnneededInfoset
       )
 
       if (state.currentInfosetNodeStack.isEmpty) {
@@ -618,7 +618,7 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
         lastChild.isFinal = true
         parentComplex.freeChildIfNoLongerNeeded(
           parentComplex.numChildren - 1,
-          state.releaseUnneededInfoset,
+          state.releaseUnneededInfoset
         )
       }
     }
@@ -637,7 +637,7 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
     val ovcContainer = ovcElem.get.diParent
     ovcContainer.freeChildIfNoLongerNeeded(
       ovcContainer.numChildren - 1,
-      state.releaseUnneededInfoset,
+      state.releaseUnneededInfoset
     )
 
     if (state.currentInfosetNodeStack.isEmpty) {
@@ -717,7 +717,7 @@ trait OVCStartEndStrategy extends ElementUnparserStartEndStrategy {
     runtimeDependencies.foreach { dep =>
       try {
         dep.evaluate(
-          state,
+          state
         ) // these evaluations will force dependencies of the dependencies. So we just do 1 tier, not a tree walk.
       } catch {
         case _: RetryableException => ()

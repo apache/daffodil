@@ -185,7 +185,7 @@ trait ElementFormDefaultMixin {
       // record this error on the schemaDocument
       xmlSchemaDocument.schemaDefinitionUnless(
         tns != NoNamespace,
-        "Must have a targetNamespace if elementFormDefault='qualified'.",
+        "Must have a targetNamespace if elementFormDefault='qualified'."
       )
       val prefix = {
         val existingPrefix = xml.scope.getPrefix(tns.toString)

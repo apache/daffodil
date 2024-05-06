@@ -43,7 +43,7 @@ case class DFDLCheckRange(
   dataRecipe: CompiledDPath,
   minRecipe: CompiledDPath,
   maxRecipe: CompiledDPath,
-  compare: CompareOpBase,
+  compare: CompareOpBase
 ) extends RecipeOpWithSubRecipes(dataRecipe, minRecipe, maxRecipe) {
   override def run(dstate: DState): Unit = {
     val saved = dstate.currentNode
@@ -170,7 +170,7 @@ case class DFDLTestBit(dataRecipe: CompiledDPath, bitPos1bRecipe: CompiledDPath)
         None,
         None,
         "dfdl:testBit $bitPos must be between 1 and 8 (inclusive). Was %s.",
-        i,
+        i
       )
     }
   }
@@ -212,7 +212,7 @@ case class DFDLSetBits(bitRecipes: List[CompiledDPath])
   private def processValue(i: Int): Boolean = {
     if (i < 0 || i > 1)
       throw new IllegalArgumentException(
-        "dfdl:setBits arguments must each be 0 or 1, but value was: %s.".format(i),
+        "dfdl:setBits arguments must each be 0 or 1, but value was: %s.".format(i)
       )
     if (i == 0) false
     else true

@@ -63,7 +63,7 @@ class Registers() extends Poolable with Serializable {
     finfo: FormatInfo,
     input: DataInputStream,
     delimIter: DelimiterIterator,
-    m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos,
+    m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
   ): Unit = {
     dataInputStream = input
     if (m !=#= DataInputStream.MarkPos.NoMarkPos)
@@ -181,7 +181,7 @@ class Registers() extends Poolable with Serializable {
     "<Registers field='%s' delimiter='%s' numCharsRead='%d' />".format(
       resultString.toString,
       delimString.toString,
-      numCharsRead,
+      numCharsRead
     )
   }
 

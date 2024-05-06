@@ -60,7 +60,7 @@ class TestUTF8AndUTF16Conversions {
     //    println("%x".format(str(1).toInt))
     assertEquals(
       2,
-      str.length,
+      str.length
     ) // 2 because that U+1d420 requires two utf-16 codepoints to represent it.
     val bytes = str.getBytes("utf-8")
     assertEquals(4, bytes.length) // encodes to 4 bytes.
@@ -93,7 +93,7 @@ class TestUTF8AndUTF16Conversions {
       0xb5.toByte,
       0xed.toByte,
       0xb3.toByte,
-      0x90.toByte,
+      0x90.toByte
     )
     val decodedAlt = new String(alternateOldRep, "utf-8")
     assertEquals(2, decodedAlt.length)

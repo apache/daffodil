@@ -38,7 +38,7 @@ case class ComparisonOp(
   lt: CompareOpBase,
   le: CompareOpBase,
   gt: CompareOpBase,
-  ge: CompareOpBase,
+  ge: CompareOpBase
 )
 
 /**
@@ -64,7 +64,7 @@ object ComparisonOps {
         LT_Boolean,
         LE_Boolean,
         GT_Boolean,
-        GE_Boolean,
+        GE_Boolean
       ),
       PrimType.Integer -> ComparisonOp(
         EQ_Compare,
@@ -72,7 +72,7 @@ object ComparisonOps {
         LT_Integer,
         LE_Integer,
         GT_Integer,
-        GE_Integer,
+        GE_Integer
       ),
       PrimType.Date -> ComparisonOp(EQ_Compare, NE_Compare, LT_Date, LE_Date, GT_Date, GE_Date),
       PrimType.Time -> ComparisonOp(EQ_Compare, NE_Compare, LT_Time, LE_Time, GT_Time, GE_Time),
@@ -82,7 +82,7 @@ object ComparisonOps {
         LT_DateTime,
         LE_DateTime,
         GT_DateTime,
-        GE_DateTime,
+        GE_DateTime
       ),
       PrimType.String -> ComparisonOp(
         EQ_Compare,
@@ -90,7 +90,7 @@ object ComparisonOps {
         LT_String,
         LE_String,
         GT_String,
-        GE_String,
+        GE_String
       ),
       PrimType.Decimal -> ComparisonOp(
         EQ_Compare,
@@ -98,7 +98,7 @@ object ComparisonOps {
         LT_Decimal,
         LE_Decimal,
         GT_Decimal,
-        GE_Decimal,
+        GE_Decimal
       ),
       PrimType.NonNegativeInteger -> ComparisonOp(
         EQ_Compare,
@@ -106,7 +106,7 @@ object ComparisonOps {
         LT_NonNegativeInteger,
         LE_NonNegativeInteger,
         GT_NonNegativeInteger,
-        GE_NonNegativeInteger,
+        GE_NonNegativeInteger
       ),
       PrimType.UnsignedLong -> ComparisonOp(
         EQ_Compare,
@@ -114,7 +114,7 @@ object ComparisonOps {
         LT_UnsignedLong,
         LE_UnsignedLong,
         GT_UnsignedLong,
-        GE_UnsignedLong,
+        GE_UnsignedLong
       ),
       PrimType.Long -> ComparisonOp(EQ_Compare, NE_Compare, LT_Long, LE_Long, GT_Long, GE_Long),
       PrimType.UnsignedInt -> ComparisonOp(
@@ -123,7 +123,7 @@ object ComparisonOps {
         LT_UnsignedInt,
         LE_UnsignedInt,
         GT_UnsignedInt,
-        GE_UnsignedInt,
+        GE_UnsignedInt
       ),
       NodeInfo.ArrayIndex -> ComparisonOp(
         EQ_Compare,
@@ -131,7 +131,7 @@ object ComparisonOps {
         LT_UnsignedInt,
         LE_UnsignedInt,
         GT_UnsignedInt,
-        GE_UnsignedInt,
+        GE_UnsignedInt
       ),
       PrimType.Int -> ComparisonOp(EQ_Compare, NE_Compare, LT_Int, LE_Int, GT_Int, GE_Int),
       PrimType.UnsignedShort -> ComparisonOp(
@@ -140,7 +140,7 @@ object ComparisonOps {
         LT_UnsignedShort,
         LE_UnsignedShort,
         GT_UnsignedShort,
-        GE_UnsignedShort,
+        GE_UnsignedShort
       ),
       PrimType.Short -> ComparisonOp(
         EQ_Compare,
@@ -148,7 +148,7 @@ object ComparisonOps {
         LT_Short,
         LE_Short,
         GT_Short,
-        GE_Short,
+        GE_Short
       ),
       PrimType.UnsignedByte -> ComparisonOp(
         EQ_Compare,
@@ -156,7 +156,7 @@ object ComparisonOps {
         LT_UnsignedByte,
         LE_UnsignedByte,
         GT_UnsignedByte,
-        GE_UnsignedByte,
+        GE_UnsignedByte
       ),
       PrimType.Byte -> ComparisonOp(EQ_Compare, NE_Compare, LT_Byte, LE_Byte, GT_Byte, GE_Byte),
       PrimType.Float -> ComparisonOp(
@@ -165,7 +165,7 @@ object ComparisonOps {
         LT_Float,
         LE_Float,
         GT_Float,
-        GE_Float,
+        GE_Float
       ),
       PrimType.Double -> ComparisonOp(
         EQ_Compare,
@@ -173,7 +173,7 @@ object ComparisonOps {
         LT_Double,
         LE_Double,
         GT_Double,
-        GE_Double,
+        GE_Double
       ),
       PrimType.HexBinary -> ComparisonOp(
         EQ_CompareByteArray,
@@ -181,8 +181,8 @@ object ComparisonOps {
         LT_ByteArray,
         LE_ByteArray,
         GT_ByteArray,
-        GE_ByteArray,
-      ),
+        GE_ByteArray
+      )
     )
   }
 }

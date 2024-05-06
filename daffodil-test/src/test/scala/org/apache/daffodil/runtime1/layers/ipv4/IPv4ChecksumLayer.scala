@@ -33,7 +33,7 @@ import passera.unsigned.UShort
 final class IPv4ChecksumLayer()
   extends ChecksumLayer(
     "IPv4Checksum",
-    "urn:org.apache.daffodil.layers.IPv4Checksum",
+    "urn:org.apache.daffodil.layers.IPv4Checksum"
   ) {
 
   /**

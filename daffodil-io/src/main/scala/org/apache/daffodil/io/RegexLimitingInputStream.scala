@@ -55,7 +55,7 @@ class RegexLimitingInputStream(
   regexForDelimiter: String,
   maximumLengthDelimiterExample: String,
   charset: Charset,
-  targetChunkSize: Int = 32 * 1024, // TODO: should this be smaller? Limited by a tunable?
+  targetChunkSize: Int = 32 * 1024 // TODO: should this be smaller? Limited by a tunable?
 ) extends InputStream {
 
   Assert.usage(targetChunkSize >= 1)
@@ -87,7 +87,7 @@ class RegexLimitingInputStream(
     math
       .ceil(
         maxDelimiterIn8859.length *
-          charset.newEncoder().maxBytesPerChar(),
+          charset.newEncoder().maxBytesPerChar()
       )
       .toInt
 
@@ -163,7 +163,7 @@ class RegexLimitingInputStream(
       // being found.
       in.reset()
       in.skip(
-        beforeMatchString.length + delimMatchLength,
+        beforeMatchString.length + delimMatchLength
       ) // advance exactly the right number of bytes (past the regex match)
       if (delimMatchLength > 0)
         noMoreChunks = true

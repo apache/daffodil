@@ -73,7 +73,7 @@ private class TestInvertControl {
     //
     val iter = new InvertControl[JInt](
       // this argument is the code to call to run the library
-      cb.doIt(List(1, 2, 3)),
+      cb.doIt(List(1, 2, 3))
       // not executed until we start iterating
     )
     assertTrue(iter.isMain)

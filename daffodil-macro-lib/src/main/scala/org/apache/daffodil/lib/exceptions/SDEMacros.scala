@@ -24,7 +24,7 @@ object SDEMacros {
   def schemaDefinitionUnlessMacro(c: Context)(
     testThatWillThrowIfFalse: c.Expr[Boolean],
     str: c.Expr[String],
-    args: c.Expr[Any]*,
+    args: c.Expr[Any]*
   ): c.Expr[Unit] = {
     import c.universe._
 
@@ -42,7 +42,7 @@ object SDEMacros {
   def schemaDefinitionWhenMacro(c: Context)(
     testThatWillThrowIfTrue: c.Expr[Boolean],
     str: c.Expr[String],
-    args: c.Expr[Any]*,
+    args: c.Expr[Any]*
   ): c.Expr[Unit] = {
     import c.universe._
 
@@ -60,7 +60,7 @@ object SDEMacros {
   def schemaDefinitionWarningUnlessMacro(c: Context)(
     testThatWillWarnIfFalse: c.Expr[Boolean],
     str: c.Expr[String],
-    args: c.Expr[Any]*,
+    args: c.Expr[Any]*
   ): c.Expr[Unit] = {
     import c.universe._
 
@@ -79,7 +79,7 @@ object SDEMacros {
     warnID: c.Tree,
     testThatWillWarnIfFalse: c.Expr[Boolean],
     str: c.Expr[String],
-    args: c.Expr[Any]*,
+    args: c.Expr[Any]*
   ): c.Expr[Unit] = {
     import c.universe._
 
@@ -97,7 +97,7 @@ object SDEMacros {
   def schemaDefinitionWarningWhenMacro(c: Context)(
     testThatWillWarnIfTrue: c.Expr[Boolean],
     str: c.Expr[String],
-    args: c.Expr[Any]*,
+    args: c.Expr[Any]*
   ): c.Expr[Unit] = {
     import c.universe._
 
@@ -116,7 +116,7 @@ object SDEMacros {
     warnID: c.Tree,
     testThatWillWarnIfTrue: c.Expr[Boolean],
     str: c.Expr[String],
-    args: c.Expr[Any]*,
+    args: c.Expr[Any]*
   ): c.Expr[Unit] = {
     import c.universe._
 

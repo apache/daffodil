@@ -44,7 +44,7 @@ class TestXMLPrettyPrinter {
     //
     assertTrue(xmlString.contains("<x><![CDATA[a b]]></x>")) // wrong!
     assertFalse(
-      xmlString.contains("<x><![CDATA[a\nb]]></x>"),
+      xmlString.contains("<x><![CDATA[a\nb]]></x>")
     ) // right. Should preserve the newline.
   }
 
@@ -67,7 +67,7 @@ class TestXMLPrettyPrinter {
     //
     assertFalse(xmlString.contains("<x><![CDATA[a b]]></x>")) // wrong!
     assertTrue(
-      xmlString.contains("<x><![CDATA[a\nb]]></x>"),
+      xmlString.contains("<x><![CDATA[a\nb]]></x>")
     ) // right. Should preserve the newline.
   }
 
@@ -85,7 +85,7 @@ bbbbb""".replace("\r\n", "\n")
 bbbbb</zzzzz>
   </yyyyy>
 </xxxxx>""".replace("\r\n", "\n"),
-      xmlString,
+      xmlString
     )
   }
 
@@ -147,7 +147,7 @@ bbbbb ]]>""".replace("\r\n", "\n")
 bbbbb ]]></zzzzz>
   </yyyyy>
 </xxxxx>""".replace("\r\n", "\n"),
-          rest,
+          rest
         )
       }
     }

@@ -33,7 +33,7 @@ case class UserDefinedFunctionProcessingErrorException(
   schemaContext: Maybe[SchemaFileLocation],
   dataContext: Maybe[DataLocation],
   errorCause: Maybe[Throwable],
-  errorStr: Maybe[String],
+  errorStr: Maybe[String]
 ) extends ProcessingError(errorInfo, schemaContext, dataContext, errorCause, errorStr)
 
 /**
@@ -44,7 +44,7 @@ case class UserDefinedFunctionFatalErrorException(
   description: String = "",
   cause: Throwable,
   udfOfInterest: String = "",
-  providerOfInterest: String = "",
+  providerOfInterest: String = ""
 ) extends Abort(description + ". Cause: " + cause.toString) {
 
   /*

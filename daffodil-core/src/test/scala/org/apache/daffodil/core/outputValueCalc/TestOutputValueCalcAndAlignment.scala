@@ -52,7 +52,7 @@ class TestOutputValueCalcAndAlignment {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s2>2</s2></ex:e1>
     val areTracing = false
@@ -83,7 +83,7 @@ class TestOutputValueCalcAndAlignment {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s2>12345</s2></ex:e1>
     val areTracing = false
@@ -132,7 +132,7 @@ class TestOutputValueCalcAndAlignment {
           </xs:sequence>
         </xs:complexType>
       </xs:element>,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
     val infoset = <ex:e1 xmlns:ex={example}><s2><i1>A</i1><i2>B</i2></s2></ex:e1>
     val areTracing = false

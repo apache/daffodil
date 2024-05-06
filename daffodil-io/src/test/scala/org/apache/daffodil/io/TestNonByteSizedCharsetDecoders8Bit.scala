@@ -43,7 +43,7 @@ class TestNonByteSizedCharsetDecoders8Bit {
     val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(8)
     val bb = ByteBuffer.wrap(
-      Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111"),
+      Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111")
     )
     val dis = InputSourceDataInputStream(bb)
     val res = decoder.decode(dis, msbfFinfo, cb)
@@ -58,7 +58,7 @@ class TestNonByteSizedCharsetDecoders8Bit {
     val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(7) // not enough space for last digit
     val bb = ByteBuffer.wrap(
-      Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111"),
+      Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111")
     )
     val dis = InputSourceDataInputStream(bb)
     // dis.skip(4, msbfFinfo)
@@ -74,7 +74,7 @@ class TestNonByteSizedCharsetDecoders8Bit {
     val decoder = cs.newDecoder()
     val cb = CharBuffer.allocate(64)
     val bb = ByteBuffer.wrap(
-      Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111"),
+      Misc.bits2Bytes("00110000 00110001 00110010 00110011 00110100 00110101 00110110 00110111")
     )
     val dis = InputSourceDataInputStream(bb)
     val res = decoder.decode(dis, lsbfFinfo, cb)

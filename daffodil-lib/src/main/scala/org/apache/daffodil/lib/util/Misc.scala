@@ -113,7 +113,7 @@ object Misc {
    */
   private def getResourceAbsoluteOrRelativeOption(
     rawResName: String,
-    optContextURI: Option[URI],
+    optContextURI: Option[URI]
   ): Option[URI] = {
     val resName = rawResName.replaceAll("""\s""", "%20")
     val (maybeRes, _) = Misc.getResourceOption(resName)
@@ -345,7 +345,7 @@ object Misc {
         else if (i >= 97 && i <= 102) (i - 97) + 10 // lowercase a-f
         else
           throw new NumberFormatException(
-            "Hex character must be 0-9, a-f, or A-F, but was '" + c + "'",
+            "Hex character must be 0-9, a-f, or A-F, but was '" + c + "'"
           )
       v
     }
@@ -353,7 +353,7 @@ object Misc {
     val len = hex.length
     if (len % 2 != 0) {
       throw new NumberFormatException(
-        "Hex string must have an even number of characters, but was " + len + " for " + hex,
+        "Hex string must have an even number of characters, but was " + len + " for " + hex
       )
     }
     val numBytes: Int = len / 2
@@ -482,7 +482,7 @@ object Misc {
    */
   def remapControlOrLineEndingToVisibleGlyphs(
     c: Char,
-    replaceControlPictures: Boolean = false,
+    replaceControlPictures: Boolean = false
   ): Char = {
     val URC =
       0x2426 // Unicode control picture character for substitution (also looks like arabic q-mark)

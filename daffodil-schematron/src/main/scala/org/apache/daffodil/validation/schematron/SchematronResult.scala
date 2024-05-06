@@ -34,14 +34,14 @@ import org.apache.daffodil.lib.api.ValidationWarning
 case class SchematronResult(
   warnings: util.Collection[ValidationWarning],
   errors: util.Collection[ValidationFailure],
-  svrl: String,
+  svrl: String
 ) extends ValidationResult
 
 object SchematronResult {
   def apply(
     w: Seq[ValidationWarning],
     e: Seq[ValidationFailure],
-    svrl: String,
+    svrl: String
   ): SchematronResult =
     SchematronResult(w.asJavaCollection, e.asJavaCollection, svrl)
 }

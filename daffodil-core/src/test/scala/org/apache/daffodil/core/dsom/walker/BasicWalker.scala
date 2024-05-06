@@ -22,7 +22,7 @@ import scala.collection.mutable.ArrayBuffer
 class BasicWalker(
   ignoreTypeWrappers: Boolean = false,
   onlyElements: Boolean = false,
-  ignoreEndEvents: Boolean = true,
+  ignoreEndEvents: Boolean = true
 ) extends AbstractDSOMWalker {
 
   var nodeArr: ArrayBuffer[AnyRef] = ArrayBuffer()

@@ -51,7 +51,7 @@ class BitsCharsetDecoderIBM037 extends BitsCharsetDecoderByteSize {
 
   protected override def decodeOneChar(
     dis: InputSourceDataInputStream,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Char = {
     val byte = getByte(dis, 0)
     BitsCharsetIBM037.decodeStringTable(byte)

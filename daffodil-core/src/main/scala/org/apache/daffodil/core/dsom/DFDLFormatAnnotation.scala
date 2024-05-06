@@ -42,14 +42,14 @@ object DeprecatedProperty {
     DeprecatedProperty(
       XMLUtils.DFDLX_NAMESPACE,
       "emptyElementParsePolicy",
-      "dfdl:emptyElementParsePolicy",
+      "dfdl:emptyElementParsePolicy"
     ),
     DeprecatedProperty(
       XMLUtils.EXT_NS_APACHE,
       "parseUnparsePolicy",
-      "dfdlx:parseUnparsePolicy",
+      "dfdlx:parseUnparsePolicy"
     ),
-    DeprecatedProperty(XMLUtils.EXT_NS_NCSA, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy"),
+    DeprecatedProperty(XMLUtils.EXT_NS_NCSA, "parseUnparsePolicy", "dfdlx:parseUnparsePolicy")
   )
 
   // introduced to eliminate linear search per property of the above list, which is expected
@@ -75,7 +75,7 @@ object DeprecatedProperty {
         warnID,
         "Property %s is deprecated. Use %s instead.",
         propertyName,
-        deprecation.get.replacement,
+        deprecation.get.replacement
       )
     }
   }
@@ -161,12 +161,12 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
             notSeenIt,
             "Format ref attributes form a cycle: \n%s\n%s",
             (adjustedQN, locationDescription),
-            seen.map { case (qn, fmtAnn) => (qn, fmtAnn.locationDescription) }.mkString("\n"),
+            seen.map { case (qn, fmtAnn) => (qn, fmtAnn.locationDescription) }.mkString("\n")
           )
           val defFmt = schemaSet.getDefineFormat(adjustedQN).getOrElse {
             annotatedSC.schemaDefinitionError(
               "defineFormat with name '%s', was not found.",
-              adjustedQN.toString,
+              adjustedQN.toString
             )
           }
           val fmt = defFmt.formatAnnotation
@@ -306,7 +306,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
         !hasConflictingPropertyError,
         "Short, long, and element form properties overlap: %s at %s",
         locallyConflictingProperties.mkString(", "),
-        this.locationDescription,
+        this.locationDescription
       )
       val jtoSet = shortFormProperties.union(longFormProperties).union(elementFormProperties)
       val jto = jtoSet.toMap

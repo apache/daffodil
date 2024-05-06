@@ -44,7 +44,7 @@ class BCDIntegerKnownLengthUnparser(e: ElementRuntimeData, override val lengthIn
 class BCDIntegerRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends BCDIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
@@ -62,7 +62,7 @@ final class BCDIntegerPrefixedLengthUnparser(
   override val prefixedLengthUnparser: Unparser,
   override val prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends BCDIntegerBaseUnparser(e)
   with KnownPrefixedLengthUnparserMixin {
 
@@ -92,7 +92,7 @@ abstract class BCDDecimalBaseUnparser(e: ElementRuntimeData, binaryDecimalVirtua
 class BCDDecimalKnownLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  override val lengthInBits: Int,
+  override val lengthInBits: Int
 ) extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {}
 
@@ -100,7 +100,7 @@ class BCDDecimalRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
@@ -119,7 +119,7 @@ final class BCDDecimalPrefixedLengthUnparser(
   override val prefixedLengthERD: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with KnownPrefixedLengthUnparserMixin {
 

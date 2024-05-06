@@ -54,7 +54,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
   isEvaluatedAbove: Boolean,
-  host: BasicComponent,
+  host: BasicComponent
 ) extends RegexParsers {
 
   def compile(expr: String): CompiledExpression[T] = {
@@ -67,7 +67,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
         case e: PathExpressionNoContextError => {
           host.SDW(
             WarnID.ExpressionCompilationSkipped,
-            s"Expression compilation skipped due to path expression in unreferenced element, group, or complex type: $expr",
+            s"Expression compilation skipped due to path expression in unreferenced element, group, or complex type: $expr"
           )
           new CompiledDPath(RuntimeAbortOp(expr))
         }
@@ -92,7 +92,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
           context,
           isEvaluatedAbove,
           contentReferencedElementInfos,
-          valueReferencedElementInfos,
+          valueReferencedElementInfos
         )
       }
     }
@@ -191,7 +191,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
         context.SDE(
           "Unable to parse expression. Message: %s\nNext: %s.",
           msg,
-          nextString.toString(),
+          nextString.toString()
         )
       }
     }
@@ -286,7 +286,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
     } |
       ("/" ~> RelativePathExpr) ^^ { r => RootPathExpression(Some(r)) } |
       ("/") ^^ { r => RootPathExpression(None) } |
-      RelativePathExpr,
+      RelativePathExpr
   )("path")
 
   def RelativePathExpr: Parser[RelativePathExpression] = log(
@@ -295,7 +295,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
     } |
       StepExpr ~ ("//" ~> StepExpr).* ^^ { _ =>
         context.SDE("'//' is unsupported in DFDL Expression Syntax.")
-      },
+      }
   )("relativePath")
 
   def StepExpr: Parser[StepExpression] = log(AxisStep | VarRef ^^ { varRef =>
@@ -348,7 +348,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
     "(" ~ ")" ^^ { _ => Nil } |
       "(" ~> (ExprSingle ~ (("," ~> ExprSingle).*)) <~ ")" ^^ { case e1 ~ moreEs =>
         e1 :: moreEs
-      },
+      }
   )("argList")
 
   def StepName = log(
@@ -356,9 +356,9 @@ class DFDLPathExpressionParser[T <: AnyRef](
       Wildcard ^^ { wc =>
         context.SDE(
           "Wildcard is unsupported in DFDL Expression Syntax. Offending value was '%s'.",
-          wc,
+          wc
         )
-      },
+      }
   )("stepName")
 
   def Wildcard = "*" |

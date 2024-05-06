@@ -39,14 +39,14 @@ abstract class IBM4690PackedIntegerBaseUnparser(e: ElementRuntimeData)
 
 class IBM4690PackedIntegerKnownLengthUnparser(
   e: ElementRuntimeData,
-  override val lengthInBits: Int,
+  override val lengthInBits: Int
 ) extends IBM4690PackedIntegerBaseUnparser(e)
   with HasKnownLengthInBits {}
 
 class IBM4690PackedIntegerRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends IBM4690PackedIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
@@ -64,7 +64,7 @@ final class IBM4690PackedIntegerPrefixedLengthUnparser(
   override val prefixedLengthUnparser: Unparser,
   override val prefixedLengthERD: ElementRuntimeData,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends IBM4690PackedIntegerBaseUnparser(e)
   with KnownPrefixedLengthUnparserMixin {
 
@@ -88,7 +88,7 @@ final class IBM4690PackedIntegerPrefixedLengthUnparser(
 
 abstract class IBM4690PackedDecimalBaseUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int,
+  binaryDecimalVirtualPoint: Int
 ) extends PackedBinaryDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
   override def fromBigInteger(bigInt: JBigInteger, nBits: Int): Array[Byte] =
@@ -98,7 +98,7 @@ abstract class IBM4690PackedDecimalBaseUnparser(
 class IBM4690PackedDecimalKnownLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  override val lengthInBits: Int,
+  override val lengthInBits: Int
 ) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {}
 
@@ -106,7 +106,7 @@ class IBM4690PackedDecimalRuntimeLengthUnparser(
   val e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   val lengthEv: Evaluatable[JLong],
-  val lengthUnits: LengthUnits,
+  val lengthUnits: LengthUnits
 ) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
@@ -115,7 +115,7 @@ class IBM4690PackedDecimalRuntimeLengthUnparser(
 
 final class IBM4690PackedDecimalDelimitedUnparser(
   e: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int,
+  binaryDecimalVirtualPoint: Int
 ) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {
 
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
@@ -127,7 +127,7 @@ final class IBM4690PackedDecimalPrefixedLengthUnparser(
   override val prefixedLengthERD: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long,
+  override val prefixedLengthAdjustmentInUnits: Long
 ) extends IBM4690PackedDecimalBaseUnparser(e, binaryDecimalVirtualPoint)
   with KnownPrefixedLengthUnparserMixin {
 

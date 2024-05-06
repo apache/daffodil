@@ -78,7 +78,7 @@ class TestXMLLoaderWithLocation {
       val node = (new DaffodilXMLLoader(eh)).load(
         res,
         Some(XMLUtils.schemaForDFDLSchemas),
-        addPositionAttributes = true,
+        addPositionAttributes = true
       )
       assertTrue(eh.hasError)
       val msgs = eh.diagnostics.map { _.getMessage() }.mkString("\n")

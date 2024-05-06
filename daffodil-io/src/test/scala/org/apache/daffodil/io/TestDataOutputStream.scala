@@ -32,7 +32,7 @@ class TestDataOutputStream {
   def newDirectOrBufferedDataOutputStream(
     jos: java.io.OutputStream,
     creator: DirectOrBufferedDataOutputStream,
-    bo: BitOrder = BitOrder.MostSignificantBitFirst,
+    bo: BitOrder = BitOrder.MostSignificantBitFirst
   ) = {
     val os = DirectOrBufferedDataOutputStream(
       jos,
@@ -41,7 +41,7 @@ class TestDataOutputStream {
       4096,
       2000 * (1 << 20),
       new File("."),
-      Maybe.Nope,
+      Maybe.Nope
     )
     os.setPriorBitOrder(bo)
     os

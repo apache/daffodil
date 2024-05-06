@@ -197,7 +197,7 @@ object PoUStatus {
 abstract class SequenceChildParser(
   val childParser: Parser,
   val srd: SequenceRuntimeData,
-  val trd: TermRuntimeData,
+  val trd: TermRuntimeData
 ) extends CombinatorParser(trd) {
 
   override def childProcessors: Vector[Processor] = Vector(childParser)
@@ -218,7 +218,7 @@ abstract class SequenceChildParser(
   def arrayCompleteChecks(
     pstate: PState,
     resultOfTry: ParseAttemptStatus,
-    priorResultOfTry: ParseAttemptStatus,
+    priorResultOfTry: ParseAttemptStatus
   ): Unit = {
     // does nothing by default.
     // overridden in separated sequence child parsers in some cases
@@ -227,7 +227,7 @@ abstract class SequenceChildParser(
   def sequenceCompleteChecks(
     pstate: PState,
     resultOfTry: ParseAttemptStatus,
-    priorResultOfTry: ParseAttemptStatus,
+    priorResultOfTry: ParseAttemptStatus
   ): Unit = {
     // does nothing by default.
     // overridden in separated sequence child parsers in some cases
@@ -254,7 +254,7 @@ trait NonRepeatingSequenceChildParser { self: SequenceChildParser =>
 final class NonRepresentedSequenceChildParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
-  trd: TermRuntimeData,
+  trd: TermRuntimeData
 ) extends SequenceChildParser(childParser, srd, trd) {
 
   def pouStatus = PoUStatus.NoPoU
@@ -284,7 +284,7 @@ abstract class RepeatingChildParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
   val erd: ElementRuntimeData,
-  baseName: String,
+  baseName: String
 ) extends SequenceChildParser(childParser, srd, erd)
   with MinMaxRepeatsMixin
   with EndArrayChecksMixin {
@@ -428,7 +428,7 @@ object ArrayIndexStatus {
 abstract class OccursCountExactParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
-  erd: ElementRuntimeData,
+  erd: ElementRuntimeData
 ) extends RepeatingChildParser(childParser, srd, erd, "ExactN") {
 
   final override def isBoundedMax = true
@@ -453,7 +453,7 @@ abstract class OccursCountExpressionParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
-  val occursCountEv: OccursCountEv,
+  val occursCountEv: OccursCountEv
 ) extends RepeatingChildParser(childParser, srd, erd, "Expression") {
 
   final override def pouStatus = PoUStatus.NoPoU
@@ -543,7 +543,7 @@ trait EndArrayChecksMixin {
               "minimum of '%s' and a maximum of 'UNBOUNDED' times.",
             erd.diagnosticDebugName,
             occurrences,
-            minO,
+            minO
           )
         else if (!isUnbounded && (occurrences < minO || occurrences > maxO)) {
           state.validationError(
@@ -552,7 +552,7 @@ trait EndArrayChecksMixin {
             erd.diagnosticDebugName,
             occurrences,
             minO,
-            maxO,
+            maxO
           )
         } else {
           // ok
@@ -572,14 +572,14 @@ trait EndArrayChecksMixin {
 abstract class OccursCountMinMaxParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
-  erd: ElementRuntimeData,
+  erd: ElementRuntimeData
 ) extends RepeatingChildParser(childParser, srd, erd, "MinMax") {
 
   Assert.invariant(erd.maybeOccursCountKind.isDefined)
 
   Assert.invariant(
     ock == OccursCountKind.Implicit ||
-      ock == OccursCountKind.Parsed,
+      ock == OccursCountKind.Parsed
   )
 
   final override def pouStatus = PoUStatus.HasPoU

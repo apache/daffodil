@@ -26,7 +26,7 @@ trait BinaryIntegerKnownLengthCodeGenerator extends BinaryValueCodeGenerator {
     e: ElementBase,
     lengthInBits: Long,
     signed: Boolean,
-    cgState: CodeGeneratorState,
+    cgState: CodeGeneratorState
   ): Unit = {
     val cLengthInBits = lengthInBits match {
       case n if n <= 8 => 8

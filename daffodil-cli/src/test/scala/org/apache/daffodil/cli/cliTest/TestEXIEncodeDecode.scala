@@ -30,10 +30,10 @@ class TestEXIEncodeDecode {
 
   @Test def test_CLI_Encode_Decode_EXI_SA(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.dfdl.xsd"
     )
     val infosetPath = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_Book2.expected.xml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_Book2.expected.xml"
     )
     val infosetXML = XML.loadFile(infosetPath.toFile)
 
@@ -72,7 +72,7 @@ class TestEXIEncodeDecode {
 
   @Test def test_CLI_EncodeBadFile_EXI(): Unit = {
     val badXML = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv",
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv"
     )
 
     runCLI(args"exi $badXML") { cli =>
@@ -82,7 +82,7 @@ class TestEXIEncodeDecode {
 
   @Test def test_CLI_DecodeBadFile_EXI(): Unit = {
     val badEXI = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv",
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv"
     )
 
     runCLI(args"exi -d $badEXI") { cli =>
@@ -92,7 +92,7 @@ class TestEXIEncodeDecode {
 
   @Test def test_CLI_LoadBadSchema_EXI(): Unit = {
     val badSchema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv",
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.csv"
     )
 
     runCLI(args"exi -s $badSchema") { cli =>
@@ -102,10 +102,10 @@ class TestEXIEncodeDecode {
 
   @Test def test_CLI_AttemptDecodeOfSA_EXI(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/Book2.dfdl.xsd"
     )
     val infosetPath = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_Book2.expected.xml",
+      "daffodil-test/src/test/resources/org/apache/daffodil/usertests/test_Book2.expected.xml"
     )
 
     withTempFile { tempEXI =>

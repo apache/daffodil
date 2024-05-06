@@ -141,35 +141,35 @@ class TestRegex extends RegexParsers {
 
     assertEquals(
       "text1Etext2",
-      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SEtext2"),
+      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SEtext2")
     )
     assertEquals(
       "text1Etext2Etext3",
-      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SEtext2SEtext3"),
+      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SEtext2SEtext3")
     )
     assertEquals(
       "text1EEtext2",
-      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SESEtext2"),
+      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SESEtext2")
     )
     assertEquals(
       "text1E;text2",
-      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SEE;text2"),
+      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SEE;text2")
     )
     assertEquals(
       "text1;text2",
-      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1E;text2"),
+      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1E;text2")
     )
     assertEquals(
       "text1Etext2E",
-      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SEtext2SE"),
+      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SEtext2SE")
     )
     assertEquals(
       "text1SEtext2",
-      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SSEtext2"),
+      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SSEtext2")
     )
     assertEquals(
       "text1Stext2",
-      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1Stext2"),
+      test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1Stext2")
     )
   }
 
@@ -180,7 +180,7 @@ class TestRegex extends RegexParsers {
       theParser: Parser[(Vector[String], String)],
       theInput: String,
       isPadLeft: Boolean,
-      isPadRight: Boolean,
+      isPadRight: Boolean
     ) = {
       testNum = testNum + 1
       // val result = this.parse(this.log(theParser)("testParserEscapeSchemes_DiffEscapesWithPadding." + testNum), theInput)
@@ -251,15 +251,15 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("abc", "D", "abc"), test(contentDelimReq, "abcDefg", false, false))
     assertEquals(
       Some("abc", "D", "PPPabc"),
-      test(contentRightDelimReq, "PPPabcDefg", true, false),
+      test(contentRightDelimReq, "PPPabcDefg", true, false)
     )
     assertEquals(
       Some("abc", "D", "abcPPP"),
-      test(contentLeftDelimReq, "abcPPPDefg", false, true),
+      test(contentLeftDelimReq, "abcPPPDefg", false, true)
     )
     assertEquals(
       Some("abc", "D", "PPPabcPPP"),
-      test(contentCenterDelimReq, "PPPabcPPPDefg", true, true),
+      test(contentCenterDelimReq, "PPPabcPPPDefg", true, true)
     )
 
   }
@@ -271,7 +271,7 @@ class TestRegex extends RegexParsers {
       theParser: Parser[(Vector[String], String)],
       theInput: String,
       isPadLeft: Boolean,
-      isPadRight: Boolean,
+      isPadRight: Boolean
     ) = {
       testNum = testNum + 1
       // val result = this.parse(this.log(theParser)("testParserEscapeSchemes_DiffEscapesWithPadding." + testNum), theInput)
@@ -329,7 +329,7 @@ class TestRegex extends RegexParsers {
     val pEscapeEscape: Parser[String] = """S""".r
     //        val pEscapedEscape = pEscapeEscape ~ pEscape
     val pUnescapedDelims = ((pEscapeEscape ~ pEscape) ~> pDelims) | (not(
-      pEscape,
+      pEscape
     ) ~> pDelims) | (pEscapeEscape ~> pDelims) | pDelims
     //
     //    // Here ^^ { case(b ~ d) => (b -> d) } changes the output of a successful parse to a Tuple2 of String (before, delimiter)
@@ -362,38 +362,38 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("text", "", "PPPtextPPP"), test(contentCenter, "PPPtextPPP", true, true))
     assertEquals(
       Some("/PPPtext/", "", "/PPPtext/PPP"),
-      test(contentCenter, "/PPPtext/PPP", true, true),
+      test(contentCenter, "/PPPtext/PPP", true, true)
     )
     assertEquals(
       Some("/PPtextP/", "", "P/PPtextP/PP"),
-      test(contentCenter, "P/PPtextP/PP", true, true),
+      test(contentCenter, "P/PPtextP/PP", true, true)
     )
     assertEquals(
       Some("/PtextPP/", "", "PP/PtextPP/P"),
-      test(contentCenter, "PP/PtextPP/P", true, true),
+      test(contentCenter, "PP/PtextPP/P", true, true)
     )
     assertEquals(
       Some("/textPPP/", "", "PPP/textPPP/"),
-      test(contentCenter, "PPP/textPPP/", true, true),
+      test(contentCenter, "PPP/textPPP/", true, true)
     )
 
     // Encounter non-pad char amongst padding (verify no dependence on /)
     assertEquals(Some("text", "", "PPPtextPPP"), test(contentCenter, "PPPtextPPP", true, true))
     assertEquals(
       Some("^PPPtext^", "", "^PPPtext^PPP"),
-      test(contentCenter, "^PPPtext^PPP", true, true),
+      test(contentCenter, "^PPPtext^PPP", true, true)
     )
     assertEquals(
       Some("^PPtextP^", "", "P^PPtextP^PP"),
-      test(contentCenter, "P^PPtextP^PP", true, true),
+      test(contentCenter, "P^PPtextP^PP", true, true)
     )
     assertEquals(
       Some("^PtextPP^", "", "PP^PtextPP^P"),
-      test(contentCenter, "PP^PtextPP^P", true, true),
+      test(contentCenter, "PP^PtextPP^P", true, true)
     )
     assertEquals(
       Some("^textPPP^", "", "PPP^textPPP^"),
-      test(contentCenter, "PPP^textPPP^", true, true),
+      test(contentCenter, "PPP^textPPP^", true, true)
     )
   }
 
@@ -404,7 +404,7 @@ class TestRegex extends RegexParsers {
       theParser: Parser[(Vector[String], String)],
       theInput: String,
       isPadLeft: Boolean,
-      isPadRight: Boolean,
+      isPadRight: Boolean
     ) = {
       testNum = testNum + 1
       // val result = this.parse(this.log(theParser)("testParserEscapeSchemes_BlockEscapeWithPaddingCapturesEverything." + testNum), theInput)
@@ -502,35 +502,35 @@ class TestRegex extends RegexParsers {
     // Testing Center justification
     assertEquals(
       Some("beforeafter", "", "PPPTbeforeafterNPPP"),
-      test(contentCenter, "PPPTbeforeafterNPPP", true, true),
+      test(contentCenter, "PPPTbeforeafterNPPP", true, true)
     )
     assertEquals(
       Some("before", "D", "PPPTbeforeNPPP"),
-      test(contentCenter, "PPPTbeforeNPPPDafter", true, true),
+      test(contentCenter, "PPPTbeforeNPPPDafter", true, true)
     )
     assertEquals(
       None,
-      test(contentCenter, "TbeforeDafter", true, true),
+      test(contentCenter, "TbeforeDafter", true, true)
     ) // Fails because we expect a valid escapeBlockStart AND escapeBlockEnd
     assertEquals(
       Some("TbeforeSN", "D", "PPPTTbeforeSNNPPP"),
-      test(contentCenter, "PPPTTbeforeSNNPPPDafter", true, true),
+      test(contentCenter, "PPPTTbeforeSNNPPPDafter", true, true)
     )
     assertEquals(
       Some("TbeforeDPPPstillbeforeSN", "D", "PPPTTbeforeDPPPstillbeforeSNNPPP"),
-      test(contentCenter, "PPPTTbeforeDPPPstillbeforeSNNPPPDafter", true, true),
+      test(contentCenter, "PPPTTbeforeDPPPstillbeforeSNNPPPDafter", true, true)
     )
     assertEquals(
       None,
-      test(contentCenter, "PPPTTbeforeDPPPstillbeforeNNPPPDafter", true, true),
+      test(contentCenter, "PPPTTbeforeDPPPstillbeforeNNPPPDafter", true, true)
     ) // escapeBlockEnd is not escaped
     assertEquals(
       None,
-      test(contentCenter, "PPPTbeforeNafterNPPP", true, true),
+      test(contentCenter, "PPPTbeforeNafterNPPP", true, true)
     ) // escapeBlockEnd is not escaped
     assertEquals(
       Some("before1SNbefore2", "", "PPPTbefore1SNbefore2NPPP"),
-      test(contentCenter, "PPPTbefore1SNbefore2NPPP", true, true),
+      test(contentCenter, "PPPTbefore1SNbefore2NPPP", true, true)
     )
     //    assertEquals(None, test(content, "PPPTbeforeSNafterNPPP", false, false))
     //    assertEquals(Some("before1SNbefore2", ""), test(content, "Tbefore1SNbefore2N", false, false))
@@ -605,20 +605,20 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("before", "D"), test(contentCenterDelimReq, "PPPTbeforeNPPPDafter"))
     assertEquals(
       None,
-      test(contentCenter, "TbeforeDafter"),
+      test(contentCenter, "TbeforeDafter")
     ) // Fails because we expect a valid escapeBlockStart AND escapeBlockEnd
     assertEquals(Some("TbeforeSN", "D"), test(contentCenterDelimReq, "PPPTTbeforeSNNPPPDafter"))
     assertEquals(
       Some("TbeforeDPPPstillbeforeSN", "D"),
-      test(contentCenterDelimReq, "PPPTTbeforeDPPPstillbeforeSNNPPPDafter"),
+      test(contentCenterDelimReq, "PPPTTbeforeDPPPstillbeforeSNNPPPDafter")
     )
     assertEquals(
       None,
-      test(contentCenterDelimReq, "PPPTTbeforeDPPPstillbeforeNNPPPDafter"),
+      test(contentCenterDelimReq, "PPPTTbeforeDPPPstillbeforeNNPPPDafter")
     ) // escapeBlockEnd is not escaped
     assertEquals(
       None,
-      test(contentCenter, "PPPTbeforeNafterNPPP"),
+      test(contentCenter, "PPPTbeforeNafterNPPP")
     ) // escapeBlockEnd is not escaped
     assertEquals(Some("before1SNbefore2", ""), test(contentCenter, "PPPTbefore1SNbefore2NPPP"))
     assertEquals(None, test(content, "PPPTbeforeSNafterNPPP"))
@@ -752,38 +752,38 @@ class TestRegex extends RegexParsers {
     // various combinations attempting to break regex
     assertEquals(
       Some("textPPEE", "D"),
-      test(contentCenterDelimReq, "PPPtextPPEEDafter"),
+      test(contentCenterDelimReq, "PPPtextPPEEDafter")
     ) // escaped escape, padding part of content
     assertEquals(Some("textEE", "D"), test(contentCenterDelimReq, "PPPtextEEPPPDafter"))
     assertEquals(
       Some("textEPEPEDafter", ""),
-      test(contentCenter, "PPPtextEPEPEDafter"),
+      test(contentCenter, "PPPtextEPEPEDafter")
     ) // escaped delim, padding interwoven with escapes
     assertEquals(
       Some("textEPEPEE", "D"),
-      test(contentCenter, "PPPtextEPEPEEDafter"),
+      test(contentCenter, "PPPtextEPEPEEDafter")
     ) // unescaped delim, padding interwoven with escapes
     assertEquals(
       Some("textPPEDafter", ""),
-      test(contentCenter, "PPPtextPPEDafter"),
+      test(contentCenter, "PPPtextPPEDafter")
     ) // escaped delim, padding part of content
     assertEquals(
       Some("textEEEDafter", ""),
-      test(contentCenter, "PPPtextEEEDafter"),
+      test(contentCenter, "PPPtextEEEDafter")
     ) // escaped delim
     assertEquals(Some("textEE", "D"), test(contentCenter, "PPPtextEEDafter")) // escaped escape
     assertEquals(
       Some("textEDafter", ""),
-      test(contentCenter, "PPPtextEDafter"),
+      test(contentCenter, "PPPtextEDafter")
     ) // escaped delim
     assertEquals(Some("text", "D"), test(contentCenter, "PPPtextDafter"))
     assertEquals(
       Some("text", "D"),
-      test(contentCenter, "PPPtextPDafter"),
+      test(contentCenter, "PPPtextPDafter")
     ) // 'unescaped' pad char
     assertEquals(
       Some("textE", "D"),
-      test(contentCenter, "PPPtextEPDafter"),
+      test(contentCenter, "PPPtextEPDafter")
     ) // 'escaped' pad char
 
     assertEquals(Some("/PPPtextPPP/", "D"), test(contentCenterDelimReq, "/PPPtextPPP/Dafter"))
@@ -846,19 +846,19 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("abcSESESEdef", "D"), test(content, "abcSESESEdefDghi"))
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentDelimReq, "beforeEDstillbeforeDafter"),
+      test(contentDelimReq, "beforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("PPPbeforeEDstillbefore", "D"),
-      test(contentDelimReq, "PPPbeforeEDstillbeforeDafter"),
+      test(contentDelimReq, "PPPbeforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbeforePPP", "D"),
-      test(contentDelimReq, "beforePPPEDstillbeforePPPDafter"),
+      test(contentDelimReq, "beforePPPEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("PPPbeforePPPEDstillbeforePPP", "D"),
-      test(contentDelimReq, "PPPbeforePPPEDstillbeforePPPDafter"),
+      test(contentDelimReq, "PPPbeforePPPEDstillbeforePPPDafter")
     )
 
     // Testing no justification, padding is treated as part of content w/ escaped escaping
@@ -866,11 +866,11 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("PPPbeforeEE", "D"), test(contentDelimReq, "PPPbeforeEEDafter1Dafter2"))
     assertEquals(
       Some("beforePPPEE", "D"),
-      test(contentDelimReq, "beforePPPEEDafter1PPPDafter2"),
+      test(contentDelimReq, "beforePPPEEDafter1PPPDafter2")
     )
     assertEquals(
       Some("PPPbeforePPPEE", "D"),
-      test(contentDelimReq, "PPPbeforePPPEEDafter1PPPDafter2"),
+      test(contentDelimReq, "PPPbeforePPPEEDafter1PPPDafter2")
     )
 
     // Testing Center justification, padding is not part of content
@@ -884,34 +884,34 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("abcEEEEdef", "D"), test(contentCenterDelimReq, "abcEEEEdefDghi"))
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentCenterDelimReq, "beforeEDstillbeforeDafter"),
+      test(contentCenterDelimReq, "beforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentCenterDelimReq, "PPPbeforeEDstillbeforeDafter"),
+      test(contentCenterDelimReq, "PPPbeforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbefore", "D"),
-      test(contentCenterDelimReq, "beforePPPEDstillbeforePPPDafter"),
+      test(contentCenterDelimReq, "beforePPPEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbefore", "D"),
-      test(contentCenterDelimReq, "PPPbeforePPPEDstillbeforePPPDafter"),
+      test(contentCenterDelimReq, "PPPbeforePPPEDstillbeforePPPDafter")
     )
 
     // Testing Center justification, padding is part of content w/ escaped escaping
     assertEquals(Some("beforeEE", "D"), test(contentCenterDelimReq, "beforeEEDafter1Dafter2"))
     assertEquals(
       Some("beforeEE", "D"),
-      test(contentCenterDelimReq, "PPPbeforeEEDafter1Dafter2"),
+      test(contentCenterDelimReq, "PPPbeforeEEDafter1Dafter2")
     )
     assertEquals(
       Some("beforePPPEE", "D"),
-      test(contentCenterDelimReq, "beforePPPEEDafter1PPPDafter2"),
+      test(contentCenterDelimReq, "beforePPPEEDafter1PPPDafter2")
     )
     assertEquals(
       Some("beforePPPEE", "D"),
-      test(contentCenterDelimReq, "PPPbeforePPPEEDafter1PPPDafter2"),
+      test(contentCenterDelimReq, "PPPbeforePPPEEDafter1PPPDafter2")
     )
 
     // Testing Left justification, padding on right removed only
@@ -925,34 +925,34 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("abcEEEEEEdef", "D"), test(contentLeftDelimReq, "abcEEEEEEdefDghi"))
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentLeftDelimReq, "beforeEDstillbeforeDafter"),
+      test(contentLeftDelimReq, "beforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("PPPbeforeEDstillbefore", "D"),
-      test(contentLeftDelimReq, "PPPbeforeEDstillbeforeDafter"),
+      test(contentLeftDelimReq, "PPPbeforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbefore", "D"),
-      test(contentLeftDelimReq, "beforePPPEDstillbeforePPPDafter"),
+      test(contentLeftDelimReq, "beforePPPEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("PPPbeforePPPEDstillbefore", "D"),
-      test(contentLeftDelimReq, "PPPbeforePPPEDstillbeforePPPDafter"),
+      test(contentLeftDelimReq, "PPPbeforePPPEDstillbeforePPPDafter")
     )
 
     // Testing Left justification, padding on right removed only w/ escaped escaping
     assertEquals(Some("beforeEE", "D"), test(contentLeftDelimReq, "beforeEEDafter1Dafter2"))
     assertEquals(
       Some("PPPbeforeEE", "D"),
-      test(contentLeftDelimReq, "PPPbeforeEEDafter1Dafter2"),
+      test(contentLeftDelimReq, "PPPbeforeEEDafter1Dafter2")
     )
     assertEquals(
       Some("beforePPPEE", "D"),
-      test(contentLeftDelimReq, "beforePPPEEDafter1PPPDafter2"),
+      test(contentLeftDelimReq, "beforePPPEEDafter1PPPDafter2")
     )
     assertEquals(
       Some("PPPbeforePPPEE", "D"),
-      test(contentLeftDelimReq, "PPPbeforePPPEEDafter1PPPDafter2"),
+      test(contentLeftDelimReq, "PPPbeforePPPEEDafter1PPPDafter2")
     )
 
     // Testing Right justification, padding on left removed only
@@ -969,71 +969,71 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("abcEEEE", "D"), test(contentRightDelimReq, "abcEEEEDefDghi"))
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentRightDelimReq, "beforeEDstillbeforeDafter"),
+      test(contentRightDelimReq, "beforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentRightDelimReq, "PPPbeforeEDstillbeforeDafter"),
+      test(contentRightDelimReq, "PPPbeforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbeforePPP", "D"),
-      test(contentRightDelimReq, "beforePPPEDstillbeforePPPDafter"),
+      test(contentRightDelimReq, "beforePPPEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbeforePPP", "D"),
-      test(contentRightDelimReq, "PPPbeforePPPEDstillbeforePPPDafter"),
+      test(contentRightDelimReq, "PPPbeforePPPEDstillbeforePPPDafter")
     )
 
     // Testing Right justification, padding on left removed only w/ escaped escaping
     assertEquals(
       Some("beforeEE", "D"),
-      test(contentRightDelimReq, "beforeEEDstillbeforeDafter"),
+      test(contentRightDelimReq, "beforeEEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforeEE", "D"),
-      test(contentRightDelimReq, "PPPbeforeEEDstillbeforeDafter"),
+      test(contentRightDelimReq, "PPPbeforeEEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforePPPEE", "D"),
-      test(contentRightDelimReq, "beforePPPEEDstillbeforePPPDafter"),
+      test(contentRightDelimReq, "beforePPPEEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("beforePPPEE", "D"),
-      test(contentRightDelimReq, "PPPbeforePPPEEDstillbeforePPPDafter"),
+      test(contentRightDelimReq, "PPPbeforePPPEEDstillbeforePPPDafter")
     )
 
     // Testing Escaped Padding
     assertEquals(
       Some("beforeEEPPP", "D"),
-      test(contentRightDelimReq, "PPPbeforeEEPPPDafter1Dafter2"),
+      test(contentRightDelimReq, "PPPbeforeEEPPPDafter1Dafter2")
     )
     assertEquals(
       Some("beforeEPPP", "D"),
-      test(contentRightDelimReq, "PPPbeforeEPPPDafter1Dafter2"),
+      test(contentRightDelimReq, "PPPbeforeEPPPDafter1Dafter2")
     )
     assertEquals(
       Some("PPPbeforeEE", "D"),
-      test(contentLeftDelimReq, "PPPbeforeEEPPPDafter1Dafter2"),
+      test(contentLeftDelimReq, "PPPbeforeEEPPPDafter1Dafter2")
     )
     assertEquals(
       Some("PPPbeforeE", "D"),
-      test(contentLeftDelimReq, "PPPbeforeEPPPDafter1Dafter2"),
+      test(contentLeftDelimReq, "PPPbeforeEPPPDafter1Dafter2")
     )
     assertEquals(
       Some("beforeEE", "D"),
-      test(contentCenterDelimReq, "PPPbeforeEEPPPDafter1Dafter2"),
+      test(contentCenterDelimReq, "PPPbeforeEEPPPDafter1Dafter2")
     )
     assertEquals(
       Some("beforeE", "D"),
-      test(contentCenterDelimReq, "PPPbeforeEPPPDafter1Dafter2"),
+      test(contentCenterDelimReq, "PPPbeforeEPPPDafter1Dafter2")
     )
     assertEquals(
       Some("EEPPPbeforeEE", "D"),
-      test(contentCenterDelimReq, "EEPPPbeforeEEPPPDafter1Dafter2"),
+      test(contentCenterDelimReq, "EEPPPbeforeEEPPPDafter1Dafter2")
     )
     assertEquals(
       Some("EPPPbeforeE", "D"),
-      test(contentCenterDelimReq, "EPPPbeforeEPPPDafter1Dafter2"),
+      test(contentCenterDelimReq, "EPPPbeforeEPPPDafter1Dafter2")
     )
   }
 
@@ -1078,7 +1078,7 @@ class TestRegex extends RegexParsers {
     //    val pEscapedEscape = pEscapeEscape ~ pEscape
     //    val pEscapedDelims = not(pEscapedEscape) ~> (pEscape ~> pDelims)
     val pUnescapedDelims = ((pEscapeEscape ~ pEscape) ~> pDelims) | (not(
-      pEscape,
+      pEscape
     ) ~> pDelims) | (pEscapeEscape ~> pDelims) | pDelims
 
     // Here ^^ { case(b ~ d) => (b -> d) } changes the output of a successful parse to a Tuple2 of String (before, delimiter)
@@ -1213,15 +1213,15 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("beforeEDstillbefore", "D"), test(content, "beforeEDstillbeforeDafter"))
     assertEquals(
       Some("PPPbeforeEDstillbefore", "D"),
-      test(content, "PPPbeforeEDstillbeforeDafter"),
+      test(content, "PPPbeforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbeforePPP", "D"),
-      test(content, "beforePPPEDstillbeforePPPDafter"),
+      test(content, "beforePPPEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("PPPbeforePPPEDstillbeforePPP", "D"),
-      test(content, "PPPbeforePPPEDstillbeforePPPDafter"),
+      test(content, "PPPbeforePPPEDstillbeforePPPDafter")
     )
 
     // Testing no justification, padding is treated as part of content w/ escaped escaping
@@ -1230,7 +1230,7 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("beforePPPSE", "D"), test(content, "beforePPPSEDstillbeforePPPDafter"))
     assertEquals(
       Some("PPPbeforePPPSE", "D"),
-      test(content, "PPPbeforePPPSEDstillbeforePPPDafter"),
+      test(content, "PPPbeforePPPSEDstillbeforePPPDafter")
     )
 
     // Testing Center justification, padding is not part of content
@@ -1244,19 +1244,19 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("abcSESESEdef", "D"), test(contentCenter, "abcSESESEdefDghi"))
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentCenter, "beforeEDstillbeforeDafter"),
+      test(contentCenter, "beforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentCenter, "PPPbeforeEDstillbeforeDafter"),
+      test(contentCenter, "PPPbeforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbefore", "D"),
-      test(contentCenter, "beforePPPEDstillbeforePPPDafter"),
+      test(contentCenter, "beforePPPEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbefore", "D"),
-      test(contentCenter, "PPPbeforePPPEDstillbeforePPPDafter"),
+      test(contentCenter, "PPPbeforePPPEDstillbeforePPPDafter")
     )
 
     // Testing Center justification, padding is part of content w/ escaped escaping
@@ -1264,11 +1264,11 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("beforeSE", "D"), test(contentCenter, "PPPbeforeSEDstillbeforeDafter"))
     assertEquals(
       Some("beforePPPSE", "D"),
-      test(contentCenter, "beforePPPSEDstillbeforePPPDafter"),
+      test(contentCenter, "beforePPPSEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("beforePPPSE", "D"),
-      test(contentCenter, "PPPbeforePPPSEDstillbeforePPPDafter"),
+      test(contentCenter, "PPPbeforePPPSEDstillbeforePPPDafter")
     )
 
     // Testing Left justification, padding on right removed only
@@ -1282,19 +1282,19 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("abcSESESEdef", "D"), test(contentLeft, "abcSESESEdefDghi"))
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentLeft, "beforeEDstillbeforeDafter"),
+      test(contentLeft, "beforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("PPPbeforeEDstillbefore", "D"),
-      test(contentLeft, "PPPbeforeEDstillbeforeDafter"),
+      test(contentLeft, "PPPbeforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbefore", "D"),
-      test(contentLeft, "beforePPPEDstillbeforePPPDafter"),
+      test(contentLeft, "beforePPPEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("PPPbeforePPPEDstillbefore", "D"),
-      test(contentLeft, "PPPbeforePPPEDstillbeforePPPDafter"),
+      test(contentLeft, "PPPbeforePPPEDstillbeforePPPDafter")
     )
 
     // Testing Left justification, padding on right removed only w/ escaped escaping
@@ -1302,11 +1302,11 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("PPPbeforeSE", "D"), test(contentLeft, "PPPbeforeSEDstillbeforeDafter"))
     assertEquals(
       Some("beforePPPSE", "D"),
-      test(contentLeft, "beforePPPSEDstillbeforePPPDafter"),
+      test(contentLeft, "beforePPPSEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("PPPbeforePPPSE", "D"),
-      test(contentLeft, "PPPbeforePPPSEDstillbeforePPPDafter"),
+      test(contentLeft, "PPPbeforePPPSEDstillbeforePPPDafter")
     )
 
     // Testing Right justification, padding on left removed only
@@ -1320,19 +1320,19 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("abcSESESEdef", "D"), test(contentRight, "abcSESESEdefDghi"))
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentRight, "beforeEDstillbeforeDafter"),
+      test(contentRight, "beforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforeEDstillbefore", "D"),
-      test(contentRight, "PPPbeforeEDstillbeforeDafter"),
+      test(contentRight, "PPPbeforeEDstillbeforeDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbeforePPP", "D"),
-      test(contentRight, "beforePPPEDstillbeforePPPDafter"),
+      test(contentRight, "beforePPPEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("beforePPPEDstillbeforePPP", "D"),
-      test(contentRight, "PPPbeforePPPEDstillbeforePPPDafter"),
+      test(contentRight, "PPPbeforePPPEDstillbeforePPPDafter")
     )
 
     // Testing Right justification, padding on left removed only w/ escaped escaping
@@ -1340,11 +1340,11 @@ class TestRegex extends RegexParsers {
     assertEquals(Some("beforeSE", "D"), test(contentRight, "PPPbeforeSEDstillbeforeDafter"))
     assertEquals(
       Some("beforePPPSE", "D"),
-      test(contentRight, "beforePPPSEDstillbeforePPPDafter"),
+      test(contentRight, "beforePPPSEDstillbeforePPPDafter")
     )
     assertEquals(
       Some("beforePPPSE", "D"),
-      test(contentRight, "PPPbeforePPPSEDstillbeforePPPDafter"),
+      test(contentRight, "PPPbeforePPPSEDstillbeforePPPDafter")
     )
   }
 
@@ -1906,7 +1906,7 @@ class TestRegex extends RegexParsers {
       """S""",
       """E""",
       """\_*D\_*""",
-      """P""",
+      """P"""
     ) // put any regex in there for the delimiter
 
     assertEquals(Some(("before", "D", "after")), test("PPPbeforePPPDafter"))
@@ -1918,7 +1918,7 @@ class TestRegex extends RegexParsers {
 
     assertEquals(
       Some(("beforeDstillBefore", "D", "after")),
-      test("PPPbeforeEDstillBeforePPPDafter"),
+      test("PPPbeforeEDstillBeforePPPDafter")
     )
 
     // In the test below. Note that S does NOT escape D.
@@ -1927,7 +1927,7 @@ class TestRegex extends RegexParsers {
     // In the test below note that SE is just data because D doesn't follow E
     assertEquals(
       Some(("beforeSEstillBefore", "D", "after")),
-      test("PPPbeforeSEstillBeforePPPDafter"),
+      test("PPPbeforeSEstillBeforePPPDafter")
     )
 
     // to keep out of slash hell, just pretend RN is a \r\n, and N is a \n, and _ is a whitespace.
@@ -1937,12 +1937,12 @@ class TestRegex extends RegexParsers {
 
     assertEquals(
       Some(("before", "RN", "after")),
-      test2("PPPbeforePPPRNafter"),
+      test2("PPPbeforePPPRNafter")
     ) // works because (.*?) is lazy not greedy
 
     assertEquals(
       Some(("beforeRNstillBefore", "__N_", "after")),
-      test2("PPPbeforeRENstillBeforePPP__N_after"),
+      test2("PPPbeforeRENstillBeforePPP__N_after")
     )
 
   }
@@ -1999,7 +1999,7 @@ class TestRegex extends RegexParsers {
             (if (ee1s == null) "" else ee1s) +
               before +
               (if (ee2s == null) "" else ee2s) +
-              (if (ee3s == null) "" else ee3s),
+              (if (ee3s == null) "" else ee3s)
           )
           val delim1 = if (delimAfterPad == null) delimAfterEEs else delimAfterPad
           Some((before1, delim1, after))
@@ -2047,7 +2047,7 @@ class TestRegex extends RegexParsers {
 
     assertEquals(
       Some("beforeEDstillBefore", "D", "after"),
-      test3("beforeEEEDstillBeforeDafter"),
+      test3("beforeEEEDstillBeforeDafter")
     )
 
     assertEquals(Some("beforeEE", "D", "after"), test3("beforeEEEEDafter"))
@@ -2086,7 +2086,7 @@ class TestRegex extends RegexParsers {
       escapeEscape: String,
       escape: String,
       delim: String,
-      padChar: String,
+      padChar: String
     ) = {
       Assert.usage(padChar.length == 1)
       val str = """(?>""" +
@@ -2201,38 +2201,38 @@ class TestRegex extends RegexParsers {
     // no blockstart/end, but escape the delimiter
     assertEquals(
       Some(("beforeDstillBefore", "D", "after")),
-      test("PPPbeforeEDstillBeforePPPDafter"),
+      test("PPPbeforeEDstillBeforePPPDafter")
     )
 
     // with blockstart/end
     assertEquals(
       Some(("beforeDstillBefore", "D", "after")),
-      test("PPPTbeforeDstillBeforeNPPPDafter"),
+      test("PPPTbeforeDstillBeforeNPPPDafter")
     )
 
     // with blockstart/end and esc and escEsc found inside (where they are inactive)
     assertEquals(
       Some(("beforeEDstillBeforeSEDstillBefore", "D", "after")),
-      test("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter"),
+      test("PPPTbeforeEDstillBeforeSEDstillBeforeNPPPDafter")
     )
     // Note: in the above, the SED is ok. No postprocessing. It is escaped in entirety by the T---N pair.
 
     // with blockstart/end, escape the first block end
     assertEquals(
       Some(("beforeDstillBeforeNstillBefore", "D", "after")),
-      test("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter"),
+      test("PPPTbeforeDstillBeforeENstillBeforeNPPPDafter")
     )
 
     // with blockstart/end, escapeEscape the escape of the first block end
     assertEquals(
       Some(("beforeDstillBeforeTstillBeforeE", "D", "after")),
-      test("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter"),
+      test("PPPTbeforeDstillBeforeTstillBeforeSENPPPDafter")
     )
 
     // with blockstart, but escape it so it's not really a block.
     assertEquals(
       Some(("Tbefore", "D", "afterNstillafter")),
-      test("PPPETbeforePPPDafterNstillafter"),
+      test("PPPETbeforePPPDafterNstillafter")
     )
   }
 

@@ -34,7 +34,7 @@ object DFDLCalendarOrder extends Enumeration {
     Calendar.DAY_OF_MONTH,
     Calendar.HOUR_OF_DAY,
     Calendar.MINUTE,
-    Calendar.SECOND,
+    Calendar.SECOND
   )
 }
 

@@ -33,7 +33,7 @@ class BitsCharsetDecoderUTF8 extends BitsCharsetDecoderCreatesSurrogates {
 
   protected override def decodeOneUnicodeChar(
     dis: InputSourceDataInputStream,
-    finfo: FormatInfo,
+    finfo: FormatInfo
   ): Char = {
     val byte1 = getByte(dis, 0)
     if ((byte1 & 0x80) == 0) {
@@ -111,7 +111,7 @@ class BitsCharsetDecoderUTF8 extends BitsCharsetDecoderCreatesSurrogates {
   @inline final def checkContinuationByte(
     dis: InputSourceDataInputStream,
     byte: Int,
-    bitsConsumedSoFar: Int,
+    bitsConsumedSoFar: Int
   ): Unit = {
     if ((byte & 0xc0) != 0x80) {
       // if this is not a continuation byte, that means all bytes consumed so
@@ -129,7 +129,7 @@ class BitsCharsetDecoderUTF8 extends BitsCharsetDecoderCreatesSurrogates {
     mask1: Int,
     byte2: Int,
     mask2: Int,
-    bitsConsumedSoFar: Int,
+    bitsConsumedSoFar: Int
   ): Unit = {
     if ((byte1 & mask1) == 0 && (byte2 & mask2) == 0)
       throw new BitsCharsetDecoderMalformedException(bitsConsumedSoFar)

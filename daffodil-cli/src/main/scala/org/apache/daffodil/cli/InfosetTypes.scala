@@ -102,7 +102,7 @@ object InfosetType extends Enumeration {
     infosetType: InfosetType.Type,
     dataProcessor: DFDL.DataProcessor,
     schemaUri: Option[URI],
-    forPerformance: Boolean,
+    forPerformance: Boolean
   ): InfosetHandler = {
 
     infosetType match {
@@ -202,7 +202,7 @@ sealed trait InfosetHandler {
    */
   final protected def parseWithInfosetOutputter(
     input: InputSourceDataInputStream,
-    output: InfosetOutputter,
+    output: InfosetOutputter
   ): ParseResult = {
     output.setBlobAttributes(Main.blobDir, null, Main.blobSuffix)
     val pr = dataProcessor.parse(input, output)
@@ -214,7 +214,7 @@ sealed trait InfosetHandler {
    */
   final protected def unparseWithInfosetInputter(
     input: InfosetInputter,
-    output: DFDL.Output,
+    output: DFDL.Output
   ): UnparseResult = {
     val ur = dataProcessor.unparse(input, output)
     ur
@@ -225,7 +225,7 @@ sealed trait InfosetHandler {
    */
   final protected def parseWithSax(
     input: InputSourceDataInputStream,
-    contentHandler: ContentHandler,
+    contentHandler: ContentHandler
   ): ParseResult = {
     val xmlReader = dataProcessor.newXMLReaderInstance
     // SAX_NAMESPACE_PREFIXES_FEATURE is needed to preserve nil attributes with EXI
@@ -245,7 +245,7 @@ sealed trait InfosetHandler {
   final protected def unparseWithSax(
     xmlReader: XMLReader,
     input: InputStream,
-    output: DFDL.Output,
+    output: DFDL.Output
   ): UnparseResult = {
     val contentHandler = dataProcessor.newContentHandlerInstance(output)
     xmlReader.setContentHandler(contentHandler)
@@ -608,7 +608,7 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
       uri: String,
       localName: String,
       qName: String,
-      atts: Attributes,
+      atts: Attributes
     ): Unit =
       events += SaxEventStartElement(uri, localName, qName, new AttributesImpl(atts))
 
@@ -660,7 +660,7 @@ case class SAXInfosetHandler(dataProcessor: DataProcessor, forPerformance: Boole
     uri: String,
     localName: String,
     qName: String,
-    atts: Attributes,
+    atts: Attributes
   ) extends SaxEvent {
     def replay(h: ContentHandler): Unit = h.startElement(uri, localName, qName, atts)
   }

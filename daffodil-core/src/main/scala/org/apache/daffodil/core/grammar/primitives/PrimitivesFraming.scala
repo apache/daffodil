@@ -42,7 +42,7 @@ abstract class SkipRegion(e: Term, skipLengthInBits: Int, propName: String)
       "Property %s %s(bits) is larger than limit %s(bits).",
       propName,
       skipLengthInBits,
-      e.tunable.maxSkipLengthInBytes * 8,
+      e.tunable.maxSkipLengthInBytes * 8
     )
   }
 
@@ -60,7 +60,7 @@ case class TrailingSkipRegion(e: Term)
     case eb: ElementBase => {
       e.schemaDefinitionWhen(
         e.trailingSkip > 0 && eb.lengthKind == LengthKind.Delimited && !e.hasTerminator,
-        "Property terminator must be defined when trailingSkip > 0 and lengthKind='delimited'",
+        "Property terminator must be defined when trailingSkip > 0 and lengthKind='delimited'"
       )
     }
     case _ => // ok
@@ -84,7 +84,7 @@ case class MandatoryTextAlignment(e: Term, alignmentInBits: Int, forDelimiter: B
     else if (forDelimiter)
       !e.isDelimiterKnownToBeTextAligned
     else
-      !e.isKnownToBeTextAligned,
+      !e.isKnownToBeTextAligned
   ) {
   Assert.invariant(alignmentInBits > 0)
 

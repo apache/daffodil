@@ -53,7 +53,7 @@ class SAXInfosetInputter(
   unparseContentHandler: DaffodilUnparseContentHandlerImpl,
   dp: DFDL.DataProcessor,
   output: DFDL.Output,
-  resolveRelativeInfosetBlobURIs: Boolean,
+  resolveRelativeInfosetBlobURIs: Boolean
 ) extends InfosetInputter
   with Coroutine[Array[SAXInfosetEvent]] {
 
@@ -84,7 +84,7 @@ class SAXInfosetInputter(
 
   override def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String = {
     val res = if (currentEvent.simpleText.isDefined) {
       currentEvent.simpleText.get
@@ -114,7 +114,7 @@ class SAXInfosetInputter(
       } else {
         throw new InvalidInfosetException(
           "xsi:nil property is not a valid boolean: '" + nilValue +
-            "' for element " + getLocalName(),
+            "' for element " + getLocalName()
         )
       }
     } else {

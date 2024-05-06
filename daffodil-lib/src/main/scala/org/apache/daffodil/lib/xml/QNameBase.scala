@@ -111,7 +111,7 @@ object QName {
   def resolveRef(
     qnameString: String,
     scope: scala.xml.NamespaceBinding,
-    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[RefQName] =
     RefQNameFactory.resolveRef(qnameString, scope, unqualifiedPathStepPolicy)
 
@@ -167,7 +167,7 @@ object QName {
   def resolveStep(
     qnameString: String,
     scope: scala.xml.NamespaceBinding,
-    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[StepQName] =
     StepQNameFactory.resolveRef(qnameString, scope, unqualifiedPathStepPolicy)
 
@@ -175,7 +175,7 @@ object QName {
     name: String,
     targetNamespace: NS,
     isQualified: Boolean,
-    scope: scala.xml.NamespaceBinding,
+    scope: scala.xml.NamespaceBinding
   ) = {
     val ns = if (isQualified) targetNamespace else NoNamespace
     // TODO: where we parse xmlSchemaDocument, a check for
@@ -230,7 +230,7 @@ object QName {
 protected sealed abstract class QNameSyntaxExceptionBase(
   kind: String,
   offendingSyntax: Option[String],
-  cause: Option[Throwable],
+  cause: Option[Throwable]
 ) extends Exception(offendingSyntax.getOrElse(null), cause.getOrElse(null)) {
 
   override def getMessage = {
@@ -493,7 +493,7 @@ protected trait RefQNameFactoryBase[T] {
 
   protected def resolveDefaultNamespace(
     scope: scala.xml.NamespaceBinding,
-    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Option[String]
 
   protected def constructor(prefix: Option[String], local: String, namespace: NS): T
@@ -505,7 +505,7 @@ protected trait RefQNameFactoryBase[T] {
   def resolveRef(
     qnameString: String,
     scope: scala.xml.NamespaceBinding,
-    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[T] = Try {
     qnameString match {
       case QNameRegex.QName(pre, local) => {
@@ -536,7 +536,7 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
 
   override def resolveDefaultNamespace(
     scope: scala.xml.NamespaceBinding,
-    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ) =
     Option(scope.getURI(null)) // could be a default namespace
 
@@ -548,7 +548,7 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
   def resolveExtendedSyntaxRef(
     extSyntax: String,
     scope: scala.xml.NamespaceBinding,
-    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[RefQName] = Try {
     val (pre, ns, local) = QName.parseExtSyntax(extSyntax)
     // note that the prefix, if defined, can never be ""
@@ -563,7 +563,7 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
       case (Some(pre), None, _) => throw new QNameUndefinedPrefixException(pre)
       case (Some(pre), Some(uriString), n) if (n.toString != uriString) =>
         Assert.invariantFailed(
-          "namespace from prefix and scope, and ns argument are inconsitent.",
+          "namespace from prefix and scope, and ns argument are inconsitent."
         )
       case (_, _, n) => Some(n)
     }
@@ -581,7 +581,7 @@ object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
   /* This is what needs Tunables and propagates into Expression */
   override def resolveDefaultNamespace(
     scope: scala.xml.NamespaceBinding,
-    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy,
+    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ) = {
     unqualifiedPathStepPolicy match {
       case UnqualifiedPathStepPolicy.NoNamespace => None // don't consider default namespace

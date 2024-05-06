@@ -40,7 +40,7 @@ object Implicits {
    * Convenience: automatically create buffered stream when needed.
    */
   implicit def byteArrayInputStream2bufferedInputStream(
-    bais: ByteArrayInputStream,
+    bais: ByteArrayInputStream
   ): BufferedInputStream =
     new BufferedInputStream(bais)
 
@@ -73,8 +73,8 @@ object Implicits {
             throw new InterceptFailedException(
               "Failed to intercept expected exception. Expected '%s' but got '%s'.".format(
                 clazz.getName,
-                u.getClass.getName,
-              ),
+                u.getClass.getName
+              )
             )
           } else {
             Some(u)

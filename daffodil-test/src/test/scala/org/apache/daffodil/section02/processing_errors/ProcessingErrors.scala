@@ -32,13 +32,13 @@ object TestProcessingErrors {
     testDir,
     "ProcessingErrors.tdml",
     validateTDMLFile = false,
-    validateDFDLSchemas = false,
+    validateDFDLSchemas = false
   )
   val runner02Validate = Runner(
     testDir,
     "ProcessingErrors.tdml",
     validateTDMLFile = true,
-    validateDFDLSchemas = true,
+    validateDFDLSchemas = true
   )
 
   @AfterClass def shutDown(): Unit = {

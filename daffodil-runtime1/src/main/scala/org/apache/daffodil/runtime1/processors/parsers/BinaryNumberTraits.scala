@@ -95,13 +95,13 @@ trait PrefixedLengthParserMixin {
       state.schemaDefinitionWhen(
         parsedLen < 0,
         "Prefixed length result must be non-negative, but was: %d",
-        parsedLen,
+        parsedLen
       )
       val adjustedLen = parsedLen - prefixedLengthAdjustmentInUnits
       state.schemaDefinitionWhen(
         adjustedLen < 0,
         "Prefixed length result must be non-negative after dfdl:prefixIncludesPrefixLength adjustment , but was: %d",
-        adjustedLen,
+        adjustedLen
       )
       adjustedLen
     } else {
@@ -127,7 +127,7 @@ trait PrefixedLengthParserMixin {
           val mfw = state.encoder.bitsCharset.maybeFixedWidth
           Assert.invariant(
             mfw.isDefined,
-            "Prefixed length for text data in non-fixed width encoding.",
+            "Prefixed length for text data in non-fixed width encoding."
           )
           lenInUnits * mfw.get
         }

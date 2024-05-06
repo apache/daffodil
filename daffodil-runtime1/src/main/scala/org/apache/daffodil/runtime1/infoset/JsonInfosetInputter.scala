@@ -38,7 +38,7 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
     val tok = getNextToken(j)
     if (tok != JsonToken.START_OBJECT) {
       throw new IllegalContentWhereEventExpected(
-        "Expected json content beginning with '{' but got '" + j.getText + "'",
+        "Expected json content beginning with '{' but got '" + j.getText + "'"
       )
     }
     objectDepth += 1
@@ -116,7 +116,7 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
 
   override def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String = {
     if (jsp.getCurrentToken() == JsonToken.VALUE_NULL) {
       null
@@ -181,7 +181,7 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
           case _ =>
             throw new IllegalContentWhereEventExpected(
               "Unexpected json token '" + jsp
-                .getText() + "' on line " + jsp.getTokenLocation().getLineNr(),
+                .getText() + "' on line " + jsp.getTokenLocation().getLineNr()
             )
         }
       }

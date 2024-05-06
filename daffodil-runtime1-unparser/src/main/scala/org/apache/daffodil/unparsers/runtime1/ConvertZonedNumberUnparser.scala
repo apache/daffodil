@@ -27,7 +27,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 case class ConvertZonedCombinatorUnparser(
   rd: TermRuntimeData,
   valueUnparser: Unparser,
-  converterUnparser: Unparser,
+  converterUnparser: Unparser
 ) extends CombinatorUnparser(rd) {
 
   override lazy val runtimeDependencies = Vector()
@@ -47,7 +47,7 @@ case class ConvertZonedNumberUnparser(
   opl: OverpunchLocation.Value,
   optZonedSignStyle: Option[TextZonedSignStyle],
   override val context: ElementRuntimeData,
-  override val textDecimalVirtualPoint: Int,
+  override val textDecimalVirtualPoint: Int
 ) extends PrimUnparser
   with TextDecimalVirtualPointMixin
   with ToBriefXMLImpl {

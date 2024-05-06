@@ -38,7 +38,7 @@ case class RepType(e: ElementBase) extends Terminal(e, e.hasRepType) {
       e.repTypeParseValuesMap,
       e.repTypeParseRangesMap,
       e.repTypeCompareLT,
-      e.repTypeCompareLE,
+      e.repTypeCompareLE
     )
   }
 
@@ -47,7 +47,7 @@ case class RepType(e: ElementBase) extends Terminal(e, e.hasRepType) {
       repTypeUnparser,
       e.elementRuntimeData,
       repTypeRuntimeData,
-      e.repTypeUnparseMap,
+      e.repTypeUnparseMap
     )
   }
 

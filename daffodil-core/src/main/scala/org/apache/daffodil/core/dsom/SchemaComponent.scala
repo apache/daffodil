@@ -35,7 +35,7 @@ import org.apache.daffodil.runtime1.processors.VariableMap
 
 abstract class SchemaComponentImpl(
   final override val xml: Node,
-  final override val optLexicalParent: Option[SchemaComponent],
+  final override val optLexicalParent: Option[SchemaComponent]
 ) extends SchemaComponent {
 
   def this(xml: Node, lexicalParent: SchemaComponent) =
@@ -81,7 +81,7 @@ trait SchemaComponent
       namespaces,
       path,
       schemaFileLocation,
-      tunable.unqualifiedPathStepPolicy,
+      tunable.unqualifiedPathStepPolicy
     )
   }
 
@@ -135,7 +135,7 @@ trait SchemaComponent
         case t: Term => Seq(t)
         case sd: SchemaDocument =>
           Assert.invariantFailed(
-            "enclosing component should never be a schema document for " + this,
+            "enclosing component should never be a schema document for " + this
           )
         case other =>
           other.enclosingComponents.map { _.encloser }.flatMap {
@@ -269,7 +269,7 @@ object Schema {
 final class Schema private (
   val namespace: NS,
   schemaDocs: Seq[SchemaDocument],
-  schemaSetArg: SchemaSet,
+  schemaSetArg: SchemaSet
 ) extends SchemaComponentImpl(<fake/>, Option(schemaSetArg)) {
 
   override def targetNamespace: NS = namespace
@@ -292,7 +292,7 @@ final class Schema private (
               case sc: SchemaComponent => sc.locationDescription
               case _ => Assert.impossibleCase(thing)
             }
-          }.mkString("\n"),
+          }.mkString("\n")
         )
       }
     }

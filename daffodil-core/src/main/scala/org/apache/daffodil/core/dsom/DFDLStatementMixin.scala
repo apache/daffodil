@@ -35,7 +35,7 @@ trait ResolvesDFDLStatementMixin extends ThrowsSDE with ProvidesDFDLStatementMix
 
   private def getParserExprReferencedElements(
     s: DFDLStatement,
-    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo],
+    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]
   ) = {
     s match {
       case a: DFDLAssertionBase if (a.testKind eq TestKind.Expression) => {
@@ -50,7 +50,7 @@ trait ResolvesDFDLStatementMixin extends ThrowsSDE with ProvidesDFDLStatementMix
 
   private def getUnparserExprReferencedElements(
     s: DFDLStatement,
-    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo],
+    f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]
   ) = {
     s match {
       case sv: DFDLSetVariable => {
@@ -75,7 +75,7 @@ trait ResolvesDFDLStatementMixin extends ThrowsSDE with ProvidesDFDLStatementMix
     rei.valueReferencedElementInfos
 
   private def statementReferencedElementInfos(
-    f: DFDLStatement => Set[DPathElementCompileInfo],
+    f: DFDLStatement => Set[DPathElementCompileInfo]
   ) = {
     val stmtSets: Seq[DPathElementCompileInfo] = {
       val s = resolvedStatements
@@ -110,7 +110,7 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
 
   final def annotationFactoryForDFDLStatement(
     node: Node,
-    self: AnnotatedSchemaComponent,
+    self: AnnotatedSchemaComponent
   ): Option[DFDLAnnotation] = {
     val term = self
     node match {
@@ -127,13 +127,13 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
       //
       case <dfdl:property>{_*}</dfdl:property> =>
         SDE(
-          "A dfdl:property annotation element is not allowed without a surrounding dfdl:format, dfdl:element, etc. ",
+          "A dfdl:property annotation element is not allowed without a surrounding dfdl:format, dfdl:element, etc. "
         )
       case e: scala.xml.Elem if mismatchedFormatAnnotation(e) =>
         SDE(
           "DFDL annotation type 'dfdl:%s' invalid. Expected 'dfdl:%s'.",
           e.label,
-          self.formatAnnotationExpectedName,
+          self.formatAnnotationExpectedName
         )
       case _ => SDE("Invalid DFDL annotation found: %s", node)
     }
@@ -236,16 +236,16 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
 
   private def checkDiscriminatorsAssertsDisjoint(
     discrims: Seq[DFDLDiscriminator],
-    asserts: Seq[DFDLAssert],
+    asserts: Seq[DFDLAssert]
   ): (Seq[DFDLDiscriminator], Seq[DFDLAssert]) = {
     schemaDefinitionUnless(
       discrims.size <= 1,
       "At most one discriminator allowed at same location: %s",
-      discrims,
+      discrims
     )
     schemaDefinitionUnless(
       asserts == Nil || discrims == Nil,
-      "Cannot have both dfdl:discriminator annotations and dfdl:assert annotations at the same location.",
+      "Cannot have both dfdl:discriminator annotations and dfdl:assert annotations at the same location."
     )
     (discrims, asserts)
   }
@@ -256,7 +256,7 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
     schemaDefinitionUnless(
       areAllDistinct,
       "Variables referenced by setVariable must all be distinct at the same location: %s",
-      names.distinct,
+      names.distinct
     )
     svs
   }
@@ -267,7 +267,7 @@ trait ProvidesDFDLStatementMixin extends ThrowsSDE with HasTermCheck {
     schemaDefinitionUnless(
       areAllDistinct,
       "Variables referenced by newVariableInstances must all be distinct within the same scope: %s",
-      names.distinct,
+      names.distinct
     )
     nvis
   }

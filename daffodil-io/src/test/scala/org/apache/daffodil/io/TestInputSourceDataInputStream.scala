@@ -245,7 +245,7 @@ class TestInputSourceDataInputStream {
 
   @Test def testSignedLong5(): Unit = {
     val dis = InputSourceDataInputStream(
-      List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xc0).map { _.toByte }.toArray,
+      List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xc0).map { _.toByte }.toArray
     )
     var ml = dis.getSignedLong(1, finfo)
     assertEqualsTyped[Long](1, dis.bitPos0b)
@@ -257,7 +257,7 @@ class TestInputSourceDataInputStream {
 
   @Test def testSignedLong6(): Unit = {
     val dis = InputSourceDataInputStream(
-      List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xc0).map { _.toByte }.toArray,
+      List(0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xc0).map { _.toByte }.toArray
     )
     var ml = dis.getSignedLong(1, finfo)
     assertEqualsTyped[Long](1, dis.bitPos0b)
@@ -371,12 +371,12 @@ class TestInputSourceDataInputStream {
     assertEqualsTyped[Long](0, (valueWithExtraLSByte.and(JBigInt.valueOf(0xff))).intValue())
     assertEqualsTyped[Long](
       0x77,
-      (valueWithExtraLSByte.toByteArray.dropRight(1).last & 0xff).toInt,
+      (valueWithExtraLSByte.toByteArray.dropRight(1).last & 0xff).toInt
     )
     val valueWith3BitsInLSByte = valueWithExtraLSByte.shiftRight(3)
     assertEqualsTyped[Long](
       0xe0,
-      (valueWith3BitsInLSByte.and(JBigInt.valueOf(0xff))).intValue(),
+      (valueWith3BitsInLSByte.and(JBigInt.valueOf(0xff))).intValue()
     )
     val valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian =
       valueWith3BitsInLSByte.toByteArray.toList.reverse :+ 0.toByte
@@ -467,7 +467,7 @@ class TestInputSourceDataInputStream {
   @Test def testGetSomeStringErrors2(): Unit = {
     val badByte = List(0xff.toByte).toArray
     val data = "abc".getBytes("utf-8") ++ badByte ++ "123".getBytes(
-      "utf-8",
+      "utf-8"
     ) ++ badByte ++ badByte ++ "drm".getBytes("utf-8")
     val dis = InputSourceDataInputStream(data)
     val finfo = FormatInfoForUnitTest()
@@ -594,7 +594,7 @@ class TestInputSourceDataInputStream {
     assertTrue(isMatch)
     val hitEnd = m.hitEnd
     assertTrue(
-      !hitEnd,
+      !hitEnd
     ) // because we matched a b (not a b* or b+) we didn't have to look further so did not hit end.
     val requireEnd = m.requireEnd()
     assertTrue(!requireEnd)

@@ -55,7 +55,7 @@ class TestDaffodilCExamplesGenerator {
             <xs:sequence/>
           </xs:choice>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     // Compile the schema into a ProcessorFactory

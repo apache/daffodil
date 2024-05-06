@@ -92,7 +92,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
         val hasBranchKeyRanges = keyTerm.findPropertyOption("choiceBranchKeyRanges").isDefined
         if (!hasBranchKey && !hasBranchKeyRanges) {
           keyTerm.SDE(
-            "Neither dfdl:choiceBranchKey nor dfdlx:choiceBranchKeyRanges is defined.",
+            "Neither dfdl:choiceBranchKey nor dfdlx:choiceBranchKeyRanges is defined."
           )
         }
       }
@@ -171,9 +171,9 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
             kvs
               .map(_._2.context.runtimeData)
               .map(rd =>
-                rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription,
+                rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription
               )
-              .mkString("- ", "\n- ", ""),
+              .mkString("- ", "\n- ", "")
           )
         }
         Try(k.toLong) match {
@@ -191,15 +191,15 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
                 kvs
                   .map(_._2.context.runtimeData)
                   .map(rd =>
-                    rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription,
+                    rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription
                   )
                   .mkString("- ", "\n- ", ""),
                 conflictingRanges
                   .map(_._3.context)
                   .map(rd =>
-                    rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription,
+                    rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription
                   )
-                  .mkString("- ", "\n- ", ""),
+                  .mkString("- ", "\n- ", "")
               )
             }
           }
@@ -229,9 +229,9 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
             conflictingRanges
               .map(_._3.context)
               .map(rd =>
-                rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription,
+                rd.diagnosticDebugName + " " + rd.schemaFileLocation.locationDescription
               )
-              .mkString("- ", "\n- ", ""),
+              .mkString("- ", "\n- ", "")
           )
         }
       })
@@ -258,7 +258,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
         ch.termRuntimeData,
         ch.choiceDispatchKeyEv,
         serializableMap,
-        serializableKeyRangeMap,
+        serializableKeyRangeMap
       )
     }
   }
@@ -297,7 +297,7 @@ case class ChoiceCombinator(ch: ChoiceTermBase, alternatives: Seq[Gram])
            */
           cgr.SDE(
             "At least one branch of hidden choice must be fully defaultable or define dfdl:outputValueCalc:\n%s",
-            ch.groupMembers.mkString("\n"),
+            ch.groupMembers.mkString("\n")
           )
         }
         /*

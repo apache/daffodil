@@ -32,7 +32,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 case class ConvertTextCombinatorUnparser(
   rd: TermRuntimeData,
   valueUnparser: Unparser,
-  converterUnparser: Unparser,
+  converterUnparser: Unparser
 ) extends CombinatorUnparser(rd) {
 
   override lazy val runtimeDependencies = Vector()
@@ -52,7 +52,7 @@ case class ConvertTextNumberUnparser(
   textNumberFormatEv: TextNumberFormatEv,
   zeroRep: Maybe[String],
   override val context: ElementRuntimeData,
-  override val textDecimalVirtualPoint: Int,
+  override val textDecimalVirtualPoint: Int
 ) extends PrimUnparser
   with TextDecimalVirtualPointMixin
   with ToBriefXMLImpl {

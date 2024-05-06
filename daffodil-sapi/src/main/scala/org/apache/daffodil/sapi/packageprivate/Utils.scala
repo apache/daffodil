@@ -27,7 +27,7 @@ package org.apache.daffodil.sapi.packageprivate
 import org.apache.daffodil.lib.api.{ ValidationMode => SValidationMode }
 import org.apache.daffodil.runtime1.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import org.apache.daffodil.runtime1.debugger.{
-  InteractiveDebuggerRunner => SInteractiveDebuggerRunner,
+  InteractiveDebuggerRunner => SInteractiveDebuggerRunner
 }
 import org.apache.daffodil.runtime1.infoset.{ XMLTextEscapeStyle => SXMLTextEscapeStyle }
 import org.apache.daffodil.sapi._

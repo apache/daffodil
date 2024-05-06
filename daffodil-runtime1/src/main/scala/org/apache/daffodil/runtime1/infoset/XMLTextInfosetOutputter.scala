@@ -43,7 +43,7 @@ class XMLTextInfosetOutputter private (
   writer: java.io.BufferedWriter,
   pretty: Boolean,
   xmlTextEscapeStyle: XMLTextEscapeStyle.Value,
-  minimal: Boolean,
+  minimal: Boolean
 ) extends InfosetOutputter
   with Indentable {
 
@@ -51,14 +51,14 @@ class XMLTextInfosetOutputter private (
     os: java.io.OutputStream,
     pretty: Boolean,
     xmlTextEscapeStyle: XMLTextEscapeStyle.Value = XMLTextEscapeStyle.Standard,
-    minimal: Boolean = false,
+    minimal: Boolean = false
   ) = {
     // using a BufferedWriter provides significant performance improvements
     this(
       new java.io.BufferedWriter(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8)),
       pretty,
       xmlTextEscapeStyle,
-      minimal,
+      minimal
     )
   }
 
@@ -149,7 +149,7 @@ class XMLTextInfosetOutputter private (
     val xsr = XMLTextInfoset.xmlInputFactory.createXMLStreamReader(sr)
     val xsw = XMLTextInfoset.xmlOutputFactory.createXMLStreamWriter(
       writer,
-      StandardCharsets.UTF_8.toString,
+      StandardCharsets.UTF_8.toString
     )
     Assert.invariant(xsr.getEventType() == START_DOCUMENT)
     while (xsr.hasNext()) {

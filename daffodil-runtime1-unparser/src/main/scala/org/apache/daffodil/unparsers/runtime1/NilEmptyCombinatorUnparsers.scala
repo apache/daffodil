@@ -25,7 +25,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 case class SimpleNilOrValueUnparser(
   ctxt: ElementRuntimeData,
   nilUnparser: Unparser,
-  valueUnparser: Unparser,
+  valueUnparser: Unparser
 ) extends CombinatorUnparser(ctxt) {
 
   override lazy val runtimeDependencies = Vector()
@@ -51,7 +51,7 @@ case class SimpleNilOrValueUnparser(
 case class ComplexNilOrContentUnparser(
   ctxt: ElementRuntimeData,
   nilUnparser: Unparser,
-  contentUnparser: Unparser,
+  contentUnparser: Unparser
 ) extends CombinatorUnparser(ctxt) {
 
   override lazy val runtimeDependencies = Vector()

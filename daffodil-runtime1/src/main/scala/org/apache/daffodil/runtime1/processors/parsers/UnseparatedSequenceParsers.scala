@@ -26,7 +26,7 @@ trait Unseparated { self: SequenceChildParser =>
 
   final def parseOne(
     pstate: PState,
-    requiredOptional: RequiredOptionalStatus,
+    requiredOptional: RequiredOptionalStatus
   ): ParseAttemptStatus = {
     val prevBitPosBeforeChild = pstate.bitPos0b
     self.childParser.parse1(pstate)
@@ -34,7 +34,7 @@ trait Unseparated { self: SequenceChildParser =>
       self,
       prevBitPosBeforeChild,
       pstate,
-      requiredOptional,
+      requiredOptional
     )
     res
   }
@@ -46,7 +46,7 @@ class ScalarOrderedUnseparatedSequenceChildParser(
   override val childParser: Parser,
   override val srd: SequenceRuntimeData,
   override val trd: TermRuntimeData,
-  override val parseResultHelper: UnseparatedSequenceChildParseResultHelper,
+  override val parseResultHelper: UnseparatedSequenceChildParseResultHelper
 ) extends SequenceChildParser(childParser, srd, trd)
   with Unseparated
   with NonRepeatingSequenceChildParser
@@ -56,7 +56,7 @@ class RepOrderedExactlyNUnseparatedSequenceChildParser(
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
   override val parseResultHelper: UnseparatedSequenceChildParseResultHelper,
-  val repeatCount: Long,
+  val repeatCount: Long
 ) extends OccursCountExactParser(childParser, srd, erd)
   with Unseparated
 
@@ -65,7 +65,7 @@ class RepOrderedExpressionOccursCountUnseparatedSequenceChildParser(
   ocEv: OccursCountEv,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
-  override val parseResultHelper: UnseparatedSequenceChildParseResultHelper,
+  override val parseResultHelper: UnseparatedSequenceChildParseResultHelper
 ) extends OccursCountExpressionParser(childParser, srd, erd, ocEv)
   with Unseparated
 
@@ -73,16 +73,16 @@ class RepOrderedWithMinMaxUnseparatedSequenceChildParser(
   childParser: Parser,
   srd: SequenceRuntimeData,
   erd: ElementRuntimeData,
-  override val parseResultHelper: UnseparatedSequenceChildParseResultHelper,
+  override val parseResultHelper: UnseparatedSequenceChildParseResultHelper
 ) extends OccursCountMinMaxParser(childParser, srd, erd)
   with Unseparated
 
 class OrderedUnseparatedSequenceParser(
   rd: SequenceRuntimeData,
-  childParsersArg: Vector[SequenceChildParser],
+  childParsersArg: Vector[SequenceChildParser]
 ) extends SequenceParserBase(rd, childParsersArg, isOrdered = true)
 
 class UnorderedUnseparatedSequenceParser(
   rd: SequenceRuntimeData,
-  choiceParser: Vector[SequenceChildParser],
+  choiceParser: Vector[SequenceChildParser]
 ) extends SequenceParserBase(rd, choiceParser, isOrdered = false)

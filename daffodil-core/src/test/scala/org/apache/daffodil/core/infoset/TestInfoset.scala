@@ -86,7 +86,7 @@ object TestInfoset {
    */
   def testInfoset(
     testSchema: scala.xml.Elem,
-    infosetAsXML: scala.xml.Elem,
+    infosetAsXML: scala.xml.Elem
   ): (DIElement, Root, DaffodilTunables) = {
     val schemaCompiler =
       Compiler()
@@ -124,7 +124,7 @@ class TestInfoset1 {
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
     )
 
     val xmlInfoset = <list xmlns={ex}><w>4</w></list>
@@ -159,7 +159,7 @@ class TestInfoset1 {
             <xs:element name="c" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
           </xs:choice>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
     )
 
     val xmlInfoset = <list xmlns={ex}><w>4</w><c>7</c></list>
@@ -184,7 +184,7 @@ class TestInfoset1 {
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed"/>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
     )
 
     val xmlInfoset = <list xmlns={ex}><w>4</w><w>5</w></list>
@@ -220,7 +220,7 @@ class TestInfoset1 {
             <xs:element name="c" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
           </xs:choice>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
     )
 
     val xmlInfoset = <list xmlns={ex}><w>4</w><w>5</w><c>7</c></list>
@@ -258,7 +258,7 @@ class TestInfoset1 {
             <xs:element name="x" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" minOccurs="0" maxOccurs="2" dfdl:occursCountKind="parsed" nillable='true' dfdl:nilKind="literalValue" dfdl:nilValue="-"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     val xmlInfoset = <list xmlns={ex} xmlns:xsi={xsi}><x xsi:nil='true'/></list>
@@ -297,7 +297,7 @@ class TestInfoset1 {
             </xs:complexType>
           </xs:element>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
     )
 
     val xmlInfoset = <list xmlns={ex} xmlns:xsi={xsi}><x xsi:nil='true'/></list>
@@ -332,7 +332,7 @@ class TestInfoset1 {
             </xs:complexType>
           </xs:element>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
     )
 
     val xmlInfoset = <list xmlns={ex} xmlns:xsi={
@@ -381,7 +381,7 @@ class TestInfoset1 {
             </xs:complexType>
           </xs:element>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
     )
 
     val xmlInfoset = <list xmlns={ex}><x><c>7</c></x><x><b>8</b></x></list>
@@ -432,7 +432,7 @@ class TestInfoset1 {
           <xs:sequence>
             <xs:element name="enum" type="xs:string" />
           </xs:sequence>
-        </xs:complexType>,
+        </xs:complexType>
     )
 
     val xmlInfoset = <root xmlns={

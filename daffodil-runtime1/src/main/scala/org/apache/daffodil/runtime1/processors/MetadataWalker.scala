@@ -58,7 +58,7 @@ class MetadataWalker(private val dp: DataProcessor) {
 
   private def walkComplexElement(
     handler: MetadataHandler,
-    erd: ElementRuntimeData,
+    erd: ElementRuntimeData
   ): Unit = {
     val mgrd = erd.optComplexTypeModelGroupRuntimeData.getOrElse {
       // $COVERAGE-OFF$
@@ -72,7 +72,7 @@ class MetadataWalker(private val dp: DataProcessor) {
 
   private def walkSimpleElement(
     handler: MetadataHandler,
-    erd: ElementRuntimeData,
+    erd: ElementRuntimeData
   ): Unit = {
     handler.simpleElementMetadata(erd)
   }

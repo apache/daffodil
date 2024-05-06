@@ -86,7 +86,7 @@ object OOLAG {
    */
   abstract class OOLAGHostImpl private (
     oolagContextArg: OOLAGHost,
-    final override val nArgs: Args,
+    final override val nArgs: Args
   ) extends OOLAGHost {
 
     def this(oolagContext: OOLAGHost) = this(oolagContext, OneArg)
@@ -144,7 +144,7 @@ object OOLAG {
     final def setOOLAGContext(oolagContextArg: OOLAGHost): Unit = {
       Assert.usage(
         nArgs == ZeroArgs,
-        "Cannot set oolag context if it was provided as a constructor arg.",
+        "Cannot set oolag context if it was provided as a constructor arg."
       )
       if (oolagContextViaSet != None)
         Assert.usageError("Cannot set oolag context more than once.")
@@ -193,7 +193,7 @@ object OOLAG {
       case ZeroArgs => {
         Assert.usage(
           oolagContextViaSet != None,
-          "Must call setOOLAGContext before accessing when OOLAGHost is constructed with no args.",
+          "Must call setOOLAGContext before accessing when OOLAGHost is constructed with no args."
         )
         oolagContextViaSet
       }
@@ -511,7 +511,7 @@ object OOLAG {
   sealed abstract class OOLAGValueBase(
     val oolagContext: OOLAGHost,
     nameArg: String,
-    body: => Any,
+    body: => Any
   ) {
 
     Assert.usage(oolagContext != null)
@@ -560,7 +560,7 @@ object OOLAG {
       th match {
         case le: scala.Error => { // note that Exception does NOT inherit from Error
           Logger.log.trace(
-            s" " * indent + s"${thisThing} has no value due to ${le}",
+            s" " * indent + s"${thisThing} has no value due to ${le}"
           ) // tell us which lazy attribute it was
           toss(le)
         }
@@ -572,7 +572,7 @@ object OOLAG {
         case ue @ (_: IllegalArgumentException | _: UnsuppressableException) => {
           val ex = ue
           Logger.log.trace(
-            " " * indent + s"${this.getClass.getName} has no value due to ${ex}",
+            " " * indent + s"${this.getClass.getName} has no value due to ${ex}"
           ) // tell us which lazy attribute it was
           toss(ex)
         }
@@ -582,7 +582,7 @@ object OOLAG {
         // can tolerate errors and go on with compilation.
         case eah: ErrorAlreadyHandled => {
           Logger.log.trace(
-            s" " * indent + s"${thisThing} has no value due to ${eah}",
+            s" " * indent + s"${thisThing} has no value due to ${eah}"
           ) // tell us which lazy attribute it was
           toss(eah)
         }
@@ -802,7 +802,7 @@ private[oolag] case object AssumptionFailed extends OOLAGRethrowException {
 
 final case class CircularDefinition(
   val lv: OOLAG.OOLAGValueBase,
-  list: Seq[OOLAG.OOLAGValueBase],
+  list: Seq[OOLAG.OOLAGValueBase]
 ) extends Exception {
   override def getMessage() = {
     "OOLAG Cycle (of " + list.length + ") through " + list.mkString(", ")

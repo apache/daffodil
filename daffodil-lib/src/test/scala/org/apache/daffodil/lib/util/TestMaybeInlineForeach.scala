@@ -118,7 +118,7 @@ final class TestMaybeInlineForeach {
       fail(
         "foreach is taking less than 4x longer than if(x.isDefined)... " +
           "\nMaybe scala compiler is avoiding the function object now? (A good thing!)" +
-          "\nratio ifDefined/foreach time is " + ratio,
+          "\nratio ifDefined/foreach time is " + ratio
       )
     } else {
       println("ratio ifDefined/foreach is " + ratio)
@@ -132,7 +132,7 @@ final class TestMaybeInlineForeach {
     if (ratio2 < 0.8) {
       fail(
         "ifDefined is taking a lot longer than ifNull. They should be about the same. " +
-          "\nratio ifNull/ifDefined is " + ratio2,
+          "\nratio ifNull/ifDefined is " + ratio2
       )
     } else {
       println("ratio ifNull/ifDefined is " + ratio2)

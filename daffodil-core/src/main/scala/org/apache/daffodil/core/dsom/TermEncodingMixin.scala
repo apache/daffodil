@@ -55,7 +55,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
         if (!optionEncodingErrorPolicy.isDefined)
           SDW(
             WarnID.EncodingErrorPolicyError,
-            "Property 'dfdl:encodingErrorPolicy' is required but not defined, using 'replace' by default.",
+            "Property 'dfdl:encodingErrorPolicy' is required but not defined, using 'replace' by default."
           )
         optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
       }
@@ -64,7 +64,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
     schemaDefinitionWarningWhen(
       WarnID.EncodingErrorPolicyError,
       policy == EncodingErrorPolicy.Error,
-      "dfdl:encodingErrorPolicy=\"error\" is not yet implemented. The 'replace' value will be used.",
+      "dfdl:encodingErrorPolicy=\"error\" is not yet implemented. The 'replace' value will be used."
     )
 
     // The encodingErrorPolicy property is essentially ignored. We always use "replace", but
@@ -105,7 +105,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
         WarnID.DeprecatedEncodingNameUSASCII7BitPacked,
         knownEncodingName == "US-ASCII-7-BIT-PACKED",
         "Character set encoding name US-ASCII-7-BIT-PACKED is deprecated." +
-          "Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED.",
+          "Please update your DFDL schema to use the name X-DFDL-US-ASCII-7-BIT-PACKED."
       )
       val cs = charsetEv.optConstant.get
       cs.mandatoryBitAlignment
@@ -121,7 +121,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
       isKnownEncoding,
       isScannable,
       knownEncodingAlignmentInBits,
-      hasTextAlignment,
+      hasTextAlignment
     )
 
   /**

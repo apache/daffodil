@@ -100,7 +100,7 @@ class DaffodilConstructingLoader private[xml] (
   uri: URI,
   errorHandler: org.xml.sax.ErrorHandler,
   addPositionAttributes: Boolean,
-  normalizeCRLFtoLF: Boolean,
+  normalizeCRLFtoLF: Boolean
 ) extends ConstructingParser(
     {
       // Note: we must open the XML carefully since it might be in some non
@@ -111,7 +111,7 @@ class DaffodilConstructingLoader private[xml] (
       val enc = EncodingHeuristics.readEncodingFromStream(is)
       Source.fromInputStream(is, enc)
     },
-    true,
+    true
   ) {
 
   /**
@@ -120,7 +120,7 @@ class DaffodilConstructingLoader private[xml] (
   def this(
     uri: URI,
     errorHandler: org.xml.sax.ErrorHandler,
-    addPositionAttributes: Boolean = false,
+    addPositionAttributes: Boolean = false
   ) =
     this(uri, errorHandler, addPositionAttributes, normalizeCRLFtoLF = true)
 
@@ -195,7 +195,7 @@ class DaffodilConstructingLoader private[xml] (
     attrs: MetaData,
     scope: NamespaceBinding,
     empty: Boolean,
-    nodes: NodeSeq,
+    nodes: NodeSeq
   ): NodeSeq = {
 
     val nsURI = NS(scope.getURI(pre))
@@ -218,7 +218,7 @@ class DaffodilConstructingLoader private[xml] (
               XMLUtils.INT_PREFIX,
               XMLUtils.FILE_ATTRIBUTE_NAME,
               uri.toString,
-              attrs,
+              attrs
             )
           } else {
             attrs
@@ -227,13 +227,13 @@ class DaffodilConstructingLoader private[xml] (
           XMLUtils.INT_PREFIX,
           XMLUtils.COLUMN_ATTRIBUTE_NAME,
           Position.column(pos).toString,
-          withFile,
+          withFile
         )
         val withLine: MetaData = new PrefixedAttribute(
           XMLUtils.INT_PREFIX,
           XMLUtils.LINE_ATTRIBUTE_NAME,
           Position.line(pos).toString,
-          withCol,
+          withCol
         )
         withLine
       } else {
@@ -247,7 +247,7 @@ class DaffodilConstructingLoader private[xml] (
       NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
     } else {
       Assert.usage(
-        intPrefix == null || intPrefix == XMLUtils.INT_PREFIX,
+        intPrefix == null || intPrefix == XMLUtils.INT_PREFIX
       ) // can't deal with some other binding for dafint
       scope
     }
@@ -332,7 +332,7 @@ class DaffodilConstructingLoader private[xml] (
   }
 
   private def parseXMLPrologAttributes(
-    m: MetaData,
+    m: MetaData
   ): (Option[String], Option[String], Option[Boolean]) = {
 
     var info_ver: Option[String] = None
@@ -369,7 +369,7 @@ class DaffodilConstructingLoader private[xml] (
 
     if (m.length - n != 0) {
       reportSyntaxError(
-        "only 'version', 'encoding', and 'standalone' attributes are expected in xml prolog. Found: " + m,
+        "only 'version', 'encoding', and 'standalone' attributes are expected in xml prolog. Found: " + m
       )
     }
 

@@ -49,7 +49,7 @@ object TestSAXUtils {
         <xs:sequence>
           <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit" maxOccurs="unbounded"/>
         </xs:sequence>
-      </xs:complexType>,
+      </xs:complexType>
   )
   lazy val dp: DataProcessor = testDataProcessor(testSchema1)
   lazy val expectedInfoset: Elem =
@@ -68,13 +68,13 @@ object TestSAXUtils {
       .load(
         URISchemaSource(
           Paths.get(qualifiedWithNestedSchemasFilePath).toFile,
-          qualifiedWithNestedSchemasFile,
+          qualifiedWithNestedSchemasFile
         ),
-        None,
+        None
       )
       .asInstanceOf[Elem]
   lazy val dpQualifiedWithNestedSchemas: DataProcessor = testDataProcessor(
-    qualifiedWithNestedSchemasElem,
+    qualifiedWithNestedSchemasElem
   )
   lazy val qualifiedWithNestedSchemasExpectedInfoset: Elem = {
     <b02:seq xmlns:xsi={
@@ -151,9 +151,9 @@ object TestSAXUtils {
       .load(
         URISchemaSource(
           Paths.get(unqualifiedNoNamespacesFilePath).toFile,
-          unqualifiedNoNamespacesFile,
+          unqualifiedNoNamespacesFile
         ),
-        None,
+        None
       )
       .asInstanceOf[Elem]
 
@@ -164,7 +164,7 @@ object TestSAXUtils {
    * namespace, which means it will have no prefix (default) but be in its default namespace
    */
   lazy val dpUnqualifiedNoNamespaces: DataProcessor = testDataProcessor(
-    unqualifiedNoNamespacesElem,
+    unqualifiedNoNamespacesElem
   )
   lazy val unqualifiedNoNamespacesExpectedInfoset: Elem = {
     <x xmlns:xsi={XMLUtils.XSI_NAMESPACE}>
@@ -187,9 +187,9 @@ object TestSAXUtils {
       .load(
         URISchemaSource(
           Paths.get(unqualifiedWithNestedQualifiedFilePath).toFile,
-          unqualifiedWithNestedQualifiedFile,
+          unqualifiedWithNestedQualifiedFile
         ),
-        None,
+        None
       )
       .asInstanceOf[Elem]
 
@@ -200,7 +200,7 @@ object TestSAXUtils {
    * namespace, which means it will have no prefix (default) but be in its default namespace
    */
   lazy val dpUnqualifiedWithNestedQualified: DataProcessor = testDataProcessor(
-    unqualifiedWithNestedQualifiedElem,
+    unqualifiedWithNestedQualifiedElem
   )
   lazy val unqualifiedWithNestedQualifiedExpectedInfoset: Elem = {
     <b02:a xmlns:xsi={
@@ -236,13 +236,13 @@ object TestSAXUtils {
       .load(
         URISchemaSource(
           Paths.get(qualifiedWithDefaultNamespaceFilePath).toFile,
-          qualifiedWithDefaultNamespaceFile,
+          qualifiedWithDefaultNamespaceFile
         ),
-        None,
+        None
       )
       .asInstanceOf[Elem]
   lazy val dpQualifiedWithDefaultNamespaceSchemas: DataProcessor = testDataProcessor(
-    qualifiedWithDefaultNamespaceElem,
+    qualifiedWithDefaultNamespaceElem
   )
   lazy val qualifiedWithDefaultNamespaceExpectedInfoset: Elem = {
     <c xmlns="http://c02.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -262,13 +262,13 @@ object TestSAXUtils {
       .load(
         URISchemaSource(
           Paths.get(qualifiedWithDefaultAndNestedSchemasFilePath).toFile,
-          qualifiedWithDefaultAndNestedSchemasFile,
+          qualifiedWithDefaultAndNestedSchemasFile
         ),
-        None,
+        None
       )
       .asInstanceOf[Elem]
   lazy val dpQualifiedWithDefaultAndNestedSchemas: DataProcessor = testDataProcessor(
-    qualifiedWithDefaultAndNestedSchemasElem,
+    qualifiedWithDefaultAndNestedSchemasElem
   )
   lazy val qualifiedWithDefaultAndNestedSchemasExpectedInfoset: Elem = {
     <a  xmlns="http://b02.com" xmlns:xsi={XMLUtils.XSI_NAMESPACE} xmlns:c02="http://c02.com">
@@ -290,7 +290,7 @@ object TestSAXUtils {
 
   def testDataProcessor(
     testSchema: scala.xml.Elem,
-    tunablesArg: Map[String, String] = Map.empty,
+    tunablesArg: Map[String, String] = Map.empty
   ): DataProcessor = {
     val schemaCompiler = Compiler().withTunables(tunablesArg)
 
@@ -311,12 +311,12 @@ object TestSAXUtils {
     dp: DataProcessor,
     data: String,
     namespaces: Boolean,
-    namespacePrefixes: Boolean,
+    namespacePrefixes: Boolean
   ): (ParseResult, scala.xml.Elem) = {
     val (
       xmlReader: DFDL.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
-      inArray: Array[Byte],
+      inArray: Array[Byte]
     ) = setupSAXParserTest(dp, data, pretty = true)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, namespaces)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, namespacePrefixes)
@@ -331,12 +331,12 @@ object TestSAXUtils {
     dp: DataProcessor,
     data: String,
     namespaces: Boolean,
-    namespacePrefixes: Boolean,
+    namespacePrefixes: Boolean
   ): ByteArrayOutputStream = {
     val (
       xmlReader: DFDL.DaffodilParseXMLReader,
       baos: ByteArrayOutputStream,
-      inArray: Array[Byte],
+      inArray: Array[Byte]
     ) = setupTraceSAXParserTest(dp, data, pretty = true)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, namespaces)
     xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, namespacePrefixes)
@@ -349,7 +349,7 @@ object TestSAXUtils {
   def setupSAXParserTest(
     dp: DFDL.DataProcessor,
     data: String,
-    pretty: Boolean = false,
+    pretty: Boolean = false
   ): (DFDL.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
     val xmlReader = dp.newXMLReaderInstance
     val baos = new ByteArrayOutputStream()
@@ -364,7 +364,7 @@ object TestSAXUtils {
   def setupTraceSAXParserTest(
     dp: DFDL.DataProcessor,
     data: String,
-    pretty: Boolean = false,
+    pretty: Boolean = false
   ): (DFDL.DaffodilParseXMLReader, ByteArrayOutputStream, Array[Byte]) = {
     val xmlReader = dp.newXMLReaderInstance
     val baos = new ByteArrayOutputStream()
@@ -409,7 +409,7 @@ class TestContentHandler(out: OutputStream) extends ContentHandler {
     uri: String,
     localName: String,
     qName: String,
-    atts: Attributes,
+    atts: Attributes
   ): Unit = {
     writer.write(s"startElement($uri, $localName, $qName, ${attributesToString(atts)})$newLine")
   }

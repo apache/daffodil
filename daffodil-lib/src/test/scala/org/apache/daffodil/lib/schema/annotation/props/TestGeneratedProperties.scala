@@ -228,7 +228,7 @@ class TestGeneratedProperties {
     val fl = h.toStringFunctionList
     // System.err.println("There are " + fl.length + " toString functions.")
     assertTrue(
-      fl.length >= 85,
+      fl.length >= 85
     ) // Note: There are extra print functions for things that won't be requested. like "ref".
     // These tests don't work because we no longer make the printed rep of a object contain a listing of all its props.
     //    val str = h.toString

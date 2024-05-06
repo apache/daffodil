@@ -38,7 +38,7 @@ case class EscapeSchemeBlockParserHelper(
   val eec: MaybeChar,
   blockStart: String,
   blockEnd: String,
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends EscapeSchemeParserHelper {
   // Should note there that fieldDFA (not here) is dependent on
   // the whether or not the delimiters are constant or not.
@@ -62,7 +62,7 @@ case class EscapeSchemeCharUnparserHelper(
   val ec: Char,
   val eec: MaybeChar,
   extraEscChar: Seq[Char],
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends EscapeSchemeUnparserHelper {
 
   // We need to look for the escapeCharacter and the extraEscapedCharacters
@@ -86,7 +86,7 @@ case class EscapeSchemeCharUnparserHelper(
   override def toString() = "<EscapeSchemeChar escapeChar='" + ec +
     "' escapeEscapeChar='" + (if (eec.isDefined) eec.get.toString
                               else "") + "' extraEscapedChars='" + extraEscChar.mkString(
-      " ",
+      " "
     ) + "'/>"
 }
 case class EscapeSchemeBlockUnparserHelper(
@@ -95,7 +95,7 @@ case class EscapeSchemeBlockUnparserHelper(
   blockEnd: String,
   private val extraEscChar: Seq[Char],
   generateEscapeBlock: GenerateEscape,
-  ci: DPathCompileInfo,
+  ci: DPathCompileInfo
 ) extends EscapeSchemeUnparserHelper {
 
   // We need to look for the blockEnd

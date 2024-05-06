@@ -29,7 +29,7 @@ import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataIn
  * @param dis the underlying Scala InputSourceDataInputStream
  */
 class InputSourceDataInputStream private[sapi] (
-  private[sapi] val dis: SInputSourceDataInputStream,
+  private[sapi] val dis: SInputSourceDataInputStream
 ) extends java.io.Closeable {
 
   /**

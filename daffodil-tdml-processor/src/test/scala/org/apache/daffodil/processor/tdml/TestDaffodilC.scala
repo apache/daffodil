@@ -64,7 +64,7 @@ class TestDaffodilC {
           <xs:element name="x" type="xs:int"/>
         </xs:sequence>
       </xs:complexType>
-    </xs:element>,
+    </xs:element>
   )
 
   // Checks that test schema compiles successfully without warnings
@@ -72,7 +72,7 @@ class TestDaffodilC {
     val pf = Compiler().compileNode(testSchema)
     assert(
       !pf.isError && pf.getDiagnostics.isEmpty,
-      pf.getDiagnostics.map(_.getMessage()).mkString("\n"),
+      pf.getDiagnostics.map(_.getMessage()).mkString("\n")
     )
   }
 
@@ -147,7 +147,7 @@ class TestDaffodilC {
     val pr = tdp.parse(input, b.length * 8)
     assert(
       !pr.isProcessingError && pr.getDiagnostics.isEmpty,
-      pr.getDiagnostics.map(_.getMessage()).mkString("\n"),
+      pr.getDiagnostics.map(_.getMessage()).mkString("\n")
     )
     val expected = <e1><x>1280</x></e1>
     XMLUtils.compareAndReport(expected, pr.getResult)
@@ -185,7 +185,7 @@ class TestDaffodilC {
     val ur = tdp.unparse(infosetXML, output)
     assert(
       !ur.isProcessingError && ur.getDiagnostics.isEmpty,
-      ur.getDiagnostics.map(_.getMessage()).mkString("\n"),
+      ur.getDiagnostics.map(_.getMessage()).mkString("\n")
     )
     val expected = Misc.hex2Bytes("00000500")
     assertArrayEquals(expected, output.toByteArray)
@@ -222,14 +222,14 @@ class TestDaffodilC {
       useSerializedProcessor,
       optRootName,
       optRootNamespace,
-      tunables,
+      tunables
     )
     cr match {
       case Left(diagnostics) => fail(s"getProcessor failed: ${diagnostics.mkString}")
       case Right((diagnostics, tdmlDFDLProcessor)) =>
         assert(
           diagnostics.forall(!_.isError),
-          diagnostics.filter(_.isError).map(_.getMessage()).mkString("\n"),
+          diagnostics.filter(_.isError).map(_.getMessage()).mkString("\n")
         )
         assert(tdmlDFDLProcessor.isInstanceOf[DaffodilCTDMLDFDLProcessor])
     }

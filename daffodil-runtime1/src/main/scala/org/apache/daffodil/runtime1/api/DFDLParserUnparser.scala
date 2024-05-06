@@ -113,7 +113,7 @@ object DFDL {
     def compileSource(
       schemaSource: DaffodilSchemaSource,
       optRootNodeName: Option[String] = None,
-      optRootNodeNamespace: Option[String] = None,
+      optRootNodeNamespace: Option[String] = None
     ): ProcessorFactory
 
     def reload(savedParser: File): DataProcessor

@@ -181,7 +181,7 @@ class DFDLTestSuite private[tdml] (
   val defaultValidationDefault: String,
   val defaultImplementationsDefault: Seq[String],
   val shouldDoErrorComparisonOnCrossTests: Boolean,
-  val shouldDoWarningComparisonOnCrossTests: Boolean,
+  val shouldDoWarningComparisonOnCrossTests: Boolean
 ) {
 
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
@@ -318,7 +318,7 @@ class DFDLTestSuite private[tdml] (
       loader.load(
         src,
         optTDMLSchema,
-        addPositionAttributes = true,
+        addPositionAttributes = true
       ) // want line numbers for TDML
       //
       (tsNode, src)
@@ -331,7 +331,7 @@ class DFDLTestSuite private[tdml] (
         loader.load(
           schemaSource,
           optTDMLSchema,
-          addPositionAttributes = true,
+          addPositionAttributes = true
         )
       val res = (newNode, schemaSource)
       Logger.log.debug(s"done loading TDML file: ${tdmlFile}")
@@ -342,7 +342,7 @@ class DFDLTestSuite private[tdml] (
         loader.load(
           uriSchemaSource,
           optTDMLSchema,
-          addPositionAttributes = true,
+          addPositionAttributes = true
         )
       val res = (newNode, uriSchemaSource)
       res
@@ -432,7 +432,7 @@ class DFDLTestSuite private[tdml] (
     else {
       throw TDMLException(
         s"TDML file ${tsURISchemaSource.diagnosticFile.getPath} is not valid.",
-        None,
+        None
       )
     }
   }
@@ -512,7 +512,7 @@ class DFDLTestSuite private[tdml] (
     if (dups.size > 0) {
       throw TDMLException(
         "Duplicate definitions found for " + name + ": " + dups.keys.mkString(", "),
-        None,
+        None
       )
     }
   }
@@ -539,7 +539,7 @@ class DFDLTestSuite private[tdml] (
     useSerializedProcessor: Boolean,
     optRootName: Option[String],
     optRootNamespace: Option[String],
-    tunables: Map[String, String],
+    tunables: Map[String, String]
   ): TDML.CompileResult = {
 
     val key = TDMLCompileResultCacheKey(
@@ -548,7 +548,7 @@ class DFDLTestSuite private[tdml] (
       useSerializedProcessor,
       optRootName,
       optRootNamespace,
-      tunables,
+      tunables
     )
 
     val isEmbedded = suppliedSchema.isInstanceOf[EmbeddedSchemaSource]
@@ -657,7 +657,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         throw TDMLException(
           "root attribute name: %s, does not match the name of the root element of the infoset: %s."
             .format(rootAttrib, infosetRootName),
-          None,
+          None
         )
       rootAttrib
     } else rootAttrib
@@ -685,7 +685,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
           val node = parent.loader.load(
             schemaSource,
             Some(XMLUtils.schemaForDFDLSchemas),
-            addPositionAttributes = true,
+            addPositionAttributes = true
           ) // want line numbers for schemas
           if (node ne null) node else <dummy/>
         } catch {
@@ -741,7 +741,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
-    implString: Option[String],
+    implString: Option[String]
   ): Unit
 
   lazy val optEmbeddedSchema = parent.findEmbeddedSchema(model).map { defSchema =>
@@ -757,12 +757,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       case (None, None) =>
         throw TDMLException(
           "Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.",
-          None,
+          None
         )
       case (Some(_), Some(_)) =>
         throw TDMLException(
           "Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.",
-          None,
+          None
         )
       case (Some(embeddedSchemaSource), None) => {
         Assert.invariant(model != "") // validation of the TDML should prevent this
@@ -789,7 +789,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         // Read file, convert to definedConfig
         val node = parent.loader.load(
           URISchemaSource(uriToDiagnosticFile(uri), uri),
-          Some(XMLUtils.dafextURI),
+          Some(XMLUtils.dafextURI)
         )
         if (node eq null)
           throw TDMLException(parent.loadingExceptions.toSeq, None)
@@ -799,12 +799,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       case (name, None, None) if name != "" =>
         throw TDMLException(
           "The " + attrName + " '" + cfgName + "' was not found either as a embedded config, nor as a file.",
-          None,
+          None
         )
       case (name, Some(_), Some(_)) if name != "" =>
         throw TDMLException(
           "The " + attrName + " '" + cfgName + "' is ambiguous. There is an embedded config with that name, AND a file with that name.",
-          None,
+          None
         )
     }
     optDefinedConfig
@@ -847,8 +847,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       new TDMLTestNotCompatibleException(
         testName,
         implementationName,
-        Option(junitExceptionInstance.failed.get),
-      ),
+        Option(junitExceptionInstance.failed.get)
+      )
     )
     throw exceptionToThrow
   }
@@ -915,7 +915,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         useSerializedProcessor,
         Option(rootName),
         Option(rootNamespaceString),
-        tunables,
+        tunables
       )
 
       val newCompileResult: TDML.CompileResult = compileResult.right.map {
@@ -943,7 +943,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
         optExpectedValidationErrors,
         validationMode,
         roundTrip,
-        implString,
+        implString
       )
 
     }
@@ -953,7 +953,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     diagnostics: Seq[Diagnostic],
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
-    implString: Option[String],
+    implString: Option[String]
   ): Unit = {
     Assert.usage(this.isNegativeTest)
 
@@ -965,7 +965,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       VerifyTestCase.verifyAllDiagnosticsFound(
         diagnostics,
         Some(errors),
-        implString,
+        implString
       )
 
     if (
@@ -975,7 +975,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       VerifyTestCase.verifyAllDiagnosticsFound(
         diagnostics,
         optWarnings,
-        implString,
+        implString
       )
   }
 }
@@ -994,12 +994,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optExpectedValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
-    implString: Option[String],
+    implString: Option[String]
   ) = {
 
     Assert.usage(
       optLengthLimitInBits.isDefined,
-      "TDML tests should always have a length limit.",
+      "TDML tests should always have a length limit."
     )
     val nBits = optLengthLimitInBits.get
 
@@ -1019,7 +1019,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               validationMode,
               roundTrip,
               implString,
-              diags,
+              diags
             )
           }
         }
@@ -1039,7 +1039,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               optExpectedValidationErrors,
               validationMode,
               implString,
-              diags,
+              diags
             )
           }
         }
@@ -1047,7 +1047,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       case _ =>
         throw TDMLException(
           "Either tdml:infoset or tdml:errors must be present in the test.",
-          implString,
+          implString
         )
     }
   }
@@ -1060,7 +1060,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic],
+    compileWarnings: Seq[Diagnostic]
   ): Unit = {
 
     try {
@@ -1097,7 +1097,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             val leftOverMsg =
               "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
                 loc.bitPos1b - 1,
-                lengthLimitInBits - (loc.bitPos1b - 1),
+                lengthLimitInBits - (loc.bitPos1b - 1)
               )
             actual.addDiagnostic(new TDMLDiagnostic(leftOverMsg, implString))
             true
@@ -1114,9 +1114,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         TDMLException(
           "Expected error. Didn't get one. Actual result was\n" +
             parseResult.getResult.toString,
-          implString,
+          implString
         ),
-        implString,
+        implString
       )
     }
 
@@ -1130,7 +1130,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     testData: Array[Byte],
     testInfoset: Infoset,
     lengthLimitInBits: Long,
-    implString: Option[String],
+    implString: Option[String]
   ): TDMLParseResult = {
 
     val testDataLength = lengthLimitInBits
@@ -1164,14 +1164,14 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   private def verifyLeftOverData(
     actual: TDMLParseResult,
     lengthLimitInBits: Long,
-    implString: Option[String],
+    implString: Option[String]
   ) = {
     val loc: DataLocation = actual.currentLocation
 
     val leftOverException = if (loc.bitPos1b >= 0 && loc.bitPos1b < lengthLimitInBits) {
       val leftOverMsg = "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
         loc.bitPos1b - 1,
-        lengthLimitInBits - (loc.bitPos1b - 1),
+        lengthLimitInBits - (loc.bitPos1b - 1)
       )
       Some(TDMLException(leftOverMsg, implString))
     } else None
@@ -1185,7 +1185,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     compileWarnings: Seq[Diagnostic],
     actual: TDMLParseResult,
     testInfoset: Infoset,
-    implString: Option[String],
+    implString: Option[String]
   ) = {
     val resultXmlNode = actual.getResult
     VerifyTestCase.verifyParserTestData(resultXmlNode, testInfoset, implString)
@@ -1198,14 +1198,14 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         VerifyTestCase.verifyAllDiagnosticsFound(
           actual.getDiagnostics,
           optExpectedValidationErrors,
-          implString,
+          implString
         ) // verify all validation errors were found
         Assert.invariant(actual.isValidationError)
       }
       case (true, false) => {
         VerifyTestCase.verifyNoValidationErrorsFound(
           actual,
-          implString,
+          implString
         ) // Verify no validation errors from parser
         Assert.invariant(!actual.isValidationError)
       }
@@ -1220,7 +1220,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       VerifyTestCase.verifyAllDiagnosticsFound(
         allDiags,
         optExpectedWarnings,
-        implString,
+        implString
       )
   }
 
@@ -1231,7 +1231,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   private def doOnePassRoundTripUnparseExpectSuccess(
     outStream: OutputStream, // stream where unparsed data is written
     parseResult: TDMLParseResult, // result from prior parse.
-    implString: Option[String],
+    implString: Option[String]
   ): TDMLUnparseResult = {
 
     // in a one pass round trip, the parse test is entirely over, and the infoset comparison
@@ -1252,7 +1252,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     parseResult: TDMLParseResult,
     firstParseTestData: Array[Byte],
     testInfoset: Infoset,
-    passesLabel: String = TwoPassRoundTrip.propValueName,
+    passesLabel: String = TwoPassRoundTrip.propValueName
   ): (TDMLParseResult, Array[Byte], Long) = {
     val outStream = new java.io.ByteArrayOutputStream()
     val unparseResult: TDMLUnparseResult =
@@ -1262,7 +1262,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         VerifyTestCase.verifyUnparserTestData(
           new ByteArrayInputStream(firstParseTestData),
           outStream,
-          implString,
+          implString
         )
         true
       } catch {
@@ -1289,7 +1289,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         throw TDMLException(
           "Unparse result data was was %d bytes, but the result length (%d bits) requires %d bytes."
             .format(reParseTestData.length, reParseTestDataLength, fullBytesNeeded),
-          implString,
+          implString
         )
       }
     }
@@ -1306,7 +1306,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationMode: ValidationMode.Type,
     roundTripArg: RoundTrip,
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic],
+    compileWarnings: Seq[Diagnostic]
   ): Unit = {
 
     val roundTrip =
@@ -1395,7 +1395,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         VerifyTestCase.verifyUnparserTestData(
           new ByteArrayInputStream(firstParseTestData),
           outStream,
-          implString,
+          implString
         )
 
         // Done with the first parse result, safe to clean up blobs if there
@@ -1418,7 +1418,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             implString,
             firstParseResult,
             firstParseTestData,
-            testInfoset,
+            testInfoset
           )
         verifyParseResults(compileWarnings, actual, testInfoset, implString)
         verifyLeftOverData(actual, reParseTestDataLength, implString)
@@ -1450,7 +1450,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             firstParseResult,
             firstParseTestData,
             testInfoset,
-            ThreePassRoundTrip.propValueName,
+            ThreePassRoundTrip.propValueName
           )
         //
         // The infoset from the reparse should be the final
@@ -1471,7 +1471,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         VerifyTestCase.verifyUnparserTestData(
           new ByteArrayInputStream(reParseTestData),
           thirdPassOutStream,
-          implString,
+          implString
         )
 
         // Done with the first parse result and second parse results. Safe to
@@ -1501,7 +1501,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
     roundTrip: RoundTrip,
-    implString: Option[String],
+    implString: Option[String]
   ) = {
 
     (optExpectedData, optErrors) match {
@@ -1534,7 +1534,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[ExpectedWarnings],
     roundTrip: RoundTrip,
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic],
+    compileWarnings: Seq[Diagnostic]
   ): Unit = {
 
     Assert.usage(roundTrip ne TwoPassRoundTrip) // not supported for unparser test cases.
@@ -1562,7 +1562,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         throw TDMLException(
           "Unparse result data was %d bytes, but the result length (%d bits) requires %d bytes."
             .format(testData.length, testDataLength, fullBytesNeeded),
-          implString,
+          implString
         )
       }
     }
@@ -1585,7 +1585,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       VerifyTestCase.verifyAllDiagnosticsFound(
         allDiags,
         optWarnings,
-        implString,
+        implString
       )
 
     if (roundTrip eq OnePassRoundTrip) {
@@ -1615,7 +1615,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         val leftOverMsg =
           "Left over data. Consumed %s bit(s) with %s bit(s) remaining.".format(
             loc.bitPos1b - 1,
-            testDataLength - (loc.bitPos1b - 1),
+            testDataLength - (loc.bitPos1b - 1)
           )
         Some(TDMLException(leftOverMsg, implString))
       } else None
@@ -1629,7 +1629,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         VerifyTestCase.verifyAllDiagnosticsFound(
           actual.getDiagnostics,
           optWarnings,
-          implString,
+          implString
         )
 
       (shouldValidate, expectsValidationError) match {
@@ -1640,14 +1640,14 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           VerifyTestCase.verifyAllDiagnosticsFound(
             actual.getDiagnostics,
             optExpectedValidationErrors,
-            implString,
+            implString
           ) // verify all validation errors were found
           Assert.invariant(actual.isValidationError)
         }
         case (true, false) => {
           VerifyTestCase.verifyNoValidationErrorsFound(
             actual,
-            implString,
+            implString
           ) // Verify no validation errors from parser
           Assert.invariant(!actual.isValidationError)
         }
@@ -1674,7 +1674,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings],
     implString: Option[String],
-    compileWarnings: Seq[Diagnostic],
+    compileWarnings: Seq[Diagnostic]
   ): Unit = {
 
     try {
@@ -1688,7 +1688,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       if (optInputInfoset.isEmpty)
         throw TDMLException(
           "No infoset specified, but one is required to run the test.",
-          implString,
+          implString
         )
       inputInfoset.dfdlInfoset.contents
     }
@@ -1753,7 +1753,7 @@ object VerifyTestCase {
   def verifyUnparserTestData(
     expectedData: InputStream,
     actualOutStream: java.io.ByteArrayOutputStream,
-    implString: Option[String],
+    implString: Option[String]
   ): Unit = {
     val actualBytes = actualOutStream.toByteArray
 
@@ -1771,7 +1771,7 @@ object VerifyTestCase {
       throw TDMLException(
         "Output data length %s for '%s' doesn't match expected value %s for '%s'."
           .format(actualBytes.length, actualAsString, readCount, expectedAsString),
-        implString,
+        implString
       )
     }
 
@@ -1784,7 +1784,7 @@ object VerifyTestCase {
           expected,
           actual,
           actualAsString,
-          expectedAsString,
+          expectedAsString
         )
         throw TDMLException(msg, implString)
       }
@@ -1801,7 +1801,7 @@ object VerifyTestCase {
   def verifyAllDiagnosticsFound(
     actualDiags: Seq[Diagnostic],
     expectedDiags: Option[ErrorWarningBase],
-    implString: Option[String],
+    implString: Option[String]
   ) = {
 
     val actualDiagMsgs = actualDiags.map {
@@ -1822,7 +1822,7 @@ object VerifyTestCase {
              "\n No diagnostic messages were issued."
            else
              "\n The actual diagnostics messages were: " + actualDiagMsgs.mkString("\n")),
-        implString,
+        implString
       )
     }
 
@@ -1842,7 +1842,7 @@ object VerifyTestCase {
                   expectedMsg +
                   """" in any of the actual diagnostic messages: """ + "\n" +
                   actualDiagMsgs.mkString("\n"),
-                implString,
+                implString
               )
             }
           }
@@ -1869,7 +1869,7 @@ object VerifyTestCase {
       throw TDMLException(
         "Validation errors found where none were expected by the test case.\n" +
           actualDiagMsgs.mkString("\n"),
-        implString,
+        implString
       )
     }
   }
@@ -1930,7 +1930,7 @@ object VerifyTestCase {
     expectedData: InputStream,
     actualOutStream: java.io.ByteArrayOutputStream,
     encodingName: String,
-    implString: Option[String],
+    implString: Option[String]
   ): Unit = {
     // Getting this decoder and decoding the bytes to text this way is
     // necessary, as opposed to toString(encodingName), because it is possible
@@ -1976,7 +1976,7 @@ object VerifyTestCase {
       throw TDMLException(
         "output data length " + actualText.length + actualCharsToShow +
           " doesn't match expected length " + expectedText.length + expectedCharsToShow,
-        implString,
+        implString
       )
     }
 
@@ -1994,7 +1994,7 @@ object VerifyTestCase {
   def verifyBinaryOrMixedData(
     expectedData: InputStream,
     actualOutStream: java.io.ByteArrayOutputStream,
-    implString: Option[String],
+    implString: Option[String]
   ): Unit = {
     val actualBytes = actualOutStream.toByteArray
     lazy val actual8859String =
@@ -2021,7 +2021,7 @@ object VerifyTestCase {
       if (actualBytes.nonEmpty) {
         throw TDMLException(
           "Unexpected data was created: '" + displayableActual + "'",
-          implString,
+          implString
         )
       }
       return // we're done. Nothing equals nothing.
@@ -2033,10 +2033,10 @@ object VerifyTestCase {
       throw TDMLException(
         "output data length " + actualBytes.length + bytesToShow +
           " doesn't match expected length " + readCount + " for " + Misc.bytes2Hex(
-            expectedBytes,
+            expectedBytes
           ) +
           expectedAndActualDisplayStrings,
-        implString,
+        implString
       )
     }
 
@@ -2116,7 +2116,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
       fileName = fileName,
       schemaScope = xml.scope,
       elementFormDefault = elementFormDefault,
-      useDefaultNamespace = useDefaultNamespace,
+      useDefaultNamespace = useDefaultNamespace
     )
 
   lazy val schemaSource = EmbeddedSchemaSource(xsdSchema, name)
@@ -2186,7 +2186,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
         else {
           // Some mixture of explicit and non-explicit bitOrder
           Assert.usageError(
-            "Must specify bitOrder on document element when parts have a mixture of bit orders.",
+            "Must specify bitOrder on document element when parts have a mixture of bit orders."
           )
         }
       }
@@ -2223,7 +2223,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
         case scala.xml.PCData(s) => // ok
         case scala.xml.EntityRef(_) => // ok
         case _: scala.xml.Atom[
-              _,
+              _
             ] => // ok. Things like &lt; come through as this. Should be EntityRef("lt")
         case x => Assert.usageError("Illegal TDML data document content '" + x + "'")
       }
@@ -2247,7 +2247,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
     Assert.usage(
       fps.isEmpty ||
         (fps.length == 1 && dataDocumentParts.isEmpty),
-      "There can be only one documentPart of type file, and it must be the only documentPart.",
+      "There can be only one documentPart of type file, and it must be the only documentPart."
     )
     fps
   }
@@ -2280,7 +2280,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
       case (((bitOrderPrior, bitOrderHere), cumulativeLength), docPart) => {
         Assert.usage(
           (bitOrderPrior == bitOrderHere) || ((cumulativeLength % 8) == 0),
-          "bitOrder can only change on a byte boundary.",
+          "bitOrder can only change on a byte boundary."
         )
       }
     }
@@ -2367,7 +2367,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
     if (res) {
       Assert.usage(
         documentParts.length == 1,
-        "There can be only one documentPart of type file, and it must be the only documentPart.",
+        "There can be only one documentPart of type file, and it must be the only documentPart."
       )
     }
     res
@@ -2395,7 +2395,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
       }
       case null =>
         Assert.usageError(
-          "Unsupported encoding: " + encodingName + ". Supported encodings: " + CharsetUtils.supportedEncodingsString,
+          "Unsupported encoding: " + encodingName + ". Supported encodings: " + CharsetUtils.supportedEncodingsString
         )
       case _ => // ok
     }
@@ -2540,8 +2540,8 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
     val maybeURI = parent.parent.parent.findTDMLResource(partRawContent.trim())
     val uri = maybeURI.getOrElse(
       throw new FileNotFoundException(
-        "TDMLRunner: data file '" + partRawContent + "' was not found",
-      ),
+        "TDMLRunner: data file '" + partRawContent + "' was not found"
+      )
     )
     val url = uri.toURL
     if (url.getProtocol() == "file") {
@@ -2596,7 +2596,7 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
     }
     Assert.usage(
       !isInstanceOf[FileDocumentPart],
-      "bitOrder may not be specified on document parts of type 'file'",
+      "bitOrder may not be specified on document parts of type 'file'"
     )
     bitOrd
   }
@@ -2608,7 +2608,7 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
       case "RTL" => {
         Assert.usage(
           partBitOrder == LSBFirst,
-          "byteOrder RTL can only be used with bitOrder LSBFirst",
+          "byteOrder RTL can only be used with bitOrder LSBFirst"
         )
         RTL
       }
@@ -2618,7 +2618,7 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
     }
     Assert.usage(
       this.isInstanceOf[ByteDocumentPart] || this.isInstanceOf[BitsDocumentPart],
-      "byteOrder many only be specified for document parts of type 'byte' or 'bits'",
+      "byteOrder many only be specified for document parts of type 'byte' or 'bits'"
     )
     bo
   }
@@ -2695,7 +2695,7 @@ object CanonData {
 
     if (doWarning) {
       Logger.log.warn(
-        "Data contains invalid character(s). Consider using a comment (// or /* */).",
+        "Data contains invalid character(s). Consider using a comment (// or /* */)."
       )
     }
 
@@ -2729,8 +2729,8 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
           val maybeURI = parent.parent.parent.findTDMLResource(path)
           val uri = maybeURI.getOrElse(
             throw new FileNotFoundException(
-              "TDMLRunner: infoset file '" + path + "' was not found",
-            ),
+              "TDMLRunner: infoset file '" + path + "' was not found"
+            )
           )
           URISchemaSource(uriToDiagnosticFile(uri), uri)
         }
@@ -2765,7 +2765,7 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
   lazy val contents = {
     Assert.usage(
       infosetNodeSeq.size == 1,
-      "dfdlInfoset element must contain a single root element",
+      "dfdlInfoset element must contain a single root element"
     )
     val c = infosetNodeSeq.head
     c
@@ -2932,7 +2932,7 @@ case class TDMLCompileResultCacheKey(
   useSerializedProcessor: Boolean,
   optRootName: Option[String],
   optRootNamespace: Option[String],
-  tunables: Map[String, String],
+  tunables: Map[String, String]
 )
 
 /**
@@ -2948,7 +2948,7 @@ case class TDMLCompileResultCacheKey(
  */
 case class TDMLCompileResultCacheValue(
   compileResult: TDML.CompileResult,
-  var optExpireTimeMillis: Option[Long] = None,
+  var optExpireTimeMillis: Option[Long] = None
 )
 
 /**
@@ -2995,7 +2995,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
 
   def getCompileResult(
     impl: AbstractTDMLDFDLProcessorFactory,
-    key: TDMLCompileResultCacheKey,
+    key: TDMLCompileResultCacheKey
   ): TDML.CompileResult = this.synchronized {
 
     if (entryExpireDurationSeconds.isDefined) {
@@ -3019,7 +3019,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
         key.useSerializedProcessor,
         key.optRootName,
         key.optRootNamespace,
-        key.tunables,
+        key.tunables
       )
       cache += (key -> TDMLCompileResultCacheValue(compileResult, None))
       compileResult match {

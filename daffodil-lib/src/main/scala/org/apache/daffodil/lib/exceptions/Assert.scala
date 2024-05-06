@@ -172,7 +172,7 @@ object Assert extends Assert {
   }
 
   def impossible(
-    message: String = "impossible! this code path is supposed to be unreachable.",
+    message: String = "impossible! this code path is supposed to be unreachable."
   ): Nothing = {
     abort(message)
   }

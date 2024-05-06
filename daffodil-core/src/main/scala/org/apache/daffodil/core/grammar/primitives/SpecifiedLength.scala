@@ -81,7 +81,7 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
     // Anything else is an error.
     e.SDE(
       "Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.",
-      e.diagnosticDebugName,
+      e.diagnosticDebugName
     )
   }
 
@@ -111,7 +111,7 @@ trait SpecifiedLengthExplicitImplicitUnparserMixin {
         u,
         e.elementRuntimeData,
         e.unparseTargetLengthInBitsEv,
-        e.maybeUnparseTargetLengthInCharactersEv,
+        e.maybeUnparseTargetLengthInCharactersEv
       )
   }
 }
@@ -131,7 +131,7 @@ class SpecifiedLengthExplicit(e: ElementBase, eGram: => Gram, bitsMultiplier: In
         eParser,
         e.elementRuntimeData,
         e.lengthEv,
-        bitsMultiplier,
+        bitsMultiplier
       )
   }
 
@@ -167,7 +167,7 @@ class SpecifiedLengthPrefixed(e: ElementBase, eGram: => Gram, bitsMultiplier: In
     e.prefixedLengthBody.parser,
     plerd,
     e.lengthUnits,
-    pladj,
+    pladj
   )
 
   lazy val unparser: Unparser = {
@@ -177,7 +177,7 @@ class SpecifiedLengthPrefixed(e: ElementBase, eGram: => Gram, bitsMultiplier: In
       !e.encodingInfo.knownEncodingIsFixedWidth
     )
       e.subsetError(
-        "Unparsing with dfdl:lengthUnits 'characters' for complex types requires a fixed-width known (constant) encoding.",
+        "Unparsing with dfdl:lengthUnits 'characters' for complex types requires a fixed-width known (constant) encoding."
       )
     new SpecifiedLengthPrefixedUnparser(
       eUnparser,
@@ -185,7 +185,7 @@ class SpecifiedLengthPrefixed(e: ElementBase, eGram: => Gram, bitsMultiplier: In
       e.prefixedLengthBody.unparser,
       plerd,
       e.lengthUnits,
-      pladj,
+      pladj
     )
   }
 }
@@ -220,12 +220,12 @@ class SpecifiedLengthPrefixedCharacters(e: ElementBase, eGram: => Gram)
     e.elementRuntimeData,
     e.prefixedLengthBody.parser,
     e.prefixedLengthElementDecl.elementRuntimeData,
-    e.prefixedLengthAdjustmentInUnits,
+    e.prefixedLengthAdjustmentInUnits
   )
 
   lazy val unparser: Unparser =
     e.subsetError(
       """Unparsing with dfdl:lengthKind='prefixed' and dfdl:lengthUnits='characters' and
-        |a non-constant or variable-width encoding is not supported.""".stripMargin,
+        |a non-constant or variable-width encoding is not supported.""".stripMargin
     )
 }

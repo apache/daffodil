@@ -34,7 +34,7 @@ import org.apache.daffodil.runtime1.processors.TextNumberFormatEv
 case class ConvertZonedCombinatorParser(
   rd: TermRuntimeData,
   valueParser: Parser,
-  converterParser: Parser,
+  converterParser: Parser
 ) extends CombinatorParser(rd) {
 
   override lazy val runtimeDependencies = Vector()
@@ -54,7 +54,7 @@ case class ConvertZonedNumberParser(
   textNumberFormatEv: TextNumberFormatEv,
   optZonedSignStyle: Option[TextZonedSignStyle],
   override val context: ElementRuntimeData,
-  override val textDecimalVirtualPoint: Int,
+  override val textDecimalVirtualPoint: Int
 ) extends TextPrimParser
   with TextDecimalVirtualPointMixin {
 
@@ -71,7 +71,7 @@ case class ConvertZonedNumberParser(
       PE(
         start,
         "Unable to parse zoned %s from empty string",
-        context.optPrimType.get.globalQName,
+        context.optPrimType.get.globalQName
       )
       return
     }
@@ -91,7 +91,7 @@ case class ConvertZonedNumberParser(
               "Unable to parse zoned %s from text: %s. %s",
               context.optPrimType.get.globalQName,
               str,
-              e.getMessage,
+              e.getMessage
             )
             return
           }
@@ -108,7 +108,7 @@ case class ConvertZonedNumberParser(
           start,
           "Unable to parse zoned %s from text: %s.",
           context.optPrimType.get.globalQName,
-          str,
+          str
         )
         return
       }

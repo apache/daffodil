@@ -37,12 +37,12 @@ class TestSvrlOutput {
     Files.write(
       conf,
       s"""schematron.path="${jsonEscape(schematron.toString)}"\n""".getBytes(UTF_8),
-      APPEND,
+      APPEND
     )
     Files.write(
       conf,
       s"""schematron.svrl.file="${jsonEscape(svrl.toString)}"\n""".getBytes(UTF_8),
-      APPEND,
+      APPEND
     )
   }
 
@@ -73,7 +73,7 @@ class TestSvrlOutput {
               fail("schematron pattern didnt match")
           }
         }
-      },
+      }
     )
   }
 
@@ -105,7 +105,7 @@ class TestSvrlOutput {
               fail("schematron pattern didnt match")
           }
         }
-      },
+      }
     )
   }
 
@@ -113,7 +113,7 @@ class TestSvrlOutput {
   // based on negative test test_996_CLI_Parsing_negativeTest04
   @Test def parseFailure(): Unit = {
     val schema = path(
-      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
     val schematron = path("daffodil-schematron/src/test/resources/sch/never-fails.sch")
 
@@ -128,7 +128,7 @@ class TestSvrlOutput {
             cli.expectErr("No root element found for unknown in any available namespace")
           }(ExitCode.UnableToCreateProcessor)
         }
-      },
+      }
     )
   }
 
@@ -147,7 +147,7 @@ class TestSvrlOutput {
         runCLI(args"parse --validate schematron=$conf -s $schema $input") { cli =>
           cli.expectErr("[error] Validation Error")
         }(ExitCode.ParseError)
-      },
+      }
     )
   }
 
@@ -181,7 +181,7 @@ class TestSvrlOutput {
               fail("schematron pattern didnt match")
           }
         }
-      },
+      }
     )
   }
 

@@ -31,7 +31,7 @@ import org.apache.daffodil.tdml.TDMLException
 
 class TDMLInfosetInputter(
   val scalaInputter: ScalaXMLInfosetInputter,
-  others: Seq[InfosetInputter],
+  others: Seq[InfosetInputter]
 ) extends InfosetInputter {
 
   private def implString: String = "daffodil"
@@ -71,7 +71,7 @@ class TDMLInfosetInputter(
 
   override def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String = {
     val res = scalaInputter.getSimpleText(primType, runtimeProperties)
     val resIsEmpty = res == null || res == ""

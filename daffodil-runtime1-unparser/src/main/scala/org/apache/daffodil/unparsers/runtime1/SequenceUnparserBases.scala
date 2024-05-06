@@ -23,7 +23,7 @@ import org.apache.daffodil.runtime1.processors.unparsers._
 
 abstract class OrderedSequenceUnparserBase(
   srd: SequenceRuntimeData,
-  childUnparsers: Vector[Unparser],
+  childUnparsers: Vector[Unparser]
 ) extends CombinatorUnparser(srd) {
 
   override def nom = "Sequence"

@@ -58,7 +58,7 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
         Read,
         CloseInput,
         Write,
-        CloseOutput,
+        CloseOutput
       )
 
     def apply(name: String): Loc = apply(name, context)
@@ -125,7 +125,7 @@ final class STL_BombOutLayer() extends Layer("stlBombOutLayer", "urn:STL") {
   private[layers] def setLayerVariableParameters(
     intVar: Int,
     bombWhere: String,
-    bombHow: String,
+    bombHow: String
   ): Unit = {
     this.bombWhere = Loc(bombWhere)
     this.bombHow = Kind(bombHow)

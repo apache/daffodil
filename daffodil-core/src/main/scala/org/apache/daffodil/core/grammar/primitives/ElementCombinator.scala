@@ -71,7 +71,7 @@ class ElementCombinator(
   eBeforeContent: Gram,
   eValue: Gram,
   eAfterValue: Gram,
-  repTypeElementGram: Gram = EmptyGram,
+  repTypeElementGram: Gram = EmptyGram
 ) extends NamedGram(context)
   with Padded {
 
@@ -82,7 +82,7 @@ class ElementCombinator(
     eBeforeContent,
     eValue,
     eAfterValue,
-    repTypeElementGram,
+    repTypeElementGram
   )
 
   override lazy val parser: Parser = {
@@ -120,7 +120,7 @@ class ElementCombinator(
         eBeforeUnparser,
         eUnparser,
         eAfterUnparser,
-        context.ovcCompiledExpression,
+        context.ovcCompiledExpression
       )
     } else if (
       (context.lengthKind._eq_(LengthKind.Explicit)) ||
@@ -136,7 +136,7 @@ class ElementCombinator(
         eBeforeUnparser,
         eUnparser,
         eAfterUnparser,
-        eReptypeUnparser,
+        eReptypeUnparser
       )
     } else {
       subComb.unparser
@@ -149,7 +149,7 @@ case class ElementUnused(ctxt: ElementBase)
   extends Terminal(
     ctxt,
     ctxt.shouldAddFill ||
-      ctxt.shouldCheckExcessLength,
+      ctxt.shouldCheckExcessLength
   ) {
   override def parser = new NadaParser(ctxt.erd)
 
@@ -158,7 +158,7 @@ case class ElementUnused(ctxt: ElementBase)
     ctxt.maybeUnparseTargetLengthInBitsEv.get,
     ctxt.maybeLengthEv,
     ctxt.maybeCharsetEv,
-    ctxt.maybeLiteralNilEv,
+    ctxt.maybeLiteralNilEv
   )
 }
 
@@ -177,7 +177,7 @@ case class OnlyPadding(ctxt: ElementBase)
       ctxt.maybeLengthEv,
       ctxt.maybeCharsetEv,
       ctxt.maybeLiteralNilEv,
-      unparsingPadChar,
+      unparsingPadChar
     )
   }
 }
@@ -194,7 +194,7 @@ case class RightCenteredPadding(ctxt: ElementBase)
       ctxt.maybeLengthEv,
       ctxt.maybeCharsetEv,
       ctxt.maybeLiteralNilEv,
-      unparsingPadChar,
+      unparsingPadChar
     )
 }
 
@@ -210,7 +210,7 @@ case class LeftCenteredPadding(ctxt: ElementBase)
       ctxt.maybeLengthEv,
       ctxt.maybeCharsetEv,
       ctxt.maybeLiteralNilEv,
-      unparsingPadChar,
+      unparsingPadChar
     )
 }
 
@@ -218,7 +218,7 @@ case class RightFill(ctxt: ElementBase)
   extends Terminal(
     ctxt,
     ctxt.shouldAddFill ||
-      ctxt.shouldCheckExcessLength,
+      ctxt.shouldCheckExcessLength
   )
   with Padded {
   override def parser = new NadaParser(ctxt.erd)
@@ -229,7 +229,7 @@ case class RightFill(ctxt: ElementBase)
     ctxt.maybeLengthEv,
     ctxt.maybeCharsetEv,
     ctxt.maybeLiteralNilEv,
-    unparsingPadChar,
+    unparsingPadChar
   )
 }
 
@@ -315,7 +315,7 @@ class ElementParseAndUnspecifiedLength(
   val eBeforeGram: Gram,
   val eGram: Gram,
   val eAfterGram: Gram,
-  val repTypeElementGram: Gram,
+  val repTypeElementGram: Gram
 ) extends ElementCombinatorBase(context, eBeforeGram, eGram, eAfterGram, repTypeElementGram) {
 
   lazy val parser: Parser =
@@ -331,7 +331,7 @@ class ElementParseAndUnspecifiedLength(
         eBeforeParser,
         eParser,
         eAfterParser,
-        eRepTypeParser,
+        eRepTypeParser
       )
     else
       new ElementParserInputValueCalc(
@@ -344,7 +344,7 @@ class ElementParseAndUnspecifiedLength(
         testAssert,
         eBeforeParser,
         eParser,
-        eAfterParser,
+        eAfterParser
       )
 
   override lazy val unparser: Unparser = {
@@ -355,7 +355,7 @@ class ElementParseAndUnspecifiedLength(
           uSetVar,
           eBeforeUnparser,
           eUnparser,
-          eAfterUnparser,
+          eAfterUnparser
         )
       } else {
         new ElementUnspecifiedLengthUnparser(
@@ -364,7 +364,7 @@ class ElementParseAndUnspecifiedLength(
           eBeforeUnparser,
           eUnparser,
           eAfterUnparser,
-          eRepTypeUnparser,
+          eRepTypeUnparser
         )
       }
     } else {
@@ -381,7 +381,7 @@ abstract class ElementCombinatorBase(
   eGramBefore: Gram,
   eGram: Gram,
   eGramAfter: Gram,
-  repTypeElementGram: Gram,
+  repTypeElementGram: Gram
 ) extends NamedGram(context) {
 
   override def toString: String =

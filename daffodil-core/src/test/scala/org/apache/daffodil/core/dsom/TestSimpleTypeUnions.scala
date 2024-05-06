@@ -64,7 +64,7 @@ class TestSimpleTypeUnions {
           <dfdl:assert test="{ fn:true() or /ex:e1 eq 0 }" />
         </xs:appinfo>
       </xs:annotation>
-    </xs:element>,
+    </xs:element>
   )
 
   @Test def testUnion01(): Unit = {
@@ -218,7 +218,7 @@ class TestSimpleTypeUnions {
           <dfdl:assert test="{ fn:true() or /ex:e1 eq 0 }" />
         </xs:appinfo>
       </xs:annotation>
-    </xs:element>,
+    </xs:element>
   )
 
   @Test def testUnionNot3(): Unit = {
@@ -292,7 +292,7 @@ class TestSimpleTypeUnions {
     val umstrd = i.unionMemberRuntimeData.get
     assertEquals(
       "ex:negIntType",
-      umstrd.diagnosticDebugName,
+      umstrd.diagnosticDebugName
     ) // anonymous simple type gets this name from base.
     assertTrue(i.valid.get)
     val expected = <e1>-1</e1>
@@ -343,7 +343,7 @@ class TestSimpleTypeUnions {
           <dfdl:assert test="{ fn:true() or /ex:e1 eq '' }" />
         </xs:appinfo>
       </xs:annotation>
-    </xs:element>,
+    </xs:element>
   )
 
   @Test def testRestrictionOnUnion_01(): Unit = {

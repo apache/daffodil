@@ -300,7 +300,7 @@ class TestTDMLRunner {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>,
+      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
     )
 
     val tmpSchemaFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
@@ -334,7 +334,7 @@ class TestTDMLRunner {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat"/>,
-      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>,
+      <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
     )
 
     val tmpSchemaFile = File.createTempFile("daffodil-tdml-", ".dfdl.xsd")
@@ -911,7 +911,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     }
     runner.reset
     assertTrue(
-      exc.getMessage().contains("Duplicate definitions found for defineSchema: dupSchema"),
+      exc.getMessage().contains("Duplicate definitions found for defineSchema: dupSchema")
     )
   }
 
@@ -950,7 +950,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertTrue(
       exc
         .getMessage()
-        .contains("Duplicate definitions found for parser or unparser test cases: dupTestCase"),
+        .contains("Duplicate definitions found for parser or unparser test cases: dupTestCase")
     )
   }
 
@@ -962,8 +962,8 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     }
     assertTrue(
       exc.getMessage.contains(
-        "argument was not a scala.xmlNode, File, or URISchemaSource: null",
-      ),
+        "argument was not a scala.xmlNode, File, or URISchemaSource: null"
+      )
     )
   }
 
@@ -975,7 +975,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     }
     assertTrue(
       exc.getMessage().contains("TDML file") &&
-        exc.getMessage().contains("is not valid"),
+        exc.getMessage().contains("is not valid")
     )
   }
 
@@ -1008,7 +1008,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     }
     runner.reset
     assertTrue(
-      exc.getMessage().contains("Duplicate definitions found for defineConfig: dupConfig"),
+      exc.getMessage().contains("Duplicate definitions found for defineConfig: dupConfig")
     )
   }
 

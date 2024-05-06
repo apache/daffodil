@@ -86,7 +86,7 @@ class W3CDOMInfosetInputter(doc: Document) extends InfosetInputter {
 
   override def getSimpleText(
     primType: NodeInfo.Kind,
-    runtimeProperties: java.util.Map[String, String],
+    runtimeProperties: java.util.Map[String, String]
   ): String = {
     val text =
       if (stack.top._2.hasNext) {
@@ -123,7 +123,7 @@ class W3CDOMInfosetInputter(doc: Document) extends InfosetInputter {
         MaybeBoolean(false)
       } else {
         throw new InvalidInfosetException(
-          "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.getNodeName,
+          "xsi:nil property is not a valid boolean: '" + nilAttrValue + "' for element " + elem.getNodeName
         )
       }
     res

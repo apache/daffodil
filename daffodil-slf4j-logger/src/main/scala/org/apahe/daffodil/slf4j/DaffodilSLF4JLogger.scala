@@ -106,7 +106,7 @@ class DaffodilLogger(name: String) extends AbstractLogger {
     marker: Marker,
     msg: String,
     arguments: Array[Object],
-    throwable: Throwable,
+    throwable: Throwable
   ): Unit = {
 
     val loggerConfig = perThreadLoggerConfig.get

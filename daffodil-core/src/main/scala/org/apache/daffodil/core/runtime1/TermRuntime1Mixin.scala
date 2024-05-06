@@ -210,7 +210,7 @@ trait TermRuntime1Mixin { self: Term =>
    */
   lazy val (
     hasNamesDifferingOnlyByNS: Boolean,
-    possibleNextLexicalSiblingStreamingUnparserElements: PossibleNextElements,
+    possibleNextLexicalSiblingStreamingUnparserElements: PossibleNextElements
   ) = {
     var hasNamesDifferingOnlyByNS = false
     val possibles = this match {
@@ -261,7 +261,7 @@ trait TermRuntime1Mixin { self: Term =>
               "Infoset representations that do not support namespaces " +
               "cannot differentiate between these elements and " +
               "may fail to unparse. QNames are: %s",
-            sameNamesEB.map(_.e.namedQName.toExtendedSyntax).mkString(", "),
+            sameNamesEB.map(_.e.namedQName.toExtendedSyntax).mkString(", ")
           )
           hasNamesDifferingOnlyByNS = true
         }
@@ -471,14 +471,14 @@ trait TermRuntime1Mixin { self: Term =>
             new OnlyOnePossibilityForNextElement(
               trd,
               sibs.head.e.erd,
-              isRequiredStreamingUnparserEvent,
+              isRequiredStreamingUnparserEvent
             )
           case _ => {
             new SeveralPossibilitiesForNextElement(
               trd,
               eltMap,
               hasNamesDifferingOnlyByNS,
-              isRequiredStreamingUnparserEvent,
+              isRequiredStreamingUnparserEvent
             )
           }
         }

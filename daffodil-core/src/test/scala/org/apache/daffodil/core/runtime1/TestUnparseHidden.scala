@@ -62,7 +62,7 @@ class TestUnparseHidden {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema1,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
     val infoset =
@@ -80,7 +80,7 @@ class TestUnparseHidden {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema1,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
     val infoset =
@@ -131,7 +131,7 @@ class TestUnparseHidden {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema2,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
     val infoset =
@@ -150,7 +150,7 @@ class TestUnparseHidden {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema2,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
     val infoset =
@@ -206,7 +206,7 @@ class TestUnparseHidden {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema3,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
     val infoset =
@@ -228,7 +228,7 @@ class TestUnparseHidden {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schema3,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
     val infoset =
@@ -280,7 +280,7 @@ class TestUnparseHidden {
       <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>,
       <dfdl:format ref="tns:GeneralFormat" lengthKind="explicit"/>,
       schemaX,
-      elementFormDefault = "unqualified",
+      elementFormDefault = "unqualified"
     )
 
     val infoset =

@@ -65,7 +65,7 @@ sealed trait Unparser extends Processor {
           }
           case rd: RuntimeData =>
             Assert.invariantFailed(
-              "Primitive unparser " + u + " has non-Term runtime data: " + rd,
+              "Primitive unparser " + u + " has non-Term runtime data: " + rd
             )
         }
       }
@@ -202,7 +202,7 @@ case class NotUnparsableUnparser(override val context: ElementRuntimeData)
     val rsde = new RuntimeSchemaDefinitionError(
       context.schemaFileLocation,
       state,
-      "This schema was compiled without unparse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property.",
+      "This schema was compiled without unparse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property."
     )
     context.toss(rsde)
   }

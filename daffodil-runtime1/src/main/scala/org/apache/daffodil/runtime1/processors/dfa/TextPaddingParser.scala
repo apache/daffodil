@@ -37,7 +37,7 @@ class TextPaddingParser(val padChar: Char, override val context: TermRuntimeData
   def parse(
     state: PState,
     input: DataInputStream,
-    delimIter: DelimiterIterator,
+    delimIter: DelimiterIterator
   ): Maybe[ParseResult] = {
 
     val paddingReg: Registers = state.dfaRegistersPool.getFromPool("TextPaddingParser1")

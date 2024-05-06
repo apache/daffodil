@@ -49,7 +49,7 @@ class TestIsScannable {
           <xs:element ref="ex:w"/>
           <xs:element name="x" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:choice>
-      </xs:group>,
+      </xs:group>
     )
 
     val sset = Compiler().compileNode(sc).sset
@@ -80,7 +80,7 @@ class TestIsScannable {
           <xs:element ref="ex:w"/>
           <xs:element name="x" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:choice>
-      </xs:group>,
+      </xs:group>
     )
 
     val sset = Compiler().compileNode(sc).sset
@@ -115,7 +115,7 @@ class TestIsScannable {
           <xs:element ref="ex:w"/>
           <xs:element name="x" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
         </xs:choice>
-      </xs:group>,
+      </xs:group>
     )
 
     val sset = Compiler().compileNode(sc).sset

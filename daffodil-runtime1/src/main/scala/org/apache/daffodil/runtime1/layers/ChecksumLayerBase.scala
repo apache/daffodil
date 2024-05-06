@@ -35,7 +35,7 @@ import org.apache.commons.io.IOUtils
  */
 abstract class ChecksumLayerBase(
   localName: String,
-  targetNamespace: String,
+  targetNamespace: String
 ) extends Layer(localName, targetNamespace) {
 
   private var checksum: Int = -1
@@ -60,14 +60,14 @@ abstract class ChecksumLayerBase(
 
   def compute(
     isUnparse: Boolean,
-    byteBuffer: ByteBuffer,
+    byteBuffer: ByteBuffer
   ): Int
 
   private def checkInitialized() = {
     if (!isInitialized) {
       // this is a RuntimeException, so will be fatal whether parsing or unparsing.
       throw new IllegalStateException(
-        "ChecksumLayer API usage: setLength method was never called.",
+        "ChecksumLayer API usage: setLength method was never called."
       )
     }
   }
@@ -85,7 +85,7 @@ abstract class ChecksumLayerBase(
 
 class ChecksumDecoderInputStream(
   layer: ChecksumLayerBase,
-  jis: InputStream,
+  jis: InputStream
 ) extends InputStream {
 
   private def doubleCheckLength(actualDataLen: Int): Unit = {
@@ -108,7 +108,7 @@ class ChecksumDecoderInputStream(
 
 class ChecksumEncoderOutputStream(
   layer: ChecksumLayerBase,
-  jos: OutputStream,
+  jos: OutputStream
 ) extends OutputStream {
 
   private lazy val baos = new ByteArrayOutputStream(layer.getLength)
@@ -124,8 +124,8 @@ class ChecksumEncoderOutputStream(
       // are supposed to be all the same length, but one is in fact longer than expected by the bufLen.
       layer.processingError(
         new IndexOutOfBoundsException(
-          s"Written data amount exceeded fixed layer length of ${layer.getLength}.",
-        ),
+          s"Written data amount exceeded fixed layer length of ${layer.getLength}."
+        )
       )
     }
   }

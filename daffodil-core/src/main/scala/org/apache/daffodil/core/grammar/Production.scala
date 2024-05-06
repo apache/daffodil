@@ -46,7 +46,7 @@ final class Prod(
   val sc: SchemaComponent,
   val guard: Boolean,
   gramArg: => Gram,
-  override val forWhat: ParserOrUnparser,
+  override val forWhat: ParserOrUnparser
 ) extends NamedGram(sc) {
 
   final override lazy val deref = gram
@@ -96,7 +96,7 @@ final class Prod(
         (forWhat, gram.forWhat) match {
           case (ForParser, _) =>
             new NadaUnparser(
-              context.runtimeData,
+              context.runtimeData
             ) // TODO: detect this and remove from final unparser
           case (_, ForParser) => new NadaUnparser(gram.context.runtimeData)
           case _ => gram.unparser

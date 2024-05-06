@@ -44,7 +44,7 @@ class TestInfoset2 {
             <xs:element minOccurs="0" maxOccurs="unbounded" name="a" type="xs:string" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:occursCountKind="expression" dfdl:occursCount="{ ../c }"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>,
+      </xs:element>
     )
 
     try {

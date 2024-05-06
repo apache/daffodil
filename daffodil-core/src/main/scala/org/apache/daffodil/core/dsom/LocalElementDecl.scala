@@ -25,7 +25,7 @@ import org.apache.daffodil.core.runtime1.LocalElementDeclBaseRuntime1Mixin
 sealed abstract class LocalElementDeclBase(
   final override val xml: Node,
   final override val optLexicalParent: Option[SchemaComponent],
-  final override val position: Int,
+  final override val position: Int
 ) extends ElementBase
   with LocalElementComponentMixin
   with ElementDeclMixin

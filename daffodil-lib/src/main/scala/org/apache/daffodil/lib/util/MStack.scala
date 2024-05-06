@@ -184,7 +184,7 @@ object MStackOfAnyRef {
  */
 protected abstract class MStack[@specialized T] private[util] (
   arrayAllocator: (Int) => Array[T],
-  nullValue: T,
+  nullValue: T
 ) {
 
   private var index = 0

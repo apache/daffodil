@@ -78,7 +78,7 @@ class DFDLDefineVariable private (node: Node, doc: SchemaDocument)
     case (Some(str), v) =>
       schemaDefinitionError(
         "Default value of variable was supplied both as attribute and element value: %s",
-        node.toString,
+        node.toString
       )
   }
 
@@ -93,7 +93,7 @@ class DFDLDefineVariable private (node: Node, doc: SchemaDocument)
   final lazy val primType = PrimType
     .fromNameString(typeQName.local)
     .getOrElse(
-      this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString),
+      this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString)
     )
 
   final def createVariableInstance = variableRuntimeData.createVariableInstance
@@ -146,7 +146,7 @@ final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
     case (Some(str), v) =>
       schemaDefinitionError(
         "Default value of variable was supplied both as attribute and element value: %s",
-        node.toString,
+        node.toString
       )
   }
 

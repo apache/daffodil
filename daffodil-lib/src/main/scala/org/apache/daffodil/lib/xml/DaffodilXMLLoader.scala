@@ -203,7 +203,7 @@ class DFDLCatalogResolver private ()
   private def resolveCommon(
     nsURI: String,
     systemId: String,
-    baseURIString: String,
+    baseURIString: String
   ): Option[URI] = {
     init
     if (nsURI == null && systemId == null && baseURIString == null) return None
@@ -221,7 +221,7 @@ class DFDLCatalogResolver private ()
         resolvedSystem
       } else if (
         resolvedUri != null && ((systemId == null) || (systemId != null && resolvedUri.endsWith(
-          systemId,
+          systemId
         )))
       ) {
         resolvedUri
@@ -265,7 +265,7 @@ class DFDLCatalogResolver private ()
             case e: IllegalArgumentException =>
               throw new SAXParseException(
                 s"Invalid or unsupported schemaLocation URI: ${e.getMessage}",
-                null,
+                null
               )
           }
 
@@ -293,7 +293,7 @@ class DFDLCatalogResolver private ()
     nsURI: String,
     publicId: String,
     systemId: String,
-    baseURIString: String,
+    baseURIString: String
   ): LSInput = {
     val optURI = resolveCommon(nsURI, systemId, baseURIString)
     optURI match {
@@ -650,7 +650,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   def load(
     source: DaffodilSchemaSource,
     optSchemaURI: Option[URI],
-    addPositionAttributes: Boolean = false,
+    addPositionAttributes: Boolean = false
   ): scala.xml.Node =
     load(source, optSchemaURI, addPositionAttributes, normalizeCRLFtoLF = true)
 
@@ -669,7 +669,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     source: DaffodilSchemaSource,
     optSchemaURI: Option[URI],
     addPositionAttributes: Boolean,
-    normalizeCRLFtoLF: Boolean,
+    normalizeCRLFtoLF: Boolean
   ): scala.xml.Node = {
     //
     // First we invoke the validator to explicitly validate the XML against
@@ -753,7 +753,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
         source.uriForLoading,
         errorHandler,
         addPositionAttributes,
-        normalizeCRLFtoLF,
+        normalizeCRLFtoLF
       )
     val res =
       try {

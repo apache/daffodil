@@ -79,13 +79,13 @@ object CharsetUtils {
 
 sealed abstract class CoderInfo(
   val encodingMandatoryAlignmentInBits: Int,
-  val maybeCharWidthInBits: MaybeInt,
+  val maybeCharWidthInBits: MaybeInt
 )
 
 case class DecoderInfo(
   coder: BitsCharsetDecoder,
   encodingMandatoryAlignmentInBitsArg: Int,
-  maybeCharWidthInBitsArg: MaybeInt,
+  maybeCharWidthInBitsArg: MaybeInt
 ) extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
 
 case class EncoderInfo(
@@ -93,7 +93,7 @@ case class EncoderInfo(
   replacingCoder: BitsCharsetEncoder,
   reportingCoder: BitsCharsetEncoder,
   encodingMandatoryAlignmentInBitsArg: Int,
-  maybeCharWidthInBitsArg: MaybeInt,
+  maybeCharWidthInBitsArg: MaybeInt
 ) extends CoderInfo(encodingMandatoryAlignmentInBitsArg, maybeCharWidthInBitsArg)
 
 trait EncoderDecoderMixin extends LocalBufferMixin {
@@ -170,7 +170,7 @@ trait EncoderDecoderMixin extends LocalBufferMixin {
         replacingCoder,
         reportingCoder,
         encodingMandatoryAlignmentInBits,
-        maybeCharWidthInBits,
+        maybeCharWidthInBits
       )
       encoderCache.put(charset, entry)
     }
@@ -309,8 +309,8 @@ trait EncoderDecoderMixin extends LocalBufferMixin {
 class CharacterSetAlignmentError(
   csName: String,
   requiredAlignmentInBits: Int,
-  alignmentInBitsWas: Int,
+  alignmentInBitsWas: Int
 ) extends Exception(
     "Character set %s requires %s alignment (bits), but alignment was %s (bits)"
-      .format(csName, requiredAlignmentInBits, alignmentInBitsWas),
+      .format(csName, requiredAlignmentInBits, alignmentInBitsWas)
   )

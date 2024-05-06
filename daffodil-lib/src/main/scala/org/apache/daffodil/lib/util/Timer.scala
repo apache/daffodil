@@ -231,7 +231,7 @@ object TimeTracker {
         "%.3f".format(time),
         "%.2f%%".format(time * 100 / totalTime),
         average.toString,
-        count.toString,
+        count.toString
       )
     }
 
