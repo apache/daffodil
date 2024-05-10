@@ -547,8 +547,8 @@ object Misc {
       .onMalformedInput(CodingErrorAction.REPORT)
     val bb = ByteBuffer.wrap((0 to 255).map { i => i.toByte }.toArray)
     val cb = dec.decode(bb)
-    assert(cb.position == 0)
-    assert(cb.limit == 256)
+    assert(cb.position() == 0)
+    assert(cb.limit() == 256)
     // These 5 are unmapped by Windows-1252 but we want to turn any
     // byte into a legit character. So these We add 0x100
     // to get unicode codepoints.

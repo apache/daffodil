@@ -58,7 +58,9 @@ class TestCLIDebugger {
     "-Dorg.jline.terminal.provider=dumb",
     "-Dorg.jline.terminal.dumb=true",
     "-Dorg.jline.terminal.dumb.color=false",
-    "-Dfile.encoding=UTF-8"
+    "-Dfile.encoding=UTF-8",
+    "-Dstderr.encoding=UTF-8",
+    "-Dstdout.encoding=UTF-8"
   )
 
   val envs = Map(
