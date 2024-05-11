@@ -40,7 +40,7 @@ jobs:
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 8, 11, 17, 21 ]
-        scala_version: [ 2.12.19 ]
+        scala_version: [ 2.13.14 ]
         os: [ ubuntu-22.04, windows-2022, macos-12 ]
         exclude:
           # only run macos on java 17
@@ -90,7 +90,7 @@ jobs:
       SONARSCAN: ${{
                      matrix.os == 'ubuntu-22.04' &&
                      matrix.java_version == '17' &&
-                     matrix.scala_version == '2.12.19' &&
+                     matrix.scala_version == '2.13.14' &&
                      github.event_name == 'push' &&
                      github.repository == 'apache/daffodil' &&
                      github.ref == 'refs/heads/main'
@@ -223,7 +223,7 @@ jobs:
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 17 ]
-        scala_version: [ 2.12.19 ]
+        scala_version: [ 2.13.14 ]
         os: [ ubuntu-22.04 ]
     runs-on: ${{ matrix.os }}
     env:
