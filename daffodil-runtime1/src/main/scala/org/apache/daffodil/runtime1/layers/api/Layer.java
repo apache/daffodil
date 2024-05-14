@@ -26,52 +26,52 @@ import java.util.List;
 
 /**
  * This is the primary API class for writing layers.
- * <p/>
+ * <p>
  * All layers are derived from this class, and must have no-args default constructors.
- * <p/>
+ * <p>
  * Derived classes will be dynamically loaded by Java's SPI system.
  * The names of concrete classes derived from Layer are listed in a resources/META-INF/services file
  * so that they can be found and dynamically loaded.
- * <p/>
+ * <p>
  * The SPI creates an instance the class by calling a default (no-arg) constructor, which should be
  * the only constructor.
- * <p/>
+ * <p>
  * Instances of derived layer classes can be stateful. They are private to threads, and each time a layer
  * is encountered during parse/unparse, an instance is created for that situation.
- * <p/>
+ * <p>
  * Layer instances should not share mutable state (such as via singleton objects)
- * <p/>
+ * <p>
  * The rest of the Layer class implements the
  * layer decode/encode logic, which is done as part of deriving one's Layer class from the
  * Layer base class.
- * <p/>
+ * <p>
  * About variables: Layer logic may read and write DFDL variables.
- * <p/>
+ * <p>
  * Every DFDL Variable in the layer's targetNamespace is used either at the start of the
  * layer algorithm as a parameter to the layer or at the end of the layer algorithm it is
  * assigned as a return value (such as a checksum) from the layer.
- * <p/>
+ * <p>
  * Variables being written must be undefined, since variables in DFDL are single-assignment.
- * <p/>
+ * <p>
  * Variables being read must be defined before being read by the layer, and this is true for both
  * parsing and unparsing. When unparsing, variables being read cannot be forward-referencing to parts
  * of the DFDL infoset that have not yet been unparsed.
- * <p/>
+ * <p>
  * A layer that wants to read parameters declares special setter named 'setLayerVariableParameters'
  * which has args such that each has a name and type that match a corresponding
  * dfdl:defineVariable in the layer's namespace.
- * <p/>
+ * <p>
  * A layer that wants to return a value after the layer algorithm completes defines a special recognizable
  * getter method. The name of the getter is formed from prefixing the DFDL variable name with the string
  * 'getLayerVariableResult_'. The return type of the getter must match the type of the variable.
- * <p/>
+ * <p>
  * For example, a result value getter for a DFDL variable named 'checksum' of type xs:unsignedShort would be:
  * <pre>
  *      int getLayerVariableResult_checksum() {
  *          // returns the value created by the checksum algorithm.
  *      }
  * </pre>
- * <p/>
+ * <p>
  */
 public abstract class Layer {
 
@@ -97,7 +97,7 @@ public abstract class Layer {
   }
 
   /** The spiName of the Layer class.
-   * <p/>
+   * <p>
    * This method and the string it returns are required by the SPI loader.
    * @return A unique indentifier for the kind of layer. Contains both local and namespace components of the layer's complete name.
    */
@@ -117,10 +117,10 @@ public abstract class Layer {
 
   /**
    * Use to report a processing error.
-   * <p/>
+   * <p>
    * When parsing a processing error can cause backtracking so that the parse
    * can often recover from the error.
-   * <p/>
+   * <p>
    * When unparsing a processing error is fatal.
    * @param msg describes the error
    */
@@ -128,36 +128,36 @@ public abstract class Layer {
 
   /**
    * Use to report a processing error.
-   * <p/>
+   * <p>
    * When parsing a processing error can cause backtracking so that the parse
    * can often recover from the error.
-   * <p/>
+   * <p>
    * When unparsing a processing error is fatal.
    * @param cause a throwable object that describes the error
    */
   public void processingError(Throwable cause) { layerRuntime.processingError(cause); }
   /**
    * Use to report a runtime schema definition error.
-   * <p/>
+   * <p>
    * This indicates that the layer is unable to
    * work meaningfully because of the way it is configured. The schema itself is not well defined due to
    * the way the layer is configured.
-   * <p/>
+   * <p>
    * This error type is always fatal whether parsing or unparsing.
-   * <p/>
+   * <p>
    * @param msg describes the error
    */
   public void runtimeSchemaDefinitionError(String msg) { layerRuntime.runtimeSchemaDefinitionError(msg); }
 
   /**
    * Use to report a runtime schema definition error.
-   * <p/>
+   * <p>
    * This indicates that the layer is unable to
    * work meaningfully because of the way it is configured. The schema itself is not well defined due to
    * the way the layer is configured.
-   * <p/>
+   * <p>
    * This error type is always fatal whether parsing or unparsing.
-   * <p/>
+   * <p>
    * @param cause a throwable object that describes the error
    */
   public void runtimeSchemaDefinitionError(Throwable cause) { layerRuntime.runtimeSchemaDefinitionError(cause); }
@@ -183,12 +183,12 @@ public abstract class Layer {
   /**
    * Adds an exception class to the list of exceptions that will be automatically converted
    * into processing errors.
-   * <p/>
+   * <p>
    * The purpose of this is to allow one to use java/scala libraries that may throw
    * exceptions when encountering bad data. Such exceptions should be translated into
    * processing errors, which will allow the parser to backtrack and try other alternatives
    * which may work for that data.
-   * <p/>
+   * <p>
    * When considering whether a thrown Exception is to be converted to a processing error
    * RuntimeException classes are handled separately from Exception classes.
    * Hence calling
