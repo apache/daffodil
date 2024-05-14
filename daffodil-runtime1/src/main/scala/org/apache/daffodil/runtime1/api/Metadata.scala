@@ -33,28 +33,28 @@ trait Metadata {
    * Provides the file context of a metadata component. This refers to the specific
    * DFDL schema file where the corresponding DFDL schema text resides corresponding
    * to this metadata object.
-   * <p/>
+   *
    * This is for use in diagnostic messaging. It is not the actual file URI, because
    * those may contain personal-identifying information about the person/acccount and
    * system that compiled the schema. It will provide enough content about the file URI that
    * a user will be able to identify which file, but some prefix of the path
    * components trimmed to make it of a manageable length.
-   * <p/>
-   * Used along with [[org.apache.daffodil.runtime1.api.Metadata.schemaFileLineNumber]]
-   * and [[org.apache.daffodil.runtime1.api.Metadata.schemaFileLineColumnNumber]],
+   *
+   * Used along with `schemaFileLineNumber`
+   * and `schemaFileLineColumnNumber`
    * this can give a precise location in the DFDL schema file.
    * @return a string containing the file information, or null if unknown.
    */
   def schemaFileInfo: String
 
   /**
-   * Provides the line number to go with [[org.apache.daffodil.runtime1.api.Metadata.schemaFileInfo]].
+   * Provides the line number to go with `schemaFileInfo`.
    * @return the line number as a string, or null if unknown.
    */
   def schemaFileLineNumber: JLong
 
   /**
-   * Provides the column number within the text line, to go with [[org.apache.daffodil.runtime1.api.Metadata.schemaFileLineNumber]].
+   * Provides the column number within the text line, to go with `schemaFileLineNumber`.
    * @return the column number within the text line, as a string, or null if unknown.
    */
   def schemaFileLineColumnNumber: JLong
@@ -129,7 +129,7 @@ trait ElementMetadata extends TermMetadata {
   /**
    * Provides access to the runtime properties. This is an extended collection of
    * name-value pairs which are associated with a schema component.
-   * <p/>
+   *
    * Runtime properties are intended to use for new ad-hoc property extensions to
    * DFDL. These name-value pairs are visible to infoset outputters as well.
    *

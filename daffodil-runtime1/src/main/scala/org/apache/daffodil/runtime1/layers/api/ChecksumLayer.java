@@ -23,41 +23,41 @@ import java.nio.ByteBuffer;
 /**
  * A checksum layer computes some sort of integer value from a region of the data stream. The term checksum is
  * used generically here to subsume all sorts of CRCs, check digits, data hash, and digest calculations.
- * <p/>
+ * <p>
  * This base is suitable only for checksums computed over small sections of data, not large data streams or whole large
  * files. The entire region of data the checksum is being computed over, will be pulled into a byte buffer in memory.
- * <p/>
+ * <p>
  * The resulting checksum is the return value of the compute method.
- * <p/>
+ * <p>
  * This is delivered into a DFDL variable for use by the DFDL schema. This variable can have any name
  * such as 'crc', 'digest', or 'dataHash'.
- * <p/>
+ * <p>
  * The derived implementation class must also define a getter method based on the name of the DFDL variable which
  * will be assigned with the checksum value. For example if the checksum is actually a specific digest/hash calculation
  * and the DFDL variable is named 'digest', then this getter must be defined:
- * <p/>
+ * <p>
  *     int getLayerVariableResult_digest() { return getChecksum() }
- * <p/>
+ * <p>
  * This will be called automatically to retrieve the integer value that was returned from the `compute` method, and
  * the DFDL variable 'digest' will be assigned that value.
- * <p/>
+ * <p>
  * The derived class implementing a checksum layer must call
- * <p/>
+ * <p>
  *     setLength(len) // sets the length in bytes
- * <p/>
+ * <p>
  * to specify the length of the data region in bytes. Normally this would be called from the layer's implementation of
  * the
- * <p/>
+ * <p>
  *     void setLayerVariableParameters(...) { }
- * <p/>
+ * <p>
  * method, which, if defined, is called with arguments populated from DFDL variables with the same name (and compatible type)
  * defined in a DFDL schema with the Layer's target namespace. So, for example if a checksum layer needs to
  * receive a parameter from a DFDL variable named "layerEncoding", the setter would be:
- * <p/>
+ * <p>
  *     void setLayerVariableParameters(String layerEncoding) {
  *         this.layerEncoding = layerEncoding;
  *     }
- * <p/>
+ * <p>
  * Beside initializing local members, this setter is also an initializer for the layer class instance. Any exception
  * thrown becomes a Schema Definition Error. If there are no parameter variables, then this setter, with no arguments,
  * can be used purely for initialization.

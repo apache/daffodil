@@ -75,6 +75,8 @@ lazy val io = Project("daffodil-io", file("daffodil-io"))
   .settings(commonSettings, usesMacros)
 
 lazy val runtime1 = Project("daffodil-runtime1", file("daffodil-runtime1"))
+  .enablePlugins(GenJavadocPlugin)
+  .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
   .dependsOn(
     io,
     lib % "test->test",
@@ -134,6 +136,8 @@ lazy val core = Project("daffodil-core", file("daffodil-core"))
   .settings(commonSettings)
 
 lazy val japi = Project("daffodil-japi", file("daffodil-japi"))
+  .enablePlugins(GenJavadocPlugin)
+  .settings(Dependencies.genjavadocVersion) // converts scaladoc to javadoc
   .dependsOn(core, slf4jLogger % "test")
   .settings(commonSettings)
 
@@ -246,7 +250,8 @@ lazy val commonSettings = Seq(
   sourceManaged := baseDirectory.value / "src_managed",
   resourceManaged := baseDirectory.value / "resource_managed",
   libraryDependencies ++= Dependencies.common,
-  testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1")
+  testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "--verbosity=1"),
+  Compile / packageDoc / publishArtifact := false
 )
 
 def buildScalacOptions(scalaVersion: String) = {
@@ -412,30 +417,69 @@ lazy val ratSettings = Seq(
   ratFailBinaries := true
 )
 
-lazy val unidocSettings = Seq(
-  ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(sapi, udf),
-  ScalaUnidoc / unidoc / scalacOptions := Seq(
-    "-doc-title",
-    "Apache Daffodil " + version.value + " Scala API",
-    "-doc-root-content",
-    (sapi / baseDirectory).value + "/root-doc.txt"
-  ),
-  JavaUnidoc / unidoc / unidocProjectFilter := inProjects(japi, udf),
-  JavaUnidoc / unidoc / javacOptions := Seq(
-    "-windowtitle",
-    "Apache Daffodil " + version.value + " Java API",
-    "-doctitle",
-    "<h1>Apache Daffodil " + version.value + " Java API</h1>",
-    "-notimestamp",
-    "-quiet"
-  ),
-  JavaUnidoc / unidoc / unidocAllSources := (JavaUnidoc / unidoc / unidocAllSources).value.map {
-    sources =>
-      sources.filterNot { source =>
-        source.toString.contains("$") || source.toString.contains("packageprivate")
-      }
+/**
+ * Filter to include only the doc files in our supported API classes
+ *
+ * @param sources - the sequence of files to filter
+ * @return - the filtered sequence of files
+ */
+def apiDocSourceFilter(sources: Seq[File]): Seq[File] = sources.filter { source =>
+  val str = source.toString
+  val oad = "/org/apache/daffodil"
+  lazy val excludedForJAPI =
+    str.contains(oad + "/japi/") && {
+      // Some things are excluded from the JAPI javadoc because they are internal, non-API
+      // These cannot be excluded from SAPI because symbols-not-found issues with scaladoc.
+      str.contains("$") || str.contains("packageprivate")
+    }
+  lazy val included = {
+    str.contains(oad + "/udf/") ||
+    str.contains(oad + "/sapi/") ||
+    str.contains(oad + "/japi/") ||
+    str.contains(oad + "/runtime1/layers/api/")
+    //
+    // There are files in runtime1/api that are NOT part of the public, supported API.
+    // I tried to include all of runtime1/api, and exclude those files, but could not
+    // get that to work, so now we include individually each file that is part of the
+    // published runtime1 API
+    //
+    // NOTE: Commented out for now. genjavadoc doesn't handle the traits in
+    // these files, so for now these are undocumented.
+    //
+    // FIXME: DAFFODIL-2902
+    //    str.contains(oad + "/runtime1/api/DFDLPrimType") ||
+    //    str.contains(oad + "/runtime1/api/Infoset") ||
+    //    str.contains(oad + "/runtime1/api/Metadata")
   }
-)
+  val res = included && !excludedForJAPI
+  res
+}
+
+lazy val unidocSettings =
+  Seq(
+    ScalaUnidoc / unidoc / unidocProjectFilter :=
+      inProjects(sapi, udf, runtime1),
+    ScalaUnidoc / unidoc / scalacOptions := Seq(
+      "-doc-title",
+      "Apache Daffodil " + version.value + " Scala API",
+      "-doc-root-content",
+      (sapi / baseDirectory).value + "/root-doc.txt"
+    ),
+    ScalaUnidoc / unidoc / unidocAllSources :=
+      (ScalaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter),
+    JavaUnidoc / unidoc / unidocProjectFilter :=
+      inProjects(japi, udf, runtime1),
+    JavaUnidoc / unidoc / javacOptions := Seq(
+      "-windowtitle",
+      "Apache Daffodil " + version.value + " Java API",
+      "-doctitle",
+      "<h1>Apache Daffodil " + version.value + " Java API</h1>",
+      "-notimestamp",
+      "-quiet"
+    ),
+    JavaUnidoc / unidoc / unidocAllSources :=
+      (JavaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter)
+  )
 
 lazy val genCExamplesSettings = Seq(
   Compile / genCExamples := {

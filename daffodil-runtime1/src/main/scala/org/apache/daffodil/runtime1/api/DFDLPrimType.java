@@ -18,7 +18,7 @@ package org.apache.daffodil.runtime1.api;
 
 /**
  * An enumeration of all DFDL's simple types.
- * <p/>
+ * <p>
  * Intended to be easily used from Java code calling Daffodil APIs.
  */
 public enum DFDLPrimType {
