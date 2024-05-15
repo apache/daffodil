@@ -23,15 +23,15 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MStackOf
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.runtime1.api.DFDLPrimType
 import org.apache.daffodil.runtime1.api.InfosetArray
 import org.apache.daffodil.runtime1.api.InfosetComplexElement
 import org.apache.daffodil.runtime1.api.InfosetElement
 import org.apache.daffodil.runtime1.api.InfosetSimpleElement
-import org.apache.daffodil.runtime1.api.PrimitiveType
 
 import org.w3c.dom.Document
 import org.w3c.dom.Element
-import org.w3c.dom.Node;
+import org.w3c.dom.Node
 
 class W3CDOMInfosetOutputter extends InfosetOutputter {
 
@@ -47,7 +47,7 @@ class W3CDOMInfosetOutputter extends InfosetOutputter {
   }
 
   def startDocument(): Unit = {
-    val factory: DocumentBuilderFactory = DocumentBuilderFactory.newInstance();
+    val factory: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
     factory.setNamespaceAware(true)
     document = factory.newDocumentBuilder().newDocument()
     stack.push(document)
@@ -66,7 +66,7 @@ class W3CDOMInfosetOutputter extends InfosetOutputter {
 
     if (!se.isNilled) {
       val text =
-        if (se.metadata.primitiveType == PrimitiveType.String) {
+        if (se.metadata.dfdlType == DFDLPrimType.String) {
           XMLUtils.remapXMLIllegalCharactersToPUA(se.getText)
         } else {
           se.getText

@@ -89,17 +89,6 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
     res
   }
 
-  // This split allows overrides of this lazy val to still reuse this
-  // (super.isTypeCorrect doesn't work inside an overridden lazy val.)
-  lazy val isTypeCorrect: Boolean = checkTypeCorrectness
-  //
-  // override for other checking beyond what is needed to do conversions
-  //
-  protected lazy val checkTypeCorrectness =
-    children.forall { child =>
-      child.isTypeCorrect
-    }
-
   def text: String
 
   def hasReferenceTo(elem: DPathElementCompileInfo): Boolean = {
@@ -744,21 +733,28 @@ abstract class PathExpression() extends Expression {
    * about an array such as its current count.
    */
   lazy val isPathToOneWholeArray: Boolean = {
-    if (steps == Nil) false // root is never an array
-    if (steps == Nil) false // root is never an array
-    else if (isSelf) false // self path is never an array
-    else
-      steps.last.isArray &&
-      !steps.last.pred.isDefined && // last cannot have a [N] pred
-      steps.dropRight(1).forall {
-        // for all the prior steps
-        // if they mention an array element, there
-        // must be a [N] predicate.
-        step =>
-          if (step.isInstanceOf[Up]) true
-          else if (step.isArray) step.pred.isDefined
-          else true
-      }
+    isNotRootOrSelf &&
+    steps.last.isArray &&
+    steps.last.pred.isEmpty
+  }
+
+  /**
+   * Path to a single array element without a [N] predicate qualifying it
+   * or to an optional element.
+   *
+   * That is, the kind of path expression used to access information
+   * about an array or optional such as its current count.
+   */
+  lazy val isPathToOneWholeArrayOrOptional: Boolean = {
+    isNotRootOrSelf &&
+    steps.last.isArrayOrOptional &&
+    steps.last.pred.isEmpty
+  }
+
+  private lazy val isNotRootOrSelf: Boolean = {
+    if (steps == Nil) false
+    else if (isSelf) false
+    else true
   }
 
   def isSelf = steps match {
@@ -969,17 +965,26 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   }
 
   final lazy val isArray: Boolean = {
-    val (arrays, scalars) = stepElements.partition { _.isArray }
-    (arrays.length, scalars.length) match {
-      case (a, s) if (a > 0 && s > 0) =>
-        arrays.head.SDE(
-          "Path step is ambiguous. It can be to an array or a non-array element.\n" +
-            "One of the non-arrays is %s",
-          scalars.head.schemaFileLocation.toString,
-        )
-      case (a, s) if (a == 0) => false
-      case _ => true
-    }
+    checkAmbiguousPath
+    stepElements.exists(_.isArray)
+  }
+
+  final lazy val isArrayOrOptional: Boolean = {
+    checkAmbiguousPath
+    stepElements.exists(_.isArray) || stepElements.exists(_.isOptional)
+  }
+
+  final lazy val checkAmbiguousPath: Unit = {
+    val (arrays, nonArrays) = stepElements.partition { _.isArray }
+    schemaDefinitionWhen(
+      arrays.length > 0 && nonArrays.length > 0,
+      "Path step %s is ambiguous. It can reference both an array and a non-array element, which is not allowed.\n" +
+        "- Array: %s\n" +
+        "- Non-array: %s\n",
+      step,
+      arrays.head.schemaFileLocation.locationDescription,
+      nonArrays.head.schemaFileLocation.locationDescription,
+    )
   }
 
   /**
@@ -1215,7 +1220,7 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
         Assert.invariant(pred.get.targetType == NodeInfo.ArrayIndex)
         val indexRecipe = pred.get.compiledDPath
         new DownArrayOccurrence(nqn, indexRecipe)
-      } else if (targetType == NodeInfo.Exists) {
+      } else if (isLastStep && targetType == NodeInfo.Exists) {
         new DownArrayExists(nqn)
       } else {
         schemaDefinitionUnless(
@@ -2295,6 +2300,20 @@ abstract class FunctionCallBase(
     res
   }
 
+  protected def checkArgArrayOrOptional(n: Int): Unit = {
+    lazy val isArrayOrOptional = expressions(n) match {
+      case pe: PathExpression => pe.isPathToOneWholeArrayOrOptional
+      case _ => false
+    }
+    if (!isArrayOrOptional) argArrayOrOptionalErr()
+  }
+  protected def argArrayOrOptionalErr() = {
+    SDE(
+      "The %s function requires an array or optional path expression.",
+      functionQName.toPrettyString,
+    )
+  }
+
   final def checkArgCount(n: Int): Unit = {
     if (expressions.length != n) argCountErr(n)
   }
@@ -2335,7 +2354,7 @@ abstract class FunctionCallBase(
 /**
  * Tells the sub-expression that we want an array out of it.
  */
-abstract class FunctionCallArrayBase(
+abstract class FunctionCallArrayOrOptionalBase(
   nameAsParsed: String,
   fnQName: RefQName,
   args: List[Expression],
@@ -2348,11 +2367,6 @@ abstract class FunctionCallArrayBase(
     case _ => subsetError("The %s function must contain a path.", funcName)
   }
 
-  override lazy val isTypeCorrect = {
-    checkArgCount(1)
-    arrPath.isPathToOneWholeArray
-  }
-
   override def targetTypeForSubexpression(subExp: Expression): NodeInfo.Kind = NodeInfo.Array
 
 }
@@ -2361,7 +2375,7 @@ abstract class FunctionCallArrayBase(
  * Tells the sub-expression that we want an array out of it.
  */
 case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
-  extends FunctionCallArrayBase(nameAsParsed, fnQName, args) {
+  extends FunctionCallArrayOrOptionalBase(nameAsParsed, fnQName, args) {
 
   val funcName: String = "fn:count"
 
@@ -2369,6 +2383,7 @@ case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expre
 
   override lazy val compiledDPath = {
     checkArgCount(1)
+    checkArgArrayOrOptional(0)
     val arg0Recipe = args(0).compiledDPath
     val arg0Type = args(0).inherentType
     val c = conversions
@@ -2378,7 +2393,7 @@ case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expre
 }
 
 case class FNExactlyOneExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
-  extends FunctionCallArrayBase(nameAsParsed, fnQName, args) {
+  extends FunctionCallArrayOrOptionalBase(nameAsParsed, fnQName, args) {
 
   val funcName: String = "fn:exactly-one"
 
@@ -2386,6 +2401,7 @@ case class FNExactlyOneExpr(nameAsParsed: String, fnQName: RefQName, args: List[
 
   override lazy val compiledDPath = {
     checkArgCount(1)
+    checkArgArrayOrOptional(0)
     subsetError("fn:exactly-one is not supported.")
   }
 }
@@ -2797,6 +2813,7 @@ sealed abstract class LengthExprBase(
         // $COVERAGE-ON$
       }
     }
+    // checks specifically for an array, but does not apply to an optional
     if (path.isPathToOneWholeArray)
       SDE(s"First argument to ${fnQName} cannot be a path to an array")
     val steps = path.steps

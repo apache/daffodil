@@ -20,6 +20,7 @@ package org.apache.daffodil.core.dsom
 import java.math.BigInteger
 import scala.xml.Node
 
+import org.apache.daffodil.lib.api.InvalidRestrictionPolicy
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
@@ -160,54 +161,62 @@ trait Facets { self: Restriction =>
     val values: Seq[(Facet.Type, Values)] = combinedBaseFacets.filter { case (f, _) =>
       f == Facet.pattern
     }
-    if (values.size > 0) {
-      val res: Seq[FacetValueR] = values.map {
-        case (f, v: String) => {
-          //
-          // The DFDL Infoset can contain strings which hold characters
-          // that are not allowed in XML at all.
-          //
-          // In order to talk about these characters in a XSD pattern facet
-          // we use a remapping of such characters into the Unicode
-          // Private Use Area, so as to have XML-legal characters.
-          //
-          // See the section titled "XML Illegal Characters" on this web page:
-          // https://daffodil.apache.org/infoset/
-          //
-          // Before processing a regex of these characters in Daffodil's pattern facet
-          // validation, we must remap these PUA characters back to the originally
-          // intended code points, since that's what the Infoset strings will contain.
-          //
-          // Consider the character code 0xB. This is illegal in XML v1.0 documents.
-          // A DFDL Schema is an XML Schema, which is an XML document; hence, we cannot
-          // use the character with code 0xB directly, nor can we use an XML numeric
-          // character entity like &#xB; for it. The character is simply disallowed in
-          // XML, including DFDL schemas. Hence, we mention 0xB by using a remapping of it
-          // to the PUA area character 0xE00B, which we express by &#xE00B;
-          // Hence a pattern regex like "[&#xE00B;&#x20;0-9a-zA-Z]" will match
-          // the character with char code 0xB (remapped from E00B), as well as spaces,
-          // and alphanumeric characters.
-          //
-          // The XSD numeric character entity &#xE000; can be used to match ASCII NUL
-          // (char code 0).
-          //
-          // This remapping is for pattern facets, which are inside a DFDL schema,
-          // and so will not contain CR characters, since XML reading will convert those
-          // to LF. To discuss CR in this pattern we can't use `&#x0d;` syntax because that
-          // turns into a CR which gets turned into a LF. Plus the pattern value is
-          // an XML attribute, the value of which gets its whitespace collapsed, all
-          // line-ending chars converted to spaces, and adjacent spaces collapsed to one.
-          //
-          // So a pattern facet must use `\r` and '\n' to describe line-endings within the pattern.
-          // And in general one must be careful about whitespace.
-          //
-          val remapped: String = XMLUtils.remapPUAToXMLIllegalCharacters(v)
-          (f, remapped.r)
-        }
+    val valuesRemapped: Seq[FacetValueR] = values.map {
+      case (f, v: String) => {
+        //
+        // The DFDL Infoset can contain strings which hold characters
+        // that are not allowed in XML at all.
+        //
+        // In order to talk about these characters in a XSD pattern facet
+        // we use a remapping of such characters into the Unicode
+        // Private Use Area, so as to have XML-legal characters.
+        //
+        // See the section titled "XML Illegal Characters" on this web page:
+        // https://daffodil.apache.org/infoset/
+        //
+        // Before processing a regex of these characters in Daffodil's pattern facet
+        // validation, we must remap these PUA characters back to the originally
+        // intended code points, since that's what the Infoset strings will contain.
+        //
+        // Consider the character code 0xB. This is illegal in XML v1.0 documents.
+        // A DFDL Schema is an XML Schema, which is an XML document; hence, we cannot
+        // use the character with code 0xB directly, nor can we use an XML numeric
+        // character entity like &#xB; for it. The character is simply disallowed in
+        // XML, including DFDL schemas. Hence, we mention 0xB by using a remapping of it
+        // to the PUA area character 0xE00B, which we express by &#xE00B;
+        // Hence a pattern regex like "[&#xE00B;&#x20;0-9a-zA-Z]" will match
+        // the character with char code 0xB (remapped from E00B), as well as spaces,
+        // and alphanumeric characters.
+        //
+        // The XSD numeric character entity &#xE000; can be used to match ASCII NUL
+        // (char code 0).
+        //
+        // This remapping is for pattern facets, which are inside a DFDL schema,
+        // and so will not contain CR characters, since XML reading will convert those
+        // to LF. To discuss CR in this pattern we can't use `&#x0d;` syntax because that
+        // turns into a CR which gets turned into a LF. Plus the pattern value is
+        // an XML attribute, the value of which gets its whitespace collapsed, all
+        // line-ending chars converted to spaces, and adjacent spaces collapsed to one.
+        //
+        // So a pattern facet must use `\r` and '\n' to describe line-endings within the pattern.
+        // And in general one must be careful about whitespace.
+        //
+        val remapped: String = XMLUtils.remapPUAToXMLIllegalCharacters(v)
+        (f, remapped.r)
       }
-      res
-    } else
-      Seq.empty
+    }
+    (primType, tunable.invalidRestrictionPolicy) match {
+      case (PrimType.String, _) =>
+        valuesRemapped
+      case (_, InvalidRestrictionPolicy.Validate) =>
+        valuesRemapped
+      case (_, InvalidRestrictionPolicy.Error) =>
+        SDE(
+          "Pattern restriction is only allowed to be applied to string and types derived from string.",
+        )
+      case (_, InvalidRestrictionPolicy.Ignore) =>
+        Nil
+    }
   }
 
   final lazy val enumerationValues: Option[String] = {

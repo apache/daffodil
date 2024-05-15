@@ -144,8 +144,6 @@ final case class ConstantExpression[+T <: AnyRef](qn: NamedQName, kind: NodeInfo
 
   def targetType = kind
 
-  lazy val sourceType: NodeInfo.Kind = NodeInfo.fromObject(value)
-
   override def evaluate(state: ParseOrUnparseState) = value
 
   override def run(dstate: DState) = dstate.setCurrentValue(DataValue.unsafeFromAnyRef(value))
@@ -346,6 +344,7 @@ class DPathElementCompileInfo(
   path: String,
   val name: String,
   val isArray: Boolean,
+  val isOptional: Boolean,
   val namedQName: NamedQName,
   val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,

@@ -41,7 +41,6 @@ import java.math.{ BigInteger => JBigInt }
 
 import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.DataLocation
-import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitiveNullable
 
@@ -118,6 +117,7 @@ case class DState(
   tunable: DaffodilTunables,
   val parseOrUnparseState: Maybe[ParseOrUnparseState],
 ) {
+
   import org.apache.daffodil.lib.util.Numbers._
 
   var isCompile = false
@@ -140,6 +140,7 @@ case class DState(
   def setMode(m: EvalMode): Unit = {
     _mode = m
   }
+
   def mode = _mode
 
   //
@@ -203,10 +204,12 @@ case class DState(
     _currentValue = v
     _currentNode = null
   }
+
   def setCurrentValue(v: Long): Unit = {
     _currentValue = v
     _currentNode = null
   }
+
   def setCurrentValue(v: Boolean): Unit = {
     _currentValue = v
     _currentNode = null
@@ -215,45 +218,26 @@ case class DState(
   def booleanValue: Boolean = currentValue.getBoolean
 
   def longValue: Long = asLong(currentValue.getAnyRef)
+
   def intValue: Int = longValue.toInt
+
   def doubleValue: Double = asDouble(currentValue.getAnyRef)
 
   def integerValue: JBigInt = asBigInt(currentValue.getAnyRef)
+
   def decimalValue: JBigDecimal = asBigDecimal(currentValue.getAnyRef)
+
   def stringValue: String = currentValue.getString
 
   def isNilled: Boolean = currentElement.isNilled
 
-  private def isAnArray(): Boolean = {
-    if (!currentNode.isInstanceOf[DIArray]) {
-      Assert.invariant(errorOrWarn.isDefined)
-      if (currentNode.isInstanceOf[DIElement]) {
-        errorOrWarn.get.SDW(
-          WarnID.PathNotToArray,
-          "The specified path to element %s is not to an array. Suggest using fn:exists instead.",
-          currentElement.name,
-        )
-      } else {
-        errorOrWarn.get.SDW(
-          WarnID.PathNotToArray,
-          "The specified path is not to an array. Suggest using fn:exists instead.",
-        )
-      }
-      false
-    } else {
-      true
-    }
-  }
-
   def arrayLength: Long =
-    if (isAnArray()) currentArray.length
-    else 1L
+    currentArray.length
 
-  def finalArrayLength: Long =
-    if (isAnArray()) {
-      currentArray.requireFinal
-      currentArray.length
-    } else 1L
+  def finalArrayLength: Long = {
+    currentArray.requireFinal()
+    currentArray.length
+  }
 
   def exists: Boolean = true // we're at a node, so it must exist.
 

@@ -40,7 +40,7 @@ jobs:
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 8, 11, 17 ]
-        scala_version: [ 2.12.18 ]
+        scala_version: [ 2.12.19 ]
         os: [ ubuntu-22.04, windows-2022, macos-12 ]
         exclude:
           # only run macos on java 17
@@ -88,7 +88,7 @@ jobs:
       SONARSCAN: ${{
                      matrix.os == 'ubuntu-22.04' &&
                      matrix.java_version == '17' &&
-                     matrix.scala_version == '2.12.18' &&
+                     matrix.scala_version == '2.12.19' &&
                      github.event_name == 'push' &&
                      github.repository == 'apache/daffodil' &&
                      github.ref == 'refs/heads/main'
@@ -112,14 +112,14 @@ jobs:
 
       - name: Install Dependencies (Windows)
         if: runner.os == 'Windows'
-        uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@cc11e9188b693c2b100158c3322424c4cc1dadea # v2.22.0
         with:
           install: clang diffutils make pkgconf
           path-type: inherit
 
       - name: Check out mxml source (Windows)
         if: runner.os == 'Windows'
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         with:
           repository: michaelrsweet/mxml
           ref: v3.3
@@ -138,13 +138,13 @@ jobs:
           echo "COURSIER_CONFIG_DIR=$temp" >> $GITHUB_ENV
 
       - name: Check out Repository
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
         # Disabling shallow clone is recommended for improving sonarcloud reporting
         with:
           fetch-depth: 0
 
       - name: Setup Java
-        uses: actions/setup-java@v4.0.0
+        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
         with:
           distribution: ${{ matrix.java_distribution }}
           java-version: ${{ matrix.java_version }}
@@ -190,7 +190,7 @@ jobs:
         run: $SBT coverageAggregate
 
       - name: Upload Coverage Report
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@54bcd8715eee62d40e33596ef5e8f0f48dbbccab # v4.1.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -202,7 +202,7 @@ jobs:
 
       - name: Run SonarCloud Scan
         if: ${{ env.SONARSCAN == 'true' }}
-        uses: SonarSource/sonarcloud-github-action@v2.1.1
+        uses: SonarSource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df63ec9 # v2.1.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -218,7 +218,7 @@ jobs:
       matrix:
         java_distribution: [ temurin ]
         java_version: [ 17 ]
-        scala_version: [ 2.12.18 ]
+        scala_version: [ 2.12.19 ]
         os: [ ubuntu-22.04 ]
     runs-on: ${{ matrix.os }}
     env:
@@ -230,10 +230,10 @@ jobs:
       ############################################################
 
       - name: Check out Repository
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Java
-        uses: actions/setup-java@v4.0.0
+        uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
         with:
           distribution: ${{ matrix.java_distribution }}
           java-version: ${{ matrix.java_version }}
@@ -253,7 +253,7 @@ jobs:
 
       - name: Run scalafmt Check
         if: success() || failure()
-        run: $SBT scalafmtCheckAll scalafmtSbtCheck
+        run: $SBT scalafmtCheckAll scalafmtSbtCheck daffodil-test-integration/scalafmtCheckAll
 
 
   # Ensure pull requests only have a single commit
@@ -263,7 +263,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check Single Commit
-        uses: actions/github-script@v7.0.1
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
             const commits = await github.rest.pulls.listCommits({

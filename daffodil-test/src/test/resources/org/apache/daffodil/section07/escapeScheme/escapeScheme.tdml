@@ -314,6 +314,24 @@
         escapeKind="escapeCharacter" escapeEscapeCharacter="{ xs:string(xs:int(fn:ceiling(xs:float(../tns:escapeEscapeChar)))) }" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
 
+    <dfdl:defineEscapeScheme name="fromData4">
+      <dfdl:escapeScheme
+              escapeCharacter="{ xs:string(xs:int(../tns:escapeChar) - 3) }"
+              escapeKind="escapeCharacter"
+              escapeEscapeCharacter="{ xs:string(xs:int(fn:ceiling(xs:float(../tns:escapeEscapeChar)))) }"
+              extraEscapedCharacters="{ xs:string(../tns:extraEscapedChars) }"
+              generateEscapeBlock="whenNeeded" />
+    </dfdl:defineEscapeScheme>
+
+    <dfdl:defineEscapeScheme name="fromData5">
+      <dfdl:escapeScheme
+              escapeCharacter="{ xs:string(xs:int(../tns:escapeChar) - 3) }"
+              escapeKind="escapeCharacter"
+              escapeEscapeCharacter="{ xs:string(xs:int(fn:ceiling(xs:float(../tns:escapeEscapeChar)))) }"
+              extraEscapedCharacters="1 3"
+              generateEscapeBlock="whenNeeded" />
+    </dfdl:defineEscapeScheme>
+
     <xs:element name="e1">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -356,6 +374,27 @@
           <xs:element name="escapeChar" type="xs:int"/>
           <xs:element name="escapeEscapeChar" type="xs:float"/>
           <xs:element name="strng" type="xs:string" dfdl:lengthKind="delimited" minOccurs="1" maxOccurs="5" dfdl:escapeSchemeRef="tns:fromData3"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="escapeChar" type="xs:int"/>
+          <xs:element name="escapeEscapeChar" type="xs:float"/>
+          <xs:element name="extraEscapedChars" type="xs:string"/>
+          <xs:element name="strng" type="xs:string" dfdl:lengthKind="delimited" minOccurs="1" maxOccurs="5" dfdl:escapeSchemeRef="tns:fromData4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="escapeChar" type="xs:int"/>
+          <xs:element name="escapeEscapeChar" type="xs:float"/>
+          <xs:element name="strng" type="xs:string" dfdl:lengthKind="delimited" minOccurs="1" maxOccurs="5" dfdl:escapeSchemeRef="tns:fromData5"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -533,6 +572,57 @@
   </parserTestCase>
 
   <!--
+       Test Name: escapeExpressions_07
+          Schema: escapeSchemeExpressions
+            Root: e5
+         Purpose: This test demonstrates that you can use an expression to define an escapeCharacter, escapeEscapeCharacter and a literal for extraEscapedCharacters
+  -->
+
+  <parserTestCase name="escapeExpressions_07" model="escapeSchemeExpressions"
+    description="Section 13 - escapeCharacter" root="e5">
+    <document>5,3.2,212,000,52,000,642,5230,500</document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e5 xmlns:tns="http://example.com">
+          <tns:escapeChar>5</tns:escapeChar>
+          <tns:escapeEscapeChar>3.2</tns:escapeEscapeChar>
+          <tns:strng>1,000</tns:strng>
+          <tns:strng>5,000</tns:strng>
+          <tns:strng>62</tns:strng>
+          <tns:strng>530</tns:strng>
+          <tns:strng>500</tns:strng>
+        </tns:e5>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!--
+       Test Name: escapeExpressions_08
+          Schema: escapeSchemeExpressions
+            Root: e4
+         Purpose: This test demonstrates that you can use an expression to define an escapeCharacter, escapeEscapeCharacter and an extraEscapedCharacters
+  -->
+
+  <parserTestCase name="escapeExpressions_08" model="escapeSchemeExpressions"
+    description="Section 13 - escapeCharacter" root="e4">
+    <document>5,3.2,1 3,212,000,52,000,642,5230,500</document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e4 xmlns:tns="http://example.com">
+          <tns:escapeChar>5</tns:escapeChar>
+          <tns:escapeEscapeChar>3.2</tns:escapeEscapeChar>
+          <tns:extraEscapedChars>1 3</tns:extraEscapedChars>
+          <tns:strng>1,000</tns:strng>
+          <tns:strng>5,000</tns:strng>
+          <tns:strng>62</tns:strng>
+          <tns:strng>530</tns:strng>
+          <tns:strng>500</tns:strng>
+        </tns:e4>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!--
        Test Name: escBlkAllQuotes
           Schema: eBlkAllQuotes
             Root: record
@@ -590,6 +680,18 @@
         escapeEscapeCharacter=")"  extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
 
+    <dfdl:defineEscapeScheme name="eBlkEndParen_eecExp">
+      <dfdl:escapeScheme escapeBlockStart="("
+        escapeBlockEnd=")" escapeKind="escapeBlock"
+        escapeEscapeCharacter=")" extraEscapedCharacters="{../tns:extraEscapedCharacters }" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+
+    <dfdl:defineEscapeScheme name="eBlkEndParen_eecLit">
+      <dfdl:escapeScheme escapeBlockStart="("
+        escapeBlockEnd=")" escapeKind="escapeBlock"
+        escapeEscapeCharacter=")" extraEscapedCharacters="? *" generateEscapeBlock="whenNeeded"/>
+    </dfdl:defineEscapeScheme>
+
     <xs:element name="record">
       <xs:complexType>
         <xs:sequence dfdl:separator="," >
@@ -598,6 +700,27 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="record2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="extraEscapedCharacters" type="xs:string"/>
+          <xs:element name="item" type="xs:string" dfdl:lengthKind="delimited" maxOccurs="5"
+	    dfdl:escapeSchemeRef="tns:eBlkEndParen_eecExp" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="record3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="extraEscapedCharacters" type="xs:string"/>
+          <xs:element name="item" type="xs:string" dfdl:lengthKind="delimited" maxOccurs="5"
+	    dfdl:escapeSchemeRef="tns:eBlkEndParen_eecLit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </defineSchema>
  
   <parserTestCase name="escBlkEndSame" model="eBlkEndSame"
@@ -615,6 +738,40 @@
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
+
+  <unparserTestCase name="escBlkEndSame2" model="eBlkEndSame"
+    description="Section 7 defineEscapeScheme - escapeBlock with expression extraEscapedCharacters" root="record2" roundTrip="true">
+    <document>? *,1,(Column Number? Two*),3,4,5</document>
+    <infoset>
+      <dfdlInfoset>
+    	<tns:record2>
+    	  <tns:extraEscapedCharacters>? *</tns:extraEscapedCharacters>
+    	  <tns:item>1</tns:item>
+    	  <tns:item>Column Number? Two*</tns:item>
+    	  <tns:item>3</tns:item>
+    	  <tns:item>4</tns:item>
+    	  <tns:item>5</tns:item>
+  	    </tns:record2>
+      </dfdlInfoset>
+    </infoset>
+  </unparserTestCase>
+
+  <unparserTestCase name="escBlkEndSame3" model="eBlkEndSame"
+    description="Section 7 defineEscapeScheme - escapeBlock with literal extraEscapedCharacters" root="record3" roundTrip="true">
+    <document>? *,1,(Column Number? Two*),3,4,5</document>
+    <infoset>
+      <dfdlInfoset>
+    	<tns:record3>
+    	  <tns:extraEscapedCharacters>? *</tns:extraEscapedCharacters>
+    	  <tns:item>1</tns:item>
+    	  <tns:item>Column Number? Two*</tns:item>
+    	  <tns:item>3</tns:item>
+    	  <tns:item>4</tns:item>
+    	  <tns:item>5</tns:item>
+  	    </tns:record3>
+      </dfdlInfoset>
+    </infoset>
+  </unparserTestCase>
 
   <!--
        Test Name: escBlkMultipleEEC

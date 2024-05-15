@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import org.apache.daffodil.cli.Main.ExitCode
 import org.apache.daffodil.cli.cliTest.Util._
+import org.apache.daffodil.lib.Implicits._
 
 import org.apache.commons.io.FileUtils
 import org.junit.Assert._
@@ -939,5 +940,21 @@ class TestCLIParsing {
       cli.sendLine("0", inputDone = true)
       cli.expectErr("Unexpected exception in layer transformer 'buggy'")
     }(ExitCode.LayerExecutionError)
+  }
+
+  @Test def test_CLI_util_expectException(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section00/general/elementFormDefaultQualified.dfdl.xsd",
+    )
+
+    val e = intercept[net.sf.expectit.ExpectIOException] {
+      runCLI(args"parse -s $schema -r s1") { cli =>
+        cli.sendLine("strng", inputDone = true)
+        cli.expect("Does Not Exist")
+      }(ExitCode.Failure)
+    }
+    assertTrue(
+      e.getMessage.contains("""Input Buffer: <?xml version="1.0" encoding="UTF-8"?>"""),
+    )
   }
 }

@@ -71,8 +71,16 @@ class TestCLIDebugger {
     * not provided). If this test ever fails, it probably means SBT fixed the jline issue and we
     * can remove "fork = true" and "envs = envs" from these tests and move them back to the
     * daffodil-test project.
-   */
-  @Test def test_CLI_Debugger_sbt_jline_broken(): Unit = {
+    *
+    * Update: newer versions of SBT have updated jline, which fixes incompatibility issues so
+    * this test no longer fails (because the CLI command succeeds). However, SBT hasn't fixed
+    * the underlying class loader issue, so a newer version of jline could potentially break
+    * things again. The test is only commented out in case we ever want to reenable it. Also
+    * keeping the other debugger tests as integration tests that fork--they don't take that much
+    * longer to run when forking and saves us time if a jline update breaks things again.
+    */
+  // @Test
+  def test_CLI_Debugger_sbt_jline_broken(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd",
     )
@@ -1174,34 +1182,35 @@ class TestCLIDebugger {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input1.txt.xml",
     )
 
-    runCLI(args"-d unparse -s $schema -r matrix -o $devNull $input", fork = true, envs = envs) { cli =>
-      cli.expect("(debug)")
-      cli.sendLine("display info diff")
-      cli.expect("(debug)")
-      cli.sendLine("set diffExcludes childIndex")
-      cli.expect("(debug)")
-      cli.sendLine("step")
-      cli.expect("bitPosition: 0 -> 8")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.expect(regexp("\\+ Suppressable.* for cell"))
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.expect(regexp("RegionSplit.* for cell"))
-      cli.sendLine("info suspensions")
-      cli.expect(regexp("Suppressable.* for cell"))
-      cli.expect(regexp("RegionSplit.* for cell"))
-      cli.sendLine("quit")
+    runCLI(args"-d unparse -s $schema -r matrix -o $devNull $input", fork = true, envs = envs) {
+      cli =>
+        cli.expect("(debug)")
+        cli.sendLine("display info diff")
+        cli.expect("(debug)")
+        cli.sendLine("set diffExcludes childIndex")
+        cli.expect("(debug)")
+        cli.sendLine("step")
+        cli.expect("bitPosition: 0 -> 8")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.expect(regexp("\\+ Suppressable.* for cell"))
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.expect(regexp("RegionSplit.* for cell"))
+        cli.sendLine("info suspensions")
+        cli.expect(regexp("Suppressable.* for cell"))
+        cli.expect(regexp("RegionSplit.* for cell"))
+        cli.sendLine("quit")
     }(ExitCode.Failure)
   }
 
@@ -1213,30 +1222,31 @@ class TestCLIDebugger {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/input/input9.txt.xml",
     )
 
-    runCLI(args"-d unparse -r list -s $schema -o $devNull $input", fork = true, envs = envs) { cli =>
-      cli.expect("(debug)")
-      cli.sendLine("set diffExcludes doesNotExist1 bitLimit doesNotExist2")
-      cli.expect("unknown or undiffable info commands: doesNotExist1, doesNotExist2")
+    runCLI(args"-d unparse -r list -s $schema -o $devNull $input", fork = true, envs = envs) {
+      cli =>
+        cli.expect("(debug)")
+        cli.sendLine("set diffExcludes doesNotExist1 bitLimit doesNotExist2")
+        cli.expect("unknown or undiffable info commands: doesNotExist1, doesNotExist2")
 
-      cli.sendLine("display info diff")
-      cli.sendLine("break Item")
-      cli.sendLine("continue")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.expect(regexp("\\+ SuppressableSeparator.* ex:Item"))
-      cli.sendLine("continue")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.expect(regexp("\\+ RegionSplit.* ex:Item"))
-      cli.sendLine("step")
-      cli.sendLine("step")
-      cli.expect(regexp("\\- RegionSplit.* ex:Item"))
-      cli.sendLine("info suspensions")
-      cli.expect(regexp("SuppressableSeparator.* ex:Item"))
-      cli.sendLine("step")
-      cli.sendLine("step")
+        cli.sendLine("display info diff")
+        cli.sendLine("break Item")
+        cli.sendLine("continue")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.expect(regexp("\\+ SuppressableSeparator.* ex:Item"))
+        cli.sendLine("continue")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.expect(regexp("\\+ RegionSplit.* ex:Item"))
+        cli.sendLine("step")
+        cli.sendLine("step")
+        cli.expect(regexp("\\- RegionSplit.* ex:Item"))
+        cli.sendLine("info suspensions")
+        cli.expect(regexp("SuppressableSeparator.* ex:Item"))
+        cli.sendLine("step")
+        cli.sendLine("step")
 
     }(ExitCode.Success)
   }
@@ -1296,6 +1306,5 @@ class TestCLIDebugger {
       cli.expect("[Pass] byte_entities_6_08")
     }(ExitCode.Success)
   }
-
 
 }

@@ -120,18 +120,20 @@ case class DynamicEscapeSchemeCombinatorElement(e: ElementBase, body: Gram)
   val schemeParseOpt = e.optionEscapeScheme.map { _.escapeSchemeParseEv }
   val schemeUnparseOpt = e.optionEscapeScheme.map { _.escapeSchemeUnparseEv }
 
-  Assert.invariant(schemeParseOpt.isDefined && !schemeParseOpt.get.isConstant)
-  Assert.invariant(schemeUnparseOpt.isDefined && !schemeUnparseOpt.get.isConstant)
+  val schemeParseIsConstant = schemeParseOpt.map(_.isConstant).getOrElse(true)
+  val schemeUnparseIsConstant = schemeUnparseOpt.map(_.isConstant).getOrElse(true)
+
+  Assert.invariant(!schemeParseIsConstant || !schemeUnparseIsConstant)
 
   lazy val parser: DaffodilParser = {
     val p = body.parser
-    if (p.isEmpty) p
+    if (p.isEmpty || schemeParseIsConstant) p
     else new DynamicEscapeSchemeParser(schemeParseOpt.get, e.termRuntimeData, p)
   }
 
   override lazy val unparser: DaffodilUnparser = {
     val u = body.unparser
-    if (u.isEmpty) u
+    if (u.isEmpty || schemeUnparseIsConstant) u
     else new DynamicEscapeSchemeUnparser(schemeUnparseOpt.get, e.termRuntimeData, u)
   }
 }

@@ -17,16 +17,18 @@
 
 package org.apache.daffodil.core.dsom
 
-import java.lang.{ Boolean => JBoolean, Long => JLong }
+import java.lang.{ Boolean => JBoolean }
+import java.lang.{ Long => JLong }
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.core.dpath._
+import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.util.DPathUtil
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.BasicComponent
 import org.apache.daffodil.runtime1.dpath.NodeInfo
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.dpath.NodeInfo.AnyAtomic
 import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 
@@ -251,33 +253,39 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     // required. If something is passed in that does not convert to the
     // expected type it will result in error.
 
-    // must be able to convert this to a primitive type
-    val maybePrimType = PrimType.fromNodeInfo(nodeInfoKind)
-    if (maybePrimType.isEmpty) {
-      val msg = "No known primitive type to convert logical value to: %s"
-      compileInfoWhereExpressionWasLocated.SDE(msg, nodeInfoKind)
-    }
+    nodeInfoKind match {
+      case atomic: AnyAtomic.Kind => {
 
-    // remove the leading escape curly brace if it exists
-    val literal =
-      if (exprOrLiteral.startsWith("{{")) exprOrLiteral.tail
-      else exprOrLiteral
+        // remove the leading escape curly brace if it exists
+        val literal =
+          if (exprOrLiteral.startsWith("{{")) exprOrLiteral.tail
+          else exprOrLiteral
 
-    val logical: DataValuePrimitive =
-      try {
-        maybePrimType.get.fromXMLString(literal)
-      } catch {
-        case e: Exception => {
-          val msg = "Unable to convert logical value \"%s\" to %s: %s"
-          compileInfoWhereExpressionWasLocated.SDE(
-            msg,
-            exprOrLiteral,
-            nodeInfoKind,
-            e.getMessage,
-          )
-        }
+        val logical: DataValuePrimitive =
+          try {
+            atomic.primType.fromXMLString(literal)
+          } catch {
+            case e: Exception => {
+              val msg = "Unable to convert logical value \"%s\" to %s: %s"
+              compileInfoWhereExpressionWasLocated.SDE(
+                msg,
+                exprOrLiteral,
+                nodeInfoKind,
+                e.getMessage,
+              )
+            }
+          }
+
+        new ConstantExpression[T](qn, nodeInfoKind, logical.getAnyRef.asInstanceOf[T])
       }
-
-    new ConstantExpression[T](qn, nodeInfoKind, logical.getAnyRef.asInstanceOf[T])
+      // $COVERAGE-OFF$
+      case _ => {
+        val msg = "No known primitive type to convert logical value to: %s"
+        Assert.invariantFailed(
+          msg + compileInfoWhereExpressionWasLocated.schemaFileLocation.toString,
+        )
+      }
+      // $COVERAGE-ON$
+    }
   }
 }

@@ -224,8 +224,7 @@
 
   <tdml:parserTestCase name="schema_line_number" root="e1"
                        model="lineNumber.dfdl.xsd"
-                       description=""
-                       diagnosticsStripLocationInfo="false">
+                       description="">
     <tdml:document />
 
     <tdml:errors>
@@ -236,68 +235,6 @@
     </tdml:errors>
 
   </tdml:parserTestCase>
-
-  <tdml:parserTestCase name="schema_file_path" root="e1"
-                       model="lineNumber.dfdl.xsd"
-                       description=""
-                       diagnosticsStripLocationInfo="false">
-    <tdml:document />
-
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>.../daffodil/section02/schema_definition_errors/lineNumber.dfdl.xsd</tdml:error>
-      <tdml:error>line 65</tdml:error>
-      <tdml:error>column 10</tdml:error>
-    </tdml:errors>
-
-  </tdml:parserTestCase>
-
-  <tdml:defineConfig name="cfg_maxParentDirectoriesForDiagnostics_1">
-    <daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
-                  xmlns:xs="http://www.w3.org/2001/XMLSchema">
-      <daf:maxParentDirectoriesForDiagnostics>2</daf:maxParentDirectoriesForDiagnostics>
-    </daf:tunables>
-  </tdml:defineConfig>
-
-  <tdml:parserTestCase name="schema_file_path_tunable_1" root="e1"
-                       model="lineNumber.dfdl.xsd"
-                       description=""
-                       config="cfg_maxParentDirectoriesForDiagnostics_1"
-                       diagnosticsStripLocationInfo="false">
-    <tdml:document />
-
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>.../section02/schema_definition_errors/lineNumber.dfdl.xsd</tdml:error>
-      <tdml:error>line 65</tdml:error>
-      <tdml:error>column 10</tdml:error>
-    </tdml:errors>
-
-  </tdml:parserTestCase>
-
-  <tdml:defineConfig name="cfg_maxParentDirectoriesForDiagnostics_2">
-    <daf:tunables xmlns="http://www.w3.org/2001/XMLSchema"
-                  xmlns:xs="http://www.w3.org/2001/XMLSchema">
-      <daf:maxParentDirectoriesForDiagnostics>0</daf:maxParentDirectoriesForDiagnostics>
-    </daf:tunables>
-  </tdml:defineConfig>
-
-  <tdml:parserTestCase name="schema_file_path_tunable_2" root="e1"
-                       model="lineNumber.dfdl.xsd"
-                       description=""
-                       config="cfg_maxParentDirectoriesForDiagnostics_2"
-                       diagnosticsStripLocationInfo="false">
-    <tdml:document />
-
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>.../lineNumber.dfdl.xsd</tdml:error>
-      <tdml:error>line 65</tdml:error>
-      <tdml:error>column 10</tdml:error>
-    </tdml:errors>
-
-  </tdml:parserTestCase>
-
 
   <!--
       Test Name: missing_closing_tag

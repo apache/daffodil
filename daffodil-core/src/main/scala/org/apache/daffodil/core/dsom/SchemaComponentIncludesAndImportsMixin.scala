@@ -17,6 +17,8 @@
 
 package org.apache.daffodil.core.dsom
 
+import java.io.File
+
 /**
  * Mixin for all SchemaComponents
  */
@@ -34,5 +36,7 @@ trait SchemaComponentIncludesAndImportsMixin extends CommonContextMixin {
   private lazy val uriString_ = LV('fileName) {
     xmlSchemaDocument.uriString
   }.toOption.getOrElse(orElseURL)
+
+  override def diagnosticFile: File = xmlSchemaDocument.diagnosticFile
 
 }

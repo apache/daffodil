@@ -952,15 +952,7 @@ trait ElementBase
 
   final lazy val patternValues: Seq[FacetValueR] = {
     Assert.invariant(hasPattern)
-    typeDef.optRestriction
-      .map { r =>
-        schemaDefinitionUnless(
-          r.primType == PrimType.String,
-          "Pattern is only allowed to be applied to string and types derived from string.",
-        )
-        r.patternValues
-      }
-      .getOrElse(Nil)
+    typeDef.optRestriction.map { _.patternValues }.getOrElse(Nil)
   }
 
   private lazy val enumerationValues: Option[String] = {

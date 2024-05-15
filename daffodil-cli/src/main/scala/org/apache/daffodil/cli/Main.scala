@@ -227,7 +227,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
   implicit def rootNSConverter = org.rogach.scallop.singleArgConverter[RefQName](qnameConvert _)
 
-  implicit def fileResourceURIConverter = singleArgConverter[URI]((s: String) => {
+  implicit def fileResourceURIConverter = singleArgConverter[URISchemaSource]((s: String) => {
     val optResolved =
       try {
         val uri =
@@ -256,19 +256,22 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
             }
           }
         // At this point we have a valid URI, which could be absolute or relative, with relative
-        // URIs resolved from the current working directory. We can convert this to a string and
-        // pass it to resolveSchemaLocation to find the actual file or resource
-        val cwd = Paths.get("").toUri
-        XMLUtils.resolveSchemaLocation(uri.toString, Some(cwd))
+        // URIs resolved from the current working directory. We create a fake contextPath that represents
+        // a fake file in the current working directory and pass that as the contextSource to the
+        // resolveSchemaLocation function to find the actual file or resource. This is necessary because
+        // resolveSchemaLocation expects a context that is a file for diagnostic purposes.
+        val contextPath = Paths.get("fakeContext.dfdl.xsd")
+        val contextSource = URISchemaSource(contextPath.toFile, contextPath.toUri)
+        XMLUtils.resolveSchemaLocation(uri.toString, Some(contextSource))
       } catch {
         case _: Exception => throw new Exception(s"Could not find file or resource $s")
       }
     optResolved match {
-      case Some((uri, relToAbs)) => {
+      case Some((uriSchemaSource, relToAbs)) => {
         if (relToAbs) {
           Logger.log.warn(s"Found relative path on classpath absolutely, did you mean /$s")
         }
-        uri
+        uriSchemaSource
       }
       case None => {
         throw new Exception(s"Could not find file or resource $s")
@@ -377,7 +380,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
         "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
     )
     val schema =
-      opt[URI]("schema", argName = "file", descr = "DFDL schema to use to create parser")(
+      opt[URISchemaSource](
+        "schema",
+        argName = "file",
+        descr = "DFDL schema to use to create parser",
+      )(
         fileResourceURIConverter,
       )
     val stream = toggle(
@@ -405,9 +412,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Input file to parse. If not specified, or a value of -, reads from stdin.",
     )
 
-    requireOne(schema, parser) // must have one of --schema or --parser
-    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
-    validateFileIsFile(config) // --config must be a file that exists
+    // must have one of --schema or --parser
+    requireOne(schema, parser)
+
+    // if --parser is provided, cannot also provide --root or -T
+    conflicts(parser, List(rootNS, tunables))
+
+    // --config must be a file that exists
+    validateFileIsFile(config)
 
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) =>
@@ -483,7 +495,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
         "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
     )
     val schema =
-      opt[URI]("schema", argName = "file", descr = "DFDL schema to use to create parser")(
+      opt[URISchemaSource](
+        "schema",
+        argName = "file",
+        descr = "DFDL schema to use to create parser",
+      )(
         fileResourceURIConverter,
       )
     val stream = toggle(
@@ -510,9 +526,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Input file to unparse. If not specified, or a value of -, reads from stdin.",
     )
 
-    requireOne(schema, parser) // must have one of --schema or --parser
-    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
-    validateFileIsFile(config) // --config must be a file that exists
+    // must have one of --schema or --parser
+    requireOne(schema, parser)
+
+    // if --parser is provided, cannot also provide --root or -T
+    conflicts(parser, List(rootNS, tunables))
+
+    // --config must be a file that exists
+    validateFileIsFile(config)
 
     validateOpt(debug, infile) {
       case (Some(_), Some("-")) | (Some(_), None) =>
@@ -566,7 +587,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr =
         "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
     )
-    val schema = opt[URI](
+    val schema = opt[URISchemaSource](
       "schema",
       required = true,
       argName = "file",
@@ -675,7 +696,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
         "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
     )
     val schema =
-      opt[URI]("schema", argName = "file", descr = "DFDL schema to use to create parser")(
+      opt[URISchemaSource](
+        "schema",
+        argName = "file",
+        descr = "DFDL schema to use to create parser",
+      )(
         fileResourceURIConverter,
       )
     val threads = opt[Int](
@@ -706,9 +731,14 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr = "Input file or directory containing input files to parse or unparse",
     )
 
-    requireOne(schema, parser) // must have one of --schema or --parser
-    conflicts(parser, List(rootNS)) // if --parser is provided, cannot also provide --root
-    validateFileIsFile(config) // --config must be a file that exists
+    // must have one of --schema or --parser
+    requireOne(schema, parser)
+
+    // if --parser is provided, cannot also provide --root or -T
+    conflicts(parser, List(rootNS, tunables))
+
+    // --config must be a file that exists
+    validateFileIsFile(config)
 
     validateOpt(infosetType, schema) {
       case (Some(InfosetType.EXISA), None) =>
@@ -759,7 +789,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
         descr =
           "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema.",
       )
-      val schema = opt[URI](
+      val schema = opt[URISchemaSource](
         "schema",
         required = true,
         argName = "file",
@@ -805,7 +835,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       descr =
         "Output file to write the encoded/decoded file to. If not given or is -, data is written to stdout.",
     )
-    val schema = opt[URI](
+    val schema = opt[URISchemaSource](
       "schema",
       argName = "file",
       descr = "DFDL schema to use for schema aware encoding/decoding.",
@@ -1003,7 +1033,7 @@ class Main(
   }
 
   def createProcessorFromSchema(
-    schema: URI,
+    schemaSource: URISchemaSource,
     rootNS: Option[RefQName],
     path: Option[String],
     tunablesMap: Map[String, String],
@@ -1024,7 +1054,6 @@ class Main(
     // to also include the call to pf.onPath. (which is the last phase
     // of compilation, where it asks for the parser)
     //
-    val schemaSource = URISchemaSource(schema)
     val res = Timer.getResult(
       "compiling", {
         val processorFactory = compiler.compileSource(schemaSource)
@@ -1052,7 +1081,7 @@ class Main(
   }
 
   def createGeneratorFromSchema(
-    schema: URI,
+    schemaSource: URISchemaSource,
     rootNS: Option[RefQName],
     tunables: Map[String, String],
     language: String,
@@ -1066,7 +1095,6 @@ class Main(
       }
     }
 
-    val schemaSource = URISchemaSource(schema)
     val cg = Timer.getResult(
       "compiling", {
         val processorFactory = compiler.compileSource(schemaSource)
@@ -1149,11 +1177,10 @@ class Main(
               case Some(file) => new FileOutputStream(file)
             }
 
-            val infosetType = parseOpts.infosetType.toOption.get
             val infosetHandler = InfosetType.getInfosetHandler(
-              parseOpts.infosetType.toOption.get,
+              parseOpts.infosetType(),
               processor,
-              parseOpts.schema.toOption,
+              parseOpts.schema.map(_.uri).toOption,
               forPerformance = false,
             )
 
@@ -1325,11 +1352,10 @@ class Main(
               }
             }
 
-            val infosetType = performanceOpts.infosetType.toOption.get
             val infosetHandler = InfosetType.getInfosetHandler(
-              infosetType,
+              performanceOpts.infosetType(),
               processor,
-              performanceOpts.schema.toOption,
+              performanceOpts.schema.map(_.uri).toOption,
               forPerformance = true,
             )
 
@@ -1490,11 +1516,10 @@ class Main(
             var keepUnparsing = maybeScanner.isEmpty || maybeScanner.get.hasNext
             var exitCode = ExitCode.Success
 
-            val infosetType = unparseOpts.infosetType.toOption.get
             val infosetHandler = InfosetType.getInfosetHandler(
-              unparseOpts.infosetType.toOption.get,
+              unparseOpts.infosetType(),
               processor,
-              unparseOpts.schema.toOption,
+              unparseOpts.schema.map(_.uri).toOption,
               forPerformance = false,
             )
 
@@ -1791,7 +1816,11 @@ class Main(
 
         val exiFactory: Option[EXIFactory] =
           try {
-            Some(EXIInfosetHandler.createEXIFactory(exiOpts.schema.toOption))
+            Some(
+              EXIInfosetHandler.createEXIFactory(
+                exiOpts.schema.map(_.uri).toOption,
+              ),
+            )
           } catch {
             case e: EXIException => {
               Logger.log.error(

@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.lib.exceptions
 
-import java.net.URLDecoder
+import java.io.File
+import scala.xml.SAXParseException
 
-import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.LocationInSchemaFile
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 
@@ -35,24 +35,24 @@ trait HasSchemaFileLocation extends LookupLocation {
 }
 
 object SchemaFileLocation {
-  def apply(context: SchemaFileLocatable, tunables: DaffodilTunables) =
+  def apply(context: SchemaFileLocatable) =
     new SchemaFileLocation(
       context.lineNumber,
       context.columnNumber,
       context.uriString,
+      context.diagnosticFile,
       context.toString,
       context.diagnosticDebugName,
-      tunables.maxParentDirectoriesForDiagnostics,
     )
 }
 
-class SchemaFileLocation private (
+class SchemaFileLocation protected (
   val lineNumber: Option[String],
   val columnNumber: Option[String],
   val uriString: String,
+  val diagnosticFile: File,
   contextToString: String,
   val diagnosticDebugName: String,
-  maxParentDirectoriesForDiagnostics: Int,
 ) extends LocationInSchemaFile
   with Serializable {
 
@@ -68,13 +68,7 @@ class SchemaFileLocation private (
 
   override val toString = contextToString
 
-  lazy val fileURITrimmed =
-    limitMaxParentDirectories(
-      URLDecoder.decode(uriString, "UTF-8"),
-      maxParentDirectoriesForDiagnostics,
-    )
-
-  override def fileDescription = " in " + fileURITrimmed
+  override def fileDescription = " in " + diagnosticFile
 
   override def locationDescription = {
     val showInfo = lineDescription != "" || fileDescription != ""
@@ -90,8 +84,6 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
   def fileAttribute: Option[String]
 
   def diagnosticDebugName: String
-
-  def tunables: DaffodilTunables
 
   lazy val lineNumber: Option[String] = lineAttribute match {
     case Some(seqNodes) => Some(seqNodes.toString)
@@ -113,12 +105,8 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
     case None => ""
   }
 
-  lazy val fileURITrimmed = schemaFileLocation.fileURITrimmed
-
-  // URLDecoder removes %20, etc from the file name.
   override lazy val fileDescription = {
-    val newUriString: String = fileURITrimmed
-    " in " + newUriString
+    " in " + diagnosticFile
   }
 
   override lazy val locationDescription = {
@@ -147,6 +135,8 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
    */
   def uriString: String
 
+  def diagnosticFile: File
+
   lazy val uriStringFromAttribute = {
     fileAttribute match {
       case Some(seqNodes) => Some(seqNodes.toString)
@@ -155,5 +145,36 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
 
   }
 
-  override lazy val schemaFileLocation = SchemaFileLocation(this, tunables)
+  override lazy val schemaFileLocation = SchemaFileLocation(this)
+}
+
+class XercesSchemaFileLocation(
+  val xercesError: SAXParseException,
+  val schemaFileLocation: SchemaFileLocation,
+) extends SchemaFileLocation(
+    Option(xercesError.getLineNumber.toString),
+    Option(xercesError.getColumnNumber.toString),
+    xercesError.getSystemId,
+    schemaFileLocation.diagnosticFile,
+    schemaFileLocation.toString,
+    schemaFileLocation.diagnosticDebugName,
+  ) {
+  // we set this to blank string instead of "Schema File" since we don't have access to the element
+  // that causes this error from Xerces and "Schema File" doesn't really add much more info compared
+  // to the blank string
+  override val diagnosticDebugName = ""
+
+  // we have to override equals and hashCode because the OOlag error checks for duplicates in its error list
+  override def equals(obj: Any): Boolean = {
+    val xsflObj = obj.asInstanceOf[XercesSchemaFileLocation]
+    xsflObj.xercesError.getLineNumber == this.xercesError.getLineNumber &&
+    xsflObj.xercesError.getColumnNumber == this.xercesError.getColumnNumber &&
+    xsflObj.xercesError.getSystemId == this.xercesError.getSystemId &&
+    xsflObj.schemaFileLocation == this.schemaFileLocation
+  }
+
+  override def hashCode: Int = {
+    this.xercesError.hashCode() +
+      this.schemaFileLocation.hashCode()
+  }
 }

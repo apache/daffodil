@@ -982,7 +982,6 @@ public class TestJavaAPI {
 
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
 
-        java.io.File extVarFile = getResource("/test/japi/external_vars_1.xml");
         java.io.File schemaFile = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
         ProcessorFactory pf = c.compileFile(schemaFile);
         DataProcessor dp = pf.onPath("/");

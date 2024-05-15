@@ -30,7 +30,7 @@ import org.apache.daffodil.runtime1.api.InfosetSimpleElement
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 /**
- * Writes the infoset to a java.io.Writer as XML text.
+ * Writes the infoset to a java.io.BufferedWriter as XML text.
  *
  * @param writer             The writer to write the XML text to
  * @param pretty             Whether or to enable pretty printing. Set to true, XML
@@ -40,7 +40,7 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo
  * @param minimal            Determine whether to exclude xml slug and prefix bindings
  */
 class XMLTextInfosetOutputter private (
-  writer: java.io.Writer,
+  writer: java.io.BufferedWriter,
   pretty: Boolean,
   xmlTextEscapeStyle: XMLTextEscapeStyle.Value,
   minimal: Boolean,
@@ -53,8 +53,9 @@ class XMLTextInfosetOutputter private (
     xmlTextEscapeStyle: XMLTextEscapeStyle.Value = XMLTextEscapeStyle.Standard,
     minimal: Boolean = false,
   ) = {
+    // using a BufferedWriter provides significant performance improvements
     this(
-      new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8),
+      new java.io.BufferedWriter(new java.io.OutputStreamWriter(os, StandardCharsets.UTF_8)),
       pretty,
       xmlTextEscapeStyle,
       minimal,
@@ -127,7 +128,7 @@ class XMLTextInfosetOutputter private (
     // namespaces if one is defined in the infoset
     incrementIndentation()
     if (pretty) {
-      writer.write(System.lineSeparator())
+      writer.newLine()
       outputIndentation(writer)
     }
     writer.write("<")
@@ -135,7 +136,7 @@ class XMLTextInfosetOutputter private (
     writer.write(" xmlns=\"\">")
 
     if (pretty) {
-      writer.write(System.lineSeparator())
+      writer.newLine()
     }
 
     // Parse the string as XML and then write all events out to the
@@ -158,7 +159,7 @@ class XMLTextInfosetOutputter private (
 
     // write the closing wrapper element
     if (pretty) {
-      writer.write(System.lineSeparator())
+      writer.newLine()
       outputIndentation(writer)
     }
     writer.write("</")
@@ -169,7 +170,7 @@ class XMLTextInfosetOutputter private (
     // if pretty, write indentation so that the closing tag of the simple
     // element is indented as if it were complex
     if (pretty) {
-      writer.write(System.lineSeparator())
+      writer.newLine()
       outputIndentation(writer)
     }
   }
@@ -177,7 +178,7 @@ class XMLTextInfosetOutputter private (
   override def startSimple(se: InfosetSimpleElement): Unit = {
     val simple = se.asInstanceOf[DISimple]
     if (pretty) {
-      writer.write(System.lineSeparator())
+      writer.newLine()
       outputIndentation(writer)
     }
     outputStartTag(simple)
@@ -192,7 +193,7 @@ class XMLTextInfosetOutputter private (
           val escaped = xmlTextEscapeStyle match {
             case XMLTextEscapeStyle.CDATA => {
               val needsCDataEscape = xmlSafe.exists { c =>
-                scala.xml.Utility.Escapes.escMap.contains(c) || c.isWhitespace
+                c == '<' || c == '>' || c == '"' || c == '&' || c.isWhitespace
               }
               if (needsCDataEscape) {
                 "<![CDATA[%s]]>".format(xmlSafe.replaceAll("]]>", "]]]]><![CDATA[>"))
@@ -200,7 +201,16 @@ class XMLTextInfosetOutputter private (
                 xmlSafe
               }
             }
-            case XMLTextEscapeStyle.Standard => scala.xml.Utility.escape(xmlSafe)
+            case XMLTextEscapeStyle.Standard => {
+              val needsStandardEscape = xmlSafe.exists { c =>
+                c == '<' || c == '>' || c == '"' || c == '&'
+              }
+              if (needsStandardEscape) {
+                scala.xml.Utility.escape(xmlSafe)
+              } else {
+                xmlSafe
+              }
+            }
           }
           writer.write(escaped)
         }
@@ -220,7 +230,7 @@ class XMLTextInfosetOutputter private (
   override def startComplex(ce: InfosetComplexElement): Unit = {
     val complex = ce.asInstanceOf[DIComplex]
     if (pretty) {
-      writer.write(System.lineSeparator())
+      writer.newLine()
       outputIndentation(writer)
     }
     outputStartTag(complex)
@@ -233,7 +243,7 @@ class XMLTextInfosetOutputter private (
     decrementIndentation()
     if (pretty && inScopeComplexElementHasChildren) {
       // only output newline and indentation for non-empty complex types
-      writer.write(System.lineSeparator())
+      writer.newLine()
       outputIndentation(writer)
     }
     outputEndTag(complex)
@@ -255,7 +265,7 @@ class XMLTextInfosetOutputter private (
   }
 
   override def endDocument(): Unit = {
-    writer.write(System.lineSeparator())
+    writer.newLine()
     writer.flush()
   }
 }

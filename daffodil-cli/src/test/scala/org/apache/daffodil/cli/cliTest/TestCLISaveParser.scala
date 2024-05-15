@@ -318,4 +318,20 @@ class TestCLISaveParser {
     }
   }
 
+  /**
+   * Attempted to save-parser an invalid schema so we can check the diagnostic error for leaked information
+   */
+  @Test def test_CLI_Saving_SaveParser_error(): Unit = {
+    val schema = path(
+      "daffodil-sapi/src/test/resources/test/sapi/mySchema6.dfdl.xsd",
+    )
+
+    withTempFile { parser =>
+      runCLI(args"save-parser -s $schema $parser") { cli =>
+        cli.expectErr("[error]")
+        cli.expectErr(s"Schema context:  Location line 32 column 74 in ${schema.normalize()}")
+      }(ExitCode.UnableToCreateProcessor)
+    }
+  }
+
 }

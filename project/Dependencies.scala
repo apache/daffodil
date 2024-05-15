@@ -34,18 +34,18 @@ object Dependencies {
   )
 
   lazy val slf4jAPI = Seq(
-    "org.slf4j" % "slf4j-api" % "2.0.11",
+    "org.slf4j" % "slf4j-api" % "2.0.12",
   )
 
   lazy val infoset = Seq(
     "org.jdom" % "jdom2" % "2.0.6.1",
-    "com.fasterxml.woodstox" % "woodstox-core" % "6.6.0",
+    "com.fasterxml.woodstox" % "woodstox-core" % "6.6.1",
     "com.fasterxml.jackson.core" % "jackson-core" % "2.16.1",
   )
 
   lazy val cli = Seq(
-    "org.jline" % "jline" % "3.25.0",
-    "org.rogach" %% "scallop" % "5.0.1",
+    "org.jline" % "jline" % "3.25.1",
+    "org.rogach" %% "scallop" % "5.1.0",
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "test",
   )
 

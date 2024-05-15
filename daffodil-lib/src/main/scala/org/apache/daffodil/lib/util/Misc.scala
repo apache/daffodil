@@ -708,4 +708,16 @@ object Misc {
     }
     Some(res)
   }
+
+  /**
+   * Get the diagnosticFilepath from a uri
+   */
+  def uriToDiagnosticFile(uri: URI): File = {
+    uri.getScheme match {
+      case "jar" => Paths.get(uri.toString.split("\\.jar!").last).toFile
+      case "file" => Paths.get(uri).toFile
+      case _ => Paths.get(uri.getPath).toFile
+    }
+  }
+
 }

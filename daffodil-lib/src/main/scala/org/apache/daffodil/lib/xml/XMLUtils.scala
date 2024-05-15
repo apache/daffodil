@@ -34,6 +34,8 @@ import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 import scala.xml._
 
+import org.apache.daffodil.lib.api.DaffodilSchemaSource
+import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.calendar.DFDLDateConversion
 import org.apache.daffodil.lib.calendar.DFDLDateTimeConversion
 import org.apache.daffodil.lib.calendar.DFDLTimeConversion
@@ -1423,8 +1425,8 @@ Differences were (path, expected, actual):
    */
   def resolveSchemaLocation(
     schemaLocation: String,
-    optContextURI: Option[URI],
-  ): Option[(URI, Boolean)] = {
+    optContextURI: Option[DaffodilSchemaSource],
+  ): Option[(URISchemaSource, Boolean)] = {
     val uri =
       try {
         new URI(schemaLocation)
@@ -1443,7 +1445,7 @@ Differences were (path, expected, actual):
         uri.getFragment == null &&
         uri.getPath != null
 
-    val optResolved: Option[(URI, Boolean)] =
+    val optResolved: Option[(URISchemaSource, Boolean)] =
       if (uri.isAbsolute) {
         // an absolute URI is one with a scheme. In this case, we expect to be able to resolve
         // the URI and do not try anything else (e.g. filesystem, classpath). Since this function
@@ -1452,7 +1454,8 @@ Differences were (path, expected, actual):
         // absolute URIs in includes/imports and cannot remove this yet.
         try {
           uri.toURL.openStream.close
-          Some(uri, false)
+          val uss = URISchemaSource(Misc.uriToDiagnosticFile(uri), uri)
+          Some(uss, false)
         } catch {
           case e: IOException => None
         }
@@ -1473,13 +1476,22 @@ Differences were (path, expected, actual):
             // absolute so we can use it as-is so getResource does not care what package this
             // class is in.
             val resource = this.getClass.getResource(uri.getPath)
-            if (resource != null) Some((resource.toURI, false)) else None
+            if (resource != null) {
+              val uss = URISchemaSource(new File(uri.getPath), resource.toURI)
+              Some((uss, false))
+            } else
+              None
           }
           .orElse {
             // Search for the schemaLocation path on the file system. This path is absolute so it
             // must exist. If it does not exist, this orElse block results in a None
             val file = Paths.get(uri.getPath).toFile
-            if (file.exists) Some((file.toURI, false)) else None
+            if (file.exists) {
+              val uss = URISchemaSource(file, file.toURI)
+              Some((uss, false))
+            } else {
+              None
+            }
           }
         optResolvedAbsolute
       } else {
@@ -1489,16 +1501,28 @@ Differences were (path, expected, actual):
         val optResolvedRelative = None
           .orElse {
             // This is a relative path, so look up the schemaLocation path relative to the context
-            Misc.getResourceRelativeOnlyOption(uri.getPath, contextURI).map { (_, false) }
+            val relativeURI =
+              Misc.getResourceRelativeOnlyOption(uri.getPath, contextURI.uriForLoading).map {
+                u =>
+                  val contextURIDiagnosticFile = contextURI.diagnosticFile
+                  val relativeDiagnosticFile =
+                    contextURIDiagnosticFile.toPath
+                      .resolveSibling(Paths.get(uri.getPath))
+                      .normalize()
+                      .toFile
+                  (URISchemaSource(relativeDiagnosticFile, u), false)
+              }
+            relativeURI
           }
           .orElse {
+            val uriPath = "/" + uri.getPath
             // The user might have meant an absolute schemaLocation but left off the leading
             // slash accidentally. Past versions of Daffodil allowed this, so we allow it too,
             // but return a boolean if a relative path was found absolutely so callers can warn
             // if needed. Future versions of Daffodil may want to remove this orElse block so we
             // are strict about how absolute vs relative schemaLocations are resolved.
-            val pair = Option(this.getClass.getResource("/" + uri.getPath))
-              .map { _.toURI }
+            val pair = Option(this.getClass.getResource(uriPath))
+              .map { r => URISchemaSource(new File(uriPath), r.toURI) }
               .map { (_, true) }
             pair
           }

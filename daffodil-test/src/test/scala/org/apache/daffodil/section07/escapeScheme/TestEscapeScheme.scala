@@ -59,6 +59,8 @@ class TestEscapeScheme {
   @Test def test_escapeExpressions_04(): Unit = { runner.runOneTest("escapeExpressions_04") }
   @Test def test_escapeExpressions_05(): Unit = { runner.runOneTest("escapeExpressions_05") }
   @Test def test_escapeExpressions_06(): Unit = { runner.runOneTest("escapeExpressions_06") }
+  @Test def test_escapeExpressions_07(): Unit = { runner.runOneTest("escapeExpressions_07") }
+  @Test def test_escapeExpressions_08(): Unit = { runner.runOneTest("escapeExpressions_08") }
 
   @Test def test_escapeSchemeNeg(): Unit = { runnerNeg.runOneTest("escapeSchemeNeg") }
 
@@ -98,6 +100,8 @@ class TestEscapeScheme {
 
   @Test def test_escBlkAllQuotes(): Unit = { runner.runOneTest("escBlkAllQuotes") }
   @Test def test_escBlkEndSame(): Unit = { runner.runOneTest("escBlkEndSame") }
+  @Test def test_escBlkEndSame2(): Unit = { runner.runOneTest("escBlkEndSame2") }
+  @Test def test_escBlkEndSame3(): Unit = { runner.runOneTest("escBlkEndSame3") }
   // @Test def test_escBlkMultipleEEC() { runner.runOneTest("escBlkMultipleEEC") } // DAFFODIL-1972
 
   @Test def test_escapeScheme_with_comment(): Unit = {

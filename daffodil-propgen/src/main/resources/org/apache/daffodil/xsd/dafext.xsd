@@ -261,6 +261,19 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="invalidRestrictionPolicy" type="daf:TunableInvalidRestrictionPolicy" default="error" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              DFDL only allows a subset of restrictions that XML Schema defines. For example, DFDL
+              disallows the use of the xs:pattern restriction on simple types other than xs:string.
+              This tunable configures this behavior to allow use of some of these restrictions. The
+              allowed values are:
+              - error: disallow the restriction, create a schema definition error
+              - ignore: allow the restriction but do not use it during validation
+              - validate: allow the resriction and use it to validate the canonicalized infoset
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="maxBinaryDecimalVirtualPoint" default="200" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -363,19 +376,6 @@
           <xs:simpleType>
             <xs:restriction base="xs:long">
               <xs:minInclusive value="1" />
-            </xs:restriction>
-          </xs:simpleType>
-        </xs:element>
-        <xs:element name="maxParentDirectoriesForDiagnostics" default="3" minOccurs="0">
-          <xs:annotation>
-            <xs:documentation>
-              The maximum number of parent directories that show up for a file within a diagnostic
-              message.
-            </xs:documentation>
-          </xs:annotation>
-          <xs:simpleType>
-            <xs:restriction base="xs:int">
-              <xs:minInclusive value="0" />
             </xs:restriction>
           </xs:simpleType>
         </xs:element>
@@ -667,6 +667,14 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="TunableInvalidRestrictionPolicy">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="error" />
+      <xs:enumeration value="ignore" />
+      <xs:enumeration value="validate" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="TunableUnqualifiedPathStepPolicy">
     <xs:restriction base="xs:token">
       <xs:enumeration value="defaultNamespace" />
@@ -713,7 +721,6 @@
           <xs:enumeration value="namespaceDifferencesOnly" />
           <xs:enumeration value="noEmptyDefault" />
           <xs:enumeration value="nonExpressionPropertyValueLooksLikeExpression" />
-          <xs:enumeration value="pathNotToArray" />
           <xs:enumeration value="patternEncodingSlashW" />
           <xs:enumeration value="queryStylePathExpression" />
           <xs:enumeration value="regexPatternZeroLength" />

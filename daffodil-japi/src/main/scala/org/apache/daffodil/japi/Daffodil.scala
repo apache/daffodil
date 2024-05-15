@@ -38,6 +38,7 @@ import org.apache.daffodil.lib.api.{ DataLocation => SDataLocation }
 import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
 import org.apache.daffodil.lib.api.{ LocationInSchemaFile => SLocationInSchemaFile }
 import org.apache.daffodil.lib.api.{ WithDiagnostics => SWithDiagnostics }
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL.{
@@ -165,7 +166,7 @@ class Compiler private[japi] (private var sCompiler: SCompiler) {
    */
   @throws(classOf[java.io.IOException])
   def compileSource(uri: URI, rootName: String, rootNamespace: String): ProcessorFactory = {
-    val source = URISchemaSource(uri)
+    val source = URISchemaSource(Misc.uriToDiagnosticFile(uri), uri)
     val pf = sCompiler.compileSource(source, Option(rootName), Option(rootNamespace))
     new ProcessorFactory(pf)
   }

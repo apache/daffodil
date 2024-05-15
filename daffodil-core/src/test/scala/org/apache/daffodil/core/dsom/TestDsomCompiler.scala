@@ -17,6 +17,7 @@
 
 package org.apache.daffodil.core.dsom
 
+import java.nio.file.Paths
 import scala.xml.Node
 import scala.xml.Utility
 import scala.xml.XML
@@ -225,6 +226,8 @@ class TestDsomCompiler {
     assertTrue(elem.isInstanceOf[LocalElementDecl])
   }
 
+  private val exampleOfMostDFDLConstructsXML = "/test/example-of-most-dfdl-constructs.dfdl.xml"
+
   @Test def test3(): Unit = {
     // Newer versions of the scala-xml library changed the XML.load() function
     // so that it does not ignore comments/processing instructions. This causes
@@ -233,7 +236,8 @@ class TestDsomCompiler {
     // does remove comments and what is normally used by Daffodil) to load the
     // XML to a Scala XML Node.
     val source = URISchemaSource(
-      Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml"),
+      Paths.get(exampleOfMostDFDLConstructsXML).toFile,
+      Misc.getRequiredResource(exampleOfMostDFDLConstructsXML),
     )
     val loader = new DaffodilXMLLoader(null)
     val testSchema = loader.load(source, None)
@@ -340,7 +344,7 @@ class TestDsomCompiler {
 
   @Test def test4(): Unit = {
     val testSchema =
-      XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
+      XML.load(Misc.getRequiredResource(exampleOfMostDFDLConstructsXML).toURL)
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -450,7 +454,7 @@ class TestDsomCompiler {
 
   @Test def test_simpleType_base_combining(): Unit = {
     val testSchema =
-      XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
+      XML.load(Misc.getRequiredResource(exampleOfMostDFDLConstructsXML).toURL)
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -502,7 +506,7 @@ class TestDsomCompiler {
 
   @Test def test_group_references(): Unit = {
     val testSchema =
-      XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
+      XML.load(Misc.getRequiredResource(exampleOfMostDFDLConstructsXML).toURL)
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
@@ -679,7 +683,7 @@ class TestDsomCompiler {
 
   @Test def test_element_references(): Unit = {
     val testSchema =
-      XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
+      XML.load(Misc.getRequiredResource(exampleOfMostDFDLConstructsXML).toURL)
 
     val sset = SchemaSet(testSchema)
     val Seq(sch) = sset.schemas

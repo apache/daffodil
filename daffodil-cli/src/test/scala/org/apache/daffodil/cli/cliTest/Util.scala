@@ -40,6 +40,7 @@ import org.apache.daffodil.cli.Main.ExitCode
 import com.fasterxml.jackson.core.io.JsonStringEncoder
 import net.sf.expectit.Expect
 import net.sf.expectit.ExpectBuilder
+import net.sf.expectit.ExpectIOException
 import net.sf.expectit.Result
 import net.sf.expectit.filter.Filters.replaceInString
 import net.sf.expectit.matcher.Matcher
@@ -51,22 +52,20 @@ object Util {
 
   private val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
-  private val daffodilRoot = sys.env.getOrElse("DAFFODIL_HOME", ".")
-
   private val daffodilBinPath = {
     val ext = if (isWindows) ".bat" else ""
-    Paths.get(daffodilRoot, s"daffodil-cli/target/universal/stage/bin/daffodil$ext")
+    Paths.get(s"daffodil-cli/target/universal/stage/bin/daffodil$ext")
   }
 
   /**
-   * Convert the daffodilRoot + parameter to a java Path. The string
+   * Convert the parameter to a java Path. The string
    * parameter should contain unix path separators and it will be interpreted
    * correctly regardless of operating system. When converted to a string to
-   * send to the CLI, it will use the correct line separator for the
+   * send to the CLI, it will use the correct path separator for the
    * operating system
    */
   def path(string: String): Path = {
-    Paths.get(daffodilRoot, string)
+    Paths.get(string)
   }
 
   def devNull(): String = if (isWindows) "NUL" else "/dev/null"
@@ -311,7 +310,15 @@ object Util {
     // if the test thread didn't end cleanly then it must have thrown an exception
     // (e.g. assertion failed, interrupted exception). Just rethrow that exception
     // and cause the test to fail
-    testThread.optException.map { e => throw e }
+    testThread.optException.map {
+      case e: ExpectIOException => {
+        // if an expect match fails then we include the input buffer in the exceptions message.
+        // This could be pretty verbose for large infosets, but makes debugging easier
+        val msg = e.getMessage() + ", Input Buffer: " + e.getInputBuffer()
+        throw new ExpectIOException(msg, e.getInputBuffer())
+      }
+      case e => throw e
+    }
 
     // if the test thread didn't throw an exception then that means all of its tests
     // passed. We just need to verify the CLI exit code

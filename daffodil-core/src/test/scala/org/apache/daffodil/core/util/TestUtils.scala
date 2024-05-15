@@ -24,6 +24,7 @@ import java.io.InputStream
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
+import java.nio.file.Paths
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml._
@@ -314,7 +315,7 @@ object TestUtils {
     val nullChannel = java.nio.channels.Channels.newChannel(nos)
     val compiler = Compiler()
     val uri = Misc.getRequiredResource(resourcePathString)
-    val schemaSource = URISchemaSource(uri)
+    val schemaSource = URISchemaSource(Paths.get(resourcePathString).toFile, uri)
     val theTry = Timer.getResult(compileAndSave(compiler, schemaSource, nullChannel))
     theTry.get
   }

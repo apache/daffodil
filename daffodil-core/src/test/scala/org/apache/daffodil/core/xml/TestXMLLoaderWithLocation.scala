@@ -37,7 +37,9 @@ class TestXMLLoaderWithLocation {
       using(new java.io.FileWriter(tmpXMLFileName)) { fw =>
         fw.write(testXML.toString())
       }
-      val res = URISchemaSource(new File(tmpXMLFileName).toURI)
+      val tmpXMLFile = new File(tmpXMLFileName)
+      val res =
+        URISchemaSource(tmpXMLFile, tmpXMLFile.toURI)
       val eh = new BasicErrorHandler
       val node = (new DaffodilXMLLoader(eh)).load(res, None, addPositionAttributes = true)
       assertTrue(node.toString.toLowerCase.contains("dafint:file"))
@@ -69,7 +71,9 @@ class TestXMLLoaderWithLocation {
       using(new java.io.FileWriter(tmpXMLFileName)) { fw =>
         fw.write(testXML.toString())
       }
-      val res = URISchemaSource(new File(tmpXMLFileName).toURI)
+      val tmpXMLFile = new File(tmpXMLFileName)
+      val res =
+        URISchemaSource(tmpXMLFile, tmpXMLFile.toURI)
       val eh = new BasicErrorHandler
       val node = (new DaffodilXMLLoader(eh)).load(
         res,

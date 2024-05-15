@@ -33,6 +33,7 @@ import org.apache.daffodil.lib.api.{ DataLocation => SDataLocation }
 import org.apache.daffodil.lib.api.{ Diagnostic => SDiagnostic }
 import org.apache.daffodil.lib.api.{ LocationInSchemaFile => SLocationInSchemaFile }
 import org.apache.daffodil.lib.api.{ WithDiagnostics => SWithDiagnostics }
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL.{
@@ -156,7 +157,7 @@ class Compiler private[sapi] (private var sCompiler: SCompiler) {
     optRootName: Option[String] = None,
     optRootNamespace: Option[String] = None,
   ): ProcessorFactory = {
-    val source = URISchemaSource(uri)
+    val source = URISchemaSource(Misc.uriToDiagnosticFile(uri), uri)
     val pf = sCompiler.compileSource(source, optRootName, optRootNamespace)
     new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
   }
