@@ -124,7 +124,7 @@ jobs:
 
       - name: Check out mxml source (Windows)
         if: runner.os == 'Windows'
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
           repository: michaelrsweet/mxml
           ref: v3.3
@@ -143,7 +143,7 @@ jobs:
           echo "COURSIER_CONFIG_DIR=$temp" >> $GITHUB_ENV
 
       - name: Check out Repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         # Disabling shallow clone is recommended for improving sonarcloud reporting
         with:
           fetch-depth: 0
@@ -235,7 +235,7 @@ jobs:
       ############################################################
 
       - name: Check out Repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
 
       - name: Setup Java
         uses: actions/setup-java@99b8673ff64fbf99d8d325f52d9a5bdedb8483e9 # v4.2.1
