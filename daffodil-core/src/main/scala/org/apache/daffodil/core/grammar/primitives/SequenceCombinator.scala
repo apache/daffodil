@@ -97,7 +97,7 @@ class OrderedSequence(sq: SequenceTermBase, sequenceChildrenArg: Seq[SequenceChi
         val nonUnparseableIfHidden = sq.groupMembers.filter(!_.canUnparseIfHidden)
         if (nonUnparseableIfHidden.nonEmpty) {
           SDE(
-            "Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
+            "Element(s) of hidden group must define dfdl:outputValueCalc, dfdl:inputValueCalc, be defaultable or be optional:\n%s",
             nonUnparseableIfHidden.mkString("\n")
           )
         }
@@ -189,7 +189,7 @@ class UnorderedSequence(
         val nonUnparseableIfHidden = sq.groupMembers.filter(!_.canUnparseIfHidden)
         if (nonUnparseableIfHidden.nonEmpty) {
           SDE(
-            "Element(s) of hidden group must define dfdl:outputValueCalc, be defaultable or be optional:\n%s",
+            "Element(s) of hidden group must define dfdl:outputValueCalc, dfdl:inputValueCalc, be defaultable or be optional:\n%s",
             nonUnparseableIfHidden.mkString("\n")
           )
         }

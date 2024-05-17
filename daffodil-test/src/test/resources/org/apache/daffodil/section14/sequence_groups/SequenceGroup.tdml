@@ -1501,4 +1501,39 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="hiddenGroupIVC">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+    <xs:group name="hg">
+      <xs:sequence>
+        <xs:element name="original" type="xs:int" dfdl:outputValueCalc="{ (../ex:value - 1) div 2 }" />
+        <xs:element name="transformed" type="xs:int" dfdl:inputValueCalc="{ ../ex:original * 2 }" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="e" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+          <xs:element name="value" type="xs:int" dfdl:inputValueCalc="{ ../ex:transformed + 1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="hiddenGroupIVC" root="e"
+    model="hiddenGroupIVC" description="Section 14 - Groups - DFDL-14-042R">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[3]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>
+          <value>7</value>
+        </e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
