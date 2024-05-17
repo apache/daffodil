@@ -527,7 +527,7 @@ trait Term
         e.complexType.group.canUnparseIfHidden
       }
       case e: ElementBase => {
-        e.canBeAbsentFromUnparseInfoset
+        !e.isRepresented || e.canBeAbsentFromUnparseInfoset
       }
     }
     res

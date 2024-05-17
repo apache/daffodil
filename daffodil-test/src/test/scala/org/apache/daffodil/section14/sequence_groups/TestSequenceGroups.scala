@@ -142,4 +142,6 @@ class TestSequenceGroups {
   @Test def test_delimiterScanning_01(): Unit = { runner_01.runOneTest("delimiterScanning_01") }
   @Test def test_delimiterScanning_02(): Unit = { runner_01.runOneTest("delimiterScanning_02") }
   // @Test def test_delimiterScanning_03() { runner_01.runOneTest("delimiterScanning_03") }
+
+  @Test def test_hiddenGroupIVC(): Unit = { runner_02.runOneTest("hiddenGroupIVC") }
 }

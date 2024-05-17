@@ -115,7 +115,7 @@ trait ChoiceTermRuntime1Mixin { self: ChoiceTermBase =>
         optOpen.orElse {
           groupMembers.find {
             _.canUnparseIfHidden
-          } // optional, defaultable or OVC
+          } // optional, defaultable, OVC, or IVC
         }
       optDefault
     }
