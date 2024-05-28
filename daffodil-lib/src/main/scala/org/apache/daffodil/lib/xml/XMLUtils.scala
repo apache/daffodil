@@ -153,11 +153,20 @@ object XMLUtils {
     list
   }
 
-  // FIXME: DAFFODIL-2883 - this needs checkForExistingPUA to be false so that data
-  //  which contains unicode PUA characters doesn't cause an SDE. Needs to be either
-  //  accepted or optionally cause a ParseError.
   private val remapXMLToPUA =
-    new RemapXMLIllegalCharToPUA(checkForExistingPUA = true, replaceCRWithLF = true)
+    new RemapXMLIllegalCharToPUA(
+      // To fix DAFFODIL-2883 - changed to tolerate existing PUA by default. It just
+      // ignores them. If they happen to be ones we use like U+E000 for NUL, then
+      // a round trip of the data will not preserve them.
+      //
+      // Note that fuzz testing that just permutes bytes along with unicode charset data
+      // can run into this fairly easily. Since this remap is called in the
+      // InfosetOutputter converting the DFDL infoset to XML, you cannot, at that point,
+      // fail in any useful way.
+      //
+      checkForExistingPUA = false,
+      replaceCRWithLF = true
+    )
 
   def remapXMLIllegalCharactersToPUA(s: String): String = remapXMLToPUA.remap(s)
 
