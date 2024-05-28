@@ -70,12 +70,13 @@ public final class GZipLayer extends Layer {
 
 /**
  * Prior to Java 16, the java.util.zip.GZIPOutputStream wrote a value of zero for
- * the OS field in the header (byte index 9). In Java 16, this was changed to a
+ * the OS field in the header (byte index 9).
+ * In Java 16, this was changed to a
  * value of 255 to better abide by the GZIP specification. Unfortunately, this
  * means unparsed data using a GZIP layer might have a single byte difference,
  * depending on the Java version used. This can lead to inconsistent behavior of
  * test failures that expect a certain byte value.
- *
+ * <p>
  * To resolve this issue, we create this GZIPFixedOutputStream. This should wrap
  * the underlying OutputStream and be passed as the OutputStream to the
  * GZIPOutputStream. When the GZIPOutputStream writes the 9th byte to this

@@ -6,3 +6,4 @@ This is the documentation for the Apache Daffodil Scala API.
 
 [[org.apache.daffodil.udf]] - Provides the classes necessary to create User Defined Functions to extend the DFDL expression language
 
+[[org.apache.daffodil.runtime1.layers.api]] - Provides the classes necessary to create custom Layer extensions to DFDL.
