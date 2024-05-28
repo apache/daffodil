@@ -17,1441 +17,1445 @@
   limitations under the License.
 -->
 
-<tdml:testSuite suiteName="Understanding dfdl:bitOrder" 
-xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
- xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
- xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com" 
-  xmlns="http://www.w3.org/1999/xhtml">
-  <tdml:tutorial xml:space="preserve">
+<testSuite
+	suiteName="Understanding dfdl:bitOrder"
+	xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ex="http://example.com"
+>
+	<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml" xml:space="preserve">
     <p> DFDL has not only the dfdl:byteOrder property, but a property dfdl:bitOrder which is used when the data fields are not on byte boundaries. There are many formats which use individual bit flags, small 2 or 3 or 4 bit fields, or larger fields that do not use up an integral number of bytes. E.g., a 12-bit field. Given that the bits of these fields do not occupy whole bytes, the quesion arises of how we express which bits of a byte are the ones that make up a data field. </p>
-<p>The <a href='http://daffodil.apache.org/docs/dfdl/#_Toc398030723'>DFDL Specification describes dfdl:bitOrder</a>:</p>
-<blockquote cite='http://daffodil.apache.org/docs/dfdl/#_Toc398030723'>
+		<p>The <a href='http://daffodil.apache.org/docs/dfdl/#_Toc398030723'>DFDL Specification describes dfdl:bitOrder</a>:</p>
+		<blockquote cite='http://daffodil.apache.org/docs/dfdl/#_Toc398030723'>
 The bits of a byte each have a place value or significance of 2<sup>n</sup>, for n from 0 to 7. Hence, the byte value 255 = 2 <sup>7</sup> + 2<sup>6</sup> + 2<sup>5</sup> + 2<sup>4</sup> + 2<sup>3</sup> + 2<sup>2</sup> + 2<sup>1</sup> + 2<sup>0</sup>. A bit can always be unambiguously identified as the 2<sup>n</sup>-bit.
-The bit order is the correspondence of a bit's numeric significance to the bit position (1 to 8) within the byte. 
+			The bit order is the correspondence of a bit's numeric significance to the bit position (1 to 8) within the byte.
 </blockquote>
-<p>
+		<p>
 The point of the above is that the way that bytes are "stored" or "transmitted" is irrelevant. Also, remember that consistent with XML and XSD, everything in DFDL is numbered starting from 1, not zero.
 </p>
-<p>
+		<p>
 Consider the byte value 36 decimal, or 0x24 as a pure mathematical quantity. Most computers these days are "byte oriented" meaning if the byte value 36 is written to a storage medium, and read back, you get back the mathematical value 36, and you don't have to know anything about how the bits were
 actually represented in that medium. In fact, on many storage devices they aren't stored as some adjacent collection of physical bit storage units but may be sliced differently (first bits of all bytes are adjacent, then 2nd bits of all bytes, .... and so on.) or they may be cleverly encoded
 in some way so as to recover from storage errors, etc.
 </p>
-<p>
+		<p>
 So in some sense, there is no storage order for the bits. None we need to know about anyway. Nevertheless the concept of bit-order is important.
 </p>
-<p>
+		<p>
 Now I can think of 36 decimal as a polynomial in any base I want e.g.
 </p>
-<p> 0x<sup>2</sup> + 3x<sup>1</sup> + 6x<sup>0</sup> = 36 if x is 10.
+		<p> 0x<sup>2</sup> + 3x<sup>1</sup> + 6x<sup>0</sup> = 36 if x is 10.
 </p>
-<p>
+		<p>
 equivalently, this polynomial:
 </p>
-<p>
+		<p>
 0x<sup>7</sup> + 0x<sup>6</sup> + 1x<sup>5</sup> + 0x<sup>4</sup> + 0x<sup>3</sup> + 1x<sup>2</sup> + 0x<sup>1</sup> + 0x<sup>0</sup> = 36 when x is 2.
 </p>
-<p>Note that the above is only mathematics. No bits have any "positions". They just have their associated mathematical place value that they are being multiplied-by to get a total value.
+		<p>Note that the above is only mathematics. No bits have any "positions". They just have their associated mathematical place value that they are being multiplied-by to get a total value.
 </p>
-<p>
+		<p>
 Now, If I ask for bit 5 of the binary digits that the above x=2 polynomial mentions then I'm implying some correspondence of digit position numbers to the place-values of those digits. There are only 2 sensible schemes depending on which end you start on, that's either the 2<sup>5</sup>-bit (starting from least-significant-first), or the 2<sup>2</sup>-bit (starting from most significant first).
 </p>
-<p>
+		<p>
 Note that there is still nothing here about how anything is being stored or transmitted. We have a mathematical value 36, but we can, by choosing a convention (least/most first), specify what bit 5 is, without any reference to how anything is stored or transmitted. It's just math.
 </p>
-<p>
+		<p>
 So in general, given
 </p>
-<ul>
+		<ul>
 <li>a mathematical number N with value from 0 to 255</li>
-<li>a number base b (usually 2)</li>
-<li>a convention least-significant first, or most significant first</li>
+			<li>a number base b (usually 2)</li>
+			<li>a convention least-significant first, or most significant first</li>
 </ul>
-<p>
+		<p>
 I can define what "digit d" means, and that digit d has a specific numeric value that it contributes to the value of the number N. All math. Nothing about storage or transmission. Sorry for repeating myself.
 </p>
-<p>
+		<p>
 So that's why a byte containing 36 contains 36 whether the bit-order is least-significant first or most-significant first, because we're looking at all of it. A key concept here is that
 <em>bit order only matters when you are looking at fewer than all the bits of a byte</em>.
 </p>
 
-<h2>Editing and Looking at Data with "leastSignificantBitFirst" bitOrder</h2>
-<p>
+		<h2>Editing and Looking at Data with "leastSignificantBitFirst" bitOrder</h2>
+		<p>
 Now consider a hex editor. When you type 24 hex, well most humans write numbers big-end-first-left-to-right. This convention has nothing whatsoever to do with how anything is stored in computers. If I translate 24 hex to 00100100 binary, I wrote it that way because I use big-endian-left-to-right human-friendly conventions. The hex/binary editor puts it on screen that way, because it knows us biologicals need to read it that way. But it's not about "storage order".
 </p>
-<p>
+		<p>
 That said. It is OK to pretend that computers store bytes as little left-to-right vectors of binary bits on pages of paper, and every computer stores them most-significant-bit first. But when visualizing data, this way of thinking about it just makes your life much harder, which is why all the
 diagrams in the specs that are about data with leastSignificantbitFirst are numbered right to left instead.
 </p>
-<p>
+		<p>
 Let's consider looking at a hex dump or hex editor displaying "2408", but the data is least-significant-bit first. To visualize this data, just number the bytes starting from the right. Then look at each byte, and type the two hex digits for it, most-significant first, then least-significant. Notice how the bits within the bytes are numbered increasing from right to left as well.
 </p>
-<p>
+		<p>
 <img src="bitOrder.tutorial.drawing01.svg" alt="SVG bitOrder diagram" style="width:50%;height:50%;"/>
 </p>
-<p>
-So at this point it should be clear that there is never any operation needed which flips bits backward or otherwise shuffles bits around. It's all about our interpretation of the bits, and the way we choose to number and look at them. 
+		<p>
+So at this point it should be clear that there is never any operation needed which flips bits backward or otherwise shuffles bits around. It's all about our interpretation of the bits, and the way we choose to number and look at them.
 </p>
-<h2>Writing a DFDL Schema Using dfdl:bitOrder='leastSignificantBitFirst'</h2>
-<p>
-Let's look at some additional examples.  
+		<h2>Writing a DFDL Schema Using dfdl:bitOrder='leastSignificantBitFirst'</h2>
+		<p>
+Let's look at some additional examples.
 </p>
 </tdml:tutorial>
-<tdml:tutorial>
-<h2>Examples from Section 11.2 of the DFDL Specification</h2>
+	<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml">
+		<h2>Examples from Section 11.2 of the DFDL Specification</h2>
 
-<p >Consider a structure of 4 logical elements. The total length
-is 16 bits. Assume dfdl:lengthUnits is 'bits', dfdl:representation is 'binary',
-dfdl:binaryNumberRep is 'binary':</p>
+		<p >Consider a structure of 4 logical elements. The total length
+			is 16 bits. Assume dfdl:lengthUnits is 'bits', dfdl:representation is 'binary',
+			dfdl:binaryNumberRep is 'binary':</p>
 
-<div style='border:solid windowtext 1.0pt;padding:1.0pt 4.0pt 1.0pt 4.0pt;
+		<div style='border:solid windowtext 1.0pt;padding:1.0pt 4.0pt 1.0pt 4.0pt;
 background:#F3F3F3'>
 
-<p style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
+			<p style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
 border:none;padding:0in'><span style='font-size:9.0pt;font-family:
 "Courier New";color:#0070C0'>&lt;element name=&quot;A&quot;
-type=&quot;xs:int&quot; dfdl:length=&quot;3&quot;/&gt; &lt;!-- having value 3
---&gt;</span></p>
+				type=&quot;xs:int&quot; dfdl:length=&quot;3&quot;/&gt; &lt;!-- having value 3
+				--&gt;</span></p>
 
-<p style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
+			<p style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
 border:none;padding:0in'><span style='font-size:9.0pt;font-family:
 "Courier New";color:red'>&lt;element name=&quot;B&quot; type=&quot;xs:int&quot;
-dfdl:length=&quot;7&quot;/&gt; &lt;!-- having value 9 --&gt;</span></p>
+				dfdl:length=&quot;7&quot;/&gt; &lt;!-- having value 9 --&gt;</span></p>
 
-<p style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
+			<p style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
 border:none;padding:0in'><span style='font-size:9.0pt;font-family:
 "Courier New";color:#00B050'>&lt;element name=&quot;C&quot;
-type=&quot;xs:int&quot; dfdl:length=&quot;4&quot;/&gt; &lt;!-- having value 5
---&gt;</span></p>
+				type=&quot;xs:int&quot; dfdl:length=&quot;4&quot;/&gt; &lt;!-- having value 5
+				--&gt;</span></p>
 
-<p style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
+			<p style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
 border:none;padding:0in'><span style='font-size:9.0pt;font-family:
 "Courier New";color:#5F497A'>&lt;element name=&quot;D&quot;
-type=&quot;xs:int&quot; dfdl:length=&quot;2&quot;/&gt; &lt;!-- having value 1
---&gt;</span></p>
+				type=&quot;xs:int&quot; dfdl:length=&quot;2&quot;/&gt; &lt;!-- having value 1
+				--&gt;</span></p>
 
-</div>
+		</div>
 
-<p >The above are colorized so as to match the highlighting of the corresponding
-bits in the data below.</p>
+		<p >The above are colorized so as to match the highlighting of the corresponding
+			bits in the data below.</p>
 
-<p >In a format where dfdl:bitOrder is
-'mostSignificantBitFirst': </p>
+		<p >In a format where dfdl:bitOrder is
+			'mostSignificantBitFirst': </p>
 
-<div style='border:solid windowtext 1.0pt;padding:1.0pt 4.0pt 1.0pt 4.0pt;
+		<div style='border:solid windowtext 1.0pt;padding:1.0pt 4.0pt 1.0pt 4.0pt;
 background:#F3F3F3'>
 
-<pre style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
+			<pre style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
 	    border:none;padding:0in;font-size:9.0pt;font-family:"Courier New"'><span style=';color:#0070C0'
->              011</span><span 
-style='color:red'>00010 01</span><span
-style='color:#00B050'>0101</span><span
-style='color:#7030A0'>01</span>
-<span style='font-size:9.0pt;font-family:
-"Courier New";color:#0070C0'>              AAA</span><span 
-style='color:red'>BBBBB BB</span><span
-style='color:#00B050'>CCCC</span><span
-style='color:#7030A0'>DD</span>
-Significance  M      L M      L
-Bit Position  <span style='color:#00B0F0'>123</span><span
-style='color:red'>45678 12</span><span style='color:#00B050'>3456</span><span
-style='color:#7030A0'>78</span>
-Byte Position ----1--- ----2---
-Hex           6   2    5   5</pre>
-</div>
-<p >As presented here, the bits corresponding to each element
-appear left to right, and all bits for an individual element are visually adjacent as you see them.
-Within the bits of an individual element the most significant bit is on the
-left, least significant on the right. We also put the bytes in order with byte 1 on the left, and byte 2 to the right.</p>
+			>              011</span><span
+				style='color:red'>00010 01</span><span
+				style='color:#00B050'>0101</span><span
+				style='color:#7030A0'>01</span>
+				<span style='font-size:9.0pt;font-family:
+"Courier New";color:#0070C0'>              AAA</span><span
+					style='color:red'>BBBBB BB</span><span
+					style='color:#00B050'>CCCC</span><span
+					style='color:#7030A0'>DD</span>
+				Significance  M      L M      L
+				Bit Position  <span style='color:#00B0F0'>123</span><span
+					style='color:red'>45678 12</span><span style='color:#00B050'>3456</span><span
+					style='color:#7030A0'>78</span>
+				Byte Position ----1--- ----2---
+				Hex           6   2    5   5</pre>
+		</div>
+		<p >As presented here, the bits corresponding to each element
+			appear left to right, and all bits for an individual element are visually adjacent as you see them.
+			Within the bits of an individual element the most significant bit is on the
+			left, least significant on the right. We also put the bytes in order with byte 1 on the left, and byte 2 to the right.</p>
 
-<p>
-  Let's run this example. Here's the schema:
-</p>
-</tdml:tutorial>
-  <tdml:defineSchema name="s3">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-  
-    <dfdl:format ref="ex:GeneralFormat"
-		 bitOrder='mostSignificantBitFirst'
-		 byteOrder='littleEndian'
-		 representation="binary"
-		 lengthUnits="bits"
-		 lengthKind='explicit'
-		 alignmentUnits='bits' alignment='1'
-		 binaryNumberRep='binary'/>
+		<p>
+			Let's run this example. Here's the schema:
+		</p>
+	</tdml:tutorial>
+	<tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false" xmlns="http://www.w3.org/2001/XMLSchema" name="s3">
+		<include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-    <xs:element name="mostFirst" dfdl:lengthKind='implicit'>
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="A" type="xs:int" dfdl:length="3"/>
-          <xs:element name="B" type="xs:int" dfdl:length="7"/>
-          <xs:element name="C" type="xs:int" dfdl:length="4"/>
-          <xs:element name="D" type="xs:int" dfdl:length="2"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+		<dfdl:format ref="ex:GeneralFormat"
+					 bitOrder='mostSignificantBitFirst'
+					 byteOrder='littleEndian'
+					 representation="binary"
+					 lengthUnits="bits"
+					 lengthKind='explicit'
+					 alignmentUnits='bits' alignment='1'
+					 binaryNumberRep='binary'/>
 
-  </tdml:defineSchema>
-  <tdml:tutorial>
-    <p>Notice the above schema specifies mostSignificantBitFirst. This applies to all the elements within this schema including those nested inside others, unless they override it.
-    </p>
-  </tdml:tutorial>
+		<element name="mostFirst" dfdl:lengthKind='implicit'>
+			<complexType>
+				<sequence>
+					<element name="A" type="int" dfdl:length="3"/>
+					<element name="B" type="int" dfdl:length="7"/>
+					<element name="C" type="int" dfdl:length="4"/>
+					<element name="D" type="int" dfdl:length="2"/>
+				</sequence>
+			</complexType>
+		</element>
 
-  <tdml:parserTestCase name="mostSignificantBitFirst" root="mostFirst" model="s3" description="Tests the bit order of 'mostSignificantBitFirst'">
-      <tdml:tutorial>
-    <p>The data in hex is:
-    </p>
-  </tdml:tutorial>
+	</tdml:defineSchema>
+	<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml">
+		<p>Notice the above schema specifies mostSignificantBitFirst. This applies to all the elements within this schema including those nested inside others, unless they override it.
+		</p>
+	</tdml:tutorial>
 
-    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData">
-      <documentPart type="byte">62 55</documentPart>
-    </document>
-      <tdml:tutorial>
-    <p>And the infoset we get when we parse is what we expected.
-    </p>
-  </tdml:tutorial>
+	<parserTestCase
+		name="mostSignificantBitFirst" root="mostFirst" model="s3" description="Tests the bit order of 'mostSignificantBitFirst'">
+		<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml">
+			<p>The data in hex is:
+			</p>
+		</tdml:tutorial>
 
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <mostFirst>
-          <A>3</A>
-          <B>9</B>
-          <C>5</C>
-          <D>1</D>
-        </mostFirst>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    </tdml:parserTestCase>
+		<document xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+			<documentPart type="byte">62 55</documentPart>
+		</document>
+		<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml">
+			<p>And the infoset we get when we parse is what we expected.
+			</p>
+		</tdml:tutorial>
 
-    <tdml:tutorial>    
-<p >In contrast, in a format where dfdl:bitOrder is 'leastSignificantBitFirst' that same logical infoset has a different representation: </p>
+		<infoset>
+			<dfdlInfoset>
+				<ex:mostFirst>
+					<A>3</A>
+					<B>9</B>
+					<C>5</C>
+					<D>1</D>
+				</ex:mostFirst>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
 
-<div style='border:solid windowtext 1.0pt;padding:1.0pt 4.0pt 1.0pt 4.0pt;
+	<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml">
+		<p >In contrast, in a format where dfdl:bitOrder is 'leastSignificantBitFirst' that same logical infoset has a different representation: </p>
+
+		<div style='border:solid windowtext 1.0pt;padding:1.0pt 4.0pt 1.0pt 4.0pt;
 background:#F3F3F3'>
 
-<pre style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;border:none;padding:0in;font-size:9.0pt;font-family:"Courier New"'><span style='color:red'
->              01001</span><span 
-style='color:#0070C0'
->011 </span><span style='color:#7030A0'
->01</span><span style='color:#00B050'
->0101</span><span style='color:red'
->00</span>
-<span style='color:red'
->              BBBBB</span
-><span style='color:#0070C0'
-                   >AAA </span
-><span style='color:#7030A0'
-                       >DD</span
-><span style='color:#00B050'
-                          >CCCC</span
-><span style='color:red'
-                              >BB</span>
-Significance  M      L M      L
-Bit Position  <span
-style='color:red'
-             >87654</span
-	     ><span style='color:#0070C0'
-                  >321 </span
-	     ><span style='color:#7030A0'
-                      >87</span
-	     ><span style='color:#00B050'
-                        >6543</span
-	     ><span style='color:red'
-                            >21</span>
-Byte Position ----1--- ----2---
-Hex           4   B    5   4</pre>
+			<pre style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;border:none;padding:0in;font-size:9.0pt;font-family:"Courier New"'><span style='color:red'
+			>              01001</span><span
+				style='color:#0070C0'
+			>011 </span><span style='color:#7030A0'
+			>01</span><span style='color:#00B050'
+			>0101</span><span style='color:red'
+			>00</span>
+				<span style='color:red'
+				>              BBBBB</span
+				><span style='color:#0070C0'
+				>AAA </span
+				><span style='color:#7030A0'
+				>DD</span
+				><span style='color:#00B050'
+				>CCCC</span
+				><span style='color:red'
+				>BB</span>
+				Significance  M      L M      L
+				Bit Position  <span
+					style='color:red'
+				>87654</span
+				><span style='color:#0070C0'
+				>321 </span
+				><span style='color:#7030A0'
+				>87</span
+				><span style='color:#00B050'
+				>6543</span
+				><span style='color:red'
+				>21</span>
+				Byte Position ----1--- ----2---
+				Hex           4   B    5   4</pre>
 
-</div>
+		</div>
 
-<p >But in the above presentation note how the bits of the element
-'B' do not appear visually adjacent to each other. The most significant bits of byte N
-are adjacent to the least significant bits of byte N+1. So the bits making up element 'B' aren't even contiguous visually as depicted here.</p>
+		<p >But in the above presentation note how the bits of the element
+			'B' do not appear visually adjacent to each other. The most significant bits of byte N
+			are adjacent to the least significant bits of byte N+1. So the bits making up element 'B' aren't even contiguous visually as depicted here.</p>
 
-<p>When working exclusively with data having dfdl:bitOrder
-'leastSignificantBitFirst', it is better to present data with bytes Right to
-Left. That is, with the bytes starting at byte 1 on the right, and increasing
-to the left.</p>
+		<p>When working exclusively with data having dfdl:bitOrder
+			'leastSignificantBitFirst', it is better to present data with bytes Right to
+			Left. That is, with the bytes starting at byte 1 on the right, and increasing
+			to the left.</p>
 
-<div style='border:solid windowtext 1.0pt;padding:1.0pt 4.0pt 1.0pt 4.0pt;
+		<div style='border:solid windowtext 1.0pt;padding:1.0pt 4.0pt 1.0pt 4.0pt;
 background:#F3F3F3'>
 
-<pre style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
+			<pre style='margin:0in;margin-bottom:.0001pt;background:#F3F3F3;
 	  border:none;padding:0in;font-size:9.0pt;font-family:"Courier New"'><span style='color:#7030A0'
->              01</span
-><span style='color:#00B050'
-                >0101</span
-><span style='color:red'
-		    >00 01001</span
-><span style='color:#0070C0'>011</span>
-<span style='color:red'
-      >              </span
-      ><span style='color:#7030A0'
-      >DD</span
-      ><span
-      style='color:#00B050'
-      >CCCC</span
-      ><span style='color:red'
-      >BB BBBBB</span
-      ><span style='color:#0070C0'
-      >AAA </span
-      >
-Significance  M      L M      L
-Bit Position  <span style='color:#7030A0'
->87</span
-><span style='color:#00B050'
->6543</span
-><span style='color:red'
->21 87654</span
-><span style='color:#0070C0'
->321</span>
-Byte Position ----2--- ----1---
-Hex           5   4    4   B</pre>
+			>              01</span
+			><span style='color:#00B050'
+			>0101</span
+			><span style='color:red'
+			>00 01001</span
+			><span style='color:#0070C0'>011</span>
+				<span style='color:red'
+				>              </span
+				><span style='color:#7030A0'
+				>DD</span
+				><span
+					style='color:#00B050'
+				>CCCC</span
+				><span style='color:red'
+				>BB BBBBB</span
+				><span style='color:#0070C0'
+				>AAA </span
+				>
+				Significance  M      L M      L
+				Bit Position  <span style='color:#7030A0'
+				>87</span
+				><span style='color:#00B050'
+				>6543</span
+				><span style='color:red'
+				>21 87654</span
+				><span style='color:#0070C0'
+				>321</span>
+				Byte Position ----2--- ----1---
+				Hex           5   4    4   B</pre>
 
-</div>
+		</div>
 
-<p>With this reorientation, the bits of the element 'B' which span two bytes, are
-once again displayed adjacently. Within the bits of an individual element the
-most significant bit is on the left, least significant on the right.</p>
+		<p>With this reorientation, the bits of the element 'B' which span two bytes, are
+			once again displayed adjacently. Within the bits of an individual element the
+			most significant bit is on the left, least significant on the right.</p>
 
-<p>
-  Here's the schema. It is almost identical. The only difference here is that the bitOrder is leastSignificantBitFirst.
-</p>
-    </tdml:tutorial>
-    <tdml:defineSchema name="s2">
-      <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-      
-      <dfdl:format ref="ex:GeneralFormat" bitOrder='leastSignificantBitFirst' byteOrder='littleEndian' representation="binary" lengthUnits="bits"  lengthKind='explicit' alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+		<p>
+			Here's the schema. It is almost identical. The only difference here is that the bitOrder is leastSignificantBitFirst.
+		</p>
+	</tdml:tutorial>
+	<tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false" xmlns="http://www.w3.org/2001/XMLSchema" name="s2">
+		<include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-    <xs:element name="leastFirst" dfdl:lengthKind='implicit'>
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="A" type="xs:int" dfdl:length="3"/>
-          <xs:element name="B" type="xs:int" dfdl:length="7"/>
-          <xs:element name="C" type="xs:int" dfdl:length="4"/>
-          <xs:element name="D" type="xs:int" dfdl:length="2"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+		<dfdl:format ref="ex:GeneralFormat" bitOrder='leastSignificantBitFirst' byteOrder='littleEndian' representation="binary" lengthUnits="bits"  lengthKind='explicit' alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
 
-  </tdml:defineSchema>
+		<element name="leastFirst" dfdl:lengthKind='implicit'>
+			<complexType>
+				<sequence>
+					<element name="A" type="int" dfdl:length="3"/>
+					<element name="B" type="int" dfdl:length="7"/>
+					<element name="C" type="int" dfdl:length="4"/>
+					<element name="D" type="int" dfdl:length="2"/>
+				</sequence>
+			</complexType>
+		</element>
+
+	</tdml:defineSchema>
 
 
-  <tdml:parserTestCase name="leastSignificantBitFirst" root="leastFirst" model="s2" description="Tests the bit order of 'leastSignificantBitFirst'">
-      <tdml:tutorial>
-    The data (in hex) is different than the prior example.
-  </tdml:tutorial>
-    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData">
-      <documentPart type="byte">4B 54</documentPart>
-    </document>
-      <tdml:tutorial>
-	The logical information in elements A, B, C, and D is the same.
-      </tdml:tutorial>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <leastFirst>
-          <A>3</A>
-          <B>9</B>
-          <C>5</C>
-          <D>1</D>
-        </leastFirst>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  <tdml:tutorial>
-    An interesting concluding note here. Notice that the element 'B' has a representation that spans two bytes. But because it is 7 bits wide, and so would fit in a single byte by itself, as a result the DFDL byteOrder property does not affect the value of the element. The byteOrder is only relevant when an element spans more than 8 bits in its total length.  
-  </tdml:tutorial>
+	<parserTestCase name="leastSignificantBitFirst" root="leastFirst" model="s2" description="Tests the bit order of 'leastSignificantBitFirst'">
+		<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml">
+			The data (in hex) is different than the prior example.
+		</tdml:tutorial>
+		<document xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+			<documentPart type="byte">4B 54</documentPart>
+		</document>
+		<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml">
+			The logical information in elements A, B, C, and D is the same.
+		</tdml:tutorial>
+		<infoset>
+			<dfdlInfoset>
+				<ex:leastFirst>
+					<A>3</A>
+					<B>9</B>
+					<C>5</C>
+					<D>1</D>
+				</ex:leastFirst>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+	<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml">
+		An interesting concluding note here. Notice that the element 'B' has a representation that spans two bytes. But because it is 7 bits wide, and so would fit in a single byte by itself, as a result the DFDL byteOrder property does not affect the value of the element. The byteOrder is only relevant when an element spans more than 8 bits in its total length.
+	</tdml:tutorial>
 
-  <tdml:tutorial>
+	<tdml:tutorial xmlns="http://www.w3.org/1999/xhtml">
 
-    <h2>Examples using both bitOrder and byteOrder</h2>
-    <p>
-      This section is TBD. Example is in the DFDL Spec section 
-    </p>
-<h2>Examples from MIL-STD-2045 Format</h2>
-<p>
-  DFDL's bitOrder property was added to DFDL to enable DFDL to describe MIL-STD-2045 data, and related data formats that share its characteristics. 
-This table is taken from the MIL-STD-2045 Specification, Appendix B.
-<table width="639">
-	<col width="117"/>
-	<col width="33"/>
-	<col width="33"/>
-	<col width="165"/>
-	<col width="4354"/>
-	<col width="57"/>
-	<col width="30"/>
-	<col width="24"/>
-	<tr valign="top">
-		<td colspan="4" width="393" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p><font face="Arial, sans-serif"><font size="2" style="font-size: 9pt">Element</font></font></p>
-		</td>
-		<td colspan="4" width="213" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p><font face="Arial, sans-serif"><font size="2" style="font-size: 9pt">Byte
-			Stream</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" height="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Name</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Length</font></font></p>
-			<p style="margin-bottom: 0in"><br/>
-			</p>
-			<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">(Bits)</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Value
-			</font></font>
-			</p>
-			<p style="margin-bottom: 0in"><br/>
-			</p>
-			<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">(Dec)</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Value
-			</font></font><br/>
-			</p>
-			<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">(Binary)</font></font></p>
-			<table width="100%" cellpadding="0" cellspacing="0">
-				<col width="128*"/>
-				<col width="128*"/>
+		<h2>Examples using both bitOrder and byteOrder</h2>
+		<p>
+			This section is TBD. Example is in the DFDL Spec section
+		</p>
+		<h2>Examples from MIL-STD-2045 Format</h2>
+		<p>
+			DFDL's bitOrder property was added to DFDL to enable DFDL to describe MIL-STD-2045 data, and related data formats that share its characteristics.
+			This table is taken from the MIL-STD-2045 Specification, Appendix B.
+			<table width="639">
+				<col width="117"/>
+				<col width="33"/>
+				<col width="33"/>
+				<col width="165"/>
+				<col width="4354"/>
+				<col width="57"/>
+				<col width="30"/>
+				<col width="24"/>
 				<tr valign="top">
-					<td width="50%" style="border: none; padding: 0in">
-						<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">MSB</font></font></p>
-						<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">n</font></sup></font></font></p>
+					<td colspan="4" width="393" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p><font face="Arial, sans-serif"><font size="2" style="font-size: 9pt">Element</font></font></p>
 					</td>
-					<td width="50%" style="border: none; padding: 0in">
-						<p align="right" style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">LSB</font></font></p>
-						<p align="right"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">0</font></sup></font></font></p>
+					<td colspan="4" width="213" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p><font face="Arial, sans-serif"><font size="2" style="font-size: 9pt">Byte
+							Stream</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" height="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Name</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Length</font></font></p>
+						<p style="margin-bottom: 0in"><br/>
+						</p>
+						<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">(Bits)</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Value
+						</font></font>
+						</p>
+						<p style="margin-bottom: 0in"><br/>
+						</p>
+						<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">(Dec)</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Value
+						</font></font><br/>
+						</p>
+						<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">(Binary)</font></font></p>
+						<table width="100%" cellpadding="0" cellspacing="0">
+							<col width="128*"/>
+							<col width="128*"/>
+							<tr valign="top">
+								<td width="50%" style="border: none; padding: 0in">
+									<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">MSB</font></font></p>
+									<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">n</font></sup></font></font></p>
+								</td>
+								<td width="50%" style="border: none; padding: 0in">
+									<p align="right" style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">LSB</font></font></p>
+									<p align="right"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">0</font></sup></font></font></p>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Field
+							Fragments<br/></font></font></p>
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><br/></font></font></p>
+						<table width="100%" cellpadding="0" cellspacing="0">
+							<col width="128*"/>
+							<col width="128*"/>
+							<tr valign="top">
+								<td width="50%" style="border: none; padding: 0in">
+									<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">MSB</font></font></p>
+									<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">7</font></sup></font></font></p>
+								</td>
+								<td width="50%" style="border: none; padding: 0in">
+									<p align="right" style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">LSB</font></font></p>
+									<p align="right"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">0</font></sup></font></font></p>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Byte
+							Value</font></font>
+						</p>
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">(Binary)</font></font></p>
+						<table width="100%" cellpadding="0" cellspacing="0">
+							<col width="128*"/>
+							<col width="128*"/>
+							<tr valign="top">
+								<td width="50%" style="border: none; padding: 0in">
+									<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">MSB</font></font></p>
+									<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">7</font></sup></font></font></p>
+								</td>
+								<td width="50%" style="border: none; padding: 0in">
+									<p align="right" style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">LSB</font></font></p>
+									<p align="right"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">0</font></sup></font></font></p>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Byte
+							Value (Hex)</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Byte
+							No.</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Version</font></font></p>
+					</td>
+					<td width="33" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">4</font></font></p>
+					</td>
+					<td width="33" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">3</font></font></p>
+					</td>
+					<td width="165" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">0011</font></font></p>
+					</td>
+					<td  width="57" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXXX0011</font></font></p>
+					</td>
+					<td width="57" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">FPI</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">0</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">0</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXX0XXXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Data
+							Compression Type</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">2</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">NA</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">GPI
+							for Originator Address</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XX1XXXXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">FPI
+							for URN</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">X1XXXXXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">URN</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">24</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">207</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">000000000000000011001111</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1XXXXXXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">11100011</font></font></p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">E3</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01100011</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01100011</font></font></p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">67</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">2</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">00000000</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">00000000</font></font></p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">00</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">3</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">X0000000</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">FPI
+							for Unit Name</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1XXXXXXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">10000000</font></font></p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">80</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">4</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Unit
+							Name</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">448
+							max</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">UNITA</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">85
+							'U'</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1010101</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">X1010101</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">78
+							'N'</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1001110</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">0XXXXXXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01010101</font></font></p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">55</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">5</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XX100111</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">73
+							'I'</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1001001</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01XXXXXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01100111</font></font></p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">67</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">6</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXX10010</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">84
+							'T'</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1010100</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">100XXXXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">10010010</font></font></p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">92</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXXX1010</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">65
+							'A'</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1000001</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">0001XXXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">00011010</font></font></p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1A</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">8</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXXXX100</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">End
+							of text marker (DEL)</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">127</font></font></p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1111111</font></font></p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">11111XXX</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">11111100</font></font></p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">FC</font></font></p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">9</font></font></p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXXXXX11</font></font></p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
+					</td>
+					<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
+						<p style="margin-bottom: 0in;"><br/>
+						</p>
 					</td>
 				</tr>
 			</table>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Field
-			Fragments<br/></font></font></p>
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><br/></font></font></p>
-			<table width="100%" cellpadding="0" cellspacing="0">
-				<col width="128*"/>
-				<col width="128*"/>
-				<tr valign="top">
-					<td width="50%" style="border: none; padding: 0in">
-						<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">MSB</font></font></p>
-						<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">7</font></sup></font></font></p>
-					</td>
-					<td width="50%" style="border: none; padding: 0in">
-						<p align="right" style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">LSB</font></font></p>
-						<p align="right"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">0</font></sup></font></font></p>
-					</td>
-				</tr>
-			</table>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Byte
-			Value</font></font>
-			</p>
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">(Binary)</font></font></p>
-			<table width="100%" cellpadding="0" cellspacing="0">
-				<col width="128*"/>
-				<col width="128*"/>
-				<tr valign="top">
-					<td width="50%" style="border: none; padding: 0in">
-						<p style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">MSB</font></font></p>
-						<p><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">7</font></sup></font></font></p>
-					</td>
-					<td width="50%" style="border: none; padding: 0in">
-						<p align="right" style="margin-bottom: 0in"><font face="Arial, sans-serif"><font size="1" style="font-size: 7pt">LSB</font></font></p>
-						<p align="right"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt"><font size="1" style="font-size: 7pt">2</font><sup><font size="1" style="font-size: 7pt">0</font></sup></font></font></p>
-					</td>
-				</tr>
-			</table>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Byte
-			Value (Hex)</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Byte
-			No.</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Version</font></font></p>
-		</td>
-		<td width="33" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">4</font></font></p>
-		</td>
-		<td width="33" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">3</font></font></p>
-		</td>
-		<td width="165" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">0011</font></font></p>
-		</td>
-		<td  width="57" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXXX0011</font></font></p>
-		</td>
-		<td width="57" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border-top: 1.50pt double #00000a; border-bottom: 1px solid #00000a; border-left: 1px solid #00000a; border-right: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">FPI</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">0</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">0</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXX0XXXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Data
-			Compression Type</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">2</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">NA</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">GPI
-			for Originator Address</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XX1XXXXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">FPI
-			for URN</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">X1XXXXXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">URN</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">24</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">207</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">000000000000000011001111</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1XXXXXXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">11100011</font></font></p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">E3</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01100011</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01100011</font></font></p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">67</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">2</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">00000000</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">00000000</font></font></p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">00</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">3</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">X0000000</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">FPI
-			for Unit Name</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1XXXXXXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">10000000</font></font></p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">80</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">4</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">Unit
-			Name</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">448
-			max</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">UNITA</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">85
-			'U'</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1010101</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">X1010101</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">78
-			'N'</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1001110</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">0XXXXXXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01010101</font></font></p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">55</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">5</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XX100111</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">73
-			'I'</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1001001</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01XXXXXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">01100111</font></font></p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">67</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">6</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXX10010</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">84
-			'T'</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1010100</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">100XXXXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">10010010</font></font></p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">92</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXXX1010</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">65
-			'A'</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1000001</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">0001XXXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">00011010</font></font></p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">1A</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">8</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXXXX100</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">End
-			of text marker (DEL)</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">7</font></font></p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">127</font></font></p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">1111111</font></font></p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">11111XXX</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">11111100</font></font></p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">FC</font></font></p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Arial, sans-serif"><font size="1" style="font-size: 8pt">9</font></font></p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><font face="Courier New, serif"><font size="1" style="font-size: 8pt">XXXXXX11</font></font></p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-	<tr valign="top">
-		<td width="117" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="33" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="165" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td  width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="57" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="30" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-		<td width="24" style="border: 1px solid #00000a; padding-top: 0in; padding-bottom: 0in; padding-left: 0.08in; padding-right: 0.08in">
-			<p style="margin-bottom: 0in;"><br/>
-			</p>
-		</td>
-	</tr>
-</table>
-</p>
+		</p>
 
-<p>
-The schema corresponding to this table is given below. This schema is derived from <a href="https://github.com/DFDLSchemas/mil-std-2045">the github DFDL schema for MIL-STD-2045</a>. The <a href="http://everyspec.com/MIL-STD/MIL-STD-2000-2999/download.php?spec=MIL-STD-2045_47001D_CHANGE-1.025098.pdf">MIL-STD-2045 specification</a> is also generally available.
-</p>
-<p>This format is typical of many miltary data formats in that it stores binary data with least-significant-bit-first bit order. It also makes use of ASCII characters but stores only 7 bits per character, and again, those character code units are stored with least-significant-bit first bit order. In DFDL this character set encoding has the standard name X-DFDL-US-ASCII-7-BIT-PACKED (name us-ascii-7-bit-packed is a synonym for this.) There are a few other interesting aspects of this format which are not related to bit-order, which is the subject of this tutorial, so we will skip them.
-</p>
-</tdml:tutorial>
+		<p>
+			The schema corresponding to this table is given below. This schema is derived from <a href="https://github.com/DFDLSchemas/mil-std-2045">the github DFDL schema for MIL-STD-2045</a>. The <a href="http://everyspec.com/MIL-STD/MIL-STD-2000-2999/download.php?spec=MIL-STD-2045_47001D_CHANGE-1.025098.pdf">MIL-STD-2045 specification</a> is also generally available.
+		</p>
+		<p>This format is typical of many miltary data formats in that it stores binary data with least-significant-bit-first bit order. It also makes use of ASCII characters but stores only 7 bits per character, and again, those character code units are stored with least-significant-bit first bit order. In DFDL this character set encoding has the standard name X-DFDL-US-ASCII-7-BIT-PACKED (name us-ascii-7-bit-packed is a synonym for this.) There are a few other interesting aspects of this format which are not related to bit-order, which is the subject of this tutorial, so we will skip them.
+		</p>
+	</tdml:tutorial>
 
-  <tdml:defineSchema name="s">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-  
-    <dfdl:format tdml:tutorialInclude="no" ref="ex:GeneralFormat" representation="binary" lengthUnits="bits" 
-                 bitOrder='leastSignificantBitFirst' lengthKind='explicit' 
-                 byteOrder='littleEndian' alignmentUnits='bits' alignment='1'/>
+	<tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false" xmlns="http://www.w3.org/2001/XMLSchema" name="s">
+		<include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-    <xs:element name="tabBI" dfdl:lengthKind='implicit'>
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="Version" type="xs:unsignedInt" dfdl:length="4"/>
-          <xs:element name="FPI" type="xs:unsignedInt" dfdl:length="1"/>
-          <xs:element name="GPI_OriginatorAddress" type="xs:unsignedInt" dfdl:length="1"/>
-          <xs:element name="FPI_URN" type="xs:unsignedInt" dfdl:length="1"/>
-          <xs:element name="URN" type="xs:unsignedInt" dfdl:length="24"/>
-          <xs:element name="FPI_UnitName" type="xs:unsignedInt" dfdl:length="1"/>
-          <xs:element name="UnitName" type="xs:string" dfdl:encoding="X-DFDL-US-ASCII-7-BIT-PACKED" 
-                      dfdl:lengthKind="delimited" dfdl:terminator="&#x7F;"/>
-          <xs:element name="GPI_RecipAddrGroup" type="xs:unsignedInt" dfdl:length="1"/>
-          <xs:element name="GRI_R1" type="xs:unsignedInt" dfdl:length="1"/>
-          <xs:element name="FPI_URN2" type="xs:unsignedInt" dfdl:length="1"/>
-          <xs:element name="URN2" type="xs:unsignedInt" dfdl:length="24"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+		<dfdl:format tdml:tutorialInclude="no" ref="ex:GeneralFormat" representation="binary" lengthUnits="bits"
+					 bitOrder='leastSignificantBitFirst' lengthKind='explicit'
+					 byteOrder='littleEndian' alignmentUnits='bits' alignment='1'/>
 
-  </tdml:defineSchema>
+		<element name="tabBI" dfdl:lengthKind='implicit'>
+			<complexType>
+				<sequence>
+					<element name="Version" type="unsignedInt" dfdl:length="4"/>
+					<element name="FPI" type="unsignedInt" dfdl:length="1"/>
+					<element name="GPI_OriginatorAddress" type="unsignedInt" dfdl:length="1"/>
+					<element name="FPI_URN" type="unsignedInt" dfdl:length="1"/>
+					<element name="URN" type="unsignedInt" dfdl:length="24"/>
+					<element name="FPI_UnitName" type="unsignedInt" dfdl:length="1"/>
+					<element name="UnitName" type="string" dfdl:encoding="X-DFDL-US-ASCII-7-BIT-PACKED"
+							 dfdl:lengthKind="delimited" dfdl:terminator="&#x7F;"/>
+					<element name="GPI_RecipAddrGroup" type="unsignedInt" dfdl:length="1"/>
+					<element name="GRI_R1" type="unsignedInt" dfdl:length="1"/>
+					<element name="FPI_URN2" type="unsignedInt" dfdl:length="1"/>
+					<element name="URN2" type="unsignedInt" dfdl:length="24"/>
+				</sequence>
+			</complexType>
+		</element>
+
+	</tdml:defineSchema>
 
 
-<!--
-     Test Name: leastSignificantBitFirst
-        Schema: s2
-          Root: leastFirst
-       Purpose: This test shows the bit order of 'leastSignificantBitFirst'.
--->
+	<!--
+         Test Name: leastSignificantBitFirst
+            Schema: s2
+              Root: leastFirst
+           Purpose: This test shows the bit order of 'leastSignificantBitFirst'.
+    -->
 
-<!--
-     Test Name: leastSignificantBitFirstRTL
-        Schema: s2
-          Root: leastFirst
-       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byte order of right to left.
--->
-  <tdml:parserTestCase name="leastSignificantBitFirstRTL" root="leastFirst" model="s2" description="Tests the bit order of 'leastSignificantBitFirst' with byte order of right to left">
-    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
-      <documentPart type="bits" byteOrder="RTL">01|0101|00 01001|011</documentPart>
-    </document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <leastFirst>
-          <A>3</A>
-          <B>9</B>
-          <C>5</C>
-          <D>1</D>
-        </leastFirst>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
+	<!--
+         Test Name: leastSignificantBitFirstRTL
+            Schema: s2
+              Root: leastFirst
+           Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byte order of right to left.
+    -->
+	<parserTestCase name="leastSignificantBitFirstRTL" root="leastFirst" model="s2" description="Tests the bit order of 'leastSignificantBitFirst' with byte order of right to left">
+		<document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+			<documentPart type="bits" byteOrder="RTL">01|0101|00 01001|011</documentPart>
+		</document>
+		<infoset>
+			<dfdlInfoset>
+				<ex:leastFirst>
+					<A>3</A>
+					<B>9</B>
+					<C>5</C>
+					<D>1</D>
+				</ex:leastFirst>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
 
-<tdml:defineSchema name="s2_1">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+	<tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false" xmlns="http://www.w3.org/2001/XMLSchema" name="s2_1">
+		<include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-    <dfdl:format ref="ex:GeneralFormat" bitOrder='leastSignificantBitFirst' byteOrder='littleEndian' representation="binary" lengthUnits="bits"  lengthKind='explicit' alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+		<dfdl:format ref="ex:GeneralFormat" bitOrder='leastSignificantBitFirst' byteOrder='littleEndian' representation="binary" lengthUnits="bits"  lengthKind='explicit' alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
 
-    <xs:element name="leastFirst" dfdl:lengthKind='implicit'>
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="A" type="xs:int" dfdl:length="3"/>
-          <xs:element name="B" type="xs:int" dfdl:length="7"/>
-          <xs:element name="C" type="xs:int" dfdl:length="4"/>
-          <xs:element name="D" type="xs:int" dfdl:length="2"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+		<element name="leastFirst" dfdl:lengthKind='implicit'>
+			<complexType>
+				<sequence>
+					<element name="A" type="int" dfdl:length="3"/>
+					<element name="B" type="int" dfdl:length="7"/>
+					<element name="C" type="int" dfdl:length="4"/>
+					<element name="D" type="int" dfdl:length="2"/>
+				</sequence>
+			</complexType>
+		</element>
 
-  </tdml:defineSchema>
+	</tdml:defineSchema>
 
-<!--
-     Test Name: mostSignificantBitFirst
-        Schema: s3
-          Root: mostFirst
-       Purpose: This test shows the bit order of 'mostSignificantBitFirst'.
--->
+	<!--
+         Test Name: mostSignificantBitFirst
+            Schema: s3
+              Root: mostFirst
+           Purpose: This test shows the bit order of 'mostSignificantBitFirst'.
+    -->
 
-  <!--
-     Test Name: littleEndianLeastFirstLTR
-        Schema: s4
-          Root: littleLeast
-       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes left to right.
-  -->
-  <tdml:parserTestCase name="littleEndianLeastFirstLTR" root="littleLeast" model="s4" description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes left to right">
-    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
-      <documentPart type="bits" byteOrder="LTR">01011010 10010010 00000000</documentPart>
-    </document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <littleLeast>5A9200</littleLeast>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-    <tdml:defineSchema name="s4">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    
-    <dfdl:format ref="ex:GeneralFormat" representation="binary" 
-                 lengthUnits="bytes" lengthKind='explicit' 
-                 alignmentUnits='bytes' alignment='1' binaryNumberRep='binary'/>
+	<!--
+       Test Name: littleEndianLeastFirstLTR
+          Schema: s4
+            Root: littleLeast
+         Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes left to right.
+    -->
+	<parserTestCase name="littleEndianLeastFirstLTR" root="littleLeast" model="s4" description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes left to right">
+		<document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+			<documentPart type="bits" byteOrder="LTR">01011010 10010010 00000000</documentPart>
+		</document>
+		<infoset>
+			<dfdlInfoset>
+				<ex:littleLeast>5A9200</ex:littleLeast>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
 
-    <xs:element name="littleLeast" type="xs:hexBinary" dfdl:byteOrder="littleEndian" 
-       dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="3"/>
+	<tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false" xmlns="http://www.w3.org/2001/XMLSchema" name="s4">
+		<include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-  </tdml:defineSchema>
+		<dfdl:format ref="ex:GeneralFormat" representation="binary"
+					 lengthUnits="bytes" lengthKind='explicit'
+					 alignmentUnits='bytes' alignment='1' binaryNumberRep='binary'/>
 
-  <!--
-     Test Name: littleEndianLeastFirstRTL
-        Schema: s4
-          Root: littleLeast
-       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes right to left.
-  -->
-  <tdml:parserTestCase name="littleEndianLeastFirstRTL" root="littleLeast" model="s4" description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes right to left">
-    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
-      <documentPart type="bits" byteOrder="RTL">01011010 10010010 00000000</documentPart>
-    </document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <littleLeast>00925A</littleLeast>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-    <tdml:defineSchema name="s4_1">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    
-    <dfdl:format ref="ex:GeneralFormat" representation="binary" 
-                 lengthUnits="bytes" lengthKind='explicit' 
-                 alignmentUnits='bytes' alignment='1' binaryNumberRep='binary'/>
+		<element name="littleLeast" type="hexBinary" dfdl:byteOrder="littleEndian"
+				 dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="3"/>
 
-    <xs:element name="littleLeast" type="xs:hexBinary" dfdl:byteOrder="littleEndian" 
-       dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="3"/>
+	</tdml:defineSchema>
 
-  </tdml:defineSchema>
+	<!--
+       Test Name: littleEndianLeastFirstRTL
+          Schema: s4
+            Root: littleLeast
+         Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes right to left.
+    -->
+	<parserTestCase name="littleEndianLeastFirstRTL" root="littleLeast" model="s4" description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes right to left">
+		<document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData">
+			<documentPart type="bits" byteOrder="RTL">01011010 10010010 00000000</documentPart>
+		</document>
+		<infoset>
+			<dfdlInfoset>
+				<ex:littleLeast>00925A</ex:littleLeast>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
 
-<!--
-     Test Name: bitOrderDocument
-        Schema: s6
-          Root: noBitOrder
-       Purpose: This test specifies the bitOrder in the document.
--->
-  <tdml:parserTestCase name="bitOrderDocument" root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document.">
-    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
-      <documentPart type="bits">01001|011 00|010101</documentPart>
-    </document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <noBitOrder>
-          <A>3</A>
-          <B>9</B>
-          <C>21</C>
-          <D>0</D>
-        </noBitOrder>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-    <tdml:defineSchema name="s6">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    
-    <dfdl:format ref="ex:GeneralFormat" representation="binary" 
-                 lengthUnits="bits" lengthKind='explicit' 
-                 alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+	<tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false" xmlns="http://www.w3.org/2001/XMLSchema" name="s4_1">
+		<include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-    <xs:element name="noBitOrder" dfdl:lengthKind='implicit'>
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="A" type="xs:unsignedInt" dfdl:length="3"/>
-          <xs:element name="B" type="xs:unsignedInt" dfdl:length="5"/>
-          <xs:element name="C" type="xs:unsignedInt" dfdl:length="6"/>
-          <xs:element name="D" type="xs:unsignedInt" dfdl:length="2"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+		<dfdl:format ref="ex:GeneralFormat" representation="binary"
+					 lengthUnits="bytes" lengthKind='explicit'
+					 alignmentUnits='bytes' alignment='1' binaryNumberRep='binary'/>
 
-  </tdml:defineSchema>
+		<element name="littleLeast" type="hexBinary" dfdl:byteOrder="littleEndian"
+				 dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="3"/>
 
-<!--
-     Test Name: bitOrderChange
-        Schema: s6
-          Root: noBitOrder
-       Purpose: This test changes bitOrder when on a byte boundary.
--->
-  <tdml:parserTestCase name="bitOrderChange" root="noBitOrder" model="s6" description="Tests changing bitOrder when on a byte boundary.">
-    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
-      <documentPart type="bits" bitOrder="LSBFirst">01001|011</documentPart>
-      <documentPart type="bits" bitOrder="MSBFirst">010101|00</documentPart>
-    </document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <noBitOrder>
-          <A>3</A>
-          <B>9</B>
-          <C>21</C>
-          <D>0</D>
-        </noBitOrder>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-    <tdml:defineSchema name="s6_1">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    
-    <dfdl:format ref="ex:GeneralFormat" representation="binary" 
-                 lengthUnits="bits" lengthKind='explicit' 
-                 alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+	</tdml:defineSchema>
 
-    <xs:element name="noBitOrder" dfdl:lengthKind='implicit'>
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="A" type="xs:unsignedInt" dfdl:length="3"/>
-          <xs:element name="B" type="xs:unsignedInt" dfdl:length="5"/>
-          <xs:element name="C" type="xs:unsignedInt" dfdl:length="6"/>
-          <xs:element name="D" type="xs:unsignedInt" dfdl:length="2"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+	<!--
+         Test Name: bitOrderDocument
+            Schema: s6
+              Root: noBitOrder
+           Purpose: This test specifies the bitOrder in the document.
+    -->
+	<parserTestCase name="bitOrderDocument" root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document.">
+		<document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
+			<documentPart type="bits">01001|011 00|010101</documentPart>
+		</document>
+		<infoset>
+			<dfdlInfoset>
+				<ex:noBitOrder>
+					<A>3</A>
+					<B>9</B>
+					<C>21</C>
+					<D>0</D>
+				</ex:noBitOrder>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
 
-  </tdml:defineSchema>
+	<tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false" xmlns="http://www.w3.org/2001/XMLSchema" name="s6">
+		<include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
-<!--
-     Test Name: bitOrderTypeByte
-        Schema: s6
-          Root: noBitOrder
-       Purpose: This test specifies the bitOrder in the document when the type is 'byte'.
--->
-  <tdml:parserTestCase name="bitOrderTypeByte" root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document when the type is 'byte'.">
-    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
-      <documentPart type="byte">C6 A2</documentPart>
-    </document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns="http://example.com">
-        <noBitOrder>
-          <A>6</A>
-          <B>24</B>
-          <C>34</C>
-          <D>2</D>
-        </noBitOrder>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-    <tdml:defineSchema name="s6_2">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    
-    <dfdl:format ref="ex:GeneralFormat" representation="binary" 
-                 lengthUnits="bits" lengthKind='explicit' 
-                 alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+		<dfdl:format ref="ex:GeneralFormat" representation="binary"
+					 lengthUnits="bits" lengthKind='explicit'
+					 alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
 
-    <xs:element name="noBitOrder" dfdl:lengthKind='implicit'>
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="A" type="xs:unsignedInt" dfdl:length="3"/>
-          <xs:element name="B" type="xs:unsignedInt" dfdl:length="5"/>
-          <xs:element name="C" type="xs:unsignedInt" dfdl:length="6"/>
-          <xs:element name="D" type="xs:unsignedInt" dfdl:length="2"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+		<element name="noBitOrder" dfdl:lengthKind='implicit'>
+			<complexType>
+				<sequence>
+					<element name="A" type="unsignedInt" dfdl:length="3"/>
+					<element name="B" type="unsignedInt" dfdl:length="5"/>
+					<element name="C" type="unsignedInt" dfdl:length="6"/>
+					<element name="D" type="unsignedInt" dfdl:length="2"/>
+				</sequence>
+			</complexType>
+		</element>
 
-  </tdml:defineSchema>
+	</tdml:defineSchema>
+
+	<!--
+         Test Name: bitOrderChange
+            Schema: s6
+              Root: noBitOrder
+           Purpose: This test changes bitOrder when on a byte boundary.
+    -->
+	<parserTestCase name="bitOrderChange" root="noBitOrder" model="s6" description="Tests changing bitOrder when on a byte boundary.">
+		<document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
+			<documentPart type="bits" bitOrder="LSBFirst">01001|011</documentPart>
+			<documentPart type="bits" bitOrder="MSBFirst">010101|00</documentPart>
+		</document>
+		<infoset>
+			<dfdlInfoset>
+				<ex:noBitOrder>
+					<A>3</A>
+					<B>9</B>
+					<C>21</C>
+					<D>0</D>
+				</ex:noBitOrder>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false" xmlns="http://www.w3.org/2001/XMLSchema" name="s6_1">
+		<include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+		<dfdl:format ref="ex:GeneralFormat" representation="binary"
+					 lengthUnits="bits" lengthKind='explicit'
+					 alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+		<element name="noBitOrder" dfdl:lengthKind='implicit'>
+			<complexType>
+				<sequence>
+					<element name="A" type="unsignedInt" dfdl:length="3"/>
+					<element name="B" type="unsignedInt" dfdl:length="5"/>
+					<element name="C" type="unsignedInt" dfdl:length="6"/>
+					<element name="D" type="unsignedInt" dfdl:length="2"/>
+				</sequence>
+			</complexType>
+		</element>
+
+	</tdml:defineSchema>
+
+	<!--
+         Test Name: bitOrderTypeByte
+            Schema: s6
+              Root: noBitOrder
+           Purpose: This test specifies the bitOrder in the document when the type is 'byte'.
+    -->
+	<parserTestCase name="bitOrderTypeByte" root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document when the type is 'byte'.">
+		<document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
+			<documentPart type="byte">C6 A2</documentPart>
+		</document>
+		<infoset>
+			<dfdlInfoset>
+				<ex:noBitOrder>
+					<A>6</A>
+					<B>24</B>
+					<C>34</C>
+					<D>2</D>
+				</ex:noBitOrder>
+			</dfdlInfoset>
+		</infoset>
+	</parserTestCase>
+
+	<tdml:defineSchema elementFormDefault="unqualified" useDefaultNamespace="false" xmlns="http://www.w3.org/2001/XMLSchema" name="s6_2">
+		<include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+		<dfdl:format ref="ex:GeneralFormat" representation="binary"
+					 lengthUnits="bits" lengthKind='explicit'
+					 alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+		<element name="noBitOrder" dfdl:lengthKind='implicit'>
+			<complexType>
+				<sequence>
+					<element name="A" type="unsignedInt" dfdl:length="3"/>
+					<element name="B" type="unsignedInt" dfdl:length="5"/>
+					<element name="C" type="unsignedInt" dfdl:length="6"/>
+					<element name="D" type="unsignedInt" dfdl:length="2"/>
+				</sequence>
+			</complexType>
+		</element>
+
+	</tdml:defineSchema>
 
 
-</tdml:testSuite>
+</testSuite>
