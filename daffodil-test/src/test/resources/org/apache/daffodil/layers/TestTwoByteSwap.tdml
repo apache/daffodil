@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<testSuite
+  suiteName="TwoByteSwap"
+  description="TwoByteSwap tests"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="onePass"
+  defaultValidation="on">
+
+  <!-- 0 and 1 byteswapped results in 00 00 and 01 00 or 0 and 256 -->
+  <parserTestCase name="test_twobyteswap_01" root="TwoByteSwapTest" model="org/apache/daffodil/layers/xsd/testTwoByteSwapShort.dfdl.xsd">
+    <document>
+      <documentPart type="byte">00 00 00 01</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:TwoByteSwapTest xmlns="">
+          <Block>
+            <Data>0</Data>
+            <Data>256</Data>
+          </Block>
+        </ex:TwoByteSwapTest>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <unparserTestCase name="test_twobyteswap_unparse_odd" root="TwoByteSwapTest"
+                    model="org/apache/daffodil/layers/xsd/testTwoByteSwapByte.dfdl.xsd"
+                    roundTrip="none">
+    <infoset>
+      <dfdlInfoset>
+        <ex:TwoByteSwapTest xmlns="">
+          <Block>
+            <Data>1</Data>
+            <Data>2</Data>
+            <Data>3</Data>
+          </Block>
+        </ex:TwoByteSwapTest>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>not a multiple of 2</error>
+    </errors>
+  </unparserTestCase>
+
+  <!-- 0 and 1 byteswapped results in 00 00 and 01 00 or 0 and 256-->
+  <parserTestCase name="test_twobyteswap_02" root="TwoByteSwapTest" model="org/apache/daffodil/layers/xsd/testTwoByteSwapShort.dfdl.xsd">
+    <document>
+      <documentPart type="byte">00 00 00 01</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:TwoByteSwapTest xmlns="">
+          <Block>
+            <Data>0</Data>
+            <Data>256</Data>
+          </Block>
+        </ex:TwoByteSwapTest>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!-- 1-9 byte swaped -->
+  <parserTestCase name="test_twobyteswap_03" root="TwoByteSwapTest" model="org/apache/daffodil/layers/xsd/testTwoByteSwapShort.dfdl.xsd">
+    <document>
+      <documentPart type="byte">00 01 00 02 00 03 00 04 00 05 00 06 00 07 00 08 00 09</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:TwoByteSwapTest xmlns="">
+          <Block>
+            <Data>256</Data>
+            <Data>512</Data>
+            <Data>768</Data>
+            <Data>1024</Data>
+            <Data>1280</Data>
+            <Data>1536</Data>
+            <Data>1792</Data>
+            <Data>2048</Data>
+            <Data>2304</Data>
+          </Block>
+        </ex:TwoByteSwapTest>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!--The same as test 3 but reversed.-->
+  <parserTestCase name="test_twobyteswap_04" root="TwoByteSwapTest" model="org/apache/daffodil/layers/xsd/testTwoByteSwapShort.dfdl.xsd">
+    <document>
+      <documentPart type="byte">01 00 02 00 03 00 04 00 05 00 06 00 07 00 08 00 09 00</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:TwoByteSwapTest xmlns="">
+          <Block>
+            <Data>1</Data>
+            <Data>2</Data>
+            <Data>3</Data>
+            <Data>4</Data>
+            <Data>5</Data>
+            <Data>6</Data>
+            <Data>7</Data>
+            <Data>8</Data>
+            <Data>9</Data>
+          </Block>
+        </ex:TwoByteSwapTest>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <parserTestCase name="test_twobyteswap_05" root="TwoByteSwapTest" model="org/apache/daffodil/layers/xsd/testTwoByteSwapShort.dfdl.xsd">
+    <document>
+      <documentPart type="byte">01 00 02 00 03 00 04 00 05 00 06 00 07 00 08 00 09 00</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:TwoByteSwapTest xmlns="">
+          <Block>
+            <Data>1</Data>
+            <Data>2</Data>
+            <Data>3</Data>
+            <Data>4</Data>
+            <Data>5</Data>
+            <Data>6</Data>
+            <Data>7</Data>
+            <Data>8</Data>
+            <Data>9</Data>
+          </Block>
+        </ex:TwoByteSwapTest>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <!--Odd bytes.-->
+  <parserTestCase name="test_twobyteswap_bad_01" root="TwoByteSwapTest" model="org/apache/daffodil/layers/xsd/testTwoByteSwapShort.dfdl.xsd">
+    <document>
+      <documentPart type="byte">
+        01 00 02 00
+        03 00 04 00
+        05 00 06 00
+        07 00 08 00
+        09 00 00
+      </documentPart>
+    </document>
+    <errors>
+      <error>Data length is not a multiple of 2</error>
+    </errors>
+  </parserTestCase>
+
+  <!--Odd bytes.-->
+  <parserTestCase name="test_twobyteswap_bad_02" root="TwoByteSwapTest" model="org/apache/daffodil/layers/xsd/testTwoByteSwapByte.dfdl.xsd">
+    <document>
+      <documentPart type="byte">01 00 02 00 03 00 04 00 05 00 06 00 07 00 08 00 09 00 10</documentPart>
+    </document>
+    <errors>
+      <error>Data length is not a multiple of 2</error>
+    </errors>
+  </parserTestCase>
+
+  <!--Odd bytes.-->
+  <parserTestCase name="test_twobyteswap_bad_03" root="TwoByteSwapTest" model="org/apache/daffodil/layers/xsd/testTwoByteSwap.dfdl.xsd">
+    <document>
+      <documentPart type="byte">02 01 04 03 05 06</documentPart>
+    </document>
+    <errors>
+      <error>Failed to populate Data</error>
+      <error>Data length is not a multiple of 2</error>
+    </errors>
+  </parserTestCase>
+
+</testSuite>
