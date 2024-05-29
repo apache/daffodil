@@ -26,10 +26,8 @@
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
 
-      <!--
-      The twobyteswap and fourbyteswap layers have no parameters nor
-      return variables
-      -->
+      <!-- set/bind to yes if you want a parse error when the length is not a multiple of the word size -->
+      <dfdl:defineVariable name="requireLengthInWholeWords" type="xs:string" defaultValue="no"/>
 
     </appinfo>
   </annotation>

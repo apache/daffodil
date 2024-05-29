@@ -29,18 +29,51 @@ final class TwoByteSwapLayer extends ByteSwap("twobyteswap", 2)
 
 final class FourByteSwapLayer extends ByteSwap("fourbyteswap", 4)
 
-abstract class ByteSwap(name: String, count: Int)
+/**
+ * This class represents a byte swap layer that can be used to swap the byte order of data.
+ *
+ * DFDL Variable `requireLengthInWholeWords` can be used to request that the layer enforce
+ * the length being a multiple of the word size.
+ *
+ * @constructor Creates a new ByteSwap instance with the specified name and word size.
+ * @param name     The name of the byte swap layer.
+ * @param wordsize The word size in bytes.
+ */
+abstract class ByteSwap(name: String, wordsize: Int)
   extends Layer(name, "urn:org.apache.daffodil.layers.byteSwap") {
 
+  private var wholeWords: Boolean = false
+
+  lazy val notWordSize = new IllegalStateException(
+    "Data length is not a multiple of " + wordsize
+  )
+
+  /**
+   * Initialize from DFDL variables that are parameters.
+   * @param requireLengthInWholeWords a string that is the value of the DFDL variable of the same name in this layer's
+   *                                  namespace. Must be "yes" or "no" or it is a SDE.
+   */
+  def setLayerVariableParameters(requireLengthInWholeWords: String): Unit = {
+    requireLengthInWholeWords match {
+      case "yes" => this.wholeWords = true
+      case "no" => this.wholeWords = false // this is the default
+      case _ =>
+        runtimeSchemaDefinitionError(
+          "requireLengthInWholeWords variable must be either 'yes' or 'no', but was: " + requireLengthInWholeWords
+        )
+    }
+  }
+
   override def wrapLayerOutput(jos: OutputStream): OutputStream =
-    new ByteSwapOutputStream(count, jos)
+    new ByteSwapOutputStream(this, wordsize, jos, wholeWords)
 
   override def wrapLayerInput(jis: InputStream): InputStream =
-    new ByteSwapInputStream(count, jis)
+    new ByteSwapInputStream(this, wordsize, jis, wholeWords)
 }
 
 /**
- * An input stream wrapper that re-orders bytes according to wordsize.
+ * This class represents an input stream that performs byte swapping on
+ * the data read from another input stream.
  *
  * This is streaming - does not require buffering up the data. So can be used on
  * very large data objects.
@@ -50,11 +83,17 @@ abstract class ByteSwap(name: String, count: Int)
  * 4, then the bytes from the wrapped input stream are returned in the
  * order 4 3 2 1 8 7 6 5 10 9.  If wordsize were 2 then the bytes from the
  * wrapped input stream are returned in the order 2 1 4 3 6 5 8 7 10 9.
+ *
+ * @param layer      The layer object used for error reporting.
+ * @param wordsize   The number of bytes to swap at a time.
+ * @param jis        The underlying input stream.
+ * @param wholeWords It is a parse error if this is true and the length is not a multiple of the wordsize.
  */
-class ByteSwapInputStream(wordsize: Int, jis: InputStream) extends InputStream {
+class ByteSwapInputStream(layer: ByteSwap, wordsize: Int, jis: InputStream, wholeWords: Boolean)
+  extends InputStream {
 
   object State extends org.apache.daffodil.lib.util.Enum {
-    abstract sealed trait Type extends EnumValueType
+    sealed trait Type extends EnumValueType
 
     /**
      * Buffering bytes in a word.
@@ -94,6 +133,10 @@ class ByteSwapInputStream(wordsize: Int, jis: InputStream) extends InputStream {
           c = jis.read()
           if (c == -1) {
             state = Draining
+            if (wholeWords && (stack.size() % wordsize != 0)) {
+              // end of data but we have only a partial word on stack.
+              layer.processingError(layer.notWordSize)
+            }
           } else {
             stack.push(c)
             if (stack.size() == wordsize) {
@@ -102,7 +145,7 @@ class ByteSwapInputStream(wordsize: Int, jis: InputStream) extends InputStream {
           }
         }
         case Emptying => {
-          if (stack.isEmpty()) {
+          if (stack.isEmpty) {
             state = Filling
           } else {
             c = stack.pop()
@@ -110,7 +153,7 @@ class ByteSwapInputStream(wordsize: Int, jis: InputStream) extends InputStream {
           }
         }
         case Draining => {
-          if (stack.isEmpty()) {
+          if (stack.isEmpty) {
             state = Done
             return -1
           } else {
@@ -136,19 +179,33 @@ class ByteSwapInputStream(wordsize: Int, jis: InputStream) extends InputStream {
  * bytes are written to the wrapped output stream in the
  * order 4 3 2 1 8 7 6 5 10 9.  If wordsize were 2 then the bytes are written
  * to the wrapped output stream in the order 2 1 4 3 6 5 8 7 10 9.
+ *
+ * @param layer      The layer object used for error reporting.
+ * @param wordsize   The number of bytes to swap at a time.
+ * @param jos        OutputStream where the data is written after byte swapping
+ * @param wholeWords It is a unparse error if this is true and the length at close time is not a multiple of the wordsize.
  */
-class ByteSwapOutputStream(wordsize: Int, jos: OutputStream) extends OutputStream {
+class ByteSwapOutputStream(
+  layer: ByteSwap,
+  wordsize: Int,
+  jos: OutputStream,
+  wholeWords: Boolean
+) extends OutputStream {
 
   private val stack: Deque[Byte] = new ArrayDeque[Byte](wordsize)
   private var closed = false
 
   override def close(): Unit = {
     if (!closed) {
-      while (!stack.isEmpty()) {
+      closed = true
+      if (wholeWords && (stack.size() % wordsize != 0)) {
+        // end of data but we have only a partial word on stack.
+        layer.processingError(layer.notWordSize)
+      }
+      while (!stack.isEmpty) {
         jos.write(stack.pop())
       }
       jos.close()
-      closed = true
     }
   }
 
@@ -156,7 +213,7 @@ class ByteSwapOutputStream(wordsize: Int, jos: OutputStream) extends OutputStrea
     Assert.usage(!closed)
     stack.push(bInt.toByte)
     if (stack.size() == wordsize) {
-      while (!stack.isEmpty()) {
+      while (!stack.isEmpty) {
         jos.write(stack.pop())
       }
     }

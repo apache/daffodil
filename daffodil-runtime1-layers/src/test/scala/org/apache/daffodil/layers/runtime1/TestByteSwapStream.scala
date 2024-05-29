@@ -34,7 +34,7 @@ class TestByteSwapStreams {
   @Test def testFourByteSwapInputStream() = {
     val data = unswapped32BitData
     val bba = new ByteArrayInputStream(data)
-    val bss = new ByteSwapInputStream(4, bba)
+    val bss = new ByteSwapInputStream(layer = null, 4, bba, wholeWords = false)
 
     val baos = new ByteArrayOutputStream()
     var c: Int = -1
@@ -55,7 +55,7 @@ class TestByteSwapStreams {
     val bba = new ByteArrayInputStream(data)
 
     val baos = new ByteArrayOutputStream()
-    val bsos = new ByteSwapOutputStream(4, baos)
+    val bsos = new ByteSwapOutputStream(layer = null, 4, baos, wholeWords = false)
     var c: Int = -1
     while ({
       c = bba.read()
