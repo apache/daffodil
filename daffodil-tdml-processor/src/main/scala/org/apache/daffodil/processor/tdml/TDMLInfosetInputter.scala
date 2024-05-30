@@ -22,6 +22,7 @@ import java.net.URISyntaxException
 
 import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.InfosetInputter
 import org.apache.daffodil.runtime1.infoset.InfosetInputterEventType
@@ -76,12 +77,18 @@ class TDMLInfosetInputter(
     val res = scalaInputter.getSimpleText(primType, runtimeProperties)
     val resIsEmpty = res == null || res == ""
     val otherStrings = others.map { i =>
+      // Note in an unparserTestCase, there are no others (infoset inputters), because the input infoset is
+      // coming from the TDML file, which is already XML.
+      // Rather, this is used in a parserTestCase where after populating a TDMLInfosetOutputter
+      // which contains every kind of infoset (jdom, dom, JSON, etc.),
+      // the toInfosetInputter is called, which creates this kind of infoset inputter where this
+      // method has each kind of infoset inputter (json, dom, JSON, etc.) so that it can verify they're
+      // all equivalent.
       val firstVersion = i.getSimpleText(primType, runtimeProperties)
       val finalVersion = i match {
         case _ if (firstVersion eq null) => ""
-        // the json infoset inputter maintains CRLF/CR, but XML converts CRLF/CR to
-        // LF. So if this is Json, then we want the CRLF/CR converted to LF
-        case jsonii: JsonInfosetInputter => firstVersion.replaceAll("(\r\n|\r)", "\n")
+        case jsonii: JsonInfosetInputter =>
+          convertJSONInfosetStringToXMLEquivalent(firstVersion)
         case _ => firstVersion
       }
       finalVersion
@@ -143,4 +150,27 @@ class TDMLInfosetInputter(
   }
 
   override val supportsNamespaces = true
+
+  /**
+   * Converts a JSON infoset string to its XML equivalent.
+   *
+   * This enables comparing a string parsed by DFDL into a JSON infoset string with the same string
+   * parsed by DFDL into an XML infoset string.
+   *
+   * Unlike XML, JSON preserves CRLF (Carriage Return Line Feed) and CR (Carriage Return)
+   * characters, and every Unicode character without the need for PUA (Private Use Area) remapping.
+   * If the input string is in JSON format, this method converts CRLF and CR characters to LF (Line Feed).
+   * Additionally, the JSON infoset inputter maintains Unicode PUA characters, while the XML infoset inputters remap
+   * some characters from PUA back to XML-illegal characters. For consistent comparison with other XML infoset inputters,
+   * this method remaps the characters as if they were XML.
+   *
+   * @param jsonString the JSON infoset string to be converted
+   * @return the XML equivalent of the given JSON infoset string
+   */
+  private def convertJSONInfosetStringToXMLEquivalent(jsonString: String) = {
+    val withLFString =
+      jsonString.replaceAll("(\r\n|\r)", "\n") // because parsing into JSON didn't do this.
+    val xmlString = XMLUtils.remapPUAToXMLIllegalCharacters(withLFString)
+    xmlString
+  }
 }
