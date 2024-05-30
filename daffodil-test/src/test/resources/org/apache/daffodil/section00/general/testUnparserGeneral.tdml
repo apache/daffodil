@@ -47,6 +47,14 @@
 
   </tdml:defineSchema>
 
+  <tdml:defineSchema name="utf8Chars">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat" encoding="utf-8"/>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited" type="xs:string"/>
+
+  </tdml:defineSchema>
+
 <!--
       Test Name: apostrophe_01
          Schema: fixedLengthStrings
@@ -104,30 +112,82 @@
 
   </tdml:parserTestCase>
 
-<!--
-      Test Name: puaInfosetChars_03
+  <!--
+      Test Name: puaInfosetChars_CR_CRLF_01
          Schema: illegalChars
-        Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that unparsing and unparsing actual PUA values is handled correctly.
+        Purpose: When unparsing XML that has the remapped CR (0xE00D) code point, those get remapped back to actual CR.
+                 Note that unparsing (without round trip) never deals with CR/CRLF replacement by LF in XML.
+                 Nor is there any comparison of JSON infoset strings to XML infoset strings involved because we're
+                 starting from XML Infoset in the TDML file in a TDML test.
 -->
 
-  <tdml:parserTestCase name="puaInfosetChars_03" root="e1" model="illegalChars" roundTrip="true">
-    <tdml:document>&#xE001;</tdml:document>
+  <tdml:unparserTestCase name="puaInfosetChars_CR_CRLF_01" root="e1" model="illegalChars" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="byte">010203</tdml:documentPart>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">A%CR;B%CR;%LF;C</tdml:documentPart>
+    </tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e1>&#xE001;</ex:e1>
+        <ex:e1>&#xE001;&#xE002;&#xE003;A&#xE00D;B&#xE00D;&#x0A;C</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:unparserTestCase>
+
+  <!--
+    Test Name: puaInfosetChars_CR_CRLF_02
+       Schema: illegalChars
+      Purpose: When parsing, the DFDL infoset can contain CR and CRLF, but
+               When outputting XML from there, CR/CRLF get turned into LF consistent with XML readers.
+-->
+
+  <tdml:parserTestCase name="puaInfosetChars_CR_CRLF_02" root="e1" model="illegalChars" roundTrip="none">
+    <tdml:document>
+      <tdml:documentPart type="byte">010203</tdml:documentPart>
+      <tdml:documentPart type="text" replaceDFDLEntities="true">A%CR;B%CR;%LF;C</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>&#xE001;&#xE002;&#xE003;A&#x0A;B&#x0A;C</ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
   </tdml:parserTestCase>
 
 <!--
-      Test Name: puaInfosetChars_04
-         Schema: illegalChars
-        Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that when unparsing these mapped infosets, the characters get mapped back to their original values.
+      Test Name: puaPreexistingInfosetChars
+         Schema: utf8Chars
+        Purpose: When parsing legal PUA chars that are in the data, the PUA chars are preserved unless they collide with
+                 our remapped PUA area.
 -->
 
-  <tdml:unparserTestCase name="puaInfosetChars_04" root="e1" model="illegalChars" roundTrip="true">
+  <tdml:parserTestCase name="puaPreexistingInfosetChars" root="e1" model="utf8Chars" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>&#xE101;&#xE102;&#xE103;</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>&#xE101;&#xE102;&#xE103;</tdml:document>
+
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: puaPreexistingInfosetChars_remapped
+         Schema: utf8Chars
+        Purpose: When parsing legal PUA chars that are in the data, but happen to collide with our remapping region
+                 the PUA chars are NOT preserved because we can't differentiate whether they were remapped onto
+                 the PUA, or were pre-existing in the PUA. This is just an XML limitation due to its illegal chars.
+
+                 This test is twoPass because on unparse we will NOT get back the PUA characters, but if we
+                 parse again we will get the same infoset as the first parse, and unparse a second time will create the
+                 same unparse output as the first unparse.
+-->
+
+  <tdml:parserTestCase name="puaPreexistingInfosetChars_remapped" root="e1" model="utf8Chars" roundTrip="twoPass">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -137,7 +197,7 @@
 
     <tdml:document>&#xE001;&#xE002;&#xE003;</tdml:document>
 
-  </tdml:unparserTestCase>
+  </tdml:parserTestCase>
 
 <!--
       Test Name: unparseFixedLengthString01

@@ -36,9 +36,20 @@ class TestUnparserGeneral {
 
   @Test def test_apostrophe_01(): Unit = { runner.runOneTest("apostrophe_01") }
 
-  // DFDL-1395
-  // @Test def test_puaInfosetChars_03() { runner.runOneTest("puaInfosetChars_03") }
-  // @Test def test_puaInfosetChars_04() { runner.runOneTest("puaInfosetChars_04") }
+  @Test def test_puaPreexistingInfosetChars(): Unit = {
+    runner.runOneTest("puaPreexistingInfosetChars")
+  }
+  @Test def test_puaPreexistingInfosetChars_remapped(): Unit = {
+    runner.runOneTest("puaPreexistingInfosetChars_remapped")
+  }
+
+  @Test def test_puaInfosetChars_CR_CRLF_01(): Unit = {
+    runner.runOneTest("puaInfosetChars_CR_CRLF_01")
+  }
+
+  @Test def test_puaInfosetChars_CR_CRLF_02(): Unit = {
+    runner.runOneTest("puaInfosetChars_CR_CRLF_02")
+  }
 
   @Test def test_puaInfosetChars_01(): Unit = { runner.runOneTest("puaInfosetChars_01") }
   @Test def test_puaInfosetChars_02(): Unit = { runner.runOneTest("puaInfosetChars_02") }
