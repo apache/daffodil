@@ -934,18 +934,29 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
             }
           (diags, newNewProc)
       }
-      runProcessor(
-        newCompileResult,
-        optInputOrExpectedData,
-        nBits,
-        optExpectedErrors,
-        optExpectedWarnings,
-        optExpectedValidationErrors,
-        validationMode,
-        roundTrip,
-        implString
-      )
-
+      try {
+        runProcessor(
+          newCompileResult,
+          optInputOrExpectedData,
+          nBits,
+          optExpectedErrors,
+          optExpectedWarnings,
+          optExpectedValidationErrors,
+          validationMode,
+          roundTrip,
+          implString
+        )
+      } finally {
+        // runProcessor may have set the "processor" variable to the DataProcessor used for the
+        // test. This variable only exists as an easy way to avoid having to pass the
+        // DataProcessor around to a bunch of functions. At this point this TestCase is done
+        // with the DataProcessor, so we set it to null so it can be garbage collected if
+        // nothing else uses it. This is common if a test case calls withXYZ to create a
+        // temporary copy of a cached DataProcessor but with different variables, tunables,
+        // validation mode, etc. used only for this specific test. This is especially important
+        // if a DataProcessor stores any large information like a Xerces validator.
+        processor = null
+      }
     }
   }
 
