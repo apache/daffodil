@@ -401,6 +401,8 @@ class DFDLTestSuite private[tdml] (
     val str = (ts \ "@defaultValidation").text
     if (str == "") defaultValidationDefault else str
   }
+  lazy val defaultValidationMode = ValidationMode.fromString(defaultValidation)
+
   lazy val defaultConfig = {
     val str = (ts \ "@defaultConfig").text
     str
@@ -564,7 +566,11 @@ class DFDLTestSuite private[tdml] (
         GlobalTDMLCompileResultCache.cache
       }
 
-    val compileResult = cache.getCompileResult(impl, key)
+    val compileResult = cache.getCompileResult(
+      impl,
+      key,
+      defaultValidationMode
+    )
     compileResult
   }
 
@@ -603,7 +609,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   protected final var processor: TDMLDFDLProcessor = null
 
   lazy val defaultRoundTrip: RoundTrip = parent.defaultRoundTrip
-  lazy val defaultValidation: String = parent.defaultValidation
+  lazy val defaultValidationMode: ValidationMode.Type = parent.defaultValidationMode
 
   private lazy val defaultImplementations: Seq[String] = parent.defaultImplementations
   private lazy val tcImplementations = (testCaseXML \ "@implementations").text
@@ -713,18 +719,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     case _ => false
   }
   lazy val validationMode: ValidationMode.Type = (testCaseXML \ "@validation").text match {
-    case "on" => ValidationMode.Full
-    case "limited" => ValidationMode.Limited
-    case "off" => ValidationMode.Off
-    case "" =>
-      defaultValidation match {
-        case "on" => ValidationMode.Full
-        case "limited" => ValidationMode.Limited
-        case "off" => ValidationMode.Off
-        case other =>
-          Assert.invariantFailed("unrecognized default validation enum string: " + other)
-      }
-    case other => Assert.invariantFailed("unrecognized validation enum string: " + other)
+    case "" => defaultValidationMode
+    case mode => ValidationMode.fromString(mode)
   }
 
   lazy val shouldValidate = validationMode != ValidationMode.Off
@@ -904,6 +900,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
 
       val useSerializedProcessor =
         if (validationMode == ValidationMode.Full) false
+        else if (defaultValidationMode == ValidationMode.Full) false
         else if (optExpectedWarnings.isDefined) false
         else true
 
@@ -3006,7 +3003,8 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
 
   def getCompileResult(
     impl: AbstractTDMLDFDLProcessorFactory,
-    key: TDMLCompileResultCacheKey
+    key: TDMLCompileResultCacheKey,
+    defaultValidationMode: ValidationMode.Type
   ): TDML.CompileResult = this.synchronized {
 
     if (entryExpireDurationSeconds.isDefined) {
@@ -3032,7 +3030,6 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
         key.optRootNamespace,
         key.tunables
       )
-      cache += (key -> TDMLCompileResultCacheValue(compileResult, None))
       compileResult match {
         case Left(diags) => {
           // a Left must have at least one error diagnostic if we don't get a processor
@@ -3043,7 +3040,19 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
           Assert.invariant(diags.forall(!_.isError))
         }
       }
-      compileResult
+
+      // if compileResult is Right and we got a processor, set the processor validation mode to
+      // the default validation mode of the test suite. This is useful in cases where the
+      // default validation mode is on/full, in which case the Xerces validator will be compiled
+      // and added to the DataProcessor that we cache. This way any tests that do not change the
+      // validation mode from the default will be able to use the same validator so we won't
+      // have to rebuild it for every test. This saves memory and should be significantly
+      // faster.
+      val value = compileResult.map { case (diags, proc) =>
+        (diags, proc.withValidationMode(defaultValidationMode))
+      }
+      cache += (key -> TDMLCompileResultCacheValue(value, None))
+      value
     }
   }
 

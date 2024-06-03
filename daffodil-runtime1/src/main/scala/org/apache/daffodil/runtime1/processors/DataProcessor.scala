@@ -137,6 +137,9 @@ class DataProcessor(
   // back when the object is re-initialized.
   //
   val validationMode: ValidationMode.Type = ValidationMode.Off,
+  // The Validator API requires this to be thread-safe so this is safe to share among different
+  // DataProcessors
+  val validator: Validator = null,
   protected val areDebugging: Boolean = false,
   protected val optDebugger: Option[Debugger] = None,
   protected val diagnostics: Seq[Diagnostic] = Seq.empty
@@ -172,6 +175,7 @@ class DataProcessor(
     tunables: DaffodilTunables = tunables,
     variableMap: VariableMap = variableMap.copy(),
     validationMode: ValidationMode.Type = validationMode,
+    validator: Validator = validator,
     areDebugging: Boolean = areDebugging,
     optDebugger: Option[Debugger] = optDebugger,
     diagnostics: Seq[Diagnostic] = diagnostics
@@ -180,6 +184,7 @@ class DataProcessor(
     tunables,
     variableMap,
     validationMode,
+    validator,
     areDebugging,
     optDebugger,
     diagnostics
@@ -205,25 +210,38 @@ class DataProcessor(
   override def clone(): DataProcessor = copy()
 
   /**
-   * Returns a data processor with all the same state, but the validation mode changed to that of the argument.
+   * Returns a data processor with all the same state, but the validation mode and validator changed to that of the argument.
    *
    * Note that the default validation mode is "off", that is, no validation is performed.
    */
-  def withValidationMode(mode: ValidationMode.Type): DataProcessor = copy(validationMode = mode)
-
-  def withValidator(validator: Validator): DataProcessor = withValidationMode(
-    ValidationMode.Custom(validator)
-  )
-
-  lazy val validator: Validator = {
-    validationMode match {
+  def withValidationMode(mode: ValidationMode.Type): DataProcessor = {
+    // create the appropriate validator for the mode. If the mode isn't actually changing then
+    // we won't generate a new validator and just use the same one. The Validator API requires
+    // the Validator to be thread safe, so it is fine to share the same Validator with multiple
+    // DataProcessors
+    val newValidator = mode match {
+      case `validationMode` => validator
+      case ValidationMode.Off => null
+      case ValidationMode.Limited => null
       case ValidationMode.Custom(cv) => cv
-      case _ =>
+      case ValidationMode.Full => {
         val cfg = XercesValidatorFactory.makeConfig(
           ssrd.elementRuntimeData.schemaURIStringsForFullValidation
         )
         XercesValidatorFactory.makeValidator(cfg)
+      }
     }
+    copy(
+      validationMode = mode,
+      validator = newValidator
+    )
+  }
+
+  def withValidator(validator: Validator): DataProcessor = {
+    copy(
+      validationMode = ValidationMode.Custom(validator),
+      validator = validator
+    )
   }
 
   def debugger = {
@@ -304,10 +322,13 @@ class DataProcessor(
     // them back to their original values.
     //
     val dpToSave = this.copy(
-      variableMap = ssrd.originalVariables, // reset to original variables defined in schema
-      validationMode =
-        ValidationMode.Off, // explicitly turn off, so restored processor won't be validating
-      diagnostics = Seq.empty // don't save any warnings that were generated
+      // reset to original variables defined in schema
+      variableMap = ssrd.originalVariables,
+      // explicitly turn off validation, reloaded processors must call withValidationMode
+      validationMode = ValidationMode.Off,
+      validator = null,
+      // don't save any warnings that were generated
+      diagnostics = Seq.empty
     )
 
     try {

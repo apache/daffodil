@@ -31,4 +31,12 @@ object ValidationMode extends Enum {
   case object Full extends Type(30)
 
   case class Custom(v: Validator) extends Type(100)
+
+  def fromString(str: String): ValidationMode.Type = {
+    str match {
+      case "on" => Full
+      case "limited" => Limited
+      case "off" => Off
+    }
+  }
 }
