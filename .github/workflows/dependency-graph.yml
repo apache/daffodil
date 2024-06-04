@@ -32,4 +32,4 @@ jobs:
         uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
 
       - name: Submit Dependency Graph
-        uses: scalacenter/sbt-dependency-submission@f3c0455a87097de07b66c3dc1b8619b5976c1c89 # v2.3.1
+        uses: scalacenter/sbt-dependency-submission@7ebd561e5280336d3d5b445a59013810ff79325e # v3.0.1
