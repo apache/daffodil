@@ -13,4 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//
+// The sbt-pgp plugin version should not be updated unless there is a compelling reason.
+// The release process scripts will likely break and need to be adapted if it is changed.
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.1.2")
