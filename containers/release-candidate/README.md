@@ -21,9 +21,9 @@ To improve reproducibility and to minimize the effects and variability of a
 users environment, the Daffodil release container should be used to create
 release candidates.
 
-To build the Daffodil release candidate container image:
+To build or update the Daffodil release candidate container image:
 
-    podman build -t daffodil-release-candidate /path/to/daffodil.git/containers/release-candidate/
+    podman build -t daffodil-release-candidate https://github.com/apache/daffodil.git#main:containers/release-candidate
 
 To use the container image to build a release run the following:
 
@@ -40,3 +40,18 @@ asked to verify the release files and, if everything looks good, run a few
 commands to push the release candidate out. Note that because the container
 will use tools like git, gpg, and ssh, it is necessary to bind mount your local
 configuration files into the container with the -v option.
+
+### Testing the Container
+
+To test changes made locally, use the following command to build the container:
+
+    cd /path/to/daffodi.git/containers/release-candidate
+    podman build -t daffodil-release-candidate .
+
+The same `podman run` command above can be used to run the container, but the
+`--dry-run` option should be appended to prevent publishing any results.
+
+When done, the container should be deleted to avoid accidentally using it for
+an official release:
+
+    podman image rm --force daffodil-release-candidate
