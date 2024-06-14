@@ -25,6 +25,12 @@ To build or update the Daffodil release candidate container image:
 
     podman build -t daffodil-release-candidate https://github.com/apache/daffodil.git#main:containers/release-candidate
 
+Note: On older versions of podman the URL syntax is not accepted. Verify that your local daffodil 
+repo directory is up to date and has no local changes in it, then use this alternative command:
+
+    podman build -t daffodil-release-candidate containers/release-candidate
+
+
 To use the container image to build a release run the following:
 
     podman run -it --privileged --group-add keep-groups --rm \

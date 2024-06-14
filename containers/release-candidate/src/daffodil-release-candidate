@@ -46,6 +46,25 @@ Options:
 USAGE
 }
 
+# Function to get a non-empty string as input
+get_non_empty_input() {
+    local prompt="$1" # prompt the user with this string
+    local input
+
+    while true; do
+        # Prompt the user for input
+        read -p "$prompt" input
+
+        # Check if the input is non-empty
+        if [[ -n $input ]]; then
+            echo "$input"
+            return 0
+        else
+            echo "Empty input. Please try again." >&2
+        fi
+    done
+}
+
 DRY_RUN=false
 
 echo "Which project to release?"
@@ -152,11 +171,12 @@ do
 done
 
 echo
-read -p "Pre Release label (e.g. rc1): " PRE_RELEASE
-read -p "Git Commit Name: " GIT_COMMIT_NAME
-read -p "Git Commit Email: " GIT_COMMIT_EMAIL
-read -p "Apache Username: " APACHE_USERNAME
-read -s -p "Apache Password: " APACHE_PASSWD
+
+PRE_RELEASE=$(get_non_empty_input "Pre Release label (e.g., rc1 to rc99):")
+GIT_COMMIT_NAME=$(get_non_empty_input "Git Commit Name (e.g., 'John Q. Smith'):")
+GIT_COMMIT_EMAIL=$(get_non_empty_input "Git Commit Email:")
+APACHE_USERNAME=$(get_non_empty_input "Apache Username:")
+APACHE_PASSWD=$(get_non_empty_input "Apache Password:")
 
 echo
 echo
