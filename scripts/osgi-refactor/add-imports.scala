@@ -24,617 +24,617 @@ object AddImports extends App {
   val imports = Seq(
     (
       "org.apache.daffodil.lib.api._",
-      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/api/DFDLParserUnparser.scala",
+      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/api/DFDLParserUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom.walker._",
-      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/dpath/NodeInfo.scala",
+      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/dpath/NodeInfo.scala"
     ),
     (
       "org.apache.daffodil.lib.externalvars._",
-      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/externalvars/ExternalVariablesLoader.scala",
+      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/externalvars/ExternalVariablesLoader.scala"
     ),
     (
       "org.apache.daffodil.udf._",
-      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/udf/UserDefinedFunctionService.scala",
+      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/udf/UserDefinedFunctionService.scala"
     ),
     (
       "org.apache.daffodil.runtime1.layers._",
-      "daffodil-runtime1-layers/src/main/scala/org/apache/daffodil/layers/runtime1/Base64Transformer.scala",
+      "daffodil-runtime1-layers/src/main/scala/org/apache/daffodil/layers/runtime1/Base64Transformer.scala"
     ),
     (
       "org.apache.daffodil.runtime1.layers._",
-      "daffodil-runtime1-layers/src/main/scala/org/apache/daffodil/layers/runtime1/ByteSwapTransformer.scala",
+      "daffodil-runtime1-layers/src/main/scala/org/apache/daffodil/layers/runtime1/ByteSwapTransformer.scala"
     ),
     (
       "org.apache.daffodil.runtime1.layers._",
-      "daffodil-runtime1-layers/src/main/scala/org/apache/daffodil/layers/runtime1/GZipTransformer.scala",
+      "daffodil-runtime1-layers/src/main/scala/org/apache/daffodil/layers/runtime1/GZipTransformer.scala"
     ),
     (
       "org.apache.daffodil.runtime1.layers._",
-      "daffodil-runtime1-layers/src/main/scala/org/apache/daffodil/layers/runtime1/LineFoldedTransformer.scala",
+      "daffodil-runtime1-layers/src/main/scala/org/apache/daffodil/layers/runtime1/LineFoldedTransformer.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/PackedBinaryUnparserTraits.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/PackedBinaryUnparserTraits.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/BCDUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/BCDUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SpecifiedLengthUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SpecifiedLengthUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/BinaryBooleanUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/BinaryBooleanUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/BinaryNumberUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/BinaryNumberUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/BlobLengthUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/BlobLengthUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ChoiceAndOtherVariousUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ChoiceAndOtherVariousUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertBinaryCalendarUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertBinaryCalendarUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertNonBaseTenTextNumberUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertNonBaseTenTextNumberUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertTextBooleanUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertTextBooleanUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertTextCalendarUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertTextCalendarUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertTextStandardNumberUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertTextStandardNumberUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertZonedNumberUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ConvertZonedNumberUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/DelimitedUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/DelimitedUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/DelimiterUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/DelimiterUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ElementUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ElementUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ExpressionEvaluatingUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/ExpressionEvaluatingUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/FramingUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/FramingUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/HexBinaryLengthUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/HexBinaryLengthUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/HiddenGroupCombinatorUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/HiddenGroupCombinatorUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/IBM4690PackedDecimalUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/IBM4690PackedDecimalUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/LayeredSequenceUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/LayeredSequenceUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/NadaUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/NadaUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/NilEmptyCombinatorUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/NilEmptyCombinatorUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/NilUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/NilUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/PackedDecimalUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/PackedDecimalUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SeparatedSequenceUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SeparatedSequenceUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SequenceUnparserBases.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SequenceUnparserBases.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SequenceChildUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SequenceChildUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/StreamSplitterMixin.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/StreamSplitterMixin.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/StringLengthUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/StringLengthUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SpecifiedLength2.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SpecifiedLength2.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SuppressableSeparatorUnparser.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/SuppressableSeparatorUnparser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/UnseparatedSequenceUnparsers.scala",
+      "daffodil-runtime1-unparser/src/main/scala/org/apache/daffodil/unparsers/runtime1/UnseparatedSequenceUnparsers.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/SchemaComponent.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/SchemaComponent.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dpath/Conversions.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dpath/Conversions.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dpath/DFDLExpressionParser.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dpath/DFDLExpressionParser.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dpath/Expression.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dpath/Expression.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath.NodeInfo",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dpath/NodeInfoUtils.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dpath/NodeInfoUtils.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/CompiledExpression.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/CompiledExpression.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath.NodeInfo",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/CompiledExpression.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/CompiledExpression.scala"
     ),
     (
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/runtime1/TermRuntime1Mixin.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/runtime1/TermRuntime1Mixin.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath.NodeInfo",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesExpressions.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesExpressions.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath.NodeInfo",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/DFDLEscapeScheme.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/DFDLEscapeScheme.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/DFDLSchemaFile.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/DFDLSchemaFile.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/DFDLStatementMixin.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/DFDLStatementMixin.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/RealTermMixin.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/RealTermMixin.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/ElementBase.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/ElementBase.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/RuntimePropertyMixins.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/RuntimePropertyMixins.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom.walker._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/walker/AbstractDSOMWalker.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/walker/AbstractDSOMWalker.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/Facets.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/Facets.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/RestrictionUnion.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/RestrictionUnion.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/TermEncodingMixin.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/TermEncodingMixin.scala"
     ),
     (
       "org.apache.daffodil.unparsers.runtime1._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceChild.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceChild.scala"
     ),
     (
       "org.apache.daffodil.unparsers.runtime1._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/ChoiceCombinator.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/ChoiceCombinator.scala"
     ),
     (
       "org.apache.daffodil.unparsers.runtime1._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/DelimiterAndEscapeRelated.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/DelimiterAndEscapeRelated.scala"
     ),
     (
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesExpressions.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesExpressions.scala"
     ),
     (
       "org.apache.daffodil.unparsers.runtime1._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceCombinator.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceCombinator.scala"
     ),
     (
       "org.apache.daffodil.unparsers.runtime1._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SpecifiedLength.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SpecifiedLength.scala"
     ),
     (
       "org.apache.daffodil.lib.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/util/TestUtils.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/util/TestUtils.scala"
     ),
     (
       "org.apache.daffodil.core.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/api/TestAPI1.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/api/TestAPI1.scala"
     ),
     (
       "org.apache.daffodil.lib.api._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/api/TestForHeapDump.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/api/TestForHeapDump.scala"
     ),
     (
       "org.apache.daffodil.runtime1.api._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/api/TestParseIndividualMessages.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/api/TestParseIndividualMessages.scala"
     ),
     (
       "org.apache.daffodil.runtime1.infoset._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfoset.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfoset.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath.NodeInfo",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dpath/TestDFDLExpressionEvaluation.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dpath/TestDFDLExpressionEvaluation.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath.NodeInfo",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dpath/TestDFDLExpressionTree.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dpath/TestDFDLExpressionTree.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dpath._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dpath/TestDFDLExpressionTree.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dpath/TestDFDLExpressionTree.scala"
     ),
     (
       "org.apache.daffodil.core.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestDsomCompiler.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestDsomCompiler.scala"
     ),
     (
       "org.apache.daffodil.core.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestDsomCompilerUnparse1.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestDsomCompilerUnparse1.scala"
     ),
     (
       "org.apache.daffodil.core.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestInputValueCalc.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestInputValueCalc.scala"
     ),
     (
       "org.apache.daffodil.core.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestInteriorAlignmentElimination.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestInteriorAlignmentElimination.scala"
     ),
     (
       "org.apache.daffodil.runtime1.debugger._",
-      "daffodil-cli/src/main/scala/org/apache/daffodil/cli/debugger/CLIDebuggerRunner.scala",
+      "daffodil-cli/src/main/scala/org/apache/daffodil/cli/debugger/CLIDebuggerRunner.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestIsScannable.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestIsScannable.scala"
     ),
     (
       "org.apache.daffodil.core.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestPolymorphicUpwardRelativeExpressions.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestPolymorphicUpwardRelativeExpressions.scala"
     ),
     (
       "org.apache.daffodil.core.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestPropertyScoping.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestPropertyScoping.scala"
     ),
     (
       "org.apache.daffodil.core.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestSimpleTypeUnions.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestSimpleTypeUnions.scala"
     ),
     (
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/util/TestUtils.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/util/TestUtils.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestSimpleTypeUnions.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/TestSimpleTypeUnions.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom.walker._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/walker/TestDSOMWalker.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dsom/walker/TestDSOMWalker.scala"
     ),
     (
       "org.apache.daffodil.core.util._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfoset2.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfoset2.scala"
     ),
     (
       "org.apache.daffodil.runtime1.infoset._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetCursor.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetCursor.scala"
     ),
     (
       "org.apache.daffodil.runtime1.infoset._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetCursor1.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetCursor1.scala"
     ),
     (
       "org.apache.daffodil.runtime1.infoset._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetCursorFromReader.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetCursorFromReader.scala"
     ),
     (
       "org.apache.daffodil.runtime1.infoset._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetCursorFromReader2.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetCursorFromReader2.scala"
     ),
     (
       "org.apache.daffodil.runtime1.infoset._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetFree.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/infoset/TestInfosetFree.scala"
     ),
     (
       "org.apache.daffodil.lib.schema.annotation.props._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/schema/annotation/props/TestPropertyRuntime.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/schema/annotation/props/TestPropertyRuntime.scala"
     ),
     (
       "org.apache.daffodil.lib.xml._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/xml/TestXMLLoaderWithLocation.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/xml/TestXMLLoaderWithLocation.scala"
     ),
     (
       "org.apache.daffodil.io.processors.charset._",
-      "daffodil-tdml-lib/src/test/scala/org/apache/daffodil/processors/charset/TestLSBFirstAndUSASCII7BitPacked.scala",
+      "daffodil-tdml-lib/src/test/scala/org/apache/daffodil/processors/charset/TestLSBFirstAndUSASCII7BitPacked.scala"
     ),
     (
       "org.apache.daffodil.tdml.TDMLException",
-      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/TDMLInfosetInputter.scala",
+      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/TDMLInfosetInputter.scala"
     ),
     (
       "org.apache.daffodil.tdml.processor._",
-      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala",
+      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala"
     ),
     (
       "org.apache.daffodil.tdml.processor._",
-      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/Runtime2TDMLDFDLProcessor.scala",
+      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/Runtime2TDMLDFDLProcessor.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestExtVars1.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestExtVars1.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLCrossTest.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLCrossTest.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRoundTrips.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRoundTrips.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner2.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner2.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunnerCommentSyntax.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunnerCommentSyntax.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunnerConfig.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunnerConfig.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunnerTutorial.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunnerTutorial.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunnerWarnings.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunnerWarnings.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLUnparseCases.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLUnparseCases.scala"
     ),
     (
       "org.apache.daffodil.tdml.Runner;",
-      "daffodil-tdml-processor/src/test/java/org/apache/daffodil/processor/tdml/TestRunnerFactory.java",
+      "daffodil-tdml-processor/src/test/java/org/apache/daffodil/processor/tdml/TestRunnerFactory.java"
     ),
     (
       "org.apache.daffodil.tdml.NoRoundTrip$;",
-      "daffodil-tdml-processor/src/test/java/org/apache/daffodil/processor/tdml/TestRunnerFactory.java",
+      "daffodil-tdml-processor/src/test/java/org/apache/daffodil/processor/tdml/TestRunnerFactory.java"
     ),
     (
       "org.apache.daffodil.tdml._",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLCrossTest.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLCrossTest.scala"
     ),
     (
       "org.apache.daffodil.tdml._",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRoundTrips.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRoundTrips.scala"
     ),
     (
       "org.apache.daffodil.tdml._",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner.scala"
     ),
     (
       "org.apache.daffodil.tdml._",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLUnparseCases.scala",
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLUnparseCases.scala"
     ),
     (
       "org.apache.daffodil.tdml.Document",
-      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner2.scala",
-    ),
+      "daffodil-tdml-processor/src/test/scala/org/apache/daffodil/processor/tdml/TestTDMLRunner2.scala"
+    )
   )
 
   var importsToRemove = Seq(
     (
       "org.apache.daffodil.core.dsom.walker._",
-      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/dpath/NodeInfo.scala",
+      "daffodil-runtime1/src/main/scala/org/apache/daffodil/runtime1/dpath/NodeInfo.scala"
     ),
     (
       "org.apache.daffodil.dpath._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/DFDLEscapeScheme.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/DFDLEscapeScheme.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/DelimiterAndEscapeRelated.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/DelimiterAndEscapeRelated.scala"
     ),
     (
       "org.apache.daffodil.runtime1.processors.unparsers._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceChild.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceChild.scala"
     ),
     (
       "org.apache.daffodil.dpath._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesExpressions.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesExpressions.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/util/TestUtils.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/util/TestUtils.scala"
     ),
     (
       "org.apache.daffodil.processor.tdml.tdml.TDMLInfosetInputter",
-      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala",
+      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala"
     ),
     (
       "org.apache.daffodil.processor.tdml.tdml.TDMLInfosetOutputter",
-      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala",
-    ),
+      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala"
+    )
   )
 
   var importsToReplace = Seq(
     (
       "org.apache.daffodil.dpath._",
       "org.apache.daffodil.core.dpath._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/CompiledExpression.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/CompiledExpression.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/Grammar.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/Grammar.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom.IIUtils.IIMap",
       "org.apache.daffodil.core.dsom.IIUtils.IIMap",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/SchemaDocument.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/dsom/SchemaDocument.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/GrammarMixin.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/GrammarMixin.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesDelimiters.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesDelimiters.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesNil.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesNil.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/DelimiterAndEscapeRelated.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/DelimiterAndEscapeRelated.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/SequenceGrammarMixin.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/SequenceGrammarMixin.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/ByteOrderMixin.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/ByteOrderMixin.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesTextNumber.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesTextNumber.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesZoned.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/PrimitivesZoned.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/LayeredSequence.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/LayeredSequence.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceChild.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceChild.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceCombinator.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/SequenceCombinator.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/ChoiceCombinator.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/ChoiceCombinator.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/Primitives.scala",
+      "daffodil-core/src/main/scala/org/apache/daffodil/core/grammar/primitives/Primitives.scala"
     ),
     (
       "org.apache.daffodil.lib.api._",
       "org.apache.daffodil.runtime1.api._",
-      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala",
+      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala"
     ),
     (
       "org.apache.daffodil.runtime1.infoset.TestInfoset",
       "org.apache.daffodil.core.infoset.TestInfoset",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/dpath/TestDFDLExpressionEvaluation.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/dpath/TestDFDLExpressionEvaluation.scala"
     ),
     (
       "org.apache.daffodil.runtime1.dsom._",
       "org.apache.daffodil.core.dsom._",
-      "daffodil-core/src/test/scala/org/apache/daffodil/core/grammar/TestGrammar.scala",
+      "daffodil-core/src/test/scala/org/apache/daffodil/core/grammar/TestGrammar.scala"
     ),
     (
       "org.apache.daffodil.validation.Validators;",
       "org.apache.daffodil.lib.validation.Validators;",
-      "daffodil-japi/src/test/java/org/apache/daffodil/example/ValidatorSpiExample.java",
-    ),
+      "daffodil-japi/src/test/java/org/apache/daffodil/example/ValidatorSpiExample.java"
+    )
   )
 
   var importsToAddLast = Seq(
     (
       "org.apache.daffodil.lib.api._",
-      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala",
-    ),
+      "daffodil-tdml-processor/src/main/scala/org/apache/daffodil/processor/tdml/DaffodilTDMLDFDLProcessor.scala"
+    )
   )
 
   def addImports(name: String, file: File) = {

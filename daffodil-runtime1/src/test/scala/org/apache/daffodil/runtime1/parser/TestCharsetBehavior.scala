@@ -226,7 +226,8 @@ class TestUnicodeErrorTolerance {
     val decoder = cs.newDecoder()
     val inBuf: Array[Byte] = Array[Int](
       // 6 byte encoding of \x7FFFFFFF
-      0xfd, 0xbf, 0xbf, 0xbf, 0xbf, 0xbf, 0xbf)
+      0xfd, 0xbf, 0xbf, 0xbf, 0xbf, 0xbf, 0xbf
+    )
     val input = new ByteArrayInputStream(inBuf);
     val e = intercept[MalformedInputException] {
       Converter.parse(input, decoder)
@@ -268,7 +269,8 @@ class TestUnicodeErrorTolerance {
       // Compatibility with pre-surrogate world.
       // Character U+1d4d0, but represented as a surrogate pair, each surrogate then
       // represented as a 3-byte UTF-8 sequence. (This is an older technique).
-      0xed, 0xa0, 0xb5, 0xed, 0xb3, 0x90)
+      0xed, 0xa0, 0xb5, 0xed, 0xb3, 0x90
+    )
     val input = new ByteArrayInputStream(inBuf);
 
     val exc = intercept[MalformedInputException] {

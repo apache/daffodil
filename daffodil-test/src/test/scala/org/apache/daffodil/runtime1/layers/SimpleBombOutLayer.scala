@@ -18,7 +18,6 @@
 package org.apache.daffodil.runtime1.layers
 
 // different subpackage on purpose to test package private methods
-
 import java.io.InputStream
 import java.io.OutputStream
 
