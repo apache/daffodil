@@ -133,7 +133,7 @@ class TestBucketingInputSource {
 
   @Test def testBucketingInputSource1(): Unit = {
     val tis = new TestInputStream
-    val bis = new BucketingInputSource(tis, 17)
+    val bis = new BucketingInputSource(tis, 4)
     var i = 0
     while (i < 100) {
       assertEquals(i, bis.position())
@@ -145,7 +145,7 @@ class TestBucketingInputSource {
 
   @Test def testBucketingInputSource2(): Unit = {
     val tis = new TestInputStream
-    val bis = new BucketingInputSource(tis, 7)
+    val bis = new BucketingInputSource(tis, 3)
     val b = new Array[Byte](10)
     assertEquals(true, bis.get(b, 0, 10))
     var i = 0
@@ -164,7 +164,7 @@ class TestBucketingInputSource {
 
   @Test def testBucketingInputSource3(): Unit = {
     val tis = new TestInputStream
-    val bis = new BucketingInputSource(tis, 7)
+    val bis = new BucketingInputSource(tis, 3)
     val b = new Array[Byte](10)
     assertEquals(0, bis.get)
     assertEquals(1, bis.get)
@@ -181,7 +181,7 @@ class TestBucketingInputSource {
 
   @Test def testBucketingInputSource4(): Unit = {
     val tis = new TestInputStream
-    val bis = new BucketingInputSource(tis, 7)
+    val bis = new BucketingInputSource(tis, 3)
     tis.setEOF(4)
     assertEquals(0, bis.get)
     assertEquals(1, bis.get)
@@ -192,7 +192,7 @@ class TestBucketingInputSource {
 
   @Test def testBucketingInputSource5(): Unit = {
     val tis = new TestInputStream
-    val bis = new BucketingInputSource(tis, 7)
+    val bis = new BucketingInputSource(tis, 3)
     val b = new Array[Byte](10)
     tis.setEOF(4)
     assertEquals(false, bis.get(b, 0, 10))
@@ -207,7 +207,7 @@ class TestBucketingInputSource {
 
   @Test def testBucketingInputSource6(): Unit = {
     val tis = new TestInputStream
-    val bis = new BucketingInputSource(tis, 7)
+    val bis = new BucketingInputSource(tis, 3)
     tis.setEOF(17)
     var i = 0
     while (i < 8) {
@@ -226,7 +226,7 @@ class TestBucketingInputSource {
 
   @Test def testBucketingInputSource7(): Unit = {
     val tis = new TestInputStream
-    val bis = new BucketingInputSource(tis, 7)
+    val bis = new BucketingInputSource(tis, 3)
     tis.setEOF(17)
     var i = 0
     while (i < 2) {
