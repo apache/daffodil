@@ -25,7 +25,10 @@ import java.io.PrintStream
 import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
+import java.nio.channels.FileChannel
+import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.StandardOpenOption
 import java.util.Scanner
 import java.util.concurrent.Executors
 import javax.xml.parsers.SAXParserFactory
@@ -1165,13 +1168,24 @@ class Main(
           case Some(processor) => {
             Assert.invariant(!processor.isError)
             val input = parseOpts.infile.toOption match {
-              case Some("-") | None => STDIN
+              case Some("-") | None => InputSourceDataInputStream(STDIN)
               case Some(file) => {
-                val f = new File(file)
-                new FileInputStream(f)
+                // for files <= 2GB, use a mapped byte buffer to avoid the overhead related to
+                // the BucketingInputSource. Larger files cannot be mapped so we cannot avoid it
+                val path = Paths.get(file)
+                val size = Files.size(path)
+                if (size <= Int.MaxValue) {
+                  val fc = FileChannel.open(path, StandardOpenOption.READ)
+                  val bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, size)
+                  fc.close() // we no longer need the channel now that we've mapped it
+                  InputSourceDataInputStream(bb)
+                } else {
+                  val is = Files.newInputStream(path, StandardOpenOption.READ)
+                  InputSourceDataInputStream(is)
+                }
               }
             }
-            using(InputSourceDataInputStream(input)) { inStream =>
+            using(input) { inStream =>
               val output = parseOpts.output.toOption match {
                 case Some("-") | None => STDOUT
                 case Some(file) => new FileOutputStream(file)
