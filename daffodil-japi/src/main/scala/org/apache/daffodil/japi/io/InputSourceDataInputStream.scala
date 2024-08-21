@@ -26,7 +26,30 @@ import org.apache.daffodil.io.{ InputSourceDataInputStream => SInputSourceDataIn
  * Provides Daffodil with byte data from an InputStream, ByteBuffer, or byte
  * Array.
  *
- * @param dis the underlying Scala InputSourceDataInputStream
+ * Note that the InputStream variant has potential overhead due to streaming capabilities and
+ * support for files greater than 2GB. In some cases, better performance might come from using
+ * the byte array or ByteBuffer variants instead. For example, if your data is already in a byte
+ * array, one should use the Array[Byte] or ByteBuffer variants instead of wrapping it in a
+ * ByteArrayInputStream. As another example, instead of using a FileInputStream like this:
+ *
+ * {{{
+ * Path path = Paths.get(file);
+ * FileInputStream fis = Files.newInputStream(path);
+ * InputSourceDataInputStream input = InputSourceDataInputStream(fis);
+ * }}}
+ *
+ * You might consider mapping the file to a MappedByteBuffer like below, keeping in mind that
+ * MappedByteBuffers have size limitations and potentially different performance characteristics
+ * depending on the file size and system--it maybe not always be faster than above.
+ *
+ * {{{
+ * Path path = Paths.get(file);
+ * long size = Files.size(path);
+ * FileChannel fc = FileChannel.open(path, StandardOpenOption.READ);
+ * ByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, size);
+ * fc.close();
+ * InputSourceDataInputStream input = new InputSourceDataInputStream(bb);
+ * }}}
  */
 class InputSourceDataInputStream private[japi] (
   private[japi] val dis: SInputSourceDataInputStream
