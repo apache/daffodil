@@ -47,13 +47,16 @@ USAGE
 }
 
 # Function to get a non-empty string as input
+# $1 is the prompt to use
+# $2 to $N are passed directly to the read command
 get_non_empty_input() {
     local prompt="$1" # prompt the user with this string
+    shift
     local input
 
     while true; do
         # Prompt the user for input
-        read -p "$prompt" input
+        read -p "$prompt: " "$@" input
 
         # Check if the input is non-empty
         if [[ -n $input ]]; then
@@ -172,11 +175,11 @@ done
 
 echo
 
-PRE_RELEASE=$(get_non_empty_input "Pre Release label (e.g., rc1 to rc99):")
-GIT_COMMIT_NAME=$(get_non_empty_input "Git Commit Name (e.g., 'John Q. Smith'):")
-GIT_COMMIT_EMAIL=$(get_non_empty_input "Git Commit Email:")
-APACHE_USERNAME=$(get_non_empty_input "Apache Username:")
-APACHE_PASSWD=$(get_non_empty_input "Apache Password:")
+PRE_RELEASE=$(get_non_empty_input "Pre Release label (e.g., rc1 to rc99)")
+GIT_COMMIT_NAME=$(get_non_empty_input "Git Commit Name (e.g., 'John Q. Smith')")
+GIT_COMMIT_EMAIL=$(get_non_empty_input "Git Commit Email")
+APACHE_USERNAME=$(get_non_empty_input "Apache Username")
+APACHE_PASSWD=$(get_non_empty_input "Apache Password" -s)
 
 echo
 echo
