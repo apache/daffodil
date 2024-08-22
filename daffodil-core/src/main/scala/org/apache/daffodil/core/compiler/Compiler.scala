@@ -20,6 +20,7 @@ package org.apache.daffodil.core.compiler
 import java.io.File
 import java.io.FileInputStream
 import java.io.InvalidClassException
+import java.io.InvalidObjectException
 import java.io.ObjectInputStream
 import java.io.StreamCorruptedException
 import java.net.URI
@@ -40,6 +41,7 @@ import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.runtime1.api.DFDL
+import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.processors.DataProcessor
 
 /**
@@ -301,8 +303,9 @@ class Compiler private (
           "The saved parser was created with a different version of " + dependencyStr + " with incompatible class: " + ex.classname
         )
       //
-      case ex @ (_: ClassNotFoundException | _: NoClassDefFoundError) =>
-        // Both of these exception happens if a class that was used when saving
+      case ex @ (_: ClassNotFoundException | _: NoClassDefFoundError |
+          _: InvalidObjectException | _: SchemaDefinitionError) =>
+        // These exception happens if a class that was used when saving
         // is no longer on the classpath when reloading.
         //
         // One example of this happening is saving a schema using Java 8 but
@@ -313,6 +316,13 @@ class Compiler private (
         // when reloading a schema, and dependencies are just missing, or if a
         // user switches depenency versions and the new version completely
         // removes a class.
+        //
+        // Another example is we use a special BitsCharsetSerializationProxy to
+        // serialize charsets. This proxy lets us do our own existence checks
+        // during deserialization and avoids very confusions and unhelpful
+        // messages from the default Java/Scala deserialization when the class
+        // does not exist. This custom logic throws an InvalidObjectException if
+        // the charset is not found
         throw new InvalidParserException(
           "The saved parser was created with a different set of dependencies containing a class no longer on the classpath: " + ex.getMessage
         )

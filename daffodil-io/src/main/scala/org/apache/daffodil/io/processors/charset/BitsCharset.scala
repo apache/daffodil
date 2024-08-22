@@ -16,6 +16,8 @@
  */
 package org.apache.daffodil.io.processors.charset
 
+import java.io.InvalidObjectException
+import java.io.ObjectStreamException
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CoderResult
@@ -86,6 +88,35 @@ trait BitsCharset extends Serializable {
           )
       }
     }
+  }
+
+  /**
+   * If we serialize a BitsCharset from a plugin and that plugin isn't on the classpath when
+   * deserializing, then we get a really unhelpful and confusing error message coming from
+   * Java/Scala internals. To avoid this, we use writeReplace to instead serialize a proxy class
+   * containing information about the charset and will always exist since it's part of Daffodil.
+   * When the proxy is deserialized, its readResolve function is called, which finds the
+   * BitsCharset from the registry and replaces the proxy class with it. If the charset does not
+   * exist, we can provide a helpful diagnostic.
+   */
+  @throws(classOf[ObjectStreamException])
+  protected def writeReplace(): Object =
+    new BitsCharsetSerializationProxy(this.getClass.getName, name)
+
+}
+
+class BitsCharsetSerializationProxy(className: String, charsetName: String)
+  extends Serializable {
+  @throws(classOf[ObjectStreamException])
+  def readResolve(): Object = {
+    val bitsCharset = CharsetUtils.getCharset(charsetName)
+    if (bitsCharset == null) {
+      // note that we cannot throw ClassNotFoundException since that is what leads to the
+      // unhelpful error message. InvalidObjectException isn't technically correct, but it's the
+      // best option of the ObjectStreamExceptions.
+      throw new InvalidObjectException(s"Charset plugin $className for $charsetName")
+    }
+    bitsCharset
   }
 }
 

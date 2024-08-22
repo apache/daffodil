@@ -138,7 +138,7 @@
   </tdml:infoset>
 </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="verify_error_message" root="s4" model="org/apache/daffodil/charsets/TestBitsCharsetDefinition.dfdl.xsd">
+  <tdml:unparserTestCase name="verify_error_message" root="s4" model="org/apache/daffodil/charsets/TestBitsCharsetDefinition-DNE.dfdl.xsd">
 
     <tdml:document>
       <tdml:documentPart type="byte"><![CDATA[C0 31 32 33 34 35 36 37]]>
