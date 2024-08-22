@@ -111,8 +111,18 @@ class TestDiscriminators {
     runner2.runOneTest("multipleDiscriminators5")
   }
 
-  @Test def test_discrimPlacementSDW(): Unit = { runner.runOneTest("discrimPlacementSDW") }
-  @Test def test_assertPlacementSDW(): Unit = { runner.runOneTest("assertPlacementSDW") }
+  @Test def test_discrimPlacementExpressionSDW(): Unit = {
+    runner.runOneTest("discrimPlacementExpressionSDW")
+  }
+  @Test def test_discrimPlacementPatternSDW(): Unit = {
+    runner.runOneTest("discrimPlacementPatternSDW")
+  }
+  @Test def test_assertPlacementExpressionSDW(): Unit = {
+    runner.runOneTest("assertPlacementExpressionSDW")
+  }
+  @Test def test_assertPlacementPatternSDW(): Unit = {
+    runner.runOneTest("assertPlacementPatternSDW")
+  }
 
   @Test def test_nameDOB_test1(): Unit = { runner3.runOneTest("nameDOB_test1") }
   @Test def test_nameDOB_test_bad_date_first_row(): Unit = {
