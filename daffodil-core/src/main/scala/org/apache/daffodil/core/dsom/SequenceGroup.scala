@@ -33,6 +33,7 @@ import org.apache.daffodil.lib.schema.annotation.props.SeparatorSuppressionPolic
 import org.apache.daffodil.lib.schema.annotation.props.gen.OccursCountKind
 import org.apache.daffodil.lib.schema.annotation.props.gen.SeparatorPosition
 import org.apache.daffodil.lib.schema.annotation.props.gen.SequenceKind
+import org.apache.daffodil.lib.schema.annotation.props.gen.TestKind
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.layers.LayerRuntimeData
@@ -164,9 +165,12 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
   protected final lazy val checkIfNonEmptyAndDiscrimsOrAsserts: Unit = {
     val msg = "Counterintuitive placement detected. Wrap the discriminator or assert " +
       "in an empty sequence to evaluate before the contents."
-    if (groupMembers.nonEmpty && discriminatorStatements.nonEmpty)
+    // Only show warning if the testKind=expression, see DFDL spec Section 9.5 Evaluation Order for Statement Annotations
+    if (
+      groupMembers.nonEmpty && discriminatorStatements.exists(_.testKind == TestKind.Expression)
+    )
       SDW(WarnID.DiscouragedDiscriminatorPlacement, msg)
-    if (groupMembers.nonEmpty && assertStatements.nonEmpty)
+    if (groupMembers.nonEmpty && assertStatements.exists(_.testKind == TestKind.Expression))
       SDW(WarnID.DiscouragedAssertPlacement, msg)
   }
 

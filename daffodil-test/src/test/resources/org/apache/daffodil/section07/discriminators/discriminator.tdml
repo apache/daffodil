@@ -32,7 +32,7 @@
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
-    <xs:element name="root-discrim" dfdl:lengthKind="implicit" >
+    <xs:element name="root-discrim-pattern" dfdl:lengthKind="implicit" >
       <xs:complexType>
         <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
           <xs:annotation>
@@ -48,14 +48,46 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="root-assert" dfdl:lengthKind="implicit" >
+    <xs:element name="root-discrim-expression" dfdl:lengthKind="implicit" >
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator testKind="expression"
+                                  test="{ fn:true() }"
+                                  message="discriminator failed" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element ref="ex:description" dfdl:lengthKind="delimited"/>
+          <xs:element ref="ex:quantity" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root-assert-pattern" dfdl:lengthKind="implicit" >
       <xs:complexType>
         <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
           <xs:annotation>
             <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:assert testKind="pattern"
-                                  testPattern="\p{L}{3}"
-                                  message="assert failed for pattern '\p{L}{3}'" />
+                           testPattern="\p{L}{3}"
+                           message="assert failed for pattern '\p{L}{3}'" />
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element ref="ex:description" dfdl:lengthKind="delimited"/>
+          <xs:element ref="ex:quantity" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root-assert-expression" dfdl:lengthKind="implicit" >
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorPosition="infix">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:assert testKind="expression"
+                           test="{ fn:true() }"
+                           message="assert failed" />
             </xs:appinfo>
           </xs:annotation>
           <xs:element ref="ex:description" dfdl:lengthKind="delimited"/>
@@ -69,21 +101,41 @@
   </tdml:defineSchema>
 
   <!--
-  Test name: discrimPlacementSDW
-  Schema: discrimPlacement, root root-discrim
+  Test name: discrimPlacementPatternSDW
+  Schema: discrimPlacement, root root-discrim-pattern
+  Purpose: This test demonstrates that no SDW occurs for testKind=pattern
+  -->
+
+  <tdml:parserTestCase name="discrimPlacementPatternSDW"
+                       root="root-discrim-pattern" model="discrimAssertPlacement"
+                       description="This test demonstrates that no SDW occurs for testKind=pattern">
+    <tdml:document>Hat,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root-discrim-pattern>
+          <description>Hat</description>
+          <quantity>2</quantity>
+        </root-discrim-pattern>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+  Test name: discrimPlacementExpressionSDW
+  Schema: discrimPlacement, root root-discrim-expression
   Purpose: This test demonstrates the SDW resulting from discouraged discriminator placement
   -->
 
-  <tdml:parserTestCase name="discrimPlacementSDW"
-                       root="root-discrim" model="discrimAssertPlacement"
+  <tdml:parserTestCase name="discrimPlacementExpressionSDW"
+                       root="root-discrim-expression" model="discrimAssertPlacement"
                        description="This test demonstrates the SDW resulting from discouraged discriminator placement">
     <tdml:document>Hat,2</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <root-discrim>
+        <root-discrim-expression>
           <description>Hat</description>
           <quantity>2</quantity>
-        </root-discrim>
+        </root-discrim-expression>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:warnings>
@@ -93,21 +145,41 @@
   </tdml:parserTestCase>
 
   <!--
-  Test name: assertPlacementSDW
+  Test name: assertPlacementPatternSDW
+  Schema: discrimAssertPlacement, root root-assert-pattern
+  Purpose: This test demonstrates that no SDW occurs for testKind=pattern
+  -->
+
+  <tdml:parserTestCase name="assertPlacementPatternSDW"
+                       root="root-assert-pattern" model="discrimAssertPlacement"
+                       description="This test demonstrates no SDW occurs for testKind=pattern">
+    <tdml:document>Hat,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root-assert-pattern>
+          <description>Hat</description>
+          <quantity>2</quantity>
+        </root-assert-pattern>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+  Test name: assertPlacementExpressionSDW
   Schema: discrimAssertPlacement, root root-assert
   Purpose: This test demonstrates the SDW resulting from discouraged assert placement
   -->
 
-  <tdml:parserTestCase name="assertPlacementSDW"
-                       root="root-assert" model="discrimAssertPlacement"
+  <tdml:parserTestCase name="assertPlacementExpressionSDW"
+                       root="root-assert-expression" model="discrimAssertPlacement"
                        description="This test demonstrates the SDW resulting from discouraged assert placement">
     <tdml:document>Hat,2</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <root-assert>
+        <root-assert-expression>
           <description>Hat</description>
           <quantity>2</quantity>
-        </root-assert>
+        </root-assert-expression>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:warnings>
