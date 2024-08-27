@@ -1391,4 +1391,24 @@ class TestScalaAPI {
     assertTrue(pf.isError())
   }
 
+  @Test
+  def testScalaAPICompileResource(): Unit = {
+    val c = Daffodil.compiler()
+    val name = "/test/sapi/mySchema1.dfdl.xsd"
+    val pf = c.compileResource(name)
+    val dp = pf.onPath("/")
+
+    val file = getResource("/test/sapi/myDataBroken.dat")
+    val fis = new java.io.FileInputStream(file)
+    using(new InputSourceDataInputStream(fis)) { input =>
+      val outputter = new ScalaXMLInfosetOutputter()
+      val res = dp.parse(input, outputter)
+      assertTrue(res.isError())
+
+      val d = res.getDiagnostics(0)
+      val loc = d.getLocationsInSchemaFiles(0)
+      assertTrue(loc.toString().replace("\\", "/").contains("in " + name))
+    }
+  }
+
 }

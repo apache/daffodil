@@ -163,6 +163,30 @@ class Compiler private[sapi] (private var sCompiler: SCompiler) {
   }
 
   /**
+   * Compile DFDL resource name into a [[ProcessorFactory]]
+   *
+   * @param name Resource name of a DFDL schema used to create a [[ProcessorFactory]].
+   * @param optRootName Option for name of root element, or None to choose automatically from first
+   *        element of schema. Defaults to None.
+   * @param optRootNamespace Option for string of namespace of the root element, or None to infer
+   *        automatically when unambiguous. Pass Some("") (empty string) for No Namespace.
+   *        Defaults to None.
+   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory.isError]] before using it.
+   */
+  @throws(classOf[java.io.IOException])
+  @throws(classOf[java.io.FileNotFoundException])
+  def compileResource(
+    name: String,
+    optRootName: Option[String] = None,
+    optRootNamespace: Option[String] = None
+  ): ProcessorFactory = {
+    val uri = Misc.getRequiredResource(name)
+    val source = URISchemaSource(new File(name), uri)
+    val pf = sCompiler.compileSource(source, optRootName, optRootNamespace)
+    new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
+  }
+
+  /**
    * Reload a saved parser from a file
    *
    * To allow jar-file packaging, (where the savedParser might be part of a jar),
