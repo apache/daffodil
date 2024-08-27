@@ -1429,4 +1429,25 @@ public class TestJavaAPI {
         assertTrue(pf.isError());
     }
 
+    @Test
+    public void testJavaAPICompileResource() throws IOException, ClassNotFoundException {
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        String name = "/test/japi/mySchema1.dfdl.xsd";
+        ProcessorFactory pf = c.compileResource(name);
+        DataProcessor dp = pf.onPath("/");
+
+        java.io.File file = getResource("/test/japi/myDataBroken.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            assertTrue(res.isError());
+
+            Diagnostic d = res.getDiagnostics().get(0);
+            LocationInSchemaFile loc = d.getLocationsInSchemaFiles().get(0);
+            assertTrue(loc.toString().replace("\\", "/").contains("in " + name));
+        }
+    }
+
+
 }

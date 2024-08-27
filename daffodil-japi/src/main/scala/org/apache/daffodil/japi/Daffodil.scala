@@ -172,6 +172,40 @@ class Compiler private[japi] (private var sCompiler: SCompiler) {
   }
 
   /**
+   * Compile DFDL resource name into a [[ProcessorFactory]]
+   *
+   * @param name Resource name of a DFDL schema used to create a [[ProcessorFactory]].
+   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
+   * @throws java.io.IOException if an I/O error occurs while reading the uri
+   * @throws java.io.FileNotFoundException if the resource could not be found
+   */
+  @throws(classOf[java.io.IOException])
+  def compileResource(name: String): ProcessorFactory = compileResource(name, null, null)
+
+  /**
+   * Compile DFDL resource name into a [[ProcessorFactory]]
+   *
+   * @param name Resource name of a DFDL schema used to create a [[ProcessorFactory]].
+   * @param rootName name of root element, or null to choose automatically from first element of schema.
+   * @param rootNamespace String of namespace of the root element, or null to infer automatically when unambiguous. Pass "" (empty string) for No Namespace.
+   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
+   * @throws java.io.IOException if an I/O error occurs while reading the uri
+   * @throws java.io.FileNotFoundException if the resource could not be found
+   */
+  @throws(classOf[java.io.IOException])
+  @throws(classOf[java.io.FileNotFoundException])
+  def compileResource(
+    name: String,
+    rootName: String,
+    rootNamespace: String
+  ): ProcessorFactory = {
+    val uri = Misc.getRequiredResource(name)
+    val source = URISchemaSource(new File(name), uri)
+    val pf = sCompiler.compileSource(source, Option(rootName), Option(rootNamespace))
+    new ProcessorFactory(pf)
+  }
+
+  /**
    * Reload a saved parser from a file
    *
    * To allow jar-file packaging, (where the savedParser might be part of a jar),
