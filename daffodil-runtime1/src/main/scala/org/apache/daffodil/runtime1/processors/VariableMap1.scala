@@ -458,9 +458,10 @@ class VariableMap private (
           WarnID.VariableSet,
           "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s",
           variable.rd.globalQName,
-          VariableSet,
+          VariableRead,
           variable.value
         )
+
         variable.setValue(newValue)
         variable.setState(VariableSet)
       }
