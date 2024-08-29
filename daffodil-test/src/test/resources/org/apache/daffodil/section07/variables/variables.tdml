@@ -24,7 +24,7 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:ex="http://example.com"
   defaultRoundTrip="true">
-  
+
   <tdml:defineSchema name="v">
     <dfdl:defineVariable name="v_no_default" type="xsd:int" />
     <dfdl:defineVariable name="v_with_default" type="xsd:int"
@@ -685,7 +685,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <xs:group name="g8">
       <xs:sequence>
         <xs:element name="month" type="xsd:string" dfdl:lengthKind="delimited"
@@ -1251,7 +1251,7 @@
         </e8>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    
+
     <tdml:document>23</tdml:document>
   </tdml:unparserTestCase>
 
@@ -1336,7 +1336,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <xs:element name="r2">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -1351,7 +1351,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <xs:element name="r3">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -1366,9 +1366,9 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <dfdl:defineVariable name="holder" type="xs:int" />
-    
+
     <xs:element name="r4">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -1384,9 +1384,9 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <dfdl:defineVariable name="holder2" type="xs:int" />
-    
+
     <xs:element name="r5">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -1401,7 +1401,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <dfdl:defineVariable name="counter" type="xs:int" />
 
     <xs:element name="r6">
@@ -1419,10 +1419,10 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <xs:element name="r7" type="xs:int" dfdl:inputValueCalc=" { $ex:badscope } " dfdl:lengthKind="delimited"/>
     <xs:element name="r8" type="xs:int" dfdl:inputValueCalc=" { $ex:v_no_default } " dfdl:lengthKind="delimited"/>
-    
+
     <dfdl:defineVariable name="varb" type="xs:int" />
 
     <xs:element name="r9">
@@ -1437,12 +1437,12 @@
     </xs:element>
 
   </tdml:defineSchema>
-  
+
   <tdml:defineSchema name="absolutePath" elementFormDefault="qualified">
-    
+
   <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"/>
-    
+
     <xs:element name="elem">
       <xs:complexType>
         <xs:sequence dfdl:separator="|">
@@ -1464,7 +1464,7 @@
     </xs:simpleType>
 
   </tdml:defineSchema>
-  
+
 <!--
      Test: setVarAbsolutePath
    Schema: absolutePath
@@ -1472,7 +1472,7 @@
   Purpose: This test uses the parsed values of elements as formatting parameters WITHOUT
            using setVariable
 -->
-  
+
   <tdml:parserTestCase name="setVarAbsolutePath" root="elem"
     model="absolutePath" description="Section 7 - setVariable - DFDL-7-127R">
     <tdml:document>,.|test.</tdml:document>
@@ -1492,10 +1492,10 @@
 <!--
      Test: setVarValAttribute
    Schema: setVarSchema
-     Root: r1 
+     Root: r1
   Purpose: This test uses a schema that demonstrates the use of the dfdl:value attribute to specify a variable value
 -->
-  
+
   <tdml:parserTestCase name="setVarValAttribute" root="r1"
     model="setVarSchema" description="Section 7 - setVariable supports both a value attribute and a 'value' - DFDL-7-122R">
     <tdml:document/>
@@ -1516,7 +1516,7 @@
   Purpose: This test uses a schema uses both the dfdl:value attribute and the element value
            to specify a variable value and should cause an error
 -->
-  
+
   <tdml:parserTestCase name="setVarValAttribute2" root="r2"
     model="setVarSchema" description="Section 7 - setVariable supports both a value attribute and a 'value' - DFDL-7-122R">
     <tdml:document/>
@@ -1532,7 +1532,7 @@
      Root: r3
   Purpose: This test sets an int variable to a string and should fail
 -->
-  
+
   <tdml:parserTestCase name="setVarTypeMismatch" root="r3"
     model="setVarSchema" description="Section 7 - setVariable - value matches defineVariable - DFDL-7-124R">
     <tdml:document/>
@@ -1551,7 +1551,7 @@
      Root: r4
   Purpose: This test sets a variable with the value of the first element
 -->
-  
+
   <tdml:parserTestCase name="setVarCurrVal" root="r4"
     model="setVarSchema" description="Section 7 - setVariable - relative path value - DFDL-7-125R">
     <tdml:document>54</tdml:document>
@@ -1572,7 +1572,7 @@
      Root: r5
   Purpose: This test sets a variable with the value of the first element with an incorrect type
 -->
-  
+
   <tdml:parserTestCase name="setVarMismatchRelative" root="r5"
     model="setVarSchema" description="Section 7 - setVariable - relative path value - DFDL-7-125R">
     <tdml:document>boat</tdml:document>
@@ -1591,7 +1591,7 @@
      Root: r6
   Purpose: This test sets a variable with a relative expression
 -->
-  
+
   <tdml:parserTestCase name="setVarExpression" root="r6"
     model="setVarSchema" description="Section 7 - setVariable - relative path expression - DFDL-7-126R">
     <tdml:document>8,is it less than 5</tdml:document>
@@ -1612,7 +1612,7 @@
      Root: r6
   Purpose: This test sets a variable with a relative expression
 -->
-  
+
   <tdml:parserTestCase name="setVarExpression2" root="r6"
     model="setVarSchema" description="Section 7 - setVariable - relative path expression - DFDL-7-126R">
     <tdml:document>3,is it less than 5</tdml:document>
@@ -1633,7 +1633,7 @@
      Root: r7
   Purpose: This test tries to use a variable that is defined in another schema
 -->
-  
+
   <tdml:parserTestCase name="setVarBadScope" root="r7"
     model="setVarSchema" description="Section 7 - setVariable - variable scope - DFDL-7-128R">
     <tdml:document>6</tdml:document>
@@ -1648,7 +1648,7 @@
      Root: r8
   Purpose: This test tries to use a variable that is given a value outside of the scope
 -->
-  
+
   <tdml:parserTestCase name="setVarBadScope2" root="r8"
     model="setVarSchema" description="Section 7 - setVariable - variable scope - DFDL-7-128R">
     <tdml:document>6</tdml:document>
@@ -1748,7 +1748,7 @@
      Root: r1
   Purpose: This test uses empty string as the default value by setting the defaultValue attribute.
 -->
-  
+
   <tdml:parserTestCase name="emptyDefault" root="r1"
     model="emptyDefault" description="Section 7 - setVariable supports both a value attribute and a 'value' - DFDL-7-122R">
     <tdml:document/>
@@ -1795,10 +1795,10 @@
 <!--
      Test: doubleEmptyDefault
    Schema: emptyDefaultInvalid
-     Root: r2 
+     Root: r2
   Purpose: This test uses an element that had a default set with an attribute and an element value and should fail.
 -->
-  
+
   <tdml:parserTestCase name="doubleEmptyDefault" root="r2"
     model="emptyDefaultInvalid" description="Section 7 - ">
     <tdml:document/>
@@ -1809,7 +1809,7 @@
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="variable_path">
-    
+
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
@@ -1833,9 +1833,9 @@
      Test: var_end_path
    Schema: variable_path
      Root: r
-  Purpose: This test uses a variable at the end of a path and should fail since it is invalid to have a variable in a path expression. 
+  Purpose: This test uses a variable at the end of a path and should fail since it is invalid to have a variable in a path expression.
 -->
- 
+
   <tdml:parserTestCase name="var_end_path" root="r"
     model="variable_path" description="Section 7 - ">
     <tdml:document/>
@@ -1850,7 +1850,7 @@
      Test: var_in_path
    Schema: variable_path
      Root: e3
-  Purpose: This test uses a variable in a path and should fail since it is invalid to have a variable in a path expression. 
+  Purpose: This test uses a variable in a path and should fail since it is invalid to have a variable in a path expression.
 -->
 
   <tdml:parserTestCase name="var_in_path" root="e3"
@@ -1864,7 +1864,7 @@
 
 
   <tdml:defineSchema name="logical_default_values">
-    
+
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" />
 
@@ -2208,6 +2208,7 @@
       <tdml:warning>Runtime Schema Definition Warning</tdml:warning>
       <tdml:warning>Cannot set variable</tdml:warning>
       <tdml:warning>after reading the default value</tdml:warning>
+      <tdml:warning>State was: VariableRead</tdml:warning>
     </tdml:warnings>
     <tdml:infoset>
       <tdml:dfdlInfoset>
