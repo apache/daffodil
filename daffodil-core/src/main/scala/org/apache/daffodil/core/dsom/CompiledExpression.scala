@@ -25,6 +25,7 @@ import org.apache.daffodil.core.dpath._
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.util.DPathUtil
+import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.BasicComponent
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -60,6 +61,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     nodeInfoKind: NodeInfo.Kind,
     exprOrLiteral: String,
     namespaces: NamespaceBinding,
+    targetNamespace: NS,
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,
@@ -76,6 +78,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           nodeInfoKind,
           exprOrLiteral,
           namespaces,
+          targetNamespace,
           compileInfoWhereExpressionWasLocated,
           isEvaluatedAbove,
           host,
@@ -87,6 +90,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
           nodeInfoKind,
           exprOrLiteral,
           namespaces,
+          targetNamespace,
           compileInfoWhereExpressionWasLocated,
           isEvaluatedAbove
         )
@@ -122,6 +126,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       nodeInfoKind,
       property.value,
       property.location.namespaces,
+      property.location.targetNamespace,
       compileInfo,
       isEvaluatedAbove,
       host,
@@ -166,6 +171,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       staticNodeInfoKind,
       exprOrLiteral,
       namespacesForNamespaceResolution,
+      property.location.targetNamespace,
       compileInfoWhereExpressionWasLocated,
       isEvaluatedAbove,
       host,
@@ -180,6 +186,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
         runtimeNodeInfoKind,
         exprOrLiteral,
         namespacesForNamespaceResolution,
+        property.location.targetNamespace,
         compileInfoWhereExpressionWasLocated,
         isEvaluatedAbove,
         host,
@@ -212,6 +219,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     nodeInfoKind: NodeInfo.Kind,
     exprOrLiteral: String,
     namespaces: NamespaceBinding,
+    targetNamespace: NS,
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,
@@ -231,6 +239,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
       qn,
       nodeInfoKind,
       namespaces,
+      targetNamespace,
       compileInfo,
       isEvaluatedAbove,
       host
@@ -244,6 +253,7 @@ class ExpressionCompiler[T <: AnyRef] extends ExpressionCompilerBase[T] {
     nodeInfoKind: NodeInfo.Kind,
     exprOrLiteral: String,
     namespaces: NamespaceBinding,
+    targetNamespace: NS,
     compileInfoWhereExpressionWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean
   ): CompiledExpression[T] = {

@@ -111,9 +111,10 @@ object QName {
   def resolveRef(
     qnameString: String,
     scope: scala.xml.NamespaceBinding,
+    targetNamespace: NS,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[RefQName] =
-    RefQNameFactory.resolveRef(qnameString, scope, unqualifiedPathStepPolicy)
+    RefQNameFactory.resolveRef(qnameString, scope, targetNamespace, unqualifiedPathStepPolicy)
 
   def parseExtSyntax(extSyntax: String): (Option[String], NS, String) = {
     val res =
@@ -167,9 +168,21 @@ object QName {
   def resolveStep(
     qnameString: String,
     scope: scala.xml.NamespaceBinding,
+    targetNamespace: NS,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
-  ): Try[StepQName] =
-    StepQNameFactory.resolveRef(qnameString, scope, unqualifiedPathStepPolicy)
+  ): Try[StepQName] = {
+    // TODO: We pass in NoNamespace instead of targetNamespace here, which may not be correct in
+    // all cases. If the step being referenced is a global element or if elementFormDefault is
+    // qualified then we probably do want to use targetNamespace to look it up since those
+    // elements likely have a namespace. But for non-qualified local steps, we probably do just
+    // want to use NoNamespace since the step won't have a namespace. However, this is sort of a
+    // chicken-and-egg problem--we need to know the namespace to how to find the step, but we
+    // don't know which namespace to use (NoNamespace or targetNamespace) unless we've already
+    // found the same. Instead, we use NoNamespace and let the flexibility that
+    // unqualfiedPathStepPolicy gives use help to find the step element. Possibly related to
+    // DAFFODIL-2917
+    StepQNameFactory.resolveRef(qnameString, scope, NoNamespace, unqualifiedPathStepPolicy)
+  }
 
   def createLocal(
     name: String,
@@ -505,23 +518,29 @@ protected trait RefQNameFactoryBase[T] {
   def resolveRef(
     qnameString: String,
     scope: scala.xml.NamespaceBinding,
+    targetNamespace: NS,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[T] = Try {
     qnameString match {
-      case QNameRegex.QName(pre, local) => {
-        val prefix = Option(pre)
+      case QNameRegex.QName(prefix, local) => {
+
         // note that the prefix, if defined, can never be ""
-        val optURI = prefix match {
-          case None => resolveDefaultNamespace(scope, unqualifiedPathStepPolicy)
-          case Some(pre) => Option(scope.getURI(pre))
+        val pre = Option(prefix)
+        val preNS = pre.map { p =>
+          Option(scope.getURI(p)).map(NS(_)).getOrElse {
+            throw new QNameUndefinedPrefixException(p)
+          }
         }
-        val ns = (prefix, optURI) match {
-          case (None, None) => NoNamespace
-          case (Some(pre), None) =>
-            throw new QNameUndefinedPrefixException(pre)
-          case (_, Some(ns)) => NS(ns)
+        val ns = preNS match {
+          case None => {
+            // there was no prefix, use the default namespace (i.e. xmln="...") if defined. If
+            // not defined, use the targetNamespace
+            val defaultNS = resolveDefaultNamespace(scope, unqualifiedPathStepPolicy)
+            defaultNS.map(NS(_)).getOrElse(targetNamespace)
+          }
+          case Some(n) => n
         }
-        val res = constructor(prefix, local, ns)
+        val res = constructor(pre, local, ns)
         res
       }
       case _ => throw new QNameSyntaxException(Some(qnameString), None)
@@ -548,26 +567,36 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
   def resolveExtendedSyntaxRef(
     extSyntax: String,
     scope: scala.xml.NamespaceBinding,
+    targetNamespace: NS,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[RefQName] = Try {
     val (pre, ns, local) = QName.parseExtSyntax(extSyntax)
+
     // note that the prefix, if defined, can never be ""
-    val optURI = pre match {
-      case None => resolveDefaultNamespace(scope, unqualifiedPathStepPolicy)
-      case Some(prefix) => Option(scope.getURI(prefix))
+    val preNS = pre.map { p =>
+      Option(scope.getURI(p)).map(NS(_)).getOrElse {
+        throw new QNameUndefinedPrefixException(p)
+      }
     }
-    val optNS = (pre, optURI, ns) match {
-      case (None, None, UnspecifiedNamespace) =>
-        resolveDefaultNamespace(scope, unqualifiedPathStepPolicy).map { NS(_) }
-      case (_, Some(uriString), UnspecifiedNamespace) => Some(NS(uriString))
-      case (Some(pre), None, _) => throw new QNameUndefinedPrefixException(pre)
-      case (Some(pre), Some(uriString), n) if (n.toString != uriString) =>
-        Assert.invariantFailed(
+    val resolvedNS = (preNS, ns) match {
+      case (None, UnspecifiedNamespace) => {
+        // if neither prefix nor namespace was specified, use the default namespace (i.e.
+        // xmln="...") if defined. If not defined, use the targetNamespace.
+        val defaultNS = resolveDefaultNamespace(scope, unqualifiedPathStepPolicy)
+        defaultNS.map(NS(_)).getOrElse(targetNamespace)
+      }
+      case (None, n) => n
+      case (Some(pn), UnspecifiedNamespace) => pn
+      case (Some(pn), n) => {
+        // TODO: Is this actually an invariant, or should this be an exception simlar to
+        // QNameUndefinedPrefixException?
+        Assert.invariant(
+          pn eq n,
           "namespace from prefix and scope, and ns argument are inconsitent."
         )
-      case (_, _, n) => Some(n)
+        n
+      }
     }
-    val resolvedNS = optNS.getOrElse(UnspecifiedNamespace)
     val res = constructor(pre, local, resolvedNS)
     res
   }

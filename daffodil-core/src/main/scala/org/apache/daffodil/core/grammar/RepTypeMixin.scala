@@ -45,7 +45,13 @@ trait RepTypeMixin { self: ElementBase =>
   private lazy val repTypeGSTD: GlobalSimpleTypeDef = LV('repTypeGSTD) {
     // throws an SDE if the simple type def is not found or if it is not a simple type (e.g. a
     // primitive type)
-    val gstd = schemaSet.getGlobalSimpleTypeDefNoPrim(repType, "dfdlx:repType", this)
+    val gstd = schemaSet.getGlobalSimpleTypeDef(repType).getOrElse {
+      errMissingGlobalReferenceNoPrim(
+        repType,
+        "dfdlx:repType",
+        "global simpleType definition"
+      )
+    }
     schemaDefinitionUnless(
       gstd.primType.isInstanceOf[NodeInfo.Integer.Kind],
       "dfdlx:repType (%s) must resolve to a global simple type definition derived from xs:integer, but was %s",

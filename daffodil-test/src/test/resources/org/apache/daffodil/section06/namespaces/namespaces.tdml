@@ -2439,4 +2439,56 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+    Test name: noTargetNamespace_01
+    Schema: no_target_namespace.dfdl.xsd
+    Root: root
+    Purpose: A schema with no target namespace can successfully reference all
+             types of global references
+  -->
+  <tdml:parserTestCase name="noTargetNamespace_01"
+    root="root" model="no_target_namespace.dfdl.xsd">
+    <tdml:document>1,2,3,4,</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <one>1</one>
+          <two>
+            <two>2</two>
+          </two>
+          <three>3</three>
+          <four>4</four>
+          <five>5</five>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: noTargetNamespace_02
+    Schema: no_target_namespace_include.dfdl.xsd
+    Root: combined
+    Purpose: Includes a no-namespce schema with internal references to global elements,
+             the includd schema references are chameleoned
+  -->
+  <tdml:parserTestCase name="noTargetNamespace_02"
+    root="combined" model="no_target_namespace_include.dfdl.xsd">
+    <tdml:document>1,2,3,4,</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:combined xmlns:ex="http://example.com/">
+          <ex:root>
+            <one xmlns="http://example.com/">1</one>
+            <two>
+              <two>2</two>
+            </two>
+            <three>3</three>
+            <four>4</four>
+            <five>6</five>
+          </ex:root>
+        </ex:combined>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

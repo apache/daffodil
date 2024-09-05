@@ -44,6 +44,7 @@ import org.apache.daffodil.lib.util.Numbers.asBigInt
 import org.apache.daffodil.lib.xml.GlobalQName
 import org.apache.daffodil.lib.xml.NoNamespace
 import org.apache.daffodil.lib.xml.QName
+import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDLPrimType
 import org.apache.daffodil.runtime1.dsom.walker._
@@ -504,6 +505,14 @@ object NodeInfo extends Enum {
      */
     def fromNameString(name: String): Option[PrimType] = {
       nameToPrimType.get(name)
+    }
+
+    def fromQName(qname: RefQName): Option[PrimType] = {
+      if (qname.namespace != XMLUtils.XSD_NAMESPACE) None
+      else {
+        val optPrimNode = fromNameString(qname.local)
+        optPrimNode
+      }
     }
 
     trait PrimNonNumeric { self: AnyAtomic.Kind =>

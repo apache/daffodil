@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.dsom
 import java.lang.{ Boolean => JBoolean, Long => JLong }
 import scala.xml.NamespaceBinding
 
+import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.runtime1.BasicComponent
 import org.apache.daffodil.runtime1.dpath.NodeInfo
@@ -31,6 +32,7 @@ trait ExpressionCompilerBase[T <: AnyRef] {
     nodeInfoKind: NodeInfo.Kind,
     exprWithBracesMaybe: String,
     namespaces: NamespaceBinding,
+    targetNamespace: NS,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,

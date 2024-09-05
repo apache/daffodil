@@ -56,6 +56,7 @@ abstract class Gram(contextArg: SchemaComponent)
   final override lazy val tunable = context.tunable
 
   final override def namespaces = context.namespaces
+  final override def targetNamespace = context.targetNamespace
   final override def unqualifiedPathStepPolicy = context.unqualifiedPathStepPolicy
   final override def schemaFileLocation = context.schemaFileLocation
 

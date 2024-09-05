@@ -27,9 +27,11 @@ import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.GetAttributesMixin
 import org.apache.daffodil.lib.xml.NS
+import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.ResolvesQNames
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.BasicComponent
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dsom._
 import org.apache.daffodil.runtime1.processors.VariableMap
 
@@ -79,6 +81,7 @@ trait SchemaComponent
       Delay('nonElementParents, this, parents),
       variableMap,
       namespaces,
+      targetNamespace,
       path,
       schemaFileLocation,
       tunable.unqualifiedPathStepPolicy
@@ -249,6 +252,21 @@ trait SchemaComponent
       new scala.xml.NamespaceBinding("dfdl", XMLUtils.DFDL_NAMESPACE.toString, xml.scope)
     scala.xml.Elem("dfdl", label, emptyXMLMetadata, dfdlBinding, true)
   }
+
+  def errMissingGlobalReferenceNoPrim(
+    qname: RefQName,
+    propertyName: String,
+    referenceDescription: String
+  ): Nothing = {
+    val isPrimitive = NodeInfo.PrimType.fromQName(qname).isDefined
+    val msg =
+      if (isPrimitive)
+        s"The $propertyName property cannnot resolve to a primitive type: $qname"
+      else
+        s"Failed to resolve $propertyName to a $referenceDescription: $qname"
+    schemaDefinitionError(msg)
+  }
+
 }
 
 object Schema {
@@ -321,12 +339,10 @@ final class Schema private (
     noneOrOne(schemaDocuments.flatMap { _.getGlobalGroupDef(name) }, name)
   def getDefineFormat(name: String) =
     noneOrOne(schemaDocuments.flatMap { _.getDefineFormat(name) }, name)
-  def getDefineFormats() = schemaDocuments.flatMap { _.defineFormats }
   def getDefineVariable(name: String) =
     noneOrOne(schemaDocuments.flatMap { _.getDefineVariable(name) }, name)
   def getDefineEscapeScheme(name: String) =
     noneOrOne(schemaDocuments.flatMap { _.getDefineEscapeScheme(name) }, name)
-  def getDefaultFormat = schemaDocuments.flatMap { x => Some(x.getDefaultFormat) }
 
   // used for bulk checking of uniqueness
 

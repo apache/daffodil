@@ -28,7 +28,6 @@ import org.apache.daffodil.lib.api.DaffodilTunables
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
-import org.apache.daffodil.lib.exceptions.ThrowsSDE
 import org.apache.daffodil.lib.oolag.OOLAG
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.util.TransitiveClosure
@@ -36,7 +35,6 @@ import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml._
-import org.apache.daffodil.runtime1.dpath.NodeInfo
 
 object SchemaSet {
   def apply(
@@ -349,8 +347,8 @@ final class SchemaSet private (
    */
   private def getGlobalElement(rootSpec: RootSpec) = {
     rootSpec match {
-      case RootSpec(Some(rootNamespaceName), rootElementName) => {
-        val qn = RefQName(None, rootElementName, rootNamespaceName)
+      case RootSpec(Some(rootNamespace), rootElementName) => {
+        val qn = RefQName(None, rootElementName, rootNamespace)
         val optGE = getGlobalElementDecl(qn)
         val ge = optGE.getOrElse {
           schemaDefinitionError("No global element found for %s", rootSpec)
@@ -397,11 +395,11 @@ final class SchemaSet private (
   }
 
   /**
-   * Retrieve schema by namespace name.
+   * Retrieve schema by namespace
    *
-   * If the schema has no namespace, then use ""
+   * If the schema has no namespace, then use NoNamespace
    */
-  def getSchema(namespace: NS) = {
+  def getSchema(namespace: NS): Option[Schema] = {
     val schemaForNamespace = schemas.find { s => s.targetNamespace == namespace }
     schemaForNamespace
   }
@@ -412,88 +410,53 @@ final class SchemaSet private (
    *
    * These all return factories for the objects, not the objects themselves.
    */
-  def getGlobalElementDecl(refQName: RefQName) = {
-    val s = getSchema(refQName.namespace)
-    val res = s.flatMap { s =>
-      {
-        val ged = s.getGlobalElementDecl(refQName.local)
-        ged
-      }
-    }
-    res
-  }
-
-  def getGlobalSimpleTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
-    _.getGlobalSimpleTypeDef(refQName.local)
-  }
-
-  def getGlobalSimpleTypeDefNoPrim(
-    refQName: RefQName,
-    prop: String,
-    context: ThrowsSDE
-  ): GlobalSimpleTypeDef = {
-    val gstd = getGlobalSimpleTypeDef(refQName)
-    gstd.getOrElse {
-      val isPrimitive = getPrimitiveType(refQName).isDefined
-      val msg =
-        if (isPrimitive) s"The $prop property cannnot resolve to a primitive type: $refQName"
-        else s"Failed to resolve $prop to a global simpleType definition: $refQName"
-      context.schemaDefinitionError(msg)
+  def getGlobalElementDecl(refQName: RefQName): Option[GlobalElementDecl] = {
+    getSchema(refQName.namespace).flatMap {
+      _.getGlobalElementDecl(refQName.local)
     }
   }
 
-  def getGlobalComplexTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
-    _.getGlobalComplexTypeDef(refQName.local)
+  def getGlobalSimpleTypeDef(refQName: RefQName): Option[GlobalSimpleTypeDef] = {
+    getSchema(refQName.namespace).flatMap {
+      _.getGlobalSimpleTypeDef(refQName.local)
+    }
   }
 
-  def getGlobalGroupDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
-    _.getGlobalGroupDef(refQName.local)
+  def getGlobalComplexTypeDef(refQName: RefQName): Option[GlobalComplexTypeDef] = {
+    getSchema(refQName.namespace).flatMap {
+      _.getGlobalComplexTypeDef(refQName.local)
+    }
+  }
+
+  def getGlobalGroupDef(refQName: RefQName): Option[GlobalGroupDef] = {
+    getSchema(refQName.namespace).flatMap {
+      _.getGlobalGroupDef(refQName.local)
+    }
   }
 
   /**
    * DFDL Schema top-level global objects
    */
-  def getDefineFormat(refQName: RefQName) = {
-    val s = getSchema(refQName.namespace)
-    s.flatMap {
+  def getDefineFormat(refQName: RefQName): Option[DFDLDefineFormat] = {
+    getSchema(refQName.namespace).flatMap {
       _.getDefineFormat(refQName.local)
     }
   }
 
-  def getDefineFormats(namespace: NS, context: ThrowsSDE) = getSchema(namespace) match {
-    case None =>
-      context.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
-    case Some(sch) => sch.getDefineFormats()
-  }
-
-  def getDefineVariable(refQName: RefQName) = {
-    val res = getSchema(refQName.namespace).flatMap {
+  def getDefineVariable(refQName: RefQName): Option[DFDLDefineVariable] = {
+    val optVar = getSchema(refQName.namespace).flatMap {
       _.getDefineVariable(refQName.local)
     }
-    val finalResult = res match {
-      case None => {
-        val optRes = this.predefinedVars.find(dfv => {
-          dfv.namespace == refQName.namespace && dfv.name == refQName.local
-        })
-        optRes
-      }
-      case Some(value) => res
+    optVar.orElse {
+      predefinedVars.find(dfv => {
+        dfv.namespace == refQName.namespace && dfv.name == refQName.local
+      })
     }
-    finalResult
   }
 
-  def getDefineEscapeScheme(refQName: RefQName) = getSchema(refQName.namespace).flatMap {
-    _.getDefineEscapeScheme(refQName.local)
-  }
-
-  def getPrimitiveType(refQName: RefQName) = {
-    if (refQName.namespace != XMLUtils.XSD_NAMESPACE) // must check namespace
-      None
-    else {
-      val optPrimNode = NodeInfo.PrimType.fromNameString(refQName.local)
-      optPrimNode.map {
-        PrimitiveType(_)
-      }
+  def getDefineEscapeScheme(refQName: RefQName): Option[DFDLDefineEscapeSchemeFactory] = {
+    getSchema(refQName.namespace).flatMap {
+      _.getDefineEscapeScheme(refQName.local)
     }
   }
 

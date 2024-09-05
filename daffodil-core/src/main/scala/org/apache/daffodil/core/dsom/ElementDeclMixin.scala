@@ -74,8 +74,7 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
 
   final lazy val optNamedComplexType: Option[GlobalComplexTypeDef] = {
     namedTypeQName.flatMap { qn =>
-      val res = schemaSet.getGlobalComplexTypeDef(qn)
-      res
+      schemaSet.getGlobalComplexTypeDef(qn)
     }
   }
 
@@ -144,7 +143,9 @@ trait ElementDeclMixin extends ElementLikeMixin with ElementDeclView {
 
   final lazy val optNamedSimpleType: Option[SimpleTypeBase] = {
     namedTypeQName.flatMap { qn =>
-      schemaSet.getPrimitiveType(qn).orElse(schemaSet.getGlobalSimpleTypeDef(qn))
+      PrimType.fromQName(qn).map { PrimitiveType(_) }.orElse {
+        schemaSet.getGlobalSimpleTypeDef(qn)
+      }
     }
   }
 

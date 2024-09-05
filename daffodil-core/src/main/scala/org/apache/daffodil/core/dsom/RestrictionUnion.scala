@@ -90,7 +90,12 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
 
   lazy val baseQName: RefQName = {
     val tryBaseQName =
-      QName.resolveRef(baseQNameString, xml.scope, tunable.unqualifiedPathStepPolicy)
+      QName.resolveRef(
+        baseQNameString,
+        xml.scope,
+        targetNamespace,
+        tunable.unqualifiedPathStepPolicy
+      )
     schemaDefinitionUnless(
       tryBaseQName.isSuccess,
       "Failed to resolve base property reference for xs:restriction: " + tryBaseQName.failed.get.getMessage
@@ -102,10 +107,10 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
    * Exclusive - restriction either has a baseType or a direct primType.
    */
   lazy val (optDirectPrimType, optBaseTypeDef: Option[GlobalSimpleTypeDef]) = {
-    val optPT = schemaSet.getPrimitiveType(baseQName)
+    val optPT = PrimType.fromQName(baseQName)
     val res =
       if (optPT.isDefined)
-        (Some(optPT.get.typeNode), None)
+        (optPT, None)
       else {
         val optFactory = schemaSet.getGlobalSimpleTypeDef(baseQName)
         val bType =

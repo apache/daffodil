@@ -30,6 +30,7 @@ trait SimpleTypeRuntime1Mixin { self: SimpleTypeDefBase =>
         diagnosticDebugName,
         path,
         namespaces,
+        targetNamespace,
         primType,
         noFacetChecks,
         optRestriction.toSeq.flatMap { r => if (r.hasPattern) r.patternValues else Nil },
