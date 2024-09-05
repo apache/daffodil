@@ -1326,7 +1326,7 @@ class TestDFDLExpressions {
   @Test def test_time_constructor_04(): Unit = { runner2.runOneTest("time_constructor_04") }
 
   // DFDL-1124
-  // @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
+  @Test def test_date_constructor_01(): Unit = { runner2.runOneTest("date_constructor_01") }
   @Test def test_date_constructor_02(): Unit = { runner2.runOneTest("date_constructor_02") }
   // @Test def test_date_constructor_02a() { runner2.runOneTest("date_constructor_02a") }
   @Test def test_date_constructor_03(): Unit = { runner2.runOneTest("date_constructor_03") }

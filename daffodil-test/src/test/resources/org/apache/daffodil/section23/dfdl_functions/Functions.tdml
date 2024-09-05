@@ -9106,7 +9106,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Invalid date "1991-03-4" (Day must be two digits)</tdml:error>
+      <tdml:error>Failed to parse xs:date from string: 1991-03-4</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
