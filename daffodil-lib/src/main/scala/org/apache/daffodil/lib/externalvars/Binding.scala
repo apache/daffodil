@@ -96,7 +96,12 @@ object Binding {
     // if one is defined.
     //
     val rqn =
-      RefQNameFactory.resolveRef(name, scope, UnqualifiedPathStepPolicy.DefaultNamespace)
+      RefQNameFactory.resolveRef(
+        name,
+        scope,
+        NoNamespace,
+        UnqualifiedPathStepPolicy.DefaultNamespace
+      )
     new Binding(rqn.get, value)
   }
 

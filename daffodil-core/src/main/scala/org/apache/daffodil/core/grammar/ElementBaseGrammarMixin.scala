@@ -97,7 +97,14 @@ trait ElementBaseGrammarMixin
     // We need to resolve the global simple type of the prefix length type
     // because we need to create a detached element with the same schema
     // document/parent of the GSTD.
-    schemaSet.getGlobalSimpleTypeDefNoPrim(prefixLengthType, "dfdl:prefixLengthType", this)
+    val gstd = schemaSet.getGlobalSimpleTypeDef(prefixLengthType).getOrElse {
+      errMissingGlobalReferenceNoPrim(
+        prefixLengthType,
+        "dfdl:prefixLengthType",
+        "global simpleType definition"
+      )
+    }
+    gstd
   }.value
 
   lazy val prefixedLengthElementDecl: PrefixLengthQuasiElementDecl =
@@ -1478,12 +1485,14 @@ trait ElementBaseGrammarMixin
     val exprProp = outputValueCalcOption.asInstanceOf[Found]
     val exprText = exprProp.value
     val exprNamespaces = exprProp.location.namespaces
+    val exprTargetNamespace = exprProp.location.targetNamespace
     val qn = GlobalQName(Some("daf"), "outputValueCalc", XMLUtils.dafintURI)
     val expr = ExpressionCompilers.AnyRef.compileExpression(
       qn,
       primType,
       exprText,
       exprNamespaces,
+      exprTargetNamespace,
       dpathCompileInfo,
       isEvaluatedAbove = false,
       self,

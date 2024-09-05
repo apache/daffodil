@@ -263,24 +263,13 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
   /**
    * by name getters for the global things that can be referenced.
    */
-  def getGlobalElementDecl(name: String) = {
-    val geds = globalElementDecls
-    val res = geds.find { _.name == name }
-    res
-  }
+  def getGlobalElementDecl(name: String) = globalElementDecls.find { _.name == name }
   def getGlobalSimpleTypeDef(name: String) = globalSimpleTypeDefs.find { _.name == name }
   def getGlobalComplexTypeDef(name: String) = globalComplexTypeDefs.find { _.name == name }
   def getGlobalGroupDef(name: String) = globalGroupDefs.find { _.name == name }
 
-  def getDefineFormat(name: String) = defineFormats.find { df =>
-    val dfName = df.namedQName.local
-    val res = dfName == name
-    res
-  }
-  def getDefineVariable(name: String) = {
-    val res = defineVariables.find { _.name == name }
-    res
-  }
+  def getDefineFormat(name: String) = defineFormats.find { _.namedQName.local == name }
+  def getDefineVariable(name: String) = defineVariables.find { _.name == name }
   def getDefaultFormat = this.defaultFormat
   def getDefineEscapeScheme(name: String) = defineEscapeSchemes.find { _.name == name }
 

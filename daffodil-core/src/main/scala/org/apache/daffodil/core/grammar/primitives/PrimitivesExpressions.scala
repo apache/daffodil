@@ -30,6 +30,7 @@ import org.apache.daffodil.lib.schema.annotation.props.PropertyLookupResult
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
 import org.apache.daffodil.lib.schema.annotation.props.gen.VariableDirection
 import org.apache.daffodil.lib.xml.GlobalQName
+import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.dsom._
@@ -55,6 +56,7 @@ abstract class AssertBase(
   decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
   namespacesForNamespaceResolution: scala.xml.NamespaceBinding,
+  targetNamespaceArg: NS,
   scWherePropertyWasLocated: AnnotatedSchemaComponent,
   msgOpt: Option[String],
   discrim: Boolean, // are we a discriminator or not.
@@ -74,6 +76,7 @@ abstract class AssertBase(
       decl,
       foundProp.value,
       foundProp.location.namespaces,
+      foundProp.location.targetNamespace,
       decl,
       msgOpt,
       discrim,
@@ -84,6 +87,7 @@ abstract class AssertBase(
   override val baseName = assertKindName
   override lazy val exprText = exprWithBraces
   override lazy val exprNamespaces = namespacesForNamespaceResolution
+  override lazy val exprTargetNamespace = targetNamespaceArg
   override lazy val exprComponent = scWherePropertyWasLocated
   override def nodeKind = NodeInfo.Boolean
 
@@ -96,6 +100,7 @@ abstract class AssertBase(
         NodeInfo.String,
         msgOpt.get,
         exprNamespaces,
+        exprTargetNamespace,
         exprComponent.dpathCompileInfo,
         false,
         this,
@@ -197,6 +202,7 @@ case class SetVariable(stmt: DFDLSetVariable, override val term: Term)
 
   override lazy val exprText = stmt.value
   override lazy val exprNamespaces = stmt.xml.scope
+  override lazy val exprTargetNamespace = stmt.annotatedSC.targetNamespace
   override lazy val exprComponent = stmt
 
   override lazy val nodeKind = stmt.defv.primType
@@ -281,6 +287,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   def baseName: String
   def exprNamespaces: scala.xml.NamespaceBinding
+  def exprTargetNamespace: NS
   def exprComponent: SchemaComponent
   def exprText: String
 
@@ -294,6 +301,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
       nodeKind,
       exprText,
       exprNamespaces,
+      exprTargetNamespace,
       exprComponent.dpathCompileInfo,
       false,
       this,
@@ -307,6 +315,7 @@ abstract class ValueCalcBase(e: ElementBase, property: PropertyLookupResult)
 
   override lazy val exprText = exprProp.value
   override lazy val exprNamespaces = exprProp.location.namespaces
+  override lazy val exprTargetNamespace = exprProp.location.targetNamespace
   override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
 
   lazy val pt = e.primType // .typeRuntimeData
@@ -335,6 +344,7 @@ abstract class AssertPatternPrimBase(decl: Term, stmt: DFDLAssertionBase, discri
   override val baseName = if (discrim) "Discriminator" else "Assert"
   override lazy val exprText = stmt.messageAttrib.get
   override lazy val exprNamespaces = decl.namespaces
+  override lazy val exprTargetNamespace = decl.targetNamespace
   override lazy val exprComponent = decl
 
   override def nodeKind = NodeInfo.String

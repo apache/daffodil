@@ -30,6 +30,7 @@ import org.apache.daffodil.lib.util.DPathUtil
 import org.apache.daffodil.lib.util.Enum
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.xml.GlobalQName
+import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.QName
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.BasicComponent
@@ -308,6 +309,7 @@ class InteractiveDebugger(
             NodeInfo.Boolean,
             expression,
             context.dpathCompileInfo.namespaces,
+            context.dpathCompileInfo.targetNamespace,
             context.dpathCompileInfo,
             false,
             hostForDiags,
@@ -1107,6 +1109,7 @@ class InteractiveDebugger(
           else expression
         val context = state.getContext()
         val namespaces = context.dpathCompileInfo.namespaces
+        val targetNamespace = context.dpathCompileInfo.targetNamespace
         val expressionWithBraces =
           if (!DPathUtil.isExpression(adjustedExpression)) "{ " + adjustedExpression + " }"
           else adjustedExpression
@@ -1118,6 +1121,7 @@ class InteractiveDebugger(
             NodeInfo.AnyType,
             expressionWithBraces,
             namespaces,
+            targetNamespace,
             context.dpathCompileInfo,
             isEvaluatedAbove,
             hostForDiags,
@@ -2367,6 +2371,7 @@ class DebuggerHost(override val tunable: DaffodilTunables)
    */
   // Members declared in org.apache.daffodil.lib.xml.ResolvesQNames
   def namespaces: scala.xml.NamespaceBinding = ???
+  def targetNamespace: NS = ???
   def unqualifiedPathStepPolicy: org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy = ???
   // Members declared in org.apache.daffodil.lib.exceptions.ThrowsSDE
   def schemaFileLocation: org.apache.daffodil.lib.exceptions.SchemaFileLocation = ???

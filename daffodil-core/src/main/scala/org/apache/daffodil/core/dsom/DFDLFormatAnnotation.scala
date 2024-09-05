@@ -24,7 +24,6 @@ import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.LookupLocation
 import org.apache.daffodil.lib.xml.NS
-import org.apache.daffodil.lib.xml.NoNamespace
 import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -124,14 +123,6 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     }
   }
 
-  private def adjustNamespace(ns: NS) = {
-    ns match {
-      case NoNamespace =>
-        annotatedSC.targetNamespace // this could also be NoNamespace, but that's ok.
-      case _ => ns
-    }
-  }
-
   // The ListMap collection preserves insertion order.
   private type NamedFormatMap = ListMap[RefQName, DFDLFormat]
 
@@ -144,33 +135,21 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     val res =
       qns
         .map { case qn =>
-          // first we have to adjust the namespace
-          // because a file with no target namespace,
-          // can reference something in another file, which also has no target
-          // namespace. The files can collectively or by nesting, be
-          // included in a third file that has a namespace, and in that
-          // case all the format definitions being created as those
-          // files are loaded will be in that third namespace.
-          // so just because we had <dfdl:format ref="someFormat"/> and the
-          // ref has no namespace prefix on it, doesn't mean that the
-          // defineFormat we're seeking is in no namespace.
-          val adjustedNS = adjustNamespace(qn.namespace)
-          val adjustedQN = RefQName(None, qn.local, adjustedNS)
-          val notSeenIt = seen.get(adjustedQN) == None
+          val notSeenIt = seen.get(qn) == None
           schemaDefinitionUnless(
             notSeenIt,
             "Format ref attributes form a cycle: \n%s\n%s",
-            (adjustedQN, locationDescription),
+            (qn, locationDescription),
             seen.map { case (qn, fmtAnn) => (qn, fmtAnn.locationDescription) }.mkString("\n")
           )
-          val defFmt = schemaSet.getDefineFormat(adjustedQN).getOrElse {
+          val defFmt = schemaSet.getDefineFormat(qn).getOrElse {
             annotatedSC.schemaDefinitionError(
               "defineFormat with name '%s', was not found.",
-              adjustedQN.toString
+              qn.toString
             )
           }
           val fmt = defFmt.formatAnnotation
-          val newSeen = seen + (adjustedQN -> fmt)
+          val newSeen = seen + (qn -> fmt)
           val moreRefs = fmt.getFormatRefs(newSeen)
           moreRefs
         }

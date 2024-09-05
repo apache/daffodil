@@ -22,6 +22,7 @@ import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHostImpl
 import org.apache.daffodil.lib.schema.annotation.props.gen._
+import org.apache.daffodil.lib.xml.NS
 
 import org.junit.Assert._
 import org.junit.Test
@@ -54,6 +55,7 @@ class TestGeneratedProperties {
     def lineDescription: String = ???
     def locationDescription: String = ???
     def namespaces: scala.xml.NamespaceBinding = ???
+    def targetNamespace: NS = ???
     def schemaFileLocation: SchemaFileLocation = ???
 
     val xml = bagOfProps

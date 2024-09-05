@@ -26,6 +26,7 @@ import scala.xml.NamespaceBinding
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.NamedQName
 import org.apache.daffodil.lib.xml.QNameRegex
 import org.apache.daffodil.runtime1.BasicComponent
@@ -52,6 +53,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
   qn: NamedQName,
   nodeInfoKind: NodeInfo.Kind,
   namespaces: NamespaceBinding,
+  targetNamespace: NS,
   context: DPathCompileInfo,
   isEvaluatedAbove: Boolean,
   host: BasicComponent
@@ -229,7 +231,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
   def Comp = EqualityComp | NumberComp
 
   def TopLevel: Parser[WholeExpression] = ("{" ~> Expr <~ "}") ^^ { xpr =>
-    WholeExpression(nodeInfoKind, xpr, namespaces, context, host)
+    WholeExpression(nodeInfoKind, xpr, namespaces, targetNamespace, context, host)
   }
 
   val SuccessAtEnd = Parser { in => Success(in, new CharSequenceReader("")) }

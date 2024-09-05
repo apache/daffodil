@@ -153,6 +153,8 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
 
   lazy val namespaces: NamespaceBinding = parent.namespaces
 
+  lazy val targetNamespace: NS = parent.targetNamespace
+
   def children: Seq[Expression]
 
   def setContextsForChildren(context: OOLAGHost = this): Unit = {
@@ -219,7 +221,7 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
 
   def resolveRef(qnameString: String): RefQName = {
     QName
-      .resolveRef(qnameString, namespaces, tunable.unqualifiedPathStepPolicy)
+      .resolveRef(qnameString, namespaces, targetNamespace, tunable.unqualifiedPathStepPolicy)
       .recover { case _: Throwable =>
         SDE("The prefix of '%s' has no corresponding namespace definition.", qnameString)
       }
@@ -458,6 +460,7 @@ case class WholeExpression(
   nodeInfoKind: NodeInfo.Kind,
   ifor: Expression,
   nsBindingForPrefixResolution: NamespaceBinding,
+  targetNamespaceArg: NS,
   ci: DPathCompileInfo,
   host: BasicComponent
 ) extends Expression {
@@ -476,6 +479,8 @@ case class WholeExpression(
   }
 
   override lazy val namespaces = nsBindingForPrefixResolution
+
+  override lazy val targetNamespace = targetNamespaceArg
 
   override def text = ifor.text
 
@@ -827,7 +832,12 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   }
 
   lazy val stepQName = {
-    val e = QName.resolveStep(step, namespaces, tunable.unqualifiedPathStepPolicy)
+    val e = QName.resolveStep(
+      step,
+      namespaces,
+      targetNamespace,
+      tunable.unqualifiedPathStepPolicy
+    )
     e match {
       case Failure(th) => SDE("Step %s prefix has no corresponding namespace.", step)
       case Success(v) => v
@@ -1367,10 +1377,7 @@ case class VariableRef(val qnameString: String) extends PrimaryExpression(Nil) {
   }
   override def text = "$" + qnameString
 
-  lazy val theQName: RefQName = {
-    val refQ = resolveRef(qnameString)
-    refQ
-  }
+  lazy val theQName: RefQName = resolveRef(qnameString)
 
   lazy val vrd = compileInfo.variableMap
     .getVariableRuntimeData(theQName)

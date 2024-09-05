@@ -248,4 +248,7 @@ class TestNamespaces {
   @Test def test_deprecatedSchemaLocation01(): Unit = {
     runner3.runOneTest("deprecatedSchemaLocation01")
   }
+
+  @Test def test_noTargetNamespace_01(): Unit = { runner.runOneTest("noTargetNamespace_01") }
+  @Test def test_noTargetNamespace_02(): Unit = { runner.runOneTest("noTargetNamespace_02") }
 }
