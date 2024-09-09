@@ -78,10 +78,20 @@ trait SchemaSetRuntime1Mixin {
       !rootERD.dpathElementCompileInfo.isOutputValueCalc,
       "The root element cannot have the dfdl:outputValueCalc property."
     )
+    // stored transiently in the SSRD, only used for full validation
+    val mainSchemaURI = self.schemaSource.uriForLoading
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null
     val ssrd =
-      new SchemaSetRuntimeData(p, u, rootERD, variableMap, allLayers, layerRuntimeCompiler)
+      new SchemaSetRuntimeData(
+        p,
+        u,
+        rootERD,
+        variableMap,
+        allLayers,
+        layerRuntimeCompiler,
+        mainSchemaURI
+      )
     if (root.numComponents > root.numUniqueComponents)
       Logger.log.debug(
         s"Compiler: component counts: unique ${root.numUniqueComponents}, actual ${root.numComponents}."

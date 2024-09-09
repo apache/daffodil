@@ -39,7 +39,6 @@ object SchemaFileLocation {
     new SchemaFileLocation(
       context.lineNumber,
       context.columnNumber,
-      context.uriString,
       context.diagnosticFile,
       context.toString,
       context.diagnosticDebugName
@@ -49,7 +48,6 @@ object SchemaFileLocation {
 class SchemaFileLocation protected (
   val lineNumber: Option[String],
   val columnNumber: Option[String],
-  val uriString: String,
   val diagnosticFile: File,
   contextToString: String,
   val diagnosticDebugName: String
@@ -116,34 +114,7 @@ trait SchemaFileLocatable extends LocationInSchemaFile with HasSchemaFileLocatio
     txt
   }
 
-  /**
-   * It would appear that this is only used for informational purposes
-   * and as such, doesn't need to be a URL.  Can just be String.
-   *
-   * override if you don't have a fileName attribute appended
-   * but are in a context where some enclosing construct does
-   * normally only a root node would have a file attribute.
-   *
-   * implement as
-   * @example {{{
-   *     lazy val uriString = uriStringFromAttribute().getOrElse("unknown")
-   * }}}
-   * or delegate like
-   * @example {{{
-   *     lazy val uriString = schemaDocument.uriString
-   * }}}
-   */
-  def uriString: String
-
   def diagnosticFile: File
-
-  lazy val uriStringFromAttribute = {
-    fileAttribute match {
-      case Some(seqNodes) => Some(seqNodes.toString)
-      case None => None
-    }
-
-  }
 
   override lazy val schemaFileLocation = SchemaFileLocation(this)
 }
@@ -154,7 +125,6 @@ class XercesSchemaFileLocation(
 ) extends SchemaFileLocation(
     Option(xercesError.getLineNumber.toString),
     Option(xercesError.getColumnNumber.toString),
-    xercesError.getSystemId,
     schemaFileLocation.diagnosticFile,
     schemaFileLocation.toString,
     schemaFileLocation.diagnosticDebugName

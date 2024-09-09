@@ -194,7 +194,7 @@ class DaffodilParseXMLReader(dp: DataProcessor) extends DFDL.DaffodilParseXMLRea
               val sl = s.asInstanceOf[SchemaFileLocation]
               val ln = sl.lineNumber.getOrElse("0").toInt
               val cn = sl.columnNumber.getOrElse("0").toInt
-              val sId = sl.uriString
+              val sId = sl.diagnosticFile.toString
               (ln, cn, sId)
             }
             .getOrElse((0, 0, null))

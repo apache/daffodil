@@ -225,9 +225,10 @@ class DataProcessor(
       case ValidationMode.Limited => null
       case ValidationMode.Custom(cv) => cv
       case ValidationMode.Full => {
-        val cfg = XercesValidatorFactory.makeConfig(
-          ssrd.elementRuntimeData.schemaURIStringsForFullValidation
-        )
+        // we only need to provide the main schema, Xerces will find imported/included schemas
+        // using the Daffodil resolver set in the XercesValidatorFactory
+        val sources = Seq(ssrd.mainSchemaUriForFullValidation.toString)
+        val cfg = XercesValidatorFactory.makeConfig(sources)
         XercesValidatorFactory.makeValidator(cfg)
       }
     }
