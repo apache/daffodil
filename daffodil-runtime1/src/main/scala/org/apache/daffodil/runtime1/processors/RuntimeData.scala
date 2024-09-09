@@ -724,11 +724,6 @@ sealed class ElementRuntimeData(
 
   override def dfdlType: DFDLPrimType = primType.dfdlType
 
-  lazy val schemaURIStringsForFullValidation: Seq[String] =
-    schemaURIStringsForFullValidation1.distinct
-  private def schemaURIStringsForFullValidation1: Seq[String] = (schemaFileLocation.uriString +:
-    childERDs.flatMap { _.schemaURIStringsForFullValidation1 })
-
   def isComplexType = !isSimpleType
 
   lazy val prefix = this.minimizedScope.getPrefix(namedQName.namespace)

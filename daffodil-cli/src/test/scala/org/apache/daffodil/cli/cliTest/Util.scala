@@ -88,14 +88,14 @@ object Util {
    * passing in the Path to that new file, and delete the file when the
    * function returns.
    */
-  def withTempFile(f: (Path) => Unit): Unit = withTempFile(null, f)
+  def withTempFile[A](f: (Path) => A): A = withTempFile(null, f)
 
   /**
    * Create a temporary file in /tmp/daffodil/ with a given suffix, call a user
    * provided function passing in the Path to that new file, and delete the
    * file when the function returns.
    */
-  def withTempFile(suffix: String, f: (Path) => Unit): Unit = {
+  def withTempFile[A](suffix: String, f: (Path) => A): A = {
     val tempRoot = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil")
     Files.createDirectories(tempRoot)
     val tempFile = Files.createTempFile(tempRoot, "daffodil-", suffix)
@@ -111,7 +111,7 @@ object Util {
    * function passing in the Path to that new directory, and delete the
    * directory and all of its contents when the function returns
    */
-  def withTempDir(f: (Path) => Unit): Unit = {
+  def withTempDir[A](f: (Path) => A): A = {
     val tempRoot = Paths.get(System.getProperty("java.io.tmpdir"), "daffodil")
     Files.createDirectories(tempRoot)
     val tempDir = Files.createTempDirectory(tempRoot, "daffodil-")
@@ -127,7 +127,7 @@ object Util {
    * provided function, and reset or clear the property when the function
    * returns.
    */
-  def withSysProp(keyVal: (String, String))(f: => Unit): Unit = {
+  def withSysProp[A](keyVal: (String, String))(f: => A): A = {
     val key = keyVal._1
     val newVal = keyVal._2
     val oldVal = System.setProperty(key, newVal)
@@ -150,22 +150,24 @@ object Util {
    * verifies the expected exit code.
    *
    * For performance reasons, this defaults to running the CLI in a new thread
-   * unless the classpaths parameter is nonempty or the fork parameter is set to
-   * true. Otherwise a new process is spawned.
+   * unless forking is explicity enabled with the "fork" option, or implicity
+   * by setting one of the options that enables forking.
    *
    * @param args arguments to pass to the CLI. This should not include the
    *   daffodil binary
    * @param classpaths sequence of paths to add to the classpath. If non-empty,
    *   runs the CLI in a new process instead of a thread and will likely decrease
-   *   performance
+   *   performance, enables forking
    * @param envs map of environment varibles to set. If non-empty,
    *   runs the CLI in a new process instead of a thread and will likely decrease
-   *   performance
+   *   performance, enables forking
    * @param fork if true, forces the the CLI to run in a new process
    * @param timeout how long to wait, in seconds, for the testFunc to finish after
    *   the CLI has completed. Test testFunc is interrupted if this timeout is reached
    * @param debug if true, prints arguments and classpath information to
    *   stdout. Also echos all CLITester input and output to stdout.
+   * @param directory if specified, run the CLI command from a different working
+   *   directory, enables forking
    * @param testFunc function to call to send input to the CLI and validate
    *   output from CLI stdout/stderr
    * @param expectedExitCode the expected exit code of the CLI
@@ -179,11 +181,12 @@ object Util {
     envs: Map[String, String] = Map(),
     fork: Boolean = false,
     timeout: Int = 10,
-    debug: Boolean = false
+    debug: Boolean = false,
+    directory: Option[Path] = None
   )(testFunc: (CLITester) => Unit)(expectedExitCode: ExitCode.Value): Unit = {
 
     val (toIn, fromOut, fromErr, cliThreadOrProc: Either[CLIThread, Process]) =
-      if (classpaths.nonEmpty || envs.nonEmpty || fork) {
+      if (classpaths.nonEmpty || envs.nonEmpty || directory.isDefined || fork) {
         // spawn a new process to run Daffodil, needed if a custom classpath is
         // defined or if the caller explicitly wants to fork
         val processBuilder = new ProcessBuilder()
@@ -198,7 +201,11 @@ object Util {
           processBuilder.environment().putAll(envs.asJava)
         }
 
-        val cmd = daffodilBinPath.toString +: args
+        if (directory.isDefined) {
+          processBuilder.directory(directory.get.toFile)
+        }
+
+        val cmd = daffodilBinPath.toAbsolutePath.toString +: args
         if (debug) System.out.println(cmd.mkString(" "))
         processBuilder.command(cmd.toList.asJava)
 

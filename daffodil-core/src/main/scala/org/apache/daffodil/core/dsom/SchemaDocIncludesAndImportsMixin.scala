@@ -70,7 +70,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
                 schemaDefinitionUnless(
                   inc.targetNamespace =:= tns,
                   "Included schema does not have the same namespace as the file %s including it.",
-                  uriString
+                  diagnosticFile.toString
                 )
                 tns
               }
@@ -142,7 +142,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
   }
 
   override lazy val uriString = {
-    this.uriStringFromAttribute.getOrElse("file:unknown")
+    this.fileAttribute.map(_.toString).getOrElse("file:unknown")
   }
 
   override lazy val diagnosticFile = if (self.schemaFile.isDefined) {
