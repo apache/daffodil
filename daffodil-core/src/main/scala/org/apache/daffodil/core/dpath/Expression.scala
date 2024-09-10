@@ -1508,8 +1508,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           functionQNameString,
           functionQName,
           NodeInfo.String,
-          NodeInfo.Exists,
-          FNLocalName0(_, _)
+          FNLocalName0
         )
 
       case (RefQName(_, "local-name", FUNC), args) if args.length == 1 =>
@@ -1527,8 +1526,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           functionQNameString,
           functionQName,
           NodeInfo.String,
-          NodeInfo.Exists,
-          FNNamespaceUri0(_, _)
+          FNNamespaceUri0
         )
 
       case (RefQName(_, "namespace-uri", FUNC), args) if args.length == 1 =>
@@ -2546,18 +2544,26 @@ case class FNZeroArgExpr(
   nameAsParsed: String,
   fnQName: RefQName,
   resultType: NodeInfo.Kind,
-  argType: NodeInfo.Kind,
-  constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp
+  constructor: () => RecipeOp
 ) extends FunctionCallBase(nameAsParsed, fnQName, Nil) {
 
   override lazy val inherentType = resultType
 
-  override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = argType
+  /*
+  This function should never be called since FNZeroArgExpr's never have sub expressions.
+  However we still need to overwrite it since it's in the abtract class we are extending.
+  So, we just call Assert.impossible() wrapped with
+  // $COVERAGE-OFF$ and // $COVERAGE-ON$ comments to to disable code coverage.
+   */
+  // $COVERAGE-OFF$
+  override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind =
+    Assert.impossible()
+  // $COVERAGE-ON$
 
   override lazy val compiledDPath = {
     checkArgCount(0)
     val c = conversions
-    val res = new CompiledDPath(constructor(null, null) +: c)
+    val res = new CompiledDPath(constructor() +: c)
     res
   }
 }

@@ -743,8 +743,7 @@ case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
  * This function is called when 0 arguments are provided.  We
  * treat this as if the argument passed was "." to denote self.
  */
-case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends RecipeOpWithSubRecipes(recipe) {
+case class FNLocalName0() extends RecipeOp {
   override def run(dstate: DState): Unit = {
     // Same as using "." to denote self.
     val localName = dstate.currentElement.name
@@ -805,8 +804,7 @@ case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
  * This function is called when 0 arguments are provided.  We
  * treat this as if the argument passed was "." to denote self.
  */
-case class FNNamespaceUri0(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends RecipeOpWithSubRecipes(recipe) {
+case class FNNamespaceUri0() extends RecipeOp {
   override def run(dstate: DState): Unit = {
     // Insist this is non-constant at compile time (to avoid a NPE)
     if (dstate.isCompile)
