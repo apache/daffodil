@@ -42,6 +42,8 @@ import org.apache.daffodil.sapi.InvalidUsageException
 import org.apache.daffodil.sapi.ParseResult
 import org.apache.daffodil.sapi.SAXErrorHandlerForSAPITest
 import org.apache.daffodil.sapi.ValidationMode
+import org.apache.daffodil.sapi.infoset.JsonInfosetInputter
+import org.apache.daffodil.sapi.infoset.JsonInfosetOutputter
 import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetInputter
 import org.apache.daffodil.sapi.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.sapi.infoset.XMLTextEscapeStyle
@@ -1454,4 +1456,55 @@ class TestScalaAPI {
       if (tempFile.exists) tempFile.delete()
     }
   }
+
+  @Test
+  def testScalaAPIJson1(): Unit = {
+    val c = Daffodil.compiler()
+    val name = "/test/sapi/mySchema1.dfdl.xsd"
+    val pf = c.compileResource(name)
+    val dp = pf.onPath("/")
+
+    val file = getResource("/test/sapi/myData.dat")
+    val fis = new java.io.FileInputStream(file)
+    val bos = new ByteArrayOutputStream()
+    using(new InputSourceDataInputStream(fis)) { input =>
+      val outputter = new JsonInfosetOutputter(bos, pretty = false)
+      val res = dp.parse(input, outputter)
+      assertFalse(res.isError())
+    }
+
+    using(new ByteArrayInputStream(bos.toByteArray())) { input =>
+      val bos = new java.io.ByteArrayOutputStream()
+      val wbc = java.nio.channels.Channels.newChannel(bos)
+      val inputter = new JsonInfosetInputter(input)
+      val res = dp.unparse(inputter, wbc)
+      assertFalse(res.isError())
+      assertEquals("42", bos.toString())
+    }
+  }
+
+  @Test
+  def testScalaAPIJson2(): Unit = {
+    val c = Daffodil.compiler()
+    val name = "/test/sapi/mySchema1.dfdl.xsd"
+    val pf = c.compileResource(name)
+    val dp = pf.onPath("/")
+
+    // e2 should be a simple type
+    val badJsonInfoset = """{"e1": {"e2": {"unexpected": "object"}}}"""
+
+    using(new ByteArrayInputStream(badJsonInfoset.getBytes("UTF-8"))) { input =>
+      val bos = new java.io.ByteArrayOutputStream()
+      val wbc = java.nio.channels.Channels.newChannel(bos)
+      val inputter = new JsonInfosetInputter(input)
+      val res = dp.unparse(inputter, wbc)
+      assertTrue(res.isError())
+      val diags = res.getDiagnostics
+      assertEquals(1, diags.length)
+      assertTrue(diags(0).toString.contains("Illegal content for simple element"))
+      assertTrue(diags(0).toString.contains("Unexpected array or object"))
+      assertTrue(diags(0).toString.contains("e2"))
+    }
+  }
+
 }

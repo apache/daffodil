@@ -50,6 +50,8 @@ import org.junit.Test;
 
 import org.apache.daffodil.japi.infoset.JDOMInfosetInputter;
 import org.apache.daffodil.japi.infoset.JDOMInfosetOutputter;
+import org.apache.daffodil.japi.infoset.JsonInfosetOutputter;
+import org.apache.daffodil.japi.infoset.JsonInfosetInputter;
 import org.apache.daffodil.japi.io.InputSourceDataInputStream;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
@@ -1492,5 +1494,51 @@ public class TestJavaAPI {
         }
     }
 
+    @Test
+    public void testJavaAPIJson1() throws IOException, ClassNotFoundException {
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+
+        java.io.File file = getResource("/test/japi/myData.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        InputSourceDataInputStream dis = new InputSourceDataInputStream(fis);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        JsonInfosetOutputter outputter = new JsonInfosetOutputter(bos, false);
+        ParseResult res = dp.parse(dis, outputter);
+        assertFalse(res.isError());
+
+        java.io.ByteArrayInputStream input = new java.io.ByteArrayInputStream(bos.toByteArray());
+        JsonInfosetInputter inputter = new JsonInfosetInputter(input);
+        java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
+        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos2);
+        UnparseResult res2 = dp.unparse(inputter, wbc);
+        assertFalse(res2.isError());
+        assertEquals("42", bos2.toString());
+    }
+
+    @Test
+    public void testJavaAPIJson2() throws IOException, ClassNotFoundException {
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+        ProcessorFactory pf = c.compileFile(schemaFile);
+        DataProcessor dp = pf.onPath("/");
+
+        // e2 should be a simple type
+        String badJsonInfoset = "{\"e1\": {\"e2\": {\"unexpected\": \"object\"}}}";
+
+        java.io.ByteArrayInputStream input = new java.io.ByteArrayInputStream(badJsonInfoset.getBytes("UTF-8"));
+        JsonInfosetInputter inputter = new JsonInfosetInputter(input);
+        java.io.ByteArrayOutputStream bos2 = new java.io.ByteArrayOutputStream();
+        java.nio.channels.WritableByteChannel wbc = java.nio.channels.Channels.newChannel(bos2);
+        UnparseResult res = dp.unparse(inputter, wbc);
+        assertTrue(res.isError());
+        java.util.List<Diagnostic> diags = res.getDiagnostics();
+        assertEquals(1, diags.size());
+        assertTrue(diags.get(0).toString().contains("Illegal content for simple element"));
+        assertTrue(diags.get(0).toString().contains("Unexpected array or object"));
+        assertTrue(diags.get(0).toString().contains("e2"));
+    }
 
 }
