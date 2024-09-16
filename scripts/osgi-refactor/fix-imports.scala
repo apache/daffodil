@@ -32,12 +32,12 @@ object FixImports extends App {
     "daffodil-runtime1" -> "runtime1",
     "daffodil-runtime1-layers" -> "layers.runtime1",
     "daffodil-runtime1-unparser" -> "unparsers.runtime1",
-    "daffodil-tdml-processor" -> "processor.tdml",
+    "daffodil-tdml-processor" -> "processor.tdml"
   )
   val removeSuffix = Map(
     "daffodil-runtime1-layers" -> "layers",
     "daffodil-runtime1-unparser" -> "processors.unparsers",
-    "daffodil-tdml-processor" -> "tdml.processor",
+    "daffodil-tdml-processor" -> "tdml.processor"
   )
 
   def loadSymbolTable(file: File): Map[String, String] = {
@@ -78,7 +78,7 @@ object FixImports extends App {
       "org.apache.daffodil.validation.XercesValidator.XercesValidatorImpl" -> "daffodil-lib",
       "org.apache.daffodil.xml._" -> "daffodil-lib",
       "org.apache.daffodil.xml.NS.implicitNStoString" -> "daffodil-lib",
-      "org.apache.daffodil.xml.QNameRegex" -> "daffodil-lib",
+      "org.apache.daffodil.xml.QNameRegex" -> "daffodil-lib"
     )
     symbols
   }
@@ -125,16 +125,16 @@ object FixImports extends App {
     ("new org.apache.daffodil.xml", "new org.apache.daffodil.lib.xml"),
     (
       "org.apache.daffodil.schema.annotation.props.gen.{ BinaryNumberCheckPolicy, TextZonedSignStyle }",
-      "org.apache.daffodil.lib.schema.annotation.props.gen.{ BinaryNumberCheckPolicy, TextZonedSignStyle }",
+      "org.apache.daffodil.lib.schema.annotation.props.gen.{ BinaryNumberCheckPolicy, TextZonedSignStyle }"
     ),
     (
       "import org.apache.daffodil.util.MaybeULong",
-      "import org.apache.daffodil.lib.util.MaybeULong",
+      "import org.apache.daffodil.lib.util.MaybeULong"
     ),
     ("import org.apache.daffodil.Implicits._", "import org.apache.daffodil.lib.Implicits._"),
     (
       "import org.apache.daffodil.infoset.DataValue",
-      "import org.apache.daffodil.runtime1.infoset.DataValue",
+      "import org.apache.daffodil.runtime1.infoset.DataValue"
     ),
     ("org.apache.daffodil.api", "org.apache.daffodil.lib.api"),
     ("org.apache.daffodil.calendar", "org.apache.daffodil.lib.calendar"),
@@ -149,14 +149,14 @@ object FixImports extends App {
     ("org.apache.daffodil.xml", "org.apache.daffodil.lib.xml"),
     (
       "org.apache.daffodil.udf.UserDefinedFunctionService",
-      "org.apache.daffodil.runtime1.udf.UserDefinedFunctionService",
+      "org.apache.daffodil.runtime1.udf.UserDefinedFunctionService"
     ),
     ("org.apache.daffodil.util", "org.apache.daffodil.lib.util"),
     ("org.apache.daffodil.grammar", "org.apache.daffodil.core.grammar"),
     ("org.apache.daffodil.lib.api.DFDL", "org.apache.daffodil.runtime1.api.DFDL"),
     (
       "import org.apache.daffodil.runtime1.dsom.{ChoiceTermBase, GroupRef, InitiatedTerminatedMixin, ModelGroup, SequenceTermBase}",
-      "import org.apache.daffodil.core.dsom.{ChoiceTermBase, GroupRef, InitiatedTerminatedMixin, ModelGroup, SequenceTermBase}",
+      "import org.apache.daffodil.core.dsom.{ChoiceTermBase, GroupRef, InitiatedTerminatedMixin, ModelGroup, SequenceTermBase}"
     ),
     ("org.apache.daffodil.compiler", "org.apache.daffodil.core.compiler"),
     ("import org.apache.daffodil.debugger", "import org.apache.daffodil.runtime1.debugger"),
@@ -164,28 +164,28 @@ object FixImports extends App {
     ("org.apache.daffodil.lib.util.Fakes", "org.apache.daffodil.core.util.Fakes"),
     (
       "org.apache.daffodil.runtime1.dsom.{ ElementBase, Root }",
-      "org.apache.daffodil.core.dsom.{ ElementBase, Root }",
+      "org.apache.daffodil.core.dsom.{ ElementBase, Root }"
     ),
     ("org.apache.daffodil.lib.util.StreamParser", "org.apache.daffodil.core.util.StreamParser"),
     ("org.apache.daffodil.cli.CLI.Util._", "org.apache.daffodil.cli.cliTest.Util._"),
     ("package org.apache.daffodil.cli.CLI", "package org.apache.daffodil.cli.cliTest"),
     (
       "case TDMLImplementation.Daffodil => \"org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory\"",
-      "case TDMLImplementation.Daffodil => \"org.apache.daffodil.processor.tdml.TDMLDFDLProcessorFactory\"",
+      "case TDMLImplementation.Daffodil => \"org.apache.daffodil.processor.tdml.TDMLDFDLProcessorFactory\""
     ),
     (
       "case TDMLImplementation.DaffodilC => \"org.apache.daffodil.tdml.processor.Runtime2TDMLDFDLProcessorFactory\"",
-      "case TDMLImplementation.DaffodilC => \"org.apache.daffodil.processor.tdml.Runtime2TDMLDFDLProcessorFactory\"",
+      "case TDMLImplementation.DaffodilC => \"org.apache.daffodil.processor.tdml.Runtime2TDMLDFDLProcessorFactory\""
     ),
     (
       "case TDMLImplementation.Ibm => \"org.apache.daffodil.tdml.processor.TDMLDFDLProcessorFactory\"",
-      "case TDMLImplementation.Ibm => \"org.apache.daffodil.processor.tdml.TDMLDFDLProcessorFactory\"",
+      "case TDMLImplementation.Ibm => \"org.apache.daffodil.processor.tdml.TDMLDFDLProcessorFactory\""
     ),
     ("private[tdml] def getTS = this.synchronized {", "def getTS = this.synchronized {"),
     (
       "package org.apache.daffodil.processor.tdml.tdml;",
-      "package org.apache.daffodil.processor.tdml;",
-    ),
+      "package org.apache.daffodil.processor.tdml;"
+    )
   )
 
   def applyReplacements(line: String): String = {
