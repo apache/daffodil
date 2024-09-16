@@ -23,7 +23,6 @@ package org.apache.daffodil.japi.packageprivate
 // them from Javadocs. So, when we generate Javadocs, we manually exclude
 // anything in the japiexclude package. So anything that should be package
 // private should go in this package.
-
 import org.apache.daffodil.japi._
 import org.apache.daffodil.japi.debugger._
 import org.apache.daffodil.japi.infoset._

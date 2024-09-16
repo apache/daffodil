@@ -23,12 +23,12 @@ class Symbols(
   val libraryName: String,
   val fileName: String,
   val packageName: String,
-  val exports: List[String],
+  val exports: List[String]
 )
 
 object GenSymbolTable extends App {
   val ignoreFiles = List(
-    "daffodil-runtime1/src/main/scala/org/apache/daffodil/reflection/FieldFinder.scala",
+    "daffodil-runtime1/src/main/scala/org/apache/daffodil/reflection/FieldFinder.scala"
   )
 
   val rePackage: Regex = """package ([\w\.]+)""".r
@@ -46,7 +46,7 @@ object GenSymbolTable extends App {
   val reExports = List(
     "^(?:abstract |case |final |sealed |implict |lazy )* ?class ([\\w\\.]+)".r,
     "^(?:abstract |case |final |sealed |implict |lazy )* ?object ([\\w\\.]+)".r,
-    "^(?:abstract |case |final |sealed |implict |lazy )* ?trait ([\\w\\.]+)".r,
+    "^(?:abstract |case |final |sealed |implict |lazy )* ?trait ([\\w\\.]+)".r
   )
 
   def parseExports(lines: Iterator[String]): List[String] = {
