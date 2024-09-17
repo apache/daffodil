@@ -23,6 +23,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:ex="http://example.com" 
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
@@ -76,14 +77,14 @@
                 </xs:sequence>
               </xs:choice>
               <xs:choice>
-                <xs:element name="C1" type="xs:string" dfdl:length="1">
+                <xs:element name="C1" type="xs:string" dfdl:length="1" daf:suppressSchemaDefinitionWarnings="queryStylePathExpression">
                   <xs:annotation>
                     <xs:appinfo source="http://www.ogf.org/dfdl/">
                       <dfdl:discriminator>{ ../C eq "1" }</dfdl:discriminator>
                     </xs:appinfo>
                   </xs:annotation>
                 </xs:element>
-                <xs:element name="C2" type="xs:string" dfdl:length="1">
+                <xs:element name="C2" type="xs:string" dfdl:length="1" daf:suppressSchemaDefinitionWarnings="queryStylePathExpression">
                   <xs:annotation>
                     <xs:appinfo source="http://www.ogf.org/dfdl/">
                       <dfdl:discriminator>{ ../C eq "2" }</dfdl:discriminator>
@@ -116,7 +117,8 @@
 
 </tdml:defineSchema>
 
-  <tdml:parserTestCase name="choiceSlotAmbiguous1" root="msgA" model="s2" description="Choice branches with same element name inside.">
+  <tdml:parserTestCase name="choiceSlotAmbiguous1" root="msgA" model="s2"
+                       description="Choice branches with same element name inside.">
 
     <tdml:document><![CDATA[A1Y]]></tdml:document>
 
@@ -132,7 +134,8 @@
   </tdml:parserTestCase>
   
 
- <tdml:parserTestCase name="choiceSlotAmbiguous2" root="msgA" model="s2" description="Choice branches with same element name inside.">
+ <tdml:parserTestCase name="choiceSlotAmbiguous2" root="msgA" model="s2"
+                      description="Choice branches with same element name inside.">
 
     <tdml:document><![CDATA[B2X]]></tdml:document>
 
@@ -145,7 +148,6 @@
          </ex:msgA>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-
   </tdml:parserTestCase>
   
    <tdml:parserTestCase name="queryStyle1" root="msgB" model="s2" description="Query style expression gives warning and runtime SDE.">

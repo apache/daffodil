@@ -24,6 +24,7 @@
            xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:cd="urn:org.apache.daffodil.layers.checkDigit"
            xmlns:ex="http://example.com"
+           xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
            targetNamespace="http://example.com">
 
   <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
@@ -69,6 +70,7 @@
                  dfdl:inputValueCalc='{ $cd:checkDigit }'/>
         <element name="invalidCheckDigit" type="ex:alwaysInvalid" minOccurs="0"
                  dfdl:occursCountKind="expression"
+                 daf:suppressSchemaDefinitionWarnings="facetExplicitLengthOutOfRange"
                  dfdl:occursCount="{ if (../checkDigit eq ../computedCheckDigit) then 0 else 1 }"/>
       </sequence> <!-- checkDigit DFDL variable scope ends here -->
     </complexType>

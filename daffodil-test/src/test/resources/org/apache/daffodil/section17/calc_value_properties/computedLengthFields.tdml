@@ -21,6 +21,7 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
            xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+           xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:ex="http://example.com">
 
@@ -465,7 +466,8 @@
           <element name="s1" type="xs:string"
                    dfdl:lengthKind="delimited"
                    dfdl:terminator=";"
-                   dfdl:alignment="8"/>
+                   dfdl:alignment="8"
+                   daf:suppressSchemaDefinitionWarnings="ignoreDFDLProperty"/>
         </sequence>
       </complexType>
     </element>

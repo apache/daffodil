@@ -804,6 +804,14 @@
         </root1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>FacetsContradict</tdml:warning>
+      <tdml:warning>'t'</tdml:warning>
+      <tdml:warning>three</tdml:warning>
+      <tdml:warning>contradicts</tdml:warning>
+      <tdml:warning>minLength</tdml:warning>
+      <tdml:warning>maxLength</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="repType_length_facet_02"
@@ -824,6 +832,14 @@
       <tdml:error>minLength</tdml:error>
       <tdml:error>2</tdml:error>
     </tdml:validationErrors>
+    <tdml:warnings>
+      <tdml:warning>FacetsContradict</tdml:warning>
+      <tdml:warning>'t'</tdml:warning>
+      <tdml:warning>three</tdml:warning>
+      <tdml:warning>contradicts</tdml:warning>
+      <tdml:warning>minLength</tdml:warning>
+      <tdml:warning>maxLength</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="repType_length_facet_03"
@@ -844,6 +860,14 @@
       <tdml:error>maxLength</tdml:error>
       <tdml:error>3</tdml:error>
     </tdml:validationErrors>
+    <tdml:warnings>
+      <tdml:warning>FacetsContradict</tdml:warning>
+      <tdml:warning>'t'</tdml:warning>
+      <tdml:warning>three</tdml:warning>
+      <tdml:warning>contradicts</tdml:warning>
+      <tdml:warning>minLength</tdml:warning>
+      <tdml:warning>maxLength</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="repType_length_facet_04"
@@ -863,6 +887,14 @@
       <tdml:error>ex:field</tdml:error>
       <tdml:error>facet length (1)</tdml:error>
     </tdml:validationErrors>
+    <tdml:warnings>
+      <tdml:warning>FacetsContradict</tdml:warning>
+      <tdml:warning>'t'</tdml:warning>
+      <tdml:warning>three</tdml:warning>
+      <tdml:warning>contradicts</tdml:warning>
+      <tdml:warning>minLength</tdml:warning>
+      <tdml:warning>maxLength</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="repType_length_facet_05"
@@ -878,6 +910,14 @@
         </root2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>FacetsContradict</tdml:warning>
+      <tdml:warning>'t'</tdml:warning>
+      <tdml:warning>three</tdml:warning>
+      <tdml:warning>contradicts</tdml:warning>
+      <tdml:warning>minLength</tdml:warning>
+      <tdml:warning>maxLength</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="repType_length_facet_06"
@@ -897,6 +937,14 @@
       <tdml:error>ex:field</tdml:error>
       <tdml:error>facet length (1)</tdml:error>
     </tdml:validationErrors>
+    <tdml:warnings>
+      <tdml:warning>FacetsContradict</tdml:warning>
+      <tdml:warning>'t'</tdml:warning>
+      <tdml:warning>three</tdml:warning>
+      <tdml:warning>contradicts</tdml:warning>
+      <tdml:warning>minLength</tdml:warning>
+      <tdml:warning>maxLength</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="repType-Negative.dfdl.xsd">

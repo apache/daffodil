@@ -43,7 +43,7 @@
           calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday'
           calendarDaysInFirstWeek='4' calendarTimeZone='UTC'
           calendarCheckPolicy='strict' calendarLanguage='en' textPadKind="none"
-          fillByte="%SP;"
+          fillByte="%SP;" floating="no" textBidi="no"
           truncateSpecifiedLengthString="yes"
           bitOrder="mostSignificantBitFirst"/> 
       </appinfo>

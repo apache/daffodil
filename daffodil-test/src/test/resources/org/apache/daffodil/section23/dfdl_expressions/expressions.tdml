@@ -202,7 +202,7 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
-          <xs:element name="beyond" type="xs:string" dfdl:inputValueCalc="{ ../../../. }"/>
+          <xs:element name="beyond" type="xs:string" dfdl:inputValueCalc="{ xs:string(../../../.) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -213,7 +213,8 @@
           <xs:element name="a" type="xs:int" />
           <xs:element name="a" type="xs:int" />
           <xs:element name="a" type="xs:int" />
-          <xs:element name="ivc" type="xs:int" dfdl:inputValueCalc="{ fn:exists(../ex:a) }"/>
+          <xs:element name="ivc" type="xs:int" dfdl:inputValueCalc="{ xs:int(fn:exists(../ex:a)) }"
+                      daf:suppressSchemaDefinitionWarnings="queryStylePathExpression"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -224,7 +225,8 @@
           <xs:element name="a" type="xs:int" />
           <xs:element name="a" type="xs:int" />
           <xs:element name="a" type="xs:int" />
-          <xs:element name="ivc" type="xs:int" dfdl:inputValueCalc="{ ../ex:a[2] }"/>
+          <xs:element name="ivc" type="xs:int" dfdl:inputValueCalc="{ ../ex:a[2] }"
+                      daf:suppressSchemaDefinitionWarnings="queryStylePathExpression"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2632,7 +2634,7 @@ blastoff
         <xs:element name="cnt" type="xs:int" dfdl:lengthKind="delimited" />
         <xs:sequence>
           <xs:element name="v" type="ex:cnt1"
-                dfdl:inputValueCalc="{ dfdl:checkConstraints(if(../ex:cnt eq 0) then ../ex:cnt else .) }" />
+                dfdl:inputValueCalc="{ xs:int(dfdl:checkConstraints(if(../ex:cnt eq 0) then ../ex:cnt else .)) }" />
         </xs:sequence>
       </xs:sequence>
     </xs:complexType>
@@ -2812,15 +2814,17 @@ blastoff
                   dfdl:occursCountKind="parsed">
                   <xs:complexType>
                     <xs:sequence>
-                      <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/">
-                          <dfdl:discriminator><![CDATA[{ 
+                     <xs:sequence>
+                       <xs:annotation>
+                         <xs:appinfo source="http://www.ogf.org/dfdl/">
+                           <dfdl:discriminator><![CDATA[{
                                     if(dfdl:occursIndex() eq 1 ) then fn:true()
                                     else
-                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more eq 1 
+                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more eq 1
                           }]]></dfdl:discriminator>
-                        </xs:appinfo>
-                      </xs:annotation>
+                         </xs:appinfo>
+                       </xs:annotation>
+                     </xs:sequence>
                       <xs:element name="more" type="xs:int"
                         dfdl:lengthKind="explicit" dfdl:length="1" />
                       <xs:element name="c" type="xs:string"
@@ -2996,16 +3000,18 @@ blastoff
     <!-- intended for use in arrays with occursCountKind='parsed' environments -->
     <xs:group name="more">
       <xs:sequence>
-        <xs:annotation>
-          <xs:appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator><![CDATA[{ 
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator><![CDATA[{
                                     if (dfdl:occursIndex() eq 1 )
                                     then fn:true()
-                                    else 
-                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more eq 1 
+                                    else
+                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more eq 1
                           }]]></dfdl:discriminator>
-          </xs:appinfo>
-        </xs:annotation>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
         <xs:element name="more" type="xs:unsignedInt"
           dfdl:lengthKind="explicit" dfdl:length="1" />
       </xs:sequence>
@@ -7363,14 +7369,17 @@ blastoff
     <xs:element name="div02" type="xs:float" dfdl:inputValueCalc="{ xs:float(5) div xs:float(2) }" />
     <xs:element name="div03" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(5) div xs:decimal(2) }" />
     <xs:element name="div04" type="xs:decimal" dfdl:inputValueCalc="{ xs:integer(5) div xs:integer(2) }" />
-    <xs:element name="div05" type="xs:float" dfdl:inputValueCalc="{ xs:int(5) div xs:int(2) }" />
-    <xs:element name="div06" type="xs:float" dfdl:inputValueCalc="{ xs:short(5) div xs:short(2) }" />
+    <xs:element name="div05" type="xs:float" dfdl:inputValueCalc="{ xs:int(5) div xs:int(2) }"/>
+    <xs:element name="div06" type="xs:float" dfdl:inputValueCalc="{ xs:short(5) div xs:short(2) }"
+                daf:suppressSchemaDefinitionWarnings="deprecatedExpressionResultCoercion"/>
     <xs:element name="div07" type="xs:double" dfdl:inputValueCalc="{ xs:double(5) div xs:double(0) }" />
     <xs:element name="div08" type="xs:float" dfdl:inputValueCalc="{ xs:float(5) div xs:float(0) }" />
     <xs:element name="div09" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(5) div xs:decimal(0) }" />
     <xs:element name="div10" type="xs:decimal" dfdl:inputValueCalc="{ xs:integer(5) div xs:integer(0) }" />
-    <xs:element name="div11" type="xs:float" dfdl:inputValueCalc="{ xs:int(5) div xs:int(0) }" />
-    <xs:element name="div12" type="xs:float" dfdl:inputValueCalc="{ xs:short(5) div xs:short(0) }" />
+    <xs:element name="div11" type="xs:float" dfdl:inputValueCalc="{ xs:int(5) div xs:int(0) }"
+                daf:suppressSchemaDefinitionWarnings="deprecatedExpressionResultCoercion"/>
+    <xs:element name="div12" type="xs:float" dfdl:inputValueCalc="{ xs:short(5) div xs:short(0) }"
+                daf:suppressSchemaDefinitionWarnings="deprecatedExpressionResultCoercion"/>
     <xs:element name="div13" type="xs:double" dfdl:inputValueCalc="{ xs:double('INF') div xs:double(2) }" />
     <xs:element name="div14" type="xs:float" dfdl:inputValueCalc="{ xs:float('INF') div xs:float(2) }" />
     <xs:element name="div15" type="xs:double" dfdl:inputValueCalc="{ xs:double('NaN') div xs:double(2) }" />
@@ -7436,6 +7445,9 @@ blastoff
   <tdml:parserTestCase name="div06" root="div06" model="XPathMath" description="Section 23 - DFDL Expressions - div">
     <tdml:document></tdml:document>
     <tdml:infoset><tdml:dfdlInfoset><div06>2.5</div06></tdml:dfdlInfoset></tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Performing deprecated automatic conversion</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="div07" root="div07" model="XPathMath" description="Section 23 - DFDL Expressions - div">
@@ -7467,6 +7479,9 @@ blastoff
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
+    <tdml:warnings>
+      <tdml:warning>Performing deprecated automatic conversion</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="div12" root="div12" model="XPathMath" description="Section 23 - DFDL Expressions - div">
@@ -7474,6 +7489,9 @@ blastoff
     <tdml:errors>
       <tdml:error>by zero</tdml:error>
     </tdml:errors>
+    <tdml:warnings>
+      <tdml:warning>Performing deprecated automatic conversion</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="div13" root="div13" model="XPathMath" description="Section 23 - DFDL Expressions - div">

@@ -34,6 +34,10 @@
         <tns:r1>foo</tns:r1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Non-DFDL Schema file ignored</tdml:warning>
+      <tdml:warning>otherAnnotationLanguage.xsd</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="importOtherAnnotationSchema2" root="r2" model="schemaWithOtherAnnotations.dfdl.xsd">
@@ -43,6 +47,10 @@
         <tns:r2>foo</tns:r2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Non-DFDL Schema file ignored</tdml:warning>
+      <tdml:warning>otherAnnotationLanguage.xsd</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

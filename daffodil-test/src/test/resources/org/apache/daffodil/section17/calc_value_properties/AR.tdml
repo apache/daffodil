@@ -54,7 +54,7 @@
           <element name="Subtract" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x - ../tns:y }" />
           <element name="SubtractLiteral" type="xsd:float"
-            dfdl:inputValueCalc="{ ../tns:x - 2 }" />
+            dfdl:inputValueCalc="{ xsd:float(../tns:x - 2) }" />
         </sequence>
       </complexType>
     </element>

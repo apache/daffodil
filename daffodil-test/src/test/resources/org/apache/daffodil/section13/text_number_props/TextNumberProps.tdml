@@ -23,7 +23,8 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com"
-  xmlns="http://example.com" 
+  xmlns="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:tns="http://example.com" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   defaultRoundTrip="true">
@@ -32,7 +33,8 @@
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" occursCountKind="implicit"/>
 
-    <xs:element name="tnp01" type="xs:int" dfdl:textNumberRep="standard" dfdl:textStandardBase="16" dfdl:textNumberPattern="0000" />
+    <xs:element name="tnp01" type="xs:int" dfdl:textNumberRep="standard" dfdl:textStandardBase="16" dfdl:textNumberPattern="0000"
+                daf:suppressSchemaDefinitionWarnings="ignoreDFDLProperty"/>
     <xs:element name="tnp02" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern=";0000" />
     <xs:element name="tnp03" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="0000;" />
 
@@ -346,7 +348,7 @@
       calendarLanguage="en" calendarPatternKind="implicit"
       calendarTimeZone="UTC" decimalSigned="yes"
       documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
-      encodingErrorPolicy="error" encoding="US-ASCII" escapeSchemeRef=""
+      encodingErrorPolicy="replace" encoding="US-ASCII" escapeSchemeRef=""
       fillByte="f" floating="no" ignoreCase="no" initiatedContent="no"
       initiator="" leadingSkip="0" lengthKind="delimited" lengthUnits="bytes"
       nilValueDelimiterPolicy="both" occursCountKind="implicit"
@@ -3573,7 +3575,8 @@
       calendarLanguage="en" calendarPatternKind="implicit"
       calendarTimeZone="UTC" decimalSigned="yes"
       documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
-      encodingErrorPolicy="error" encoding="US-ASCII" escapeSchemeRef=""
+      encodingErrorPolicy="replace" encoding="US-ASCII" escapeSchemeRef=""
+      floating="no" textBidi="no"
       fillByte="%#r20;" ignoreCase="no" initiatedContent="no" initiator=""
       leadingSkip="0" lengthKind="implicit" lengthUnits="bytes"
       occursCountKind="parsed" outputNewLine="%LF;" representation="text"
@@ -3604,7 +3607,8 @@
       calendarLanguage="en" calendarPatternKind="implicit"
       calendarTimeZone="UTC" decimalSigned="yes"
       documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
-      encodingErrorPolicy="error" encoding="US-ASCII" escapeSchemeRef=""
+      encodingErrorPolicy="replace" encoding="US-ASCII" escapeSchemeRef=""
+      floating="no" textBidi="no"
       fillByte="%#r20;" ignoreCase="no" initiatedContent="no" initiator=""
       leadingSkip="0" lengthKind="implicit" lengthUnits="bytes"
       occursCountKind="parsed" outputNewLine="%LF;" representation="text"

@@ -25,10 +25,10 @@
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="implicit" representation="text"
-        lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
-        separator="" textNumberCheckPolicy="lax" ignoreCase="no" textNumberRep="standard"
+        lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" calendarTimeZone="UTC"
+                 separator="" textNumberCheckPolicy="lax" ignoreCase="no" textNumberRep="standard"
         textPadKind="padChar" textTrimKind="padChar"/>
     <xs:element name="double" type="xs:double"/>
     <xs:element name="int" type="xs:int"/>
@@ -50,8 +50,9 @@
       dfdl:length="13" />
     <xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit"
       dfdl:length="11" />
-    <xs:element name="int03" type="xs:int" dfdl:representation="binary"
-      dfdl:binaryNumberRep="binary" />
+    <xs:element name="int03" type="xs:int" dfdl:binaryNumberRep="binary"
+                dfdl:lengthKind="explicit"
+                dfdl:length="4"/>
     <xs:element name="int04" type="xs:int" dfdl:lengthKind="explicit"
       dfdl:length="10" />
     <xs:element name="int05" type="xs:int" dfdl:lengthKind="explicit"
@@ -159,12 +160,9 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 8 }" />
     <xs:element name="dateTimeText" type="xs:dateTime" dfdl:calendarPattern="yyyy.MM.dd G 'at' HH:mm:ss ZZZZ" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 35 }" />
-    <xs:element name="dateTextInvalid" type="xs:date" dfdl:calendarPattern="EEEE, MMM d, ''yy" dfdl:calendarPatternKind="explicit"
-      dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ xs:string('Wday, July 10, 1996') }" />
-    <xs:element name="timeTextInvalid" type="xs:time" dfdl:calendarPattern="h:mm a" dfdl:calendarPatternKind="explicit"
-      dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ xs:string('not a time') }" />
-    <xs:element name="dateTimeTextInvalid" type="xs:dateTime" dfdl:calendarPattern="yyyy.MM.dd G 'at' HH:mm:ss ZZZZ" dfdl:calendarPatternKind="explicit"
-      dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ xs:string('not a date time') }" />
+    <xs:element name="dateTextInvalid" type="xs:date" dfdl:inputValueCalc="{ xs:string('Wday, July 10, 1996') }" />
+    <xs:element name="timeTextInvalid" type="xs:time" dfdl:inputValueCalc="{ xs:string('not a time') }" />
+    <xs:element name="dateTimeTextInvalid" type="xs:dateTime" dfdl:inputValueCalc="{ xs:string('not a date time') }" />
 
     <xs:element name="limits" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -205,9 +203,9 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="SimpleTypes-binary">
-    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormatPortable.dfdl.xsd"/>
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"
-      lengthUnits="bytes"
+      lengthUnits="bytes" calendarTimeZone="UTC"
       textPadKind="padChar" textTrimKind="padChar" />
 
     <xs:element name="integer01" type="xs:integer" />
@@ -542,19 +540,21 @@
 
   <tdml:parserTestCase name="warning_exercise" root="int03"
     model="SimpleTypes-Embedded.dfdl.xsd"
-    description="A warning message should be generated - use of binaryNumperRep 'binary' with representation 'text'- DFDL-2-012R">
+    description="A warning message should be generated - use of binaryNumperRep 'binary' with representation 'text'- DFDL-2-012R"
+    ignoreUnexpectedWarnings="false">
 
     <tdml:document>
-      <tdml:documentPart type="byte">00000025</tdml:documentPart>
+      <tdml:documentPart type="text">  37</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <int03 xsi:type="xs:int">37</int03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:warnings>
-      <tdml:warning /><!-- don't care what message is -->
+      <tdml:warning>binaryNumberRep</tdml:warning>
+      <tdml:warning>ignored</tdml:warning>
     </tdml:warnings>
   </tdml:parserTestCase>
 

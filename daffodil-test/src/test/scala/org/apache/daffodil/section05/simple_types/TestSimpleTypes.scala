@@ -410,8 +410,6 @@ class TestSimpleTypes {
   @Test def test_Int01(): Unit = { runner.runOneTest("Int01") }
   @Test def test_int_error(): Unit = { runner.runOneTest("int_error") }
 
-  // Test warning_exercise moved to scala-debug until warnings are implemented.
-
   @Test def test_UnsignedNumbers1(): Unit = { runner.runOneTest("UnsignedNumbers1") }
   @Test def test_unsignedLong_01(): Unit = { runner.runOneTest("unsignedLong_01") }
   @Test def test_unsignedLong_02(): Unit = { runner.runOneTest("unsignedLong_02") }

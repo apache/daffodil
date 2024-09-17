@@ -457,7 +457,7 @@
       <xs:restriction base="xs:integer" /> 
     </xs:simpleType>
 
-    <xs:simpleType name="prefixExpression" dfdl:lengthKind="explicit" dfdl:length="{ fn:exists(.) }">
+    <xs:simpleType name="prefixExpression" dfdl:lengthKind="explicit" dfdl:length="{ xs:integer(fn:exists(.)) }">
       <xs:restriction base="xs:integer" /> 
     </xs:simpleType>
 
@@ -2479,7 +2479,6 @@
         <xs:sequence>
           <xs:element name="s" type="xs:string"
                       dfdl:lengthKind="delimited"
-                      dfdl:lengthUnits="characters"
                       dfdl:encoding="utf-16be"/>
           <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:contentLength(.., "bytes") }'>
           </xs:element>
@@ -2495,7 +2494,6 @@
         <xs:sequence>
           <xs:element name="s" type="xs:string"
                       dfdl:lengthKind="delimited"
-                      dfdl:lengthUnits="characters"
                       dfdl:encoding="utf-8"/>
           <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:contentLength(.., "bytes") }'>
           </xs:element>

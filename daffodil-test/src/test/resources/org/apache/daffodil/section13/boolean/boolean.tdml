@@ -21,6 +21,7 @@
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:ex="http://example.com"
   xmlns:tns="http://example.com"
   defaultRoundTrip="onePass">
@@ -34,10 +35,14 @@
           <xs:element name="record" maxOccurs="unbounded">
             <xs:complexType>
                 <xs:sequence dfdl:separator=','>
-                  <xs:element name="default1" type="xs:boolean" default="true" dfdl:textBooleanTrueRep="true" dfdl:textBooleanFalseRep="false" />
-                  <xs:element name="default2" type="xs:boolean" default="false" dfdl:textBooleanTrueRep="true" dfdl:textBooleanFalseRep="false" />
-                  <xs:element name="default3" type="xs:boolean" default="1" dfdl:textBooleanTrueRep="1" dfdl:textBooleanFalseRep="0" />
-                  <xs:element name="default4" type="xs:boolean" default="0" dfdl:textBooleanTrueRep="1" dfdl:textBooleanFalseRep="0" />
+                  <xs:element name="default1" type="xs:boolean" default="true" dfdl:textBooleanTrueRep="true" dfdl:textBooleanFalseRep="false"
+                              daf:suppressSchemaDefinitionWarnings="noEmptyDefault"/>
+                  <xs:element name="default2" type="xs:boolean" default="false" dfdl:textBooleanTrueRep="true" dfdl:textBooleanFalseRep="false"
+                              daf:suppressSchemaDefinitionWarnings="noEmptyDefault"/>
+                  <xs:element name="default3" type="xs:boolean" default="1" dfdl:textBooleanTrueRep="1" dfdl:textBooleanFalseRep="0"
+                              daf:suppressSchemaDefinitionWarnings="noEmptyDefault"/>
+                  <xs:element name="default4" type="xs:boolean" default="0" dfdl:textBooleanTrueRep="1" dfdl:textBooleanFalseRep="0"
+                              daf:suppressSchemaDefinitionWarnings="noEmptyDefault"/>
                 </xs:sequence>
             </xs:complexType>
           </xs:element>

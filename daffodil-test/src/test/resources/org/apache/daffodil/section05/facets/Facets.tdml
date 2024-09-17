@@ -2910,7 +2910,7 @@
           <xs:element name="e1" type="xs:int"
             dfdl:lengthKind="delimited" />
           <xs:element name="e2" nillable="true" type="ex:st8"
-            dfdl:lengthKind="delimited" dfdl:nilValueDelimiterPolicy="terminator"
+            dfdl:lengthKind="delimited"
             dfdl:nilValue="567 %ES;" dfdl:nilKind="literalValue">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">

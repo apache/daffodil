@@ -19,50 +19,50 @@
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"  
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   defaultRoundTrip="true">
 
-   <tdml:defineSchema name="emptySDEschema">
-     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-     <dfdl:format ref="ex:GeneralFormat"/>
+  <tdml:defineSchema name="emptySDEschema">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat"/>
 
-     <xs:element name="emptySeq" type="ex:complexEmptySeq"/>
-     
-     <xs:complexType name="complexEmptySeq">
-       <xs:sequence/>
-     </xs:complexType>
-  
-     <xs:element name="complexEmptyContent" type="ex:complex"/>
-     
-     <xs:complexType name="complex">
-       <xs:sequence>
-         <xs:sequence dfdl:separator=","/>
-       </xs:sequence>
-     </xs:complexType>
-     
-     <xs:element name="noContentComplex">
-       <xs:complexType>
-       </xs:complexType>
-     </xs:element>
-     
-     <xs:element name="noContentAnnotatedComplex">
-       <xs:complexType>
-       <xs:annotation><xs:documentation>not really doc
-       </xs:documentation></xs:annotation>
-       </xs:complexType>
-     </xs:element>
+    <xs:element name="emptySeq" type="ex:complexEmptySeq"/>
 
-   </tdml:defineSchema>
-   
+    <xs:complexType name="complexEmptySeq">
+      <xs:sequence/>
+    </xs:complexType>
+
+    <xs:element name="complexEmptyContent" type="ex:complex"/>
+
+    <xs:complexType name="complex">
+      <xs:sequence>
+        <xs:sequence dfdl:separator=","/>
+      </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="noContentComplex">
+      <xs:complexType>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="noContentAnnotatedComplex">
+      <xs:complexType>
+        <xs:annotation><xs:documentation>not really doc
+        </xs:documentation></xs:annotation>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
   <!--
     Test name: complexEmptyContent
        Schema: emptySDEschema
       Purpose: This test demonstrates that DFDL allows complexTypes with empty content (not to be confused with NO content)
   -->
-  
+
   <tdml:parserTestCase name="complexEmptyContent" root="complexEmptyContent"
-    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+                       model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
@@ -73,15 +73,15 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
-  
+
   <!--
     Test name: noContentComplexSDE
        Schema: emptySDEschema
       Purpose: This test demonstrates that having a complexType with NO content results in an SDE
   -->
-  
+
   <tdml:parserTestCase name="noContentComplexSDE" root="noContentComplex"
-    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+                       model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
@@ -90,9 +90,9 @@
       <tdml:error>A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
-    <tdml:parserTestCase name="noContentAnnotatedComplexSDE" root="noContentAnnotatedComplex"
-    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+
+  <tdml:parserTestCase name="noContentAnnotatedComplexSDE" root="noContentAnnotatedComplex"
+                       model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
@@ -100,15 +100,15 @@
       <tdml:error/>
     </tdml:errors>
   </tdml:parserTestCase>
-   
+
   <!--
     Test name: emptySequenceSDE
        Schema: emptySDEschema
       Purpose: This test demonstrates that it is a schema definition error if an empty sequence is the content of a complex type
   -->
-  
+
   <tdml:parserTestCase name="emptySequenceSDE" root="emptySeq"
-    model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
+                       model="emptySDEschema" description="Section 14 - DFDL-14-007R.">
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
@@ -125,13 +125,13 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="count" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" />
           <xs:element name="record" dfdl:lengthKind="explicit" dfdl:length="0" maxOccurs="unbounded"
-            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:count }">
+                      dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:count }">
             <xs:complexType>
               <xs:sequence>
-              <!--
-                <xs:element name="value1" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
-                <xs:element name="value2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
-              -->
+                <!--
+                  <xs:element name="value1" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
+                  <xs:element name="value2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
+                -->
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -141,8 +141,8 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="nadaParser" root="test"
-    model="NadaParser.dfdl.xsd" description="Tests to make sure that the NadaParser generated in SpecifiedLengthExplicit is optimized out"
-    roundTrip="false">
+                       model="NadaParser.dfdl.xsd" description="Tests to make sure that the NadaParser generated in SpecifiedLengthExplicit is optimized out"
+                       roundTrip="false">
     <tdml:document>
       <tdml:documentPart type="text">1,</tdml:documentPart>
     </tdml:document>
@@ -156,72 +156,72 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-   <tdml:defineSchema name="SequenceGroup-Embedded.dfdl.xsd">
-     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-     <dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes"
-       lengthKind="implicit" />
-     <xs:element name="SG_05">
-       <xs:complexType>
-         <xs:sequence>
-           <xs:element name="e1" type="xs:int"
-             dfdl:lengthKind="explicit" dfdl:length="3" />
-           <xs:element name="e2" type="xs:float"
-             dfdl:lengthKind="explicit" dfdl:length="5" />
-           <xs:element name="e3" type="xs:long"
-             dfdl:lengthKind="explicit" dfdl:length="4" />
-           <xs:element name="leftover" type="xs:string"
-             dfdl:lengthKind="delimited" />
-         </xs:sequence>
-       </xs:complexType>
-     </xs:element>
-   </tdml:defineSchema>
-   
+  <tdml:defineSchema name="SequenceGroup-Embedded.dfdl.xsd">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes"
+                 lengthKind="implicit" />
+    <xs:element name="SG_05">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int"
+                      dfdl:lengthKind="explicit" dfdl:length="3" />
+          <xs:element name="e2" type="xs:float"
+                      dfdl:lengthKind="explicit" dfdl:length="5" />
+          <xs:element name="e3" type="xs:long"
+                      dfdl:lengthKind="explicit" dfdl:length="4" />
+          <xs:element name="leftover" type="xs:string"
+                      dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
   <tdml:defineSchema name="SequenceGroup546">
-     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-     <dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes"
-       lengthKind="implicit" />
-     <xs:element name="SG_05">
-       <xs:complexType>
-         <xs:sequence>
-           <xs:element name="e1" type="xs:int"
-             dfdl:lengthKind="explicit" dfdl:length="3" />
-             <!-- Let's leave off the name attribute of the next element -->
-           <xs:element  type="xs:float"
-             dfdl:lengthKind="explicit" dfdl:length="5" />
-           <xs:element name="e3" type="xs:long"
-             dfdl:lengthKind="explicit" dfdl:length="4" />
-         </xs:sequence>
-       </xs:complexType>
-     </xs:element>
-   </tdml:defineSchema>
-   
-    <tdml:parserTestCase name="SeqGrp546"
-     model="SequenceGroup546" description="Section 14 Sequence group with left over data - DFDL-14-001R"
-     root="SG_05">
-     <tdml:document><![CDATA[123123451234]]></tdml:document>
-      <tdml:errors>
-        <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>'name'</tdml:error>
-        <tdml:error>element</tdml:error>
-      </tdml:errors>
-   </tdml:parserTestCase>
- 
-   <tdml:parserTestCase name="SeqGrp_05"
-     model="SequenceGroup-Embedded.dfdl.xsd" description="Section 14 Sequence group with left over data - DFDL-14-001R"
-     root="SG_05">
-     <tdml:document><![CDATA[837742.8-1197108]]></tdml:document>
-     <tdml:infoset>
-       <tdml:dfdlInfoset>
-         <SG_05>
-           <e1>837</e1>
-           <e2>742.8</e2>
-           <e3>-119</e3>
-           <leftover>7108</leftover>
-         </SG_05>
-       </tdml:dfdlInfoset>
-     </tdml:infoset>
-   </tdml:parserTestCase>
- 
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthUnits="bytes"
+                 lengthKind="implicit" />
+    <xs:element name="SG_05">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int"
+                      dfdl:lengthKind="explicit" dfdl:length="3" />
+          <!-- Let's leave off the name attribute of the next element -->
+          <xs:element  type="xs:float"
+                       dfdl:lengthKind="explicit" dfdl:length="5" />
+          <xs:element name="e3" type="xs:long"
+                      dfdl:lengthKind="explicit" dfdl:length="4" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="SeqGrp546"
+                       model="SequenceGroup546" description="Section 14 Sequence group with left over data - DFDL-14-001R"
+                       root="SG_05">
+    <tdml:document><![CDATA[123123451234]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>'name'</tdml:error>
+      <tdml:error>element</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="SeqGrp_05"
+                       model="SequenceGroup-Embedded.dfdl.xsd" description="Section 14 Sequence group with left over data - DFDL-14-001R"
+                       root="SG_05">
+    <tdml:document><![CDATA[837742.8-1197108]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <SG_05>
+          <e1>837</e1>
+          <e2>742.8</e2>
+          <e3>-119</e3>
+          <leftover>7108</leftover>
+        </SG_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:defineSchema name="hiddenGroup1">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -241,7 +241,7 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="hiddenGroup1" root="e"
-    model="hiddenGroup1" description="Unit test of hidden group ref.">
+                       model="hiddenGroup1" description="Unit test of hidden group ref.">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1,2]]></tdml:documentPart>
     </tdml:document>
@@ -253,7 +253,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <tdml:defineSchema name="hiddenGroup2">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -273,9 +273,9 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
-  
+
   <tdml:parserTestCase name="hiddenGroupSchemaFail" root="e"
-    model="hiddenGroup2" description="Unit test of hidden group ref.">
+                       model="hiddenGroup2" description="Unit test of hidden group ref.">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1,2]]></tdml:documentPart>
     </tdml:document>
@@ -284,7 +284,7 @@
       <tdml:error>A sequence with hiddenGroupRef cannot have children</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
   <tdml:defineSchema name="hiddenGroup3">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -309,7 +309,7 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
-  
+
   <tdml:defineSchema name="hiddenGroupRefEmptyString">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -321,15 +321,15 @@
     </xs:element>
 
   </tdml:defineSchema>
-  
+
   <!--
     Test name: hiddenGroupRefEmptyString
        Schema: hiddenGroupRefEmptyString
       Purpose: This test demonstrates that hidden group references cannot be the empty string.
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupRefEmptyString" root="e"
-    model="hiddenGroupRefEmptyString" description="Section 14 - Hidden Elements DFDL-14-037R.">
+                       model="hiddenGroupRefEmptyString" description="Section 14 - Hidden Elements DFDL-14-037R.">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
     </tdml:document>
@@ -361,7 +361,7 @@
   -->
 
   <tdml:parserTestCase name="hiddenGroupRefDoesNotExist" root="e"
-    model="hiddenGroupRefDoesNotExist" description="Section 14 - Hidden Elements DFDL-14-037R.">
+                       model="hiddenGroupRefDoesNotExist" description="Section 14 - Hidden Elements DFDL-14-037R.">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
     </tdml:document>
@@ -377,9 +377,9 @@
        Schema: hiddenGroup3
       Purpose: This test demonstrates that hidden groups can contain regular DFDL annotations.
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupWithAssert" root="e"
-    model="hiddenGroup3" description="Section 14 - Hidden Elements DFDL-14-037R.">
+                       model="hiddenGroup3" description="Section 14 - Hidden Elements DFDL-14-037R.">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
     </tdml:document>
@@ -391,15 +391,15 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <!--
     Test name: hiddenGroupWithAssert2
        Schema: hiddenGroup3
       Purpose: This test demonstrates that hidden groups can contain regular DFDL annotations.
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupWithAssert2" root="e"
-    model="hiddenGroup3" description="Section 14 - Hidden Elements DFDL-14-037R.">
+                       model="hiddenGroup3" description="Section 14 - Hidden Elements DFDL-14-037R.">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[43,2]]></tdml:documentPart>
     </tdml:document>
@@ -407,7 +407,7 @@
       <tdml:error>Assertion failed</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
   <tdml:defineSchema name="hiddenGroup4">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -430,7 +430,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
     <xs:group name="hgNested3">
       <xs:sequence>
         <xs:element name="sneakier" type="xs:int" dfdl:outputValueCalc="{ 6 }" />
@@ -458,15 +458,15 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
-  
+
   <!--
     Test name: hiddenGroupNested
        Schema: hiddenGroup4
       Purpose: This test demonstrates that hidden groups can contain other hidden groups
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupNested" root="e"
-    model="hiddenGroup4" description="Section 14 - Hidden Elements - DFDL-14-041R.">
+                       model="hiddenGroup4" description="Section 14 - Hidden Elements - DFDL-14-041R.">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[5/42,2]]></tdml:documentPart>
     </tdml:document>
@@ -478,15 +478,15 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <!--
     Test name: hiddenGroupNested2
        Schema: hiddenGroup4
       Purpose: This test demonstrates that hidden groups can contain other hidden groups
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupNested2" root="ee"
-    model="hiddenGroup4" description="Section 14 - Hidden Elements - DFDL-14-041R.">
+                       model="hiddenGroup4" description="Section 14 - Hidden Elements - DFDL-14-041R.">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[6o5/42,2]]></tdml:documentPart>
     </tdml:document>
@@ -498,18 +498,18 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <tdml:defineSchema name="hiddenGroupChoice">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:group name="hg">
-          <xs:choice>
-            <xs:element name="inty" type="xs:int"
-              dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ 145 }" />
-            <xs:element name="stringy" type="xs:string"
-              dfdl:lengthKind="delimited" />
-          </xs:choice>
+      <xs:choice>
+        <xs:element name="inty" type="xs:int"
+                    dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ 145 }" />
+        <xs:element name="stringy" type="xs:string"
+                    dfdl:lengthKind="delimited" />
+      </xs:choice>
     </xs:group>
 
     <xs:element name="e" dfdl:lengthKind="delimited">
@@ -521,15 +521,15 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
-  
+
   <!--
     Test name: hiddenGroupChoice
        Schema: hiddenGroupChoice
       Purpose: This test demonstrates that hidden groups can contain a choice.
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupChoice" root="e"
-    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R">
+                       model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[145,2]]></tdml:documentPart>
     </tdml:document>
@@ -541,7 +541,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <!--
     Test name: hiddenGroupChoice2
        Schema: hiddenGroupChoice
@@ -549,8 +549,8 @@
   -->
 
   <tdml:parserTestCase name="hiddenGroupChoice2" root="e"
-    model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R"
-    roundTrip="twoPass">
+                       model="hiddenGroupChoice" description="Section 14 - Hidden Groups - DFDL-14-042R"
+                       roundTrip="twoPass">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[stringy,2]]></tdml:documentPart>
     </tdml:document>
@@ -562,7 +562,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <tdml:defineSchema name="hiddenGroupLoop">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -586,30 +586,30 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
- </tdml:defineSchema>
+  </tdml:defineSchema>
 
   <!--
     Test name: hiddenGroupLoop
        Schema: hiddenGroupLoop
       Purpose: This test demonstrates a circular reference with hidden group refs and should cause a Schema Definition Error
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupLoop" root="e"
-    model="hiddenGroupLoop" description="Section 14 - Hidden Groups - DFDL-14-042R">
+                       model="hiddenGroupLoop" description="Section 14 - Hidden Groups - DFDL-14-042R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[stringy,2]]></tdml:documentPart>
     </tdml:document>
-    <tdml:errors> 
-      <tdml:error>Schema Definition Error</tdml:error> 
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>circular</tdml:error>
-    </tdml:errors> 
- </tdml:parserTestCase>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="AS000" root="table" model="AS-Embedded"
-    description="hiddenGroupRef">
+                       description="hiddenGroupRef">
     <tdml:document>
-	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Creator: NCSA%LF;Date: Mon Feb 23 15:20:47 CST 2009%LF;0,1,2,3,4,5,6,7,8,9%LF;1,2,3,4,5,6,7,8,9,10%LF;2,3,4,5,6,7,8,9,10,11%LF;3,4,5,6,7,8,9,10,11,12%LF;4,5,6,7,8,9,10,11,12,13%LF;5,6,7,8,9,10,11,12,13,14%LF;6,7,8,9,10,11,12,13,14,15%LF;7,8,9,10,11,12,13,14,15,16%LF;8,9,10,11,12,13,14,15,16,17%LF;9,10,11,12,13,14,15,16,17,18%LF;]]></tdml:documentPart>
-	</tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[Creator: NCSA%LF;Date: Mon Feb 23 15:20:47 CST 2009%LF;0,1,2,3,4,5,6,7,8,9%LF;1,2,3,4,5,6,7,8,9,10%LF;2,3,4,5,6,7,8,9,10,11%LF;3,4,5,6,7,8,9,10,11,12%LF;4,5,6,7,8,9,10,11,12,13%LF;5,6,7,8,9,10,11,12,13,14%LF;6,7,8,9,10,11,12,13,14,15%LF;7,8,9,10,11,12,13,14,15,16%LF;8,9,10,11,12,13,14,15,16,17%LF;9,10,11,12,13,14,15,16,17,18%LF;]]></tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <table>
@@ -739,64 +739,64 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <tdml:defineSchema name="AS-Embedded">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
-          lengthKind="delimited" separator=""
-          leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
-          terminator="" initiatedContent="no" textNumberRep="standard"
-          separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix"
-          documentFinalTerminatorCanBeMissing='yes' textTrimKind="none"/>
+                 lengthKind="delimited" separator=""
+                 leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
+                 terminator="" initiatedContent="no" textNumberRep="standard"
+                 separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix"
+                 documentFinalTerminatorCanBeMissing='yes' textTrimKind="none"/>
 
-  <!-- CSV with metadata header, remove header -->
+    <!-- CSV with metadata header, remove header -->
 
-  <xs:element name="matrix" type="ex:matrixType" />
-  <xs:element name="table" type="ex:SimpleTable" />
+    <xs:element name="matrix" type="ex:matrixType" />
+    <xs:element name="table" type="ex:SimpleTable" />
 
-  <xs:group name="hdrGroup">
-    <xs:sequence>
-      <xs:element name="hdrblock" type="ex:header" />
-    </xs:sequence>
-  </xs:group>
+    <xs:group name="hdrGroup">
+      <xs:sequence>
+        <xs:element name="hdrblock" type="ex:header" />
+      </xs:sequence>
+    </xs:group>
 
-  <xs:complexType name="SimpleTable">
-    <xs:sequence>
-      <xs:sequence dfdl:hiddenGroupRef="ex:hdrGroup" />
-      <xs:element name="matrix" type="ex:matrixType" />
-    </xs:sequence>
-  </xs:complexType>
+    <xs:complexType name="SimpleTable">
+      <xs:sequence>
+        <xs:sequence dfdl:hiddenGroupRef="ex:hdrGroup" />
+        <xs:element name="matrix" type="ex:matrixType" />
+      </xs:sequence>
+    </xs:complexType>
 
-  <xs:complexType name="header">
-    <xs:sequence>
-      <xs:element name="Creator" type="xs:string" dfdl:terminator="%NL;"
-        dfdl:initiator="Creator:" dfdl:encoding="ASCII"
-        dfdl:lengthKind="delimited"
-        dfdl:outputValueCalc="{ ' NCSA' }" />
-      <xs:element name="Date" type="xs:string" dfdl:terminator="%NL;"
-        dfdl:initiator="Date:" dfdl:encoding="ASCII"
-        dfdl:outputValueCalc="{ ' Mon Feb 23 15:20:47 CST 2009' }" />
-    </xs:sequence>
-  </xs:complexType>
+    <xs:complexType name="header">
+      <xs:sequence>
+        <xs:element name="Creator" type="xs:string" dfdl:terminator="%NL;"
+                    dfdl:initiator="Creator:" dfdl:encoding="ASCII"
+                    dfdl:lengthKind="delimited"
+                    dfdl:outputValueCalc="{ ' NCSA' }" />
+        <xs:element name="Date" type="xs:string" dfdl:terminator="%NL;"
+                    dfdl:initiator="Date:" dfdl:encoding="ASCII"
+                    dfdl:outputValueCalc="{ ' Mon Feb 23 15:20:47 CST 2009' }" />
+      </xs:sequence>
+    </xs:complexType>
 
-  <xs:complexType name="matrixType">
-    <xs:sequence>
-      <xs:element name="row" maxOccurs="unbounded" dfdl:occursCountKind='parsed'>
-        <xs:complexType>
-          <xs:sequence dfdl:separator="," dfdl:terminator="%NL;"
-            dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:separatorPosition="infix">
-            <xs:element name="cell" type="xs:int" maxOccurs="unbounded"
-              dfdl:occursCountKind='parsed'
-              dfdl:encoding="ASCII" dfdl:representation="text"
-              dfdl:lengthKind="delimited" />
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-    </xs:sequence>
-  </xs:complexType>
+    <xs:complexType name="matrixType">
+      <xs:sequence>
+        <xs:element name="row" maxOccurs="unbounded" dfdl:occursCountKind='parsed'>
+          <xs:complexType>
+            <xs:sequence dfdl:separator="," dfdl:terminator="%NL;"
+                         dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:separatorPosition="infix">
+              <xs:element name="cell" type="xs:int" maxOccurs="unbounded"
+                          dfdl:occursCountKind='parsed'
+                          dfdl:encoding="ASCII" dfdl:representation="text"
+                          dfdl:lengthKind="delimited" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
 
   </tdml:defineSchema>
-  
+
   <tdml:defineSchema name="hiddenGroup5">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -815,7 +815,7 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
-  
+
   <tdml:defineSchema name="hiddenGroup6">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -827,17 +827,17 @@
     </xs:group>
     <xs:element name="e" dfdl:lengthKind="delimited">
       <xs:complexType>
-          <xs:sequence>
-            <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:sequence hiddenGroupRef="ex:ab"/>
-              </xs:appinfo>
-            </xs:annotation>
-          </xs:sequence>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:sequence hiddenGroupRef="ex:ab"/>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
-  
+
   <tdml:defineSchema name="hiddenGroup7">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
@@ -849,27 +849,27 @@
     </xs:group>
     <xs:element name="e" dfdl:lengthKind="delimited">
       <xs:complexType>
-          <xs:sequence>
-            <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:sequence>
-                  <dfdl:property name="hiddenGroupRef">ex:ab</dfdl:property>
-                </dfdl:sequence>
-              </xs:appinfo>
-            </xs:annotation>
-          </xs:sequence>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:sequence>
+                <dfdl:property name="hiddenGroupRef">ex:ab</dfdl:property>
+              </dfdl:sequence>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
-  
+
   <!--
     Test name: hiddenGroupIgnoredProps
        Schema: hiddenGroup5
       Purpose: This test demonstrates that when the dfdl:hiddenGroupRef property is specified, all other DFDL properties are ignored.
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupIgnoredProps" root="e"
-    model="hiddenGroup5" description="Section 14 - When the dfdl:hiddenGroupRef property is specified, all other DFDL properties are ignored. - DFDL-14-039R">
+                       model="hiddenGroup5" description="Section 14 - When the dfdl:hiddenGroupRef property is specified, all other DFDL properties are ignored. - DFDL-14-039R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1:2,3]]></tdml:documentPart>
     </tdml:document>
@@ -879,15 +879,15 @@
       <tdml:error>Unable to parse</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
   <!--
     Test name: hiddenGroupAttributeNotation
        Schema: hiddenGroup6
       Purpose: This test demonstrates that a hiddenGroupRef cannot be specified in attribute form within an annotation
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupAttributeNotation" root="e"
-    model="hiddenGroup6" description="SEE ERRATA 3.1 - attribute form no longer allowed for hiddenGroupRef (Previous req DFDL-7-018R)">
+                       model="hiddenGroup6" description="SEE ERRATA 3.1 - attribute form no longer allowed for hiddenGroupRef (Previous req DFDL-7-018R)">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1:2]]></tdml:documentPart>
     </tdml:document>
@@ -896,15 +896,15 @@
       <tdml:error>A sequence with hiddenGroupRef cannot have children</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
   <!--
     Test name: hiddenGroupElementNotation
        Schema: hiddenGroup7
       Purpose: This test demonstrates that a hiddenGroupRef cannot be specified in element form within an annotation
   -->
-  
+
   <tdml:parserTestCase name="hiddenGroupElementNotation" root="e"
-    model="hiddenGroup7" description="Section 7 - The hiddenGroupRef property may be specified in attribute or short form DFDL-7-018R">
+                       model="hiddenGroup7" description="Section 7 - The hiddenGroupRef property may be specified in attribute or short form DFDL-7-018R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1:2]]></tdml:documentPart>
     </tdml:document>
@@ -913,61 +913,61 @@
       <tdml:error>A sequence with hiddenGroupRef cannot have children</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
   <tdml:defineSchema name="AD-Embedded">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-    <dfdl:format ref="ex:GeneralFormat" 
-        lengthKind="delimited" separator=""
-        leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
-        terminator="" initiatedContent="no" textNumberRep="standard"
-        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
-        occursCountKind="parsed" textTrimKind="none"/>
+    <dfdl:format ref="ex:GeneralFormat"
+                 lengthKind="delimited" separator=""
+                 leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
+                 terminator="" initiatedContent="no" textNumberRep="standard"
+                 separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+                 occursCountKind="parsed" textTrimKind="none"/>
 
-  <!-- Evaluated occursCount based on hidden elements -->
+    <!-- Evaluated occursCount based on hidden elements -->
 
-  <xs:group name="xCountGroup">
-    <xs:sequence>
-      <xs:element name="xCount" type="xs:int" dfdl:representation="text"
-        dfdl:outputValueCalc="{ fn:count(../ex:x) }" />
-    </xs:sequence>
-  </xs:group>
-
-  <xs:group name="yCountGroup">
-    <xs:sequence>
-      <xs:element name="yCount" type="xs:int" dfdl:representation="text"
-        dfdl:outputValueCalc="{ fn:count(../ex:y) }" />
-    </xs:sequence>
-  </xs:group>
-
-  <xs:element name="list">
-    <xs:complexType>
+    <xs:group name="xCountGroup">
       <xs:sequence>
-        <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
-          <xs:sequence dfdl:hiddenGroupRef="ex:xCountGroup" />
-          <xs:element name="x" type="xs:string" maxOccurs="unbounded"
-            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:xCount }" />
-          <xs:sequence dfdl:hiddenGroupRef="ex:yCountGroup" />
-          <xs:element name="y" type="xs:string" maxOccurs="unbounded"
-            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:yCount }" />
-        </xs:sequence>
-        <xs:sequence dfdl:hiddenGroupRef="ex:leftOver" />
+        <xs:element name="xCount" type="xs:int" dfdl:representation="text"
+                    dfdl:outputValueCalc="{ fn:count(../ex:x) }" />
       </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+    </xs:group>
 
-  <xs:group name="leftOver">
-    <xs:sequence>
-      <xs:element name="leftOver" type="xs:string" dfdl:outputValueCalc="{ '' }" />
-    </xs:sequence>
-  </xs:group>
+    <xs:group name="yCountGroup">
+      <xs:sequence>
+        <xs:element name="yCount" type="xs:int" dfdl:representation="text"
+                    dfdl:outputValueCalc="{ fn:count(../ex:y) }" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="list">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:separator="%NL;" dfdl:separatorPosition="postfix">
+            <xs:sequence dfdl:hiddenGroupRef="ex:xCountGroup" />
+            <xs:element name="x" type="xs:string" maxOccurs="unbounded"
+                        dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:xCount }" />
+            <xs:sequence dfdl:hiddenGroupRef="ex:yCountGroup" />
+            <xs:element name="y" type="xs:string" maxOccurs="unbounded"
+                        dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:yCount }" />
+          </xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="ex:leftOver" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:group name="leftOver">
+      <xs:sequence>
+        <xs:element name="leftOver" type="xs:string" dfdl:outputValueCalc="{ '' }" />
+      </xs:sequence>
+    </xs:group>
   </tdml:defineSchema>
-  
+
   <tdml:parserTestCase name="AD000" root="list" model="AD-Embedded"
-    description="occursCount with expressions"
-    roundTrip="twoPass">
+                       description="occursCount with expressions"
+                       roundTrip="twoPass">
     <tdml:document>
-	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[3%LF;first x%LF;second x%LF;third x%LF;5%LF;first y%LF;second y%LF;third y%LF;fourth y%LF;fifth y%LF;ignored input%LF;more ignored input%LF;]]></tdml:documentPart>
-	</tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[3%LF;first x%LF;second x%LF;third x%LF;5%LF;first y%LF;second y%LF;third y%LF;fourth y%LF;fifth y%LF;ignored input%LF;more ignored input%LF;]]></tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <list>
@@ -983,55 +983,55 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
   <tdml:defineSchema name="AC-Embedded">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat"
-        lengthKind="delimited" separator=""
-        leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
-        terminator="" initiatedContent="no" textNumberRep="standard"
-        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
-        occursCountKind="parsed" textTrimKind="none"/>
+                 lengthKind="delimited" separator=""
+                 leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
+                 terminator="" initiatedContent="no" textNumberRep="standard"
+                 separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
+                 occursCountKind="parsed" textTrimKind="none"/>
 
-  <!-- Parsing values as a hidden layer, then
-    creating elements by evaluating XPath expressions on the layer -->
+    <!-- Parsing values as a hidden layer, then
+      creating elements by evaluating XPath expressions on the layer -->
 
-  <xs:group name="data">
-    <xs:sequence dfdl:separator="">
-      <xs:element name="_x" type="xs:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ xs:int(../ex:x) }" />
-      <xs:element name="_y" type="xs:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ xs:int(../ex:y) }" />
-      <xs:element name="_z" type="xs:int" dfdl:representation="text"
-        dfdl:terminator="%NL;" dfdl:outputValueCalc="{ xs:int(../ex:z) }" />
-    </xs:sequence>
-  </xs:group>
-
-  <xs:element name="table">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:sequence dfdl:hiddenGroupRef="ex:data" />
-        <xs:element name="product" type="xs:int"
-          dfdl:inputValueCalc="{ /ex:table/ex:_x * /ex:table/ex:_y * /ex:table/ex:_z }" />
-        <xs:element name="sum" type="xs:int"
-          dfdl:inputValueCalc="{ /ex:table/ex:_x + /ex:table/ex:_y + /ex:table/ex:_z }" />
-        <xs:element name="concat" type="xs:string"
-          dfdl:inputValueCalc="{ fn:concat(fn:concat(/ex:table/ex:_x,/ex:table/ex:_y),/ex:table/ex:_z) }" />
-        <xs:element name="x" type="xs:string" dfdl:inputValueCalc="{ xs:string(../ex:_x) }" />
-        <xs:element name="y" type="xs:string" dfdl:inputValueCalc="{ xs:string(../ex:_y) }" />
-        <xs:element name="z" type="xs:string" dfdl:inputValueCalc="{ xs:string(../ex:_z) }" />
-        <xs:element name="productAgain" type="xs:string"
-          dfdl:inputValueCalc="{ xs:string(../ex:product) }" />
+    <xs:group name="data">
+      <xs:sequence dfdl:separator="">
+        <xs:element name="_x" type="xs:int" dfdl:representation="text"
+                    dfdl:terminator="%NL;" dfdl:outputValueCalc="{ xs:int(../ex:x) }" />
+        <xs:element name="_y" type="xs:int" dfdl:representation="text"
+                    dfdl:terminator="%NL;" dfdl:outputValueCalc="{ xs:int(../ex:y) }" />
+        <xs:element name="_z" type="xs:int" dfdl:representation="text"
+                    dfdl:terminator="%NL;" dfdl:outputValueCalc="{ xs:int(../ex:z) }" />
       </xs:sequence>
-    </xs:complexType>
-  </xs:element>
+    </xs:group>
+
+    <xs:element name="table">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="ex:data" />
+          <xs:element name="product" type="xs:int"
+                      dfdl:inputValueCalc="{ /ex:table/ex:_x * /ex:table/ex:_y * /ex:table/ex:_z }" />
+          <xs:element name="sum" type="xs:int"
+                      dfdl:inputValueCalc="{ /ex:table/ex:_x + /ex:table/ex:_y + /ex:table/ex:_z }" />
+          <xs:element name="concat" type="xs:string"
+                      dfdl:inputValueCalc="{ fn:concat(fn:concat(/ex:table/ex:_x,/ex:table/ex:_y),/ex:table/ex:_z) }" />
+          <xs:element name="x" type="xs:string" dfdl:inputValueCalc="{ xs:string(../ex:_x) }" />
+          <xs:element name="y" type="xs:string" dfdl:inputValueCalc="{ xs:string(../ex:_y) }" />
+          <xs:element name="z" type="xs:string" dfdl:inputValueCalc="{ xs:string(../ex:_z) }" />
+          <xs:element name="productAgain" type="xs:string"
+                      dfdl:inputValueCalc="{ xs:string(../ex:product) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
   </tdml:defineSchema>
-  
+
   <tdml:parserTestCase name="AC000" root="table" model="AC-Embedded"
-    description="inputValueCalc expressions and hiddenGroupRef">
+                       description="inputValueCalc expressions and hiddenGroupRef">
     <tdml:document>
-	  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[10%LF;20%LF;30%LF;]]></tdml:documentPart>
-	</tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[10%LF;20%LF;30%LF;]]></tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <table>
@@ -1047,242 +1047,241 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-	<tdml:defineSchema name="nestedGroupRefs">
-		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <tdml:defineSchema name="nestedGroupRefs">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
-          occursCountKind='parsed'/>
+                 occursCountKind='parsed'/>
 
-		<xs:element name="root">
-			<xs:complexType>
-				<xs:group ref="ex:g0" dfdl:separator="%NL;"></xs:group>
-			</xs:complexType>
-		</xs:element>
-		<xs:group name="g0">
-			<xs:sequence dfdl:separatorPosition="infix">
-				<xs:element name="g0c0" minOccurs="0">
-					<xs:complexType>
-						<xs:group ref="ex:g1" dfdl:separator="|"></xs:group>
-					</xs:complexType>
-				</xs:element>
-			</xs:sequence>
-		</xs:group>
-		<xs:group name="g1">
-			<xs:sequence dfdl:separatorPosition="infix">
-				<xs:element name="g1c0" minOccurs="0">
-					<xs:complexType>
-						<xs:group ref="ex:g2" dfdl:separator=","></xs:group>
-					</xs:complexType>
-				</xs:element>
-			</xs:sequence>
-		</xs:group>
-		<xs:group name="g2">
-			<xs:sequence dfdl:separatorPosition="infix">
-				<xs:element name="g2c0" type="xs:string" />
-				<xs:element name="g2c1" type="xs:string" />
-				<xs:element name="g2c2" type="xs:string" />
-			</xs:sequence>
-		</xs:group>
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:group ref="ex:g0" dfdl:separator="%NL;"></xs:group>
+      </xs:complexType>
+    </xs:element>
+    <xs:group name="g0">
+      <xs:sequence dfdl:separatorPosition="infix">
+        <xs:element name="g0c0" minOccurs="0">
+          <xs:complexType>
+            <xs:group ref="ex:g1" dfdl:separator="|"></xs:group>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="g1">
+      <xs:sequence dfdl:separatorPosition="infix">
+        <xs:element name="g1c0" minOccurs="0">
+          <xs:complexType>
+            <xs:group ref="ex:g2" dfdl:separator=","></xs:group>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="g2">
+      <xs:sequence dfdl:separatorPosition="infix">
+        <xs:element name="g2c0" type="xs:string" />
+        <xs:element name="g2c1" type="xs:string" />
+        <xs:element name="g2c2" type="xs:string" />
+      </xs:sequence>
+    </xs:group>
 
-	</tdml:defineSchema>
+  </tdml:defineSchema>
 
-	<tdml:parserTestCase name="nestedGroupRefs" root="root"
-		model="nestedGroupRefs" description="Verify that nested group references are working properly - DFDL-14">
+  <tdml:parserTestCase name="nestedGroupRefs" root="root"
+                       model="nestedGroupRefs" description="Verify that nested group references are working properly - DFDL-14">
 
-		<tdml:document>
-		  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C|D,E,F|G,H,I%LF;A,B,C|D,E,F|G,H,I%LF;A,B,C|D,E,F|G,H,I]]></tdml:documentPart>
-		</tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C|D,E,F|G,H,I%LF;A,B,C|D,E,F|G,H,I%LF;A,B,C|D,E,F|G,H,I]]></tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<root>
-					<g0c0>
-						<g1c0>
-							<g2c0>A</g2c0>
-							<g2c1>B</g2c1>
-							<g2c2>C</g2c2>
-						</g1c0>
-						<g1c0>
-							<g2c0>D</g2c0>
-							<g2c1>E</g2c1>
-							<g2c2>F</g2c2>
-						</g1c0>
-						<g1c0>
-							<g2c0>G</g2c0>
-							<g2c1>H</g2c1>
-							<g2c2>I</g2c2>
-						</g1c0>
-					</g0c0>
-					<g0c0>
-						<g1c0>
-							<g2c0>A</g2c0>
-							<g2c1>B</g2c1>
-							<g2c2>C</g2c2>
-						</g1c0>
-						<g1c0>
-							<g2c0>D</g2c0>
-							<g2c1>E</g2c1>
-							<g2c2>F</g2c2>
-						</g1c0>
-						<g1c0>
-							<g2c0>G</g2c0>
-							<g2c1>H</g2c1>
-							<g2c2>I</g2c2>
-						</g1c0>
-					</g0c0>
-					<g0c0>
-						<g1c0>
-							<g2c0>A</g2c0>
-							<g2c1>B</g2c1>
-							<g2c2>C</g2c2>
-						</g1c0>
-						<g1c0>
-							<g2c0>D</g2c0>
-							<g2c1>E</g2c1>
-							<g2c2>F</g2c2>
-						</g1c0>
-						<g1c0>
-							<g2c0>G</g2c0>
-							<g2c1>H</g2c1>
-							<g2c2>I</g2c2>
-						</g1c0>
-					</g0c0>
-				</root>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <g0c0>
+            <g1c0>
+              <g2c0>A</g2c0>
+              <g2c1>B</g2c1>
+              <g2c2>C</g2c2>
+            </g1c0>
+            <g1c0>
+              <g2c0>D</g2c0>
+              <g2c1>E</g2c1>
+              <g2c2>F</g2c2>
+            </g1c0>
+            <g1c0>
+              <g2c0>G</g2c0>
+              <g2c1>H</g2c1>
+              <g2c2>I</g2c2>
+            </g1c0>
+          </g0c0>
+          <g0c0>
+            <g1c0>
+              <g2c0>A</g2c0>
+              <g2c1>B</g2c1>
+              <g2c2>C</g2c2>
+            </g1c0>
+            <g1c0>
+              <g2c0>D</g2c0>
+              <g2c1>E</g2c1>
+              <g2c2>F</g2c2>
+            </g1c0>
+            <g1c0>
+              <g2c0>G</g2c0>
+              <g2c1>H</g2c1>
+              <g2c2>I</g2c2>
+            </g1c0>
+          </g0c0>
+          <g0c0>
+            <g1c0>
+              <g2c0>A</g2c0>
+              <g2c1>B</g2c1>
+              <g2c2>C</g2c2>
+            </g1c0>
+            <g1c0>
+              <g2c0>D</g2c0>
+              <g2c1>E</g2c1>
+              <g2c2>F</g2c2>
+            </g1c0>
+            <g1c0>
+              <g2c0>G</g2c0>
+              <g2c1>H</g2c1>
+              <g2c2>I</g2c2>
+            </g1c0>
+          </g0c0>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
 
-	<tdml:defineSchema name="nestedGroupRefs2">
-		<xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-        <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" 
-          occursCountKind='parsed'/>
+  <tdml:defineSchema name="nestedGroupRefs2">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+                 occursCountKind='parsed'/>
 
-		<xs:element name="root">
-			<xs:complexType>
-				<xs:group ref="ex:g0" dfdl:separator="%NL;"></xs:group>
-			</xs:complexType>
-		</xs:element>
-		<xs:group name="g0">
-			<xs:sequence dfdl:separatorPosition="infix">
-				<xs:element name="g0c0" minOccurs="0">
-					<xs:complexType>
-						<xs:group ref="ex:g1" dfdl:separator="|"></xs:group>
-					</xs:complexType>
-				</xs:element>
-			</xs:sequence>
-		</xs:group>
-		<xs:group name="g1">
-			<xs:sequence dfdl:separatorPosition="infix">
-				<xs:element name="g1c0" minOccurs="0">
-					<xs:complexType>
-						<xs:group ref="ex:g2" dfdl:separator=","></xs:group>
-					</xs:complexType>
-				</xs:element>
-			</xs:sequence>
-		</xs:group>
-		<xs:group name="g2">
-			<xs:sequence dfdl:separatorPosition="infix">
-				<xs:element name="g2c0" type="xs:string" />
-				<xs:element name="g2c1" type="xs:string" />
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:group ref="ex:g0" dfdl:separator="%NL;"></xs:group>
+      </xs:complexType>
+    </xs:element>
+    <xs:group name="g0">
+      <xs:sequence dfdl:separatorPosition="infix">
+        <xs:element name="g0c0" minOccurs="0">
+          <xs:complexType>
+            <xs:group ref="ex:g1" dfdl:separator="|"></xs:group>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="g1">
+      <xs:sequence dfdl:separatorPosition="infix">
+        <xs:element name="g1c0" minOccurs="0">
+          <xs:complexType>
+            <xs:group ref="ex:g2" dfdl:separator=","></xs:group>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="g2">
+      <xs:sequence dfdl:separatorPosition="infix">
+        <xs:element name="g2c0" type="xs:string" />
+        <xs:element name="g2c1" type="xs:string" />
         <xs:element name="g2c2" type="xs:string" />
         <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
         <xs:group ref="ex:vg" />
-			</xs:sequence>
+      </xs:sequence>
     </xs:group>
     <xs:group name="hg">
       <xs:choice>
         <xs:element name="inty" type="xs:int"
-          dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ 1 }" />
+                    dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ 1 }" />
         <xs:element name="stringy" type="xs:string"
-          dfdl:lengthKind="delimited" />
+                    dfdl:lengthKind="delimited" />
       </xs:choice>
     </xs:group>
     <xs:group name="vg">
       <xs:choice>
         <xs:element name="inty" type="xs:int"
-          dfdl:lengthKind="delimited" />
+                    dfdl:lengthKind="delimited" />
         <xs:element name="stringy" type="xs:string"
-          dfdl:lengthKind="delimited" />
+                    dfdl:lengthKind="delimited" />
       </xs:choice>
     </xs:group>
 
   </tdml:defineSchema>
 
-	<tdml:parserTestCase name="nestedGroupRefs2" root="root"
-		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R"
-		roundTrip="twoPass">
+  <tdml:parserTestCase name="nestedGroupRefs2" root="root"
+                       model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R"
+                       roundTrip="twoPass">
 
-		<tdml:document>
-		  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z%LF;A,B,C,x,1|D,E,F,y,2|G,H,I,z,3%LF;A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:documentPart>
-		</tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z%LF;A,B,C,x,1|D,E,F,y,2|G,H,I,z,3%LF;A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:documentPart>
+    </tdml:document>
 
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<root>
-					<g0c0>
-						<g1c0>
-							<g2c0>A</g2c0>
-							<g2c1>B</g2c1>
-							<g2c2>C</g2c2>
-							<stringy>x</stringy>
-						</g1c0>
-						<g1c0>
-							<g2c0>D</g2c0>
-							<g2c1>E</g2c1>
-							<g2c2>F</g2c2>
-							<stringy>y</stringy>
-						</g1c0>
-						<g1c0>
-							<g2c0>G</g2c0>
-							<g2c1>H</g2c1>
-							<g2c2>I</g2c2>
-							<stringy>z</stringy>
-						</g1c0>
-					</g0c0>
-					<g0c0>
-						<g1c0>
-							<g2c0>A</g2c0>
-							<g2c1>B</g2c1>
-							<g2c2>C</g2c2>
-							<inty>1</inty>
-						</g1c0>
-						<g1c0>
-							<g2c0>D</g2c0>
-							<g2c1>E</g2c1>
-							<g2c2>F</g2c2>
-							<inty>2</inty>
-						</g1c0>
-						<g1c0>
-							<g2c0>G</g2c0>
-							<g2c1>H</g2c1>
-							<g2c2>I</g2c2>
-							<inty>3</inty>
-						</g1c0>
-					</g0c0>
-					<g0c0>
-						<g1c0>
-							<g2c0>A</g2c0>
-							<g2c1>B</g2c1>
-							<g2c2>C</g2c2>
-							<stringy>u</stringy>
-						</g1c0>
-						<g1c0>
-							<g2c0>D</g2c0>
-							<g2c1>E</g2c1>
-							<g2c2>F</g2c2>
-							<stringy>v</stringy>
-						</g1c0>
-						<g1c0>
-							<g2c0>G</g2c0>
-							<g2c1>H</g2c1>
-							<g2c2>I</g2c2>
-							<stringy>w</stringy>
-						</g1c0>
-					</g0c0>
-				</root>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <g0c0>
+            <g1c0>
+              <g2c0>A</g2c0>
+              <g2c1>B</g2c1>
+              <g2c2>C</g2c2>
+              <stringy>x</stringy>
+            </g1c0>
+            <g1c0>
+              <g2c0>D</g2c0>
+              <g2c1>E</g2c1>
+              <g2c2>F</g2c2>
+              <stringy>y</stringy>
+            </g1c0>
+            <g1c0>
+              <g2c0>G</g2c0>
+              <g2c1>H</g2c1>
+              <g2c2>I</g2c2>
+              <stringy>z</stringy>
+            </g1c0>
+          </g0c0>
+          <g0c0>
+            <g1c0>
+              <g2c0>A</g2c0>
+              <g2c1>B</g2c1>
+              <g2c2>C</g2c2>
+              <inty>1</inty>
+            </g1c0>
+            <g1c0>
+              <g2c0>D</g2c0>
+              <g2c1>E</g2c1>
+              <g2c2>F</g2c2>
+              <inty>2</inty>
+            </g1c0>
+            <g1c0>
+              <g2c0>G</g2c0>
+              <g2c1>H</g2c1>
+              <g2c2>I</g2c2>
+              <inty>3</inty>
+            </g1c0>
+          </g0c0>
+          <g0c0>
+            <g1c0>
+              <g2c0>A</g2c0>
+              <g2c1>B</g2c1>
+              <g2c2>C</g2c2>
+              <stringy>u</stringy>
+            </g1c0>
+            <g1c0>
+              <g2c0>D</g2c0>
+              <g2c1>E</g2c1>
+              <g2c2>F</g2c2>
+              <stringy>v</stringy>
+            </g1c0>
+            <g1c0>
+              <g2c0>G</g2c0>
+              <g2c1>H</g2c1>
+              <g2c2>I</g2c2>
+              <stringy>w</stringy>
+            </g1c0>
+          </g0c0>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
 
@@ -1291,7 +1290,7 @@
     <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
 
     <xs:element name="emptySeq" type="ex:complexEmptySeq" dfdl:lengthKind="implicit"/>
-    
+
     <xs:complexType name="complexEmptySeq">
       <xs:sequence/>
     </xs:complexType>
@@ -1302,9 +1301,9 @@
        Schema: emptySDEschema
       Purpose: This test demonstrates that DFDL allows complexTypes with empty content (not to be confused with NO content)
   -->
-  
+
   <tdml:parserTestCase name="noDefaultSeqKind" root="emptySeq"
-    model="noDefault" description="Section 14 - DFDL-14-007R.">
+                       model="noDefault" description="Section 14 - DFDL-14-007R.">
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
@@ -1317,7 +1316,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="sequenceWithComplexType" root="e1"
-	model="sequenceWithComplexType.dfdl.xsd" description="">
+                       model="sequenceWithComplexType.dfdl.xsd" description="">
 
     <tdml:document>-;test;test2/</tdml:document>
     <tdml:infoset>
@@ -1361,7 +1360,7 @@
   -->
 
   <tdml:parserTestCase name="hiddenGroupSeqWithRequiredElements" root="e"
-    model="hiddenGroupSeqWithRequiredElements" description="Section 14 - Hidden Groups - DFDL-14-042R">
+                       model="hiddenGroupSeqWithRequiredElements" description="Section 14 - Hidden Groups - DFDL-14-042R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[145,2]]></tdml:documentPart>
     </tdml:document>
@@ -1401,7 +1400,7 @@
   -->
 
   <tdml:parserTestCase name="hiddenGroupChoiceWithAllRequiredBranches" root="e"
-    model="hiddenGroupChoiceWithAllRequiredBranches" description="Section 14 - Hidden Groups - DFDL-14-042R">
+                       model="hiddenGroupChoiceWithAllRequiredBranches" description="Section 14 - Hidden Groups - DFDL-14-042R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[145,2]]></tdml:documentPart>
     </tdml:document>
@@ -1452,7 +1451,7 @@
 
 
   <tdml:parserTestCase name="sequence_group_with_annotation_01" root="e1"
-    model="groupsWithAnnotations" description="Section 14 - Groups - DFDL-14-042R">
+                       model="groupsWithAnnotations" description="Section 14 - Groups - DFDL-14-042R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[10st]]></tdml:documentPart>
     </tdml:document>
@@ -1467,7 +1466,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="choice_group_with_annotation_01" root="e2"
-    model="groupsWithAnnotations" description="Section 14 - Groups - DFDL-14-042R">
+                       model="groupsWithAnnotations" description="Section 14 - Groups - DFDL-14-042R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[st]]></tdml:documentPart>
     </tdml:document>
@@ -1481,7 +1480,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="similar_model_groups_01" root="root"
-    model="SimilarModelGroupRoot.dfdl.xsd" description="Section 14 - Groups - DFDL-14-042R">
+                       model="SimilarModelGroupRoot.dfdl.xsd" description="Section 14 - Groups - DFDL-14-042R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[0a0b]]></tdml:documentPart>
     </tdml:document>
@@ -1507,7 +1506,7 @@
 
     <xs:group name="hg">
       <xs:sequence>
-        <xs:element name="original" type="xs:int" dfdl:outputValueCalc="{ (../ex:value - 1) div 2 }" />
+        <xs:element name="original" type="xs:int" dfdl:outputValueCalc="{ xs:int((../ex:value - 1) div 2) }" />
         <xs:element name="transformed" type="xs:int" dfdl:inputValueCalc="{ ../ex:original * 2 }" />
       </xs:sequence>
     </xs:group>
@@ -1523,7 +1522,7 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="hiddenGroupIVC" root="e"
-    model="hiddenGroupIVC" description="Section 14 - Groups - DFDL-14-042R">
+                       model="hiddenGroupIVC" description="Section 14 - Groups - DFDL-14-042R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[3]]></tdml:documentPart>
     </tdml:document>

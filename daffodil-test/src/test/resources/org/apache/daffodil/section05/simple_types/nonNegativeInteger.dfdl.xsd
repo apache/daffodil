@@ -26,15 +26,14 @@
 		schemaLocation="/IBMdefined/GeneralPurposeFormat.xsd" />
 	<xsd:annotation>
 		<xsd:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format ref="fmt:GeneralPurposeFormat" />
+			<dfdl:format ref="fmt:GeneralPurposeFormat" encodingErrorPolicy="replace"/>
 		</xsd:appinfo>
 	</xsd:annotation>
 
 	<xsd:element dfdl:initiator="Date:%SP;" dfdl:terminator="%NL;"
 		ibmSchExtn:docRoot="true" name="Date">
 		<xsd:complexType>
-			<xsd:sequence dfdl:initiator="" dfdl:separator="%SP;"
-				dfdl:separatorPolicy="suppressed">
+			<xsd:sequence dfdl:initiator="" dfdl:separator="%SP;">
 				<xsd:element dfdl:length="2" dfdl:lengthKind="explicit"
 					dfdl:textNumberPattern="#0" ibmDfdlExtn:sampleValue="1" name="Day">
 					<xsd:simpleType>

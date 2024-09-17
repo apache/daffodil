@@ -544,7 +544,7 @@
           <xs:element name="e1" maxOccurs="unbounded">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:assert message="{ dfdl:contentLength(., 'bytes') }">{ dfdl:contentLength(., 'bytes') eq 3 }</dfdl:assert>
+                <dfdl:assert message="{ fn:concat(xs:string(dfdl:contentLength(., 'bytes')), ' ne 3') }">{ dfdl:contentLength(., 'bytes') eq 3 }</dfdl:assert>
               </xs:appinfo>
             </xs:annotation>
             <xs:complexType>
@@ -4442,7 +4442,7 @@
           <xs:element name="one" type="xs:int" dfdl:lengthKind="delimited"/>
           <xs:element name="two" type="xs:float" dfdl:lengthKind="delimited"/>
           <xs:element name="three" type="xs:long" dfdl:lengthKind="delimited" />
-          <xs:element name="absval" type="xs:float" dfdl:inputValueCalc="{ fn:abs(../ex:one - ../ex:two - ../ex:three) }"/>
+          <xs:element name="absval" type="xs:float" dfdl:inputValueCalc="{ xs:float(fn:abs(../ex:one - ../ex:two - ../ex:three)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4453,7 +4453,7 @@
           <xs:element name="one" type="xs:int" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="1"/>
           <xs:element name="two" type="xs:float"  dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="4"/>
           <xs:element name="three" type="xs:short" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="2"/>
-          <xs:element name="absval" type="xs:float" dfdl:inputValueCalc="{ fn:abs(../ex:one - ../ex:two - ../ex:three) }"/>
+          <xs:element name="absval" type="xs:float" dfdl:inputValueCalc="{ xs:float(fn:abs(../ex:one - ../ex:two - ../ex:three)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -14840,7 +14840,7 @@
 		<xs:element name="root">
 			<xs:complexType>
 				<xs:sequence>
-					<xs:element type="xs:double" name="DoubleValue" dfdl:length="8" />
+					<xs:element type="xs:double" name="DoubleValue" dfdl:lengthKind="explicit" dfdl:length="8" />
 					<xs:element type="xs:long" name="LongValue" dfdl:inputValueCalc="{ dfdlx:doubleToRawLong(../ex:DoubleValue) }" />
 				</xs:sequence>
 			</xs:complexType>
@@ -14865,7 +14865,7 @@
         <xs:element name="root">
           <xs:complexType>
             <xs:sequence>
-              <xs:element type="xs:long" name="LongValue" dfdl:length="8" />
+              <xs:element type="xs:long" name="LongValue" dfdl:lengthKind="explicit" dfdl:length="8" />
               <xs:element type="xs:double" name="DoubleValue" dfdl:inputValueCalc="{ dfdlx:doubleFromRawLong(../ex:LongValue) }" />
             </xs:sequence>
           </xs:complexType>
