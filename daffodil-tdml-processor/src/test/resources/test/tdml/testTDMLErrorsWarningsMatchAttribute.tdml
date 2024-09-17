@@ -102,6 +102,8 @@
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" occursCountKind="implicit"/>
 
+    <xs:element name="causesSDE" type="xs:boolean" dfdl:inputValueCalc="{ 'whatever' }"/>
+
     <xs:element name="causesUnparseError" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence>
@@ -162,6 +164,24 @@
       <tdml:warning>query-style</tdml:warning>
     </tdml:warnings>
   </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="getsErrorExpectsNoErrors"
+                         root="causesSDE" model="causesErrors">
+    <tdml:document></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:causesSDE>whatever</ex:causesSDE>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>AmbigElt</tdml:warning>
+      <tdml:warning>query-style</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
 
 
   <tdml:parserTestCase name="expectsAnyValidationError" root="causesValidationError"

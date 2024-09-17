@@ -2484,7 +2484,6 @@
         </a>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:validationErrors />
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="runtimeSdeWithRestriction">

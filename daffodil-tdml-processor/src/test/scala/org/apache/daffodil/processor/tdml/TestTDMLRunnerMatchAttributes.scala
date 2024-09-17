@@ -59,7 +59,19 @@ class TestTDMLRunnerMatchAttributes {
     val errMsg = e.getMessage()
     assertTrue(
       errMsg.contains(
-        "ignoreUnexpectedDiags = false and test does not expect Warning diagnostics"
+        "ignoreUnexpectedWarnings = false and test does not expect Warning diagnostics"
+      )
+    )
+  }
+
+  @Test def test_getsErrorExpectsNoErrors() = {
+    val e = intercept[TDMLException] {
+      runner.runOneTest("getsErrorExpectsNoErrors")
+    }
+    val errMsg = e.getMessage()
+    assertTrue(
+      errMsg.contains(
+        "test does not expect Error diagnostics"
       )
     )
   }
@@ -145,7 +157,9 @@ class TestTDMLRunnerMatchAttributes {
     runner.reset
     val msg = e.getMessage()
     assertTrue(
-      msg.contains("ignoreUnexpectedDiags = false and test does not expect Warning diagnostics")
+      msg.contains(
+        "ignoreUnexpectedWarnings = false and test does not expect Warning diagnostics"
+      )
     )
   }
 
