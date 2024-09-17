@@ -871,7 +871,6 @@
         <ex:int>201</ex:int>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:validationErrors /> <!-- make sure there are no validation errors -->
   </tdml:parserTestCase>
 
   <tdml:parserTestCase
@@ -903,7 +902,6 @@
         <ex:int>200</ex:int>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:validationErrors /> <!-- make sure there are no validation errors -->
   </tdml:parserTestCase>
 
 </tdml:testSuite>

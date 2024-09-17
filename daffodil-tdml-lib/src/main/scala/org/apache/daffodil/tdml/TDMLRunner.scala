@@ -171,7 +171,10 @@ private[tdml] object DFDLTestSuite {
  * during cross testing.
  *
  * defaultIgnoreUnexpectedWarningsDefault specifies whether a test should ignore unexpected warnings (i.e it creates
- * warnings, but there is no tdml:warnings elements)
+ * warnings, but there is no tdml:warnings element)
+ *
+ * defaultIgnoreUnexpectedValidationErrorsDefault specifies whether a test should ignore unexpected validation errors (i.e it creates
+ * validation errors, but there is no tdml:validationErrors element)
  */
 
 class DFDLTestSuite private[tdml] (
@@ -185,7 +188,8 @@ class DFDLTestSuite private[tdml] (
   val defaultImplementationsDefault: Seq[String],
   val shouldDoErrorComparisonOnCrossTests: Boolean,
   val shouldDoWarningComparisonOnCrossTests: Boolean,
-  val defaultIgnoreUnexpectedWarningsDefault: Boolean
+  val defaultIgnoreUnexpectedWarningsDefault: Boolean,
+  val defaultIgnoreUnexpectedValidationErrorsDefault: Boolean
 ) {
 
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
@@ -423,6 +427,10 @@ class DFDLTestSuite private[tdml] (
     val str = (ts \ "@defaultIgnoreUnexpectedWarnings").text
     if (str == "") defaultIgnoreUnexpectedWarningsDefault else str.toBoolean
   }
+  lazy val defaultIgnoreUnexpectedValidationErrors = {
+    val str = (ts \ "@defaultIgnoreUnexpectedValidationErrors").text
+    if (str == "") defaultIgnoreUnexpectedValidationErrorsDefault else str.toBoolean
+  }
 
   lazy val embeddedSchemas = {
     val res = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
@@ -619,6 +627,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   lazy val defaultRoundTrip: RoundTrip = parent.defaultRoundTrip
   lazy val defaultValidationMode: ValidationMode.Type = parent.defaultValidationMode
   lazy val defaultIgnoreUnexpectedWarnings: Boolean = parent.defaultIgnoreUnexpectedWarnings
+  lazy val defaultIgnoreUnexpectedValidationErrors: Boolean =
+    parent.defaultIgnoreUnexpectedValidationErrors
 
   private lazy val defaultImplementations: Seq[String] = parent.defaultImplementations
   private lazy val tcImplementations = (testCaseXML \ "@implementations").text
@@ -730,6 +740,11 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   lazy val ignoreUnexpectedWarnings: Boolean =
     if (tcIgnoreUnexpectedWarnings == "") defaultIgnoreUnexpectedWarnings
     else tcIgnoreUnexpectedWarnings.toBoolean
+  lazy val tcIgnoreUnexpectedValidationErrors: String =
+    (testCaseXML \ "@ignoreUnexpectedValidationErrors").text
+  lazy val ignoreUnexpectedValidationErrors: Boolean =
+    if (tcIgnoreUnexpectedValidationErrors == "") defaultIgnoreUnexpectedValidationErrors
+    else tcIgnoreUnexpectedValidationErrors.toBoolean
 
   lazy val description = (testCaseXML \ "@description").text
   lazy val unsupported = (testCaseXML \ "@unsupported").text match {
@@ -741,20 +756,6 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
     case "" => defaultValidationMode
     case mode => ValidationMode.fromString(mode)
   }
-
-  lazy val shouldValidate = validationMode != ValidationMode.Off
-  lazy val ignoreUnexpectedValidationErrors = if (optExpectedValidationErrors.isDefined) {
-    optExpectedValidationErrors.get.exists(
-      _.hasDiagnostics
-    ) // ignore unexpected validation errors will be false if <tdml:validationErrors /> or true
-    // if there are children under validationErrors
-  } else {
-    true // ignore unexpected validation errors if there is no validationErrors element
-  }
-  lazy val expectsValidationError =
-    if (optExpectedValidationErrors.isDefined)
-      optExpectedValidationErrors.get.exists(_.hasDiagnostics)
-    else false
 
   protected def runProcessor(
     compileResult: TDML.CompileResult,
@@ -1063,7 +1064,14 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     (optExpectedInfoset, optExpectedErrors) match {
       case (Some(_), None) => {
         compileResult match {
-          case Left(diags) => throw TDMLException(diags, implString)
+          case Left(diags) =>
+            checkDiagnosticMessages(
+              diags,
+              optExpectedErrors,
+              optExpectedWarnings,
+              optExpectedValidationErrors,
+              implString
+            )
           case Right((diags, proc)) => {
             processor = proc
             runParseExpectSuccess(
@@ -1265,10 +1273,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       optExpectedValidationErrors,
       implString
     )
-    if (shouldValidate && !expectsValidationError)
-      Assert.invariant(!actual.isValidationError)
-    else if (expectsValidationError)
-      Assert.invariant(actual.isValidationError)
   }
 
   /**
@@ -1691,11 +1695,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val xmlNode = parseActual.getResult
       VerifyTestCase.verifyParserTestData(xmlNode, inputInfoset, implString)
 
-      if (shouldValidate && !expectsValidationError)
-        Assert.invariant(!actual.isValidationError)
-      else if (expectsValidationError)
-        Assert.invariant(actual.isValidationError)
-
       leftOverException.map {
         throw _
       } // if we get here, throw the left over data exception.
@@ -1867,9 +1866,7 @@ object VerifyTestCase {
     val actualDiagsFilteredMessages = actualDiagsFiltered.map(_.toString())
 
     // throw exception if we have no actualDiags, but have expected diagnostics
-    val hasExpectedDiagnostics = (expectedDiags.isDefined
-      && expectedDiags.get.exists(_.hasDiagnostics))
-    if (hasExpectedDiagnostics && actualDiagsFiltered.isEmpty) {
+    if (expectedDiags.isDefined && actualDiagsFiltered.isEmpty) {
       throw TDMLException(
         """"Diagnostic message(s) were expected but not found."""" +
           "\n" +
@@ -1884,12 +1881,15 @@ object VerifyTestCase {
       )
     }
 
-    val hasUnexpectedDiags =
-      (expectedDiags.isEmpty || !expectedDiags.get.exists(_.hasDiagnostics)) &&
-        actualDiagsFiltered.nonEmpty
+    val hasUnexpectedDiags = expectedDiags.isEmpty && actualDiagsFiltered.nonEmpty
     if (hasUnexpectedDiags && !ignoreUnexpectedDiags) {
+      val flagMessage = diagnosticType match {
+        case DiagnosticType.ValidationError => "ignoreUnexpectedValidationErrors = false and "
+        case DiagnosticType.Warning => "ignoreUnexpectedWarnings = false and "
+        case DiagnosticType.Error => ""
+      }
       throw TDMLException(
-        s"ignoreUnexpectedDiags = false and test does not expect ${diagnosticType} diagnostics, but created the following: " +
+        s"${flagMessage}test does not expect ${diagnosticType} diagnostics, but created the following: " +
           s"${actualDiagsFilteredMessages.mkString("\n")}",
         implString
       )
@@ -2858,14 +2858,7 @@ abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
 case class ExpectedErrors(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
-  val diagnosticNodes = {
-    val nodes = (node \\ "error")
-    if (nodes.isEmpty) {
-      throw TDMLException("tdml:errors must have at least one child element", None)
-    } else {
-      nodes
-    }
-  }
+  val diagnosticNodes = (node \\ "error")
   override def isError = true
   override def diagnosticType: DiagnosticType = DiagnosticType.Error
 
@@ -2874,14 +2867,7 @@ case class ExpectedErrors(node: NodeSeq, parent: TestCase)
 case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
-  val diagnosticNodes = {
-    val nodes = (node \\ "warning")
-    if (nodes.isEmpty) {
-      throw TDMLException("tdml:warnings must have at least one child element", None)
-    } else {
-      nodes
-    }
-  }
+  val diagnosticNodes = (node \\ "warning")
   override def isError = false
   override def diagnosticType: DiagnosticType = DiagnosticType.Warning
 
@@ -2890,7 +2876,7 @@ case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
 case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
-  val diagnosticNodes = node \\ "error"
+  val diagnosticNodes = (node \\ "error")
   override def isError = true
   override def diagnosticType: DiagnosticType = DiagnosticType.ValidationError
 

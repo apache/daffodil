@@ -51,6 +51,7 @@ public class TestRunnerFactory {
       NoRoundTrip$.MODULE$,
       "off",
       JavaConverters.asScalaBufferConverter(Arrays.asList("daffodil", "ibm")).asScala(),
+      false,
       false);
     runner.runOneTest("testPass");
     runner.reset();
