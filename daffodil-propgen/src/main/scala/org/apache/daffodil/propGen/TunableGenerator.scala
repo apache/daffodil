@@ -106,10 +106,6 @@ class TunableGenerator(schemaRootConfig: scala.xml.Node, schemaRootExt: scala.xm
     |    }
     |  }
     |
-    |  def notSuppressedWarning(warnID: WarnID) =
-    |    !suppressSchemaDefinitionWarnings.contains(warnID) &&
-    |      !suppressSchemaDefinitionWarnings.contains(WarnID.All)
-    |
     |  private def throwInvalidTunableValue(tunable: String, value: String) = {
     |    throw new IllegalArgumentException("Invalid value for tunable " + tunable + ": " + value)
     |  }

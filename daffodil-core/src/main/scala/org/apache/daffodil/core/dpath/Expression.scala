@@ -54,6 +54,8 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
   override lazy val tunable: DaffodilTunables = parent.tunable
   override lazy val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy =
     parent.unqualifiedPathStepPolicy
+  override lazy val localSuppressSchemaDefinitionWarnings: Seq[WarnID] =
+    parent.localSuppressSchemaDefinitionWarnings
 
   /**
    * Override where we traverse/access elements.
@@ -463,6 +465,8 @@ case class WholeExpression(
   final override lazy val tunable: DaffodilTunables = host.tunable
   final override lazy val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy =
     host.unqualifiedPathStepPolicy
+  final override lazy val localSuppressSchemaDefinitionWarnings: Seq[WarnID] =
+    host.localSuppressSchemaDefinitionWarnings
 
   def init(): Unit = {
     this.setOOLAGContext(

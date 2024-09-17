@@ -220,7 +220,8 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
       maybeCheckByteAndBitOrderEv,
       maybeCheckBitOrderAndCharsetEv,
       isQuasiElement,
-      runtimeProperties
+      runtimeProperties,
+      localSuppressSchemaDefinitionWarnings
     )
     newERD
   }.value

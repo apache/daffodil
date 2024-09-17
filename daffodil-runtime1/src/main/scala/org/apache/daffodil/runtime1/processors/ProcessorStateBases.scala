@@ -566,8 +566,12 @@ abstract class ParseOrUnparseState protected (
   }
 
   final def SDW(warnID: WarnID, str: String, args: Any*) = {
-    if (tunable.notSuppressedWarning(warnID)) {
-      val ctxt = getContext()
+    val ctxt = getContext()
+    val lssdw = ctxt.localSuppressSchemaDefinitionWarnings
+    val tssdw = tunable.suppressSchemaDefinitionWarnings
+    val suppress = lssdw.contains(warnID) || lssdw.contains(WarnID.All) ||
+      tssdw.contains(warnID) || tssdw.contains(WarnID.All)
+    if (!suppress) {
       val rsdw =
         new RuntimeSchemaDefinitionWarning(warnID, ctxt.schemaFileLocation, this, str, args: _*)
       diagnostics = rsdw :: diagnostics

@@ -58,6 +58,8 @@ abstract class Gram(contextArg: SchemaComponent)
   final override def namespaces = context.namespaces
   final override def unqualifiedPathStepPolicy = context.unqualifiedPathStepPolicy
   final override def schemaFileLocation = context.schemaFileLocation
+  final override def localSuppressSchemaDefinitionWarnings =
+    context.localSuppressSchemaDefinitionWarnings
 
   final override def SDE(str: String, args: Any*): Nothing = context.SDE(str, args: _*)
 
