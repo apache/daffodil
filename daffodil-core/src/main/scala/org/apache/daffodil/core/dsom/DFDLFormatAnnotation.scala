@@ -195,20 +195,36 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     res
   }
 
+  /**
+   * Some properties (e.g. dfdl:ref, daf:suppressSchemaDefinitionWarnings) do not follow normal
+   * scoping rules and so are manually handled elsewhere in Daffodil. These are the lists of
+   * those properties used to exlucde them from property lookups.
+   */
+  private lazy val nonStandardDfdlProperties = Seq("ref")
+  private lazy val nonStandardDfdlxProperties = Seq()
+  private lazy val nonStandardDafProperties = Seq("suppressSchemaDefinitionWarnings")
+
   private lazy val shortFormProperties: Set[PropItem] =
     LV[Set[PropItem]]('shortFormProperties) {
       // shortForm properties should be prefixed by dfdl
       // Remove the dfdl prefix from the attributes so that they
       // can be properly combined later.
-      val dfdlKvPairs = XMLUtils.dfdlAttributes(annotatedSC.xml).asAttrMap.map {
-        case (key: String, value: String) => (removePrefix(key), value)
-      }
-      val dfdlxKvPairs = XMLUtils.dfdlxAttributes(annotatedSC.xml).asAttrMap.map {
-        case (key: String, value: String) => (removePrefix(key), value)
-      }
-      val dafKvPairs = XMLUtils.dafAttributes(annotatedSC.xml).asAttrMap.map {
-        case (key: String, value: String) => (removePrefix(key), value)
-      }
+      val dfdlKvPairs = XMLUtils
+        .dfdlAttributes(annotatedSC.xml)
+        .asAttrMap
+        .map { kv => (removePrefix(kv._1), kv._2) }
+        .filterNot { kv => nonStandardDfdlProperties.contains(kv._1) }
+      val dfdlxKvPairs = XMLUtils
+        .dfdlxAttributes(annotatedSC.xml)
+        .asAttrMap
+        .map { kv => (removePrefix(kv._1), kv._2) }
+        .filterNot { kv => nonStandardDfdlxProperties.contains(kv._1) }
+      val dafKvPairs = XMLUtils
+        .dafAttributes(annotatedSC.xml)
+        .asAttrMap
+        .map { kv => (removePrefix(kv._1), kv._2) }
+        .filterNot { kv => nonStandardDafProperties.contains(kv._1) }
+
       dfdlKvPairs.keys.foreach { propName =>
         DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDL_NAMESPACE, this)
       }
@@ -220,8 +236,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
       }
 
       val kvPairs = dfdlKvPairs ++ dfdlxKvPairs ++ dafKvPairs
-      val kvPairsButNotRef = kvPairs.filterNot { _._1 == "ref" } // dfdl:ref is NOT a property
-      val pairs = kvPairsButNotRef.map { case (k, v) =>
+      val pairs = kvPairs.map { case (k, v) =>
         (k, (v, annotatedSC)).asInstanceOf[PropItem]
       }
       pairs.toSet
@@ -229,28 +244,22 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
 
   private lazy val longFormProperties: Set[PropItem] = LV[Set[PropItem]]('longFormProperties) {
     // longForm Properties are not prefixed by dfdl
-    val dfdlAttrs = dfdlAttributes(xml).asAttrMap
-    schemaDefinitionUnless(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
+    schemaDefinitionUnless(
+      dfdlAttributes(xml).isEmpty,
+      "long form properties are not prefixed by dfdl:"
+    )
+    val dfdlAttrMap = xml.attributes.asAttrMap
+      .filter { kv => !kv._1.contains(":") }
+      .filterNot { kv => nonStandardDfdlProperties.contains(kv._1) }
     // however, extension properties are prefixed, even in long form
-    val dfdlxAttrMap = dfdlxAttributes(xml).asAttrMap.map { case (key: String, value: String) =>
-      (removePrefix(key), value)
-    }
-    val dafAttrMap = dafAttributes(xml).asAttrMap.map { case (key: String, value: String) =>
-      (removePrefix(key), value)
-    }
-    //
-    // TODO: This strips away any qualified attribute
-    // That won't work when we add extension attributes
-    // like daffodil:asAttribute="true"
-    //
-    val kvPairs = xml.attributes.asAttrMap.collect {
-      case (k, v) if (!k.contains(":")) => (k, v)
-    }
-    val unqualifiedAttribs = kvPairs.filterNot {
-      _._1 == "ref"
-    } // get the ref off there. it is not a property.
+    val dfdlxAttrMap = dfdlxAttributes(xml).asAttrMap
+      .map { kv => (removePrefix(kv._1), kv._2) }
+      .filterNot { kv => nonStandardDfdlxProperties.contains(kv._1) }
+    val dafAttrMap = dafAttributes(xml).asAttrMap
+      .map { kv => (removePrefix(kv._1), kv._2) }
+      .filterNot { kv => nonStandardDafProperties.contains(kv._1) }
 
-    unqualifiedAttribs.keys.foreach { propName =>
+    dfdlAttrMap.keys.foreach { propName =>
       DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.DFDL_NAMESPACE, this)
     }
     dfdlxAttrMap.keys.foreach { propName =>
@@ -260,7 +269,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
       DeprecatedProperty.warnIfDeprecated(propName, XMLUtils.EXT_NS_APACHE, this)
     }
 
-    val dfdlAndExtAttribs = unqualifiedAttribs ++ dfdlxAttrMap ++ dafAttrMap
+    val dfdlAndExtAttribs = dfdlAttrMap ++ dfdlxAttrMap ++ dafAttrMap
     val res = dfdlAndExtAttribs.map { case (k, v) =>
       (k, (v, this.asInstanceOf[LookupLocation]))
     }.toSet

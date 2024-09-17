@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.debugger
 import java.io.File
 
 import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.UnsuppressableException
 import org.apache.daffodil.lib.oolag.ErrorsNotYetRecorded
@@ -2369,4 +2370,6 @@ class DebuggerHost(override val tunable: DaffodilTunables)
   def unqualifiedPathStepPolicy: org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy = ???
   // Members declared in org.apache.daffodil.lib.exceptions.ThrowsSDE
   def schemaFileLocation: org.apache.daffodil.lib.exceptions.SchemaFileLocation = ???
+
+  override lazy val localSuppressSchemaDefinitionWarnings: Seq[WarnID] = Seq()
 }

@@ -53,4 +53,8 @@ class TestSDE {
   @Test def test_ignoreAttributeFormDefault(): Unit = {
     runner.runOneTest("ignoreAttributeFormDefault")
   }
+
+  @Test def test_schema_warning_locally_suppressed(): Unit = {
+    runner.runOneTest("schema_warning_locally_suppressed")
+  }
 }

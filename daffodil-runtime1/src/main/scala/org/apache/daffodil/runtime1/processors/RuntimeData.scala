@@ -24,6 +24,7 @@ import scala.util.matching.Regex
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.lib.Implicits.ImplicitsSuppressUnusedImportWarning
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.exceptions.HasSchemaFileLocation
 import org.apache.daffodil.lib.exceptions.SchemaFileLocation
@@ -692,7 +693,8 @@ sealed class ElementRuntimeData(
   maybeCheckByteAndBitOrderEvArg: Maybe[CheckByteAndBitOrderEv],
   maybeCheckBitOrderAndCharsetEvArg: Maybe[CheckBitOrderAndCharsetEv],
   val isQuasiElement: Boolean,
-  val runtimeProperties: java.util.Map[String, String]
+  val runtimeProperties: java.util.Map[String, String],
+  val localSuppressSchemaDefinitionWarnings: Seq[WarnID]
 ) extends TermRuntimeData(
     positionArg,
     partialNextElementResolverDelay,
@@ -824,8 +826,9 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null, // fillByteEvArg => FillByteEv
     Nope, // maybeCheckByteAndBitOrderEvArg: => Maybe[CheckByteAndBitOrderEv],
     Nope, // maybeCheckBitOrderAndCharsetEvArg: => Maybe[CheckBitOrderAndCharsetEv],
-    false, // isQuasiElementArg: => Boolean
-    null // runtimeProperties: java.util.Map[String,String]
+    false, // isQuasiElementArg: => Boolean,
+    null, // runtimeProperties: java.util.Map[String,String],
+    null // localSuppressSchemaDefinitionWarnings: Seq[WarnID]
   ) {
 
   override def toString() =

@@ -281,4 +281,31 @@
 
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="warning_suppressed">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" encoding="utf-8" representation="text"/>
+    <xs:element name="elem" type="xs:string" daf:suppressSchemaDefinitionWarnings="appinfoDFDLSourceWrong">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" />
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+<!--
+    Test Name: schema_warning_locally_suppressed
+       Schema: warning
+         Root: elem
+      Purpose: This test demonstrates locally suppressed warnings
+-->
+
+  <tdml:parserTestCase name="schema_warning_locally_suppressed" root="elem"
+    model="warning_suppressed" ignoreUnexpectedWarnings="false">
+    <tdml:document><![CDATA[test]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>test</elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

@@ -21,6 +21,7 @@ import scala.xml.Node
 
 import org.apache.daffodil.core.runtime1.SchemaComponentRuntime1Mixin
 import org.apache.daffodil.lib.api.DaffodilTunables
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.PropTypes
 import org.apache.daffodil.lib.util.Delay
@@ -66,6 +67,18 @@ trait SchemaComponent
   }
 
   def xml: Node
+
+  final lazy val localSuppressSchemaDefinitionWarnings = {
+    val optAttr =
+      xml.attribute(XMLUtils.EXT_NS_APACHE, "suppressSchemaDefinitionWarnings").map { _.text }
+    val warnStrs: Seq[String] =
+      optAttr.map { _.trim.split("\\s+").toSeq }.getOrElse { Seq.empty }
+    val warnIDs = warnStrs.map { warnStr =>
+      // throws SDE if not valid warnID
+      WarnID.stringToEnum("daf:suppressSchemaDefinitionWarnings", warnStr, this)
+    }
+    warnIDs
+  }
 
   override def oolagContextViaArgs = optLexicalParent
 
