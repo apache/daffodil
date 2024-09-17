@@ -1611,37 +1611,47 @@ trait ElementBaseGrammarMixin
         )
       case _ => // ok
     }
+
     /*
-     * When lengthKind is explicit and length is a constant, it is a warning if
-     * the type is a type that respects minLength and maxLength, and the constant length
-     * is not in range.
+     * Warn if a type respects minLength/maxLength/length facets and we can calculate that the
+     * infoset length will be out of range of the facet values. Note that we can only do this in
+     * specific cases, like when the length and encoding properties are constant and the
+     * encoding is fixed width characters.
      */
-    val isTypeUsingLengthOrMinMaxLengthFacets = typeDef.typeNode match {
-      case s: NodeInfo.String.Kind => true
-      case s: NodeInfo.HexBinary.Kind => true
-      case _ => false
-    }
-    if (
-      (lengthKind eq LengthKind.Explicit) &&
-      isTypeUsingLengthOrMinMaxLengthFacets &&
-      optLengthConstant.isDefined
-    ) {
-      val len = optLengthConstant.get
-      lazy val maxLengthLong = maxLength.longValueExact
-      lazy val minLengthLong = minLength.longValueExact
-      def warn(m: String, value: Long): Unit = SDW(
-        WarnID.FacetExplicitLengthOutOfRange,
-        "Explicit dfdl:length of %s is out of range for facet %s='%s'.",
-        len,
-        m,
-        value
-      )
-      if (hasLength && len != minLengthLong && len != maxLengthLong)
-        warn("length", minLengthLong)
-      else if (hasMinLength || hasMaxLength) {
-        if (maxLengthLong != -1 && len > maxLengthLong) warn("maxLength", maxLengthLong)
-        Assert.invariant(minLengthLong >= 0)
-        if (minLengthLong > 0 && len < minLengthLong) warn("minLength", minLengthLong)
+    if ((lengthKind eq LengthKind.Explicit) && (hasLength || hasMinLength || hasMaxLength)) {
+      val optInfosetLen = elementLengthInBitsEv.optConstant.flatMap { maybeKnownLenInBits =>
+        if (maybeKnownLenInBits.isDefined) {
+          val len = maybeKnownLenInBits.get
+          typeDef.typeNode match {
+            case _: NodeInfo.String.Kind => {
+              charsetEv.optConstant.flatMap { charset =>
+                if (charset.maybeFixedWidth.isDefined)
+                  Some(len / charset.maybeFixedWidth.get)
+                else
+                  None
+              }
+            }
+            case _: NodeInfo.HexBinary.Kind => Some(len / 8)
+            case _ => None
+          }
+        } else None
+      }
+      optInfosetLen.foreach { len =>
+        def warn(facet: String, value: Long): Unit = SDW(
+          WarnID.FacetExplicitLengthOutOfRange,
+          "Calculated infoset length (%s) is out of range for facet %s='%s'.",
+          len,
+          facet,
+          value
+        )
+        lazy val maxLengthLong = maxLength.longValueExact
+        lazy val minLengthLong = minLength.longValueExact
+        if (hasLength && (len != minLengthLong || len != maxLengthLong))
+          warn("length", minLengthLong)
+        if (hasMaxLength && (maxLengthLong != -1 && len > maxLengthLong))
+          warn("maxLength", maxLengthLong)
+        if (hasMinLength && (len < minLengthLong))
+          warn("minLength", minLengthLong)
       }
     }
 
