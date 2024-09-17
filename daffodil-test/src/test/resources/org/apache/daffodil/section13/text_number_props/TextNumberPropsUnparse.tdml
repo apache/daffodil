@@ -126,6 +126,8 @@
 
       <xs:element name="e12_dfdlLength2" type="ex:stLen10" dfdl:lengthKind="explicit" dfdl:length="{ 2 }" dfdl:textStringPadCharacter="#" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
 
+      <xs:element name="e12bits" type="ex:st3to10" dfdl:lengthKind="explicit" dfdl:length="{ 8 }" dfdl:lengthUnits="bits" dfdl:textStringJustification="left" />
+
       <xs:element name="e13" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence  dfdl:separator="," >
@@ -417,7 +419,7 @@
     </tdml:infoset>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Explicit dfdl:length</tdml:warning>
+      <tdml:warning>Calculated infoset length</tdml:warning>
       <tdml:warning>out of range</tdml:warning>
       <tdml:warning>facet minLength</tdml:warning>
     </tdml:warnings>
@@ -442,7 +444,7 @@
     </tdml:infoset>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Explicit dfdl:length</tdml:warning>
+      <tdml:warning>Calculated infoset length</tdml:warning>
       <tdml:warning>out of range</tdml:warning>
       <tdml:warning>facet minLength</tdml:warning>
     </tdml:warnings>
@@ -459,11 +461,28 @@
     </tdml:infoset>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>Explicit dfdl:length</tdml:warning>
+      <tdml:warning>Calculated infoset length</tdml:warning>
       <tdml:warning>out of range</tdml:warning>
       <tdml:warning>facet length</tdml:warning>
     </tdml:warnings>
     <tdml:document>O#</tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparsePaddedString12" model="delimitedStringsPadding" root="e12bits"
+                         description="ensure minLength facet results in a warning taking lengthUnits into account"
+   roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e12bits xmlns:ex="http://example.com">0</ex:e12bits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>Calculated infoset length</tdml:warning>
+      <tdml:warning>out of range</tdml:warning>
+      <tdml:warning>facet minLength</tdml:warning>
+    </tdml:warnings>
+    <tdml:document>0</tdml:document>
   </tdml:unparserTestCase>
 
 <!--
