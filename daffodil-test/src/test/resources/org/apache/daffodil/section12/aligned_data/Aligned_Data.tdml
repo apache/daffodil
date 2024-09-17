@@ -19,6 +19,7 @@
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   defaultRoundTrip="true">
 
  
@@ -364,7 +365,8 @@
           <xs:element name="a1" type="xs:string" dfdl:terminator=":" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="ascii" 
             dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"/>
           <xs:element name="a2" type="xs:string" dfdl:initiator=":" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="ascii" 
-            dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4"/>
+            dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4"
+                      daf:suppressSchemaDefinitionWarnings="alignmentAndInitiatorTextAlignmentNotCompatible"/>
         </xs:choice>
       </xs:complexType>
     </xs:element>
@@ -376,7 +378,8 @@
             <xs:complexType>
               <xs:choice>
                 <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="ascii" 
-                  dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:initiator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"/>
+                  dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:initiator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"
+                            daf:suppressSchemaDefinitionWarnings="alignmentAndInitiatorTextAlignmentNotCompatible"/>
                 <xs:element name="a2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="ascii" 
                   dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:terminator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4"/>
               </xs:choice>
@@ -393,7 +396,8 @@
             <xs:complexType>
               <xs:choice>
                 <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="ascii" 
-                  dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:initiator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"/>
+                  dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:initiator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"
+                            daf:suppressSchemaDefinitionWarnings="alignmentAndInitiatorTextAlignmentNotCompatible"/>
                 <xs:element name="a2" type="xs:string" dfdl:lengthKind="delimited" dfdl:encoding="ascii" 
                   dfdl:alignment="8" dfdl:terminator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4"/>
               </xs:choice>
@@ -438,7 +442,7 @@
             <xs:complexType>
               <xs:sequence dfdl:separator="|">
                 <xs:element name="inner" type="xs:string" dfdl:initiator="(" dfdl:terminator=")" dfdl:alignmentUnits="bytes" dfdl:alignment="4" dfdl:lengthKind="delimited" 
-                  minOccurs="2"  maxOccurs="2" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
+                  minOccurs="2"  maxOccurs="2" dfdl:leadingSkip="2" dfdl:trailingSkip="4" daf:suppressSchemaDefinitionWarnings="alignmentAndInitiatorTextAlignmentNotCompatible"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>

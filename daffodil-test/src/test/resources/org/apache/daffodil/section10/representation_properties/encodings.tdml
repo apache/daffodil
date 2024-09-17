@@ -23,6 +23,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com"
   xmlns:tns="http://example.com"
@@ -289,6 +290,7 @@
           The decode will then fail with a parse error.
           -->
           <xs:element name="str" type="xs:string" dfdl:lengthUnits="bytes" dfdl:length="3"
+                      daf:suppressSchemaDefinitionWarnings="ignoreDFDLProperty"
             dfdl:alignment="8"/><!-- alignment will be ignored -->
         </xs:sequence>
       </xs:complexType>

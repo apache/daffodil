@@ -490,7 +490,7 @@
                 dfdl:lengthKind="delimited" dfdl:initiator="z">
                 <xs:annotation>
                   <xs:appinfo source="http://www.ogf.org/dfdl/">
-                    <dfdl:assert test="{ ../ex:e1 }" message="Assertion failed for ../ex:e1" />
+                    <dfdl:assert test="{ xs:boolean(../ex:e1) }" message="Assertion failed for ../ex:e1" />
                   </xs:appinfo>
                 </xs:annotation>
               </xs:element>

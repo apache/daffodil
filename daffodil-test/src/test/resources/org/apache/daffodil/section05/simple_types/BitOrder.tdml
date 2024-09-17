@@ -633,12 +633,12 @@
       textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
       textNumberPattern="#,##0.###;-#,##0.###" textNumberRounding="explicit"
       textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0" decimalSigned="yes"
-      encodingErrorPolicy="error" sequenceKind="ordered" calendarFirstDayOfWeek='Sunday'
+      encodingErrorPolicy="replace" sequenceKind="ordered" calendarFirstDayOfWeek='Sunday'
       calendarDaysInFirstWeek='4' calendarTimeZone='UTC' calendarCheckPolicy='strict' calendarLanguage='en'
       bitOrder="leastSignificantBitFirst" outputNewLine="%LF;" textPadKind="none" fillByte="%#r20;"
       truncateSpecifiedLengthString="no" textStringPadCharacter="%SP;" textNumberPadCharacter="%SP;"
       textBooleanPadCharacter="%SP;" textCalendarPadCharacter="%SP;" textCalendarJustification="left"
-      textNumberJustification="right" textOutputMinLength="0" />
+      textNumberJustification="right" textOutputMinLength="0" floating="no" textBidi="no" />
 
     <xs:element name="e1" dfdl:lengthKind='implicit'>
       <xs:complexType>

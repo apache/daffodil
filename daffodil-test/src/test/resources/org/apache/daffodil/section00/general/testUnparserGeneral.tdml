@@ -19,6 +19,7 @@
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   suiteName="generalUnparserTests">
 
   <tdml:defineSchema name="fixedLengthStrings">
@@ -32,7 +33,9 @@
         <xs:complexType>
           <xs:sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
 	    <xs:element name="s1" dfdl:lengthKind="explicit" dfdl:length="0" type="xs:string" dfdl:textPadKind='none'/>
-	    <xs:element name="s2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" dfdl:textPadKind='none' default="broken"/>
+	    <xs:element name="s2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" dfdl:textPadKind='none'
+                  daf:suppressSchemaDefinitionWarnings="noEmptyDefault"
+                  default="broken"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>

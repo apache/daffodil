@@ -18,6 +18,7 @@
 
 <tdml:testSuite xmlns:ex="http://example.com" xmlns="http://example.com"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <tdml:defineSchema name="inputValueCalc-Embedded.dfdl.xsd">
@@ -80,7 +81,7 @@
           <xs:element name="e3" type="xs:int"
             dfdl:lengthKind="delimited" />
           <xs:element name="divide" type="xs:float"
-            dfdl:inputValueCalc="{ xs:int(../ex:e2) div xs:int(../ex:e3) }" />
+            dfdl:inputValueCalc="{ xs:float(xs:int(../ex:e2) div xs:int(../ex:e3)) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -469,7 +470,9 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="double" type="xs:double" />
-          <xs:element name="ivc_ulong_from_double" type="xs:unsignedLong" dfdl:inputValueCalc="{ ../ex:double }"/>
+          <xs:element name="ivc_ulong_from_double" type="xs:unsignedLong"
+                      daf:suppressSchemaDefinitionWarnings="deprecatedExpressionResultCoercion"
+                      dfdl:inputValueCalc="{ ../ex:double }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>

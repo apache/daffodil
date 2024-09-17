@@ -219,7 +219,9 @@
     <xs:group name="IPSrcGrp">
       <xs:sequence>
         <xs:element name="sbyte1" default="0" type="xs:unsignedByte" 
-        dfdl:outputValueCalc="{ xs:unsignedByte(../IPSrc) }"/>
+        dfdl:outputValueCalc="{ xs:unsignedByte(../IPSrc) }"
+        daf:suppressSchemaDefinitionWarnings="noEmptyDefault"
+        />
       </xs:sequence>
     </xs:group>
 

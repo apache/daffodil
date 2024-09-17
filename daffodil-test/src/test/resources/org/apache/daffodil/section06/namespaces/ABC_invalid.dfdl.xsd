@@ -108,7 +108,7 @@
   <xsd:annotation>
     <xsd:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:GeneralPurposeFormat"
-        separatorSuppressionPolicy="trailingEmpty" />
+        separatorSuppressionPolicy="trailingEmpty"/>
     </xsd:appinfo>
   </xsd:annotation>
 </xsd:schema>

@@ -48,7 +48,7 @@
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="tag" type="tns:uint8"/>
-                <xs:choice dfdl:choiceDispatchKey="{ tns:tag }" >
+                <xs:choice dfdl:choiceDispatchKey="{ xs:string(tns:tag) }" >
                   <xs:element name="a" type="tns:emptyElt" dfdl:choiceBranchKey="0"/>
                   <xs:element name="b" type="tns:emptyElt" dfdl:choiceBranchKey="1 5" dfdlx:choiceBranchKeyRanges="10 100 110 255"/>
                   <xs:element name="c" type="tns:emptyElt" dfdl:choiceBranchKey="2 3 4"/>

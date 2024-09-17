@@ -2647,6 +2647,13 @@
         </root>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <!-- test will fail after escapeScheme is refactored -->
+    <tdml:warnings>
+      <tdml:warning>Cannot set variable</tdml:warning>
+      <tdml:warning>EscapeChar</tdml:warning>
+      <tdml:warning>after reading</tdml:warning>
+      <tdml:warning>default value</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="escapeCharVars_02" root="root" model="escapeCharVars">

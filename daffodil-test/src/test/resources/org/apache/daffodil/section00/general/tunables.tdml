@@ -489,7 +489,7 @@
       trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
       terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
       initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
-      escapeSchemeRef="" encodingErrorPolicy="replace" fillByte="%NUL;" />
+      escapeSchemeRef="" encodingErrorPolicy="replace" fillByte="%NUL;" floating="no" />
 
 		<xs:element name="root">
 			<xs:complexType>
@@ -551,7 +551,7 @@
       trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
       terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
       initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
-      escapeSchemeRef="" encodingErrorPolicy="replace" textBidi="yes"/>
+      escapeSchemeRef="" encodingErrorPolicy="replace" textBidi="yes" floating="no"/>
 
 		<xs:element name="root">
 			<xs:complexType>
@@ -729,7 +729,7 @@
       trailingSkip="0" encoding="US-ASCII" alignment="1" alignmentUnits="bytes" initiator=""
       terminator="" separator="" ignoreCase="no" occursCountKind="implicit" lengthUnits="bytes"
       initiatedContent="no" textPadKind="none" truncateSpecifiedLengthString="no" textTrimKind="none"
-      escapeSchemeRef="" textBidi="no" fillByte="%NUL;" />
+      escapeSchemeRef="" textBidi="no" fillByte="%NUL;" floating="no" />
 
 		<xs:element name="root">
 			<xs:complexType>

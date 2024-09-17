@@ -25,7 +25,7 @@
     <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:format alignment="1"
           alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary"
-          byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" encodingErrorPolicy="error"
+          byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" encodingErrorPolicy="replace"
           documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
           encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no"
           initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
@@ -43,7 +43,7 @@
           calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday'
           calendarDaysInFirstWeek='4' calendarTimeZone='UTC'
           calendarCheckPolicy='strict' calendarLanguage='en' textPadKind="none"
-          fillByte="%SP;"
+          fillByte="%SP;" floating="no" textBidi="no"
           truncateSpecifiedLengthString="yes"/> 
       </appinfo>
     </annotation>

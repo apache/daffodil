@@ -429,11 +429,13 @@
 
                   <xs:complexType>
                     <xs:sequence>
-                      <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/">
-                          <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
-                        </xs:appinfo>
-                      </xs:annotation>
+                      <xs:sequence>
+                        <xs:annotation>
+                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                            <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
+                          </xs:appinfo>
+                        </xs:annotation>
+                      </xs:sequence>
                       <xs:element name="str" type="xs:string"
                         dfdl:lengthKind="explicit" dfdl:length="{ 80 }" /> <!-- fails because there is no data -->
                     </xs:sequence>
@@ -786,11 +788,13 @@
                 <xs:element name="a1">
                   <xs:complexType>
                     <xs:sequence>
-                      <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/">
-                          <dfdl:discriminator><![CDATA[{ fn:false() }]]></dfdl:discriminator>
-                        </xs:appinfo>
-                      </xs:annotation>
+                      <xs:sequence>
+                        <xs:annotation>
+                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                            <dfdl:discriminator><![CDATA[{ fn:false() }]]></dfdl:discriminator>
+                          </xs:appinfo>
+                        </xs:annotation>
+                      </xs:sequence>
                       <xs:element name="str" type="xs:string"
                         dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
                     </xs:sequence>
@@ -844,11 +848,13 @@
                 <xs:element name="a1">
                   <xs:complexType>
                     <xs:sequence>
-                      <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/">
-                          <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
-                        </xs:appinfo>
-                      </xs:annotation>
+                      <xs:sequence>
+                        <xs:annotation>
+                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                            <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
+                          </xs:appinfo>
+                        </xs:annotation>
+                      </xs:sequence>
                       <xs:element name="num" dfdl:lengthKind="delimited"
                         type="xs:int" minOccurs="1" maxOccurs="1" />
                     </xs:sequence>
@@ -877,11 +883,13 @@
                 <xs:element name="a1">
                   <xs:complexType>
                     <xs:sequence>
-                      <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/">
-                          <dfdl:discriminator><![CDATA[{ fn:false() }]]></dfdl:discriminator>
-                        </xs:appinfo>
-                      </xs:annotation>
+                      <xs:sequence>
+                        <xs:annotation>
+                          <xs:appinfo source="http://www.ogf.org/dfdl/">
+                            <dfdl:discriminator><![CDATA[{ fn:false() }]]></dfdl:discriminator>
+                          </xs:appinfo>
+                        </xs:annotation>
+                      </xs:sequence>
                       <xs:element name="num" dfdl:lengthKind="delimited"
                         type="xs:int" minOccurs="1" maxOccurs="1" />
                     </xs:sequence>

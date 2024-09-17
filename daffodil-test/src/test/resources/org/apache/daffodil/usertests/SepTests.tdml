@@ -44,7 +44,8 @@
       ref="ex:GeneralFormat"
       representation="text"
       lengthKind="delimited"
-      separatorPosition="infix"/>
+      separatorPosition="infix"
+      emptyElementParsePolicy="treatAsEmpty"/>
 
     <!-- baseline for DAFFODIL-2498. Works. -->
     <xs:element name="file1">
@@ -139,7 +140,8 @@
       ref="ex:GeneralFormat"
       representation="text"
       lengthKind="delimited"
-      separatorPosition="infix"/>
+      separatorPosition="infix"
+      emptyElementParsePolicy="treatAsEmpty"/>
 
     <!-- DAFFODIL-2217
       These additional tests give another case where trailingEmptyStrict should be causing a
@@ -193,7 +195,8 @@
       ref="ex:GeneralFormat"
       representation="text"
       lengthKind="delimited"
-      separatorPosition="infix"/>
+      separatorPosition="infix"
+      emptyElementParsePolicy="treatAsEmpty"/>
 
     <xs:element name="file1">
       <xs:complexType>
@@ -295,10 +298,10 @@
             representation="text"
             lengthKind="delimited"
             separatorPosition="infix"
-            dfdlx:emptyElementParsePolicy="treatAsMissing"/>
+            emptyElementParsePolicy="treatAsAbsent"/>
 
     <!--
-    treatAsMissing should have no effect here, because everything is optional. (deprecated)
+    treatAsAbsent should have no effect here, because everything is optional.
     -->
     <xs:element name="file1">
       <xs:complexType>
@@ -313,7 +316,7 @@
 
     <!-- Same, but has minOccurs=maxOccurs for the arrays.
      That makes all array elements "required"
-     treatAsMissing causes this to fail. Required empty non-defaultable is an error in that case. (deprecated)
+     treatAsAbsent causes this to fail. Required empty non-defaultable is an error in that case.
      -->
     <xs:element name="file2">
       <xs:complexType>
@@ -350,10 +353,6 @@
   <tdml:parserTestCase name="test_sep_ssp_never_4_daffodil" root="file2" model="s4"
                        implementations="daffodil">
     <tdml:document>madonna,,,,,,,,,</tdml:document>
-    <tdml:warnings>
-      <tdml:warning>emptyElementParsePolicy is deprecated</tdml:warning>
-      <tdml:warning>Use dfdl:emptyElementParsePolicy</tdml:warning>
-    </tdml:warnings>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Empty element not allowed</tdml:error>
@@ -361,7 +360,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="test_treatAsMissing_occursIndex" root="file3" model="s4"
+  <tdml:parserTestCase name="test_treatAsAbsent_occursIndex" root="file3" model="s4"
                        implementations="daffodil">
     <tdml:document>1,2,,3,4,,,5,,6</tdml:document>
     <tdml:infoset>

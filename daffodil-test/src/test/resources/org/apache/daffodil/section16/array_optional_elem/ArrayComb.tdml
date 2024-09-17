@@ -39,11 +39,13 @@
         <xs:element name="bar" minOccurs="1" maxOccurs="2" dfdl:occursCountKind="implicit">
           <xs:complexType>
             <xs:sequence>
-              <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/">
-                  <dfdl:discriminator>{ ../foo gt 0 }</dfdl:discriminator>
-                </xs:appinfo>
-              </xs:annotation>
+              <xs:sequence>
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:discriminator>{ ../foo gt 0 }</dfdl:discriminator>
+                  </xs:appinfo>
+                </xs:annotation>
+              </xs:sequence>
               <xs:sequence dfdl:hiddenGroupRef="ex:hiddenGroup" />
               <xs:group ref="someGroupWithRequiredElement" />
             </xs:sequence>

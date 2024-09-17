@@ -60,8 +60,8 @@ class TestSepTests {
   @Test def test_sep_ssp_never_7(): Unit = { runner.runOneTest("test_sep_ssp_never_7") }
 
   // DAFFODIL-2791
-  @Test def test_treatAsMissing_occursIndex(): Unit = {
-    runner.runOneTest("test_treatAsMissing_occursIndex")
+  @Test def test_treatAsAbsent_occursIndex(): Unit = {
+    runner.runOneTest("test_treatAsAbsent_occursIndex")
   }
 
 }

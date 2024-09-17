@@ -38,6 +38,12 @@
         </ex:msg>
       </dfdlInfoset>
     </infoset>
+    <!-- test will fail with missing warning once DAFFODIL-2875 is fixed -->
+    <warnings>
+      <warning>DFDL property</warning>
+      <warning>ignored</warning>
+      <warning>choiceDispatchKey="{ 'V' }"</warning>
+    </warnings>
   </unparserTestCase>
 
   <unparserTestCase name="Nack"
@@ -53,6 +59,12 @@
         </ex:msg>
       </dfdlInfoset>
     </infoset>
+    <!-- test will fail with missing warning once DAFFODIL-2875 is fixed -->
+    <warnings>
+      <warning>DFDL property</warning>
+      <warning>ignored</warning>
+      <warning>choiceDispatchKey="{ 'V' }"</warning>
+    </warnings>
   </unparserTestCase>
 
   <unparserTestCase name="badElement"
@@ -76,6 +88,12 @@
       <error>(invalid)</error>
       <error>badElement</error>
     </errors>
+    <!-- test will fail with missing warning once DAFFODIL-2875 is fixed -->
+    <warnings>
+      <warning>DFDL property</warning>
+      <warning>ignored</warning>
+      <warning>choiceDispatchKey="{ 'V' }"</warning>
+    </warnings>
   </unparserTestCase>
 
 </testSuite>

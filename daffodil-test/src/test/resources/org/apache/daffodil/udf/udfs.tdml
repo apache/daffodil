@@ -48,7 +48,7 @@
       dfdl:inputValueCalc="{ jgsu:replace('Hello World. I am.')}" />
 
     <xs:element name="incorrect_arg_type" type="xs:string"
-      dfdl:inputValueCalc="{ sgiu:addBoxed('Hello', 'world')}" />
+      dfdl:inputValueCalc="{ xs:string(sgiu:addBoxed('Hello', 'world'))}" />
 
     <xs:element name="no_args" type="xs:string"
       dfdl:inputValueCalc="{ sgsu:sayHello()}" />

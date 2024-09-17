@@ -84,7 +84,7 @@
                    However, asserts aren't evaluated when unparsing, so we only error out here 
                    when parsing.
                -->
-              <dfdl:assert>{ dfdlx:error() }</dfdl:assert>
+              <dfdl:assert>{ fn:error() }</dfdl:assert>
            </xs:appinfo></xs:annotation>
       </xs:sequence>
     </xs:group>
