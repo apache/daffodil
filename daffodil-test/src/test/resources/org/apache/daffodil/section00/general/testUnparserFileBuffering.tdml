@@ -183,7 +183,7 @@
 -->
 
   <tdml:parserTestCase name="parseFixedLengthStringLength0_ffb" root="e4" model="fixedLengthStrings" roundTrip="true"
-    config="cfg_forceFileBuffering">
+    config="cfg_forceFileBuffering" ignoreUnexpectedWarnings="false">
     <tdml:document>[,2]</tdml:document>
 
     <tdml:infoset>
@@ -194,6 +194,12 @@
         </ex:e4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+
+    <tdml:warnings>
+      <tdml:warning>Element with no empty representation</tdml:warning>
+      <tdml:warning>XSD default</tdml:warning>
+      <tdml:warning>will be ignored when parsing</tdml:warning>
+    </tdml:warnings>
 
   </tdml:parserTestCase>
 

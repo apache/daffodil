@@ -1231,7 +1231,7 @@ trait ElementBase
         if (!isEmptyAnObservableConcept)
           SDW(
             WarnID.NoEmptyDefault,
-            "Element with no empty representation. XSD default='%s' can only be used when unparsing.",
+            "Element with no empty representation. XSD default='%s' will be ignored when parsing.",
             defaultValueAsString
           )
         schemaDefinitionWhen(
