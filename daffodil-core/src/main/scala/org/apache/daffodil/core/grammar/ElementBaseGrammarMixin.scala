@@ -1625,9 +1625,12 @@ trait ElementBaseGrammarMixin
      * Warn if a type respects minLength/maxLength/length facets and we can calculate that the
      * infoset length will be out of range of the facet values. Note that we can only do this in
      * specific cases, like when the length and encoding properties are constant and the
-     * encoding is fixed width characters.
+     * encoding is fixed width characters. Note that IVC ignores explicit length so we only do
+     * this for represented elements.
      */
-    if ((lengthKind eq LengthKind.Explicit) && (hasLength || hasMinLength || hasMaxLength)) {
+    if (
+      isRepresented && (lengthKind eq LengthKind.Explicit) && (hasLength || hasMinLength || hasMaxLength)
+    ) {
       val optInfosetLen = elementLengthInBitsEv.optConstant.flatMap { maybeKnownLenInBits =>
         if (maybeKnownLenInBits.isDefined) {
           val len = maybeKnownLenInBits.get

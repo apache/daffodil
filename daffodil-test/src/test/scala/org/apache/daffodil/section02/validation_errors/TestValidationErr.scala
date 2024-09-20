@@ -180,6 +180,9 @@ class TestValidationErr {
   @Test def test_validation_inputValueCalc_07(): Unit = {
     runner.runOneTest("validation_inputValueCalc_07")
   }
+  @Test def test_validation_inputValueCalc_08(): Unit = {
+    runner.runOneTest("validation_inputValueCalc_08")
+  }
 
   @Test def test_validation_testFacets_01(): Unit = {
     runner.runOneTest("validation_testFacets_01")

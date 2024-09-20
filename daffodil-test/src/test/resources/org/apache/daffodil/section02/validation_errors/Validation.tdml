@@ -411,6 +411,18 @@
       </xs:simpleType>
     </xs:element>
 
+    <!--
+      dfdl:lengthKind will be ignored when used by IVC elements, but could
+      potentially be used by non-IVC elements that define dfdl:length
+    -->
+    <xs:simpleType name="str" dfdl:lengthKind="explicit">
+      <xs:restriction base="xs:string">
+        <xs:maxLength value="5" />
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="e4" type="ex:str" dfdl:inputValueCalc="{ '123456' }" />
+
   </tdml:defineSchema>
 
     <tdml:defineSchema name="TestFacets">
@@ -2151,6 +2163,22 @@
             <tdml:error>failed facet checks due to: facet length (7)</tdml:error>
         </tdml:validationErrors>
 
+    </tdml:parserTestCase>
+
+    <tdml:parserTestCase name="validation_inputValueCalc_08"
+                         root="e4" model="inputValueCalc"
+                         description="Section 17 - the value created using inputValueCalc is validated using length facets"
+                         validation="on">
+        <tdml:document></tdml:document>
+        <tdml:infoset>
+            <tdml:dfdlInfoset>
+                <e4>123456</e4>
+            </tdml:dfdlInfoset>
+        </tdml:infoset>
+        <tdml:validationErrors>
+            <tdml:error>Validation Error</tdml:error>
+            <tdml:error>failed facet checks due to: facet maxLength (5)</tdml:error>
+        </tdml:validationErrors>
     </tdml:parserTestCase>
 
     <tdml:defineSchema name="TestFacets2">
