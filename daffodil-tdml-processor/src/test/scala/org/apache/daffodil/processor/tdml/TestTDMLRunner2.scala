@@ -218,11 +218,74 @@ class TestTDMLRunner2 {
    * Exception expected? Yes
    *
    * Reasoning: The data parses successfully and fails 'limited' validation.
-   * However the test case itself does not expect a validation error.  The
-   * purpose is to alert the test writer to the fact that a validation occurred
+   * However the test case itself does not expect a validation error. Since
+   * ignoreUnexpectedValidationError is set to false, the test will thrown an
+   * Exception alerting the test writer to the fact that a validation occurred
    * that was not 'captured' in the test case.
    */
   @Test def testValidationLimitedValidationErrorNotCapturedShouldThrow() = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
+        <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <dfdl:format ref="tns:GeneralFormat" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
+          <xsd:element name="array" type="tns:arrayType" dfdl:lengthKind="implicit"/>
+          <xsd:complexType name="arrayType">
+            <xsd:sequence dfdl:separator="|">
+              <xsd:element name="data" type="xsd:int" minOccurs="2" maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </tdml:defineSchema>
+        <tdml:parserTestCase xmlns={
+        tdml
+      } name="testValidation" root="array" model="mySchema" validation="limited" ignoreUnexpectedValidationErrors="false">
+          <tdml:document>
+            <tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9]]></tdml:documentPart>
+          </tdml:document>
+          <tdml:infoset>
+            <tdml:dfdlInfoset>
+              <tns:array>
+                <data>1</data>
+                <data>2</data>
+                <data>3</data>
+                <data>4</data>
+                <data>5</data>
+                <data>6</data>
+                <data>7</data>
+                <data>8</data>
+                <data>9</data>
+              </tns:array>
+            </tdml:dfdlInfoset>
+          </tdml:infoset>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    val runner = Runner(testSuite)
+    val e = intercept[Exception] {
+      runner.runOneTest("testValidation")
+    }
+    runner.reset
+    val msg = e.getMessage()
+    assertTrue(
+      msg.contains(
+        "ignoreUnexpectedValidationErrors = false and test does not expect ValidationError diagnostics"
+      )
+    )
+  }
+
+  /**
+   * Validation=Limited
+   * Should Parse Succeed? Yes
+   * Exception expected? No
+   *
+   * Reasoning: The data parses successfully and fails 'limited' validation.
+   * However the test case itself does not expect a validation error.  Since
+   * the ignoreUnexpectedValidationError defaults to true, the unexpected validation
+   * error will be ignored, and the test will poss
+   */
+  @Test def testValidationLimitedValidationErrorNotCaptured = {
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
         dfdl
@@ -262,16 +325,7 @@ class TestTDMLRunner2 {
       </tdml:testSuite>
 
     val runner = Runner(testSuite)
-    val e = intercept[Exception] {
-      runner.runOneTest("testValidation")
-    }
-    runner.reset
-    val msg = e.getMessage()
-    assertTrue(
-      msg.contains(
-        "ignoreUnexpectedValidationErrors = false and test does not expect ValidationError diagnostics"
-      )
-    )
+    runner.runOneTest("testValidation")
   }
 
   /**
