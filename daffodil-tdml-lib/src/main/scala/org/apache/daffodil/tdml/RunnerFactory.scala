@@ -151,7 +151,7 @@ class Runner private (
   defaultValidationDefault: String = Runner.defaultValidationDefaultDefault,
   defaultImplementationsDefault: Seq[String] = Runner.defaultImplementationsDefaultDefault,
   defaultIgnoreUnexpectedWarningsDefault: Boolean = true,
-  defaultIgnoreUnexpectedValidationErrorsDefault: Boolean = false
+  defaultIgnoreUnexpectedValidationErrorsDefault: Boolean = true
 ) {
 
   /**
