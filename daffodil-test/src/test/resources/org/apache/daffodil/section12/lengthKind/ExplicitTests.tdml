@@ -962,12 +962,12 @@
   </tdml:parserTestCase>
 
 <!--
-     Test Name: invalidLengthUnitsIntegerWarning_explicit
-        Schema: invalidLengthUnitsInteger_explicit
+     Test Name: lengthUnitsBitsForInteger_explicit
+        Schema: lengthUnitsBitsForInteger_explicit
           Root: r1
-       Purpose: This test checks that a warning is emitted when a bigint is used when lengthUnits='bits'.
+       Purpose: This test checks that no warning is emitted when a bigint is used when lengthUnits='bits'.
 -->
-  <tdml:defineSchema name="invalidLengthUnitsInteger_explicit">
+  <tdml:defineSchema name="lengthUnitsBitsForInteger_explicit">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="Binary">
       <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
@@ -977,51 +977,52 @@
     <xs:element name="r1" dfdl:lengthKind="explicit" type="xs:integer" dfdl:lengthUnits="bits" dfdl:length="8"/>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="invalidLengthUnitsIntegerWarning_explicit" root="r1" model="invalidLengthUnitsInteger_explicit"
-                       description="lengthKind='explicit' lengthUnits='bits' type='xs:integer'">
+  <tdml:parserTestCase name="lengthUnitsBitsForInteger_explicit" root="r1" model="lengthUnitsBitsForInteger_explicit"
+                       description="lengthKind='explicit' lengthUnits='bits' type='xs:integer'"
+                       ignoreUnexpectedWarnings="false">
     <tdml:document>
       <tdml:documentPart type="byte">
         0f
       </tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset>f
+      <tdml:dfdlInfoset>
         <r1>15</r1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>lengthUnits='bits'</tdml:warning>
-      <tdml:warning>will only be supported</tdml:warning>
-    </tdml:warnings>
   </tdml:parserTestCase>
 
 <!--
-     Test Name: invalidLengthUnitsIntegerError_explicit
-        Schema: invalidLengthUnitsInteger_explicit
+     Test Name: lengthUnitsBitsForInteger_explicit2
+        Schema: lengthUnitsBitsForInteger_explicit
           Root: r1
-       Purpose: This test checks that an error is raised when a bigint is used when lengthUnits='bits'.
+       Purpose: This test verifies that no error is raised when a bigint is used when lengthUnits='bits'
+       and to show that the allowBigIntegerBits tunable has no effect.
 -->
-  <tdml:parserTestCase name="invalidLengthUnitsIntegerError_explicit" root="r1" model="invalidLengthUnitsInteger_explicit"
+  <tdml:parserTestCase name="lengthUnitsBitsForInteger_explicit2" root="r1" model="lengthUnitsBitsForInteger_explicit"
                        description="lengthKind='explicit' lengthUnits='bits' type='xs:integer' error"
-                       config="enforceBigIntegerBits">
-    <tdml:document>
+                       config="enforceBigIntegerBits"
+                       ignoreUnexpectedWarnings="false">
+
+  <tdml:document>
       <tdml:documentPart type="byte">
         0f
       </tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>lengthUnits='bits'</tdml:error>
-      <tdml:error>is only supported</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r1>15</r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-     Test Name: invalidLengthUnitsDecimalWarning_explicit
-        Schema: invalidLengthUnitsDecimal_explicit
+     Test Name: lengthUnitsBitsForDecimal_explicit
+        Schema: lengthUnitsBitsForDecimal_explicit
           Root: r1
-       Purpose: This test checks that a warning is emitted when a decimal is used when lengthUnits='bits'.
+       Purpose: This test checks that no warning is emitted when a decimal is used when lengthUnits='bits'.
 -->
-  <tdml:defineSchema name="invalidLengthUnitsDecimal_explicit">
+  <tdml:defineSchema name="lengthUnitsBitsForDecimal_explicit">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="Binary">
       <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
@@ -1033,22 +1034,20 @@
                 dfdl:binaryDecimalVirtualPoint="2"/>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="invalidLengthUnitsDecimalWarning_explicit" root="r1" model="invalidLengthUnitsDecimal_explicit"
-                       description="lengthKind='explicit' lengthUnits='bits' type='xs:decimal'">
-    <tdml:document>
+  <tdml:parserTestCase name="lengthUnitsBitsForDecimal_explicit" root="r1" model="lengthUnitsBitsForDecimal_explicit"
+                       description="lengthKind='explicit' lengthUnits='bits' type='xs:decimal'"
+                       ignoreUnexpectedWarnings="false">
+
+  <tdml:document>
       <tdml:documentPart type="byte">
         0f
       </tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
-      <tdml:dfdlInfoset>f
+      <tdml:dfdlInfoset>
         <r1>0.15</r1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>lengthUnits='bits'</tdml:warning>
-      <tdml:warning>will only be supported</tdml:warning>
-    </tdml:warnings>
   </tdml:parserTestCase>
 
   <!--

@@ -338,6 +338,9 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 3 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="ibm4690Packed" />
     <xs:element name="dateBinIBM4690Packed2" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 18 }" dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="ibm4690Packed"/>
+    <xs:element name="dateBinIBM4690Packed3" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
+                dfdl:lengthKind="explicit" dfdl:length="{ 24 }" dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="ibm4690Packed" />
+
 
     <xs:element name="dateTimeBinIBM4690Packed">
       <xs:complexType>
@@ -2990,6 +2993,20 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Expected unsigned data but parsed a negative number</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinIBM4690Packed4" root="dateBinIBM4690Packed3"
+                       model="SimpleTypes-binary" description="binary packed calendar representation with lengthUnit=bits"
+                       roundTrip="true" ignoreUnexpectedWarnings="false">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">12 14 23</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateBinIBM4690Packed3>2023-12-14</dateBinIBM4690Packed3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateTimeBinIBM4690Packed" root="dateTimeBinIBM4690Packed"
