@@ -835,4 +835,26 @@ class UnitTestTDMLRunner {
     assertEquals(doc2bits, doc1bits)
   }
 
+  @Test def testDocumentPartNoType(): Unit = {
+    val xml = <testSuite xmlns={
+      tdml
+    } ID="suite identifier" suiteName="theSuiteName" description="Some Test Suite Description">
+      <parserTestCase name="test1" root="byte1" model="test-suite/ibm-contributed/dpanum.dfdl.xsd" description="Some test case description.">
+        <document>
+          <documentPart>test/tdml/test.txt</documentPart>
+        </document>
+        <infoset>
+          <dfdlInfoset xmlns:xs={xsd} xmlns:xsi={xsi}>
+            <byte1 xsi:type="xs:byte">123</byte1>
+          </dfdlInfoset>
+        </infoset>
+      </parserTestCase>
+    </testSuite>
+    val runner = new Runner(xml)
+    val e = intercept[TDMLException] {
+      runner.runOneTest("test1")
+    }
+    assertTrue(e.getMessage().contains("'type' must appear on element 'documentPart'"))
+  }
+
 }
