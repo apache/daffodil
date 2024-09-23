@@ -275,7 +275,15 @@ class PropertyGenerator(arg: Node) {
           "separatorSuppressionPolicy",
           "textOutputMinLength",
           "textStandardExponentCharacter",
-          "textStandardExponentRep"
+          "textStandardExponentRep",
+          "textStandardInfinityRep",
+          "textStandardNaNRep",
+          "textStandardZeroRep",
+          "nilValue",
+          "textStringPadCharacter",
+          "textNumberPadCharacter",
+          "textBooleanPadCharacter",
+          "textCalendarPadCharacter"
         )
       val exclusions =
         notFormatProperties ++ notScopedFormatProperties ++ excludedBecauseDoneByHand
@@ -454,14 +462,6 @@ trait CurrencyMixin extends PropertyMixin {
       "occursCount",
       "inputValueCalc",
       "outputValueCalc",
-      "textStandardInfinityRep",
-      "textStandardNaNRep",
-      "textStandardZeroRep",
-      "nilValue",
-      "textStringPadCharacter",
-      "textNumberPadCharacter",
-      "textBooleanPadCharacter",
-      "textCalendarPadCharacter",
       "calendarLanguage",
       "choiceDispatchKey"
     )
@@ -642,12 +642,16 @@ object Currency {
    */
   def generateNonEnumStringPropInit(propName: String) = {
     val template =
-      """registerToStringFunction(()=>{getPropertyOption("currency") match {
+      """registerToStringFunction(()=>{getPropertyOption("currency", expressionAllowed) match {
         case None => ""
         case Some(value) => "currency='" + value.toString + "'"
       }
     })"""
-    val res = template.replaceAll("currency", propName)
+    val expressionAllowStr = excludeRuntimeProperties(propName).toString
+    val res =
+      template
+        .replaceAll("currency", propName)
+        .replaceAll("expressionAllowed", expressionAllowStr)
     res
   }
 

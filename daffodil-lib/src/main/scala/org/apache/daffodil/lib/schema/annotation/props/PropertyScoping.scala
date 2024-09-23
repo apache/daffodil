@@ -265,8 +265,11 @@ trait FindPropertyMixin extends PropTypes {
    *
    * See JIRA DFDL-506.
    */
-  final def getPropertyOption(pname: String): Option[String] = {
-    val lookupRes = findPropertyOption(pname)
+  final def getPropertyOption(
+    pname: String,
+    expressionAllowed: Boolean = false
+  ): Option[String] = {
+    val lookupRes = findPropertyOption(pname, expressionAllowed)
     val res = lookupRes match {
       case Found(v, _, _, _) => Some(v)
       case _ => None

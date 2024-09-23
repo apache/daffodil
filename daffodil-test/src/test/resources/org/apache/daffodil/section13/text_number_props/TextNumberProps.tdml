@@ -3711,7 +3711,8 @@
   
   <tdml:parserTestCase name="dynamicExp" root="dynamicExp"
     model="textprops"
-    description="Parse a double with dynamic text number properties" roundTrip="false">
+    description="Parse a double with dynamic text number properties" roundTrip="false"
+    ignoreUnexpectedWarnings="false">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[_|@|1234567_89@2]]]></tdml:documentPart>
@@ -3797,7 +3798,8 @@
 
   <tdml:parserTestCase name="expCaseInsensitive" root="expCaseInsensitive"
     model="textprops"
-    description="Parse a double with a case insensitive exp" roundTrip="false">
+    description="Parse a double with a case insensitive exp" roundTrip="false"
+    ignoreUnexpectedWarnings="false">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1234567.89AbC2]]]></tdml:documentPart>

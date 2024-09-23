@@ -451,7 +451,7 @@ trait TextStandardExponentRepMixin extends PropertyMixin {
 
   lazy val textStandardExponentRep: Found = {
     val tsec = getPropertyOption("textStandardExponentCharacter")
-    val tser = getPropertyOption("textStandardExponentRep")
+    val tser = getPropertyOption("textStandardExponentRep", expressionAllowed = true)
     (tsec, tser) match {
       case (Some(tsecStr), Some(tserStr)) => {
         SDW(
