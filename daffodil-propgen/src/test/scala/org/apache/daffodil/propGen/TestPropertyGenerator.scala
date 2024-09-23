@@ -69,11 +69,13 @@ class TestPropertyGenerator {
     assertTrue(mx.contains("""LengthKindMixin"""))
     assertTrue(mx.contains("""def lengthPropertiesAGInit(): Unit = {"""))
     assertTrue(
-      mx.contains("""registerToStringFunction(()=>{getPropertyOption("lengthPattern") match {
+      mx.contains(
+        """registerToStringFunction(()=>{getPropertyOption("lengthPattern", false) match {
         case None => ""
         case Some(value) => "lengthPattern='" + value.toString + "'"
       }
-    })""")
+    })"""
+      )
     )
   }
 
