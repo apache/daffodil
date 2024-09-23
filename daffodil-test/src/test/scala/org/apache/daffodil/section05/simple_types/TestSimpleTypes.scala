@@ -334,6 +334,7 @@ class TestSimpleTypes {
   @Test def test_dateBinIBM4690Packed(): Unit = { runner.runOneTest("dateBinIBM4690Packed") }
   @Test def test_dateBinIBM4690Packed2(): Unit = { runner.runOneTest("dateBinIBM4690Packed2") }
   @Test def test_dateBinIBM4690Packed3(): Unit = { runner.runOneTest("dateBinIBM4690Packed3") }
+  @Test def test_dateBinIBM4690Packed4(): Unit = { runner.runOneTest("dateBinIBM4690Packed4") }
   @Test def test_dateTimeBinIBM4690Packed(): Unit = {
     runner.runOneTest("dateTimeBinIBM4690Packed")
   }
