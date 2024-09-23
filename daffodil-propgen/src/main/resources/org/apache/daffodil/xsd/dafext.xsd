@@ -104,12 +104,8 @@
         <xs:element name="allowBigIntegerBits" type="xs:boolean" default="true" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
-              Previous Daffodil releases let schemas define every type's length using "bits" as the length unit
-              even though the specification allows bit length units only for a specific set of types' binary
-              representations and does not allow bit length units for any other type's binary representation
-              or any type's text representation.  When this tunable is true, a deprecation warning is issued
-              when bit length units are incorrectly used.  When this tunable is false, a schema definition
-              error will be issued instead.
+              Deprecated. This tunable no longer has any affect and is only kept for
+              backwards compatability.
             </xs:documentation>
           </xs:annotation>
         </xs:element>
@@ -703,7 +699,12 @@
           <xs:enumeration value="appinfoNoSource" />
           <xs:enumeration value="choiceInsideHiddenGroup" />
           <xs:enumeration value="codeGenerator" />
-          <xs:enumeration value="deprecatedBigIntegerBits" />
+          <!-- deprecated -->
+          <xs:enumeration value="deprecatedBigIntegerBits">
+            <xs:annotation>
+              <xs:documentation>Deprecated.</xs:documentation>
+            </xs:annotation>
+          </xs:enumeration>
           <xs:enumeration value="deprecatedBuiltInFormats" />
           <xs:enumeration value="deprecatedEncodingNameUSASCII7BitPacked" />
           <xs:enumeration value="deprecatedExpressionResultCoercion" />
