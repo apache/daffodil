@@ -309,7 +309,7 @@ class InteractiveDebugger(
             NodeInfo.Boolean,
             expression,
             context.dpathCompileInfo.namespaces,
-            context.dpathCompileInfo.targetNamespace,
+            context.dpathCompileInfo.noPrefixNamespace,
             context.dpathCompileInfo,
             false,
             hostForDiags,
@@ -1109,7 +1109,7 @@ class InteractiveDebugger(
           else expression
         val context = state.getContext()
         val namespaces = context.dpathCompileInfo.namespaces
-        val targetNamespace = context.dpathCompileInfo.targetNamespace
+        val noPrefixNamespace = context.dpathCompileInfo.noPrefixNamespace
         val expressionWithBraces =
           if (!DPathUtil.isExpression(adjustedExpression)) "{ " + adjustedExpression + " }"
           else adjustedExpression
@@ -1121,7 +1121,7 @@ class InteractiveDebugger(
             NodeInfo.AnyType,
             expressionWithBraces,
             namespaces,
-            targetNamespace,
+            noPrefixNamespace,
             context.dpathCompileInfo,
             isEvaluatedAbove,
             hostForDiags,
@@ -2371,7 +2371,7 @@ class DebuggerHost(override val tunable: DaffodilTunables)
    */
   // Members declared in org.apache.daffodil.lib.xml.ResolvesQNames
   def namespaces: scala.xml.NamespaceBinding = ???
-  def targetNamespace: NS = ???
+  def noPrefixNamespace: NS = ???
   def unqualifiedPathStepPolicy: org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy = ???
   // Members declared in org.apache.daffodil.lib.exceptions.ThrowsSDE
   def schemaFileLocation: org.apache.daffodil.lib.exceptions.SchemaFileLocation = ???

@@ -61,13 +61,18 @@ trait ResolvesQNames extends ThrowsSDE {
 
   def namespaces: scala.xml.NamespaceBinding
   def unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
-  def targetNamespace: NS
+  def noPrefixNamespace: NS
 
   /**
    * If prefix of name is unmapped, SDE
    */
   def resolveQName(qnString: String): RefQName = {
-    val eQN = QName.resolveRef(qnString, namespaces, targetNamespace, unqualifiedPathStepPolicy)
+    val eQN = QName.resolveRef(
+      qnString,
+      namespaces,
+      noPrefixNamespace,
+      unqualifiedPathStepPolicy
+    )
     // we don't want to just throw the exception, we want to
     // convert to an SDE, so we use recover
     val res = eQN.recover { ThrowSDE }.get

@@ -22,7 +22,9 @@
   xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-  xmlns:a01="http://a01.com" xmlns:b01="http://b01.com"
+  xmlns:a01="http://a01.com"
+  xmlns:b01="http://b01.com"
+  xmlns:ex="http://example.com/"
   defaultRoundTrip="true">
   
   <tdml:defineSchema name="embeddedWithInclude">
@@ -84,6 +86,43 @@
       <tdml:warning>schemaLocation</tdml:warning>
       <tdml:warning>/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd</tdml:warning>
     </tdml:warnings>
+  </tdml:parserTestCase>
+
+
+  <tdml:parserTestCase name="generalFormat01" model="generalFormat01.dfdl.xsd">
+    <tdml:document><![CDATA[example]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>example</ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="generalFormat02" model="generalFormat02.dfdl.xsd">
+    <tdml:document><![CDATA[example]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>example</ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="generalFormat03" model="generalFormat03.dfdl.xsd">
+    <tdml:document><![CDATA[example]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>example</ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="generalFormat04" model="generalFormat04.dfdl.xsd" root="root">
+    <tdml:document></tdml:document>
+    <tdml:errors>
+      <tdml:error>defineFormat</tdml:error>
+      <tdml:error>{}GeneralFormat</tdml:error>
+      <tdml:error>not found</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
  
 </tdml:testSuite>

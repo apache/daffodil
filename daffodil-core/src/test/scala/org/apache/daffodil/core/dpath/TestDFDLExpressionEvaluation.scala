@@ -47,7 +47,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
       .withTunable("releaseUnneededInfoset", "false")
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     val sset = pf.sset
-    val targetNamespace = sset.schemas.head.schemaDocuments.head.targetNamespace
+    val noPrefixNamespace = sset.schemas.head.schemaDocuments.head.noPrefixNamespace
     if (pf.isError) fail("pf compile errors")
     val dp = pf.onPath("/").asInstanceOf[DataProcessor]
     val infosetRootElem = TestInfoset.elem2Infoset(infosetAsXML, dp)
@@ -57,7 +57,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
       qn,
       NodeInfo.AnyType,
       testSchema.scope,
-      targetNamespace,
+      noPrefixNamespace,
       erd.dpathCompileInfo,
       false,
       sset

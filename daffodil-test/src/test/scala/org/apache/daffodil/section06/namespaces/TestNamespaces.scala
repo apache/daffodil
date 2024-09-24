@@ -251,4 +251,9 @@ class TestNamespaces {
 
   @Test def test_noTargetNamespace_01(): Unit = { runner.runOneTest("noTargetNamespace_01") }
   @Test def test_noTargetNamespace_02(): Unit = { runner.runOneTest("noTargetNamespace_02") }
+
+  @Test def test_generalFormat01(): Unit = { runner3.runOneTest("generalFormat01") }
+  @Test def test_generalFormat02(): Unit = { runner3.runOneTest("generalFormat02") }
+  @Test def test_generalFormat03(): Unit = { runner3.runOneTest("generalFormat03") }
+  @Test def test_generalFormat04(): Unit = { runner3.runOneTest("generalFormat04") }
 }

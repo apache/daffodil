@@ -54,7 +54,7 @@ class TestDFDLExpressionTree extends Parsers {
       qn,
       NodeInfo.String,
       testSchema.scope,
-      schemaDoc.targetNamespace,
+      schemaDoc.noPrefixNamespace,
       erd.dpathCompileInfo,
       false,
       sset
@@ -77,7 +77,7 @@ class TestDFDLExpressionTree extends Parsers {
       qn,
       NodeInfo.AnyType,
       testSchema.scope,
-      schemaDoc.targetNamespace,
+      schemaDoc.noPrefixNamespace,
       decl.dpathCompileInfo,
       false,
       sset

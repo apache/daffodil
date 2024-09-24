@@ -37,7 +37,7 @@
 
   <xs:annotation xmlns="http://example.com/2">
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="myFmt" />
+      <dfdl:format xmlns:ex="http://example.com/2" ref="ex:myFmt" />
     </xs:appinfo>
   </xs:annotation>
 

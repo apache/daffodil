@@ -93,6 +93,40 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
     resultNS
   }.value
 
+  /**
+   * when we resolve a QName reference, if that reference does not have a prefix and there is no
+   * in-scope default namespace, then we use this namespace, which varies depending on things
+   * like targetNamespace and whether this schema was included or imported
+   */
+  override lazy val noPrefixNamespace: NS = LV('noPrefixNamespace) {
+    ii match {
+      case Some(inc: Include) => {
+        // if this schema document was included in another document, then either the two
+        // schemas already have the same targetNamespace or this schema has no-namespace and
+        // is chameleoned into the targetNamespace of the including schema. Either way, the
+        // resulting included elements are in the targetNamespace and so any unprefixed
+        // references to those elements should use the including schemas targetNamespace when
+        // resolving
+        inc.targetNamespace
+      }
+      case Some(imp: Import) => {
+        // if this schema document was imported and we don't have a default namespace then any
+        // unprefixed references just resolve to NoNamespace. Note that if this schema has a
+        // targetNamespace, then it can only reference elements that are imported into it
+        // without a namespace
+        NoNamespace
+      }
+      case _ => {
+        // this is either a Some() that isn't an Include/Import, or this is the bootstrap schema
+        // and we shouldn't be asking for its noPrefixNamespace. Both cases should be
+        // impossible.
+        // $COVERAGE-OFF$
+        Assert.impossible()
+        // $COVERAGE-ON$
+      }
+    }
+  }.value
+
   // There is one distinguished top level SchemaDocument
   // that we use to start the ball rolling by importing all the
   // files that the user supplies via the API/command line.

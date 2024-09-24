@@ -16,34 +16,24 @@
   limitations under the License.
 -->
 
-<xs:schema targetNamespace="http://a02.com"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+<xs:schema
+  targetNamespace="http://example.com/"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:a2="http://a02.com">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+  <!--
+    import without the namespace attribute imports GeneralFormat into
+    no-namespace. We can reference it without a prefix as long as there is no
+    default namespace defined.
+  -->
+  <xs:import schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="a2:GeneralFormat"
-        separator=""
-        initiator=""
-        separatorPosition="infix"
-        ignoreCase="no"
-        separatorSuppressionPolicy="anyEmpty"
-        terminator=""
-        occursCountKind="parsed"
-        initiatedContent="no"
-        representation="text"
-        textNumberRep="standard"
-        encoding="ASCII"
-        textTrimKind="none"
-        leadingSkip='0'/>
+      <dfdl:format ref="GeneralFormat" lengthKind="delimited" />
     </xs:appinfo>
   </xs:annotation>
 
-  <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited"/>
-  <xs:element name="intx" type="xs:int" nillable="true" dfdl:nilKind="literalValue" dfdl:nilValue="^"/>
-
+  <xs:element name="root" type="xs:string" />
 
 </xs:schema>
