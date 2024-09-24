@@ -207,7 +207,7 @@ class DPathCompileInfo(
   @TransientParam parentsDelay: Delay[Seq[DPathCompileInfo]],
   val variableMap: VariableMap,
   val namespaces: scala.xml.NamespaceBinding,
-  val targetNamespace: NS,
+  val noPrefixNamespace: NS,
   val path: String,
   override val schemaFileLocation: SchemaFileLocation,
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
@@ -342,7 +342,7 @@ class DPathElementCompileInfo(
   // to realize the by-name arg expression.
   elementChildrenCompileInfoDelay: Delay[Seq[DPathElementCompileInfo]],
   namespaces: scala.xml.NamespaceBinding,
-  targetNamespace: NS,
+  noPrefixNamespace: NS,
   path: String,
   val name: String,
   val isArray: Boolean,
@@ -358,7 +358,7 @@ class DPathElementCompileInfo(
     parentsDelay.asInstanceOf[Delay[Seq[DPathCompileInfo]]],
     variableMap,
     namespaces,
-    targetNamespace,
+    noPrefixNamespace,
     path,
     sfl,
     unqualifiedPathStepPolicy

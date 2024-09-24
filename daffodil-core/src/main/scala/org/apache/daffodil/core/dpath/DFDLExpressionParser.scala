@@ -53,7 +53,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
   qn: NamedQName,
   nodeInfoKind: NodeInfo.Kind,
   namespaces: NamespaceBinding,
-  targetNamespace: NS,
+  noPrefixNamespace: NS,
   context: DPathCompileInfo,
   isEvaluatedAbove: Boolean,
   host: BasicComponent
@@ -231,7 +231,7 @@ class DFDLPathExpressionParser[T <: AnyRef](
   def Comp = EqualityComp | NumberComp
 
   def TopLevel: Parser[WholeExpression] = ("{" ~> Expr <~ "}") ^^ { xpr =>
-    WholeExpression(nodeInfoKind, xpr, namespaces, targetNamespace, context, host)
+    WholeExpression(nodeInfoKind, xpr, namespaces, noPrefixNamespace, context, host)
   }
 
   val SuccessAtEnd = Parser { in => Success(in, new CharSequenceReader("")) }

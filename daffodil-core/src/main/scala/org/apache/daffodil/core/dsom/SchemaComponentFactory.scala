@@ -110,6 +110,11 @@ trait CommonContextMixin extends NestingLexicalMixin with CommonContextView {
    */
   def targetNamespace: NS = xmlSchemaDocument.targetNamespace
 
+  /**
+   * The namespace to use to resolve references without a prefix
+   */
+  def noPrefixNamespace: NS = xmlSchemaDocument.noPrefixNamespace
+
   final lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
 
 }

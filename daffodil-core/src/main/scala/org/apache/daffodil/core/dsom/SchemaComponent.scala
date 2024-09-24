@@ -94,7 +94,7 @@ trait SchemaComponent
       Delay('nonElementParents, this, parents),
       variableMap,
       namespaces,
-      targetNamespace,
+      noPrefixNamespace,
       path,
       schemaFileLocation,
       tunable.unqualifiedPathStepPolicy

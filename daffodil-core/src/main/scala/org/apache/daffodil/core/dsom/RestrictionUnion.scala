@@ -93,7 +93,7 @@ final class Restriction private (xmlArg: Node, val simpleTypeDef: SimpleTypeDefB
       QName.resolveRef(
         baseQNameString,
         xml.scope,
-        targetNamespace,
+        noPrefixNamespace,
         tunable.unqualifiedPathStepPolicy
       )
     schemaDefinitionUnless(

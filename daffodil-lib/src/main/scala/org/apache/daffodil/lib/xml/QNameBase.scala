@@ -111,10 +111,10 @@ object QName {
   def resolveRef(
     qnameString: String,
     scope: scala.xml.NamespaceBinding,
-    targetNamespace: NS,
+    noPrefixNamespace: NS,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[RefQName] =
-    RefQNameFactory.resolveRef(qnameString, scope, targetNamespace, unqualifiedPathStepPolicy)
+    RefQNameFactory.resolveRef(qnameString, scope, noPrefixNamespace, unqualifiedPathStepPolicy)
 
   def parseExtSyntax(extSyntax: String): (Option[String], NS, String) = {
     val res =
@@ -168,19 +168,22 @@ object QName {
   def resolveStep(
     qnameString: String,
     scope: scala.xml.NamespaceBinding,
-    targetNamespace: NS,
+    noPrefixNamespace: NS,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[StepQName] = {
-    // TODO: We pass in NoNamespace instead of targetNamespace here, which may not be correct in
-    // all cases. If the step being referenced is a global element or if elementFormDefault is
-    // qualified then we probably do want to use targetNamespace to look it up since those
-    // elements likely have a namespace. But for non-qualified local steps, we probably do just
-    // want to use NoNamespace since the step won't have a namespace. However, this is sort of a
-    // chicken-and-egg problem--we need to know the namespace to how to find the step, but we
-    // don't know which namespace to use (NoNamespace or targetNamespace) unless we've already
-    // found the same. Instead, we use NoNamespace and let the flexibility that
-    // unqualfiedPathStepPolicy gives use help to find the step element. Possibly related to
-    // DAFFODIL-2917
+    // It is not clear what namespace to use when a path step does not have a prefix and there
+    // is no default namespace defined. The step could be to a global element in the same
+    // schema, in which case noPrefixNamespace is probably the right choice. But if the step is
+    // to a local element declaration and elementFormDefault=unqualifed then no-namespace should
+    // be used. Or if a path step references an element in a completely different schema, then
+    // it depends on the namespaces declared in that schema. So we can't really say for sure
+    // what namespace to use.
+    //
+    // So we ignore the passed in noPrefixNamespace parameter and instead pass in NoNamespace to
+    // resolveRef. Resolving steps will use the unqualifiedPathStepPolicy, which will cause it
+    // to use either the default namespace or NoNamespace for unprefixed steps.
+    //
+    // This will likely change as part of DAFFODIL-2917.
     StepQNameFactory.resolveRef(qnameString, scope, NoNamespace, unqualifiedPathStepPolicy)
   }
 
@@ -507,23 +510,25 @@ protected trait RefQNameFactoryBase[T] {
   protected def resolveDefaultNamespace(
     scope: scala.xml.NamespaceBinding,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
-  ): Option[String]
+  ): Option[NS]
 
   protected def constructor(prefix: Option[String], local: String, namespace: NS): T
 
   /**
-   * This variant to resolve normal QNames such as in a ref="pre:local" syntax, or
-   * a path step like these steps .../foo/bar:baz/quux.
+   * Resolve a reference to a QName. Note that the reference may or may not be prefixed. This
+   * function supports references to global declarations or to local declarations when resolving
+   * steps in DFDL path expressions. Note that step and non-step references are handled exactly
+   * the same except for differences in how the default namespace is used for unprefixed
+   * references. This difference is implemented by the resolveDefaultNamespace function.
    */
-  def resolveRef(
+  final def resolveRef(
     qnameString: String,
     scope: scala.xml.NamespaceBinding,
-    targetNamespace: NS,
+    noPrefixNamespace: NS,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   ): Try[T] = Try {
     qnameString match {
       case QNameRegex.QName(prefix, local) => {
-
         // note that the prefix, if defined, can never be ""
         val pre = Option(prefix)
         val preNS = pre.map { p =>
@@ -531,15 +536,13 @@ protected trait RefQNameFactoryBase[T] {
             throw new QNameUndefinedPrefixException(p)
           }
         }
-        val ns = preNS match {
-          case None => {
-            // there was no prefix, use the default namespace (i.e. xmln="...") if defined. If
-            // not defined, use the targetNamespace
-            val defaultNS = resolveDefaultNamespace(scope, unqualifiedPathStepPolicy)
-            defaultNS.map(NS(_)).getOrElse(targetNamespace)
-          }
-          case Some(n) => n
-        }
+        // if we have a prefix, use its associated namespace. If we don't, we use the default
+        // namespace for this type of resolution (i.e. ref vs step). If that does not exist,
+        // then we use the noPrefixNamespace, which is based on targetNamespace and
+        // include/import
+        val ns = preNS
+          .orElse(resolveDefaultNamespace(scope, unqualifiedPathStepPolicy))
+          .getOrElse(noPrefixNamespace)
         val res = constructor(pre, local, ns)
         res
       }
@@ -553,53 +556,16 @@ object RefQNameFactory extends RefQNameFactoryBase[RefQName] {
   override def constructor(prefix: Option[String], local: String, namespace: NS) =
     RefQName(prefix, local, namespace)
 
+  /**
+   * For normal QNames, (i.e. non-expression steps), we just return the default namespace if one
+   * exists
+   */
   override def resolveDefaultNamespace(
     scope: scala.xml.NamespaceBinding,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
-  ) =
-    Option(scope.getURI(null)) // could be a default namespace
+  ): Option[NS] =
+    Option(scope.getURI(null)).map(NS(_))
 
-  /**
-   * Variant used to deal with extended syntax, e.g., from specifying names at the CLI
-   * or for variable binding mechanisms like from the command line options of Daffodil CLI which
-   * accept the extended syntax.
-   */
-  def resolveExtendedSyntaxRef(
-    extSyntax: String,
-    scope: scala.xml.NamespaceBinding,
-    targetNamespace: NS,
-    unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
-  ): Try[RefQName] = Try {
-    val (pre, ns, local) = QName.parseExtSyntax(extSyntax)
-
-    // note that the prefix, if defined, can never be ""
-    val preNS = pre.map { p =>
-      Option(scope.getURI(p)).map(NS(_)).getOrElse {
-        throw new QNameUndefinedPrefixException(p)
-      }
-    }
-    val resolvedNS = (preNS, ns) match {
-      case (None, UnspecifiedNamespace) => {
-        // if neither prefix nor namespace was specified, use the default namespace (i.e.
-        // xmln="...") if defined. If not defined, use the targetNamespace.
-        val defaultNS = resolveDefaultNamespace(scope, unqualifiedPathStepPolicy)
-        defaultNS.map(NS(_)).getOrElse(targetNamespace)
-      }
-      case (None, n) => n
-      case (Some(pn), UnspecifiedNamespace) => pn
-      case (Some(pn), n) => {
-        // TODO: Is this actually an invariant, or should this be an exception simlar to
-        // QNameUndefinedPrefixException?
-        Assert.invariant(
-          pn eq n,
-          "namespace from prefix and scope, and ns argument are inconsitent."
-        )
-        n
-      }
-    }
-    val res = constructor(pre, local, resolvedNS)
-    res
-  }
 }
 
 object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
@@ -607,17 +573,23 @@ object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
   override def constructor(prefix: Option[String], local: String, namespace: NS) =
     StepQName(prefix, local, namespace)
 
-  /* This is what needs Tunables and propagates into Expression */
+  /**
+   * When resolving step QNames without a prefix, we use the unqualifiedPathStepPolicy to
+   * determine whether or not to use the default namespace if one exists.
+   *
+   * This is what needs Tunables and propagates into Expression
+   */
   override def resolveDefaultNamespace(
     scope: scala.xml.NamespaceBinding,
     unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
-  ) = {
+  ): Option[NS] = {
     unqualifiedPathStepPolicy match {
-      case UnqualifiedPathStepPolicy.NoNamespace => None // don't consider default namespace
+      case UnqualifiedPathStepPolicy.NoNamespace =>
+        Some(NoNamespace)
       case UnqualifiedPathStepPolicy.DefaultNamespace =>
-        Option(scope.getURI(null)) // could be a default namespace
+        Option(scope.getURI(null)).map(NS(_))
       case UnqualifiedPathStepPolicy.PreferDefaultNamespace =>
-        Option(scope.getURI(null)) // could be a default namespace
+        Option(scope.getURI(null)).map(NS(_))
     }
   }
 }

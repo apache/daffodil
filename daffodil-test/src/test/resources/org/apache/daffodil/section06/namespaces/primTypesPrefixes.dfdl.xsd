@@ -28,7 +28,7 @@
         We want file and line number to be of the annotation below, not the
         xs:schema element above.
         Note: don't change the line number here. The test checks it. -->
-      <dfdl:format ref="GeneralFormat" />
+      <dfdl:format ref="tns:GeneralFormat" />
     </xs:appinfo>
   </xs:annotation>
 

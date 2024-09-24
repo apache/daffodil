@@ -86,7 +86,7 @@ class DFDLDefineVariable private (node: Node, doc: SchemaDocument)
     val eQN = QName.resolveRef(
       typeQNameString,
       namespaces,
-      targetNamespace,
+      noPrefixNamespace,
       tunable.unqualifiedPathStepPolicy
     )
     val res = eQN.recover { case _: Throwable =>

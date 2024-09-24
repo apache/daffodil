@@ -55,7 +55,7 @@ class TestGeneratedProperties {
     def lineDescription: String = ???
     def locationDescription: String = ???
     def namespaces: scala.xml.NamespaceBinding = ???
-    def targetNamespace: NS = ???
+    def noPrefixNamespace: NS = ???
     def schemaFileLocation: SchemaFileLocation = ???
 
     val xml = bagOfProps

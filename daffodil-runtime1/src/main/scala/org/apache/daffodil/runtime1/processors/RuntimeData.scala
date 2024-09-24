@@ -96,7 +96,7 @@ sealed trait RuntimeData
   def variableMap: VariableMap
   def unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
   def namespaces: NamespaceBinding
-  def targetNamespace: NS
+  def noPrefixNamespace: NS
   def diagnosticDebugName: String
   override def toString =
     diagnosticDebugName // diagnostic messages depend on toString doing this
@@ -175,7 +175,7 @@ sealed abstract class TermRuntimeData(
   }
 
   final def namespaces = dpathCompileInfo.namespaces
-  final def targetNamespace = dpathCompileInfo.targetNamespace
+  final def noPrefixNamespace = dpathCompileInfo.noPrefixNamespace
 
   private val termID = TermRuntimeData.generateTermID
 
@@ -215,7 +215,7 @@ sealed class NonTermRuntimeData(
   val diagnosticDebugName: String,
   val path: String,
   override val namespaces: NamespaceBinding,
-  override val targetNamespace: NS,
+  override val noPrefixNamespace: NS,
   val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy
 ) extends RuntimeData {}
 
@@ -231,7 +231,7 @@ final class SimpleTypeRuntimeData(
   diagnosticDebugNameArg: String,
   pathArg: String,
   namespacesArg: NamespaceBinding,
-  targetNamespaceArg: NS,
+  noPrefixNamespaceArg: NS,
   val primType: NodeInfo.PrimType,
   val noFacetChecks: Boolean,
   val patternValues: Seq[FacetTypes.FacetValueR],
@@ -253,7 +253,7 @@ final class SimpleTypeRuntimeData(
     diagnosticDebugNameArg,
     pathArg,
     namespacesArg,
-    targetNamespaceArg,
+    noPrefixNamespaceArg,
     unqualifiedPathStepPolicyArg
   ) {
 
@@ -659,6 +659,7 @@ sealed class ElementRuntimeData(
   override val minimizedScope: NamespaceBinding,
   defaultBitOrderArg: BitOrder,
   val optPrimType: Option[PrimType],
+  val targetNamespace: NS,
   val optSimpleTypeRuntimeData: Option[SimpleTypeRuntimeData],
   val optComplexTypeModelGroupRuntimeData: Option[ModelGroupRuntimeData],
   val minOccurs: Long,
@@ -786,7 +787,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
         Seq[DPathElementCompileInfo]()
       ).force, // elementChildrenCompileInfoDelay: Delay[Seq[DPathElementCompileInfo]],
       null, // namespaces: scala.xml.NamespaceBinding,
-      null, // targetNamespace: NS,
+      null, // noPrefixNamespace: NS,
       local, // path: String,
       local, // val name: String,
       false, // val isArray: Boolean,
@@ -805,6 +806,7 @@ sealed abstract class ErrorERD(local: String, namespaceURI: String)
     null, // minimizedScopeArg: => NamespaceBinding,
     null, // defaultBitOrderArg: => BitOrder,
     None, // optPrimTypeArg: => Option[PrimType],
+    null, // targetNamespaceArg: => NS,
     null, // optSimpleTypeRuntimeDataArg: => Option[SimpleTypeRuntimeData],
     null, // optComplexTypeModelGroupRuntimeDataArg: => Option[ModelGroupRuntimeData],
     0L, // minOccursArg: => Long,
@@ -1044,7 +1046,7 @@ final class VariableRuntimeData(
   diagnosticDebugNameArg: String,
   pathArg: String,
   namespacesArg: NamespaceBinding,
-  targetNamespaceArg: NS,
+  noPrefixNamespaceArg: NS,
   val external: Boolean,
   val direction: VariableDirection,
   maybeDefaultValueExprDelay: Delay[Maybe[CompiledExpression[AnyRef]]],
@@ -1059,7 +1061,7 @@ final class VariableRuntimeData(
     diagnosticDebugNameArg,
     pathArg,
     namespacesArg,
-    targetNamespaceArg,
+    noPrefixNamespaceArg,
     unqualifiedPathStepPolicyArg
   ) {
 

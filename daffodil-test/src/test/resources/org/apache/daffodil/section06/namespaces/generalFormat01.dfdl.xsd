@@ -16,29 +16,24 @@
   limitations under the License.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  targetNamespace="http://baseSchema.com" xmlns:cs="http://stepSchema.com" xmlns:ex="http://www.example.com"
-  xmlns:bs="http://baseSchema.com">
+<xs:schema
+  targetNamespace="http://example.com/"
+  xmlns="http://example.com/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+  <!--
+    include GeneralFormat into the targetNamespace, the default namespace is the same
+    as targetNamespace so we can reference GeneralFormat without a prefix
+  -->
   <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="bs:GeneralFormat" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
-        ignoreCase="no" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="ASCII"/>
+      <dfdl:format ref="GeneralFormat" lengthKind="delimited" />
     </xs:appinfo>
   </xs:annotation>
-   
-  <xs:import namespace="http://stepSchema.com" schemaLocation="/org/apache/daffodil/section06/namespaces/cycle_step.dfdl.xsd"/>
-  
-  <xs:element name="elem"> 
-    <xs:complexType> 
-      <xs:sequence> 
-         <xs:element ref="cs:elsewhere"/> 
-      </xs:sequence> 
-    </xs:complexType> 
-  </xs:element>
-  
-  <xs:element name="two" type="xs:int" dfdl:lengthKind="delimited"/> 
-  
+
+  <xs:element name="root" type="xs:string" />
+
 </xs:schema>

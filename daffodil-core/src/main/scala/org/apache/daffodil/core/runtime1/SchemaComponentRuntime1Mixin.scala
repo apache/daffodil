@@ -43,7 +43,7 @@ trait SchemaComponentRuntime1Mixin { self: SchemaComponent =>
       diagnosticDebugName,
       path,
       namespaces,
-      targetNamespace,
+      noPrefixNamespace,
       tunable.unqualifiedPathStepPolicy
     )
   }.value

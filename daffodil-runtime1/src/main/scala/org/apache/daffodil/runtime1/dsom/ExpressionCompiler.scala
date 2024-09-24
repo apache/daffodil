@@ -32,7 +32,7 @@ trait ExpressionCompilerBase[T <: AnyRef] {
     nodeInfoKind: NodeInfo.Kind,
     exprWithBracesMaybe: String,
     namespaces: NamespaceBinding,
-    targetNamespace: NS,
+    noPrefixNamespace: NS,
     compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean,
     host: BasicComponent,

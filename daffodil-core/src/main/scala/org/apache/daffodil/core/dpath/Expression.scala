@@ -23,7 +23,6 @@ import scala.util.{ Failure, Success }
 import scala.xml.NamespaceBinding
 
 import org.apache.daffodil.lib.api.DaffodilTunables
-import org.apache.daffodil.lib.api.UnqualifiedPathStepPolicy
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.equality._
 import org.apache.daffodil.lib.exceptions._
@@ -52,8 +51,6 @@ import org.apache.daffodil.runtime1.udf.UserDefinedFunctionService
 abstract class Expression extends OOLAGHostImpl() with BasicComponent {
 
   override lazy val tunable: DaffodilTunables = parent.tunable
-  override lazy val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy =
-    parent.unqualifiedPathStepPolicy
   override lazy val localSuppressSchemaDefinitionWarnings: Seq[WarnID] =
     parent.localSuppressSchemaDefinitionWarnings
 
@@ -153,7 +150,7 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
 
   lazy val namespaces: NamespaceBinding = parent.namespaces
 
-  lazy val targetNamespace: NS = parent.targetNamespace
+  lazy val noPrefixNamespace: NS = parent.noPrefixNamespace
 
   def children: Seq[Expression]
 
@@ -221,7 +218,7 @@ abstract class Expression extends OOLAGHostImpl() with BasicComponent {
 
   def resolveRef(qnameString: String): RefQName = {
     QName
-      .resolveRef(qnameString, namespaces, targetNamespace, tunable.unqualifiedPathStepPolicy)
+      .resolveRef(qnameString, namespaces, noPrefixNamespace, tunable.unqualifiedPathStepPolicy)
       .recover { case _: Throwable =>
         SDE("The prefix of '%s' has no corresponding namespace definition.", qnameString)
       }
@@ -460,14 +457,12 @@ case class WholeExpression(
   nodeInfoKind: NodeInfo.Kind,
   ifor: Expression,
   nsBindingForPrefixResolution: NamespaceBinding,
-  targetNamespaceArg: NS,
+  noPrefixNamespaceArg: NS,
   ci: DPathCompileInfo,
   host: BasicComponent
 ) extends Expression {
 
   final override lazy val tunable: DaffodilTunables = host.tunable
-  final override lazy val unqualifiedPathStepPolicy: UnqualifiedPathStepPolicy =
-    host.unqualifiedPathStepPolicy
   final override lazy val localSuppressSchemaDefinitionWarnings: Seq[WarnID] =
     host.localSuppressSchemaDefinitionWarnings
 
@@ -480,7 +475,7 @@ case class WholeExpression(
 
   override lazy val namespaces = nsBindingForPrefixResolution
 
-  override lazy val targetNamespace = targetNamespaceArg
+  override lazy val noPrefixNamespace = noPrefixNamespaceArg
 
   override def text = ifor.text
 
@@ -835,7 +830,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
     val e = QName.resolveStep(
       step,
       namespaces,
-      targetNamespace,
+      noPrefixNamespace,
       tunable.unqualifiedPathStepPolicy
     )
     e match {

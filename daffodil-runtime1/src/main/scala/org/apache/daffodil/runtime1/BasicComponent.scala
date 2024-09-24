@@ -18,7 +18,6 @@
 package org.apache.daffodil.runtime1
 
 import org.apache.daffodil.lib.oolag.OOLAG.OOLAGHost
-import org.apache.daffodil.lib.xml.ResolvesQNames
 import org.apache.daffodil.runtime1.dsom.ImplementsThrowsOrSavesSDE
 import org.apache.daffodil.runtime1.processors.HasTunable
 
@@ -28,13 +27,9 @@ import org.apache.daffodil.runtime1.processors.HasTunable
  * grammar subsystem components (e.g, Combinators), etc.
  *
  * Common to them is OOLAG, and availablility of Daffodil's
- * tunables, and the ability to resolve QNames
+ * tunables.
  */
-trait BasicComponent
-  extends OOLAGHost
-  with HasTunable
-  with ResolvesQNames
-  with ImplementsThrowsOrSavesSDE {
+trait BasicComponent extends OOLAGHost with HasTunable with ImplementsThrowsOrSavesSDE {
 
   /**
    * Components have an initialize protocol.
