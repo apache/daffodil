@@ -235,30 +235,28 @@ class TestCLISaveParser {
     }
   }
 
-  // DAFFODIL-1141
-  /*@Test*/
+  @Test
   def test_CLI_Saving_SaveParser_debug(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
-      runCLI(args"-d save-parser -s $schema -r matrix $parser") { cli =>
-        cli.expectErr("Some error about -d not being valid with save-parser")
+      runCLI(args"save-parser -d -s $schema -r matrix $parser") { cli =>
+        cli.expectErr("Unknown option 'd'")
       }(ExitCode.Usage)
     }
   }
 
-  // DAFFODIL-1141
-  /*@Test*/
+  @Test
   def test_CLI_Saving_SaveParser_trace(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
     withTempFile { parser =>
-      runCLI(args"-t save-parser -s $schema -r matrix $parser") { cli =>
-        cli.expectErr("Some error about -t not being valid with save-parser")
+      runCLI(args"save-parser -t -s $schema -r matrix $parser") { cli =>
+        cli.expectErr("Unknown option 't'")
       }(ExitCode.Usage)
     }
   }
@@ -272,7 +270,7 @@ class TestCLISaveParser {
     )
 
     withTempFile { parser =>
-      runCLI(args"-t save-parser -s $schema -r matrix $parser") { _ => }(ExitCode.Success)
+      runCLI(args"save-parser -s $schema -r matrix $parser") { _ => }(ExitCode.Success)
 
       runCLI(args"unparse --parser $parser $input") { cli =>
         cli.expect("0,1,2")
