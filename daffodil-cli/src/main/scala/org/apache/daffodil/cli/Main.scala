@@ -323,23 +323,16 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
   shortSubcommandsHelp()
 
   // Global Options
-  val debug = opt[Option[String]](
-    argName = "file",
-    descr =
-      "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided."
-  )(optionalValueConverter[String](a => a))
-  val trace = opt[Boolean](descr = "Run this program with verbose trace output")
   val verbose = tally(descr = "Increment verbosity level, one level for each -v")
   val version = opt[Boolean](descr = "Show Daffodil's version")
 
   // Parse Subcommand Options
   object parse extends scallop.Subcommand("parse") {
-    banner("""|Usage: daffodil parse (-s <schema> [-r <root>] | -P <parser>)
-              |                      [-c <file>] [-D<variable>=<value>...] [-I <infoset_type>]
-              |                      [-o <output>] [--stream] [-T<tunable>=<value>...] [-V <mode>]
-              |                      [infile]
+    banner("""|Usage: daffodil parse (-s <schema> | -P <parser>) [PARSE_OPTS] [--] [infile]
               |
               |Parse a file, using either a DFDL schema or a saved parser
+              |
+              |-- can be used to separate command-line options from trailing arguments
               |
               |Parse Options:""".stripMargin)
 
@@ -380,8 +373,9 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val rootNS = opt[RefQName](
       "root",
       argName = "node",
-      descr =
-        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
+      descr = "Root element to use. Can be prefixed with {namespace}. " +
+        "Must be a top-level element. Defaults to first top-level element of DFDL schema. " +
+        "Only valid with the --schema option."
     )
     val schema =
       opt[URISchemaSource](
@@ -402,13 +396,24 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       name = 'T',
       keyName = "tunable",
       valueName = "value",
-      descr = "Tunable configuration options to change Daffodil's behavior"
+      descr = "Tunable configuration options to change Daffodil's behavior. " +
+        "Only valid with the --schema option."
     )
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
       short = 'V',
       default = Some(ValidationMode.Off),
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
+    )
+    val debug = opt[Option[String]](
+      argName = "file",
+      descr =
+        "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided. " +
+          "Cannot be used with --trace option."
+    )(optionalValueConverter[String](a => a))
+    val trace = opt[Boolean](
+      descr = "Run this program with verbose trace output. " +
+        "Cannot be used with the --debug option."
     )
 
     val infile = trailArg[String](
@@ -418,6 +423,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
     // must have one of --schema or --parser
     requireOne(schema, parser)
+
+    mutuallyExclusive(trace, debug) // cannot provide both --trace and --debug
 
     // if --parser is provided, cannot also provide --root or -T
     conflicts(parser, List(rootNS, tunables))
@@ -450,12 +457,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
   // Unparse Subcommand Options
   object unparse extends scallop.Subcommand("unparse") {
-    banner("""|Usage: daffodil unparse (-s <schema> [-r <root>] | -P <parser>)
-              |                        [-c <file>] [-D<variable>=<value>...] [-I <infoset_type>]
-              |                        [-o <output>] [--stream] [-T<tunable>=<value>...] [-V <mode>]
-              |                        [infile]
+    banner("""|Usage: daffodil unparse (-s <schema> | -P <parser>) [--] [infile]
               |
               |Unparse an infoset file, using either a DFDL schema or a saved parser
+              |
+              |-- can be used to separate command-line options from trailing arguments
               |
               |Unparse Options:""".stripMargin)
 
@@ -495,8 +501,9 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val rootNS = opt[RefQName](
       "root",
       argName = "node",
-      descr =
-        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
+      descr = "Root element to use. Can be prefixed with {namespace}. " +
+        "Must be a top-level element. Defaults to first top-level element of DFDL schema. " +
+        "Only valid with the --schema option."
     )
     val schema =
       opt[URISchemaSource](
@@ -516,7 +523,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       name = 'T',
       keyName = "tunable",
       valueName = "value",
-      descr = "Tunable configuration options to change Daffodil's behavior"
+      descr = "Tunable configuration options to change Daffodil's behavior. " +
+        "Only valid with the --schema option."
     )
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](
       short = 'V',
@@ -524,7 +532,16 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       argName = "mode",
       descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
     )
-
+    val debug = opt[Option[String]](
+      argName = "file",
+      descr =
+        "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided. " +
+          "Cannot be used with --trace option."
+    )(optionalValueConverter[String](a => a))
+    val trace = opt[Boolean](
+      descr = "Run this program with verbose trace output. " +
+        "Cannot be used with the --debug option."
+    )
     val infile = trailArg[String](
       required = false,
       descr = "Input file to unparse. If not specified, or a value of -, reads from stdin."
@@ -532,6 +549,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
     // must have one of --schema or --parser
     requireOne(schema, parser)
+
+    mutuallyExclusive(trace, debug) // cannot provide both --trace and --debug
 
     // if --parser is provided, cannot also provide --root or -T
     conflicts(parser, List(rootNS, tunables))
@@ -558,11 +577,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
   // Save Parser Subcommand Options
   object save extends scallop.Subcommand("save-parser") {
-    banner("""|Usage: daffodil save-parser -s <schema> [-r <root>]
-              |                            [-c <file>] [-D<variable>=<value>...] [-T<tunable>=<value>...]
-              |                            [outfile]
+    banner("""|Usage: daffodil save-parser -s <schema> [SAVE_PARSER_OPTIONS] [--] [outfile]
               |
               |Create and save a parser using a DFDL schema
+              |
+              |-- can be used to separate command-line options from trailing arguments
               |
               |Save Parser Options:""".stripMargin)
 
@@ -617,11 +636,13 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
   // Test Subcommand Options
   object test extends scallop.Subcommand("test") {
     banner(
-      """|Usage: daffodil test [-I <implementation>] [-l] [-r] [-i] <tdmlfile> [testnames...]
-              |
-              |List or execute tests in a TDML file
-              |
-              |Test Options:""".stripMargin
+      """|Usage: daffodil test [TEST_OPTIONS] [--] <tdmlfile> [testnames...]
+         |
+         |List or execute tests in a TDML file
+         |
+         |-- can be used to separate command-line options from trailing arguments
+         |
+         |Test Options:""".stripMargin
     )
 
     descr("List or execute TDML tests")
@@ -638,25 +659,37 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       tally(descr = "Increment test result information output level, one level for each -i")
     val list = opt[Boolean](descr = "Show names and descriptions instead of running test cases")
     val regex = opt[Boolean](descr = "Treat <testnames...> as regular expressions")
+    val debug = opt[Option[String]](
+      argName = "file",
+      descr =
+        "Enable the interactive debugger. Optionally, read initial debugger commands from [file] if provided. " +
+          "Cannot be used with --trace option."
+    )(optionalValueConverter[String](a => a))
+    val trace = opt[Boolean](
+      descr = "Run this program with verbose trace output. " +
+        "Cannot be used with the --debug option."
+    )
     val tdmlfile =
       trailArg[String](required = true, descr = "Test Data Markup Language (TDML) file")
     val testnames = trailArg[List[String]](
       required = false,
       descr = "Name(s) of test cases in tdmlfile. If not given, all tests in tdmlfile are run."
     )
+
+    mutuallyExclusive(trace, debug) // cannot provide both --trace and --debug
   }
 
   // Performance Subcommand Options
   object performance extends scallop.Subcommand("performance") {
-    banner("""|Usage: daffodil performance (-s <schema> [-r <root>] | -P <parser>)
-              |                            [-c <file>] [-D<variable>=<value>...] [-I <infoset_type>]
-              |                            [-N <number>] [-t <threads>] [-T<tunable>=<value>...]
-              |                            [-u] [-V <mode>]
-              |                            <infile>
+    banner(
+      """|Usage: daffodil performance (-s <schema> | -P <parser>) [PERFORMANCE_OPTIONS] [--] <infile>
               |
               |Run a performance test, using either a DFDL schema or a saved parser
               |
-              |Performance Options:""".stripMargin)
+              |-- can be used to separate command-line options from trailing arguments
+              |
+              |Performance Options:""".stripMargin
+    )
 
     descr("Run performance test")
     helpWidth(width)
@@ -696,8 +729,9 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     val rootNS = opt[RefQName](
       "root",
       argName = "node",
-      descr =
-        "Root element to use. Can be prefixed with {namespace}. Must be a top-level element. Defaults to first top-level element of DFDL schema."
+      descr = "Root element to use. Can be prefixed with {namespace}. " +
+        "Must be a top-level element. Defaults to first top-level element of DFDL schema. " +
+        "Only valid with the --schema option."
     )
     val schema =
       opt[URISchemaSource](
@@ -717,7 +751,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       name = 'T',
       keyName = "tunable",
       valueName = "value",
-      descr = "Tunable configuration options to change Daffodil's behavior"
+      descr = "Tunable configuration options to change Daffodil's behavior. " +
+        "Only valid with the --schema option."
     )
     val unparse = opt[Boolean](
       default = Some(false),
@@ -772,13 +807,15 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       extends scallop.Subcommand(languageArg) {
 
       val language = languageArg
-      banner(s"""|Usage: daffodil generate $language -s <schema> [-r <root>]
-                 |                              [-c <file>] [-T<tunable>=<value>...]
-                 |                              [outdir]
+      banner(
+        s"""|Usage: daffodil generate $language -s <schema> [GENERATE_OPTIONS] [--] [outdir]
                  |
                  |Generate $languageName code from a DFDL schema to parse or unparse data
                  |
-                 |Generate Options:""".stripMargin)
+                 |-- can be used to separate command-line options from trailing arguments
+                 |
+                 |Generate Options:""".stripMargin
+      )
       descr(s"Generate $languageName code from a DFDL schema")
       helpWidth(width)
 
@@ -825,9 +862,11 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
 
   // Encode or decode EXI Subcommand Options
   object exi extends scallop.Subcommand("exi") {
-    banner("""|Usage: daffodil exi [-d] [-s <schema>] [-o <output>] [infile]
+    banner("""|Usage: daffodil exi [EXI_OPTIONS] [--] [infile]
               |
               |Encode/decode an XML file with EXI. If a schema is specified, it will use schema aware encoding/decoding.
+              |
+              |-- can be used to separate command-line options from trailing arguments
               |
               |EncodeEXI Options:""".stripMargin)
 
@@ -860,7 +899,6 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
   addSubcommand(generate)
   addSubcommand(exi)
 
-  mutuallyExclusive(trace, debug) // cannot provide both --trace and --debug
   requireSubcommand()
 
   verify()
@@ -1012,27 +1050,38 @@ class Main(
     }
   }
 
-  def withDebugOrTrace(proc: DFDL.DataProcessor, conf: CLIConf): DFDL.DataProcessor = {
-    (conf.trace() || conf.debug.isDefined) match {
+  def withDebugOrTrace(
+    proc: DFDL.DataProcessor,
+    traceArg: ScallopOption[Boolean],
+    debugArg: ScallopOption[Option[String]]
+  ): DFDL.DataProcessor = {
+    (traceArg() || debugArg.isDefined) match {
       case true => {
         val runner =
-          if (conf.trace()) {
-            new TraceDebuggerRunner(STDOUT)
-          } else {
-            if (System.console == null) {
-              Logger.log.warn(
-                s"Using --debug on a non-interactive console may result in display issues"
-              )
-            }
-            conf.debug() match {
-              case Some(f) => new CLIDebuggerRunner(new File(f), STDIN, STDOUT)
-              case None => new CLIDebuggerRunner(STDIN, STDOUT)
-            }
-          }
+          getTraceOrCLIDebuggerRunner(traceArg, debugArg)
         val id = new InteractiveDebugger(runner, ExpressionCompilers)
         proc.withDebugger(id).withDebugging(true)
       }
       case false => proc
+    }
+  }
+
+  private def getTraceOrCLIDebuggerRunner(
+    trace: ScallopOption[Boolean],
+    debug: ScallopOption[Option[String]]
+  ) = {
+    if (trace()) {
+      new TraceDebuggerRunner(STDOUT)
+    } else {
+      if (System.console == null) {
+        Logger.log.warn(
+          s"Using --debug on a non-interactive console may result in display issues"
+        )
+      }
+      debug() match {
+        case Some(f) => new CLIDebuggerRunner(new File(f), STDIN, STDOUT)
+        case None => new CLIDebuggerRunner(STDIN, STDOUT)
+      }
     }
   }
 
@@ -1161,7 +1210,7 @@ class Main(
         }.map {
           _.withExternalVariables(combineExternalVariables(parseOpts.vars, optDafConfig))
         }.map { _.withValidationMode(validate) }
-          .map { withDebugOrTrace(_, conf) }
+          .map { withDebugOrTrace(_, parseOpts.trace, parseOpts.debug) }
 
         val rc = processor match {
           case None => ExitCode.UnableToCreateProcessor
@@ -1499,7 +1548,7 @@ class Main(
         }.map {
           _.withExternalVariables(combineExternalVariables(unparseOpts.vars, optDafConfig))
         }.map { _.withValidationMode(validate) }
-          .map { withDebugOrTrace(_, conf) }
+          .map { withDebugOrTrace(_, unparseOpts.trace, unparseOpts.debug) }
 
         val output = unparseOpts.output.toOption match {
           case Some("-") | None => STDOUT
@@ -1619,20 +1668,8 @@ class Main(
         val optTDMLImplementation = testOpts.implementation.toOption
         val tdmlRunnerInit = Runner(tdmlFile, optTDMLImplementation)
 
-        val tdmlRunner = if (conf.trace() || conf.debug.isDefined) {
-          val db = if (conf.trace()) {
-            new TraceDebuggerRunner(STDOUT)
-          } else {
-            if (System.console == null) {
-              Logger.log.warn(
-                s"Using --debug on a non-interactive console may result in display issues"
-              )
-            }
-            conf.debug() match {
-              case Some(f) => new CLIDebuggerRunner(new File(f), STDIN, STDOUT)
-              case None => new CLIDebuggerRunner(STDIN, STDOUT)
-            }
-          }
+        val tdmlRunner = if (testOpts.trace() || testOpts.debug.isDefined) {
+          val db = getTraceOrCLIDebuggerRunner(testOpts.trace, testOpts.debug)
           val id = new InteractiveDebugger(db, ExpressionCompilers)
           tdmlRunnerInit.setDebugger(id)
           tdmlRunnerInit

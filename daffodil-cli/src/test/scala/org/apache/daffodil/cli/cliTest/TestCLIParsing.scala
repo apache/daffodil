@@ -536,7 +536,7 @@ class TestCLIParsing {
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/namespaces/multi_base_15.dfdl.xsd"
     )
 
-    runCLI(args"-t parse -s $schema") { cli =>
+    runCLI(args"parse -t -s $schema") { cli =>
       cli.sendLine("test", inputDone = true)
       cli.expect("parser: <Element name='rabbitHole'>")
     }(ExitCode.Success)
@@ -547,7 +547,7 @@ class TestCLIParsing {
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     )
 
-    runCLI(args"-t parse -s $schema") { cli =>
+    runCLI(args"parse -t -s $schema") { cli =>
       cli.sendLine("0,1,2,3,,,,", inputDone = true)
       cli.expectErr("Left over data. Consumed 56 bit(s) with at least")
       cli.expectErr("Left over data (Hex) starting at byte 8 is: (")
@@ -775,7 +775,7 @@ class TestCLIParsing {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/cli_schema_02.dfdl.xsd"
     )
 
-    runCLI(args"--trace parse --stream -s $schema") { cli =>
+    runCLI(args"parse --trace --stream -s $schema") { cli =>
       cli.send("123", inputDone = true)
       cli.expect("<a>1</a>")
       cli.expect("bitPosition: 8")

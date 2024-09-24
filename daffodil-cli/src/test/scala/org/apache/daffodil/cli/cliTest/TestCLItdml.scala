@@ -115,7 +115,7 @@ class TestCLItdml {
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/Entities.tdml"
     )
 
-    runCLI(args"-t test $tdml byte_entities_6_08") { cli =>
+    runCLI(args"test -t $tdml byte_entities_6_08") { cli =>
       cli.expect("parser:")
       cli.expect("bitPosition:")
       cli.expect("data:")
@@ -131,7 +131,7 @@ class TestCLItdml {
       "daffodil-cli/src/test/resources/org/apache/daffodil/cli/debug.txt"
     )
 
-    runCLI(args"-d $debugFile test $tdml byte_entities_6_08") { cli =>
+    runCLI(args"test -d $debugFile $tdml byte_entities_6_08") { cli =>
       cli.expect("(debug)")
       cli.expect("Usage:")
       cli.expect("[Pass] byte_entities_6_08")
