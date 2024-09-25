@@ -82,7 +82,7 @@ abstract class ElementParserBase(
       } else {
         val failureMessage = ccfResult.errMsg
         Logger.log.debug(
-          "Validation failed for ${context.toString} due to ${failureMessage}. The element was ${currentElement.namedQName}."
+          s"Validation failed for ${context.toString} due to ${failureMessage}. The element was ${currentElement.namedQName}."
         )
         pstate.validationError(
           "%s failed facet checks due to: %s",
@@ -199,7 +199,8 @@ abstract class ElementParserBase(
       if (pstate.processorStatus ne Success) return
 
       val shouldValidate = erd.isSimpleType &&
-        pstate.dataProc.isDefined && pstate.dataProc.value.validationMode != ValidationMode.Off
+        pstate.dataProc.isDefined && (pstate.dataProc.value.validationMode != ValidationMode.Off
+          && pstate.dataProc.value.validationMode != ValidationMode.Xerces)
 
       if (shouldValidate) {
         validate(pstate)

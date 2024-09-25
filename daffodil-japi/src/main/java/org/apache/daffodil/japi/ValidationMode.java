@@ -32,9 +32,14 @@ public enum ValidationMode {
   Limited(20),
 
   /**
-   * Perform full schema validation using Xerces
+   * Perform full schema validation using Xerces and Daffodil
    */
-  Full(30);
+  Full(30),
+
+  /**
+   * Perform schema validation using only Xerces
+   */
+  Xerces(40);
 
   /**
    * Numeric ID of the validation mode

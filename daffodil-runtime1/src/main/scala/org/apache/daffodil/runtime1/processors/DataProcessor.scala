@@ -112,9 +112,9 @@ object DataProcessor {
   ) extends DataProcessor(ssrd, tunables, variableMap, validationMode) {
 
     override def withValidationMode(mode: ValidationMode.Type): DataProcessor = {
-      if (mode == ValidationMode.Full) {
+      if (mode == ValidationMode.Full || mode == ValidationMode.Xerces) {
         throw new InvalidUsageException(
-          "'Full' validation not allowed when using a restored parser."
+          "'Full' or 'Xerces' validation not allowed when using a restored parser."
         )
       }
       super.withValidationMode(mode)
@@ -224,10 +224,10 @@ class DataProcessor(
       case ValidationMode.Off => null
       case ValidationMode.Limited => null
       case ValidationMode.Custom(cv) => cv
-      case ValidationMode.Full => {
+      case ValidationMode.Xerces | ValidationMode.Full => {
         // we only need to provide the main schema, Xerces will find imported/included schemas
         // using the Daffodil resolver set in the XercesValidatorFactory
-        val sources = Seq(ssrd.mainSchemaUriForFullValidation.toString)
+        val sources = Seq(ssrd.mainSchemaUriForFullOrXercesValidation.toString)
         val cfg = XercesValidatorFactory.makeConfig(sources)
         XercesValidatorFactory.makeValidator(cfg)
       }
@@ -369,7 +369,7 @@ class DataProcessor(
    */
   def parse(input: InputSourceDataInputStream, output: InfosetOutputter): DFDL.ParseResult = {
     checkNotError()
-    // If full validation is enabled, tee all the infoset events to a second
+    // If full or xerces validation is enabled, tee all the infoset events to a second
     // infoset outputter that writes the infoset to a byte array, and then
     // we'll validate that byte array upon a successful parse.
     //
@@ -380,7 +380,7 @@ class DataProcessor(
     //
     val (outputter, maybeValidationBytes) = {
       validationMode match {
-        case ValidationMode.Full | ValidationMode.Custom(_) =>
+        case ValidationMode.Xerces | ValidationMode.Full | ValidationMode.Custom(_) =>
           val bos = new java.io.ByteArrayOutputStream()
           val xmlOutputter = new XMLTextInfosetOutputter(bos, false)
           val teeOutputter = new TeeInfosetOutputter(output, xmlOutputter)

@@ -35,12 +35,6 @@ class TestValidationErr {
   @Test def test_facetPattern01_validation_off(): Unit = {
     runner.runOneTest("facetPattern01_validation_off")
   }
-  @Test def test_facetPattern01_fail_limited(): Unit = {
-    runner.runOneTest("facetPattern01_fail_limited")
-  }
-  @Test def test_facetPattern01_fail_full(): Unit = {
-    runner.runOneTest("facetPattern01_fail_full")
-  }
   @Test def test_facetPattern01_success_limited(): Unit = {
     runner.runOneTest("facetPattern01_success_limited")
   }
@@ -48,11 +42,24 @@ class TestValidationErr {
     runner.runOneTest("facetPattern01_success_full")
   }
 
+  @Test def test_facetPattern01_fail_limited(): Unit = {
+    runner.runOneTest("facetPattern01_fail_limited")
+  }
+  @Test def test_facetPattern01_fail_full(): Unit = {
+    runner.runOneTest("facetPattern01_fail_full")
+  }
+  @Test def test_facetPattern01_fail_xerces(): Unit = {
+    runner.runOneTest("facetPattern01_fail_xerces")
+  }
+
   @Test def test_arrayElements_fail_limited(): Unit = {
     runner.runOneTest("arrayElements_fail_limited")
   }
   @Test def test_arrayElements_fail_full(): Unit = {
     runner.runOneTest("arrayElements_fail_full")
+  }
+  @Test def test_arrayElements_fail_xerces(): Unit = {
+    runner.runOneTest("arrayElements_fail_xerces")
   }
 
   @Test def test_checkMinLength_Fail_Combining_limited(): Unit = {

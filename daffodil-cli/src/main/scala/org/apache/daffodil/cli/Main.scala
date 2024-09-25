@@ -165,6 +165,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     s match {
       case "on" => ValidationMode.Full
       case "limited" => ValidationMode.Limited
+      case "xerces" => ValidationMode.Xerces
       case "off" => ValidationMode.Off
       case DefaultArgPattern(name, arg) if Validators.isRegistered(name) =>
         val config =
@@ -175,7 +176,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
         ValidationMode.Custom(Validators.get(name).make(ConfigFactory.empty))
       case _ =>
         throw new Exception(
-          "Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', or name of spi validator."
+          "Unrecognized ValidationMode %s.  Must be 'on', 'limited', 'off', 'xerces', or name of spi validator."
             .format(s)
         )
     }
@@ -408,7 +409,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       short = 'V',
       default = Some(ValidationMode.Off),
       argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
+      descr =
+        "Validation mode. Use 'on', 'limited', 'off', 'xerces', or a validator plugin name."
     )
 
     val infile = trailArg[String](
@@ -432,7 +434,7 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
     }
 
     validateOpt(parser, validate) {
-      case (Some(_), Some(ValidationMode.Full)) =>
+      case (Some(_), Some(ValidationMode.Full | ValidationMode.Xerces)) =>
         Left("The validation mode must be 'limited' or 'off' when using a saved parser.")
       case _ => Right(Unit)
     }
@@ -522,7 +524,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       short = 'V',
       default = Some(ValidationMode.Off),
       argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
+      descr =
+        "Validation mode. Use 'on', 'limited', 'off', 'xerces', or a validator plugin name."
     )
 
     val infile = trailArg[String](
@@ -727,7 +730,8 @@ class CLIConf(arguments: Array[String], stdout: PrintStream, stderr: PrintStream
       short = 'V',
       default = Some(ValidationMode.Off),
       argName = "mode",
-      descr = "Validation mode. Use 'on', 'limited', 'off', or a validator plugin name."
+      descr =
+        "Validation mode. Use 'on', 'limited', 'off', 'xerces', or a validator plugin name."
     )
 
     val infile = trailArg[String](

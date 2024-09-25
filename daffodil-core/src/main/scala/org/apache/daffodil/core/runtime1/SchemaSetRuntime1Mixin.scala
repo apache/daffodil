@@ -78,7 +78,7 @@ trait SchemaSetRuntime1Mixin {
       !rootERD.dpathElementCompileInfo.isOutputValueCalc,
       "The root element cannot have the dfdl:outputValueCalc property."
     )
-    // stored transiently in the SSRD, only used for full validation
+    // stored transiently in the SSRD, only used for full or xerces validation
     val mainSchemaURI = self.schemaSource.uriForLoading
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null

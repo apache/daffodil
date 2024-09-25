@@ -37,13 +37,13 @@ final class SchemaSetRuntimeData(
   allLayers: Seq[LayerRuntimeData],
   @transient layerRuntimeCompilerArg: LayerRuntimeCompiler,
   /**
-   * URI to the root schema, used only for compiling a validator for full validation--this
+   * URI to the root schema, used only for compiling a validator for full or xerces validation--this
    * should not be used for any other purposes. This is marked as transient so that if the
    * DataProcessor is serialized this URI will not be serialized, which ensures the absolute URI
    * does not cause issues with save processor reproducibility. Note that saved parsers cannot
-   * be used with full validation so this does not break anything.
+   * be used with full or xerces validation so this does not break anything.
    */
-  @transient val mainSchemaUriForFullValidation: URI
+  @transient val mainSchemaUriForFullOrXercesValidation: URI
 ) extends Serializable
   with ThrowsSDE {
 

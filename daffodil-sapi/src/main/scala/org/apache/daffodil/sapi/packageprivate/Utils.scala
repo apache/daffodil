@@ -40,6 +40,7 @@ private[sapi] object ValidationConversions {
       case ValidationMode.Off => SValidationMode.Off
       case ValidationMode.Limited => SValidationMode.Limited
       case ValidationMode.Full => SValidationMode.Full
+      case ValidationMode.Xerces => SValidationMode.Xerces
       case ValidationMode.Custom(v) => SValidationMode.Custom(v)
     }
     smode
@@ -50,6 +51,7 @@ private[sapi] object ValidationConversions {
       case SValidationMode.Off => ValidationMode.Off
       case SValidationMode.Limited => ValidationMode.Limited
       case SValidationMode.Full => ValidationMode.Full
+      case SValidationMode.Xerces => ValidationMode.Xerces
       case SValidationMode.Custom(v) => ValidationMode.Custom(v)
     }
     mode

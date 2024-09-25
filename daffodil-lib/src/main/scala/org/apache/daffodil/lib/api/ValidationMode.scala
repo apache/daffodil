@@ -29,6 +29,7 @@ object ValidationMode extends Enum {
   case object Off extends Type(10)
   case object Limited extends Type(20)
   case object Full extends Type(30)
+  case object Xerces extends Type(40)
 
   case class Custom(v: Validator) extends Type(100)
 
@@ -37,6 +38,7 @@ object ValidationMode extends Enum {
       case "on" => Full
       case "limited" => Limited
       case "off" => Off
+      case "xerces" => Xerces
     }
   }
 }

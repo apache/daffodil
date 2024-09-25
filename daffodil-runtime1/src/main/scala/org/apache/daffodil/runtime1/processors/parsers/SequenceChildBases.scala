@@ -530,7 +530,9 @@ trait EndArrayChecksMixin {
     if (state.processorStatus eq Success) {
 
       val shouldValidate =
-        state.dataProc.isDefined && state.dataProc.value.validationMode != ValidationMode.Off
+        state.dataProc.isDefined &&
+          (state.dataProc.value.validationMode != ValidationMode.Off
+            && state.dataProc.value.validationMode != ValidationMode.Xerces)
 
       if (shouldValidate) {
         val minO = erd.minOccurs

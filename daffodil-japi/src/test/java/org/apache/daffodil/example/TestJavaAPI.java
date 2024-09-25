@@ -225,7 +225,7 @@ public class TestJavaAPI {
             parser = parser.withValidationMode(ValidationMode.Full);
             fail();
         } catch (InvalidUsageException e) {
-            assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage());
+            assertEquals("'Full' or 'Xerces' validation not allowed when using a restored parser.", e.getMessage());
         }
     }
 

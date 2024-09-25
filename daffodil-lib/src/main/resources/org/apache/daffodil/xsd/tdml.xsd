@@ -228,6 +228,7 @@
       <enumeration value="on"/>
       <enumeration value="limited"/>
       <enumeration value="off"/>
+      <enumeration value="xerces"/>
     </restriction>
   </simpleType>
 

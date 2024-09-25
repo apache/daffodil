@@ -104,6 +104,7 @@ object ValidationMode extends Enumeration {
   val Off = Value(10)
   val Limited = Value(20)
   val Full = Value(30)
+  val Xerces = Value(40)
 
   case class Custom(v: Validator) extends ValidationMode {
     val id: Int = 100

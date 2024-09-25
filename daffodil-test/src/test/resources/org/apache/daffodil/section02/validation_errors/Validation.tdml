@@ -191,6 +191,23 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+<!--
+     Test name: facetPattern01_success_xerces
+        Schema: pattern
+       Purpose: This document meets the constraints in the schema and should pass
+                For this test validation is xerces.
+-->
+
+	<tdml:parserTestCase name="facetPattern01_success_xerces"
+		root="e1" model="pattern" validation="xerces">
+		<tdml:document>6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>6</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
 <!-- 
      Test name: facetPattern01_fail_limited
         Schema: pattern 
@@ -248,6 +265,41 @@
 
 		</tdml:validationErrors>
 	</tdml:parserTestCase>
+
+  <!--
+     Test name: facetPattern01_fail_xerces
+        Schema: pattern
+       Purpose: This document does not meet the constraints in the schema (any number of digits of value 0-8, document is 9) and should
+                cause validation errors.
+                For this test validation is XERCES.
+-->
+
+  <tdml:parserTestCase name="facetPattern01_fail_xerces"
+                       root="e1" model="pattern" validation="xerces">
+    <tdml:document>9</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>9</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>'9'</tdml:error>
+      <tdml:error>e1</tdml:error>
+      <tdml:error>is not valid</tdml:error>
+
+
+      <tdml:error>'9'</tdml:error>
+      <tdml:error>not facet-valid</tdml:error>
+      <tdml:error>pattern</tdml:error>
+      <tdml:error>'[0-8]+'</tdml:error>
+    </tdml:validationErrors>
+
+    <tdml:validationErrors match="none">
+      <tdml:error>failed facet checks</tdml:error>
+      <tdml:error>facet pattern(s)</tdml:error>
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
 
 	<!-- Schema name: min2max5 Purpose: This schema tests the condition that 
 		minOccurs is 2 and maxOccurs is 20 in a simple array -->
@@ -362,6 +414,53 @@
 			<tdml:error>maximum of '5'</tdml:error>
 			<tdml:error>exceeded</tdml:error>
 
+		</tdml:validationErrors>
+
+	</tdml:parserTestCase>
+
+  <!--
+     Test name: arrayElements_fail_xerces
+        Schema: min2max5
+       Purpose: This document does not meet the constraints in the schema (array with min 2 elements, max 5. Document has 9)
+                and should cause validation errors.
+                For this test validation is XERCES.
+-->
+
+	<tdml:parserTestCase name="arrayElements_fail_xerces"
+		root="array" model="min2max5"
+		description="Section 2 - Non-conformance with xs:maxOccurs is a validation error - DFDL-2-010R"
+		validation="xerces">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<array>
+					<data>1</data>
+					<data>2</data>
+					<data>3</data>
+					<data>4</data>
+					<data>5</data>
+					<data>6</data>
+					<data>7</data>
+					<data>8</data>
+					<data>9</data>
+				</array>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+			<tdml:error>data</tdml:error>
+			<tdml:error>occur</tdml:error>
+			<tdml:error>expected</tdml:error>
+			<tdml:error>maximum of '5'</tdml:error>
+			<tdml:error>exceeded</tdml:error>
+		</tdml:validationErrors>
+
+		<tdml:validationErrors match="none">
+			<tdml:error>occurred '9' times</tdml:error>
+			<tdml:error>minimum of '2'</tdml:error>
 		</tdml:validationErrors>
 
 	</tdml:parserTestCase>

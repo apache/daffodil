@@ -40,6 +40,7 @@ private[japi] object ValidationConversions {
       case ValidationMode.Off => SValidationMode.Off
       case ValidationMode.Limited => SValidationMode.Limited
       case ValidationMode.Full => SValidationMode.Full
+      case ValidationMode.Xerces => SValidationMode.Xerces
     }
     smode
   }

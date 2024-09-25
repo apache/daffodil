@@ -928,8 +928,14 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
       }
 
       val useSerializedProcessor =
-        if (validationMode == ValidationMode.Full) false
-        else if (defaultValidationMode == ValidationMode.Full) false
+        if (
+          validationMode == ValidationMode.Full
+          || validationMode == ValidationMode.Xerces
+        ) false
+        else if (
+          defaultValidationMode == ValidationMode.Full
+          || defaultValidationMode == ValidationMode.Xerces
+        ) false
         else if (optExpectedWarnings.isDefined) false
         else true
 
@@ -3103,7 +3109,7 @@ case class TDMLCompileResultCache(entryExpireDurationSeconds: Option[Long]) {
 
       // if compileResult is Right and we got a processor, set the processor validation mode to
       // the default validation mode of the test suite. This is useful in cases where the
-      // default validation mode is on/full, in which case the Xerces validator will be compiled
+      // default validation mode is on/full/xerces, in which case the Xerces validator will be compiled
       // and added to the DataProcessor that we cache. This way any tests that do not change the
       // validation mode from the default will be able to use the same validator so we won't
       // have to rebuild it for every test. This saves memory and should be significantly

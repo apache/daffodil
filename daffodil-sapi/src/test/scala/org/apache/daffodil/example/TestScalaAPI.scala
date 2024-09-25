@@ -727,7 +727,7 @@ class TestScalaAPI {
     } catch {
       case e: InvalidUsageException =>
         assertEquals(
-          "'Full' validation not allowed when using a restored parser.",
+          "'Full' or 'Xerces' validation not allowed when using a restored parser.",
           e.getMessage()
         )
     }
