@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<tdml:testSuite 
+  suiteName="choice1765" 
+  description="Tests for choice construct. Bug DFDL-1765." 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+  <tdml:defineSchema name="ambiguousChoice" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" occursCountKind="implicit"/>
+
+
+    <xs:element name="ambiguousChoice" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="key" type="xs:string" dfdl:length="1"/>
+          <xs:choice dfdl:choiceDispatchKey="{key}">
+            <xs:element name="A" type="xs:string" dfdl:length="1" dfdl:choiceBranchKey="A" />
+            <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" dfdl:choiceBranchKey="B" />
+            <xs:element name="B" type="xs:string" dfdl:length="1" dfdl:choiceBranchKey="C" />
+            <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" dfdl:choiceBranchKey="D" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="choiceAmbiguousUPA" root="ambiguousChoice" model="ambiguousChoice"
+                       description="verify UPA error in choice"
+                       ignoreUnexpectedWarnings="false">
+
+    <tdml:document><![CDATA[B2]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>AmbigElt</tdml:error>
+      <tdml:error>Unique Particle Attribution</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+
+</tdml:testSuite>
