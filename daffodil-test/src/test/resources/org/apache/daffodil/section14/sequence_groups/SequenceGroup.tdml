@@ -1237,6 +1237,7 @@
         <xs:group ref="ex:vg" />
       </xs:sequence>
     </xs:group>
+
     <xs:element name="root3">
       <xs:complexType>
         <xs:group ref="ex:g4" dfdl:separator=","/>
@@ -1353,6 +1354,12 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
+    <tdml:warnings>
+      <tdml:warning>Two or more members</tdml:warning>
+      <tdml:warning>same name</tdml:warning>
+      <tdml:warning>ex:inty</tdml:warning>
+    </tdml:warnings>
+
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nestedGroupRefs4" root="root2"
@@ -1376,6 +1383,12 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
+    <tdml:warnings>
+      <tdml:warning>Two or more members</tdml:warning>
+      <tdml:warning>same name</tdml:warning>
+      <tdml:warning>ex:inty</tdml:warning>
+    </tdml:warnings>
+
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nestedGroupRefs5" root="root3"
@@ -1398,6 +1411,12 @@
         </root3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+
+    <tdml:warnings>
+      <tdml:warning>Two or more members</tdml:warning>
+      <tdml:warning>same name</tdml:warning>
+      <tdml:warning>ex:inty</tdml:warning>
+    </tdml:warnings>
 
   </tdml:parserTestCase>
 
@@ -1650,5 +1669,116 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="multipleElemSameName" xmlns:u="USMTF" elementFormDefault="unqualified">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <xs:import namespace="USMTF" schemaLocation="/org/apache/daffodil/section14/sequence_groups/sequenceWithComplexType.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" occursCountKind="implicit"/>
+
+    <xs:element name="multipleElemSameName" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:string" dfdl:length="1" />
+          <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" />
+          <xs:element name="B" type="xs:string" dfdl:length="1" />
+          <xs:element name="AmbigElt" type="xs:string" dfdl:length="1" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="multipleElemSameNameDifferentNamespaces" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:string" dfdl:length="1" />
+          <xs:element name="e1" dfdl:terminator="/" dfdl:lengthKind="delimited">
+            <xs:complexType>
+              <xs:sequence dfdl:initiator="-" dfdl:separator=";" dfdl:separatorPosition="prefix">
+                <xs:element name="e2" type="u:ct1" minOccurs="1" maxOccurs="unbounded" dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="B" type="xs:string" dfdl:length="1" />
+          <xs:element ref="u:e1" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+
+  <tdml:parserTestCase name="multipleElemSameName"
+                       root="multipleElemSameName"
+                       model="multipleElemSameName"
+                       ignoreUnexpectedWarnings="false"
+                       description="TDML runner verifies warnings and infoset.">
+
+    <tdml:document><![CDATA[1234]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <multipleElemSameName>
+          <A>1</A>
+          <AmbigElt>2</AmbigElt>
+          <B>3</B>
+          <AmbigElt>4</AmbigElt>
+        </multipleElemSameName>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>same name</tdml:warning>
+      <tdml:warning>AmbigElt</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="multipleElemSameNameDifferentNamespaces"
+                       root="multipleElemSameNameDifferentNamespaces"
+                       model="multipleElemSameName"
+                       ignoreUnexpectedWarnings="false"
+                       description="TDML runner verifies warnings and infoset.">
+
+    <tdml:document><![CDATA[1-;2;3;4/5-;6;7;8/]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <multipleElemSameNameDifferentNamespaces>
+          <A>1</A>
+          <e1>
+            <e2>
+              <String1>2</String1>
+            </e2>
+            <e2>
+              <String1>3</String1>
+            </e2>
+            <e2>
+              <String1>4</String1>
+            </e2>
+          </e1>
+          <B>5</B>
+          <e1>
+            <e2>
+              <String1>6</String1>
+            </e2>
+            <e2>
+              <String1>7</String1>
+            </e2>
+            <e2>
+              <String1>8</String1>
+            </e2>
+          </e1>
+        </multipleElemSameNameDifferentNamespaces>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>same name</tdml:warning>
+      <tdml:warning>{}e1</tdml:warning>
+      <tdml:warning>u:e1</tdml:warning>
+    </tdml:warnings>
+  </tdml:parserTestCase>
+
 
 </tdml:testSuite>
