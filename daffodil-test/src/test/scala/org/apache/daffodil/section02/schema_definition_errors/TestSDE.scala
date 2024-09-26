@@ -57,4 +57,12 @@ class TestSDE {
   @Test def test_schema_warning_locally_suppressed(): Unit = {
     runner.runOneTest("schema_warning_locally_suppressed")
   }
+
+  @Test def test_schema_warning_escalated_to_error(): Unit = {
+    runner.runOneTest("schema_warning_escalated_to_error")
+  }
+
+  @Test def test_schema_warning_escalated_to_error2(): Unit = {
+    runner.runOneTest("schema_warning_escalated_to_error2")
+  }
 }

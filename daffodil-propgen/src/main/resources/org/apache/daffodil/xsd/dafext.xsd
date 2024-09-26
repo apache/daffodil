@@ -185,6 +185,13 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="escalateWarningsToErrors" type="xs:boolean" default="false" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              This tunable allows the escalation of Schema Definition Warnings to Errors.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="generatedNamespacePrefixStem" type="xs:string" default="tns" minOccurs="0">
           <xs:annotation>
             <xs:documentation>

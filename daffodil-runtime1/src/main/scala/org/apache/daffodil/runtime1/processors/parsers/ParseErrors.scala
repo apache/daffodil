@@ -140,12 +140,12 @@ trait DoSDEMixin {
         throw sde
       }
       case other => {
-        val sde = new RuntimeSchemaDefinitionError(
-          state.getContext().schemaFileLocation,
-          state,
-          e,
-          null
-        )
+        val sde =
+          new RuntimeSchemaDefinitionError(
+            state.getContext().schemaFileLocation,
+            e,
+            e.getMessage
+          )
         state.setFailed(sde)
         state.toss(sde)
       }

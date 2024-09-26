@@ -53,6 +53,7 @@ import org.apache.daffodil.runtime1.dpath.DState
 import org.apache.daffodil.runtime1.dsom.DPathCompileInfo
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionError
 import org.apache.daffodil.runtime1.dsom.RuntimeSchemaDefinitionWarning
+import org.apache.daffodil.runtime1.dsom.SchemaDefinitionErrorFromWarning
 import org.apache.daffodil.runtime1.dsom.ValidationError
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValuePrimitive
 import org.apache.daffodil.runtime1.infoset._
@@ -555,13 +556,13 @@ abstract class ParseOrUnparseState protected (
 
   final def SDE(str: String, args: Any*) = {
     val ctxt = getContext()
-    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
+    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args: _*)
     ctxt.toss(rsde)
   }
 
   final def SDEButContinue(str: String, args: Any*) = {
     val ctxt = getContext()
-    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
+    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, str, args: _*)
     diagnostics = rsde :: diagnostics
   }
 
@@ -573,8 +574,13 @@ abstract class ParseOrUnparseState protected (
       tssdw.contains(warnID) || tssdw.contains(WarnID.All)
     if (!suppress) {
       val rsdw =
-        new RuntimeSchemaDefinitionWarning(warnID, ctxt.schemaFileLocation, this, str, args: _*)
-      diagnostics = rsdw :: diagnostics
+        new RuntimeSchemaDefinitionWarning(warnID, ctxt.schemaFileLocation, str, args: _*)
+      if (tunable.escalateWarningsToErrors) {
+        val sde = new SchemaDefinitionErrorFromWarning(rsdw)
+        ctxt.toss(sde)
+      } else {
+        diagnostics = rsdw :: diagnostics
+      }
     }
   }
 

@@ -513,9 +513,9 @@ class DataProcessor(
         state.dataInputStream.inputSource.setInvalid
         state.setFailed(sde)
       }
-      case rsde: RuntimeSchemaDefinitionError => {
+      case sdefw: SchemaDefinitionErrorFromWarning => {
         state.dataInputStream.inputSource.setInvalid
-        state.setFailed(rsde)
+        state.setFailed(sdefw)
       }
       case e: ErrorAlreadyHandled => {
         state.setFailed(e.th)
@@ -574,8 +574,8 @@ class DataProcessor(
           unparserState.setFailed(sde)
           unparserState.unparseResult
         }
-        case rsde: RuntimeSchemaDefinitionError => {
-          unparserState.setFailed(rsde)
+        case sdefw: SchemaDefinitionErrorFromWarning => {
+          unparserState.setFailed(sdefw)
           unparserState.unparseResult
         }
         case e: ErrorAlreadyHandled => {

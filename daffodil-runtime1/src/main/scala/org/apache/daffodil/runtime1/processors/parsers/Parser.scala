@@ -342,7 +342,6 @@ case class NotParsableParser(context: ElementRuntimeData) extends PrimParserNoDa
     // create an SDE and toss it
     val rsde = new RuntimeSchemaDefinitionError(
       context.schemaFileLocation,
-      state,
       "This schema was compiled without parse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property."
     )
     context.toss(rsde)
