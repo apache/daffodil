@@ -394,7 +394,6 @@ final class RuntimeExpressionDPath[T <: AnyRef](
             if (value.asInstanceOf[String].length == 0) {
               val e = new RuntimeSchemaDefinitionError(
                 ci.schemaFileLocation,
-                state,
                 "Non-empty string required."
               )
               doSDE(e, state)

@@ -355,8 +355,8 @@ class InteractiveDebugger(
         // Most errors are coming back here as RSDE because that's what they get upconverted into.
         // Most expression problems are considered SDE.
         //
-        case _: RuntimeSchemaDefinitionError => {
-          state.setSuccess()
+        case e: RuntimeSchemaDefinitionError => {
+          state.suppressDiagnosticAndSucceed(e)
           false
         }
       }

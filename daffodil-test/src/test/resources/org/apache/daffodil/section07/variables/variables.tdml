@@ -23,6 +23,7 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
   defaultRoundTrip="true">
 
   <tdml:defineSchema name="v">
@@ -2218,6 +2219,26 @@
         </root>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+  <tdml:defineConfig name="escalateWarnings">
+    <daf:tunables>
+      <daf:escalateWarningsToErrors>true</daf:escalateWarningsToErrors>
+    </daf:tunables>
+  </tdml:defineConfig>
+
+  <tdml:parserTestCase name="defineVariable_nonConstantExpression_setVar_err2" root="root"
+    model="defineVariable_nonConstantExpression_setVar" description="escalate warning"
+    config="escalateWarnings">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Warning Escalated Error</tdml:error>
+      <tdml:error>variableSet</tdml:error>
+      <tdml:error>Cannot set variable</tdml:error>
+      <tdml:error>after reading the default value</tdml:error>
+      <tdml:error>State was: VariableRead</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 

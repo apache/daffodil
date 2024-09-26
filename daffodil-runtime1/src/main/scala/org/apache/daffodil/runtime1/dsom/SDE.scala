@@ -24,7 +24,6 @@ import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions._
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.runtime1.processors.CompileState
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 
 class SchemaDefinitionError(
@@ -49,6 +48,20 @@ class SchemaDefinitionError(
 
 }
 
+class SchemaDefinitionErrorFromWarning(sdw: SchemaDefinitionWarning)
+  extends SchemaDefinitionWarning(
+    sdw.warnID,
+    sdw.schemaContext,
+    sdw.annotationContext,
+    sdw.kind,
+    sdw.args: _*
+  ) {
+
+  override def isError = true
+  override def modeName = super.modeName + " Warning Escalated"
+
+}
+
 /**
  * Specific class used for this specific error, because we need to pick this off
  * in the debugger for special handling.
@@ -58,60 +71,51 @@ class RelativePathPastRootError(schemaContext: SchemaFileLocation, kind: String,
 
 class RuntimeSchemaDefinitionError(
   schemaContext: SchemaFileLocation,
-  runtimeContext: ParseOrUnparseState,
   causedBy: Throwable,
   fmtString: String,
   args: Any*
-) extends SchemaDefinitionDiagnosticBase(
-    Maybe(schemaContext),
-    (runtimeContext match { // TODO: this is ugly.
-      case cs: CompileState => Nope
-      case _ => Maybe(runtimeContext)
-    }),
+) extends SchemaDefinitionError(
+    Option(schemaContext),
     None,
-    Maybe(causedBy),
-    Maybe(fmtString),
+    fmtString,
     args: _*
   ) {
 
-  override def isError = true
-  override def modeName = "Runtime Schema Definition"
-
   def this(
     schemaContext: SchemaFileLocation,
-    runtimeContext: ParseOrUnparseState,
     fmtString: String,
     args: Any*
   ) =
-    this(schemaContext, runtimeContext, null, fmtString, args: _*)
+    this(schemaContext, null, fmtString, args: _*)
+
+  override def modeName = "Runtime Schema Definition"
+
+  override def getCause: Throwable = causedBy
 }
 
 class RuntimeSchemaDefinitionWarning(
   warnID: WarnID,
   schemaContext: SchemaFileLocation,
-  runtimeContext: ParseOrUnparseState,
   kind: String,
   args: Any*
-) extends SchemaDefinitionDiagnosticBase(
+) extends SchemaDefinitionWarning(
+    warnID,
     Some(schemaContext),
-    Some(runtimeContext),
     None,
-    Nope,
-    Maybe(kind + s" (id: ${warnID})"),
+    kind,
     args: _*
   ) {
 
-  override def isError = false
   override def modeName = "Runtime Schema Definition"
 
 }
 
 class SchemaDefinitionWarning(
-  warnID: WarnID,
-  schemaContext: Option[SchemaFileLocation],
-  annotationContext: Option[SchemaFileLocation],
-  kind: String,
-  args: Any*
+  val warnID: WarnID,
+  val schemaContext: Option[SchemaFileLocation],
+  val annotationContext: Option[SchemaFileLocation],
+  val kind: String,
+  val args: Any*
 ) extends SchemaDefinitionDiagnosticBase(
     schemaContext,
     None,
@@ -269,7 +273,12 @@ trait ImplementsThrowsOrSavesSDE extends ImplementsThrowsSDE with SavesErrorsAnd
         fmt,
         args: _*
       )
-      warn(sdw)
+      if (tunable.escalateWarningsToErrors) {
+        val sde = new SchemaDefinitionErrorFromWarning(sdw)
+        toss(sde)
+      } else {
+        warn(sdw)
+      }
     }
   }
 

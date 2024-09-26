@@ -201,7 +201,6 @@ case class NotUnparsableUnparser(override val context: ElementRuntimeData)
     // create an SDE and toss it
     val rsde = new RuntimeSchemaDefinitionError(
       context.schemaFileLocation,
-      state,
       "This schema was compiled without unparse support. Check the parseUnparsePolicy tunable or dfdlx:parseUnparsePolicy property."
     )
     context.toss(rsde)
