@@ -103,6 +103,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
 
   requiredEvaluationsIfActivated(checkIfValidUnorderedSequence)
   requiredEvaluationsIfActivated(checkIfNonEmptyAndDiscrimsOrAsserts)
+  requiredEvaluationsIfActivated(checkIfMultipleChildrenWithSameName)
 
   protected def apparentXMLChildren: Seq[Node]
 
@@ -181,7 +182,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     if (!isOrdered) {
       checkMembersAreAllElementOrElementRef
       checkMembersHaveValidOccursCountKind
-      checkMembersHaveUniqueNamesInNamespaces
+      checkUnorderedSequenceMembersHaveUniqueNamesInNamespaces
     }
   }
 
@@ -215,19 +216,39 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     }
   }
 
-  private lazy val checkMembersHaveUniqueNamesInNamespaces: Unit = {
-    val childrenGroupedByQName = groupMembers.groupBy { gm =>
-      // previous checks should ensure that all group members are either local
-      // elements or element references
-      Assert.invariant(gm.isInstanceOf[ElementBase])
-      gm.asInstanceOf[ElementBase].namedQName
+  private lazy val checkUnorderedSequenceMembersHaveUniqueNamesInNamespaces: Unit = {
+    val nonUniqueNameChildren =
+      checkMembersHaveUniqueNamesInNamespaces.filter(_._1 == true).values
+    nonUniqueNameChildren.foreach { children =>
+      children.head.SDE(
+        "Two or more members of an unordered sequence have the same name and the same namespace"
+      )
     }
-    childrenGroupedByQName.foreach { case (qname, children) =>
-      if (children.length > 1) {
-        children.head.SDE(
-          "Two or more members of an unordered sequence have the same name and the same namespace"
-        )
+  }
+
+  private lazy val checkMembersHaveUniqueNamesInNamespaces: Map[Boolean, Seq[Term]] = {
+    val childrenGroupedByQName = groupMembers
+      .filter { m => m.isInstanceOf[LocalElementDecl] || m.isInstanceOf[ElementRef] }
+      .groupBy { gm =>
+        // previous checks should ensure that all group members are either local
+        // elements or element references
+        Assert.invariant(gm.isInstanceOf[ElementBase])
+        gm.asInstanceOf[ElementBase].namedQName
       }
+    childrenGroupedByQName.map { case (qname, children) =>
+      (children.length > 1, children)
+    }
+  }
+
+  private lazy val checkIfMultipleChildrenWithSameName: Unit = {
+    val nonUniqueNameChildren =
+      checkMembersHaveUniqueNamesInNamespaces.filter(_._1 == true).values
+    nonUniqueNameChildren.foreach { children =>
+      children.head.SDW(
+        WarnID.MultipleChildElementsWithSameName,
+        "Two or more members of the sequence have the same name and namespace: %s",
+        children.head.asInstanceOf[ElementBase].namedQName
+      )
     }
   }
 
