@@ -736,6 +736,7 @@
           <xs:enumeration value="invalidAnnotationPoint" />
           <xs:enumeration value="layerCompileWarning" />
           <xs:enumeration value="multipleChoiceBranches" />
+          <xs:enumeration value="multipleChildElementsWithSameName" />
           <xs:enumeration value="namespaceDifferencesOnly" />
           <xs:enumeration value="noEmptyDefault" />
           <xs:enumeration value="nonExpressionPropertyValueLooksLikeExpression" />

@@ -147,4 +147,12 @@ class TestSequenceGroups {
   // @Test def test_delimiterScanning_03() { runner_01.runOneTest("delimiterScanning_03") }
 
   @Test def test_hiddenGroupIVC(): Unit = { runner_02.runOneTest("hiddenGroupIVC") }
+
+  // DAFFODIL-2736
+  @Test def test_multipleElemSameName() = {
+    runner_02.runOneTest("multipleElemSameName")
+  }
+  @Test def test_multipleElemSameNameDifferentNamespaces() = {
+    runner_02.runOneTest("multipleElemSameNameDifferentNamespaces")
+  }
 }
