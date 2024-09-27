@@ -149,4 +149,7 @@ class TestSequenceGroups {
   @Test def test_multipleElemSameName() = {
     runner_02.runOneTest("multipleElemSameName")
   }
+  @Test def test_multipleElemSameNameDifferentNamespaces() = {
+    runner_02.runOneTest("multipleElemSameNameDifferentNamespaces")
+  }
 }
