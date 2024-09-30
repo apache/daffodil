@@ -46,9 +46,11 @@ class TestDFDLExpressions3 {
   //  @Test def test_polymorphic_expr_5() { runner.runOneTest("test_polymorphic_expr_5") }
   //  @Test def test_polymorphic_expr_6() { runner.runOneTest("test_polymorphic_expr_6") }
 
-  // DAFFODIL-2182
-  // @Test def test_array_self_expr1() { runner.runOneTest("test_array_self_expr1") }
+  @Test def test_array_self_expr1(): Unit = { runner.runOneTest("test_array_self_expr1") }
   @Test def test_array_self_expr2(): Unit = { runner.runOneTest("test_array_self_expr2") }
+  @Test def test_array_path_expr1(): Unit = { runner.runOneTest("test_array_path_expr1") }
+  @Test def test_array_path_expr2(): Unit = { runner.runOneTest("test_array_path_expr2") }
+  @Test def test_array_path_expr3(): Unit = { runner.runOneTest("test_array_path_expr3") }
 
   @Test def test_setVariable_neg_01(): Unit = { runner.runOneTest("setVariable_neg_01") }
 
