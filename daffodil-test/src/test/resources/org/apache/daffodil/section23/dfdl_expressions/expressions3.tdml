@@ -507,26 +507,110 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="ry">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string"/>
+          <xs:sequence>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ e1[1] eq '42' }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="rz">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{ fn:exists(..[1]) }</dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="array1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="array1_1" maxOccurs="unbounded">
+            <xs:complexType>
+              <xs:sequence dfdl:terminator="|">
+                <xs:element name="array1_1_1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" maxOccurs="unbounded">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:assert>{ fn:exists(..[1]) }</dfdl:assert>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
             
  </tdml:defineSchema>
 
-  <tdml:parserTestCase name="test_array_self_expr1" model="arraySchema" root="r">
+  <tdml:parserTestCase name="test_array_self_expr1" model="arraySchema" root="r" ignoreUnexpectedWarnings="false">
     <tdml:document>1|2|3</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:r>
-          <e1>1</e1><e1>2</e1><e1>3</e1>
-        </ex:r>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Indexing</tdml:error>
+      <tdml:error>only allowed</tdml:error>
+      <tdml:error>arrays</tdml:error>
+      <tdml:error>.[1]</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="test_array_self_expr2" model="arraySchema" root="rx">
+  <tdml:parserTestCase name="test_array_self_expr2" model="arraySchema" root="rx" ignoreUnexpectedWarnings="false">
     <tdml:document>1</tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Assertion failed</tdml:error>
-      <tdml:error>42</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Indexing</tdml:error>
+      <tdml:error>only allowed</tdml:error>
+      <tdml:error>arrays</tdml:error>
+      <tdml:error>.[1]</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_array_path_expr1" model="arraySchema" root="ry" ignoreUnexpectedWarnings="false">
+    <tdml:document>1</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Indexing</tdml:error>
+      <tdml:error>only allowed</tdml:error>
+      <tdml:error>arrays</tdml:error>
+      <tdml:error>e1[1]</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_array_path_expr2" model="arraySchema" root="rz" ignoreUnexpectedWarnings="false">
+    <tdml:document>1</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Indexing</tdml:error>
+      <tdml:error>only allowed</tdml:error>
+      <tdml:error>arrays</tdml:error>
+      <tdml:error>..[1]</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="test_array_path_expr3" model="arraySchema" root="array1" ignoreUnexpectedWarnings="false">
+    <tdml:document>123|456|789</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Indexing</tdml:error>
+      <tdml:error>only allowed</tdml:error>
+      <tdml:error>arrays</tdml:error>
+      <tdml:error>..[1]</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

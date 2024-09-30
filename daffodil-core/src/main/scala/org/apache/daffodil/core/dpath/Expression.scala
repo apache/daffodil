@@ -773,6 +773,16 @@ case class RelativePathExpression(stepsRaw: List[StepExpression], isEvaluatedAbo
 sealed abstract class StepExpression(val step: String, val pred: Option[PredicateExpression])
   extends Expression {
 
+  final override def text: String = step + pred.map(_.text).getOrElse("")
+
+  def checkIfNodeIndexedLikeArray(): Unit = {
+    schemaDefinitionWhen(
+      pred.isDefined,
+      "Indexing is only allowed on arrays. Offending path step: '%s'.",
+      this.text
+    )
+  }
+
   def relPathErr() = {
     // This path expression cannot be compiled because we went past the root. This normally
     // should be an SDE with a RelativePathPastRootError. However, if we don't have any element
@@ -1012,14 +1022,13 @@ sealed abstract class DownStepExpression(s: String, predArg: Option[PredicateExp
   }
 }
 
-// TODO: Is ".[i]" ever a valid expression in DFDL?
-// Perhaps. Doesn't work currently though. See DAFFODIL-2182
-
 sealed abstract class SelfStepExpression(s: String, predArg: Option[PredicateExpression])
   extends DownStepExpression(s, predArg) {
 
-  override lazy val compiledDPath = new CompiledDPath(SelfMove)
-  override def text = "."
+  override lazy val compiledDPath = {
+    checkIfNodeIndexedLikeArray()
+    new CompiledDPath(SelfMove)
+  }
 
   protected def stepElementDefs: Seq[DPathElementCompileInfo] = {
     if (this.isFirstStep) {
@@ -1037,7 +1046,7 @@ sealed abstract class SelfStepExpression(s: String, predArg: Option[PredicateExp
   }
 }
 
-case class Self(predArg: Option[PredicateExpression]) extends SelfStepExpression(null, predArg)
+case class Self(predArg: Option[PredicateExpression]) extends SelfStepExpression(".", predArg)
 
 /**
  * Different from Self in that it verifies the qName (s) is
@@ -1056,12 +1065,11 @@ case class Self2(s: String, predArg: Option[PredicateExpression])
 sealed abstract class UpStepExpression(s: String, predArg: Option[PredicateExpression])
   extends StepExpression(s, predArg) {
 
-  override def text = ".."
-
   final override lazy val compiledDPath = {
     val areAllArrays = isLastStep && stepElements.forall {
       _.isArray
     } && targetType == NodeInfo.Array
+    checkIfNodeIndexedLikeArray()
     if (areAllArrays) {
       new CompiledDPath(UpMoveArray)
     } else {
@@ -1092,7 +1100,7 @@ sealed abstract class UpStepExpression(s: String, predArg: Option[PredicateExpre
   override lazy val inherentType: NodeInfo.Kind = NodeInfo.Complex
 }
 
-case class Up(predArg: Option[PredicateExpression]) extends UpStepExpression(null, predArg)
+case class Up(predArg: Option[PredicateExpression]) extends UpStepExpression("..", predArg)
 
 /**
  * Different from Up in that it verifies the qName (s) is the
@@ -1100,8 +1108,6 @@ case class Up(predArg: Option[PredicateExpression]) extends UpStepExpression(nul
  */
 case class Up2(s: String, predArg: Option[PredicateExpression])
   extends UpStepExpression(s, predArg) {
-
-  override def text = ".."
 
   override protected def stepElementDefs: Seq[DPathElementCompileInfo] = {
     val cis = super.stepElementDefs
@@ -1146,23 +1152,14 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
         new DownArray(nqn)
       }
     } else {
-      //
-      // Note: DFDL spec allows a[exp] if a is not an array, but it's a processing
-      // error if exp doesn't evaluate to 1.
-      // TODO: Implement this.
-      if (pred.isDefined)
-        subsetError(
-          "Indexing is only allowed on arrays. Offending path step: '%s%s'.",
-          step,
-          pred.get.text
-        )
+      // a[exp] is only supported on arrays, because Daffodil no longer treats
+      // optional elements as arrays
+      checkIfNodeIndexedLikeArray()
       // the downward element step must be the same for all the possible elements, so
       // we can pick the first one arbitrarily.
       new DownElement(nqn)
     }
   }
-
-  override def text = step
 
   /*
    * The ERDs of the elements that correspond to this path step

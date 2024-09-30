@@ -4427,7 +4427,7 @@ blastoff
      Test Name: predicate_05
         Schema: predicates
           Root: e5
-       Purpose: This test demonstrates that subset indexing is only allowed on arrays.
+       Purpose: This test demonstrates that indexing is only allowed on arrays.
   -->
 
   <tdml:parserTestCase name="predicate_05" root="e5"
@@ -4436,7 +4436,7 @@ blastoff
     <tdml:document>2,one,two,three</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Subset: Indexing is only allowed on arrays.</tdml:error>
+      <tdml:error>Indexing is only allowed on arrays.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4444,7 +4444,7 @@ blastoff
      Test Name: predicate_06
         Schema: predicates
           Root: e6
-       Purpose: This test demonstrates that subset indexing is not allowed on optionals
+       Purpose: This test demonstrates that indexing is not allowed on optionals
   -->
 
   <tdml:parserTestCase name="predicate_06" root="e6"
@@ -4453,7 +4453,7 @@ blastoff
     <tdml:document>2,one</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Subset: Indexing is only allowed on arrays.</tdml:error>
+      <tdml:error>Indexing is only allowed on arrays.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -7297,7 +7297,7 @@ blastoff
     <tdml:document>1,2,3</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Subset: Indexing is only allowed on arrays</tdml:error>
+      <tdml:error>Indexing is only allowed on arrays</tdml:error>
       <tdml:error>ex:a</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

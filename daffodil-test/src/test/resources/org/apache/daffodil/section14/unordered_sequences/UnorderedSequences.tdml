@@ -627,7 +627,7 @@
     <tdml:document><![CDATA[a1,b2,cy99:x20:z10]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Subset: Indexing is only allowed on arrays</tdml:error>
+      <tdml:error>Indexing is only allowed on arrays</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
