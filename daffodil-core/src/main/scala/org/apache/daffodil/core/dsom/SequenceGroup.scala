@@ -217,44 +217,36 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
   }
 
   private lazy val checkUnorderedSequenceMembersHaveUniqueNamesInNamespaces: Unit = {
-    groupedMembersWithSameName().values.foreach { children =>
-      children.head.SDE(
-        "Two or more members of an unordered sequence have the same name and the same namespace"
-      )
-    }
+    // previous checks should ensure that all group members for unordered sequences are either local
+    // elements or element references
+    groupChildrenBy(_.namedQName)
+      .filter(_._2.length > 1)
+      .values
+      .foreach { children =>
+        children.head.SDE(
+          "Two or more members of an unordered sequence have the same name and the same namespace"
+        )
+      }
   }
 
-  private def groupedMembersWithSameName(
-    includeNamespace: Boolean = true
-  ): Map[Boolean, Seq[Term]] = {
-    val childrenGroupedByName = groupMembers
-      .filter { m => m.isInstanceOf[LocalElementDecl] || m.isInstanceOf[ElementRef] }
-      .groupBy { gm =>
-        // previous checks should ensure that all group members are either local
-        // elements or element references
-        Assert.invariant(gm.isInstanceOf[ElementBase])
-        if (includeNamespace) {
-          gm.asInstanceOf[ElementBase].namedQName
-        } else {
-          gm.asInstanceOf[ElementBase].name
-        }
-      }
-    val groupedMembersSameName = childrenGroupedByName
-      .map { case (_, children) =>
-        (children.length > 1, children)
-      }
-      .filter(_._1 == true)
-    groupedMembersSameName
+  private def groupChildrenBy[T](func: (ElementBase) => T): Map[T, Seq[ElementBase]] = {
+    val childrenGrouped = elementChildren.groupBy { gm => func(gm) }
+    childrenGrouped
   }
 
   private lazy val checkIfMultipleChildrenWithSameName: Unit = {
-    groupedMembersWithSameName(includeNamespace = false).values.foreach { children =>
-      children.head.SDW(
-        WarnID.MultipleChildElementsWithSameName,
-        "Two or more members of the sequence have the same name: %s",
-        children.map(c => c.asInstanceOf[ElementBase].namedQName).mkString(", ")
-      )
-    }
+    groupChildrenBy(_.name)
+      .filter(_._2.length > 1)
+      .values
+      .foreach { children =>
+        children.head.SDW(
+          WarnID.MultipleChildElementsWithSameName,
+          "Two or more members of the sequence have the same name. " +
+            "Since not all infosets support namespaces or siblings with the same name, " +
+            "this could cause issues. QNames are: %s",
+          children.map(c => c.namedQName).mkString(", ")
+        )
+      }
   }
 
   final lazy val isOrdered: Boolean = this.sequenceKind match {
