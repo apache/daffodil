@@ -115,7 +115,8 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:validationErrors>
-      <tdml:error>ex:str failed facet checks</tdml:error>
+      <tdml:error>ex:str</tdml:error>
+      <tdml:error>not valid</tdml:error>
     </tdml:validationErrors>
   </tdml:parserTestCase>
 </tdml:testSuite>

@@ -95,13 +95,7 @@ class TestStringAsXml {
       IOUtils.toString(is, StandardCharsets.UTF_8)
     }
     // diagnostic from full validation
-    assertTrue(parseDiags.find(_.contains("Element 'xmlStr' is a simple type")).isDefined)
-    // diagnostic from limited validation
-    assertTrue(
-      parseDiags
-        .find(_.contains("xmlStr failed facet checks due to: facet maxLength"))
-        .isDefined
-    )
+    assertTrue(parseDiags.exists(_.contains("Element 'xmlStr' is a simple type")))
     // we still get the expected infoset, replace CRLF with LF because of git windows autocrlf
     assertEquals(
       parseInfosetExpected.replace("\r\n", "\n"),
@@ -304,13 +298,7 @@ class TestStringAsXml {
       IOUtils.toString(is, StandardCharsets.UTF_8)
     }
     // diagnostic from full validation
-    assertTrue(parseDiags.find(_.contains("Element 'xmlStr' is a simple type")).isDefined)
-    // diagnostic from limited validation
-    assertTrue(
-      parseDiags
-        .find(_.contains("xmlStr failed facet checks due to: facet maxLength"))
-        .isDefined
-    )
+    assertTrue(parseDiags.exists(_.contains("Element 'xmlStr' is a simple type")))
     // we still get the expected infoset, replace CRLF with LF because of git windows autocrlf
     assertEquals(
       parseInfosetExpected.replace("\r\n", "\n"),

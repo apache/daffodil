@@ -3021,7 +3021,9 @@
     <tdml:validationErrors>
 
       <tdml:error>Validation Error</tdml:error>
-      <tdml:error>tnp76 failed facet checks due to: facet totalDigits (6)</tdml:error>
+      <tdml:error>tnp76</tdml:error>
+      <tdml:error>not valid</tdml:error>
+      <tdml:error>number of total digits has been limited to 6</tdml:error>
 
     </tdml:validationErrors>
   </tdml:parserTestCase>
@@ -3050,7 +3052,9 @@
     <tdml:validationErrors>
 
       <tdml:error>Validation Error</tdml:error>
-      <tdml:error>tnp77 failed facet checks due to: facet fractionDigits (3)</tdml:error>
+      <tdml:error>tnp77</tdml:error>
+      <tdml:error>not valid</tdml:error>
+      <tdml:error>number of fraction digits has been limited to 3</tdml:error>
 
     </tdml:validationErrors>
   </tdml:parserTestCase>

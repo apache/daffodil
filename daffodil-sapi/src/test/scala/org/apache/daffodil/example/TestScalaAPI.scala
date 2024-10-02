@@ -810,10 +810,9 @@ class TestScalaAPI {
       assertEquals(file.length, actualLength)
 
       val diags = res.getDiagnostics
-      assertEquals(3, diags.size)
+      assertEquals(2, diags.size)
       val d0 = diags(0)
       val d1 = diags(1)
-      val d2 = diags(2)
       assertTrue(d0.getMessage().contains("42"))
       assertTrue(d0.getMessage().contains("e2"))
       assertTrue(d0.getMessage().contains("not valid"))
@@ -822,9 +821,6 @@ class TestScalaAPI {
       assertTrue(d1.getMessage().contains("maxInclusive"))
       assertTrue(d1.getMessage().contains("20"))
 
-      assertTrue(d2.getMessage().contains("maxInclusive"))
-      assertTrue(d2.getMessage().contains("e2"))
-      assertTrue(d2.getMessage().contains("20"))
     }
   }
   @Test

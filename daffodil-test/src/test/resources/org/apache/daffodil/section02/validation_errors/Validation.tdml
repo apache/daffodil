@@ -882,9 +882,11 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_6_2</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet enumeration(s)</tdml:error>
-      <tdml:error>SATURDAY|SUNDAY</tdml:error>
+      <tdml:error>not valid</tdml:error>
+
+      <tdml:error>MONDAY</tdml:error>
+      <tdml:error>not facet-valid</tdml:error>
+      <tdml:error>SATURDAY, SUNDAY</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
@@ -981,8 +983,10 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_4_1</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet minExclusive (-5)</tdml:error>
+      <tdml:error>not valid</tdml:error>
+
+      <tdml:error>-5</tdml:error>
+      <tdml:error>not facet-valid</tdml:error>
 
     </tdml:validationErrors>
   </tdml:parserTestCase>
@@ -1149,8 +1153,8 @@
     <tdml:validationErrors>
 
       <tdml:error>e4_1</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet totalDigits (5)</tdml:error>
+      <tdml:error>not valid</tdml:error>
+      <tdml:error>total digits has been limited to 5</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
@@ -1255,8 +1259,7 @@
     <tdml:validationErrors>
 
       <tdml:error>intRestrict</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet maxInclusive (10)</tdml:error>
+      <tdml:error>not valid</tdml:error>
 
       <tdml:error>intRestrict</tdml:error>
       <tdml:error>Value '12' has 2 total digits</tdml:error>
@@ -1364,7 +1367,7 @@
       Purpose: This test demonstrates the use of validation for a combination of the
                minOccurs, totalDigits, and maxExclusive facets.
                This test will fail because validation is on.
-               Validation = LIMITED.
+               Validation = ON.
 --> 
   <tdml:parserTestCase name="facetCombos_fail_on_02"
     root="arrayCombo" model="facetCombos" validation="on">
@@ -1385,40 +1388,30 @@
 		</tdml:infoset>
     <tdml:validationErrors>
 
+      <tdml:error>5</tdml:error>
       <tdml:error>e</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>not valid</tdml:error>
       <tdml:error>byte 14</tdml:error>
 
-      <tdml:error>e</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet maxExclusive (3)</tdml:error>
-      <tdml:error>byte 11</tdml:error>
+      <tdml:error>7</tdml:error>
+      <tdml:error>not facet-valid</tdml:error>
+      <tdml:error>maxExclusive '3'</tdml:error>
+      <tdml:error>byte 14</tdml:error>
 
+      <tdml:error>6</tdml:error>
       <tdml:error>e</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet maxExclusive (3)</tdml:error>
-      <tdml:error>byte 9</tdml:error>
+      <tdml:error>not valid</tdml:error>
+      <tdml:error>byte 14</tdml:error>
 
+      <tdml:error>8</tdml:error>
       <tdml:error>e</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet maxExclusive (3)</tdml:error>
-      <tdml:error>byte 7</tdml:error>
+      <tdml:error>not valid</tdml:error>
+      <tdml:error>byte 14</tdml:error>
 
+      <tdml:error>10</tdml:error>
       <tdml:error>e</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet maxExclusive (3)</tdml:error>
-      <tdml:error>byte 5</tdml:error>
-
-      <tdml:error>e</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet maxExclusive (3)</tdml:error>
-      <tdml:error>byte 3</tdml:error>
-
-      <tdml:error>e</tdml:error>
-      <tdml:error>failed facet checks</tdml:error>
-      <tdml:error>facet maxExclusive (3)</tdml:error>
-      <tdml:error>byte 1</tdml:error>
+      <tdml:error>not valid</tdml:error>
+      <tdml:error>byte 14</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
@@ -1784,8 +1777,8 @@
       <tdml:error>number of total digits has been limited to 1.</tdml:error>
 
       <tdml:error>Validation Error</tdml:error>
-      <tdml:error>trigger failed facet checks</tdml:error>
-      <tdml:error>facet totalDigits (1)</tdml:error>
+      <tdml:error>trigger</tdml:error>
+      <tdml:error>not valid</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
@@ -1812,7 +1805,7 @@
 
       <tdml:error>Value '42' is not facet-valid with respect to minExclusive '42'</tdml:error>
       
-      <tdml:error>one failed facet checks due to: facet minExclusive (42)</tdml:error>
+      <tdml:error>'42' of element 'ex:one' is not valid</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
@@ -1844,7 +1837,7 @@
     </tdml:infoset>
 
     <tdml:validationErrors>
-      <tdml:error>nonNegA failed facet checks due to: facet minInclusive (30)</tdml:error>
+      <tdml:error>'20' is not facet-valid with respect to minInclusive '30'</tdml:error>
     </tdml:validationErrors>
 
   </tdml:parserTestCase>
@@ -2140,7 +2133,7 @@
 
         <tdml:validationErrors>
             <tdml:error>Validation Error</tdml:error>
-            <tdml:error>failed facet checks due to: facet minLength (7)</tdml:error>
+            <tdml:error>not facet-valid with respect to minLength '7'</tdml:error>
         </tdml:validationErrors>
 
     </tdml:parserTestCase>
@@ -2160,7 +2153,7 @@
 
         <tdml:validationErrors>
             <tdml:error>Validation Error</tdml:error>
-            <tdml:error>failed facet checks due to: facet length (7)</tdml:error>
+            <tdml:error>not facet-valid with respect to length '7'</tdml:error>
         </tdml:validationErrors>
 
     </tdml:parserTestCase>
@@ -2177,7 +2170,7 @@
         </tdml:infoset>
         <tdml:validationErrors>
             <tdml:error>Validation Error</tdml:error>
-            <tdml:error>failed facet checks due to: facet maxLength (5)</tdml:error>
+            <tdml:error>not facet-valid with respect to maxLength '5'</tdml:error>
         </tdml:validationErrors>
     </tdml:parserTestCase>
 
