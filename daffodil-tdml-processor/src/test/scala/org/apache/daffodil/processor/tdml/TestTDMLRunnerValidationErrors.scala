@@ -66,7 +66,11 @@ class TestTDMLRunnerValidationErrors {
 
         <ts:validationErrors>
           <ts:error>Validation Error</ts:error>
-          <ts:error>r failed</ts:error>
+          <ts:error>r</ts:error>
+          <ts:error>not valid</ts:error>
+          <ts:error>foo</ts:error>
+          <ts:error>not facet-valid</ts:error>
+          <ts:error>[YES]</ts:error>
         </ts:validationErrors>
       </ts:parserTestCase>
 
@@ -80,8 +84,11 @@ class TestTDMLRunnerValidationErrors {
 
         <ts:validationErrors>
           <ts:error>Validation Error</ts:error>
-          <ts:error>r failed</ts:error>
-        </ts:validationErrors>
+          <ts:error>r</ts:error>
+          <ts:error>not valid</ts:error>
+          <ts:error>foo</ts:error>
+          <ts:error>not facet-valid</ts:error>
+          <ts:error>[YES]</ts:error>        </ts:validationErrors>
       </ts:parserTestCase>
 
       <ts:parserTestCase name="expectsNoValidationErrorGetsNoValidationError" root="r" model="schema1" roundTrip="onePass">

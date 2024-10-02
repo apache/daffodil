@@ -198,8 +198,10 @@ abstract class ElementParserBase(
 
       if (pstate.processorStatus ne Success) return
 
+      // if we should do limited validation via CheckConstraints
       val shouldValidate = erd.isSimpleType &&
-        pstate.dataProc.isDefined && pstate.dataProc.value.validationMode != ValidationMode.Off
+        pstate.dataProc.isDefined &&
+        pstate.dataProc.value.validationMode == ValidationMode.Limited
 
       if (shouldValidate) {
         validate(pstate)

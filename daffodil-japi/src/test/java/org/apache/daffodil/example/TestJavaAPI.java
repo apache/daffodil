@@ -788,10 +788,9 @@ public class TestJavaAPI {
             assertEquals(file.length(), actualLength);
 
             java.util.List<Diagnostic> diags = res.getDiagnostics();
-            assertEquals(3, diags.size());
+            assertEquals(2, diags.size());
             Diagnostic d0 = diags.get(0);
             Diagnostic d1 = diags.get(1);
-            Diagnostic d2 = diags.get(2);
 
             assertTrue(d0.getMessage().contains("42"));
             assertTrue(d0.getMessage().contains("e2"));
@@ -800,10 +799,6 @@ public class TestJavaAPI {
             assertTrue(d1.getMessage().contains("42"));
             assertTrue(d1.getMessage().contains("maxInclusive"));
             assertTrue(d1.getMessage().contains("20"));
-
-            assertTrue(d2.getMessage().contains("maxInclusive"));
-            assertTrue(d2.getMessage().contains("e2"));
-            assertTrue(d2.getMessage().contains("20"));
         }
     }
 

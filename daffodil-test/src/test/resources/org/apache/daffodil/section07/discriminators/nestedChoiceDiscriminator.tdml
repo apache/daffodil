@@ -251,9 +251,6 @@ backtrack and get an unrecognizedMessage because the outer choice was discrimina
       <tdml:error>Invalid content</tdml:error>
       <tdml:error>unrecognizedMessage</tdml:error>
       <tdml:error>message1, message2</tdml:error>
-      <tdml:error>occurred '1' times</tdml:error>
-      <tdml:error>minimum of '0'</tdml:error>
-      <tdml:error>maximum of '0'</tdml:error>
     </tdml:validationErrors>
   </tdml:parserTestCase>
 
@@ -297,9 +294,6 @@ backtrack and get an unrecognizedMessage because the outer choice was discrimina
       <tdml:error>Invalid content</tdml:error>
       <tdml:error>messageParseError</tdml:error>
       <tdml:error>message1, message2</tdml:error>
-      <tdml:error>occurred '1' times</tdml:error>
-      <tdml:error>minimum of '0'</tdml:error>
-      <tdml:error>maximum of '0'</tdml:error>
     </tdml:validationErrors>
   </tdml:parserTestCase>
 

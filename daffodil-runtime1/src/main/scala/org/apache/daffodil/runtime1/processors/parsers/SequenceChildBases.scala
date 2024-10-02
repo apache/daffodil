@@ -529,8 +529,10 @@ trait EndArrayChecksMixin {
   def endArray(state: ParseOrUnparseState, occurrences: Long): Unit = {
     if (state.processorStatus eq Success) {
 
+      // if we should do limited validation
       val shouldValidate =
-        state.dataProc.isDefined && state.dataProc.value.validationMode != ValidationMode.Off
+        state.dataProc.isDefined &&
+          state.dataProc.value.validationMode == ValidationMode.Limited
 
       if (shouldValidate) {
         val minO = erd.minOccurs
