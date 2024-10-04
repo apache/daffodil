@@ -1205,12 +1205,58 @@
                     dfdl:lengthKind="delimited" />
       </xs:choice>
     </xs:group>
+    <xs:group name="hg_sep">
+      <xs:choice>
+        <xs:element name="inty" type="xs:int" dfdl:initiator="+"
+          dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ 1 }" />
+        <xs:element name="stringy" type="xs:string"
+          dfdl:lengthKind="delimited" />
+      </xs:choice>
+    </xs:group>
+    <xs:group name="vg_sep">
+      <xs:choice>
+        <xs:element name="inty" type="xs:int"  dfdl:initiator="-"
+          dfdl:lengthKind="delimited" />
+        <xs:element name="stringy" type="xs:string"
+          dfdl:lengthKind="delimited" />
+      </xs:choice>
+    </xs:group>
+
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:group ref="ex:g3" dfdl:separator=","/>
+      </xs:complexType>
+    </xs:element>
+    <xs:group name="g3">
+      <xs:sequence dfdl:separatorPosition="infix">
+        <xs:element name="g3c0" type="xs:string" />
+        <xs:element name="g3c1" type="xs:string" />
+        <xs:element name="g3c2" type="xs:string" />
+        <xs:group ref="ex:hg" />
+        <xs:group ref="ex:vg" />
+      </xs:sequence>
+    </xs:group>
+    <xs:element name="root3">
+      <xs:complexType>
+        <xs:group ref="ex:g4" dfdl:separator=","/>
+      </xs:complexType>
+    </xs:element>
+    <xs:group name="g4">
+      <xs:sequence dfdl:separatorPosition="infix">
+        <xs:element name="c0" type="xs:string" />
+        <xs:element name="c1" type="xs:string" />
+        <xs:element name="c2" type="xs:string" />
+        <xs:group ref="ex:hg_sep" />
+        <xs:group ref="ex:vg_sep" />
+      </xs:sequence>
+    </xs:group>
 
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="nestedGroupRefs2" root="root"
                        model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R"
-                       roundTrip="twoPass">
+                       roundTrip="twoPass"
+    ignoreUnexpectedWarnings="false">
 
     <tdml:document>
       <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z%LF;A,B,C,x,1|D,E,F,y,2|G,H,I,z,3%LF;A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:documentPart>
@@ -1280,6 +1326,75 @@
             </g1c0>
           </g0c0>
         </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nestedGroupRefs3" root="root2"
+                       model="nestedGroupRefs2" description="Verify that nested groups and choices work correctly - DFDL-14-039R"
+                       roundTrip="onePass"
+                       ignoreUnexpectedWarnings="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C,1,x]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <g3c0>A</g3c0>
+          <g3c1>B</g3c1>
+          <g3c2>C</g3c2>
+          <inty>1</inty>
+          <stringy>x</stringy>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nestedGroupRefs4" root="root2"
+                       model="nestedGroupRefs2" description="Verify that nested groups and choices work correctly - DFDL-14-039R"
+                       roundTrip="onePass"
+                       ignoreUnexpectedWarnings="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C,x,1]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root2>
+          <g3c0>A</g3c0>
+          <g3c1>B</g3c1>
+          <g3c2>C</g3c2>
+          <stringy>x</stringy>
+          <inty>1</inty>
+        </root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nestedGroupRefs5" root="root3"
+                       model="nestedGroupRefs2" description="Verify that nested groups and choices work correctly - DFDL-14-039R"
+                       roundTrip="onePass"
+                       ignoreUnexpectedWarnings="false">
+
+    <tdml:document>
+      <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C,x,1]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root3>
+          <c0>A</c0>
+          <c1>B</c1>
+          <c2>C</c2>
+          <stringy>x</stringy>
+          <stringy>1</stringy>
+        </root3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
