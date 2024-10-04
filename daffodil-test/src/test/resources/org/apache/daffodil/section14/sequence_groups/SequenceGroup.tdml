@@ -1211,7 +1211,8 @@
 
 	<tdml:parserTestCase name="nestedGroupRefs2" root="root"
 		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R"
-		roundTrip="twoPass">
+		roundTrip="twoPass"
+    ignoreUnexpectedWarnings="false">
 
 		<tdml:document>
 		  <tdml:documentPart type="text" replaceDFDLEntities="true"><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z%LF;A,B,C,x,1|D,E,F,y,2|G,H,I,z,3%LF;A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:documentPart>

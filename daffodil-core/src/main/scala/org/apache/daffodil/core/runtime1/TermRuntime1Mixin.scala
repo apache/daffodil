@@ -255,15 +255,18 @@ trait TermRuntime1Mixin { self: Term =>
       val groupedByName = possibles.pnes.groupBy(_.e.namedQName.local)
       groupedByName.foreach { case (_, sameNamesEB) =>
         if (sameNamesEB.length > 1) {
-          SDW(
-            WarnID.NamespaceDifferencesOnly,
-            "Neighboring QNames differ only by namespaces. " +
-              "Infoset representations that do not support namespaces " +
-              "cannot differentiate between these elements and " +
-              "may fail to unparse. QNames are: %s",
-            sameNamesEB.map(_.e.namedQName.toExtendedSyntax).mkString(", ")
-          )
-          hasNamesDifferingOnlyByNS = true
+          val groupedByNamespace = sameNamesEB.groupBy(_.e.namedQName.namespace)
+          if (groupedByNamespace.size > 1) {
+            SDW(
+              WarnID.NamespaceDifferencesOnly,
+              "Neighboring QNames differ only by namespaces. " +
+                "Infoset representations that do not support namespaces " +
+                "cannot differentiate between these elements and " +
+                "may fail to unparse. QNames are: %s",
+              sameNamesEB.map(_.e.namedQName.toExtendedSyntax).mkString(", ")
+            )
+            hasNamesDifferingOnlyByNS = true
+          }
         }
       }
     }
