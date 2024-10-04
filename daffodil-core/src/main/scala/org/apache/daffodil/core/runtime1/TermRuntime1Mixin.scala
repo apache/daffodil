@@ -255,15 +255,18 @@ trait TermRuntime1Mixin { self: Term =>
       val groupedByName = possibles.pnes.groupBy(_.e.namedQName.local)
       groupedByName.foreach { case (_, sameNamesEB) =>
         if (sameNamesEB.length > 1) {
-          SDW(
-            WarnID.NamespaceDifferencesOnly,
-            "Neighboring QNames differ only by namespaces. " +
-              "Infoset representations that do not support namespaces " +
-              "cannot differentiate between these elements and " +
-              "may fail to unparse. QNames are: %s",
-            sameNamesEB.map(_.e.namedQName.toExtendedSyntax).mkString(", ")
-          )
-          hasNamesDifferingOnlyByNS = true
+          val groupedByNamespace = sameNamesEB.groupBy(_.e.namedQName.namespace)
+          if (groupedByNamespace.size > 1) {
+            SDW(
+              WarnID.NamespaceDifferencesOnly,
+              "Neighboring QNames differ only by namespaces. " +
+                "Infoset representations that do not support namespaces " +
+                "cannot differentiate between these elements and " +
+                "may fail to unparse. QNames are: %s",
+              sameNamesEB.map(_.e.namedQName.toExtendedSyntax).mkString(", ")
+            )
+            hasNamesDifferingOnlyByNS = true
+          }
         }
       }
     }
@@ -458,12 +461,15 @@ trait TermRuntime1Mixin { self: Term =>
         // the way one would normally expect a collection to be.
         // So Map[NamedQName, ElementRuntimeData] is not a subtype of Map[QNameBase, ElementRuntimeData]
         // So we need a cast upward to Map[QNameBase,ElementRuntimeData]
-        //
+        // We need the fold because .toMAp overwrites earlier element with duplicate later elements,
+        // but we don't want that, so instead we deduplicate here with earlier elements taking precedence
         val eltMap = sibs
           .map { sib =>
             (sib.e.namedQName, sib.e.erd)
           }
-          .toMap
+          .foldLeft(Map.empty[QNameBase, ElementRuntimeData]) { case (map, (key, value)) =>
+            if (map.contains(key)) map else map + (key -> value)
+          }
           .asInstanceOf[Map[QNameBase, ElementRuntimeData]]
         val resolver = eltMap.size match {
           case 0 => new NoNextElement(trd, isRequiredStreamingUnparserEvent)

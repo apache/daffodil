@@ -106,6 +106,9 @@ class TestSequenceGroups {
   @Test def test_hiddenGroupNested2(): Unit = { runner_02.runOneTest("hiddenGroupNested2") }
   @Test def test_nestedGroupRefs(): Unit = { runner_02.runOneTest("nestedGroupRefs") }
   @Test def test_nestedGroupRefs2(): Unit = { runner_02.runOneTest("nestedGroupRefs2") }
+  @Test def test_nestedGroupRefs3(): Unit = { runner_02.runOneTest("nestedGroupRefs3") }
+  @Test def test_nestedGroupRefs4(): Unit = { runner_02.runOneTest("nestedGroupRefs4") }
+  @Test def test_nestedGroupRefs5(): Unit = { runner_02.runOneTest("nestedGroupRefs5") }
   @Test def test_hiddenGroupChoice(): Unit = { runner_02.runOneTest("hiddenGroupChoice") }
   @Test def test_hiddenGroupChoice2(): Unit = { runner_02.runOneTest("hiddenGroupChoice2") }
   @Test def test_hiddenGroupIgnoredProps(): Unit = {
