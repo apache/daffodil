@@ -283,6 +283,7 @@ trait TermRuntime1Mixin { self: Term =>
           Closed(Seq(PNE(eb, true)))
         case eb: ElementBase =>
           Open(Seq(PNE(eb, false)))
+        case gr: GroupRef if gr.isHidden => Open(Nil)
         case ctb: ChoiceTermBase => {
           val individualBranchPossibles = ctb.groupMembers.map {
             _.possibleSelfPlusNextLexicalSiblingStreamingUnparserElements
@@ -323,7 +324,6 @@ trait TermRuntime1Mixin { self: Term =>
             }
           res
         }
-        case gr: GroupRef if gr.isHidden => Open(Nil)
         case stb: SequenceTermBase => {
           //
           // This case only applies to when we are analyzing a sequence, but it is

@@ -385,6 +385,51 @@ class TestStreamingUnparserCompilerAttributes {
     val Closed(Seq(PNE(`c`, true))) = poss(c)
   }
 
+// DAFFODIL-2937
+  @Test def testPossibleNextStreamingUnparserEvent12() = {
+    val r = getRoot {
+      <xs:element name="root">
+        <xs:complexType>
+          <xs:group ref="ex:g2" dfdl:separator="%NL;"></xs:group>
+        </xs:complexType>
+      </xs:element>
+        <xs:group name="g2">
+          <xs:sequence dfdl:separatorPosition="infix">
+            <xs:element name="g2c0" type="xs:string" />
+            <xs:element name="g2c1" type="xs:string" />
+            <xs:element name="g2c2" type="xs:string" maxOccurs="unbounded" />
+            <xs:sequence dfdl:hiddenGroupRef="ex:hg" />
+            <xs:group ref="ex:vg" />
+          </xs:sequence>
+        </xs:group>
+        <xs:group name="hg">
+          <xs:choice>
+            <xs:element name="hg_inty" type="xs:int"
+                        dfdl:lengthKind="delimited" dfdl:outputValueCalc="{ 1 }" />
+            <xs:element name="hg_stringy" type="xs:string"
+                        dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:group>
+        <xs:group name="vg">
+          <xs:choice>
+            <xs:element name="vg_inty" type="xs:int"
+                        dfdl:lengthKind="delimited" />
+            <xs:element name="vg_stringy" type="xs:string"
+                        dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:group>
+    }
+    val rg: SGR = r.complexType.group.asInstanceOf[SequenceGroupRef]
+    val Seq(g2c1: LE, g2c2: LE, g2c3: LE, hg: CGR, vg: CGR) = rg.groupMembers
+    val Closed(Seq(PNE(`g2c1`, true))) = poss(g2c1)
+    val Closed(Seq(PNE(`g2c2`, true))) = poss(g2c2)
+    val Closed(Seq(PNE(`g2c3`, false), PNE(vg_inty, false), PNE(vg_stringy, false))) = poss(
+      g2c3
+    )
+    val Open(Seq(PNE(`vg_inty`, false), PNE(`vg_stringy`, false))) = poss(hg)
+    val Closed(Seq(PNE(`vg_inty`, false), PNE(`vg_stringy`, false))) = poss(vg)
+  }
+
   @Test def testPossibleNextStreamingUnparserEventHidden1() = {
     val r = getRoot {
       <xs:element name="r">
