@@ -64,8 +64,9 @@ class TestCLIUdfs {
     val schema = path(
       "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
+    val classpath = udfClasspath()
 
-    runCLI(args"-v parse -s $schema -r user_func1") { cli =>
+    runCLI(args"-v parse -s $schema -r user_func1", classpath) { cli =>
       cli.send("strng", inputDone = true)
       cli.expectErr("[error] Schema Definition Error: Unsupported function: jsudf:replace")
     }(ExitCode.UnableToCreateProcessor)
