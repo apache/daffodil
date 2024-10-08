@@ -112,11 +112,37 @@ class JsonInfosetOutputter private (writer: java.io.BufferedWriter, pretty: Bool
         } else {
           simple.getText
         }
-      writer.write('"')
-      writer.write(text)
-      writer.write('"')
+      if (needsQuote(simple)) {
+        writer.write('"')
+        writer.write(text)
+        writer.write('"')
+      } else {
+        writer.write(text)
+      }
     } else {
       writer.write("null")
+    }
+  }
+
+  private def needsQuote(simple: InfosetSimpleElement): Boolean = {
+    simple.metadata.dfdlType match {
+      case DFDLPrimType.String => true
+      case DFDLPrimType.HexBinary => true
+      case DFDLPrimType.AnyURI => true
+      case DFDLPrimType.DateTime => true
+      case DFDLPrimType.Date => true
+      case DFDLPrimType.Time => true
+
+      // json does not support inf/nan double/float so they must be quoted
+      case DFDLPrimType.Double => {
+        val d = simple.getDouble
+        d.isInfinite || d.isNaN
+      }
+      case DFDLPrimType.Float => {
+        val f = simple.getFloat.toDouble
+        f.isInfinite || f.isNaN
+      }
+      case _ => false
     }
   }
 
