@@ -195,7 +195,7 @@ lazy val testIBM1 = Project("daffodil-test-ibm1", file("daffodil-test-ibm1"))
 
 lazy val testIntegration =
   Project("daffodil-test-integration", file("daffodil-test-integration"))
-    .dependsOn(cli % "test->test", udf % "test->test")
+    .dependsOn(cli % "test->test", udf % "test->test", testDaf % "test->test")
     .settings(commonSettings, nopublish)
     .settings(
       // CLI integration tests fork a new process which requires extra memory, so these should

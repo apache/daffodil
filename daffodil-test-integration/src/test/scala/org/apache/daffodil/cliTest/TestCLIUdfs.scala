@@ -47,7 +47,7 @@ class TestCLIUdfs {
       "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
 
-    runCLI(args"-v parse -s $schema -r fn_func") { cli =>
+    runCLI(args"-v parse -s $schema -r fn_func", fork = true) { cli =>
       cli.send("strng", inputDone = true)
       cli.expect("<fn_func>")
       cli.expect("<data>strng</data>")
@@ -65,7 +65,7 @@ class TestCLIUdfs {
       "daffodil-udf/src/test/resources/org/apache/daffodil/udf/genericUdfSchema.xsd"
     )
 
-    runCLI(args"-v parse -s $schema -r user_func1") { cli =>
+    runCLI(args"-v parse -s $schema -r user_func1", fork = true) { cli =>
       cli.send("strng", inputDone = true)
       cli.expectErr("[error] Schema Definition Error: Unsupported function: jsudf:replace")
     }(ExitCode.UnableToCreateProcessor)
