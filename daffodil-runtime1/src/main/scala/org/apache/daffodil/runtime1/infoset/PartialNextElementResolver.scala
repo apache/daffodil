@@ -304,9 +304,9 @@ class SeveralPossibilitiesForNextElement(
     hasNamespace: Boolean
   ): Maybe[ElementRuntimeData] = {
     Logger.log.debug(s"""
-      NextERDResovler -> trd: $trd\n
-      NextERDResovler -> looking for: $local\n
-      NextERDResovler -> nextERDMap: $nextERDMap\n""")
+      NextERDResolver -> trd: $trd\n
+      NextERDResolver -> looking for: $local\n
+      NextERDResolver -> nextERDMap: $nextERDMap\n""")
     val optnextERD =
       if (hasNamespace) {
         val sqn = StepQName(
