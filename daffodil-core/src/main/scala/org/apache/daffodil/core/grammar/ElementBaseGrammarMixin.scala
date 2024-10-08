@@ -1714,35 +1714,15 @@ trait ElementBaseGrammarMixin
       mtaBase
     }
 
-  val allowedBitTypes = Set[PrimType](
-    PrimType.Boolean,
-    PrimType.Byte,
-    PrimType.Short,
-    PrimType.Int,
-    PrimType.Long,
-    PrimType.UnsignedByte,
-    PrimType.UnsignedShort,
-    PrimType.UnsignedInt,
-    PrimType.UnsignedLong
-  )
-  val allowedBitTypesText = allowedBitTypes.map("xs:" + _.toString).toList.sorted.mkString(", ")
-
   private def checkLengthUnits(elem: ElementBase = context): Unit = {
     elem.lengthUnits match {
-      case LengthUnits.Bits if elem.representation == Representation.Binary =>
+      case LengthUnits.Bits =>
         elem.optPrimType match {
-          case Some(primType) =>
-            if (!allowedBitTypes.contains(primType))
-              if (tunable.allowBigIntegerBits)
-                elem.SDW(
-                  WarnID.DeprecatedBigIntegerBits,
-                  s"In a future release, lengthUnits='bits' will only be supported for the following types: $allowedBitTypesText"
-                )
-              else
-                elem.SDE(
-                  "lengthUnits='bits' is only supported for the following types: $allowedBitTypesText"
-                )
-          case None =>
+          case Some(_) => {
+            // allow all types to use lengthUnits bits
+            // PORTABILITY: See https://github.com/OpenGridForum/DFDL/issues/12
+          }
+          case None => // do nothing
         }
       case _ =>
     }

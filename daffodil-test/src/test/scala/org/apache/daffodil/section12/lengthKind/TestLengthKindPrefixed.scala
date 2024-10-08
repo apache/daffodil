@@ -280,8 +280,8 @@ class TestLengthKindPrefixed {
   @Test def test_pl_complexContentLengthCharacters_utf8_1() = {
     runner.runOneTest("pl_complexContentLengthCharacters_utf8_1")
   }
-  @Test def test_invalidLengthUnits_prefixed(): Unit = {
-    runner.runOneTest("invalidLengthUnits_prefixed")
+  @Test def lengthUnitsBitsForNonNegativeInteger_prefixed(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForNonNegativeInteger_prefixed")
   }
 
   @Test def test_invalidUnsignedLongBitLength(): Unit = {

@@ -98,14 +98,14 @@ class TestLengthKindExplicit {
     runner.runOneTest("denseBit_lengthKind_explicit")
   }
 
-  @Test def test_invalidLengthUnitsIntegerWarning_explicit(): Unit = {
-    runner.runOneTest("invalidLengthUnitsIntegerWarning_explicit")
+  @Test def test_lengthUnitsBitsForInteger_explicit(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForInteger_explicit")
   }
-  @Test def test_invalidLengthUnitsIntegerError_explicit(): Unit = {
-    runner.runOneTest("invalidLengthUnitsIntegerError_explicit")
+  @Test def test_lengthUnitsBitsForInteger_explicit2(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForInteger_explicit2")
   }
-  @Test def test_invalidLengthUnitsDecimalWarning_explicit(): Unit = {
-    runner.runOneTest("invalidLengthUnitsDecimalWarning_explicit")
+  @Test def lengthUnitsBitsForDecimal_explicit(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForDecimal_explicit")
   }
 
   @Test def test_invalidUnsignedLongBitLength(): Unit = {

@@ -2560,7 +2560,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:defineSchema name="invalidLengthUnits_prefixed">
+  <tdml:defineSchema name="lengthUnitsBitsForNonNegativeInteger_prefixed">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="Binary">
       <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
@@ -2579,9 +2579,9 @@
                 dfdl:lengthUnits="bits"/>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="invalidLengthUnits_prefixed" root="r1" model="invalidLengthUnits_prefixed"
-                       description="">
-    <tdml:document>
+  <tdml:parserTestCase name="lengthUnitsBitsForNonNegativeInteger_prefixed" root="r1" model="lengthUnitsBitsForNonNegativeInteger_prefixed"
+                       ignoreUnexpectedWarnings="false">
+  <tdml:document>
       <tdml:documentPart type="byte">08 ff</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
@@ -2589,10 +2589,6 @@
         <r1>255</r1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>lengthUnits='bits'</tdml:warning>
-      <tdml:warning>will only be supported</tdml:warning>
-    </tdml:warnings>
   </tdml:parserTestCase>
 
   <!--
