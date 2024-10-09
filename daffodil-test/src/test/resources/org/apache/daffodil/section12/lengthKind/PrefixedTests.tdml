@@ -19,7 +19,7 @@
 <tdml:testSuite suiteName="PrefixedTests"
   description="Section 12 - lengthKind=prefixed" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:ex="http://example.com"
   xmlns:tns="http://example.com"
@@ -2314,13 +2314,56 @@
     <xs:element name="root7">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="s" type="xs:string" dfdl:lengthKind="prefixed"
+          <xs:element name="s" dfdl:lengthKind="prefixed"
                       dfdl:prefixLengthType="ex:prefixType2"
+                      dfdl:prefixIncludesPrefixLength="yes"
                       dfdl:textTrimKind="padChar"
-                      dfdl:textPadKind="none"
+                      dfdl:textPadKind="padChar"
+                      dfdl:textStringPadCharacter="%SP;"
+                      dfdl:textStringJustification="center">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:minLength value="7"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:valueLength(../s, "bytes") }'>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="root8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" type="xs:string" dfdl:lengthKind="explicit"
+                      dfdl:length="7"
+                      dfdl:textTrimKind="padChar"
+                      dfdl:textPadKind="padChar"
                       dfdl:textStringPadCharacter="%SP;"
                       dfdl:textStringJustification="center"/>
           <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:valueLength(../s, "bytes") }'>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root9">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" dfdl:lengthKind="prefixed"
+              dfdl:prefixLengthType="ex:prefixType2"
+              dfdl:textTrimKind="padChar"
+              dfdl:textPadKind="padChar"
+              dfdl:textStringPadCharacter="%SP;"
+              dfdl:textStringJustification="center">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:minLength value="7"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="e" type="xs:int"
+              dfdl:inputValueCalc='{ dfdl:valueLength(../s, "bytes") }'>
           </xs:element>
         </xs:sequence>
       </xs:complexType>
@@ -2435,6 +2478,37 @@
           <s>ABC</s>
           <e>3</e>
         </ex:root7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_simpleValueLengthBytes_2"
+                       model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="text">  ABC  </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root8>
+          <s>ABC</s>
+          <e>3</e>
+        </ex:root8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_simpleValueLengthBytes_3"
+      model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 0B</tdml:documentPart>
+      <tdml:documentPart type="text">  ABC  </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root9>
+          <s>ABC</s>
+          <e>3</e>
+        </ex:root9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2580,7 +2654,7 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="lengthUnitsBitsForNonNegativeInteger_prefixed" root="r1" model="lengthUnitsBitsForNonNegativeInteger_prefixed"
-                       ignoreUnexpectedWarnings="false">
+      ignoreUnexpectedWarnings="false">
   <tdml:document>
       <tdml:documentPart type="byte">08 ff</tdml:documentPart>
     </tdml:document>
@@ -2913,7 +2987,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>failed check</tdml:error>
-      <tdml:error>field2 (prefixLength) (5)</tdml:error>
+      <tdml:error>field2 (5)</tdml:error>
       <tdml:error>facet maxInclusive (4)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -2926,7 +3000,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>failed check</tdml:error>
-      <tdml:error>field1 (prefixLength) (6)</tdml:error>
+      <tdml:error>field1 (6)</tdml:error>
       <tdml:error>facet maxInclusive (4)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -2956,7 +3030,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>failed check</tdml:error>
-      <tdml:error>field3 (prefixLength) (1)</tdml:error>
+      <tdml:error>field3 (1)</tdml:error>
       <tdml:error>facet minInclusive (2)</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>

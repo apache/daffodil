@@ -110,7 +110,7 @@ trait PrefixedLengthParserMixin {
         val check = strd.executeCheck(plElement)
         if (check.isError) {
           val pe = state.toProcessingError(
-            s"The value of ${prefixedLengthERD.namedQName} ($parsedLen) failed check due to ${check.errMsg}"
+            s"The prefix length value of ${savedInfoset.namedQName} ($parsedLen) failed check due to ${check.errMsg}"
           )
           state.setFailed(pe)
         }
@@ -163,5 +163,25 @@ trait PrefixedLengthParserMixin {
     } else {
       0
     }
+  }
+}
+
+/**
+ * Some parsers do not calculate their own length, but instead expect another parser
+ * to set the bit limit, and then they use that bit limit as the length.
+ * An example of this is prefix length parsers. This trait can be used by those
+ * parsers to do determine the length based on the bitLimit and position.
+ */
+trait BitLengthFromBitLimitMixin {
+
+  def getBitLength(s: ParseOrUnparseState): Int = {
+    val pState = s.asInstanceOf[PState]
+    val len = getLengthInBits(pState)
+    len.toInt
+  }
+
+  def getLengthInBits(pstate: PState): Long = {
+    val len = pstate.bitLimit0b.get - pstate.bitPos0b
+    len
   }
 }

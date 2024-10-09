@@ -24,8 +24,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.DecimalUtils
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.Processor
 
 class BCDDecimalKnownLengthParser(
   e: ElementRuntimeData,
@@ -52,25 +50,14 @@ class BCDDecimalRuntimeLengthParser(
 
 }
 
-class BCDDecimalPrefixedLengthParser(
+class BCDDecimalBitLimitLengthParser(
   e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
+  binaryDecimalVirtualPoint: Int
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
-  with PrefixedLengthParserMixin {
+  with BitLengthFromBitLimitMixin {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
     DecimalUtils.bcdToBigDecimal(num, binaryDecimalVirtualPoint)
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
-
 }
 
 class BCDIntegerRuntimeLengthParser(
@@ -92,20 +79,9 @@ class BCDIntegerKnownLengthParser(e: ElementRuntimeData, val lengthInBits: Int)
 
 }
 
-class BCDIntegerPrefixedLengthParser(
-  e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
-) extends PackedBinaryIntegerBaseParser(e)
-  with PrefixedLengthParserMixin {
+class BCDIntegerBitLimitLengthParser(e: ElementRuntimeData)
+  extends PackedBinaryIntegerBaseParser(e)
+  with BitLengthFromBitLimitMixin {
 
   override def toNumber(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
 }

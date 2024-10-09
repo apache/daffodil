@@ -32,7 +32,6 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.parsers.BinaryNumberCheckWidth
 import org.apache.daffodil.runtime1.processors.parsers.HasKnownLengthInBits
 import org.apache.daffodil.runtime1.processors.parsers.HasRuntimeExplicitLength
@@ -126,19 +125,13 @@ class BinaryIntegerRuntimeLengthUnparser(
   override val runtimeDependencies = Vector(lengthEv)
 }
 
-class BinaryIntegerPrefixedLengthUnparser(
+class BinaryIntegerMinimumLengthUnparser(
   e: ElementRuntimeData,
-  override val prefixedLengthUnparser: Unparser,
-  override val prefixedLengthERD: ElementRuntimeData,
-  maybeNBits: MaybeInt,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
-) extends BinaryIntegerBaseUnparser(e: ElementRuntimeData)
-  with KnownPrefixedLengthUnparserMixin {
+  maybeNBits: MaybeInt
+) extends BinaryIntegerBaseUnparser(e: ElementRuntimeData) {
 
   private val primNumeric = e.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
   override lazy val runtimeDependencies = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
@@ -153,11 +146,6 @@ class BinaryIntegerPrefixedLengthUnparser(
       val signedLen = if (primNumeric.isSigned) len + 1 else len
       (signedLen + 7) & ~0x7 // round up to nearest multilpe of 8
     }
-  }
-
-  override def unparse(state: UState): Unit = {
-    unparsePrefixedLength(state)
-    super.unparse(state)
   }
 }
 
@@ -218,18 +206,12 @@ class BinaryDecimalRuntimeLengthUnparser(
   override val runtimeDependencies = Vector(lengthEv)
 }
 
-class BinaryDecimalPrefixedLengthUnparser(
+class BinaryDecimalMinimumLengthUnparser(
   e: ElementRuntimeData,
-  override val prefixedLengthUnparser: Unparser,
-  override val prefixedLengthERD: ElementRuntimeData,
   signed: YesNo,
-  binaryDecimalVirtualPoint: Int,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
-) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint)
-  with KnownPrefixedLengthUnparserMixin {
+  binaryDecimalVirtualPoint: Int
+) extends BinaryDecimalUnparserBase(e, signed, binaryDecimalVirtualPoint) {
 
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
   override lazy val runtimeDependencies = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = {
@@ -239,11 +221,6 @@ class BinaryDecimalPrefixedLengthUnparser(
     val len = Math.max(asBigInt(value).bitLength, 1)
     val signedLen = if (signed == YesNo.Yes) len + 1 else len
     (signedLen + 7) & ~0x7 // round up to nearest multilpe of 8
-  }
-
-  override def unparse(state: UState): Unit = {
-    unparsePrefixedLength(state)
-    super.unparse(state)
   }
 }
 
