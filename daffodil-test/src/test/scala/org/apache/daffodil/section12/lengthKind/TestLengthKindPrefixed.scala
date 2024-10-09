@@ -82,6 +82,13 @@ class TestLengthKindPrefixed {
   @Test def test_pl_text_string_txt_bytes_not_enough_prefix_data_includes_backtrack() = {
     runner.runOneTest("pl_text_string_txt_bytes_not_enough_prefix_data_includes_backtrack")
   }
+  // DFDL-2660
+  @Test def test_pl_check_prefix_facets_before_use() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use")
+  }
+  @Test def test_pl_check_prefix_for_annotations() = {
+    runner.runOneTest("pl_check_prefix_for_annotations")
+  }
   // DFDL-2030, nested prefixed lengths not supported
   // @Test def test_pl_text_string_pl_txt_bytes() = { runner.runOneTest("pl_text_string_pl_txt_bytes") }
   @Test def test_pl_text_int_txt_bytes() = { runner.runOneTest("pl_text_int_txt_bytes") }
