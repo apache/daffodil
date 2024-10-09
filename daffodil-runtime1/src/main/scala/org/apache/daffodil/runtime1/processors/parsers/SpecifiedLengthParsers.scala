@@ -85,7 +85,9 @@ sealed abstract class SpecifiedLengthParserBase(eParser: Parser, erd: RuntimeDat
     if (pState.processorStatus ne Success) return
     val finalEndPos0b = startingBitPos0b + nBits
 
-    captureValueLength(pState, ULong(startingBitPos0b), ULong(dis.bitPos0b))
+    // if we haven't already set the value length, set it now
+    if (pState.infoset.valueLength.isEndUndef)
+      captureValueLength(pState, ULong(startingBitPos0b), ULong(dis.bitPos0b))
 
     Assert.invariant(dis eq pState.dataInputStream)
     val bitsToSkip = finalEndPos0b - dis.bitPos0b
