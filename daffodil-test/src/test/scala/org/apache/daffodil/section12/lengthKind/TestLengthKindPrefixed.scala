@@ -82,6 +82,37 @@ class TestLengthKindPrefixed {
   @Test def test_pl_text_string_txt_bytes_not_enough_prefix_data_includes_backtrack() = {
     runner.runOneTest("pl_text_string_txt_bytes_not_enough_prefix_data_includes_backtrack")
   }
+  // DFDL-2660
+  @Test def test_pl_check_prefix_facets_before_use1() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use1")
+  }
+  @Test def test_pl_check_prefix_facets_before_use2() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use2")
+  }
+  @Test def test_pl_check_prefix_facets_before_use3() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use3")
+  }
+  @Test def test_pl_check_prefix_facets_before_use4() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use4")
+  }
+  @Test def test_pl_check_prefix_facets_before_use5() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use5")
+  }
+  @Test def test_pl_check_prefix_facets_before_use6() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use6")
+  }
+  @Test def test_pl_check_prefix_facets_before_use7() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use7")
+  }
+  @Test def test_pl_check_prefix_facets_before_use8() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use8")
+  }
+  @Test def test_pl_check_prefix_facets_before_use9() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use9")
+  }
+  @Test def test_pl_check_prefix_for_annotations() = {
+    runner.runOneTest("pl_check_prefix_for_annotations")
+  }
   // DFDL-2030, nested prefixed lengths not supported
   // @Test def test_pl_text_string_pl_txt_bytes() = { runner.runOneTest("pl_text_string_pl_txt_bytes") }
   @Test def test_pl_text_int_txt_bytes() = { runner.runOneTest("pl_text_int_txt_bytes") }

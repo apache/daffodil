@@ -103,6 +103,18 @@ trait PrefixedLengthParserMixin {
         "Prefixed length result must be non-negative after dfdl:prefixIncludesPrefixLength adjustment , but was: %d",
         adjustedLen
       )
+      // do checks on facets expressed on prefixLengthType
+      val optSTRD = plElement.erd.optSimpleTypeRuntimeData
+      if (optSTRD.isDefined) {
+        val strd = optSTRD.get
+        val check = strd.executeCheck(plElement)
+        if (check.isError) {
+          val pe = state.toProcessingError(
+            s"The value of ${prefixedLengthERD.namedQName} ($parsedLen) failed check due to ${check.errMsg}"
+          )
+          state.setFailed(pe)
+        }
+      }
       adjustedLen
     } else {
       // Return zero if there was an error parsing the prefix length, the caller of this

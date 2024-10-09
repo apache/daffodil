@@ -192,6 +192,12 @@ trait ElementBaseGrammarMixin
         "%s is specified as a dfdl:prefixLengthType, but specifies a dfdl:trailingSkip other than 0",
         prefixLengthType
       )
+      schemaDefinitionWhen(
+        detachedElementDecl.statements.nonEmpty,
+        "%s is specified as a dfdl:prefixLengthType, but specifies one or more statement annotations (%s)",
+        prefixLengthType,
+        detachedElementDecl.statements.mkString(", ")
+      )
 
       if (
         detachedElementDecl.lengthKind == LengthKind.Prefixed &&
