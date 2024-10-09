@@ -42,6 +42,9 @@ class TestUnparserGeneral {
   @Test def test_puaPreexistingInfosetChars_remapped(): Unit = {
     runner.runOneTest("puaPreexistingInfosetChars_remapped")
   }
+  @Test def test_variableWidthComplexType(): Unit = {
+    runner.runOneTest("variableWidthComplexType")
+  }
 
   @Test def test_puaInfosetChars_CR_CRLF_01(): Unit = {
     runner.runOneTest("puaInfosetChars_CR_CRLF_01")
@@ -62,6 +65,18 @@ class TestUnparserGeneral {
   }
   @Test def test_unparseFixedLengthString03(): Unit = {
     runner.runOneTest("unparseFixedLengthString03")
+  }
+  @Test def test_unparseFixedLengthString04(): Unit = {
+    runner.runOneTest("unparseFixedLengthString04")
+  }
+  @Test def test_unparseFixedLengthString05(): Unit = {
+    runner.runOneTest("unparseFixedLengthString05")
+  }
+  @Test def test_unparseFixedLengthString06(): Unit = {
+    runner.runOneTest("unparseFixedLengthString06")
+  }
+  @Test def test_unparseFixedLengthString07(): Unit = {
+    runner.runOneTest("unparseFixedLengthString07")
   }
 
   @Test def test_parseFixedLengthString01(): Unit = {

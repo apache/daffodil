@@ -110,8 +110,7 @@ trait SpecifiedLengthExplicitImplicitUnparserMixin {
       new SpecifiedLengthExplicitImplicitUnparser(
         u,
         e.elementRuntimeData,
-        e.unparseTargetLengthInBitsEv,
-        e.maybeUnparseTargetLengthInCharactersEv
+        e.unparseTargetLengthInBitsEv
       )
   }
 }
