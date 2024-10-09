@@ -20,6 +20,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
   xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
   suiteName="generalUnparserTests">
 
   <tdml:defineSchema name="fixedLengthStrings">
@@ -40,6 +41,42 @@
         </xs:complexType>
       </xs:element>
 
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:truncateSpecifiedLengthString="yes" dfdl:encoding="UTF-8"/>
+          <xs:element name="e2"  type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{fn:string-length(../ex:e1)}"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:truncateSpecifiedLengthString="yes" dfdl:encoding="UTF-8" dfdl:lengthUnits="characters"/>
+          <xs:element name="e2"  type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{fn:string-length(../ex:e1)}"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:truncateSpecifiedLengthString="yes" />
+          <xs:element name="e2"  type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{fn:string-length(../ex:e1)}"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:truncateSpecifiedLengthString="no" />
+          <xs:element name="e2"  type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:outputValueCalc="{fn:string-length(../ex:e1)}"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="illegalChars">
@@ -55,6 +92,14 @@
     <dfdl:format ref="ex:GeneralFormat" encoding="utf-8"/>
 
     <xs:element name="e1" dfdl:lengthKind="delimited" type="xs:string"/>
+
+    <xs:element name="e2" dfdl:lengthUnits="characters" dfdl:lengthKind="explicit" dfdl:length="3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e" dfdl:lengthKind="delimited" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -202,6 +247,25 @@
 
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="variableWidthComplexType" root="e2" model="utf8Chars">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <ex:e>&#xE001;&#xE002;&#xE003;</ex:e>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Variable width character</tdml:error>
+      <tdml:error>lengthKind 'explicit'</tdml:error>
+      <tdml:error>lengthUnits 'characters'</tdml:error>
+      <tdml:error>not supported</tdml:error>
+      <tdml:error>complex types</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
 <!--
       Test Name: unparseFixedLengthString01
          Schema: fixedLengthStrings
@@ -293,6 +357,69 @@
     </tdml:infoset>
 
     <tdml:document>Hello</tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseFixedLengthString04" root="e5" model="fixedLengthStrings" roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <ex:e1>Hellow</ex:e1>
+          <ex:e2></ex:e2>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>Hello6</tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseFixedLengthString05" root="e6" model="fixedLengthStrings" roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6>
+          <ex:e1>Hellow</ex:e1>
+          <ex:e2></ex:e2>
+        </ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>Hello6</tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseFixedLengthString06" root="e7" model="fixedLengthStrings" roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e7>
+          <ex:e1>Hellow</ex:e1>
+          <ex:e2></ex:e2>
+        </ex:e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>Hello6</tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="unparseFixedLengthString07" root="e8" model="fixedLengthStrings" roundTrip="false">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e8>
+          <ex:e1>Hellow</ex:e1>
+          <ex:e2></ex:e2>
+        </ex:e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>data too long</tdml:error>
+      <tdml:error>unable to truncate</tdml:error>
+    </tdml:errors>
 
   </tdml:unparserTestCase>
 
