@@ -2872,4 +2872,199 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="PrefixFacetsCheck">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="GeneralFormat"
+                 lengthKind="explicit"
+                 lengthUnits="bytes" />
+
+
+    <xs:simpleType name="prefix2" dfdl:length="1">
+      <xs:restriction base="xs:int">
+        <xs:minInclusive value="2"/>
+        <xs:maxInclusive value="4"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="prefix3" dfdl:length="1">
+      <xs:restriction base="xs:unsignedByte">
+        <xs:minInclusive value="0"/>
+        <xs:maxInclusive value="4"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="field1" type="xs:string"
+                dfdl:lengthKind="prefixed" dfdl:prefixLengthType="prefix2" dfdl:prefixIncludesPrefixLength="yes"/>
+    <xs:element name="field2" type="xs:string"
+                dfdl:lengthKind="prefixed" dfdl:prefixLengthType="prefix2" dfdl:prefixIncludesPrefixLength="no"/>
+    <xs:element name="field3" type="xs:byte" dfdl:representation="binary"
+                dfdl:lengthKind="prefixed" dfdl:prefixLengthType="prefix2" dfdl:prefixIncludesPrefixLength="no"/>
+    <xs:element name="field4" type="xs:string"
+        dfdl:lengthKind="prefixed" dfdl:prefixLengthType="prefix3" dfdl:prefixIncludesPrefixLength="yes"/>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="pl_check_prefix_facets_before_use1"
+    root="field2"
+    model="PrefixFacetsCheck">
+    <tdml:document>
+      <tdml:documentPart type="text">5Hello</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>failed check</tdml:error>
+      <tdml:error>field2 (prefixLength) (5)</tdml:error>
+      <tdml:error>facet maxInclusive (4)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_check_prefix_facets_before_use2"
+    root="field1"
+    model="PrefixFacetsCheck">
+    <tdml:document>
+      <tdml:documentPart type="text">6Hello</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>failed check</tdml:error>
+      <tdml:error>field1 (prefixLength) (6)</tdml:error>
+      <tdml:error>facet maxInclusive (4)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="pl_check_prefix_facets_before_use3"
+    root="field1"
+    model="PrefixFacetsCheck">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:field1>Hello</ex:field1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>failed check</tdml:error>
+      <tdml:error>field1 (6)</tdml:error>
+      <tdml:error>facet maxInclusive (4)</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="pl_check_prefix_facets_before_use4"
+    root="field3"
+    model="PrefixFacetsCheck">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:field3>32</ex:field3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>failed check</tdml:error>
+      <tdml:error>field3 (prefixLength) (1)</tdml:error>
+      <tdml:error>facet minInclusive (2)</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="pl_check_prefix_facets_before_use5"
+      root="field4"
+      model="PrefixFacetsCheck">
+    <tdml:document>
+      <tdml:documentPart type="text">0</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Prefixed length result</tdml:error>
+      <tdml:error>after dfdl:prefixIncludesPrefixLength adjustment</tdml:error>
+      <tdml:error>non-negative</tdml:error>
+      <tdml:error>-1</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_check_prefix_facets_before_use6"
+      root="field4"
+      model="PrefixFacetsCheck">
+    <tdml:document>
+      <tdml:documentPart type="text">1H</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+      <tdml:error>8 bit(s) remaining</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_check_prefix_facets_before_use7"
+      root="field4"
+      model="PrefixFacetsCheck">
+    <tdml:document>
+      <tdml:documentPart type="text">2H</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:field4>H</ex:field4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_check_prefix_facets_before_use8"
+      root="field4"
+      model="PrefixFacetsCheck">
+    <tdml:document>
+      <tdml:documentPart type="text">1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:field4></ex:field4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_check_prefix_facets_before_use9"
+      root="field4"
+      model="PrefixFacetsCheck">
+    <tdml:document>
+      <tdml:documentPart type="text">4He</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Insufficient bits</tdml:error>
+      <tdml:error>needed 24 bit(s)</tdml:error>
+      <tdml:error>found only 16</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+  <tdml:defineSchema name="AnnotationOnPrefixType">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="GeneralFormat"
+                 lengthKind="explicit"
+                 lengthUnits="bytes" />
+
+
+    <xs:simpleType name="prefix2" dfdl:length="1">
+      <annotation>
+        <appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert>{ dfdl:checkConstraints(.) }</dfdl:assert>
+        </appinfo>
+      </annotation>
+      <xs:restriction base="xs:int">
+        <xs:minInclusive value="0"/>
+        <xs:maxInclusive value="4"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="field2" type="xs:string"
+                dfdl:lengthKind="prefixed" dfdl:prefixLengthType="prefix2" dfdl:prefixIncludesPrefixLength="no"/>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="pl_check_prefix_for_annotations"
+    root="field2"
+    model="AnnotationOnPrefixType">
+    <tdml:document>
+      <tdml:documentPart type="text">5Hello</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>specifies</tdml:error>
+      <tdml:error>one or more</tdml:error>
+      <tdml:error>statement annotations</tdml:error>
+      <tdml:error>dfdl:assert</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
