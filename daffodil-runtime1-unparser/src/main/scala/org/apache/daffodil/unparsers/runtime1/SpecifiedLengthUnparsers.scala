@@ -23,7 +23,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeJULong
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DIElement
 import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.Infoset
@@ -87,119 +86,28 @@ final class SpecifiedLengthExplicitImplicitUnparser(
           // but we don't know if the length units characters or bits/bytes.
           lengthUnits match {
             case LengthUnits.Bits | LengthUnits.Bytes =>
-              unparseVarWidthCharactersInBits(state)
-            case LengthUnits.Characters =>
-              unparseVarWidthCharactersInCharacters(state)
+              eUnparser.unparse1(state)
+            case LengthUnits.Characters => {
+              //
+              // variable-width encodings and lengthUnits characters, and lengthKind explicit
+              // is not supported (currently) for complex types
+              //
+              state.schemaDefinitionUnless(
+                erd.isSimpleType,
+                "Variable width character encoding '%s', dfdl:lengthKind '%s' and dfdl:lengthUnits '%s' are not supported for complex types.",
+                getCharset(state).name,
+                lengthKind.toString,
+                lengthUnits.toString
+              )
+
+              Assert.invariant(erd.isSimpleType)
+
+              // truncation is done by StringMaybeTruncateCharactersUnparser
+              eUnparser.unparse1(state, erd)
+            }
           }
         }
       }
-    }
-  }
-
-  /**
-   * Encoding is variable width (e.g., utf-8, but the
-   * target length is expressed in bits.
-   *
-   * Truncation, in this case, requires determining how many
-   * of the string's characters fit within the available target length
-   * bits.
-   */
-  def unparseVarWidthCharactersInBits(state: UState): Unit = {
-    val maybeTLBits = getMaybeTL(state, targetLengthInBitsEv)
-
-    if (maybeTLBits.isDefined) {
-      //
-      // We know the target length. We can use it.
-      //
-      if (areTruncating) {
-        val diSimple = state.currentInfosetNode.asSimple
-        val v = diSimple.dataValue.getString
-        val tl = maybeTLBits.get
-        val cs = getCharset(state)
-        val newV = state.truncateToBits(v, cs, tl)
-        //
-        // JIRA DFDL-1592
-        //
-        // BUG: should not modify the actual dataset value.
-        // as fn:string-length of the value should always return the same
-        // value which is the un-truncated length.
-        //
-        diSimple.overwriteDataValue(newV)
-      }
-      eUnparser.unparse1(state)
-    } else {
-      // target length unknown
-      // ignore constraining the output length. Just unparse it.
-      //
-      // This happens when we're unparsing, and this element depends on a prior element for
-      // determining its length, but that prior element has dfdl:outputValueCalc that depends
-      // on this element.
-      // This breaks the chicken-egg cycle.
-      //
-      eUnparser.unparse1(state)
-    }
-  }
-
-  private def areTruncating = {
-    if (erd.isSimpleType && (erd.optPrimType.get eq PrimType.String)) {
-      Assert.invariant(erd.optTruncateSpecifiedLengthString.isDefined)
-      erd.optTruncateSpecifiedLengthString.get
-    } else
-      false
-  }
-
-  /**
-   * Encoding is variable width (e.g., utf-8). The target
-   * length is expressed in characters.
-   */
-  def unparseVarWidthCharactersInCharacters(state: UState): Unit = {
-
-    //
-    // variable-width encodings and lengthUnits characters, and lengthKind explicit
-    // is not supported (currently) for complex types
-    //
-    state.schemaDefinitionUnless(
-      erd.isSimpleType,
-      "Variable width character encoding '%s', dfdl:lengthKind '%s' and dfdl:lengthUnits '%s' are not supported for complex types.",
-      getCharset(state).name,
-      lengthKind.toString,
-      lengthUnits.toString
-    )
-
-    Assert.invariant(erd.isSimpleType)
-    Assert.invariant(this.maybeTargetLengthInCharactersEv.isDefined)
-    val tlEv = this.maybeTargetLengthInCharactersEv.get
-    val tlChars = this.getMaybeTL(state, tlEv)
-
-    if (tlChars.isDefined) {
-      //
-      // possibly truncate
-      //
-      if (areTruncating) {
-        val diSimple = state.currentInfosetNode.asSimple
-        val v = diSimple.dataValue.getString
-        val tl = tlChars.get
-        if (v.length > tl) {
-          // string is too long, truncate to target length
-          val newV = v.substring(0, tl.toInt)
-          //
-          // BUG: JIRA DFDL-1592 - should not be overwriting the value with
-          // truncated value.
-          //
-          diSimple.overwriteDataValue(newV)
-        }
-      }
-      eUnparser.unparse1(state, erd)
-    } else {
-      // target length unknown
-      // ignore constraining the output length. Just unparse it.
-      //
-      // This happens when we're unparsing, and this element depends on a prior element for
-      // determining its length, but that prior element has dfdl:outputValueCalc that depends
-      // on this element.
-      // This breaks the chicken-egg cycle.
-      //
-      eUnparser.unparse1(state, erd)
     }
   }
 
