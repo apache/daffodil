@@ -17,14 +17,14 @@
 -->
 
 <tdml:testSuite suiteName="PrefixedTests"
-  description="Section 12 - lengthKind=prefixed" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-  xmlns:fn="http://www.w3.org/2005/xpath-functions"
-  xmlns:ex="http://example.com"
-  xmlns:tns="http://example.com"
-  xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-  defaultRoundTrip="onePass">
+                description="Section 12 - lengthKind=prefixed" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+                xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                xmlns:fn="http://www.w3.org/2005/xpath-functions"
+                xmlns:ex="http://example.com"
+                xmlns:tns="http://example.com"
+                xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
+                defaultRoundTrip="onePass" xmlns:x="http://www.ogf.org/dfdl/dfdl-1.0/">
 
   <tdml:defineSchema name="lengthKindPrefixed-text.dfdl.xsd">
 
@@ -2314,10 +2314,31 @@
     <xs:element name="root7">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="s" type="xs:string" dfdl:lengthKind="prefixed"
+          <xs:element name="s" dfdl:lengthKind="prefixed"
                       dfdl:prefixLengthType="ex:prefixType2"
+                      dfdl:prefixIncludesPrefixLength="yes"
                       dfdl:textTrimKind="padChar"
-                      dfdl:textPadKind="none"
+                      dfdl:textPadKind="padChar"
+                      dfdl:textStringPadCharacter="%SP;"
+                      dfdl:textStringJustification="center">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:minLength value="7"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:valueLength(../s, "bytes") }'>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="root8">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" type="xs:string" dfdl:lengthKind="explicit"
+                      dfdl:length="7"
+                      dfdl:textTrimKind="padChar"
+                      dfdl:textPadKind="padChar"
                       dfdl:textStringPadCharacter="%SP;"
                       dfdl:textStringJustification="center"/>
           <xs:element name="e" type="xs:int" dfdl:inputValueCalc='{ dfdl:valueLength(../s, "bytes") }'>
@@ -2423,8 +2444,11 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!-- This will not roundtrip due to DAFFODIL-2943, which incorrectly pads around the prefix length.
+  Once that is fixed, we should roundtrip this test-->
   <tdml:parserTestCase name="pl_simpleValueLengthBytes_1"
-                       model="lengthKindPrefixed-2">
+                       model="lengthKindPrefixed-2"
+                       roundTrip="none">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 0B</tdml:documentPart>
       <tdml:documentPart type="text">  ABC  </tdml:documentPart>
@@ -2435,6 +2459,21 @@
           <s>ABC</s>
           <e>3</e>
         </ex:root7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_simpleValueLengthBytes_2"
+                       model="lengthKindPrefixed-2" roundTrip="onePass">
+    <tdml:document>
+      <tdml:documentPart type="text">  ABC  </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root8>
+          <s>ABC</s>
+          <e>3</e>
+        </ex:root8>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

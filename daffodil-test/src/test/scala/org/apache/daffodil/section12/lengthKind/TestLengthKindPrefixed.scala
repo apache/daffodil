@@ -269,7 +269,12 @@ class TestLengthKindPrefixed {
   }
 
   // DAFFODIL-2658
-  // @Test def test_pl_simpleValueLengthBytes_1() = { runner.runOneTest("pl_simpleValueLengthBytes_1")}
+  @Test def test_pl_simpleValueLengthBytes_1() = {
+    runner.runOneTest("pl_simpleValueLengthBytes_1")
+  }
+  @Test def test_pl_simpleValueLengthBytes_2() = {
+    runner.runOneTest("pl_simpleValueLengthBytes_2")
+  }
 
   @Test def test_pl_simpleContentLengthCharacters_1() = {
     runner.runOneTest("pl_simpleContentLengthCharacters_1")
