@@ -172,7 +172,11 @@ class TestLengthKindPrefixed extends TdmlTests {
   @Test def pl_simpleContentLengthBytes_1 = test
 
   // DAFFODIL-2658
-  @Ignore @Test def pl_simpleValueLengthBytes_1 = test
+  @Test def pl_simpleValueLengthBytes_1() = test
+  @Test def pl_simpleValueLengthBytes_2() = test
+
+  // DAFFODIL-2948
+  @Test def pl_simpleValueLengthBytes_3() = test
 
   @Test def pl_simpleContentLengthCharacters_1 = test
   @Test def pl_complexContentLengthCharacters_1 = test

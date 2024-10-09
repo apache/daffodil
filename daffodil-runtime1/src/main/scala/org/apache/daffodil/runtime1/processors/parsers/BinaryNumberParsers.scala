@@ -28,7 +28,6 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 class BinaryFloatParser(override val context: ElementRuntimeData) extends PrimParser {
@@ -80,23 +79,12 @@ class BinaryDecimalRuntimeLengthParser(
 ) extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {}
 
-class BinaryDecimalPrefixedLengthParser(
+class BinaryDecimalBitLimitLengthParser(
   e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
   signed: YesNo,
-  binaryDecimalVirtualPoint: Int,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
+  binaryDecimalVirtualPoint: Int
 ) extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
-  with PrefixedLengthParserMixin {
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
-}
+  with BitLengthFromBitLimitMixin
 
 abstract class BinaryDecimalParserBase(
   override val context: ElementRuntimeData,
@@ -142,21 +130,9 @@ class BinaryIntegerKnownLengthParser(
 ) extends BinaryIntegerBaseParser(e)
   with HasKnownLengthInBits {}
 
-class BinaryIntegerPrefixedLengthParser(
-  e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
-) extends BinaryIntegerBaseParser(e)
-  with PrefixedLengthParserMixin {
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
-}
+class BinaryIntegerBitLimitLengthParser(e: ElementRuntimeData)
+  extends BinaryIntegerBaseParser(e)
+  with BitLengthFromBitLimitMixin
 
 abstract class BinaryIntegerBaseParser(
   override val context: ElementRuntimeData

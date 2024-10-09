@@ -26,7 +26,6 @@ import org.apache.daffodil.runtime1.infoset.DISimple
 import org.apache.daffodil.runtime1.infoset.Infoset
 import org.apache.daffodil.runtime1.processors.CharsetEv
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.UnparseTargetLengthInBitsEv
 import org.apache.daffodil.runtime1.processors.unparsers._
 
@@ -73,85 +72,10 @@ final class SpecifiedLengthExplicitImplicitUnparser(
   }
 }
 
-// TODO: implement the capture length unparsers as just using this trait?
-trait CaptureUnparsingValueLength {
-
-  def captureValueLengthStart(state: UState, elem: DIElement): Unit = {
-    val dos = state.dataOutputStream
-    if (dos.maybeAbsBitPos0b.isDefined) {
-      elem.valueLength.setAbsStartPos0bInBits(dos.maybeAbsBitPos0b.getULong)
-    } else {
-      elem.valueLength.setRelStartPos0bInBits(dos.relBitPos0b, dos)
-    }
-  }
-
-  def captureValueLengthEnd(state: UState, elem: DIElement): Unit = {
-    val dos = state.dataOutputStream
-    if (dos.maybeAbsBitPos0b.isDefined) {
-      elem.valueLength.setAbsEndPos0bInBits(dos.maybeAbsBitPos0b.getULong)
-    } else {
-      elem.valueLength.setRelEndPos0bInBits(dos.relBitPos0b, dos)
-    }
-  }
-}
-
-/**
- * This trait is to be used with prefixed length unparsers where the length is
- * known without needing to unparse the data. This means there is either a
- * fixed length (like in the case of some binary numbers), or the length can be
- * determined completly be inspecting the infoset data (like in the case of
- * packed decimals). The length calculation performed in the getBitLength
- * function, which returns the length of the data in bits.
- */
-trait KnownPrefixedLengthUnparserMixin {
-  def prefixedLengthERD: ElementRuntimeData
-  def prefixedLengthUnparser: Unparser
-  def lengthUnits: LengthUnits
-  def getBitLength(s: ParseOrUnparseState): Int
-  def prefixedLengthAdjustmentInUnits: Long
-
-  def unparsePrefixedLength(state: UState): Unit = {
-    val bits = getBitLength(state)
-    val lenInUnits =
-      if (lengthUnits == LengthUnits.Bytes) {
-        bits >> 3
-      } else {
-        bits
-      }
-    val adjustedLenInUnits = lenInUnits + prefixedLengthAdjustmentInUnits
-    // Create a "detached" DIDocument with a single child element that the
-    // prefix length will be unparsed from. This creates a completely new
-    // infoset and unparses from that, so care is taken to ensure this infoset
-    // is only used for the prefix length unparsing and is removed afterwards
-    val plElement = Infoset.newDetachedElement(state, prefixedLengthERD).asInstanceOf[DISimple]
-
-    plElement.setDataValue(java.lang.Integer.valueOf(adjustedLenInUnits.toInt))
-
-    // do checks on facets expressed on prefixLengthType
-    val optSTRD = plElement.erd.optSimpleTypeRuntimeData
-    if (optSTRD.isDefined) {
-      val strd = optSTRD.get
-      val check = strd.executeCheck(plElement)
-      if (check.isError) {
-        UnparseError(
-          One(state.schemaFileLocation),
-          One(state.currentLocation),
-          s"The calculated value of ${prefixedLengthERD.namedQName} ($adjustedLenInUnits) failed check due to ${check.errMsg}"
-        )
-      }
-    }
-
-    // unparse the prefixed length element
-    state.currentInfosetNodeStack.push(One(plElement))
-    prefixedLengthUnparser.unparse1(state)
-    state.currentInfosetNodeStack.pop
-  }
-}
-
 /**
  * This trait is to be used with prefixed length unparsers where the length
- * must be calculated based on the value length of the data. This means the
- * data must be unparsed, the value length calculated, and that value will be
+ * must be calculated based on the content length of the data. This means the
+ * data must be unparsed, the content length calculated, and that value will be
  * assigned to the prefix length element.
  */
 trait CalculatedPrefixedLengthUnparserMixin {
@@ -168,16 +92,16 @@ trait CalculatedPrefixedLengthUnparserMixin {
    */
   def assignPrefixLength(state: UState, elem: DIElement, plElem: DISimple): Unit = {
     val lenInUnits = lengthUnits match {
-      case LengthUnits.Bits => elem.valueLength.lengthInBits
-      case LengthUnits.Bytes => elem.valueLength.lengthInBytes
+      case LengthUnits.Bits => elem.contentLength.lengthInBits
+      case LengthUnits.Bytes => elem.contentLength.lengthInBytes
       case LengthUnits.Characters => {
         val maybeFixedWidth =
           elem.erd.encInfo.getEncoderInfo(state).coder.bitsCharset.maybeFixedWidth
         val lengthInChars =
           if (maybeFixedWidth.isDefined) {
             val fixedWidth = maybeFixedWidth.get
-            Assert.invariant((elem.valueLength.lengthInBits % fixedWidth) == 0) // divisible
-            elem.valueLength.lengthInBits / fixedWidth
+            Assert.invariant((elem.contentLength.lengthInBits % fixedWidth) == 0) // divisible
+            elem.contentLength.lengthInBits / fixedWidth
           } else {
             // This is checked for statically, so should not get here.
             // $COVERAGE-OFF$
@@ -200,7 +124,7 @@ trait CalculatedPrefixedLengthUnparserMixin {
         UnparseError(
           One(state.schemaFileLocation),
           One(state.currentLocation),
-          s"The calculated value of ${elem.namedQName} ($adjustedLenInUnits) failed check due to ${check.errMsg}"
+          s"The prefix length value of ${elem.namedQName} ($adjustedLenInUnits) failed check due to ${check.errMsg}"
         )
       }
     }
@@ -215,7 +139,6 @@ class SpecifiedLengthPrefixedUnparser(
   override val lengthUnits: LengthUnits,
   override val prefixedLengthAdjustmentInUnits: Long
 ) extends CombinatorUnparser(erd)
-  with CaptureUnparsingValueLength
   with CalculatedPrefixedLengthUnparserMixin {
 
   override lazy val runtimeDependencies = Vector()
@@ -238,13 +161,10 @@ class SpecifiedLengthPrefixedUnparser(
     prefixedLengthUnparser.unparse1(state)
     state.currentInfosetNodeStack.pop
 
-    // We now need to capture the length of the actual element
     val elem = state.currentInfosetNode.asInstanceOf[DIElement]
-    captureValueLengthStart(state, elem)
     eUnparser.unparse1(state)
-    captureValueLengthEnd(state, elem)
 
-    if (elem.valueLength.maybeLengthInBits.isDefined) {
+    if (elem.contentLength.maybeLengthInBits.isDefined) {
       // If we were able to immediately calculate the length of the element,
       // then just set it as the value of the detached element created above so
       // that when the prefixedLengthUnparser suspension resumes it can unparse
@@ -253,7 +173,7 @@ class SpecifiedLengthPrefixedUnparser(
     } else {
       // The length was not able to be calculated, likely because there was a
       // suspension when unparsing the eUnparser. So let's create a new
-      // suspension with the only goal to retry until the valueLength of this
+      // suspension with the only goal to retry until the contentLength of this
       // element is determined. Once determined, it will set the value of the
       // prefix length element, ultimately allowing the prefix length element
       // suspension to resume and unparse the value

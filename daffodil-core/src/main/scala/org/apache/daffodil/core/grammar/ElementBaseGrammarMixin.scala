@@ -72,7 +72,9 @@ trait ElementBaseGrammarMixin
     }
   }
 
-  protected lazy val isDelimitedPrefixedPattern = {
+  lazy val isPrefixed: Boolean = lengthKind == LengthKind.Prefixed
+
+  protected lazy val isDelimitedPrefixedPattern: Boolean = {
     import LengthKind._
     lengthKind match {
       case Delimited =>
@@ -474,12 +476,16 @@ trait ElementBaseGrammarMixin
     lazy val leftPadding = leftPaddingArg
     lazy val rightPadFill = rightPadFillArg
     lazy val body = bodyArg
-    CaptureContentLengthStart(this) ~
-      leftPadding ~
-      CaptureValueLengthStart(this) ~
-      body ~
-      CaptureValueLengthEnd(this) ~
-      rightPadFill ~
+    specifiedLength(
+      CaptureContentLengthStart(this) ~
+        leftPadding ~
+        CaptureValueLengthStart(this) ~
+        body ~
+        CaptureValueLengthEnd(this) ~
+        rightPadFill
+    ) ~
+      // CaptureContentLengthEnd must be outside the specified length so it can
+      // do any skipping of bits it needs to before capturing the end of content length
       CaptureContentLengthEnd(this)
   }
 
@@ -623,14 +629,14 @@ trait ElementBaseGrammarMixin
 
   private lazy val stringPrim = {
     lengthKind match {
-      case LengthKind.Explicit => specifiedLength(StringOfSpecifiedLength(this))
-      case LengthKind.Prefixed => specifiedLength(StringOfSpecifiedLength(this))
+      case LengthKind.Explicit => StringOfSpecifiedLength(this)
+      case LengthKind.Prefixed => StringOfSpecifiedLength(this)
       case LengthKind.Delimited => stringDelimitedEndOfData
-      case LengthKind.Pattern => specifiedLength(StringOfSpecifiedLength(this))
+      case LengthKind.Pattern => StringOfSpecifiedLength(this)
       case LengthKind.Implicit => {
         val pt = this.simpleType.primType
         Assert.invariant(pt == PrimType.String)
-        specifiedLength(StringOfSpecifiedLength(this))
+        StringOfSpecifiedLength(this)
       }
       case LengthKind.EndOfParent if isComplexType =>
         notYetImplemented("lengthKind='endOfParent' for complex type")
@@ -645,7 +651,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val hexBinaryLengthPattern = prod("hexBinaryLengthPattern") {
-    new SpecifiedLengthPattern(this, new HexBinaryEndOfBitLimit(this))
+    new HexBinaryEndOfBitLimit(this)
   }
 
   private lazy val hexBinaryLengthPrefixed = prod("hexBinaryLengthPrefixed") {
@@ -1219,7 +1225,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val nilLitSimple = prod("nilLitSimple", isSimpleType) {
-    captureLengthRegions(leftPadding, specifiedLength(nilLitContent), rightPadding ~ rightFill)
+    captureLengthRegions(leftPadding, nilLitContent, rightPadding ~ rightFill)
   }
 
   private lazy val nilLitComplex = prod("nilLitComplex", isComplexType) {
@@ -1322,59 +1328,70 @@ trait ElementBaseGrammarMixin
    * as well, by not enclosing the body in a specified length enforcer.
    */
   private def specifiedLength(bodyArg: => Gram) = {
-    lazy val body = bodyArg
-    lazy val bitsMultiplier = lengthUnits match {
-      case LengthUnits.Bits => 1
-      case LengthUnits.Bytes => 8
-      case LengthUnits.Characters if knownEncodingIsFixedWidth => this.knownEncodingWidthInBits
-      case _ => 0 // zero means can't multiply to get width in bits.
-    }
-    val lk = lengthKind
-    lk match {
-      case LengthKind.Delimited => body
-      case LengthKind.Pattern => new SpecifiedLengthPattern(this, body)
-      case LengthKind.Explicit if bitsMultiplier != 0 =>
-        new SpecifiedLengthExplicit(this, body, bitsMultiplier)
-      case LengthKind.Explicit => {
-        Assert.invariant(!knownEncodingIsFixedWidth)
-        Assert.invariant(lengthUnits eq LengthUnits.Characters)
-        new SpecifiedLengthExplicitCharacters(this, body)
-      }
-      case LengthKind.Prefixed if (bitsMultiplier != 0) =>
-        new SpecifiedLengthPrefixed(this, body, bitsMultiplier)
-      case LengthKind.Prefixed => {
-        Assert.invariant(!knownEncodingIsFixedWidth)
-        Assert.invariant(lengthUnits eq LengthUnits.Characters)
-        new SpecifiedLengthPrefixedCharacters(this, body)
-      }
-      case LengthKind.Implicit
-          if isSimpleType && primType == PrimType.String &&
-            encodingInfo.knownEncodingIsFixedWidth => {
-        //
-        // Important case to optimize
-        // If we can convert to a number of bits, then we should do so
-        //
-        val nBits = encodingInfo.knownFixedWidthEncodingInCharsToBits(this.maxLength.longValue)
-        new SpecifiedLengthImplicit(this, body, nBits)
-      }
-      case LengthKind.Implicit if isSimpleType && primType == PrimType.String =>
-        new SpecifiedLengthImplicitCharacters(this, body, this.maxLength.longValue)
+    // we need this to evaluate before we wrap in specified length parser,
+    // so it can do any internal checks for example blobValue's check for
+    // non-explicit lengthKind
+    val body = bodyArg
 
-      case LengthKind.Implicit if isSimpleType && primType == PrimType.HexBinary =>
-        new SpecifiedLengthImplicit(this, body, this.maxLength.longValue * bitsMultiplier)
-      case LengthKind.Implicit
-          if isSimpleType && impliedRepresentation == Representation.Binary =>
-        new SpecifiedLengthImplicit(this, body, implicitBinaryLengthInBits)
-      case LengthKind.Implicit if isComplexType =>
-        body // for complex types, implicit means "roll up from the bottom"
-      case LengthKind.EndOfParent if isComplexType =>
-        notYetImplemented("lengthKind='endOfParent' for complex type")
-      case LengthKind.EndOfParent =>
-        notYetImplemented("lengthKind='endOfParent' for simple type")
-      case _ => {
-        // TODO: implement other specified length like end of parent
-        // for now, no restriction
-        body
+    // there are essentially two categories of processors that read/write data input/output
+    // stream: those that calculate lengths themselves and those that expect another
+    // processor to calculate the length and set the bit limit which this processor will use as
+    // the length. The following determines if this element requires another processor to
+    // calculate and set the bit limit, and if so adds the appropriate grammar to do that
+    val bodyRequiresSpecifiedLengthBitLimit = lengthKind != LengthKind.Delimited && (
+      isSimpleType && impliedRepresentation == Representation.Text ||
+        isSimpleType && isNillable ||
+        isComplexType && lengthKind != LengthKind.Implicit ||
+        lengthKind == LengthKind.Prefixed ||
+        isSimpleType && primType == PrimType.HexBinary && lengthKind == LengthKind.Pattern
+    )
+    if (!bodyRequiresSpecifiedLengthBitLimit) {
+      body
+    } else {
+      lazy val bitsMultiplier = lengthUnits match {
+        case LengthUnits.Bits => 1
+        case LengthUnits.Bytes => 8
+        case LengthUnits.Characters if knownEncodingIsFixedWidth =>
+          this.knownEncodingWidthInBits
+        case _ => 0 // zero means can't multiply to get width in bits.
+      }
+      val lk = lengthKind
+      lk match {
+        case LengthKind.Pattern => new SpecifiedLengthPattern(this, body)
+        case LengthKind.Explicit if bitsMultiplier != 0 =>
+          new SpecifiedLengthExplicit(this, body, bitsMultiplier)
+        case LengthKind.Explicit => {
+          Assert.invariant(!knownEncodingIsFixedWidth)
+          Assert.invariant(lengthUnits eq LengthUnits.Characters)
+          new SpecifiedLengthExplicitCharacters(this, body)
+        }
+        case LengthKind.Prefixed if (bitsMultiplier != 0) =>
+          new SpecifiedLengthPrefixed(this, body, bitsMultiplier)
+        case LengthKind.Prefixed => {
+          Assert.invariant(!knownEncodingIsFixedWidth)
+          Assert.invariant(lengthUnits eq LengthUnits.Characters)
+          new SpecifiedLengthPrefixedCharacters(this, body)
+        }
+        case LengthKind.Implicit
+            if isSimpleType && primType == PrimType.String &&
+              encodingInfo.knownEncodingIsFixedWidth => {
+          //
+          // Important case to optimize
+          // If we can convert to a number of bits, then we should do so
+          //
+          val nBits =
+            encodingInfo.knownFixedWidthEncodingInCharsToBits(this.maxLength.longValue)
+          new SpecifiedLengthImplicit(this, body, nBits)
+        }
+        case LengthKind.Implicit if isSimpleType && primType == PrimType.String =>
+          new SpecifiedLengthImplicitCharacters(this, body, this.maxLength.longValue)
+        case LengthKind.Implicit
+            if isSimpleType && impliedRepresentation == Representation.Binary =>
+          new SpecifiedLengthImplicit(this, body, implicitBinaryLengthInBits)
+        case LengthKind.EndOfParent if isComplexType =>
+          notYetImplemented("lengthKind='endOfParent' for complex type")
+        case LengthKind.EndOfParent =>
+          notYetImplemented("lengthKind='endOfParent' for simple type")
       }
     }
   }
@@ -1396,7 +1413,7 @@ trait ElementBaseGrammarMixin
   private lazy val sharedComplexContentRegion: Gram =
     schemaSet.sharedComplexContentFactory.getShared(
       shareKey,
-      captureLengthRegions(EmptyGram, specifiedLength(complexContent), elementUnused) ~
+      captureLengthRegions(EmptyGram, complexContent, elementUnused) ~
         terminatorRegion
     )
 

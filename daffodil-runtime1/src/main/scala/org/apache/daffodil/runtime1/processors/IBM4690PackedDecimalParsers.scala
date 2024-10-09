@@ -24,8 +24,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.DecimalUtils
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.Processor
 
 class IBM4690PackedDecimalKnownLengthParser(
   e: ElementRuntimeData,
@@ -52,24 +50,14 @@ class IBM4690PackedDecimalRuntimeLengthParser(
 
 }
 
-class IBM4690PackedDecimalPrefixedLengthParser(
+class IBM4690PackedDecimalBitLimitLengthParser(
   e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
-  binaryDecimalVirtualPoint: Int,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
+  binaryDecimalVirtualPoint: Int
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
-  with PrefixedLengthParserMixin {
+  with BitLengthFromBitLimitMixin {
 
   override def toNumber(num: Array[Byte]): JBigDecimal =
     DecimalUtils.ibm4690ToBigDecimal(num, binaryDecimalVirtualPoint)
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
 
 }
 
@@ -96,21 +84,11 @@ class IBM4690PackedIntegerKnownLengthParser(
 
 }
 
-class IBM4690PackedIntegerPrefixedLengthParser(
-  e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
-) extends PackedBinaryIntegerBaseParser(e)
-  with PrefixedLengthParserMixin {
+class IBM4690PackedIntegerBitLimitLengthParser(e: ElementRuntimeData)
+  extends PackedBinaryIntegerBaseParser(e)
+  with BitLengthFromBitLimitMixin {
 
   override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.ibm4690ToBigInteger(num)
 
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
 }

@@ -34,7 +34,6 @@ import org.apache.daffodil.runtime1.processors.parsers.BCDIntegerDelimitedParser
 import org.apache.daffodil.runtime1.processors.parsers.BlobSpecifiedLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.HexBinaryDelimitedParser
 import org.apache.daffodil.runtime1.processors.parsers.HexBinaryEndOfBitLimitParser
-import org.apache.daffodil.runtime1.processors.parsers.HexBinaryLengthPrefixedParser
 import org.apache.daffodil.runtime1.processors.parsers.HexBinarySpecifiedLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedDecimalDelimitedParser
 import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedIntegerDelimitedParser
@@ -48,7 +47,6 @@ import org.apache.daffodil.runtime1.processors.unparsers.{ Unparser => DaffodilU
 import org.apache.daffodil.unparsers.runtime1.BCDDecimalDelimitedUnparser
 import org.apache.daffodil.unparsers.runtime1.BCDIntegerDelimitedUnparser
 import org.apache.daffodil.unparsers.runtime1.BlobSpecifiedLengthUnparser
-import org.apache.daffodil.unparsers.runtime1.HexBinaryLengthPrefixedUnparser
 import org.apache.daffodil.unparsers.runtime1.HexBinaryMinLengthInBytesUnparser
 import org.apache.daffodil.unparsers.runtime1.HexBinarySpecifiedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.IBM4690PackedDecimalDelimitedUnparser
@@ -185,22 +183,12 @@ case class HexBinaryEndOfBitLimit(e: ElementBase) extends Terminal(e, true) {
 
 case class HexBinaryLengthPrefixed(e: ElementBase) extends Terminal(e, true) {
 
-  override lazy val parser: DaffodilParser = new HexBinaryLengthPrefixedParser(
-    e.elementRuntimeData,
-    e.prefixedLengthBody.parser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
+  override lazy val parser: DaffodilParser = new HexBinaryEndOfBitLimitParser(
+    e.elementRuntimeData
   )
 
-  override lazy val unparser: DaffodilUnparser = new HexBinaryLengthPrefixedUnparser(
-    e.elementRuntimeData,
-    e.prefixedLengthBody.unparser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
-    e.minLength.longValue,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
-  )
+  override lazy val unparser: DaffodilUnparser =
+    new HexBinaryMinLengthInBytesUnparser(e.minLength.longValue, e.elementRuntimeData)
 }
 
 abstract class PackedIntegerDelimited(
