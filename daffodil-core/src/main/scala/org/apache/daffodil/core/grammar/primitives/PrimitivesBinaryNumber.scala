@@ -40,37 +40,33 @@ import org.apache.daffodil.unparsers.runtime1.BinaryIntegerKnownLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryIntegerPrefixedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryIntegerRuntimeLengthUnparser
 
-class BinaryIntegerRuntimeLength(val e: ElementBase, signed: Boolean)
-  extends Terminal(e, true) {
+class BinaryIntegerRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser = new BinaryIntegerRuntimeLengthParser(
     e.elementRuntimeData,
-    signed,
     e.lengthEv,
     e.lengthUnits
   )
 
   override lazy val unparser: Unparser = new BinaryIntegerRuntimeLengthUnparser(
     e.elementRuntimeData,
-    signed,
     e.lengthEv,
     e.lengthUnits
   )
 }
 
-class BinaryIntegerKnownLength(val e: ElementBase, val signed: Boolean, val lengthInBits: Long)
+class BinaryIntegerKnownLength(val e: ElementBase, val lengthInBits: Long)
   extends Terminal(e, true) {
 
   override lazy val parser = {
-    new BinaryIntegerKnownLengthParser(e.elementRuntimeData, signed, lengthInBits.toInt)
+    new BinaryIntegerKnownLengthParser(e.elementRuntimeData, lengthInBits.toInt)
   }
 
   override lazy val unparser: Unparser =
-    new BinaryIntegerKnownLengthUnparser(e.elementRuntimeData, signed, lengthInBits.toInt)
+    new BinaryIntegerKnownLengthUnparser(e.elementRuntimeData, lengthInBits.toInt)
 }
 
-class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
-  extends Terminal(e, true) {
+class BinaryIntegerPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
 
   private lazy val erd = e.elementRuntimeData
   private lazy val plerd = e.prefixedLengthElementDecl.elementRuntimeData
@@ -81,7 +77,6 @@ class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
       erd,
       e.prefixedLengthBody.parser,
       plerd,
-      signed,
       e.lengthUnits,
       pladj
     )
@@ -101,7 +96,6 @@ class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
       e.prefixedLengthBody.unparser,
       plerd,
       maybeNBits,
-      signed,
       e.lengthUnits,
       pladj
     )

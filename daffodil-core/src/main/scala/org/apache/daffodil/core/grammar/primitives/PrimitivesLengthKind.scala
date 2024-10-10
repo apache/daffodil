@@ -205,7 +205,6 @@ case class HexBinaryLengthPrefixed(e: ElementBase) extends Terminal(e, true) {
 
 abstract class PackedIntegerDelimited(
   e: ElementBase,
-  signed: Boolean,
   packedSignCodes: PackedSignCodes
 ) extends StringDelimited(e) {
 
@@ -223,9 +222,8 @@ abstract class PackedIntegerDelimited(
 
 case class PackedIntegerDelimitedEndOfData(
   e: ElementBase,
-  signed: Boolean,
   packedSignCodes: PackedSignCodes
-) extends PackedIntegerDelimited(e, signed, packedSignCodes) {
+) extends PackedIntegerDelimited(e, packedSignCodes) {
   val isDelimRequired: Boolean = false
 }
 
@@ -289,8 +287,7 @@ case class BCDDecimalDelimitedEndOfData(e: ElementBase) extends BCDDecimalDelimi
   val isDelimRequired: Boolean = false
 }
 
-abstract class IBM4690PackedIntegerDelimited(e: ElementBase, signed: Boolean)
-  extends StringDelimited(e) {
+abstract class IBM4690PackedIntegerDelimited(e: ElementBase) extends StringDelimited(e) {
 
   override lazy val parser: DaffodilParser = new IBM4690PackedIntegerDelimitedParser(
     e.elementRuntimeData,
@@ -304,8 +301,8 @@ abstract class IBM4690PackedIntegerDelimited(e: ElementBase, signed: Boolean)
   )
 }
 
-case class IBM4690PackedIntegerDelimitedEndOfData(e: ElementBase, signed: Boolean)
-  extends IBM4690PackedIntegerDelimited(e, signed) {
+case class IBM4690PackedIntegerDelimitedEndOfData(e: ElementBase)
+  extends IBM4690PackedIntegerDelimited(e) {
   val isDelimRequired: Boolean = false
 }
 
