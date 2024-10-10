@@ -698,7 +698,8 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
 
         // We must use XMLReader setProperty() function to set the entity resolver--calling
         // setEntityResolver with the Xerces XML reader causes validation to fail for some
-        // reason. We call the right function below, but unfortunately, scala-xml calls
+        // reason (we get a "cvc-elt.1.a: Cannot find the declaration of element 'schema'" error).
+        // We call the right function below, but unfortunately, scala-xml calls
         // setEntityResolver in loadDocument(), which cannot be disabled and scala-xml does not
         // want to change. To avoid this, we wrap the Xerces XMLReader in an XMLFilterImpl and
         // override setEntityResolver to a no-op. However, XMLFilterImpl parse() calls
