@@ -1007,13 +1007,19 @@ trait ElementBase
           "The length facet or minLength/maxLength facets are not allowed on types derived from type %s.\nThey are allowed only on types derived from string and hexBinary.",
           pt.name
         )
-        val res = (hasLength, hasMinLength, hasMaxLength, lengthKind) match {
-          case (true, false, false, _) => (r.lengthValue, r.lengthValue)
-          case (true, _, _, _) =>
+        val res = (
+          hasLength,
+          hasMinLength,
+          hasMaxLength,
+          lengthKind,
+          isRepresented
+        ) match {
+          case (true, false, false, _, _) => (r.lengthValue, r.lengthValue)
+          case (true, _, _, _, _) =>
             Assert.invariantFailed(
               "Facet length cannot be defined with minLength and maxLength facets"
             )
-          case (false, true, true, LengthKind.Implicit) => {
+          case (false, true, true, LengthKind.Implicit, true) => {
             schemaDefinitionUnless(
               r.minLengthValue.compareTo(r.maxLengthValue) == 0,
               "The minLength and maxLength must be equal for type %s with lengthKind='implicit'. Values were minLength of %s, maxLength of %s.",
@@ -1023,7 +1029,7 @@ trait ElementBase
             )
             (r.minLengthValue, r.maxLengthValue)
           }
-          case (false, true, true, _) => {
+          case (false, true, true, _, _) => {
             schemaDefinitionWhen(
               r.minLengthValue.compareTo(r.maxLengthValue) > 0,
               // always true, so we don't bother to specify the type in the message.
@@ -1033,13 +1039,13 @@ trait ElementBase
             )
             (r.minLengthValue, r.maxLengthValue)
           }
-          case (false, _, _, LengthKind.Implicit) =>
+          case (false, _, _, LengthKind.Implicit, true) =>
             SDE(
               "When lengthKind='implicit', both minLength and maxLength facets must be specified."
             )
-          case (false, false, true, _) => (zeroBD, r.maxLengthValue)
-          case (false, false, false, _) => (zeroBD, unbBD)
-          case (false, true, false, _) => (r.minLengthValue, unbBD)
+          case (false, false, true, _, _) => (zeroBD, r.maxLengthValue)
+          case (false, false, false, _, _) => (zeroBD, unbBD)
+          case (false, true, false, _, _) => (r.minLengthValue, unbBD)
           case _ => Assert.impossible()
         }
         res

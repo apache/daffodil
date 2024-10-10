@@ -244,4 +244,9 @@ class TestInputValueCalc {
     runner.runOneTest("InputValueCalc_array_elem")
   }
   // @Test def test_InputValueCalc_global_elem() { runner.runOneTest("InputValueCalc_global_elem") }
+
+  // DFDL-2806
+  @Test def test_IVC_ignored_length_checks(): Unit = {
+    runner.runOneTest("IVC_ignored_length_checks")
+  }
 }
