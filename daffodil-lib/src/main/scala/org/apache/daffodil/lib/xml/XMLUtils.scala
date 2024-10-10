@@ -1459,34 +1459,27 @@ Differences were (path, expected, actual):
           )
       }
 
-    val uriIsJustPathComponent =
-      uri.getScheme == null &&
-        uri.getAuthority == null &&
-        uri.getQuery == null &&
-        uri.getFragment == null &&
-        uri.getPath != null
-
     val optResolved: Option[(URISchemaSource, Boolean)] =
-      if (uri.isAbsolute) {
-        // an absolute URI is one with a scheme. In this case, we expect to be able to resolve
-        // the URI and do not try anything else (e.g. filesystem, classpath). Since this function
+      if (uri.isAbsolute && uri.getScheme.contains("jar")) {
+        // an absolute URI is one with a scheme. In the case that it is a jar uri
+        // we expect to be able to resolve the URI and do not try anything else
+        // (e.g. filesystem, classpath). Since this function
         // is for schemaLocation attributes, we may eventually want to disallow this, and only
         // allow relative URIs (i.e. URIs without a scheme). We do have some places that use
         // absolute URIs in includes/imports and cannot remove this yet.
         try {
-          uri.toURL.openStream.close
+          uri.toURL.openStream.close()
           val uss = URISchemaSource(Misc.uriToDiagnosticFile(uri), uri)
           Some(uss, false)
         } catch {
           case e: IOException => None
         }
-      } else if (!uriIsJustPathComponent) {
-        // this is not an absolute URI so we don't have a scheme. This should just be a path, so
-        // throw an IllegalArgumentException if that's not the case
-        val msg =
-          s"Non-absolute schemaLocation URI can only contain a path component: $schemaLocation"
-        throw new IllegalArgumentException(msg)
-      } else if (uri.getPath.startsWith("/")) {
+      }
+      // we want to attempt to resolve the URI whether the non-jar uri has a scheme or not,
+      // this is relevant for when we are validating with Xerces, and it calls resolvesEntity
+      // we get URIs that look like file:/path/to/not/absolute/path ex: file:/org/apache/daffodil/xsd/dafext.xsd
+      // that fail to be found in the above case, so we have to look them up
+      else if (uri.getPath.startsWith("/")) {
         // The None.orElse{ ... }.orElse { ... } pattern below is useful to evaluate each
         // alternative way to resolve a schema location, stopping only when a Some is returned.
         // This makes for easily adding/removing/reordering resolution approaches by changing
@@ -1506,7 +1499,7 @@ Differences were (path, expected, actual):
           .orElse {
             // Search for the schemaLocation path on the file system. This path is absolute so it
             // must exist. If it does not exist, this orElse block results in a None
-            val file = Paths.get(uri.getPath).toFile
+            val file = new File(uri.getPath)
             if (file.exists) {
               val uss = URISchemaSource(file, file.toURI)
               Some((uss, false))
