@@ -93,6 +93,27 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
       dos.putLong(asLong(value), nBits, finfo)
     }
   }
+
+  override def unparse(state: UState): Unit = {
+    val nBits = getBitLength(state)
+    // minimum length for a signed binary integer is 2 bits, for unsigned it is 1 bit
+    if (signed && nBits < 2) {
+      UnparseError(
+        One(state.schemaFileLocation),
+        One(state.currentLocation),
+        "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range.",
+        nBits
+      )
+    } else if (!signed && nBits < 1) {
+      UnparseError(
+        One(state.schemaFileLocation),
+        One(state.currentLocation),
+        "Minimum length for an unsigned binary integer is 1 bit, number of bits %d out of range.",
+        nBits
+      )
+    }
+    super.unparse(state)
+  }
 }
 
 class BinaryIntegerKnownLengthUnparser(

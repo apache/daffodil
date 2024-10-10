@@ -134,7 +134,7 @@
     </element>
 
     <simpleType name="myBit" dfdl:lengthKind="explicit" dfdl:length="1">
-      <restriction base="xs:byte"/>
+      <restriction base="xs:unsignedByte"/>
     </simpleType>
 
     <simpleType name="enum1" dfdlx:repType="ex:myBit">

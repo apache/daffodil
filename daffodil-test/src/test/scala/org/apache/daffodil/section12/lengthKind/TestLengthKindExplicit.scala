@@ -180,4 +180,30 @@ class TestLengthKindExplicit {
   @Test def test_insufficientBitsByte(): Unit = {
     runner.runOneTest("insufficientBitsByte")
   }
+
+  // DFDL-2297
+  @Test def test_outOfRangeLengthBinaryInteger1(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger1")
+  }
+  @Test def test_outOfRangeLengthBinaryInteger2(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger2")
+  }
+  @Test def test_outOfRangeLengthBinaryInteger3(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger3")
+  }
+  @Test def test_outOfRangeLengthBinaryInteger4(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger4")
+  }
+  @Test def test_inRangeLengthBinaryInteger1(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger1")
+  }
+  @Test def test_inRangeLengthBinaryInteger2(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger2")
+  }
+  @Test def test_inRangeLengthBinaryInteger3(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger3")
+  }
+  @Test def test_inRangeLengthBinaryInteger4(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger4")
+  }
 }
