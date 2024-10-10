@@ -137,6 +137,14 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="allowSignedIntegerLength1Bit" type="xs:boolean" default="true" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              When processing signed binary integers, which should have a length of at least 2 bits, issue
+              a warning if the length is less than 2 bits by default, otherwise (if false) issue a SDE or Processing Error.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="blobChunkSizeInBytes" default="4096" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -734,6 +742,7 @@
           <xs:enumeration value="patternEncodingSlashW" />
           <xs:enumeration value="queryStylePathExpression" />
           <xs:enumeration value="regexPatternZeroLength" />
+          <xs:enumeration value="signedBinaryIntegerLength1Bit" />
           <xs:enumeration value="textBidiError" />
           <xs:enumeration value="textNumberPatternWarning" />
           <xs:enumeration value="textOutputMinLengthOutOfRange" />

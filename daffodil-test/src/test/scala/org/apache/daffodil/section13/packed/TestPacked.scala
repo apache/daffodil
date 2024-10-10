@@ -51,6 +51,16 @@ class TestPacked {
   @Test def testPackedCharset09(): Unit = { runner.runOneTest("packedCharset09") }
   @Test def testPackedCharset10(): Unit = { runner.runOneTest("packedCharset10") }
 
+  @Test def testZeroLengthPackedCharset(): Unit = {
+    runner.runOneTest("zeroLengthPackedCharset")
+  }
+  @Test def testRuntimeLengthPackedCharset1(): Unit = {
+    runner.runOneTest("runtimeLengthPackedCharset1")
+  }
+  @Test def testRuntimeLengthPackedCharset2(): Unit = {
+    runner.runOneTest("runtimeLengthPackedCharset2")
+  }
+
   @Test def testBCDCharset01(): Unit = { runner.runOneTest("bcdCharset01") }
   @Test def testBCDCharset02(): Unit = { runner.runOneTest("bcdCharset02") }
   @Test def testBCDCharset03(): Unit = { runner.runOneTest("bcdCharset03") }

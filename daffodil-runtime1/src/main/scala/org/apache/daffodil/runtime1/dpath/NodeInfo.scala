@@ -534,7 +534,9 @@ object NodeInfo extends Enum {
     }
 
     trait PrimNumeric { self: Numeric.Kind =>
-      def width: MaybeInt
+      def isSigned: Boolean
+      def minWidth: MaybeInt
+      def maxWidth: MaybeInt
       def isValid(n: Number): Boolean
       protected def fromNumberNoCheck(n: Number): DataValueNumber
       def fromNumber(n: Number): DataValueNumber = {
@@ -648,7 +650,9 @@ object NodeInfo extends Enum {
       // toString would have a precision different than Float.MaxValue.toString
       override val minStr = "-" + JFloat.MAX_VALUE.toString
       override val maxStr = JFloat.MAX_VALUE.toString
-      override val width: MaybeInt = MaybeInt(32)
+      override val isSigned: Boolean = true
+      override val minWidth: MaybeInt = MaybeInt(32)
+      override val maxWidth: MaybeInt = MaybeInt(32)
     }
 
     protected sealed trait DoubleKind extends SignedNumeric.Kind
@@ -667,7 +671,9 @@ object NodeInfo extends Enum {
       override val max = JDouble.MAX_VALUE
       override val minStr = "-" + JDouble.MAX_VALUE.toString
       override val maxStr = JDouble.MAX_VALUE.toString
-      override val width: MaybeInt = MaybeInt(64)
+      override val isSigned: Boolean = true
+      override val minWidth: MaybeInt = MaybeInt(64)
+      override val maxWidth: MaybeInt = MaybeInt(64)
     }
 
     protected sealed trait DecimalKind extends SignedNumeric.Kind
@@ -686,8 +692,9 @@ object NodeInfo extends Enum {
           case _ => true
         }
       }
-
-      override val width: MaybeInt = MaybeInt.Nope
+      override val isSigned: Boolean = true
+      override val minWidth: MaybeInt = MaybeInt.Nope
+      override val maxWidth: MaybeInt = MaybeInt.Nope
 
       override def isInteger = false
     }
@@ -708,8 +715,9 @@ object NodeInfo extends Enum {
           case _ => true
         }
       }
-
-      override val width: MaybeInt = MaybeInt.Nope
+      override val isSigned: Boolean = true
+      override val minWidth: MaybeInt = MaybeInt(2)
+      override val maxWidth: MaybeInt = MaybeInt.Nope
 
       override def isInteger = true
     }
@@ -725,7 +733,9 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
       override val min = JLong.MIN_VALUE
       override val max = JLong.MAX_VALUE
-      override val width: MaybeInt = MaybeInt(64)
+      override val isSigned: Boolean = true
+      override val minWidth: MaybeInt = MaybeInt(2)
+      override val maxWidth: MaybeInt = MaybeInt(64)
     }
 
     protected sealed trait IntKind extends Long.Kind
@@ -739,7 +749,9 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
       override val min = JInt.MIN_VALUE.toLong
       override val max = JInt.MAX_VALUE.toLong
-      override val width: MaybeInt = MaybeInt(32)
+      override val isSigned: Boolean = true
+      override val minWidth: MaybeInt = MaybeInt(2)
+      override val maxWidth: MaybeInt = MaybeInt(32)
     }
 
     protected sealed trait ShortKind extends Int.Kind
@@ -753,7 +765,9 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
       override val min = JShort.MIN_VALUE.toLong
       override val max = JShort.MAX_VALUE.toLong
-      override val width: MaybeInt = MaybeInt(16)
+      override val isSigned: Boolean = true
+      override val minWidth: MaybeInt = MaybeInt(2)
+      override val maxWidth: MaybeInt = MaybeInt(16)
     }
 
     protected sealed trait ByteKind extends Short.Kind
@@ -767,7 +781,9 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueByte = n.byteValue
       override val min = JByte.MIN_VALUE.toLong
       override val max = JByte.MAX_VALUE.toLong
-      override val width: MaybeInt = MaybeInt(8)
+      override val isSigned: Boolean = true
+      override val minWidth: MaybeInt = MaybeInt(2)
+      override val maxWidth: MaybeInt = MaybeInt(8)
     }
 
     protected sealed trait NonNegativeIntegerKind extends Integer.Kind
@@ -786,8 +802,9 @@ object NodeInfo extends Enum {
         case f: JFloat if f.isInfinite || f.isNaN => false
         case _ => n.longValue >= 0
       }
-
-      override val width: MaybeInt = MaybeInt.Nope
+      override val isSigned: Boolean = false
+      override val minWidth: MaybeInt = MaybeInt(1)
+      override val maxWidth: MaybeInt = MaybeInt.Nope
 
       override def isInteger = true
     }
@@ -814,7 +831,9 @@ object NodeInfo extends Enum {
       }
       val max = new JBigInt(1, scala.Array.fill(8)(0xff.toByte))
       val maxBD = new JBigDecimal(max)
-      override val width: MaybeInt = MaybeInt(64)
+      override val isSigned: Boolean = false
+      override val minWidth: MaybeInt = MaybeInt(1)
+      override val maxWidth: MaybeInt = MaybeInt(64)
 
       override def isInteger = true
     }
@@ -834,7 +853,9 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueLong = n.longValue
       override val min = 0L
       override val max = 0xffffffffL
-      override val width: MaybeInt = MaybeInt(32)
+      override val isSigned: Boolean = false
+      override val minWidth: MaybeInt = MaybeInt(1)
+      override val maxWidth: MaybeInt = MaybeInt(32)
     }
 
     protected sealed trait UnsignedShortKind extends UnsignedInt.Kind
@@ -848,7 +869,9 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueInt = n.intValue
       override val min = 0L
       override val max = 0xffffL
-      override val width: MaybeInt = MaybeInt(16)
+      override val isSigned: Boolean = false
+      override val minWidth: MaybeInt = MaybeInt(1)
+      override val maxWidth: MaybeInt = MaybeInt(16)
     }
 
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
@@ -862,7 +885,9 @@ object NodeInfo extends Enum {
       protected override def fromNumberNoCheck(n: Number): DataValueShort = n.shortValue
       override val min = 0L
       override val max = 0xffL
-      override val width: MaybeInt = MaybeInt(8)
+      override val isSigned: Boolean = false
+      override val minWidth: MaybeInt = MaybeInt(1)
+      override val maxWidth: MaybeInt = MaybeInt(8)
     }
 
     protected sealed trait StringKind extends AnyAtomic.Kind
