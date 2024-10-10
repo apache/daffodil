@@ -166,7 +166,22 @@ abstract class BinaryIntegerBaseParser(
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
-    if (nBits == 0) return // zero length is used for outputValueCalc often.
+    // minimum length for a signed binary integer is 2 bits, for unsigned it is 1 bit
+    if (signed && nBits < 2) {
+      PE(
+        start,
+        "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range.",
+        nBits
+      )
+      return
+    } else if (!signed && nBits < 1) {
+      PE(
+        start,
+        "Minimum length for an unsigned binary integer is 1 bit, number of bits %d out of range.",
+        nBits
+      )
+      return
+    }
     if (primNumeric.width.isDefined) {
       val width = primNumeric.width.get
       if (nBits > width)
