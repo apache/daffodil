@@ -33,6 +33,15 @@ trait ResolvesDFDLStatementMixin extends ThrowsSDE with ProvidesDFDLStatementMix
     optReferencedStatementSource.toSeq.flatMap { _.resolvedStatements } ++
       localStatements
 
+  final lazy val statementsAsStrings: Seq[String] = {
+    statements.map {
+      case _: DFDLAssert => "dfdl:assert"
+      case _: DFDLDiscriminator => "dfdl:discriminator"
+      case _: DFDLSetVariable => "dfdl:setVariable"
+      case _: DFDLNewVariableInstance => "dfdl:newVariableInstance"
+    }
+  }
+
   private def getParserExprReferencedElements(
     s: DFDLStatement,
     f: ContentValueReferencedElementInfoMixin => Set[DPathElementCompileInfo]

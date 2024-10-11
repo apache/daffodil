@@ -83,8 +83,11 @@ class TestLengthKindPrefixed {
     runner.runOneTest("pl_text_string_txt_bytes_not_enough_prefix_data_includes_backtrack")
   }
   // DFDL-2660
-  @Test def test_pl_check_prefix_facets_before_use() = {
-    runner.runOneTest("pl_check_prefix_facets_before_use")
+  @Test def test_pl_check_prefix_facets_before_use1() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use1")
+  } // DFDL-2660
+  @Test def test_pl_check_prefix_facets_before_use2() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use2")
   }
   @Test def test_pl_check_prefix_for_annotations() = {
     runner.runOneTest("pl_check_prefix_for_annotations")

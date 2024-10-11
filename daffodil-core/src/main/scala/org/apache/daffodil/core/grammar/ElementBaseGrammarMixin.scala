@@ -194,8 +194,9 @@ trait ElementBaseGrammarMixin
       )
       schemaDefinitionWhen(
         detachedElementDecl.statements.nonEmpty,
-        "%s is specified as a dfdl:prefixLengthType, but specifies one or more statement annotations",
-        prefixLengthType
+        "%s is specified as a dfdl:prefixLengthType, but specifies one or more statement annotations (%s)",
+        prefixLengthType,
+        detachedElementDecl.statementsAsStrings.mkString(", ")
       )
 
       if (

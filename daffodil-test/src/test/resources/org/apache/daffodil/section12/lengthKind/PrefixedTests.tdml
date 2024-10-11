@@ -2891,11 +2891,13 @@
       </xs:restriction>
     </xs:simpleType>
 
+    <xs:element name="field1" type="xs:string"
+                dfdl:lengthKind="prefixed" dfdl:prefixLengthType="prefix2" dfdl:prefixIncludesPrefixLength="yes"/>
     <xs:element name="field2" type="xs:string"
                 dfdl:lengthKind="prefixed" dfdl:prefixLengthType="prefix2" dfdl:prefixIncludesPrefixLength="no"/>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="pl_check_prefix_facets_before_use"
+  <tdml:parserTestCase name="pl_check_prefix_facets_before_use1"
     root="field2"
     model="PrefixFacetsCheck">
     <tdml:document>
@@ -2903,6 +2905,20 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>failed check</tdml:error>
+      <tdml:error>field2 (prefixLength) (5)</tdml:error>
+      <tdml:error>facet maxInclusive (4)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_check_prefix_facets_before_use2"
+    root="field1"
+    model="PrefixFacetsCheck">
+    <tdml:document>
+      <tdml:documentPart type="text">6Hello</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>failed check</tdml:error>
+      <tdml:error>field1 (prefixLength) (6)</tdml:error>
       <tdml:error>facet maxInclusive (4)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -2941,6 +2957,7 @@
       <tdml:error>specifies</tdml:error>
       <tdml:error>one or more</tdml:error>
       <tdml:error>statement annotations</tdml:error>
+      <tdml:error>dfdl:assert</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
