@@ -20,6 +20,7 @@ package org.apache.daffodil.runtime1.processors.parsers
 import java.lang.{ Double => JDouble, Float => JFloat, Long => JLong, Number => JNumber }
 import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
@@ -168,12 +169,23 @@ abstract class BinaryIntegerBaseParser(
     val nBits = getBitLength(start)
     // minimum length for a signed binary integer is 2 bits, for unsigned it is 1 bit
     if (signed && nBits < 2) {
-      PE(
-        start,
-        "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range.",
-        nBits
-      )
-      return
+      val outOfRangeStr =
+        "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range. " +
+          "An unsigned integer with length 1 bit could be used instead."
+      if (start.tunable.allowSignedIntegerLength1Bit) {
+        start.SDW(
+          WarnID.SignedBinaryIntegerLength1Bit,
+          outOfRangeStr,
+          nBits
+        )
+      } else {
+        PE(
+          start,
+          outOfRangeStr,
+          nBits
+        )
+        return
+      }
     } else if (!signed && nBits < 1) {
       PE(
         start,

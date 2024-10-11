@@ -958,6 +958,19 @@ trait ElementBaseGrammarMixin
     }
   }
 
+  lazy val isSignedIntegerType: Boolean = primType match {
+    case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer =>
+      true
+    case _ => false
+  }
+
+  lazy val isUnsignedIntegerType: Boolean = primType match {
+    case PrimType.UnsignedByte | PrimType.UnsignedShort | PrimType.UnsignedInt |
+        PrimType.UnsignedLong | PrimType.NonNegativeInteger =>
+      true
+    case _ => false
+  }
+
   private lazy val binaryValue: Gram = {
     Assert.invariant(primType != PrimType.String)
 
@@ -974,12 +987,11 @@ trait ElementBaseGrammarMixin
     // This is in the spirit of that section.
     val res: Gram = primType match {
 
-      case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer => {
+      case _ if isSignedIntegerType => {
         binaryIntegerValue(true)
       }
 
-      case PrimType.UnsignedByte | PrimType.UnsignedShort | PrimType.UnsignedInt |
-          PrimType.UnsignedLong | PrimType.NonNegativeInteger => {
+      case _ if isUnsignedIntegerType => {
         binaryIntegerValue(false)
       }
 

@@ -21,12 +21,14 @@ import java.lang.{ Long => JLong, Number => JNumber }
 
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
+import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.Numbers._
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
@@ -56,6 +58,51 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
     val nBits = getBitLength(state)
     val value = getNumberToPut(state)
     val dos = state.dataOutputStream
+    this match {
+      case unparser: BinaryIntegerBaseUnparser => {
+        val primNumeric = context.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
+        // minimum length for a signed binary integer is 2 bits, for unsigned it is 1 bit
+        if (unparser.signed && nBits < 2) {
+          val outOfRangeStr =
+            "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range. " +
+              "An unsigned integer with length 1 bit could be used instead."
+          if (state.tunable.allowSignedIntegerLength1Bit) {
+            state.SDW(
+              WarnID.SignedBinaryIntegerLength1Bit,
+              outOfRangeStr,
+              nBits
+            )
+          } else {
+            UE(
+              state,
+              outOfRangeStr,
+              nBits
+            )
+            return
+          }
+        } else if (!unparser.signed && nBits < 1) {
+          UE(
+            state,
+            "Minimum length for an unsigned binary integer is 1 bit, number of bits %d out of range.",
+            nBits
+          )
+          return
+        }
+        if (primNumeric.width.isDefined) {
+          val width = primNumeric.width.get
+          if (nBits > width) {
+            UE(
+              state,
+              "Number of bits %d out of range, must be between 1 and %d bits.",
+              nBits,
+              width
+            )
+            return
+          }
+        }
+      }
+      case _ => // do nothing
+    }
     val res =
       if (nBits > 0) {
         putNumber(dos, value, nBits, state)
@@ -78,7 +125,7 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
 
 }
 
-abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
+abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, val signed: Boolean)
   extends BinaryNumberBaseUnparser(e) {
 
   override def putNumber(
@@ -92,27 +139,6 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
     } else {
       dos.putLong(asLong(value), nBits, finfo)
     }
-  }
-
-  override def unparse(state: UState): Unit = {
-    val nBits = getBitLength(state)
-    // minimum length for a signed binary integer is 2 bits, for unsigned it is 1 bit
-    if (signed && nBits < 2) {
-      UnparseError(
-        One(state.schemaFileLocation),
-        One(state.currentLocation),
-        "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range.",
-        nBits
-      )
-    } else if (!signed && nBits < 1) {
-      UnparseError(
-        One(state.schemaFileLocation),
-        One(state.currentLocation),
-        "Minimum length for an unsigned binary integer is 1 bit, number of bits %d out of range.",
-        nBits
-      )
-    }
-    super.unparse(state)
   }
 }
 

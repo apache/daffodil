@@ -774,10 +774,32 @@ trait ElementBase
     if (
       result.isDefined && repElement.isSimpleType && representation == Representation.Binary
     ) {
+      val nBits = result.get
+      if (isSignedIntegerType && nBits < 2) {
+        val outOfRangeStr =
+          "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range. " +
+            "An unsigned integer with length 1 bit could be used instead."
+        if (tunable.allowSignedIntegerLength1Bit) {
+          SDW(
+            WarnID.SignedBinaryIntegerLength1Bit,
+            outOfRangeStr,
+            nBits
+          )
+        } else {
+          SDE(
+            outOfRangeStr,
+            nBits
+          )
+        }
+      }
+      schemaDefinitionWhen(
+        isUnsignedIntegerType && nBits < 1,
+        "Minimum length for an unsigned binary integer is 1 bit, number of bits %d out of range.",
+        nBits
+      )
       primType match {
         case primNumeric: NodeInfo.PrimType.PrimNumeric =>
           if (primNumeric.width.isDefined) {
-            val nBits = result.get
             val width = primNumeric.width.get
             if (nBits > width) {
               SDE(
