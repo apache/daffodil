@@ -1283,6 +1283,22 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="unparseInvalidIntBitLengthExpr" root="r" model="invalidIntBitLengthExpr"
+                       description="">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:r>
+          <ex:len>64</ex:len>
+          <ex:v>32</ex:v>
+        </ex:r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>64 out of range</tdml:error>
+      <tdml:error>between 1 and 32</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:defineSchema name="invalidShortBitLengthExpr">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
@@ -1409,17 +1425,39 @@
     <xs:element name="spare2" type="ex:upadding" dfdl:length="{ 1 }"/>
     <xs:element name="spare3" type="ex:spadding" dfdl:length="{ 1 }"/>
     <xs:element name="spare4" type="ex:spadding" dfdl:length="{ 2 }"/>
+    <xs:element name="spare5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int" dfdl:outputValueCalc="{ 1 }"/>
+          <xs:element name="e1" type="ex:spadding" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="spare6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" dfdl:outputValueCalc="{ 0 }"/>
+          <xs:element name="e1" type="ex:upadding" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
   </tdml:defineSchema>
 
+  <tdml:defineConfig name="disallowSignedIntegerLength1Bit">
+    <daf:tunables>
+      <daf:allowSignedIntegerLength1Bit>false</daf:allowSignedIntegerLength1Bit>
+    </daf:tunables>
+  </tdml:defineConfig>
+
   <tdml:parserTestCase name="outOfRangeLengthBinaryInteger1" root="spare1" model="BinaryIntegers"
-                       description="Parse Error when attempting to use zero-length unsigned binary integer">
+                       description="SDE when attempting to use zero-length unsigned binary integer">
     <tdml:document>
       <tdml:documentPart type="byte">
         ff
       </tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>unsigned binary integer</tdml:error>
       <tdml:error>1 bit</tdml:error>
       <tdml:error>0 out of range</tdml:error>
@@ -1427,14 +1465,15 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="outOfRangeLengthBinaryInteger2" root="spare3" model="BinaryIntegers"
-                       description="Parse Error when attempting to use length 1 signed binary integer">
+                       description="SDE when attempting to use length 1 signed binary integer"
+                       config="disallowSignedIntegerLength1Bit">
     <tdml:document>
       <tdml:documentPart type="byte">
         ff
       </tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>signed binary integer</tdml:error>
       <tdml:error>2 bits</tdml:error>
       <tdml:error>1 out of range</tdml:error>
@@ -1442,14 +1481,14 @@
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase name="outOfRangeLengthBinaryInteger3" root="spare1" model="BinaryIntegers"
-                       description="UnParse Error when attempting to use zero-length unsigned binary integer">
+                       description="SDE when attempting to use zero-length unsigned binary integer">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:spare1>0</ex:spare1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>unsigned binary integer</tdml:error>
       <tdml:error>1 bit</tdml:error>
       <tdml:error>0 out of range</tdml:error>
@@ -1457,10 +1496,30 @@
   </tdml:unparserTestCase>
 
   <tdml:unparserTestCase name="outOfRangeLengthBinaryInteger4" root="spare3" model="BinaryIntegers"
-                       description="Parse Error when attempting to use length 1 signed binary integer">
+                         description="SDE when attempting to use length 1 signed binary integer"
+                         config="disallowSignedIntegerLength1Bit">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:spare3>0</ex:spare3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>signed binary integer</tdml:error>
+      <tdml:error>2 bits</tdml:error>
+      <tdml:error>1 out of range</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="outOfRangeLengthBinaryInteger5" root="spare5" model="BinaryIntegers"
+                         description="UnParse Error when attempting to use length 1 (expr) signed binary integer"
+                         config="disallowSignedIntegerLength1Bit">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:spare5>
+          <ex:len></ex:len>
+          <ex:e1>65535</ex:e1>
+        </ex:spare5>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
@@ -1468,6 +1527,24 @@
       <tdml:error>signed binary integer</tdml:error>
       <tdml:error>2 bits</tdml:error>
       <tdml:error>1 out of range</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="outOfRangeLengthBinaryInteger6" root="spare6" model="BinaryIntegers"
+                         description="UnParse Error when attempting to use zero-length (expr) unsigned binary integer">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:spare6>
+          <ex:len></ex:len>
+          <ex:e1>65535</ex:e1>
+        </ex:spare6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>unsigned binary integer</tdml:error>
+      <tdml:error>1 bit</tdml:error>
+      <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 

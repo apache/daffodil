@@ -145,6 +145,9 @@ class TestLengthKindExplicit {
   @Test def test_invalidIntBitLengthExpr(): Unit = {
     runner.runOneTest("invalidIntBitLengthExpr")
   }
+  @Test def test_unparseInvalidIntBitLengthExpr(): Unit = {
+    runner.runOneTest("unparseInvalidIntBitLengthExpr")
+  }
 
   @Test def test_invalidShortBitLengthExpr(): Unit = {
     runner.runOneTest("invalidShortBitLengthExpr")
@@ -174,6 +177,12 @@ class TestLengthKindExplicit {
   }
   @Test def test_outOfRangeLengthBinaryInteger4(): Unit = {
     runner.runOneTest("outOfRangeLengthBinaryInteger4")
+  }
+  @Test def test_outOfRangeLengthBinaryInteger5(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger5")
+  }
+  @Test def test_outOfRangeLengthBinaryInteger6(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger6")
   }
   @Test def test_inRangeLengthBinaryInteger1(): Unit = {
     runner.runOneTest("inRangeLengthBinaryInteger1")
