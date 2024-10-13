@@ -121,4 +121,7 @@ class TestOutputValueCalc {
 
   // DAFFODIL-2167
   @Test def test_arrayWithFollowingOVC(): Unit = { runner.runOneTest("arrayWithFollowingOVC") }
+
+  // DAFFODIL-1595
+  @Test def test_OVCTooLargeForElem(): Unit = { runner.runOneTest("OVCTooLargeForElem") }
 }

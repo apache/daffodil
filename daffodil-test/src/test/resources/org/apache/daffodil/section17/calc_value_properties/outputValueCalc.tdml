@@ -362,6 +362,16 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="ovc_too_large_for_element">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e" type="xs:double" dfdl:lengthKind="explicit"
+                      dfdl:length="{ 4 }"
+                      dfdl:outputValueCalc="{ 0.555 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
 	</tdml:defineSchema>
 
 	<tdml:unparserTestCase name="binaryIntegerBigEndian"
@@ -829,5 +839,22 @@
       </tdml:infoset>
       <tdml:document>1219</tdml:document>
     </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="OVCTooLargeForElem"
+                         root="ovc_too_large_for_element" model="outputValueCalc-Embedded.dfdl.xsd"
+                         roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ovc_too_large_for_element>
+          <e/>
+        </ex:ovc_too_large_for_element>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>data too long</tdml:error>
+      <tdml:error>truncate</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>
