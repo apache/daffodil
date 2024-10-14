@@ -110,7 +110,7 @@ trait PrefixedLengthParserMixin {
         val check = strd.executeCheck(plElement)
         if (check.isError) {
           val pe = state.toProcessingError(
-            s"The calculated value of ${prefixedLengthERD.namedQName} ($parsedLen) failed check due to ${check.errMsg}"
+            s"The value of ${prefixedLengthERD.namedQName} ($parsedLen) failed check due to ${check.errMsg}"
           )
           state.setFailed(pe)
         }

@@ -196,7 +196,7 @@ trait ElementBaseGrammarMixin
         detachedElementDecl.statements.nonEmpty,
         "%s is specified as a dfdl:prefixLengthType, but specifies one or more statement annotations (%s)",
         prefixLengthType,
-        detachedElementDecl.statementsAsStrings.mkString(", ")
+        detachedElementDecl.statements.mkString(", ")
       )
 
       if (

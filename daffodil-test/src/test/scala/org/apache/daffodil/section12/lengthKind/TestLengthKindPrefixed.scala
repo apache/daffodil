@@ -85,9 +85,15 @@ class TestLengthKindPrefixed {
   // DFDL-2660
   @Test def test_pl_check_prefix_facets_before_use1() = {
     runner.runOneTest("pl_check_prefix_facets_before_use1")
-  } // DFDL-2660
+  }
   @Test def test_pl_check_prefix_facets_before_use2() = {
     runner.runOneTest("pl_check_prefix_facets_before_use2")
+  }
+  @Test def test_pl_check_prefix_facets_before_use3() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use3")
+  }
+  @Test def test_pl_check_prefix_facets_before_use4() = {
+    runner.runOneTest("pl_check_prefix_facets_before_use4")
   }
   @Test def test_pl_check_prefix_for_annotations() = {
     runner.runOneTest("pl_check_prefix_for_annotations")

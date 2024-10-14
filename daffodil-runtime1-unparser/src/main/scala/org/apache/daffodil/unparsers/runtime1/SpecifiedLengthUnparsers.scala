@@ -339,6 +339,19 @@ trait KnownPrefixedLengthUnparserMixin {
 
     plElement.setDataValue(java.lang.Integer.valueOf(adjustedLenInUnits.toInt))
 
+    // do checks on facets expressed on prefixLengthType
+    val optSTRD = plElement.erd.optSimpleTypeRuntimeData
+    if (optSTRD.isDefined) {
+      val strd = optSTRD.get
+      val check = strd.executeCheck(plElement)
+      if (check.isError) {
+        val ue = state.toProcessingError(
+          s"The calculated value of ${prefixedLengthERD.namedQName} ($adjustedLenInUnits) failed check due to ${check.errMsg}"
+        )
+        state.setFailed(ue)
+      }
+    }
+
     // unparse the prefixed length element
     state.currentInfosetNodeStack.push(One(plElement))
     prefixedLengthUnparser.unparse1(state)
@@ -389,6 +402,18 @@ trait CalculatedPrefixedLengthUnparserMixin {
     }
     val adjustedLenInUnits = lenInUnits + prefixedLengthAdjustmentInUnits
     plElem.setDataValue(java.lang.Integer.valueOf(adjustedLenInUnits.toInt))
+    // do checks on facets expressed on prefixLengthType
+    val optSTRD = plElem.erd.optSimpleTypeRuntimeData
+    if (optSTRD.isDefined) {
+      val strd = optSTRD.get
+      val check = strd.executeCheck(plElem)
+      if (check.isError) {
+        val ue = state.toProcessingError(
+          s"The calculated value of ${elem.namedQName} ($adjustedLenInUnits) failed check due to ${check.errMsg}"
+        )
+        state.setFailed(ue)
+      }
+    }
   }
 }
 
