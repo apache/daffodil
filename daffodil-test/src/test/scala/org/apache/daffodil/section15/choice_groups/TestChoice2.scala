@@ -28,11 +28,13 @@ object TestChoice2 {
   val runner = Runner(testDir, "choice1765.tdml")
   val runner1773 = Runner(testDir, "choice1773.tdml")
   val runner2162 = Runner(testDir, "choice2162.tdml")
+  val runner2736 = Runner(testDir, "choice2736.tdml")
 
   @AfterClass def shutDown(): Unit = {
     runner.reset
     runner1773.reset
     runner2162.reset
+    runner2736.reset
   }
 }
 
@@ -63,4 +65,8 @@ class TestChoice2 {
     runner2162.runOneTest("choiceArrayDirectDispatch1")
   }
 
+  // DAFFODIL-2736
+  @Test def test_choiceAmbiguousUPA() = {
+    runner2736.runOneTest("choiceAmbiguousUPA")
+  }
 }
