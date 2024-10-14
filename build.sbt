@@ -24,6 +24,7 @@ lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generate DFDL schemas")
 lazy val genCExamples = taskKey[Seq[File]]("Generate C example files")
 lazy val genVersion = taskKey[Seq[File]]("Generate VERSION file")
+lazy val genTunablesDoc = taskKey[Seq[File]]("Generate tunables doc from dafext.xsd file")
 
 lazy val daffodil = project
   .in(file("."))
@@ -52,7 +53,14 @@ lazy val daffodil = project
     tutorials,
     udf
   )
-  .settings(commonSettings, nopublish, ratSettings, unidocSettings, genCExamplesSettings)
+  .settings(
+    commonSettings,
+    nopublish,
+    ratSettings,
+    unidocSettings,
+    genTunablesDocSettings,
+    genCExamplesSettings
+  )
 
 lazy val macroLib = Project("daffodil-macro-lib", file("daffodil-macro-lib"))
   .settings(commonSettings, nopublish)
@@ -480,6 +488,108 @@ lazy val unidocSettings =
     JavaUnidoc / unidoc / unidocAllSources :=
       (JavaUnidoc / unidoc / unidocAllSources).value.map(apiDocSourceFilter)
   )
+
+lazy val genTunablesDocSettings = Seq(
+  Compile / genTunablesDoc := {
+    val stream = (propgen / streams).value
+    val dafExtFile =
+      (propgen / Compile / resources).value.find(_.getName == "dafext.xsd").get
+    val outputDocFile = (Compile / target).value / "tunables.md"
+    // parse xsd file
+    val dafExtXml = scala.xml.XML.loadFile(dafExtFile)
+    // extract tunables information
+    val tunablesElements =
+      (dafExtXml \ "element").filter(_ \@ "name" == "tunables") \\ "all" \ "element"
+    // build documentation
+    val documentationTuple = tunablesElements.map { ele =>
+      val subtitle = ele \@ "name"
+      val documentation =
+        (ele \ "annotation" \ "documentation").text.trim.split("\n").map(_.trim).mkString("\n")
+      val default = ele \@ "default"
+      (subtitle, documentation, default)
+    }
+    val (deprecated, nonDeprecated) = documentationTuple.partition { t =>
+      t._2.startsWith("Deprecated")
+    }
+    if (nonDeprecated.isEmpty)
+      throw new MessageOnlyException(
+        "tunables document generation failed as non-deprecated elements list is empty"
+      )
+
+    val nonDeprecatedDefs = nonDeprecated.map { case (sub, desc, default) =>
+      s"""
+       |#### $sub
+       |$desc
+       |
+       |default: $default
+       |""".stripMargin
+    }
+    val deprecatedList = deprecated.map(_._1)
+    val documentationPage =
+      s"""|---
+      |layout: page
+      |title: Tunables
+      |group: nav-right
+      |---
+      |<!--
+      |{% comment %}
+      |Licensed to the Apache Software Foundation (ASF) under one or more
+      |contributor license agreements.  See the NOTICE file distributed with
+      |this work for additional information regarding copyright ownership.
+      |The ASF licenses this file to you under the Apache License, Version 2.0
+      |(the "License"); you may not use this file except in compliance with
+      |the License.  You may obtain a copy of the License at
+      |
+      |http://www.apache.org/licenses/LICENSE-2.0
+      |
+      |Unless required by applicable law or agreed to in writing, software
+      |distributed under the License is distributed on an "AS IS" BASIS,
+      |WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      |See the License for the specific language governing permissions and
+      |limitations under the License.
+      |{% endcomment %}
+      |-->
+      |<!--
+      |{% comment %}
+      |This file is generated using ``sbt genTunablesDoc``. Update that task in Daffodil to update this file.
+      |{% endcomment %}
+      |-->
+      |
+      |Daffodil provides tunables as a way to change its behavior.
+      |Tunables are set by way of the ``tunables`` element in [config files](/configuration)
+      |or from the [cli](/cli) via the ``-T`` option.
+      |
+      |#### Config Example
+      | ``` xml
+      | <daf:dfdlConfig
+      |	xmlns:daf="urn:ogf:dfdl:2013:imp:daffodil.apache.org:2018:ext">
+      |    <daf:tunables>
+      |      <daf:suppressSchemaDefinitionWarnings>
+      |        encodingErrorPolicyError
+      |      </daf:suppressSchemaDefinitionWarnings>
+      |    </daf:tunables>
+      |</daf:dfdlConfig>
+      | ```
+      |
+      | The config file can then be passed into daffodil subcommands via the ``-c|--config`` options.
+      |
+      |#### CLI Example
+      | ``` bash
+      | daffodil parse -s schema.xsd -TsuppressSchemaDefinitionWarnings="encodingErrorPolicyError" data.bin
+      | ```
+      |
+      |
+      |### Definitions
+      |${nonDeprecatedDefs.mkString("\n")}
+      |
+      |### Deprecated
+      |${deprecatedList.mkString("- ", "\n- ", "")}
+      |""".stripMargin
+    IO.write(outputDocFile, s"$documentationPage")
+    stream.log.info(s"generated tunables documentation at: $outputDocFile")
+    Seq(outputDocFile)
+  }
+)
 
 lazy val genCExamplesSettings = Seq(
   Compile / genCExamples := {
