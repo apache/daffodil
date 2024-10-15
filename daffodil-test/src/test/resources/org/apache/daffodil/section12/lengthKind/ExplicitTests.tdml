@@ -1050,6 +1050,139 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: lengthUnitsBitsForFloat_explicit
+        Schema: lengthUnitsBitsForFloat_explicit
+          Root: r1
+       Purpose: This test checks that no warning is emitted when a float/double is used when lengthUnits='bits'.
+-->
+  <tdml:defineSchema name="lengthUnitsBitsForFloatDouble_explicit">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:defineFormat name="Binary">
+      <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
+    </dfdl:defineFormat>
+    <dfdl:format ref="ex:Binary" />
+
+    <xs:element name="r1" dfdl:lengthKind="explicit" type="xs:float"
+                dfdl:lengthUnits="bits" dfdl:length="32"/>
+    <xs:element name="r2" dfdl:lengthKind="explicit" type="xs:double"
+                dfdl:lengthUnits="bits" dfdl:length="64"/>
+    <xs:element name="r3" dfdl:lengthKind="explicit" type="xs:float"
+                dfdl:lengthUnits="bits" dfdl:length="8"/>
+    <xs:element name="r4" dfdl:lengthKind="explicit" type="xs:double"
+                dfdl:lengthUnits="bits" dfdl:length="32"/>
+    <xs:element name="r5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int" dfdl:inputValueCalc="{ 32 }"/>
+          <xs:element name="e1" dfdl:lengthKind="explicit" type="xs:float"
+                      dfdl:lengthUnits="bits" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="r6">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:int" dfdl:inputValueCalc="{ 64 }"/>
+          <xs:element name="e1" dfdl:lengthKind="explicit" type="xs:double"
+                      dfdl:lengthUnits="bits" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="lengthUnitsBitsForFloat_explicit1" root="r1" model="lengthUnitsBitsForFloatDouble_explicit"
+                       description="lengthKind='explicit' lengthUnits='bits' type='xs:float'"
+                       ignoreUnexpectedWarnings="false">
+
+  <tdml:document>
+      <tdml:documentPart type="byte">
+        42 f6 e9 79
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r1>123.456</r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lengthUnitsBitsForFloat_explicit2" root="r3" model="lengthUnitsBitsForFloatDouble_explicit"
+                       description="lengthKind='explicit' lengthUnits='bits' type='xs:float'"
+                       ignoreUnexpectedWarnings="false">
+
+  <tdml:document>
+      <tdml:documentPart type="byte">
+        42 f6 e9 79
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>must be 32 bits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lengthUnitsBitsForFloat_explicit3" root="r5" model="lengthUnitsBitsForFloatDouble_explicit"
+                       description="lengthKind='explicit' lengthUnits='bits' type='xs:float'"
+                       ignoreUnexpectedWarnings="false">
+
+  <tdml:document>
+      <tdml:documentPart type="byte">
+        42 f6 e9 79
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>floating point binary numbers</tdml:error>
+      <tdml:error>may not have runtime-specified lengths</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lengthUnitsBitsForDouble_explicit1" root="r2" model="lengthUnitsBitsForFloatDouble_explicit"
+                       description="lengthKind='explicit' lengthUnits='bits' type='xs:double'"
+                       ignoreUnexpectedWarnings="false">
+
+  <tdml:document>
+      <tdml:documentPart type="byte">
+        40 5e dd 2f 1a 9f be 77
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r2>123.456</r2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lengthUnitsBitsForDouble_explicit2" root="r4" model="lengthUnitsBitsForFloatDouble_explicit"
+                       description="lengthKind='explicit' lengthUnits='bits' type='xs:double'"
+                       ignoreUnexpectedWarnings="false">
+
+  <tdml:document>
+      <tdml:documentPart type="byte">
+        40 5e dd 2f 1a 9f be 77
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>must be 64 bits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="lengthUnitsBitsForDouble_explicit3" root="r6" model="lengthUnitsBitsForFloatDouble_explicit"
+                       description="lengthKind='explicit' lengthUnits='bits' type='xs:double'"
+                       ignoreUnexpectedWarnings="false">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">
+        40 5e dd 2f 1a 9f be 77
+      </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>floating point binary numbers</tdml:error>
+      <tdml:error>may not have runtime-specified lengths</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <!--
     These tests check for the condition where the bit length exceeds the width of the
     specified type when the value is a constant. All numeric signed and unsigned types are checked

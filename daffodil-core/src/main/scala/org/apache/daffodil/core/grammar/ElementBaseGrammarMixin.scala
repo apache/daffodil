@@ -110,7 +110,6 @@ trait ElementBaseGrammarMixin
   lazy val prefixedLengthElementDecl: PrefixLengthQuasiElementDecl =
     LV('prefixedLengthElementDecl) {
       Assert.invariant(lengthKind == LengthKind.Prefixed)
-      checkLengthUnits()
       val detachedNode =
         <element name={name + " (prefixLength)"} type={prefixLengthType.toQNameString}/>
           .copy(scope = prefixLengthTypeGSTD.xml.scope)
@@ -591,7 +590,6 @@ trait ElementBaseGrammarMixin
     val lengthFromProp: JLong = repElement.lengthEv.optConstant.get
     val nbits = repElement.lengthUnits match {
       case LengthUnits.Bits =>
-        checkLengthUnits(repElement)
         lengthFromProp.longValue()
       case LengthUnits.Bytes => lengthFromProp.longValue() * 8
       case LengthUnits.Characters =>
@@ -1069,10 +1067,8 @@ trait ElementBaseGrammarMixin
         (primType, binaryCalendarRep) match {
           case (PrimType.DateTime, BinaryCalendarRep.BinarySeconds) =>
             (lengthUnits, binaryNumberKnownLengthInBits) match {
-              case (LengthUnits.Bytes, 32) =>
+              case (LengthUnits.Bytes | LengthUnits.Bits, 32) =>
                 new ConvertBinaryDateTimeSecMilliPrim(this, binaryNumberKnownLengthInBits)
-              case (_, 32) =>
-                SDE("lengthUnits must be 'bytes' when binaryCalendarRep='binarySeconds'")
               case (_, n) =>
                 SDE(
                   "binary xs:dateTime must be 32 bits when binaryCalendarRep='binarySeconds'. Length in bits was %s.",
@@ -1083,10 +1079,8 @@ trait ElementBaseGrammarMixin
             SDE("binaryCalendarRep='binarySeconds' is not allowed with type %s", primType.name)
           case (PrimType.DateTime, BinaryCalendarRep.BinaryMilliseconds) =>
             (lengthUnits, binaryNumberKnownLengthInBits) match {
-              case (LengthUnits.Bytes, 64) =>
+              case (LengthUnits.Bytes | LengthUnits.Bits, 64) =>
                 new ConvertBinaryDateTimeSecMilliPrim(this, binaryNumberKnownLengthInBits)
-              case (_, 64) =>
-                SDE("lengthUnits must be 'bytes' when binaryCalendarRep='binaryMilliseconds'")
               case (_, n) =>
                 SDE(
                   "binary xs:dateTime must be 64 bits when binaryCalendarRep='binaryMilliseconds'. Length in bits was %s.",
@@ -1713,18 +1707,4 @@ trait ElementBaseGrammarMixin
     prod("mandatoryTextAlignment", impliedRepresentation eq Representation.Text) {
       mtaBase
     }
-
-  private def checkLengthUnits(elem: ElementBase = context): Unit = {
-    elem.lengthUnits match {
-      case LengthUnits.Bits =>
-        elem.optPrimType match {
-          case Some(_) => {
-            // allow all types to use lengthUnits bits
-            // PORTABILITY: See https://github.com/OpenGridForum/DFDL/issues/12
-          }
-          case None => // do nothing
-        }
-      case _ =>
-    }
-  }
 }
