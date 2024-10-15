@@ -345,10 +345,11 @@ trait KnownPrefixedLengthUnparserMixin {
       val strd = optSTRD.get
       val check = strd.executeCheck(plElement)
       if (check.isError) {
-        val ue = state.toProcessingError(
+        UnparseError(
+          One(state.schemaFileLocation),
+          One(state.currentLocation),
           s"The calculated value of ${prefixedLengthERD.namedQName} ($adjustedLenInUnits) failed check due to ${check.errMsg}"
         )
-        state.setFailed(ue)
       }
     }
 
@@ -408,10 +409,11 @@ trait CalculatedPrefixedLengthUnparserMixin {
       val strd = optSTRD.get
       val check = strd.executeCheck(plElem)
       if (check.isError) {
-        val ue = state.toProcessingError(
+        UnparseError(
+          One(state.schemaFileLocation),
+          One(state.currentLocation),
           s"The calculated value of ${elem.namedQName} ($adjustedLenInUnits) failed check due to ${check.errMsg}"
         )
-        state.setFailed(ue)
       }
     }
   }
