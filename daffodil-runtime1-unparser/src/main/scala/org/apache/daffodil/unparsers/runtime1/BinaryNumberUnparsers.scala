@@ -58,57 +58,8 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
     val nBits = getBitLength(state)
     val value = getNumberToPut(state)
     val dos = state.dataOutputStream
-    this match {
-      case unparser: BinaryIntegerBaseUnparser => {
-        val primNumeric = context.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
-        // minimum length for a signed binary integer is 2 bits, for unsigned it is 1 bit
-        if (unparser.signed && nBits < 2) {
-          val outOfRangeStr =
-            "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range. " +
-              "An unsigned integer with length 1 bit could be used instead."
-          if (state.tunable.allowSignedIntegerLength1Bit) {
-            state.SDW(
-              WarnID.SignedBinaryIntegerLength1Bit,
-              outOfRangeStr,
-              nBits
-            )
-          } else {
-            UE(
-              state,
-              outOfRangeStr,
-              nBits
-            )
-            return
-          }
-        } else if (!unparser.signed && nBits < 1) {
-          UE(
-            state,
-            "Minimum length for an unsigned binary integer is 1 bit, number of bits %d out of range.",
-            nBits
-          )
-          return
-        }
-        if (primNumeric.width.isDefined) {
-          val width = primNumeric.width.get
-          if (nBits > width) {
-            UE(
-              state,
-              "Number of bits %d out of range, must be between 1 and %d bits.",
-              nBits,
-              width
-            )
-            return
-          }
-        }
-      }
-      case _ => // do nothing
-    }
-    val res =
-      if (nBits > 0) {
-        putNumber(dos, value, nBits, state)
-      } else {
-        true
-      }
+    val res = putNumber(dos, value, nBits, state)
+
 
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)
@@ -125,8 +76,10 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
 
 }
 
-abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, val signed: Boolean)
+abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData)
   extends BinaryNumberBaseUnparser(e) {
+
+  private val primNumeric = e.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 
   override def putNumber(
     dos: DataOutputStream,
@@ -134,8 +87,50 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, val signed: Bool
     nBits: Int,
     finfo: FormatInfo
   ): Boolean = {
+    val state = finfo.asInstanceOf[UState]
+    if (primNumeric.minWidth.isDefined) {
+      val isSigned = primNumeric.isSigned
+      val signedStr = if (isSigned) "signed" else "unsigned"
+      val minWidth = primNumeric.minWidth.get
+      if(nBits < minWidth) {
+        val outOfRangeFmtStr =
+          "Minimum length for a %s binary integer is %d bit(s), number of bits %d out of range. " +
+            "An unsigned integer with length 1 bit could be used instead."
+        if (isSigned && state.tunable.allowSignedIntegerLength1Bit) {
+          state.SDW(
+            WarnID.SignedBinaryIntegerLength1Bit,
+            outOfRangeFmtStr,
+            signedStr,
+            minWidth,
+            nBits
+          )
+          return false
+        } else {
+          UE(
+            state,
+            outOfRangeFmtStr,
+            signedStr,
+            minWidth,
+            nBits
+          )
+          return false
+        }
+      }
+    }
+    if (primNumeric.maxWidth.isDefined) {
+      val width = primNumeric.maxWidth.get
+      if (nBits > width) {
+        UE(
+          state,
+          "Number of bits %d out of range, must be between 1 and %d bits.",
+          nBits,
+          width
+        )
+        return false
+      }
+    }
     if (nBits > 64) {
-      dos.putBigInt(asBigInt(value), nBits, signed, finfo)
+      dos.putBigInt(asBigInt(value), nBits, primNumeric.isSigned, finfo)
     } else {
       dos.putLong(asLong(value), nBits, finfo)
     }
@@ -144,9 +139,8 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData, val signed: Bool
 
 class BinaryIntegerKnownLengthUnparser(
   e: ElementRuntimeData,
-  signed: Boolean,
   override val lengthInBits: Int
-) extends BinaryIntegerBaseUnparser(e, signed)
+) extends BinaryIntegerBaseUnparser(e)
   with HasKnownLengthInBits {
 
   override lazy val runtimeDependencies = Vector()
@@ -155,10 +149,9 @@ class BinaryIntegerKnownLengthUnparser(
 
 class BinaryIntegerRuntimeLengthUnparser(
   val e: ElementRuntimeData,
-  signed: Boolean,
   val lengthEv: Evaluatable[JLong],
   val lengthUnits: LengthUnits
-) extends BinaryIntegerBaseUnparser(e, signed)
+) extends BinaryIntegerBaseUnparser(e)
   with HasRuntimeExplicitLength {
 
   override val runtimeDependencies = Vector(lengthEv)
@@ -169,11 +162,12 @@ class BinaryIntegerPrefixedLengthUnparser(
   override val prefixedLengthUnparser: Unparser,
   override val prefixedLengthERD: ElementRuntimeData,
   maybeNBits: MaybeInt,
-  signed: Boolean,
   override val lengthUnits: LengthUnits,
   override val prefixedLengthAdjustmentInUnits: Long
-) extends BinaryIntegerBaseUnparser(e: ElementRuntimeData, signed: Boolean)
+) extends BinaryIntegerBaseUnparser(e: ElementRuntimeData)
   with KnownPrefixedLengthUnparserMixin {
+
+  private val primNumeric = e.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
   override lazy val runtimeDependencies = Vector()
@@ -187,7 +181,7 @@ class BinaryIntegerPrefixedLengthUnparser(
       // bytes needed to represent the number
       val value = getNumberToPut(s.asInstanceOf[UState])
       val len = Math.max(asBigInt(value).bitLength, 1)
-      val signedLen = if (signed) len + 1 else len
+      val signedLen = if (primNumeric.isSigned) len + 1 else len
       (signedLen + 7) & ~0x7 // round up to nearest multilpe of 8
     }
   }
@@ -210,7 +204,11 @@ class BinaryFloatUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnparse
     nBits: Int,
     finfo: FormatInfo
   ): Boolean = {
-    dos.putBinaryFloat(asFloat(value), finfo)
+    if (nBits > 0) {
+      dos.putBinaryFloat(asFloat(value), finfo)
+    } else {
+      true
+    }
   }
 
 }
@@ -227,7 +225,11 @@ class BinaryDoubleUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnpars
     nBits: Int,
     finfo: FormatInfo
   ): Boolean = {
-    dos.putBinaryDouble(asDouble(value), finfo)
+    if (nBits > 0) {
+      dos.putBinaryDouble(asDouble(value), finfo)
+    } else {
+      true
+    }
   }
 }
 
@@ -315,6 +317,10 @@ abstract class BinaryDecimalUnparserBase(
     nBits: Int,
     finfo: FormatInfo
   ): Boolean = {
-    dos.putBigInt(asBigInt(value), nBits, signed == YesNo.Yes, finfo)
+    if (nBits > 0) {
+      dos.putBigInt(asBigInt(value), nBits, signed == YesNo.Yes, finfo)
+    } else {
+      true
+    }
   }
 }

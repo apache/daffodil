@@ -782,7 +782,7 @@ trait ElementBaseGrammarMixin
   ) {
     ConvertZonedCombinator(
       this,
-      new IBM4690PackedIntegerKnownLength(this, false, binaryNumberKnownLengthInBits),
+      new IBM4690PackedIntegerKnownLength(this, binaryNumberKnownLengthInBits),
       textConverter
     )
   }
@@ -792,7 +792,7 @@ trait ElementBaseGrammarMixin
   ) {
     ConvertZonedCombinator(
       this,
-      new IBM4690PackedIntegerRuntimeLength(this, false),
+      new IBM4690PackedIntegerRuntimeLength(this),
       textConverter
     )
   }
@@ -802,7 +802,7 @@ trait ElementBaseGrammarMixin
   ) {
     ConvertZonedCombinator(
       this,
-      new IBM4690PackedIntegerDelimitedEndOfData(this, false),
+      new IBM4690PackedIntegerDelimitedEndOfData(this),
       textConverter
     )
   }
@@ -812,7 +812,7 @@ trait ElementBaseGrammarMixin
   ) {
     ConvertZonedCombinator(
       this,
-      new IBM4690PackedIntegerPrefixedLength(this, false),
+      new IBM4690PackedIntegerPrefixedLength(this),
       textConverter
     )
   }
@@ -823,7 +823,6 @@ trait ElementBaseGrammarMixin
         this,
         new PackedIntegerKnownLength(
           this,
-          false,
           packedSignCodes,
           binaryNumberKnownLengthInBits
         ),
@@ -834,7 +833,7 @@ trait ElementBaseGrammarMixin
     prod("packedRuntimeLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
       ConvertZonedCombinator(
         this,
-        new PackedIntegerRuntimeLength(this, false, packedSignCodes),
+        new PackedIntegerRuntimeLength(this, packedSignCodes),
         textConverter
       )
     }
@@ -842,7 +841,7 @@ trait ElementBaseGrammarMixin
     prod("packedDelimitedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
       ConvertZonedCombinator(
         this,
-        new PackedIntegerDelimitedEndOfData(this, false, packedSignCodes),
+        new PackedIntegerDelimitedEndOfData(this, packedSignCodes),
         textConverter
       )
     }
@@ -850,7 +849,7 @@ trait ElementBaseGrammarMixin
     prod("packedPrefixedLengthCalendar", binaryCalendarRep == BinaryCalendarRep.Packed) {
       ConvertZonedCombinator(
         this,
-        new PackedIntegerPrefixedLength(this, false, packedSignCodes),
+        new PackedIntegerPrefixedLength(this, packedSignCodes),
         textConverter
       )
     }
@@ -893,7 +892,7 @@ trait ElementBaseGrammarMixin
   private lazy val packedSignCodes =
     PackedSignCodes(binaryPackedSignCodes, binaryNumberCheckPolicy)
 
-  private def binaryIntegerValue(isSigned: Boolean) = {
+  private def binaryIntegerValue = {
     //
     // Is it a single byte or smaller
     //
@@ -906,10 +905,10 @@ trait ElementBaseGrammarMixin
     }
     (binaryNumberRep, lengthKind, binaryNumberKnownLengthInBits) match {
       case (BinaryNumberRep.Binary, LengthKind.Prefixed, _) =>
-        new BinaryIntegerPrefixedLength(this, isSigned)
-      case (BinaryNumberRep.Binary, _, -1) => new BinaryIntegerRuntimeLength(this, isSigned)
+        new BinaryIntegerPrefixedLength(this)
+      case (BinaryNumberRep.Binary, _, -1) => new BinaryIntegerRuntimeLength(this)
       case (BinaryNumberRep.Binary, _, _) =>
-        new BinaryIntegerKnownLength(this, isSigned, binaryNumberKnownLengthInBits)
+        new BinaryIntegerKnownLength(this, binaryNumberKnownLengthInBits)
       case (_, LengthKind.Implicit, _) =>
         SDE("lengthKind='implicit' is not allowed with packed binary formats")
       case (_, _, _)
@@ -919,26 +918,25 @@ trait ElementBaseGrammarMixin
           binaryNumberKnownLengthInBits
         )
       case (BinaryNumberRep.Packed, LengthKind.Delimited, -1) =>
-        new PackedIntegerDelimitedEndOfData(this, isSigned, packedSignCodes)
+        new PackedIntegerDelimitedEndOfData(this, packedSignCodes)
       case (BinaryNumberRep.Packed, LengthKind.Prefixed, -1) =>
-        new PackedIntegerPrefixedLength(this, isSigned, packedSignCodes)
+        new PackedIntegerPrefixedLength(this, packedSignCodes)
       case (BinaryNumberRep.Packed, _, -1) =>
-        new PackedIntegerRuntimeLength(this, isSigned, packedSignCodes)
+        new PackedIntegerRuntimeLength(this, packedSignCodes)
       case (BinaryNumberRep.Packed, _, _) =>
         new PackedIntegerKnownLength(
           this,
-          isSigned,
           packedSignCodes,
           binaryNumberKnownLengthInBits
         )
       case (BinaryNumberRep.Ibm4690Packed, LengthKind.Delimited, -1) =>
-        new IBM4690PackedIntegerDelimitedEndOfData(this, isSigned)
+        new IBM4690PackedIntegerDelimitedEndOfData(this)
       case (BinaryNumberRep.Ibm4690Packed, LengthKind.Prefixed, -1) =>
-        new IBM4690PackedIntegerPrefixedLength(this, isSigned)
+        new IBM4690PackedIntegerPrefixedLength(this)
       case (BinaryNumberRep.Ibm4690Packed, _, -1) =>
-        new IBM4690PackedIntegerRuntimeLength(this, isSigned)
+        new IBM4690PackedIntegerRuntimeLength(this)
       case (BinaryNumberRep.Ibm4690Packed, _, _) =>
-        new IBM4690PackedIntegerKnownLength(this, isSigned, binaryNumberKnownLengthInBits)
+        new IBM4690PackedIntegerKnownLength(this, binaryNumberKnownLengthInBits)
       case (BinaryNumberRep.Bcd, _, _) =>
         primType match {
           case PrimType.Long | PrimType.Int | PrimType.Short | PrimType.Byte =>
@@ -952,19 +950,6 @@ trait ElementBaseGrammarMixin
             }
         }
     }
-  }
-
-  lazy val isSignedIntegerType: Boolean = primType match {
-    case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer =>
-      true
-    case _ => false
-  }
-
-  lazy val isUnsignedIntegerType: Boolean = primType match {
-    case PrimType.UnsignedByte | PrimType.UnsignedShort | PrimType.UnsignedInt |
-        PrimType.UnsignedLong | PrimType.NonNegativeInteger =>
-      true
-    case _ => false
   }
 
   private lazy val binaryValue: Gram = {
@@ -983,12 +968,8 @@ trait ElementBaseGrammarMixin
     // This is in the spirit of that section.
     val res: Gram = primType match {
 
-      case _ if isSignedIntegerType => {
-        binaryIntegerValue(true)
-      }
-
-      case _ if isUnsignedIntegerType => {
-        binaryIntegerValue(false)
+      case n: PrimType.PrimNumeric if n.isInteger => {
+        binaryIntegerValue
       }
 
       case PrimType.Double | PrimType.Float => {
