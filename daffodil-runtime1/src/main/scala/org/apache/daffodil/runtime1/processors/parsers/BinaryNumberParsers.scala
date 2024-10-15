@@ -125,27 +125,24 @@ abstract class BinaryDecimalParserBase(
 
 class BinaryIntegerRuntimeLengthParser(
   val e: ElementRuntimeData,
-  signed: Boolean,
   val lengthEv: Evaluatable[JLong],
   val lengthUnits: LengthUnits
-) extends BinaryIntegerBaseParser(e, signed)
+) extends BinaryIntegerBaseParser(e)
   with HasRuntimeExplicitLength {}
 
 class BinaryIntegerKnownLengthParser(
   e: ElementRuntimeData,
-  signed: Boolean,
   val lengthInBits: Int
-) extends BinaryIntegerBaseParser(e, signed)
+) extends BinaryIntegerBaseParser(e)
   with HasKnownLengthInBits {}
 
 class BinaryIntegerPrefixedLengthParser(
   e: ElementRuntimeData,
   override val prefixedLengthParser: Parser,
   override val prefixedLengthERD: ElementRuntimeData,
-  signed: Boolean,
   override val lengthUnits: LengthUnits,
   override val prefixedLengthAdjustmentInUnits: Long
-) extends BinaryIntegerBaseParser(e, signed)
+) extends BinaryIntegerBaseParser(e)
   with PrefixedLengthParserMixin {
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
@@ -157,7 +154,6 @@ class BinaryIntegerPrefixedLengthParser(
 
 abstract class BinaryIntegerBaseParser(
   override val context: ElementRuntimeData,
-  signed: Boolean
 ) extends PrimParser {
   override lazy val runtimeDependencies = Vector()
 
@@ -167,35 +163,36 @@ abstract class BinaryIntegerBaseParser(
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
-    // minimum length for a signed binary integer is 2 bits, for unsigned it is 1 bit
-    if (signed && nBits < 2) {
-      val outOfRangeStr =
-        "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range. " +
-          "An unsigned integer with length 1 bit could be used instead."
-      if (start.tunable.allowSignedIntegerLength1Bit) {
-        start.SDW(
-          WarnID.SignedBinaryIntegerLength1Bit,
-          outOfRangeStr,
-          nBits
-        )
-      } else {
-        PE(
-          start,
-          outOfRangeStr,
-          nBits
-        )
-        return
+    if (primNumeric.minWidth.isDefined) {
+      val isSigned = primNumeric.isSigned
+      val signedStr = if (isSigned) "signed" else "unsigned"
+      val minWidth = primNumeric.minWidth.get
+      if(nBits < minWidth) {
+        val outOfRangeFmtStr =
+          "Minimum length for a %s binary integer is %d bit(s), number of bits %d out of range. " +
+            "An unsigned integer with length 1 bit could be used instead."
+        if (isSigned && start.tunable.allowSignedIntegerLength1Bit) {
+          start.SDW(
+            WarnID.SignedBinaryIntegerLength1Bit,
+            outOfRangeFmtStr,
+            signedStr,
+            minWidth,
+            nBits
+          )
+        } else {
+          PE(
+            start,
+            outOfRangeFmtStr,
+            signedStr,
+            minWidth,
+            nBits
+          )
+          return
+        }
       }
-    } else if (!signed && nBits < 1) {
-      PE(
-        start,
-        "Minimum length for an unsigned binary integer is 1 bit, number of bits %d out of range.",
-        nBits
-      )
-      return
     }
-    if (primNumeric.width.isDefined) {
-      val width = primNumeric.width.get
+    if (primNumeric.maxWidth.isDefined) {
+      val width = primNumeric.maxWidth.get
       if (nBits > width)
         PE(
           start,
@@ -211,7 +208,7 @@ abstract class BinaryIntegerBaseParser(
     }
 
     val num: JNumber =
-      if (signed) {
+      if (primNumeric.isSigned) {
         if (nBits > 64) { dis.getSignedBigInt(nBits, start) }
         else { dis.getSignedLong(nBits, start) }
       } else {

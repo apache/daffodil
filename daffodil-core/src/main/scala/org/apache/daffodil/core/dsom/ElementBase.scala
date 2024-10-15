@@ -775,32 +775,36 @@ trait ElementBase
       result.isDefined && repElement.isSimpleType && representation == Representation.Binary
     ) {
       val nBits = result.get
-      if (isSignedIntegerType && nBits < 2) {
-        val outOfRangeStr =
-          "Minimum length for a signed binary integer is 2 bits, number of bits %d out of range. " +
-            "An unsigned integer with length 1 bit could be used instead."
-        if (tunable.allowSignedIntegerLength1Bit) {
-          SDW(
-            WarnID.SignedBinaryIntegerLength1Bit,
-            outOfRangeStr,
-            nBits
-          )
-        } else {
-          SDE(
-            outOfRangeStr,
-            nBits
-          )
-        }
-      }
-      schemaDefinitionWhen(
-        isUnsignedIntegerType && nBits < 1,
-        "Minimum length for an unsigned binary integer is 1 bit, number of bits %d out of range.",
-        nBits
-      )
       primType match {
         case primNumeric: NodeInfo.PrimType.PrimNumeric =>
-          if (primNumeric.width.isDefined) {
-            val width = primNumeric.width.get
+          if (primNumeric.minWidth.isDefined) {
+            val isSigned = primNumeric.isSigned
+            val signedStr = if (isSigned) "signed" else "unsigned"
+            val minWidth = primNumeric.minWidth.get
+            if(nBits < minWidth) {
+              val outOfRangeFmtStr =
+                "Minimum length for a %s binary integer is %d bit(s), number of bits %d out of range. " +
+                  "An unsigned integer with length 1 bit could be used instead."
+              if (isSigned && tunable.allowSignedIntegerLength1Bit) {
+                SDW(
+                  WarnID.SignedBinaryIntegerLength1Bit,
+                  outOfRangeFmtStr,
+                  signedStr,
+                  minWidth,
+                  nBits
+                )
+              } else {
+                SDE(
+                  outOfRangeFmtStr,
+                  signedStr,
+                  minWidth,
+                  nBits
+                )
+              }
+            }
+          }
+          if (primNumeric.maxWidth.isDefined) {
+            val width = primNumeric.maxWidth.get
             if (nBits > width) {
               SDE(
                 "Number of bits %d out of range for binary %s, must be between 1 and %d bits.",

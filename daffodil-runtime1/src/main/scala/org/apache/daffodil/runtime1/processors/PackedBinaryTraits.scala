@@ -26,6 +26,7 @@ import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeChar
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
@@ -70,11 +71,16 @@ abstract class PackedBinaryDecimalBaseParser(
 
 abstract class PackedBinaryIntegerBaseParser(
   override val context: ElementRuntimeData,
-  signed: Boolean = false
 ) extends PrimParser
   with PackedBinaryConversion {
   override lazy val runtimeDependencies = Vector()
 
+  val signed = {
+    context.optPrimType.get match {
+      case n: NodeInfo.PrimType.PrimNumeric => n.isSigned
+      case _ => false
+    }
+  }
   protected def getBitLength(s: ParseOrUnparseState): Int
 
   def parse(start: PState): Unit = {

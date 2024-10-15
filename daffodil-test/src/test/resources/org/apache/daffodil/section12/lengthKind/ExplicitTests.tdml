@@ -1591,7 +1591,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>unsigned binary integer</tdml:error>
-      <tdml:error>1 bit</tdml:error>
+      <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -1607,7 +1607,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>signed binary integer</tdml:error>
-      <tdml:error>2 bits</tdml:error>
+      <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>1 out of range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -1622,7 +1622,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>unsigned binary integer</tdml:error>
-      <tdml:error>1 bit</tdml:error>
+      <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
@@ -1638,7 +1638,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>signed binary integer</tdml:error>
-      <tdml:error>2 bits</tdml:error>
+      <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>1 out of range</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
@@ -1657,7 +1657,7 @@
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
       <tdml:error>signed binary integer</tdml:error>
-      <tdml:error>2 bits</tdml:error>
+      <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>1 out of range</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
@@ -1675,7 +1675,7 @@
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
       <tdml:error>unsigned binary integer</tdml:error>
-      <tdml:error>1 bit</tdml:error>
+      <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
