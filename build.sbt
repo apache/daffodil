@@ -24,7 +24,7 @@ lazy val genProps = taskKey[Seq[File]]("Generate properties scala source")
 lazy val genSchemas = taskKey[Seq[File]]("Generate DFDL schemas")
 lazy val genCExamples = taskKey[Seq[File]]("Generate C example files")
 lazy val genVersion = taskKey[Seq[File]]("Generate VERSION file")
-lazy val genTunablesDoc = taskKey[Unit]("Generate tunables docs from dafext.xsd file")
+lazy val genTunablesDoc = taskKey[Seq[File]]("Generate tunables doc from dafext.xsd file")
 
 lazy val daffodil = project
   .in(file("."))
@@ -491,34 +491,41 @@ lazy val unidocSettings =
 
 lazy val genTunablesDocSettings = Seq(
   Compile / genTunablesDoc := {
+    val stream = (propgen / streams).value
     val dafExtFile =
-      (propgen / Compile / resources).value.filter(_.getName == "dafext.xsd").head
+      (propgen / Compile / resources).value.find(_.getName == "dafext.xsd").get
     val outputDocFile = (Compile / target).value / "tunables.md"
     // parse xsd file
     val dafExtXml = scala.xml.XML.loadFile(dafExtFile)
-    // extract information
-    val tunablesSeq = (dafExtXml \ "element" \\ "element")
+    // extract tunables information
+    val tunablesElements =
+      (dafExtXml \ "element").filter(_ \@ "name" == "tunables") \\ "all" \ "element"
     // build documentation
-    val sectionsSeq = tunablesSeq.flatMap { ele =>
+    val documentationTuple = tunablesElements.map { ele =>
       val subtitle = ele \@ "name"
-      val documentation = (ele \ "annotation" \ "documentation").text
-      val sections =
-        if (documentation.nonEmpty && !documentation.trim.startsWith("Deprecated")) {
-          val s =
-            s"""
-            |#### $subtitle
-            |$documentation
-            |""".stripMargin
-          Some(s)
-        } else {
-          None
-        }
-      sections
+      val documentation = (ele \ "annotation" \ "documentation").text.trim.replaceAll(" +", " ")
+      val default = ele \@ "default"
+      (subtitle, documentation, default)
     }
-    val documentationPage =
-      s"""|---
+    val (deprecated, nonDeprecated) = documentationTuple.partition { t =>
+      t._2.startsWith("Deprecated")
+    }
+    if (nonDeprecated.isEmpty) {
+      sys.error("tunables document generation failed as non-deprecated elements list is empty")
+    } else {
+      val nonDeprecatedDefs = nonDeprecated.map { case (sub, desc, default) =>
+        s"""
+         |#### $sub
+         |$desc
+         |
+         |default: $default
+         |""".stripMargin
+      }
+      val deprecatedList = deprecated.map(_._1)
+      val documentationPage =
+        s"""|---
         |layout: page
-        |title: DFDL Tunables
+        |title: Tunables
         |group: nav-right
         |---
         |<!--
@@ -570,15 +577,15 @@ lazy val genTunablesDocSettings = Seq(
         |
         |
         |### Definitions
-        |${sectionsSeq.mkString("\n")}
+        |${nonDeprecatedDefs.mkString("\n")}
+        |
+        |### Deprecated
+        |${deprecatedList.mkString("- ", "\n- ", "")}
         |""".stripMargin
-    IO.write(outputDocFile, s"$documentationPage")
-    println(s"Generated tunables documentation at: $outputDocFile")
-  },
-  Compile / compile := {
-    val res = (Compile / compile).value
-    (Compile / genTunablesDoc).value
-    res
+      IO.write(outputDocFile, s"$documentationPage")
+      stream.log.info(s"generated tunables documentation at: $outputDocFile")
+      Seq(outputDocFile)
+    }
   }
 )
 

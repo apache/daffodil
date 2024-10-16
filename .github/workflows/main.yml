@@ -169,7 +169,7 @@ jobs:
         run: $SBT compile Test/compile daffodil-test-integration/Test/compile
 
       - name: Build Documentation
-        run: $SBT unidoc
+        run: $SBT unidoc genTunablesDoc
 
       - name: Package Zip & Tar
         run: $SBT daffodil-cli/Universal/packageBin daffodil-cli/Universal/packageZipTarball

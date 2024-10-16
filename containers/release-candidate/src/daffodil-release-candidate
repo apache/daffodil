@@ -298,6 +298,7 @@ case $PROJECT_REPO in
       "daffodil-cli/Universal/packageBin" \
       "daffodil-cli/Universal/packageZipTarball" \
       "unidoc" \
+      "genTunablesDoc" \
 
     echo "Installing Convenience Binaries..."
     mkdir -p $DAFFODIL_RELEASE_DIR/bin/
@@ -316,6 +317,7 @@ case $PROJECT_REPO in
     mkdir -p $DAFFODIL_DOCS_DIR/{javadoc,scaladoc}/
     cp -R target/javaunidoc/* $DAFFODIL_DOCS_DIR/javadoc/
     cp -R target/scala-2.12/unidoc/* $DAFFODIL_DOCS_DIR/scaladoc/
+    cp target/tunables.md $DAFFODIL_SITE_DIR/site/
 
     echo "Installing Site Tutorials..."
     rm -rf $DAFFODIL_TUTORIALS_DIR
@@ -405,6 +407,7 @@ if [ "$PROJECT_REPO" = "daffodil" ]
 then
   echo "- Files in $DAFFODIL_DOCS_DIR"
   echo "- Files in $DAFFODIL_TUTORIALS_DIR"
+  echo "- File at $DAFFODIL_SITE_DIR/site/tunables.md"
   echo "- Staged published files at https://repository.apache.org/"
 fi
 echo
