@@ -291,6 +291,7 @@ final class SharedFactory[SharedType] {
 trait AnnotatedSchemaComponent
   extends SchemaComponent
   with AnnotatedMixin
+  with ResolvesLocalProperties
   with OverlapCheckMixin {
 
   protected override def initialize(): Unit = {
@@ -376,6 +377,66 @@ trait AnnotatedSchemaComponent
   final protected lazy val defaultFormatChain: ChainPropProvider = {
     val res = schemaDocument.formatAnnotation.formatChain
     res
+  }
+
+  /**
+   * Used to recursively go through Schema Components and look for DFDL properties that
+   * have not been accessed and record it as a warning. This function uses the
+   * property cache state to determine which properties have been access, so
+   * this function must only be called after all property accesses are complete
+   * (e.g. schema compilation has finished) to ensure there are no false
+   * positives.
+   */
+  final lazy val checkUnusedProperties: Unit = {
+    // Get the properties defined on this component and what it refers to
+    val localProps = formatAnnotation.justThisOneProperties
+    val refProps = optReferredToComponent
+      .map { _.formatAnnotation.justThisOneProperties }
+      .getOrElse(Map.empty)
+
+    val usedProperties = propCache
+
+    localProps.foreach { case (prop, (value, _)) =>
+      if (!usedProperties.contains(prop)) {
+        SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
+      }
+    }
+
+    refProps.foreach { case (prop, (value, _)) =>
+      if (!usedProperties.contains(prop)) {
+        optReferredToComponent.get.SDW(
+          WarnID.IgnoreDFDLProperty,
+          "DFDL property was ignored: %s=\"%s\"",
+          prop,
+          value
+        )
+      }
+    }
+
+    val descendantsForCheck = this match {
+      case gr: GroupRef => gr.groupDef.groupMembers
+      case eb: ElementBase => {
+        if (eb.isSimpleType) {
+          val ost = eb.optSimpleType
+          val enums = ost
+            .flatMap(_.optRestriction)
+            .map(_.enumerations)
+            .getOrElse(Seq.empty)
+          val st = if (ost.isDefined && ost.get.isInstanceOf[SimpleTypeDefBase]) {
+            Seq(ost.get.asInstanceOf[SimpleTypeDefBase])
+          } else {
+            Seq.empty
+          }
+          st ++ enums
+        } else {
+          eb.termChildren
+        }
+      }
+      case grl: GroupDefLike => grl.groupMembersNotShared
+      case _ => Seq.empty
+    }
+
+    descendantsForCheck.foreach { _.checkUnusedProperties }
   }
 }
 
