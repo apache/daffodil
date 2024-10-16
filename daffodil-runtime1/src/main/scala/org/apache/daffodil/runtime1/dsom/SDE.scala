@@ -281,19 +281,4 @@ trait ImplementsThrowsOrSavesSDE extends ImplementsThrowsSDE with SavesErrorsAnd
       }
     }
   }
-
-  /**
-   * Use for cases where it is an SDE because of something we've chosen
-   * not to implement. Not merely short term (haven't coded it yet, but intending to),
-   * more like things we've chosen to defer intentionally to some future release.
-   */
-  def subset(testThatWillThrowIfFalse: Boolean, msg: String, args: Any*) = {
-    if (!testThatWillThrowIfFalse) subsetError(msg, args: _*)
-  }
-
-  def subsetError(msg: String, args: Any*) = {
-    val msgTxt = msg.format(args: _*)
-    SDE("Subset: " + msgTxt)
-  }
-
 }
