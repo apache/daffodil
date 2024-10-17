@@ -139,9 +139,16 @@ used to develop Daffodil:
     brew install git
     brew install llvm # needed by iwyu
     brew install include-what-you-use
-    brew install libmxml
     brew install openjdk
     brew install sbt
+
+Install libmxml v3.3.1 from source:
+
+    git clone https://github.com/michaelrsweet/mxml
+    cd mxml
+    git checkout v3.3.1
+    ./configure
+    sudo make install
 
 Now you can build Daffodil from source and the sbt and daffodil
 commands you type will be able to call the C compiler.
