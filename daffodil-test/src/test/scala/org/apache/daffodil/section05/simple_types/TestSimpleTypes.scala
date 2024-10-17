@@ -311,6 +311,9 @@ class TestSimpleTypes {
   @Test def test_dateTimeBin20(): Unit = { runner.runOneTest("dateTimeBin20") }
   @Test def test_dateTimeBin21(): Unit = { runner.runOneTest("dateTimeBin21") }
   @Test def test_dateTimeBin22(): Unit = { runner.runOneTest("dateTimeBin22") }
+  @Test def test_dateTimeBin23(): Unit = { runner.runOneTest("dateTimeBin23") }
+  @Test def test_dateTimeBin24(): Unit = { runner.runOneTest("dateTimeBin24") }
+  @Test def test_dateTimeBin25(): Unit = { runner.runOneTest("dateTimeBin25") }
   @Test def test_dateBinBCD(): Unit = { runner.runOneTest("dateBinBCD") }
   @Test def test_dateBinBCD2(): Unit = { runner.runOneTest("dateBinBCD2") }
   @Test def test_dateBinBCD3(): Unit = { runner.runOneTest("dateBinBCD3") }
@@ -334,6 +337,7 @@ class TestSimpleTypes {
   @Test def test_dateBinIBM4690Packed(): Unit = { runner.runOneTest("dateBinIBM4690Packed") }
   @Test def test_dateBinIBM4690Packed2(): Unit = { runner.runOneTest("dateBinIBM4690Packed2") }
   @Test def test_dateBinIBM4690Packed3(): Unit = { runner.runOneTest("dateBinIBM4690Packed3") }
+  @Test def test_dateBinIBM4690Packed4(): Unit = { runner.runOneTest("dateBinIBM4690Packed4") }
   @Test def test_dateTimeBinIBM4690Packed(): Unit = {
     runner.runOneTest("dateTimeBinIBM4690Packed")
   }

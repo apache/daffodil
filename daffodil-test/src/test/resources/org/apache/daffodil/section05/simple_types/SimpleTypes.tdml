@@ -276,6 +276,12 @@
       dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="01-01-2000T00:00:00"/>
     <xs:element name="dateTimeBin12" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:terminator=";"
       dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="1977-01-01T00:00:07"/>
+    <xs:element name="dateTimeBin13" type="xs:dateTime" dfdl:lengthKind="explicit" dfdl:length="{ 32 }"
+                dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="binarySeconds" dfdl:binaryCalendarEpoch="2018-01-01T09:13:42+09:00"/>
+    <xs:element name="dateTimeBin14" type="xs:dateTime" dfdl:lengthKind="explicit" dfdl:length="{ 64 }"
+                dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="binaryMilliseconds" dfdl:binaryCalendarEpoch="2000-06-15T03:25:19"/>
+    <xs:element name="dateTimeBin15" type="xs:date" dfdl:lengthKind="explicit" dfdl:length="{ 64 }"
+                dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="binaryMilliseconds" dfdl:binaryCalendarEpoch="2000-06-15T03:25:19"/>
 
     <xs:element name="dateBinBCD" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 3 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd" />
@@ -338,6 +344,9 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 3 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="ibm4690Packed" />
     <xs:element name="dateBinIBM4690Packed2" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="explicit" dfdl:length="{ 18 }" dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="ibm4690Packed"/>
+    <xs:element name="dateBinIBM4690Packed3" type="xs:date" dfdl:calendarPattern="MMddyy" dfdl:calendarPatternKind="explicit"
+                dfdl:lengthKind="explicit" dfdl:length="{ 24 }" dfdl:lengthUnits="bits" dfdl:binaryCalendarRep="ibm4690Packed" />
+
 
     <xs:element name="dateTimeBinIBM4690Packed">
       <xs:complexType>
@@ -2410,9 +2419,11 @@
     <tdml:document>
       <tdml:documentPart type="bits">00000000 00000000 00000000 00111101</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error: lengthUnits must be 'bytes' when binaryCalendarRep='binarySeconds'</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:dateTimeBin2 xmlns:ex="http://example.com">1970-01-01T00:01:01</ex:dateTimeBin2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateTimeBin3" root="dateTimeBin3"
@@ -2694,6 +2705,48 @@
       <tdml:error>Insufficient bits</tdml:error>
       <tdml:error>Needed 64</tdml:error>
       <tdml:error>63 available</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBin23" root="dateTimeBin13"
+                       model="SimpleTypes-binary" description="binarySeconds with LengthUnits=bits"
+                       roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00000001</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeBin13>2018-01-01T09:13:43+09:00</dateTimeBin13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBin24" root="dateTimeBin14"
+                       model="SimpleTypes-binary" description="binaryMilliSeconds with lengthUnits=bits"
+                       roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00000000 11111111 11111111 11111111 11111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeBin14>2000-08-03T20:28:06.295000</dateTimeBin14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateTimeBin25" root="dateTimeBin15"
+                       model="SimpleTypes-binary" description="binaryMilliSeconds with lengthUnits=bits"
+                       roundTrip="true">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00000000 11111111 11111111 11111111 11111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>binaryCalendarRep='binaryMilliseconds'</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+      <tdml:error>type date</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2990,6 +3043,20 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Expected unsigned data but parsed a negative number</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateBinIBM4690Packed4" root="dateBinIBM4690Packed3"
+                       model="SimpleTypes-binary" description="binary packed calendar representation with lengthUnit=bits"
+                       roundTrip="true" ignoreUnexpectedWarnings="false">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">12 14 23</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateBinIBM4690Packed3>2023-12-14</dateBinIBM4690Packed3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dateTimeBinIBM4690Packed" root="dateTimeBinIBM4690Packed"

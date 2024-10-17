@@ -98,14 +98,33 @@ class TestLengthKindExplicit {
     runner.runOneTest("denseBit_lengthKind_explicit")
   }
 
-  @Test def test_invalidLengthUnitsIntegerWarning_explicit(): Unit = {
-    runner.runOneTest("invalidLengthUnitsIntegerWarning_explicit")
+  // DFDL-2931
+  @Test def test_lengthUnitsBitsForInteger_explicit(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForInteger_explicit")
   }
-  @Test def test_invalidLengthUnitsIntegerError_explicit(): Unit = {
-    runner.runOneTest("invalidLengthUnitsIntegerError_explicit")
+  @Test def test_lengthUnitsBitsForInteger_explicit2(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForInteger_explicit2")
   }
-  @Test def test_invalidLengthUnitsDecimalWarning_explicit(): Unit = {
-    runner.runOneTest("invalidLengthUnitsDecimalWarning_explicit")
+  @Test def test_lengthUnitsBitsForDecimal_explicit(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForDecimal_explicit")
+  }
+  @Test def test_lengthUnitsBitsForFloat_explicit1(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForFloat_explicit1")
+  }
+  @Test def test_lengthUnitsBitsForFloat_explicit2(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForFloat_explicit2")
+  }
+  @Test def test_lengthUnitsBitsForFloat_explicit3(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForFloat_explicit3")
+  }
+  @Test def test_lengthUnitsBitsForDouble_explicit1(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForDouble_explicit1")
+  }
+  @Test def test_lengthUnitsBitsForDouble_explicit2(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForDouble_explicit2")
+  }
+  @Test def test_lengthUnitsBitsForDouble_explicit3(): Unit = {
+    runner.runOneTest("lengthUnitsBitsForDouble_explicit3")
   }
 
   @Test def test_invalidUnsignedLongBitLength(): Unit = {
