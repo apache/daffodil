@@ -216,12 +216,41 @@ class DFDLCatalogResolver private ()
     // because the nsURI will resolve to the including schema file.
     // This will cause the including schema to be repeatedly parsed resulting in a stack overflow.
 
+    lazy val systemIdUri = if (systemId != null) {
+      new URI(systemId)
+    } else {
+      null
+    }
+
+    /**
+     * Xerces has a bug where it absolutizes systemId i.e the user supplies
+     *  {{{
+     *    <xs:schema...
+     *    ... xsi:schemaLocation="urn:some:namespace /some/path.xsd"
+     *  }}}
+     * Xerces takes that schemaLocation URI and absolutizes it to {{{ file:/some/path.xsd }}}
+     * and passes that to our resolveEntity and in turn resolveCommon, which while it's able
+     * to find the namespace, fails to set the resolvedUri since the file:/some/path.xsd will
+     * never match anything resolved from our catalog since that'd return something like
+     * {{{ file:/some/absolute/path/to/some/path.xsd }}}
+     *
+     * This is a workaround to that bug where we convert systemId to a URI and check if the
+     * path (from URI.getPath) matches the end of resolvedUri. Note: This can ignore absolute
+     * URIs passed in for schemaLocation, but those are edge cases where the user expects
+     * the namespace to match a different file (i.e what they provide in the schemalocation)
+     * than what we find in the catalog.
+     */
+    lazy val systemIdPath = if (systemIdUri != null && systemIdUri.getScheme == "file") {
+      systemIdUri.getPath
+    } else {
+      systemId
+    }
     val resolvedId = {
       if (resolvedSystem != null && resolvedSystem != resolvedUri) {
         resolvedSystem
       } else if (
         resolvedUri != null && ((systemId == null) || (systemId != null && resolvedUri.endsWith(
-          systemId
+          systemIdPath
         )))
       ) {
         resolvedUri
@@ -698,7 +727,8 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
 
         // We must use XMLReader setProperty() function to set the entity resolver--calling
         // setEntityResolver with the Xerces XML reader causes validation to fail for some
-        // reason. We call the right function below, but unfortunately, scala-xml calls
+        // reason (we get a "cvc-elt.1.a: Cannot find the declaration of element 'schema'" error).
+        // We call the right function below, but unfortunately, scala-xml calls
         // setEntityResolver in loadDocument(), which cannot be disabled and scala-xml does not
         // want to change. To avoid this, we wrap the Xerces XMLReader in an XMLFilterImpl and
         // override setEntityResolver to a no-op. However, XMLFilterImpl parse() calls
