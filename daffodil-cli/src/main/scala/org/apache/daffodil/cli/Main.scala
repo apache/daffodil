@@ -2005,6 +2005,10 @@ class Main(
           Logger.log.error(Misc.getSomeMessage(e).get)
           ExitCode.FileNotFound
         }
+        case e: java.nio.file.NoSuchFileException => {
+          Logger.log.error(Misc.getSomeMessage(e).get + " (No such file or directory)")
+          ExitCode.FileNotFound
+        }
         case e: ExternalVariableException => {
           Logger.log.error(Misc.getSomeMessage(e).get)
           ExitCode.BadExternalVariable

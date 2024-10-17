@@ -271,6 +271,17 @@ class TestCLIParsing {
     }(ExitCode.Success)
   }
 
+  @Test def test_CLI_Parsing_SimpleParse_inFileDoesNotExist(): Unit = {
+    val schema = path(
+      "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    )
+    val input = path("/does/not/exist/input.txt")
+
+    runCLI(args"parse -s $schema -r matrix $input") { cli =>
+      cli.expectErr(s"[error] $input (No such file or directory)")
+    }(ExitCode.FileNotFound)
+  }
+
   @Test def test_CLI_Parsing_SimpleParse_stOutDash(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
