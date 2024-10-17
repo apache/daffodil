@@ -139,7 +139,7 @@ used to develop Daffodil:
     brew install git
     brew install llvm # needed by iwyu
     brew install include-what-you-use
-    brew install libmxml
+    ~~brew install libmxml~~ # Install v3.3.1 from source; see https://github.com/michaelrsweet/mxml/tree/v3.3.1
     brew install openjdk
     brew install sbt
 
