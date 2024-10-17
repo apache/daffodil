@@ -278,7 +278,7 @@ object DaffodilCCodeGenerator
       case g: BinaryDouble => binaryFloatGenerateCode(g.e, lengthInBits = 64, cgState)
       case g: BinaryFloat => binaryFloatGenerateCode(g.e, lengthInBits = 32, cgState)
       case g: BinaryIntegerKnownLength =>
-        binaryIntegerKnownLengthGenerateCode(g.e, g.lengthInBits, g.signed, cgState)
+        binaryIntegerKnownLengthGenerateCode(g.e, g.lengthInBits, cgState)
       case g: CaptureContentLengthEnd => noop(g)
       case g: CaptureContentLengthStart => noop(g)
       case g: CaptureValueLengthEnd => noop(g)

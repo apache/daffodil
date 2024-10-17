@@ -36,12 +36,10 @@ import org.apache.daffodil.unparsers.runtime1.PackedIntegerRuntimeLengthUnparser
 
 class PackedIntegerRuntimeLength(
   val e: ElementBase,
-  signed: Boolean,
   packedSignCodes: PackedSignCodes
 ) extends Terminal(e, true) {
   override lazy val parser = new PackedIntegerRuntimeLengthParser(
     e.elementRuntimeData,
-    signed,
     packedSignCodes,
     e.lengthEv,
     e.lengthUnits
@@ -57,14 +55,12 @@ class PackedIntegerRuntimeLength(
 
 class PackedIntegerKnownLength(
   val e: ElementBase,
-  signed: Boolean,
   packedSignCodes: PackedSignCodes,
   lengthInBits: Long
 ) extends Terminal(e, true) {
 
   override lazy val parser = new PackedIntegerKnownLengthParser(
     e.elementRuntimeData,
-    signed,
     packedSignCodes,
     lengthInBits.toInt
   )
@@ -78,7 +74,6 @@ class PackedIntegerKnownLength(
 
 class PackedIntegerPrefixedLength(
   val e: ElementBase,
-  signed: Boolean,
   packedSignCodes: PackedSignCodes
 ) extends Terminal(e, true) {
 
@@ -86,7 +81,6 @@ class PackedIntegerPrefixedLength(
     e.elementRuntimeData,
     e.prefixedLengthBody.parser,
     e.prefixedLengthElementDecl.elementRuntimeData,
-    signed,
     packedSignCodes,
     e.lengthUnits,
     e.prefixedLengthAdjustmentInUnits

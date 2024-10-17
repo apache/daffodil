@@ -2521,7 +2521,7 @@
     <xs:element name="a" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="x" type="xs:int" dfdl:length="1" />
+          <xs:element name="x" type="xs:int" dfdl:length="2" />
           <xs:element name="y" dfdl:length="7" dfdl:encoding="X-DFDL-US-ASCII-7-BIT-PACKED" dfdl:bitOrder="leastSignificantBitFirst"> <!-- causes runtime sde -->
             <xs:simpleType>
               <xs:restriction base="xs:string">
@@ -2537,7 +2537,10 @@
   <tdml:parserTestCase name="runtimeSdeWithRestriction_1" root="a"
     model="runtimeSdeWithRestriction"
     validation="on">
-    <tdml:document>a</tdml:document>
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
+      <tdml:documentPart type="text">a</tdml:documentPart>
+    </tdml:document>
     <tdml:errors>
       <tdml:error>Runtime Schema Definition Error</tdml:error>
       <tdml:error>dfdl:bitOrder</tdml:error>
