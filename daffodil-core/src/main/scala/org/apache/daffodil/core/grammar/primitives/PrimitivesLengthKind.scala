@@ -287,8 +287,7 @@ case class BCDDecimalDelimitedEndOfData(e: ElementBase) extends BCDDecimalDelimi
   val isDelimRequired: Boolean = false
 }
 
-abstract class IBM4690PackedIntegerDelimited(e: ElementBase)
-  extends StringDelimited(e) {
+abstract class IBM4690PackedIntegerDelimited(e: ElementBase) extends StringDelimited(e) {
 
   override lazy val parser: DaffodilParser = new IBM4690PackedIntegerDelimitedParser(
     e.elementRuntimeData,

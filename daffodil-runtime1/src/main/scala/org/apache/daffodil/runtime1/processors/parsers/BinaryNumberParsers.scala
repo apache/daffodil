@@ -153,7 +153,7 @@ class BinaryIntegerPrefixedLengthParser(
 }
 
 abstract class BinaryIntegerBaseParser(
-  override val context: ElementRuntimeData,
+  override val context: ElementRuntimeData
 ) extends PrimParser {
   override lazy val runtimeDependencies = Vector()
 
@@ -164,12 +164,12 @@ abstract class BinaryIntegerBaseParser(
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     if (primNumeric.minWidth.isDefined) {
-      val isSigned = primNumeric.isSigned
-      val signedStr = if (isSigned) "signed" else "unsigned"
       val minWidth = primNumeric.minWidth.get
-      if(nBits < minWidth) {
+      if (nBits < minWidth) {
+        val isSigned = primNumeric.isSigned
+        val signedStr = if (isSigned) "a signed" else "an unsigned"
         val outOfRangeFmtStr =
-          "Minimum length for a %s binary integer is %d bit(s), number of bits %d out of range. " +
+          "Minimum length for %s binary integer is %d bit(s), number of bits %d out of range. " +
             "An unsigned integer with length 1 bit could be used instead."
         if (isSigned && start.tunable.allowSignedIntegerLength1Bit) {
           start.SDW(

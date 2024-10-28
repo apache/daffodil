@@ -896,7 +896,7 @@ trait ElementBaseGrammarMixin
   private lazy val packedSignCodes =
     PackedSignCodes(binaryPackedSignCodes, binaryNumberCheckPolicy)
 
-  private def binaryIntegerValue = {
+  private lazy val binaryIntegerValue = {
     //
     // Is it a single byte or smaller
     //

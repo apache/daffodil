@@ -534,7 +534,7 @@ object NodeInfo extends Enum {
     }
 
     trait PrimNumeric { self: Numeric.Kind =>
-      val isSigned: Boolean
+      def isSigned: Boolean
       def minWidth: MaybeInt
       def maxWidth: MaybeInt
       def isValid(n: Number): Boolean
@@ -693,7 +693,7 @@ object NodeInfo extends Enum {
         }
       }
       override val isSigned: Boolean = true
-      override val minWidth: MaybeInt = MaybeInt(2)
+      override val minWidth: MaybeInt = MaybeInt.Nope
       override val maxWidth: MaybeInt = MaybeInt.Nope
 
       override def isInteger = false
@@ -782,7 +782,7 @@ object NodeInfo extends Enum {
       override val min = JByte.MIN_VALUE.toLong
       override val max = JByte.MAX_VALUE.toLong
       override val isSigned: Boolean = true
-      override val minWidth: MaybeInt = MaybeInt(1)
+      override val minWidth: MaybeInt = MaybeInt(2)
       override val maxWidth: MaybeInt = MaybeInt(8)
     }
 

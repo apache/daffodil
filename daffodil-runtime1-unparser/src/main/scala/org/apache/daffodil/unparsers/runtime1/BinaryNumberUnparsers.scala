@@ -60,7 +60,6 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
     val dos = state.dataOutputStream
     val res = putNumber(dos, value, nBits, state)
 
-
     if (!res) {
       Assert.invariant(dos.maybeRelBitLimit0b.isDefined)
       UnparseError(
@@ -89,12 +88,12 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData)
   ): Boolean = {
     val state = finfo.asInstanceOf[UState]
     if (primNumeric.minWidth.isDefined) {
-      val isSigned = primNumeric.isSigned
-      val signedStr = if (isSigned) "signed" else "unsigned"
       val minWidth = primNumeric.minWidth.get
-      if(nBits < minWidth) {
+      if (nBits < minWidth) {
+        val isSigned = primNumeric.isSigned
+        val signedStr = if (isSigned) "a signed" else "an unsigned"
         val outOfRangeFmtStr =
-          "Minimum length for a %s binary integer is %d bit(s), number of bits %d out of range. " +
+          "Minimum length for %s binary integer is %d bit(s), number of bits %d out of range. " +
             "An unsigned integer with length 1 bit could be used instead."
         if (isSigned && state.tunable.allowSignedIntegerLength1Bit) {
           state.SDW(
@@ -104,7 +103,6 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData)
             minWidth,
             nBits
           )
-          return false
         } else {
           UE(
             state,
@@ -113,7 +111,6 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData)
             minWidth,
             nBits
           )
-          return false
         }
       }
     }
@@ -126,7 +123,6 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData)
           nBits,
           width
         )
-        return false
       }
     }
     if (nBits > 64) {
@@ -204,11 +200,7 @@ class BinaryFloatUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnparse
     nBits: Int,
     finfo: FormatInfo
   ): Boolean = {
-    if (nBits > 0) {
-      dos.putBinaryFloat(asFloat(value), finfo)
-    } else {
-      true
-    }
+    dos.putBinaryFloat(asFloat(value), finfo)
   }
 
 }
@@ -225,11 +217,7 @@ class BinaryDoubleUnparser(e: ElementRuntimeData) extends BinaryNumberBaseUnpars
     nBits: Int,
     finfo: FormatInfo
   ): Boolean = {
-    if (nBits > 0) {
-      dos.putBinaryDouble(asDouble(value), finfo)
-    } else {
-      true
-    }
+    dos.putBinaryDouble(asDouble(value), finfo)
   }
 }
 
@@ -320,7 +308,7 @@ abstract class BinaryDecimalUnparserBase(
     if (nBits > 0) {
       dos.putBigInt(asBigInt(value), nBits, signed == YesNo.Yes, finfo)
     } else {
-      true
+      false
     }
   }
 }

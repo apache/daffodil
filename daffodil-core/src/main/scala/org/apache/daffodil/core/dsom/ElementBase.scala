@@ -778,12 +778,12 @@ trait ElementBase
       primType match {
         case primNumeric: NodeInfo.PrimType.PrimNumeric =>
           if (primNumeric.minWidth.isDefined) {
-            val isSigned = primNumeric.isSigned
-            val signedStr = if (isSigned) "signed" else "unsigned"
             val minWidth = primNumeric.minWidth.get
-            if(nBits < minWidth) {
+            if (nBits < minWidth) {
+              val isSigned = primNumeric.isSigned
+              val signedStr = if (isSigned) "a signed" else "an unsigned"
               val outOfRangeFmtStr =
-                "Minimum length for a %s binary integer is %d bit(s), number of bits %d out of range. " +
+                "Minimum length for %s binary integer is %d bit(s), number of bits %d out of range. " +
                   "An unsigned integer with length 1 bit could be used instead."
               if (isSigned && tunable.allowSignedIntegerLength1Bit) {
                 SDW(

@@ -40,8 +40,7 @@ import org.apache.daffodil.unparsers.runtime1.BinaryIntegerKnownLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryIntegerPrefixedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryIntegerRuntimeLengthUnparser
 
-class BinaryIntegerRuntimeLength(val e: ElementBase)
-  extends Terminal(e, true) {
+class BinaryIntegerRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser = new BinaryIntegerRuntimeLengthParser(
     e.elementRuntimeData,
@@ -67,8 +66,7 @@ class BinaryIntegerKnownLength(val e: ElementBase, val lengthInBits: Long)
     new BinaryIntegerKnownLengthUnparser(e.elementRuntimeData, lengthInBits.toInt)
 }
 
-class BinaryIntegerPrefixedLength(val e: ElementBase)
-  extends Terminal(e, true) {
+class BinaryIntegerPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
 
   private lazy val erd = e.elementRuntimeData
   private lazy val plerd = e.prefixedLengthElementDecl.elementRuntimeData

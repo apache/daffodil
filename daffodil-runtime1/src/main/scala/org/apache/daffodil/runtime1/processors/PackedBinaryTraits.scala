@@ -70,7 +70,7 @@ abstract class PackedBinaryDecimalBaseParser(
 }
 
 abstract class PackedBinaryIntegerBaseParser(
-  override val context: ElementRuntimeData,
+  override val context: ElementRuntimeData
 ) extends PrimParser
   with PackedBinaryConversion {
   override lazy val runtimeDependencies = Vector()
@@ -78,6 +78,7 @@ abstract class PackedBinaryIntegerBaseParser(
   val signed = {
     context.optPrimType.get match {
       case n: NodeInfo.PrimType.PrimNumeric => n.isSigned
+      // context.optPrimType can be of type date/time via ConvertZonedCombinator
       case _ => false
     }
   }
@@ -85,7 +86,15 @@ abstract class PackedBinaryIntegerBaseParser(
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
-    if (nBits == 0) return // zero length is used for outputValueCalc often.
+    if (nBits == 0) {
+      PE(
+        start,
+        "Minimum length for an unsigned binary integer is 1 bit(s), number of bits %d out of range. " +
+          "An unsigned integer with length 1 bit could be used instead.",
+        nBits
+      )
+      return
+    }
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {

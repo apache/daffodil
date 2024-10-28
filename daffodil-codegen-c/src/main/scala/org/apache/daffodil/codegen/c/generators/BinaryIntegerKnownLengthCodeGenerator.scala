@@ -18,7 +18,7 @@
 package org.apache.daffodil.codegen.c.generators
 
 import org.apache.daffodil.core.dsom.ElementBase
-import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType.PrimNumeric
 
 trait BinaryIntegerKnownLengthCodeGenerator extends BinaryValueCodeGenerator {
 
@@ -35,10 +35,7 @@ trait BinaryIntegerKnownLengthCodeGenerator extends BinaryValueCodeGenerator {
       case n if n <= 64 => 64
       case _ => e.SDE("Binary integer lengths longer than 64 bits are not supported.")
     }
-    val signed = e.primType match {
-      case n: PrimType.PrimNumeric => n.isSigned
-      case _ => false
-    }
+    val signed = e.primType.asInstanceOf[PrimNumeric].isSigned
     val primType = if (signed) s"int$cLengthInBits" else s"uint$cLengthInBits"
     val addField = valueAddField(e, lengthInBits, primType, _, cgState)
     val validateFixed = valueValidateFixed(e, _, cgState)

@@ -203,6 +203,9 @@ class TestLengthKindExplicit {
   @Test def test_outOfRangeLengthBinaryInteger6(): Unit = {
     runner.runOneTest("outOfRangeLengthBinaryInteger6")
   }
+  @Test def test_outOfRangeLengthBinaryInteger7(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger7")
+  }
   @Test def test_inRangeLengthBinaryInteger1(): Unit = {
     runner.runOneTest("inRangeLengthBinaryInteger1")
   }
@@ -214,5 +217,14 @@ class TestLengthKindExplicit {
   }
   @Test def test_inRangeLengthBinaryInteger4(): Unit = {
     runner.runOneTest("inRangeLengthBinaryInteger4")
+  }
+  @Test def test_inRangeLengthBinaryInteger5(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger5")
+  }
+  @Test def test_inRangeLengthBinaryInteger6(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger6")
+  }
+  @Test def test_inRangeLengthBinaryInteger7(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger7")
   }
 }
