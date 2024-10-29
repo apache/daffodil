@@ -72,13 +72,21 @@ trait ElementBaseGrammarMixin
     }
   }
 
-  protected lazy val isDelimitedPrefixedPattern = {
+  protected lazy val isPrefixed: Boolean = {
+    import LengthKind._
+    lengthKind match {
+      case Prefixed => true
+      case _ => false
+    }
+  }
+
+  protected lazy val isDelimitedPrefixedPattern: Boolean = {
     import LengthKind._
     lengthKind match {
       case Delimited =>
         true // don't test for hasDelimiters because it might not be our delimiter, but a surrounding group's separator, or it's terminator, etc.
       case Pattern => true
-      case Prefixed => true
+      case Prefixed => isPrefixed
       case _ => false
     }
   }
@@ -474,12 +482,16 @@ trait ElementBaseGrammarMixin
     lazy val leftPadding = leftPaddingArg
     lazy val rightPadFill = rightPadFillArg
     lazy val body = bodyArg
-    CaptureContentLengthStart(this) ~
-      leftPadding ~
-      CaptureValueLengthStart(this) ~
-      body ~
-      CaptureValueLengthEnd(this) ~
-      rightPadFill ~
+    specifiedLength(
+      CaptureContentLengthStart(this) ~
+        leftPadding ~
+        CaptureValueLengthStart(this) ~
+        body ~
+        CaptureValueLengthEnd(this) ~
+        rightPadFill
+    ) ~
+      // CaptureContentLengthEnd must be outside the specified length so it can
+      // do any skipping of bits it needs to before capturing the end of content length
       CaptureContentLengthEnd(this)
   }
 
@@ -623,14 +635,14 @@ trait ElementBaseGrammarMixin
 
   private lazy val stringPrim = {
     lengthKind match {
-      case LengthKind.Explicit => specifiedLength(StringOfSpecifiedLength(this))
-      case LengthKind.Prefixed => specifiedLength(StringOfSpecifiedLength(this))
+      case LengthKind.Explicit => StringOfSpecifiedLength(this)
+      case LengthKind.Prefixed => StringOfSpecifiedLength(this)
       case LengthKind.Delimited => stringDelimitedEndOfData
-      case LengthKind.Pattern => specifiedLength(StringOfSpecifiedLength(this))
+      case LengthKind.Pattern => StringOfSpecifiedLength(this)
       case LengthKind.Implicit => {
         val pt = this.simpleType.primType
         Assert.invariant(pt == PrimType.String)
-        specifiedLength(StringOfSpecifiedLength(this))
+        StringOfSpecifiedLength(this)
       }
       case LengthKind.EndOfParent if isComplexType =>
         notYetImplemented("lengthKind='endOfParent' for complex type")
@@ -645,7 +657,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val hexBinaryLengthPattern = prod("hexBinaryLengthPattern") {
-    new SpecifiedLengthPattern(this, new HexBinaryEndOfBitLimit(this))
+    new HexBinaryEndOfBitLimit(this)
   }
 
   private lazy val hexBinaryLengthPrefixed = prod("hexBinaryLengthPrefixed") {
@@ -1226,7 +1238,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val nilLitSimple = prod("nilLitSimple", isSimpleType) {
-    captureLengthRegions(leftPadding, specifiedLength(nilLitContent), rightPadding ~ rightFill)
+    captureLengthRegions(leftPadding, nilLitContent, rightPadding ~ rightFill)
   }
 
   private lazy val nilLitComplex = prod("nilLitComplex", isComplexType) {
@@ -1329,7 +1341,10 @@ trait ElementBaseGrammarMixin
    * as well, by not enclosing the body in a specified length enforcer.
    */
   private def specifiedLength(bodyArg: => Gram) = {
-    lazy val body = bodyArg
+    // we need this to evaluate before we wrap in specified length parser,
+    // so it can do any internal checks for example blobValue's check for
+    // non-explicit lengthKind
+    val body = bodyArg
     lazy val bitsMultiplier = lengthUnits match {
       case LengthUnits.Bits => 1
       case LengthUnits.Bytes => 8
@@ -1341,7 +1356,13 @@ trait ElementBaseGrammarMixin
       case LengthKind.Delimited => body
       case LengthKind.Pattern => new SpecifiedLengthPattern(this, body)
       case LengthKind.Explicit if bitsMultiplier != 0 =>
-        new SpecifiedLengthExplicit(this, body, bitsMultiplier)
+        if (isSimpleType && primType == PrimType.HexBinary) {
+          // hexBinary has some checks that need to be done that SpecifiedLengthExplicit
+          // gets in the way of
+          body
+        } else {
+          new SpecifiedLengthExplicit(this, body, bitsMultiplier)
+        }
       case LengthKind.Explicit => {
         Assert.invariant(!knownEncodingIsFixedWidth)
         Assert.invariant(lengthUnits eq LengthUnits.Characters)
@@ -1403,7 +1424,7 @@ trait ElementBaseGrammarMixin
   private lazy val sharedComplexContentRegion: Gram =
     schemaSet.sharedComplexContentFactory.getShared(
       shareKey,
-      captureLengthRegions(EmptyGram, specifiedLength(complexContent), elementUnused) ~
+      captureLengthRegions(EmptyGram, complexContent, elementUnused) ~
         terminatorRegion
     )
 

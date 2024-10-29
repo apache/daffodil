@@ -27,7 +27,6 @@ import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.Processor
 
 class BinaryFloatParser(override val context: ElementRuntimeData) extends PrimParser {
   override lazy val runtimeDependencies = Vector()
@@ -80,21 +79,10 @@ class BinaryDecimalRuntimeLengthParser(
 
 class BinaryDecimalPrefixedLengthParser(
   e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
   signed: YesNo,
-  binaryDecimalVirtualPoint: Int,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
+  binaryDecimalVirtualPoint: Int
 ) extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
-  with PrefixedLengthParserMixin {
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
-}
+  with PrefixedLengthParserMixin2
 
 abstract class BinaryDecimalParserBase(
   override val context: ElementRuntimeData,
@@ -137,22 +125,9 @@ class BinaryIntegerKnownLengthParser(
 ) extends BinaryIntegerBaseParser(e, signed)
   with HasKnownLengthInBits {}
 
-class BinaryIntegerPrefixedLengthParser(
-  e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
-  signed: Boolean,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
-) extends BinaryIntegerBaseParser(e, signed)
-  with PrefixedLengthParserMixin {
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
-}
+class BinaryIntegerPrefixedLengthParser(e: ElementRuntimeData, signed: Boolean)
+  extends BinaryIntegerBaseParser(e, signed)
+  with PrefixedLengthParserMixin2
 
 abstract class BinaryIntegerBaseParser(
   override val context: ElementRuntimeData,
@@ -169,13 +144,15 @@ abstract class BinaryIntegerBaseParser(
     if (nBits == 0) return // zero length is used for outputValueCalc often.
     if (primNumeric.width.isDefined) {
       val width = primNumeric.width.get
-      if (nBits > width)
+      if (nBits > width) {
         PE(
           start,
           "Number of bits %d out of range, must be between 1 and %d bits.",
           nBits,
           width
         )
+        return
+      }
     }
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {

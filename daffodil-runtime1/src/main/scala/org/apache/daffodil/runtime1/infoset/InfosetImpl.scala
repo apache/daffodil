@@ -733,6 +733,10 @@ sealed abstract class LengthState(ie: DIElement) {
   }
 
   def setAbsStartPos0bInBits(absPosInBits0b: ULong): Unit = {
+    Assert.invariant(
+      maybeStartPos0bInBits.isEmpty,
+      s"maybeStartPos0bInBits already has a value: $maybeStartPos0bInBits"
+    )
     maybeStartPos0bInBits = MaybeULong(absPosInBits0b.longValue)
     maybeStartDataOutputStream = Nope
   }
@@ -743,6 +747,10 @@ sealed abstract class LengthState(ie: DIElement) {
   }
 
   def setAbsEndPos0bInBits(absPosInBits0b: ULong): Unit = {
+    Assert.invariant(
+      maybeEndPos0bInBits.isEmpty,
+      s"maybeEndPos0bInBits already has a value: $maybeEndPos0bInBits"
+    )
     maybeEndPos0bInBits = MaybeULong(absPosInBits0b.longValue)
     maybeEndDataOutputStream = Nope
   }

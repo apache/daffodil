@@ -59,6 +59,7 @@ import org.apache.daffodil.core.grammar.primitives.RightFill
 import org.apache.daffodil.core.grammar.primitives.ScalarOrderedSequenceChild
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthExplicit
 import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthImplicit
+import org.apache.daffodil.core.grammar.primitives.SpecifiedLengthPrefixed
 import org.apache.daffodil.lib.api.Diagnostic
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.FailureType
@@ -301,6 +302,7 @@ object DaffodilCCodeGenerator
       case g: SeqComp => seqCompGenerateCode(g, cgState)
       case g: SpecifiedLengthExplicit => specifiedLengthExplicit(g, cgState)
       case g: SpecifiedLengthImplicit => specifiedLengthImplicit(g, cgState)
+      case g: SpecifiedLengthPrefixed => specifiedLengthPrefixed(g, cgState)
       case _ => gram.SDE("Code generation not supported for: %s", Misc.getNameFromClass(gram))
     }
   }
@@ -405,6 +407,13 @@ object DaffodilCCodeGenerator
 
   private def specifiedLengthImplicit(
     g: SpecifiedLengthImplicit,
+    cgState: CodeGeneratorState
+  ): Unit = {
+    DaffodilCCodeGenerator.generateCode(g.eGram, cgState)
+  }
+
+  private def specifiedLengthPrefixed(
+    g: SpecifiedLengthPrefixed,
     cgState: CodeGeneratorState
   ): Unit = {
     DaffodilCCodeGenerator.generateCode(g.eGram, cgState)

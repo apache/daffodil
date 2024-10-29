@@ -48,21 +48,15 @@ class BinaryBoolean(val e: ElementBase) extends Terminal(e, true) {
 class BinaryBooleanPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
   override lazy val parser = new BinaryBooleanPrefixedLengthParser(
     e.elementRuntimeData,
-    e.prefixedLengthBody.parser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
     e.binaryBooleanTrueRep,
     e.binaryBooleanFalseRep,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
+    e.lengthUnits
   )
 
   override lazy val unparser: Unparser = new BinaryBooleanPrefixedLengthUnparser(
     e.elementRuntimeData,
-    e.prefixedLengthBody.unparser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
     e.binaryBooleanTrueRep,
     e.binaryBooleanFalseRep,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
+    e.lengthUnits
   )
 }

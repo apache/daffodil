@@ -52,20 +52,10 @@ class BCDIntegerKnownLength(val e: ElementBase, lengthInBits: Long) extends Term
 
 class BCDIntegerPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
 
-  override lazy val parser = new BCDIntegerPrefixedLengthParser(
-    e.elementRuntimeData,
-    e.prefixedLengthBody.parser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
-  )
+  override lazy val parser = new BCDIntegerPrefixedLengthParser(e.elementRuntimeData)
 
   override lazy val unparser: Unparser = new BCDIntegerPrefixedLengthUnparser(
-    e.elementRuntimeData,
-    e.prefixedLengthBody.unparser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
+    e.elementRuntimeData
   )
 }
 
@@ -102,21 +92,9 @@ class BCDDecimalKnownLength(val e: ElementBase, lengthInBits: Long) extends Term
 
 class BCDDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
 
-  override lazy val parser = new BCDDecimalPrefixedLengthParser(
-    e.elementRuntimeData,
-    e.prefixedLengthBody.parser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
-    e.binaryDecimalVirtualPoint,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
-  )
+  override lazy val parser =
+    new BCDDecimalPrefixedLengthParser(e.elementRuntimeData, e.binaryDecimalVirtualPoint)
 
-  override lazy val unparser: Unparser = new BCDDecimalPrefixedLengthUnparser(
-    e.elementRuntimeData,
-    e.prefixedLengthBody.unparser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
-    e.binaryDecimalVirtualPoint,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
-  )
+  override lazy val unparser: Unparser =
+    new BCDDecimalPrefixedLengthUnparser(e.elementRuntimeData, e.binaryDecimalVirtualPoint)
 }

@@ -24,7 +24,7 @@
   xmlns:ex="http://example.com"
   xmlns:tns="http://example.com"
   xmlns:dfdlx="http://www.ogf.org/dfdl/dfdl-1.0/extensions"
-  defaultRoundTrip="onePass" xmlns:x="http://www.ogf.org/dfdl/dfdl-1.0/">
+  defaultRoundTrip="onePass">
 
   <tdml:defineSchema name="lengthKindPrefixed-text.dfdl.xsd">
 
@@ -2347,6 +2347,28 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="root9">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" dfdl:lengthKind="prefixed"
+              dfdl:prefixLengthType="ex:prefixType2"
+              dfdl:textTrimKind="padChar"
+              dfdl:textPadKind="padChar"
+              dfdl:textStringPadCharacter="%SP;"
+              dfdl:textStringJustification="center">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:minLength value="7"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="e" type="xs:int"
+              dfdl:inputValueCalc='{ dfdl:valueLength(../s, "bytes") }'>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="pl_implicit_1"
@@ -2444,11 +2466,8 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- This will not roundtrip due to DAFFODIL-2943, which incorrectly pads around the prefix length.
-  Once that is fixed, we should roundtrip this test-->
   <tdml:parserTestCase name="pl_simpleValueLengthBytes_1"
-                       model="lengthKindPrefixed-2"
-                       roundTrip="none">
+                       model="lengthKindPrefixed-2">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 0B</tdml:documentPart>
       <tdml:documentPart type="text">  ABC  </tdml:documentPart>
@@ -2464,7 +2483,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="pl_simpleValueLengthBytes_2"
-                       model="lengthKindPrefixed-2" roundTrip="onePass">
+                       model="lengthKindPrefixed-2">
     <tdml:document>
       <tdml:documentPart type="text">  ABC  </tdml:documentPart>
     </tdml:document>
@@ -2474,6 +2493,22 @@
           <s>ABC</s>
           <e>3</e>
         </ex:root8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pl_simpleValueLengthBytes_3"
+      model="lengthKindPrefixed-2">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 0B</tdml:documentPart>
+      <tdml:documentPart type="text">  ABC  </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root9>
+          <s>ABC</s>
+          <e>3</e>
+        </ex:root9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2619,7 +2654,7 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="lengthUnitsBitsForNonNegativeInteger_prefixed" root="r1" model="lengthUnitsBitsForNonNegativeInteger_prefixed"
-                       ignoreUnexpectedWarnings="false">
+      ignoreUnexpectedWarnings="false">
   <tdml:document>
       <tdml:documentPart type="byte">08 ff</tdml:documentPart>
     </tdml:document>
@@ -2980,7 +3015,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>failed check</tdml:error>
-      <tdml:error>field1 (6)</tdml:error>
+      <tdml:error>field1 (prefixLength) (6)</tdml:error>
       <tdml:error>facet maxInclusive (4)</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>

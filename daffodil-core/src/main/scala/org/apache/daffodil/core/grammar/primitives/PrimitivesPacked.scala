@@ -82,24 +82,11 @@ class PackedIntegerPrefixedLength(
   packedSignCodes: PackedSignCodes
 ) extends Terminal(e, true) {
 
-  override lazy val parser = new PackedIntegerPrefixedLengthParser(
-    e.elementRuntimeData,
-    e.prefixedLengthBody.parser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
-    signed,
-    packedSignCodes,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
-  )
+  override lazy val parser =
+    new PackedIntegerPrefixedLengthParser(e.elementRuntimeData, signed, packedSignCodes)
 
-  override lazy val unparser: Unparser = new PackedIntegerPrefixedLengthUnparser(
-    e.elementRuntimeData,
-    e.prefixedLengthBody.unparser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
-    packedSignCodes,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
-  )
+  override lazy val unparser: Unparser =
+    new PackedIntegerPrefixedLengthUnparser(e.elementRuntimeData, packedSignCodes)
 }
 
 class PackedDecimalRuntimeLength(val e: ElementBase, packedSignCodes: PackedSignCodes)
@@ -147,21 +134,13 @@ class PackedDecimalPrefixedLength(val e: ElementBase, packedSignCodes: PackedSig
 
   override lazy val parser = new PackedDecimalPrefixedLengthParser(
     e.elementRuntimeData,
-    e.prefixedLengthBody.parser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
-    packedSignCodes,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
+    packedSignCodes
   )
 
   override lazy val unparser: Unparser = new PackedDecimalPrefixedLengthUnparser(
     e.elementRuntimeData,
-    e.prefixedLengthBody.unparser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
     e.binaryDecimalVirtualPoint,
-    packedSignCodes,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
+    packedSignCodes
   )
 }

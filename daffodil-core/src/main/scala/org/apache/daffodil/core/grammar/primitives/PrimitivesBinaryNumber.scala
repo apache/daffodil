@@ -77,14 +77,7 @@ class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
   private lazy val pladj = e.prefixedLengthAdjustmentInUnits
 
   override lazy val parser =
-    new BinaryIntegerPrefixedLengthParser(
-      erd,
-      e.prefixedLengthBody.parser,
-      plerd,
-      signed,
-      e.lengthUnits,
-      pladj
-    )
+    new BinaryIntegerPrefixedLengthParser(erd, signed)
 
   override lazy val unparser: Unparser = {
     val maybeNBits = e.primType match {
@@ -96,15 +89,7 @@ class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
       case _ =>
         Assert.invariantFailed("Only integer base types should be used for this primitive")
     }
-    new BinaryIntegerPrefixedLengthUnparser(
-      erd,
-      e.prefixedLengthBody.unparser,
-      plerd,
-      maybeNBits,
-      signed,
-      e.lengthUnits,
-      pladj
-    )
+    new BinaryIntegerPrefixedLengthUnparser(erd, maybeNBits, signed)
   }
 }
 
@@ -151,23 +136,15 @@ class BinaryDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) 
   override lazy val parser =
     new BinaryDecimalPrefixedLengthParser(
       e.elementRuntimeData,
-      e.prefixedLengthBody.parser,
-      e.prefixedLengthElementDecl.elementRuntimeData,
       e.decimalSigned,
-      e.binaryDecimalVirtualPoint,
-      e.lengthUnits,
-      e.prefixedLengthAdjustmentInUnits
+      e.binaryDecimalVirtualPoint
     )
 
   override lazy val unparser: Unparser =
     new BinaryDecimalPrefixedLengthUnparser(
       e.elementRuntimeData,
-      e.prefixedLengthBody.unparser,
-      e.prefixedLengthElementDecl.elementRuntimeData,
       e.decimalSigned,
-      e.binaryDecimalVirtualPoint,
-      e.lengthUnits,
-      e.prefixedLengthAdjustmentInUnits
+      e.binaryDecimalVirtualPoint
     )
 
 }
