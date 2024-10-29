@@ -23,6 +23,7 @@ import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo.Yes
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
@@ -108,6 +109,32 @@ abstract class BinaryDecimalParserBase(
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
+    val isSigned = signed == Yes
+    val minWidth = if (isSigned) 2 else 1
+    if (nBits < minWidth) {
+      val signedStr = if (isSigned) "a signed" else "an unsigned"
+      val outOfRangeFmtStr =
+        "Minimum length for %s binary decimal is %d bit(s), number of bits %d out of range. " +
+          "An unsigned decimal with length 1 bit could be used instead."
+      if (isSigned && start.tunable.allowSignedIntegerLength1Bit && nBits == 1) {
+        start.SDW(
+          WarnID.SignedBinaryIntegerLength1Bit,
+          outOfRangeFmtStr,
+          signedStr,
+          minWidth,
+          nBits
+        )
+      } else {
+        PE(
+          start,
+          outOfRangeFmtStr,
+          signedStr,
+          minWidth,
+          nBits
+        )
+        return
+      }
+    }
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
       PENotEnoughBits(start, nBits, dis)
@@ -171,7 +198,7 @@ abstract class BinaryIntegerBaseParser(
         val outOfRangeFmtStr =
           "Minimum length for %s binary integer is %d bit(s), number of bits %d out of range. " +
             "An unsigned integer with length 1 bit could be used instead."
-        if (isSigned && start.tunable.allowSignedIntegerLength1Bit) {
+        if (isSigned && start.tunable.allowSignedIntegerLength1Bit && nBits == 1) {
           start.SDW(
             WarnID.SignedBinaryIntegerLength1Bit,
             outOfRangeFmtStr,

@@ -785,7 +785,7 @@ trait ElementBase
               val outOfRangeFmtStr =
                 "Minimum length for %s binary integer is %d bit(s), number of bits %d out of range. " +
                   "An unsigned integer with length 1 bit could be used instead."
-              if (isSigned && tunable.allowSignedIntegerLength1Bit) {
+              if (isSigned && tunable.allowSignedIntegerLength1Bit && nBits == 1) {
                 SDW(
                   WarnID.SignedBinaryIntegerLength1Bit,
                   outOfRangeFmtStr,

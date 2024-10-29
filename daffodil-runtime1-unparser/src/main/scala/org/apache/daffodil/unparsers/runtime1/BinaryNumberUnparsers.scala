@@ -25,6 +25,7 @@ import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo.Yes
 import org.apache.daffodil.lib.util.Maybe._
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.lib.util.Numbers._
@@ -95,7 +96,7 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData)
         val outOfRangeFmtStr =
           "Minimum length for %s binary integer is %d bit(s), number of bits %d out of range. " +
             "An unsigned integer with length 1 bit could be used instead."
-        if (isSigned && state.tunable.allowSignedIntegerLength1Bit) {
+        if (isSigned && state.tunable.allowSignedIntegerLength1Bit && nBits == 1) {
           state.SDW(
             WarnID.SignedBinaryIntegerLength1Bit,
             outOfRangeFmtStr,
@@ -305,10 +306,32 @@ abstract class BinaryDecimalUnparserBase(
     nBits: Int,
     finfo: FormatInfo
   ): Boolean = {
-    if (nBits > 0) {
-      dos.putBigInt(asBigInt(value), nBits, signed == YesNo.Yes, finfo)
-    } else {
-      false
+    val state = finfo.asInstanceOf[UState]
+    val isSigned = signed == Yes
+    val minWidth = if (isSigned) 2 else 1
+    if (nBits < minWidth) {
+      val signedStr = if (isSigned) "a signed" else "an unsigned"
+      val outOfRangeFmtStr =
+        "Minimum length for %s binary decimal is %d bit(s), number of bits %d out of range. " +
+          "An unsigned decimal with length 1 bit could be used instead."
+      if (isSigned && state.tunable.allowSignedIntegerLength1Bit && nBits == 1) {
+        state.SDW(
+          WarnID.SignedBinaryIntegerLength1Bit,
+          outOfRangeFmtStr,
+          signedStr,
+          minWidth,
+          nBits
+        )
+      } else {
+        UE(
+          state,
+          outOfRangeFmtStr,
+          signedStr,
+          minWidth,
+          nBits
+        )
+      }
     }
+    dos.putBigInt(asBigInt(value), nBits, signed == YesNo.Yes, finfo)
   }
 }
