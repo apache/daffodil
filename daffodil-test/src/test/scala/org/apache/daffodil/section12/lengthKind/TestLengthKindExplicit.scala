@@ -212,6 +212,18 @@ class TestLengthKindExplicit {
   @Test def test_outOfRangeLengthBinaryInteger9(): Unit = {
     runner.runOneTest("outOfRangeLengthBinaryInteger9")
   }
+  @Test def test_outOfRangeLengthBinaryInteger10(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger10")
+  }
+  @Test def test_outOfRangeLengthBinaryInteger11(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger11")
+  }
+  @Test def test_outOfRangeLengthBinaryInteger12(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger12")
+  }
+  @Test def test_outOfRangeLengthBinaryInteger13(): Unit = {
+    runner.runOneTest("outOfRangeLengthBinaryInteger13")
+  }
   @Test def test_inRangeLengthBinaryInteger1(): Unit = {
     runner.runOneTest("inRangeLengthBinaryInteger1")
   }
@@ -232,6 +244,12 @@ class TestLengthKindExplicit {
   }
   @Test def test_inRangeLengthBinaryInteger7(): Unit = {
     runner.runOneTest("inRangeLengthBinaryInteger7")
+  }
+  @Test def test_inRangeLengthBinaryInteger8(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger8")
+  }
+  @Test def test_inRangeLengthBinaryInteger9(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger9")
   }
   @Test def test_outOfRangeLengthBinaryDecimal1(): Unit = {
     runner.runOneTest("outOfRangeLengthBinaryDecimal1")

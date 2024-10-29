@@ -1585,7 +1585,7 @@
     <xs:element name="packed1">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="len" type="xs:unsignedByte" dfdl:lengthUnits="bytes" dfdl:inputValueCalc="{ 2 }"/>
+          <xs:element name="len" type="xs:unsignedByte" dfdl:lengthUnits="bytes"/>
           <xs:element name="e1" dfdl:binaryNumberRep="packed" type="xs:int"
               dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../ex:len }"
               dfdl:binaryPackedSignCodes="C D F C"/>
@@ -1596,8 +1596,28 @@
     <xs:element name="packed2">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="len" type="xs:unsignedByte" dfdl:lengthUnits="bytes" dfdl:inputValueCalc="{ 2 }"/>
+          <xs:element name="len" type="xs:unsignedByte" dfdl:lengthUnits="bytes"/>
           <xs:element name="e1" dfdl:binaryNumberRep="ibm4690Packed" type="xs:int"
+              dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../ex:len }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="packed3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedByte" dfdl:lengthUnits="bytes"/>
+          <xs:element name="e1" dfdl:binaryNumberRep="packed" type="xs:unsignedInt"
+              dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../ex:len }"
+              dfdl:binaryPackedSignCodes="C D F C"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="packed4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedByte" dfdl:lengthUnits="bytes"/>
+          <xs:element name="e1" dfdl:binaryNumberRep="ibm4690Packed" type="xs:unsignedInt"
               dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../ex:len }"/>
         </xs:sequence>
       </xs:complexType>
@@ -1773,6 +1793,62 @@
     </tdml:warnings>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="outOfRangeLengthBinaryInteger10" root="packed1" model="BinaryIntegers"
+      description="packed signed explicit binary integer"
+      ignoreUnexpectedWarnings="false">
+    <tdml:document>
+      <tdml:documentPart type="byte">00123C</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>signed binary integer</tdml:error>
+      <tdml:error>2 bit(s)</tdml:error>
+      <tdml:error>0 out of range</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="outOfRangeLengthBinaryInteger11" root="packed2" model="BinaryIntegers"
+      description="ibm4690 packed signed explicit binary integer"
+      ignoreUnexpectedWarnings="false">
+    <tdml:document>
+      <tdml:documentPart type="byte">001088</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>signed binary integer</tdml:error>
+      <tdml:error>2 bit(s)</tdml:error>
+      <tdml:error>0 out of range</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="outOfRangeLengthBinaryInteger12" root="packed3" model="BinaryIntegers"
+      description="packed unsigned explicit binary integer"
+      ignoreUnexpectedWarnings="false">
+    <tdml:document>
+      <tdml:documentPart type="byte">00123C</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>unsigned binary integer</tdml:error>
+      <tdml:error>1 bit(s)</tdml:error>
+      <tdml:error>0 out of range</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="outOfRangeLengthBinaryInteger13" root="packed4" model="BinaryIntegers"
+      description="ibm4690 packed signed explicit binary integer"
+      ignoreUnexpectedWarnings="false">
+    <tdml:document>
+      <tdml:documentPart type="byte">001088</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>unsigned binary integer</tdml:error>
+      <tdml:error>1 bit(s)</tdml:error>
+      <tdml:error>0 out of range</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="inRangeLengthBinaryInteger1" root="spare2" model="BinaryIntegers"
                        description="No Parse Error when attempting to use in range unsigned binary integer">
     <tdml:document>
@@ -1801,36 +1877,32 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:unparserTestCase name="inRangeLengthBinaryInteger3" root="spare7" model="BinaryIntegers"
-                       description="No Unparse Error when attempting to use in range signed binary integer">
+  <tdml:unparserTestCase name="inRangeLengthBinaryInteger3" root="spare4" model="BinaryIntegers"
+      description="No Unparse Error when attempting to use in range signed binary integer">
     <tdml:document>
-      <tdml:documentPart type="byte">02</tdml:documentPart>
-      <tdml:documentPart type="bits">11</tdml:documentPart>
+      <tdml:documentPart type="bits">
+        11
+      </tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:spare7>
-          <ex:len>2</ex:len>
-          <ex:e1>-1</ex:e1>
-        </ex:spare7>
+        <ex:spare4>-1</ex:spare4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="inRangeLengthBinaryInteger4" root="spare6" model="BinaryIntegers"
-                       description="No Unparse Error when attempting to use in range unsigned binary integer">
+  <tdml:unparserTestCase name="inRangeLengthBinaryInteger4" root="spare2" model="BinaryIntegers"
+      description="No Unparse Error when attempting to use in range unsigned binary integer">
+    <tdml:document>
+      <tdml:documentPart type="bits">
+        1
+      </tdml:documentPart>
+    </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:spare6>
-          <ex:len>1</ex:len>
-          <ex:e1>1</ex:e1>
-        </ex:spare6>
+        <ex:spare2>1</ex:spare2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>
-      <tdml:documentPart type="byte">01</tdml:documentPart>
-      <tdml:documentPart type="bits">1</tdml:documentPart>
-    </tdml:document>
   </tdml:unparserTestCase>
 
   <tdml:unparserTestCase name="inRangeLengthBinaryInteger5" root="spare7" model="BinaryIntegers"
@@ -1854,7 +1926,7 @@
       description="packed explicit binary integer"
       ignoreUnexpectedWarnings="false">
     <tdml:document>
-      <tdml:documentPart type="byte">123C</tdml:documentPart>
+      <tdml:documentPart type="byte">02123C</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1870,7 +1942,7 @@
       description="ibm4690 packed explicit binary integer"
       ignoreUnexpectedWarnings="false">
     <tdml:document>
-      <tdml:documentPart type="byte">1088</tdml:documentPart>
+      <tdml:documentPart type="byte">021088</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1881,6 +1953,38 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="inRangeLengthBinaryInteger8" root="spare7" model="BinaryIntegers"
+      description="No Unparse Error when attempting to use in range signed binary integer">
+    <tdml:document>
+      <tdml:documentPart type="byte">02</tdml:documentPart>
+      <tdml:documentPart type="bits">11</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:spare7>
+          <ex:len>2</ex:len>
+          <ex:e1>-1</ex:e1>
+        </ex:spare7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="inRangeLengthBinaryInteger9" root="spare6" model="BinaryIntegers"
+      description="No Unparse Error when attempting to use in range unsigned binary integer">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:spare6>
+          <ex:len>1</ex:len>
+          <ex:e1>1</ex:e1>
+        </ex:spare6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte">01</tdml:documentPart>
+      <tdml:documentPart type="bits">1</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
   <tdml:defineSchema name="BinaryDecimals">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>

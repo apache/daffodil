@@ -52,7 +52,15 @@ abstract class PackedBinaryDecimalBaseParser(
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
-    if (nBits == 0) return // zero length is used for outputValueCalc often.
+    if (nBits == 0) {
+      PE(
+        start,
+        "Number of bits %d out of range for a binary decimal. " +
+          "An unsigned decimal with length 1 bit could be used instead.",
+        nBits
+      )
+      return
+    }
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {
@@ -87,10 +95,14 @@ abstract class PackedBinaryIntegerBaseParser(
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     if (nBits == 0) {
+      val signedStr = if (signed) "a signed" else "an unsigned"
+      val minWidth = if (signed) 2 else 1
       PE(
         start,
-        "Minimum length for an unsigned binary integer is 1 bit(s), number of bits %d out of range. " +
+        "Minimum length for %s binary integer is %d bit(s), number of bits %d out of range. " +
           "An unsigned integer with length 1 bit could be used instead.",
+        signedStr,
+        minWidth,
         nBits
       )
       return
