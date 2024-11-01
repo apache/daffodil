@@ -325,7 +325,7 @@
     <xs:element name="dateTimeBinBCD2" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyhhmmss" dfdl:calendarPatternKind="explicit"
       dfdl:lengthKind="implicit" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
     <xs:element name="dateTimeBinBCD3" type="xs:dateTime" dfdl:calendarPattern="MMddyyyyhhmmss" dfdl:calendarPatternKind="explicit"
-      dfdl:lengthKind="explicit" dfdl:length="{ 7 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd"/>
+      dfdl:lengthKind="explicit" dfdl:length="{ 7 }" dfdl:lengthUnits="bytes" dfdl:binaryCalendarRep="bcd" dfdl:calendarCheckPolicy="lax"/>
 
     <xs:element name="dateTimeBinBCD4">
       <xs:complexType>
@@ -5102,7 +5102,7 @@
                 dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter="d" dfdl:lengthKind="delimited" />
 
     <xs:element name="date12" type="ex:explicDate" dfdl:calendarPattern="dd MM yyyy, HH:mm:ss"/>
-    <xs:element name="date13" type="ex:explicDate" dfdl:calendarPattern="MM-dd-yyyy G"/>
+    <xs:element name="date13" type="ex:explicDate" dfdl:calendarPattern="MM-dd-yyyy G" dfdl:calendarCheckPolicy="lax"/>
     <xs:element name="date14" type="ex:explicDate" dfdl:calendarPattern="Q yyyy"/>
     <xs:element name="date15" type="ex:explicDate" dfdl:calendarPattern="D yyyy"/>
     <xs:element name="date16" type="ex:explicDate" dfdl:calendarPattern="F MM yyyy"/>
@@ -5145,7 +5145,9 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
+
+    <xs:element name="date35" type="xs:date" dfdl:calendarCheckPolicy="strict" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MMM dd yyyy" dfdl:lengthKind="explicit" dfdl:length="12" />
+
     <xs:simpleType name="explicDate" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited">
       <xs:restriction base="xs:date"/>
     </xs:simpleType>
@@ -5216,7 +5218,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
+    <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="lax"/>
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
                 dfdl:lengthKind="explicit" dfdl:length="44" 
                 dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar"/>
@@ -6283,7 +6285,19 @@
 
     <tdml:document><![CDATA[2001-03-35]]></tdml:document>
     <tdml:errors>
-      <tdml:error/>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>2001-03-35</tdml:error>
+      <tdml:error>valid range</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dateStrictCheckPolicy02" root="date35"
+    model="dateTimeSchema" description="Section 13 Simple Types - calendarCheckPolicy - DFDL-13-139R">
+
+    <tdml:document><![CDATA[Mar. 31 2001]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>Mar. 31 2001</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -6299,7 +6313,9 @@
 
     <tdml:document><![CDATA[13:99:50-0800]]></tdml:document>
     <tdml:errors>
-      <tdml:error/>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>13:99:50-0800</tdml:error>
+      <tdml:error>valid range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -6315,7 +6331,9 @@
 
     <tdml:document><![CDATA[13:30:70GMT]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Failed to parse '13:30:70GMT'</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>13:30:70GMT</tdml:error>
+      <tdml:error>valid range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

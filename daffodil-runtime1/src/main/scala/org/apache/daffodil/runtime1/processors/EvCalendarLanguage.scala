@@ -120,7 +120,7 @@ class DateTimeFormatterEv(
       override def initialValue = {
         val formatter = new SimpleDateFormat(pattern, locale)
         formatter.setCalendar(calendar)
-        formatter.setLenient(true) // TODO: should this use calendarCheckPolicy?
+        formatter.setLenient(calendar.isLenient)
         formatter
       }
     }

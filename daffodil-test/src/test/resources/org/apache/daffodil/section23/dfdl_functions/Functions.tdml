@@ -702,7 +702,7 @@
     <xs:element name="e_yearfromdatetime2">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" />
+          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="lax"/>
           <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
         </xs:sequence>
       </xs:complexType>
@@ -819,7 +819,7 @@
     <xs:element name="e_yearfromdate2">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" />
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="lax" />
           <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(../ex:date) }"/>
         </xs:sequence>
       </xs:complexType>
@@ -904,7 +904,7 @@
     <xs:element name="e_xfromtime1">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" />
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarCheckPolicy="lax"/>
           <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-time(../ex:time) }"/>
           <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-time(../ex:time) }"/>
           <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-time(../ex:time) }"/>
@@ -913,11 +913,11 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="e_xfromtime2">
+    <xs:element name="e_xfromtime2" dfdl:calendarCheckPolicy="lax">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit"
-            dfdl:calendarPattern="HH:mm:ss.SSSz"  />
+            dfdl:calendarPattern="HH:mm:ss.SSSz" dfdl:calendarCheckPolicy="lax" />
           <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-time(../ex:time) }"/>
           <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-time(../ex:time) }"/>
           <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-time(../ex:time) }"/>

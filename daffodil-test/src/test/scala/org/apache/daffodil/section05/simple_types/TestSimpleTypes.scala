@@ -398,11 +398,20 @@ class TestSimpleTypes {
   @Test def test_dateLaxCheckPolicy04(): Unit = { runner.runOneTest("dateLaxCheckPolicy04") }
   @Test def test_dateLaxCheckPolicy05(): Unit = { runner.runOneTest("dateLaxCheckPolicy05") }
 
-  // DFDL-1042 - not very strict
-  // @Test def test_dateStrictCheckPolicy01() { runner.runOneTest("dateStrictCheckPolicy01") }
-  // @Test def test_timeStrictCheckPolicy01() { runner.runOneTest("timeStrictCheckPolicy01") }
-  // @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
-  // @Test def test_timeFormatting5() { runner.runOneTest("timeFormatting5") }
+  // DFDL-1042/DFDL-2951
+  @Test def test_dateStrictCheckPolicy01(): Unit = {
+    runner.runOneTest("dateStrictCheckPolicy01")
+  }
+  @Test def test_dateStrictCheckPolicy02(): Unit = {
+    runner.runOneTest("dateStrictCheckPolicy02")
+  }
+  @Test def test_timeStrictCheckPolicy01(): Unit = {
+    runner.runOneTest("timeStrictCheckPolicy01")
+  }
+  @Test def test_timeStrictCheckPolicy02(): Unit = {
+    runner.runOneTest("timeStrictCheckPolicy02")
+  }
+  @Test def test_timeFormatting5(): Unit = { runner.runOneTest("timeFormatting5") }
 
   @Test def test_Long1(): Unit = { runner.runOneTest("Long1") }
   @Test def test_BigInteger1(): Unit = { runner.runOneTest("BigInteger1") }
