@@ -17,9 +17,12 @@
 
 package org.apache.daffodil.core.runtime1
 
+import java.io.FileNotFoundException
+
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.lib.util.Logger
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
 import org.apache.daffodil.runtime1.layers.LayerRuntimeData
@@ -79,7 +82,14 @@ trait SchemaSetRuntime1Mixin {
       "The root element cannot have the dfdl:outputValueCalc property."
     )
     // stored transiently in the SSRD, only used for full validation
-    val mainSchemaURI = self.schemaSource.uriForLoading
+    val mainSchemaURI =
+      XMLUtils.resolveSchemaLocation(self.schemaSource.uriForLoading.toString, None) match {
+        case Some((uss, _)) => uss.uri
+        case None =>
+          throw new FileNotFoundException(
+            s"Could not find file or resource ${self.schemaSource.uriForLoading}"
+          )
+      }
     val p = if (!root.isError) parser else null
     val u = if (!root.isError) unparser else null
     val ssrd =
