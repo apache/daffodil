@@ -217,7 +217,7 @@
   <tdml:unparserTestCase name="nestedNoOVCinHiddenContext" root="e7"
     model="ChoicesInHiddenContexts.dfdl.xsd" description="hidden group ref">
     <tdml:infoset>
-      <tdml:dfdlInfoset>)
+      <tdml:dfdlInfoset>
         <ex:e7/>
       </tdml:dfdlInfoset>
     </tdml:infoset>

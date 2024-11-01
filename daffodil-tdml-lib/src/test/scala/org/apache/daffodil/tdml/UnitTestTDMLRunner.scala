@@ -21,6 +21,7 @@ import java.io.File
 
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.using
+import org.apache.daffodil.lib.exceptions.UsageException
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -334,6 +335,17 @@ class UnitTestTDMLRunner {
       'd'.toByte
     ).toList
     assertEquals(expected, actual.toList)
+  }
+
+  @Test def testDFDLInfosetEmptyDiagnosticMsg(): Unit = {
+    val xml = <tdml:dfdlInfoset/>
+    val exc = intercept[UsageException] {
+      val di = new DFDLInfoset(xml, null)
+      di.contents
+    }
+    val m = exc.getMessage
+    assertTrue(m.contains("dfdlInfoset"))
+    assertTrue(m.contains("single root element"))
   }
 
   @Test def testLSB1(): Unit = {
