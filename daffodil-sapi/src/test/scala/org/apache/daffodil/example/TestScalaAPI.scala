@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.net.URI
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
 import java.nio.charset.StandardCharsets
@@ -1407,4 +1408,50 @@ class TestScalaAPI {
     }
   }
 
+  @Test
+  def testScalaAPICompileSource1(): Unit = {
+    val c = Daffodil.compiler()
+    val uri = new URI("/test/sapi/mySchema1.dfdl.xsd")
+    val pf = c.compileSource(uri)
+    val dp = pf.onPath("/").withValidationMode(ValidationMode.Full)
+
+    val file = getResource("/test/sapi/myDataBroken.dat")
+    val fis = new java.io.FileInputStream(file)
+    using(new InputSourceDataInputStream(fis)) { input =>
+      val outputter = new ScalaXMLInfosetOutputter()
+      val res = dp.parse(input, outputter)
+      assertTrue(res.isError())
+
+      val d = res.getDiagnostics.head
+      val loc = d.getLocationsInSchemaFiles.head
+      assertTrue(loc.toString().replace("\\", "/").contains("in " + uri.getPath))
+    }
+  }
+
+  // intended to test the case where compileSource succeeds, but onPath
+  // can't find the file when it tries to resolve the schemaLocation
+  // takes care of coverage for this case
+  @Test
+  def testScalaAPICompileSource2(): Unit = {
+    val c = Daffodil.compiler()
+    val tempFile = File.createTempFile("testScalaAPI", ".schema")
+    val schemaFile = getResource("/test/sapi/mySchema2.dfdl.xsd")
+    FileUtils.copyFile(schemaFile, tempFile)
+    val pf = c.compileSource(tempFile.toURI)
+    try {
+      assertFalse(pf.isError())
+      // delete file needed by Xerces for full validation
+      tempFile.delete()
+      // should throw FileNotFoundException because onPath calls resolveSchemaLocation
+      // on the URI backed by the deleted file
+      pf.onPath("/")
+      // fail if exception was not thrown
+      fail()
+    } catch {
+      case e: Exception =>
+        assertTrue(e.getMessage.contains("Could not find file or resource"))
+    } finally {
+      if (tempFile.exists) tempFile.delete()
+    }
+  }
 }
