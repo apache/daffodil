@@ -308,7 +308,15 @@
 
   <complexType name="dfdlInfosetType" mixed="true">
     <sequence>
-      <any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+      <!--
+      Can be empty if type is 'file'.
+      Otherwise, can be any single element (maxOccurs unbounded removed),
+      which is the root element of the infoset.
+
+      Mixed="true" because when type='file' the content is just a string
+      that is the file path
+      -->
+      <any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="1"/>
     </sequence>
     <attribute name="type" use="optional" default="infoset">
       <simpleType>

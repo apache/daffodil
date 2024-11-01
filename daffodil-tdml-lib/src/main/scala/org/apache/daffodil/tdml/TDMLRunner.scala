@@ -31,6 +31,7 @@ import java.nio.charset.StandardCharsets
 import scala.collection.mutable
 import scala.language.postfixOps
 import scala.util.Try
+import scala.xml.Elem
 import scala.xml.Node
 import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
@@ -2769,41 +2770,52 @@ case class Infoset(i: NodeSeq, parent: TestCase) {
 
 case class DFDLInfoset(di: Node, parent: Infoset) {
 
-  private lazy val infosetNodeSeq = {
-    val testCase: TestCase = parent.parent
-    val loader = testCase.parent.loader
-    val optDataSchema: Option[URI] = {
-      testCase.optSchemaFileURI.orElse(testCase.optEmbeddedSchema.map { _.uriForLoading })
+  private lazy val testCase: TestCase = parent.parent
+  private lazy val loader = testCase.parent.loader
+  private val ty: String = {
+    val t = (di \ "@type").text.trim
+    if (t.isEmpty) "infoset" else t
+  }
+
+  private val elemOrStr: Either[Elem, String] = {
+    val (elems, others) = di.child.partition(_.isInstanceOf[scala.xml.Elem])
+    (elems, others.text.trim) match {
+      case (Seq(elem: Elem), "") if (ty == "infoset") => Left(elem)
+      case (Seq(), str) if (ty == "file") => Right(str)
+      case _ =>
+        Assert.usageError(
+          """dfdlInfoset element must contain a single root element or a file path (when 'type="file"')."""
+        )
     }
-    val src =
-      (di \ "@type").toString match {
-        case "infoset" | "" => {
-          val rawElem = di.child.filter {
-            _.isInstanceOf[scala.xml.Elem]
-          }.head
-          UnitTestSchemaSource(rawElem, testCase.tcName)
-        }
-        case "file" => {
-          val path = di.text.trim()
-          val maybeURI = parent.parent.parent.findTDMLResource(path)
-          val uri = maybeURI.getOrElse(
-            throw new FileNotFoundException(
-              "TDMLRunner: infoset file '" + path + "' was not found"
-            )
-          )
-          URISchemaSource(uriToDiagnosticFile(uri), uri)
-        }
-        case value => Assert.abort("Unknown value for type attribute on dfdlInfoset: " + value)
-      }
+  }
+
+  lazy val contents: Elem = {
+    elemOrStr match {
+      case Left(elem) => elem
+      case Right(path) => infosetNodeFromFile(path)
+    }
+  }
+
+  private def infosetNodeFromFile(path: String): Elem = {
+
+    val maybeURI = parent.parent.parent.findTDMLResource(path)
+    val uri = maybeURI.getOrElse(
+      throw new FileNotFoundException(
+        "TDMLRunner: infoset file '" + path + "' was not found"
+      )
+    )
+    val infosetSrc = URISchemaSource(uriToDiagnosticFile(uri), uri)
+
+    val testSuite = testCase.parent
+    val before = testSuite.loadingExceptions.clone()
+
+    val elem = loader.load(infosetSrc, None) // no schema
     //
     // TODO: DAFFODIL-288 validate the infoset also
     // You can pass the optDataSchema, which appears to be the correct thing
     // but in many cases it doesn't seem to be able to resolve things.
     //
-    val testSuite = testCase.parent
-    val before = testSuite.loadingExceptions.clone()
-    // val elem: Node = loader.load(src, optDataSchema)
-    val elem = loader.load(src, None) // no schema
+    // val elem: Node = loader.load(infosetSrc, optDataSchema)
 
     // The expected infoset is loaded using the normalizeCRLFtoLF mode (which
     // is the default), so MS-DOS/Windows CRLFs in expected data XML files will
@@ -2818,17 +2830,9 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
       val newExceptions = (testSuite.loadingExceptions -- before).toSeq
       testCase.toss(TDMLException(newExceptions, None), None)
     }
-    elem
+    elem.asInstanceOf[Elem]
   }
 
-  lazy val contents = {
-    Assert.usage(
-      infosetNodeSeq.size == 1,
-      "dfdlInfoset element must contain a single root element"
-    )
-    val c = infosetNodeSeq.head
-    c
-  }
 }
 
 object DiagnosticType extends Enumeration {

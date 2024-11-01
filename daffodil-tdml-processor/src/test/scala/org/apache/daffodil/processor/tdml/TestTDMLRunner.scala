@@ -18,6 +18,7 @@
 package org.apache.daffodil.processor.tdml
 
 import java.io.File
+import java.io.FileNotFoundException
 
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.Implicits.using
@@ -1061,4 +1062,32 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertTrue(exc.getMessage.contains("Either tdml:infoset or tdml:error"))
     assertTrue(exc.getMessage.contains("must be present in the test"))
   }
+
+  @Test def testInfosetFileNotFound() = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tdml={tdml} xmlns:dfdl={dfdl}
+                      xmlns:xs={xsd}>
+        <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <dfdl:format ref="GeneralFormat"/>
+          <xs:element name="data" type="xs:int" dfdl:lengthKind="delimited"/>
+        </tdml:defineSchema>
+        <tdml:unparserTestCase name="infosetFileNotFound" root="data" model="mySchema">
+          <tdml:infoset>
+            <tdml:dfdlInfoset type="file">/this/does/not/exist.xml</tdml:dfdlInfoset>
+          </tdml:infoset>
+          <tdml:document/>
+        </tdml:unparserTestCase>
+      </tdml:testSuite>
+
+    val runner = new Runner(testSuite)
+    val e = intercept[FileNotFoundException] {
+      runner.runOneTest("infosetFileNotFound")
+    }
+    runner.reset
+    val msg = e.getMessage()
+    assertTrue(msg.contains("not found"))
+    assertTrue(msg.contains("/this/does/not/exist.xml"))
+  }
+
 }
