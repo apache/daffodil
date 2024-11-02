@@ -113,6 +113,9 @@ final class GroupRefFactory private (
     }
     gref
   }
+
+  override val diagnosticDebugNameImpl = "group reference " + refQName
+
 }
 
 object SequenceGroupRef {
