@@ -369,6 +369,7 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Referenced group definition not found</tdml:error>
       <tdml:error>doesNotExist</tdml:error>
+      <tdml:error>Schema context: group reference</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
