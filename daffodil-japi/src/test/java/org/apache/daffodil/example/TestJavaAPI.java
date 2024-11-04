@@ -23,7 +23,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -1463,6 +1466,9 @@ public class TestJavaAPI {
         }
     }
 
+    // intended to test the case where compileSource succeeds, but onPath
+    // can't find the file when it tries to resolve the schemaLocation
+    // takes care of coverage for this case
     @Test
     public void testJavaAPICompileSource2() throws IOException {
         org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
@@ -1471,15 +1477,18 @@ public class TestJavaAPI {
         FileUtils.copyFile(schemaFile, tempFile);
         ProcessorFactory pf = c.compileSource(tempFile.toURI());
         try {
-            if (!pf.isError()) {
-                tempFile.delete();
-                pf.onPath("/");
-            } else {
-                tempFile.delete();
-                fail();
-            }
+            assertFalse(pf.isError());
+            // delete file needed by Xerces for full validation
+            tempFile.delete();
+            // should throw FileNotFoundException because onPath calls resolveSchemaLocation
+            // on the URI backed by the deleted file
+            pf.onPath("/");
+            // fail if exception was not thrown
+            fail();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("Could not find file or resource"));
+        } finally {
+            if (tempFile.exists()) tempFile.delete();
         }
     }
 

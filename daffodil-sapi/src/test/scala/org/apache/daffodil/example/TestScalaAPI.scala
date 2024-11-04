@@ -1428,24 +1428,30 @@ class TestScalaAPI {
     }
   }
 
+  // intended to test the case where compileSource succeeds, but onPath
+  // can't find the file when it tries to resolve the schemaLocation
+  // takes care of coverage for this case
   @Test
-  def testJavaAPICompileSource2(): Unit = {
+  def testScalaAPICompileSource2(): Unit = {
     val c = Daffodil.compiler()
     val tempFile = File.createTempFile("testScalaAPI", ".schema")
     val schemaFile = getResource("/test/sapi/mySchema2.dfdl.xsd")
     FileUtils.copyFile(schemaFile, tempFile)
     val pf = c.compileSource(tempFile.toURI)
-    try
-      if (!pf.isError) {
-        tempFile.delete
-        pf.onPath("/")
-      } else {
-        tempFile.delete
-        fail()
-      }
-    catch {
+    try {
+      assertFalse(pf.isError())
+      // delete file needed by Xerces for full validation
+      tempFile.delete()
+      // should throw FileNotFoundException because onPath calls resolveSchemaLocation
+      // on the URI backed by the deleted file
+      pf.onPath("/")
+      // fail if exception was not thrown
+      fail()
+    } catch {
       case e: Exception =>
         assertTrue(e.getMessage.contains("Could not find file or resource"))
+    } finally {
+      if (tempFile.exists) tempFile.delete()
     }
   }
 }
