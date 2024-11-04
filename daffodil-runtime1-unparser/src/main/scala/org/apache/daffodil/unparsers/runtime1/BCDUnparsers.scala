@@ -56,7 +56,7 @@ final class BCDIntegerDelimitedUnparser(e: ElementRuntimeData)
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
 
-final class BCDIntegerPrefixedLengthUnparser(e: ElementRuntimeData)
+final class BCDIntegerMinimumLengthUnparser(e: ElementRuntimeData)
   extends BCDIntegerBaseUnparser(e) {
 
   override lazy val runtimeDependencies = Vector()
@@ -100,7 +100,7 @@ final class BCDDecimalDelimitedUnparser(e: ElementRuntimeData, binaryDecimalVirt
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
 
-final class BCDDecimalPrefixedLengthUnparser(
+final class BCDDecimalMinimumLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int
 ) extends BCDDecimalBaseUnparser(e, binaryDecimalVirtualPoint) {

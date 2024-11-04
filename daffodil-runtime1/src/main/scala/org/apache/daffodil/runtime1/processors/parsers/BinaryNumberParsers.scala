@@ -77,12 +77,12 @@ class BinaryDecimalRuntimeLengthParser(
 ) extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {}
 
-class BinaryDecimalPrefixedLengthParser(
+class BinaryDecimalBitLimitLengthParser(
   e: ElementRuntimeData,
   signed: YesNo,
   binaryDecimalVirtualPoint: Int
 ) extends BinaryDecimalParserBase(e, signed, binaryDecimalVirtualPoint)
-  with PrefixedLengthParserMixin2
+  with BitLengthFromBitLimitMixin
 
 abstract class BinaryDecimalParserBase(
   override val context: ElementRuntimeData,
@@ -125,9 +125,9 @@ class BinaryIntegerKnownLengthParser(
 ) extends BinaryIntegerBaseParser(e, signed)
   with HasKnownLengthInBits {}
 
-class BinaryIntegerPrefixedLengthParser(e: ElementRuntimeData, signed: Boolean)
+class BinaryIntegerBitLimitLengthParser(e: ElementRuntimeData, signed: Boolean)
   extends BinaryIntegerBaseParser(e, signed)
-  with PrefixedLengthParserMixin2
+  with BitLengthFromBitLimitMixin
 
 abstract class BinaryIntegerBaseParser(
   override val context: ElementRuntimeData,

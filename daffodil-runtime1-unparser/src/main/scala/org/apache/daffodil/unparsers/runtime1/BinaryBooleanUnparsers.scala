@@ -128,7 +128,7 @@ class BinaryBooleanUnparser(
   }
 }
 
-class BinaryBooleanPrefixedLengthUnparser(
+class BinaryBooleanMinimumLengthUnparser(
   e: ElementRuntimeData,
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,

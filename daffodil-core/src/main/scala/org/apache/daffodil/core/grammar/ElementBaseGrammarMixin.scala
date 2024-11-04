@@ -72,13 +72,7 @@ trait ElementBaseGrammarMixin
     }
   }
 
-  protected lazy val isPrefixed: Boolean = {
-    import LengthKind._
-    lengthKind match {
-      case Prefixed => true
-      case _ => false
-    }
-  }
+  lazy val isPrefixed: Boolean = lengthKind == LengthKind.Prefixed
 
   protected lazy val isDelimitedPrefixedPattern: Boolean = {
     import LengthKind._
@@ -86,7 +80,7 @@ trait ElementBaseGrammarMixin
       case Delimited =>
         true // don't test for hasDelimiters because it might not be our delimiter, but a surrounding group's separator, or it's terminator, etc.
       case Pattern => true
-      case Prefixed => isPrefixed
+      case Prefixed => true
       case _ => false
     }
   }
@@ -661,7 +655,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val hexBinaryLengthPrefixed = prod("hexBinaryLengthPrefixed") {
-    new HexBinaryLengthPrefixed(this)
+    new HexBinaryEndOfBitLimit(this)
   }
 
   private lazy val hexBinaryValue = prod("hexBinaryValue") {
@@ -1387,14 +1381,15 @@ trait ElementBaseGrammarMixin
       }
       case LengthKind.Implicit if isSimpleType && primType == PrimType.String =>
         new SpecifiedLengthImplicitCharacters(this, body, this.maxLength.longValue)
-
-      case LengthKind.Implicit if isSimpleType && primType == PrimType.HexBinary =>
-        new SpecifiedLengthImplicit(this, body, this.maxLength.longValue * bitsMultiplier)
       case LengthKind.Implicit
-          if isSimpleType && impliedRepresentation == Representation.Binary =>
+          if isSimpleType &&
+            impliedRepresentation == Representation.Binary &&
+            primType != PrimType.HexBinary =>
         new SpecifiedLengthImplicit(this, body, implicitBinaryLengthInBits)
-      case LengthKind.Implicit if isComplexType =>
+      case LengthKind.Implicit =>
         body // for complex types, implicit means "roll up from the bottom"
+      // for simple types, the primitives have custom parsers that handle implicit length logic
+      // and don't use the limit provided by the SpecifiedLengthImplicit parser
       case LengthKind.EndOfParent if isComplexType =>
         notYetImplemented("lengthKind='endOfParent' for complex type")
       case LengthKind.EndOfParent =>

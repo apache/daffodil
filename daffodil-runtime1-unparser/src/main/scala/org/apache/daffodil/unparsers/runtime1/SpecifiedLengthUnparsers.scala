@@ -286,8 +286,8 @@ final class SpecifiedLengthExplicitImplicitUnparser(
 
 /**
  * This trait is to be used with prefixed length unparsers where the length
- * must be calculated based on the value length of the data. This means the
- * data must be unparsed, the value length calculated, and that value will be
+ * must be calculated based on the content length of the data. This means the
+ * data must be unparsed, the content length calculated, and that value will be
  * assigned to the prefix length element.
  */
 trait CalculatedPrefixedLengthUnparserMixin {

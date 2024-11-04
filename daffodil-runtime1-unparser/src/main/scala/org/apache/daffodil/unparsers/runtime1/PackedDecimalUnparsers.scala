@@ -64,7 +64,7 @@ final class PackedIntegerDelimitedUnparser(
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
 
-final class PackedIntegerPrefixedLengthUnparser(
+final class PackedIntegerMinimumLengthUnparser(
   e: ElementRuntimeData,
   packedSignCodes: PackedSignCodes
 ) extends PackedIntegerBaseUnparser(e, packedSignCodes) {
@@ -118,7 +118,7 @@ final class PackedDecimalDelimitedUnparser(
   override def getBitLength(state: ParseOrUnparseState): Int = { 0 }
 }
 
-final class PackedDecimalPrefixedLengthUnparser(
+final class PackedDecimalMinimumLengthUnparser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
   packedSignCodes: PackedSignCodes

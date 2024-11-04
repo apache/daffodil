@@ -116,7 +116,7 @@ class BinaryIntegerRuntimeLengthUnparser(
   override val runtimeDependencies = Vector(lengthEv)
 }
 
-class BinaryIntegerPrefixedLengthUnparser(
+class BinaryIntegerMinimumLengthUnparser(
   e: ElementRuntimeData,
   maybeNBits: MaybeInt,
   signed: Boolean
@@ -196,7 +196,7 @@ class BinaryDecimalRuntimeLengthUnparser(
   override val runtimeDependencies = Vector(lengthEv)
 }
 
-class BinaryDecimalPrefixedLengthUnparser(
+class BinaryDecimalMinimumLengthUnparser(
   e: ElementRuntimeData,
   signed: YesNo,
   binaryDecimalVirtualPoint: Int

@@ -92,10 +92,3 @@ final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData)
     pstate.bitLimit0b.get - pstate.bitPos0b
   }
 }
-
-final class HexBinaryLengthPrefixedParser(erd: ElementRuntimeData)
-  extends HexBinaryLengthParser(erd)
-  with PrefixedLengthParserMixin2 {
-
-  override val runtimeDependencies = Vector()
-}

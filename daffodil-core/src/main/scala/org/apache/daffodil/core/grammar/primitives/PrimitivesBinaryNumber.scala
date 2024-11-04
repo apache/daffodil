@@ -22,22 +22,22 @@ import org.apache.daffodil.core.grammar.Terminal
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.MaybeInt
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.processors.parsers.BinaryDecimalBitLimitLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BinaryDecimalKnownLengthParser
-import org.apache.daffodil.runtime1.processors.parsers.BinaryDecimalPrefixedLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BinaryDecimalRuntimeLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BinaryDoubleParser
 import org.apache.daffodil.runtime1.processors.parsers.BinaryFloatParser
+import org.apache.daffodil.runtime1.processors.parsers.BinaryIntegerBitLimitLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BinaryIntegerKnownLengthParser
-import org.apache.daffodil.runtime1.processors.parsers.BinaryIntegerPrefixedLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BinaryIntegerRuntimeLengthParser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 import org.apache.daffodil.unparsers.runtime1.BinaryDecimalKnownLengthUnparser
-import org.apache.daffodil.unparsers.runtime1.BinaryDecimalPrefixedLengthUnparser
+import org.apache.daffodil.unparsers.runtime1.BinaryDecimalMinimumLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryDecimalRuntimeLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryDoubleUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryFloatUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryIntegerKnownLengthUnparser
-import org.apache.daffodil.unparsers.runtime1.BinaryIntegerPrefixedLengthUnparser
+import org.apache.daffodil.unparsers.runtime1.BinaryIntegerMinimumLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryIntegerRuntimeLengthUnparser
 
 class BinaryIntegerRuntimeLength(val e: ElementBase, signed: Boolean)
@@ -77,7 +77,7 @@ class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
   private lazy val pladj = e.prefixedLengthAdjustmentInUnits
 
   override lazy val parser =
-    new BinaryIntegerPrefixedLengthParser(erd, signed)
+    new BinaryIntegerBitLimitLengthParser(erd, signed)
 
   override lazy val unparser: Unparser = {
     val maybeNBits = e.primType match {
@@ -89,7 +89,7 @@ class BinaryIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
       case _ =>
         Assert.invariantFailed("Only integer base types should be used for this primitive")
     }
-    new BinaryIntegerPrefixedLengthUnparser(erd, maybeNBits, signed)
+    new BinaryIntegerMinimumLengthUnparser(erd, maybeNBits, signed)
   }
 }
 
@@ -134,14 +134,14 @@ class BinaryDecimalKnownLength(val e: ElementBase, lengthInBits: Long)
 class BinaryDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
 
   override lazy val parser =
-    new BinaryDecimalPrefixedLengthParser(
+    new BinaryDecimalBitLimitLengthParser(
       e.elementRuntimeData,
       e.decimalSigned,
       e.binaryDecimalVirtualPoint
     )
 
   override lazy val unparser: Unparser =
-    new BinaryDecimalPrefixedLengthUnparser(
+    new BinaryDecimalMinimumLengthUnparser(
       e.elementRuntimeData,
       e.decimalSigned,
       e.binaryDecimalVirtualPoint

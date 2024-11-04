@@ -49,7 +49,7 @@ import org.apache.daffodil.core.grammar.primitives.ChoiceCombinator
 import org.apache.daffodil.core.grammar.primitives.ElementCombinator
 import org.apache.daffodil.core.grammar.primitives.ElementParseAndUnspecifiedLength
 import org.apache.daffodil.core.grammar.primitives.ElementUnused
-import org.apache.daffodil.core.grammar.primitives.HexBinaryLengthPrefixed
+import org.apache.daffodil.core.grammar.primitives.HexBinaryEndOfBitLimit
 import org.apache.daffodil.core.grammar.primitives.HexBinarySpecifiedLength
 import org.apache.daffodil.core.grammar.primitives.OrderedSequence
 import org.apache.daffodil.core.grammar.primitives.RepOrderedExactlyNSequenceChild
@@ -289,7 +289,8 @@ object DaffodilCCodeGenerator
       case g: ElementParseAndUnspecifiedLength =>
         elementParseAndUnspecifiedLengthGenerateCode(g, cgState)
       case g: ElementUnused => noop(g)
-      case g: HexBinaryLengthPrefixed => hexBinaryLengthPrefixedGenerateCode(g.e, cgState)
+      case g: HexBinaryEndOfBitLimit if g.e.isPrefixed =>
+        hexBinaryLengthPrefixedGenerateCode(g.e, cgState)
       case g: HexBinarySpecifiedLength => hexBinarySpecifiedLengthGenerateCode(g.e, cgState)
       case g: OrderedSequence => orderedSequenceGenerateCode(g, cgState)
       case g: Prod => prod(g, cgState)

@@ -54,11 +54,11 @@ class IBM4690PackedDecimalRuntimeLengthParser(
 
 }
 
-class IBM4690PackedDecimalPrefixedLengthParser(
+class IBM4690PackedDecimalBitLimitLengthParser(
   e: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
-  with PrefixedLengthParserMixin2 {
+  with BitLengthFromBitLimitMixin {
 
   override def toBigInteger(num: Array[Byte]): JBigInteger =
     DecimalUtils.ibm4690ToBigInteger(num)
@@ -96,9 +96,9 @@ class IBM4690PackedIntegerKnownLengthParser(
 
 }
 
-class IBM4690PackedIntegerPrefixedLengthParser(e: ElementRuntimeData, signed: Boolean)
+class IBM4690PackedIntegerBitLimitLengthParser(e: ElementRuntimeData, signed: Boolean)
   extends PackedBinaryIntegerBaseParser(e, signed)
-  with PrefixedLengthParserMixin2 {
+  with BitLengthFromBitLimitMixin {
 
   override def toBigInteger(num: Array[Byte]): JBigInteger =
     DecimalUtils.ibm4690ToBigInteger(num)

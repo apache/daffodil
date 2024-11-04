@@ -19,18 +19,18 @@ package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.grammar.Terminal
+import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedDecimalBitLimitLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedDecimalKnownLengthParser
-import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedDecimalPrefixedLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedDecimalRuntimeLengthParser
+import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedIntegerBitLimitLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedIntegerKnownLengthParser
-import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedIntegerPrefixedLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.IBM4690PackedIntegerRuntimeLengthParser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
 import org.apache.daffodil.unparsers.runtime1.IBM4690PackedDecimalKnownLengthUnparser
-import org.apache.daffodil.unparsers.runtime1.IBM4690PackedDecimalPrefixedLengthUnparser
+import org.apache.daffodil.unparsers.runtime1.IBM4690PackedDecimalMinimumLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.IBM4690PackedDecimalRuntimeLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.IBM4690PackedIntegerKnownLengthUnparser
-import org.apache.daffodil.unparsers.runtime1.IBM4690PackedIntegerPrefixedLengthUnparser
+import org.apache.daffodil.unparsers.runtime1.IBM4690PackedIntegerMinimumLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.IBM4690PackedIntegerRuntimeLengthUnparser
 
 class IBM4690PackedIntegerRuntimeLength(val e: ElementBase, signed: Boolean)
@@ -62,9 +62,9 @@ class IBM4690PackedIntegerKnownLength(val e: ElementBase, signed: Boolean, lengt
 class IBM4690PackedIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
   extends Terminal(e, true) {
   override lazy val parser =
-    new IBM4690PackedIntegerPrefixedLengthParser(e.elementRuntimeData, signed)
+    new IBM4690PackedIntegerBitLimitLengthParser(e.elementRuntimeData, signed)
 
-  override lazy val unparser: Unparser = new IBM4690PackedIntegerPrefixedLengthUnparser(
+  override lazy val unparser: Unparser = new IBM4690PackedIntegerMinimumLengthUnparser(
     e.elementRuntimeData
   )
 }
@@ -102,12 +102,12 @@ class IBM4690PackedDecimalKnownLength(val e: ElementBase, lengthInBits: Long)
 }
 
 class IBM4690PackedDecimalPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
-  override lazy val parser = new IBM4690PackedDecimalPrefixedLengthParser(
+  override lazy val parser = new IBM4690PackedDecimalBitLimitLengthParser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint
   )
 
-  override lazy val unparser: Unparser = new IBM4690PackedDecimalPrefixedLengthUnparser(
+  override lazy val unparser: Unparser = new IBM4690PackedDecimalMinimumLengthUnparser(
     e.elementRuntimeData,
     e.binaryDecimalVirtualPoint
   )
