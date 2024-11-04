@@ -24,7 +24,7 @@ import org.apache.daffodil.core.dsom.PrimitiveType
 import org.apache.daffodil.core.dsom.Root
 import org.apache.daffodil.core.dsom.SimpleTypeDefBase
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthKind
-import org.apache.daffodil.lib.schema.annotation.props.gen.Representation
+import org.apache.daffodil.lib.schema.annotation.props.gen.Representation.Text
 import org.apache.daffodil.lib.util.Delay
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.runtime1.dsom.DPathElementCompileInfo
@@ -65,7 +65,8 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
     // no reason (unless it is referenced in a contentLength expression).
     val mightHaveSuspensions = (maybeFixedLengthInBits.isDefined && couldHaveSuspensions)
 
-    isReferenced || mightHaveSuspensions
+    // we want to capture contentlength when LK = prefixed
+    lengthKind == LengthKind.Prefixed || isReferenced || mightHaveSuspensions
   }
 
   /**
@@ -89,17 +90,18 @@ trait ElementBaseRuntime1Mixin { self: ElementBase =>
     //
     // For complex elements with specified length, value length is captured in
     // the specified length parsers, since they handle skipping unused
-    // element regions. For complex elements, this means lengthKind is not
+    // element regions, and the length capturing has to be done before that.
+    // For complex elements, this means lengthKind is not
     // implicit or delimited.
     //
     // So for these cases we do not want to capture value length with the
     // Capture{Start,End}OfValueLengthParsers, since those lengths are captured
     // by the value parsers
-    val capturedByParsers =
-      (isSimpleType && (impliedRepresentation == Representation.Text || lengthKind == LengthKind.Delimited)) ||
+    val capturedByValueParsers =
+      (isSimpleType && (impliedRepresentation == Text || lengthKind == LengthKind.Delimited)) ||
         (isComplexType && (lengthKind != LengthKind.Implicit && lengthKind != LengthKind.Delimited))
 
-    !capturedByParsers && isReferenced
+    !capturedByValueParsers && isReferenced
   }
 
   /**

@@ -26,7 +26,6 @@ import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
-import org.apache.daffodil.runtime1.processors.Processor
 
 import passera.unsigned.ULong
 
@@ -106,21 +105,17 @@ class BinaryBooleanParser(
   }
 }
 
-class BinaryBooleanPrefixedLengthParser(
+class BinaryBooleanBitLimitLengthParser(
   override val context: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
+  lengthUnits: LengthUnits
 ) extends BinaryBooleanParserBase(binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits)
-  with PrefixedLengthParserMixin {
+  with BitLengthFromBitLimitMixin {
 
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
   override val runtimeDependencies = Vector()
 
   override def getBitLength(state: PState): Int = {
-    getPrefixedLengthInBits(state).toInt
+    getLengthInBits(state).toInt
   }
 }

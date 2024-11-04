@@ -30,7 +30,6 @@ import org.apache.daffodil.lib.util.Numbers
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.Processor
 import org.apache.daffodil.runtime1.processors.unparsers._
 
 import passera.unsigned.ULong
@@ -129,26 +128,20 @@ class BinaryBooleanUnparser(
   }
 }
 
-class BinaryBooleanPrefixedLengthUnparser(
+class BinaryBooleanMinimumLengthUnparser(
   e: ElementRuntimeData,
-  override val prefixedLengthUnparser: Unparser,
-  override val prefixedLengthERD: ElementRuntimeData,
   binaryBooleanTrueRep: MaybeULong,
   binaryBooleanFalseRep: ULong,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
-) extends BinaryBooleanUnparserBase(e, binaryBooleanTrueRep, binaryBooleanFalseRep, lengthUnits)
-  with KnownPrefixedLengthUnparserMixin {
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthUnparser)
+  lengthUnits: LengthUnits
+) extends BinaryBooleanUnparserBase(
+    e,
+    binaryBooleanTrueRep,
+    binaryBooleanFalseRep,
+    lengthUnits
+  ) {
 
   override lazy val runtimeDependencies = Vector()
 
   override def getBitLength(s: ParseOrUnparseState): Int = 32
-
-  override def unparse(state: UState): Unit = {
-    unparsePrefixedLength(state)
-    super.unparse(state)
-  }
 
 }

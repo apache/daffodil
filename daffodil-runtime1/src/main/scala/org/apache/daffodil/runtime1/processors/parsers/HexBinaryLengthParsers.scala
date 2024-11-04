@@ -19,10 +19,8 @@ package org.apache.daffodil.runtime1.processors.parsers
 
 import java.nio.ByteBuffer
 
-import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.LengthInBitsEv
-import org.apache.daffodil.runtime1.processors.Processor
 
 sealed abstract class HexBinaryLengthParser(override val context: ElementRuntimeData)
   extends PrimParser
@@ -92,22 +90,5 @@ final class HexBinaryEndOfBitLimitParser(erd: ElementRuntimeData)
 
   override def getLengthInBits(pstate: PState): Long = {
     pstate.bitLimit0b.get - pstate.bitPos0b
-  }
-}
-
-final class HexBinaryLengthPrefixedParser(
-  erd: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
-) extends HexBinaryLengthParser(erd)
-  with PrefixedLengthParserMixin {
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-  override val runtimeDependencies = Vector()
-
-  override def getLengthInBits(pstate: PState): Long = {
-    getPrefixedLengthInBits(pstate)
   }
 }

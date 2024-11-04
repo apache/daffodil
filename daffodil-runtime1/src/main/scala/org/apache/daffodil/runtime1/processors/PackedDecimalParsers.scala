@@ -24,8 +24,6 @@ import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.util.{ DecimalUtils, PackedSignCodes }
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
-import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
-import org.apache.daffodil.runtime1.processors.Processor
 
 class PackedDecimalKnownLengthParser(
   e: ElementRuntimeData,
@@ -58,28 +56,17 @@ class PackedDecimalRuntimeLengthParser(
 
 }
 
-class PackedDecimalPrefixedLengthParser(
+class PackedDecimalBitLimitLengthParser(
   e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int,
-  packedSignCodes: PackedSignCodes,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
+  packedSignCodes: PackedSignCodes
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
-  with PrefixedLengthParserMixin {
+  with BitLengthFromBitLimitMixin {
 
   override def toBigInteger(num: Array[Byte]): JBigInteger =
     DecimalUtils.packedToBigInteger(num, packedSignCodes)
   override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
     DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
-
 }
 
 class PackedIntegerRuntimeLengthParser(
@@ -113,25 +100,15 @@ class PackedIntegerKnownLengthParser(
 
 }
 
-class PackedIntegerPrefixedLengthParser(
+class PackedIntegerBitLimitLengthParser(
   e: ElementRuntimeData,
-  override val prefixedLengthParser: Parser,
-  override val prefixedLengthERD: ElementRuntimeData,
   signed: Boolean,
-  packedSignCodes: PackedSignCodes,
-  override val lengthUnits: LengthUnits,
-  override val prefixedLengthAdjustmentInUnits: Long
+  packedSignCodes: PackedSignCodes
 ) extends PackedBinaryIntegerBaseParser(e, signed)
-  with PrefixedLengthParserMixin {
+  with BitLengthFromBitLimitMixin {
 
   override def toBigInteger(num: Array[Byte]): JBigInteger =
     DecimalUtils.packedToBigInteger(num, packedSignCodes)
   override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
     DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
-
-  override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
-
-  override def getBitLength(state: ParseOrUnparseState): Int = {
-    getPrefixedLengthInBits(state.asInstanceOf[PState]).toInt
-  }
 }

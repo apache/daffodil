@@ -165,3 +165,21 @@ trait PrefixedLengthParserMixin {
     }
   }
 }
+
+/**
+ * This mixin doesn't require parsing the prefix length element and just uses
+ * the state's bitLimit and position to get the bitLength instead
+ */
+trait BitLengthFromBitLimitMixin {
+
+  def getBitLength(s: ParseOrUnparseState): Int = {
+    val pState = s.asInstanceOf[PState]
+    val len = getLengthInBits(pState)
+    len.toInt
+  }
+
+  def getLengthInBits(pstate: PState): Long = {
+    val len = pstate.bitLimit0b.get - pstate.bitPos0b
+    len
+  }
+}

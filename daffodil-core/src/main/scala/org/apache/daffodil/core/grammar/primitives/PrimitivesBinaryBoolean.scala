@@ -19,10 +19,10 @@ package org.apache.daffodil.core.grammar.primitives
 
 import org.apache.daffodil.core.dsom.ElementBase
 import org.apache.daffodil.core.grammar.Terminal
+import org.apache.daffodil.runtime1.processors.parsers.BinaryBooleanBitLimitLengthParser
 import org.apache.daffodil.runtime1.processors.parsers.BinaryBooleanParser
-import org.apache.daffodil.runtime1.processors.parsers.BinaryBooleanPrefixedLengthParser
 import org.apache.daffodil.runtime1.processors.unparsers.Unparser
-import org.apache.daffodil.unparsers.runtime1.BinaryBooleanPrefixedLengthUnparser
+import org.apache.daffodil.unparsers.runtime1.BinaryBooleanMinimumLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.BinaryBooleanUnparser
 
 class BinaryBoolean(val e: ElementBase) extends Terminal(e, true) {
@@ -46,23 +46,17 @@ class BinaryBoolean(val e: ElementBase) extends Terminal(e, true) {
 }
 
 class BinaryBooleanPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
-  override lazy val parser = new BinaryBooleanPrefixedLengthParser(
+  override lazy val parser = new BinaryBooleanBitLimitLengthParser(
     e.elementRuntimeData,
-    e.prefixedLengthBody.parser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
     e.binaryBooleanTrueRep,
     e.binaryBooleanFalseRep,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
+    e.lengthUnits
   )
 
-  override lazy val unparser: Unparser = new BinaryBooleanPrefixedLengthUnparser(
+  override lazy val unparser: Unparser = new BinaryBooleanMinimumLengthUnparser(
     e.elementRuntimeData,
-    e.prefixedLengthBody.unparser,
-    e.prefixedLengthElementDecl.elementRuntimeData,
     e.binaryBooleanTrueRep,
     e.binaryBooleanFalseRep,
-    e.lengthUnits,
-    e.prefixedLengthAdjustmentInUnits
+    e.lengthUnits
   )
 }
