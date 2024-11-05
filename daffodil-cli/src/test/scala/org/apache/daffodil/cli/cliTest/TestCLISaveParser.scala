@@ -327,7 +327,7 @@ class TestCLISaveParser {
     withTempFile { parser =>
       runCLI(args"save-parser -s $schema $parser") { cli =>
         cli.expectErr("[error]")
-        cli.expectErr(s"Schema context:  Location line 32 column 74 in ${schema.normalize()}")
+        cli.expectErr(s"Schema context: Location line 32 column 74 in ${schema.normalize()}")
       }(ExitCode.UnableToCreateProcessor)
     }
   }

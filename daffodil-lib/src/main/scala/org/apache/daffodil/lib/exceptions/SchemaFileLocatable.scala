@@ -123,8 +123,8 @@ class XercesSchemaFileLocation(
   val xercesError: SAXParseException,
   val schemaFileLocation: SchemaFileLocation
 ) extends SchemaFileLocation(
-    Option(xercesError.getLineNumber.toString),
-    Option(xercesError.getColumnNumber.toString),
+    (if (xercesError.getLineNumber > 0) Some(xercesError.getLineNumber.toString) else None),
+    (if (xercesError.getColumnNumber > 0) Some(xercesError.getColumnNumber.toString) else None),
     schemaFileLocation.diagnosticFile,
     schemaFileLocation.toString,
     schemaFileLocation.diagnosticDebugName

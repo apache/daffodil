@@ -178,8 +178,9 @@ abstract class Diagnostic protected (
   protected def schemaContextString =
     if (schemaContext.isEmpty) ""
     else {
-      val pn = schemaContext.get.diagnosticDebugName
-      "\nSchema context: %s%s".format(pn, schemaLocationsString)
+      val ddn = schemaContext.get.diagnosticDebugName
+      val pn = if (ddn.nonEmpty) " " + ddn else ""
+      "\nSchema context:%s%s".format(pn, schemaLocationsString)
     }
 
   private def dataLocationString =
