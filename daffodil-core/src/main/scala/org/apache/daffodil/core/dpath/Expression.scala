@@ -1062,14 +1062,27 @@ sealed abstract class UpStepExpression(s: String, predArg: Option[PredicateExpre
   extends StepExpression(s, predArg) {
 
   final override lazy val compiledDPath = {
-    val areAllArrays = isLastStep && stepElements.forall {
-      _.isArray
-    } && targetType == NodeInfo.Array
     checkIfNodeIndexedLikeArray()
-    if (areAllArrays) {
+    checkIfTargetIsLastStepAndArray()
+    if (isLastStep && isArray && targetType == NodeInfo.Array) {
       new CompiledDPath(UpMoveArray)
     } else {
       new CompiledDPath(UpMove)
+    }
+  }
+
+  def checkIfTargetIsLastStepAndArray(): Unit = {
+    if (isLastStep && isArray) {
+      if (tunable.allowLastUpStepToResolveToArray) {
+        SDW(
+          WarnID.DeprecatedLastUpStepToResolveToArray,
+          "Last step path '..' resolving to an array is deprecated. Try ../../<array_name> instead."
+        )
+      } else {
+        SDE(
+          "Last step path '..' cannot resolve to an array. Try ../../<array_name> instead."
+        )
+      }
     }
   }
 
