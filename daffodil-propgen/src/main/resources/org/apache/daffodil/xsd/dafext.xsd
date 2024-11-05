@@ -137,6 +137,15 @@
             </xs:documentation>
           </xs:annotation>
         </xs:element>
+        <xs:element name="allowLastUpStepToResolveToArray" type="xs:boolean" default="true" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              When .. (UpStep) is the last step in an expression, it should only ever return a single node,
+              not an array. If true, allow this but issue a warning. If false, issue an SDE. Note, the value
+              of true is deprecated, and it might be ignored in future versions.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
         <xs:element name="allowSignedIntegerLength1Bit" type="xs:boolean" default="true" minOccurs="0">
           <xs:annotation>
             <xs:documentation>
@@ -718,6 +727,7 @@
           <xs:enumeration value="deprecatedEncodingNameUSASCII7BitPacked" />
           <xs:enumeration value="deprecatedExpressionResultCoercion" />
           <xs:enumeration value="deprecatedFunctionDAFError" />
+          <xs:enumeration value="deprecatedLastUpStepToResolveToArray" />
           <xs:enumeration value="deprecatedPropertyDAFError" />
           <xs:enumeration value="deprecatedPropertyDFDLXError" />
           <xs:enumeration value="deprecatedPropertyDFDLError" />
