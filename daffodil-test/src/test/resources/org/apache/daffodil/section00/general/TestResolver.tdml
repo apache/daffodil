@@ -38,6 +38,7 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Unable to resolve</tdml:error>
       <tdml:error>this/does/not/exist/schema.dfdl.xsd</tdml:error>
+      <tdml:error>Schema context: Location in</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
