@@ -95,6 +95,7 @@ jobs:
                      github.repository == 'apache/daffodil' &&
                      github.ref == 'refs/heads/main'
                   }}
+      DAFFODIL_TDML_API_INFOSETS: all
 
     steps:
 

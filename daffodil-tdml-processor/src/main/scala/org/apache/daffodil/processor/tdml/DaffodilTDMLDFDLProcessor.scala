@@ -176,6 +176,8 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
   private def blobPrefix = ""
   private def blobSuffix = ".bin"
 
+  private lazy val tdmlApiInfosetsEnv = sys.env.getOrElse("DAFFODIL_TDML_API_INFOSETS", "scala")
+
   override def withDebugging(b: Boolean): DaffodilTDMLDFDLProcessor =
     copy(dp = dp.withDebugging(b))
 
@@ -206,22 +208,16 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
   ): DaffodilTDMLDFDLProcessor =
     copy(dp = dp.withExternalVariables(externalVarBindings))
 
-  def parse(uri: java.net.URI, lengthLimitInBits: Long): TDMLParseResult = {
-    val url = uri.toURL
-    val dpInputStream = url.openStream()
-    val saxInputStream = url.openStream()
-    doParseWithBothApis(dpInputStream, saxInputStream, lengthLimitInBits)
-  }
-
-  def parse(arr: Array[Byte], lengthLimitInBits: Long): TDMLParseResult = {
-    val dpInputStream = new ByteArrayInputStream(arr)
-    val saxInputStream = new ByteArrayInputStream(arr)
-    doParseWithBothApis(dpInputStream, saxInputStream, lengthLimitInBits)
-  }
-
   override def parse(is: java.io.InputStream, lengthLimitInBits: Long): TDMLParseResult = {
-    val arr = IOUtils.toByteArray(is)
-    parse(arr, lengthLimitInBits)
+    val (dpInputStream, optSaxInputStream) = if (tdmlApiInfosetsEnv == "all") {
+      val arr = IOUtils.toByteArray(is)
+      val saxInputStream = new ByteArrayInputStream(arr)
+      val dpInputStream = new ByteArrayInputStream(arr)
+      (dpInputStream, Some(saxInputStream))
+    } else {
+      (is, None)
+    }
+    doParse(dpInputStream, optSaxInputStream, lengthLimitInBits)
   }
 
   override def unparse(
@@ -252,104 +248,126 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
     infosetXML: scala.xml.Node,
     outStream: java.io.OutputStream
   ): TDMLUnparseResult = {
-    val bos = new ByteArrayOutputStream()
-    val osw = new OutputStreamWriter(bos, StandardCharsets.UTF_8)
-    scala.xml.XML.write(osw, infosetXML, "UTF-8", xmlDecl = true, null)
-    osw.flush()
-    osw.close()
-    val saxInstream = new ByteArrayInputStream(bos.toByteArray)
-    doUnparseWithBothApis(inputter, saxInstream, outStream)
+    val optSaxInstream = if (tdmlApiInfosetsEnv == "all") {
+      val bos = new ByteArrayOutputStream()
+      val osw = new OutputStreamWriter(bos, StandardCharsets.UTF_8)
+      scala.xml.XML.write(osw, infosetXML, "UTF-8", xmlDecl = true, null)
+      osw.flush()
+      osw.close()
+      val sis = new ByteArrayInputStream(bos.toByteArray)
+      Some(sis)
+    } else {
+      None
+    }
+    doUnparse(inputter, optSaxInstream, outStream)
   }
 
-  def doParseWithBothApis(
+  def doParse(
     dpInputStream: java.io.InputStream,
-    saxInputStream: java.io.InputStream,
+    optSaxInputStream: Option[java.io.InputStream] = None,
     lengthLimitInBits: Long
   ): TDMLParseResult = {
-    val outputter = new TDMLInfosetOutputter()
+    val outputter = if (tdmlApiInfosetsEnv == "all") {
+      new TDMLInfosetOutputterAll
+    } else {
+      new TDMLInfosetOutputterScala
+    }
     outputter.setBlobAttributes(blobDir, blobPrefix, blobSuffix)
 
-    val xri = dp.newXMLReaderInstance
-    val errorHandler = new DaffodilTDMLSAXErrorHandler()
-    val saxOutputStream = new ByteArrayOutputStream()
-    val saxHandler =
-      new DaffodilParseOutputStreamContentHandler(saxOutputStream, pretty = false)
-    xri.setContentHandler(saxHandler)
-    xri.setErrorHandler(errorHandler)
-    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, blobDir)
-    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX, blobPrefix)
-    xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, blobSuffix)
-
     using(InputSourceDataInputStream(dpInputStream)) { dis =>
-      using(InputSourceDataInputStream(saxInputStream)) { sis =>
-        // The length limit here should be the length of the document
-        // under test. Only set a limit when the end of the document
-        // do not match a byte boundary.
-        if (lengthLimitInBits % 8 != 0) {
-          Assert.usage(lengthLimitInBits >= 0)
-          dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
-          sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
-        }
-
-        val actual = dp.parse(dis, outputter)
-        xri.parse(sis)
-
-        if (!actual.isError && !errorHandler.isError) {
-          verifySameParseOutput(outputter.xmlStream, saxOutputStream)
-        }
-        val dpParseDiag = actual.getDiagnostics.map(_.getMessage())
-        val saxParseDiag = errorHandler.getDiagnostics.map(_.getMessage())
-        verifySameDiagnostics(dpParseDiag, saxParseDiag)
-
-        new DaffodilTDMLParseResult(actual, outputter)
+      // The length limit here should be the length of the document
+      // under test. Only set a limit when the end of the document
+      // do not match a byte boundary.
+      if (lengthLimitInBits % 8 != 0) {
+        Assert.usage(lengthLimitInBits >= 0)
+        dis.setBitLimit0b(MaybeULong(lengthLimitInBits))
       }
+
+      val actual = dp.parse(dis, outputter)
+      if (tdmlApiInfosetsEnv == "all") {
+        val saxInputStream = optSaxInputStream.get
+        using(InputSourceDataInputStream(saxInputStream)) { sis =>
+          // The length limit here should be the length of the document
+          // under test. Only set a limit when the end of the document
+          // do not match a byte boundary.
+          if (lengthLimitInBits % 8 != 0) {
+            Assert.usage(lengthLimitInBits >= 0)
+            sis.setBitLimit0b(MaybeULong(lengthLimitInBits))
+          }
+
+          val xri = dp.newXMLReaderInstance
+          val errorHandler = new DaffodilTDMLSAXErrorHandler()
+          val saxOutputStream = new ByteArrayOutputStream()
+          val saxHandler =
+            new DaffodilParseOutputStreamContentHandler(saxOutputStream, pretty = false)
+          xri.setContentHandler(saxHandler)
+          xri.setErrorHandler(errorHandler)
+          xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBDIRECTORY, blobDir)
+          xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBPREFIX, blobPrefix)
+          xri.setProperty(XMLUtils.DAFFODIL_SAX_URN_BLOBSUFFIX, blobSuffix)
+
+          xri.parse(sis)
+
+          if (!actual.isError && !errorHandler.isError) {
+            verifySameParseOutput(outputter.xmlStream, saxOutputStream)
+          }
+          val dpParseDiag = actual.getDiagnostics.map(_.getMessage())
+          val saxParseDiag = errorHandler.getDiagnostics.map(_.getMessage())
+          verifySameDiagnostics(dpParseDiag, saxParseDiag)
+        }
+      }
+      new DaffodilTDMLParseResult(actual, outputter)
     }
   }
 
-  def doUnparseWithBothApis(
+  def doUnparse(
     dpInputter: TDMLInfosetInputter,
-    saxInputStream: java.io.InputStream,
+    optSaxInputStream: Option[java.io.InputStream] = None,
     dpOutputStream: java.io.OutputStream
   ): DaffodilTDMLUnparseResult = {
 
     val dpOutputChannel = java.nio.channels.Channels.newChannel(dpOutputStream)
-    val saxOutputStream = new ByteArrayOutputStream
-    val saxOutputChannel = java.nio.channels.Channels.newChannel(saxOutputStream)
-    val unparseContentHandler = dp.newContentHandlerInstance(saxOutputChannel)
-    unparseContentHandler.enableResolutionOfRelativeInfosetBlobURIs()
-    val xmlReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
-    xmlReader.setContentHandler(unparseContentHandler)
-    xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
-    xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
-
     val actualDP = dp.unparse(dpInputter, dpOutputChannel).asInstanceOf[UnparseResult]
     dpOutputChannel.close()
-    // kick off SAX Unparsing
-    try {
-      xmlReader.parse(new InputSource(saxInputStream))
-    } catch {
-      case e: DaffodilUnhandledSAXException =>
-        // In the case of an unexpected errors, catch and throw as TDMLException
-        throw TDMLException("Unexpected error during SAX Unparse:" + e, None)
-      case _: DaffodilUnparseErrorSAXException =>
-      // do nothing as unparseResult and its diagnostics will be handled below
-    }
 
-    val actualSAX = unparseContentHandler.getUnparseResult
-    saxOutputChannel.close()
-    if (!actualDP.isError && !actualSAX.isError) {
-      val dpis = new ByteArrayInputStream(
-        dpOutputStream.asInstanceOf[ByteArrayOutputStream].toByteArray
-      )
-      if (actualDP.isScannable && actualSAX.isScannable) {
-        VerifyTestCase.verifyTextData(dpis, saxOutputStream, actualSAX.encodingName, None)
-      } else {
-        VerifyTestCase.verifyBinaryOrMixedData(dpis, saxOutputStream, None)
+    if (tdmlApiInfosetsEnv == "all") {
+      val saxInputStream = optSaxInputStream.get
+      val saxOutputStream = new ByteArrayOutputStream
+      val saxOutputChannel = java.nio.channels.Channels.newChannel(saxOutputStream)
+      val unparseContentHandler = dp.newContentHandlerInstance(saxOutputChannel)
+      unparseContentHandler.enableResolutionOfRelativeInfosetBlobURIs()
+      val xmlReader = DaffodilSAXParserFactory().newSAXParser.getXMLReader
+      xmlReader.setContentHandler(unparseContentHandler)
+      xmlReader.setFeature(XMLUtils.SAX_NAMESPACES_FEATURE, true)
+      xmlReader.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
+
+      // kick off SAX Unparsing
+      try {
+        xmlReader.parse(new InputSource(saxInputStream))
+      } catch {
+        case e: DaffodilUnhandledSAXException =>
+          // In the case of an unexpected errors, catch and throw as TDMLException
+          throw TDMLException("Unexpected error during SAX Unparse:" + e, None)
+        case _: DaffodilUnparseErrorSAXException =>
+        // do nothing as unparseResult and its diagnostics will be handled below
       }
+
+      val actualSAX = unparseContentHandler.getUnparseResult
+      saxOutputChannel.close()
+      if (!actualDP.isError && !actualSAX.isError) {
+        val dpis = new ByteArrayInputStream(
+          dpOutputStream.asInstanceOf[ByteArrayOutputStream].toByteArray
+        )
+        if (actualDP.isScannable && actualSAX.isScannable) {
+          VerifyTestCase.verifyTextData(dpis, saxOutputStream, actualSAX.encodingName, None)
+        } else {
+          VerifyTestCase.verifyBinaryOrMixedData(dpis, saxOutputStream, None)
+        }
+      }
+      val dpUnparseDiag = actualDP.getDiagnostics.map(_.getMessage())
+      val saxUnparseDiag = actualSAX.getDiagnostics.map(_.getMessage())
+      verifySameDiagnostics(dpUnparseDiag, saxUnparseDiag)
     }
-    val dpUnparseDiag = actualDP.getDiagnostics.map(_.getMessage())
-    val saxUnparseDiag = actualSAX.getDiagnostics.map(_.getMessage())
-    verifySameDiagnostics(dpUnparseDiag, saxUnparseDiag)
 
     new DaffodilTDMLUnparseResult(actualDP, dpOutputStream)
   }
@@ -408,11 +426,11 @@ class DaffodilTDMLDFDLProcessor private (private var dp: DataProcessor)
 final class DaffodilTDMLParseResult(actual: DFDL.ParseResult, outputter: TDMLInfosetOutputter)
   extends TDMLParseResult {
 
-  override def getResult: Node = outputter.getResult()
+  override def getResult: Node = outputter.getResult
 
   override def getBlobPaths: Seq[Path] = outputter.getBlobPaths()
 
-  def inputter = outputter.toInfosetInputter()
+  def inputter = outputter.toInfosetInputter
 
   override def isProcessingError: Boolean = actual.isProcessingError
 
