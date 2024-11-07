@@ -315,19 +315,19 @@ final class SchemaSet private (
    * root element name, then this searches for a single element having that name, and if it is
    * unambiguous, it is used as the root.
    */
-  private def findRootElement(name: String) = {
+  private def findRootElement(qname: RefQName): GlobalElementDecl = {
     val candidates = schemas.flatMap {
-      _.getGlobalElementDecl(name)
+      _.getGlobalElementDecl(qname)
     }
     schemaDefinitionUnless(
       candidates.length != 0,
-      "No root element found for %s in any available namespace",
-      name
+      "No root element found for %s",
+      qname
     )
     schemaDefinitionUnless(
       candidates.length <= 1,
       "Root element %s is ambiguous. Candidates are %s.",
-      name,
+      qname,
       candidates.map { gef =>
         {
           val tns = gef.schemaDocument.targetNamespace
@@ -356,7 +356,15 @@ final class SchemaSet private (
         ge
       }
       case RootSpec(None, rootElementName) => {
-        findRootElement(rootElementName)
+        val possibleRoots: Seq[GlobalElementDecl] = schemaSet.schemas.flatMap {
+          _.schemaDocuments.flatMap(_.searchGlobalElementDecl(rootElementName))
+        }
+        if (possibleRoots.length == 1) {
+          possibleRoots.head
+        } else {
+          val qn = RefQName(None, rootElementName, NoNamespace)
+          findRootElement(qn)
+        }
       }
       case _ => Assert.impossible()
     }
@@ -412,7 +420,7 @@ final class SchemaSet private (
    */
   def getGlobalElementDecl(refQName: RefQName): Option[GlobalElementDecl] = {
     getSchema(refQName.namespace).flatMap {
-      _.getGlobalElementDecl(refQName.local)
+      _.getGlobalElementDecl(refQName)
     }
   }
 

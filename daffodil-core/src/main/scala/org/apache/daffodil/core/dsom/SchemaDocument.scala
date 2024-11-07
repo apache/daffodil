@@ -22,6 +22,7 @@ import scala.xml.Node
 import org.apache.daffodil.core.dsom.IIUtils.IIMap
 import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.xml.RefQName
 import org.apache.daffodil.lib.xml.XMLUtils
 
 /**
@@ -261,9 +262,16 @@ final class SchemaDocument private (xmlSDoc: XMLSchemaDocument)
   lazy val defineVariables = annotationObjs.collect { case dv: DFDLDefineVariable => dv }
 
   /**
-   * by name getters for the global things that can be referenced.
+   * by name/qname getters for the global things that can be referenced.
    */
-  def getGlobalElementDecl(name: String) = globalElementDecls.find { _.name == name }
+  def getGlobalElementDecl(qname: RefQName): Option[GlobalElementDecl] =
+    globalElementDecls.find {
+      _.namedQName.toRefQName == qname
+    }
+  def searchGlobalElementDecl(name: String): Seq[GlobalElementDecl] =
+    globalElementDecls.filter {
+      _.name == name
+    }
   def getGlobalSimpleTypeDef(name: String) = globalSimpleTypeDefs.find { _.name == name }
   def getGlobalComplexTypeDef(name: String) = globalComplexTypeDefs.find { _.name == name }
   def getGlobalGroupDef(name: String) = globalGroupDefs.find { _.name == name }

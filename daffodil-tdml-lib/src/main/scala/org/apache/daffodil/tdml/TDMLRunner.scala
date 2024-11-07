@@ -695,12 +695,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   }
 
   def getRootNamespaceString() = {
-    if (optExpectedOrInputInfoset.isDefined)
+    if (this.rootNSAttrib != "")
+      rootNSAttrib
+    else if (optExpectedOrInputInfoset.isDefined)
       infosetRootNamespaceString
     else if (optEmbeddedSchema.isDefined)
       XMLUtils.EXAMPLE_NAMESPACE.toString
-    else if (this.rootNSAttrib != "")
-      rootNSAttrib
     else {
       // For some TDML Processors, we have to provide
       // the root namespace. They don't provide a way to search

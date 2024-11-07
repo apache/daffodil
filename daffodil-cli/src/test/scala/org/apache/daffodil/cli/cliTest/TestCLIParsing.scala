@@ -358,7 +358,7 @@ class TestCLIParsing {
 
     runCLI(args"parse -s $schema -r unknown") { cli =>
       cli.sendLine("12", inputDone = true)
-      cli.expectErr("No root element found for unknown in any available namespace")
+      cli.expectErr("No root element found for {}unknown")
     }(ExitCode.UnableToCreateProcessor)
   }
 

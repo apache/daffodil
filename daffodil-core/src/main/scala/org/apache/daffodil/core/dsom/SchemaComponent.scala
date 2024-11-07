@@ -330,19 +330,31 @@ final class Schema private (
   }
 
   /**
-   * Given a name, retrieve the appropriate object.
+   * Given a qname, retrieve the appropriate object.
    *
    * This just scans each schema document in the schema, checking each one.
    */
-  def getGlobalElementDecl(name: String) = {
+  def getGlobalElementDecl(qname: RefQName): Option[GlobalElementDecl] = {
     val sds = schemaDocuments
     val res = sds.flatMap { sd =>
       {
-        val ged = sd.getGlobalElementDecl(name)
+        val ged = sd.getGlobalElementDecl(qname)
         ged
       }
     }
-    noneOrOne(res, name)
+    noneOrOne(res, qname.toString)
+  }
+
+  def searchGlobalElementDecl(ncName: String): Seq[GlobalElementDecl] = {
+    Assert.invariant(!ncName.contains(":"))
+    val sds = schemaDocuments
+    val res = sds.flatMap { sd =>
+      {
+        val ged = sd.searchGlobalElementDecl(ncName)
+        ged
+      }
+    }
+    res
   }
   def getGlobalSimpleTypeDef(name: String) =
     noneOrOne(schemaDocuments.flatMap { _.getGlobalSimpleTypeDef(name) }, name)
