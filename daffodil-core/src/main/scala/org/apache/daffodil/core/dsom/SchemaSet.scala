@@ -315,12 +315,12 @@ final class SchemaSet private (
    * root element name, then this searches for a single element having that name, and if it is
    * unambiguous, it is used as the root.
    */
-  private def findRootElement(name: String) = {
+  private def findRootElement(name: String): GlobalElementDecl = {
     val candidates = schemas.flatMap {
       _.getGlobalElementDecl(name)
     }
     schemaDefinitionUnless(
-      candidates.length != 0,
+      candidates.nonEmpty,
       "No root element found for %s in any available namespace",
       name
     )
@@ -337,7 +337,7 @@ final class SchemaSet private (
       }
     )
     Assert.invariant(candidates.length == 1)
-    val ge = candidates(0)
+    val ge = candidates.head
     ge
   }
 
