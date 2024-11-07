@@ -677,4 +677,81 @@ abc # a comment
     runner.reset
   }
 
+  // DFDL-2947
+  @Test def test_rootNSSpecifiesNoNamespaceRoot(): Unit = {
+    val tdmlTestSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:ex={example} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
+        <tdml:parserTestCase name="test1" root="data" rootNS="" model="/test/tdml/chameleon-schema1.dfdl.xsd">
+          <tdml:document>37</tdml:document>
+          <tdml:infoset>
+            <tdml:dfdlInfoset>
+              <data>37</data>
+            </tdml:dfdlInfoset>
+          </tdml:infoset>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    val runner = new Runner(tdmlTestSuite)
+    runner.runOneTest("test1")
+  }
+
+  @Test def test_rootNSSpecifiesNamespaceRoot(): Unit = {
+    val tdmlTestSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:ex={example} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
+        <tdml:parserTestCase name="test1" root="data" rootNS="urn:schema:namespace" model="/test/tdml/chameleon-schema1.dfdl.xsd">
+          <tdml:document>boy</tdml:document>
+          <tdml:infoset>
+            <tdml:dfdlInfoset>
+              <data>boy</data>
+            </tdml:dfdlInfoset>
+          </tdml:infoset>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    val runner = new Runner(tdmlTestSuite)
+    runner.runOneTest("test1")
+  }
+
+  @Test def test_noRootCandidates1(): Unit = {
+    val tdmlTestSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:ex={example} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
+        <tdml:parserTestCase name="test1" root="data1" model="/test/tdml/chameleon-schema1.dfdl.xsd">
+          <tdml:document>37</tdml:document>
+          <tdml:errors>
+          <tdml:error>Schema Definition Error</tdml:error>
+          <tdml:error>no root element found</tdml:error>
+          <tdml:error>data1</tdml:error>
+          </tdml:errors>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    val runner = new Runner(tdmlTestSuite)
+    runner.runOneTest("test1")
+  }
+
+  @Test def test_noRootCandidates2(): Unit = {
+    val tdmlTestSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:ex={example} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
+        <tdml:parserTestCase name="test1" root="data" rootNS="doesNotExist" model="/test/tdml/chameleon-schema1.dfdl.xsd">
+          <tdml:document>37</tdml:document>
+          <tdml:errors>
+          <tdml:error>Schema Definition Error</tdml:error>
+          <tdml:error>no global element found</tdml:error>
+            <!-- extra brace is there escape the inner brace -->
+          <tdml:error>{{doesNotExist}}data</tdml:error>
+          </tdml:errors>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    val runner = new Runner(tdmlTestSuite)
+    runner.runOneTest("test1")
+  }
 }

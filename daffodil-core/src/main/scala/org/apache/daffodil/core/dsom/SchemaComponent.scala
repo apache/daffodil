@@ -334,7 +334,7 @@ final class Schema private (
    *
    * This just scans each schema document in the schema, checking each one.
    */
-  def getGlobalElementDecl(name: String) = {
+  def getGlobalElementDecl(name: String): Option[GlobalElementDecl] = {
     val sds = schemaDocuments
     val res = sds.flatMap { sd =>
       {
