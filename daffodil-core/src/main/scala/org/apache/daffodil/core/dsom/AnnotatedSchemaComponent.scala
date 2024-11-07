@@ -412,31 +412,6 @@ trait AnnotatedSchemaComponent
         )
       }
     }
-
-    val descendantsForCheck = this match {
-      case gr: GroupRef => gr.groupDef.groupMembers
-      case eb: ElementBase => {
-        if (eb.isSimpleType) {
-          val ost = eb.optSimpleType
-          val enums = ost
-            .flatMap(_.optRestriction)
-            .map(_.enumerations)
-            .getOrElse(Seq.empty)
-          val st = if (ost.isDefined && ost.get.isInstanceOf[SimpleTypeDefBase]) {
-            Seq(ost.get.asInstanceOf[SimpleTypeDefBase])
-          } else {
-            Seq.empty
-          }
-          st ++ enums
-        } else {
-          eb.termChildren
-        }
-      }
-      case grl: GroupDefLike => grl.groupMembersNotShared
-      case _ => Seq.empty
-    }
-
-    descendantsForCheck.foreach { _.checkUnusedProperties }
   }
 }
 

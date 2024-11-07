@@ -540,8 +540,18 @@ final class SchemaSet private (
     .flatMap(_.defineVariables)
     .union(predefinedVars)
 
+  // propagated to referenced element propCache
+  private lazy val propagateReferenceElementUsedProperties = {
+    root.allComponents.collect { case ref: AbstractElementRef =>
+      val referent = ref.optReferredToComponent.get
+      ref.propCache.foreach(kv => referent.propCache.put(kv._1, kv._2))
+    }
+  }
+
   private lazy val checkUnusedProperties = LV('hasUnusedProperties) {
-    root.checkUnusedProperties
+    root.allComponents.collect { case asc: AnnotatedSchemaComponent =>
+      asc.checkUnusedProperties
+    }
   }.value
 
   /**
@@ -563,6 +573,10 @@ final class SchemaSet private (
     else {
       val hasErrors = super.isError
       if (!hasErrors) {
+        // after compilation is done, we want to walk through all our refs and
+        // if a property is in the cache of the referencer, put it into the
+        // cache of the referenced element
+        propagateReferenceElementUsedProperties
         // must be last, after all compilation is done.
         // only check this if there are no errors.
         checkUnusedProperties
@@ -679,8 +693,9 @@ class TransitiveClosureSchemaComponents private () extends TransitiveClosure[Sch
         st.bases ++
           st.optRestriction ++
           st.optUnion
-      case r: Restriction => r.optUnion.toSeq
+      case r: Restriction => r.optUnion.toSeq ++ r.enumerations
       case u: Union => u.unionMemberTypes
+      case e: EnumerationDef => Nil
       case c: ComplexTypeBase => Seq(c.modelGroup)
       case gd: GlobalGroupDef => gd.groupMembers
       case stmt: DFDLStatement => Nil
