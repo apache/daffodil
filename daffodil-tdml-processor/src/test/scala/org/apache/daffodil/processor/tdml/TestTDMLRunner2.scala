@@ -677,7 +677,7 @@ abc # a comment
   }
 
   // DFDL-2947
-  @Test def test_multipleRootCandidates1(): Unit = {
+  @Test def test_rootNSSpecifiesNoNamespaceRoot(): Unit = {
     val tdmlTestSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:ex={example} xmlns:tdml={tdml} xmlns:dfdl={
         dfdl
@@ -696,7 +696,7 @@ abc # a comment
     runner.runOneTest("test1")
   }
 
-  @Test def test_multipleRootCandidates2(): Unit = {
+  @Test def test_rootNSSpecifiesNamespaceRoot(): Unit = {
     val tdmlTestSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:ex={example} xmlns:tdml={tdml} xmlns:dfdl={
         dfdl

@@ -362,6 +362,11 @@ final class SchemaSet private (
         if (possibleRoots.length == 1) {
           possibleRoots.head
         } else {
+          // we're here because it's ambiguous what root element to return, and
+          // no namespace URI was provided. So we assume not specifying a namespace
+          // URI may mean the intention was to choose the root that it is in No Namespace.
+          // If there is no such, then the diagnostic will encourage user to specify
+          // the namespace explicitly.
           val qn = RefQName(None, rootElementName, NoNamespace)
           findRootElement(qn)
         }
