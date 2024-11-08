@@ -608,4 +608,32 @@ abc # a comment
   @Test def test_apos_test1(): Unit = { runner.runOneTest("apos_test1") }
   @Test def test_apos_test2(): Unit = { runner.runOneTest("apos_test2") }
 
+  // DFDL-2955
+  @Test def test_whitespaceSurroundingErrorMessages() = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdml} xmlns:dfdl={
+        dfdl
+      } xmlns:xs={xsd}>
+        <!-- This embedded schema has validation errors. -->
+        <tdml:defineSchema name="mySchema">
+          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+          <xs:format ref="tns:GeneralFormat" />
+          <xs:element name="data" type="fn:string" dfdl:lengthKind="delimited" />
+        </tdml:defineSchema>
+        <tdml:parserTestCase name="test1" root="data" model="mySchema">
+          <tdml:document>
+            <tdml:documentPart type="text"><![CDATA[abcdef]]></tdml:documentPart>
+          </tdml:document>
+          <tdml:errors>
+            <tdml:error>   cannot resolve   </tdml:error>
+            <tdml:error>  fn:string </tdml:error>
+          </tdml:errors>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    val runner = Runner(testSuite, validateTDMLFile = false)
+    runner.runOneTest("test1")
+    runner.reset
+  }
+
 }
