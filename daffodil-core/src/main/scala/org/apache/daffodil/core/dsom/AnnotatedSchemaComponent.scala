@@ -380,9 +380,9 @@ trait AnnotatedSchemaComponent
   }
 
   /**
-   * Used to recursively go through Schema Components and look for DFDL properties that
+   * Used to look for DFDL properties on Annotated Schema Components that
    * have not been accessed and record it as a warning. This function uses the
-   * property cache state to determine which properties have been access, so
+   * property cache state to determine which properties have been accessed, so
    * this function must only be called after all property accesses are complete
    * (e.g. schema compilation has finished) to ensure there are no false
    * positives.
