@@ -357,7 +357,7 @@ final class SchemaSet private (
       }
       case RootSpec(None, rootElementName) => {
         val possibleRoots: Seq[GlobalElementDecl] = schemaSet.schemas.flatMap {
-          _.schemaDocuments.flatMap(_.searchGlobalElementDecl(rootElementName))
+          _.searchGlobalElementDecl(rootElementName)
         }
         if (possibleRoots.length == 1) {
           possibleRoots.head
