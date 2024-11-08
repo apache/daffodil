@@ -2856,8 +2856,8 @@ abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
 
   protected def diagnosticNodes: Seq[Node]
 
-  lazy val messages = diagnosticNodes.map {
-    _.text
+  lazy val messages: Seq[String] = diagnosticNodes.map {
+    _.text.trim
   }
 
   def hasDiagnostics: Boolean = diagnosticNodes.nonEmpty
