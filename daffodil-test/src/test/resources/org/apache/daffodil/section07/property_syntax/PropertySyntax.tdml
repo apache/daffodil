@@ -488,20 +488,10 @@
     </xs:simpleType>
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="ignoredPropertiesWarning3" root="DinnerTime"
+  <tdml:parserTestCase name="propertiesOnTypeOfElement1" root="DinnerTime"
       model="PropertiesOnReferencedElements"
       roundTrip="true">
     <tdml:document><![CDATA[09]]></tdml:document>
-    <tdml:warnings>
-      <tdml:warning>DFDL property was ignored</tdml:warning>
-      <tdml:warning>textStandardBase</tdml:warning>
-      <tdml:warning>textStandardDecimalSeparator</tdml:warning>
-      <tdml:warning>textNumberPattern</tdml:warning>
-      <tdml:warning>textNumberRounding</tdml:warning>
-      <tdml:warning>textStandardGroupingSeparator</tdml:warning>
-      <tdml:warning>textNumberRep</tdml:warning>
-      <tdml:warning>textNumberCheckPolicy</tdml:warning>
-    </tdml:warnings>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <DinnerTime>
