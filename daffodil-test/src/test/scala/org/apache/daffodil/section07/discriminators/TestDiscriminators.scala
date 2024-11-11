@@ -79,7 +79,7 @@ class TestDiscriminators {
   @Test def test_discrimExpression_03() = { runner.runOneTest("discrimExpression_03") }
 
   // DAFFODIL-1971
-  // @Test def test_discrimExpression_04() = { runner.runOneTest("discrimExpression_04") }
+  @Test def test_discrimExpression_04() = { runner.runOneTest("discrimExpression_04") }
 
   @Test def test_discrimFailStopsFollowingAssert1(): Unit = {
     runner.runOneTest("discrimFailStopsFollowingAssert1")
