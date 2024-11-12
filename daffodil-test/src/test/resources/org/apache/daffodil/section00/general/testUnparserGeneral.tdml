@@ -952,4 +952,40 @@
     </tdml:infoset>
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="emptyOutputNewLine">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat" encoding="ascii"
+        lengthUnits="bytes"/>
+
+    <xs:element name="e1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:outputNewLine=""/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:outputNewLine=""/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="emptyOutputNewLine1" model="emptyOutputNewLine"
+      roundTrip="none">
+    <tdml:errors>
+      <tdml:error>dfdl:outputNewLine</tdml:error>
+      <tdml:error>length of string</tdml:error>
+      <tdml:error>1 character</tdml:error>
+      <tdml:error>CRLF</tdml:error>
+      <tdml:error>2 characters</tdml:error>
+    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:s1>hello</ex:s1>
+          <ex:s2>world</ex:s2>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:unparserTestCase>
+
+
 </tdml:testSuite>

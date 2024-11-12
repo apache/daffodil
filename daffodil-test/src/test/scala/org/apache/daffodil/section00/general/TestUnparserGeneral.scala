@@ -124,4 +124,7 @@ class TestUnparserGeneral {
   @Test def test_alignmentPaddingOVC3(): Unit = { runner.runOneTest("alignmentPaddingOVC3") }
   @Test def test_alignmentPaddingOVC4(): Unit = { runner.runOneTest("alignmentPaddingOVC4") }
 
+  // DFDL-1589
+  @Test def test_emptyOutputNewLine1(): Unit = { runner.runOneTest("emptyOutputNewLine1") }
+
 }
