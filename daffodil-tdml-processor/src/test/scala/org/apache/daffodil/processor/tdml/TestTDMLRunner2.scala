@@ -22,6 +22,7 @@ import org.apache.daffodil.lib.Implicits.using
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.Document
 import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.tdml.TDMLException
 
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
@@ -534,7 +535,7 @@ abc # a comment
     runner.reset
   }
 
-  @Test def testTDMLUnparse(): Unit = {
+  @Test def testTDMLUnparse1(): Unit = {
     val testSuite = <ts:testSuite xmlns:ts={tdml} xmlns:tns={tns} xmlns:dfdl={dfdl} xmlns:xs={
       xsd
     } xmlns:xsi={xsi} suiteName="theSuiteName">
@@ -555,6 +556,46 @@ abc # a comment
 
     val runner = Runner(testSuite)
     runner.runOneTest("testTDMLUnparse")
+    runner.reset
+  }
+
+  @Test def testTDMLUnparse2(): Unit = {
+    val testSuite = <ts:testSuite xmlns:ts={tdml} xmlns:tns={tns} xmlns:dfdl={dfdl} xmlns:xs={
+      xsd
+    } xmlns:xsi={xsi} suiteName="theSuiteName">
+                      <ts:defineSchema name="unparseTestSchema1">
+                        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+                        <dfdl:format ref="tns:GeneralFormat"/>
+                        <xs:element name="data">
+                          <xs:complexType>
+                            <xs:sequence>
+                              <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 9 }"/>
+                              <xs:element name="len" type="xs:string" dfdl:inputValueCalc="{ fn:string-length(../e1)}"/>
+                            </xs:sequence>
+                          </xs:complexType>
+                        </xs:element>
+                      </ts:defineSchema>
+                      <ts:unparserTestCase ID="some identifier" name="testTDMLUnparse" root="data" model="unparseTestSchema1">
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={example}>
+                              <e1>123456789</e1>
+                              <len/>
+                            </data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                        <ts:warnings>
+                          <ts:warning/>
+                        </ts:warnings>
+                      </ts:unparserTestCase>
+                    </ts:testSuite>
+
+    val runner = Runner(testSuite)
+    val err = intercept[TDMLException] {
+      runner.runOneTest("testTDMLUnparse")
+    }
+    val actualMessage = err.getMessage()
+    assertTrue(actualMessage.contains("Either tdml:document or tdml:errors must be present"))
     runner.reset
   }
 
