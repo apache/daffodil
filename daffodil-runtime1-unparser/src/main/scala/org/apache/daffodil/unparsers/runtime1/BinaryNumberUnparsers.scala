@@ -21,7 +21,6 @@ import java.lang.{ Long => JLong, Number => JNumber }
 
 import org.apache.daffodil.io.DataOutputStream
 import org.apache.daffodil.io.FormatInfo
-import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
@@ -34,6 +33,7 @@ import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Processor
+import org.apache.daffodil.runtime1.processors.parsers.BinaryNumberCheckWidth
 import org.apache.daffodil.runtime1.processors.parsers.HasKnownLengthInBits
 import org.apache.daffodil.runtime1.processors.parsers.HasRuntimeExplicitLength
 import org.apache.daffodil.runtime1.processors.unparsers._
@@ -77,7 +77,8 @@ abstract class BinaryNumberBaseUnparser(override val context: ElementRuntimeData
 }
 
 abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData)
-  extends BinaryNumberBaseUnparser(e) {
+  extends BinaryNumberBaseUnparser(e)
+  with BinaryNumberCheckWidth {
 
   private val primNumeric = e.optPrimType.get.asInstanceOf[NodeInfo.PrimType.PrimNumeric]
 
@@ -90,41 +91,12 @@ abstract class BinaryIntegerBaseUnparser(e: ElementRuntimeData)
     val state = finfo.asInstanceOf[UState]
     if (primNumeric.minWidth.isDefined) {
       val minWidth = primNumeric.minWidth.get
-      if (nBits < minWidth) {
-        val isSigned = primNumeric.isSigned
-        val signedStr = if (isSigned) "a signed" else "an unsigned"
-        val outOfRangeFmtStr =
-          "Minimum length for %s binary integer is %d bit(s), number of bits %d out of range. " +
-            "An unsigned integer with length 1 bit could be used instead."
-        if (isSigned && state.tunable.allowSignedIntegerLength1Bit && nBits == 1) {
-          state.SDW(
-            WarnID.SignedBinaryIntegerLength1Bit,
-            outOfRangeFmtStr,
-            signedStr,
-            minWidth,
-            nBits
-          )
-        } else {
-          UE(
-            state,
-            outOfRangeFmtStr,
-            signedStr,
-            minWidth,
-            nBits
-          )
-        }
-      }
+      val isSigned = primNumeric.isSigned
+      checkMinWidth(state, isSigned, nBits, minWidth)
     }
     if (primNumeric.maxWidth.isDefined) {
-      val width = primNumeric.maxWidth.get
-      if (nBits > width) {
-        UE(
-          state,
-          "Number of bits %d out of range, must be between 1 and %d bits.",
-          nBits,
-          width
-        )
-      }
+      val maxWidth = primNumeric.maxWidth.get
+      checkMaxWidth(state, nBits, maxWidth)
     }
     if (nBits > 64) {
       dos.putBigInt(asBigInt(value), nBits, primNumeric.isSigned, finfo)
@@ -279,7 +251,8 @@ abstract class BinaryDecimalUnparserBase(
   e: ElementRuntimeData,
   signed: YesNo,
   binaryDecimalVirtualPoint: Int
-) extends BinaryNumberBaseUnparser(e) {
+) extends BinaryNumberBaseUnparser(e)
+  with BinaryNumberCheckWidth {
 
   override def getNumberToPut(state: UState): JNumber = {
     val node = state.currentInfosetNode.asSimple
@@ -307,31 +280,9 @@ abstract class BinaryDecimalUnparserBase(
     finfo: FormatInfo
   ): Boolean = {
     val state = finfo.asInstanceOf[UState]
-    val isSigned = signed == Yes
-    val minWidth = if (isSigned) 2 else 1
-    if (nBits < minWidth) {
-      val signedStr = if (isSigned) "a signed" else "an unsigned"
-      val outOfRangeFmtStr =
-        "Minimum length for %s binary decimal is %d bit(s), number of bits %d out of range. " +
-          "An unsigned decimal with length 1 bit could be used instead."
-      if (isSigned && state.tunable.allowSignedIntegerLength1Bit && nBits == 1) {
-        state.SDW(
-          WarnID.SignedBinaryIntegerLength1Bit,
-          outOfRangeFmtStr,
-          signedStr,
-          minWidth,
-          nBits
-        )
-      } else {
-        UE(
-          state,
-          outOfRangeFmtStr,
-          signedStr,
-          minWidth,
-          nBits
-        )
-      }
-    }
-    dos.putBigInt(asBigInt(value), nBits, signed == YesNo.Yes, finfo)
+    val isSigned: Boolean = signed == Yes
+    val minWidth: Int = if (isSigned) 2 else 1
+    checkMinWidth(state, isSigned, nBits, minWidth)
+    dos.putBigInt(asBigInt(value), nBits, isSigned, finfo)
   }
 }

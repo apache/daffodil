@@ -55,8 +55,7 @@ abstract class PackedBinaryDecimalBaseParser(
     if (nBits == 0) {
       PE(
         start,
-        "Number of bits %d out of range for a binary decimal. " +
-          "An unsigned decimal with length 1 bit could be used instead.",
+        "Number of bits %d out of range for a packed decimal.",
         nBits
       )
       return
@@ -95,14 +94,9 @@ abstract class PackedBinaryIntegerBaseParser(
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
     if (nBits == 0) {
-      val signedStr = if (signed) "a signed" else "an unsigned"
-      val minWidth = if (signed) 2 else 1
       PE(
         start,
-        "Minimum length for %s binary integer is %d bit(s), number of bits %d out of range. " +
-          "An unsigned integer with length 1 bit could be used instead.",
-        signedStr,
-        minWidth,
+        "Number of bits %d out of range for a packed integer.",
         nBits
       )
       return

@@ -251,6 +251,9 @@ class TestLengthKindExplicit {
   @Test def test_inRangeLengthBinaryInteger9(): Unit = {
     runner.runOneTest("inRangeLengthBinaryInteger9")
   }
+  @Test def test_inRangeLengthBinaryInteger10(): Unit = {
+    runner.runOneTest("inRangeLengthBinaryInteger10")
+  }
   @Test def test_outOfRangeLengthBinaryDecimal1(): Unit = {
     runner.runOneTest("outOfRangeLengthBinaryDecimal1")
   }

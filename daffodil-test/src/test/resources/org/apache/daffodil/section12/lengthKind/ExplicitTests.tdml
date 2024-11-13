@@ -1622,6 +1622,9 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="packed5" dfdl:binaryNumberRep="packed" type="xs:int"
+        dfdl:binaryPackedSignCodes="C D F C" dfdl:inputValueCalc="{ 4668 }"/>
   </tdml:defineSchema>
 
   <tdml:defineConfig name="disallowSignedIntegerLength1Bit">
@@ -1705,7 +1708,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>signed binary integer</tdml:error>
+      <tdml:error>signed binary number</tdml:error>
       <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>1 out of range</tdml:error>
     </tdml:errors>
@@ -1723,15 +1726,16 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>unsigned binary integer</tdml:error>
+      <tdml:error>unsigned binary number</tdml:error>
       <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
   <tdml:unparserTestCase name="outOfRangeLengthBinaryInteger7" root="spare5" model="BinaryIntegers"
-      description="SDW when attempting to use length 1 (expr) signed binary integer. This won't roundtrip
+      description="no SDW when attempting to use length 1 (expr) signed binary integer. This won't roundtrip
                     because signed integers need 2 bits, so it will unparse only 1 bit which is unsigned"
-      roundTrip="false">
+      roundTrip="false"
+      ignoreUnexpectedWarnings="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:spare5>
@@ -1743,18 +1747,13 @@
     <tdml:document>
       <tdml:documentPart type="byte">0180</tdml:documentPart>
     </tdml:document>
-    <tdml:warnings>
-      <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>signed binary integer</tdml:warning>
-      <tdml:warning>2 bit(s)</tdml:warning>
-      <tdml:warning>1 out of range</tdml:warning>
-    </tdml:warnings>
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="outOfRangeLengthBinaryInteger8" root="spare5" model="BinaryIntegers"
-      description="SDW when attempting to use length 1 (expr) signed binary integer. This won't roundtrip
+      description="no SDW when attempting to use length 1 (expr) signed binary integer. This won't roundtrip
                     because signed integers need 2 bits, so it will unparse only 1 bit which is unsigned"
-      roundTrip="false">
+      roundTrip="false"
+      ignoreUnexpectedWarnings="false">
     <tdml:document>
       <tdml:documentPart type="byte">01</tdml:documentPart>
       <tdml:documentPart type="bits">1</tdml:documentPart>
@@ -1767,12 +1766,6 @@
         </ex:spare5>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>Schema Definition Warning</tdml:warning>
-      <tdml:warning>signed binary integer</tdml:warning>
-      <tdml:warning>2 bit(s)</tdml:warning>
-      <tdml:warning>1 out of range</tdml:warning>
-    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="outOfRangeLengthBinaryInteger9" root="spare3" model="BinaryIntegers"
@@ -1801,8 +1794,6 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>signed binary integer</tdml:error>
-      <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -1815,8 +1806,6 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>signed binary integer</tdml:error>
-      <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -1829,8 +1818,6 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>unsigned binary integer</tdml:error>
-      <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -1843,8 +1830,6 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>unsigned binary integer</tdml:error>
-      <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -1986,6 +1971,18 @@
     </tdml:document>
   </tdml:unparserTestCase>
 
+  <tdml:parserTestCase name="inRangeLengthBinaryInteger10" root="packed5" model="BinaryIntegers"
+      description="No Parse Error when attempting to use in range packed binary integer">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:packed5>4668</ex:packed5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"/>
+    </tdml:document>
+  </tdml:parserTestCase>
+
   <tdml:defineSchema name="BinaryDecimals">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" binaryDecimalVirtualPoint="0" lengthKind="explicit" representation="binary" lengthUnits="bits"/>
@@ -2029,7 +2026,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>unsigned binary decimal</tdml:error>
+      <tdml:error>unsigned binary number</tdml:error>
       <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
@@ -2045,7 +2042,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>signed binary decimal</tdml:error>
+      <tdml:error>signed binary number</tdml:error>
       <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>1 out of range</tdml:error>
     </tdml:errors>
@@ -2060,7 +2057,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>unsigned binary decimal</tdml:error>
+      <tdml:error>unsigned binary number</tdml:error>
       <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
@@ -2076,14 +2073,15 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>signed binary decimal</tdml:error>
+      <tdml:error>signed binary number</tdml:error>
       <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>1 out of range</tdml:error>
     </tdml:errors>
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="outOfRangeLengthBinaryDecimal5" root="dec3" model="BinaryDecimals"
-      description="SDW when attempting to use length 1 signed binary decimal">
+      description="no SDW when attempting to use length 1 signed binary decimal"
+      ignoreUnexpectedWarnings="false">
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart>
     </tdml:document>
@@ -2092,16 +2090,11 @@
         <ex:dec3>1</ex:dec3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:warnings>
-      <tdml:warning>Runtime Schema Definition Warning</tdml:warning>
-      <tdml:warning>signed binary decimal</tdml:warning>
-      <tdml:warning>2 bit(s)</tdml:warning>
-      <tdml:warning>1 out of range</tdml:warning>
-    </tdml:warnings>
   </tdml:parserTestCase>
 
   <tdml:unparserTestCase name="outOfRangeLengthBinaryDecimal6" root="dec3" model="BinaryDecimals"
-      description="SDW when attempting to use length 1 signed binary decimal">
+      description="no SDW when attempting to use length 1 signed binary decimal"
+      ignoreUnexpectedWarnings="false">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:dec3>1</ex:dec3>
@@ -2110,12 +2103,6 @@
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart>
     </tdml:document>
-    <tdml:warnings>
-      <tdml:warning>Runtime Schema Definition Warning</tdml:warning>
-      <tdml:warning>signed binary decimal</tdml:warning>
-      <tdml:warning>2 bit(s)</tdml:warning>
-      <tdml:warning>1 out of range</tdml:warning>
-    </tdml:warnings>
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="outOfRangeLengthBinaryDecimal7" root="dec6" model="BinaryDecimals"
@@ -2126,7 +2113,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>signed binary decimal</tdml:error>
+      <tdml:error>signed binary number</tdml:error>
       <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
@@ -2144,7 +2131,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>signed binary decimal</tdml:error>
+      <tdml:error>signed binary number</tdml:error>
       <tdml:error>2 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
@@ -2158,7 +2145,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>signed binary decimal</tdml:error>
+      <tdml:error>signed binary number</tdml:error>
       <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
@@ -2176,7 +2163,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>signed binary decimal</tdml:error>
+      <tdml:error>signed binary number</tdml:error>
       <tdml:error>1 bit(s)</tdml:error>
       <tdml:error>0 out of range</tdml:error>
     </tdml:errors>
