@@ -359,4 +359,46 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="overlappingProperties1" root="outer" roundTrip="onePass"
+      model="/org/apache/daffodil/section07/property_syntax/property_syntax_overlap2.dfdl.xsd"
+      ignoreUnexpectedWarnings="false">
+    <tdml:document>hello</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <outer>
+          <e1>hello</e1>
+        </outer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="PropertySyntaxOverlap">
+
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited"
+        lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+        terminator="" occursCountKind="parsed" ignoreCase="no"
+        textNumberRep="standard" representation="text" initiatedContent="no" />
+
+    <xs:element name="e1" type="xs:string" dfdl:lengthUnits="bits"/>
+
+    <xs:element name="outer">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:e1" dfdl:lengthUnits="bytes"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="overlappingProperties2" root="outer" roundTrip="onePass"
+      model="PropertySyntaxOverlap"
+      ignoreUnexpectedWarnings="false">
+    <tdml:document>hello</tdml:document>
+    <tdml:errors>
+      <tdml:error>Overlap is not allowed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
