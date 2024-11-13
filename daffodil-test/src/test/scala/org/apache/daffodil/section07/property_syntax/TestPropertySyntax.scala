@@ -66,6 +66,13 @@ class TestPropertySyntax {
   @Test def test_ignoredPropertiesWarning(): Unit = {
     runner1.runOneTest("ignoredPropertiesWarning")
   }
+  // DFDL-1842
+  @Test def test_overlappingProperties1(): Unit = {
+    runner1.runOneTest("overlappingProperties1")
+  }
+  @Test def test_overlappingProperties2(): Unit = {
+    runner1.runOneTest("overlappingProperties2")
+  }
 
   @Test def test_badElementFormProperty(): Unit = {
     runner1.runOneTest("badElementFormProperty")
