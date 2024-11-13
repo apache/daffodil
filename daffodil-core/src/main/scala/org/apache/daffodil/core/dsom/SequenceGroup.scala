@@ -217,9 +217,10 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
   }
 
   private lazy val checkUnorderedSequenceMembersHaveUniqueNamesInNamespaces: Unit = {
-    // previous checks should ensure that all group members for unordered sequences are either local
+    // previous checks should ensure that all element children for unordered sequences are either local
     // elements or element references
-    groupChildrenBy(_.namedQName)
+    elementChildren
+      .groupBy(_.namedQName)
       .filter(_._2.length > 1)
       .values
       .foreach { children =>
@@ -229,13 +230,9 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
       }
   }
 
-  private def groupChildrenBy[T](func: (ElementBase) => T): Map[T, Seq[ElementBase]] = {
-    val childrenGrouped = elementChildren.groupBy { gm => func(gm) }
-    childrenGrouped
-  }
-
   private lazy val checkIfMultipleChildrenWithSameName: Unit = {
-    groupChildrenBy(_.name)
+    elementChildren
+      .groupBy(_.name)
       .filter(_._2.length > 1)
       .values
       .foreach { children =>
