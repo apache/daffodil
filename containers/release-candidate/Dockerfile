@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM registry.fedoraproject.org/fedora:40
+FROM registry.fedoraproject.org/fedora:41
 
 WORKDIR /root
 
@@ -24,11 +24,6 @@ RUN rm -rf /root/*
 
 # Install dependencies, explicitly not enabling the updates repo so we are
 # pinned at a particular fedora release.
-#
-# Note that the default nodejs package shipped with fedora 40 has a bug that
-# can sometimes lead to SIGILL errors on some architectures. So we also upgrade
-# to the latest nodejs version to fix this. However we only upgrade the one
-# package so we are still mostly pinned to the Fedora 40 release.
 RUN \
   dnf -y --quiet --repo=fedora install \
     clang \
@@ -46,8 +41,6 @@ RUN \
     vim-minimal \
     wine \
     winetricks && \
-  dnf -y --quiet --repo=updates upgrade-minimal \
-    nodejs && \
   dnf clean all
 
 # Enable sbt-pgp plugin
