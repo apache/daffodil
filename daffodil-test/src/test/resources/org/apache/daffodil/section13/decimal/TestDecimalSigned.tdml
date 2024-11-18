@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<testSuite
+  description="For type xs:decimal this tests interactions of decimalSigned='no'
+  with negative values being unparsed and parsed."
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  defaultRoundTrip="none">
+
+  <tdml:defineSchema name="s" xmlns="http://www.w3.org/2001/XMLSchema"
+                     elementFormDefault="unqualified" useDefaultNamespace="false">
+    <include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+
+    <dfdl:format ref="ex:GeneralFormat"
+                 representation="binary"
+                 lengthKind="explicit"
+                 binaryDecimalVirtualPoint="2"
+                 binaryPackedSignCodes="C D F C"/>
+
+    <element name="r1" type="xs:decimal" dfdl:decimalSigned="no" dfdl:length="2" dfdl:binaryNumberRep="binary"/>
+
+    <!-- BCD is never signed, so cannot represent a negative value -->
+    <element name="r2" type="xs:decimal" dfdl:decimalSigned="yes" dfdl:length="2" dfdl:binaryNumberRep="bcd"/>
+
+    <element name="r3" type="xs:decimal" dfdl:decimalSigned="no" dfdl:length="2" dfdl:binaryNumberRep="packed"/>
+
+    <element name="r4" type="xs:decimal" dfdl:decimalSigned="no" dfdl:length="2" dfdl:binaryNumberRep="ibm4690Packed"/>
+
+
+  </tdml:defineSchema>
+
+  <parserTestCase name="parseTestDecimalSigned_no_binary" root="r1" model="s"
+    description="decimalSigned='no' works for parsing with binaryNumberRep='binary'" >
+    <document>
+      <!-- same bytes as -123 as big-endian twos complement 2-bytes -->
+      <documentPart type="byte">FF85</documentPart>
+    </document>
+    <infoset>
+      <dfdlInfoset>
+        <ex:r1>654.13</ex:r1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+
+  <unparserTestCase name="unparseTestDecimalSigned_no_binary" root="r1" model="s"
+                  description="negative values cannot unparse as decimal when decimalSigned is 'no'" >
+    <infoset>
+      <dfdlInfoset>
+        <ex:r1>-1.23</ex:r1>
+      </dfdlInfoset>
+      <!-- representation of this as 2s complement would be 0xFF85 -->
+    </infoset>
+     <errors>
+      <error>Unparse Error</error>
+      <error>unsigned</error>
+    </errors>
+  </unparserTestCase>
+
+  <parserTestCase name="parseTestdecimalSigned_no_bcd" root="r2" model="s"
+                    description="negative values cannot parse as decimal BCD" >
+    <document>
+      <documentPart type="byte">D123</documentPart><!-- unparses as packed -->
+    </document>
+    <errors>
+      <error>Parse Error</error>
+      <error>13</error>
+    </errors>
+  </parserTestCase>
+
+  <unparserTestCase name="unparseTestdecimalSigned_no_bcd" root="r2" model="s"
+                    description="negative values cannot unparse as decimal BCD" >
+    <infoset>
+      <dfdlInfoset>
+        <ex:r2>-1.23</ex:r2>
+      </dfdlInfoset>
+    </infoset>
+    <!-- This should unparse error. Instead it unparses as D123, where that D is a sign digit.
+    This is not allowed in BCD which is unsigned only -->
+    <document>
+      <documentPart type="byte">0123</documentPart><!-- unparses as packed -->
+    </document>
+  </unparserTestCase>
+
+  <parserTestCase name="parseTestDecimalSigned_no_packed" root="r3" model="s"
+    description="negative packed representation should fail to parse as decimal when decimalSigned='no'">
+    <document>
+      <documentPart type="byte">
+        123D
+      </documentPart>
+    </document>
+    <errors>
+      <error>Parse Error</error>
+      <error>unsigned</error>
+    </errors>
+  </parserTestCase>
+
+  <unparserTestCase name="unparseTestDecimalSigned_no_packed" model="s"
+                    description="negative values cannot unparse as decimal when decimalSigned is 'no'" >
+    <infoset>
+      <dfdlInfoset>
+        <ex:r3>-1.23</ex:r3>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Unparse Error</error>
+      <error>unsigned</error>
+    </errors>
+  </unparserTestCase>
+
+  <parserTestCase name="parseTestDecimalSigned_no_ibm4690Packed" root="r4" model="s"
+                  description="negative packed representation should fail to parse as decimal when decimalSigned='no'">
+    <document>
+      <documentPart type="byte">
+        D123
+      </documentPart>
+    </document>
+    <errors>
+      <error>Parse Error</error>
+      <error>unsigned</error>
+    </errors>
+  </parserTestCase>
+
+  <unparserTestCase name="unparseTestDecimalSigned_no_ibm4690Packed" model="s"
+                    description="negative values cannot unparse as decimal when decimalSigned is 'no'" >
+    <infoset>
+      <dfdlInfoset>
+        <ex:r4>-1.23</ex:r4>
+      </dfdlInfoset>
+    </infoset>
+    <errors>
+      <error>Unparse Error</error>
+      <error>unsigned</error>
+    </errors>
+  </unparserTestCase>
+
+
+</testSuite>
