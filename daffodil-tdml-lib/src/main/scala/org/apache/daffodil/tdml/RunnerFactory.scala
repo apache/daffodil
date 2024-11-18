@@ -196,6 +196,15 @@ class Runner private (
   def this(elem: scala.xml.Elem) =
     this(Left(elem))
 
+  /**
+   * Uses sourcecode library to capture method name
+   * and use it as the test name.
+   *
+   * @param methodName implicitly computed name of method calling this method.
+   */
+  def doTest(implicit methodName: sourcecode.Enclosing): Unit =
+    runOneTest(methodName.value.split("#").last)
+
   private var ts: DFDLTestSuite = null
 
   // This Runner should only ever have a single DFDLTestSuite associated with

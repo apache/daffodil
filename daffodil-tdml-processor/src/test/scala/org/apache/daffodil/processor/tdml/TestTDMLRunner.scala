@@ -42,6 +42,39 @@ class TestTDMLRunner {
   val tns = example
   // val sub = XMLUtils.DFDL_XMLSCHEMASUBSET_NAMESPACE
 
+  private lazy val verySimpleTestSuite =
+    <testSuite xmlns={tdml}
+               xmlns:tdml={tdml}
+               xmlns:xs={xsd}
+               xmlns:ex="http://example.com"
+               xmlns:dfdl={dfdl}>
+      <defineSchema name="mySchema" useDefaultNamespace="false">
+        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+        <dfdl:format ref="ex:GeneralFormat"/>
+        <xs:element name="data" type="xs:int" dfdl:lengthKind="delimited"/>
+      </defineSchema>
+      <parserTestCase name="testImplicitTestName" root="data" model="mySchema" validation="off">
+        <document>37</document>
+        <infoset>
+          <dfdlInfoset>
+            <ex:data>37</ex:data>
+          </dfdlInfoset>
+        </infoset>
+      </parserTestCase>
+    </testSuite>
+
+  /**
+   * Test that we can use the method name as the test name
+   * when invoking the test.
+   *
+   * This is just convenient as it makes for less redundant typing.
+   */
+  @Test def testImplicitTestName(): Unit = {
+    val runner = new Runner(verySimpleTestSuite)
+    runner.doTest // Run the test. This method name is used as the test name.
+    runner.reset
+  }
+
   @Test def test3(): Unit = {
     // This tests when there are parseTestCases in the same suite that use the
     // same DFDL schema but have different validation modes. The non-validation
