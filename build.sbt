@@ -161,7 +161,7 @@ lazy val tdmlLib = Project("daffodil-tdml-lib", file("daffodil-tdml-lib"))
     io % "test->test",
     slf4jLogger % "test"
   )
-  .settings(commonSettings, libraryDependencies ++= Dependencies.tdmlTest)
+  .settings(commonSettings, libraryDependencies ++= Dependencies.tdml)
 
 lazy val tdmlProc = Project("daffodil-tdml-processor", file("daffodil-tdml-processor"))
   .dependsOn(tdmlLib, codeGenC, core, slf4jLogger)

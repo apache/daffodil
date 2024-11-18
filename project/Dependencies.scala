@@ -50,7 +50,7 @@ object Dependencies {
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "test"
   )
 
-  lazy val tdmlTest = Seq(
+  lazy val tdml = Seq(
     "com.lihaoyi" %% "sourcecode" % "0.4.2" // NOT a "test" dependency
   )
 
