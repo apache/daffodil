@@ -672,7 +672,8 @@ is subject to the terms and conditions of the following licenses.
 
 - com.lihaoyi.geny_<VERSION>.jar
 - com.lihaoyi.os-lib_<VERSION>.jar
-  This product bundles 'os-lib' from the above files.
+- com.lihaoyi.sourcecode_<VERSION>.jar
+  This product bundles 'os-lib' and 'sourcecode' by Li Haoyi from the above files.
   These files are available under the MIT license:
 
     License
