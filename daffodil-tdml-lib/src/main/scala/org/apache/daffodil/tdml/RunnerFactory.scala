@@ -141,7 +141,7 @@ object Runner {
  * were a resource on the classpath. Otherwise it is treated as if it were a
  * URI.
  */
-class Runner private (
+final class Runner private (
   source: Either[scala.xml.Elem, String],
   optTDMLImplementation: Option[TDMLImplementation] = None,
   validateTDMLFile: Boolean = true,
