@@ -814,6 +814,11 @@ object XMLUtils {
 
   class XMLDifferenceException(message: String) extends Exception(message)
 
+  /**
+   * Compares two XML Elements, after having (optionally) stripped off all attributes.
+   *
+   * Throws XMLDifferenceException if not the same.
+   */
   def compareAndReport(
     expected: Node,
     actual: Node,

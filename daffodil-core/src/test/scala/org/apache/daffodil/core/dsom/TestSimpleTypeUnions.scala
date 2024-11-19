@@ -16,8 +16,7 @@
  */
 
 package org.apache.daffodil.core.dsom
-
-import org.apache.daffodil.core.util._
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.dpath.NodeInfo._
@@ -110,7 +109,7 @@ class TestSimpleTypeUnions {
     assertEquals("int1Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>1</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testUnionSecondUnionMemberOk(): Unit = {
@@ -125,7 +124,7 @@ class TestSimpleTypeUnions {
     assertEquals("int2Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>2</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testUnionNoUnionMemberOK(): Unit = {
@@ -263,7 +262,7 @@ class TestSimpleTypeUnions {
     assertEquals("int12Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>1</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testUnionNot3_02(): Unit = {
@@ -278,7 +277,7 @@ class TestSimpleTypeUnions {
     assertEquals("int12Type", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>2</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testUnionNot3_03(): Unit = {
@@ -296,7 +295,7 @@ class TestSimpleTypeUnions {
     ) // anonymous simple type gets this name from base.
     assertTrue(i.valid.get)
     val expected = <e1>-1</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   val testSchema3 = SchemaUtils.dfdlTestSchema(
@@ -358,7 +357,7 @@ class TestSimpleTypeUnions {
     assertEquals("ex:foo3or4bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>foo3bar</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testRestrictionOnUnion_02(): Unit = {
@@ -373,7 +372,7 @@ class TestSimpleTypeUnions {
     assertEquals("foo1or2bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>foo1bar</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testRestrictionOnUnion_03(): Unit = {
@@ -388,7 +387,7 @@ class TestSimpleTypeUnions {
     assertEquals("foo1or2bar", umstrd.diagnosticDebugName)
     assertTrue(i.valid.get)
     val expected = <e1>foo2bar</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testRestrictionOnUnionFail_01(): Unit = {

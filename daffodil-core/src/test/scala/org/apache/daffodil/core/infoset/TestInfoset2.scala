@@ -16,8 +16,7 @@
  */
 
 package org.apache.daffodil.core.infoset
-
-import org.apache.daffodil.core.util._
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -59,7 +58,7 @@ class TestInfoset2 {
       // make sure that is resolved.
       assertFalse(xmlStr.contains("No_Namespace"))
       assertTrue(xmlStr.contains("xmlns=\"\""))
-      TestUtils.assertEqualsXMLElements(<b><c>2</c><a>A</a><a>B</a></b>, xml)
+      XMLUtils.compareAndReport(<b><c>2</c><a>A</a><a>B</a></b>, xml)
     } finally {
       // Debugger.setDebugging(false)
     }

@@ -18,25 +18,23 @@
 package org.apache.daffodil.core.util
 
 import java.io.ByteArrayInputStream
-import java.io.File
-import java.io.FileNotFoundException
 import java.io.InputStream
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-import java.nio.file.Paths
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml._
 
 import org.apache.daffodil.core.compiler.Compiler
+import org.apache.daffodil.core.compiler.ProcessorFactory
 import org.apache.daffodil.core.dsom._
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.api._
+import org.apache.daffodil.lib.exceptions.MultiException
 import org.apache.daffodil.lib.externalvars.Binding
 import org.apache.daffodil.lib.util._
-import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml._
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.api.MetadataHandler
@@ -48,9 +46,6 @@ import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetOutputter
 import org.apache.daffodil.runtime1.processors.DataProcessor
 import org.apache.daffodil.runtime1.processors.VariableMap
 
-import org.apache.commons.io.output.NullOutputStream
-import org.junit.Assert.assertEquals
-
 object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
 
 /*
@@ -60,31 +55,8 @@ object INoWarnU2 { ImplicitsSuppressUnusedImportWarning() }
  */
 object TestUtils {
 
-  /**
-   * Compares two XML Elements, after having (optionally) stripped off all attributes.
-   */
-  def assertEqualsXMLElements(expected: Node, actual: Node): Unit = {
-    XMLUtils.compareAndReport(expected, actual)
-  }
-
-  /**
-   * We want to be able to run tests from Eclipse or from batch builds that
-   * are rooted in a different directory, so, since Java/JVMs don't have a notion
-   * of setting the current directory to a specific value for interpreting things,
-   * we have to do that ourselves manually like this.
-   *
-   * When you specify a file for use in a test, you want to specify it
-   * relative to the root of the sub-project of which it is part. I.e., within core,
-   * the file you specify should be relative to daffodil/sub-projects/core.
-   *
-   * Returns null if the file cannot be found.
-   */
-  def findFile(fn: String): File = findFile(new File(fn))
-  def findFile(f: File): File = {
-    if (f.exists()) return f
-    val cwd = new File("").getAbsolutePath
-    throw new FileNotFoundException("Couldn't find file " + f + " relative to " + cwd + ".")
-  }
+  def assertEquals[T](expected: T, actual: T) =
+    if (expected != actual) throw new AssertionError("assertEquals failed.")
 
   def testString(testSchema: Node, data: String, areTracing: Boolean = false) = {
     runSchemaOnRBC(testSchema, Misc.stringToReadableByteChannel(data), areTracing)
@@ -108,11 +80,7 @@ object TestUtils {
     runSchemaOnRBC(testSchema, rbc, areTracing)
   }
 
-  def testFile(testSchema: Node, fileName: String) = {
-    runSchemaOnRBC(testSchema, Misc.fileToReadableByteChannel(new java.io.File(fileName)))
-  }
-
-  val useSerializedProcessor = true
+  private val useSerializedProcessor = true
 
   def testUnparsing(
     testSchema: scala.xml.Elem,
@@ -122,15 +90,9 @@ object TestUtils {
   ): Seq[Diagnostic] = {
     val compiler = Compiler().withTunable("allowExternalPathExpressions", "true")
     val pf = compiler.compileNode(testSchema)
-    if (pf.isError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
-      throw new Exception(msgs)
-    }
+    if (pf.isError) throwDiagnostics(pf.getDiagnostics)
     var u = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
-    if (u.isError) {
-      val msgs = u.getDiagnostics.map(_.getMessage()).mkString("\n")
-      throw new Exception(msgs)
-    }
+    if (u.isError) throwDiagnostics(u.getDiagnostics)
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
     u = if (areTracing) {
@@ -138,9 +100,7 @@ object TestUtils {
     } else u
     val inputter = new ScalaXMLInfosetInputter(infosetXML)
     val actual = u.unparse(inputter, out)
-    if (actual.isProcessingError) {
-      throwDiagnostics(actual.getDiagnostics)
-    }
+    if (actual.isProcessingError) throwDiagnostics(actual.getDiagnostics)
     val unparsed = outputStream.toString
     //    System.err.println("parsed: " + infoset)
     //    System.err.println("unparsed: " + unparsed)
@@ -149,12 +109,8 @@ object TestUtils {
     actual.getDiagnostics
   }
 
-  def throwDiagnostics(ds: Seq[Diagnostic]): Unit = {
-    if (ds.length == 1) throw (ds(0))
-    else {
-      val msgs = ds.map(_.getMessage()).mkString("\n")
-      throw new Exception(msgs)
-    }
+  private def throwDiagnostics(ds: Seq[Diagnostic]): Nothing = {
+    new MultiException(ds).toss
   }
 
   def testUnparsingBinary(
@@ -208,22 +164,13 @@ object TestUtils {
   def compileSchema(testSchema: Node) = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
-    val isError = pf.isError
-    val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
-
-    if (isError) {
-      throw new Exception(msgs)
-    }
+    if (pf.isError) throwDiagnostics(pf.getDiagnostics)
     val p = saveAndReload(pf.onPath("/").asInstanceOf[DataProcessor])
-    val pIsError = p.isError
-    if (pIsError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage()).mkString("\n")
-      throw new Exception(msgs)
-    }
+    if (p.isError) throwDiagnostics(p.getDiagnostics)
     p
   }
 
-  def runSchemaOnRBC(
+  private def runSchemaOnRBC(
     testSchema: Node,
     data: ReadableByteChannel,
     areTracing: Boolean = false
@@ -231,7 +178,7 @@ object TestUtils {
     runSchemaOnInputStream(testSchema, Channels.newInputStream(data), areTracing)
   }
 
-  def runSchemaOnInputStream(
+  private def runSchemaOnInputStream(
     testSchema: Node,
     is: InputStream,
     areTracing: Boolean = false
@@ -255,12 +202,7 @@ object TestUtils {
     val outputter = new ScalaXMLInfosetOutputter()
     val input = InputSourceDataInputStream(is)
     val actual = p.parse(input, outputter)
-    if (actual.isProcessingError) {
-      val diags = actual.getDiagnostics
-      if (diags.length == 1) throw diags(0)
-      val msgs = diags.map(_.getMessage()).mkString("\n")
-      throw new Exception(msgs)
-    }
+    if (actual.isProcessingError) throwDiagnostics(actual.getDiagnostics)
     (actual, outputter.getResult)
   }
 
@@ -292,51 +234,15 @@ object TestUtils {
     compiler: Compiler,
     schemaSource: URISchemaSource,
     output: WritableByteChannel
-  ) = {
+  ): Try[(ProcessorFactory, DFDL.DataProcessor)] = {
     Try {
       val pf = compiler.compileSource(schemaSource)
-      if (!pf.isError) {
-        val dp = pf.onPath("/")
-        dp.save(output)
-        if (!dp.isError) {
-          (pf, dp)
-        } else {
-          throw new Exception(
-            (dp.getDiagnostics ++ pf.getDiagnostics).map { _.getMessage() }.mkString("\n")
-          )
-        }
-      } else
-        throw new Exception(pf.getDiagnostics.map { _.getMessage() }.mkString("\n"))
+      if (pf.isError) throwDiagnostics(pf.getDiagnostics)
+      val dp = pf.onPath("/")
+      dp.save(output)
+      if (dp.isError) throwDiagnostics(dp.getDiagnostics ++ pf.getDiagnostics)
+      (pf, dp)
     }
-  }
-
-  def testCompileTime(resourcePathString: String): Unit = {
-    val nos = NullOutputStream.INSTANCE
-    val nullChannel = java.nio.channels.Channels.newChannel(nos)
-    val compiler = Compiler()
-    val uri = Misc.getRequiredResource(resourcePathString)
-    val schemaSource = URISchemaSource(Paths.get(resourcePathString).toFile, uri)
-    val theTry = Timer.getResult(compileAndSave(compiler, schemaSource, nullChannel))
-    theTry.get
-  }
-
-  /**
-   * Gets some sort of a message from a throwable. Includes messages from all
-   * classes in the cause chain. If there is no message, just uses the class name.
-   * @param cause
-   * @return
-   */
-  def getAMessage(cause: Throwable): String = {
-    val n1 = Misc.getNameFromClass(cause)
-    val m = cause.getMessage
-    val c = cause.getCause
-    val s = (m, c) match {
-      case (null, null) => Misc.getNameFromClass(cause)
-      case (null, c) => getAMessage(c)
-      case (m, null) => m
-      case (m, c) => m + " " + getAMessage(c)
-    }
-    n1 + s"($s)"
   }
 }
 
@@ -397,7 +303,7 @@ class Fakes private () {
   lazy val fakeSequenceGroupRef = fs3.asInstanceOf[SequenceGroupRef]
   lazy val fakeGroupRefFactory = GroupRefFactory(fs1.xml, fs1, 1, false)
 
-  class FakeDataProcessor extends DFDL.DataProcessor {
+  private class FakeDataProcessor extends DFDL.DataProcessor {
     override def save(output: DFDL.Output): Unit = {}
     override def parse(
       input: InputSourceDataInputStream,
@@ -428,7 +334,7 @@ class Fakes private () {
     ): DFDL.DaffodilUnparseContentHandler = null
 
   }
-  lazy val fakeDP = new FakeDataProcessor
+  lazy val fakeDP: DFDL.DataProcessor = new FakeDataProcessor
 
 }
 
@@ -436,10 +342,7 @@ class Fakes private () {
  * Testing class for streaming message parse behavior
  */
 object StreamParser {
-  case class CompileFailure(diags: Seq[Diagnostic])
-    extends Exception("DFDL Schema Compile Failure") {
-    override def getMessage() = diags.map { _.toString }.mkString(",\n")
-  }
+  case class CompileFailure(diags: Seq[Diagnostic]) extends MultiException(diags)
 
   /**
    * Result object for parse calls. Just a tuple.
@@ -473,37 +376,38 @@ object StreamParser {
     }
   }
 
-  def doStreamTest(schema: Node, data: String): Seq[Result] = {
+  def doStreamTest(schema: Node, data: String): Stream[Result] = {
     val mp = new StreamParser(schema)
     val is: InputStream = new ByteArrayInputStream(data.getBytes("ascii"))
     mp.setInputStream(is)
     var r: StreamParser.Result = null
     val results = new ArrayBuffer[Result]
     val resStream = Stream.continually(mp.parse).takeWhile(r => !r.isProcessingError)
-    resStream.toSeq
+    resStream
   }
 }
 
-class StreamParser(val schema: Node) {
+class StreamParser private (val schema: Node) {
 
-  val outputter = new ScalaXMLInfosetOutputter()
-  var dis: InputSourceDataInputStream = _
-  var dp: DFDL.DataProcessor = _
+  private lazy val outputter = new ScalaXMLInfosetOutputter()
+  private var dis: InputSourceDataInputStream = _
+
   //
   // First compile the DFDL Schema
-  val c = Compiler()
-  val pf = c.compileNode(schema)
-  val pfDiags = pf.getDiagnostics
-  if (pf.isError) throw new StreamParser.CompileFailure(pfDiags)
-  dp = pf
-    .onPath("/")
-    .withValidationMode(ValidationMode.Full)
-  // .withDebuggerRunner(new TraceDebuggerRunner()) // DAFFODIL-2624 - cannot trace in streaming SAPI
-  // .withDebugging(true)
-  val dpDiags = dp.getDiagnostics
-  if (dp.isError) throw new StreamParser.CompileFailure(dpDiags)
-  val compilationWarnings =
-    if (!pfDiags.isEmpty) pfDiags else dpDiags // dpDiags might be empty. That's ok.
+  private lazy val c = Compiler()
+  private lazy val pf = c.compileNode(schema)
+  private val dp = {
+    if (pf.isError) throw new StreamParser.CompileFailure(pf.getDiagnostics)
+    val dataproc = pf
+      .onPath("/")
+      .withValidationMode(ValidationMode.Full)
+    // .withDebuggerRunner(new TraceDebuggerRunner()) // DAFFODIL-2624 - cannot trace in streaming SAPI
+    // .withDebugging(true)
+    if (dataproc.isError) throw new StreamParser.CompileFailure(dataproc.getDiagnostics)
+    dataproc
+  }
+
+  lazy val compilationWarnings: Seq[Diagnostic] = pf.getDiagnostics ++ dp.getDiagnostics
 
   def setInputStream(inputStream: InputStream): Unit = {
     dis = InputSourceDataInputStream(inputStream)

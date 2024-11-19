@@ -45,6 +45,31 @@ abstract class ThinException protected (dummy: Int, cause: Throwable, fmt: Strin
   def this(cause: Throwable) = this(1, cause, null)
 }
 
+/**
+ * Used for when multiple diagnostic or exception/throwable objects have been
+ * gathered and we want to throw all of them.
+ * @param causes
+ * @tparam T
+ */
+class MultiException[T <: Throwable] private (causes: Seq[T], msg: String, cause: T)
+  extends ThinException(msg, cause) {
+  def this(causes: Seq[T]) = this(
+    causes,
+    null,
+    causes.headOption.getOrElse(
+      Assert.usageError("There must be one or more causes.")
+    )
+  )
+  private lazy val msgs = causes.map { Misc.getAMessage(_) }.mkString("\n")
+  override def getMessage(): String = msgs
+  def getCauses(): Seq[T] = causes
+  def toss: Nothing =
+    if (causes.length == 1)
+      throw cause
+    else
+      throw this
+}
+
 // $COVERAGE-OFF$ These exception objects should never be created by tests.
 abstract class UnsuppressableException(m: String, th: Throwable) extends Exception(m, th) {
   def this(msg: String) = this(msg, null)
