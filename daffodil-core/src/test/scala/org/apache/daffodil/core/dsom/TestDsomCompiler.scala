@@ -22,7 +22,7 @@ import scala.xml.Node
 import scala.xml.Utility
 import scala.xml.XML
 
-import org.apache.daffodil.core.util._
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
 
 import org.junit.Assert._

@@ -125,7 +125,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       </e1>
     </ex:root>
     val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
   }
 
   @Test def testGZIPLayerErr1(): Unit = {
@@ -139,7 +139,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
         <hex xmlns=""><![CDATA[000000D41F8B08000000000000FF4D904176C3200C44AF3207C8F33DBA6F0F40CCD85683918B44D3DC3EC2C9A2EFB1013EF3357C6E6288F5DDCD61BA137BCA443FE0FC73F8967C5C4B75D6CC0C575C8984857714A93414ADEB848F25D800B794036045632A67C605E2B86B2F19553D800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]]></hex>
       </ex:root>
     val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
   }
 
   @Test def testGZIPLayerErr2(): Unit = {
@@ -153,7 +153,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
         <hex xmlns=""><![CDATA[000000D41F8B08000000000000FF4D904176C3200C44AF3207C8F33DBA6F0F40CCD85683918B44D3DC3EC2C9A2EFB1013EF3357C6E6288F5DDCD61BA137BCA443FE0FC73F8967C5C4B75D6CC0C575C8984857714A93414ADEB848F25D800B794036045632A67C605E2B86B2F19553D805FBE889F2ECE70E2AA4DEA3AA2E3519EF065842E58D2AEDD02530F8DB640832A8F26F3B94DF511CA712437BE27ADDE34F739F8598F20D7CD875566460BEBB4CB10CAD989C9846D684DF6A33CA2F9ED6CFEBF5DCC7168C4169ABDBEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF]]></hex>
       </ex:root>
     val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
   }
 
   val GZIPLayerErrSchema =
@@ -279,7 +279,9 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
   // which only takes a few seconds, and
   // all errors thrown were converted to parse errors
   // so that means they were all IOExceptions from the gzip layer.
-  @Test def testGZIPLayerFuzz3(): Unit =
-    fuzz3(10, sch = GZIPLayerErrSchema, data = makeGZIPLayer1Data()._1, expected)
+  @Test def testGZIPLayerFuzz3(): Unit = {
+    // 2000 trials gives us good test coverage of the fuzz testing framework.
+    fuzz3(2000, sch = GZIPLayerErrSchema, data = makeGZIPLayer1Data()._1, expected)
+  }
 
 }

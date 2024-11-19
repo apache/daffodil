@@ -24,12 +24,11 @@ import org.apache.daffodil.core.dsom.LocalElementDecl
 import org.apache.daffodil.core.dsom.LocalSequence
 import org.apache.daffodil.core.dsom.SequenceGroupRef
 import org.apache.daffodil.core.dsom.Term
+import org.apache.daffodil.core.util.TestUtils.getRoot
 
 import org.junit.Test
 
 class TestStreamingUnparserCompilerAttributes {
-
-  import org.apache.daffodil.core.util.TestUtils._
 
   import PossibleNextElements._
 

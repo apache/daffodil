@@ -70,7 +70,7 @@ class TestFixedLengthLayer {
     val infoset = abcInfoset
 
     val (_, actual) = TestUtils.testString(sch, data, areTracing = false)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
 
     TestUtils.testUnparsing(sch, infoset, data, areTracing = false)
   }

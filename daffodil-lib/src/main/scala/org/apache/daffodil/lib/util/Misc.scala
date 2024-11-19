@@ -696,31 +696,35 @@ object Misc {
    * gets the message from that, if that has no message, it chases further.
    * Ultimately, if there's no message, it just uses the innermost cause object's class name.
    */
-
-  def getSomeMessage(th: Throwable): Some[String] = {
+  def getAMessage(th: Throwable): String = {
     val m = th.getMessage()
     val c = th.getCause()
     val res = (m, c) match {
       case (null, null) => Misc.getNameFromClass(th)
       case ("", null) => Misc.getNameFromClass(th)
       case (m, null) => m
-      case (null, c) => getSomeMessage(c).get
+      case (null, c) => getAMessage(c)
       case (m, c) => {
-        val Some(cmsg) = getSomeMessage(c)
+        val cmsg = getAMessage(c)
         cmsg + " (within " + th.getClass.getSimpleName + " " + m + ")"
       }
     }
-    Some(res)
+    Assert.invariant(res != null)
+    res
   }
 
-  def getSomeCause(th: Throwable): Some[Throwable] = {
+  def getSomeMessage(th: Throwable): Some[String] = Some(getAMessage(th))
+
+  def getACause(th: Throwable): Throwable = {
     val c = th.getCause()
     val res = c match {
       case null => th
-      case _ => getSomeCause(c).get
+      case _ => getACause(c)
     }
-    Some(res)
+    res
   }
+
+  def getSomeCause(th: Throwable): Some[Throwable] = Some(getACause(th))
 
   /**
    * Get the diagnosticFilepath from a uri

@@ -21,6 +21,7 @@ import scala.xml._
 
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
+import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Test; object INoWarn9 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.lib.util.SchemaUtils
@@ -37,7 +38,7 @@ class TestPrimitives {
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcdefgh", areTracing)
     val expected: Node = <e1>efgh</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testTerminator(): Unit = {
@@ -50,7 +51,7 @@ class TestPrimitives {
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcdefgh", areTracing)
     val expected: Node = <e1>abcd</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testSeparator(): Unit = {
@@ -69,7 +70,7 @@ class TestPrimitives {
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcd,efgh", areTracing)
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testLengthKindDelimited(): Unit = {
@@ -88,7 +89,7 @@ class TestPrimitives {
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcd,efgh", areTracing)
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testLengthKindDelimited2(): Unit = {
@@ -106,7 +107,7 @@ class TestPrimitives {
     )
     val (_, actual) = TestUtils.testString(sch, "abcd  \\\n  efgh")
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testLengthKindDelimited3(): Unit = {
@@ -132,7 +133,7 @@ class TestPrimitives {
     val areTracing = false
     val (_, actual) = TestUtils.testString(sch, "abcd}efgh}}}ijkl", areTracing)
     val expected: Node = <e1><s1><ss1>abcd</ss1><ss2>efgh</ss2></s1><s2>ijkl</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testDelimiterInheritance(): Unit = {
@@ -172,7 +173,7 @@ class TestPrimitives {
     // a,b,c./d//::
 
     val expected: Node = <root><e1>a</e1><e2>b</e2><e3><e3_1>c</e3_1><e3_2>d</e3_2></e3></root>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testEntityReplacementSeparator(): Unit = {
@@ -191,7 +192,7 @@ class TestPrimitives {
     val (_, actual) = TestUtils.testString(sch, "abcd\u0000efgh")
 
     val expected: Node = <e1><s1>abcd</s1><s2>efgh</s2></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testEntityReplacementInitiator(): Unit = {
@@ -203,7 +204,7 @@ class TestPrimitives {
     )
     val (_, actual) = TestUtils.testString(sch, "\u0000efgh")
     val expected: Node = <e1>efgh</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testEntityReplacementTerminator(): Unit = {
@@ -216,7 +217,7 @@ class TestPrimitives {
     val (_, actual) = TestUtils.testString(sch, "abcd\u0000")
 
     val expected: Node = <e1>abcd</e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
 }

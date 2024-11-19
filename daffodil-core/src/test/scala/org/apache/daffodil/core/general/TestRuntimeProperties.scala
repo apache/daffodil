@@ -21,6 +21,7 @@ import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.io.InputSourceDataInputStream
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.InfosetSimpleElement
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.infoset.ScalaXMLInfosetInputter
@@ -113,7 +114,7 @@ class TestRuntimeProperties {
 
     assertFalse(pr.isError)
     val actual = outputter.getResult()
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testRuntimeProperties_02(): Unit = {
@@ -226,7 +227,7 @@ class TestRuntimeProperties {
 
     assertFalse(pr.isError)
     val actual = outputter.getResult()
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
 }

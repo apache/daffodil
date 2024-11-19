@@ -16,8 +16,7 @@
  */
 
 package org.apache.daffodil.core.dsom
-
-import org.apache.daffodil.core.util._
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
 
@@ -106,7 +105,7 @@ class TestInteriorAlignmentElimination {
         <int1>4</int1>
         <ex:e2><ex:eShared><int1>5</int1><aligned>7</aligned></ex:eShared></ex:e2>
       </ex:r>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
 }

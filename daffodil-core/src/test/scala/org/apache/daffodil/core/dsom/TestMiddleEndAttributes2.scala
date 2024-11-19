@@ -19,6 +19,7 @@ package org.apache.daffodil.core.dsom
 
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.util.SchemaUtils
+import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Test
 
@@ -52,7 +53,7 @@ class TestMiddleEndAttributes2 {
     t1.asInstanceOf[LocalSequence]
     val (_, actual) = TestUtils.testString(testSchema, "/5")
     val expected = <e1><x>5</x></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
 }

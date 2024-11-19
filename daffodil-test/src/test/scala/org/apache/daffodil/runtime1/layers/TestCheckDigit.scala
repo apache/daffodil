@@ -20,6 +20,7 @@ import scala.xml.Elem
 
 import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits.intercept
+import org.apache.daffodil.lib.util.Misc.getAMessage
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
@@ -137,7 +138,7 @@ class TestCheckDigit {
     val infoset = okInfoset
 
     val (_, actual) = TestUtils.testString(sch, data, areTracing = false)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
 
     TestUtils.testUnparsing(sch, infoset, data, areTracing = false)
   }
@@ -151,7 +152,7 @@ class TestCheckDigit {
       val e = intercept[ParseError] {
         TestUtils.testString(sch, data, areTracing = false)
       }
-      val msg = TestUtils.getAMessage(e)
+      val msg = getAMessage(e)
       assertTrue(msg.contains("length is negative"))
     }
     // unparse
@@ -159,7 +160,7 @@ class TestCheckDigit {
       val e = intercept[UnparseError] {
         TestUtils.testUnparsing(sch, infoset, data, areTracing = false)
       }
-      val msg = TestUtils.getAMessage(e)
+      val msg = getAMessage(e)
       assertTrue(msg.contains("length is negative"))
     }
   }
@@ -173,7 +174,7 @@ class TestCheckDigit {
       val e = intercept[ParseError] {
         TestUtils.testString(sch, data, areTracing = false)
       }
-      val msg = TestUtils.getAMessage(e)
+      val msg = getAMessage(e)
       assertTrue(msg.contains("out of range for type"))
     }
     // unparse
@@ -181,7 +182,7 @@ class TestCheckDigit {
       val e = intercept[UnparseError] {
         TestUtils.testUnparsing(sch, infoset, data, areTracing = false)
       }
-      val msg = TestUtils.getAMessage(e)
+      val msg = getAMessage(e)
       assertTrue(msg.contains("out of range for type"))
     }
   }
@@ -193,7 +194,7 @@ class TestCheckDigit {
     val e = intercept[ParseError] {
       TestUtils.testString(sch, data, areTracing = false)
     }
-    val msg = TestUtils.getAMessage(e)
+    val msg = getAMessage(e)
     assertTrue(msg.toLowerCase.contains("insufficient data"))
   }
 
@@ -231,7 +232,7 @@ class TestCheckDigit {
     val e = intercept[UnparseError] {
       TestUtils.testUnparsing(sch, infoset, data, areTracing = false)
     }
-    val msg = TestUtils.getAMessage(e)
+    val msg = getAMessage(e)
     assertTrue(msg.toLowerCase.contains("exceeded fixed layer length"))
   }
 
@@ -248,13 +249,13 @@ class TestCheckDigit {
     val e = intercept[Throwable] {
       TestUtils.testString(sch, data, areTracing = false)
     }
-    val msg = TestUtils.getAMessage(e)
+    val msg = getAMessage(e)
     assertTrue(msg.contains("notACharsetName"))
 
     val f = intercept[UnparseError] {
       TestUtils.testUnparsing(sch, infoset, data, areTracing = false)
     }
-    val m = TestUtils.getAMessage(f)
+    val m = getAMessage(f)
     assertTrue(m.contains("notACharsetName"))
   }
 

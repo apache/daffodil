@@ -19,8 +19,9 @@ package org.apache.daffodil.core.dsom
 
 import scala.xml.Node
 
-import org.apache.daffodil.core.util._
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Test
 
@@ -35,7 +36,7 @@ class TestInputValueCalc {
     )
     val (_, actual) = TestUtils.testString(testSchema, "")
     val expected: Node = <data>42</data>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   // @Test
@@ -55,7 +56,7 @@ class TestInputValueCalc {
 
     val (_, actual) = TestUtils.testString(testSchema, "A")
     val expected: Node = <data><e1>A</e1><e2>A</e2></data>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   // @Test
@@ -75,6 +76,6 @@ class TestInputValueCalc {
 
     val (_, actual) = TestUtils.testString(testSchema, "8")
     val expected: Node = <data><e1>8</e1><e2>8</e2></data>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 }
