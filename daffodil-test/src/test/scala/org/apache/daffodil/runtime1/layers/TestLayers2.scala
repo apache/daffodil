@@ -17,9 +17,9 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.exceptions.Abort
+import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 
@@ -152,7 +152,7 @@ class TestLayers2 {
         .replace("WithSuspension", "")
         .toLowerCase
       val e = f(testName)
-      val cMsg = TestUtils.getAMessage(e)
+      val cMsg = Misc.getAMessage(e)
       // println(s">>>>\n     $cMsg\n<<<<<") // keep this.
       if (cMsg == null)
         fail("no cause message")

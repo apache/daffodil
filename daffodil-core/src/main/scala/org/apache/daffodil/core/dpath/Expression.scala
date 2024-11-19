@@ -2836,14 +2836,10 @@ case class XSConverterExpr(
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind =
     resultType // NodeInfo.AnyType
 
-  // TODO: this should work... why do we need to call an additional converter. The
-  // args(0).compiledDPath should already have taken into account converting into
-  // their target types which are the same as this conversion's output result type.
-
   override lazy val compiledDPath = {
     checkArgCount(1)
     val arg0Recipe = args(0).compiledDPath
-    val c = conversions
+    val c = conversions // additional final conversions are added
     val res = new CompiledDPath(arg0Recipe.ops.toList ++ c)
     res
   }

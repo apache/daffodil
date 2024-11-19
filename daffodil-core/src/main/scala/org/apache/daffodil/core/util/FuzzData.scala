@@ -22,12 +22,11 @@ import scala.util.Random
 import scala.xml.Elem
 import scala.xml.Node
 
-import org.apache.daffodil.core.util.TestUtils.getAMessage
 import org.apache.daffodil.lib.exceptions.Assert
+import org.apache.daffodil.lib.util.Misc.getAMessage
+import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.lib.xml.XMLUtils.XMLDifferenceException
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
-
-import org.junit.Assert.fail
 
 /**
  * Utility base class to support fuzz testing. Given a piece of data,
@@ -187,7 +186,7 @@ class FuzzParseTester(
         }
       if (pr ne null) {
         try {
-          TestUtils.assertEqualsXMLElements(expected, node)
+          XMLUtils.compareAndReport(expected, node)
         } catch {
           case e: XMLDifferenceException =>
             handleUnexpectedSuccess(node, testData, e)
@@ -230,6 +229,6 @@ class LayerParseTester(
     if (okParses.size > 0)
       println(s"Parse succeeded on fuzzed data ${okParses.size} times.")
     if (shouldFail)
-      fail("errors were found")
+      throw new AssertionError("errors were found")
   }
 }

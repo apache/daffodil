@@ -20,7 +20,6 @@ package org.apache.daffodil.core.dsom
 import scala.xml.Node
 
 import org.apache.daffodil.core.util.Fakes
-import org.apache.daffodil.core.util._
 
 import org.junit.Assert._
 import org.junit.Test

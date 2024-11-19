@@ -19,6 +19,7 @@ package org.apache.daffodil.core.api
 
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util._
+import org.apache.daffodil.lib.xml.XMLUtils
 
 import org.junit.Test; object INoWarn7 { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.util.TestUtils
@@ -40,7 +41,7 @@ class TestDFDLParser_New {
     )
     val (_, actual) = TestUtils.testString(sch, "5;6;7;8;.")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 
   @Test def testParseOccursCountKindOfParsedDelimitedBySeparatorImplicitWithMaxOccurs2()
@@ -58,6 +59,6 @@ class TestDFDLParser_New {
     )
     val (_, actual) = TestUtils.testString(sch, "5;6;7;8!.")
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 }

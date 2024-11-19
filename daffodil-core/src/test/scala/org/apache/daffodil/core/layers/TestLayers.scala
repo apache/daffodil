@@ -89,7 +89,7 @@ class TestLayers {
     val data = "cGxl!" // encoding of "ple" + "!"
     val infoset = <ex:e1 xmlns:ex={example}><s1>ple</s1></ex:e1>
     val (_, actual) = TestUtils.testString(sch, data)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
 
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, data, areTracing)
@@ -126,7 +126,7 @@ class TestLayers {
     val data = "cGxl!" // encoding of "ple" + "!"
     val infoset = <ex:e1 xmlns:ex={example}><s1>ple</s1></ex:e1>
     val (_, actual) = TestUtils.testString(sch, data)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
 
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, data, areTracing)
@@ -166,7 +166,7 @@ class TestLayers {
     val data = "cGxl" + "!" + "moreDataAfter"
     val infoset = <ex:e1 xmlns:ex={example}><s1>ple</s1><s2>moreDataAfter</s2></ex:e1>
     val (_, actual) = TestUtils.testString(sch, data)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
 
     val areTracing = false
     TestUtils.testUnparsing(sch, infoset, data, areTracing)
@@ -230,7 +230,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       text
     }</s1></ex:e1>
     val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
 
     TestUtils.testUnparsingBinary(sch, infoset, data)
   }
@@ -288,7 +288,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       text
     }</s1></data></x1><s2>afterGzip</s2></ex:e1>
     val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
 
     TestUtils.testUnparsingBinary(sch, infoset, data)
   }
@@ -385,7 +385,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     }</len><x1><data><s2>{
       text
     }</s2></data></x1><s3>{after}</s3></ex:e1>
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
 
     TestUtils.testUnparsingBinary(sch, infoset, data)
   }
@@ -422,7 +422,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     val data = ipsumLorem1
     val infoset = <e1 xmlns={example}><s1>{ipsumLorem1Unfolded}</s1></e1>
     val (_, actual) = TestUtils.testString(sch, data)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
   }
 
   val ipsumLorem2 =
@@ -472,7 +472,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     val data = ipsumLorem3
     val infoset = <e1 xmlns={example}><s1>{ipsumLorem3Unfolded}</s1></e1>
     val (_, actual) = TestUtils.testString(sch, data)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
   }
 
   val ipsumLorem4 =
@@ -524,7 +524,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
     val data = ipsumLorem5
     val infoset = <e1 xmlns={example}><s1>{ipsumLorem5Unfolded}</s1></e1>
     val (_, actual) = TestUtils.testString(sch, data)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
   }
 
   val ipsumLorem6 =
@@ -603,7 +603,7 @@ a few lines of pointless text like this.""".replace("\r\n", "\n").replace("\n", 
       </e1>
 
     val (_, actual) = TestUtils.testBinary(sch, data, areTracing = false)
-    TestUtils.assertEqualsXMLElements(infoset, actual)
+    XMLUtils.compareAndReport(infoset, actual)
 
     TestUtils.testUnparsingBinary(sch, infoset, data)
   }

@@ -68,7 +68,7 @@ class TestAppinfoSyntax {
     assertEquals(expected, ns.toString())
     val (_, actual) = TestUtils.testString(sc, "5")
     val expectedParseInfoset = <root>5</root>
-    TestUtils.assertEqualsXMLElements(expectedParseInfoset, actual)
+    XMLUtils.compareAndReport(expectedParseInfoset, actual)
   }
 
   /**
@@ -198,7 +198,7 @@ class TestAppinfoSyntax {
     assertEquals(expected, anna.toString())
     val (_, actual) = TestUtils.testString(sc, "5")
     val expectedParseInfoset = <root>5</root>
-    TestUtils.assertEqualsXMLElements(expectedParseInfoset, actual)
+    XMLUtils.compareAndReport(expectedParseInfoset, actual)
   }
 
   /**
@@ -248,7 +248,7 @@ class TestAppinfoSyntax {
     assertEquals(expected, anna.toString())
     val (_, actual) = TestUtils.testString(sc, "5")
     val expectedParseInfoset = <root>5</root>
-    TestUtils.assertEqualsXMLElements(expectedParseInfoset, actual)
+    XMLUtils.compareAndReport(expectedParseInfoset, actual)
   }
 
 }

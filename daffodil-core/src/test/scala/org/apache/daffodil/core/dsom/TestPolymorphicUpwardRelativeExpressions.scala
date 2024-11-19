@@ -16,8 +16,7 @@
  */
 
 package org.apache.daffodil.core.dsom
-
-import org.apache.daffodil.core.util._
+import org.apache.daffodil.core.util.TestUtils
 import org.apache.daffodil.lib.Implicits._
 import org.apache.daffodil.lib.util._
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -264,6 +263,6 @@ class TestPolymorphicUpwardRelativeExpressions {
           </ex:eShared>
         </ex:e2>
       </ex:r>
-    TestUtils.assertEqualsXMLElements(expected, actual)
+    XMLUtils.compareAndReport(expected, actual)
   }
 }
