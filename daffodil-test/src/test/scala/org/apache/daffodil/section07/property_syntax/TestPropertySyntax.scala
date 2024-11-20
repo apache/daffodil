@@ -73,6 +73,9 @@ class TestPropertySyntax {
   @Test def test_propertiesOnTypeOfElement1(): Unit = {
     runner1.runOneTest("propertiesOnTypeOfElement1")
   }
+  @Test def test_propertiesOnTypeOfElement2(): Unit = {
+    runner1.runOneTest("propertiesOnTypeOfElement2")
+  }
 
   // DFDL-1842
   @Test def test_overlappingProperties1(): Unit = {

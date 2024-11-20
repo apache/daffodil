@@ -2563,11 +2563,11 @@
   <tdml:defineSchema name="lengthUnitsBitsForNonNegativeInteger_prefixed">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:defineFormat name="Binary">
-      <dfdl:format ref="ex:GeneralFormat" representation="binary" lengthUnits="bits"/>
+      <dfdl:format ref="ex:GeneralFormat" representation="binary"/>
     </dfdl:defineFormat>
     <dfdl:format ref="ex:Binary" />
 
-    <xs:simpleType name="prefixType">
+    <xs:simpleType name="prefixType" dfdl:lengthKind="implicit">
       <xs:restriction base="xs:unsignedByte"/>
     </xs:simpleType>
 
@@ -2575,7 +2575,7 @@
                 dfdl:lengthKind="prefixed"
                 dfdl:prefixLengthType="ex:prefixType"
                 dfdl:prefixIncludesPrefixLength="no"
-                type="xs:nonNegativeInteger"/>
+                type="xs:nonNegativeInteger" dfdl:lengthUnits="bits"/>
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="lengthUnitsBitsForNonNegativeInteger_prefixed" root="r1" model="lengthUnitsBitsForNonNegativeInteger_prefixed"

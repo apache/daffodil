@@ -1164,7 +1164,7 @@
       </xs:complexType>
     </xs:element>
     <xs:group name="g0">
-      <xs:sequence>
+      <xs:sequence dfdl:separatorPosition="infix">
         <xs:element name="g0c0" minOccurs="0">
           <xs:complexType>
             <xs:group ref="ex:g1" dfdl:separator="|"></xs:group>
@@ -1173,7 +1173,7 @@
       </xs:sequence>
     </xs:group>
     <xs:group name="g1">
-      <xs:sequence>
+      <xs:sequence dfdl:separatorPosition="infix">
         <xs:element name="g1c0" minOccurs="0">
           <xs:complexType>
             <xs:group ref="ex:g2" dfdl:separator=","></xs:group>
@@ -1182,7 +1182,7 @@
       </xs:sequence>
     </xs:group>
     <xs:group name="g2">
-      <xs:sequence>
+      <xs:sequence dfdl:separatorPosition="infix">
         <xs:element name="g2c0" type="xs:string" />
         <xs:element name="g2c1" type="xs:string" />
         <xs:element name="g2c2" type="xs:string" />
@@ -1229,7 +1229,7 @@
       </xs:complexType>
     </xs:element>
     <xs:group name="g3">
-      <xs:sequence>
+      <xs:sequence dfdl:separatorPosition="infix">
         <xs:element name="g3c0" type="xs:string" />
         <xs:element name="g3c1" type="xs:string" />
         <xs:element name="g3c2" type="xs:string" />
@@ -1243,7 +1243,7 @@
       </xs:complexType>
     </xs:element>
     <xs:group name="g4">
-      <xs:sequence>
+      <xs:sequence dfdl:separatorPosition="infix">
         <xs:element name="c0" type="xs:string" />
         <xs:element name="c1" type="xs:string" />
         <xs:element name="c2" type="xs:string" />

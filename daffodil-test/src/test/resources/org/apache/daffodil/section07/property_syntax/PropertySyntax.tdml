@@ -428,7 +428,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:defineSchema name="PropertiesOnReferencedElements" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  <tdml:defineSchema name="PropertiesOnTypesOfElements" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
       xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
 
@@ -489,7 +489,72 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="propertiesOnTypeOfElement1" root="DinnerTime"
-      model="PropertiesOnReferencedElements"
+      model="PropertiesOnTypesOfElements"
+      roundTrip="true">
+    <tdml:document><![CDATA[09]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <DinnerTime>
+          <DayTime>
+            <Day>9</Day>
+          </DayTime>
+        </DinnerTime>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="PropertiesOnSimpleTypeChains" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" xmlns:ps="urn:property-syntax">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:import namespace="urn:property-syntax" schemaLocation="/org/apache/daffodil/section07/property_syntax/property_syntax2.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+    <xs:element name="DinnerTime">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element ref="ex:MonthDayTime" />
+          <xs:element ref="ex:DayTime" />
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="MonthDayTime">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:Month"/>
+          <xs:element ref="ex:Day"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="DayTime">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:Day"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="Month"
+        type="ex:MonthDayType"
+        dfdl:lengthKind="explicit"
+        dfdl:length="2">
+    </xs:element>
+
+    <xs:element name="Day"
+        type="ex:MonthDayType"
+        dfdl:lengthKind="explicit"
+        dfdl:length="2">
+    </xs:element>
+
+    <xs:simpleType name="MonthDayType">
+      <xs:restriction base="ps:MonthDayTypeBase"/>
+    </xs:simpleType>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="propertiesOnTypeOfElement2" root="DinnerTime"
+      model="PropertiesOnSimpleTypeChains"
       roundTrip="true">
     <tdml:document><![CDATA[09]]></tdml:document>
     <tdml:infoset>

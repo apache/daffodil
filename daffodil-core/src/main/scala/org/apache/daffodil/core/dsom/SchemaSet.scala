@@ -540,47 +540,21 @@ final class SchemaSet private (
     .flatMap(_.defineVariables)
     .union(predefinedVars)
 
-  // propagated to referenced element propCache
-  private lazy val propagateReferenceeAndTypeUsedProperties = {
-    root.allComponents.collect {
-      case ref: AbstractElementRef =>
-        val referent = ref.optReferredToComponent.get
-        ref.propCache.foreach(kv =>
-          // if the referent or its simpleType carries the property then add it
-          if (
-            referent.formatAnnotation.justThisOneProperties.contains(kv._1)
-            || referent.optSimpleType.exists {
-              case std: SimpleTypeDefBase =>
-                std.formatAnnotation.justThisOneProperties.contains(kv._1)
-              case _ => false
-            }
-          ) {
-            // only add the used properties that the referent carries, not any local properties that aren't shared
-            referent.propCache.put(kv._1, kv._2)
-          }
-        )
-      case ele: ElementDeclMixin =>
-        val ost = ele.optSimpleType
-        if (ost.isDefined && ost.get.isInstanceOf[SimpleTypeDefBase]) {
-          val std = ost.get.asInstanceOf[SimpleTypeDefBase]
-          if (std.propCache.nonEmpty) {
-            // if it has used properties transfer it to the element that's using it
-            // we don't need the check for what is carries since all properties on the type are shared
-            // by the element using it
-            std.propCache.foreach(kv => ele.propCache.put(kv._1, kv._2))
-          }
-          // copy the used properties from the element to the type
-          ele.propCache.foreach(kv =>
-            if (std.formatAnnotation.justThisOneProperties.contains(kv._1)) {
-              // only add the used properties that the simple type carries, not any local element properties that aren't shared
-              std.propCache.put(kv._1, kv._2)
-            }
-          )
-        }
-      case _ => // do nothing
+  /**
+   * propagate used properties through AnnotatedSchemaComponent
+   * must be done after compilation is complete to ensure all properties
+   * that are used are accounted for
+   */
+  private lazy val propagateUsedProperties = {
+    root.allComponents.collect { case asc: AnnotatedSchemaComponent =>
+      asc.propagateUsedProperties
     }
   }
 
+  /**
+   * check unused properties on annotated schema component, must be done
+   * after compilation is completed and used properties are propagated
+   */
   private lazy val checkUnusedProperties = LV('hasUnusedProperties) {
     root.allComponents.collect { case asc: AnnotatedSchemaComponent =>
       asc.checkUnusedProperties
@@ -609,7 +583,7 @@ final class SchemaSet private (
         // after compilation is done, we want to walk through all our refs and
         // if a property is in the cache of the referencer, put it into the
         // cache of the referenced element
-        propagateReferenceeAndTypeUsedProperties
+        propagateUsedProperties
         // must be last, after all compilation is done.
         // only check this if there are no errors.
         checkUnusedProperties
