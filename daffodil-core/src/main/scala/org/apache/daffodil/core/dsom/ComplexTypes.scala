@@ -51,6 +51,15 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
       s.length == 1,
       "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference."
     )
+    s.head match {
+      case sgtb: SequenceGroupTermBase =>
+        sgtb.schemaDefinitionWhen(
+          sgtb.isHidden,
+          "A complex type cannot have a sequence with a hiddenGroupRef as its model group. " +
+            "Wrap the hiddenGroupRef sequence in an empty sequence instead."
+        )
+      case _ => // do nothing
+    }
     s
   }
 
