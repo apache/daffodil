@@ -913,7 +913,7 @@
     <xs:element name="bit27" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="9" dfdl:byteOrder="bigEndian" />
     <xs:element name="bit28" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="13" dfdl:byteOrder="bigEndian" />
     <xs:element name="bit29" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:byteOrder="bigEndian" />
-    <xs:element name="bit30" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit30" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:byteOrder="bigEndian" />
     
     <xs:element name="bit31" type="xs:short" dfdl:lengthKind="implicit" dfdl:byteOrder="bigEndian" />
     <xs:element name="bit32" type="xs:int" dfdl:lengthKind="implicit" dfdl:byteOrder="bigEndian" />
@@ -922,15 +922,15 @@
       <xs:complexType>
         <xs:sequence dfdl:separator="">
           <xs:element name="bit33" type="xs:byte" dfdl:lengthKind="implicit" dfdl:byteOrder="bigEndian" />
-          <xs:element name="bit34" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="littleEndian"/>
+          <xs:element name="bit34" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:byteOrder="littleEndian"/>
           <xs:element name="bit35" type="xs:int" dfdl:lengthKind="implicit" dfdl:byteOrder="littleEndian"/>
-          <xs:element name="bit36" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian"/>
-          <xs:element name="bit37" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian"/>
+          <xs:element name="bit36" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:byteOrder="bigEndian"/>
+          <xs:element name="bit37" type="xs:long" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:byteOrder="bigEndian"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="bit38" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:byteOrder="bigEndian" />
+    <xs:element name="bit38" type="xs:short" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:byteOrder="bigEndian" />
   
   </tdml:defineSchema>
   
@@ -1118,7 +1118,7 @@
   <tdml:parserTestCase name="bitShort3"
     root="bit38" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
     <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[1]]></tdml:documentPart>
+      <tdml:documentPart type="bits"><![CDATA[01]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1190,7 +1190,7 @@
   <tdml:parserTestCase name="bitByte"
     root="bit30" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
     <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[0]]></tdml:documentPart>
+      <tdml:documentPart type="bits"><![CDATA[00]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1245,10 +1245,10 @@
     root="s4" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
     <tdml:document>
       <tdml:documentPart type="bits">00101010</tdml:documentPart>
-      <tdml:documentPart type="bits">1</tdml:documentPart>
+      <tdml:documentPart type="bits">01</tdml:documentPart>
       <tdml:documentPart type="bits">00000000 00000000 00000000 00000001</tdml:documentPart>
-      <tdml:documentPart type="bits">0</tdml:documentPart>
-      <tdml:documentPart type="bits">1</tdml:documentPart>
+      <tdml:documentPart type="bits">00</tdml:documentPart>
+      <tdml:documentPart type="bits">01</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

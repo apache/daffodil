@@ -22,12 +22,14 @@ import java.math.{ BigDecimal => JBigDecimal, BigInteger => JBigInt }
 
 import org.apache.daffodil.lib.schema.annotation.props.gen.LengthUnits
 import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo
+import org.apache.daffodil.lib.schema.annotation.props.gen.YesNo.Yes
 import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
 import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.Evaluatable
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.Processor
+import org.apache.daffodil.runtime1.processors.unparsers.UState
 
 class BinaryFloatParser(override val context: ElementRuntimeData) extends PrimParser {
   override lazy val runtimeDependencies = Vector()
@@ -100,13 +102,18 @@ abstract class BinaryDecimalParserBase(
   override val context: ElementRuntimeData,
   signed: YesNo,
   binaryDecimalVirtualPoint: Int
-) extends PrimParser {
+) extends PrimParser
+  with BinaryNumberCheckWidth {
   override lazy val runtimeDependencies = Vector()
 
   protected def getBitLength(s: ParseOrUnparseState): Int
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
+    val isSigned = signed == Yes
+    val minWidth = if (isSigned) 2 else 1
+    val res = checkMinWidth(start, isSigned, nBits, minWidth)
+    if (!res) return
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
       PENotEnoughBits(start, nBits, dis)
@@ -124,27 +131,24 @@ abstract class BinaryDecimalParserBase(
 
 class BinaryIntegerRuntimeLengthParser(
   val e: ElementRuntimeData,
-  signed: Boolean,
   val lengthEv: Evaluatable[JLong],
   val lengthUnits: LengthUnits
-) extends BinaryIntegerBaseParser(e, signed)
+) extends BinaryIntegerBaseParser(e)
   with HasRuntimeExplicitLength {}
 
 class BinaryIntegerKnownLengthParser(
   e: ElementRuntimeData,
-  signed: Boolean,
   val lengthInBits: Int
-) extends BinaryIntegerBaseParser(e, signed)
+) extends BinaryIntegerBaseParser(e)
   with HasKnownLengthInBits {}
 
 class BinaryIntegerPrefixedLengthParser(
   e: ElementRuntimeData,
   override val prefixedLengthParser: Parser,
   override val prefixedLengthERD: ElementRuntimeData,
-  signed: Boolean,
   override val lengthUnits: LengthUnits,
   override val prefixedLengthAdjustmentInUnits: Long
-) extends BinaryIntegerBaseParser(e, signed)
+) extends BinaryIntegerBaseParser(e)
   with PrefixedLengthParserMixin {
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
@@ -155,9 +159,9 @@ class BinaryIntegerPrefixedLengthParser(
 }
 
 abstract class BinaryIntegerBaseParser(
-  override val context: ElementRuntimeData,
-  signed: Boolean
-) extends PrimParser {
+  override val context: ElementRuntimeData
+) extends PrimParser
+  with BinaryNumberCheckWidth {
   override lazy val runtimeDependencies = Vector()
 
   protected def getBitLength(s: ParseOrUnparseState): Int
@@ -166,16 +170,16 @@ abstract class BinaryIntegerBaseParser(
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
-    if (nBits == 0) return // zero length is used for outputValueCalc often.
-    if (primNumeric.width.isDefined) {
-      val width = primNumeric.width.get
-      if (nBits > width)
-        PE(
-          start,
-          "Number of bits %d out of range, must be between 1 and %d bits.",
-          nBits,
-          width
-        )
+    if (primNumeric.minWidth.isDefined) {
+      val minWidth = primNumeric.minWidth.get
+      val isSigned: Boolean = primNumeric.isSigned
+      val res = checkMinWidth(start, isSigned, nBits, minWidth)
+      if (!res) return
+    }
+    if (primNumeric.maxWidth.isDefined) {
+      val maxWidth = primNumeric.maxWidth.get
+      val res = checkMaxWidth(start, nBits, maxWidth)
+      if (!res) return
     }
     val dis = start.dataInputStream
     if (!dis.isDefinedForLength(nBits)) {
@@ -184,7 +188,7 @@ abstract class BinaryIntegerBaseParser(
     }
 
     val num: JNumber =
-      if (signed) {
+      if (primNumeric.isSigned) {
         if (nBits > 64) { dis.getSignedBigInt(nBits, start) }
         else { dis.getSignedLong(nBits, start) }
       } else {
@@ -203,5 +207,48 @@ abstract class BinaryIntegerBaseParser(
       }
 
     start.simpleElement.overwriteDataValue(res)
+  }
+}
+
+trait BinaryNumberCheckWidth {
+  def checkMinWidth(
+    state: ParseOrUnparseState,
+    isSigned: Boolean,
+    nBits: Int,
+    minWidth: Int
+  ): Boolean = {
+    if (
+      nBits < minWidth && !(isSigned && state.tunable.allowSignedIntegerLength1Bit && nBits == 1)
+    ) {
+      val signedStr = if (isSigned) "a signed" else "an unsigned"
+      val outOfRangeStr =
+        s"Minimum length for $signedStr binary number is $minWidth bit(s), number of bits $nBits out of range. " +
+          "An unsigned number with length 1 bit could be used instead."
+      val procErr = state.toProcessingError(outOfRangeStr)
+      state match {
+        case s: PState =>
+          s.setFailed(procErr)
+          return false
+        case s: UState =>
+          s.toss(procErr)
+      }
+    }
+    true
+  }
+
+  def checkMaxWidth(state: ParseOrUnparseState, nBits: Int, maxWidth: Int): Boolean = {
+    if (nBits > maxWidth) {
+      val procErr = state.toProcessingError(
+        s"Number of bits $nBits out of range, must be between 1 and $maxWidth bits."
+      )
+      state match {
+        case s: PState =>
+          s.setFailed(procErr)
+          return false
+        case s: UState =>
+          s.toss(procErr)
+      }
+    }
+    true
   }
 }

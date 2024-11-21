@@ -26,6 +26,7 @@ import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeChar
+import org.apache.daffodil.runtime1.dpath.NodeInfo
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
@@ -51,7 +52,14 @@ abstract class PackedBinaryDecimalBaseParser(
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
-    if (nBits == 0) return // zero length is used for outputValueCalc often.
+    if (nBits == 0) {
+      PE(
+        start,
+        "Number of bits %d out of range for a packed decimal.",
+        nBits
+      )
+      return
+    }
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {
@@ -69,17 +77,30 @@ abstract class PackedBinaryDecimalBaseParser(
 }
 
 abstract class PackedBinaryIntegerBaseParser(
-  override val context: ElementRuntimeData,
-  signed: Boolean = false
+  override val context: ElementRuntimeData
 ) extends PrimParser
   with PackedBinaryConversion {
   override lazy val runtimeDependencies = Vector()
 
+  val signed = {
+    context.optPrimType.get match {
+      case n: NodeInfo.PrimType.PrimNumeric => n.isSigned
+      // context.optPrimType can be of type date/time via ConvertZonedCombinator
+      case _ => false
+    }
+  }
   protected def getBitLength(s: ParseOrUnparseState): Int
 
   def parse(start: PState): Unit = {
     val nBits = getBitLength(start)
-    if (nBits == 0) return // zero length is used for outputValueCalc often.
+    if (nBits == 0) {
+      PE(
+        start,
+        "Number of bits %d out of range for a packed integer.",
+        nBits
+      )
+      return
+    }
     val dis = start.dataInputStream
 
     if (!dis.isDefinedForLength(nBits)) {

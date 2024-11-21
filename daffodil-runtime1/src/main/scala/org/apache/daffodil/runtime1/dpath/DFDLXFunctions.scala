@@ -54,7 +54,7 @@ case class DFDLXLeftShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
 
     val shiftLong = arg2.getLong
     val shift = shiftLong.toInt
-    val width = argType.asInstanceOf[PrimNumeric].width.get
+    val width = argType.asInstanceOf[PrimNumeric].maxWidth.get
     Assert.invariant(shift >= 0)
     if (shift >= width)
       dstate.SDE(
@@ -101,7 +101,7 @@ case class DFDLXRightShift(recipes: List[CompiledDPath], argType: NodeInfo.Kind)
   ): DataValuePrimitive = {
     val shiftLong = arg2.getLong
     val shift = shiftLong.toInt
-    val width = argType.asInstanceOf[PrimNumeric].width.get
+    val width = argType.asInstanceOf[PrimNumeric].maxWidth.get
     Assert.invariant(shift >= 0)
     if (shift >= width)
       dstate.SDE(
