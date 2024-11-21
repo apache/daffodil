@@ -78,4 +78,8 @@ class TestHiddenSequences {
   @Test def test_invalidGroupDefWithHiddenSequenceModelGroup(): Unit = {
     runnerNoValidate.runOneTest("invalidGroupDefWithHiddenSequenceModelGroup")
   }
+
+  @Test def test_ComplexTypeWithHiddenGroupRefSequence1(): Unit = {
+    runnerNoValidate.runOneTest("ComplexTypeWithHiddenGroupRefSequence1")
+  }
 }

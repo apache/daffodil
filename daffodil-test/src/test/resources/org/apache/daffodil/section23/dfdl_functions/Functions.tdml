@@ -4919,7 +4919,9 @@
                   <xs:element name="name" type="xs:string" dfdl:lengthKind="delimited"/>
                   <xs:element name="data">
                     <xs:complexType>
-                      <xs:sequence dfdl:hiddenGroupRef="ex:hiddenData"/>
+                      <xs:sequence>
+                        <xs:sequence dfdl:hiddenGroupRef="ex:hiddenData"/>
+                      </xs:sequence>
                     </xs:complexType>
                   </xs:element>
                 </xs:sequence>

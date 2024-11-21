@@ -82,7 +82,9 @@
           <xs:sequence>
             <xs:element name="h">
               <xs:complexType>
-                <xs:sequence dfdl:hiddenGroupRef="ex:s1" />
+                <xs:sequence>
+                  <xs:sequence dfdl:hiddenGroupRef="ex:s1" />
+                </xs:sequence>
               </xs:complexType>
             </xs:element>
           </xs:sequence>
