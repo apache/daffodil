@@ -282,4 +282,32 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="ComplexTypeWithHiddenGroupRefSequence">
+    <xs:include
+        schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+    <xs:group name="s4">
+      <xs:sequence>
+        <xs:element name="f" type="xs:int" dfdl:outputValueCalc="{6}"/>
+      </xs:sequence>
+    </xs:group>
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:hiddenGroupRef="ex:s4"/>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="ComplexTypeWithHiddenGroupRefSequence1" root="e1"
+      model="ComplexTypeWithHiddenGroupRefSequence">
+    <tdml:document>7</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>complex type cannot have</tdml:error>
+      <tdml:error>sequence with a hiddenGroupRef</tdml:error>
+      <tdml:error>model group</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 </tdml:testSuite>
+
