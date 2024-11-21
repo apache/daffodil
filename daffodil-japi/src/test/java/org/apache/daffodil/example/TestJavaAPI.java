@@ -27,6 +27,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -1441,6 +1443,52 @@ public class TestJavaAPI {
             Diagnostic d = res.getDiagnostics().get(0);
             LocationInSchemaFile loc = d.getLocationsInSchemaFiles().get(0);
             assertTrue(loc.toString().replace("\\", "/").contains("in " + name));
+        }
+    }
+
+    @Test
+    public void testJavaAPICompileSource1() throws IOException, URISyntaxException, InvalidUsageException {
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        URI uri = new URI("/test/japi/mySchema1.dfdl.xsd");
+        ProcessorFactory pf = c.compileSource(uri);
+        DataProcessor dp = pf.onPath("/").withValidationMode(ValidationMode.Full);
+
+        java.io.File file = getResource("/test/japi/myDataBroken.dat");
+        java.io.FileInputStream fis = new java.io.FileInputStream(file);
+        try (InputSourceDataInputStream dis = new InputSourceDataInputStream(fis)) {
+            JDOMInfosetOutputter outputter = new JDOMInfosetOutputter();
+            ParseResult res = dp.parse(dis, outputter);
+            assertTrue(res.isError());
+
+            Diagnostic d = res.getDiagnostics().get(0);
+            LocationInSchemaFile loc = d.getLocationsInSchemaFiles().get(0);
+            assertTrue(loc.toString().replace("\\", "/").contains("in " + uri.getPath()));
+        }
+    }
+
+    // intended to test the case where compileSource succeeds, but onPath
+    // can't find the file when it tries to resolve the schemaLocation
+    // takes care of coverage for this case
+    @Test
+    public void testJavaAPICompileSource2() throws IOException {
+        org.apache.daffodil.japi.Compiler c = Daffodil.compiler();
+        File tempFile = File.createTempFile("testJavaAPI", ".schema");
+        File schemaFile = getResource("/test/japi/mySchema2.dfdl.xsd");
+        FileUtils.copyFile(schemaFile, tempFile);
+        ProcessorFactory pf = c.compileSource(tempFile.toURI());
+        try {
+            assertFalse(pf.isError());
+            // delete file needed by Xerces for full validation
+            tempFile.delete();
+            // should throw FileNotFoundException because onPath calls resolveSchemaLocation
+            // on the URI backed by the deleted file
+            pf.onPath("/");
+            // fail if exception was not thrown
+            fail();
+        } catch (Exception e) {
+            assertTrue(e.getMessage().contains("Could not find file or resource"));
+        } finally {
+            if (tempFile.exists()) tempFile.delete();
         }
     }
 
