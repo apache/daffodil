@@ -380,89 +380,16 @@ trait AnnotatedSchemaComponent
   }
 
   /**
-   * Used to propagate used properties through all element/group references, element declarations
-   * and simple types. This is necessary because we have elements being referenced
-   * by multiple element ref, where the first element gets its propCache populated with
-   * the properties its used, and the second element doesn't because of sharing. With
-   * this val, we copy used properties from element refs to elements, group refs to groups,
-   * from elements to their simple types, if the simple type is annotated with the property,
-   * and from simple types to their base types
-   */
-  final lazy val propagateUsedProperties: Unit = {
-    this match {
-      case ref: GroupRef =>
-        val groupBeingReferenced = ref.groupDef
-        // if the groupBeingReferenced carries the property then add the property to its propCache
-        ref.propCache.foreach { kv =>
-          if (groupBeingReferenced.formatAnnotation.justThisOneProperties.contains(kv._1)) {
-            groupBeingReferenced.propCache.put(kv._1, kv._2)
-          }
-        }
-      case ref: AbstractElementRef =>
-        val elementBeingReferenced = ref.optReferredToComponent.get
-        ref.propCache.foreach(kv =>
-          // if the elementBeingReferenced or its simpleType carries the property
-          // then add the property to its propCache
-          if (
-            elementBeingReferenced.formatAnnotation.justThisOneProperties.contains(kv._1)
-            || elementBeingReferenced.optSimpleType.exists {
-              case std: SimpleTypeDefBase =>
-                std.formatAnnotation.justThisOneProperties.contains(kv._1)
-              case _ => false
-            }
-          ) {
-            // only add the used properties that the elementBeingReferenced or its simple type carries,
-            // not any local properties that aren't shared
-            elementBeingReferenced.propCache.put(kv._1, kv._2)
-            // propagate used properties from element to its simpletype and vice versa
-            elementBeingReferenced.propagateUsedProperties
-          }
-        )
-      case ele: ElementDeclMixin =>
-        val ost = ele.optSimpleType
-        ost.collect { case std: SimpleTypeDefBase =>
-          // if the type has used properties transfer it to the element that's using it
-          // we don't need the check for what it carries since all properties on the type are shared
-          // by the element using it
-          std.propCache.foreach(kv => ele.propCache.put(kv._1, kv._2))
-          // copy the used properties from the element to the type
-          ele.propCache.foreach(kv =>
-            if (std.formatAnnotation.justThisOneProperties.contains(kv._1)) {
-              // only add the used properties that the simple type carries, not any local element properties that aren't shared
-              std.propCache.put(kv._1, kv._2)
-            }
-          )
-          // propagate through the element's simple type base chain
-          std.propagateUsedProperties
-        }
-      case t: SimpleTypeDefBase => {
-        val ost = t.optReferredToComponent
-        ost.collect { case st: SimpleTypeDefBase =>
-          // propagate from type to base type
-          t.propCache.foreach { kv =>
-            {
-              if (st.formatAnnotation.justThisOneProperties.contains(kv._1)) {
-                st.propCache.put(kv._1, kv._2)
-              }
-            }
-          }
-          // propagate through all bases
-          st.bases.collect { case stdb: SimpleTypeDefBase =>
-            stdb.propagateUsedProperties
-          }
-        }
-      }
-      case _ => // do nothing
-    }
-  }
-
-  /**
    * Used to look for DFDL properties on Annotated Schema Components that
    * have not been accessed and record it as a warning. This function uses the
    * property cache state to determine which properties have been accessed, so
    * this function must only be called after all property accesses are complete
-   * (e.g. schema compilation has finished) to ensure there are no false
-   * positives.
+   * (e.g. schema compilation has finished) and after propagateUsedProperties
+   * has been called on all AnnotatedSchemaComponents, to ensure there are no false
+   * positives/negatives.
+   *
+   * Note: This is not a recursive walk. It identifies and issues warnings about
+   * unaccessed properties on just one AnnotatedSchemaComponent
    */
   final lazy val checkUnusedProperties: Unit = {
     // Get the properties defined on this component and what it refers to

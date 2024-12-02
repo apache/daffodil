@@ -543,7 +543,7 @@
     </xs:element>
 
     <xs:element name="Day"
-        type="ex:MonthDayType"
+        type="ps:MonthDayTypeBase"
         dfdl:lengthKind="explicit"
         dfdl:length="2">
     </xs:element>
@@ -563,6 +563,89 @@
           <DayTime>
             <Day>9</Day>
           </DayTime>
+        </DinnerTime>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="PropertiesOnGroups" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+      xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" xmlns:ps="urn:property-syntax">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
+    <xs:import namespace="urn:property-syntax" schemaLocation="/org/apache/daffodil/section07/property_syntax/property_syntax2.dfdl.xsd" />
+
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="delimited" />
+
+    <xs:element name="DinnerTime">
+      <xs:complexType>
+        <xs:group ref="ex:g1"/>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:group name="g1">
+      <xs:choice dfdl:initiator="[" dfdl:terminator="]">
+        <xs:element ref="ex:MonthDayTime" />
+        <xs:element ref="ex:DayTime" />
+      </xs:choice>
+    </xs:group>
+
+    <xs:element name="MonthDayTime">
+      <xs:complexType>
+        <xs:group ref="ex:g2"/>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:group name="g2">
+      <xs:sequence dfdl:separator="/">
+        <xs:element ref="ex:Month"/>
+        <xs:element ref="ex:Day"/>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="DayTime">
+      <xs:complexType>
+        <xs:group ref="ex:g3"/>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:group name="g3">
+      <xs:sequence>
+        <xs:element ref="ex:Day"/>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="Month"
+        type="ex:MonthDayType"
+        dfdl:lengthKind="explicit"
+        dfdl:length="2">
+    </xs:element>
+
+    <xs:element name="Day">
+      <xs:simpleType>
+        <xs:annotation>
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
+            <dfdl:simpleType lengthKind="explicit" length="2"/>
+          </xs:appinfo>
+        </xs:annotation>
+        <xs:restriction base="ps:MonthDayTypeBase"/>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:simpleType name="MonthDayType">
+      <xs:restriction base="ps:MonthDayTypeBase"/>
+    </xs:simpleType>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="propertiesOnGroups1" root="DinnerTime"
+      model="PropertiesOnGroups"
+      roundTrip="true">
+    <tdml:document><![CDATA[[09/05]]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <DinnerTime>
+          <MonthDayTime>
+            <Month>9</Month>
+            <Day>5</Day>
+          </MonthDayTime>
         </DinnerTime>
       </tdml:dfdlInfoset>
     </tdml:infoset>

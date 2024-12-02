@@ -44,6 +44,21 @@ targetNamespace="urn:property-syntax" xmlns:ps="urn:property-syntax">
     <xs:restriction base="ps:uIntBase"/>
   </xs:simpleType>
 
+  <xs:simpleType name="MonthDayTypeBase2">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:simpleType textNumberRep="standard"
+            textNumberCheckPolicy="strict"
+            textNumberPattern="00"
+            textStandardGroupingSeparator=","
+            textStandardDecimalSeparator="."
+            textStandardBase="10"
+            textNumberRounding="pattern"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:restriction base="ps:uIntBase"/>
+  </xs:simpleType>
+
   <xs:simpleType name="uIntBase">
     <xs:restriction base="xs:unsignedInt"/>
   </xs:simpleType>
