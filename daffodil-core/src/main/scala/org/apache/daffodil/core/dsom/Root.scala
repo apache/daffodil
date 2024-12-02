@@ -82,6 +82,22 @@ final class Root private (
     m.toMap
   }
 
+  /**
+   * For any given global simple type, tells us what other simple types contain
+   * references to it
+   *
+   * This is intended to be used when we're propagating used properties to ensure
+   * properties are properly propagates along the simple type base chain
+   */
+  lazy val typeBaseChainMap: Map[GlobalComponent, Seq[(String, Seq[RefSpec])]] = {
+    val refEntries: Seq[(GlobalComponent, Seq[RefSpec])] =
+      typeBaseChains.groupBy { _.to }.toSeq
+    val m: Seq[(GlobalComponent, Seq[(String, Seq[RefSpec])])] = refEntries.map {
+      case (to, seq) => (to, seq.groupBy { _.from.shortSchemaComponentDesignator }.toSeq)
+    }
+    m.toMap
+  }
+
   final def elementRefsTo(decl: GlobalElementDecl): Seq[ElementRef] =
     refsTo(decl).asInstanceOf[Seq[ElementRef]]
 
@@ -138,6 +154,17 @@ final class Root private (
           ed.optNamedComplexType.map { gctd => RefSpec(ed, gctd, 1) }.toSeq
       }
       case gr: GroupRef => Seq(RefSpec(gr, gr.groupDef, gr.asModelGroup.position))
+    }.flatten
+  }
+
+  final lazy val typeBaseChains: Seq[RefSpec] = {
+    allComponents.collect {
+      case std: SimpleTypeDefBase => {
+        val optStd = std.optReferredToComponent.collect { case stdb: SimpleTypeDefBase =>
+          stdb
+        }
+        optStd.map { stdb => RefSpec(std, stdb, 1) }.toSeq
+      }
     }.flatten
   }
 

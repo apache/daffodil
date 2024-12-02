@@ -22,7 +22,6 @@ import java.util.UUID
 
 import org.apache.daffodil.core.dsom.walker.TermView
 import org.apache.daffodil.core.grammar.TermGrammarMixin
-import org.apache.daffodil.lib.api.WarnID
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.schema.annotation.props.Found
 import org.apache.daffodil.lib.schema.annotation.props.NotFound
@@ -104,43 +103,6 @@ trait Term
    * Abbreviation analogous to trd, tci is the compile-time counterpart.
    */
   final def tci = dpathCompileInfo
-
-  /**
-   * Used to recursively go through Terms and look for DFDL properties that
-   * have not been accessed and record it as a warning. This function uses the
-   * property cache state to determine which properties have been access, so
-   * this function must only be called after all property accesses are complete
-   * (e.g. schema compilation has finished) to ensure there are no false
-   * positives.
-   */
-  final lazy val checkUnusedProperties: Unit = {
-    // Get the properties defined on this term and what it refers to
-    val localProps = formatAnnotation.justThisOneProperties
-    val refProps = optReferredToComponent
-      .map { _.formatAnnotation.justThisOneProperties }
-      .getOrElse(Map.empty)
-
-    val usedProperties = propCache
-
-    localProps.foreach { case (prop, (value, _)) =>
-      if (!usedProperties.contains(prop)) {
-        SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
-      }
-    }
-
-    refProps.foreach { case (prop, (value, _)) =>
-      if (!usedProperties.contains(prop)) {
-        optReferredToComponent.get.SDW(
-          WarnID.IgnoreDFDLProperty,
-          "DFDL property was ignored: %s=\"%s\"",
-          prop,
-          value
-        )
-      }
-    }
-
-    termChildren.foreach { _.checkUnusedProperties }
-  }
 
   def position: Int
 

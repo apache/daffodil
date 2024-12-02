@@ -95,6 +95,20 @@
       </restriction>
     </simpleType>
 
+    <xs:simpleType name="rep" dfdl:lengthKind="explicit" dfdl:length="1">
+      <xs:restriction base="xs:unsignedInt" />
+    </xs:simpleType>
+
+    <xs:simpleType name="value" dfdlx:repType="ex:rep">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="ZERO" dfdlx:repValue="0" />
+        <xs:enumeration value="ONE" dfdlx:repValue="1" />
+        <xs:enumeration value="TWO" dfdlx:repValue="2" />
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="r2" type="ex:value" />
+
   </tdml:defineSchema>
 
   <parserTestCase name="noRepValues" model="s1" root="r1">
@@ -108,6 +122,20 @@
       <error>dfdlx:repValueRanges</error>
       <error>dfdlx:repType</error>
       <error>ex:myByte</error>
+    </errors>
+  </parserTestCase>
+
+  <parserTestCase name="noRepValues2" model="s1" root="r2">
+    <document>
+      <documentPart type="byte">01</documentPart>
+    </document>
+    <errors>
+      <error>Schema Definition Error</error>
+      <error>enumerations must define</error>
+      <error>dfdlx:repValues</error>
+      <error>dfdlx:repValueRanges</error>
+      <error>dfdlx:repType</error>
+      <error>ex:rep</error>
     </errors>
   </parserTestCase>
 
