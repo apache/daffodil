@@ -1237,6 +1237,7 @@
         <xs:group ref="ex:vg" />
       </xs:sequence>
     </xs:group>
+
     <xs:element name="root3">
       <xs:complexType>
         <xs:group ref="ex:g4" dfdl:separator=","/>
@@ -1353,6 +1354,12 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
+    <tdml:warnings>
+      <tdml:warning>Two or more members</tdml:warning>
+      <tdml:warning>same name</tdml:warning>
+      <tdml:warning>ex:inty</tdml:warning>
+    </tdml:warnings>
+
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nestedGroupRefs4" root="root2"
@@ -1376,6 +1383,12 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
+    <tdml:warnings>
+      <tdml:warning>Two or more members</tdml:warning>
+      <tdml:warning>same name</tdml:warning>
+      <tdml:warning>ex:inty</tdml:warning>
+    </tdml:warnings>
+
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="nestedGroupRefs5" root="root3"
@@ -1398,6 +1411,12 @@
         </root3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+
+    <tdml:warnings>
+      <tdml:warning>Two or more members</tdml:warning>
+      <tdml:warning>same name</tdml:warning>
+      <tdml:warning>ex:inty</tdml:warning>
+    </tdml:warnings>
 
   </tdml:parserTestCase>
 
