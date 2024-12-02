@@ -103,6 +103,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
 
   requiredEvaluationsIfActivated(checkIfValidUnorderedSequence)
   requiredEvaluationsIfActivated(checkIfNonEmptyAndDiscrimsOrAsserts)
+  requiredEvaluationsIfActivated(checkIfMultipleChildrenWithSameName)
 
   protected def apparentXMLChildren: Seq[Node]
 
@@ -181,7 +182,7 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     if (!isOrdered) {
       checkMembersAreAllElementOrElementRef
       checkMembersHaveValidOccursCountKind
-      checkMembersHaveUniqueNamesInNamespaces
+      checkUnorderedSequenceMembersHaveUniqueNamesInNamespaces
     }
   }
 
@@ -215,20 +216,34 @@ abstract class SequenceGroupTermBase(xml: Node, lexicalParent: SchemaComponent, 
     }
   }
 
-  private lazy val checkMembersHaveUniqueNamesInNamespaces: Unit = {
-    val childrenGroupedByQName = groupMembers.groupBy { gm =>
-      // previous checks should ensure that all group members are either local
-      // elements or element references
-      Assert.invariant(gm.isInstanceOf[ElementBase])
-      gm.asInstanceOf[ElementBase].namedQName
-    }
-    childrenGroupedByQName.foreach { case (qname, children) =>
-      if (children.length > 1) {
+  private lazy val checkUnorderedSequenceMembersHaveUniqueNamesInNamespaces: Unit = {
+    // previous checks should ensure that all element children for unordered sequences are either local
+    // elements or element references
+    elementChildrenInNonHiddenContext
+      .groupBy(_.namedQName)
+      .filter(_._2.length > 1)
+      .values
+      .foreach { children =>
         children.head.SDE(
           "Two or more members of an unordered sequence have the same name and the same namespace"
         )
       }
-    }
+  }
+
+  private lazy val checkIfMultipleChildrenWithSameName: Unit = {
+    elementChildrenInNonHiddenContext
+      .groupBy(_.name)
+      .filter(_._2.length > 1)
+      .values
+      .foreach { children =>
+        children.head.SDW(
+          WarnID.MultipleChildElementsWithSameName,
+          "Two or more members of the sequence have the same name. " +
+            "Since not all infosets support namespaces or siblings with the same name, " +
+            "this could cause issues. QNames are: %s",
+          children.map(c => c.namedQName).mkString(", ")
+        )
+      }
   }
 
   final lazy val isOrdered: Boolean = this.sequenceKind match {
