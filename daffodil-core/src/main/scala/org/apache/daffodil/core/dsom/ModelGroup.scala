@@ -189,7 +189,6 @@ object ModelGroupFactory {
     // a SequenceGroupRef or ChoiceGroupRef, with isHidden = true. So this
     // temporary sequence will be discarded after this.
     seq.checkHiddenGroupRefHasNoChildren
-    seq.checkHiddenGroupRefNotChildOfComplexType
     //
     // construct the group ref XML, then recursively process that,
     // but set flag so it will be hidden.

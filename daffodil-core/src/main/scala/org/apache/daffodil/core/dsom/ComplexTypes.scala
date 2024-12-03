@@ -54,6 +54,16 @@ sealed abstract class ComplexTypeBase(xmlArg: Node, parentArg: SchemaComponent)
     s
   }
 
+  modelGroup match {
+    case s: SequenceGroupTermBase =>
+      schemaDefinitionWhen(
+        s.isHidden,
+        "A complex type cannot have a sequence with a hiddenGroupRef as its model group. " +
+          "Wrap the hiddenGroupRef sequence in an empty sequence instead."
+      )
+    case _ => // do nothing
+  }
+
   private lazy val smg = {
     childrenForTerms.map { xmlChild =>
       ModelGroupFactory(xmlChild, this, 1, isHidden = false)

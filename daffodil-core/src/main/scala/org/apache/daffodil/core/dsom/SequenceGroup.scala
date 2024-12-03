@@ -285,17 +285,6 @@ trait SequenceDefMixin
     }
   }
 
-  lazy val checkHiddenGroupRefNotChildOfComplexType: Unit = {
-    if (hiddenGroupRefOption.isDefined) {
-      optLexicalParent.collect { case _: ComplexTypeBase =>
-        schemaDefinitionError(
-          "A complex type cannot have a sequence with a hiddenGroupRef as its model group. " +
-            "Wrap the hiddenGroupRef sequence in an empty sequence instead."
-        )
-      }
-    }
-  }
-
   final lazy val hiddenGroupRefXML = LV('hiddenGroupRefXML) {
     val Found(qname, _, _, _) = hiddenGroupRefOption
     // synthesize a group reference here.
