@@ -163,7 +163,9 @@ class TestRefMap {
         </xs:group>
           <xs:element name="r1" type="ex:ct1"/>
         <xs:complexType name="ct1">
-          <xs:sequence dfdl:hiddenGroupRef="ex:g1"/>
+          <xs:sequence>
+            <xs:sequence dfdl:hiddenGroupRef="ex:g1"/>
+          </xs:sequence>
         </xs:complexType>
         <xs:group name="g1">
           <xs:choice>
@@ -176,7 +178,7 @@ class TestRefMap {
     val sset = compiler.compileNode(testSchema).sset
     val root = sset.root
     val comps = root.allComponents
-    assertEquals(14, comps.length)
+    assertEquals(15, comps.length)
     val refMap = root.refMap
     val numEntries = refMap.size
     assertEquals(6, numEntries)
@@ -189,8 +191,8 @@ class TestRefMap {
     val gref = rootDecl.complexType.modelGroup.asInstanceOf[ChoiceGroupRef]
     val Seq((grefSSCD, gdRefSpecs)) = refMap.get(gref.groupDef).get
     assertEquals(gref.shortSchemaComponentDesignator, grefSSCD)
-    assertEquals(14, root.numComponents)
-    assertEquals(14, root.numUniqueComponents)
+    assertEquals(15, root.numComponents)
+    assertEquals(15, root.numUniqueComponents)
   }
 
   @Test def testRefMapNonExplosion1(): Unit = {

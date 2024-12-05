@@ -106,7 +106,9 @@
               dfdl:outputValueCalc="{ 1 }" />
             <xs:element name="h">
               <xs:complexType>
-                <xs:sequence dfdl:hiddenGroupRef="ex:c1" />
+                <xs:sequence>
+                  <xs:sequence dfdl:hiddenGroupRef="ex:c1" />
+                </xs:sequence>
               </xs:complexType>
             </xs:element>
           </xs:choice>
@@ -119,7 +121,9 @@
               dfdl:outputValueCalc="{ 'hello' }" />
             <xs:element name="h">
               <xs:complexType>
-                <xs:sequence dfdl:hiddenGroupRef="ex:c1" />
+                <xs:sequence>
+                  <xs:sequence dfdl:hiddenGroupRef="ex:c1" />
+                </xs:sequence>
               </xs:complexType>
             </xs:element>
           </xs:choice>
@@ -160,7 +164,9 @@
             <xs:sequence>
               <xs:element name="g">
                 <xs:complexType>
-                  <xs:sequence dfdl:hiddenGroupRef="ex:c3" />
+                  <xs:sequence>
+                    <xs:sequence dfdl:hiddenGroupRef="ex:c3" />
+                  </xs:sequence>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
@@ -178,7 +184,9 @@
             <xs:sequence>
               <xs:element name="g">
                 <xs:complexType>
-                  <xs:sequence dfdl:hiddenGroupRef="ex:c1" />
+                  <xs:sequence>
+                    <xs:sequence dfdl:hiddenGroupRef="ex:c1" />
+                  </xs:sequence>
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
