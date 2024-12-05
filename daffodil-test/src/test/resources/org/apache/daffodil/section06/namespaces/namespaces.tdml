@@ -910,7 +910,7 @@
     <tdml:document><![CDATA[333]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>More than one definition for name: vagueEle</tdml:error>
+      <tdml:error>More than one definition for name: vagueElem</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
