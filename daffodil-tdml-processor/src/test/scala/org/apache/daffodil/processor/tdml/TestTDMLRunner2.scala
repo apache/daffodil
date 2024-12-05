@@ -23,6 +23,7 @@ import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.tdml.Document
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
+
 import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -744,7 +745,8 @@ abc # a comment
           <tdml:errors>
           <tdml:error>Schema Definition Error</tdml:error>
           <tdml:error>no global element found</tdml:error>
-          <tdml:error>{"{doesNotExist}"}data</tdml:error>
+            <!-- extra brace is there escape the inner brace -->
+          <tdml:error>{{doesNotExist}}data</tdml:error>
           </tdml:errors>
         </tdml:parserTestCase>
       </tdml:testSuite>
