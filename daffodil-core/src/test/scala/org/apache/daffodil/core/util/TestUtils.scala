@@ -386,10 +386,10 @@ class Fakes private () {
   lazy val xsd_sset: SchemaSet = SchemaSet(sch, "http://example.com", "fake")
   lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
   lazy val fakeSD = xsd_schema.schemaDocuments(0)
-  lazy val fakeElem = fakeSD.searchGlobalElementDecl("fake").head
+  lazy val fakeElem = fakeSD.getGlobalElementDecl("fake").get
 
   lazy val fakeCT =
-    fakeSD.searchGlobalElementDecl("fake2").head.typeDef.asInstanceOf[GlobalComplexTypeDef]
+    fakeSD.getGlobalElementDecl("fake2").get.typeDef.asInstanceOf[GlobalComplexTypeDef]
   lazy val fakeSequence = fakeCT.sequence
   lazy val Seq(fs1, fs2, fs3) = fakeSequence.groupMembers
   lazy val fakeChoiceGroupRef = fs1.asInstanceOf[ChoiceGroupRef]

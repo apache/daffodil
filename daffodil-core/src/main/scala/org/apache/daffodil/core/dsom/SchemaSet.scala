@@ -315,19 +315,19 @@ final class SchemaSet private (
    * root element name, then this searches for a single element having that name, and if it is
    * unambiguous, it is used as the root.
    */
-  private def findRootElement(qname: RefQName): GlobalElementDecl = {
+  private def findRootElement(name: String): GlobalElementDecl = {
     val candidates = schemas.flatMap {
-      _.getGlobalElementDecl(qname)
+      _.getGlobalElementDecl(name)
     }
     schemaDefinitionUnless(
-      candidates.length != 0,
-      "No root element found for %s",
-      qname
+      candidates.nonEmpty,
+      "No root element found for %s in any available namespace",
+      name
     )
     schemaDefinitionUnless(
       candidates.length <= 1,
       "Root element %s is ambiguous. Candidates are %s.",
-      qname,
+      name,
       candidates.map { gef =>
         {
           val tns = gef.schemaDocument.targetNamespace
@@ -337,7 +337,7 @@ final class SchemaSet private (
       }
     )
     Assert.invariant(candidates.length == 1)
-    val ge = candidates(0)
+    val ge = candidates.head
     ge
   }
 
@@ -356,20 +356,7 @@ final class SchemaSet private (
         ge
       }
       case RootSpec(None, rootElementName) => {
-        val possibleRoots: Seq[GlobalElementDecl] = schemaSet.schemas.flatMap {
-          _.searchGlobalElementDecl(rootElementName)
-        }
-        if (possibleRoots.length == 1) {
-          possibleRoots.head
-        } else {
-          // we're here because it's ambiguous what root element to return, and
-          // no namespace URI was provided. So we assume not specifying a namespace
-          // URI may mean the intention was to choose the root that it is in No Namespace.
-          // If there is no such, then the diagnostic will encourage user to specify
-          // the namespace explicitly.
-          val qn = RefQName(None, rootElementName, NoNamespace)
-          findRootElement(qn)
-        }
+        findRootElement(rootElementName)
       }
       case _ => Assert.impossible()
     }
@@ -425,7 +412,7 @@ final class SchemaSet private (
    */
   def getGlobalElementDecl(refQName: RefQName): Option[GlobalElementDecl] = {
     getSchema(refQName.namespace).flatMap {
-      _.getGlobalElementDecl(refQName)
+      _.getGlobalElementDecl(refQName.local)
     }
   }
 

@@ -673,7 +673,14 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   lazy val tcID = (testCaseXML \ "@ID").text
   lazy val id = tcName + (if (tcID != "") "(" + tcID + ")" else "")
   lazy val rootAttrib = (testCaseXML \ "@root").text
-  lazy val rootNSAttrib = (testCaseXML \ "@rootNS").text
+  lazy val optRootNSAttrib: Option[String] = {
+    val attr = testCaseXML.asInstanceOf[Elem].attribute("rootNS")
+    if (attr.isDefined) {
+      Some(testCaseXML \@ "rootNS")
+    } else {
+      None
+    }
+  }
 
   lazy val (infosetRootName, infosetRootNamespaceString) =
     if (this.optExpectedOrInputInfoset.isDefined) {
@@ -695,9 +702,9 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite) {
   }
 
   def getRootNamespaceString() = {
-    if (this.rootNSAttrib != "")
-      rootNSAttrib
-    else if (optExpectedOrInputInfoset.isDefined)
+    if (this.optRootNSAttrib.isDefined) {
+      optRootNSAttrib.get
+    } else if (optExpectedOrInputInfoset.isDefined)
       infosetRootNamespaceString
     else if (optEmbeddedSchema.isDefined)
       XMLUtils.EXAMPLE_NAMESPACE.toString

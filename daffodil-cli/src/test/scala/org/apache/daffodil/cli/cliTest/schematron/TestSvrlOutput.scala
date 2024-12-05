@@ -125,7 +125,7 @@ class TestSvrlOutput {
 
           runCLI(args"parse --validate schematron=$conf -s $schema -r unknown") { cli =>
             cli.send("12", inputDone = true)
-            cli.expectErr("No root element found for {}unknown")
+            cli.expectErr("No root element found for unknown in any available namespace")
           }(ExitCode.UnableToCreateProcessor)
         }
       }
