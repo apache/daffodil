@@ -44,6 +44,7 @@ lazy val daffodil = project
     sapi,
     schematron,
     slf4jLogger,
+    tdmlJunit,
     tdmlLib,
     tdmlProc,
     testDaf,
@@ -161,6 +162,11 @@ lazy val tdmlProc = Project("daffodil-tdml-processor", file("daffodil-tdml-proce
   .dependsOn(tdmlLib, codeGenC, core, slf4jLogger)
   .settings(commonSettings)
 
+lazy val tdmlJunit = Project("daffodil-tdml-junit", file("daffodil-tdml-junit"))
+  .dependsOn(tdmlProc)
+  .settings(commonSettings)
+  .settings(libraryDependencies ++= Dependencies.junit)
+
 lazy val cli = Project("daffodil-cli", file("daffodil-cli"))
   .dependsOn(
     tdmlProc,
@@ -184,7 +190,7 @@ lazy val schematron = Project("daffodil-schematron", file("daffodil-schematron")
   .settings(libraryDependencies ++= Dependencies.schematron)
 
 lazy val testDaf = Project("daffodil-test", file("daffodil-test"))
-  .dependsOn(tdmlProc % "test", codeGenC % "test->test", udf % "test->test")
+  .dependsOn(tdmlJunit % "test", codeGenC % "test->test", udf % "test->test")
   .settings(commonSettings, nopublish)
 //
 // Uncomment the following line to run these tests
@@ -193,7 +199,7 @@ lazy val testDaf = Project("daffodil-test", file("daffodil-test"))
 //.settings(IBMDFDLCrossTesterPlugin.settings)
 
 lazy val testIBM1 = Project("daffodil-test-ibm1", file("daffodil-test-ibm1"))
-  .dependsOn(tdmlProc % "test")
+  .dependsOn(tdmlJunit % "test")
   .settings(commonSettings, nopublish)
 //
 // Uncomment the following line to run these tests
@@ -216,11 +222,11 @@ lazy val testIntegration =
     )
 
 lazy val tutorials = Project("daffodil-tutorials", file("tutorials"))
-  .dependsOn(tdmlProc % "test")
+  .dependsOn(tdmlJunit % "test")
   .settings(commonSettings, nopublish)
 
 lazy val testStdLayout = Project("daffodil-test-stdLayout", file("test-stdLayout"))
-  .dependsOn(tdmlProc % "test")
+  .dependsOn(tdmlJunit % "test")
   .settings(commonSettings, nopublish)
 
 // Choices here are Java LTS versions, 8, 11, 17, 21,...
