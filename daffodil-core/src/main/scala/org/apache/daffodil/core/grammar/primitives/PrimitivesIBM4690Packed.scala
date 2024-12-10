@@ -33,11 +33,9 @@ import org.apache.daffodil.unparsers.runtime1.IBM4690PackedIntegerKnownLengthUnp
 import org.apache.daffodil.unparsers.runtime1.IBM4690PackedIntegerPrefixedLengthUnparser
 import org.apache.daffodil.unparsers.runtime1.IBM4690PackedIntegerRuntimeLengthUnparser
 
-class IBM4690PackedIntegerRuntimeLength(val e: ElementBase, signed: Boolean)
-  extends Terminal(e, true) {
+class IBM4690PackedIntegerRuntimeLength(val e: ElementBase) extends Terminal(e, true) {
   override lazy val parser = new IBM4690PackedIntegerRuntimeLengthParser(
     e.elementRuntimeData,
-    signed,
     e.lengthEv,
     e.lengthUnits
   )
@@ -49,23 +47,21 @@ class IBM4690PackedIntegerRuntimeLength(val e: ElementBase, signed: Boolean)
   )
 }
 
-class IBM4690PackedIntegerKnownLength(val e: ElementBase, signed: Boolean, lengthInBits: Long)
+class IBM4690PackedIntegerKnownLength(val e: ElementBase, lengthInBits: Long)
   extends Terminal(e, true) {
 
   override lazy val parser =
-    new IBM4690PackedIntegerKnownLengthParser(e.elementRuntimeData, signed, lengthInBits.toInt)
+    new IBM4690PackedIntegerKnownLengthParser(e.elementRuntimeData, lengthInBits.toInt)
 
   override lazy val unparser: Unparser =
     new IBM4690PackedIntegerKnownLengthUnparser(e.elementRuntimeData, lengthInBits.toInt)
 }
 
-class IBM4690PackedIntegerPrefixedLength(val e: ElementBase, signed: Boolean)
-  extends Terminal(e, true) {
+class IBM4690PackedIntegerPrefixedLength(val e: ElementBase) extends Terminal(e, true) {
   override lazy val parser = new IBM4690PackedIntegerPrefixedLengthParser(
     e.elementRuntimeData,
     e.prefixedLengthBody.parser,
     e.prefixedLengthElementDecl.elementRuntimeData,
-    signed,
     e.lengthUnits,
     e.prefixedLengthAdjustmentInUnits
   )
