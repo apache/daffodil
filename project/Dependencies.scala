@@ -50,6 +50,10 @@ object Dependencies {
     "net.sf.expectit" % "expectit-core" % "0.9.0" % "test"
   )
 
+  lazy val junit = Seq(
+    "junit" % "junit" % "4.13.2"
+  )
+
   lazy val test = Seq(
     "junit" % "junit" % "4.13.2" % "test",
     "com.github.sbt" % "junit-interface" % "0.13.3" % "test",
