@@ -20,6 +20,7 @@
   description="Packed Number Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:tns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   defaultRoundTrip="true">
 
@@ -33,12 +34,12 @@
     <xs:element name="int02" type="xs:int" dfdl:length="2" dfdl:textNumberPattern="'C'000;'D'000" />
 
      <xs:element name="flt01" type="xs:float" dfdl:length="2" dfdl:textNumberPattern="00V00"/>
-     
+
      <xs:element name="cal01" type="xs:date" dfdl:length="3"
        dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MMddyy"/>
-      
+
   </tdml:defineSchema>
-  
+
   <tdml:defineSchema name="s2">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
@@ -261,7 +262,7 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
-  
+
   <tdml:parserTestCase name="hexCharset02" root="int02" model="s1"
     description="hex works as a charset encoding, with C and D as sign characters">
 
@@ -275,7 +276,7 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
-  
+
   <tdml:parserTestCase name="hexCharset03" root="flt01" model="s1"
     description="hex works as a charset encoding, P number pattern character">
 
@@ -289,7 +290,7 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
-    
+
   <tdml:parserTestCase name="hexCharset04" root="cal01" model="s1"
     description="hex works as a charset encoding for calendars">
 
@@ -302,7 +303,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-  </tdml:parserTestCase>  
+  </tdml:parserTestCase>
 
    <tdml:parserTestCase name="packedCharset01" root="int01" model="s2"
     description="Using Packed Decimal formatted hex with C inicating a positive integer">
@@ -345,7 +346,7 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
- 
+
   <tdml:parserTestCase name="packedCharset04" root="cal01" model="s2"
     description="Using Packed Decimal formatted hex for a calendar">
 
@@ -358,7 +359,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-  </tdml:parserTestCase> 
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="packedCharset05" root="int02" model="s2"
     description="Using Packed Decimal formatted hex with an invalid sign nibble">
@@ -470,7 +471,7 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
- 
+
   <tdml:parserTestCase name="bcdCharset04" root="cal01" model="s3"
     description="Using BCD formatted hex for a calendar">
 
@@ -483,7 +484,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-  </tdml:parserTestCase> 
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="bcdCharset05" root="uint02" model="s3"
     description="Using Packed Decimal formatted hex with an invalid high nibble">
@@ -626,7 +627,7 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
- 
+
   <tdml:parserTestCase name="IBM4690Charset04" root="cal01" model="s4"
     description="Using IBM4690 packed decimal formatted hex for a calendar">
 
@@ -639,7 +640,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-  </tdml:parserTestCase> 
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="IBM4690Charset05" root="int02" model="s4"
     description="Using Packed IBM4690 Decimal formatted hex with an invalid sign nibble">
@@ -914,5 +915,38 @@
       <tdml:documentPart type="byte">F3 2C D123 3B</tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
+
+  <tdml:defineSchema name="bcdErr">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
+    lengthUnits="bytes" binaryNumberRep="bcd" binaryNumberCheckPolicy="strict"/>
+    <xs:element name="bcdBigDec" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="1" />
+          <xs:element name="string01" type="xs:string" dfdl:encoding="US-ASCII" dfdl:length="{ xs:int(fn:ceiling(../ex:uint01)) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!-- Daffodil 2961 -->
+  <tdml:parserTestCase name="bcdBigDecimalError" root="bcdBigDec" model="bcdErr"
+    description="Verify that usign packed values in an expression work correctly">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0568656C6C6F</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <bcdBigDec>
+          <uint01>5</uint01>
+          <string01>hello</string01>
+        </bcdBigDec>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 
 </tdml:testSuite>
