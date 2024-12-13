@@ -75,6 +75,9 @@ class TestPacked {
   @Test def testBCDCharset12(): Unit = { runner.runOneTest("bcdCharset12") }
   @Test def testBCDCharset13(): Unit = { runner.runOneTest("bcdCharset13") }
 
+  @Test def testPackedNegativeUnsigned(): Unit = { runner.runOneTest("packedNegativeUnsigned") }
+  @Test def testPackedIntTooLarge(): Unit = { runner.runOneTest("packedIntTooLarge") }
+
   @Test def testIBM4690Charset01(): Unit = { runner.runOneTest("IBM4690Charset01") }
   @Test def testIBM4690Charset02(): Unit = { runner.runOneTest("IBM4690Charset02") }
   @Test def testIBM4690Charset03(): Unit = { runner.runOneTest("IBM4690Charset03") }
@@ -110,4 +113,7 @@ class TestPacked {
   @Test def testDelimitedIBM4690DecSeqUnparser(): Unit = {
     runner.runOneTest("DelimitedIBM4690DecSeqUnparser")
   }
+
+  // Daffodil-2961
+  @Test def testBCDBigIntToLongExpr(): Unit = { runner.runOneTest("bcdBigIntToLongExpr") }
 }

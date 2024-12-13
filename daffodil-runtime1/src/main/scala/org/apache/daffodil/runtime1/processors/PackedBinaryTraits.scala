@@ -26,7 +26,9 @@ import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeChar
-import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValueNumber
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
@@ -36,9 +38,22 @@ import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
 
 import passera.unsigned.ULong
 
-trait PackedBinaryConversion {
-  def toBigInteger(num: Array[Byte]): JBigInteger
-  def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal
+trait PackedBinaryConversion[A <: Number] {
+
+  /**
+   * Converts the byte array to either a BigInteger or Big Decimal as defined by
+   * the implementing class
+   */
+  def toNumber(num: Array[Byte]): A
+
+  def toPrimType(context: ElementRuntimeData, num: Array[Byte]): DataValueNumber = {
+    context.optPrimType.get match {
+      case pn: PrimType.PrimNumeric => pn.fromNumber(toNumber(num))
+      // Non-numeric types such as Time can still use these funcitons and
+      // expect BigIntegers as the output of the conversion
+      case _ => toNumber(num)
+    }
+  }
 }
 
 trait PackedBinaryLengthCheck {
@@ -74,7 +89,7 @@ abstract class PackedBinaryDecimalBaseParser(
   override val context: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int
 ) extends PrimParser
-  with PackedBinaryConversion
+  with PackedBinaryConversion[JBigDecimal]
   with PackedBinaryLengthCheck {
   override lazy val runtimeDependencies = Vector()
 
@@ -95,10 +110,12 @@ abstract class PackedBinaryDecimalBaseParser(
     }
 
     try {
-      val bigDec = toBigDecimal(dis.getByteArray(nBits, start), binaryDecimalVirtualPoint)
-      start.simpleElement.overwriteDataValue(bigDec)
+      val dec = toPrimType(context, dis.getByteArray(nBits, start))
+      start.simpleElement.setDataValue(dec)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
+      case i: InvalidPrimitiveDataException =>
+        PE(start, "Error in packed data: \n%s", i.getMessage())
     }
   }
 }
@@ -106,17 +123,10 @@ abstract class PackedBinaryDecimalBaseParser(
 abstract class PackedBinaryIntegerBaseParser(
   override val context: ElementRuntimeData
 ) extends PrimParser
-  with PackedBinaryConversion
+  with PackedBinaryConversion[JBigInteger]
   with PackedBinaryLengthCheck {
   override lazy val runtimeDependencies = Vector()
 
-  val signed = {
-    context.optPrimType.get match {
-      case n: NodeInfo.PrimType.PrimNumeric => n.isSigned
-      // context.optPrimType can be of type date/time via ConvertZonedCombinator
-      case _ => false
-    }
-  }
   protected def getBitLength(s: ParseOrUnparseState): Int
 
   def parse(start: PState): Unit = {
@@ -134,13 +144,12 @@ abstract class PackedBinaryIntegerBaseParser(
     }
 
     try {
-      val int = toBigInteger(dis.getByteArray(nBits, start))
-      if (!signed && (int.signum != 1))
-        PE(start, "Expected unsigned data but parsed a negative number")
-      else
-        start.simpleElement.overwriteDataValue(int)
+      val int = toPrimType(context, dis.getByteArray(nBits, start))
+      start.simpleElement.setDataValue(int)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
+      case i: InvalidPrimitiveDataException =>
+        PE(start, "Error in packed data: \n%s", i.getMessage())
     }
   }
 }
@@ -158,7 +167,7 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
     fieldDFAEv,
     isDelimRequired
   )
-  with PackedBinaryConversion {
+  with PackedBinaryConversion[JBigInteger] {
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
     Assert.invariant(
@@ -177,11 +186,13 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
         return
       } else {
         try {
-          val num = toBigInteger(fieldBytes)
+          val num = toPrimType(context, fieldBytes)
           state.simpleElement.setDataValue(num)
         } catch {
           case n: NumberFormatException =>
             PE(state, "Error in packed data: \n%s", n.getMessage())
+          case i: InvalidPrimitiveDataException =>
+            PE(state, "Error in packed data: \n%s", i.getMessage())
         }
 
         if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
@@ -205,7 +216,7 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
     fieldDFAEv,
     isDelimRequired
   )
-  with PackedBinaryConversion {
+  with PackedBinaryConversion[JBigDecimal] {
 
   /**
    * We are treating packed binary formats as just a string in iso-8859-1 encoding.
@@ -236,11 +247,13 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
         return
       } else {
         try {
-          val num = toBigDecimal(fieldBytes, binaryDecimalVirtualPoint)
+          val num = toPrimType(e, fieldBytes)
           state.simpleElement.setDataValue(num)
         } catch {
           case n: NumberFormatException =>
             PE(state, "Error in packed data: \n%s", n.getMessage())
+          case i: InvalidPrimitiveDataException =>
+            PE(state, "Error in packed data: \n%s", i.getMessage())
         }
 
         if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
