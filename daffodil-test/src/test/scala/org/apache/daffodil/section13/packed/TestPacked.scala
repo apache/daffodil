@@ -110,4 +110,7 @@ class TestPacked {
   @Test def testDelimitedIBM4690DecSeqUnparser(): Unit = {
     runner.runOneTest("DelimitedIBM4690DecSeqUnparser")
   }
+
+  // Daffodil-2961
+  @Test def testBCDBigDecimalError(): Unit = { runner.runOneTest("bcdBigDecimalError") }
 }

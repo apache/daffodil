@@ -27,6 +27,7 @@ import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeChar
 import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.infoset.DataValue.DataValueNumber
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
@@ -39,6 +40,24 @@ import passera.unsigned.ULong
 trait PackedBinaryConversion {
   def toBigInteger(num: Array[Byte]): JBigInteger
   def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal
+
+  def toInteger(context: ElementRuntimeData, num: Array[Byte]): DataValueNumber = {
+    context.optPrimType.get match {
+      case pn: PrimType.PrimNumeric => pn.fromNumber(toBigInteger(num))
+      // Non-numeric types such as Time can still use these funcitons and
+      // expect BigIntegers as the output of the conversion
+      case _ => toBigInteger(num)
+    }
+  }
+
+  def toDecimal(context: ElementRuntimeData, num: Array[Byte], scale: Int): DataValueNumber = {
+    context.optPrimType.get match {
+      case pn: PrimType.PrimNumeric => pn.fromNumber(toBigDecimal(num, scale))
+      // Non-numeric types such as Time can still use these funcitons and
+      // expect BigDecimal as the output of the conversion
+      case _ => toBigDecimal(num, scale)
+    }
+  }
 }
 
 trait PackedBinaryLengthCheck {
@@ -95,8 +114,8 @@ abstract class PackedBinaryDecimalBaseParser(
     }
 
     try {
-      val bigDec = toBigDecimal(dis.getByteArray(nBits, start), binaryDecimalVirtualPoint)
-      start.simpleElement.overwriteDataValue(bigDec)
+      val dec = toDecimal(context, dis.getByteArray(nBits, start), binaryDecimalVirtualPoint)
+      start.simpleElement.setDataValue(dec)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
     }
@@ -134,11 +153,8 @@ abstract class PackedBinaryIntegerBaseParser(
     }
 
     try {
-      val int = toBigInteger(dis.getByteArray(nBits, start))
-      if (!signed && (int.signum != 1))
-        PE(start, "Expected unsigned data but parsed a negative number")
-      else
-        start.simpleElement.overwriteDataValue(int)
+      val int = toInteger(context, dis.getByteArray(nBits, start))
+      start.simpleElement.setDataValue(int)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
     }
@@ -177,7 +193,7 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
         return
       } else {
         try {
-          val num = toBigInteger(fieldBytes)
+          val num = toInteger(context, fieldBytes)
           state.simpleElement.setDataValue(num)
         } catch {
           case n: NumberFormatException =>
@@ -236,7 +252,7 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
         return
       } else {
         try {
-          val num = toBigDecimal(fieldBytes, binaryDecimalVirtualPoint)
+          val num = toDecimal(e, fieldBytes, binaryDecimalVirtualPoint)
           state.simpleElement.setDataValue(num)
         } catch {
           case n: NumberFormatException =>
