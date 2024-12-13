@@ -772,7 +772,11 @@ trait ElementBase
     // Validate that the number of bits does not exceed the maximum number of
     // bits allowed for the type
     if (
-      result.isDefined && repElement.isSimpleType && representation == Representation.Binary
+      result.isDefined &&
+      repElement.isSimpleType &&
+      representation == Representation.Binary &&
+      // Don't check bit length of packed binary numbers
+      (!optionBinaryNumberRep.isDefined || (binaryNumberRep == BinaryNumberRep.Binary))
     ) {
       val nBits = result.get
       primType match {

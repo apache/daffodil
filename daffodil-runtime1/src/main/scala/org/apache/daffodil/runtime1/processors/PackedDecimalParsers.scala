@@ -35,10 +35,8 @@ class PackedDecimalKnownLengthParser(
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
-    DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.packedToBigDecimal(num, binaryDecimalVirtualPoint, packedSignCodes)
 
 }
 
@@ -51,11 +49,8 @@ class PackedDecimalRuntimeLengthParser(
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
-    DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
-
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.packedToBigDecimal(num, binaryDecimalVirtualPoint, packedSignCodes)
 }
 
 class PackedDecimalPrefixedLengthParser(
@@ -69,10 +64,8 @@ class PackedDecimalPrefixedLengthParser(
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with PrefixedLengthParserMixin {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
-    DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.packedToBigDecimal(num, binaryDecimalVirtualPoint, packedSignCodes)
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
 
@@ -90,10 +83,8 @@ class PackedIntegerRuntimeLengthParser(
 ) extends PackedBinaryIntegerBaseParser(e)
   with HasRuntimeExplicitLength {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
+  override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
 
 }
 
@@ -104,10 +95,8 @@ class PackedIntegerKnownLengthParser(
 ) extends PackedBinaryIntegerBaseParser(e)
   with HasKnownLengthInBits {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
+  override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
 
 }
 
@@ -121,10 +110,8 @@ class PackedIntegerPrefixedLengthParser(
 ) extends PackedBinaryIntegerBaseParser(e)
   with PrefixedLengthParserMixin {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
+  override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
 
