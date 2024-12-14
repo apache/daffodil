@@ -85,7 +85,12 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
       jsp.getCurrentToken() match {
         case JsonToken.START_OBJECT => if (objectDepth == 1) StartDocument else StartElement
         case JsonToken.END_OBJECT => EndElement
-        case JsonToken.VALUE_STRING | JsonToken.VALUE_NULL => {
+        case JsonToken.VALUE_STRING |
+             JsonToken.VALUE_NUMBER_INT |
+             JsonToken.VALUE_NUMBER_FLOAT |
+             JsonToken.VALUE_TRUE |
+             JsonToken.VALUE_FALSE |
+             JsonToken.VALUE_NULL => {
           // we don't want to start faking element end yet, but signify that
           // after a call to next(), we will want to fake it
           nextEventShouldBeFakeEnd = true
@@ -118,10 +123,11 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
     primType: NodeInfo.Kind,
     runtimeProperties: java.util.Map[String, String]
   ): String = {
-    if (jsp.getCurrentToken() == JsonToken.VALUE_NULL) {
+    if (!jsp.getCurrentToken().isScalarValue()) {
+      throw new NonTextFoundInSimpleContentException("Unexpected array or object '" + getLocalName + "' on line " + jsp.getTokenLocation().getLineNr())
+    } else if  (jsp.getCurrentToken() == JsonToken.VALUE_NULL) {
       null
     } else {
-      Assert.invariant(jsp.getCurrentToken() == JsonToken.VALUE_STRING)
       // this handles unescaping any escaped characters
       jsp.getText()
     }
@@ -172,7 +178,7 @@ class JsonInfosetInputter(input: java.io.InputStream) extends InfosetInputter {
             objectDepth -= 1; exitNow = true
 
           // start of a simple type or null
-          case JsonToken.VALUE_STRING | JsonToken.VALUE_NULL => exitNow = true
+          case token if token.isScalarValue() => exitNow = true
 
           // skip field names, jackson makes these available via
           // getCurrentName(), except for array elements
