@@ -124,10 +124,21 @@
   <tdml:defineSchema name="s8">
     <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
     <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
-    textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
+    textNumberPadCharacter="0" textNumberJustification="right"
     lengthUnits="bits" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
 
     <xs:element name="int01" type="xs:int" dfdl:representation="binary" dfdl:length="7" />
+
+    <xs:element name="int02" type="xs:decimal" dfdl:representation="binary" dfdl:length="0" dfdl:binaryDecimalVirtualPoint="0" />
+
+    <xs:element name="int03" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="len" type="xs:unsignedInt" dfdl:length="1" dfdl:lengthUnits="bytes"/>
+          <xs:element name="value" type="xs:decimal" dfdl:representation="binary" dfdl:length="{ ../ex:len}" dfdl:binaryDecimalVirtualPoint="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -411,6 +422,45 @@
       <tdml:documentPart type="bits">0010101</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
+      <tdml:error>The given length</tdml:error>
+      <tdml:error>must be a multiple of 4 when using packed binary formats</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zeroLengthPackedCharset" root="int02" model="s8"
+      description="Attempting to use a length of 0 bits with IBM4690 Packed Decimal should result in SDE">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0010101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>bits 0 out of range</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="runtimeLengthPackedCharset1" root="int03" model="s8"
+      description="Attempting to use a runtime length with IBM4690 Packed Decimal should result in PE">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00</tdml:documentPart>
+      <tdml:documentPart type="bits">0010101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>bits 0 out of range</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="runtimeLengthPackedCharset2" root="int03" model="s8"
+      description="Attempting to use a runtime length with IBM4690 Packed Decimal should result in PE">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">07</tdml:documentPart>
+      <tdml:documentPart type="bits">0010101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
       <tdml:error>The given length</tdml:error>
       <tdml:error>must be a multiple of 4 when using packed binary formats</tdml:error>
     </tdml:errors>

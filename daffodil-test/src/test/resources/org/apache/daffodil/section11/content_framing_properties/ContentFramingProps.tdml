@@ -1319,7 +1319,7 @@
       <xs:complexType>
         <xs:sequence>
           <!-- single bit field leaves us after first bit, and in MSBF bit order -->
-          <xs:element name="bit" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+          <xs:element name="bit" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="1"
              dfdl:representation="binary" dfdl:lengthUnits="bits" dfdl:bitOrder="mostSignificantBitFirst"/>
           <!-- this encoding can go on any bit boundary, but requires LSBF -->
           <xs:element name="s" type="xs:string" dfdl:lengthKind="explicit"

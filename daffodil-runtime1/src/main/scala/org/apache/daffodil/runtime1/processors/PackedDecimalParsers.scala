@@ -84,11 +84,10 @@ class PackedDecimalPrefixedLengthParser(
 
 class PackedIntegerRuntimeLengthParser(
   val e: ElementRuntimeData,
-  signed: Boolean,
   packedSignCodes: PackedSignCodes,
   val lengthEv: Evaluatable[JLong],
   val lengthUnits: LengthUnits
-) extends PackedBinaryIntegerBaseParser(e, signed)
+) extends PackedBinaryIntegerBaseParser(e)
   with HasRuntimeExplicitLength {
 
   override def toBigInteger(num: Array[Byte]): JBigInteger =
@@ -100,10 +99,9 @@ class PackedIntegerRuntimeLengthParser(
 
 class PackedIntegerKnownLengthParser(
   e: ElementRuntimeData,
-  signed: Boolean,
   packedSignCodes: PackedSignCodes,
   val lengthInBits: Int
-) extends PackedBinaryIntegerBaseParser(e, signed)
+) extends PackedBinaryIntegerBaseParser(e)
   with HasKnownLengthInBits {
 
   override def toBigInteger(num: Array[Byte]): JBigInteger =
@@ -117,11 +115,10 @@ class PackedIntegerPrefixedLengthParser(
   e: ElementRuntimeData,
   override val prefixedLengthParser: Parser,
   override val prefixedLengthERD: ElementRuntimeData,
-  signed: Boolean,
   packedSignCodes: PackedSignCodes,
   override val lengthUnits: LengthUnits,
   override val prefixedLengthAdjustmentInUnits: Long
-) extends PackedBinaryIntegerBaseParser(e, signed)
+) extends PackedBinaryIntegerBaseParser(e)
   with PrefixedLengthParserMixin {
 
   override def toBigInteger(num: Array[Byte]): JBigInteger =
