@@ -150,8 +150,7 @@ class LiteralNilDelimitedEndOfDataParser(
         (isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any.
         isNilLiteral
       ) { // Not empty, but matches.
-        // Contains a nilValue, Success!
-        state.thisElement.setNilled()
+        // Contains a nilValue, Succes ParseResult indiciates nilled
         captureValueLengthOfString(state, field)
         if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
         return

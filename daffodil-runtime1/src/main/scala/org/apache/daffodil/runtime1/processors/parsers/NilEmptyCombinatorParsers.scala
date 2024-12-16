@@ -34,12 +34,16 @@ abstract class NilOrValueParser(ctxt: TermRuntimeData, nilParser: Parser, valueP
     pstate.withPointOfUncertainty("NilOrValueParser", ctxt) { pou =>
       nilParser.parse1(pstate)
 
-      if (pstate.processorStatus ne Success) {
-        // did not find a nil. reset back to the pou and try to parse the value
+      if (pstate.processorStatus eq Success) {
+        // Success indicates we found a nil representation. Set the infoset to nil.
+        // withPointOfUncertainty will discard the pou
+        pstate.infoset.setNilled()
+      } else {
+        // Faiulre indiciated we did not find a nil representation. Reset back to the pou and
+        // try to parse the value. We do not need to change the nilled state in the infoset
+        // since it defaults to not nilled
         pstate.resetToPointOfUncertainty(pou)
         valueParser.parse1(pstate)
-      } else {
-        // no-op. We found nil, withPointOfUncertainty will discard the pou
       }
     }
 
