@@ -93,4 +93,6 @@ class TestNillable {
   @Test def test_entity_success_05(): Unit = { runnerEntity.runOneTest("entity_success_05") }
   @Test def test_entity_success_06(): Unit = { runnerEntity.runOneTest("entity_success_06") }
 
+  @Test def test_complexNillable_01(): Unit = { runnerAA.runOneTest("complexNillable_01") }
+  @Test def test_complexNillable_02(): Unit = { runnerAA.runOneTest("complexNillable_02") }
 }
