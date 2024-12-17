@@ -112,5 +112,5 @@ class TestPacked {
   }
 
   // Daffodil-2961
-  @Test def testBCDBigDecimalError(): Unit = { runner.runOneTest("bcdBigDecimalError") }
+  @Test def testBCDBigIntToLongExpr(): Unit = { runner.runOneTest("bcdBigIntToLongExpr") }
 }
