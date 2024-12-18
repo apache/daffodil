@@ -983,7 +983,7 @@
 
   <!-- Daffodil 2961 -->
   <tdml:parserTestCase name="bcdBigIntToLongExpr" root="bcdBigIntToLong" model="bcdBigIntToLongExprSch"
-    description="Verify that usign packed values in an expression work correctly">
+    description="Verify that unsign packed values in an expression work correctly">
 
     <tdml:document>
       <tdml:documentPart type="byte">0568656C6C6F</tdml:documentPart>
@@ -998,5 +998,27 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="packedDecimalRangeChecks">
+    <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
+    <dfdl:format ref="ex:GeneralFormat" lengthKind="explicit" encoding="X-DFDL-HEX-MSBF" occursCountKind="implicit"
+    textNumberCheckPolicy="strict" textNumberPadCharacter="0" textNumberJustification="right"
+    lengthUnits="bytes" binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"/>
+
+    <xs:element name="uint01" type="xs:unsignedInt" dfdl:representation="binary" dfdl:length="2" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="packedNegativeUnsigned" root="uint01" model="packedDecimalRangeChecks"
+    description="Using BCD formatted hex to indicate an integer number">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">123D</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range for type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

@@ -26,7 +26,8 @@ import org.apache.daffodil.lib.equality.TypeEqual
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.MaybeChar
-import org.apache.daffodil.runtime1.dpath.NodeInfo
+import org.apache.daffodil.runtime1.dpath.InvalidPrimitiveDataException
+import org.apache.daffodil.runtime1.dpath.NodeInfo.PrimType
 import org.apache.daffodil.runtime1.infoset.DataValue.DataValueNumber
 import org.apache.daffodil.runtime1.processors.ElementRuntimeData
 import org.apache.daffodil.runtime1.processors.FieldDFAParseEv
@@ -41,7 +42,7 @@ trait PackedBinaryConversion {
   def toBigInteger(num: Array[Byte]): JBigInteger
   def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal
 
-  def toInteger(context: ElementRuntimeData, num: Array[Byte]): DataValueNumber = {
+  def toPrimitiveType(context: ElementRuntimeData, num: Array[Byte]): DataValueNumber = {
     context.optPrimType.get match {
       case pn: PrimType.PrimNumeric => pn.fromNumber(toBigInteger(num))
       // Non-numeric types such as Time can still use these funcitons and
@@ -50,7 +51,7 @@ trait PackedBinaryConversion {
     }
   }
 
-  def toDecimal(context: ElementRuntimeData, num: Array[Byte], scale: Int): DataValueNumber = {
+  def toPrimitiveType(context: ElementRuntimeData, num: Array[Byte], scale: Int): DataValueNumber = {
     context.optPrimType.get match {
       case pn: PrimType.PrimNumeric => pn.fromNumber(toBigDecimal(num, scale))
       // Non-numeric types such as Time can still use these funcitons and
@@ -114,10 +115,11 @@ abstract class PackedBinaryDecimalBaseParser(
     }
 
     try {
-      val dec = toDecimal(context, dis.getByteArray(nBits, start), binaryDecimalVirtualPoint)
+      val dec = toPrimitiveType(context, dis.getByteArray(nBits, start), binaryDecimalVirtualPoint)
       start.simpleElement.setDataValue(dec)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
+      case i: InvalidPrimitiveDataException => PE(start, "Error in packed data: \n%s", i.getMessage())
     }
   }
 }
@@ -131,7 +133,7 @@ abstract class PackedBinaryIntegerBaseParser(
 
   val signed = {
     context.optPrimType.get match {
-      case n: NodeInfo.PrimType.PrimNumeric => n.isSigned
+      case n: PrimType.PrimNumeric => n.isSigned
       // context.optPrimType can be of type date/time via ConvertZonedCombinator
       case _ => false
     }
@@ -153,10 +155,11 @@ abstract class PackedBinaryIntegerBaseParser(
     }
 
     try {
-      val int = toInteger(context, dis.getByteArray(nBits, start))
+      val int = toPrimitiveType(context, dis.getByteArray(nBits, start))
       start.simpleElement.setDataValue(int)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
+      case i: InvalidPrimitiveDataException => PE(start, "Error in packed data: \n%s", i.getMessage())
     }
   }
 }
@@ -193,11 +196,12 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
         return
       } else {
         try {
-          val num = toInteger(context, fieldBytes)
+          val num = toPrimitiveType(context, fieldBytes)
           state.simpleElement.setDataValue(num)
         } catch {
           case n: NumberFormatException =>
             PE(state, "Error in packed data: \n%s", n.getMessage())
+          case i: InvalidPrimitiveDataException => PE(state, "Error in packed data: \n%s", i.getMessage())
         }
 
         if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)
@@ -252,11 +256,12 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
         return
       } else {
         try {
-          val num = toDecimal(e, fieldBytes, binaryDecimalVirtualPoint)
+          val num = toPrimitiveType(e, fieldBytes, binaryDecimalVirtualPoint)
           state.simpleElement.setDataValue(num)
         } catch {
           case n: NumberFormatException =>
             PE(state, "Error in packed data: \n%s", n.getMessage())
+          case i: InvalidPrimitiveDataException => PE(state, "Error in packed data: \n%s", i.getMessage())
         }
 
         if (result.matchedDelimiterValue.isDefined) state.saveDelimitedParseResult(parseResult)

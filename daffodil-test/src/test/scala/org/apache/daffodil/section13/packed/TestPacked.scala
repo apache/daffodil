@@ -75,6 +75,8 @@ class TestPacked {
   @Test def testBCDCharset12(): Unit = { runner.runOneTest("bcdCharset12") }
   @Test def testBCDCharset13(): Unit = { runner.runOneTest("bcdCharset13") }
 
+  @Test def testPackedNegativeUnsigned(): Unit = { runner.runOneTest("packedNegativeUnsigned") }
+
   @Test def testIBM4690Charset01(): Unit = { runner.runOneTest("IBM4690Charset01") }
   @Test def testIBM4690Charset02(): Unit = { runner.runOneTest("IBM4690Charset02") }
   @Test def testIBM4690Charset03(): Unit = { runner.runOneTest("IBM4690Charset03") }
