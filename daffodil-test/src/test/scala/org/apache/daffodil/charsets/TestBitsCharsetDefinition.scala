@@ -17,30 +17,23 @@
 
 package org.apache.daffodil.charsets
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestCharsets {
-
-  val testDir = "/org/apache/daffodil/charsets/"
-  val runner = Runner(testDir, "TestBitsCharsetDefinition.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestCharsets extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/charsets/TestBitsCharsetDefinition.tdml"
 }
 
-class TestCharsets {
-  import TestCharsets._
+class TestCharsets extends TdmlTests {
+  val tdmlSuite = TestCharsets
 
-  @Test def parse_loaded_charsets(): Unit = { runner.runOneTest("parse_charsets") }
-  @Test def unparse_loaded_charsets(): Unit = { runner.runOneTest("unparse_charsets") }
-  @Test def parse_loaded_charsets2(): Unit = { runner.runOneTest("parse_charsets2") }
-  @Test def unparse_loaded_charsets2(): Unit = { runner.runOneTest("unparse_charsets2") }
-  @Test def parse_loaded_charsets3(): Unit = { runner.runOneTest("parse_charsets3") }
-  @Test def unparse_loaded_charsets3(): Unit = { runner.runOneTest("unparse_charsets3") }
-  @Test def unparse_loaded_charsets_DNE(): Unit = { runner.runOneTest("verify_error_message") }
-
+  @Test def parse_charsets = test
+  @Test def unparse_charsets = test
+  @Test def parse_charsets2 = test
+  @Test def unparse_charsets2 = test
+  @Test def parse_charsets3 = test
+  @Test def unparse_charsets3 = test
+  @Test def verify_error_message = test
 }

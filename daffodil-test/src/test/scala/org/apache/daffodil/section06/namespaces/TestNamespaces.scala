@@ -17,243 +17,207 @@
 
 package org.apache.daffodil.section06.namespaces
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestNamespaces {
-  val testDir = "/org/apache/daffodil/section06/namespaces/"
-
-  val runner =
-    Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
-  val runnerV =
-    Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
-
-  val runner2 =
-    Runner(testDir, "multiFile.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
-  val runner3 = Runner(testDir, "includeImport.tdml")
-  val runnerWithSchemaValidation =
-    Runner(testDir, "multiFile.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runnerV.reset
-    runner2.reset
-    runner3.reset
-    runnerWithSchemaValidation.reset
-  }
+object TestNamespaces extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section06/namespaces/namespaces.tdml"
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, validateTDMLFile = true, validateDFDLSchemas = false)
 }
-class TestNamespaces {
 
-  import TestNamespaces._
+object TestNamespacesValidate extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section06/namespaces/namespaces.tdml"
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, validateTDMLFile = true, validateDFDLSchemas = true)
+}
 
-  @Test def test_schemaNoGlobalElems_01(): Unit = {
-    runner.runOneTest("schemaNoGlobalElems_01")
-  }
-  @Test def test_schemaNoGlobalElems_02(): Unit = {
-    runner.runOneTest("schemaNoGlobalElems_02")
-  }
-  @Test def test_schemaNoGlobalElems_03(): Unit = {
-    runner.runOneTest("schemaNoGlobalElems_03")
-  }
+object TestMultiFile extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section06/namespaces/multiFile.tdml"
+  override def createRunner() =
+    Runner(tdmlDir, tdmlFile, validateTDMLFile = false, validateDFDLSchemas = false)
+}
 
-  @Test def test_schemaSameDir_01(): Unit = { runner.runOneTest("schemaSameDir_01") }
-  @Test def test_schemaSameDir_02(): Unit = { runner.runOneTest("schemaSameDir_02") }
-  @Test def test_schemaSameDir_03(): Unit = { runner.runOneTest("schemaSameDir_03") }
+object TestIncludeImport extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section06/namespaces/includeImport.tdml"
+}
 
-  @Test def test_schemaSameDirClasspath_01(): Unit = {
-    runner.runOneTest("schemaSameDirClasspath_01")
-  }
+class TestNamespaces extends TdmlTests {
+  val tdmlSuite = TestNamespaces
+
+  @Test def schemaNoGlobalElems_01 = test
+  @Test def schemaNoGlobalElems_02 = test
+  @Test def schemaNoGlobalElems_03 = test
+
+  @Test def schemaSameDir_01 = test
+  @Test def schemaSameDir_02 = test
+  @Test def schemaSameDir_03 = test
+
+  @Test def schemaSameDirClasspath_01 = test
+
+  @Test def errorLocations_01 = test
+
+  @Test def defaultNamespaceInExpression = test
+  @Test def defaultNamespaceInExpression2 = test
+
+  @Test def namespaces_qnames = test
+  @Test def namespaces_qnames2 = test
+  @Test def namespaces_qnames3 = test
+
+  // DFDL-1663
+  @Ignore @Test def namespaceLimitParse = test
+  @Ignore @Test def namespaceLimitUnparse = test
+
+  // DFDL-1204 - this test no longer works. New loader won't accept character U+00B7 as a character
+  // in a prefix name.
+  @Ignore @Test def namespaceSpecialChars = test
+
+  @Test def namespaceRules1 = test
+
+  @Test def tdml_schema_import = test
+  @Test def tdml_schema_include = test
+  @Test def multifile_choice_embed = test
+
+  @Test def Lesson2_no_namespace = test
+  @Test def Lesson2_include_schema = test
+  @Test def Lesson2_import_schema = test
+
+  @Test def multifile_cyclical = test
+  @Test def multifile_choice_01 = test
+  @Test def multifile_choice_02 = test
+  // DAFFODIL-553
+  @Ignore @Test def multifile_choice_02b = test
+  @Test def multifile_choice_03 = test
+
+  @Test def multifile_facets_01 = test
+  @Test def multifile_facets_02 = test
+  @Test def multifile_facets_03 = test
+  @Test def multifile_facets_04 = test
+
+  @Test def double_nesting_01 = test
+
+  @Test def scope_01 = test
+  @Test def scope_02 = test
+
+  @Test def long_chain_01 = test
+  @Test def long_chain_02 = test
+  @Test def long_chain_03 = test
+  @Test def long_chain_04 = test
+  @Test def long_chain_05 = test
+  @Test def long_chain_06 = test
+  @Test def long_chain_06b = test
+  @Test def long_chain_07 = test
+
+  @Test def no_namespace_01 = test
+
+  @Test def no_namespace_02 = test
+  @Test def no_namespace_03 = test
+  @Test def no_namespace_04 = test
+
+  @Test def namespace_conflict_01 = test
+
+  @Test def combinations_03 = test
+  @Test def combinations_04 = test
+
+  @Test def negative_import_01 = test
+
+  @Test def multi_encoding_01 = test
+  @Test def multi_encoding_02 = test
+  @Test def multi_encoding_03 = test
+  @Ignore @Test def multi_encoding_04 = test
+  @Ignore @Test def multi_encoding_05 = test
+  @Ignore @Test def indexOutOfBounds_01 = test
+
+  // Preliminary tests for import format schemas
+  @Test def import_format_01 = test
+  @Test def import_format_02 = test
+
+  @Test def multifile_facets_05 = test
+
+  @Test def element_conflict_01 = test
+  @Test def element_conflict_02 = test
+
+  @Test def lion_eater_ambiguity_01 = test
+
+  @Test def lion_eater_ambiguity_02 = test
+  @Test def lion_eater_ambiguity_03 = test
+  @Test def lion_eater_ambiguity_04 = test
+  @Test def lion_eater_ambiguity_05 = test
+
+  @Test def namespace_ultra_uniqueness_01 = test
+  @Test def namespace_ultra_uniqueness_02 = test
+  @Test def namespace_ultra_uniqueness_03 = test
+  @Test def namespace_ultra_uniqueness_04 = test
+
+  @Test def primTypesPrefixes01 = test
+  @Test def typeNameOverlap_01 = test
+  @Test def typeNameOverlap_02 = test
+
+  @Test def namespace_scope_01 = test
+  @Test def namespace_scope_02 = test
+
+  @Test def ibm_format_compat_01 = test
+  @Test def ibm_format_compat_02 = test
+  @Test def ibm_format_compat_03 = test
+  @Test def nonsense_namespace_01 = test
+  @Test def nonsense_namespace_02 = test
+  @Test def nonsense_namespace_03 = test
+
+  @Test def junkAnnotation01 = test
+
+  @Test def toplevel_annotation_invalid_01 = test
+  @Test def toplevel_annotation_invalid_02 = test
+
+  @Test def incorrectAppinfoSource = test
+
+  @Test def noTargetNamespace_01 = test
+  @Test def noTargetNamespace_02 = test
+}
+
+class TestNamespacesValidate extends TdmlTests {
+  val tdmlSuite = TestNamespacesValidate
 
   // See comments in related bug. JIRA-549
   // This test is looking for a specific file to be mentioned in an error message
   // which is the file with the content responsible for the error, not the file
   // of the object where the error was detected.
+  @Test def combinations_02 = test
+  @Test def namespaceSpecialChars2 = test
+  @Test def namespaceRules2 = test
 
-  @Test def test_combinations_02(): Unit = { runnerV.runOneTest("combinations_02") }
-  @Test def test_errorLocations_01(): Unit = { runner.runOneTest("errorLocations_01") }
+  @Test def no_namespace_temp = test
 
-  @Test def test_defaultNamespaceInExpression(): Unit = {
-    runner.runOneTest("defaultNamespaceInExpression")
-  }
-  @Test def test_defaultNamespaceInExpression2(): Unit = {
-    runner.runOneTest("defaultNamespaceInExpression2")
-  }
+  @Test def lion_eater_ambiguity_01b = test
 
-  @Test def test_namespaces_qnames(): Unit = { runner.runOneTest("namespaces_qnames") }
-  @Test def test_namespaces_qnames2(): Unit = { runner.runOneTest("namespaces_qnames2") }
-  @Test def test_namespaces_qnames3(): Unit = { runner.runOneTest("namespaces_qnames3") }
+  @Test def error_messages_01 = test
 
-  // DFDL-1663
-  // @Test def test_namespaceLimitParse() { runner.runOneTest("namespaceLimitParse")  }
-  // @Test def test_namespaceLimitUnparse() { runner.runOneTest("namespaceLimitUnparse")  }
+  @Test def nonsense_namespace_04 = test
+}
 
-  // DFDL-1204 - this test no longer works. New loader won't accept character U+00B7 as a character
-  // in a prefix name.
-  // @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
-  @Test def test_namespaceSpecialChars2(): Unit = {
-    runnerV.runOneTest("namespaceSpecialChars2")
-  }
-  @Test def test_namespaceRules1(): Unit = { runner.runOneTest("namespaceRules1") }
-  @Test def test_namespaceRules2(): Unit = { runnerV.runOneTest("namespaceRules2") }
+class TestMultiFile extends TdmlTests {
+  val tdmlSuite = TestMultiFile
 
-  @Test def testSimpleIncludeOfFormat(): Unit = { runner2.runOneTest("simpleInclude") }
-  @Test def testSimpleImportOfFormat(): Unit = { runner2.runOneTest("simpleImport") }
-  @Test def testIncludeNoNamespace(): Unit = { runner2.runOneTest("includeNoNamespace") }
-  @Test def testImportWithOverlappingNSPrefixes1(): Unit = {
-    runner2.runOneTest("importWithOverlappingNSPrefixes1")
-  }
+  @Test def simpleInclude = test
+  @Test def simpleImport = test
+  @Test def includeNoNamespace = test
+  @Test def importWithOverlappingNSPrefixes1 = test
+  @Test def complexIncludesNamespaces_01 = test
+  @Test def complexIncludesNamespaces_02 = test
+}
 
-  @Test def test_tdml_schema_import(): Unit = { runner.runOneTest("tdml_schema_import") }
-  @Test def test_tdml_schema_include(): Unit = { runner.runOneTest("tdml_schema_include") }
-  @Test def test_multifile_choice_embed(): Unit = {
-    runner.runOneTest("multifile_choice_embed")
-  }
+class TestIncludeImport extends TdmlTests {
+  val tdmlSuite = TestIncludeImport
+  @Test def include01 = test
+  @Test def include02 = test
 
-  @Test def test_Lesson2_no_namespace(): Unit = { runner.runOneTest("Lesson2_no_namespace") }
-  @Test def test_Lesson2_include_schema(): Unit = {
-    runner.runOneTest("Lesson2_include_schema")
-  }
-  @Test def test_Lesson2_import_schema(): Unit = { runner.runOneTest("Lesson2_import_schema") }
+  @Test def deprecatedSchemaLocation01 = test
 
-  @Test def test_multifile_cyclical(): Unit = { runner.runOneTest("multifile_cyclical") }
-  @Test def test_multifile_choice_01(): Unit = { runner.runOneTest("multifile_choice_01") }
-  @Test def test_multifile_choice_02(): Unit = { runner.runOneTest("multifile_choice_02") }
-  // DAFFODIL-553
-  //  @Test def test_multifile_choice_02b() { runner.runOneTest("multifile_choice_02b") }
-  @Test def test_multifile_choice_03(): Unit = { runner.runOneTest("multifile_choice_03") }
-
-  @Test def test_multifile_facets_01(): Unit = { runner.runOneTest("multifile_facets_01") }
-  @Test def test_multifile_facets_02(): Unit = { runner.runOneTest("multifile_facets_02") }
-  @Test def test_multifile_facets_03(): Unit = { runner.runOneTest("multifile_facets_03") }
-  @Test def test_multifile_facets_04(): Unit = { runner.runOneTest("multifile_facets_04") }
-
-  @Test def test_double_nesting_01(): Unit = { runner.runOneTest("double_nesting_01") }
-
-  @Test def test_scope_01(): Unit = { runner.runOneTest("scope_01") }
-  @Test def test_scope_02(): Unit = { runner.runOneTest("scope_02") }
-
-  @Test def test_long_chain_01(): Unit = { runner.runOneTest("long_chain_01") }
-  @Test def test_long_chain_02(): Unit = { runner.runOneTest("long_chain_02") }
-  @Test def test_long_chain_03(): Unit = { runner.runOneTest("long_chain_03") }
-  @Test def test_long_chain_04(): Unit = { runner.runOneTest("long_chain_04") }
-  @Test def test_long_chain_05(): Unit = { runner.runOneTest("long_chain_05") }
-  @Test def test_long_chain_06(): Unit = { runner.runOneTest("long_chain_06") }
-  @Test def test_long_chain_06b(): Unit = { runner.runOneTest("long_chain_06b") }
-  @Test def test_long_chain_07(): Unit = { runner.runOneTest("long_chain_07") }
-
-  @Test def test_no_namespace_01(): Unit = { runner.runOneTest("no_namespace_01") }
-
-  @Test def test_no_namespace_02(): Unit = { runner.runOneTest("no_namespace_02") }
-  @Test def test_no_namespace_03(): Unit = { runner.runOneTest("no_namespace_03") }
-  @Test def test_no_namespace_04(): Unit = { runner.runOneTest("no_namespace_04") }
-
-  @Test def test_namespace_conflict_01(): Unit = { runner.runOneTest("namespace_conflict_01") }
-
-  @Test def test_combinations_03(): Unit = { runner.runOneTest("combinations_03") }
-  @Test def test_combinations_04(): Unit = { runner.runOneTest("combinations_04") }
-
-  @Test def test_negative_import_01(): Unit = { runner.runOneTest("negative_import_01") }
-
-  @Test def test_multi_encoding_01(): Unit = { runner.runOneTest("multi_encoding_01") }
-  @Test def test_multi_encoding_02(): Unit = { runner.runOneTest("multi_encoding_02") }
-  @Test def test_multi_encoding_03(): Unit = { runner.runOneTest("multi_encoding_03") }
-  //  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") } //DAFFODIL-716
-  //  @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") } //DAFFODIL-715
-  //  @Test def test_indexOutOfBounds_01() { runner.runOneTest("indexOutOfBounds_01") } // DAFFODIL-717
-
-  // Preliminary tests for import format schemas
-  @Test def test_import_format_01(): Unit = { runner.runOneTest("import_format_01") }
-  @Test def test_import_format_02(): Unit = { runner.runOneTest("import_format_02") }
-
-  @Test def test_multifile_facets_05(): Unit = { runner.runOneTest("multifile_facets_05") }
-
-  @Test def test_element_conflict_01(): Unit = { runner.runOneTest("element_conflict_01") }
-  @Test def test_element_conflict_02(): Unit = { runner.runOneTest("element_conflict_02") }
-
-  @Test def test_no_namespace_temp(): Unit = { runnerV.runOneTest("no_namespace_temp") }
-
-  @Test def test_lion_eater_ambiguity_01(): Unit = {
-    runner.runOneTest("lion_eater_ambiguity_01")
-  }
-  @Test def test_lion_eater_ambiguity_01b(): Unit = {
-    runnerV.runOneTest("lion_eater_ambiguity_01b")
-  }
-  @Test def test_lion_eater_ambiguity_02(): Unit = {
-    runner.runOneTest("lion_eater_ambiguity_02")
-  }
-  @Test def test_lion_eater_ambiguity_03(): Unit = {
-    runner.runOneTest("lion_eater_ambiguity_03")
-  }
-  @Test def test_lion_eater_ambiguity_04(): Unit = {
-    runner.runOneTest("lion_eater_ambiguity_04")
-  }
-  @Test def test_lion_eater_ambiguity_05(): Unit = {
-    runner.runOneTest("lion_eater_ambiguity_05")
-  }
-
-  @Test def test_namespace_ultra_uniqueness_01(): Unit = {
-    runner.runOneTest("namespace_ultra_uniqueness_01")
-  }
-  @Test def test_namespace_ultra_uniqueness_02(): Unit = {
-    runner.runOneTest("namespace_ultra_uniqueness_02")
-  }
-  @Test def test_namespace_ultra_uniqueness_03(): Unit = {
-    runner.runOneTest("namespace_ultra_uniqueness_03")
-  }
-  @Test def test_namespace_ultra_uniqueness_04(): Unit = {
-    runner.runOneTest("namespace_ultra_uniqueness_04")
-  }
-
-  @Test def test_primTypesPrefixes01(): Unit = { runner.runOneTest("primTypesPrefixes01") }
-  @Test def test_typeNameOverlap_01(): Unit = { runner.runOneTest("typeNameOverlap_01") }
-  @Test def test_typeNameOverlap_02(): Unit = { runner.runOneTest("typeNameOverlap_02") }
-
-  @Test def test_namespace_scope_01(): Unit = { runner.runOneTest("namespace_scope_01") }
-  @Test def test_namespace_scope_02(): Unit = { runner.runOneTest("namespace_scope_02") }
-
-  @Test def test_error_messages_01(): Unit = { runnerV.runOneTest("error_messages_01") }
-
-  @Test def test_ibm_format_compat_01(): Unit = { runner.runOneTest("ibm_format_compat_01") }
-  @Test def test_ibm_format_compat_02(): Unit = { runner.runOneTest("ibm_format_compat_02") }
-  @Test def test_ibm_format_compat_03(): Unit = { runner.runOneTest("ibm_format_compat_03") }
-  @Test def test_nonsense_namespace_01(): Unit = { runner.runOneTest("nonsense_namespace_01") }
-  @Test def test_nonsense_namespace_02(): Unit = { runner.runOneTest("nonsense_namespace_02") }
-  @Test def test_nonsense_namespace_03(): Unit = { runner.runOneTest("nonsense_namespace_03") }
-  @Test def test_nonsense_namespace_04(): Unit = { runnerV.runOneTest("nonsense_namespace_04") }
-
-  @Test def test_junkAnnotation01(): Unit = { runner.runOneTest("junkAnnotation01") }
-
-  @Test def test_include01(): Unit = { runner3.runOneTest("include01") }
-  @Test def test_include02(): Unit = { runner3.runOneTest("include02") }
-  @Test def test_toplevel_annotation_invalid_01(): Unit = {
-    runner.runOneTest("toplevel_annotation_invalid_01")
-  }
-  @Test def test_toplevel_annotation_invalid_02(): Unit = {
-    runner.runOneTest("toplevel_annotation_invalid_02")
-  }
-
-  @Test def test_incorrectAppinfoSource(): Unit = {
-    runner.runOneTest("incorrectAppinfoSource")
-  }
-
-  @Test def test_complexIncludesNamespaces_01(): Unit = {
-    runner2.runOneTest("complexIncludesNamespaces_01")
-  }
-  @Test def test_complexIncludesNamespaces_02(): Unit = {
-    runner2.runOneTest("complexIncludesNamespaces_02")
-  }
-
-  @Test def test_deprecatedSchemaLocation01(): Unit = {
-    runner3.runOneTest("deprecatedSchemaLocation01")
-  }
-
-  @Test def test_noTargetNamespace_01(): Unit = { runner.runOneTest("noTargetNamespace_01") }
-  @Test def test_noTargetNamespace_02(): Unit = { runner.runOneTest("noTargetNamespace_02") }
-
-  @Test def test_generalFormat01(): Unit = { runner3.runOneTest("generalFormat01") }
-  @Test def test_generalFormat02(): Unit = { runner3.runOneTest("generalFormat02") }
-  @Test def test_generalFormat03(): Unit = { runner3.runOneTest("generalFormat03") }
-  @Test def test_generalFormat04(): Unit = { runner3.runOneTest("generalFormat04") }
+  @Test def generalFormat01 = test
+  @Test def generalFormat02 = test
+  @Test def generalFormat03 = test
+  @Test def generalFormat04 = test
 }

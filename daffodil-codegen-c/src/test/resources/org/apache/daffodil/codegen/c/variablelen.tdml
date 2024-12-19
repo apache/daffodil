@@ -68,7 +68,7 @@
   <tdml:parserTestCase
     implementations="daffodil"
     model="variablelen.dfdl.xsd"
-    name="implicit"
+    name="implicitLen"
     root="implicitElement">
     <tdml:document>
       <tdml:documentPart type="file">data/variablelen.implicit.dat</tdml:documentPart>

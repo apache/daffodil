@@ -17,47 +17,38 @@
 
 package org.apache.daffodil.section05.simple_types
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
-import org.junit._
+import org.junit.Test
 
-object TestBlobs {
+object TestBlobs extends TdmlSuite {
 
-  val testDir = "/org/apache/daffodil/section05/simple_types/"
-
-  val runner = Runner(testDir, "Blobs.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/Blobs.tdml"
 }
 
-class TestBlobs {
-  import TestBlobs._
+class TestBlobs extends TdmlTests {
+  val tdmlSuite = TestBlobs
 
-  @Test def test_blob_01(): Unit = { runner.runOneTest("blob_01") }
-  @Test def test_blob_01_insufficient(): Unit = { runner.runOneTest("blob_01_insufficient") }
-  @Test def test_blob_01_insufficient_complex(): Unit = {
-    runner.runOneTest("blob_01_insufficient_complex")
-  }
-  @Test def test_blob_02(): Unit = { runner.runOneTest("blob_02") }
-  @Test def test_blob_03(): Unit = { runner.runOneTest("blob_03") }
-  @Test def test_blob_04(): Unit = { runner.runOneTest("blob_04") }
-  @Test def test_blob_05(): Unit = { runner.runOneTest("blob_05") }
-  @Test def test_blob_06(): Unit = { runner.runOneTest("blob_06") }
-  @Test def test_blob_07(): Unit = { runner.runOneTest("blob_07") }
-  @Test def test_blob_08(): Unit = { runner.runOneTest("blob_08") }
-  @Test def test_blob_09(): Unit = { runner.runOneTest("blob_09") }
-  @Test def test_blob_10(): Unit = { runner.runOneTest("blob_10") }
-  @Test def test_blob_11(): Unit = { runner.runOneTest("blob_11") }
-  @Test def test_blob_12(): Unit = { runner.runOneTest("blob_12") }
-  @Test def test_blob_13(): Unit = { runner.runOneTest("blob_13") }
-  @Test def test_blob_14(): Unit = { runner.runOneTest("blob_14") }
-  @Test def test_blob_15(): Unit = { runner.runOneTest("blob_15") }
+  @Test def blob_01 = test
+  @Test def blob_01_insufficient = test
+  @Test def blob_01_insufficient_complex = test
+  @Test def blob_02 = test
+  @Test def blob_03 = test
+  @Test def blob_04 = test
+  @Test def blob_05 = test
+  @Test def blob_06 = test
+  @Test def blob_07 = test
+  @Test def blob_08 = test
+  @Test def blob_09 = test
+  @Test def blob_10 = test
+  @Test def blob_11 = test
+  @Test def blob_12 = test
+  @Test def blob_13 = test
+  @Test def blob_14 = test
+  @Test def blob_15 = test
 
-  @Test def test_blob_unparseError(): Unit = { runner.runOneTest("blob_unparseError") }
+  @Test def blob_unparseError = test
 
-  @Test def test_clob_01(): Unit = { runner.runOneTest("clob_01") }
-
+  @Test def clob_01 = test
 }

@@ -17,60 +17,42 @@
 
 package org.apache.daffodil.section05.simple_types
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestBoolean2 {
-  private val testDir = "/org/apache/daffodil/section05/simple_types/"
-
-  val runner = Runner(testDir, "Boolean.tdml")
-
-  @AfterClass def shutdown(): Unit = {
-    runner.reset
-  }
+object TestBoolean2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/Boolean.tdml"
 }
 
-class TestBoolean2 {
-  import TestBoolean2._
+class TestBoolean2 extends TdmlTests {
+  val tdmlSuite = TestBoolean2
 
-  @Test def test_binaryBoolean_0(): Unit = { runner.runOneTest("binaryBoolean_0") }
-  @Test def test_binaryBoolean_unparse_0(): Unit = {
-    runner.runOneTest("binaryBoolean_unparse_0")
-  }
-  @Test def test_binaryBoolean_1(): Unit = { runner.runOneTest("binaryBoolean_1") }
-  @Test def test_binaryBoolean_unparse_1(): Unit = {
-    runner.runOneTest("binaryBoolean_unparse_1")
-  }
-  @Test def test_binaryBoolean_unparse_2(): Unit = {
-    runner.runOneTest("binaryBoolean_unparse_2")
-  }
-  @Test def test_binaryBoolean_2(): Unit = { runner.runOneTest("binaryBoolean_2") }
-  @Test def test_binaryBoolean_pe_0(): Unit = { runner.runOneTest("binaryBoolean_pe_0") }
-  @Test def test_binaryBoolean_sde_0(): Unit = { runner.runOneTest("binaryBoolean_sde_0") }
-  @Test def test_binaryBoolean_sde_1(): Unit = { runner.runOneTest("binaryBoolean_sde_1") }
-  @Test def test_textBoolean_0(): Unit = { runner.runOneTest("textBoolean_0") }
-  @Test def test_textBoolean_0a(): Unit = { runner.runOneTest("textBoolean_0a") }
-  @Test def test_textBoolean_unparse_0(): Unit = { runner.runOneTest("textBoolean_unparse_0") }
-  @Test def test_textBoolean_1(): Unit = { runner.runOneTest("textBoolean_1") }
-  @Test def test_textBoolean_2(): Unit = { runner.runOneTest("textBoolean_2") }
-  @Test def test_textBoolean_3(): Unit = { runner.runOneTest("textBoolean_3") }
-  @Test def test_textBoolean_sde_0(): Unit = { runner.runOneTest("textBoolean_sde_0") }
-  @Test def test_textBoolean_sde_1(): Unit = { runner.runOneTest("textBoolean_sde_1") }
-  @Test def test_textBoolean_sde_2(): Unit = { runner.runOneTest("textBoolean_sde_2") }
-  @Test def test_textBoolean_unparse_sde_0(): Unit = {
-    runner.runOneTest("textBoolean_unparse_sde_0")
-  }
-  @Test def test_textBoolean_sde_3(): Unit = { runner.runOneTest("textBoolean_sde_3") }
-  @Test def test_textBoolean_sde_4(): Unit = { runner.runOneTest("textBoolean_sde_4") }
-  @Test def test_textBoolean_sde_5(): Unit = { runner.runOneTest("textBoolean_sde_5") }
-  @Test def test_textBoolean_pe_0(): Unit = { runner.runOneTest("textBoolean_pe_0") }
-  @Test def test_textBoolean_unparseError(): Unit = {
-    runner.runOneTest("textBoolean_unparseError")
-  }
+  @Test def binaryBoolean_0 = test
+  @Test def binaryBoolean_unparse_0 = test
+  @Test def binaryBoolean_1 = test
+  @Test def binaryBoolean_unparse_1 = test
+  @Test def binaryBoolean_unparse_2 = test
+  @Test def binaryBoolean_2 = test
+  @Test def binaryBoolean_pe_0 = test
+  @Test def binaryBoolean_sde_0 = test
+  @Test def binaryBoolean_sde_1 = test
+  @Test def textBoolean_0 = test
+  @Test def textBoolean_0a = test
+  @Test def textBoolean_unparse_0 = test
+  @Test def textBoolean_1 = test
+  @Test def textBoolean_2 = test
+  @Test def textBoolean_3 = test
+  @Test def textBoolean_sde_0 = test
+  @Test def textBoolean_sde_1 = test
+  @Test def textBoolean_sde_2 = test
+  @Test def textBoolean_unparse_sde_0 = test
+  @Test def textBoolean_sde_3 = test
+  @Test def textBoolean_sde_4 = test
+  @Test def textBoolean_sde_5 = test
+  @Test def textBoolean_pe_0 = test
+  @Test def textBoolean_unparseError = test
 
-  @Test def test_textBoolean_IgnoreCase(): Unit = {
-    runner.runOneTest("textBoolean_IgnoreCase")
-  }
+  @Test def textBoolean_IgnoreCase = test
 }

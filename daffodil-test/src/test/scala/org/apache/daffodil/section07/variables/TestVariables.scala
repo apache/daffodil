@@ -17,232 +17,130 @@
 
 package org.apache.daffodil.section07.variables
 
-import scala.math.Pi
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.apache.daffodil.lib.Implicits._
-import org.apache.daffodil.lib.xml.XMLUtils
-import org.apache.daffodil.tdml.Runner
-
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestVariables {
-  val testDir = "/org/apache/daffodil/section07/variables/"
-  val runner = Runner(testDir, "variables.tdml")
-  val runner_01 = Runner(testDir, "variables_01.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runner_01.reset
-  }
-
+object TestVariables extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/variables/variables.tdml"
 }
 
-class TestVariables {
-  import TestVariables._
+object TestVariables01 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/variables/variables_01.tdml"
+}
 
-  @Test def test_setVarAbsolutePath(): Unit = { runner.runOneTest("setVarAbsolutePath") }
-  @Test def test_varAsSeparator(): Unit = { runner.runOneTest("varAsSeparator") }
+class TestVariables extends TdmlTests {
+  val tdmlSuite = TestVariables
 
-  @Test def test_setVar1(): Unit = { runner.runOneTest("setVar1") }
-  @Test def test_doubleSetErr(): Unit = { runner.runOneTest("doubleSetErr") }
-  @Test def test_multiSetErr(): Unit = { runner.runOneTest("multiSetErr") }
+  @Test def setVarAbsolutePath = test
+  @Test def varAsSeparator = test
+
+  @Test def setVar1 = test
+  @Test def doubleSetErr = test
+  @Test def multiSetErr = test
   // DFDL-1443 & DFDL-1448
-  // @Test def test_setAfterReadErr() { runner.runOneTest("setAfterReadErr") }
-  @Test def test_varInstance_01(): Unit = { runner.runOneTest("varInstance_01") }
-  @Test def test_varInstance_02(): Unit = { runner.runOneTest("varInstance_02") }
-  @Test def test_varInstance_03(): Unit = { runner.runOneTest("varInstance_03") }
-  @Test def test_varInstance_04(): Unit = { runner.runOneTest("varInstance_04") }
-  @Test def test_varInstance_05(): Unit = { runner.runOneTest("varInstance_05") }
-  @Test def test_varInstance_06(): Unit = { runner.runOneTest("varInstance_06") }
-  @Test def test_varInstance_07(): Unit = { runner.runOneTest("varInstance_07") }
-  @Test def test_varInstance_08(): Unit = { runner.runOneTest("varInstance_08") }
-  @Test def test_varInstance_09(): Unit = { runner.runOneTest("varInstance_09") }
-  @Test def test_varInstance_10(): Unit = { runner.runOneTest("varInstance_10") }
-  @Test def test_varInstance_11(): Unit = { runner.runOneTest("varInstance_11") }
-  @Test def test_varInstance_12(): Unit = { runner.runOneTest("varInstance_12") }
-  @Test def test_varInstance_13(): Unit = { runner.runOneTest("varInstance_13") }
-  @Test def test_varInstance_14(): Unit = { runner.runOneTest("varInstance_14") }
-  @Test def test_varInstance_15(): Unit = { runner.runOneTest("varInstance_15") }
+  @Ignore @Test def setAfterReadErr = test
+  @Test def varInstance_01 = test
+  @Test def varInstance_02 = test
+  @Test def varInstance_03 = test
+  @Test def varInstance_04 = test
+  @Test def varInstance_05 = test
+  @Test def varInstance_06 = test
+  @Test def varInstance_07 = test
+  @Test def varInstance_08 = test
+  @Test def varInstance_09 = test
+  @Test def varInstance_10 = test
+  @Test def varInstance_11 = test
+  @Test def varInstance_12 = test
+  @Test def varInstance_13 = test
+  @Test def varInstance_14 = test
+  @Test def varInstance_15 = test
 
-  @Test def test_varDirection_1(): Unit = { runner.runOneTest("varDirection_1") }
-  @Test def test_varDirection_2(): Unit = { runner.runOneTest("varDirection_2") }
-  @Test def test_varDirection_3(): Unit = { runner.runOneTest("varDirection_3") }
-  @Test def test_varDirection_err1(): Unit = { runner.runOneTest("varDirection_err1") }
-  @Test def test_varDirection_err2(): Unit = { runner.runOneTest("varDirection_err2") }
-  @Test def test_varDirection_setVar1(): Unit = { runner.runOneTest("varDirection_setVar1") }
-  @Test def test_varDirection_setVar2(): Unit = { runner.runOneTest("varDirection_setVar2") }
-  @Test def test_varDirection_nvi1(): Unit = { runner.runOneTest("varDirection_nvi1") }
-  @Test def test_varDirection_nvi2(): Unit = { runner.runOneTest("varDirection_nvi2") }
+  @Test def varDirection_1 = test
+  @Test def varDirection_2 = test
+  @Test def varDirection_3 = test
+  @Test def varDirection_err1 = test
+  @Test def varDirection_err2 = test
+  @Test def varDirection_setVar1 = test
+  @Test def varDirection_setVar2 = test
+  @Test def varDirection_nvi1 = test
+  @Test def varDirection_nvi2 = test
 
-  @Test def test_defineVariable_nonConstantExpression(): Unit = {
-    runner.runOneTest("defineVariable_nonConstantExpression")
-  }
-  @Test def test_defineVariable_nonConstantExpression_unp(): Unit = {
-    runner.runOneTest("defineVariable_nonConstantExpression_unp")
-  }
-  @Test def test_circular_defineVariable_err(): Unit = {
-    runner.runOneTest("circular_defineVariable_err")
-  }
-  @Test def test_defineVariable_ref_noDefault_err(): Unit = {
-    runner.runOneTest("defineVariable_ref_noDefault_err")
-  }
-  @Test def test_defineVariable_nonConstantExpression_setVar_err(): Unit = {
-    runner.runOneTest("defineVariable_nonConstantExpression_setVar_err")
-  }
-  @Test def test_defineVariable_nonConstantExpression_setVar_err2(): Unit = {
-    runner.runOneTest("defineVariable_nonConstantExpression_setVar_err2")
-  }
+  @Test def defineVariable_nonConstantExpression = test
+  @Test def defineVariable_nonConstantExpression_unp = test
+  @Test def circular_defineVariable_err = test
+  @Test def defineVariable_ref_noDefault_err = test
+  @Test def defineVariable_nonConstantExpression_setVar_err = test
+  @Test def defineVariable_nonConstantExpression_setVar_err2 = test
 
   // DAFFODIL-2444 - This test triggers an unhandled NoSuchElement exception, which if handled then runs into an Assert.invariant
-  // @Test def test_defineVariable_ref_infoset_err(): Unit = { runner.runOneTest("defineVariable_ref_infoset_err") }
+  @Ignore @Test def defineVariable_ref_infoset_err = test
 
-  @Test def test_setVarChoice(): Unit = { runner.runOneTest("setVarChoice") }
-  @Test def test_unparse_setVarChoice(): Unit = { runner.runOneTest("unparse_setVarChoice") }
-  @Test def test_setVarOnSeqAndElemRef(): Unit = { runner.runOneTest("setVarOnSeqAndElemRef") }
-  @Test def test_unparse_setVarOnSeq(): Unit = { runner.runOneTest("unparse_setVarOnSeq") }
-  @Test def test_setVarOnGroupRef(): Unit = { runner.runOneTest("setVarOnGroupRef") }
-  @Test def test_unparse_setVarOnGroupRef(): Unit = {
-    runner.runOneTest("unparse_setVarOnGroupRef")
-  }
-  @Test def test_setVarSimpleType(): Unit = { runner.runOneTest("setVarSimpleType") }
+  @Test def setVarChoice = test
+  @Test def unparse_setVarChoice = test
+  @Test def setVarOnSeqAndElemRef = test
+  @Test def unparse_setVarOnSeq = test
+  @Test def setVarOnGroupRef = test
+  @Test def unparse_setVarOnGroupRef = test
+  @Test def setVarSimpleType = test
 
-  @Test def test_setVarValAttribute(): Unit = { runner.runOneTest("setVarValAttribute") }
-  @Test def test_setVarValAttribute2(): Unit = { runner.runOneTest("setVarValAttribute2") }
-  @Test def test_setVarTypeMismatch(): Unit = { runner.runOneTest("setVarTypeMismatch") }
-  @Test def test_setVarCurrVal(): Unit = { runner.runOneTest("setVarCurrVal") }
-  @Test def test_setVarMismatchRelative(): Unit = {
-    runner.runOneTest("setVarMismatchRelative")
-  }
-  @Test def test_setVarExpression(): Unit = { runner.runOneTest("setVarExpression") }
-  @Test def test_setVarExpression2(): Unit = { runner.runOneTest("setVarExpression2") }
-  @Test def test_setVarBadScope(): Unit = { runner.runOneTest("setVarBadScope") }
-  @Test def test_varAsSeparator2(): Unit = { runner.runOneTest("varAsSeparator2") }
-  @Test def test_setVarBadScope2(): Unit = { runner.runOneTest("setVarBadScope2") }
+  @Test def setVarValAttribute = test
+  @Test def setVarValAttribute2 = test
+  @Test def setVarTypeMismatch = test
+  @Test def setVarCurrVal = test
+  @Test def setVarMismatchRelative = test
+  @Test def setVarExpression = test
+  @Test def setVarExpression2 = test
+  @Test def setVarBadScope = test
+  @Test def varAsSeparator2 = test
+  @Test def setVarBadScope2 = test
 
-  @Test def test_resetVar_01(): Unit = { runner.runOneTest("resetVar_01") }
-  @Test def test_resetVar_02(): Unit = { runner.runOneTest("resetVar_02") }
+  @Test def resetVar_01 = test
+  @Test def resetVar_02 = test
 
-  @Test def test_doubleEmptyDefault(): Unit = { runner.runOneTest("doubleEmptyDefault") }
-  @Test def test_emptyDefault(): Unit = { runner.runOneTest("emptyDefault") }
-  @Test def test_emptyDefault2(): Unit = { runner.runOneTest("emptyDefault2") }
+  @Test def doubleEmptyDefault = test
+  @Test def emptyDefault = test
+  @Test def emptyDefault2 = test
 
-  @Test def test_var_end_path(): Unit = { runner.runOneTest("var_end_path") }
-  @Test def test_var_in_path(): Unit = { runner.runOneTest("var_in_path") }
+  @Test def var_end_path = test
+  @Test def var_in_path = test
 
-  @Test def test_logical_default_values(): Unit = {
-    runner.runOneTest("logical_default_values")
-  }
-  @Test def test_logical_default_values_err(): Unit = {
-    runner.runOneTest("logical_default_values_err")
-  }
+  @Test def logical_default_values = test
+  @Test def logical_default_values_err = test
 
-  @Test def test_unsignedIntVarCast(): Unit = { runner.runOneTest("unsignedIntVarCast") }
+  @Test def unsignedIntVarCast = test
 
   // DFDL-2354
-  @Test def test_NVI_with_CDK1(): Unit = { runner.runOneTest("NVI_with_CDK1") }
+  @Test def NVI_with_CDK1 = test
 
   // DFDL-2374
-  @Test def test_variables_nilled_element(): Unit = {
-    runner.runOneTest("variables_nilled_element")
-  }
+  @Test def variables_nilled_element = test
 
   // DFDL-2375
-  @Test def test_multipleBranchesWithNoElementsSetVariableError(): Unit = {
-    runner.runOneTest("multipleBranchesWithNoElementsSetVariableError")
-  }
+  @Test def multipleBranchesWithNoElementsSetVariableError = test
 
-  @Test def test_doubleSetErr_d(): Unit = { runner_01.runOneTest("doubleSetErr_d") }
-  @Test def test_setVar1_d(): Unit = { runner_01.runOneTest("setVar1_d") }
+  @Test def escapeCharVars_01 = test
+  @Test def escapeCharVars_02 = test
+
+  @Test def multipleVarReadInPoU_01 = test
+
+  @Test def nviInGroupDecl_01 = test
+
+  @Test def backwardsDefines_01 = test
+
+  @Test def variables2 = test
+  @Test def variables3 = test
+}
+
+class TestVariables01 extends TdmlTests {
+  val tdmlSuite = TestVariables01
+
+  @Test def doubleSetErr_d = test
+  @Test def setVar1_d = test
   // DFDL-1443 & DFDL-1448
-  // @Test def test_setAfterReadErr_d() { runner_01.runOneTest("setAfterReadErr_d") }
-  @Test def test_setVar1_d_parse(): Unit = { runner_01.runOneTest("setVar1_d_parse") }
-  @Test def test_setVar1_d_unparse(): Unit = { runner_01.runOneTest("setVar1_d_unparse") }
-
-  @Test def test_escapeCharVars_01(): Unit = { runner.runOneTest("escapeCharVars_01") }
-  @Test def test_escapeCharVars_02(): Unit = { runner.runOneTest("escapeCharVars_02") }
-
-  @Test def test_multipleVarReadInPoU_01(): Unit = {
-    runner.runOneTest("multipleVarReadInPoU_01")
-  }
-
-  @Test def test_nviInGroupDecl_01(): Unit = { runner.runOneTest("nviInGroupDecl_01") }
-
-  @Test def test_backwardsDefines_01: Unit = { runner.runOneTest("backwardsDefines_01") }
-
-  /*****************************************************************/
-  val tdmlVal = XMLUtils.TDML_NAMESPACE
-  val dfdl = XMLUtils.DFDL_NAMESPACE
-  val xsi = XMLUtils.XSI_NAMESPACE
-  val xsd = XMLUtils.XSD_NAMESPACE
-  val example = XMLUtils.EXAMPLE_NAMESPACE
-  val tns = example
-
-  val variables2 =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdmlVal} xmlns:dfdl={
-      dfdl
-    } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
-      <tdml:defineSchema name="mySchema">
-        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-        <dfdl:format ref="tns:GeneralFormat"/>
-        <dfdl:defineVariable name="pi" type="xs:double" defaultValue={Pi.toString}/>
-        <xs:element name="data" type="xs:double" dfdl:inputValueCalc="{ $tns:pi }"/>
-      </tdml:defineSchema>
-      <tdml:parserTestCase name="variables2" root="data" model="mySchema">
-        <tdml:document/>
-        <tdml:infoset>
-          <tdml:dfdlInfoset>
-            <tns:data>3.141592653589793</tns:data>
-          </tdml:dfdlInfoset>
-        </tdml:infoset>
-      </tdml:parserTestCase>
-    </tdml:testSuite>
-
-  @Test def test_variables2(): Unit = {
-    val testSuite = variables2
-    val runner = Runner(testSuite)
-    runner.runOneTest("variables2")
-    runner.reset
-  }
-
-  val variables3 =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={tns} xmlns:tdml={tdmlVal} xmlns:dfdl={
-      dfdl
-    } xmlns:xsd={xsd} xmlns:xs={xsd} xmlns:xsi={xsi}>
-      <tdml:defineSchema name="mySchema">
-        <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd"/>
-        <dfdl:format ref="tns:GeneralFormat"/>
-        <dfdl:defineVariable name="x" type="xs:double"/>
-        <xs:element name="data">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="e1" type="xs:double" dfdl:lengthKind="delimited" dfdl:textNumberPattern="#.###############">
-                <xs:annotation>
-                  <xs:appinfo source="http://www.ogf.org/dfdl/">
-                    <dfdl:setVariable ref="tns:x" value="{ . }"/>
-                  </xs:appinfo>
-                </xs:annotation>
-              </xs:element>
-              <xs:element name="e2" type="xs:double" dfdl:inputValueCalc="{ $tns:x - 0.141592653589793 }"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-      </tdml:defineSchema>
-      <tdml:parserTestCase name="variables3" root="data" model="mySchema">
-        <tdml:document>3.141592653589793</tdml:document>
-        <tdml:infoset>
-          <tdml:dfdlInfoset>
-            <tns:data><tns:e1>3.141592653589793</tns:e1><tns:e2>3.0</tns:e2></tns:data>
-          </tdml:dfdlInfoset>
-        </tdml:infoset>
-      </tdml:parserTestCase>
-    </tdml:testSuite>
-
-  @Test def test_variables3(): Unit = {
-    // Debugger.setDebugging(true)
-    val testSuite = variables3
-    val runner = Runner(testSuite)
-    runner.runOneTest("variables3")
-    runner.reset
-  }
+  @Ignore @Test def setAfterReadErr_d = test
+  @Test def setVar1_d_parse = test
+  @Test def setVar1_d_unparse = test
 }

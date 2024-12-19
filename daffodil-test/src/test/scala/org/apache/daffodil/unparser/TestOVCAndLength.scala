@@ -17,27 +17,18 @@
 
 package org.apache.daffodil.unparser
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestOVCAndLength {
-  val runner = Runner("/org/apache/daffodil/unparser/OVCAndLengthTest.tdml")
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-  }
+object TestOVCAndLength extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/unparser/OVCAndLengthTest.tdml"
 }
 
-class TestOVCAndLength {
-  import TestOVCAndLength._
+class TestOVCAndLength extends TdmlTests {
+  val tdmlSuite = TestOVCAndLength
 
-  @Test def test_ovcContentLengthCycle1(): Unit = {
-    runner.runOneTest("ovcContentLengthCycle1")
-  }
-
-  @Test def test_ovcContentLengthCycle2(): Unit = {
-    runner.runOneTest("ovcContentLengthCycle2")
-  }
-
+  @Test def ovcContentLengthCycle1 = test
+  @Test def ovcContentLengthCycle2 = test
 }

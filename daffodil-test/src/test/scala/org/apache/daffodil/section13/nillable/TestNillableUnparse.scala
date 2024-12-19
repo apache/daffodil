@@ -17,79 +17,61 @@
 
 package org.apache.daffodil.section13.nillable
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
 import org.junit.Test
-import org.junit._
 
-object TestNillableUnparse {
-  val testDir = "/org/apache/daffodil/section13/nillable/"
-  val runnerLN = Runner(testDir, "literal-value-nils-unparse.tdml")
-  val runnerLC = Runner(testDir, "literal-character-nils-unparse.tdml")
-
-  @AfterClass def tearDown(): Unit = {
-    runnerLN.reset
-    runnerLC.reset
-  }
+object TestNillableUnparseLN extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/nillable/literal-value-nils-unparse.tdml"
 }
 
-class TestNillableUnparse {
+object TestNillableUnparseLC extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section13/nillable/literal-character-nils-unparse.tdml"
+}
 
-  import TestNillableUnparse._
+class TestNillableUnparseLN extends TdmlTests {
+  val tdmlSuite = TestNillableUnparseLN
 
-  @Test def test_scalar_nonDefaultable_nillable(): Unit = {
-    runnerLN.runOneTest("scalar_nonDefaultable_nillable")
-  }
-  @Test def test_scalar_nonDefaultable_nillable_02(): Unit = {
-    runnerLN.runOneTest("scalar_nonDefaultable_nillable_02")
-  }
-  @Test def test_scalar_nonDefaultable_nillable_03(): Unit = {
-    runnerLN.runOneTest("scalar_nonDefaultable_nillable_03")
-  }
+  @Test def scalar_nonDefaultable_nillable = test
+  @Test def scalar_nonDefaultable_nillable_02 = test
+  @Test def scalar_nonDefaultable_nillable_03 = test
 
-  @Test def test_text_complex_nil(): Unit = { runnerLN.runOneTest("text_complex_nil") }
-  @Test def test_text_complex_nil2(): Unit = { runnerLN.runOneTest("text_complex_nil2") }
-  @Test def test_text_complex_nil3(): Unit = { runnerLN.runOneTest("text_complex_nil3") }
-  @Test def test_text_complex_nil4(): Unit = { runnerLN.runOneTest("text_complex_nil4") }
+  @Test def text_complex_nil = test
+  @Test def text_complex_nil2 = test
+  @Test def text_complex_nil3 = test
+  @Test def text_complex_nil4 = test
 
-  @Test def test_text_nil_only1(): Unit = { runnerLN.runOneTest("text_nil_only1") }
-  @Test def test_text_nil_only2(): Unit = { runnerLN.runOneTest("text_nil_only2") }
-  @Test def test_text_nil_only3(): Unit = { runnerLN.runOneTest("text_nil_only3") }
-  @Test def test_text_nil_only4(): Unit = { runnerLN.runOneTest("text_nil_only4") }
-  @Test def test_text_nil_only5(): Unit = { runnerLN.runOneTest("text_nil_only5") }
-  @Test def test_text_nil_only6(): Unit = { runnerLN.runOneTest("text_nil_only6") }
-  @Test def test_text_nil_only7(): Unit = { runnerLN.runOneTest("text_nil_only7") }
-  @Test def test_text_nil_only8(): Unit = { runnerLN.runOneTest("text_nil_only8") }
-  @Test def test_text_nil_only9(): Unit = { runnerLN.runOneTest("text_nil_only9") }
-  @Test def test_text_nil_only10(): Unit = { runnerLN.runOneTest("text_nil_only10") }
-  @Test def test_text_nil_only11(): Unit = { runnerLN.runOneTest("text_nil_only11") }
-  @Test def test_text_nil_only12(): Unit = { runnerLN.runOneTest("text_nil_only12") }
-  @Test def test_text_nil_only13(): Unit = { runnerLN.runOneTest("text_nil_only13") }
-  @Test def test_text_nil_only14(): Unit = { runnerLN.runOneTest("text_nil_only14") }
-  @Test def test_text_nil_only15(): Unit = { runnerLN.runOneTest("text_nil_only15") }
-  @Test def test_text_nil_only16(): Unit = { runnerLN.runOneTest("text_nil_only16") }
-  @Test def test_text_nil_only17(): Unit = { runnerLN.runOneTest("text_nil_only17") }
+  @Test def text_nil_only1 = test
+  @Test def text_nil_only2 = test
+  @Test def text_nil_only3 = test
+  @Test def text_nil_only4 = test
+  @Test def text_nil_only5 = test
+  @Test def text_nil_only6 = test
+  @Test def text_nil_only7 = test
+  @Test def text_nil_only8 = test
+  @Test def text_nil_only9 = test
+  @Test def text_nil_only10 = test
+  @Test def text_nil_only11 = test
+  @Test def text_nil_only12 = test
+  @Test def text_nil_only13 = test
+  @Test def text_nil_only14 = test
+  @Test def text_nil_only15 = test
+  @Test def text_nil_only16 = test
+  @Test def text_nil_only17 = test
 
-  @Test def test_text_nil_characterClass_01(): Unit = {
-    runnerLN.runOneTest("text_nil_characterClass_01")
-  }
-  @Test def test_text_nil_characterClass_02(): Unit = {
-    runnerLN.runOneTest("text_nil_characterClass_02")
-  }
-  @Test def test_text_nil_characterClass_03(): Unit = {
-    runnerLN.runOneTest("text_nil_characterClass_03")
-  }
-  @Test def test_text_nil_characterClass_04(): Unit = {
-    runnerLN.runOneTest("text_nil_characterClass_04")
-  }
-  @Test def test_text_nil_characterClass_05(): Unit = {
-    runnerLN.runOneTest("text_nil_characterClass_05")
-  }
-  @Test def test_text_nil_characterClass_06(): Unit = {
-    runnerLN.runOneTest("text_nil_characterClass_06")
-  }
+  @Test def text_nil_characterClass_01 = test
+  @Test def text_nil_characterClass_02 = test
+  @Test def text_nil_characterClass_03 = test
+  @Test def text_nil_characterClass_04 = test
+  @Test def text_nil_characterClass_05 = test
+  @Test def text_nil_characterClass_06 = test
+}
 
-  @Test def test_text_lit_char_01(): Unit = { runnerLC.runOneTest("text_01") }
-  @Test def test_text_lit_char_01a(): Unit = { runnerLC.runOneTest("text_01a") }
+class TestNillableUnparseLC extends TdmlTests {
+  val tdmlSuite = TestNillableUnparseLC
 
+  @Test def text_01 = test
+  @Test def text_01a = test
 }

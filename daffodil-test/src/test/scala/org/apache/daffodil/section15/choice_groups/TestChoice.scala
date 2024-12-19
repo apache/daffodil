@@ -17,176 +17,125 @@
 
 package org.apache.daffodil.section15.choice_groups
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestChoice {
-  val testDir = "/org/apache/daffodil/section15/choice_groups/"
-
-  val runnerCH = Runner(testDir, "choice.tdml")
-  val runnerCE = Runner(testDir, "ChoiceLengthExplicit.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runnerCH.reset
-    runnerCE.reset
-  }
-
+object TestChoice extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/choice.tdml"
 }
 
-class TestChoice {
+object TestChoiceLengthExplicit extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/ChoiceLengthExplicit.tdml"
+}
 
-  import TestChoice._
+class TestChoice extends TdmlTests {
+  val tdmlSuite = TestChoice
 
-  @Test def test_choice_noBranch(): Unit = { runnerCH.runOneTest("choice_noBranch") }
+  @Test def choice_noBranch = test
 
-  @Test def test_optionalChoice01(): Unit = { runnerCH.runOneTest("optionalChoice01") }
-  @Test def test_optionalChoice02(): Unit = { runnerCH.runOneTest("optionalChoice02") }
-  @Test def test_optionalChoice03(): Unit = { runnerCH.runOneTest("optionalChoice03") }
-  @Test def test_optionalChoice04(): Unit = { runnerCH.runOneTest("optionalChoice04") }
-  @Test def test_optionalChoice05(): Unit = { runnerCH.runOneTest("optionalChoice05") }
+  @Test def optionalChoice01 = test
+  @Test def optionalChoice02 = test
+  @Test def optionalChoice03 = test
+  @Test def optionalChoice04 = test
+  @Test def optionalChoice05 = test
 
-  @Test def test_choiceOfGroupRefs(): Unit = { runnerCH.runOneTest("choiceOfGroupRefs") }
+  @Test def choiceOfGroupRefs = test
 
-  @Test def test_basic(): Unit = { runnerCH.runOneTest("basic") }
-  @Test def test_choice2(): Unit = { runnerCH.runOneTest("choice2") }
-  @Test def test_choice3(): Unit = { runnerCH.runOneTest("choice3") }
-  @Test def test_choice4(): Unit = { runnerCH.runOneTest("choice4") }
+  @Test def basic = test
+  @Test def choice2 = test
+  @Test def choice3 = test
+  @Test def choice4 = test
 
-  @Test def test_choiceWithInitsAndTermsInt(): Unit = {
-    runnerCH.runOneTest("choiceWithInitsAndTermsInt")
-  }
-  @Test def test_choiceWithInitsAndTermsStr(): Unit = {
-    runnerCH.runOneTest("choiceWithInitsAndTermsStr")
-  }
-  @Test def test_choiceWithInitsAndTermsError(): Unit = {
-    runnerCH.runOneTest("choiceWithInitsAndTermsError")
-  }
-  @Test def test_choiceWithInitsAndTermsSeqInt(): Unit = {
-    runnerCH.runOneTest("choiceWithInitsAndTermsSeqInt")
-  }
-  @Test def test_choiceWithInitsAndTermsSeqStr(): Unit = {
-    runnerCH.runOneTest("choiceWithInitsAndTermsSeqStr")
-  }
-  @Test def test_nestedChoiceWithInitsAndTermsNestedInt(): Unit = {
-    runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedInt")
-  }
-  @Test def test_nestedChoiceWithInitsAndTermsNestedStr(): Unit = {
-    runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedStr")
-  }
-  @Test def test_nestedChoiceWithInitsAndTermsInt(): Unit = {
-    runnerCH.runOneTest("nestedChoiceWithInitsAndTermsInt")
-  }
+  @Test def choiceWithInitsAndTermsInt = test
+  @Test def choiceWithInitsAndTermsStr = test
+  @Test def choiceWithInitsAndTermsError = test
+  @Test def choiceWithInitsAndTermsSeqInt = test
+  @Test def choiceWithInitsAndTermsSeqStr = test
+  @Test def nestedChoiceWithInitsAndTermsNestedInt = test
+  @Test def nestedChoiceWithInitsAndTermsNestedStr = test
+  @Test def nestedChoiceWithInitsAndTermsInt = test
 
-  @Test def test_choiceWithSequence1(): Unit = { runnerCH.runOneTest("choiceWithSequence1") }
-  @Test def test_choiceWithSequence2(): Unit = { runnerCH.runOneTest("choiceWithSequence2") }
-  @Test def test_choiceWithChoiceInt(): Unit = { runnerCH.runOneTest("choiceWithChoiceInt") }
-  @Test def test_choiceWithChoiceFloat(): Unit = {
-    runnerCH.runOneTest("choiceWithChoiceFloat")
-  }
-  @Test def test_choiceWithChoiceString(): Unit = {
-    runnerCH.runOneTest("choiceWithChoiceString")
-  }
-  @Test def test_choiceWithArrayInts(): Unit = { runnerCH.runOneTest("choiceWithArrayInts") }
-  @Test def test_choiceWithArrayFloats(): Unit = {
-    runnerCH.runOneTest("choiceWithArrayFloats")
-  }
-  @Test def test_choiceWithArrayString(): Unit = {
-    runnerCH.runOneTest("choiceWithChoiceString")
-  }
+  @Test def choiceWithSequence1 = test
+  @Test def choiceWithSequence2 = test
+  @Test def choiceWithChoiceInt = test
+  @Test def choiceWithChoiceFloat = test
+  @Test def choiceWithChoiceString = test
+  @Test def choiceWithArrayInts = test
+  @Test def choiceWithArrayFloats = test
+  @Test def choiceWithArrayString = test
 
-  @Test def test_choice5(): Unit = { runnerCH.runOneTest("choice5") }
-  @Test def test_choice6(): Unit = { runnerCH.runOneTest("choice6") }
-  @Test def test_choiceFail1(): Unit = { runnerCH.runOneTest("choiceFail1") }
-  @Test def test_choiceDelim1(): Unit = { runnerCH.runOneTest("choiceDelim1") }
-  @Test def test_choiceDelim2(): Unit = { runnerCH.runOneTest("choiceDelim2") }
-  @Test def test_choiceDelimFloat(): Unit = { runnerCH.runOneTest("choiceDelimFloat") }
-  @Test def test_choiceDelimString(): Unit = { runnerCH.runOneTest("choiceDelimString") }
-  @Test def test_choiceDelimStringwSp(): Unit = { runnerCH.runOneTest("choiceDelimStringwSp") }
-  @Test def test_choiceDelimInt(): Unit = { runnerCH.runOneTest("choiceDelimInt") }
+  @Test def choice5 = test
+  @Test def choice6 = test
+  @Test def choiceFail1 = test
+  @Test def choiceDelim1 = test
+  @Test def choiceDelim2 = test
+  @Test def choiceDelimFloat = test
+  @Test def choiceDelimString = test
+  @Test def choiceDelimStringwSp = test
+  @Test def choiceDelimInt = test
 
-  @Test def test_nestedChoice1(): Unit = { runnerCH.runOneTest("nestedChoice1") }
+  @Test def nestedChoice1 = test
 
-  @Test def test_nestedChoiceAllString(): Unit = {
-    runnerCH.runOneTest("nestedChoiceAllString")
-  }
-  @Test def test_nestedChoiceAllFloat(): Unit = { runnerCH.runOneTest("nestedChoiceAllFloat") }
-  @Test def test_nestedChoiceAllInt(): Unit = { runnerCH.runOneTest("nestedChoiceAllInt") }
+  @Test def nestedChoiceAllString = test
+  @Test def nestedChoiceAllFloat = test
+  @Test def nestedChoiceAllInt = test
 
-  @Test def test_choiceInSequenceWithSeparators1(): Unit = {
-    runnerCH.runOneTest("choiceInSequenceWithSeparators1")
-  }
-  @Test def test_choiceInSequenceWithSeparators2(): Unit = {
-    runnerCH.runOneTest("choiceInSequenceWithSeparators2")
-  }
+  @Test def choiceInSequenceWithSeparators1 = test
+  @Test def choiceInSequenceWithSeparators2 = test
 
-  @Test def test_sequenceInChoiceInSequenceWithSeparators1(): Unit = {
-    runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators1")
-  }
-  @Test def test_sequenceInChoiceInSequenceWithSeparators2(): Unit = {
-    runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators2")
-  }
-  @Test def test_sequenceInChoiceInSequenceWithSameSeparators1(): Unit = {
-    runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators1")
-  }
-  @Test def test_sequenceInChoiceInSequenceWithSameSeparators2(): Unit = {
-    runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators2")
-  }
+  @Test def sequenceInChoiceInSequenceWithSeparators1 = test
+  @Test def sequenceInChoiceInSequenceWithSeparators2 = test
+  @Test def sequenceInChoiceInSequenceWithSameSeparators1 = test
+  @Test def sequenceInChoiceInSequenceWithSameSeparators2 = test
 
-  @Test def test_choice_minOccurs(): Unit = { runnerCH.runOneTest("choice_minOccurs") }
-  @Test def test_choice_maxOccurs(): Unit = { runnerCH.runOneTest("choice_maxOccurs") }
+  @Test def choice_minOccurs = test
+  @Test def choice_maxOccurs = test
 
-  @Test def test_choice_with_inputvaluecalc(): Unit = {
-    runnerCH.runOneTest("choice_with_inputvaluecalc")
-  }
+  @Test def choice_with_inputvaluecalc = test
 
   // DFDL-641
-  @Test def test_direct_dispatch_01(): Unit = { runnerCH.runOneTest("direct_dispatch_01") }
-  @Test def test_direct_dispatch_02(): Unit = { runnerCH.runOneTest("direct_dispatch_02") }
-  @Test def test_direct_dispatch_03(): Unit = { runnerCH.runOneTest("direct_dispatch_03") }
-  @Test def test_direct_dispatch_04(): Unit = { runnerCH.runOneTest("direct_dispatch_04") }
-  @Test def test_direct_dispatch_05(): Unit = { runnerCH.runOneTest("direct_dispatch_05") }
-  @Test def test_direct_dispatch_06(): Unit = { runnerCH.runOneTest("direct_dispatch_06") }
-  @Test def test_direct_dispatch_07(): Unit = { runnerCH.runOneTest("direct_dispatch_07") }
-  @Test def test_direct_dispatch_08(): Unit = { runnerCH.runOneTest("direct_dispatch_08") }
-  @Test def test_direct_dispatch_09(): Unit = { runnerCH.runOneTest("direct_dispatch_09") }
-  @Test def test_direct_dispatch_10(): Unit = { runnerCH.runOneTest("direct_dispatch_10") }
-  @Test def test_direct_dispatch_11(): Unit = { runnerCH.runOneTest("direct_dispatch_11") }
-  @Test def test_direct_dispatch_12(): Unit = { runnerCH.runOneTest("direct_dispatch_12") }
-  @Test def test_direct_dispatch_13(): Unit = { runnerCH.runOneTest("direct_dispatch_13") }
-  @Test def test_direct_dispatch_14(): Unit = { runnerCH.runOneTest("direct_dispatch_14") }
-  @Test def test_direct_dispatch_15(): Unit = { runnerCH.runOneTest("direct_dispatch_15") }
-  @Test def test_direct_dispatch_16(): Unit = { runnerCH.runOneTest("direct_dispatch_16") }
-  @Test def test_direct_dispatch_17(): Unit = { runnerCH.runOneTest("direct_dispatch_17") }
+  @Test def direct_dispatch_01 = test
+  @Test def direct_dispatch_02 = test
+  @Test def direct_dispatch_03 = test
+  @Test def direct_dispatch_04 = test
+  @Test def direct_dispatch_05 = test
+  @Test def direct_dispatch_06 = test
+  @Test def direct_dispatch_07 = test
+  @Test def direct_dispatch_08 = test
+  @Test def direct_dispatch_09 = test
+  @Test def direct_dispatch_10 = test
+  @Test def direct_dispatch_11 = test
+  @Test def direct_dispatch_12 = test
+  @Test def direct_dispatch_13 = test
+  @Test def direct_dispatch_14 = test
+  @Test def direct_dispatch_15 = test
+  @Test def direct_dispatch_16 = test
+  @Test def direct_dispatch_17 = test
 
   // DAFFODIL-2562
-  @Test def test_dispatch_group_choice(): Unit = {
-    runnerCH.runOneTest("dispatch_group_choice")
-  }
+  @Test def dispatch_group_choice = test
 
-  @Test def test_dispatch_group_choice_2(): Unit = {
-    runnerCH.runOneTest("dispatch_group_choice_2")
-  }
-  @Test def test_dispatch_group_choice_3(): Unit = {
-    runnerCH.runOneTest("dispatch_group_choice_3")
-  }
+  @Test def dispatch_group_choice_2 = test
+  @Test def dispatch_group_choice_3 = test
+}
 
-  @Test def test_explicit_01(): Unit = { runnerCE.runOneTest("explicit_01") }
-  @Test def test_explicit_02(): Unit = { runnerCE.runOneTest("explicit_02") }
-  @Test def test_explicit_03(): Unit = { runnerCE.runOneTest("explicit_03") }
-  @Test def test_explicit_04(): Unit = { runnerCE.runOneTest("explicit_04") }
-  @Test def test_explicit_05(): Unit = { runnerCE.runOneTest("explicit_05") }
-  @Test def test_explicit_06(): Unit = { runnerCE.runOneTest("explicit_06") }
-  @Test def test_explicit_07(): Unit = { runnerCE.runOneTest("explicit_07") }
-  @Test def test_explicit_08(): Unit = { runnerCE.runOneTest("explicit_08") }
-  @Test def test_explicit_09(): Unit = { runnerCE.runOneTest("explicit_09") }
+class TestChoiceLengthExplicit extends TdmlTests {
+  val tdmlSuite = TestChoiceLengthExplicit
 
-  @Test def test_explicit_multiple_choices(): Unit = {
-    runnerCE.runOneTest("explicit_multiple_choices")
-  }
+  @Test def explicit_01 = test
+  @Test def explicit_02 = test
+  @Test def explicit_03 = test
+  @Test def explicit_04 = test
+  @Test def explicit_05 = test
+  @Test def explicit_06 = test
+  @Test def explicit_07 = test
+  @Test def explicit_08 = test
+  @Test def explicit_09 = test
 
-  @Test def test_explicit_unparse_01(): Unit = { runnerCE.runOneTest("explicit_unparse_01") }
-  @Test def test_explicit_unparse_02(): Unit = { runnerCE.runOneTest("explicit_unparse_02") }
+  @Test def explicit_multiple_choices = test
 
+  @Test def explicit_unparse_01 = test
+  @Test def explicit_unparse_02 = test
 }

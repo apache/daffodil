@@ -17,28 +17,20 @@
 
 package org.apache.daffodil.usertests
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestCSV {
-  val testDir = "/org/apache/daffodil/usertests/"
-  val runner = Runner(testDir, "test-csv.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestCSV extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/usertests/test-csv.tdml"
 }
 
-class TestCSV {
+class TestCSV extends TdmlTests {
+  val tdmlSuite = TestCSV
 
-  import TestCSV._
-
-  @Test def test_csv_01(): Unit = { runner.runOneTest("csv_01") }
-  @Test def test_csv_02(): Unit = { runner.runOneTest("csv_02") }
-  @Test def test_csv_03(): Unit = { runner.runOneTest("csv_03") }
-  @Test def test_csv_04(): Unit = { runner.runOneTest("csv_04") }
-
+  @Test def csv_01 = test
+  @Test def csv_02 = test
+  @Test def csv_03 = test
+  @Test def csv_04 = test
 }

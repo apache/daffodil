@@ -17,63 +17,65 @@
 
 package org.apache.daffodil.section13.nillable
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestNillable {
-  val testDir = "/org/apache/daffodil/section13/nillable/"
-  val testDir_01 = "/org/apache/daffodil/section06/entities/"
-
-  val runnerAA = Runner(testDir, "nillable.tdml")
-  val runnerLN = Runner(testDir, "literal-value-nils.tdml")
-  val runnerLC = Runner(testDir, "literal-character-nils.tdml")
-  val runnerEntity = Runner(testDir_01, "entities_01.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runnerAA.reset
-    runnerLN.reset
-    runnerEntity.reset
-    runnerLC.reset
-  }
-
+object TestNillableAA extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/nillable/nillable.tdml"
 }
 
-class TestNillable {
+object TestNillableLN extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/nillable/literal-value-nils.tdml"
+}
 
-  import TestNillable._
+object TestNillableLC extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/nillable/literal-character-nils.tdml"
+}
 
-  @Test def test_complex_nil(): Unit = { runnerLN.runOneTest("test_complex_nil") }
+object TestNillableEntities extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section06/entities/entities_01.tdml"
+}
 
-  @Test def test_litNil1(): Unit = { runnerAA.runOneTest("litNil1") }
-  @Test def test_litNil2(): Unit = { runnerAA.runOneTest("litNil2") }
-  @Test def test_litNil3(): Unit = { runnerAA.runOneTest("litNil3") }
-  @Test def test_litNil4(): Unit = { runnerAA.runOneTest("litNil4") }
-  @Test def test_litNil4b(): Unit = { runnerAA.runOneTest("litNil4b") }
-  @Test def test_litNil5(): Unit = { runnerAA.runOneTest("litNil5") }
-  @Test def test_litNil6(): Unit = { runnerAA.runOneTest("litNil6") }
-  @Test def test_litNil7(): Unit = { runnerAA.runOneTest("litNil7") }
-  @Test def test_missing_scalar(): Unit = { runnerAA.runOneTest("missing_scalar") }
-  @Test def test_nillable1(): Unit = { runnerAA.runOneTest("nillable1") }
-  @Test def test_edifact1a(): Unit = { runnerAA.runOneTest("edifact1a") }
+class TestNillableAA extends TdmlTests {
+  val tdmlSuite = TestNillableAA
 
-  @Test def test_text_nil_characterClass_04_parse(): Unit = {
-    runnerLN.runOneTest("text_nil_characterClass_04_parse")
-  }
+  @Test def litNil1 = test
+  @Test def litNil2 = test
+  @Test def litNil3 = test
+  @Test def litNil4 = test
+  @Test def litNil4b = test
+  @Test def litNil5 = test
+  @Test def litNil6 = test
+  @Test def litNil7 = test
+  @Test def missing_scalar = test
+  @Test def nillable1 = test
+  @Test def edifact1a = test
+  @Test def complexNillable_01 = test
+  @Test def complexNillable_02 = test
+}
 
-  @Test def test_text_03(): Unit = { runnerLN.runOneTest("text_03") }
-  @Test def test_text_03ic(): Unit = { runnerLN.runOneTest("text_03ic") }
-  @Test def test_text_04(): Unit = { runnerLN.runOneTest("text_04") }
-  @Test def test_text_05(): Unit = { runnerLN.runOneTest("text_05") }
-  @Test def test_text_06(): Unit = { runnerLN.runOneTest("text_06") }
-  @Test def test_binary_01(): Unit = { runnerLN.runOneTest("binary_01") }
-  @Test def test_padded_nils(): Unit = { runnerLN.runOneTest("test_padded_nils") }
+class TestNillableLN extends TdmlTests {
+  val tdmlSuite = TestNillableLN
 
-  @Test def test_nillable_ovc_01(): Unit = { runnerLN.runOneTest("nillable_ovc_01") }
+  @Test def test_complex_nil = test
+  @Test def text_nil_characterClass_04_parse = test
+  @Test def text_03 = test
+  @Test def text_03ic = test
+  @Test def text_04 = test
+  @Test def text_05 = test
+  @Test def text_06 = test
+  @Test def binary_01 = test
+  @Test def test_padded_nils = test
+  @Test def nillable_ovc_01 = test
+}
+
+class TestNillableLC extends TdmlTests {
+  val tdmlSuite = TestNillableLC
 
   /* These should demonstrate that:
-   *   DFDL Char Classes are not allowed for literalCharacter
+   *  DFDL Char Classes are not allowed for literalCharacter
    *  DFDL Char Entities are allowed for literalCharacter
    *  Raw bytes entities are allowed for literalCharacter
    *  Only 1 character or byte are allowed for literalCharacter
@@ -81,18 +83,19 @@ class TestNillable {
    *  According to analysis doc, should also work for numeric
    *  and hex entities.
    * */
-  @Test def test_text_lit_char_01(): Unit = { runnerLC.runOneTest("text_01") }
-  @Test def test_text_lit_char_01ic(): Unit = { runnerLC.runOneTest("text_01ic") }
-  @Test def test_text_lit_char_02(): Unit = { runnerLC.runOneTest("text_02") }
-  @Test def test_text_lit_char_03(): Unit = { runnerLC.runOneTest("text_03") }
-  @Test def test_text_lit_char_04(): Unit = { runnerLC.runOneTest("text_04") }
-  @Test def test_binary_lit_char_01(): Unit = { runnerLC.runOneTest("binary_01") }
+  @Test def text_01 = test
+  @Test def text_01ic = test
+  @Test def text_02 = test
+  @Test def text_03 = test
+  @Test def text_04 = test
+  @Test def binary_01 = test
+}
 
-  @Test def test_entity_fail_05(): Unit = { runnerEntity.runOneTest("entity_fail_05") }
-  @Test def test_entity_fail_06(): Unit = { runnerEntity.runOneTest("entity_fail_06") }
-  @Test def test_entity_success_05(): Unit = { runnerEntity.runOneTest("entity_success_05") }
-  @Test def test_entity_success_06(): Unit = { runnerEntity.runOneTest("entity_success_06") }
+class TestNillableEntities extends TdmlTests {
+  val tdmlSuite = TestNillableEntities
 
-  @Test def test_complexNillable_01(): Unit = { runnerAA.runOneTest("complexNillable_01") }
-  @Test def test_complexNillable_02(): Unit = { runnerAA.runOneTest("complexNillable_02") }
+  @Test def entity_fail_05 = test
+  @Test def entity_fail_06 = test
+  @Test def entity_success_05 = test
+  @Test def entity_success_06 = test
 }

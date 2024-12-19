@@ -17,29 +17,18 @@
 
 package org.apache.daffodil.section12.lengthKind
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestLengthKindEndOfParent2 {
-  val testDir = "/org/apache/daffodil/section12/lengthKind/"
-  val runner = Runner(testDir, "EndOfParentTests.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestLengthKindEndOfParent2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section12/lengthKind/EndOfParentTests.tdml"
 }
 
-class TestLengthKindEndOfParent2 {
+class TestLengthKindEndOfParent2 extends TdmlTests {
+  val tdmlSuite = TestLengthKindEndOfParent2
 
-  import TestLengthKindEndOfParent2._
-
-  @Test def test_endOfParent_NYI_ComplexTypes() = {
-    runner.runOneTest("TestEndOfParentNYIComplexTypes")
-  }
-  @Test def test_endOfParent_NYI_SimpleTypes() = {
-    runner.runOneTest("TestEndOfParentNYISimpleTypes")
-  }
+  @Test def TestEndOfParentNYIComplexTypes = test
+  @Test def TestEndOfParentNYISimpleTypes = test
 }

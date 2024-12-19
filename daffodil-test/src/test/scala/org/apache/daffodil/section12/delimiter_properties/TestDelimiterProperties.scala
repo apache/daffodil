@@ -17,76 +17,55 @@
 
 package org.apache.daffodil.section12.delimiter_properties
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestDelimiterProperties {
-
-  val testDir_02 = "/org/apache/daffodil/section12/delimiter_properties/"
-  val runner_02 = Runner(testDir_02, "DelimiterProperties.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner_02.reset
-  }
-
+object TestDelimiterProperties extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section12/delimiter_properties/DelimiterProperties.tdml"
 }
 
-class TestDelimiterProperties {
+class TestDelimiterProperties extends TdmlTests {
+  val tdmlSuite = TestDelimiterProperties
 
-  import TestDelimiterProperties._
+  @Test def DelimProp_01 = test
+  @Test def ParseSequence4 = test
+  @Test def ParseSequence5 = test
+  @Test def DelimProp_02 = test
+  @Test def DelimProp_03 = test
+  @Test def DelimProp_04 = test
+  @Test def DelimProp_05 = test
+  @Test def DelimProp_06 = test
+  @Test def DelimProp_07 = test
+  @Test def initiatedContentSimple1 = test
+  @Test def Lesson4_initiators_terminators = test
 
-  @Test def test_DelimProp_01() = { runner_02.runOneTest("DelimProp_01") }
-  @Test def test_ParseSequence4(): Unit = { runner_02.runOneTest("ParseSequence4") }
-  @Test def test_ParseSequence5(): Unit = { runner_02.runOneTest("ParseSequence5") }
-  @Test def test_DelimProp_02(): Unit = { runner_02.runOneTest("DelimProp_02") }
-  @Test def test_DelimProp_03(): Unit = { runner_02.runOneTest("DelimProp_03") }
-  @Test def test_DelimProp_04(): Unit = { runner_02.runOneTest("DelimProp_04") }
-  @Test def test_DelimProp_05(): Unit = { runner_02.runOneTest("DelimProp_05") }
-  @Test def test_DelimProp_06(): Unit = { runner_02.runOneTest("DelimProp_06") }
-  @Test def test_DelimProp_07(): Unit = { runner_02.runOneTest("DelimProp_07") }
-  @Test def test_initiatedContentSimple1(): Unit = {
-    runner_02.runOneTest("initiatedContentSimple1")
-  }
-  @Test def test_Lesson4_initiators_terminators(): Unit = {
-    runner_02.runOneTest("Lesson4_initiators_terminators")
-  }
+  @Test def DelimProp_10 = test
+  @Test def DelimProp_10_01 = test
+  @Test def DelimProp_10_02 = test
+  @Test def DelimProp_10_03 = test
 
-  @Test def test_DelimProp_10() = { runner_02.runOneTest("DelimProp_10") }
-  @Test def test_DelimProp_10_01() = { runner_02.runOneTest("DelimProp_10_01") }
-  @Test def test_DelimProp_10_02() = { runner_02.runOneTest("DelimProp_10_02") }
-  @Test def test_DelimProp_10_03() = { runner_02.runOneTest("DelimProp_10_03") }
+  @Test def E1 = test
 
-  @Test def test_E1() = { runner_02.runOneTest("E1") }
+  @Test def ReqFieldMissingAndSepIsPrefixOfTerminator_Prefix = test
+  @Test def ReqFieldMissingAndSepIsPrefixOfTerminator_Infix = test
+  @Test def ReqFieldMissingAndSepIsPrefixOfTerminator_Postfix = test
 
-  @Test def test_ReqFieldMissingAndSepIsPrefixOfTerminator_Prefix() = {
-    runner_02.runOneTest("ReqFieldMissingAndSepIsPrefixOfTerminator_Prefix")
-  }
-  @Test def test_ReqFieldMissingAndSepIsPrefixOfTerminator_Infix() = {
-    runner_02.runOneTest("ReqFieldMissingAndSepIsPrefixOfTerminator_Infix")
-  }
-  @Test def test_ReqFieldMissingAndSepIsPrefixOfTerminator_Postfix() = {
-    runner_02.runOneTest("ReqFieldMissingAndSepIsPrefixOfTerminator_Postfix")
-  }
+  @Test def OptionalWSPTermWithExplicitLength = test
+  @Test def OptionalWSPTermWithExplicitLength2 = test
 
-  @Test def test_OptionalWSPTermWithExplicitLength() = {
-    runner_02.runOneTest("OptionalWSPTermWithExplicitLength")
-  }
-  @Test def test_OptionalWSPTermWithExplicitLength2() = {
-    runner_02.runOneTest("OptionalWSPTermWithExplicitLength2")
-  }
+  @Test def delims_ignorecase_01 = test
 
-  @Test def test_delims_ignorecase_01() = { runner_02.runOneTest("delims_ignorecase_01") }
+  @Test def percentInitiator = test
+  @Test def percentSeparator = test
+  @Test def percentTerminator = test
+  @Test def percentTerminator2 = test
+  @Test def percentExpression = test
 
-  @Test def test_percentInitiator() = { runner_02.runOneTest("percentInitiator") }
-  @Test def test_percentSeparator() = { runner_02.runOneTest("percentSeparator") }
-  @Test def test_percentTerminator() = { runner_02.runOneTest("percentTerminator") }
-  @Test def test_percentTerminator2() = { runner_02.runOneTest("percentTerminator2") }
-  @Test def test_percentExpression() = { runner_02.runOneTest("percentExpression") }
-
-  @Test def test_emptyInitiator1() = { runner_02.runOneTest("emptyInitiator1") }
-  @Test def test_emptyInitiator2() = { runner_02.runOneTest("emptyInitiator2") }
-  @Test def test_emptyInitiator3() = { runner_02.runOneTest("emptyInitiator3") }
-  @Test def test_emptyInitiator4() = { runner_02.runOneTest("emptyInitiator4") }
+  @Test def emptyInitiator1 = test
+  @Test def emptyInitiator2 = test
+  @Test def emptyInitiator3 = test
+  @Test def emptyInitiator4 = test
 }

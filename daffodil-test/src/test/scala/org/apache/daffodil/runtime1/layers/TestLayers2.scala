@@ -17,29 +17,22 @@
 
 package org.apache.daffodil.runtime1.layers
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.exceptions.Abort
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 
-import org.junit.AfterClass
 import org.junit.Assert.fail
 import org.junit.Test
 
-object TestLayers2 {
-
-  val testDir = "/org/apache/daffodil/layers/"
-  val runnerB = Runner(testDir, "TestLayersBomb.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runnerB.reset()
-  }
+object TestLayers2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/layers/TestLayersBomb.tdml"
 }
 
-class TestLayers2 {
-
-  import TestLayers2._
+class TestLayers2 extends TdmlTests {
+  val tdmlSuite = TestLayers2
 
   //
   // Properly configured, detected, and loaded layer, now what happens at runtime if
@@ -49,109 +42,85 @@ class TestLayers2 {
   // These should never result in an abort, no matter what the layer does.
   // with the exception of explicitly calling Assert.abort (or equivalent thereof.)
   //
-  @Test def testNoBomb(): Unit = runnerB.runOneTest("testNoBomb") // baseline
-  @Test def testNoBomb2(): Unit = runnerB.runOneTest("testNoBomb2") // baseline
-  @Test def testNoBomb3(): Unit = runnerB.runOneTest("testNoBomb3") // baseline
+  @Test def testNoBomb = test // baseline
+  @Test def testNoBomb2 = test // baseline
+  @Test def testNoBomb3 = test // baseline
 
   //
   // Runtime SDE from each place in the API
   //
-  @Test def testBombSetterRSDE(): Unit = runnerB.runOneTest("testBombSetterRSDE")
-  @Test def testBombGetterRSDE(): Unit = runnerB.runOneTest("testBombGetterRSDE")
-  @Test def testBombCloseOutputRSDE(): Unit = runnerB.runOneTest("testBombCloseOutputRSDE")
-  @Test def testBombCloseOutputRSDEWithSuspension(): Unit =
-    runnerB.runOneTest("testBombCloseOutputRSDEWithSuspension")
-  @Test def testBombWriteRSDE(): Unit = runnerB.runOneTest("testBombWriteRSDE")
-  @Test def testBombWriteRSDEWithSuspension(): Unit =
-    runnerB.runOneTest("testBombWriteRSDEWithSuspension")
-  @Test def testBombReadRSDE(): Unit = runnerB.runOneTest("testBombReadRSDE")
-  @Test def testBombCloseInputRSDE(): Unit = runnerB.runOneTest("testBombCloseInputRSDE")
-  @Test def testBombWrapInputRSDE(): Unit = runnerB.runOneTest("testBombWrapInputRSDE")
-  @Test def testBombWrapOutputRSDE(): Unit = runnerB.runOneTest("testBombWrapOutputRSDE")
+  @Test def testBombSetterRSDE = test
+  @Test def testBombGetterRSDE = test
+  @Test def testBombCloseOutputRSDE = test
+  @Test def testBombCloseOutputRSDEWithSuspension = test
+  @Test def testBombWriteRSDE = test
+  @Test def testBombWriteRSDEWithSuspension = test
+  @Test def testBombReadRSDE = test
+  @Test def testBombCloseInputRSDE = test
+  @Test def testBombWrapInputRSDE = test
+  @Test def testBombWrapOutputRSDE = test
   //
   // Processing Error from each place in the API
   //
   // In the setter, getter, read and close methods, a processing error causes
   // backtracking.
   //
-  @Test def testBombSetterProcErr(): Unit = runnerB.runOneTest("testBombSetterProcErr")
-  @Test def testBombGetterProcErr(): Unit = runnerB.runOneTest("testBombGetterProcErr")
-  @Test def testBombReadProcErr(): Unit = runnerB.runOneTest("testBombReadProcErr")
-  @Test def testBombCloseInputProcErr(): Unit = runnerB.runOneTest("testBombCloseInputProcErr")
-  @Test def testBombWrapInputProcErr(): Unit = runnerB.runOneTest("testBombWrapInputProcErr")
-  @Test def testBombWrapInputProcErrWithCause(): Unit =
-    runnerB.runOneTest("testBombWrapInputProcErrWithCause")
-  @Test def testBombWrapOutputProcErr(): Unit = runnerB.runOneTest("testBombWrapOutputProcErr")
+  @Test def testBombSetterProcErr = test
+  @Test def testBombGetterProcErr = test
+  @Test def testBombReadProcErr = test
+  @Test def testBombCloseInputProcErr = test
+  @Test def testBombWrapInputProcErr = test
+  @Test def testBombWrapInputProcErrWithCause = test
+  @Test def testBombWrapOutputProcErr = test
   //
   // In the write and close (output) methods, a processing error is an Unparse Error, which
   // terminates unparsing, but in the right way.
   //
-  @Test def testBombWriteProcErr(): Unit = runnerB.runOneTest("testBombWriteProcErr")
-  @Test def testBombWriteProcErrWithSuspension(): Unit =
-    runnerB.runOneTest("testBombWriteProcErrWithSuspension")
-  @Test def testBombCloseOutputProcErr(): Unit =
-    runnerB.runOneTest("testBombCloseOutputProcErr")
-  @Test def testBombCloseOutputProcErrWithSuspension(): Unit =
-    runnerB.runOneTest("testBombCloseOutputProcErrWithSuspension")
-  @Test def testBombGetterProcErrWithSuspension(): Unit =
-    runnerB.runOneTest("testBombGetterProcErrWithSuspension")
+  @Test def testBombWriteProcErr = test
+  @Test def testBombWriteProcErrWithSuspension = test
+  @Test def testBombCloseOutputProcErr = test
+  @Test def testBombCloseOutputProcErrWithSuspension = test
+  @Test def testBombGetterProcErrWithSuspension = test
+
+  // This function is useful if the bomb layer test rig does NOT convert all Exceptions to PEs.
+  // We might want to test it both ways. See below tests.
+  def handleEX = {
+    val h = new Handle("ThrowEX") {
+      def f() =
+        intercept[Exception] {
+          test
+        }.asInstanceOf[Exception]
+    }
+    h()
+  }
 
   //
   // Throwing from each place in the API
   //
-
-  @Test def testBombSetterThrowEX(): Unit = runnerB.runOneTest("testBombSetterThrowEX")
-  @Test def testBombGetterThrowEX(): Unit = runnerB.runOneTest("testBombGetterThrowEX")
-  @Test def testBombReadThrowEX(): Unit = runnerB.runOneTest("testBombReadThrowEX")
-  @Test def testBombCloseInputThrowEX(): Unit = runnerB.runOneTest("testBombCloseInputThrowEX")
-  @Test def testBombWrapInputThrowEX(): Unit = runnerB.runOneTest("testBombWrapInputThrowEX")
-  @Test def testBombWrapOutputThrowEX(): Unit = runnerB.runOneTest("testBombWrapOutputThrowEX")
-  @Test def testBombWriteThrowEX(): Unit = runnerB.runOneTest("testBombWriteThrowEX")
-  @Test def testBombWriteThrowEXWithSuspension(): Unit =
-    runnerB.runOneTest("testBombWriteThrowEXWithSuspension")
-  @Test def testBombCloseOutputThrowEX(): Unit =
-    runnerB.runOneTest("testBombCloseOutputThrowEX")
-  @Test def testBombCloseOutputThrowEXWithSuspension(): Unit =
-    runnerB.runOneTest("testBombCloseOutputThrowEXWithSuspension")
-
-  //
-  // KEEP THIS STUFF - These are the tests to use if the bomb layer test rig does NOT
-  // convert all Exceptions to PEs. We might want to test it both ways.
-  //
-//  def handleEX(testName: String) = {
-//    val h = new Handle("ThrowEX") {
-//      def f(s: String) =
-//        intercept[Exception] {
-//          runnerB.runOneTest(testName)
-//        }.asInstanceOf[Exception]
-//    }
-//    h(testName)
-//  }
-//  @Test def testBombSetterThrowEX(): Unit = handleEX("testBombSetterThrowEX")
-//  @Test def testBombGetterThrowEX(): Unit = handleEX("testBombGetterThrowEX")
-//  @Test def testBombReadThrowEX(): Unit = handleEX("testBombReadThrowEX")
-//  @Test def testBombCloseInputThrowEX(): Unit = handleEX("testBombCloseInputThrowEX")
-//  @Test def testBombWrapInputThrowEX(): Unit = handleEX("testBombWrapInputThrowEX")
-//  @Test def testBombWrapOutputThrowEX(): Unit = handleEX("testBombWrapOutputThrowEX")
-//  @Test def testBombWriteThrowEX(): Unit = handleEX("testBombWriteThrowEX")
-//  @Test def testBombWriteThrowEXWithSuspension(): Unit =
-//    handleEX("testBombWriteThrowEXWithSuspension")
-//  @Test def testBombCloseOutputThrowEX(): Unit =
-//    handleEX("testBombCloseOutputThrowEX")
-//  @Test def testBombCloseOutputThrowEXWithSuspension(): Unit =
-//    handleEX("testBombCloseOutputThrowEXWithSuspension")
+  // If the bomb layer test rig does not convert all Exceptions to PE, it might be helpful to
+  // change the below "test" calls to "handleEX"
+  @Test def testBombSetterThrowEX = test
+  @Test def testBombGetterThrowEX = test
+  @Test def testBombReadThrowEX = test
+  @Test def testBombCloseInputThrowEX = test
+  @Test def testBombWrapInputThrowEX = test
+  @Test def testBombWrapOutputThrowEX = test
+  @Test def testBombWriteThrowEX = test
+  @Test def testBombWriteThrowEXWithSuspension = test
+  @Test def testBombCloseOutputThrowEX = test
+  @Test def testBombCloseOutputThrowEXWithSuspension = test
 
   //
   // Runtime Exception thrown from each place in the API
   //
   abstract class Handle(kind: String) {
-    def apply(testName: String) = {
+    def apply() = {
       val contains = testName
         .replace("testBomb", "")
         .replace(kind, "")
         .replace("WithSuspension", "")
         .toLowerCase
-      val e = f(testName)
+      val e = f()
       val cMsg = Misc.getAMessage(e)
       // println(s">>>>\n     $cMsg\n<<<<<") // keep this.
       if (cMsg == null)
@@ -160,57 +129,48 @@ class TestLayers2 {
         fail(s"'$cMsg' does not contain '$contains'.")
     }
 
-    def f(s: String): Throwable
+    def f(): Throwable
   }
 
-  def handle(testName: String) = {
+  def handle = {
     val h = new Handle("ThrowRE") {
-      def f(s: String) =
+      def f() =
         intercept[TDMLException] {
-          runnerB.runOneTest(testName)
+          test
         }.asInstanceOf[Exception]
     }
-    h(testName)
+    h()
   }
 
-  @Test def testBombSetterThrowRE(): Unit = handle("testBombSetterThrowRE")
-  @Test def testBombGetterThrowRE(): Unit = handle("testBombGetterThrowRE")
-  @Test def testBombCloseOutputThrowRE(): Unit = handle("testBombCloseOutputThrowRE")
-  @Test def testBombCloseOutputThrowREWithSuspension(): Unit = handle(
-    "testBombCloseOutputThrowREWithSuspension"
-  )
-  @Test def testBombWriteThrowRE(): Unit = handle("testBombWriteThrowRE")
-  @Test def testBombWriteThrowREWithSuspension(): Unit = handle(
-    "testBombWriteThrowREWithSuspension"
-  )
-  @Test def testBombReadThrowRE(): Unit = handle("testBombReadThrowRE")
-  @Test def testBombCloseInputThrowRE(): Unit = handle("testBombCloseInputThrowRE")
-  @Test def testBombWrapInputThrowRE(): Unit = handle("testBombWrapInputThrowRE")
-  @Test def testBombWrapOutputThrowRE(): Unit = handle("testBombWrapOutputThrowRE")
+  @Test def testBombSetterThrowRE = handle
+  @Test def testBombGetterThrowRE = handle
+  @Test def testBombCloseOutputThrowRE = handle
+  @Test def testBombCloseOutputThrowREWithSuspension = handle
+  @Test def testBombWriteThrowRE = handle
+  @Test def testBombWriteThrowREWithSuspension = handle
+  @Test def testBombReadThrowRE = handle
+  @Test def testBombCloseInputThrowRE = handle
+  @Test def testBombWrapInputThrowRE = handle
+  @Test def testBombWrapOutputThrowRE = handle
 
-  def handleA(testName: String): Unit = {
+  def handleA: Unit = {
     val h = new Handle("Abort") {
-      def f(s: String) =
+      def f() =
         intercept[Abort] {
-          runnerB.runOneTest(testName)
+          test
         }
     }
-    h(testName)
+    h()
   }
 
-  @Test def testBombSetterAbort(): Unit = handleA("testBombSetterAbort")
-  @Test def testBombGetterAbort(): Unit = handleA("testBombGetterAbort")
-  @Test def testBombCloseOutputAbort(): Unit = handleA("testBombCloseOutputAbort")
-  @Test def testBombCloseOutputAbortWithSuspension(): Unit = handleA(
-    "testBombCloseOutputAbortWithSuspension"
-  )
-  @Test def testBombWriteAbort(): Unit = handleA("testBombWriteAbort")
-  @Test def testBombWriteAbortWithSuspension(): Unit = handleA(
-    "testBombWriteAbortWithSuspension"
-  )
-  @Test def testBombReadAbort(): Unit = handleA("testBombReadAbort")
-  @Test def testBombCloseInputAbort(): Unit = handleA("testBombCloseInputAbort")
-  @Test def testBombWrapInputAbort(): Unit = handleA("testBombWrapInputAbort")
-  @Test def testBombWrapOutputAbort(): Unit = handleA("testBombWrapOutputAbort")
-
+  @Test def testBombSetterAbort = handleA
+  @Test def testBombGetterAbort = handleA
+  @Test def testBombCloseOutputAbort = handleA
+  @Test def testBombCloseOutputAbortWithSuspension = handleA
+  @Test def testBombWriteAbort = handleA
+  @Test def testBombWriteAbortWithSuspension = handleA
+  @Test def testBombReadAbort = handleA
+  @Test def testBombCloseInputAbort = handleA
+  @Test def testBombWrapInputAbort = handleA
+  @Test def testBombWrapOutputAbort = handleA
 }

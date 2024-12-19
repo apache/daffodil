@@ -17,41 +17,44 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestVariableLen {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runnerS = Runner(testDir, "variablelen.tdml", TDMLImplementation.Daffodil)
-  val runnerC = Runner(testDir, "variablelen.tdml", TDMLImplementation.DaffodilC)
-
-  @AfterClass def shutDown(): Unit = {
-    runnerS.reset()
-    runnerC.reset()
-  }
+object TestVariableLen extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/variablelen.tdml"
 }
 
-class TestVariableLen {
-  import TestVariableLen._
+class TestVariableLen extends TdmlTests {
+  val tdmlSuite = TestVariableLen
 
-  @Test def s_fixed(): Unit = { runnerS.runOneTest("fixed") }
-  @Test def s_implicit(): Unit = { runnerS.runOneTest("implicit") }
-  @Test def s_parsed(): Unit = { runnerS.runOneTest("parsed") }
-  @Test def s_expression(): Unit = { runnerS.runOneTest("expression") }
-  @Test def s_expression_00(): Unit = { runnerS.runOneTest("expression_00") }
-  @Test def s_expression_01(): Unit = { runnerS.runOneTest("expression_01") }
-  @Test def s_expression_16(): Unit = { runnerS.runOneTest("expression_16") }
-  @Test def s_expression_17(): Unit = { runnerS.runOneTest("expression_17") }
-  @Test def s_stopValue(): Unit = { runnerS.runOneTest("stopValue") }
+  @Test def fixed = test
+  @Test def implicitLen = test
+  @Test def parsed = test
+  @Test def expression = test
+  @Test def expression_00 = test
+  @Test def expression_01 = test
+  @Test def expression_16 = test
+  @Test def expression_17 = test
+  @Test def stopValue = test
+}
 
-  @Test def c_fixed(): Unit = { runnerC.runOneTest("fixed") }
-  @Test def c_expression(): Unit = { runnerC.runOneTest("expression") }
-  @Test def c_expression_00(): Unit = { runnerC.runOneTest("expression_00") }
-  @Test def c_expression_01(): Unit = { runnerC.runOneTest("expression_01") }
-  @Test def c_expression_16(): Unit = { runnerC.runOneTest("expression_16") }
-  @Test def c_expression_17_error(): Unit = { runnerC.runOneTest("expression_17_error") }
-  @Test def c_stopValue(): Unit = { runnerC.runOneTest("stopValue") }
+object TestVariableLenC extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/variablelen.tdml"
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
+}
+
+class TestVariableLenC extends TdmlTests {
+  val tdmlSuite = TestVariableLenC
+
+  @Test def fixed = test
+  @Test def expression = test
+  @Test def expression_00 = test
+  @Test def expression_01 = test
+  @Test def expression_16 = test
+  @Test def expression_17_error = test
+  @Test def stopValue = test
 }

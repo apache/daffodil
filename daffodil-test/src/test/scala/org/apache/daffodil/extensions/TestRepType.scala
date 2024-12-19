@@ -17,111 +17,63 @@
 
 package org.apache.daffodil.extensions
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestRepType {
-  val testDir = "/org/apache/daffodil/extensions/repType/"
-
-  val runner = Runner(testDir, "repType.tdml", validateTDMLFile = false)
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestRepType extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/extensions/repType/repType.tdml"
 }
 
-class TestRepType {
-  import TestRepType._
-  @Test def test_repType_keysetValue_00(): Unit = {
-    runner.runOneTest("repType_keysetValue_00")
-  }
-  @Test def test_repType_keysetValue_01(): Unit = {
-    runner.runOneTest("repType_keysetValue_01")
-  }
-  @Test def test_repType_keysetValue_02(): Unit = {
-    runner.runOneTest("repType_keysetValue_02")
-  }
+class TestRepType extends TdmlTests {
+  val tdmlSuite = TestRepType
 
-  @Test def test_repType_unparse_keysetValue_00(): Unit = {
-    runner.runOneTest("repType_unparse_keysetValue_00")
-  }
-  @Test def test_repType_unparse_keysetValue_01(): Unit = {
-    runner.runOneTest("repType_unparse_keysetValue_01")
-  }
-  @Test def test_repType_unparse_keysetValue_02(): Unit = {
-    runner.runOneTest("repType_unparse_keysetValue_02")
-  }
+  @Test def repType_keysetValue_00 = test
+  @Test def repType_keysetValue_01 = test
+  @Test def repType_keysetValue_02 = test
 
-  @Test def test_inherited_LengthKind(): Unit = { runner.runOneTest("inherited_LengthKind") }
+  @Test def repType_unparse_keysetValue_00 = test
+  @Test def repType_unparse_keysetValue_01 = test
+  @Test def repType_unparse_keysetValue_02 = test
 
-  @Test def test_valueNotFound_1(): Unit = { runner.runOneTest("valueNotFound_1") }
-  @Test def test_unparseValueNotFound_1(): Unit = {
-    runner.runOneTest("unparseValueNotFound_1")
-  }
-  @Test def test_valueNotFound_2(): Unit = { runner.runOneTest("valueNotFound_2") }
-  @Test def test_unparseValueNotFound_2(): Unit = {
-    runner.runOneTest("unparseValueNotFound_2")
-  }
+  @Test def inherited_LengthKind = test
 
-  @Test def test_primitiveRep_invalid(): Unit = { runner.runOneTest("primitiveRep_invalid_01") }
+  @Test def valueNotFound_1 = test
+  @Test def unparseValueNotFound_1 = test
+  @Test def valueNotFound_2 = test
+  @Test def unparseValueNotFound_2 = test
 
-  @Test def test_repType_overlap_01(): Unit = { runner.runOneTest("repType_overlap_01") }
-  @Test def test_repType_bad_range_01(): Unit = { runner.runOneTest("repType_bad_range_01") }
-  @Test def test_repType_odd_range_01(): Unit = { runner.runOneTest("repType_odd_range_01") }
-  @Test def test_repType_complex_01(): Unit = { runner.runOneTest("repType_complex_01") }
-  @Test def test_repType_no_restriction_01(): Unit = {
-    runner.runOneTest("repType_no_restriction_01")
-  }
-  @Test def test_repType_no_enumerations_01(): Unit = {
-    runner.runOneTest("repType_no_enumerations_01")
-  }
+  @Test def primitiveRep_invalid_01 = test
 
-  @Test def test_repType_immediate_01(): Unit = { runner.runOneTest("repType_immediate_01") }
-  @Test def test_repType_immediate_02(): Unit = { runner.runOneTest("repType_immediate_02") }
-  @Test def test_repType_indirection_01(): Unit = {
-    runner.runOneTest("repType_indirection_01")
-  }
+  @Test def repType_overlap_01 = test
+  @Test def repType_bad_range_01 = test
+  @Test def repType_odd_range_01 = test
+  @Test def repType_complex_01 = test
+  @Test def repType_no_restriction_01 = test
+  @Test def repType_no_enumerations_01 = test
 
-  @Test def test_repType_length_facet_01(): Unit = {
-    runner.runOneTest("repType_length_facet_01")
-  }
-  @Test def test_repType_length_facet_02(): Unit = {
-    runner.runOneTest("repType_length_facet_02")
-  }
-  @Test def test_repType_length_facet_03(): Unit = {
-    runner.runOneTest("repType_length_facet_03")
-  }
-  @Test def test_repType_length_facet_04(): Unit = {
-    runner.runOneTest("repType_length_facet_04")
-  }
-  @Test def test_repType_length_facet_05(): Unit = {
-    runner.runOneTest("repType_length_facet_05")
-  }
-  @Test def test_repType_length_facet_06(): Unit = {
-    runner.runOneTest("repType_length_facet_06")
-  }
+  @Test def repType_immediate_01 = test
+  @Test def repType_immediate_02 = test
+  @Test def repType_indirection_01 = test
 
-  @Test def test_repType_negative_01(): Unit = { runner.runOneTest("repType_negative_01") }
-  @Test def test_repType_negative_02(): Unit = { runner.runOneTest("repType_negative_02") }
-  @Test def test_repType_negative_03(): Unit = { runner.runOneTest("repType_negative_03") }
-  @Test def test_repType_negative_04(): Unit = { runner.runOneTest("repType_negative_04") }
+  @Test def repType_length_facet_01 = test
+  @Test def repType_length_facet_02 = test
+  @Test def repType_length_facet_03 = test
+  @Test def repType_length_facet_04 = test
+  @Test def repType_length_facet_05 = test
+  @Test def repType_length_facet_06 = test
 
-  @Test def test_repType_hiddenGroup_01(): Unit = {
-    runner.runOneTest("repType_hiddenGroup_01")
-  }
+  @Test def repType_negative_01 = test
+  @Test def repType_negative_02 = test
+  @Test def repType_negative_03 = test
+  @Test def repType_negative_04 = test
 
-  @Test def test_repType_different_namespaces_01(): Unit = {
-    runner.runOneTest("repType_different_namespaces_01")
-  }
+  @Test def repType_hiddenGroup_01 = test
 
-  @Test def test_repValuesWithSpaces_01(): Unit = {
-    runner.runOneTest("repValuesWithSpaces_01")
-  }
+  @Test def repType_different_namespaces_01 = test
 
-  @Test def test_repValuesWithSpaces_02(): Unit = {
-    runner.runOneTest("repValuesWithSpaces_02")
-  }
+  @Test def repValuesWithSpaces_01 = test
+
+  @Test def repValuesWithSpaces_02 = test
 }

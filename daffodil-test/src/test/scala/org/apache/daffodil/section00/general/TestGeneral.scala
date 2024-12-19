@@ -21,62 +21,54 @@ package org.apache.daffodil.section00.general
  * not related to any specific requirement
  */
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.Implicits.intercept
-import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Assert._
+import org.junit.Ignore
 import org.junit.Test
 
-object TestGeneral {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "general.tdml")
-
-  val runner1 = Runner(testDir, "largeInput.tdml")
-
-  val testDir2 = "/test space/"
-  val runnerA_B = Runner(testDir2, "A BTinyData.tdml.dat")
-
-  val testDir3 = "/test space/test 1/"
-  val runner_ns = Runner(testDir3, "namespaces.tdml")
-
-  val tunables_runner = Runner(testDir, "tunables.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runner1.reset
-    runnerA_B.reset
-    runner_ns.reset
-    tunables_runner.reset
-  }
+object TestGeneral extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/general.tdml"
 }
 
-class TestGeneral {
+class TestGeneral extends TdmlTests {
+  val tdmlSuite = TestGeneral
 
-  import TestGeneral._
+  @Test def check_no_namespace_message = test
+  @Test def capitalization = test
 
-  @Test def test_check_no_namespace_message(): Unit = {
-    runner.runOneTest("check_no_namespace_message")
-  }
+  @Test def litNil1 = test
+  @Test def litNil1FullPath = test
+  @Test def referentialIntegrity = test
 
-  @Test def test_capitalization(): Unit = { runner.runOneTest("capitalization") }
-
-  @Test def test_litNil1(): Unit = { runner.runOneTest("litNil1") }
-  @Test def test_litNil1FullPath(): Unit = { runner.runOneTest("litNil1FullPath") }
-  @Test def test_referentialIntegrity(): Unit = { runner.runOneTest("referentialIntegrity") }
-
-  @Test def test_nameAndRefError_01(): Unit = { runner.runOneTest("nameAndRefError_01") }
+  @Test def nameAndRefError_01 = test
 
   // Test causes exception as the file is not found
-  // @Test def test_fileDNE() { runner.runOneTest("fileDNE") }
+  @Ignore @Test def fileDNE = test
+}
 
-  @Test def test_largeInput_01(): Unit = { runner1.runOneTest("largeInput_01") }
+object TestLargeInput extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/largeInput.tdml"
+}
 
-  @Test def test_dir_and_file_with_spaces(): Unit = {
+class TestLargeInput extends TdmlTests {
+  val tdmlSuite = TestLargeInput
+
+  @Test def largeInput_01 = test
+}
+
+object TestSpace1 extends TdmlSuite {
+  val tdmlResource = "/test space/A BTinyData.tdml.dat"
+}
+
+class TestSpace1 extends TdmlTests {
+  val tdmlSuite = TestSpace1
+
+  @Test def AB006 = {
     try {
-      val e = intercept[Exception] {
-        runnerA_B.runOneTest("AB006")
-      }
+      val e = intercept[Exception] { test }
       val m = e.getMessage()
       assertTrue(m.toLowerCase.contains("required resource"))
       assertTrue(m.contains("/test%20space/A%20BTinyData.tdml.dat"))
@@ -86,96 +78,59 @@ class TestGeneral {
         println("FUBAR")
     }
   }
+}
 
-  @Test def test_no_namespace_02(): Unit = {
-    val e = intercept[Exception] {
-      runner_ns.runOneTest("no_namespace_02")
-    }
+object TestSpace2 extends TdmlSuite {
+  val tdmlResource = "/test space/test 1/namespaces.tdml"
+}
+
+class TestSpace2 extends TdmlTests {
+  val tdmlSuite = TestSpace2
+
+  @Test def no_namespace_02(): Unit = {
+    val e = intercept[Exception] { test }
     val m = e.getMessage()
     assertTrue(m.toLowerCase.contains("required resource"))
     assertTrue(m.contains("/test%20space/test%201/namespaces.tdml"))
     assertTrue(m.toLowerCase.contains("not found"))
   }
+}
 
-  @Test def test_unqualifiedPathStepPolicy_test_01_defaultNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_defaultNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_01_preferDefaultNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_preferDefaultNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_01_noNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_01_noNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_02_defaultNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_defaultNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_02_preferDefaultNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_preferDefaultNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_02_noNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_02_noNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_03_defaultNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_defaultNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_03_preferDefaultNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_preferDefaultNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_03_noNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_03_noNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_04_defaultNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_defaultNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_04_preferDefaultNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_preferDefaultNamespace")
-  }
-  @Test def test_unqualifiedPathStepPolicy_test_04_noNamespace(): Unit = {
-    tunables_runner.runOneTest("unqualifiedPathStepPolicy_test_04_noNamespace")
-  }
+object TestTunables extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/tunables.tdml"
+}
 
-  @Test def test_maxOccursBoundsExceeded(): Unit = {
-    tunables_runner.runOneTest("maxOccursBoundsExceeded")
-  }
-  @Test def test_textBidiYes(): Unit = { tunables_runner.runOneTest("textBidiYes") }
-  @Test def test_requireTextBidiTrue(): Unit = {
-    tunables_runner.runOneTest("requireTextBidiTrue")
-  }
-  @Test def test_requireTextBidiFalse(): Unit = {
-    tunables_runner.runOneTest("requireTextBidiFalse")
-  }
-  @Test def test_floatingYes(): Unit = { tunables_runner.runOneTest("floatingYes") }
-  @Test def test_requireFloatingTrue(): Unit = {
-    tunables_runner.runOneTest("requireFloatingTrue")
-  }
-  @Test def test_requireFloatingFalse(): Unit = {
-    tunables_runner.runOneTest("requireFloatingFalse")
-  }
-  @Test def test_encodingErrorPolicyError(): Unit = {
-    tunables_runner.runOneTest("encodingErrorPolicyError")
-  }
-  @Test def test_requireEncodingErrorPolicyTrue(): Unit = {
-    tunables_runner.runOneTest("requireEncodingErrorPolicyTrue")
-  }
-  @Test def test_requireEncodingErrorPolicyFalse(): Unit = {
-    tunables_runner.runOneTest("requireEncodingErrorPolicyFalse")
-  }
-  @Test def test_maxHexBinaryError(): Unit = { tunables_runner.runOneTest("maxHexBinaryError") }
-  @Test def test_maxHexBinaryUnparseError(): Unit = {
-    tunables_runner.runOneTest("maxHexBinaryUnparseError")
-  }
+class TestTunables extends TdmlTests {
+  val tdmlSuite = TestTunables
 
-  @Test def test_invalidRestrictionPolicyError_01(): Unit = {
-    tunables_runner.runOneTest("invalidRestrictionPolicyError_01")
-  }
-  @Test def test_invalidRestrictionPolicyIgnore_01(): Unit = {
-    tunables_runner.runOneTest("invalidRestrictionPolicyIgnore_01")
-  }
-  @Test def test_invalidRestrictionPolicyValidate_01(): Unit = {
-    tunables_runner.runOneTest("invalidRestrictionPolicyValidate_01")
-  }
-  @Test def test_invalidRestrictionPolicyValidate_02(): Unit = {
-    tunables_runner.runOneTest("invalidRestrictionPolicyValidate_02")
-  }
+  @Test def unqualifiedPathStepPolicy_test_01_defaultNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_01_preferDefaultNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_01_noNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_02_defaultNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_02_preferDefaultNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_02_noNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_03_defaultNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_03_preferDefaultNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_03_noNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_04_defaultNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_04_preferDefaultNamespace = test
+  @Test def unqualifiedPathStepPolicy_test_04_noNamespace = test
 
+  @Test def maxOccursBoundsExceeded = test
+  @Test def textBidiYes = test
+  @Test def requireTextBidiTrue = test
+  @Test def requireTextBidiFalse = test
+  @Test def floatingYes = test
+  @Test def requireFloatingTrue = test
+  @Test def requireFloatingFalse = test
+  @Test def encodingErrorPolicyError = test
+  @Test def requireEncodingErrorPolicyTrue = test
+  @Test def requireEncodingErrorPolicyFalse = test
+  @Test def maxHexBinaryError = test
+  @Test def maxHexBinaryUnparseError = test
+
+  @Test def invalidRestrictionPolicyError_01 = test
+  @Test def invalidRestrictionPolicyIgnore_01 = test
+  @Test def invalidRestrictionPolicyValidate_01 = test
+  @Test def invalidRestrictionPolicyValidate_02 = test
 }
