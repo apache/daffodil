@@ -171,21 +171,34 @@ final class SchemaSet private (
   lazy val schemaFileList = schemas.map(s => s.uriString)
 
   private lazy val isValid: Boolean = {
-    //
-    // We use keepGoing here, because we want to gather a validation error,
-    // suppress further propagation of it, and return false.
-    //
-    val isV = OOLAG.keepGoing(false) {
-      val files = allSchemaFiles
-      val fileValids = files.map {
-        _.isValid
+    if (!shouldValidateDFDLSchemas)
+      true // pretend it's valid though for some specific tests it may not be
+    else {
+      //
+      // We use keepGoing here, because we want to gather a validation error,
+      // suppress further propagation of it, and return false.
+      //
+      val isEachFileIndividuallyValid = OOLAG.keepGoing(false) {
+        val files = allSchemaFiles
+        val fileValids = files.map {
+          _.isValid
+        }
+        val res = fileValids.length > 0 && fileValids.fold(true) {
+          _ && _
+        }
+        res
       }
-      val res = fileValids.length > 0 && fileValids.fold(true) {
-        _ && _
+      val isEntireSchemaValidAsAnXSD: Boolean = OOLAG.keepGoing(false) {
+        this.root.xmlSchemaDocument.schemaFile
+          .map { primaryDfdlSchemaFile =>
+            primaryDfdlSchemaFile.isValidAsCompleteDFDLSchema
+          }
+          .getOrElse(true)
       }
+
+      val res = isEachFileIndividuallyValid && isEntireSchemaValidAsAnXSD
       res
     }
-    isV
   }
 
   lazy val validationDiagnostics = {
@@ -369,7 +382,7 @@ final class SchemaSet private (
    * Or, you can leave the root unspecified, and this method will determine it from the
    * first element declaration of the first schema file.
    */
-  lazy val root: Root = {
+  lazy val root: Root = LV('root) {
     val re: GlobalElementDecl =
       optPFRootSpec match {
         case Some(rs) =>
@@ -393,7 +406,7 @@ final class SchemaSet private (
         case _ => Assert.invariantFailed("illegal combination of root element specifications")
       }
     re.asRoot
-  }
+  }.value
 
   /**
    * Retrieve schema by namespace
@@ -670,7 +683,7 @@ final class SchemaSet private (
    * and finally the AST objects are checked for errors, which recursively
    * demands that all other aspects of compilation occur.
    */
-  override def isError: Boolean = {
+  override lazy val isError: Boolean = {
     if (!isValid) true
     else if (
       // use keepGoing so we can capture errors and
@@ -681,6 +694,15 @@ final class SchemaSet private (
       }
     ) true
     else {
+      // we must check for errors here via the super method, as that iterates over
+      // all the objects evaluating them for any errors in their required evaluations.
+      // This has to be after everything else that could report an error here (on some
+      // other object) has been done.
+      //
+      // That is to say, if we called super.isError at the top of this method that would
+      // be incorrect since isValid and areComponentsConstructed above might cause errors
+      // to be recorded or objects created that this call to super.isError would then not
+      // take into account.
       val hasErrors = super.isError
       if (!hasErrors) {
         // must be called after compilation is done

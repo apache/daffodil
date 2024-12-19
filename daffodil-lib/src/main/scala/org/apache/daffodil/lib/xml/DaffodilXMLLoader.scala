@@ -543,9 +543,40 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   }
 
   /**
+   * checks that a DFDL schema file, viewed as an XML document is valid
+   * relative to the XML Schema for DFDL Schemas.
+   *
+   * For example this ensures that you can only have minOccurs and maxOccurs
+   * on local element declarations and element refs, not on sequence/choice/group.
+   */
+  def validateAsIndividualDFDLSchemaFile(source: DaffodilSchemaSource): Unit = {
+    // first we load it, with validation explicitly against the
+    // schema for DFDL Schemas.
+    try {
+      load(source, Some(XMLUtils.schemaForDFDLSchemas), addPositionAttributes = true)
+    } catch {
+      // fatal errors are thrown.
+      // validation errors are never fatal.
+      case e: SAXParseException => {
+        // Capturing this would be redundant.
+        // It will already have been passed to the errorHandler.fatalError
+        // method.
+        // So it is explicitly ok to just rethrow this exception.
+        // we don't want to record it again, but we do want to stop with a
+        // fatal error because the schema was invalid. Daffodil assumes the
+        // schema is valid all over its code base.
+        throw e
+      }
+    }
+  }
+
+  /**
    * This loads the DFDL schema as an XML Schema. This will
    * check many more things (ex: UPA) about the DFDL schema other than
    * just whether it validates against the XML Schema for DFDL schemas.
+   *
+   * This should only be called once, for the entire schema, not per file of
+   * the schema.
    *
    * Unfortunately, we don't have control over how Xerces loads up these schemas
    * (other than the resolver anyway), so we can't really redirect the way
@@ -562,13 +593,10 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    * on the XMLUtils.setSecureDefaults, so we don't need to
    * further check that here.
    */
-  def validateAsDFDLSchema(source: DaffodilSchemaSource): Unit = {
-    // first we load it, with validation explicitly against the
-    // schema for DFDL Schemas.
+  def validateAsCompleteDFDLSchema(source: DaffodilSchemaSource): Boolean = {
     try {
-      load(source, Some(XMLUtils.schemaForDFDLSchemas), addPositionAttributes = true)
       //
-      // Then we validate explicitly so Xerces can check things
+      // We validate explicitly so Xerces can check things
       // such as for UPA violations
       //
       val inputSource = source.newInputSource()
@@ -584,6 +612,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       } finally {
         inputSource.getByteStream().close()
       }
+      true
     } catch {
       // fatal errors are thrown.
       // validation errors are never fatal.
@@ -598,7 +627,6 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
         throw e
       }
     }
-
   }
 
   // $COVERAGE-OFF$ These three functions should only be used if someone calls one of the
