@@ -17,23 +17,17 @@
 
 package org2
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestPayloadAndTypes {
-  val runner = Runner("org2", "testPayloadAndTypes.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestPayloadAndTypes extends TdmlSuite {
+  val tdmlResource = "/org2/testPayloadAndTypes.tdml"
 }
 
-class TestPayloadAndTypes {
+class TestPayloadAndTypes extends TdmlTests {
+  val tdmlSuite = TestPayloadAndTypes
 
-  import TestPayloadAndTypes._
-
-  @Test def test_data_01() = { runner.runOneTest("data_01") }
-
+  @Test def data_01 = test
 }

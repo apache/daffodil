@@ -17,37 +17,35 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestSimple {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runner = Runner(testDir, "simple.tdml", TDMLImplementation.DaffodilC)
+object TestSimple extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/simple.tdml"
 
-  @AfterClass def shutDown(): Unit = { runner.reset() }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
 }
 
-class TestSimple {
-  import TestSimple._
+class TestSimple extends TdmlTests {
+  val tdmlSuite = TestSimple
 
-  @Test def simple_boolean(): Unit = { runner.runOneTest("simple-boolean") }
-  @Test def simple_byte(): Unit = { runner.runOneTest("simple-byte") }
-  @Test def simple_double(): Unit = { runner.runOneTest("simple-double") }
-  @Test def simple_float(): Unit = { runner.runOneTest("simple-float") }
-  @Test def simple_hexBinary(): Unit = { runner.runOneTest("simple-hexBinary") }
-  @Test def simple_hexBinaryPrefixed(): Unit = { runner.runOneTest("simple-hexBinaryPrefixed") }
-  @Test def simple_int(): Unit = { runner.runOneTest("simple-int") }
-  @Test def simple_integer(): Unit = { runner.runOneTest("simple-integer") }
-  @Test def simple_long(): Unit = { runner.runOneTest("simple-long") }
-  @Test def simple_nonNegativeInteger(): Unit = {
-    runner.runOneTest("simple-nonNegativeInteger")
-  }
-  @Test def simple_short(): Unit = { runner.runOneTest("simple-short") }
-  @Test def simple_unsignedByte(): Unit = { runner.runOneTest("simple-unsignedByte") }
-  @Test def simple_unsignedInt(): Unit = { runner.runOneTest("simple-unsignedInt") }
-  @Test def simple_unsignedLong(): Unit = { runner.runOneTest("simple-unsignedLong") }
-  @Test def simple_unsignedShort(): Unit = { runner.runOneTest("simple-unsignedShort") }
+  @Test def simple_boolean = test
+  @Test def simple_byte = test
+  @Test def simple_double = test
+  @Test def simple_float = test
+  @Test def simple_hexBinary = test
+  @Test def simple_hexBinaryPrefixed = test
+  @Test def simple_int = test
+  @Test def simple_integer = test
+  @Test def simple_long = test
+  @Test def simple_nonNegativeInteger = test
+  @Test def simple_short = test
+  @Test def simple_unsignedByte = test
+  @Test def simple_unsignedInt = test
+  @Test def simple_unsignedLong = test
+  @Test def simple_unsignedShort = test
 }

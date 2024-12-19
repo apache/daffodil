@@ -16,47 +16,25 @@
  */
 package org.apache.daffodil.extensions
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestChoiceBranchKeyRanges {
-  val testDir = "/org/apache/daffodil/extensions/choiceBranchRanges/"
-
-  val runner = Runner(testDir, "choiceBranchKeyRanges.tdml", validateTDMLFile = true)
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestChoiceBranchKeyRanges extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/extensions/choiceBranchRanges/choiceBranchKeyRanges.tdml"
 }
 
-class TestChoiceBranchKeyRanges {
-  import TestChoiceBranchKeyRanges._
+class TestChoiceBranchKeyRanges extends TdmlTests {
+  val tdmlSuite = TestChoiceBranchKeyRanges
 
-  @Test def test_choiceBranchKeyRanges_01(): Unit = {
-    runner.runOneTest("choiceBranchKeyRanges_01")
-  }
-  @Test def test_choiceBranchKeyRanges_overlap_01(): Unit = {
-    runner.runOneTest("choiceBranchKeyRanges_overlap_01")
-  }
-  @Test def test_choiceBranchKeyRanges_overlap_02(): Unit = {
-    runner.runOneTest("choiceBranchKeyRanges_overlap_02")
-  }
-  @Test def test_choiceBranchKeyRanges_overlap_03(): Unit = {
-    runner.runOneTest("choiceBranchKeyRanges_overlap_03")
-  }
-  @Test def test_choiceBranchKeyRanges_oddLength_01(): Unit = {
-    runner.runOneTest("choiceBranchKeyRanges_oddLength_01")
-  }
-  @Test def test_choiceBranchKeyRanges_badOrder_01(): Unit = {
-    runner.runOneTest("choiceBranchKeyRanges_badOrder_01")
-  }
-  @Test def test_choiceBranchKeyRanges_nonintDispatch_01(): Unit = {
-    runner.runOneTest("choiceBranchKeyRanges_nonintDispatch_01")
-  }
-  @Test def test_choiceBranchKeyRanges_nonintDispatch_02(): Unit = {
-    runner.runOneTest("choiceBranchKeyRanges_nonintDispatch_02")
-  }
+  @Test def choiceBranchKeyRanges_01 = test
+  @Test def choiceBranchKeyRanges_overlap_01 = test
+  @Test def choiceBranchKeyRanges_overlap_02 = test
+  @Test def choiceBranchKeyRanges_overlap_03 = test
+  @Test def choiceBranchKeyRanges_oddLength_01 = test
+  @Test def choiceBranchKeyRanges_badOrder_01 = test
+  @Test def choiceBranchKeyRanges_nonintDispatch_01 = test
+  @Test def choiceBranchKeyRanges_nonintDispatch_02 = test
 }

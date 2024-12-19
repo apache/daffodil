@@ -17,30 +17,22 @@
 
 package org.apache.daffodil.section14.sequence_groups
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestSequenceGroupNestedArray {
-
-  val testDir_01 = "/org/apache/daffodil/section14/sequence_groups/"
-
-  val runner = Runner(testDir_01, "SequenceGroupNestedArray.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestSequenceGroupNestedArray extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section14/sequence_groups/SequenceGroupNestedArray.tdml"
 }
 
-class TestSequenceGroupNestedArray {
+class TestSequenceGroupNestedArray extends TdmlTests {
+  val tdmlSuite = TestSequenceGroupNestedArray
 
-  import TestSequenceGroupNestedArray._
-
-  @Test def test_csv_nohang_1(): Unit = { runner.runOneTest("csv_nohang_1") }
+  @Test def csv_nohang_1 = test
   // DAFFODIL-2487 hang when minOccurs="0"
-  @Test def test_csv_hang_1(): Unit = { runner.runOneTest("csv_hang_1") }
-  @Test def test_csv_hang_2(): Unit = { runner.runOneTest("csv_hang_2") }
-  @Test def test_csv_hang_3(): Unit = { runner.runOneTest("csv_hang_3") }
+  @Test def csv_hang_1 = test
+  @Test def csv_hang_2 = test
+  @Test def csv_hang_3 = test
 }

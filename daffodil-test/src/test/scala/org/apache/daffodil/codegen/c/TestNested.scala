@@ -17,27 +17,27 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestNested {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runner = Runner(testDir, "nested.tdml", TDMLImplementation.DaffodilC)
+object TestNested extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/nested.tdml"
 
-  @AfterClass def shutDown(): Unit = { runner.reset() }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
 }
 
-class TestNested {
-  import TestNested._
+class TestNested extends TdmlTests {
+  val tdmlSuite = TestNested
 
-  @Test def test_nested_struct(): Unit = { runner.runOneTest("nested.struct") }
-  @Test def test_nested_struct_diag1(): Unit = { runner.runOneTest("nested.struct.diag1") }
-  @Test def test_nested_struct_diag2(): Unit = { runner.runOneTest("nested.struct.diag2") }
-  @Test def test_nested_struct_err1(): Unit = { runner.runOneTest("nested.struct.err1") }
-  @Test def test_nested_struct_err2(): Unit = { runner.runOneTest("nested.struct.err2") }
-  @Test def test_nested_union_bar(): Unit = { runner.runOneTest("nested.union.bar") }
-  @Test def test_nested_union_foo(): Unit = { runner.runOneTest("nested.union.foo") }
+  @Test def nested_struct = test
+  @Test def nested_struct_diag1 = test
+  @Test def nested_struct_diag2 = test
+  @Test def nested_struct_err1 = test
+  @Test def nested_struct_err2 = test
+  @Test def nested_union_bar = test
+  @Test def nested_union_foo = test
 }

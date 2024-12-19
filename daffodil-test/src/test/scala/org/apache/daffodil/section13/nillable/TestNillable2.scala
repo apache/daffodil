@@ -17,40 +17,20 @@
 
 package org.apache.daffodil.section13.nillable
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestNillable2 {
-  val testDir = "/org/apache/daffodil/section13/nillable/"
-
-  val runner = Runner(testDir, "nillable2.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestNillable2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/nillable/nillable2.tdml"
 }
 
-class TestNillable2 {
+class TestNillable2 extends TdmlTests {
+  val tdmlSuite = TestNillable2
 
-  import TestNillable2._
-
-  @Test def test_foo1(): Unit = {
-    runner.runOneTest("foo1")
-  }
-
-  @Test def test_foo2(): Unit = {
-    runner.runOneTest("foo2")
-  }
-
-  @Test def test_foo3(): Unit = {
-    runner.runOneTest("foo3")
-  }
-
-  @Test def test_foo4(): Unit = {
-    runner.runOneTest("foo4")
-  }
-
+  @Test def foo1 = test
+  @Test def foo2 = test
+  @Test def foo3 = test
+  @Test def foo4 = test
 }

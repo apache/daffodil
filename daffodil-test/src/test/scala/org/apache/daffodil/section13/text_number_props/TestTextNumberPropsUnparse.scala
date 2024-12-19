@@ -17,106 +17,59 @@
 
 package org.apache.daffodil.section13.text_number_props
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestTextNumberPropsUnparse {
-  val testDir = "/org/apache/daffodil/section13/text_number_props/"
-
-  val runner = Runner(testDir, "TextNumberPropsUnparse.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestTextNumberPropsUnparse extends TdmlSuite {
+  val tdmlResource =
+    "/org/apache/daffodil/section13/text_number_props/TextNumberPropsUnparse.tdml"
 }
-class TestTextNumberPropsUnparse {
 
-  import TestTextNumberPropsUnparse._
+class TestTextNumberPropsUnparse extends TdmlTests {
+  val tdmlSuite = TestTextNumberPropsUnparse
 
-  @Test def test_unparseDelimitedPaddedString01(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString01")
-  }
-  @Test def test_unparseDelimitedPaddedString02(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString02")
-  }
-  @Test def test_unparseDelimitedPaddedString03(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString03")
-  }
-  @Test def test_unparseDelimitedPaddedString04(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString04")
-  }
-  @Test def test_unparseDelimitedPaddedString05(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString05")
-  }
-  @Test def test_unparseDelimitedPaddedString06(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString06")
-  }
-  @Test def test_unparseDelimitedPaddedString07(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString07")
-  }
-  @Test def test_unparseDelimitedPaddedString08(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString08")
-  }
-  @Test def test_unparseDelimitedPaddedString09(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString09")
-  }
-  @Test def test_unparseDelimitedPaddedString11(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString11")
-  }
-  @Test def test_unparseDelimitedPaddedString12(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString12")
-  }
-  @Test def test_unparseDelimitedPaddedString13(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString13")
-  }
-  @Test def test_unparseDelimitedPaddedString14(): Unit = {
-    runner.runOneTest("unparseDelimitedPaddedString14")
-  }
+  @Test def unparseDelimitedPaddedString01 = test
+  @Test def unparseDelimitedPaddedString02 = test
+  @Test def unparseDelimitedPaddedString03 = test
+  @Test def unparseDelimitedPaddedString04 = test
+  @Test def unparseDelimitedPaddedString05 = test
+  @Test def unparseDelimitedPaddedString06 = test
+  @Test def unparseDelimitedPaddedString07 = test
+  @Test def unparseDelimitedPaddedString08 = test
+  @Test def unparseDelimitedPaddedString09 = test
+  @Test def unparseDelimitedPaddedString11 = test
+  @Test def unparseDelimitedPaddedString12 = test
+  @Test def unparseDelimitedPaddedString13 = test
+  @Test def unparseDelimitedPaddedString14 = test
 
-  @Test def test_unparsePaddedString10(): Unit = { runner.runOneTest("unparsePaddedString10") }
-  @Test def test_unparsePaddedString11(): Unit = { runner.runOneTest("unparsePaddedString11") }
-  @Test def test_unparsePaddedString12(): Unit = { runner.runOneTest("unparsePaddedString12") }
+  @Test def unparsePaddedString10 = test
+  @Test def unparsePaddedString11 = test
+  @Test def unparsePaddedString12 = test
 
-  @Test def test_unparsePaddedStringTruncate01(): Unit = {
-    runner.runOneTest("unparsePaddedStringTruncate01")
-  }
-  @Test def test_unparsePaddedStringTruncate02(): Unit = {
-    runner.runOneTest("unparsePaddedStringTruncate02")
-  }
-  @Test def test_unparsePaddedStringTruncate03(): Unit = {
-    runner.runOneTest("unparsePaddedStringTruncate03")
-  }
-  @Test def test_unparsePaddedStringTruncate04(): Unit = {
-    runner.runOneTest("unparsePaddedStringTruncate04")
-  }
-  @Test def test_unparsePaddedStringTruncate05(): Unit = {
-    runner.runOneTest("unparsePaddedStringTruncate05")
-  }
-  @Test def test_unparsePaddedStringTruncate06(): Unit = {
-    runner.runOneTest("unparsePaddedStringTruncate06")
-  }
+  @Test def unparsePaddedStringTruncate01 = test
+  @Test def unparsePaddedStringTruncate02 = test
+  @Test def unparsePaddedStringTruncate03 = test
+  @Test def unparsePaddedStringTruncate04 = test
+  @Test def unparsePaddedStringTruncate05 = test
+  @Test def unparsePaddedStringTruncate06 = test
 
-  @Test def test_parseDelimitedPaddedString01(): Unit = {
-    runner.runOneTest("parseDelimitedPaddedString01")
-  }
+  @Test def parseDelimitedPaddedString01 = test
 
-  @Test def test_unparse_int_01(): Unit = { runner.runOneTest("unparse_int_01") }
-  @Test def test_parse_int_01(): Unit = { runner.runOneTest("parse_int_01") }
+  @Test def unparse_int_01 = test
+  @Test def parse_int_01 = test
 
-  @Test def test_unparse_tnp_01(): Unit = { runner.runOneTest("unparse_tnp_01") }
-  @Test def test_unparse_tnp_02(): Unit = { runner.runOneTest("unparse_tnp_02") }
-  @Test def test_unparse_tnp_03(): Unit = { runner.runOneTest("unparse_tnp_03") }
-  @Test def test_unparse_tnp_04(): Unit = { runner.runOneTest("unparse_tnp_04") }
-  @Test def test_unparse_tnp_05a(): Unit = { runner.runOneTest("unparse_tnp_05a") }
-  @Test def test_unparse_tnp_05b(): Unit = { runner.runOneTest("unparse_tnp_05b") }
+  @Test def unparse_tnp_01 = test
+  @Test def unparse_tnp_02 = test
+  @Test def unparse_tnp_03 = test
+  @Test def unparse_tnp_04 = test
+  @Test def unparse_tnp_05a = test
+  @Test def unparse_tnp_05b = test
 
-  @Test def test_textStandardZeroRepNotDefinedByDefault(): Unit =
-    runner.runOneTest("textStandardZeroRepNotDefinedByDefault")
+  @Test def textStandardZeroRepNotDefinedByDefault = test
 
-  @Test def test_textStandardZeroRep1(): Unit = runner.runOneTest("textStandardZeroRep1")
+  @Test def textStandardZeroRep1 = test
 
-  @Test def test_textStandardZeroRep2(): Unit = runner.runOneTest("textStandardZeroRep2")
-
+  @Test def textStandardZeroRep2 = test
 }

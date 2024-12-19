@@ -17,108 +17,70 @@
 
 package org.apache.daffodil.section12.lengthKind
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
 import org.junit.Test
 
-object TestLengthKindPattern {
-
-  val testDir = "/org/apache/daffodil/section12/lengthKind/"
-
-  val runner = Runner(testDir, "PatternTests.tdml")
-
-  val runnerAI = Runner(testDir, "AI.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runnerAI.reset
-  }
+object TestLengthKindPattern extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section12/lengthKind/PatternTests.tdml"
 }
 
-class TestLengthKindPattern {
+object TestLengthKindPatternAI extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section12/lengthKind/AI.tdml"
+}
 
-  import TestLengthKindPattern._
+class TestLengthKindPattern extends TdmlTests {
+  val tdmlSuite = TestLengthKindPattern
 
-  @Test def test_unmatchedPattern01(): Unit = { runner.runOneTest("unmatchedPattern01") }
-  @Test def test_unmatchedPattern02(): Unit = { runner.runOneTest("unmatchedPattern02") }
-  @Test def test_unmatchedPattern03(): Unit = { runner.runOneTest("unmatchedPattern03") }
+  @Test def unmatchedPattern01 = test
+  @Test def unmatchedPattern02 = test
+  @Test def unmatchedPattern03 = test
 
-  @Test def test_invalid_pattern(): Unit = { runner.runOneTest("invalid_pattern") }
-  @Test def test_invalid_pattern2(): Unit = { runner.runOneTest("invalid_pattern2") }
-  @Test def test_invalid_pattern3(): Unit = { runner.runOneTest("invalid_pattern3") }
+  @Test def invalid_pattern = test
+  @Test def invalid_pattern2 = test
+  @Test def invalid_pattern3 = test
 
-  @Test def test_AI000_rev(): Unit = { runner.runOneTest("AI000_rev") } // round trip
-  @Test def test_LengthKindPattern(): Unit = {
-    runner.runOneTest("LengthKindPattern")
-  } // round trip
-  @Test def test_LengthKindPatternCompound(): Unit = {
-    runner.runOneTest("LengthKindPatternCompound")
-  }
-  @Test def test_LengthKindPatternCompound2(): Unit = {
-    runner.runOneTest("LengthKindPatternCompound2")
-  } // round trip
-  @Test def test_lengthKindPattern_01(): Unit = {
-    runner.runOneTest("lengthKindPattern_01")
-  } // round trip
-  @Test def test_lengthKindPattern_02(): Unit = {
-    runner.runOneTest("lengthKindPattern_02")
-  } // round trip
-  @Test def test_lengthKindPattern_03(): Unit = {
-    runner.runOneTest("lengthKindPattern_03")
-  } // round trip
-  @Test def test_lengthKindPattern_04(): Unit = {
-    runner.runOneTest("lengthKindPattern_04")
-  } // round trip
+  @Test def AI000_rev = test
+  @Test def LengthKindPattern = test
+  @Test def LengthKindPatternCompound = test
+  @Test def LengthKindPatternCompound2 = test
+  @Test def lengthKindPattern_01 = test
+  @Test def lengthKindPattern_02 = test
+  @Test def lengthKindPattern_03 = test
+  @Test def lengthKindPattern_04 = test
 
-  @Test def test_LengthPatternIllegalBits_01(): Unit = {
-    runner.runOneTest("LengthPatternIllegalBits_01")
-  }
-  @Test def test_LengthPatternLegalBits_01(): Unit = {
-    runner.runOneTest("LengthPatternLegalBits_01")
-  }
+  @Test def LengthPatternIllegalBits_01 = test
+  @Test def LengthPatternLegalBits_01 = test
 
   // DFDL-309
-  @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace(): Unit = {
-    runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace")
-  }
+  @Test def LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace = test
   // DFDL-935 dfdl:encodingErrorPolicy='error'
-  // @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Error() { runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Error") }
+  @Ignore @Test def LengthPatternIllegalBits_02_EncodingErrorPolicy_Error = test
 
-  @Test def test_LengthPatternLegalBits_02(): Unit = {
-    runner.runOneTest("LengthPatternLegalBits_02")
-  } // round trip
-  @Test def test_lengthKindPatternFail(): Unit = { runner.runOneTest("lengthKindPatternFail") }
+  @Test def LengthPatternLegalBits_02 = test
+  @Test def lengthKindPatternFail = test
 
-  @Test def test_ComplexWithBinaryChild(): Unit = {
-    runner.runOneTest("ComplexWithBinaryChild")
-  }
+  @Test def ComplexWithBinaryChild = test
 
-  @Test def test_AI000(): Unit = { runnerAI.runOneTest("AI000") }
+  @Test def LengthPatternNil_NoNil = test
+  @Test def LengthPatternNil_FindsNil = test
+  @Test def LengthPatternNil_EmptyStringAllowed = test
+  @Test def nested_patterns = test
+  @Test def nested_patterns_01 = test
+  @Test def nested_patterns_02 = test
+  @Test def nested_patterns_03 = test
 
-  @Test def test_LengthPatternNil_NoNil(): Unit = {
-    runner.runOneTest("LengthPatternNil_NoNil")
-  } // round trip
-  @Test def test_LengthPatternNil_FindsNil(): Unit = {
-    runner.runOneTest("LengthPatternNil_FindsNil")
-  } // round trip
-  @Test def test_LengthPatternNil_EmptyStringAllowed(): Unit = {
-    runner.runOneTest("LengthPatternNil_EmptyStringAllowed")
-  }
-  @Test def test_nested_patterns(): Unit = { runner.runOneTest("nested_patterns") }
-  @Test def test_nested_patterns_01(): Unit = { runner.runOneTest("nested_patterns_01") }
-  @Test def test_nested_patterns_02(): Unit = { runner.runOneTest("nested_patterns_02") }
-  @Test def test_nested_patterns_03(): Unit = { runner.runOneTest("nested_patterns_03") }
+  @Test def hexBinaryLengthKindPattern01 = test
 
-  @Test def test_hexBinaryLengthKindPattern01(): Unit = {
-    runner.runOneTest("hexBinaryLengthKindPattern01")
-  }
+  @Test def lengthPatternEncodingErrorReplace = test
 
-  @Test def test_lengthPatternEncodingErrorReplace(): Unit = {
-    runner.runOneTest("lengthPatternEncodingErrorReplace")
-  }
+  @Test def lengthPatternBinaryPatternLimit = test
+}
 
-  @Test def test_lengthPatternBinaryPatternLimit(): Unit = {
-    runner.runOneTest("lengthPatternBinaryPatternLimit")
-  }
+class TestLengthKindPatternAI extends TdmlTests {
+  val tdmlSuite = TestLengthKindPatternAI
+
+  @Test def AI000 = test
 }

@@ -17,108 +17,89 @@
 
 package org.apache.daffodil.section16.array_optional_elem
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestArrayOptionalElem {
-  private val testDir = "/org/apache/daffodil/section16/array_optional_elem/"
-  private val testDir01 = "/org/apache/daffodil/section05/facets/"
-
-  val runner = Runner(testDir, "ArrayOptionalElem.tdml")
-  val runner01 = Runner(testDir01, "Facets.tdml", validateTDMLFile = false)
-  val rBack = Runner(testDir, "backtracking.tdml")
-  val runnerAC = Runner(testDir, "ArrayComb.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-    runner01.reset
-    rBack.reset
-    runnerAC.reset
-  }
-
+object TestArrayOptionalElem extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section16/array_optional_elem/ArrayOptionalElem.tdml"
 }
 
-class TestArrayOptionalElem {
+object TestBacktracking extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section16/array_optional_elem/backtracking.tdml"
+}
 
-  import TestArrayOptionalElem._
+object TestArrayComb extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section16/array_optional_elem/ArrayComb.tdml"
+}
 
-  // DAFFODIL-1964
-  @Test def test_arrayComb1() = { runnerAC.runOneTest("arrayComb1") }
-  @Test def test_arrayComb2() = { runnerAC.runOneTest("arrayComb2") }
+object TestFacets extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/facets/Facets.tdml"
 
-  @Test def test_arrayExpressions01(): Unit = { runner.runOneTest("arrayExpressions01") }
-  @Test def test_arrayExpressions02(): Unit = { runner.runOneTest("arrayExpressions02") }
-  @Test def test_arrayExpressions02b(): Unit = { runner.runOneTest("arrayExpressions02b") }
-  @Test def test_arrayExpressions02c(): Unit = { runner.runOneTest("arrayExpressions02c") }
-  @Test def test_arrayExpressions02d(): Unit = { runner.runOneTest("arrayExpressions02d") }
-  @Test def test_arrayExpressions03(): Unit = { runner.runOneTest("arrayExpressions03") }
-  @Test def test_arrayExpressions04(): Unit = { runner.runOneTest("arrayExpressions04") }
-  @Test def test_arrayExpressions05(): Unit = { runner.runOneTest("arrayExpressions05") }
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
+}
 
-  @Test def test_error01(): Unit = { runner.runOneTest("error01") }
-  @Test def test_postfixNoErr(): Unit = { runner.runOneTest("postfixNoErr") }
+class TestArrayOptionalElem extends TdmlTests {
+  val tdmlSuite = TestArrayOptionalElem
 
-  @Test def test_optionalElem(): Unit = { runner.runOneTest("optionalElem") }
-  @Test def test_optionalWithSeparators(): Unit = {
-    runner.runOneTest("optionalWithSeparators")
-  }
-  @Test def test_Lesson6_optional_element(): Unit = {
-    runner.runOneTest("Lesson6_optional_element")
-  }
-  @Test def test_Lesson6_optional_element_01(): Unit = {
-    runner.runOneTest("Lesson6_optional_element_01")
-  }
-  @Test def test_Lesson6_fixed_array(): Unit = { runner.runOneTest("Lesson6_fixed_array") }
-  @Test def test_Lesson6_variable_array(): Unit = {
-    runner.runOneTest("Lesson6_variable_array")
-  }
-  @Test def test_Lesson6_variable_array_01(): Unit = {
-    runner.runOneTest("Lesson6_variable_array_01")
-  }
-  @Test def test_Lesson6_variable_array_02(): Unit = {
-    runner.runOneTest("Lesson6_variable_array_02")
-  }
+  @Test def arrayExpressions01 = test
+  @Test def arrayExpressions02 = test
+  @Test def arrayExpressions02b = test
+  @Test def arrayExpressions02c = test
+  @Test def arrayExpressions02d = test
+  @Test def arrayExpressions03 = test
+  @Test def arrayExpressions04 = test
+  @Test def arrayExpressions05 = test
 
-  @Test def test_leftOverData_Neg(): Unit = { runner01.runOneTest("leftOverData_Neg") }
+  @Test def error01 = test
+  @Test def postfixNoErr = test
 
-  @Test def test_backtrack1Text() = { rBack.runOneTest("backtrack1Text") }
+  @Test def optionalElem = test
+  @Test def optionalWithSeparators = test
+  @Test def Lesson6_optional_element = test
+  @Test def Lesson6_optional_element_01 = test
+  @Test def Lesson6_fixed_array = test
+  @Test def Lesson6_variable_array = test
+  @Test def Lesson6_variable_array_01 = test
+  @Test def Lesson6_variable_array_02 = test
 
-  @Test def test_occursCountKindImplicitSeparators01a(): Unit = {
-    runner.runOneTest("occursCountKindImplicitSeparators01a")
-  }
-  @Test def test_occursCountKindImplicitSeparators01b(): Unit = {
-    runner.runOneTest("occursCountKindImplicitSeparators01b")
-  }
-  @Test def test_occursCountKindImplicitSeparators02(): Unit = {
-    runner.runOneTest("occursCountKindImplicitSeparators02")
-  }
-  @Test def test_occursCountKindImplicitSeparators03(): Unit = {
-    runner.runOneTest("occursCountKindImplicitSeparators03")
-  }
-  @Test def test_occursCountKindImplicitSeparators04(): Unit = {
-    runner.runOneTest("occursCountKindImplicitSeparators04")
-  }
-  @Test def test_occursCountKindImplicitSeparators05(): Unit = {
-    runner.runOneTest("occursCountKindImplicitSeparators05")
-  }
-  @Test def test_occursCountKindImplicitSeparators05Strict(): Unit = {
-    runner.runOneTest("occursCountKindImplicitSeparators05Strict")
-  }
-  @Test def test_occursCountKindImplicitSeparatorsUnparser(): Unit = {
-    runner.runOneTest("occursCountKindImplicitSeparatorsUnparser")
-  }
+  @Test def occursCountKindImplicitSeparators01a = test
+  @Test def occursCountKindImplicitSeparators01b = test
+  @Test def occursCountKindImplicitSeparators02 = test
+  @Test def occursCountKindImplicitSeparators03 = test
+  @Test def occursCountKindImplicitSeparators04 = test
+  @Test def occursCountKindImplicitSeparators05 = test
+  @Test def occursCountKindImplicitSeparators05Strict = test
+  @Test def occursCountKindImplicitSeparatorsUnparser = test
 
-  @Test def test_ambigSep1(): Unit = { runner.runOneTest("ambigSep1") }
-  @Test def test_ambigSep2(): Unit = { runner.runOneTest("ambigSep2") }
+  @Test def ambigSep1 = test
+  @Test def ambigSep2 = test
 
   // DAFFODIL-1886
-  @Test def test_manyAdjacentOptionals_01(): Unit = {
-    runner.runOneTest("manyAdjacentOptionals_01")
-  }
+  @Test def manyAdjacentOptionals_01 = test
 
   // DAFFODIL-2263
-  @Test def test_dfdl2263(): Unit = { runner.runOneTest("dfdl2263") }
+  @Test def dfdl2263 = test
+}
 
+class TestBacktracking extends TdmlTests {
+  val tdmlSuite = TestBacktracking
+
+  @Test def backtrack1Text = test
+}
+
+class TestArrayComb extends TdmlTests {
+  val tdmlSuite = TestArrayComb
+
+  // DAFFODIL-1964
+  @Test def arrayComb1 = test
+  @Test def arrayComb2 = test
+}
+
+class TestFacets extends TdmlTests {
+  val tdmlSuite = TestFacets
+
+  @Test def leftOverData_Neg = test
 }

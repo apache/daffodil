@@ -17,31 +17,26 @@
 
 package org.apache.daffodil.section15.choice_groups
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestUnparseChoice {
-  val testDir = "/org/apache/daffodil/section15/choice_groups/"
-  val runnerCH = Runner(testDir, "choice-unparse.tdml")
-
-  @AfterClass def tearDown(): Unit = {
-    runnerCH.reset
-  }
+object TestUnparseChoice extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/choice-unparse.tdml"
 }
 
-class TestUnparseChoice {
-  import TestUnparseChoice._
+class TestUnparseChoice extends TdmlTests {
+  val tdmlSuite = TestUnparseChoice
 
-  @Test def test_choice1(): Unit = { runnerCH.runOneTest("choice1") }
-  @Test def test_choice2(): Unit = { runnerCH.runOneTest("choice2") }
-  @Test def test_choice3(): Unit = { runnerCH.runOneTest("choice3") }
-  @Test def test_choice4(): Unit = { runnerCH.runOneTest("choice4") }
-  @Test def test_choice5(): Unit = { runnerCH.runOneTest("choice5") }
-  @Test def test_choice6(): Unit = { runnerCH.runOneTest("choice6") }
-  @Test def test_choice7(): Unit = { runnerCH.runOneTest("choice7") }
-  @Test def test_choice8(): Unit = { runnerCH.runOneTest("choice8") }
-  @Test def test_choice9(): Unit = { runnerCH.runOneTest("choice9") }
-  @Test def test_choice10(): Unit = { runnerCH.runOneTest("choice10") }
+  @Test def choice1 = test
+  @Test def choice2 = test
+  @Test def choice3 = test
+  @Test def choice4 = test
+  @Test def choice5 = test
+  @Test def choice6 = test
+  @Test def choice7 = test
+  @Test def choice8 = test
+  @Test def choice9 = test
+  @Test def choice10 = test
 }

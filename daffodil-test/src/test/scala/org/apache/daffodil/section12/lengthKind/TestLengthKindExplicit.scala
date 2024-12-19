@@ -17,167 +17,80 @@
 
 package org.apache.daffodil.section12.lengthKind
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestLengthKindExplicit {
-  val testDir = "/org/apache/daffodil/section12/lengthKind/"
-  val runner = Runner(testDir, "ExplicitTests.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestLengthKindExplicit extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section12/lengthKind/ExplicitTests.tdml"
 }
 
-class TestLengthKindExplicit {
+class TestLengthKindExplicit extends TdmlTests {
+  val tdmlSuite = TestLengthKindExplicit
 
-  import TestLengthKindExplicit._
+  @Test def Lesson1_lengthKind_explicit = test
+  @Test def test_ExplicitLengthBytesNotFixed = test
+  @Test def ExplicitLengthBitsFixed = test
+  @Test def test_ExplicitLengthBytesFixed = test
+  @Test def ExplicitLengthBitsNotFixed = test
+  @Test def ExplicitLengthCharsNotFixed = test
+  @Test def ExplicitLengthCharsFixed = test
+  @Test def ExplicitLengthBytesFixed50 = test
 
-  @Test def test_Lesson1_lengthKind_explicit(): Unit = {
-    runner.runOneTest("Lesson1_lengthKind_explicit")
-  }
-  @Test def test_ExplicitLengthBytesNotFixed() = {
-    runner.runOneTest("test_ExplicitLengthBytesNotFixed")
-  }
-  @Test def test_ExplicitLengthBitsFixed() = { runner.runOneTest("ExplicitLengthBitsFixed") }
-  @Test def test_ExplicitLengthBytesFixed() = {
-    runner.runOneTest("test_ExplicitLengthBytesFixed")
-  }
-  @Test def test_ExplicitLengthBitsNotFixed() = {
-    runner.runOneTest("ExplicitLengthBitsNotFixed")
-  }
-  @Test def test_ExplicitLengthCharsNotFixed() = {
-    runner.runOneTest("ExplicitLengthCharsNotFixed")
-  }
-  @Test def test_ExplicitLengthCharsFixed() = { runner.runOneTest("ExplicitLengthCharsFixed") }
-  @Test def test_ExplicitLengthBytesFixed50() = {
-    runner.runOneTest("ExplicitLengthBytesFixed50")
-  }
+  @Test def test_lengthRuntimeIntNaN_PE = test
+  @Test def test_lengthRuntimeDoubleNaN_PE = test
+  @Test def test_lengthRuntimeIntNegative_SDE = test
+  @Test def test_lengthRuntimeDoubleNegative_SDE = test
 
-  @Test def test_lengthRuntimeIntNaN_PE() = { runner.runOneTest("test_lengthRuntimeIntNaN_PE") }
-  @Test def test_lengthRuntimeDoubleNaN_PE() = {
-    runner.runOneTest("test_lengthRuntimeDoubleNaN_PE")
-  }
-  @Test def test_lengthRuntimeIntNegative_SDE() = {
-    runner.runOneTest("test_lengthRuntimeIntNegative_SDE")
-  }
-  @Test def test_lengthRuntimeDoubleNegative_SDE() = {
-    runner.runOneTest("test_lengthRuntimeDoubleNegative_SDE")
-  }
+  @Test def test_ExplicitLengthBytesBroken = test
 
-  @Test def test_ExplicitLengthBytesBroken() = {
-    runner.runOneTest("test_ExplicitLengthBytesBroken")
-  }
+  @Test def test_ExplicitLengthBytesNotGiven = test
 
-  @Test def test_ExplicitLengthBytesNotGiven() = {
-    runner.runOneTest("test_ExplicitLengthBytesNotGiven")
-  }
+  @Test def test_ExplicitLengthBytesChoiceRef = test
+  @Test def test_ExplicitLengthChildLengthLessParent_Chars = test
+  @Test def test_ExplicitLengthChildLengthLessParent_Bytes = test
+  @Test def test_ExplicitLengthChildLengthMoreParent_Chars = test
 
-  @Test def test_ExplicitLengthBytesChoiceRef() = {
-    runner.runOneTest("test_ExplicitLengthBytesChoiceRef")
-  }
-  @Test def test_ExplicitLengthChildLengthLessParent_Chars() = {
-    runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Chars")
-  }
-  @Test def test_ExplicitLengthChildLengthLessParent_Bytes() = {
-    runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Bytes")
-  }
-  @Test def test_ExplicitLengthChildLengthMoreParent_Chars() = {
-    runner.runOneTest("test_ExplicitLengthChildLengthMoreParent_Chars")
-  }
-
-  @Test def test_explicitBytes_string_01() = { runner.runOneTest("explicitBytes_string_01") }
-  @Test def test_explicitBytes_int_01() = { runner.runOneTest("explicitBytes_int_01") }
-  @Test def test_explicitBytes_int_02() = { runner.runOneTest("explicitBytes_int_02") }
+  @Test def explicitBytes_string_01 = test
+  @Test def explicitBytes_int_01 = test
+  @Test def explicitBytes_int_02 = test
 
   // Added for issue related to DFDL-1674
-  @Test def test_denseBit_lengthKind_explicit(): Unit = {
-    runner.runOneTest("denseBit_lengthKind_explicit")
-  }
+  @Test def denseBit_lengthKind_explicit = test
 
   // DFDL-2931
-  @Test def test_lengthUnitsBitsForInteger_explicit(): Unit = {
-    runner.runOneTest("lengthUnitsBitsForInteger_explicit")
-  }
-  @Test def test_lengthUnitsBitsForInteger_explicit2(): Unit = {
-    runner.runOneTest("lengthUnitsBitsForInteger_explicit2")
-  }
-  @Test def test_lengthUnitsBitsForDecimal_explicit(): Unit = {
-    runner.runOneTest("lengthUnitsBitsForDecimal_explicit")
-  }
-  @Test def test_lengthUnitsBitsForFloat_explicit1(): Unit = {
-    runner.runOneTest("lengthUnitsBitsForFloat_explicit1")
-  }
-  @Test def test_lengthUnitsBitsForFloat_explicit2(): Unit = {
-    runner.runOneTest("lengthUnitsBitsForFloat_explicit2")
-  }
-  @Test def test_lengthUnitsBitsForFloat_explicit3(): Unit = {
-    runner.runOneTest("lengthUnitsBitsForFloat_explicit3")
-  }
-  @Test def test_lengthUnitsBitsForDouble_explicit1(): Unit = {
-    runner.runOneTest("lengthUnitsBitsForDouble_explicit1")
-  }
-  @Test def test_lengthUnitsBitsForDouble_explicit2(): Unit = {
-    runner.runOneTest("lengthUnitsBitsForDouble_explicit2")
-  }
-  @Test def test_lengthUnitsBitsForDouble_explicit3(): Unit = {
-    runner.runOneTest("lengthUnitsBitsForDouble_explicit3")
-  }
+  @Test def lengthUnitsBitsForInteger_explicit = test
+  @Test def lengthUnitsBitsForInteger_explicit2 = test
+  @Test def lengthUnitsBitsForDecimal_explicit = test
+  @Test def lengthUnitsBitsForFloat_explicit1 = test
+  @Test def lengthUnitsBitsForFloat_explicit2 = test
+  @Test def lengthUnitsBitsForFloat_explicit3 = test
+  @Test def lengthUnitsBitsForDouble_explicit1 = test
+  @Test def lengthUnitsBitsForDouble_explicit2 = test
+  @Test def lengthUnitsBitsForDouble_explicit3 = test
 
-  @Test def test_invalidUnsignedLongBitLength(): Unit = {
-    runner.runOneTest("invalidUnsignedLongBitLength")
-  }
+  @Test def invalidUnsignedLongBitLength = test
 
-  @Test def test_invalidUnsignedLongByteLength(): Unit = {
-    runner.runOneTest("invalidUnsignedLongByteLength")
-  }
-  @Test def test_invalidUnsignedIntBitLength(): Unit = {
-    runner.runOneTest("invalidUnsignedIntBitLength")
-  }
-  @Test def test_invalidUnsignedShortBitLength(): Unit = {
-    runner.runOneTest("invalidUnsignedShortBitLength")
-  }
-  @Test def test_invalidUnsignedByteBitLength(): Unit = {
-    runner.runOneTest("invalidUnsignedByteBitLength")
-  }
+  @Test def invalidUnsignedLongByteLength = test
+  @Test def invalidUnsignedIntBitLength = test
+  @Test def invalidUnsignedShortBitLength = test
+  @Test def invalidUnsignedByteBitLength = test
 
-  @Test def test_invalidLongBitLength(): Unit = {
-    runner.runOneTest("invalidLongBitLength")
-  }
-  @Test def test_invalidIntBitLength(): Unit = {
-    runner.runOneTest("invalidIntBitLength")
-  }
-  @Test def test_invalidShortBitLength(): Unit = {
-    runner.runOneTest("invalidShortBitLength")
-  }
-  @Test def test_invalidByteBitLength(): Unit = {
-    runner.runOneTest("invalidByteBitLength")
-  }
+  @Test def invalidLongBitLength = test
+  @Test def invalidIntBitLength = test
+  @Test def invalidShortBitLength = test
+  @Test def invalidByteBitLength = test
 
-  @Test def test_invalidLongBitLengthExpr(): Unit = {
-    runner.runOneTest("invalidLongBitLengthExpr")
-  }
+  @Test def invalidLongBitLengthExpr = test
 
-  @Test def test_invalidIntBitLengthExpr(): Unit = {
-    runner.runOneTest("invalidIntBitLengthExpr")
-  }
+  @Test def invalidIntBitLengthExpr = test
 
-  @Test def test_invalidShortBitLengthExpr(): Unit = {
-    runner.runOneTest("invalidShortBitLengthExpr")
-  }
+  @Test def invalidShortBitLengthExpr = test
 
-  @Test def test_invalidByteBitLengthExpr(): Unit = {
-    runner.runOneTest("invalidByteBitLengthExpr")
-  }
+  @Test def invalidByteBitLengthExpr = test
 
-  @Test def test_insufficientBitsComplex(): Unit = {
-    runner.runOneTest("insufficientBitsComplex")
-  }
+  @Test def insufficientBitsComplex = test
 
-  @Test def test_insufficientBitsByte(): Unit = {
-    runner.runOneTest("insufficientBitsByte")
-  }
+  @Test def insufficientBitsByte = test
 }

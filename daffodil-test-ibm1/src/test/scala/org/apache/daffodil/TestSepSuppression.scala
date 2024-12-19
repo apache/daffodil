@@ -17,41 +17,36 @@
 
 package org.apache.daffodil
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.{ AfterClass, Test }
+import org.junit.Test
 
-object TestSepSuppression {
-  val testDir = "/test-suite/tresys-contributed/"
-  val runner = Runner(testDir, "sepSuppression.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestSepSuppression extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/sepSuppression.tdml"
 }
 
-class TestSepSuppression {
-  import TestSepSuppression._
+class TestSepSuppression extends TdmlTests {
+  val tdmlSuite = TestSepSuppression
 
-  @Test def test_ptg1_1p() = { runner.runOneTest("ptg1_1p") }
-  @Test def test_ptg1_2p() = { runner.runOneTest("ptg1_2p") }
-  @Test def test_ptg1_3p() = { runner.runOneTest("ptg1_3p") }
-  @Test def test_ptg1_4p() = { runner.runOneTest("ptg1_4p") }
-  @Test def test_ptg1_5p() = { runner.runOneTest("ptg1_5p") }
-  @Test def test_ptg1_6p() = { runner.runOneTest("ptg1_6p") }
+  @Test def ptg1_1p = test
+  @Test def ptg1_2p = test
+  @Test def ptg1_3p = test
+  @Test def ptg1_4p = test
+  @Test def ptg1_5p = test
+  @Test def ptg1_6p = test
 
-  @Test def test_ptg1_1u() = { runner.runOneTest("ptg1_1u") }
-  @Test def test_ptg1_2u() = { runner.runOneTest("ptg1_2u") }
-  @Test def test_ptg1_3u() = { runner.runOneTest("ptg1_3u") }
-  @Test def test_ptg1_4u() = { runner.runOneTest("ptg1_4u") }
-  @Test def test_ptg1_5u() = { runner.runOneTest("ptg1_5u") }
-  @Test def test_ptg1_6u() = { runner.runOneTest("ptg1_6u") }
+  @Test def ptg1_1u = test
+  @Test def ptg1_2u = test
+  @Test def ptg1_3u = test
+  @Test def ptg1_4u = test
+  @Test def ptg1_5u = test
+  @Test def ptg1_6u = test
 
-  @Test def test_ptg2_1p() = { runner.runOneTest("ptg2_1p") }
-  @Test def test_ptg2_1u() = { runner.runOneTest("ptg2_1u") }
+  @Test def ptg2_1p = test
+  @Test def ptg2_1u = test
 
-  @Test def test_ptg3_1p() = { runner.runOneTest("ptg3_1p") }
-  @Test def test_ptg3_1u() = { runner.runOneTest("ptg3_1u") }
-  @Test def test_ptg3_2p_daf() = { runner.runOneTest("ptg3_2p_daf") }
-
+  @Test def ptg3_1p = test
+  @Test def ptg3_1u = test
+  @Test def ptg3_2p_daf = test
 }

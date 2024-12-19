@@ -31,7 +31,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-boolean-42"
+    name="simple_boolean_42"
     root="simple-boolean">
     <tdml:document>
       <tdml:documentPart type="byte">00 00 00 2a</tdml:documentPart>
@@ -48,7 +48,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-byte-2b"
+    name="simple_byte_2b"
     root="simple-byte">
     <tdml:document>
       <tdml:documentPart type="byte">01 02</tdml:documentPart>
@@ -64,7 +64,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-double-4b"
+    name="simple_double_4b"
     root="simple-double">
     <tdml:document>
       <tdml:documentPart type="byte">01 02 03 04</tdml:documentPart>
@@ -80,7 +80,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-float-NaN"
+    name="simple_float_NaN"
     root="simple-float">
     <tdml:document>
       <tdml:documentPart type="byte">7f c0 00 00</tdml:documentPart>
@@ -97,7 +97,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-hexBinary-5b"
+    name="simple_hexBinary_5b"
     root="simple-hexBinary">
     <tdml:document>
       <tdml:documentPart type="byte">01 02 03 04 05</tdml:documentPart>
@@ -113,7 +113,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-hexBinaryPrefixed-4b"
+    name="simple_hexBinaryPrefixed_4b"
     root="simple-hexBinaryPrefixed">
     <tdml:document>
       <tdml:documentPart type="byte">01 02 03 04</tdml:documentPart>
@@ -129,7 +129,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-int-1b"
+    name="simple_int_1b"
     root="simple-int">
     <tdml:document>
       <tdml:documentPart type="byte">01</tdml:documentPart>
@@ -145,7 +145,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="simple-unsignedShort-4b"
+    name="simple_unsignedShort_4b"
     root="simple-unsignedShort">
     <tdml:document>
       <tdml:documentPart type="byte">01 02 03 04</tdml:documentPart>
@@ -161,7 +161,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-byte-0"
+    name="enum_byte_0"
     root="enum-byte"
     validation="on">
     <tdml:document>
@@ -183,7 +183,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-double-0.0"
+    name="enum_double_0_0"
     root="enum-double"
     validation="on">
     <tdml:document>
@@ -205,7 +205,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-float-0.0"
+    name="enum_float_0_0"
     root="enum-float"
     validation="on">
     <tdml:document>
@@ -227,7 +227,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-hexBinary-00000000"
+    name="enum_hexBinary_00000000"
     root="enum-hexBinary"
     validation="on">
     <tdml:document>
@@ -249,7 +249,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-hexBinaryPrefixed-00000000"
+    name="enum_hexBinaryPrefixed_00000000"
     root="enum-hexBinaryPrefixed"
     validation="on">
     <tdml:document>
@@ -271,7 +271,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-int-0"
+    name="enum_int_0"
     root="enum-int"
     validation="on">
     <tdml:document>
@@ -293,7 +293,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-integer-0"
+    name="enum_integer_0"
     root="enum-integer"
     validation="on">
     <tdml:document>
@@ -315,7 +315,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-long-0"
+    name="enum_long_0"
     root="enum-long"
     validation="on">
     <tdml:document>
@@ -337,7 +337,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-nonNegativeInteger-0"
+    name="enum_nonNegativeInteger_0"
     root="enum-nonNegativeInteger"
     validation="on">
     <tdml:document>
@@ -359,7 +359,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-short-0"
+    name="enum_short_0"
     root="enum-short"
     validation="on">
     <tdml:document>
@@ -381,7 +381,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-unsignedByte-0"
+    name="enum_unsignedByte_0"
     root="enum-unsignedByte"
     validation="on">
     <tdml:document>
@@ -403,7 +403,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-unsignedInt-0"
+    name="enum_unsignedInt_0"
     root="enum-unsignedInt"
     validation="on">
     <tdml:document>
@@ -425,7 +425,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-unsignedLong-0"
+    name="enum_unsignedLong_0"
     root="enum-unsignedLong"
     validation="on">
     <tdml:document>
@@ -447,7 +447,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="enum-unsignedShort-0"
+    name="enum_unsignedShort_0"
     root="enum-unsignedShort"
     validation="on">
     <tdml:document>
@@ -469,7 +469,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-byte-0"
+    name="range_byte_0"
     root="range-byte"
     validation="on">
     <tdml:document>
@@ -491,7 +491,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-double-0.0"
+    name="range_double_0_0"
     root="range-double"
     validation="on">
     <tdml:document>
@@ -513,7 +513,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-float-0.0"
+    name="range_float_0_0"
     root="range-float"
     validation="on">
     <tdml:document>
@@ -535,7 +535,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-int-0"
+    name="range_int_0"
     root="range-int"
     validation="on">
     <tdml:document>
@@ -557,7 +557,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-integer-0"
+    name="range_integer_0"
     root="range-integer"
     validation="on">
     <tdml:document>
@@ -579,7 +579,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-long-0"
+    name="range_long_0"
     root="range-long"
     validation="on">
     <tdml:document>
@@ -601,7 +601,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-nonNegativeInteger-0"
+    name="range_nonNegativeInteger_0"
     root="range-nonNegativeInteger"
     validation="on">
     <tdml:document>
@@ -623,7 +623,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-short-0"
+    name="range_short_0"
     root="range-short"
     validation="on">
     <tdml:document>
@@ -645,7 +645,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-unsignedByte-0"
+    name="range_unsignedByte_0"
     root="range-unsignedByte"
     validation="on">
     <tdml:document>
@@ -667,7 +667,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-unsignedInt-0"
+    name="range_unsignedInt_0"
     root="range-unsignedInt"
     validation="on">
     <tdml:document>
@@ -689,7 +689,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-unsignedLong-0"
+    name="range_unsignedLong_0"
     root="range-unsignedLong"
     validation="on">
     <tdml:document>
@@ -711,7 +711,7 @@
   -->
   <tdml:parserTestCase
     model="simple.dfdl.xsd"
-    name="range-unsignedShort-0"
+    name="range_unsignedShort_0"
     root="range-unsignedShort"
     validation="on">
     <tdml:document>

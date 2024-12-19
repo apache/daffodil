@@ -39,7 +39,7 @@
       c/daffodil unparse -o c/nested.struct.dat infosets/nested.struct.dat.xml
   -->
 
-  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.struct">
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_struct">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.struct.dat</tdml:documentPart>
     </tdml:document>
@@ -48,7 +48,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.struct.diag1">
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_struct_diag1">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.struct.diag1.dat</tdml:documentPart>
     </tdml:document>
@@ -62,7 +62,7 @@
     </tdml:validationErrors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.struct.diag2">
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_struct_diag2">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.struct.diag2.dat</tdml:documentPart>
     </tdml:document>
@@ -77,7 +77,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase model="nested.dfdl.xsd"
-                       name="nested.struct.err1"
+                       name="nested_struct_err1"
                        root="NestedStruct">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.struct.err1.dat</tdml:documentPart>
@@ -90,7 +90,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase model="nested.dfdl.xsd"
-                       name="nested.struct.err2"
+                       name="nested_struct_err2"
                        root="NestedStruct">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.struct.err2.dat</tdml:documentPart>
@@ -102,7 +102,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.union.bar">
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_union_bar">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.union.bar.dat</tdml:documentPart>
     </tdml:document>
@@ -111,7 +111,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested.union.foo">
+  <tdml:parserTestCase model="nested.dfdl.xsd" name="nested_union_foo">
     <tdml:document>
       <tdml:documentPart type="file">data/nested.union.foo.dat</tdml:documentPart>
     </tdml:document>

@@ -185,7 +185,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="testDFDL-922" root="regExpr_08"
+  <tdml:parserTestCase name="testDFDL_922" root="regExpr_08"
     model="RegularExpressions-Embedded.dfdl.xsd" 
     description="Test shows that inside a choice, an assert with pattern expressed on the element definition is not executed.">
     <tdml:document>0</tdml:document>
@@ -196,7 +196,7 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="testDFDL-922_2" root="regExpr_09"
+  <tdml:parserTestCase name="testDFDL_922_2" root="regExpr_09"
     model="RegularExpressions-Embedded.dfdl.xsd" 
     description="Test shows that inside a choice, an assert with pattern expressed on the element definition is not executed.">
     <tdml:document>0</tdml:document>

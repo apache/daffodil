@@ -16,42 +16,25 @@
  */
 package org.apache.daffodil.runtime1.layers
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestByteSwap {
-  private val testDir = "/org/apache/daffodil/layers/"
-
-  private lazy val runner = Runner(testDir, "TestTwoByteSwap.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset()
-  }
+object TestByteSwap extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/layers/TestTwoByteSwap.tdml"
 }
 
-class TestByteSwap {
-  import TestByteSwap._
+class TestByteSwap extends TdmlTests {
+  val tdmlSuite = TestByteSwap
 
-  @Test def test_twobyteswap_01(): Unit = { runner.runOneTest("test_twobyteswap_01") }
-
-  @Test def test_twobyteswap_02(): Unit = { runner.runOneTest("test_twobyteswap_02") }
-
-  @Test def test_twobyteswap_03(): Unit = { runner.runOneTest("test_twobyteswap_03") }
-
-  @Test def test_twobyteswap_04(): Unit = { runner.runOneTest("test_twobyteswap_04") }
-
-  @Test def test_twobyteswap_05(): Unit = { runner.runOneTest("test_twobyteswap_05") }
-
-  @Test def test_twobyteswap_bad_01(): Unit = { runner.runOneTest("test_twobyteswap_bad_01") }
-
-  @Test def test_twobyteswap_bad_02(): Unit = { runner.runOneTest("test_twobyteswap_bad_02") }
-
-  @Test def test_twobyteswap_bad_03(): Unit = { runner.runOneTest("test_twobyteswap_bad_03") }
-
-  @Test def test_twobyteswap_unparse_odd(): Unit = {
-    runner.runOneTest("test_twobyteswap_unparse_odd")
-  }
-
+  @Test def test_twobyteswap_01 = test
+  @Test def test_twobyteswap_02 = test
+  @Test def test_twobyteswap_03 = test
+  @Test def test_twobyteswap_04 = test
+  @Test def test_twobyteswap_05 = test
+  @Test def test_twobyteswap_bad_01 = test
+  @Test def test_twobyteswap_bad_02 = test
+  @Test def test_twobyteswap_bad_03 = test
+  @Test def test_twobyteswap_unparse_odd = test
 }

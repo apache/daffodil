@@ -17,21 +17,17 @@
 
 package org.apache.daffodil
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.{ AfterClass, Test }
+import org.junit.Test
 
-object TestNilled {
-  val testDir = "/test-suite/tresys-contributed/"
-  val runner = Runner(testDir, "nilled.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestNilled extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/nilled.tdml"
 }
 
-class TestNilled {
-  import TestNilled._
+class TestNilled extends TdmlTests {
+  val tdmlSuite = TestNilled
 
-  @Test def test_nilled_ES_optional() = { runner.runOneTest("nilled_ES_optional") }
+  @Test def nilled_ES_optional = test
 }

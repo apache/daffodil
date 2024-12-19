@@ -17,30 +17,23 @@
 
 package org.apache.daffodil.section05.simple_types
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestUnions {
-  private val testDir = "/org/apache/daffodil/section05/simple_types/"
-
-  val runner = Runner(testDir, "unions.tdml")
-
-  @AfterClass def shutdown(): Unit = {
-    runner.reset
-  }
+object TestUnions extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/unions.tdml"
 }
 
-class TestUnions {
-  import TestUnions._
+class TestUnions extends TdmlTests {
+  val tdmlSuite = TestUnions
 
-  @Test def test_unionOf1(): Unit = { runner.runOneTest("unionOf1") }
-  @Test def test_unionOf1b(): Unit = { runner.runOneTest("unionOf1b") }
-  @Test def test_uu1(): Unit = { runner.runOneTest("uu1") }
-  @Test def test_uu2(): Unit = { runner.runOneTest("uu2") }
-  @Test def test_uu3(): Unit = { runner.runOneTest("uu3") }
-  @Test def test_uu1neg(): Unit = { runner.runOneTest("uu1neg") }
-  @Test def test_uu2neg(): Unit = { runner.runOneTest("uu2neg") }
-
+  @Test def unionOf1 = test
+  @Test def unionOf1b = test
+  @Test def uu1 = test
+  @Test def uu2 = test
+  @Test def uu3 = test
+  @Test def uu1neg = test
+  @Test def uu2neg = test
 }

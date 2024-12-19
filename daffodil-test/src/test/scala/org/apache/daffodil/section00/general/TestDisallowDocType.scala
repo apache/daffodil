@@ -24,72 +24,54 @@ package org.apache.daffodil.section00.general
 import java.nio.file.Paths
 
 import org.apache.daffodil.core.util.TestUtils.compileSchema
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util.Misc
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.runtime1.processors.DataProcessor
-import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLException
 
-import org.junit.AfterClass
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.xml.sax.SAXParseException
 
-object TestDisallowDocType {
-  lazy val testDir = "/org/apache/daffodil/section00/general"
-
+object TestDisallowTdmlDocType extends TdmlSuite {
   // This TDML file has a DOCTYPE declaration, so we should fail to
   // load it. However, that happens lazily.
-  val runner1 = Runner(testDir, "hasDocType.tdml")
-
-  val runner2 = Runner(testDir, "disallowDocTypes.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner1.reset
-    runner2.reset
-
-  }
+  val tdmlResource = "/org/apache/daffodil/section00/general/hasDocType.tdml"
 }
 
-class TestDisallowDocType {
+class TestDisallowTdmlDocType extends TdmlTests {
+  val tdmlSuite = TestDisallowTdmlDocType
 
-  import TestDisallowDocType._
-
-  @Test def test_TDMLFileMustNotHaveDocType(): Unit = {
-    val e = intercept[TDMLException] {
-      runner1.runOneTest("ignored")
-    }
+  @Test def ignored = {
+    val e = intercept[TDMLException] { test }
     val msg = e.getMessage()
     assertTrue(msg.contains("DOCTYPE is disallowed"))
     assertTrue(msg.contains("hasDocType.tdml"))
   }
+}
 
-  @Test def test_configMustNotHaveDocType(): Unit = {
-    val e = intercept[TDMLException] {
-      runner2.runOneTest("configMustNotHaveDocType")
-    }
+object TestDisallowDocType extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/disallowDocTypes.tdml"
+}
+
+class TestDisallowDocType extends TdmlTests {
+  val tdmlSuite = TestDisallowDocType
+
+  @Test def configMustNotHaveDocType(): Unit = {
+    val e = intercept[TDMLException] { test }
     val msg = e.getMessage()
     assertTrue(msg.contains("DOCTYPE is disallowed"))
     assertTrue(msg.contains("hasDocType.cfg"))
   }
 
-  @Test def test_dfdlSchemaMustNotHaveDocType(): Unit = {
-    runner2.runOneTest("dfdlSchemaMustNotHaveDocType")
-  }
-
-  @Test def test_dfdlSchemaMustNotHaveDocTypeViaInclude(): Unit = {
-    runner2.runOneTest("dfdlSchemaMustNotHaveDocTypeViaInclude")
-  }
-
-  @Test def test_dfdlSchemaMustNotHaveDocTypeViaImport(): Unit = {
-    runner2.runOneTest("dfdlSchemaMustNotHaveDocTypeViaImport")
-  }
-
-  @Test def test_infosetFileMustNotHaveDocType(): Unit = {
-    val e = intercept[TDMLException] {
-      runner2.runOneTest("infosetFileMustNotHaveDocType")
-    }
+  @Test def dfdlSchemaMustNotHaveDocType = test
+  @Test def dfdlSchemaMustNotHaveDocTypeViaInclude = test
+  @Test def dfdlSchemaMustNotHaveDocTypeViaImport = test
+  @Test def infosetFileMustNotHaveDocType(): Unit = {
+    val e = intercept[TDMLException] { test }
     val msg = e.getMessage()
     assertTrue(msg.contains("DOCTYPE is disallowed"))
     assertTrue(msg.contains("hasDocType-infoset.xml"))
