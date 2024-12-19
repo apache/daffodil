@@ -27,6 +27,7 @@ import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.XercesSchemaFileLocation
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.TimeTracker
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -206,23 +207,9 @@ final class DFDLSchemaFile(
   private lazy val loader = new DaffodilXMLLoader(errHandler)
 
   lazy val iiXMLSchemaDocument = LV('iiXMLSchemaDocument) {
-    val res = makeXMLSchemaDocument(seenBefore, Some(this))
-    if (res.isDFDLSchema && sset.shouldValidateDFDLSchemas) {
-      //
-      // We validate DFDL schemas, only if validation is requested.
-      // Some things, tests generally, want to turn this validation off.
-      //
-      try {
-        loader.validateAsDFDLSchema(schemaSource)
-      } catch {
-        // validateAsDFDLSchema doesn't always capture all exceptions in the
-        // loader's error handler. Even for fatal errors it sometimes
-        // just throws them.
-        case e: org.xml.sax.SAXParseException =>
-          errHandler.error(e) // accumulate with error handler.
-      }
-      errHandler.handleLoadErrors(this)
-    }
+    val res = TimeTracker.track("iiXMLSchemaDocument makeXMLSchemaDocument")(
+      makeXMLSchemaDocument(seenBefore, Some(this))
+    )
     res
   }.value
 

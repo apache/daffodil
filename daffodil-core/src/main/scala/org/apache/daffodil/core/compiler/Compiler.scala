@@ -30,7 +30,6 @@ import java.util.zip.ZipException
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Try
 import scala.xml.Node
-
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.walker.RootView
 import org.apache.daffodil.lib.api.DaffodilSchemaSource
@@ -40,6 +39,7 @@ import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.api.UnitTestSchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Misc
+import org.apache.daffodil.lib.util.TimeTracker
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.dsom.SchemaDefinitionError
 import org.apache.daffodil.runtime1.processors.DataProcessor
@@ -378,7 +378,8 @@ class Compiler private (
         tunables
       )
     }
-
+    pf.isError // call here to drive compilation, so that compilation at least at the level of the PF
+    // is over when we return the pf.
     pf
   }
 
@@ -409,9 +410,11 @@ object Compiler {
     optRootName: Option[String],
     optRootNamespace: Option[String]
   ): ProcessorFactory = {
-    synchronized {
-      c.compileSourceInternal(schemaSource, optRootName, optRootNamespace)
+    val res = synchronized {
+      TimeTracker.track("compileSourceInternal")(c.compileSourceInternal(schemaSource, optRootName, optRootNamespace))
     }
+    TimeTracker.logTimes()
+    res
   }
 
 }

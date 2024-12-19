@@ -30,6 +30,7 @@ object Timer {
       case "ms" => nanos / 1000000
       case "ns" => nanos
     }
+    System.err.println(s"[info] Time${msg}: ${time}${units}")
     Logger.log.info(s"Time${msg}: ${time}${units}")
   }
 
@@ -250,8 +251,10 @@ object TimeTracker {
 
     Logger.log.info(formatString.format("Name", "Time", "Pct", "Average", "Count"))
     stringStats.foreach { stats =>
+      System.err.println("[info] " + formatString.format(stats.productIterator.toList: _*))
       Logger.log.info(formatString.format(stats.productIterator.toList: _*))
     }
+    System.err.println(f"[info] Total Time: $totalTime%.3f")
     Logger.log.info(f"Total Time: $totalTime%.3f")
   }
 
