@@ -36,7 +36,7 @@ class TestCLIMisc {
    * that are functionally the same but not bit-for-bit identical, causing CI to randomly fail.
    * This should be enabled when DAFFODIL-2925 is fixed.
    */
-  //@Test
+  /*@Test*/
   def test_CLI_SaveParser_reproducible(): Unit = {
     val schema = path(
       "daffodil-test/src/test/resources/org/apache/daffodil/section06/entities/charClassEntities.dfdl.xsd"
