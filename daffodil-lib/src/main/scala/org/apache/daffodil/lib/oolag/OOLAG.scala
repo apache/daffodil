@@ -478,16 +478,13 @@ object OOLAG {
     }
 
     /**
-     * Currently we depend on being able to evaluate these
-     * repeatedly, and get different answers.
-     *
-     * because it forces evaluation of all the requiredEvaluationsAlways(...)
+     * Forces evaluation of all the requiredEvaluationsAlways(...)
      * or requiredEvaluationsIfActivated(...)
      * on all objects first, but that is only for the objects
      * that have been created and activated at the time this is called.
      */
-
-    def isError: Boolean = {
+    def isError: Boolean = isErrorOnce
+    private lazy val isErrorOnce: Boolean = {
       oolagRoot.checkErrors
       val errorCount = oolagRoot.errors.size
       errorCount > 0
@@ -511,18 +508,27 @@ object OOLAG {
   sealed abstract class OOLAGValueBase(
     val oolagContext: OOLAGHost,
     nameArg: String,
-    body: => Any
+    bodyArg: => Any
   ) {
+
+    // SCHEMA COMPILER PERFORMANCE INSTRUMENTATION
+    // To get timing on every OOLAG LV, use these 3 lines to define the 'body' lazy var.
+    // private lazy val bodyOnce = bodyArg
+    // private lazy val timedBody = TimeTracker.track(name) { bodyOnce }
+    // private lazy val body = timedBody
+    // You will also need to call TimeTracker.logTimes() at the end of Compiler.compileSource.
+    private lazy val body = bodyArg
 
     Assert.usage(oolagContext != null)
 
     final lazy val name = nameArg
 
-    private var alreadyTriedThis = false
+    private var errorAlreadyHandled: Maybe[ErrorAlreadyHandled] = Nope
+    private var alreadyTriedThis: Maybe[AlreadyTried] = Nope
     protected final def hasValue: Boolean = value_.isDefined
     private var value_ : Maybe[AnyRef] = Nope
 
-    protected final def wasTried = alreadyTriedThis
+    private final def wasTried = alreadyTriedThis.isDefined
 
     // private def warn(th: Diagnostic): Unit = oolagContext.warn(th)
     private def error(th: Diagnostic): Unit = oolagContext.error(th)
@@ -549,9 +555,9 @@ object OOLAG {
       }
     }
 
-    override def toString = thisThing
+    override def toString: String = thisThing
 
-    protected final def toss(th: Throwable) = {
+    protected final def toss(th: Throwable): Nothing = {
       throw th
     }
 
@@ -603,7 +609,8 @@ object OOLAG {
           // Typically this will be for a Schema Definition Error
           //
           Assert.invariant(hasValue == false)
-          Assert.invariant(alreadyTriedThis == true)
+          Assert.invariant(alreadyTriedThis.isDefined)
+          Assert.invariant(errorAlreadyHandled.isEmpty)
 
           Logger.log.trace(" " * indent + s"${thisThing} has no value due to ${e}")
           error(e)
@@ -611,11 +618,15 @@ object OOLAG {
           // Catch this if you can carry on with more error gathering
           // from other contexts. Otherwise just let it propagate.
           //
-          toss(new ErrorAlreadyHandled(e, this))
+          val eah = new ErrorAlreadyHandled(e, this)
+          errorAlreadyHandled = One(eah) // in theory, saving this doesn't matter.
+          toss(eah)
         }
         case e @ ErrorsNotYetRecorded(diags) => {
+          Assert.invariant(alreadyTriedThis.isDefined)
+          Assert.invariant(!hasValue)
           diags.foreach { error(_) }
-          toss(new AlreadyTried(this))
+          toss(alreadyTriedThis.get)
         }
         case th => toss(th)
       }
@@ -639,12 +650,12 @@ object OOLAG {
         Logger.log.trace(" " * indent + s"LV: ${thisThing} CIRCULAR")
         toss(c)
       }
-      if (alreadyTriedThis) {
+      if (alreadyTriedThis.isDefined) {
         Logger.log.trace(" " * indent + s"LV: ${thisThing} was tried and failed")
-        val e = AlreadyTried(this)
+        val e = alreadyTriedThis.get
         toss(e)
       }
-      alreadyTriedThis = true
+      alreadyTriedThis = One(AlreadyTried(this))
       Logger.log.trace(" " * indent + s"Evaluating ${thisThing}")
     }
 
@@ -660,7 +671,7 @@ object OOLAG {
         oolagContext.currentOVList = oolagContext.currentOVList.tail
     }
 
-    final def hasError = alreadyTriedThis && !hasValue
+    final def hasError = alreadyTriedThis.isDefined && !hasValue
 
     /**
      * forces the value, then boolean result tells you if
@@ -670,7 +681,7 @@ object OOLAG {
 
     final def isError = {
       val res =
-        if (alreadyTriedThis) !hasValue
+        if (alreadyTriedThis.isDefined) !hasValue
         else {
           try {
             valueAsAny
@@ -687,22 +698,26 @@ object OOLAG {
 
     final lazy val valueAsAny: Any = {
       if (hasValue) value_.get
-      val res =
-        try {
-          oolagBefore
-          val v = body // good place for a breakpoint
-          oolagAfterValue(v.asInstanceOf[AnyRef])
-          v
-        } catch {
-          case npe: NullPointerException => throw npe
-          case s: scala.util.control.ControlThrowable => throw s
-          case u: UnsuppressableException => throw u
-          case e: Error => throw e
-          case th: Throwable => oolagCatch(th)
-        } finally {
-          oolagFinalize
-        }
-      res
+      else {
+        // egad.... on 2024-12-19 this was always re-evaluating due to missing `else` keyword.
+        // this should make a substantial difference in schema compilation time.
+        val res =
+          try {
+            oolagBefore
+            val v = body // good place for a breakpoint
+            oolagAfterValue(v.asInstanceOf[AnyRef])
+            v
+          } catch {
+            case npe: NullPointerException => throw npe
+            case s: scala.util.control.ControlThrowable => throw s
+            case u: UnsuppressableException => throw u
+            case e: Error => throw e
+            case th: Throwable => oolagCatch(th)
+          } finally {
+            oolagFinalize
+          }
+        res
+      }
     }
 
     protected lazy val toOptionAny: Option[Any] = {

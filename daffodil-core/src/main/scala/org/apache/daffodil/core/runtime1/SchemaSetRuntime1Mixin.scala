@@ -48,21 +48,24 @@ trait SchemaSetRuntime1Mixin {
   }.value
 
   lazy val parser = LV('parser) {
-    val par = if (generateParser) root.document.parser else new NotParsableParser(root.erd)
+    val par =
+      if (generateParser) root.document.parser
+      else new NotParsableParser(root.erd)
     Processor.initialize(par)
     par
   }.value
 
   lazy val unparser = LV('unparser) {
     val unp =
-      if (generateUnparser) root.document.unparser else new NotUnparsableUnparser(root.erd)
+      if (generateUnparser) root.document.unparser
+      else new NotUnparsableUnparser(root.erd)
     Processor.initialize(unp)
     unp
   }.value
 
   private lazy val layerRuntimeCompiler = new LayerRuntimeCompiler
 
-  lazy val allLayers: Seq[LayerRuntimeData] = LV('allLayers) {
+  private lazy val allLayers: Seq[LayerRuntimeData] = LV('allLayers) {
     val lrds: Seq[LayerRuntimeData] = self.allSchemaComponents
       .collect {
         case stb: SequenceTermBase if (stb.isLayered) => stb

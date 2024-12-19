@@ -144,7 +144,7 @@ final class ProcessorFactory private (
     codeGenerator
   }
 
-  override def isError: Boolean = sset.isError
+  override lazy val isError: Boolean = sset.isError
 
   def withDistinguishedRootNode(name: String, namespace: String): ProcessorFactory = {
     Assert.usage(name ne null)
@@ -378,7 +378,13 @@ class Compiler private (
         tunables
       )
     }
-
+    // It is tempting to call pf.isError here to drive compilation to completion before we
+    // return the pf to the caller.
+    // However, this slows down TDML-based testing in Daffodil substantially by moving
+    // the entire isError checking pass inside the synchronized block of the Daffodil
+    // schema compiler. This results in reduced concurrency which substantially slows
+    // the daffodil test suite.
+    // pf.isError // don't call this here. Call it outside the synchronized block.
     pf
   }
 
@@ -409,9 +415,16 @@ object Compiler {
     optRootName: Option[String],
     optRootNamespace: Option[String]
   ): ProcessorFactory = {
-    synchronized {
+    val pf = synchronized {
       c.compileSourceInternal(schemaSource, optRootName, optRootNamespace)
     }
+    // Force all compilation to complete. Called here outside of synchronized block on purpose
+    // to avoid over-serializing things (which would slow down large test suites like Daffodil's test suite.)
+    // Note that this requires that the shared data structures which require Daffodil schema compilation to
+    // be serialized do *not* include the data structures being modified during isError processing (which is
+    // lots of OOLAG evaluations).
+    pf.isError
+    pf
   }
 
 }
