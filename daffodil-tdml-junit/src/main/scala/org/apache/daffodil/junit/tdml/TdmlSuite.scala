@@ -17,8 +17,6 @@
 
 package org.apache.daffodil.junit.tdml
 
-import java.io.File
-
 import org.apache.daffodil.tdml.Runner
 import org.apache.daffodil.tdml.TDMLTestNotCompatibleException
 
@@ -41,13 +39,13 @@ trait TdmlSuite {
    * Function to get the directory containing tdmlResource. Useful if createRunner is overridden
    * to use the Runner(dir, file, ...) factory method
    */
-  def tdmlDir: String = new File(tdmlResource).getParent()
+  def tdmlDir: String = tdmlResource.substring(0, tdmlResource.lastIndexOf("/") + 1)
 
   /**
    * Function to get basename of tdmlResource. Useful if createRunner is overridden to use the
    * Runner(dir, file, ...) factory method
    */
-  def tdmlFile: String = new File(tdmlResource).getName()
+  def tdmlFile: String = tdmlResource.substring(tdmlResource.lastIndexOf("/") + 1)
 
   /**
    * Default implementation to create a Runner using the tdmlResource. This function can be
