@@ -38,25 +38,15 @@ import org.apache.daffodil.runtime1.processors.dfa.TextDelimitedParserBase
 
 import passera.unsigned.ULong
 
-trait PackedBinaryConversion {
-  def toBigInteger(num: Array[Byte]): JBigInteger
-  def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal
+trait PackedBinaryConversion[A <: Number] {
+  def toNumber(num: Array[Byte]): A
 
-  def toPrimitiveType(context: ElementRuntimeData, num: Array[Byte]): DataValueNumber = {
+  def toPrimType(context: ElementRuntimeData, num: Array[Byte]): DataValueNumber = {
     context.optPrimType.get match {
-      case pn: PrimType.PrimNumeric => pn.fromNumber(toBigInteger(num))
+      case pn: PrimType.PrimNumeric => pn.fromNumber(toNumber(num))
       // Non-numeric types such as Time can still use these funcitons and
       // expect BigIntegers as the output of the conversion
-      case _ => toBigInteger(num)
-    }
-  }
-
-  def toPrimitiveType(context: ElementRuntimeData, num: Array[Byte], scale: Int): DataValueNumber = {
-    context.optPrimType.get match {
-      case pn: PrimType.PrimNumeric => pn.fromNumber(toBigDecimal(num, scale))
-      // Non-numeric types such as Time can still use these funcitons and
-      // expect BigDecimal as the output of the conversion
-      case _ => toBigDecimal(num, scale)
+      case _ => toNumber(num)
     }
   }
 }
@@ -94,7 +84,7 @@ abstract class PackedBinaryDecimalBaseParser(
   override val context: ElementRuntimeData,
   binaryDecimalVirtualPoint: Int
 ) extends PrimParser
-  with PackedBinaryConversion
+  with PackedBinaryConversion[JBigDecimal]
   with PackedBinaryLengthCheck {
   override lazy val runtimeDependencies = Vector()
 
@@ -115,7 +105,7 @@ abstract class PackedBinaryDecimalBaseParser(
     }
 
     try {
-      val dec = toPrimitiveType(context, dis.getByteArray(nBits, start), binaryDecimalVirtualPoint)
+      val dec = toPrimType(context, dis.getByteArray(nBits, start))
       start.simpleElement.setDataValue(dec)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
@@ -127,7 +117,7 @@ abstract class PackedBinaryDecimalBaseParser(
 abstract class PackedBinaryIntegerBaseParser(
   override val context: ElementRuntimeData
 ) extends PrimParser
-  with PackedBinaryConversion
+  with PackedBinaryConversion[JBigInteger]
   with PackedBinaryLengthCheck {
   override lazy val runtimeDependencies = Vector()
 
@@ -155,7 +145,7 @@ abstract class PackedBinaryIntegerBaseParser(
     }
 
     try {
-      val int = toPrimitiveType(context, dis.getByteArray(nBits, start))
+      val int = toPrimType(context, dis.getByteArray(nBits, start))
       start.simpleElement.setDataValue(int)
     } catch {
       case n: NumberFormatException => PE(start, "Error in packed data: \n%s", n.getMessage())
@@ -177,7 +167,7 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
     fieldDFAEv,
     isDelimRequired
   )
-  with PackedBinaryConversion {
+  with PackedBinaryConversion[JBigInteger] {
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
     Assert.invariant(
@@ -196,7 +186,7 @@ abstract class PackedBinaryIntegerDelimitedBaseParser(
         return
       } else {
         try {
-          val num = toPrimitiveType(context, fieldBytes)
+          val num = toPrimType(context, fieldBytes)
           state.simpleElement.setDataValue(num)
         } catch {
           case n: NumberFormatException =>
@@ -225,7 +215,7 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
     fieldDFAEv,
     isDelimRequired
   )
-  with PackedBinaryConversion {
+  with PackedBinaryConversion[JBigDecimal] {
 
   /**
    * We are treating packed binary formats as just a string in iso-8859-1 encoding.
@@ -256,7 +246,7 @@ abstract class PackedBinaryDecimalDelimitedBaseParser(
         return
       } else {
         try {
-          val num = toPrimitiveType(e, fieldBytes, binaryDecimalVirtualPoint)
+          val num = toPrimType(e, fieldBytes)
           state.simpleElement.setDataValue(num)
         } catch {
           case n: NumberFormatException =>

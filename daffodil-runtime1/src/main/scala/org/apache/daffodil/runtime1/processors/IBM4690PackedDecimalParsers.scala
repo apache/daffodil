@@ -34,10 +34,8 @@ class IBM4690PackedDecimalKnownLengthParser(
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasKnownLengthInBits {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
-    DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.ibm4690ToBigDecimal(num, scale)
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.ibm4690ToBigDecimal(num, binaryDecimalVirtualPoint)
 
 }
 
@@ -49,10 +47,8 @@ class IBM4690PackedDecimalRuntimeLengthParser(
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with HasRuntimeExplicitLength {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
-    DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.ibm4690ToBigDecimal(num, scale)
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.ibm4690ToBigDecimal(num, binaryDecimalVirtualPoint)
 
 }
 
@@ -66,10 +62,8 @@ class IBM4690PackedDecimalPrefixedLengthParser(
 ) extends PackedBinaryDecimalBaseParser(e, binaryDecimalVirtualPoint)
   with PrefixedLengthParserMixin {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
-    DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.ibm4690ToBigDecimal(num, scale)
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.ibm4690ToBigDecimal(num, binaryDecimalVirtualPoint)
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
 
@@ -86,10 +80,8 @@ class IBM4690PackedIntegerRuntimeLengthParser(
 ) extends PackedBinaryIntegerBaseParser(e)
   with HasRuntimeExplicitLength {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
+  override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.ibm4690ToBigDecimal(num, scale)
 
 }
 
@@ -99,10 +91,8 @@ class IBM4690PackedIntegerKnownLengthParser(
 ) extends PackedBinaryIntegerBaseParser(e)
   with HasKnownLengthInBits {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
+  override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.ibm4690ToBigDecimal(num, scale)
 
 }
 
@@ -115,10 +105,8 @@ class IBM4690PackedIntegerPrefixedLengthParser(
 ) extends PackedBinaryIntegerBaseParser(e)
   with PrefixedLengthParserMixin {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
+  override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.ibm4690ToBigDecimal(num, scale)
 
   override def childProcessors: Vector[Processor] = Vector(prefixedLengthParser)
 

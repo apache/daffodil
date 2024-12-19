@@ -216,10 +216,8 @@ class PackedIntegerDelimitedParser(
   packedSignCodes: PackedSignCodes
 ) extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
+  override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
 
 }
 
@@ -238,10 +236,8 @@ class PackedDecimalDelimitedParser(
     binaryDecimalVirtualPoint
   ) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
-    DecimalUtils.packedToBigInteger(num, packedSignCodes)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.packedToBigDecimal(num, scale, packedSignCodes)
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.packedToBigDecimal(num, binaryDecimalVirtualPoint, packedSignCodes)
 
 }
 
@@ -252,9 +248,7 @@ class BCDIntegerDelimitedParser(
   isDelimRequired: Boolean
 ) extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.bcdToBigDecimal(num, scale)
+  override def toNumber(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
 
 }
 
@@ -272,9 +266,8 @@ class BCDDecimalDelimitedParser(
     binaryDecimalVirtualPoint
   ) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger = DecimalUtils.bcdToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.bcdToBigDecimal(num, scale)
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.bcdToBigDecimal(num, binaryDecimalVirtualPoint)
 
 }
 
@@ -285,10 +278,8 @@ class IBM4690PackedIntegerDelimitedParser(
   isDelimRequired: Boolean
 ) extends PackedBinaryIntegerDelimitedBaseParser(erd, textParser, fieldDFAEv, isDelimRequired) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
+  override def toNumber(num: Array[Byte]): JBigInteger =
     DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.ibm4690ToBigDecimal(num, scale)
 
 }
 
@@ -306,9 +297,7 @@ class IBM4690PackedDecimalDelimitedParser(
     binaryDecimalVirtualPoint
   ) {
 
-  override def toBigInteger(num: Array[Byte]): JBigInteger =
-    DecimalUtils.ibm4690ToBigInteger(num)
-  override def toBigDecimal(num: Array[Byte], scale: Int): JBigDecimal =
-    DecimalUtils.ibm4690ToBigDecimal(num, scale)
+  override def toNumber(num: Array[Byte]): JBigDecimal =
+    DecimalUtils.ibm4690ToBigDecimal(num, binaryDecimalVirtualPoint)
 
 }
