@@ -61,8 +61,7 @@ case class ComplexNilOrContentUnparser(
   def unparse(state: UState): Unit = {
     Assert.invariant(Maybe.WithNulls.isDefined(state.currentInfosetNode))
     val inode = state.currentInfosetNode.asComplex
-    val maybeIsNilled = inode.maybeIsNilled
-    if (maybeIsNilled.isDefined && maybeIsNilled.get)
+    if (inode.isNilled)
       nilUnparser.unparse1(state)
     else
       contentUnparser.unparse1(state)

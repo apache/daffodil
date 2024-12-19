@@ -20,7 +20,6 @@ package org.apache.daffodil.unparsers.runtime1
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Maybe
 import org.apache.daffodil.lib.util.Maybe._
-import org.apache.daffodil.lib.util.MaybeBoolean
 import org.apache.daffodil.lib.util.MaybeULong
 import org.apache.daffodil.runtime1.dpath.SuspendableExpression
 import org.apache.daffodil.runtime1.dsom.CompiledExpression
@@ -447,7 +446,7 @@ sealed trait RegularElementUnparserStartEndStrategy extends ElementUnparserStart
       if (parentNodeMaybe.isDefined) {
         val parentComplex = parentNodeMaybe.get.asComplex
         Assert.invariant(!parentComplex.isFinal)
-        if (parentComplex.maybeIsNilled == MaybeBoolean.True) {
+        if (parentComplex.isNilled) {
           // cannot add content to a nilled complex element
           UnparseError(
             One(erd.schemaFileLocation),

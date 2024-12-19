@@ -46,14 +46,12 @@ abstract class LiteralNilOfSpecifiedLengthParserBase(erd: ElementRuntimeData)
     val isFieldEmpty = field.length() == 0
 
     if (isFieldEmpty && isEmptyAllowed) {
-      // Valid!
-      start.thisElement.setNilled()
+      // Valid! Success ParseResult indicates nilled
     } else if (isFieldEmpty && !isEmptyAllowed) {
       // Fail!
       PE(start, "%s - Empty field found but not allowed!", eName)
     } else if (isFieldNilLit(field)) {
-      // Contains a nilValue, Success!
-      start.thisElement.setNilled()
+      // Contains a nilValue, Success ParseResult indicates nilled
     } else {
       // Fail!
       PE(start, "%s - Does not contain a nil literal!", eName)

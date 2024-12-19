@@ -812,6 +812,13 @@ class TestDFDLExpressions {
   // DFDL-1233
   @Test def test_nilled_02(): Unit = { runner2.runOneTest("nilled_02") }
   @Test def test_nilled_03(): Unit = { runner2.runOneTest("nilled_03") }
+  @Test def test_nilled_04(): Unit = { runner2.runOneTest("nilled_04") }
+  @Test def test_nilled_05(): Unit = { runner2.runOneTest("nilled_05") }
+  @Test def test_nilled_06(): Unit = { runner2.runOneTest("nilled_06") }
+  @Test def test_nilled_07(): Unit = { runner2.runOneTest("nilled_07") }
+  @Test def test_nilled_08(): Unit = { runner2.runOneTest("nilled_08") }
+  @Test def test_nilled_09(): Unit = { runner2.runOneTest("nilled_09") }
+  @Test def test_nilled_10(): Unit = { runner2.runOneTest("nilled_10") }
 
   @Test def test_concat_01(): Unit = { runner2.runOneTest("concat_01") }
   @Test def test_concat_02(): Unit = { runner2.runOneTest("concat_02") }

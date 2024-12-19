@@ -807,6 +807,14 @@ sealed trait DIElementSharedMembersMixin {
   protected final var _contentLength: ContentLengthState = null
   protected final var _valueLength: ValueLengthState = null
 
+  /**
+   * Default isNilled to false. Note that this is safe since this field cannot be accessed in
+   * the time between an element being created and the determination that an element is nil by a
+   * NilParser or an InfosetInputter. The only things that are evaluated during this time are
+   * things like discriminators/setVar, but the kinds that can evaluate expression that might
+   * access isNilledState are evaluated at the end of the element, well after it is determined
+   * to be nilled or not
+   */
   protected final var _isNilled: Boolean = false
   protected final var _validity: MaybeBoolean = MaybeBoolean.Nope
 
@@ -1098,8 +1106,6 @@ sealed trait DIElement
   final def runtimeData = erd
   protected final var _parent: DIComplex = null
 
-  protected final var _isNilledSet: Boolean = false
-
   def parent = _parent
 
   def diParent = _parent.asInstanceOf[DIComplex]
@@ -1116,30 +1122,16 @@ sealed trait DIElement
   }
 
   /**
-   * Used for just testing whether a node has the nil
-   * indicators set. That is, dodges the expression evaluation
-   * complexity where specific exceptions are thrown when you
-   * ask about data that isn't known yet.
+   * Tells if the element is nilled or not. For non-nillable elements this always returns false.
    */
-  final def maybeIsNilled: MaybeBoolean = {
-    if (!_isNilledSet) MaybeBoolean.Nope
-    else MaybeBoolean(_isNilled)
+  def isNilled: Boolean = {
+    if (!erd.isNillable) false
+    else _isNilled
   }
-
-  /**
-   * Tells if the element is nilled or not.
-   *
-   * Throws InfosetNoDataException if we don't yet
-   * know if it is nil or not (i.e., hasn't be set, nor has
-   * anything been set to indicate that it won't be nilled.)
-   */
-  def isNilled: Boolean
 
   def setNilled(): Unit = {
     Assert.invariant(erd.isNillable)
-    Assert.invariant(!_isNilled)
     _isNilled = true
-    _isNilledSet = true
   }
 
   /**
@@ -1423,30 +1415,12 @@ sealed class DISimple(override val erd: ElementRuntimeData)
         }
       }
     }
-    _isNilled = false
-    _isNilledSet = true
     _isDefaulted = false
     _validity = MaybeBoolean.Nope // we have not tested this new value.
     _unionMemberRuntimeData = Nope
   }
 
-  /**
-   * @return true if the element is nilled, false otherwise.
-   * @throws InfosetNoDataException if neither data value nor setNull has happened yet
-   *                                so the nil status is undetermined.
-   */
-  override def isNilled: Boolean = {
-    if (!erd.isNillable) false
-    else if (_isNilledSet) {
-      _isNilled
-    } else {
-      erd.toss(InfosetNoDataException(this, erd))
-    }
-  }
-
   def resetValue(): Unit = {
-    _isNilled = false
-    _isNilledSet = false
     _isDefaulted = false
     _validity = MaybeBoolean.Nope // we have not tested this new value.
     _unionMemberRuntimeData = Nope
@@ -1479,7 +1453,6 @@ sealed class DISimple(override val erd: ElementRuntimeData)
       if (erd.optDefaultValue.isDefined) {
         val defaultVal = erd.optDefaultValue
         if (defaultVal == DataValue.UseNilForDefault) {
-          Assert.invariant(erd.isNillable)
           this.setNilled()
         } else {
           _value = defaultVal.getNullablePrimitive
@@ -1684,18 +1657,6 @@ sealed class DIComplex(override val erd: ElementRuntimeData)
   override def valueStringForDebug: String = ""
 
   final def isEmpty: Boolean = false
-
-  final override def isNilled: Boolean = {
-    if (!erd.isNillable) false
-    else if (_isNilledSet) {
-      _isNilled
-    } else if (this.isFinal) {
-      // TODO: should we check that there are no children?
-      false
-    } else {
-      erd.toss(new InfosetNoDataException(this, erd))
-    }
-  }
 
   override def requireFinal(): Unit = {
     if (!isFinal) throw nfe

@@ -29,7 +29,6 @@ import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDLPrimType
 import org.apache.daffodil.runtime1.api.InfosetArray
 import org.apache.daffodil.runtime1.api.InfosetComplexElement
-import org.apache.daffodil.runtime1.api.InfosetElement
 import org.apache.daffodil.runtime1.api.InfosetSimpleElement
 
 class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOutputter {
@@ -87,7 +86,7 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOu
     val attributes = getAttributes(diSimple)
 
     val children =
-      if (!isNilled(diSimple) && diSimple.hasValue) {
+      if (!diSimple.isNilled && diSimple.hasValue) {
         val text =
           if (diSimple.metadata.dfdlType == DFDLPrimType.String) {
             XMLUtils.remapXMLIllegalCharactersToPUA(diSimple.dataValueAsString)
@@ -148,20 +147,5 @@ class ScalaXMLInfosetOutputter(showFreedInfo: Boolean = false) extends InfosetOu
       "No result to get. Must check isError parse result before calling getResult"
     )
     resultNode.get
-  }
-
-  /**
-   * Helper function to determine if an element is nilled or not, taking into
-   * account whether or not the nilled state has been set yet.
-   *
-   * @param elem the element to check the nilled state of
-   * @return true if the nilled state has been set and is true. false if the
-   *         nilled state is false or if the nilled state has not been set yet
-   *         (e.g. during debugging)
-   */
-  private def isNilled(elem: InfosetElement): Boolean = {
-    val diElement = elem.asInstanceOf[DIElement]
-    val maybeIsNilled = diElement.maybeIsNilled
-    maybeIsNilled.isDefined && maybeIsNilled.get == true
   }
 }

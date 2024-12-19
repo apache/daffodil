@@ -340,8 +340,7 @@ abstract class InfosetInputter
       // An open complex element is on top of stack.
       // This start event must be for a child element
       val c = top.asComplex
-      val optNilled = c.maybeIsNilled
-      if (optNilled.isDefined && optNilled.get) {
+      if (c.isNilled) {
         // cannot add content to a nilled complex element
         UnparseError(
           One(c.erd.schemaFileLocation),

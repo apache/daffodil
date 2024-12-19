@@ -345,9 +345,7 @@ class NonPositionalGroupSeparatedSequenceChildParseResultHelper(
       val maybeElem = pstate.infosetLastChild
       Assert.invariant(maybeElem.isDefined)
       val elem = maybeElem.get
-      val maybeIsNilled =
-        elem.maybeIsNilled // can't just call isNilled because that throws exceptions on not defined
-      if (maybeIsNilled.isDefined && maybeIsNilled.get) {
+      if (elem.isNilled) {
         ParseAttemptStatus.NilRep
       } else {
         ParseAttemptStatus.NormalRep
