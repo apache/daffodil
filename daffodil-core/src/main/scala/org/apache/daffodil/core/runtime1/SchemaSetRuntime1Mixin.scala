@@ -66,7 +66,7 @@ trait SchemaSetRuntime1Mixin {
   private lazy val layerRuntimeCompiler = new LayerRuntimeCompiler
 
   private lazy val allLayers: Seq[LayerRuntimeData] = LV('allLayers) {
-    lazy val lrds: Seq[LayerRuntimeData] = self.allSchemaComponents
+    val lrds: Seq[LayerRuntimeData] = self.allSchemaComponents
       .collect {
         case stb: SequenceTermBase if (stb.isLayered) => stb
       }

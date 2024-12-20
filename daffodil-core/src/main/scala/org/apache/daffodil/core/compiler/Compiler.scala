@@ -410,10 +410,9 @@ object Compiler {
     optRootName: Option[String],
     optRootNamespace: Option[String]
   ): ProcessorFactory = {
-    val res = synchronized {
+    synchronized {
       c.compileSourceInternal(schemaSource, optRootName, optRootNamespace)
     }
-    res
   }
 
 }
