@@ -1252,7 +1252,7 @@ public class TestJavaAPI {
             Throwable cause = e.getCause();
             assertTrue(cause.toString().contains("Must call isError"));
             assertTrue(cause.getCause().toString().contains("Schema Definition Error"));
-            assertTrue(cause.getCause().toString().contains("Cannot resolve the name 'tns:nonExistent'"));
+            assertTrue(cause.getCause().toString().contains("tns:nonExistent"));
         }
     }
 

@@ -1234,7 +1234,7 @@ class TestScalaAPI {
           cause.getCause.toString.contains("Schema Definition Error")
         )
         assertTrue(
-          cause.getCause.toString.contains("Cannot resolve the name 'tns:nonExistent'")
+          cause.getCause.toString.contains("tns:nonExistent")
         )
       }
     }

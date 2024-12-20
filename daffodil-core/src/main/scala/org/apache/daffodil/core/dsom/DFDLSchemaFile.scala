@@ -205,8 +205,37 @@ final class DFDLSchemaFile(
   private lazy val errHandler = new DFDLSchemaFileLoadErrorHandler(schemaFileLocation)
   private lazy val loader = new DaffodilXMLLoader(errHandler)
 
+  lazy val isValidAsCompleteDFDLSchema: Boolean = LV('isValidAsCompleteDFDLSchema) {
+    try {
+      loader.validateAsCompleteDFDLSchema(schemaSource)
+    } catch {
+      case e: org.xml.sax.SAXParseException =>
+        errHandler.error(e) // accumulate with error handler.
+    } finally {
+      errHandler.handleLoadErrors(this)
+    }
+    true
+  }.value
+
   lazy val iiXMLSchemaDocument = LV('iiXMLSchemaDocument) {
-    val res =  makeXMLSchemaDocument(seenBefore, Some(this))
+    val res = makeXMLSchemaDocument(seenBefore, Some(this))
+    if (res.isDFDLSchema && sset.shouldValidateDFDLSchemas) {
+      //
+      // We validate DFDL schemas, only if validation is requested.
+      // Some things, tests generally, want to turn this validation off.
+      //
+      try {
+        loader.validateAsIndividualDFDLSchemaFile(schemaSource)
+      } catch {
+        // validateAsIndividualDFDLSchemaFile doesn't always capture all exceptions in the
+        // loader's error handler. Even for fatal errors it sometimes
+        // just throws them.
+        case e: org.xml.sax.SAXParseException =>
+          errHandler.error(e) // accumulate with error handler.
+      } finally {
+        errHandler.handleLoadErrors(this)
+      }
+    }
     res
   }.value
 
