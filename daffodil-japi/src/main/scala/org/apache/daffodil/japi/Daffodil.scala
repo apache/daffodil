@@ -298,7 +298,9 @@ class ProcessorFactory private[japi] (private var pf: SProcessorFactory)
    */
   def onPath(path: String) = {
     val dp = pf.onPath(path).asInstanceOf[SDataProcessor]
-    new DataProcessor(dp)
+    val res = new DataProcessor(dp)
+    res.isError // ensure all errors have been detected before we return the DP
+    res
   }
 
   /**

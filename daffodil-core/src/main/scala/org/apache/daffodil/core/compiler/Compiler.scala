@@ -378,7 +378,8 @@ class Compiler private (
         tunables
       )
     }
-
+    pf.isError // call here to drive compilation, so that compilation at least at the level of the PF
+    // is over when we return the pf.
     pf
   }
 
