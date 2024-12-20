@@ -71,7 +71,7 @@ trait SchemaSetRuntime1Mixin {
         case stb: SequenceTermBase if (stb.isLayered) => stb
       }
       .map { _.optionLayerRuntimeData.get }
-      layerRuntimeCompiler.compileAll(lrds) // for checking only. We're not saving this.
+    layerRuntimeCompiler.compileAll(lrds) // for checking only. We're not saving this.
     lrds
   }.value
 

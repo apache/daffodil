@@ -171,7 +171,8 @@ final class SchemaSet private (
   lazy val schemaFileList = schemas.map(s => s.uriString)
 
   private lazy val isValid: Boolean = {
-    if (!shouldValidateDFDLSchemas) true // pretend it's valid though for some specific tests it may not be
+    if (!shouldValidateDFDLSchemas)
+      true // pretend it's valid though for some specific tests it may not be
     else {
       //
       // We use keepGoing here, because we want to gather a validation error,

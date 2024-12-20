@@ -22,6 +22,7 @@ import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
 import scala.collection.JavaConverters._
 import scala.xml.SAXException
+
 import org.apache.daffodil.lib.api.ValidationException
 import org.apache.daffodil.lib.api.ValidationFailure
 import org.apache.daffodil.lib.api.ValidationResult
@@ -31,6 +32,7 @@ import org.apache.daffodil.lib.api.ValidatorFactory
 import org.apache.daffodil.lib.validation.XercesValidator.XercesValidatorImpl
 import org.apache.daffodil.lib.xml.DFDLCatalogResolver
 import org.apache.daffodil.lib.xml.XMLUtils
+
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValueFactory
