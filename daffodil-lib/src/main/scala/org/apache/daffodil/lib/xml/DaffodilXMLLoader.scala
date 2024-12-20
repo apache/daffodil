@@ -45,7 +45,6 @@ import org.apache.daffodil.lib.api.URISchemaSource
 import org.apache.daffodil.lib.exceptions.Assert
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.util.TimeTracker
 import org.apache.daffodil.lib.validation.XercesValidator
 
 import org.apache.xerces.jaxp.validation.XMLSchemaFactory
@@ -205,7 +204,7 @@ class DFDLCatalogResolver private ()
     nsURI: String,
     systemId: String,
     baseURIString: String
-  ): Option[URI] = TimeTracker.track("resolveCommon") {
+  ): Option[URI] = {
     init
     if (nsURI == null && systemId == null && baseURIString == null) return None
 
@@ -567,9 +566,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     // first we load it, with validation explicitly against the
     // schema for DFDL Schemas.
     try {
-      TimeTracker.track("validateAsDFDLSchema load")(
-        load(source, Some(XMLUtils.schemaForDFDLSchemas), addPositionAttributes = true)
-      )
+      load(source, Some(XMLUtils.schemaForDFDLSchemas), addPositionAttributes = true)
       //
       // Then we validate explicitly so Xerces can check things
       // such as for UPA violations
@@ -583,9 +580,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       // in the schema has an unrecognized namespace prefix.
       //
       try {
-        TimeTracker.track("validateAsDFDLSchema schemaFactory.newSchema")(
-          schemaFactory.newSchema(saxSource)
-        )
+        schemaFactory.newSchema(saxSource)
       } finally {
         inputSource.getByteStream().close()
       }
@@ -624,14 +619,12 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
    * Obtain and initialize parser which validates the schema is defined.
    */
   private def parserFromURI(optSchemaURI: Option[URI]): SAXParser =
-    TimeTracker.track("parserFromURI") {
-      if (optSchemaURI.isEmpty) noSchemaParser
-      else {
-        val f = parserFactory()
-        val schema = schemaFromURI(optSchemaURI.get)
-        f.setSchema(schema)
-        parserFromFactory(f)
-      }
+    if (optSchemaURI.isEmpty) noSchemaParser
+    else {
+      val f = parserFactory()
+      val schema = schemaFromURI(optSchemaURI.get)
+      f.setSchema(schema)
+      parserFromFactory(f)
     }
 
   private def schemaFromURI(schemaURI: URI): Schema = {
@@ -642,7 +635,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     schema
   }
 
-  private def parserFactory(): SAXParserFactory = TimeTracker.track("parserFactory") {
+  private def parserFactory(): SAXParserFactory = {
     val f = DaffodilSAXParserFactory()
     f.setNamespaceAware(true)
     f.setFeature(XMLUtils.SAX_NAMESPACE_PREFIXES_FEATURE, true)
@@ -661,7 +654,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     parserFromFactory(parserFactory())
   }
 
-  private def parserFromFactory(f: SAXParserFactory) = TimeTracker.track("parserFromFactory") {
+  private def parserFromFactory(f: SAXParserFactory) = {
     val p = f.newSAXParser()
     // Not allowed on a SAXParser
     // p.setProperty(XMLUtils.SAX_NAvMESPACES_FEATURE, true)
@@ -771,7 +764,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
         // it first modifies the reader in a number of ways to prepare it for use with this
         // FactoryAdapter, as well as initialize private state that is used by ContentHandler
         // functions.
-        TimeTracker.track("loadDocument")(loadDocument(saxSource, xrdr))
+        loadDocument(saxSource, xrdr)
       } catch {
         // can be thrown by the resolver if a schemaLocation of
         // an import/include cannot be resolved.
@@ -793,9 +786,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
       )
     val res =
       try {
-        TimeTracker.track("constructingLoader.load")(
-          constructingLoader.load() // construct the XML objects for us.
-        )
+        constructingLoader.load() // construct the XML objects for us.
       } catch {
         case e: SAXParseException => // fatal. We can't successfully load.
           throw e // good place for a breakpoint

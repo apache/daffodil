@@ -22,7 +22,6 @@ import java.io.FileNotFoundException
 import org.apache.daffodil.core.dsom.SchemaSet
 import org.apache.daffodil.core.dsom.SequenceTermBase
 import org.apache.daffodil.lib.util.Logger
-import org.apache.daffodil.lib.util.TimeTracker
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.api.DFDL
 import org.apache.daffodil.runtime1.layers.LayerRuntimeCompiler
@@ -50,7 +49,7 @@ trait SchemaSetRuntime1Mixin {
 
   lazy val parser = LV('parser) {
     val par =
-      if (generateParser) TimeTracker.track("parser")(root.document.parser)
+      if (generateParser) root.document.parser
       else new NotParsableParser(root.erd)
     Processor.initialize(par)
     par
@@ -58,7 +57,7 @@ trait SchemaSetRuntime1Mixin {
 
   lazy val unparser = LV('unparser) {
     val unp =
-      if (generateUnparser) TimeTracker.track("unparser")(root.document.unparser)
+      if (generateUnparser) root.document.unparser
       else new NotUnparsableUnparser(root.erd)
     Processor.initialize(unp)
     unp
@@ -72,9 +71,7 @@ trait SchemaSetRuntime1Mixin {
         case stb: SequenceTermBase if (stb.isLayered) => stb
       }
       .map { _.optionLayerRuntimeData.get }
-    TimeTracker.track("layerCompile")(
-      layerRuntimeCompiler.compileAll(lrds)
-    ) // for checking only. We're not saving this.
+      layerRuntimeCompiler.compileAll(lrds) // for checking only. We're not saving this.
     lrds
   }.value
 

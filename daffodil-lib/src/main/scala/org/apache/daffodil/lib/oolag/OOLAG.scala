@@ -514,9 +514,13 @@ object OOLAG {
     bodyArg: => Any
   ) {
 
-    private lazy val bodyOnce = bodyArg
-    private lazy val timedBody = TimeTracker.track(name) { bodyOnce }
-    private lazy val body = timedBody
+    // SCHEMA COMPILER PERFORMANCE INSTRUMENTATION
+    // To get timing on every OOLAG LV, use these 3 lines to define the 'body' lazy var.
+    // private lazy val bodyOnce = bodyArg
+    // private lazy val timedBody = TimeTracker.track(name) { bodyOnce }
+    // private lazy val body = timedBody
+    // You will also need to call TimeTracker.logTimes() at the end of Compiler.compileSource.
+    private lazy val body = bodyArg
 
     Assert.usage(oolagContext != null)
 

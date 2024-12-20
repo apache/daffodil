@@ -34,7 +34,6 @@ import org.apache.daffodil.lib.xml.XMLUtils
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigValueFactory
-import org.apache.daffodil.lib.util.TimeTracker
 import org.xml.sax.ErrorHandler
 import org.xml.sax.SAXParseException
 
@@ -97,7 +96,7 @@ class XercesValidator(schemaSources: Seq[javax.xml.transform.Source]) extends Va
 
     // validate the document
     try {
-      TimeTracker.track("validateXML")(xv.validate(documentSource))
+      xv.validate(documentSource)
     } catch {
       // can be thrown by the resolver if it cannot
       // resolve the schemaLocation of an include/import.

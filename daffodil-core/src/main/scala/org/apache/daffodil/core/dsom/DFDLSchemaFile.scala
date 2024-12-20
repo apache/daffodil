@@ -27,7 +27,6 @@ import org.apache.daffodil.lib.exceptions.SchemaFileLocation
 import org.apache.daffodil.lib.exceptions.XercesSchemaFileLocation
 import org.apache.daffodil.lib.util.Logger
 import org.apache.daffodil.lib.util.Misc
-import org.apache.daffodil.lib.util.TimeTracker
 import org.apache.daffodil.lib.xml.DaffodilXMLLoader
 import org.apache.daffodil.lib.xml.NS
 import org.apache.daffodil.lib.xml.XMLUtils
@@ -207,9 +206,7 @@ final class DFDLSchemaFile(
   private lazy val loader = new DaffodilXMLLoader(errHandler)
 
   lazy val iiXMLSchemaDocument = LV('iiXMLSchemaDocument) {
-    val res = TimeTracker.track("iiXMLSchemaDocument makeXMLSchemaDocument")(
-      makeXMLSchemaDocument(seenBefore, Some(this))
-    )
+    val res =  makeXMLSchemaDocument(seenBefore, Some(this))
     res
   }.value
 
