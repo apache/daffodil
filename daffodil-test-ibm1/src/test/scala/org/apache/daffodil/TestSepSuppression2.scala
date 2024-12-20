@@ -17,33 +17,29 @@
 
 package org.apache.daffodil
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.{ AfterClass, Test }
+import org.junit.Test
 
-object TestSepSuppression2 {
-  val testDir = "/test-suite/tresys-contributed/"
-  val runner2 = Runner(testDir, "sepSuppression2.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner2.reset
-  }
+object TestSepSuppression2 extends TdmlSuite {
+  val tdmlResource = "/test-suite/tresys-contributed/sepSuppression2.tdml"
 }
 
-class TestSepSuppression2 {
-  import TestSepSuppression2._
+class TestSepSuppression2 extends TdmlTests {
+  val tdmlSuite = TestSepSuppression2
 
-  @Test def test_ptLax0_1u() = { runner2.runOneTest("ptLax0_1u") }
-  @Test def test_ptLax0_2u() = { runner2.runOneTest("ptLax0_2u") }
-  @Test def test_ptLax0_3u() = { runner2.runOneTest("ptLax0_3u") }
+  @Test def ptLax0_1u = test
+  @Test def ptLax0_2u = test
+  @Test def ptLax0_3u = test
 
-  @Test def test_ptLax1rt() = { runner2.runOneTest("ptLax1rt") }
+  @Test def ptLax1rt = test
 
-  @Test def test_ptLax2p() = { runner2.runOneTest("ptLax2p") }
-  @Test def test_ptLax2u() = { runner2.runOneTest("ptLax2u") }
-  @Test def test_ptLax2p2() = { runner2.runOneTest("ptLax2p2") }
+  @Test def ptLax2p = test
+  @Test def ptLax2u = test
+  @Test def ptLax2p2 = test
 
-  @Test def test_ptLax3rt() = { runner2.runOneTest("ptLax3rt") }
+  @Test def ptLax3rt = test
 
-  @Test def test_testAnyEmptyTrailing1() = { runner2.runOneTest("testAnyEmptyTrailing1") }
+  @Test def testAnyEmptyTrailing1 = test
 }

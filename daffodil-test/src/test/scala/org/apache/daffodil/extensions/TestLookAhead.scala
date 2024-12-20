@@ -16,47 +16,30 @@
  */
 package org.apache.daffodil.extensions
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestLookAhead {
-  val testDir = "/org/apache/daffodil/extensions/lookAhead/"
-
-  val runner = Runner(testDir, "lookAhead.tdml", validateTDMLFile = true)
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestLookAhead extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/extensions/lookAhead/lookAhead.tdml"
 }
 
-class TestLookAhead {
-  import TestLookAhead._
+class TestLookAhead extends TdmlTests {
+  val tdmlSuite = TestLookAhead
 
-  @Test def test_lookAhead_01(): Unit = { runner.runOneTest("lookAhead_01") }
-  @Test def test_lookAhead_02(): Unit = { runner.runOneTest("lookAhead_02") }
-  @Test def test_lookAhead_03(): Unit = { runner.runOneTest("lookAhead_03") }
-  @Test def test_lookAhead_04(): Unit = { runner.runOneTest("lookAhead_04") }
-  @Test def test_lookAhead_05(): Unit = { runner.runOneTest("lookAhead_05") }
-  @Test def test_lookAhead_06(): Unit = { runner.runOneTest("lookAhead_06") }
-  @Test def test_lookAhead_tooFar_01(): Unit = { runner.runOneTest("lookAhead_tooFar_01") }
-  @Test def test_lookAhead_tooFar_02(): Unit = { runner.runOneTest("lookAhead_tooFar_02") }
-  @Test def test_lookAhead_tooFar_03(): Unit = { runner.runOneTest("lookAhead_tooFar_03") }
-  @Test def test_lookAhead_negativeOffset_01(): Unit = {
-    runner.runOneTest("lookAhead_negativeOffset_01")
-  }
-  @Test def test_lookAhead_negativeBitsize_01(): Unit = {
-    runner.runOneTest("lookAhead_negativeBitsize_01")
-  }
-  @Test def test_lookAhead_zeroBitsize_01(): Unit = {
-    runner.runOneTest("lookAhead_zeroBitsize_01")
-  }
-  @Test def test_lookAhead_newVariableInstance_01(): Unit = {
-    runner.runOneTest("lookAhead_newVariableInstance_01")
-  }
-  @Test def test_lookAhead_setVariable_01(): Unit = {
-    runner.runOneTest("lookAhead_setVariable_01")
-  }
+  @Test def lookAhead_01 = test
+  @Test def lookAhead_02 = test
+  @Test def lookAhead_03 = test
+  @Test def lookAhead_04 = test
+  @Test def lookAhead_05 = test
+  @Test def lookAhead_06 = test
+  @Test def lookAhead_tooFar_01 = test
+  @Test def lookAhead_tooFar_02 = test
+  @Test def lookAhead_tooFar_03 = test
+  @Test def lookAhead_negativeOffset_01 = test
+  @Test def lookAhead_negativeBitsize_01 = test
+  @Test def lookAhead_zeroBitsize_01 = test
+  @Test def lookAhead_newVariableInstance_01 = test
+  @Test def lookAhead_setVariable_01 = test
 }

@@ -17,101 +17,47 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestUnparserFileBuffering {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner = Runner(testDir, "testUnparserFileBuffering.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestUnparserFileBuffering extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/testUnparserFileBuffering.tdml"
 }
-class TestUnparserFileBuffering {
 
-  import TestUnparserFileBuffering._
+class TestUnparserFileBuffering extends TdmlTests {
+  val tdmlSuite = TestUnparserFileBuffering
 
-  @Test def test_puaInfosetChars_01_ffb(): Unit = {
-    runner.runOneTest("puaInfosetChars_01_ffb")
-  }
-  @Test def test_puaInfosetChars_02_ffb(): Unit = {
-    runner.runOneTest("puaInfosetChars_02_ffb")
-  }
+  @Test def puaInfosetChars_01_ffb = test
+  @Test def puaInfosetChars_02_ffb = test
 
-  @Test def test_unparseFixedLengthString01_ffb(): Unit = {
-    runner.runOneTest("unparseFixedLengthString01_ffb")
-  }
-  @Test def test_unparseFixedLengthString02_ffb(): Unit = {
-    runner.runOneTest("unparseFixedLengthString02_ffb")
-  }
-  @Test def test_unparseFixedLengthString03_ffb(): Unit = {
-    runner.runOneTest("unparseFixedLengthString03_ffb")
-  }
+  @Test def unparseFixedLengthString01_ffb = test
+  @Test def unparseFixedLengthString02_ffb = test
+  @Test def unparseFixedLengthString03_ffb = test
 
-  @Test def test_parseFixedLengthString01_ffb(): Unit = {
-    runner.runOneTest("parseFixedLengthString01_ffb")
-  }
-  @Test def test_parseFixedLengthStringLength0_ffb(): Unit = {
-    runner.runOneTest("parseFixedLengthStringLength0_ffb")
-  }
+  @Test def parseFixedLengthString01_ffb = test
+  @Test def parseFixedLengthStringLength0_ffb = test
 
-  @Test def test_negativeUnparseTest01_ffb(): Unit = {
-    runner.runOneTest("negativeUnparseTest01_ffb")
-  }
-  @Test def test_negativeUnparseTest02_ffb(): Unit = {
-    runner.runOneTest("negativeUnparseTest02_ffb")
-  }
-  @Test def test_negativeUnparseTest03_ffb(): Unit = {
-    runner.runOneTest("negativeUnparseTest03_ffb")
-  }
-  @Test def test_negativeUnparseTest04_ffb(): Unit = {
-    runner.runOneTest("negativeUnparseTest04_ffb")
-  }
-  @Test def test_negativeUnparseTest05_ffb(): Unit = {
-    runner.runOneTest("negativeUnparseTest05_ffb")
-  }
+  @Test def negativeUnparseTest01_ffb = test
+  @Test def negativeUnparseTest02_ffb = test
+  @Test def negativeUnparseTest03_ffb = test
+  @Test def negativeUnparseTest04_ffb = test
+  @Test def negativeUnparseTest05_ffb = test
 
-  @Test def test_unparseDelimitedString01_ffb(): Unit = {
-    runner.runOneTest("unparseDelimitedString01_ffb")
-  }
-  @Test def test_unparseDelimitedString02_ffb(): Unit = {
-    runner.runOneTest("unparseDelimitedString02_ffb")
-  }
-  @Test def test_unparseDelimitedString03_ffb(): Unit = {
-    runner.runOneTest("unparseDelimitedString03_ffb")
-  }
-  @Test def test_unparseDelimitedString04_ffb(): Unit = {
-    runner.runOneTest("unparseDelimitedString04_ffb")
-  }
-  @Test def test_unparseDelimitedString05_ffb(): Unit = {
-    runner.runOneTest("unparseDelimitedString05_ffb")
-  }
-  @Test def test_unparseDelimitedString06_ffb(): Unit = {
-    runner.runOneTest("unparseDelimitedString06_ffb")
-  }
-  @Test def test_unparseDelimitedString07_ffb(): Unit = {
-    runner.runOneTest("unparseDelimitedString07_ffb")
-  }
+  @Test def unparseDelimitedString01_ffb = test
+  @Test def unparseDelimitedString02_ffb = test
+  @Test def unparseDelimitedString03_ffb = test
+  @Test def unparseDelimitedString04_ffb = test
+  @Test def unparseDelimitedString05_ffb = test
+  @Test def unparseDelimitedString06_ffb = test
+  @Test def unparseDelimitedString07_ffb = test
 
-  @Test def test_parseDelimitedString01_ffb(): Unit = {
-    runner.runOneTest("parseDelimitedString01_ffb")
-  }
+  @Test def parseDelimitedString01_ffb = test
 
   // DFDL-1650
-  @Test def test_alignmentPaddingOVC1_ffb(): Unit = {
-    runner.runOneTest("alignmentPaddingOVC1_ffb")
-  }
-  @Test def test_alignmentPaddingOVC2_ffb(): Unit = {
-    runner.runOneTest("alignmentPaddingOVC2_ffb")
-  }
-  @Test def test_alignmentPaddingOVC3_ffb(): Unit = {
-    runner.runOneTest("alignmentPaddingOVC3_ffb")
-  }
-  @Test def test_alignmentPaddingOVC4_ffb(): Unit = {
-    runner.runOneTest("alignmentPaddingOVC4_ffb")
-  }
-
+  @Test def alignmentPaddingOVC1_ffb = test
+  @Test def alignmentPaddingOVC2_ffb = test
+  @Test def alignmentPaddingOVC3_ffb = test
+  @Test def alignmentPaddingOVC4_ffb = test
 }

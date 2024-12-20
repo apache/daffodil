@@ -17,30 +17,21 @@
 
 package org.apache.daffodil.section15.choice_groups
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestChoiceNest {
-  val testDir = "/org/apache/daffodil/section15/choice_groups/"
-
-  val runner = Runner(testDir, "choiceNests.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestChoiceNest extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section15/choice_groups/choiceNests.tdml"
 }
 
-class TestChoiceNest {
+class TestChoiceNest extends TdmlTests {
+  val tdmlSuite = TestChoiceNest
 
-  import TestChoiceNest._
-
-  @Test def test_choiceNest1(): Unit = { runner.runOneTest("choiceNest1") }
-  @Test def test_choiceNest2(): Unit = { runner.runOneTest("choiceNest2") }
-  @Test def test_choiceNest2a(): Unit = { runner.runOneTest("choiceNest2a") }
-  @Test def test_choiceNest3(): Unit = { runner.runOneTest("choiceNest3") }
-  @Test def test_choiceNest4(): Unit = { runner.runOneTest("choiceNest4") }
-
+  @Test def choiceNest1 = test
+  @Test def choiceNest2 = test
+  @Test def choiceNest2a = test
+  @Test def choiceNest3 = test
+  @Test def choiceNest4 = test
 }

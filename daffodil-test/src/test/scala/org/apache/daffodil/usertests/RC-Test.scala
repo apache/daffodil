@@ -17,26 +17,19 @@
 
 package org.apache.daffodil.usertests
 
-// import org.junit.Test
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
+import org.junit.Ignore
+import org.junit.Test
 
-object RCTest {
-  val testDir = "/org/apache/daffodil/usertests/"
-  val runner6 = Runner(testDir, "test-6.tdml.xml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner6.reset
-  }
-
+object RCTest extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/usertests/test-6.tdml.xml"
 }
 
-class RCTest {
-
-  // import RCTest._
+class RCTest extends TdmlTests {
+  val tdmlSuite = RCTest
 
   // DAFFODIL-2217
-  // @Test def test6() { runner6.runOneTest("parse-test-6") }
-
+  @Ignore @Test def parse_test_6 = test
 }

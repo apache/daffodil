@@ -17,39 +17,33 @@
 
 package org.apache.daffodil.section05.simple_types
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestEncodings {
-  private val testDir = "/org/apache/daffodil/section05/simple_types/"
-
-  val runner = Runner(testDir, "Encodings.tdml")
-
-  @AfterClass def shutdown(): Unit = {
-    runner.reset
-  }
+object TestEncodings extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section05/simple_types/Encodings.tdml"
 }
 
-class TestEncodings {
-  import TestEncodings._
+class TestEncodings extends TdmlTests {
+  val tdmlSuite = TestEncodings
 
-  def test_f293u003_01(): Unit = { runner.runOneTest("f293u003_01") }
-  @Test def test_f293u003_02(): Unit = { runner.runOneTest("f293u003_02") }
-  @Test def test_f422u001_01(): Unit = { runner.runOneTest("f422u001_01") }
-  @Test def test_f422u001_02(): Unit = { runner.runOneTest("f422u001_02") }
-  @Test def test_f422u001_03(): Unit = { runner.runOneTest("f422u001_03") }
-  @Test def test_f746u002_01(): Unit = { runner.runOneTest("f746u002_01") }
-  @Test def test_f746u002_02(): Unit = { runner.runOneTest("f746u002_02") }
-  @Test def test_f746u002_03(): Unit = { runner.runOneTest("f746u002_03") }
-  @Test def test_f747u001_01(): Unit = { runner.runOneTest("f747u001_01") }
-  @Test def test_f747u001_02(): Unit = { runner.runOneTest("f747u001_02") }
-  @Test def test_f747u001_03(): Unit = { runner.runOneTest("f747u001_03") }
-  @Test def test_f769u002_01(): Unit = { runner.runOneTest("f769u002_01") }
-  @Test def test_f769u002_02(): Unit = { runner.runOneTest("f769u002_02") }
-  @Test def test_f769u002_03(): Unit = { runner.runOneTest("f769u002_03") }
-  @Test def test_f336u002_01(): Unit = { runner.runOneTest("f336u002_01") }
-  @Test def test_f336u002_02(): Unit = { runner.runOneTest("f336u002_02") }
-  @Test def test_f336u002_03(): Unit = { runner.runOneTest("f336u002_03") }
+  @Test def f293u003_01 = test
+  @Test def f293u003_02 = test
+  @Test def f422u001_01 = test
+  @Test def f422u001_02 = test
+  @Test def f422u001_03 = test
+  @Test def f746u002_01 = test
+  @Test def f746u002_02 = test
+  @Test def f746u002_03 = test
+  @Test def f747u001_01 = test
+  @Test def f747u001_02 = test
+  @Test def f747u001_03 = test
+  @Test def f769u002_01 = test
+  @Test def f769u002_02 = test
+  @Test def f769u002_03 = test
+  @Test def f336u002_01 = test
+  @Test def f336u002_02 = test
+  @Test def f336u002_03 = test
 }

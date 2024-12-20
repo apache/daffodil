@@ -17,27 +17,19 @@
 
 package org.apache.daffodil.section07.variables
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestSetVarWithValueLength {
-
-  val testDir = "/org/apache/daffodil/section07/variables/"
-  val runner = Runner(testDir, "setVarWIthValueLength.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset()
-  }
+object TestSetVarWithValueLength extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/variables/setVarWIthValueLength.tdml"
 }
 
-class TestSetVarWithValueLength {
-
-  import TestSetVarWithValueLength._
+class TestSetVarWithValueLength extends TdmlTests {
+  val tdmlSuite = TestSetVarWithValueLength
 
   // DAFFODIL-2629 Runtime SDE
-  @Test def testSetVarWithValueLength1() = { runner.runOneTest("setVarWithValueLength1") }
-  @Test def testSetVarWithValueLength2() = { runner.runOneTest("setVarWithValueLength2") }
-
+  @Test def setVarWithValueLength1 = test
+  @Test def setVarWithValueLength2 = test
 }

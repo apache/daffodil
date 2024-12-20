@@ -17,25 +17,20 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestInfosetWalker {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner2 = Runner(testDir, "infosetWalker.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner2.reset
-  }
+object TestInfosetWalker extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/infosetWalker.tdml"
 }
 
-class TestInfosetWalker {
-  import TestInfosetWalker._
+class TestInfosetWalker extends TdmlTests {
+  val tdmlSuite = TestInfosetWalker
 
-  @Test def test_infosetWalker_01() = { runner2.runOneTest("infosetWalker_01") }
+  @Test def infosetWalker_01 = test
   // DAFFODIL-2755
-  @Test def test_infosetWalker_02() = { runner2.runOneTest("infosetWalker_02") }
-  @Test def test_infosetWalker_03() = { runner2.runOneTest("infosetWalker_03") }
+  @Test def infosetWalker_02 = test
+  @Test def infosetWalker_03 = test
 }

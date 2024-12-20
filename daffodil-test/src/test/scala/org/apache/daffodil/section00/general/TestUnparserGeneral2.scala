@@ -17,24 +17,18 @@
 
 package org.apache.daffodil.section00.general
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestUnparserGeneral2 {
-  val testDir = "/org/apache/daffodil/section00/general/"
-  val runner2 = Runner(testDir, "testUnparserBitOrderOVC.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner2.reset
-  }
+object TestUnparserGeneral2 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section00/general/testUnparserBitOrderOVC.tdml"
 }
 
-class TestUnparserGeneral2 {
-
-  import TestUnparserGeneral2._
+class TestUnparserGeneral2 extends TdmlTests {
+  val tdmlSuite = TestUnparserGeneral2
 
   // test for DAFFODIL-1843
-  @Test def test_bitOrderOVC1() = { runner2.runOneTest("bitOrderOVC1") }
+  @Test def bitOrderOVC1 = test
 }

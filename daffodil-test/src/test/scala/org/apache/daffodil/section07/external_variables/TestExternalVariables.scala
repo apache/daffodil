@@ -17,70 +17,37 @@
 
 package org.apache.daffodil.section07.external_variables
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestExternalVariables {
-
-  val testDir = "/org/apache/daffodil/section07/external_variables/"
-  val runner = Runner(testDir, "external_variables.tdml")
-
-  @AfterClass def tearDown(): Unit = {
-    runner.reset
-  }
-
+object TestExternalVariables extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section07/external_variables/external_variables.tdml"
 }
 
-class TestExternalVariables {
+class TestExternalVariables extends TdmlTests {
+  val tdmlSuite = TestExternalVariables
 
-  import TestExternalVariables._
+  @Test def override_define_vars_01 = test
+  @Test def override_define_vars_02 = test
+  @Test def override_define_vars_04 = test
+  @Test def override_define_vars_05 = test
+  @Test def override_define_vars_06 = test
+  @Test def override_define_vars_07 = test
 
-  @Test def test_override_define_vars_01(): Unit = {
-    runner.runOneTest("override_define_vars_01")
-  }
+  @Test def access_default_predefined_vars = test
 
-  @Test def test_override_define_vars_02(): Unit = {
-    runner.runOneTest("override_define_vars_02")
-  }
-
-  @Test def test_override_define_vars_04(): Unit = {
-    runner.runOneTest("override_define_vars_04")
-  }
-
-  @Test def test_override_define_vars_05(): Unit = {
-    runner.runOneTest("override_define_vars_05")
-  }
-
-  @Test def test_override_define_vars_06(): Unit = {
-    runner.runOneTest("override_define_vars_06")
-  }
-
-  @Test def test_override_define_vars_07(): Unit = {
-    runner.runOneTest("override_define_vars_07")
-  }
-
-  @Test def test_access_default_predefined_vars(): Unit = {
-    runner.runOneTest("access_default_predefined_vars")
-  }
-
-  @Test def test_set_predefined_var(): Unit = {
-    runner.runOneTest("set_predefined_var")
-  }
+  @Test def set_predefined_var = test
 
   // Tests that we can specify a file in the parser
   // test case.
-  @Test def test_read_config_from_file(): Unit = {
-    runner.runOneTest("read_config_from_file")
-  }
+  @Test def read_config_from_file = test
 
   /**
    * Test that a default XMLNS binding isn't present. That would be broken
    * as this schema depends on unqualified child element names
    * (elementFormDefault unqualified, which is the default)
    */
-  @Test def test_testNoRootUnnecessaryBinding(): Unit = {
-    runner.runOneTest("testNoRootUnnecessaryBinding")
-  }
+  @Test def testNoRootUnnecessaryBinding = test
 }

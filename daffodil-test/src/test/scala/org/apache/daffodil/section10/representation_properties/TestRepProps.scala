@@ -17,37 +17,25 @@
 
 package org.apache.daffodil.section10.representation_properties
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestRepProps {
-  val testDir = "/org/apache/daffodil/section10/representation_properties/"
-  val runner = Runner(testDir, "RepProps.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
-
+object TestRepProps extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section10/representation_properties/RepProps.tdml"
 }
 
-class TestRepProps {
+class TestRepProps extends TdmlTests {
+  val tdmlSuite = TestRepProps
 
-  import TestRepProps._
+  @Test def repPropMissing = test
+  @Test def repPropMissing2 = test
+  @Test def repPropMissing3 = test
 
-  @Test def test_repPropMissing(): Unit = { runner.runOneTest("repPropMissing") }
-  @Test def test_repPropMissing2(): Unit = { runner.runOneTest("repPropMissing2") }
-  @Test def test_repPropMissing3(): Unit = { runner.runOneTest("repPropMissing3") }
-
-  @Test def test_hexBinary_01(): Unit = { runner.runOneTest("hexBinary_01") }
+  @Test def hexBinary_01 = test
 
   // These tests are temporary - see DFDL-994
-  @Test def test_temporaryDefaultProps_01(): Unit = {
-    runner.runOneTest("temporaryDefaultProps_01")
-  }
-  @Test def test_temporaryDefaultProps_02(): Unit = {
-    runner.runOneTest("temporaryDefaultProps_02")
-  }
-
+  @Test def temporaryDefaultProps_01 = test
+  @Test def temporaryDefaultProps_02 = test
 }

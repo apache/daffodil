@@ -17,28 +17,21 @@
 
 package org.apache.daffodil.runtime1.layers
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
+
+import org.junit.Test
+
 /* This section00 is for testing general features of DFDL that are
  * not related to any specific requirement
  */
 
-import org.apache.daffodil.tdml.Runner
-
-import org.junit.AfterClass
-import org.junit.Test
-
-object TestAISPayloadArmoring {
-  val testDir = "/org/apache/daffodil/layers/"
-  val runner = Runner(testDir, "ais.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestAISPayloadArmoring extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/layers/ais.tdml"
 }
 
-class TestAISPayloadArmoring {
+class TestAISPayloadArmoring extends TdmlTests {
+  val tdmlSuite = TestAISPayloadArmoring
 
-  import TestAISPayloadArmoring._
-
-  @Test def test_ais1(): Unit = { runner.runOneTest("ais1") }
-
+  @Test def ais1 = test
 }

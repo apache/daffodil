@@ -19,44 +19,32 @@ package org.apache.daffodil.runtime1.layers
 import scala.xml.Elem
 
 import org.apache.daffodil.core.util.TestUtils
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.Implicits.intercept
 import org.apache.daffodil.lib.util.Misc.getAMessage
 import org.apache.daffodil.lib.util.SchemaUtils
 import org.apache.daffodil.lib.xml.XMLUtils
 import org.apache.daffodil.runtime1.processors.parsers.ParseError
 import org.apache.daffodil.runtime1.processors.unparsers.UnparseError
-import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-object TestCheckDigit {
-
-  lazy val runner = Runner("/org/apache/daffodil/layers", "TestCheckDigit.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset
-  }
+object TestCheckDigit extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/layers/TestCheckDigit.tdml"
 }
 
-class TestCheckDigit {
-
-  import TestCheckDigit._
+class TestCheckDigit extends TdmlTests {
+  val tdmlSuite = TestCheckDigit
 
   //
   // These are regular TDML tests
   //
-  @Test def test_checkDigit_ok_01(): Unit = { runner.runOneTest("test_checkDigit_ok_01") }
-  @Test def test_checkDigit_bad_parse_short_01(): Unit = {
-    runner.runOneTest("test_checkDigit_bad_parse_short_01")
-  }
-  @Test def test_checkDigit_bad_invalid(): Unit = {
-    runner.runOneTest("test_checkDigit_bad_invalid")
-  }
-  @Test def test_checkDigit_unparse_ok_01(): Unit = {
-    runner.runOneTest("test_checkDigit_unparse_ok_01")
-  }
+  @Test def test_checkDigit_ok_01 = test
+  @Test def test_checkDigit_bad_parse_short_01 = test
+  @Test def test_checkDigit_bad_invalid = test
+  @Test def test_checkDigit_unparse_ok_01 = test
 
   //
   // These don't use the TDML framework

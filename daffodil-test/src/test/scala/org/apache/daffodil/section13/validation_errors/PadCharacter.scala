@@ -17,114 +17,30 @@
 
 package org.apache.daffodil.section13.validation_errors
 
-import org.apache.daffodil.lib.xml.XMLUtils
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.tdml.Runner
 
 import org.junit.Test
 
-class PadCharacter {
+object TestPadCharacter extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/section13/text_number_props/TextPad.tdml"
 
-  val tdml = XMLUtils.TDML_NAMESPACE
-  val dfdl = XMLUtils.DFDL_NAMESPACE
-  val xsd = XMLUtils.XSD_NAMESPACE
-  val tns = XMLUtils.EXAMPLE_NAMESPACE
+  override def createRunner() = Runner(tdmlDir, tdmlFile, validateTDMLFile = false)
+}
 
-  @Test def test_short_form_pad_char() = {
-    // This test demonstrates that you cannot use a literal whitespace character
-    // in the short form of the pad character's property binding syntax
-    val testSuite =
-      <tdml:testSuite suiteName="PadCharTests" description="Section 13 - Pad Character Tests"
-                      xmlns:tdml={tdml} xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:tns={tns}>
-        <tdml:defineSchema name="padCharSchema">
-          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
-          <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
-          <xs:element name="shortForm" type="xs:string" dfdl:textStringPadCharacter=" " />
-        </tdml:defineSchema>
+class TestPadCharacter extends TdmlTests {
+  val tdmlSuite = TestPadCharacter
 
-        <tdml:parserTestCase name="short_form_pad_char" root="shortForm" model="padCharSchema">
-          <tdml:document>
-            <tdml:documentPart type="text"><![CDATA[      hello]]></tdml:documentPart>
-          </tdml:document>
-          <tdml:errors>
-            <tdml:error>facet-valid</tdml:error>
-            <tdml:error>NonEmptyStringLiteral</tdml:error>
-          </tdml:errors>
-        </tdml:parserTestCase>
-      </tdml:testSuite>
+  // in the short form of the pad character's property binding syntax
+  @Test def short_form_pad_char = test
 
-    val runner = Runner(testSuite, validateTDMLFile = false)
-    runner.runOneTest("short_form_pad_char")
-    runner.reset
-  }
+  // This test demonstrates that you cannot use a literal whitespace character
+  // in the attribute (long) form of the pad character's property binding syntax
+  @Test def long_form_pad_char = test
 
-  @Test def test_long_form_pad_char() = {
-    // This test demonstrates that you cannot use a literal whitespace character
-    // in the attribute (long) form of the pad character's property binding syntax
-    val testSuite =
-      <tdml:testSuite suiteName="PadCharTests" description="Section 13 - Pad Character Tests"
-                      xmlns:tdml={tdml} xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:tns={tns}>
-        <tdml:defineSchema name="padCharSchema">
-          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
-          <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
-          <xs:element name="longForm" type="xs:string">
-            <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:format textStringPadCharacter=" "/>
-              </xs:appinfo>
-            </xs:annotation>
-          </xs:element>
-        </tdml:defineSchema>
-
-        <tdml:parserTestCase name="long_form_pad_char" root="longForm" model="padCharSchema">
-          <tdml:document>
-            <tdml:documentPart type="text"><![CDATA[      hello]]></tdml:documentPart>
-          </tdml:document>
-          <tdml:errors>
-            <tdml:error>facet-valid</tdml:error>
-            <tdml:error>NonEmptyStringLiteral</tdml:error>
-          </tdml:errors>
-        </tdml:parserTestCase>
-      </tdml:testSuite>
-
-    val runner = Runner(testSuite, validateTDMLFile = false)
-    runner.runOneTest("long_form_pad_char")
-    runner.reset
-  }
-
-  @Test def test_property_form_pad_char() = {
-    // This test demonstrates that you can use a literal whitespace character
-    // in the element (property) form of the pad character's property binding
-    // syntax but internal validation logic will throw an error
-    val testSuite =
-      <tdml:testSuite suiteName="PadCharTests" description="Section 13 - Pad Character Tests"
-                      xmlns:tdml={tdml} xmlns:dfdl={dfdl} xmlns:xs={xsd} xmlns:tns={tns}>
-        <tdml:defineSchema name="padCharSchema">
-          <xs:include schemaLocation="/org/apache/daffodil/xsd/DFDLGeneralFormat.dfdl.xsd" />
-          <dfdl:format ref="tns:GeneralFormat" textTrimKind="padChar" textPadKind="padChar" />
-          <xs:element name="propertyForm" type="xs:string">
-            <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:element>
-                  <dfdl:property name="textStringPadCharacter"><![CDATA[ ]]></dfdl:property>
-                </dfdl:element>
-              </xs:appinfo>
-            </xs:annotation>
-          </xs:element>
-        </tdml:defineSchema>
-
-        <tdml:parserTestCase name="property_form_pad_char" root="propertyForm" model="padCharSchema">
-          <tdml:document>
-            <tdml:documentPart type="text"><![CDATA[      hello]]></tdml:documentPart>
-          </tdml:document>
-          <tdml:errors>
-            <tdml:error>Schema Definition Error</tdml:error>
-            <tdml:error>whitespace</tdml:error>
-          </tdml:errors>
-        </tdml:parserTestCase>
-      </tdml:testSuite>
-
-    val runner = Runner(testSuite)
-    runner.runOneTest("property_form_pad_char")
-    runner.reset
-  }
+  // This test demonstrates that you can use a literal whitespace character
+  // in the element (property) form of the pad character's property binding
+  // syntax but internal validation logic will throw an error
+  @Test def property_form_pad_char = test
 }

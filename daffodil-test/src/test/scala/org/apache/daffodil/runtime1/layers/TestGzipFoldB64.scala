@@ -17,30 +17,21 @@
 
 package org.apache.daffodil.runtime1.layers
 
-import org.apache.daffodil.tdml.Runner
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestGzipFoldB64 {
-  private val testDir = "/org/apache/daffodil/layers/"
-  private val runner: Runner = Runner(testDir, "TestGzipFoldB64.tdml")
-
-  @AfterClass def shutDown(): Unit = {
-    runner.reset()
-  }
+object TestGzipFoldB64 extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/layers/TestGzipFoldB64.tdml"
 }
 
-class TestGzipFoldB64 {
+class TestGzipFoldB64 extends TdmlTests {
+  val tdmlSuite = TestGzipFoldB64
 
-  import TestGzipFoldB64._
-
-  @Test def test_gzipLayer1(): Unit = { runner.runOneTest("gzipLayer1") }
-  @Test def test_foldedIMFBase64Layers1(): Unit = {
-    runner.runOneTest("foldedIMFBase64Layers1")
-  }
-  @Test def test_foldedIMF1(): Unit = { runner.runOneTest("foldedIMF1") }
-  @Test def test_layersErr1(): Unit = { runner.runOneTest("layersErr1") }
-  @Test def test_base64GzipLayers1(): Unit = { runner.runOneTest("base64GzipLayers1") }
-
+  @Test def gzipLayer1 = test
+  @Test def foldedIMFBase64Layers1 = test
+  @Test def foldedIMF1 = test
+  @Test def layersErr1 = test
+  @Test def base64GzipLayers1 = test
 }

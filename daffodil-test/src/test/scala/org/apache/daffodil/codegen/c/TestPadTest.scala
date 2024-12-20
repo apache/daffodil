@@ -17,33 +17,37 @@
 
 package org.apache.daffodil.codegen.c
 
+import org.apache.daffodil.junit.tdml.TdmlSuite
+import org.apache.daffodil.junit.tdml.TdmlTests
 import org.apache.daffodil.lib.api.TDMLImplementation
 import org.apache.daffodil.tdml.Runner
 
-import org.junit.AfterClass
 import org.junit.Test
 
-object TestPadTest {
-  val testDir = "/org/apache/daffodil/codegen/c/"
-  val runnerS = Runner(testDir, "padtest.tdml", TDMLImplementation.Daffodil)
-  val runnerC = Runner(testDir, "padtest.tdml", TDMLImplementation.DaffodilC)
-
-  @AfterClass def shutDown(): Unit = {
-    runnerS.reset()
-    runnerC.reset()
-  }
+object TestPadTest extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/padtest.tdml"
 }
 
-class TestPadTest {
-  import TestPadTest._
+class TestPadTest extends TdmlTests {
+  val tdmlSuite = TestPadTest
 
-  @Test def s_padtest_00(): Unit = { runnerS.runOneTest("padtest_00") }
-  @Test def s_padtest_01(): Unit = { runnerS.runOneTest("padtest_01") }
-  @Test def s_padtest_16(): Unit = { runnerS.runOneTest("padtest_16") }
-  @Test def s_padtest_17(): Unit = { runnerS.runOneTest("padtest_17") }
+  @Test def padtest_00 = test
+  @Test def padtest_01 = test
+  @Test def padtest_16 = test
+  @Test def padtest_17 = test
+}
 
-  @Test def c_padtest_00(): Unit = { runnerC.runOneTest("padtest_00") }
-  @Test def c_padtest_01(): Unit = { runnerC.runOneTest("padtest_01") }
-  @Test def c_padtest_16(): Unit = { runnerC.runOneTest("padtest_16") }
-  @Test def c_padtest_17(): Unit = { runnerC.runOneTest("padtest_17") }
+object TestPadTestC extends TdmlSuite {
+  val tdmlResource = "/org/apache/daffodil/codegen/c/padtest.tdml"
+
+  override def createRunner() = Runner(tdmlDir, tdmlFile, TDMLImplementation.DaffodilC)
+}
+
+class TestPadTestC extends TdmlTests {
+  val tdmlSuite = TestPadTestC
+
+  @Test def padtest_00 = test
+  @Test def padtest_01 = test
+  @Test def padtest_16 = test
+  @Test def padtest_17 = test
 }
