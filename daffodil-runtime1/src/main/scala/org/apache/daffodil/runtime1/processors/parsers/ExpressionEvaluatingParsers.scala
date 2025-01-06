@@ -126,6 +126,7 @@ final class AssertExpressionEvaluationParser(
   with AssertParserMixin {
 
   def parse(start: PState): Unit = {
+    Logger.log.debug(s"This is ${toString}")
     //
     // This now informs us of the success/failure of the expression
     // evaluation via side-effect on the start state passed here.
