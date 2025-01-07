@@ -278,7 +278,7 @@ final class Union private (val xmlArg: Node, simpleTypeDef: SimpleTypeDefBase)
   private lazy val immediateTypeXMLs = xml \ "simpleType"
   private lazy val immediateTypes: Seq[SimpleTypeDefBase] = immediateTypeXMLs.map { node =>
     {
-      LocalSimpleTypeDef(node, this)
+      LocalSimpleTypeDef(node, schemaDocument)
     }
   }
 

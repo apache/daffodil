@@ -152,13 +152,6 @@ trait FindPropertyMixin extends PropTypes {
    */
   protected def lookupProperty(pname: String): PropertyLookupResult
 
-  /**
-   * the PropCache plays two roles in different phases of the compilation.
-   * First for property lookups, second for determining which properties are present, but unused.
-   *
-   * These two uses are incompatible as the second does propagation of used properties using propCache.
-   * The first use must therefore be over. Then the caches are repurposed for the second algorithm.
-   */
   val propCache = new scala.collection.mutable.LinkedHashMap[String, PropertyLookupResult]
 
   /**
