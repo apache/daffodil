@@ -18,7 +18,6 @@
 package org.apache.daffodil.core.dsom
 
 import java.io.File
-import scala.collection.mutable
 import scala.xml.Node
 
 import org.apache.daffodil.core.compiler.RootSpec
@@ -554,127 +553,8 @@ final class SchemaSet private (
     .flatMap(_.defineVariables)
     .union(predefinedVars)
 
-  private val doneSimpleTypeDefs: mutable.Set[SimpleTypeDefBase] = mutable.Set()
-
-  /**
-   * Used to propagate used properties through all element/group references, element declarations
-   * and simple types. This is necessary because we can have elements being referenced
-   * by multiple element refs, where the first element gets its propCache populated with
-   * the properties it has used, and the second element doesn't because it shares the parsers
-   * of the first element.
-   *
-   * With this function, we copy used properties from element refs to elements, group refs to groups,
-   * from elements to their simple types, from enclosing elements to their local simple types,
-   * and from simple types to their base types. This function is recursive when processing
-   * simple type definitions that reference simple type defs whose base is a primitive type.
-   *
-   * Note: this is clobbering the property caches, making them subsequently unusable
-   * for their initial property lookup uses. Hence, this must be done in a pass that
-   * happens only after all other schema compilation involving properties is complete.
-   */
-  def propagateUsedPropertiesForThis(asc: AnnotatedSchemaComponent): Unit = {
-    asc match {
-      case ggd: GlobalGroupDef => {
-        val groupRefs = root.refMap.getOrElse(ggd, Seq.empty)
-        groupRefs.foreach { case (_, grs) =>
-          grs.foreach { rs =>
-            val gr = rs.from.asInstanceOf[AnnotatedSchemaComponent]
-            gr.propCache.foreach { kv =>
-              if (ggd.formatAnnotation.justThisOneProperties.contains(kv._1)) {
-                ggd.propCache.put(kv._1, kv._2)
-              }
-            }
-          }
-        }
-      }
-      case ged: GlobalElementDecl => {
-        val elementRefs = root.refMap.getOrElse(ged, Seq.empty)
-        elementRefs.foreach { case (_, ers) =>
-          ers.foreach { rs =>
-            val er = rs.from.asInstanceOf[AnnotatedSchemaComponent]
-            er.propCache.foreach { kv =>
-              if (ged.formatAnnotation.justThisOneProperties.contains(kv._1)) {
-                ged.propCache.put(kv._1, kv._2)
-              }
-            }
-          }
-        }
-      }
-      case gstd: GlobalSimpleTypeDef if gstd.bases.nonEmpty => {
-        val elementsOfType = root.refMap.getOrElse(gstd, Seq.empty)
-        elementsOfType.foreach { case (_, eles) =>
-          eles.foreach { rs =>
-            val er = rs.from.asInstanceOf[AnnotatedSchemaComponent]
-            er.propCache.foreach { kv =>
-              if (gstd.formatAnnotation.justThisOneProperties.contains(kv._1)) {
-                gstd.propCache.put(kv._1, kv._2)
-              }
-            }
-          }
-        }
-        doneSimpleTypeDefs.add(gstd)
-      }
-      case lstd: LocalSimpleTypeDef => {
-        val enclElements = lstd.enclosingElements
-        enclElements.foreach { ee =>
-          ee.propCache.foreach { kv =>
-            if (lstd.formatAnnotation.justThisOneProperties.contains(kv._1)) {
-              lstd.propCache.put(kv._1, kv._2)
-            }
-          }
-        }
-        doneSimpleTypeDefs.add(lstd)
-      }
-      case gstd: GlobalSimpleTypeDef if gstd.bases.isEmpty => {
-        val othersReferencingThis =
-          root.typeBaseChainMap
-            .getOrElse(gstd, Seq.empty) ++ root.refMap.getOrElse(gstd, Seq.empty)
-        othersReferencingThis.foreach { case (_, refs) =>
-          refs.collect {
-            case rs if rs.from.isInstanceOf[SimpleTypeDefBase] =>
-              val std = rs.from.asInstanceOf[SimpleTypeDefBase]
-              if (!doneSimpleTypeDefs.contains(std)) {
-                propagateUsedPropertiesForThis(std)
-              }
-              std.propCache.foreach(kv => gstd.propCache.put(kv._1, kv._2))
-            case rs =>
-              val er = rs.from.asInstanceOf[AnnotatedSchemaComponent]
-              er.propCache.foreach { kv =>
-                if (gstd.formatAnnotation.justThisOneProperties.contains(kv._1)) {
-                  gstd.propCache.put(kv._1, kv._2)
-                }
-              }
-          }
-        }
-        doneSimpleTypeDefs.add(gstd)
-      }
-      case _ => // do nothing
-    }
-  }
-
-  /**
-   * Propagate used properties through AnnotatedSchemaComponent.
-   * This must be done after compilation is complete to ensure all properties
-   * that are used are accounted for.
-   * This is part of the algorithm for identifying properties that are present, but unused.
-   *
-   * Note: This algorithm repurposes propCaches which are no longer usable
-   * for property lookups after this is done.
-   */
-  private lazy val propagateUsedProperties = {
-    root.allComponents.collect { case asc: AnnotatedSchemaComponent =>
-      propagateUsedPropertiesForThis(asc)
-    }
-  }
-
-  /**
-   * check unused properties on annotated schema component, must be done
-   * after compilation is completed and used properties are propagated
-   */
-  private lazy val checkUnusedProperties = LV('checkUnusedProperties) {
-    root.allComponents.collect { case asc: AnnotatedSchemaComponent =>
-      asc.checkUnusedProperties
-    }
+  private lazy val checkUnusedProperties = LV('hasUnusedProperties) {
+    root.checkUnusedProperties
   }.value
 
   /**
@@ -705,15 +585,6 @@ final class SchemaSet private (
       // take into account.
       val hasErrors = super.isError
       if (!hasErrors) {
-        // must be called after compilation is done
-        // this is a central part of the algorithm by which we identify properties that are present,
-        // but not used (see checkUnusedProperties).
-        // The overall algorithm is expressed in multiple places.
-        // This part handles the propagation of properties from referencer to referenced object
-        // when property combining occurs.
-        propagateUsedProperties
-        // The rest of the algorithm is then just traversing every AnnotatedSchemaComponent
-        // to see what properties are present on them that do not appear in the propCache.
         // must be last, after all compilation is done.
         // only check this if there are no errors.
         checkUnusedProperties
@@ -830,9 +701,8 @@ class TransitiveClosureSchemaComponents private () extends TransitiveClosure[Sch
         st.bases ++
           st.optRestriction ++
           st.optUnion
-      case r: Restriction => r.optUnion.toSeq ++ r.enumerations
+      case r: Restriction => r.optUnion.toSeq
       case u: Union => u.unionMemberTypes
-      case e: EnumerationDef => Nil
       case c: ComplexTypeBase => Seq(c.modelGroup)
       case gd: GlobalGroupDef => gd.groupMembers
       case stmt: DFDLStatement => Nil

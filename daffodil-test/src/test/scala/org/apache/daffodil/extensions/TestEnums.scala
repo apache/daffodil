@@ -43,8 +43,6 @@ class TestEnums {
 
   @Test def test_emptyRepValues(): Unit = { runner2.runOneTest("emptyRepValues") }
   @Test def test_noRepValues(): Unit = { runner2.runOneTest("noRepValues") }
-  // DFDL-2798
-  @Test def test_noRepValues2(): Unit = { runner2.runOneTest("noRepValues2") }
   @Test def test_enumRepTypeNonInt(): Unit = { runner2.runOneTest("enumRepTypeNonInt") }
 
 }

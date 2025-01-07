@@ -291,7 +291,6 @@ final class SharedFactory[SharedType] {
 trait AnnotatedSchemaComponent
   extends SchemaComponent
   with AnnotatedMixin
-  with ResolvesLocalProperties
   with OverlapCheckMixin {
 
   protected override def initialize(): Unit = {
@@ -377,45 +376,6 @@ trait AnnotatedSchemaComponent
   final protected lazy val defaultFormatChain: ChainPropProvider = {
     val res = schemaDocument.formatAnnotation.formatChain
     res
-  }
-
-  /**
-   * Used to look for DFDL properties on Annotated Schema Components that
-   * have not been accessed and record it as a warning. This function uses the
-   * property cache state to determine which properties have been accessed, so
-   * this function must only be called after all property accesses are complete
-   * (e.g. schema compilation has finished) and after propagateUsedProperties
-   * has been called on all AnnotatedSchemaComponents, to ensure there are no false
-   * positives/negatives.
-   *
-   * Note: This is not a recursive walk. It identifies and issues warnings about
-   * unaccessed properties on just one AnnotatedSchemaComponent
-   */
-  final lazy val checkUnusedProperties: Unit = {
-    // Get the properties defined on this component and what it refers to
-    val localProps = formatAnnotation.justThisOneProperties
-    val refProps = optReferredToComponent
-      .map { _.formatAnnotation.justThisOneProperties }
-      .getOrElse(Map.empty)
-
-    val usedProperties = propCache
-
-    localProps.foreach { case (prop, (value, _)) =>
-      if (!usedProperties.contains(prop)) {
-        SDW(WarnID.IgnoreDFDLProperty, "DFDL property was ignored: %s=\"%s\"", prop, value)
-      }
-    }
-
-    refProps.foreach { case (prop, (value, _)) =>
-      if (!usedProperties.contains(prop)) {
-        optReferredToComponent.get.SDW(
-          WarnID.IgnoreDFDLProperty,
-          "DFDL property was ignored: %s=\"%s\"",
-          prop,
-          value
-        )
-      }
-    }
   }
 }
 

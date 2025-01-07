@@ -305,5 +305,4 @@ final class EnumerationDef(xml: Node, parentType: SimpleTypeDefBase)
   protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean =
     Assert.invariantFailed("Should not be called")
 
-  override val diagnosticDebugNameImpl = "enumeration"
 }

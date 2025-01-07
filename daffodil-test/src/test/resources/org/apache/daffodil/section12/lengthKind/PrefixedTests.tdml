@@ -2575,7 +2575,8 @@
                 dfdl:lengthKind="prefixed"
                 dfdl:prefixLengthType="ex:prefixType"
                 dfdl:prefixIncludesPrefixLength="no"
-                type="xs:nonNegativeInteger" dfdl:lengthUnits="bits"/>
+                type="xs:nonNegativeInteger"
+                dfdl:lengthUnits="bits"/>
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="lengthUnitsBitsForNonNegativeInteger_prefixed" root="r1" model="lengthUnitsBitsForNonNegativeInteger_prefixed"

@@ -136,14 +136,11 @@ class XercesSchemaFileLocation(
 
   // we have to override equals and hashCode because the OOlag error checks for duplicates in its error list
   override def equals(obj: Any): Boolean = {
-    // sometimes what OOlag error/warning is comparing against isn't a XercesSchemaFileLocation, but
-    // is a schemaFileLocation instead, since XercesSchemaFileLocation is a SchemaFileLocation as well,
-    // we just use that for comparison
-    val sflObj = obj.asInstanceOf[SchemaFileLocation]
-    sflObj.lineNumber.getOrElse("") == this.lineNumber.getOrElse("") &&
-    sflObj.columnNumber.getOrElse("") == this.columnNumber.getOrElse("") &&
-    sflObj.diagnosticFile == this.diagnosticFile &&
-    sflObj.diagnosticDebugName == this.diagnosticDebugName
+    val xsflObj = obj.asInstanceOf[XercesSchemaFileLocation]
+    xsflObj.xercesError.getLineNumber == this.xercesError.getLineNumber &&
+    xsflObj.xercesError.getColumnNumber == this.xercesError.getColumnNumber &&
+    xsflObj.xercesError.getSystemId == this.xercesError.getSystemId &&
+    xsflObj.schemaFileLocation == this.schemaFileLocation
   }
 
   override def hashCode: Int = {
