@@ -230,32 +230,28 @@ abstract class CombinatorParser(override val context: RuntimeData)
 final class SeqCompParser(
   context: RuntimeData,
   val childParsers: Vector[Parser],
-  testAssert: Vector[Parser],
 ) extends CombinatorParser(context) {
   override lazy val runtimeDependencies = Vector()
   override def childProcessors = childParsers
 
   override def nom = "seq"
 
-  val numChildParsers = childParsers.size
+  val discrimExpressions = childParsers.collect{ case ae: AssertExpressionEvaluationParser if (ae.discrim) => ae }
+  val nonDiscrimChildren = childParsers.diff(discrimExpressions)
 
   def parse(pstate: PState): Unit = {
-    var i: Int = 0
-    while (i < numChildParsers) {
-      val parser = childParsers(i)
-      parser.parse1(pstate)
-      if (pstate.processorStatus ne Success) {
-        if (testAssert.nonEmpty) {
-          testAssert.foreach { ap =>
-            pstate.withTempSuccess(ap.parse1)
-          }
-        }
-        return
-      }
-      i += 1
+    for (p <- nonDiscrimChildren) {
+      if (pstate.processorStatus eq Success)
+        p.parse1(pstate)
+    }
+
+    discrimExpressions.foreach { d =>
+      if (pstate.processorStatus eq Success)
+        d.parse1(pstate)
+      else
+        pstate.withTempSuccess(d.parse1)
     }
   }
-
 }
 
 class ChoiceParser(ctxt: RuntimeData, val childParsers: Vector[Parser])

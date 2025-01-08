@@ -23,7 +23,6 @@ object INoWarn { ImplicitsSuppressUnusedImportWarning() }
 import org.apache.daffodil.core.compiler.ForParser
 import org.apache.daffodil.core.compiler.ForUnparser
 import org.apache.daffodil.core.dsom._
-import org.apache.daffodil.runtime1.processors.parsers.AssertExpressionEvaluationParser
 import org.apache.daffodil.runtime1.processors.parsers.NadaParser
 import org.apache.daffodil.runtime1.processors.parsers.SeqCompParser
 import org.apache.daffodil.runtime1.processors.unparsers.SeqCompUnparser
@@ -90,10 +89,6 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram])
       _.isInstanceOf[NadaParser]
     }
 
-  lazy val assertExpressionChildren = parserChildren.filter {
-    _.isInstanceOf[AssertExpressionEvaluationParser]
-  }
-
   final override lazy val parser = {
     if (parserChildren.isEmpty) new NadaParser(context.runtimeData)
     else if (parserChildren.length == 1) parserChildren.head
@@ -101,7 +96,6 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram])
       new SeqCompParser(
         context.runtimeData,
         parserChildren.toVector,
-        assertExpressionChildren.toVector,
       )
   }
 
