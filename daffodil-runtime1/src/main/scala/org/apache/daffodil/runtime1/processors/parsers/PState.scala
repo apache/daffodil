@@ -61,7 +61,6 @@ import org.apache.daffodil.runtime1.processors.NonTermRuntimeData
 import org.apache.daffodil.runtime1.processors.ParseOrUnparseState
 import org.apache.daffodil.runtime1.processors.ProcessorResult
 import org.apache.daffodil.runtime1.processors.RuntimeData
-import org.apache.daffodil.runtime1.processors.Success
 import org.apache.daffodil.runtime1.processors.TermRuntimeData
 import org.apache.daffodil.runtime1.processors.VariableInstance
 import org.apache.daffodil.runtime1.processors.VariableMap
@@ -598,12 +597,13 @@ final class PState private (
    * enclosing sequence content parses or not as the assert expression may be
    * used as a discriminator for the choice branch.
    */
-  def withTempSuccess(func: (PState) => Unit): Unit = {
+  def withTempSuccess(func: (PState) => Unit): ProcessorResult = {
     val priorProcessorStatus = processorStatus
     setSuccess()
     func(this)
-    if (processorStatus eq Success)
-      _processorStatus = priorProcessorStatus
+    val funcStatus = processorStatus
+    _processorStatus = priorProcessorStatus
+    funcStatus
   }
 
   def suspensions = Seq.empty
