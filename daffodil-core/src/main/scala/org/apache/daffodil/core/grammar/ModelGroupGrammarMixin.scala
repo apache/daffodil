@@ -52,7 +52,7 @@ trait ModelGroupGrammarMixin
       dfdlScopeBegin ~ // newVariableInstance
       dfdlSetVariableStatements ~
       groupLeftFraming ~ groupContentWithInitiatorTerminator ~ groupRightFraming ~
-      dfdlExpressionStatementEvaluations ~ // The rest of the Assert and Discriminator statements
+      dfdlAssertDiscrimExpressionStatementEvaluations ~ // The rest of the Assert and Discriminator statements
       dfdlScopeEnd
   }
 
