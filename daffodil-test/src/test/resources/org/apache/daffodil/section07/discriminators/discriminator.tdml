@@ -861,6 +861,7 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Failed to populate ex:ints</tdml:error>
       <tdml:error>Unable to parse xs:int from text: a</tdml:error>
+      <tdml:error>Schema context: ex:int2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
