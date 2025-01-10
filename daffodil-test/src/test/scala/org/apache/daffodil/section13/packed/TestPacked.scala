@@ -77,6 +77,7 @@ class TestPacked {
 
   @Test def testPackedNegativeUnsigned(): Unit = { runner.runOneTest("packedNegativeUnsigned") }
   @Test def testPackedIntTooLarge(): Unit = { runner.runOneTest("packedIntTooLarge") }
+  @Test def testPackedIntMax(): Unit = { runner.runOneTest("packedIntMax") }
 
   @Test def testIBM4690Charset01(): Unit = { runner.runOneTest("IBM4690Charset01") }
   @Test def testIBM4690Charset02(): Unit = { runner.runOneTest("IBM4690Charset02") }

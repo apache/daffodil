@@ -1045,7 +1045,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <int01>214783647</int01>
+        <ex:int01>2147483647</ex:int01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
