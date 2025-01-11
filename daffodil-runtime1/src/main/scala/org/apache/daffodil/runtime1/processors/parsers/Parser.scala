@@ -236,36 +236,23 @@ final class SeqCompParser(
 
   override def nom = "seq"
 
-  val assertDiscrimExpressions = childParsers.collect { case ae: AssertExpressionEvaluationParser => ae }
-  val discrimExpressions = assertDiscrimExpressions.filter { _.discrim }
-  val assertExpressions = assertDiscrimExpressions.filterNot { _.discrim }
-  val nonAssertChildren = childParsers.diff(assertExpressions)
+  val optDiscrimParser = childParsers.collectFirst { case ae: AssertExpressionEvaluationParser if (ae.discrim) => ae }
+  val nonDiscrimChildren = if (optDiscrimParser.isDefined) childParsers.diff(Seq(optDiscrimParser.get)) else childParsers
 
   def parse(pstate: PState): Unit = {
     var i = 0
 
     // Handle all non assert/discriminator child parsers first
-    while ((i < nonAssertChildren.size) && (pstate.processorStatus eq Success)) {
-        nonAssertChildren(i).parse1(pstate)
+    while ((i < nonDiscrimChildren.size) && (pstate.processorStatus eq Success)) {
+        nonDiscrimChildren(i).parse1(pstate)
         i += 1
     }
 
-    // Handle all discriminator expressions statements after sequence body
-    i = 0
-    while (i < discrimExpressions.size) {
-      val de = discrimExpressions(i)
+    if (optDiscrimParser.isDefined) {
       if (pstate.processorStatus eq Success)
-        de.parse1(pstate)
+        optDiscrimParser.get.parse1(pstate)
       else
-        pstate.withTempSuccess(de.parse1)
-      i += 1
-    }
-
-    // Handle all non discriminator assert statements last
-    i = 0
-    while ((i < assertExpressions.size) && (pstate.processorStatus eq Success)) {
-        assertExpressions(i).parse1(pstate)
-        i += 1
+        pstate.withTempSuccess(optDiscrimParser.get.parse1)
     }
   }
 }
